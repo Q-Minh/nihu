@@ -1,0 +1,27 @@
+function sphere = create_sphere(R, nR)
+%CREATE_SPHERE  Create a sphere volume mesh
+%   SPHERE  = CREATE_SPHERE(R, N) creates a sphere volume model with radius
+%   R and division N. The sphere is created as a "blown up cube" with
+%   parameters L = [2 2 2] and Ncube = [2N 2N 2N], so N means the number of
+%   elements along the radius
+%
+% See also: CREATE_LINE, CREATE_SLAB, CREATE_CIRCLE, CREATE_CIRCLE_QUADRANT,
+% CREATE_BRICK, CREATE_BRICK_BOUNDARY, CREATE_SPHERE_BOUNDARY,
+% CREATE_CATSEYE
+
+%   Copyright 2008-2010 P. Fiala
+%   Budapest University of Technology and Economics
+%   Dept. of Telecommunications
+
+% Last modifed: 02.12.2009
+
+%% Parameter check
+error(nargchk(2, 2, nargin, 'struct'));
+
+%%
+sphere = translate_mesh(create_brick(2, nR*2), [-1, -1, -1]);
+nodes = sphere.Nodes(:,2:4);
+nodes = nodes .* repmat(max(abs(nodes), [], 2)./sqrt(dot(nodes,nodes,2)),1,3);
+nodes(isnan(nodes)) = 0;
+sphere.Nodes(:,2:4) = R * nodes;
+end

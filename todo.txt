@@ -1,0 +1,10 @@
+NiHu toolbox improvement ideas and TODO:
+	- make model_mkc faster for infinite elements
+	- FEM/IEM multiple frequency solvers
+	- indirect BEM / indirect multipole BEM
+	- IEM: support for Jacobi polynomial based solution
+	- IEM: project nodes from section
+	- INVMAP: bounding box for infinite elements faster
+	- IEM: Rewrite matrix generation files for new IE_SHAPE functions
+	- TEST: write test files for packages
+	- DEMO: invmap demo

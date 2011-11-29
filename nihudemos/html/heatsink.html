@@ -1,0 +1,217 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   
+      <!--
+This HTML is auto-generated from an M-file.
+To make changes, update the M-file and republish this document.
+      -->
+      <title>Create volume mesh of a heat sink</title>
+      <meta name="generator" content="MATLAB 7.8">
+      <meta name="date" content="2009-11-30">
+      <meta name="m-file" content="heatsink"><style type="text/css">
+
+body {
+  background-color: white;
+  margin:10px;
+}
+
+h1 {
+  color: #990000; 
+  font-size: x-large;
+}
+
+h2 {
+  color: #990000;
+  font-size: medium;
+}
+
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows. */ 
+p,h1,h2,div.content div {
+  max-width: 600px;
+  /* Hack for IE6 */
+  width: auto !important; width: 600px;
+}
+
+pre.codeinput {
+  background: #EEEEEE;
+  padding: 10px;
+}
+@media print {
+  pre.codeinput {word-wrap:break-word; width:100%;}
+} 
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.codeoutput {
+  color: #666666;
+  padding: 10px;
+}
+
+pre.error {
+  color: red;
+}
+
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+  </style></head>
+   <body>
+      <div class="content">
+         <h1>Create volume mesh of a heat sink</h1>
+         <!--introduction-->
+         <p>This example demonstrates how to use the toolbox  <tt>NIHU</tt> to generate the finite element volume mesh of a heat sink.
+         </p>
+         <!--/introduction-->
+         <h2>Contents</h2>
+         <div>
+            <ul>
+               <li><a href="#1">Geometrical and mesh parameters</a></li>
+               <li><a href="#2">Build cross section</a></li>
+               <li><a href="#5">Build the volume mesh</a></li>
+            </ul>
+         </div>
+         <h2>Geometrical and mesh parameters<a name="1"></a></h2>
+         <p>The geometrical and mesh parameters of the heat sink are defined below: All the dimensions are expressed in cm.</p><pre class="codeinput">L = 6;          <span class="comment">% total width of the heat sink</span>
+D = 4;          <span class="comment">% total depth of the heat sink</span>
+H = 2.5;        <span class="comment">% total height of the heat sink</span>
+h1 = .3;        <span class="comment">% total height of the bottom slab</span>
+h2 = 2;         <span class="comment">% height of the internal arms</span>
+n = 12;         <span class="comment">% number of arms</span>
+l = L/(n*2-1);  <span class="comment">% width of an arm</span>
+
+Le = .05;       <span class="comment">% element length</span>
+</pre><h2>Build cross section<a name="2"></a></h2>
+         <p>The heat sink is created by meshing its cross section and extruding it to form a volume mesh. The cross section is built by
+            creating its bounding slab
+         </p><pre class="codeinput">mesh = create_slab([L,H],ceil([L,H]/Le));
+figure;
+plot_mesh(mesh);
+</pre><img vspace="5" hspace="5" src="heatsink_01.png" alt=""> <p>The internal arms are shorter than the two side arms. This is reached by removing the top of the cross section at the internal
+            positions using the toolbox function <a href="matlab:doc('mesh_select')">mesh_select</a> and manual mesh structure modifications.
+         </p><pre class="codeinput">eps = 1e-3; <span class="comment">% tolerance</span>
+exp = sprintf(<span class="string">'x &lt; %f | x &gt; %f | y &lt; %f'</span>, l+eps, L-l-eps, h2+eps);
+<span class="comment">% find the indices of elements and nodes that satisfy the expression</span>
+[nodind, elind] = mesh_select(mesh, exp, <span class="string">'ind'</span>);
+<span class="comment">% select only the appropriate elements and nodes manually</span>
+mesh.Elements = mesh.Elements(elind,:);
+mesh.Nodes = mesh.Nodes(nodind,:);
+
+figure;
+plot_mesh(mesh);
+</pre><img vspace="5" hspace="5" src="heatsink_02.png" alt=""> <p>The individual arms are created by removing the elements between neighboring arms using the toolbox function <a href="matlab:doc('mesh_select')">mesh_select</a> and manual removing.
+         </p><pre class="codeinput"><span class="keyword">for</span> i = 1 : n-1
+    start = (2*i-1)*l;
+    stop = 2*i*l;
+    exp = sprintf(<span class="string">'x &lt; %f | x &gt; %f | y &lt; %f'</span>, start+eps, stop-eps, h1+eps);
+    [nodind, elind] = mesh_select(mesh, exp, <span class="string">'ind'</span>);
+    mesh.Elements = mesh.Elements(elind,:);
+    mesh.Nodes = mesh.Nodes(nodind,:);
+<span class="keyword">end</span>
+
+figure;
+plot_mesh(mesh);
+</pre><img vspace="5" hspace="5" src="heatsink_03.png" alt=""> <h2>Build the volume mesh<a name="5"></a></h2>
+         <p>The volume mesh is created from the cross section by rotating it into the <img src="heatsink_eq36973.png" alt="$xz$"> plane followed by extrusion along the <img src="heatsink_eq44020.png" alt="$y$"> direction.
+         </p><pre class="codeinput">mesh = rotate_mesh(mesh, [0 0 0], [1 0 0], pi/2);
+ny = ceil(D/Le);    <span class="comment">% number of elements in the y direction</span>
+mesh = extrude_mesh(mesh, [0 D 0]/ny, ny);
+
+figure;
+plot_mesh(mesh);
+view(3);
+</pre><img vspace="5" hspace="5" src="heatsink_04.png" alt=""> <p>The unit of mesh dimensions are changed from cm to m by scaling by a factor of <img src="heatsink_eq35179.png" alt="$1/100$">, using the toolbox function <a href="matlab:doc('scale_mesh')">scale_mesh</a>.
+         </p><pre class="codeinput">mesh = scale_mesh(mesh, 1/100);
+</pre><p class="footer"><br>
+            Published with MATLAB&reg; 7.8<br></p>
+      </div>
+      <!--
+##### SOURCE BEGIN #####
+%% Create volume mesh of a heat sink
+% This example demonstrates how to use the toolbox  |NIHU| to generate the
+% finite element volume mesh of a heat sink.
+
+%% Geometrical and mesh parameters
+% The geometrical and mesh parameters of the heat sink are defined below:
+% All the dimensions are expressed in cm.
+L = 6;          % total width of the heat sink
+D = 4;          % total depth of the heat sink
+H = 2.5;        % total height of the heat sink
+h1 = .3;        % total height of the bottom slab
+h2 = 2;         % height of the internal arms
+n = 12;         % number of arms
+l = L/(n*2-1);  % width of an arm
+
+Le = .05;       % element length
+
+%% Build cross section
+% The heat sink is created by meshing its cross section and extruding it to
+% form a volume mesh.
+% The cross section is built by creating its bounding slab
+mesh = create_slab([L,H],ceil([L,H]/Le));
+figure;
+plot_mesh(mesh);
+
+%%
+% The internal arms are shorter than the two side arms. This is reached by
+% removing the top of the cross section at the internal positions using the
+% toolbox function <matlab:doc('mesh_select') mesh_select> and manual mesh structure modifications.
+eps = 1e-3; % tolerance
+exp = sprintf('x < %f | x > %f | y < %f', l+eps, L-l-eps, h2+eps);
+% find the indices of elements and nodes that satisfy the expression
+[nodind, elind] = mesh_select(mesh, exp, 'ind');
+% select only the appropriate elements and nodes manually
+mesh.Elements = mesh.Elements(elind,:);
+mesh.Nodes = mesh.Nodes(nodind,:);
+
+figure;
+plot_mesh(mesh);
+
+%%
+% The individual arms are created by removing the elements between
+% neighboring arms using the toolbox function <matlab:doc('mesh_select') mesh_select> and manual
+% removing.
+for i = 1 : n-1
+    start = (2*i-1)*l;
+    stop = 2*i*l;
+    exp = sprintf('x < %f | x > %f | y < %f', start+eps, stop-eps, h1+eps);
+    [nodind, elind] = mesh_select(mesh, exp, 'ind');
+    mesh.Elements = mesh.Elements(elind,:);
+    mesh.Nodes = mesh.Nodes(nodind,:);
+end
+
+figure;
+plot_mesh(mesh);
+
+%% Build the volume mesh
+% The volume mesh is created from the cross section by rotating it into the
+% $xz$ plane followed by extrusion along the $y$ direction.
+mesh = rotate_mesh(mesh, [0 0 0], [1 0 0], pi/2);
+ny = ceil(D/Le);    % number of elements in the y direction
+mesh = extrude_mesh(mesh, [0 D 0]/ny, ny);
+
+figure;
+plot_mesh(mesh);
+view(3);
+
+%% 
+% The unit of mesh dimensions are changed from cm to m by scaling by a
+% factor of $1/100$, using the toolbox function <matlab:doc('scale_mesh') scale_mesh>.
+mesh = scale_mesh(mesh, 1/100);
+##### SOURCE END #####
+-->
+   </body>
+</html>

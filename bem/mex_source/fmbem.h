@@ -1,0 +1,76 @@
+#ifndef FMBEM_H
+#define FMBEM_H
+void leafGq(int nnod,
+            const double *r,
+            const double *qr,
+            const double *qi,
+            const double *father,
+            int nclus,
+            int ns,
+            const double *s,
+            double k,
+            double *Fr,
+            double *Fi);
+
+void leafHp(int nnod,
+            const double *r,
+            const double *n,
+            const double *pr,
+            const double *pi,
+            const double *father,
+            int nclus,
+            int ns,
+            const double *s,
+            double k,
+            double *Fr,
+            double *Fi);
+
+void recover(int nnod,
+             const double *r,
+             const double *Nr,
+             const double *Ni,
+             const double *father,
+             int ns,
+             const double *s,
+             const double *w,
+             double k,
+             double *pr,
+             double *pi);
+
+void upward(int nnod,
+            const double *r,
+            const double *qr,
+            const double *qi,
+            const double *father,
+            int nclus,
+            int ns,
+            const double *s,
+            double k,
+            double *Fr,
+            double *Fi);
+
+void translate(int nclus,
+               int ns, const double *Fr,
+               const double *Fi,
+               int nil,
+               const double *I,
+               const double *D,
+               const double *P,
+               const double *Perm,
+               int nm,
+               const double *Mr,
+               const double *Mi,
+               double *Nr,
+               double *Ni);
+
+void downward(int nnod,
+              const double *r,
+              const double *qr,
+              const double *qi,
+              const double *father,
+              int ns,
+              const double *s,
+              double k,
+              double *Nr,
+              double *Ni);
+#endif

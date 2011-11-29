@@ -1,0 +1,132 @@
+%% Mesh transform
+% This tutorial describes how to apply simple geometrical mesh
+% transformations with the toolbox |NIHU|.
+
+%% Translate
+% Meshes can be translated using the toolbox function <matlab:doc('translate_mesh') translate_mesh> by
+% defining the translation vector ${\bf d}$. In the following example, a sphere
+% mesh is created and translated from the origin to a given location.
+sphere = create_sphere_boundary(1, 10);
+d = [1 1 1];                            % translation vector
+sphere = translate_mesh(sphere, d);
+
+%% Scale
+% Meshes can be scaled using the toolbox function <matlab:doc('scale_mesh') scale_mesh> by defining
+% the scaling parameter. In the following example, a unit sphere surface is
+% magnified to a larger radius.
+sphere = create_sphere_boundary(1, 10);
+scale = 5;
+sphere = scale_mesh(sphere, scale);
+
+%%
+% Meshes can be scaled without keepeng the aspect ratio, by defining the
+% scaling parameters separately along the $x$, $y$
+% and $z$ axes. In the following example, a unit sphere is generated
+% and is scaled to an ellipse
+sphere = create_sphere_boundary(1, 10);
+scale = [2 3 4];
+ellipse = scale_mesh(sphere, scale);
+
+figure;
+plot_mesh(ellipse); view(3);
+
+%% Rotate
+% Meshes can be rotated around a given vector of rotation, using the
+% toolbox function <matlab:doc('rotate_mesh') rotate_mesh>.
+% In the present example, a line model is rotated around the $z$ axis by an
+% angle of $\pi/3$.
+lin = create_line([1 0 0;1 1 0], 10); % create a line to rotatae
+base = [0 0 0];             % Base of vector of rotaton
+dir = [0 0 1];              % Direction of vector of rotaton
+phi = pi/3;                 % Angle of rotation [radians]
+lin2 = rotate_mesh(lin, base, dir, phi);
+
+figure;
+plot_mesh(lin);
+plot_mesh(lin2);
+
+%% Reflect
+% Meshes can be reflected to a symmetry plane using the toolbox function
+% <matlab:doc('reflect_mesh') reflect_mesh>. The present example reflects a straight line to the $x=0$
+% plane.
+lin = create_line([1 0 0; 2 1 0], 5);
+base = [0 0 0]; % base vector of the reflection plane
+dir = [1 0 0];  % direction normal of the reflection plane
+lin2 = reflect_mesh(lin, base, dir);
+
+figure;
+plot_mesh(lin);
+plot_mesh(lin2);
+
+%% Extrude
+% Extrusions are performed by the function <matlab:doc('extrude_mesh') extrude_mesh> can be used to
+%
+% * Extrude 1D meshes to 2D surfaces
+% * Extrude 2D surfaces to volumes.
+%
+% In the present example, a circle quadrant is extruded into a circular
+% bar volume. The extrusion is governed by an extrusion direction vector $d$
+% and the number of repetitions $n_{\mathrm{rep}}$.
+circle = create_circle_quadrant(1, 5);
+dir = [0 0 .2];     % direction and length of extrusion
+nRep = 10;          % number of repetitions
+bar = extrude_mesh(circle, dir, nRep);
+
+figure;
+plot_mesh(bar), view(3);
+
+%%
+% Similarly, 1D objects can be extruded to 2D surfaces as follows:
+line = create_line(0:.1:1);
+slab = extrude_mesh(line, [.1 .05 0], 10);
+
+figure;
+plot_mesh(slab);
+%% Revolve
+% Meshes can be revolved using the toolbox function <matlab:doc('revolve_mesh') revolve_mesh>.
+%
+% Revolution can be used to
+%
+% * create surface meshes from line meshes
+% * and to create 3D volume meshes from surface meshes.
+%
+% In the
+% present example, a line is revolved in order to form an annular ring. The
+% revolution is governed by the rotation vector, the rotation angle of a
+% rotation segment and the number of rotation repetitions.
+lin = create_line(1, 10);
+base = [-1 0 0];    % base of rotation vector
+dir = [0 0 1];      % direction of rotation vector
+dphi = pi/50;       % amount of a rotation segment
+nPhi = 20;          % number of repetitions
+ring = revolve_mesh(lin, base, dir, dphi, nPhi);
+
+figure;
+plot_mesh(ring); view(3);
+
+%%
+% In the next example, a slab is revolved in order to form a cylindrical
+% annular solid volume.
+slab = create_slab([1 1], [10 10]);
+base = [-1 0 0];    % base of rotation vector
+dir = [0 -1 0];     % direction of rotation vector
+dphi = pi/50;       % amount of a rotation segment
+nPhi = 20;          % number of repetitions
+solid = revolve_mesh(slab, base, dir, dphi, nPhi);
+
+figure;
+plot_mesh(solid); view(3);
+
+%% Repeat
+% Meshes can be repeated using the toolbox function <matlab:doc('repeat_mesh') repeat_mesh>. In the
+% example, a cat's eye will be repeated along two coordinate directions.
+cat = create_catseye(1, 10);
+dir1 = [5 0 1]; % direction of repetition in the first direction
+n1 = 3;         % number of repetitions
+dir2 = [0 3 1]; % direction of repetition in the second direction
+n2 = 5;         % number of repetitions
+cats = repeat_mesh(cat, dir1, n1);
+cats = repeat_mesh(cats, dir2, n2);
+
+figure;
+plot_mesh(cats); view([100 25]);

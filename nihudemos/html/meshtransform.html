@@ -1,0 +1,334 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   
+      <!--
+This HTML is auto-generated from an M-file.
+To make changes, update the M-file and republish this document.
+      -->
+      <title>Mesh transform</title>
+      <meta name="generator" content="MATLAB 7.8">
+      <meta name="date" content="2009-11-30">
+      <meta name="m-file" content="meshtransform"><style type="text/css">
+
+body {
+  background-color: white;
+  margin:10px;
+}
+
+h1 {
+  color: #990000; 
+  font-size: x-large;
+}
+
+h2 {
+  color: #990000;
+  font-size: medium;
+}
+
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows. */ 
+p,h1,h2,div.content div {
+  max-width: 600px;
+  /* Hack for IE6 */
+  width: auto !important; width: 600px;
+}
+
+pre.codeinput {
+  background: #EEEEEE;
+  padding: 10px;
+}
+@media print {
+  pre.codeinput {word-wrap:break-word; width:100%;}
+} 
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.codeoutput {
+  color: #666666;
+  padding: 10px;
+}
+
+pre.error {
+  color: red;
+}
+
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+  </style></head>
+   <body>
+      <div class="content">
+         <h1>Mesh transform</h1>
+         <!--introduction-->
+         <p>This tutorial describes how to apply simple geometrical mesh transformations with the toolbox <tt>NIHU</tt>.
+         </p>
+         <!--/introduction-->
+         <h2>Contents</h2>
+         <div>
+            <ul>
+               <li><a href="#1">Translate</a></li>
+               <li><a href="#2">Scale</a></li>
+               <li><a href="#4">Rotate</a></li>
+               <li><a href="#5">Reflect</a></li>
+               <li><a href="#6">Extrude</a></li>
+               <li><a href="#8">Revolve</a></li>
+               <li><a href="#10">Repeat</a></li>
+            </ul>
+         </div>
+         <h2>Translate<a name="1"></a></h2>
+         <p>Meshes can be translated using the toolbox function <a href="matlab:doc('translate_mesh')">translate_mesh</a> by defining the translation vector <img src="meshtransform_eq87931.png" alt="${\bf d}$">. In the following example, a sphere mesh is created and translated from the origin to a given location.
+         </p><pre class="codeinput">sphere = create_sphere_boundary(1, 10);
+d = [1 1 1];                            <span class="comment">% translation vector</span>
+sphere = translate_mesh(sphere, d);
+</pre><h2>Scale<a name="2"></a></h2>
+         <p>Meshes can be scaled using the toolbox function <a href="matlab:doc('scale_mesh')">scale_mesh</a> by defining the scaling parameter. In the following example, a unit sphere surface is magnified to a larger radius.
+         </p><pre class="codeinput">sphere = create_sphere_boundary(1, 10);
+scale = 5;
+sphere = scale_mesh(sphere, scale);
+</pre><p>Meshes can be scaled without keepeng the aspect ratio, by defining the scaling parameters separately along the <img src="meshtransform_eq43551.png" alt="$x$">, <img src="meshtransform_eq44020.png" alt="$y$"> and <img src="meshtransform_eq88768.png" alt="$z$"> axes. In the following example, a unit sphere is generated and is scaled to an ellipse
+         </p><pre class="codeinput">sphere = create_sphere_boundary(1, 10);
+scale = [2 3 4];
+ellipse = scale_mesh(sphere, scale);
+
+figure;
+plot_mesh(ellipse); view(3);
+</pre><img vspace="5" hspace="5" src="meshtransform_01.png" alt=""> <h2>Rotate<a name="4"></a></h2>
+         <p>Meshes can be rotated around a given vector of rotation, using the toolbox function <a href="matlab:doc('rotate_mesh')">rotate_mesh</a>. In the present example, a line model is rotated around the <img src="meshtransform_eq88768.png" alt="$z$"> axis by an angle of <img src="meshtransform_eq90212.png" alt="$\pi/3$">.
+         </p><pre class="codeinput">lin = create_line([1 0 0;1 1 0], 10); <span class="comment">% create a line to rotatae</span>
+base = [0 0 0];             <span class="comment">% Base of vector of rotaton</span>
+dir = [0 0 1];              <span class="comment">% Direction of vector of rotaton</span>
+phi = pi/3;                 <span class="comment">% Angle of rotation [radians]</span>
+lin2 = rotate_mesh(lin, base, dir, phi);
+
+figure;
+plot_mesh(lin);
+plot_mesh(lin2);
+</pre><img vspace="5" hspace="5" src="meshtransform_02.png" alt=""> <h2>Reflect<a name="5"></a></h2>
+         <p>Meshes can be reflected to a symmetry plane using the toolbox function <a href="matlab:doc('reflect_mesh')">reflect_mesh</a>. The present example reflects a straight line to the <img src="meshtransform_eq02368.png" alt="$x=0$"> plane.
+         </p><pre class="codeinput">lin = create_line([1 0 0; 2 1 0], 5);
+base = [0 0 0]; <span class="comment">% base vector of the reflection plane</span>
+dir = [1 0 0];  <span class="comment">% direction normal of the reflection plane</span>
+lin2 = reflect_mesh(lin, base, dir);
+
+figure;
+plot_mesh(lin);
+plot_mesh(lin2);
+</pre><img vspace="5" hspace="5" src="meshtransform_03.png" alt=""> <h2>Extrude<a name="6"></a></h2>
+         <p>Extrusions are performed by the function <a href="matlab:doc('extrude_mesh')">extrude_mesh</a> can be used to
+         </p>
+         <div>
+            <ul>
+               <li>Extrude 1D meshes to 2D surfaces</li>
+               <li>Extrude 2D surfaces to volumes.</li>
+            </ul>
+         </div>
+         <p>In the present example, a circle quadrant is extruded into a circular bar volume. The extrusion is governed by an extrusion
+            direction vector <img src="meshtransform_eq51528.png" alt="$d$"> and the number of repetitions <img src="meshtransform_eq23922.png" alt="$n_{\mathrm{rep}}$">.
+         </p><pre class="codeinput">circle = create_circle_quadrant(1, 5);
+dir = [0 0 .2];     <span class="comment">% direction and length of extrusion</span>
+nRep = 10;          <span class="comment">% number of repetitions</span>
+bar = extrude_mesh(circle, dir, nRep);
+
+figure;
+plot_mesh(bar), view(3);
+</pre><img vspace="5" hspace="5" src="meshtransform_04.png" alt=""> <p>Similarly, 1D objects can be extruded to 2D surfaces as follows:</p><pre class="codeinput">line = create_line(0:.1:1);
+slab = extrude_mesh(line, [.1 .05 0], 10);
+
+figure;
+plot_mesh(slab);
+</pre><img vspace="5" hspace="5" src="meshtransform_05.png" alt=""> <h2>Revolve<a name="8"></a></h2>
+         <p>Meshes can be revolved using the toolbox function <a href="matlab:doc('revolve_mesh')">revolve_mesh</a>.
+         </p>
+         <p>Revolution can be used to</p>
+         <div>
+            <ul>
+               <li>create surface meshes from line meshes</li>
+               <li>and to create 3D volume meshes from surface meshes.</li>
+            </ul>
+         </div>
+         <p>In the present example, a line is revolved in order to form an annular ring. The revolution is governed by the rotation vector,
+            the rotation angle of a rotation segment and the number of rotation repetitions.
+         </p><pre class="codeinput">lin = create_line(1, 10);
+base = [-1 0 0];    <span class="comment">% base of rotation vector</span>
+dir = [0 0 1];      <span class="comment">% direction of rotation vector</span>
+dphi = pi/50;       <span class="comment">% amount of a rotation segment</span>
+nPhi = 20;          <span class="comment">% number of repetitions</span>
+ring = revolve_mesh(lin, base, dir, dphi, nPhi);
+
+figure;
+plot_mesh(ring); view(3);
+</pre><img vspace="5" hspace="5" src="meshtransform_06.png" alt=""> <p>In the next example, a slab is revolved in order to form a cylindrical annular solid volume.</p><pre class="codeinput">slab = create_slab([1 1], [10 10]);
+base = [-1 0 0];    <span class="comment">% base of rotation vector</span>
+dir = [0 -1 0];     <span class="comment">% direction of rotation vector</span>
+dphi = pi/50;       <span class="comment">% amount of a rotation segment</span>
+nPhi = 20;          <span class="comment">% number of repetitions</span>
+solid = revolve_mesh(slab, base, dir, dphi, nPhi);
+
+figure;
+plot_mesh(solid); view(3);
+</pre><img vspace="5" hspace="5" src="meshtransform_07.png" alt=""> <h2>Repeat<a name="10"></a></h2>
+         <p>Meshes can be repeated using the toolbox function <a href="matlab:doc('repeat_mesh')">repeat_mesh</a>. In the example, a cat's eye will be repeated along two coordinate directions.
+         </p><pre class="codeinput">cat = create_catseye(1, 10);
+dir1 = [5 0 1]; <span class="comment">% direction of repetition in the first direction</span>
+n1 = 3;         <span class="comment">% number of repetitions</span>
+dir2 = [0 3 1]; <span class="comment">% direction of repetition in the second direction</span>
+n2 = 5;         <span class="comment">% number of repetitions</span>
+cats = repeat_mesh(cat, dir1, n1);
+cats = repeat_mesh(cats, dir2, n2);
+
+figure;
+plot_mesh(cats); view([100 25]);
+</pre><img vspace="5" hspace="5" src="meshtransform_08.png" alt=""> <p class="footer"><br>
+            Published with MATLAB&reg; 7.8<br></p>
+      </div>
+      <!--
+##### SOURCE BEGIN #####
+%% Mesh transform
+% This tutorial describes how to apply simple geometrical mesh
+% transformations with the toolbox |NIHU|.
+
+%% Translate
+% Meshes can be translated using the toolbox function <matlab:doc('translate_mesh') translate_mesh> by
+% defining the translation vector ${\bf d}$. In the following example, a sphere
+% mesh is created and translated from the origin to a given location.
+sphere = create_sphere_boundary(1, 10);
+d = [1 1 1];                            % translation vector
+sphere = translate_mesh(sphere, d);
+
+%% Scale
+% Meshes can be scaled using the toolbox function <matlab:doc('scale_mesh') scale_mesh> by defining
+% the scaling parameter. In the following example, a unit sphere surface is
+% magnified to a larger radius.
+sphere = create_sphere_boundary(1, 10);
+scale = 5;
+sphere = scale_mesh(sphere, scale);
+
+%%
+% Meshes can be scaled without keepeng the aspect ratio, by defining the
+% scaling parameters separately along the $x$, $y$
+% and $z$ axes. In the following example, a unit sphere is generated
+% and is scaled to an ellipse
+sphere = create_sphere_boundary(1, 10);
+scale = [2 3 4];
+ellipse = scale_mesh(sphere, scale);
+
+figure;
+plot_mesh(ellipse); view(3);
+
+%% Rotate
+% Meshes can be rotated around a given vector of rotation, using the
+% toolbox function <matlab:doc('rotate_mesh') rotate_mesh>.
+% In the present example, a line model is rotated around the $z$ axis by an
+% angle of $\pi/3$.
+lin = create_line([1 0 0;1 1 0], 10); % create a line to rotatae
+base = [0 0 0];             % Base of vector of rotaton
+dir = [0 0 1];              % Direction of vector of rotaton
+phi = pi/3;                 % Angle of rotation [radians]
+lin2 = rotate_mesh(lin, base, dir, phi);
+
+figure;
+plot_mesh(lin);
+plot_mesh(lin2);
+
+%% Reflect
+% Meshes can be reflected to a symmetry plane using the toolbox function
+% <matlab:doc('reflect_mesh') reflect_mesh>. The present example reflects a straight line to the $x=0$
+% plane.
+lin = create_line([1 0 0; 2 1 0], 5);
+base = [0 0 0]; % base vector of the reflection plane
+dir = [1 0 0];  % direction normal of the reflection plane
+lin2 = reflect_mesh(lin, base, dir);
+
+figure;
+plot_mesh(lin);
+plot_mesh(lin2);
+
+%% Extrude
+% Extrusions are performed by the function <matlab:doc('extrude_mesh') extrude_mesh> can be used to
+%
+% * Extrude 1D meshes to 2D surfaces
+% * Extrude 2D surfaces to volumes.
+%
+% In the present example, a circle quadrant is extruded into a circular
+% bar volume. The extrusion is governed by an extrusion direction vector $d$
+% and the number of repetitions $n_{\mathrm{rep}}$.
+circle = create_circle_quadrant(1, 5);
+dir = [0 0 .2];     % direction and length of extrusion
+nRep = 10;          % number of repetitions
+bar = extrude_mesh(circle, dir, nRep);
+
+figure;
+plot_mesh(bar), view(3);
+
+%%
+% Similarly, 1D objects can be extruded to 2D surfaces as follows:
+line = create_line(0:.1:1);
+slab = extrude_mesh(line, [.1 .05 0], 10);
+
+figure;
+plot_mesh(slab);
+%% Revolve
+% Meshes can be revolved using the toolbox function <matlab:doc('revolve_mesh') revolve_mesh>.
+%
+% Revolution can be used to
+%
+% * create surface meshes from line meshes
+% * and to create 3D volume meshes from surface meshes.
+%
+% In the
+% present example, a line is revolved in order to form an annular ring. The
+% revolution is governed by the rotation vector, the rotation angle of a
+% rotation segment and the number of rotation repetitions.
+lin = create_line(1, 10);
+base = [-1 0 0];    % base of rotation vector
+dir = [0 0 1];      % direction of rotation vector
+dphi = pi/50;       % amount of a rotation segment
+nPhi = 20;          % number of repetitions
+ring = revolve_mesh(lin, base, dir, dphi, nPhi);
+
+figure;
+plot_mesh(ring); view(3);
+
+%%
+% In the next example, a slab is revolved in order to form a cylindrical
+% annular solid volume.
+slab = create_slab([1 1], [10 10]);
+base = [-1 0 0];    % base of rotation vector
+dir = [0 -1 0];     % direction of rotation vector
+dphi = pi/50;       % amount of a rotation segment
+nPhi = 20;          % number of repetitions
+solid = revolve_mesh(slab, base, dir, dphi, nPhi);
+
+figure;
+plot_mesh(solid); view(3);
+
+%% Repeat
+% Meshes can be repeated using the toolbox function <matlab:doc('repeat_mesh') repeat_mesh>. In the
+% example, a cat's eye will be repeated along two coordinate directions.
+cat = create_catseye(1, 10);
+dir1 = [5 0 1]; % direction of repetition in the first direction
+n1 = 3;         % number of repetitions
+dir2 = [0 3 1]; % direction of repetition in the second direction
+n2 = 5;         % number of repetitions
+cats = repeat_mesh(cat, dir1, n1);
+cats = repeat_mesh(cats, dir2, n2);
+
+figure;
+plot_mesh(cats); view([100 25]);
+##### SOURCE END #####
+-->
+   </body>
+</html>
