@@ -144,7 +144,7 @@ for outiter = 1 : outer
             break
         end
     end         % ends innner loop
-
+    
     y = R(1:jmin,:) \ w(1:jmin);
     additive = Psol*y;
     x = x + additive;

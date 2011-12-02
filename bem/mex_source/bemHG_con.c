@@ -80,7 +80,6 @@ void matrix_surf_const(int nnodes,
             Br[n+nelements*e] = br;
             Bi[n+nelements*e] = bi;
         }
-        Ar[n+n*nelements] -= 2.0 * 3.141592653589793;
     }
     free(accelerators);
 }

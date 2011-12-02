@@ -98,7 +98,6 @@ void matrix_surf_lin(int nnodes,
                 Bi[n+nnodes*elem[s]] += bi[s];
             }
         }
-        Ar[n+n*nnodes] -= 2.0 * 3.141592653589793;
     }
     free(accelerators);
 }
