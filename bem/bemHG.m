@@ -5,7 +5,7 @@ function [H, G] = bemHG(model, k, type, points, pairs)
 %  For the case of surface matrices, the output matrices are defined with
 %  Hp = Gp'
 %  For the case of field point matrices, the output matrices are defined as
-%  p_field = (H p_surf - G p'_surf) / (4pi)
+%  p_field = H p_surf - G p'_surf
 % Parameters:
 %   model  : AcouFEM model structure. The bem model is generated using the
 %            QUAD and TRIA elements of the original model
@@ -79,10 +79,6 @@ else
                 [H, G] = bemHG_const(nodes, elements, gauss3, gauss4, dist, k);
             case 'lin'
                 [H, G] = bemHG_lin(nodes, elements, gauss3, gauss4, dist, k);
-                psi = get_spheric_angles(model);
-                for n = 1 : size(H,1)
-                    H(n,n) = H(n,n) - psi(n) + 2*pi;
-                end
         end
     end
 end
