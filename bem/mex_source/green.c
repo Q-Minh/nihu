@@ -1,5 +1,6 @@
 #include "green.h"
 
+#define _USE_MATH_DEFINES
 #include <math.h>
 #include "vector.h"
 
@@ -16,8 +17,8 @@ void green(const double *r,
     double ar, rn;
 
     ar = sqrt(dot(r, r));
-    *gr = cos(k*ar) / ar;
-    *gi = -sin(k*ar) / ar;
+    *gr = cos(k*ar) / ar / (4.0 * M_PI);
+    *gi = -sin(k*ar) / ar / (4.0 * M_PI);
     if (n)
     {
         rn = dot(r, n) / ar;
@@ -41,8 +42,8 @@ void ddgreen(const double *r,
 	ar2 = dot(r,r);
 	ar = sqrt(ar2);
 	
-	gr = cos(k*ar)/ar;
-	gi = -sin(k*ar)/ar;
+	gr = cos(k*ar)/ar / (4.0 * M_PI);
+	gi = -sin(k*ar)/ar / (4.0 * M_PI);
 	
 	drnxdrny = -dot(r, nx)*dot(r, ny)/ar2;
 	nxny = dot(nx, ny);
