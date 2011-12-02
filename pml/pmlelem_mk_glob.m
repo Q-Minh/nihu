@@ -31,9 +31,9 @@ end
 if isempty(hsigma{3})
     gammaz = ones(ngauss,1);
 elseif min(xyz(:,3)) < psigma{3}(1)
-    gammaz = 1+1i/om*hsigma{3}(abs(xyz(:,3)), abs(psigma{3}(1)-L_pml), material(2));
+    gammaz = 1-1i/om*hsigma{3}(abs(xyz(:,3)), abs(psigma{3}(1)-L_pml), material(2));
 elseif max(xyz(:,3)) > psigma{3}(2)
-    gammaz = 1+1i/om*hsigma{3}(abs(xyz(:,3)), abs(psigma{3}(2)+L_pml), material(2));
+    gammaz = 1-1i/om*hsigma{3}(abs(xyz(:,3)), abs(psigma{3}(2)+L_pml), material(2));
 else
     gammaz = ones(ngauss,1);
 end
