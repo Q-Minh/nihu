@@ -1,0 +1,278 @@
+\documentclass[10pt,onecolumn]{article}
+
+\usepackage{amsmath}
+\usepackage{graphicx,overpic}
+\newcommand{\ti}{\mathrm{i}}
+\newcommand{\td}{\mathrm{d}}
+
+\author{Peter Fiala}
+\title{BEM doc}
+
+\begin{document}
+
+\maketitle
+
+We solve the Helmholtz equation
+%
+\begin{equation}
+\nabla^2 p({\bf y}) + k^2 p({\bf y}) = q({\bf y}), \qquad {\bf y} \in V
+\end{equation}
+%
+where $p$ denotes the acoustic pressure, and $V$ is a closed volume, surrounded by the surface $S$. The surface is directed outward, as shown in Fig.~\ref{fig:problemdomain}.
+
+\section{The Helmholtz equation}
+
+\begin{figure}
+\caption{The problem domain}
+\label{fig:problemdomain}
+\end{figure}
+
+The solution method is formulated by testing the Helmholtz equation with the function $g({\bf y})$ over the volume $V$
+%
+\begin{equation}
+\int_V g({\bf y}) \nabla^2 p({\bf y}) \td V({\bf y})
++ k^2 \int_V g({\bf y}) p({\bf y})  \td V({\bf y}) = 0
+\end{equation}
+%
+We assume that the function $g({\bf y})$ also satisfies the Helmholtz equation with a Dirac delta excitation located in ${\bf x}$
+%
+\begin{equation}
+\nabla^2 g({\bf y}) + k^2 g({\bf y}) = -\delta({\bf y}-{\bf x})
+\end{equation}
+%
+testing the latter equation with the pressure field $p({\bf y})$ results in
+%
+\begin{multline}
+\int_V  p({\bf y}) \nabla^2 g({\bf y}) \td V({\bf y})
++ k^2 \int_V p({\bf y}) g({\bf y})  \td V({\bf y}) \\
+= -\int_V p({\bf y})  \delta({\bf y}-{\bf x}) \td V({\bf y})
+\end{multline}
+%
+Subtracting the two volume integrals results in
+%
+\begin{equation}
+\int_V \left(g({\bf y}) \nabla^2 p({\bf y}) - p({\bf y}) \nabla^2 g({\bf y})\right) \td V({\bf y})
+= c({\bf x})p({\bf x})
+\end{equation}
+%
+where
+%
+\begin{equation}
+c({\bf x}) = \begin{cases}
+1 & {\bf x} \in V \\
+\frac{1}{2} & {\bf x} \in S \\
+0 &  \text{otherwise}
+\end{cases}
+\end{equation}
+%
+Green's theorem can be applied to the left hand side to transform the volume integral to surface integral as
+%
+\begin{equation}
+\int_S \left(g({\bf y}, {\bf x}) p'_n({\bf y}) - p({\bf y}) g'_n({\bf y}, {\bf x})\right) \td S({\bf y})
+= c({\bf x})p({\bf x})
+\end{equation}
+%
+By changing the direction of the surface normal so that $n$ points inside $V$, the sign of the left hand side changes and we obtain
+%
+\begin{equation}
+\int_S \left(p({\bf y}) g'_n({\bf y}, {\bf x}) - g({\bf y}, {\bf x}) p'_n({\bf y})\right) \td S({\bf y})
+= c({\bf x}) p({\bf x})
+\end{equation}
+%
+By applying Sommerfeld's radiation condition, the same integral equation is valid for outward problems, if the normal is pointing towards the external infinite volume $V$.
+
+
+
+\section{Application to a thin surface}
+
+Let's introduce $S = S^+ \cup S^-$ surrounding a thin surface, as shown in Fig.~\ref{fig:thinboundary}. $S^+$ denotes the positive, $S^-$ denotes the negative side of the closed surface. The pressure in an external point ${\bf x}$ can be expressed by writing the Helmholtz integral to the closed surface $S$ as
+%
+\begin{figure}
+\center
+\begin{overpic}[width=.8\columnwidth]{fig/thinboundary}
+\put(64,57){${\bf n}^+$}
+\put(70,38){${\bf n}^-$}
+\put(19,11){$S^+$}
+\put(28,3){$S^-$}
+\put(40,40){$p^+$}
+\put(50,34){$p^-$}
+\put(52,50){$p'^+_{n^+}$}
+\put(58,40){$p'^-_{n^-}$}
+\end{overpic}
+\caption{Sound field around a thin surface} 
+\label{fig:thinboundary}
+\end{figure}
+%
+\begin{multline}
+p({\bf x}) \\
+= \int_{S^+ \cup S^-} \left(p({\bf y}) g'_n({\bf y}, {\bf x}) - g({\bf y}, {\bf x}) p'_n({\bf y})\right) \td S({\bf y})
+\end{multline}
+%
+Taking into account that $S^+$ and $S^-$ are the same surface but with opposite normal directions (${\bf n}^+ = -{\bf n}^-$), we can split the integral into two sub integrals over the middle surface $S_0$. If the pressure on the positive and negative sides is denoted by $p^+$ and $p^-$, respectively, and we take into account that the normal derivatives with respect to ${\bf n}^+$ and ${\bf n}^-$ are of opposite signs, the integrals can be written as
+%
+\begin{align}
+p({\bf x}) 
+&= \int_{S_0} \left[\left(p^+ g'_{n^+} + p^- g'_{n^-}\right)- g \left(p'^+_{n^+} + g p'^-_{n^-}\right)\right] \td S \nonumber \\
+&= \int_{S_0} \left[\left(p^+ - p^-\right) g'_{n^+} - g \left(p'^+_{n^+} - p'^-_{n^+}\right)\right] \td S  \nonumber \\
+&= \int_{S_0} \left(p^{\mathrm{d}}({\bf y}) g'_n({\bf y}, {\bf x}) - g({\bf y}, {\bf x}) p'^{\mathrm{d}}_n({\bf y})\right) \td S({\bf y})
+\end{align}
+%
+where
+\begin{align}
+p^{\mathrm{d}}({\bf y}) = p^+({\bf y}) - p^-({\bf y})
+\end{align}
+%
+is the pressure difference (or pressure jump) and
+\begin{align}
+p'^{\mathrm{d}}_{n}({\bf y}) = p'^+_{n}({\bf y}) - p'^-_{n}({\bf y})
+\end{align}
+%
+is the normal derivative difference (or velocity jump) between the negative and postive sides of $S_0$. It is important to notice that $p'^+_{n}$ and $p'^-_{n}$ are defined using the same (positive) normal direction.
+
+If ${\bf x} \in S$ is located on the smooth surface, then the result is the mean of the positive and negative side pressure's 
+%
+\begin{align}
+p^{\mathrm{m}}({\bf x}) 
+= \int_{S_0} \left(p^{\mathrm{d}}({\bf y}) g'_{n_y}({\bf y}, {\bf x}) - g({\bf y}, {\bf x}) p'^{\mathrm{d}}_{n_y}({\bf y})\right) \td S({\bf y})
+\end{align}
+%
+where
+%
+\begin{equation}
+p^{\mathrm{m}}({\bf x}) = \frac{1}{2}\left(p^+({\bf x})+p^-({\bf x})\right)
+\end{equation}
+%
+differentiation with respect to $n_x$ yields
+%
+\begin{multline}
+p'^{\mathrm{m}}_{n_x}({\bf x}) = \\ = \int_{S_0} \left(p^{\mathrm{d}}({\bf y}) g''_{n_y n_x}({\bf y}, {\bf x}) - g'_{n_x}({\bf y}, {\bf x}) p'^{\mathrm{d}}_{n_y}({\bf y})\right) \td S({\bf y})
+\end{multline}
+%
+where
+%
+\begin{equation}
+p'^{\mathrm{m}}_{n_x}({\bf x}) = \frac{1}{2}\left(p'^+_{n_x}({\bf x})+p'^-_{n_x}({\bf x})\right)
+\end{equation}
+
+\section{Discretisation}
+
+All surface quantities are represented by nodal values and interpolating functions. For the case of the pressure
+%
+\begin{equation}
+p({\bf y}) = \sum_{j} p_j N_j({\bf y})
+\end{equation}
+%
+where $p_j$ is the $j$-th nodal value and $N_j({\bf x})$ is the corresponding interpolation function.
+
+The surface integral equation is solved by means of collocation method, where a szstem of equations is assembled by locating ${\bf x}$ in each $i$-th node:
+%
+\begin{equation}
+\sum_{j} H_{ij}  p_j - \sum_{j} G_{ij}  p'_j = c({\bf x}_i) p_i
+\end{equation}
+%
+where
+%
+\begin{align}
+H_{ij} &= \int_S N_j({\bf y}) g'_{n_y}({\bf y}, {\bf x}_i) \td S({\bf y})\\
+G_{ij} &= \int_S N_j({\bf y}) g({\bf y}, {\bf x}_i) \td S({\bf y})
+\end{align}
+%
+It is important to notice that the integrals where ${\bf x}_i$ is located within the support of $N_j({\bf x})$ are singular, but the $\mathcal{O}(1/r)$ singularity of $g$ and the $\mathcal{O}(1/r^2)$ singularity of $g'$ is cancelled by $\td S$, so the integrals have a finite limit and can be evaluated numerically.
+
+
+For the case of the thin boundary, the $\mathcal{O}(1/r^3)$ singularity of the kernel $g''$ does not allow to apply a collocation solution method. Instead, the surface integral equation is discretised using a Galerkin approach, where the integrals are tested by each shape function over the surface $S$. The discretisation of \eqref{} results in
+%
+\begin{align}
+\sum_{j} M_{ij} p^{\mathrm{m}}_j =
+\sum_{j} H_{ij} p^{\mathrm{d}}_j
+- \sum_{j} G_{ij}  p'^{\mathrm{d}}_j
+\end{align}
+%
+where
+%
+\begin{align}
+M_{ij} &= \int_{S_0} N_i({\bf x}) N_j({\bf x}) \mathrm{d} S({\bf x}) \\
+H_{ij} &= \int_{S_0} \int_{S_0} N_i({\bf x}) N_j({\bf y}) g'_{n_y}({\bf y}, {\bf x}) \td S({\bf y}) \td S({\bf x}) \\
+G_{ij} &= \int_{S_0} \int_{S_0} N_i({\bf x}) N_j({\bf y}) g({\bf y}, {\bf x}) \td S({\bf y}) \td S({\bf x})
+\end{align}
+%
+and similarly, the discretisation of \eqref{} results in
+%
+\begin{align}
+\sum_{j} M_{ij} p'^{\mathrm{m}}_j =
+\sum_{j} E_{ij} p^{\mathrm{d}}_j - \sum_{j} H^*_{ij}  p'^{\mathrm{d}}_j
+\end{align}
+%
+where
+%
+\begin{align}
+E_{ij} &= \int_{S_0} \int_{S_0} N_i({\bf x}) N_j({\bf y}) g''_{n_y n_x}({\bf y}, {\bf x}) \td S({\bf y}) \td S({\bf x}) \\
+H^*_{ij} &= \int_{S_0} \int_{S_0} N_i({\bf x}) N_j({\bf y}) g'_{n_x}({\bf y}, {\bf x}) \td S({\bf y}) \td S({\bf x})
+\end{align}
+
+
+
+\subsection{Simple subcases}
+
+\subsubsection{Neumann radiation from rigid surface}
+
+Rigid surface: $p'^{\mathrm{m}}_{n_x}({\bf x}) = p'_{n_x}({\bf x})$ prescribed, $p'^{\mathrm{d}}_{n_x}({\bf y}) = 0$
+
+\begin{enumerate}
+\item Solve
+%
+\begin{align}
+p'_{n_x}({\bf x})
+= \int_{S^+} p^{\mathrm{d}}({\bf y}) g''_{n_y n_x}({\bf y}, {\bf x}) \td S({\bf y})
+\end{align}
+%
+by forcing $p^{\mathrm{d}}({\bf y}) = 0$ on the boundary of $S^+$ in order to obtain $p^{\mathrm{d}}({\bf y})$
+\item evaluate
+\begin{equation}
+p^{\mathrm{m}}({\bf x}) = \int_{S^+} p^{\mathrm{d}}({\bf y}) g'_{n_y}({\bf y}, {\bf x}) \td S({\bf y})
+\end{equation}
+%
+to obtain $p^{\mathrm{m}}({\bf x})$ on the surface, and compute $p^+$ and $p^-$ from $p^{\mathrm{d}}$ and $p^{\mathrm{m}}$
+\item evaluate
+%
+\begin{equation}
+p({\bf x})
+= \int_{S^+} p^{\mathrm{d}}({\bf y}) g'_n({\bf y}, {\bf x}) \td S({\bf y})
+\end{equation}
+%
+to obtain the radiated pressure
+\end{enumerate}
+
+\subsubsection{Dirichlet radiation from flexible surface}
+
+Flexible surface: $p^{\mathrm{m}}({\bf y}) = p({\bf y})$ prescribed on the surface, $p^{\mathrm{d}}_{n_x} = 0$
+
+\begin{enumerate}
+\item solve
+%
+\begin{equation}
+p({\bf x}) 
+= -\int_{S^+} g({\bf y}, {\bf x}) p'^{\mathrm{d}}_{n_y}({\bf y}) \td S({\bf y})
+\end{equation}
+%
+to obtain $p'^{\mathrm{d}}_{n_y}({\bf y})$ on the surface.
+\item evaluate
+%
+\begin{equation}
+p'^{\mathrm{m}}_{n_x}({\bf x}) = - \int_{S^+} g'_{n_x}({\bf y}, {\bf x}) p'^{\mathrm{d}}_{n_y}({\bf y}) \td S({\bf y})
+\end{equation}
+%
+to obtain $p'^{\mathrm{m}}_{n_x}({\bf x})$ and compute $p'^+$ and $p'^-$ from $p'^{\mathrm{d}}$ and $p'^{\mathrm{m}}$
+\item evaluate
+%
+\begin{align}
+p({\bf x})
+= -\int_{S^+} g({\bf y}, {\bf x}) p'^{\mathrm{d}}_n({\bf y}) \td S({\bf y})
+\end{align}
+%
+to obtain the external pressure.
+
+\end{enumerate}
+
+
+\end{document}
