@@ -1,0 +1,5 @@
+*.m 	eol=lf
+*.c	eol=lf
+*.h 	eol=lf
+*.html	eol=lf
+
