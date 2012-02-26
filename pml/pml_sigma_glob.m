@@ -5,4 +5,4 @@ function [s] = pml_sigma_glob(x, a, c)
 % c - sound velocity
 % L - PML length
 
-s = c./(a-x);
+s = c./abs(a-x);
