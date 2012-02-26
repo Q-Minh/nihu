@@ -1,4 +1,10 @@
-function [ps] = planewave_cyl2dM(r, phi, a, k, m)
+function [ps] = planewave_cyl2d(r, phi, a, k, m)
+
+% Simulate planewave reflection from cylinder
+% Copyright 2011-2012 Bence Olteán.
+
+% TODO: - add help and variable explanation
+%       - add variable position for cylinder and plane wave incident angle
 
 mm = 1:m;
 ps = zeros(length(r),m+1);
