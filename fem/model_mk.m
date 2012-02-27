@@ -1,4 +1,4 @@
-function varargout = model_mk_new(model, opt)
+function varargout = model_mk(model, opt)
 %MODEL_MK Compute mass and stiffness matrices of the FE model
 %   [M K C DOF] = MODEL_MK(MODEL) Computes the mass matrix M, stiffness
 %   matrix K and damping matrix C of a FE/IE model MODEL. The output vector
