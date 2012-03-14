@@ -43,6 +43,14 @@ switch type
             -1 0 0 1
             ];
         xi = (x - xnod(1,:)) / (D * xnod);
+    case 36 % DO 2D interpolation of penta element
+        % NOTE: THIS IS TEMPORARY FOR EXTRUDED MESHES!
+        xnod = xnod(xnod(:,3) < mean(xnod(:,3)),1:2);
+        D = [
+            -1 1 0;
+            -1 0 1
+            ];
+        xi = [(x(1:2) - xnod(1,:)) / (D * xnod),  0];
     case 38 % BRICK element
         xi = invmap38b(xnod, x);
     case 122 %2D quad infinite element
