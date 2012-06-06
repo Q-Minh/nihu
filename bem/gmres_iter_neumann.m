@@ -33,6 +33,6 @@ if nargin < 13
 end
 
 %% Surface integral
-Hp = -2*pi*p + Hnf*p + ...
+Hp = -.5*p + Hnf*p + ...
     mpcont_Hp(rr, rs, ns, p(gind).*w, tr, intdata, k, fs(gind), fr, symm);
 end

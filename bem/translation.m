@@ -13,8 +13,8 @@ k = -k;
 
 %% compute spherical Hankel functions
 % find unique scalar distances
-[D, thrash, Dind] = unique(round(1e10*sqrt(dot(Dvec, Dvec, 2)))/1e10);
-[Dir, thrash, Dirind] = unique(round(1e10*(Dvec ./ repmat(D(Dind),1,3)))/1e10, 'rows');
+[D, ~, Dind] = unique(round(1e10*sqrt(dot(Dvec, Dvec, 2)))/1e10);
+[Dir, ~, Dirind] = unique(round(1e10*(Dvec ./ repmat(D(Dind),1,3)))/1e10, 'rows');
 h = sphankel((0:L), k*D);
 %% compute translation matrix
 x = Dir * s;
@@ -46,7 +46,11 @@ end
 
 M = M.';
 
+end
+
 %% Spherical hankel functions
 function h = sphankel(nu, z)
 
-h = repmat(sqrt(pi./(2*z)),1,size(nu,2)) .* besselh(nu+1/2, z);
+h = repmat(sqrt(pi./(2*z)),1,size(nu,2)) .* ...
+    besselh(repmat(nu+1/2, length(z),1), repmat(z, 1, length(nu)));
+end

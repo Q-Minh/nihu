@@ -9,7 +9,7 @@
 % division parameter is the number of elements along the radius of the
 % sphere.
 R = 1;      % radius
-nR = 5;    % division parameter
+nR = 10;    % division parameter
 mesh = quad2tria(create_sphere_boundary(R, nR));
 
 %%
@@ -92,7 +92,7 @@ tic;
 [H, G] = bemHG(mesh, k, 'const');   % Generate BEM matrices
 toc;
 qss = -qsi;                         % Boundary cond. at a rigid boundary
-pss = H \ (G * qss);                % solve the system
+pss = (H - .5*eye(size(H))) \ (G * qss);                % solve the system
 
 %% Field point pressure and total pressure field (post processing)
 % The scattered field point pressure $p_{fs}$ is computed from the
@@ -102,7 +102,7 @@ pss = H \ (G * qss);                % solve the system
 % 
 % where the system matrices are computed by the toolbox function |bemHG|.
 [H, G] = bemHG(mesh, k, 'const', points);
-pfs = (H * pss - G * qss) / (4*pi);
+pfs = H * pss - G * qss;
 
 %%
 % The total pressure field in the field points and on the surface is
