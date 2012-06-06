@@ -106,7 +106,7 @@ for l = depth : -1 : 0
     normnod = round((nod - repmat(base, size(nod,1),1))/d);  % normalized nodes
     normnod(normnod < 0) = 0;
     normnod(normnod > 2^l-1) = 2^l-1;
-    [normnod, m, n] = unique(round(normnod), 'rows'); % node indices
+    [normnod, ~, n] = unique(round(normnod), 'rows'); % node indices
     nC = size(normnod,1); % number of clusters on the level
     tree(iL).coord = normnod*d + repmat(base, nC, 1); % Multipole coordinates
     % Fill nodes, fathers
@@ -137,11 +137,11 @@ end
 
 %% fathers
 % receiver fathers
-[inod, thrash, jnod] = find(tree(end).nodrec);
+[inod, ~, jnod] = find(tree(end).nodrec);
 fatherrec(jnod) = inod;
 fatherrec = fatherrec(:);
 % source fathers
-[inod, thrash, jnod] = find(tree(end).nodsou);
+[inod, ~, jnod] = find(tree(end).nodsou);
 fathersou(jnod) = inod;
 fathersou = fathersou(:);
 
@@ -302,7 +302,7 @@ for l = 1 : depth
     % cut empty rows from the end
     D = D(1:max(ind),:);
     % compute unique distances
-    [D, thrash, n] = unique(round(D/T.diameter), 'rows');
+    [D, ~, n] = unique(round(D/T.diameter), 'rows');
     tree(iL).D = D * T.diameter;
     % Dindex should refer to the unique distances
     n2 = [0; n];

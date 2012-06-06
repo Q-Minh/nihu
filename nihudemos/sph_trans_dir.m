@@ -8,7 +8,7 @@
 % applicable to the mesh with a given element-per-wavelength ratio, using
 % the toolbox function |bemkmax|
 R = 1;      % radius
-nR = 20;    % division parameter
+nR = 10;    % division parameter
 mesh = create_sphere_boundary(R, nR);
 ratio = 7;  % element-per-wavelength ratio
 kmax = bemkmax(mesh, ratio);
@@ -80,7 +80,7 @@ I = integpar(tree, k, C);
 % The near field part is computed by multiplication by the near field
 % matrix, the far field contribution is computed by means of the MLFMA,
 % using the toolbox function |mpcont_Gq|.
-Hp = Hnf*ps + -2*pi*ps + ...
+Hp = Hnf*ps -ps/2 + ...
     mpcont_Hp(rr, rs, ns, ps(gind).*w, tr, I, k, fs(gind), fr);
 
 %% 

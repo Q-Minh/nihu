@@ -198,24 +198,36 @@ void matrix_surf_const_sparse(int nnodes,
         }
 
         if (e == n) /* singular case */
-            gs = SINGULAR_QUADRATURE_START;
+		{
+			switch(nvert)
+			{
+            case 4:
+				int_quad_const_sing(&g4[0], nod, &accelerators[e], q, k, &ar, &ai, &br, &bi);
+				break;
+			case 3:
+				int_tri_const_sing(&g4[0], nod, &accelerators[e], q, k, &ar, &ai, &br, &bi);
+				break;
+			}
+		}
         else /* regular case */
-            gs = gauss_division(q, accelerators[e].center, dist);
+		{
+			gs = gauss_division(q, accelerators[e].center, dist);
+			switch(nvert)
+			{
+			case 4:
+				int_quad_const(g4[gs], nod, &accelerators[e], q, k, &ar, &ai, &br, &bi);
+				break;
+			case 3:
+				int_tri_const(g3[gs], nod, &accelerators[e], q, k, &ar, &ai, &br, &bi);
+				break;
+			}
+		}
 
-        switch(nvert)
-        {
-        case 4:
-            int_quad_const(g4[gs], nod, &accelerators[e], q, k, &ar, &ai, &br, &bi);
-            break;
-        case 3:
-            int_tri_const(g3[gs], nod, &accelerators[e], q, k, &ar, &ai, &br, &bi);
-            break;
-        }
-        Ar[p] = ar;
-        Ai[p] = ai;
-        Br[p] = br;
-        Bi[p] = bi;
-    }
+		Ar[p] = ar;
+		Ai[p] = ai;
+		Br[p] = br;
+		Bi[p] = bi;
+	}
     free(accelerators);
 }
 
