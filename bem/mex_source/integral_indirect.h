@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-// Regular double B integral over a constant TRIA element
+/* Regular double B integral over a constant TRIA element */
 void dint_tritri_const(const gauss_t *gx,
                        const double *nodesx,
                        const accelerator_t *acceleratorx,
@@ -13,7 +13,7 @@ void dint_tritri_const(const gauss_t *gx,
                        double *br,
                        double *bi);
 
-// Regular double B integral over a constant QUAD element
+/* Regular double B integral over a constant QUAD element */
 void dint_quadquad_const(const gauss_t *gx,
                          const double *nodesx,
                          const accelerator_t *acceleratorx,
@@ -23,7 +23,7 @@ void dint_quadquad_const(const gauss_t *gx,
                          double *br,
                          double *bi);
 
-// Regular double B integral over a constant TRIA and a QUAD element
+/* Regular double B integral over a constant TRIA and a QUAD element */
 void dint_triquad_const(const gauss_t *gx,
                         const double *nodesx,
                         const accelerator_t *acceleratorx,
@@ -51,7 +51,7 @@ void dint_tri_const_sing(const gauss_t *g3,
                          double *br,
                          double *bi);
 
-// Regular double B integral over linear TRIA elements
+/* Regular double B integral over linear TRIA elements */
 void dint_tritri_lin(const gauss_t *g3,
                      const double *nodesx,
                      const accelerator_t *acceleratorx,
@@ -61,7 +61,7 @@ void dint_tritri_lin(const gauss_t *g3,
                      double *br,
                      double *bi);
 
-// Regular double B integral over linear TRIA elements
+/* Regular double B integral over linear TRIA elements */
 void dint_tritri_lin_fast(const gauss_t *g3,
                      const double *nodesx,
                      const accelerator_t *acceleratorx,
@@ -71,7 +71,7 @@ void dint_tritri_lin_fast(const gauss_t *g3,
                      double *br,
                      double *bi);
 
-// Regular double B integral over constant QUAD elements
+/* Regular double B integral over constant QUAD elements */
 void dint_quadquad_lin(const gauss_t *g4,
                        const double *nodesx,
                        const accelerator_t *acceleratorx,
@@ -81,7 +81,7 @@ void dint_quadquad_lin(const gauss_t *g4,
                        double *br,
                        double *bi);
 
-// Regular double B integral over a lin TRIA and a QUAD element
+/* Regular double B integral over a lin TRIA and a QUAD element */
 void dint_triquad_lin(const gauss_t *g3,
                       const double *nodesx,
                       const accelerator_t *acceleratorx,
@@ -92,7 +92,7 @@ void dint_triquad_lin(const gauss_t *g3,
                       double *br,
                       double *bi);
 
-// Singular double B integral over a lin TRIA element
+/* Singular double B integral over a lin TRIA element */
 void dint_tri_lin_sing(const gauss_t *g3,
                        const double *nodes,
                        const accelerator_t *accelerator,
@@ -101,7 +101,7 @@ void dint_tri_lin_sing(const gauss_t *g3,
                        double *br,
                        double *bi);
 
-// Singular double B integral over a lin QUAD element
+/* Singular double B integral over a lin QUAD element */
 void dint_quad_lin_sing(const gauss_t *g4,
                         const double *nodes,
                         const accelerator_t *accelerator,
@@ -110,7 +110,7 @@ void dint_quad_lin_sing(const gauss_t *g4,
                         double *bi);
 						
 						
-// Regular double D integral over a constant TRIA element
+/* Regular double D integral over a constant TRIA element */
 void dintD_tritri_const(const gauss_t *gx,
                        const double *nodesx,
                        const accelerator_t *acceleratorx,
@@ -120,7 +120,7 @@ void dintD_tritri_const(const gauss_t *gx,
                        double *br,
                        double *bi);
 
-// Regular double D integral over a constant QUAD element
+/* Regular double D integral over a constant QUAD element */
 void dintD_quadquad_const(const gauss_t *gx,
                          const double *nodesx,
                          const accelerator_t *acceleratorx,
@@ -130,7 +130,7 @@ void dintD_quadquad_const(const gauss_t *gx,
                          double *br,
                          double *bi);
 
-// Regular double D integral over a constant TRIA and a QUAD element
+/* Regular double D integral over a constant TRIA and a QUAD element */
 void dintD_triquad_const(const gauss_t *gx,
                         const double *nodesx,
                         const accelerator_t *acceleratorx,
