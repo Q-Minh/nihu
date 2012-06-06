@@ -1,5 +1,5 @@
 function insert_copyright(filein)
-%INSERT_COPYTIGHT Insert Copyright rows in matlab m file
+%INSERT_COPYRIGHT Insert Copyright rows in matlab m file
 %  INSERT_COPYRIGHT(FILENAME) inserts copyright rows in the m file
 %  FILENAME.
 
