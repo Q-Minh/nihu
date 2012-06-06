@@ -118,6 +118,6 @@ end
 l = depth+1;
 I = intdata(l);
 tstart = tic;
-Hp = recover(rr, Sig(l).dNp, fr-1, I.S, I.W, k) / (4*pi);
+Hp = recover(rr, Sig(l).dNp, fr-1, I.S, I.W, k);
 trec = toc(tstart);
 end

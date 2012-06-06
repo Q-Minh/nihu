@@ -118,6 +118,6 @@ end
 l = depth+1;
 I = intdata(l);
 tstart = tic;
-Gq = recover(rr, Sig(l).Nq, fatherrec-1, I.S, I.W, k) / (4*pi);
+Gq = recover(rr, Sig(l).Nq, fatherrec-1, I.S, I.W, k);
 trec = toc(tstart);
 end

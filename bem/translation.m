@@ -39,7 +39,7 @@ for l = 0:L
     M = M + repmat(q,1,size(P,2)) .* P(Dirind,:);
     progbar(0, L, l);
 end
-M = M*(1i*k)/(4*pi);
+M = M*(1i*k)/(4*pi)/(4*pi);
 if isreal(k) && k < 0
     M = -M;
 end
