@@ -51,6 +51,11 @@ end
 %% Spherical hankel functions
 function h = sphankel(nu, z)
 
-h = repmat(sqrt(pi./(2*z)),1,length(nu)) .* ...
-    besselh(repmat(nu+1/2, length(z),1), repmat(z, 1, length(nu)));
+try
+    
+    h = repmat(sqrt(pi./(2*z)),1,length(nu)) .* ...
+        besselh(repmat(nu+1/2, length(z),1), repmat(z, 1, length(nu)));
+catch
+    h = repmat(sqrt(pi./(2*z)),1,length(nu)) .* besselh(nu+1/2, z);
+end
 end
