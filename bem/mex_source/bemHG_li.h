@@ -2,8 +2,8 @@
 #define BEMHG_LI_H
 #include "types.h"
 
-// ------------------------------------------------------------------------
-// Compute surface system matrices of a bem model
+/* ------------------------------------------------------------------------ */
+/* Compute surface system matrices of a bem model */
 void matrix_surf_lin(int nnodes,
                      const double *nodes,
                      int nelements,
@@ -17,8 +17,8 @@ void matrix_surf_lin(int nnodes,
                      double *Br,
                      double *Bi);
 
-// ------------------------------------------------------------------------
-// Compute far field system matrices of a bem model
+/* ------------------------------------------------------------------------ */
+/* Compute far field system matrices of a bem model */
 void matrix_field_lin(int nnodes,
                       const double *nodes,
                       int nelements,
