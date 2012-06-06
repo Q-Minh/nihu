@@ -28,8 +28,7 @@ points = field.Nodes(:,2:4);
 [tree fathersou fatherrec] = clustertree(depth, gcoord, points, symm);  % build cluster tree using elem centers
 print_tree_info(tree);
 % Gaussian point fathers
-fathergau = zeros(size(gcoord,1),1);
-fathergau(gind) = repmat(fathersou,1,size(gind,2));
+fathergau = fathersou(gind);
 tt = toc(ttstart);
 
 %% Compute BEM sparse matrices
@@ -46,7 +45,7 @@ tn = toc(tnstart);
 %% FMBEM integration parameters
 tmstart = tic;
 intdata = integpar(tree, k, C, symm);     % determine integration parameters
-init_translation(tree, intdata, k, symm); % store translation operators
+[relative_tree, rr, rs, ns] = reltree(tree, points, fatherrec, gcoord, fathergau, gnorm, symm);
 tm = toc(tmstart);
 
 %% Right hand side
@@ -57,8 +56,8 @@ qw = qw(:) .* w;
 pw = repmat(pexc.',length(w)/length(pexc),1);
 pw = pw(:) .* w;
 % multipole contribution
-Gqm = mpcont_Gq(points, gcoord, qw, tree, intdata, k, fathergau, fatherrec, symm);
-Hpm = mpcont_Hp(points, gcoord, gnorm, pw, tree, intdata, k, fathergau, fatherrec, symm);
+Gqm = mpcont_Gq(rr, rs, qw, relative_tree, intdata, k, fathergau, fatherrec, symm);
+Hpm = mpcont_Hp(rr, rs, ns, pw, relative_tree, intdata, k, fathergau, fatherrec, symm);
 pf = Hpm + Hnf * pexc - Gqm - Gnf * qexc;
 ti = toc(tistart);
 
