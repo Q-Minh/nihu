@@ -1,5 +1,7 @@
-*.m 	eol=lf
-*.c	eol=lf
-*.h 	eol=lf
-*.html	eol=lf
+* text=auto
+
+*.m text eol=crlf
+*.c text eol=crlf
+*.h text eol=crlf
+*.html text eol=crlf
 
