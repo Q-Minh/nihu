@@ -110,8 +110,7 @@ for l = mindepth : depth
     tsampdn(l) = toc(tstart);
     % shift down
     tstart = tic;
-    Sig(l+1).dNp = Sig(l+1).dNp + ...
-        shiftdown(T2.r, dNp, T2.father-1, I2.S, k);
+    Sig(l+1).dNp = Sig(l+1).dNp + shiftdown(T2.r, dNp, T2.father-1, I2.S, k);
     tshiftdn(l) = toc(tstart);
 end
 
@@ -119,6 +118,6 @@ end
 l = depth+1;
 I = intdata(l);
 tstart = tic;
-Hp = recover(rr, Sig(l).dNp, fr-1, I.S, I.W, k);
+Hp = recover(rr, Sig(l).dNp, fr-1, I.S, I.W, k) / (4*pi);
 trec = toc(tstart);
 end

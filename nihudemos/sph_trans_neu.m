@@ -8,7 +8,7 @@
 % applicable to the mesh with a given element-per-wavelength ratio, using
 % the toolbox function |bemkmax|
 R = 1;      % radius
-nR = 10;    % division parameter
+nR = 30;    % division parameter
 mesh = create_sphere_boundary(R, nR);
 ratio = 7;  % element-per-wavelength ratio
 kmax = bemkmax(mesh, ratio);

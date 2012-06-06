@@ -22,7 +22,7 @@
  * 2009
  */
 
-/* $Make: mex -O -output bemHG_const_sp bemHG_const_sp.mex.c bemHG_con.c mesh.c integral.c vector.c $ */
+/* $Make: mex -O -output bemHG_const_sp bemHG_const_sp.mex.c bemHG_con.c mesh.c integral_direct.c quadrature.c element.c vector.c green.c$ */
 
 #include "mex.h"
 #include "bemHG_con.h"

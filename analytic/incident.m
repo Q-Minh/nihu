@@ -24,7 +24,7 @@ switch lower(type)
             dvec = r - repmat(r0(m,:), N, 1);
             d = sqrt(dot(dvec, dvec, 2));
             dvec = dvec ./ repmat(d, 1, 3);
-            p = p + exp(-1i*k*d)./ d;
+            p = p + exp(-1i*k*d)./ d / (4*pi);
             if nargout == 2 && ~isempty(n)
                 q = q -(1+1i*k*d)./d .* p .* dot(dvec, n, 2);
             end
