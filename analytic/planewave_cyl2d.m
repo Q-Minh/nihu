@@ -9,7 +9,7 @@ function [ps] = planewave_cyl2d(r, phi, a, k, m)
 mm = 1:m;
 ps = zeros(length(r),m+1);
 
-g0 = atan(-besselj(1,k*a)/bessely(1,k*a));
+g0 = atan(-besselj(1,k*a)/bessely(1,k*a));	
 A0 = -1i*exp(-1i*g0)*sin(g0);
 ps(:,1) = repmat(A0,length(r),1).*(besselj(0,k*r)+1i*bessely(0,k*r));
 
