@@ -57,7 +57,7 @@ Sig = struct('Nq', cell(depth+1,1));
 %% Computing far field signature at leaf level
 l = depth+1;
 tstart = tic;
-Fq = leafGq(rs, q, fathersou-1, size(tree(l).father,1), intdata(l).S, k);
+Fq = leafGq(rs, q, uint32(fathersou)-1, size(tree(l).father,1), intdata(l).S, k);
 tleaf = toc(tstart);
 
 %% Translation and upward shift
@@ -118,6 +118,6 @@ end
 l = depth+1;
 I = intdata(l);
 tstart = tic;
-Gq = recover(rr, Sig(l).Nq, fatherrec-1, I.S, I.W, k);
+Gq = recover(rr, Sig(l).Nq, uint32(fatherrec)-1, I.S, I.W, k);
 trec = toc(tstart);
 end

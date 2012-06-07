@@ -19,7 +19,8 @@ void mexFunction(int nlhs,
                  int nrhs,
                  const mxArray *prhs[])
 {
-    double *r, *qr, *qi, *father, *R, *s, k;
+    double *r, *qr, *qi, *R, *s, k;
+    int32_t *father;
     int nnod, nclus, ns;
     double *Fr, *Fi;
 
@@ -28,7 +29,7 @@ void mexFunction(int nlhs,
     nnod = mxGetN(prhs[0]);
     qr = mxGetPr(prhs[1]);
     qi = mxGetPi(prhs[1]);
-    father = mxGetPr(prhs[2]);
+    father = (int32_t *)mxGetData(prhs[2]);	/* father cluster indices */
     nclus = (int)mxGetScalar(prhs[3]);
     s = mxGetPr(prhs[4]);
     ns = mxGetN(prhs[4]);

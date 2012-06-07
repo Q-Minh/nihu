@@ -19,7 +19,8 @@ void mexFunction(int nlhs,
                  int nrhs,
                  const mxArray *prhs[])
 {
-    double *Nr, *Ni, *father, *r, *s, *w, k;
+    double *Nr, *Ni, *r, *s, *w, k;
+    int32_t *father;
     int nnod, ns;
     double *pr, *pi;
 
@@ -28,7 +29,7 @@ void mexFunction(int nlhs,
     nnod = mxGetN(prhs[0]);
     Nr = mxGetPr(prhs[1]);		/* Near field signature */
     Ni = mxGetPi(prhs[1]);
-    father = mxGetPr(prhs[2]);	/* receiver father cluster indices */
+    father = (int32_t *)mxGetData(prhs[2]);	/* father cluster indices */
     s = mxGetPr(prhs[3]);		/* directions (unit sphere) */
     ns = mxGetN(prhs[3]);
     w = mxGetPr(prhs[4]);		/* Gauss weights over unit sphere */

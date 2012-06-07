@@ -31,10 +31,10 @@ tr = struct('father', c, 'interlist', c, 'r', c);
 
 %% Computing relative tree entries
 for l = 1 : length(tree)
-    tr(l).father = tree(l).father;
-    tr(l).interlist = tree(l).interlist.'; %transp. for faster C routine
+    tr(l).father = int32(tree(l).father);
+    tr(l).interlist = int32(tree(l).interlist).'; %transp. for faster C routine
     if symm
-        tr(l).iminterlist = tree(l).iminterlist.';
+        tr(l).iminterlist = int32(tree(l).iminterlist).';
     end
     if l > 1
         tr(l).r = (tree(l-1).coord(tree(l).father,:) - tree(l).coord).';

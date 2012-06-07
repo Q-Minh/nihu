@@ -2,19 +2,20 @@
 #include "math.h"
 #include "vector.h"
 
-void leafGq(int nnod,
-            const double *r,
-            const double *qr,
-            const double *qi,
-            const double *father,
-            int nclus,
-            int ns,
-            const double *s,
-            double k,
-            double *Fr,
-            double *Fi)
+void leafGq(int nnod,				/* numer of nodes */
+            const double *r,		/* node locations */
+            const double *qr,		/* real part of excitation */
+            const double *qi,		/* imaginary part of excitation */
+            const int32_t *father,	/* father cluster indices */
+            int nclus,				/* number of clusters */
+            int ns,					/* number of samples on the unit sphere */
+            const double *s,		/* samples on the unit sphere */
+            double k,				/* wave number */
+            double *Fr,				/* real part of far field signatures */
+            double *Fi)				/* imaginary part of far field signatures */
 {
-    int j, p, f;
+    int j, p;
+	int32_t f;
     double phi, cphi, sphi;
 
     /* Clear output matrix */
@@ -26,7 +27,7 @@ void leafGq(int nnod,
     for (j = 0; j < nnod; j++)
     {
         /* father cluster index */
-        f = (int)father[j];
+        f = father[j];
         /* for each direction (s) */
         for (p = 0; p < ns; p++)
         {
@@ -46,7 +47,7 @@ void leafHp(int nnod,
             const double *n,
             const double *pr,
             const double *pi,
-            const double *father,
+            const int32_t *father,
             int nclus,
             int ns,
             const double *s,
@@ -54,7 +55,8 @@ void leafHp(int nnod,
             double *Fr,
             double *Fi)
 {
-    int i, j, p, f;
+    int i, j, p;
+	int32_t f;
     double kdvec[3], phi, cphi, sphi, kns;
 
     /* Clear output matrix */
@@ -66,7 +68,7 @@ void leafHp(int nnod,
     for (j = 0; j < nnod; j++)
     {
         /* father cluster index */
-        f = (int)father[j];
+        f = father[j];
         /* distance vector (kd) */
         for (i = 0; i < 3; i++)
             kdvec[i] = k*r[j*3+i];
@@ -90,7 +92,7 @@ void recover(int nnod,
              const double *r,
              const double *Nr,
              const double *Ni,
-             const double *father,
+             const int32_t *father,
              int ns,
              const double *s,
              const double *w,
@@ -98,7 +100,8 @@ void recover(int nnod,
              double *pr,
              double *pi)
 {
-    int i, j, p, f;
+    int i, j, p;
+	int32_t f;
     double kdvec[3], phi, cphi, sphi;
 
     /* for each receiver node */
@@ -107,7 +110,7 @@ void recover(int nnod,
         /* numerical integration initialization */
         pr[j] = pi[j] = 0.0;
         /* father cluster of receiver */
-        f = (int)father[j];
+        f = father[j];
         /* distance vector ( k*(r-R) ) */
         for (i = 0; i < 3; i++)
             kdvec[i] = -k*(r[j*3+i]);
@@ -129,7 +132,7 @@ void upward(int nnod,
             const double *r,
             const double *qr,
             const double *qi,
-            const double *father,
+            const int32_t *father,
             int nclus,
             int ns,
             const double *s,
@@ -137,7 +140,8 @@ void upward(int nnod,
             double *Fr,
             double *Fi)
 {
-    int i, j, p, f;
+    int i, j, p;
+	int32_t f;
     double kdvec[3], phi, cphi, sphi;
 
     for (j = 0; j < nclus; j++)
@@ -146,7 +150,7 @@ void upward(int nnod,
 
     for (j = 0; j < nnod; j++)
     {
-        f = (int)father[j];
+        f = father[j];
         for (i = 0; i < 3; i++)
             kdvec[i] = k*r[j*3+i];
         for (p = 0; p < ns; p++)
@@ -165,7 +169,7 @@ void translate(int nclus, /* number of clusters */
                const double *Fr, /* real part of far field signature */
                const double *Fi, /* imaginary part of far field signature */
                int nil, /* max. length of interaction list */
-               const double *I, /* interaction list matrix */
+               const int32_t *I, /* interaction list matrix */
                const double *D, /* distance matrix */
                const double *P, /* permutation index matrix */
                const double *Perm, /* permutation matrix */
@@ -175,7 +179,8 @@ void translate(int nclus, /* number of clusters */
                double *Nr, /* real part of near field signature matrix */
                double *Ni) /* imaginary part of near field signature matrix */
 {
-    int i, j, p, pp, Iij, Dij, Pij;
+    int i, j, p, pp, Dij, Pij;
+	int32_t Iij;
     double fr, fi, mr, mi;
 
     /* Clear output matrix */
@@ -190,7 +195,7 @@ void translate(int nclus, /* number of clusters */
         for (j = 0; j < nil; j++)
         {
             /* receiver cluster index */
-            Iij = (int)I[i*nil+j];
+            Iij = I[i*nil+j];
             if (Iij >= 0)
             {
                 /* distance index */
@@ -221,21 +226,22 @@ void downward(int nnod,
               const double *r,
               const double *qr,
               const double *qi,
-              const double *father,
+              const int32_t *father,
               int ns,
               const double *s,
               double k,
               double *Nr,
               double *Ni)
 {
-    int i, j, p, f;
+    int i, j, p;
+	int32_t f;
     double kdvec[3], phi, cphi, sphi;
 
     /* for each receiver cluster */
     for (j = 0; j < nnod; j++)
     {
         /* index of father source cluster */
-        f = (int)father[j];
+        f = father[j];
         /* distance vector (k*(R-r)) */
         for (i = 0; i < 3; i++)
             kdvec[i] = -k*r[j*3+i];
@@ -252,4 +258,3 @@ void downward(int nnod,
         }
     }
 }
-
