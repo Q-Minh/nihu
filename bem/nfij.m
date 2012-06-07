@@ -23,9 +23,9 @@ if nargin == 2
 end
 
 %% Build sparse matrix
-[cls, thrash, clr] = find(nearfield);
-[ir, thrash, jr] = find(receiver(clr,:));
-[is, thrash, j] = find(source(cls(ir),:));
+[cls, ~, clr] = find(nearfield);
+[ir, ~, jr] = find(receiver(clr,:));
+[is, ~, j] = find(source(cls(ir),:));
 i = jr(is);
 i = i(:);
 j = j(:);

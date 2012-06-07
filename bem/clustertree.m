@@ -104,9 +104,10 @@ for l = depth : -1 : 0
     d = tree(iL).diameter; % current cluster diameter
     base = r0+d/2*[1 1 1]; % center of corner cluster
     normnod = round((nod - repmat(base, size(nod,1),1))/d);  % normalized nodes
+    % ensure that result is not corrupted by roundoff errors
     normnod(normnod < 0) = 0;
     normnod(normnod > 2^l-1) = 2^l-1;
-    [normnod, ~, n] = unique(round(normnod), 'rows'); % node indices
+    [normnod, ~, n] = unique(normnod, 'rows'); % node indices
     nC = size(normnod,1); % number of clusters on the level
     tree(iL).coord = normnod*d + repmat(base, nC, 1); % Multipole coordinates
     % Fill nodes, fathers
@@ -234,10 +235,12 @@ end
 ok = true;
 while ok && length(tree) > lmin+1
     if size(tree(lmin+2).father,1) == size(tree(lmin+1).coord,1)
-        if ~any(tree(lmin+2).father - (1:size(tree(lmin+1).coord,1)).')
+        if all(tree(lmin+2).father == (1:size(tree(lmin+1).coord,1)).')
             % copy the 2nd level interaction list to the 3rd level
             tree(lmin+2).interlist = tree(lmin+1).interlist;
             tree(lmin+2).iminterlist = tree(lmin+1).iminterlist;
+            % adjust diameter
+            tree(lmin+2).diameter = tree(lmin+1).diameter;
             % remove the 2nd level from the tree
             tree = tree([1:lmin, lmin+2:length(tree)]);
         else

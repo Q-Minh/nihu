@@ -160,20 +160,20 @@ void upward(int nnod,
     }
 }
 
-void translate(int nclus,
-               int ns,
-               const double *Fr,
-               const double *Fi,
-               int nil,
-               const double *I,
-               const double *D,
-               const double *P,
-               const double *Perm,
-               int nm,
-               const double *Mr,
-               const double *Mi,
-               double *Nr,
-               double *Ni)
+void translate(int nclus, /* number of clusters */
+               int ns,    /* number of points on the unit sphere */
+               const double *Fr, /* real part of far field signature */
+               const double *Fi, /* imaginary part of far field signature */
+               int nil, /* max. length of interaction list */
+               const double *I, /* interaction list matrix */
+               const double *D, /* distance matrix */
+               const double *P, /* permutation index matrix */
+               const double *Perm, /* permutation matrix */
+               int nm, /* number of translation operators */
+               const double *Mr, /* real part of translation operator matrix */
+               const double *Mi, /* imaginary part of translation operator matrix */
+               double *Nr, /* real part of near field signature matrix */
+               double *Ni) /* imaginary part of near field signature matrix */
 {
     int i, j, p, pp, Iij, Dij, Pij;
     double fr, fi, mr, mi;
@@ -252,3 +252,4 @@ void downward(int nnod,
         }
     }
 }
+
