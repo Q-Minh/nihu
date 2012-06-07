@@ -20,15 +20,14 @@ if nargin < 6
 end
 
 %% Gaussian integration points normals and weights
-[gcoord, gnorm, w, gind] = geo2gauss(model, order); % Quadrature config
+[gs, gn, w, gind] = geo2gauss(model, order); % Quadrature config
 
 %% cluster tree
 ttstart = tic;
 points = field.Nodes(:,2:4);
-[tree fathersou fatherrec] = clustertree(depth, gcoord, points, symm);  % build cluster tree using elem centers
+[tree fs fr] = clustertree(depth, gs, points, symm);  % build cluster tree using elem centers
 print_tree_info(tree);
 % Gaussian point fathers
-fathergau = fathersou(gind);
 tt = toc(ttstart);
 
 %% Compute BEM sparse matrices
@@ -37,27 +36,22 @@ tnstart = tic;
 if ~isempty(i)
     [Hnf, Gnf] = bemHG(model, k, 'const', points, [i, j]);
 else
-    Hnf = 0;
-    Gnf = 0;
+    Hnf = sparse([],[],[],size(points,1),length(pexc));
+    Gnf = sparse([],[],[],size(points,1),length(pexc));
 end
 tn = toc(tnstart);
 
 %% FMBEM integration parameters
 tmstart = tic;
-intdata = integpar(tree, k, C, symm);     % determine integration parameters
-[relative_tree, rr, rs, ns] = reltree(tree, points, fatherrec, gcoord, fathergau, gnorm, symm);
+I = integpar(tree, k, C, symm);     % determine integration parameters
+[rt, rr, rs, ns] = reltree(tree, points, fr, gs, fs(gind), gn, symm);
 tm = toc(tmstart);
 
 %% Right hand side
 tistart = tic;
-% Excitation in Gaussian points
-qw = repmat(qexc.',length(w)/length(qexc),1);
-qw = qw(:) .* w;
-pw = repmat(pexc.',length(w)/length(pexc),1);
-pw = pw(:) .* w;
 % multipole contribution
-Gqm = mpcont_Gq(rr, rs, qw, relative_tree, intdata, k, fathergau, fatherrec, symm);
-Hpm = mpcont_Hp(rr, rs, ns, pw, relative_tree, intdata, k, fathergau, fatherrec, symm);
+Gqm = mpcont_Gq(rr, rs,     qexc(gind).*w, rt, I, k, fs(gind), fr, symm);
+Hpm = mpcont_Hp(rr, rs, ns, pexc(gind).*w, rt, I, k, fs(gind), fr, symm);
 pf = Hpm + Hnf * pexc - Gqm - Gnf * qexc;
 ti = toc(tistart);
 
