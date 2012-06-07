@@ -1,11 +1,11 @@
 function mindepth = mininterdepth(tree, symm)
 %MININTERDEPTH  Find minimal depth with nonempty interaction list
-% MINDEPTH = MININTERDEPTH(TREE, SYMM) returns the minimal depth in a
-% cluster tree where the interaction list or the image interationc list is
+% MINDEPTH = MININTERDEPTH(TREE, SYMM) returns the minimal depth index in a
+% cluster tree where the interaction list or the image interaction list is
 % not empty
 
 %% Argument check and default parameters
-error(nargchk(1,2,nargin));
+narginchk(1,2);
 
 if nargin == 0
     symm = 0;

@@ -46,6 +46,7 @@ for l = nL : -1 : mindepth
     %% truncation length L
     x = sqrt(3)*abs(k)*tree(l).diameter;
     L = round(x+C*log10(x+pi));
+    % TODO what is this for???
     if l < nL
         L = ceil(I(end).L + acc * (L - I(end).L));
     end
@@ -88,7 +89,7 @@ for j = 1 : 3
     a = find(ind1(:,j) == -1);
     T1(:,a) = T1(perm(:,j+1),a);
 end
-[R1, m, n1] = unique(R1, 'rows');
+[R1, ~, n1] = unique(R1, 'rows');
 
 %%
 R2 = R1;
@@ -98,7 +99,7 @@ T2 = repmat(perm(:,1), 1, size(R2,1));
 for i = 1 : length(ind2)
     T2(:,ind2(i)) = T2(perm(:,5),ind2(i));
 end
-[R0, m, n2] = unique(R2, 'rows');
+[R0, ~, n2] = unique(R2, 'rows');
 Rindex = n2(n1);
 
 %%
@@ -106,7 +107,7 @@ T0 = zeros(size(T2,1),length(Rindex));
 for i = 1 : length(Rindex)
     T0(:,i) = T2(T1(:,i),n1(i));
 end
-[T0, m, Tindex] = unique(T0.', 'rows');
+[T0, ~, Tindex] = unique(T0.', 'rows');
 T0 = T0.';
 end
 
