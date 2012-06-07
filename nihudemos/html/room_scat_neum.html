@@ -1,93 +1,61 @@
 
 <!DOCTYPE html
   PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
-   <head>
+<html><head>
       <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-   
-      <!--
-This HTML is auto-generated from an M-file.
-To make changes, update the M-file and republish this document.
-      -->
-      <title>Neumann interior scattering problem</title>
-      <meta name="generator" content="MATLAB 7.8">
-      <meta name="date" content="2009-11-10">
-      <meta name="m-file" content="room_scat_neum"><style type="text/css">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Neumann interior scattering problem</title><meta name="generator" content="MATLAB 7.14"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2012-06-07"><meta name="DC.source" content="room_scat_neum.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
-body {
-  background-color: white;
-  margin:10px;
-}
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
 
-h1 {
-  color: #990000; 
-  font-size: x-large;
-}
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
 
-h2 {
-  color: #990000;
-  font-size: medium;
-}
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
 
-/* Make the text shrink to fit narrow windows, but not stretch too far in 
-wide windows. */ 
-p,h1,h2,div.content div {
-  max-width: 600px;
-  /* Hack for IE6 */
-  width: auto !important; width: 600px;
-}
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img { margin-bottom:0px; } 
 
-pre.codeinput {
-  background: #EEEEEE;
-  padding: 10px;
-}
-@media print {
-  pre.codeinput {word-wrap:break-word; width:100%;}
-} 
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
 
-span.keyword {color: #0000FF}
-span.comment {color: #228B22}
-span.string {color: #A020F0}
-span.untermstring {color: #B20000}
-span.syscmd {color: #B28C00}
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
 
-pre.codeoutput {
-  color: #666666;
-  padding: 10px;
-}
+pre, tt, code { font-size:12px; }
+pre { margin:0px 0px 20px; }
+pre.error { color:red; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
 
-pre.error {
-  color: red;
-}
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
 
-p.footer {
-  text-align: right;
-  font-size: xx-small;
-  font-weight: lighter;
-  font-style: italic;
-  color: gray;
-}
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
 
-  </style></head>
-   <body>
-      <div class="content">
-         <h1>Neumann interior scattering problem</h1>
-         <!--introduction-->
-         <p>This tutorial introduces how to use the toolbox <tt>NIHU</tt> to solve a simple interior acoustic scattering problem.
-         </p>
-         <p>The problem is scattering of an incident monopole wave field from the rigid walls of a shoe-box shaped room.</p>
-         <!--/introduction-->
-         <h2>Contents</h2>
-         <div>
-            <ul>
-               <li><a href="#1">Surface and field point mesh</a></li>
-               <li><a href="#5">Incident wave field</a></li>
-               <li><a href="#7">BEM matrices and solution</a></li>
-               <li><a href="#8">Field point pressure and total pressure field (post processing)</a></li>
-            </ul>
-         </div>
-         <h2>Surface and field point mesh<a name="1"></a></h2>
-         <p>Generate a brick surface with given side lengths and division parameter.</p><pre class="codeinput">L = [5 4 3];    <span class="comment">% dimensions of the room [x y z]</span>
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+
+  </style></head><body><div class="content"><h1>Neumann interior scattering problem</h1><!--introduction--><p>This tutorial introduces how to use the toolbox <tt>NIHU</tt> to solve a simple interior acoustic scattering problem.</p><p>The problem is scattering of an incident monopole wave field from the rigid walls of a shoe-box shaped room.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Surface and field point mesh</a></li><li><a href="#5">Incident wave field</a></li><li><a href="#7">BEM matrices and solution</a></li><li><a href="#8">Field point pressure and total pressure field (post processing)</a></li></ul></div><h2>Surface and field point mesh<a name="1"></a></h2><p>Generate a brick surface with given side lengths and division parameter.</p><pre class="codeinput">L = [5 4 3];    <span class="comment">% dimensions of the room [x y z]</span>
 Le = .2;        <span class="comment">% lengt of boundary elements</span>
 N = ceil(L/Le); <span class="comment">% division parameter</span>
 mesh = create_brick_boundary(L, N);
@@ -114,12 +82,7 @@ field = join_meshes(field1, field2, field3);
 
 figure;
 plot_mesh(field); view(3);
-</pre><img vspace="5" hspace="5" src="room_scat_neum_03.png" alt=""> <h2>Incident wave field<a name="5"></a></h2>
-         <p>The incident wave field is the field of a monopole source located inside the room. The incident pressure field <img src="room_scat_neum_eq83153.png" alt="$p_{si}$"> and pressure derivative field <img src="room_scat_neum_eq63720.png" alt="$q_{si}$"> is computed in all surface DOF. In the present example, constant boundary elements are used, and the DOF locations are the
-            element centers. The element centers and normals are obtained from the toolbox function <tt>centnorm</tt>, and the toolbox function <tt>incident</tt> computes the incident surface pressure and velocity field. For visualization purposes, the incident pressure field is computed
-            in the field points (vertices of the field point mesh).
-         </p>
-         <p>The frequency is determined from the element length</p><pre class="codeinput">ratio = 7;                  <span class="comment">% elements per wavelength</span>
+</pre><img vspace="5" hspace="5" src="room_scat_neum_03.png" alt=""> <h2>Incident wave field<a name="5"></a></h2><p>The incident wave field is the field of a monopole source located inside the room. The incident pressure field <img src="room_scat_neum_eq83153.png" alt="$p_{si}$"> and pressure derivative field <img src="room_scat_neum_eq63720.png" alt="$q_{si}$"> is computed in all surface DOF. In the present example, constant boundary elements are used, and the DOF locations are the element centers. The element centers and normals are obtained from the toolbox function <tt>centnorm</tt>, and the toolbox function <tt>incident</tt> computes the incident surface pressure and velocity field. For visualization purposes, the incident pressure field is computed in the field points (vertices of the field point mesh).</p><p>The frequency is determined from the element length</p><pre class="codeinput">ratio = 7;                  <span class="comment">% elements per wavelength</span>
 k = .9 * 2*pi/(ratio * Le); <span class="comment">% wave number</span>
 
 r0 = [.3 .6 .7] * diag(L);  <span class="comment">% monople source location</span>
@@ -139,25 +102,12 @@ figure;
 plot_mesh(field, real(pfi)); shading <span class="string">interp</span>;
 c = colorbar; ylabel(c, <span class="string">'Real incident pressure'</span>);
 view(3);
-</pre><img vspace="5" hspace="5" src="room_scat_neum_04.png" alt=""> <img vspace="5" hspace="5" src="room_scat_neum_05.png" alt=""> <h2>BEM matrices and solution<a name="7"></a></h2>
-         <p>The BEM system matrices are generated by the toolbox function <tt>bemHG</tt>. The system of equations
-         </p>
-         <p><img src="room_scat_neum_eq97481.png" alt="$$ {\bf H} {\bf p}_{ss} = {\bf G} {\bf q}_{ss} $$"></p>
-         <p>is solved by matrix inversion. As a rigid scatterer is considered, the scattered velocity field is computed from the incident
-            velocity as
-         </p>
-         <p><img src="room_scat_neum_eq69915.png" alt="$$q_{ss} = -q_{si} $$"></p><pre class="codeinput">[H, G] = bemHG(mesh, k, <span class="string">'const'</span>);   <span class="comment">% Generate BEM matrices</span>
+</pre><img vspace="5" hspace="5" src="room_scat_neum_04.png" alt=""> <img vspace="5" hspace="5" src="room_scat_neum_05.png" alt=""> <h2>BEM matrices and solution<a name="7"></a></h2><p>The BEM system matrices are generated by the toolbox function <tt>bemHG</tt>. The system of equations</p><p><img src="room_scat_neum_eq55736.png" alt="$$  \left({\bf H} - \frac{1}{2} {\bf I} \right) {\bf p}_{ss} = {\bf G} {\bf q}_{ss} $$"></p><p>is solved by matrix inversion. As a rigid scatterer is considered, the scattered velocity field is computed from the incident velocity as</p><p><img src="room_scat_neum_eq69915.png" alt="$$q_{ss} = -q_{si} $$"></p><pre class="codeinput">[H, G] = bemHG(mesh, k, <span class="string">'const'</span>);   <span class="comment">% Generate BEM matrices</span>
 qss = -qsi;                         <span class="comment">% Boundary cond. at a rigid boundary</span>
-pss = H \ (G * qss);                <span class="comment">% solve the system</span>
-</pre><h2>Field point pressure and total pressure field (post processing)<a name="8"></a></h2>
-         <p>The scattered field point pressure <img src="room_scat_neum_eq23573.png" alt="$p_{fs}$"> is computed from the scattered surface pressure <img src="room_scat_neum_eq98987.png" alt="$p_{ss}$"> and velocity <img src="room_scat_neum_eq32815.png" alt="$q_{ss}$"> as
-         </p>
-         <p><img src="room_scat_neum_eq65989.png" alt="$${\bf p}_{fs} = \frac{1}{4\pi} ({\bf H} {\bf p}_{ss} - {\bf G} {\bf q}_{ss})$$"></p>
-         <p>where the system matrices are computed by the toolbox function <tt>bemHG</tt>.
-         </p><pre class="codeinput">[H, G] = bemHG(mesh, k, <span class="string">'const'</span>, points);
-pfs = (H * pss - G * qss) / (4*pi);
-</pre><p>The total pressure field in the field points and on the surface is computed as</p>
-         <p><img src="room_scat_neum_eq33402.png" alt="$$ p_t = p_i + p_s $$"></p><pre class="codeinput">pst = psi + pss;
+pss = (H-.5*eye(size(H))) \ (G * qss);    <span class="comment">% solve the system</span>
+</pre><h2>Field point pressure and total pressure field (post processing)<a name="8"></a></h2><p>The scattered field point pressure <img src="room_scat_neum_eq23573.png" alt="$p_{fs}$"> is computed from the scattered surface pressure <img src="room_scat_neum_eq98987.png" alt="$p_{ss}$"> and velocity <img src="room_scat_neum_eq32815.png" alt="$q_{ss}$"> as</p><p><img src="room_scat_neum_eq40794.png" alt="$${\bf p}_{fs} = {\bf H} {\bf p}_{ss} - {\bf G} {\bf q}_{ss}$$"></p><p>where the system matrices are computed by the toolbox function <tt>bemHG</tt>.</p><pre class="codeinput">[H, G] = bemHG(mesh, k, <span class="string">'const'</span>, points);
+pfs = H * pss - G * qss;
+</pre><p>The total pressure field in the field points and on the surface is computed as</p><p><img src="room_scat_neum_eq33402.png" alt="$$ p_t = p_i + p_s $$"></p><pre class="codeinput">pst = psi + pss;
 pft = pfi + pfs;
 
 figure;
@@ -170,9 +120,7 @@ plot_mesh(field, real(pft)); shading <span class="string">interp</span>;
 c = colorbar; ylabel(c, <span class="string">'Real pressure'</span>);
 view(3);
 </pre><img vspace="5" hspace="5" src="room_scat_neum_06.png" alt=""> <img vspace="5" hspace="5" src="room_scat_neum_07.png" alt=""> <p class="footer"><br>
-            Published with MATLAB&reg; 7.8<br></p>
-      </div>
-      <!--
+      Published with MATLAB&reg; 7.14<br></p></div><!--
 ##### SOURCE BEGIN #####
 %% Neumann interior scattering problem
 % This tutorial introduces how to use the toolbox |NIHU| to solve a simple
@@ -263,7 +211,7 @@ view(3);
 % The BEM system matrices are generated by the toolbox function |bemHG|.
 % The system of equations
 %
-% $$ {\bf H} {\bf p}_{ss} = {\bf G} {\bf q}_{ss} $$
+% $$  \left({\bf H} - \frac{1}{2} {\bf I} \right) {\bf p}_{ss} = {\bf G} {\bf q}_{ss} $$
 %
 % is solved by matrix inversion. As a rigid scatterer is considered, the
 % scattered velocity field is computed from the incident velocity as
@@ -272,17 +220,17 @@ view(3);
 %
 [H, G] = bemHG(mesh, k, 'const');   % Generate BEM matrices
 qss = -qsi;                         % Boundary cond. at a rigid boundary
-pss = H \ (G * qss);                % solve the system
+pss = (H-.5*eye(size(H))) \ (G * qss);    % solve the system
 
 %% Field point pressure and total pressure field (post processing)
 % The scattered field point pressure $p_{fs}$ is computed from the
 % scattered surface pressure $p_{ss}$ and velocity $q_{ss}$ as
 % 
-% $${\bf p}_{fs} = \frac{1}{4\pi} ({\bf H} {\bf p}_{ss} - {\bf G} {\bf q}_{ss})$$
+% $${\bf p}_{fs} = {\bf H} {\bf p}_{ss} - {\bf G} {\bf q}_{ss}$$
 % 
 % where the system matrices are computed by the toolbox function |bemHG|.
 [H, G] = bemHG(mesh, k, 'const', points);
-pfs = (H * pss - G * qss) / (4*pi);
+pfs = H * pss - G * qss;
 
 %%
 % The total pressure field in the field points and on the surface is
@@ -303,6 +251,4 @@ plot_mesh(field, real(pft)); shading interp;
 c = colorbar; ylabel(c, 'Real pressure');
 view(3);
 ##### SOURCE END #####
--->
-   </body>
-</html>
+--></body></html>

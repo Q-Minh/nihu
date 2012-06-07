@@ -18,13 +18,13 @@ r0 = shift + [0 0 Z]; % source location
 %% mesh
 % radiator surface
 Le = 2*pi/k/ratio;
-sphere = create_sphere_boundary(R, round(R/Le));
-sphere = translate_mesh(sphere, [0 0 Z]);
-% field point mesh
+singlesphere = translate_mesh(create_sphere_boundary(R, round(R/Le)), [0 0 Z]);
+doublesphere = join_meshes(singlesphere, reflect_mesh(singlesphere, [0 0 0], [0 0 1]));
+
+%% field point mesh
 field = create_slab(L, round(L/Le));
 field = translate_mesh(rotate_mesh(translate_mesh(field, [D 0 0]), [0 0 0], [1 0 0], pi/2), [0 0 Z]);
 % reflect sphere to z = 0 plane
-sphere2 = join_meshes(sphere, reflect_mesh(sphere, [0 0 0], [0 0 1]));
 
 %% compute incident wave field
 T = diag([1 1 -1]);
