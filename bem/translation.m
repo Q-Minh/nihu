@@ -52,7 +52,6 @@ end
 function h = sphankel(nu, z)
 
 try
-    
     h = repmat(sqrt(pi./(2*z)),1,length(nu)) .* ...
         besselh(repmat(nu+1/2, length(z),1), repmat(z, 1, length(nu)));
 catch

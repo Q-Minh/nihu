@@ -5,7 +5,7 @@ function mindepth = mininterdepth(tree, symm)
 % not empty
 
 %% Argument check and default parameters
-narginchk(1,2);
+% narginchk(1,2);
 
 if nargin == 0
     symm = 0;

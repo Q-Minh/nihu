@@ -19,7 +19,8 @@ void mexFunction(int nlhs,
                  int nrhs,
                  const mxArray *prhs[])
 {
-    double *r, *qr, *qi, *father, *R, *s, k;
+    double *r, *qr, *qi, *R, *s, k;
+    int32_t *father;
     int nnod, nclus, ns;
     double *Nr, *Ni;
 
@@ -29,7 +30,7 @@ void mexFunction(int nlhs,
     qr = mxGetPr(prhs[1]);		/* excitation */
     qi = mxGetPi(prhs[1]);
     nclus = (int)mxGetScalar(prhs[1]);
-    father = mxGetPr(prhs[2]);	/* father cluster indices */
+    father = (int32_t *)mxGetData(prhs[2]);	/* father cluster indices */
     s = mxGetPr(prhs[3]);		/* directions (unit sphere) */
     ns = mxGetN(prhs[3]);
     k = mxGetScalar(prhs[4]);	/* wave number */

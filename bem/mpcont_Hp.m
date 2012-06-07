@@ -58,7 +58,7 @@ Sig = struct('dNp', cell(depth+1,1));
 %% Computing far field signature at leaf level
 l = depth+1;
 tstart = tic;
-dFp = leafHp(rs, ns, p, fs-1, size(tree(l).father,1), intdata(l).S, k);
+dFp = leafHp(rs, ns, p, int32(fs)-1, size(tree(l).father,1), intdata(l).S, k);
 tleaf = toc(tstart);
 
 %% Translation and upward shift
@@ -118,6 +118,6 @@ end
 l = depth+1;
 I = intdata(l);
 tstart = tic;
-Hp = recover(rr, Sig(l).dNp, fr-1, I.S, I.W, k);
+Hp = recover(rr, Sig(l).dNp, int32(fr)-1, I.S, I.W, k);
 trec = toc(tstart);
 end
