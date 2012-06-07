@@ -8,8 +8,7 @@ if nargin < 9
     C = 4;
 end
 if nargin < 8
-    mod = join_meshes(model, field);
-    D = norm(max(mod.Nodes(:,2:4),[],1) - min(mod.Nodes(:,2:4),[],1));
+    D = norm(diff(boundingbox(join_meshes(model, field))));
     depth = round(log2(k*D/pi));
 end
 if nargin < 7

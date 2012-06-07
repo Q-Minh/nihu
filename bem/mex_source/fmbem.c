@@ -27,7 +27,7 @@ void leafGq(int nnod,
     {
         /* father cluster index */
         f = (int)father[j];
-        /* for each	direction (s) */
+        /* for each direction (s) */
         for (p = 0; p < ns; p++)
         {
             /* F = q * exp(-i*k*d*s) */
