@@ -22,7 +22,7 @@
 %   leafGq               - leafGq
 %   leafHp               - leafHp
 %   mpcont_Gq            - Multipole contribution of the Gq integral operator
-%   mpcont_Hp            - Multipole contribution of the Hp integral operator
+%   mpcont_Hp            - Multipole contribution of the integral operator Hp
 %   nfij                 - Generate near field sparse matrix locations of a FMBEM model
 %   recover              - RECOVER
 %   reltree              - Convert cluster tree to relative tree
@@ -50,5 +50,6 @@
 %
 % Other functions
 %   bempow               - 
-%   incident             - Incident pressure and velocity wave field
+
 %   nihu_manager         - 
+%   mininterdepth         - Find minimal depth with nonempty interaction list
