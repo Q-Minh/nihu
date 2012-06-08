@@ -170,17 +170,17 @@ void translate(int nclus, /* number of clusters */
                const double *Fi, /* imaginary part of far field signature */
                int nil, /* max. length of interaction list */
                const int32_t *I, /* interaction list matrix */
-               const double *D, /* distance matrix */
-               const double *P, /* permutation index matrix */
-               const double *Perm, /* permutation matrix */
+               const int32_t *D, /* distance matrix */
+               const int32_t *P, /* permutation index matrix */
+               const int32_t *Perm, /* permutation matrix */
                int nm, /* number of translation operators */
                const double *Mr, /* real part of translation operator matrix */
                const double *Mi, /* imaginary part of translation operator matrix */
                double *Nr, /* real part of near field signature matrix */
                double *Ni) /* imaginary part of near field signature matrix */
 {
-    int i, j, p, pp, Dij, Pij;
-	int32_t Iij;
+    int i, j, p;
+	int32_t Iij, Dij, Pij, pp;
     double fr, fi, mr, mi;
 
     /* Clear output matrix */
@@ -199,14 +199,14 @@ void translate(int nclus, /* number of clusters */
             if (Iij >= 0)
             {
                 /* distance index */
-                Dij = (int)D[i*nil+j];
+                Dij = D[i*nil+j];
                 /* permutation index */
-                Pij = (int)P[i*nil+j];
+                Pij = P[i*nil+j];
                 /* for each direction (unit sphere) */
                 for (p = 0; p < ns; p++)
                 {
                     /* permutated index */
-                    pp = (int)Perm[Pij*ns+p];
+                    pp = Perm[Pij*ns+p];
                     /* source */
                     fr = Fr[i*ns+p];
                     fi = Fi[i*ns+p];

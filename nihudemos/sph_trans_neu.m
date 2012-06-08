@@ -10,7 +10,6 @@
 R = 1;      % radius
 nR = 20;    % division parameter
 mesh = create_sphere_boundary(R, nR);
-mesh = quad2tria(mesh);
 ratio = 7;  % element-per-wavelength ratio
 kmax = bemkmax(mesh, ratio);
 k = min(kmax);

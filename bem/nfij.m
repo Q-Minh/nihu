@@ -25,8 +25,8 @@ end
 %% Build sparse matrix
 [cls, ~, clr] = find(nearfield);
 [ir, ~, jr] = find(receiver(clr,:));
-[is, ~, j] = find(source(cls(ir),:));
+[is, ~, js] = find(source(cls(ir),:));
 i = jr(is);
 i = i(:);
-j = j(:);
+j = js(:);
 end
