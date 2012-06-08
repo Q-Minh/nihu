@@ -1,4 +1,4 @@
-function [pf t] = fm_postproc(model, field, k, qexc, pexc, symm, order, depth, C)
+function [pf t] = fm_postproc(mesh, field, k, qexc, pexc, symm, order, depth, C)
 %FM_POSTPROC bem post processing with fast multipole algorithm
 %   pf = fm_postproc(model, field, k, qexc, pexc, symm, ng, depth, C)
 %   [pf t] = fm_postproc(...)
@@ -8,7 +8,7 @@ if nargin < 9
     C = 4;
 end
 if nargin < 8
-    D = norm(diff(boundingbox(join_meshes(model, field))));
+    D = norm(diff(boundingbox(join_meshes(mesh, field))));
     depth = round(log2(k*D/pi));
 end
 if nargin < 7
@@ -18,22 +18,23 @@ if nargin < 6
     symm = 0;
 end
 
-%% Gaussian integration points normals and weights
-[gs, gn, w, gind] = geo2gauss(model, order); % Quadrature config
-
 %% cluster tree
 ttstart = tic;
+cent = centnorm(mesh);   % element centers and normals
 points = field.Nodes(:,2:4);
-[tree fs fr] = clustertree(depth, gs, points, symm);  % build cluster tree using elem centers
+[tree fs fr] = clustertree(depth, cent, points, symm);  % build cluster tree using elem centers
 print_tree_info(tree);
 % Gaussian point fathers
 tt = toc(ttstart);
+
+%% Gaussian integration points normals and weights
+[gs, gn, w, gind] = geo2gauss(mesh, order); % Quadrature config
 
 %% Compute BEM sparse matrices
 tnstart = tic;
 [i, j] = nfij(tree(end).nearfield, tree(end).nodsou, tree(end).nodrec);
 if ~isempty(i)
-    [Hnf, Gnf] = bemHG(model, k, 'const', points, [i, j]);
+    [Hnf, Gnf] = bemHG(mesh, k, 'const', points, [i, j]);
 else
     Hnf = sparse([],[],[],size(points,1),length(pexc));
     Gnf = sparse([],[],[],size(points,1),length(pexc));
@@ -51,7 +52,7 @@ tistart = tic;
 % multipole contribution
 Gqm = mpcont_Gq(rr, rs,     qexc(gind).*w, rt, I, k, fs(gind), fr, symm);
 Hpm = mpcont_Hp(rr, rs, ns, pexc(gind).*w, rt, I, k, fs(gind), fr, symm);
-pf = Hpm + Hnf * pexc - Gqm - Gnf * qexc;
+pf = Hpm + Hnf*pexc - Gqm - Gnf*qexc;
 ti = toc(tistart);
 
 %% output

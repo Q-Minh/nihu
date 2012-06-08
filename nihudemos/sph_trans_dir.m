@@ -101,3 +101,38 @@ e = norm(qs-qs0)/norm(qs0); % relative error
 figure;
 plot_mesh(mesh, real(qs)); view(3);
 title(sprintf('Error: %.2e', e));
+
+%% Field point mesh
+xlimits = R * [1.1 3];
+tlimits = [0 pi/2];
+line = create_line([xlimits(1) 0 0; xlimits(2) 0 0], ceil(diff(xlimits)*k*ratio/2/pi));
+ntheta = ceil(max(xlimits)*diff(tlimits)*k*ratio/2/pi);
+dtheta = diff(tlimits)/ntheta;
+field = revolve_mesh(line, [0 0 0], [0 -1 0], dtheta, ntheta);
+
+%% Build cluster tree
+points = field.Nodes(:,2:4);
+[tree, fs, fr] = clustertree(depth, cent, points);
+
+%% Near field
+[i, j] = nfij(tree(end).nearfield, tree(end).nodsou, tree(end).nodrec);
+[Hnf, Gnf] = bemHG(mesh, k, 'const', points, [i j]);
+
+%%
+C = 3;  % Accuracy parameter related to the expansion length
+I = integpar(tree, k, C);
+
+%%
+[tr, rr, rs, ns] = reltree(tree, points, fr, gs, fs(gind), gn);
+
+%%
+pf = Hnf * ps + mpcont_Hp(rr, rs, ns, ps(gind).*w, tr, I, k, fs(gind), fr) -...
+    Gnf * qs - mpcont_Gq(rr, rs, qs(gind).*w, tr, I, k, fs(gind), fr);
+
+%% plot results
+figure;
+pf0 = incident('point', r0, points, [], k);
+plot_mesh(field, pf);
+shading interp;
+plot_mesh(mesh, ps);
+title(sprintf('Error: %.3x', norm(pf-pf0)/norm(pf0)));

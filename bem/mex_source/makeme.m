@@ -1,3 +1,5 @@
+clear mex
+
 make bemHG_const.mex.c
 make bemHG_lin.mex.c
 make ibemB_lin.mex.c
@@ -12,5 +14,7 @@ make trans.mex.c
 make recover.mex.c
 make leafGq.mex.c
 make shiftdown.mex.c
+
+movefile(sprintf('*.%s', mexext), '../');
 
 % make ibemB_const.mex.c

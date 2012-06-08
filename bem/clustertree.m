@@ -66,7 +66,7 @@ end
 %% Computing model dimensions
 mx = max(nodes,[],1); % largest corner coordinates
 mn = min(nodes,[],1); % smallest corner coordinates
-if symm
+if symm ~= 0
     mn(3) = 0;
 end
 D = max(mx - mn);    % max model size
@@ -150,7 +150,7 @@ fathersou = fathersou(:);
 l = 0;
 iL = l + 1;
 tree(iL).nearfield = 1;
-if symm
+if symm ~= 0
     tree(iL).imnearfield = 1;
 end
 
@@ -186,8 +186,8 @@ for l = 1 : depth
     % clear empty columns
     tree(iL).nearfield = nearfield(:,any(nearfield,1));
     tree(iL).interlist = interlist(:,any(interlist,1));
-    
-    if symm
+
+    if symm ~= 0
         % image nearfield and image interaction list matrix
         Trans = diag([1 1 -1]);
         nearfield = zeros(nC, 3^3);

@@ -19,8 +19,8 @@ void mexFunction(int nlhs,
                  int nrhs,
                  const mxArray *prhs[])
 {
-    double *Fr, *Fi, *D, *P, *Perm, *Mr, *Mi;
-    int32_t *I;
+    double *Fr, *Fi, *Mr, *Mi;
+    int32_t *I, *D, *P, *Perm;
     int nclus, ns, nil, nm;
     double *Nr, *Ni;
 
@@ -31,9 +31,9 @@ void mexFunction(int nlhs,
     ns = mxGetM(prhs[0]);		/* number of directions (unit sphere) */
     I = (int32_t *)mxGetData(prhs[1]);		/* Interaction lists */
     nil = mxGetM(prhs[1]);
-    D = mxGetPr(prhs[2]);		/* Distance indices lists */
-    P = mxGetPr(prhs[3]);		/* Permutation indices lists */
-    Perm = mxGetPr(prhs[4]);    /* Permutation vectors */
+    D = (int32_t *)mxGetData(prhs[2]);		/* Distance indices lists */
+    P = (int32_t *)mxGetData(prhs[3]);		/* Permutation indices lists */
+    Perm = (int32_t *)mxGetData(prhs[4]);    /* Permutation vectors */
     Mr = mxGetPr(prhs[5]);		/* Translation operators */
     Mi = mxGetPi(prhs[5]);
     nm = mxGetN(prhs[5]);
@@ -48,4 +48,3 @@ void mexFunction(int nlhs,
 
     return;
 }
-

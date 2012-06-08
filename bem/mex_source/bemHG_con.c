@@ -251,7 +251,7 @@ void matrix_field_const_sparse(int nnodes,
                                double *Bi)
 {
     accelerator_t *accelerators;
-    const double *q;
+    double q[3];
     double nod[12];
     int j, e, s, n, gs, p;
     int elem[4], nvert;
@@ -268,7 +268,8 @@ void matrix_field_const_sparse(int nnodes,
         e = (int)pairs[p+npairs];
 
         /* reference location */
-        q = accelerators[n].center;
+        for (j = 0; j < 3; j++)
+            q[j] = points[n+j*npoints];
 
         nvert = (int)elements[e];
 

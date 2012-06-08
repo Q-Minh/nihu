@@ -1,6 +1,6 @@
-function I = integpar(tree, k, C, acc, symm)
+function I = integpar(tree, k, C, symm)
 %INTEGPAR Compute integration parameters of a FM tree
-%   I = integpar(tree, k, C, acc, symm) Computes the integration
+%   I = integpar(tree, k, C, symm) Computes the integration
 %   parameters of a FM model. The integration parameters are computed for
 %   each level of the cluster tree and involve:
 % L      : truncation length
@@ -28,11 +28,8 @@ function I = integpar(tree, k, C, acc, symm)
 % 2009
 
 %% Parameter check
-if nargin < 5
-    symm = 0;
-end
 if nargin < 4
-    acc = 1;
+    symm = 0;
 end
 
 %% Preallocation of integration parameter array
@@ -52,20 +49,20 @@ I = struct('L', c,...   % expansion length
     'M', c);            % translation operators
 
 %% Integration parameters for each level
-mindepth = mininterdepth(tree, symm); % highest tranalation level
+mindepth = mininterdepth(tree, symm); % highest translation level
 for l = nL : -1 : mindepth
     %% truncation length L
     x = sqrt(3)*abs(k)*tree(l).diameter;
     L = round(x+C*log10(x+pi));
-    % TODO what is this for???
-    if l < nL
-        L = ceil(I(end).L + acc * (L - I(end).L));
-    end
+%     % TODO what is this for???
+%     if l < nL
+%         L = ceil(I(end).L + acc * (L - I(end).L));
+%     end
     I(l).L = 2*ceil(L/2); % ensure that L is even because of the quadrature
     
     %% quadrature over unit sphere
     [I(l).S, I(l).W, perm] = spherequad(I(l).L);
-    I(l).Mz = perm(:,4);
+    I(l).Mz = int32(perm(:,4));
     
     %% Interpolation matrices
     if l < nL
@@ -73,14 +70,15 @@ for l = nL : -1 : mindepth
     end
     
     %% Unique distances with symmetry operators
-    [D0, Dindex, I(l).Perm, Pindex] = Rsymmetry(tree(l).D, perm);
+    [D0, Dindex, perm, Pindex] = Rsymmetry(tree(l).D, perm);
+    I(l).Perm = int32(perm);
     Dindex = [0; Dindex]; %#ok<AGROW>
     Pindex = [0; Pindex]; %#ok<AGROW>
-    I(l).Dindex = Dindex(tree(l).Dindex.'+1);
-    I(l).Pindex = Pindex(tree(l).Dindex.'+1);
-    if symm
-        I(l).imDindex = Dindex(tree(l).imDindex.'+1);
-        I(l).imPindex = Pindex(tree(l).imDindex.'+1);
+    I(l).Dindex = int32(Dindex(tree(l).Dindex.'+1));
+    I(l).Pindex = int32(Pindex(tree(l).Dindex.'+1));
+    if symm ~= 0
+        I(l).imDindex = int32(Dindex(tree(l).imDindex.'+1));
+        I(l).imPindex = int32(Pindex(tree(l).imDindex.'+1));
     end
     
     %% Translation operators
