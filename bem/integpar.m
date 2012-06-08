@@ -38,7 +38,18 @@ end
 %% Preallocation of integration parameter array
 nL = size(tree,1); % number of levels in the tree (0 to d)
 c = cell(nL,1);
-I = struct('L', c, 'S', c, 'W', c, 'Aup', c, 'Adn', c);
+I = struct('L', c,...   % expansion length
+    'S', c,...          % quadrature points on the unit sphere
+    'W', c,...          % quadrature weights
+    'Aup', c,...        % Interpolation matrices
+    'Adn', c, ...       % decimation matrices
+    'Mz', c, ...        % Permutation matrix for z reflection
+    'Dindex', c, ...    % Distance indices for each interlist element
+    'imDindex', c, ...  % image distance indices for each interlist element
+    'Perm', c, ...      % permutation matrix
+    'Pindex', c, ...    % permutation indices for each interlist element
+    'imPindex', c, ...  % image permutation indices for each interlist element
+    'M', c);            % translation operators
 
 %% Integration parameters for each level
 mindepth = mininterdepth(tree, symm); % highest tranalation level
@@ -50,7 +61,7 @@ for l = nL : -1 : mindepth
     if l < nL
         L = ceil(I(end).L + acc * (L - I(end).L));
     end
-    I(l).L = 2*ceil(L/2); % ensure that L is even
+    I(l).L = 2*ceil(L/2); % ensure that L is even because of the quadrature
     
     %% quadrature over unit sphere
     [I(l).S, I(l).W, perm] = spherequad(I(l).L);
