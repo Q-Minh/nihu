@@ -1,8 +1,5 @@
-/*TRANS
- *
- *
- * Peter Fiala
- * 2009
+/*TRANS - perform translation step in the fmbem procedure
+ *  N = TRANS(F, I, D, P, Perm, M)
  */
 
 /* $Make: mex -O -output trans trans.mex.c fmbem.c vector.c$ */

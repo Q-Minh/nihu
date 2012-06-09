@@ -1,8 +1,5 @@
-/*SHIFTDOWN
- *
- *
- * Peter Fiala
- * 2009
+/*SHIFTDOWN  perform downward shift in the fmbem procedure
+ *   N = SHIFTDOWN(r, q, father, s, k)
  */
 
 /* $Make: mex -O -output shiftdown shiftdown.mex.c fmbem.c vector.c$ */
