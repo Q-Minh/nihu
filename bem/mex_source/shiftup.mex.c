@@ -1,8 +1,5 @@
-/*SHIFTUP
- *
- *
- * Peter Fiala
- * 2009
+/*SHIFTUP  perform upward shift in the fmbem procedure
+ *   F = SHIFTUP(r, q, father, nclus, s, k)
  */
 
 /* $Make: mex -O -output shiftup shiftup.mex.c fmbem.c vector.c$ */
