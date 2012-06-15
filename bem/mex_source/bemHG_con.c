@@ -85,6 +85,64 @@ void matrix_surf_const(int nnodes,
 }
 
 /* ------------------------------------------------------------------------ */
+/* Compute surface system matrices of a bem model */
+void matrix_surf_const2D(int nnodes,
+                       const double *nodes,
+                       int nelements,
+                       const double *elements,
+                       const gauss2D_t *g,
+                       const double *dist,
+                       double k,
+                       double *Ar,
+                       double *Ai,
+                       double *Br,
+                       double *Bi)
+{
+#define NDIM 2
+#define NVERT 2
+    accelerator2D_t *accelerators;
+    const double *q;
+    int j, e, s, n, gs;
+    int elem[NVERT];
+    double nod[NVERT*NDIM];
+    double ai, bi, ar, br;
+
+    /* Compute element centres */
+    accelerators = (accelerator2D_t *)calloc(nelements, sizeof(accelerator2D_t));
+    init_accelerators2D(nnodes, nodes, nelements, elements, accelerators);
+
+    /* Integration for each node as reference point */
+    for (n = 0; n < nelements; n++)
+    {
+        q = accelerators[n].center;
+
+        /* Integration for each element */
+        for (e = 0; e < nelements; e++)
+        {
+            /* Collect element vertex nodes and coordinates */
+            for (s = 0; s < NVERT; s++)
+            {
+                elem[s] = (int)elements[e+s*nelements];
+                for (j = 0; j < NDIM; j++)
+                    nod[s+NVERT*j] = nodes[elem[s]+j*nnodes];
+            }
+            if (e == n)
+                int_line_const_sing(&g[0], nod, &accelerators[e], q, k, &ar, &ai, &br, &bi);
+            else
+            {
+                gs = gauss_division2D(q, accelerators[e].center, dist);
+                int_line_const(g[gs], nod, &accelerators[e], q, k, &ar, &ai, &br, &bi);
+            }
+            Ar[n+nelements*e] = ar;
+            Ai[n+nelements*e] = ai;
+            Br[n+nelements*e] = br;
+            Bi[n+nelements*e] = bi;
+        }
+    }
+    free(accelerators);
+}
+
+/* ------------------------------------------------------------------------ */
 /* Compute far field system matrices of a bem model */
 void matrix_field_const(int nnodes,
                         const double *nodes,
@@ -142,6 +200,64 @@ void matrix_field_const(int nnodes,
                 int_tri_const(g3[gs], nod, &accelerators[e], q, k, &ar, &ai, &br, &bi);
                 break;
             }
+            Ar[n+npoints*e] = ar;
+            Ai[n+npoints*e] = ai;
+            Br[n+npoints*e] = br;
+            Bi[n+npoints*e] = bi;
+        }
+    }
+    free(accelerators);
+}
+
+/* ------------------------------------------------------------------------ */
+/* Compute far field system matrices of a bem model */
+void matrix_field_const2D(int nnodes,
+                        const double *nodes,
+                        int nelements,
+                        const double *elements,
+                        int npoints,
+                        const double *points,
+                        const gauss2D_t *g,
+                        const double *dist,
+                        double k,
+                        double *Ar,
+                        double *Ai,
+                        double *Br,
+                        double *Bi)
+{
+#define NDIM 2
+#define NVERT 2
+    accelerator2D_t *accelerators;
+    double q[NDIM];
+    double nod[NVERT*NDIM];
+    int j, e, s, n, gs;
+    int elem[NVERT];
+    double ai, bi, ar, br;
+
+    /* Allocate space for element centres */
+    accelerators = (accelerator2D_t *)calloc(nelements, sizeof(accelerator2D_t));
+    init_accelerators(nnodes, nodes, nelements, elements, accelerators);
+
+    /* Integration for each node as reference point */
+    for (n = 0; n < npoints; n++)
+    {
+        /* reference location */
+        for (j = 0; j < NDIM; j++)
+            q[j] = points[n+j*npoints];
+
+        /* Integration for each element */
+        for (e = 0; e < nelements; e++)
+        {
+            /* collect element vertices and coordinates */
+            for (s = 0; s < NVERT; s++)
+            {
+                elem[s] = (int)elements[e+s*nelements];
+                for (j = 0; j < NDIM; j++)
+                    nod[s+NVERT*j] = nodes[elem[s]+j*nnodes];
+            }
+            /* perform the integration */
+            gs = gauss_division2D(q, accelerators[e].center, dist);
+            int_line_const(g[gs], nod, &accelerators[e], q, k, &ar, &ai, &br, &bi);
             Ar[n+npoints*e] = ar;
             Ai[n+npoints*e] = ai;
             Br[n+npoints*e] = br;

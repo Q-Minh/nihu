@@ -97,6 +97,40 @@ void init_accelerators(int nnodes,
     }
 }
 
+void init_accelerators2D(int nnodes,
+                       const double *nodes,
+                       int nelements,
+                       const double *elements,
+                       accelerator2D_t *accelerators)
+{
+#define NDIM 2
+#define NVERT 2
+    int e, j, s, nvert;
+    int elem[NVERT];
+	double a[NDIM];
+
+    /* for each element */
+    for (e = 0; e < nelements; e++)
+    {
+        for (s = 0; s < NVERT; s++)
+            elem[s] = (int)elements[e+s*nelements];
+			
+        for (j = 0; j < NDIM; j++)
+        {
+            accelerators[e].center[j] = 0.0;
+            for (s = 0; s < NVERT; s++)
+                accelerators[e].center[j] += nodes[elem[s]+j*nnodes];
+            accelerators[e].center[j] /= (double)nvert;
+        }
+		
+		for (j = 0; j < NDIM; j++)
+			a[j] = nodes[elem[1]+j*nnodes]-nodes[elem[0]+j*nnodes];
+
+		accelerators[e].n0[0] = a[1];
+		accelerators[e].n0[1] = -a[0];
+    }
+}
+
 /* ------------------------------------------------------------------------ */
 /* Determine Gaussian integration density based on distance between source */
 /* and element center */
@@ -104,10 +138,32 @@ int gauss_division(const double *q,
                    const double *elemcenter,
                    const double *dist)
 {
+#define NDIM 3
     int j;
-    double distance[3], d;
+    double distance[NDIM], d;
 
-    for (j = 0; j < 3; j++)
+    for (j = 0; j < NDIM; j++)
+        distance[j] = elemcenter[j] - q[j];
+    d = sqrt(dot(distance,distance));
+    if (d < dist[0])
+        return 1;
+    if (d < dist[1])
+        return 2;
+    return 3;
+}
+
+/* ------------------------------------------------------------------------ */
+/* Determine Gaussian integration density based on distance between source */
+/* and element center */
+int gauss_division2D(const double *q,
+                   const double *elemcenter,
+                   const double *dist)
+{
+#define NDIM 2
+    int j;
+    double distance[NDIM], d;
+
+    for (j = 0; j < NDIM; j++)
         distance[j] = elemcenter[j] - q[j];
     d = sqrt(dot(distance,distance));
     if (d < dist[0])

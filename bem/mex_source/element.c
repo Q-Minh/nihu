@@ -38,3 +38,15 @@ void d_shapefun_tria(double xi, double eta, double *Nxi, double *Neta)
     Neta[1] = 0.0;
     Neta[2] = 1.0;
 }
+
+void shapefun_lin(double xi, double *N)
+{
+    N[0] = (1.0-xi)/2.0;
+    N[1] = (1.0+xi)/2.0;
+}
+
+void d_shapefun_lin(double xi, double *Nxi)
+{
+    Nxi[0] = -.5;
+    Nxi[1] = .5;
+}

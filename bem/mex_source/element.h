@@ -19,4 +19,10 @@ void d_shapefun_tria(double xi,
                      double *Nxi,
                      double *Neta);
 
+void shapefun_lin(double xi,
+                   double *N);
+
+void d_shapefun_lin(double xi,
+                     double *Nxi);
+
 #endif
