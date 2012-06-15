@@ -70,6 +70,26 @@ void int_line_lin(const gauss2D_t *g,
 }
 
 /* ------------------------------------------------------------------------ */
+/* Singular integral over a linear TRIA element                             */
+void int_line_lin_sing(const gauss2D_t *g,
+                      const double *nodes,
+                      const accelerator2D_t *accelerator,
+                      int corner,
+                      double k,
+                      double *ar,
+                      double *ai,
+                      double *br,
+                      double *bi)
+{
+#define NDIM 2
+#define NVERT 2
+    int s;
+	
+    for (s = 0; s < NVERT; s++)
+        ar[s] = ai[s] = br[s] = bi[s] = 0.0;
+}
+
+/* ------------------------------------------------------------------------ */
 /* Regular integral over a linear TRIA element                              */
 void int_tri_lin(const gauss_t *g,
                  const double *nodes,
@@ -328,7 +348,7 @@ void int_quad_lin_sing(const gauss_t *g,
 
 /* ------------------------------------------------------------------------ */
 /* Regular integral over a constant LINE element                            */
-void int_line_const(gauss2D_t g,
+void int_line_const(const gauss2D_t *g,
                    const double *nodes,
                    const accelerator2D_t *accelerator,
                    const double *q,
@@ -350,22 +370,22 @@ void int_line_const(gauss2D_t g,
         norm[j] = accelerator->n0[j]/jac;
 
     /* for each gaussian integration point */
-    for (i = 0; i < g.num; i++)
+    for (i = 0; i < g->num; i++)
     {
         /* computing integration location */
         for (j = 0; j < NDIM; j++)
         {
             r[j] = -q[j];
             for (s = 0; s < NVERT; s++)
-                r[j] += g.N[i+s*g.num]*nodes[s+NDIM*j];
+                r[j] += g->N[i+s*g->num]*nodes[s+NDIM*j];
         }
 
         green2D(r, k, &gr, &gi, norm, &dgr, &dgi);
 
-        *ar += dgr*g.w[i];
-        *ai += dgi*g.w[i];
-        *br += gr*g.w[i];
-        *bi += gi*g.w[i];
+        *ar += dgr*g->w[i];
+        *ai += dgi*g->w[i];
+        *br += gr*g->w[i];
+        *bi += gi*g->w[i];
     }
 
     *ar *= jac;
@@ -375,8 +395,25 @@ void int_line_const(gauss2D_t g,
 }
 
 /* ------------------------------------------------------------------------ */
+/* Singular integral over a constant LINE element                           */
+void int_line_const_sing(const gauss2D_t *g,
+                   const double *nodes,
+                   const accelerator2D_t *accelerator,
+                   const double *q,
+                   double k,
+                   double *ar,
+                   double *ai,
+                   double *br,
+                   double *bi)
+{
+#define NDIM 2
+#define NVERT 2
+    *ar = *ai = *br = *bi = 0.0;
+}
+
+/* ------------------------------------------------------------------------ */
 /* Regular integral over a constant TRIA element                            */
-void int_tri_const(gauss_t g,
+void int_tri_const(const gauss_t *g,
                    const double *nodes,
                    const accelerator_t *accelerator,
                    const double *q,
@@ -396,22 +433,22 @@ void int_tri_const(gauss_t g,
         norm[j] = accelerator->n0[j]/jac;
 
     /* for each gaussian integration point */
-    for (i = 0; i < g.num; i++)
+    for (i = 0; i < g->num; i++)
     {
         /* computing integration location */
         for (j = 0; j < 3; j++)
         {
             r[j] = -q[j];
             for (s = 0; s < 3; s++)
-                r[j] += g.N[i+s*g.num]*nodes[s+3*j];
+                r[j] += g->N[i+s*g->num]*nodes[s+3*j];
         }
 
         green(r, k, &gr, &gi, norm, &dgr, &dgi);
 
-        *ar += dgr*g.w[i];
-        *ai += dgi*g.w[i];
-        *br += gr*g.w[i];
-        *bi += gi*g.w[i];
+        *ar += dgr*g->w[i];
+        *ai += dgi*g->w[i];
+        *br += gr*g->w[i];
+        *bi += gi*g->w[i];
     }
 
     *ar *= jac;
@@ -484,7 +521,7 @@ void int_tri_const_sing(const gauss_t *g,
 
 /* ------------------------------------------------------------------------ */
 /* Regular integral over a constant QUAD element                            */
-void int_quad_const(gauss_t g,
+void int_quad_const(const gauss_t *g,
                     const double *nodes,
                     const accelerator_t *accelerator,
                     const double *q,
@@ -500,7 +537,7 @@ void int_quad_const(gauss_t g,
     *ar = *ai = *br = *bi = 0.0;
 
     /* for each gaussian integration point */
-    for (i = 0; i < g.num; i++)
+    for (i = 0; i < g->num; i++)
     {
         /* for each coordinate direction */
         for (j = 0; j < 3; j++)
@@ -510,9 +547,9 @@ void int_quad_const(gauss_t g,
             /* computing integration location and its derivatives */
             for (s = 0; s < 4; s++)
             {
-                r[j] += g.N[i+s*g.num]*nodes[s+4*j];
-                rxi[j] += g.Nxi[i+s*g.num]*nodes[s+4*j];
-                reta[j] += g.Neta[i+s*g.num]*nodes[s+4*j];
+                r[j] += g->N[i+s*g->num]*nodes[s+4*j];
+                rxi[j] += g->Nxi[i+s*g->num]*nodes[s+4*j];
+                reta[j] += g->Neta[i+s*g->num]*nodes[s+4*j];
             }
         }
 
@@ -521,7 +558,7 @@ void int_quad_const(gauss_t g,
         jac = sqrt(dot(norm, norm));
         for (j = 0; j < 3; j++)
             norm[j] /= jac;
-        jac *= g.w[i];
+        jac *= g->w[i];
 
         green(r, k, &gr, &gi, norm, &dgr, &dgi);
 
