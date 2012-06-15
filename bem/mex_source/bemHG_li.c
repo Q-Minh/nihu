@@ -35,25 +35,25 @@ void matrix_surf_lin(int nnodes,
     init_accelerators(nnodes, nodes, nelements, elements, accelerators);
 
     /* Clear output matrices */
-    for (n = 0; n < nnodes; n++)
-        for (j = 0; j < nnodes; j++)
+    for (n = 0; n < nnodes; ++n)
+        for (j = 0; j < nnodes; ++j)
             Ar[n+nnodes*j] = Ai[n+nnodes*j] = Br[n+nnodes*j] = Bi[n+nnodes*j] = 0.0;
 
     /* Integration for each node as reference point */
-    for (n = 0; n < nnodes; n++)
+    for (n = 0; n < nnodes; ++n)
     {
         /* reference location */
-        for (j = 0; j < 3; j++)
+        for (j = 0; j < 3; ++j)
             q[j] = nodes[n+j*nnodes];
 
         /* Integration for each element */
-        for (e = 0; e < nelements; e++)
+        for (e = 0; e < nelements; ++e)
         {
             nvert = (int)elements[e];
 
             /* Collect element vertex nodes and coordinates */
             sing = 0;
-            for (s = 0; s < nvert; s++)
+            for (s = 0; s < nvert; ++s)
             {
                 elem[s] = (int)elements[e+(s+1)*nelements];
                 if (elem[s] == n)
@@ -62,8 +62,8 @@ void matrix_surf_lin(int nnodes,
                     corner = s;
                 }
             }
-            for (s = 0; s < nvert; s++)
-                for (j = 0; j < 3; j++)
+            for (s = 0; s < nvert; ++s)
+                for (j = 0; j < 3; ++j)
                     nod[s+nvert*j] = nodes[elem[s]+j*nnodes];
             if (sing)
             {
@@ -90,7 +90,7 @@ void matrix_surf_lin(int nnodes,
                     break;
                 }
             }
-            for (s = 0; s < nvert; s++)
+            for (s = 0; s < nvert; ++s)
             {
                 Ar[n+nnodes*elem[s]] += ar[s];
                 Ai[n+nnodes*elem[s]] += ai[s];
@@ -133,23 +133,23 @@ void matrix_surf_lin2D(int nnodes,
     init_accelerators2D(nnodes, nodes, nelements, elements, accelerators);
 
     /* Clear output matrices */
-    for (n = 0; n < nnodes; n++)
-        for (j = 0; j < nnodes; j++)
+    for (n = 0; n < nnodes; ++n)
+        for (j = 0; j < nnodes; ++j)
             Ar[n+nnodes*j] = Ai[n+nnodes*j] = Br[n+nnodes*j] = Bi[n+nnodes*j] = 0.0;
 
     /* Integration for each node as reference point */
-    for (n = 0; n < nnodes; n++)
+    for (n = 0; n < nnodes; ++n)
     {
         /* reference location */
-        for (j = 0; j < NDIM; j++)
+        for (j = 0; j < NDIM; ++j)
             q[j] = nodes[n+j*nnodes];
 
         /* Integration for each element */
-        for (e = 0; e < nelements; e++)
+        for (e = 0; e < nelements; ++e)
         {
             /* Collect element vertex nodes and coordinates */
             sing = 0;
-            for (s = 0; s < NVERT; s++)
+            for (s = 0; s < NVERT; ++s)
             {
                 elem[s] = (int)elements[e+s*nelements];
                 if (elem[s] == n)
@@ -158,8 +158,8 @@ void matrix_surf_lin2D(int nnodes,
                     corner = s;
                 }
             }
-            for (s = 0; s < NVERT; s++)
-                for (j = 0; j < NDIM; j++)
+            for (s = 0; s < NVERT; ++s)
+                for (j = 0; j < NDIM; ++j)
                     nod[s+NVERT*j] = nodes[elem[s]+j*nnodes];
             if (sing)
                 int_line_lin_sing(&g[0], nod, &accelerators[e], corner, k, ar, ai, br, bi);
@@ -168,7 +168,7 @@ void matrix_surf_lin2D(int nnodes,
                 gs = gauss_division2D(q, accelerators[e].center, dist);
                 int_line_lin(&g[gs], nod, &accelerators[e], q, k, ar, ai, br, bi);
             }
-            for (s = 0; s < NVERT; s++)
+            for (s = 0; s < NVERT; ++s)
             {
                 Ar[n+nnodes*elem[s]] += ar[s];
                 Ai[n+nnodes*elem[s]] += ai[s];
@@ -210,27 +210,27 @@ void matrix_field_lin(int nnodes,
     init_accelerators(nnodes, nodes, nelements, elements, accelerators);
 
     /* Clear output matrices */
-    for (n = 0; n < npoints; n++)
-        for (j = 0; j < nnodes; j++)
+    for (n = 0; n < npoints; ++n)
+        for (j = 0; j < nnodes; ++j)
             Ar[n+npoints*j] = Ai[n+npoints*j] = Br[n+npoints*j] = Bi[n+npoints*j] = 0.0;
 
     /* Integration for each node as reference point */
-    for (n = 0; n < npoints; n++)
+    for (n = 0; n < npoints; ++n)
     {
         /* reference location */
-        for (j = 0; j < 3; j++)
+        for (j = 0; j < 3; ++j)
             q[j] = points[n+j*npoints];
 
         /* Integration for each element */
-        for (e = 0; e < nelements; e++)
+        for (e = 0; e < nelements; ++e)
         {
             nvert = (int)elements[e];
 
             /* Collect element vertex nodes and coordinates */
-            for (s = 0; s < nvert; s++)
+            for (s = 0; s < nvert; ++s)
             {
                 elem[s] = (int)elements[e+(s+1)*nelements];
-                for (j = 0; j < 3; j++)
+                for (j = 0; j < 3; ++j)
                     nod[s+nvert*j] = nodes[elem[s]+j*nnodes];
             }
             /* perform the integration */
@@ -245,7 +245,7 @@ void matrix_field_lin(int nnodes,
                 break;
             }
 
-            for (s = 0; s < nvert; s++)
+            for (s = 0; s < nvert; ++s)
             {
                 Ar[n+npoints*elem[s]] += ar[s];
                 Ai[n+npoints*elem[s]] += ai[s];
@@ -288,32 +288,32 @@ void matrix_field_lin2D(int nnodes,
     init_accelerators2D(nnodes, nodes, nelements, elements, accelerators);
 
     /* Clear output matrices */
-    for (n = 0; n < npoints; n++)
-        for (j = 0; j < nnodes; j++)
+    for (n = 0; n < npoints; ++n)
+        for (j = 0; j < nnodes; ++j)
             Ar[n+npoints*j] = Ai[n+npoints*j] = Br[n+npoints*j] = Bi[n+npoints*j] = 0.0;
 
     /* Integration for each node as reference point */
-    for (n = 0; n < npoints; n++)
+    for (n = 0; n < npoints; ++n)
     {
         /* reference location */
-        for (j = 0; j < NDIM; j++)
+        for (j = 0; j < NDIM; ++j)
             q[j] = points[n+j*npoints];
 
         /* Integration for each element */
-        for (e = 0; e < nelements; e++)
+        for (e = 0; e < nelements; ++e)
         {
             /* Collect element vertex nodes and coordinates */
-            for (s = 0; s < NVERT; s++)
+            for (s = 0; s < NVERT; ++s)
             {
                 elem[s] = (int)elements[e+s*nelements];
-                for (j = 0; j < NDIM; j++)
+                for (j = 0; j < NDIM; ++j)
                     nod[s+NVERT*j] = nodes[elem[s]+j*nnodes];
             }
             /* perform the integration */
             gs = gauss_division2D(q, accelerators[e].center, dist);
             int_line_lin(&g[gs], nod, &accelerators[e], q, k, ar, ai, br, bi);
 
-            for (s = 0; s < NVERT; s++)
+            for (s = 0; s < NVERT; ++s)
             {
                 Ar[n+npoints*elem[s]] += ar[s];
                 Ai[n+npoints*elem[s]] += ai[s];

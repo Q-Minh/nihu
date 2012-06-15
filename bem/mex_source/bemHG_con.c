@@ -68,10 +68,10 @@ void matrix_surf_const(int nnodes,
                 switch(nvert)
                 {
                 case 4:
-                    int_quad_const(g4[gs], nod, &accelerators[e], q, k, &ar, &ai, &br, &bi);
+                    int_quad_const(&g4[gs], nod, &accelerators[e], q, k, &ar, &ai, &br, &bi);
                     break;
                 case 3:
-                    int_tri_const(g3[gs], nod, &accelerators[e], q, k, &ar, &ai, &br, &bi);
+                    int_tri_const(&g3[gs], nod, &accelerators[e], q, k, &ar, &ai, &br, &bi);
                     break;
                 }
             }
@@ -131,7 +131,7 @@ void matrix_surf_const2D(int nnodes,
             else
             {
                 gs = gauss_division2D(q, accelerators[e].center, dist);
-                int_line_const(g[gs], nod, &accelerators[e], q, k, &ar, &ai, &br, &bi);
+                int_line_const(&g[gs], nod, &accelerators[e], q, k, &ar, &ai, &br, &bi);
             }
             Ar[n+nelements*e] = ar;
             Ai[n+nelements*e] = ai;
@@ -194,10 +194,10 @@ void matrix_field_const(int nnodes,
             switch(nvert)
             {
             case 4:
-                int_quad_const(g4[gs], nod, &accelerators[e], q, k, &ar, &ai, &br, &bi);
+                int_quad_const(&g4[gs], nod, &accelerators[e], q, k, &ar, &ai, &br, &bi);
                 break;
             case 3:
-                int_tri_const(g3[gs], nod, &accelerators[e], q, k, &ar, &ai, &br, &bi);
+                int_tri_const(&g3[gs], nod, &accelerators[e], q, k, &ar, &ai, &br, &bi);
                 break;
             }
             Ar[n+npoints*e] = ar;
@@ -236,7 +236,7 @@ void matrix_field_const2D(int nnodes,
 
     /* Allocate space for element centres */
     accelerators = (accelerator2D_t *)calloc(nelements, sizeof(accelerator2D_t));
-    init_accelerators(nnodes, nodes, nelements, elements, accelerators);
+    init_accelerators2D(nnodes, nodes, nelements, elements, accelerators);
 
     /* Integration for each node as reference point */
     for (n = 0; n < npoints; n++)
@@ -257,7 +257,7 @@ void matrix_field_const2D(int nnodes,
             }
             /* perform the integration */
             gs = gauss_division2D(q, accelerators[e].center, dist);
-            int_line_const(g[gs], nod, &accelerators[e], q, k, &ar, &ai, &br, &bi);
+            int_line_const(&g[gs], nod, &accelerators[e], q, k, &ar, &ai, &br, &bi);
             Ar[n+npoints*e] = ar;
             Ai[n+npoints*e] = ai;
             Br[n+npoints*e] = br;
@@ -331,10 +331,10 @@ void matrix_surf_const_sparse(int nnodes,
 			switch(nvert)
 			{
 			case 4:
-				int_quad_const(g4[gs], nod, &accelerators[e], q, k, &ar, &ai, &br, &bi);
+				int_quad_const(&g4[gs], nod, &accelerators[e], q, k, &ar, &ai, &br, &bi);
 				break;
 			case 3:
-				int_tri_const(g3[gs], nod, &accelerators[e], q, k, &ar, &ai, &br, &bi);
+				int_tri_const(&g3[gs], nod, &accelerators[e], q, k, &ar, &ai, &br, &bi);
 				break;
 			}
 		}
@@ -400,10 +400,10 @@ void matrix_field_const_sparse(int nnodes,
         switch(nvert)
         {
         case 4:
-            int_quad_const(g4[gs], nod, &accelerators[e], q, k, &ar, &ai, &br, &bi);
+            int_quad_const(&g4[gs], nod, &accelerators[e], q, k, &ar, &ai, &br, &bi);
             break;
         case 3:
-            int_tri_const(g3[gs], nod, &accelerators[e], q, k, &ar, &ai, &br, &bi);
+            int_tri_const(&g3[gs], nod, &accelerators[e], q, k, &ar, &ai, &br, &bi);
             break;
         }
         Ar[p] = ar;

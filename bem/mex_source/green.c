@@ -27,6 +27,18 @@ void green(const double *r,
     }
 }
 
+/* ------------------------------------------------------------------------ */
+/* Compute Green's function and its normal derivative                       */
+void green2D(const double *r,
+           double k,
+           double *gr,
+           double *gi,
+           const double *n,
+           double *dgr,
+           double *dgi)
+{
+}
+
 void ddgreen(const double *r,
 	double k,
 	const double *nx,
