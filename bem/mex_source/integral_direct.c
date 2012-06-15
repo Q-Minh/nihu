@@ -10,6 +10,66 @@
 #include <stdlib.h> /* malloc */
 
 /* ------------------------------------------------------------------------ */
+/* Regular integral over a linear LINE element                              */
+void int_line_lin(const gauss2D_t *g,
+                 const double *nodes,
+                 const accelerator2D_t *accelerator,
+                 const double *q,
+                 double k,
+                 double *ar,
+                 double *ai,
+                 double *br,
+                 double *bi)
+{
+#define NDIM 2
+#define NVERT 2
+    int i, j, s;
+    double r[NDIM], norm[NDIM], jac, gr, gi, dgr, dgi;
+
+    for (s = 0; s < NVERT; s++)
+        ar[s] = ai[s] = br[s] = bi[s] = 0.0;
+
+    jac = sqrt(dot2D(accelerator->n0, accelerator->n0));
+    for (j = 0; j < NDIM; j++)
+        norm[j] = accelerator->n0[j]/jac;
+
+    /* for each gaussian integration point */
+    for (i = 0; i < g->num; i++)
+    {
+        /* computing integration location */
+        for (j = 0; j < NDIM; j++)
+        {
+            r[j] = -q[j];
+            for (s = 0; s < NVERT; s++)
+                r[j] += g->N[i+s*g->num]*nodes[s+NDIM*j];
+        }
+
+        green2D(r, k, &gr, &gi, norm, &dgr, &dgi);
+
+        gr *= g->w[i];
+        gi *= g->w[i];
+        dgr *= g->w[i];
+        dgi *= g->w[i];
+
+        for (s = 0; s < NVERT; s++)
+        {
+            ar[s] += g->N[i+s*g->num]*dgr;
+            ai[s] += g->N[i+s*g->num]*dgi;
+            br[s] += g->N[i+s*g->num]*gr;
+            bi[s] += g->N[i+s*g->num]*gi;
+        }
+    }
+
+    for (s = 0; s < NVERT; s++)
+    {
+        ar[s] *= jac;
+        ai[s] *= jac;
+        br[s] *= jac;
+        bi[s] *= jac;
+    }
+}
+
+/* ------------------------------------------------------------------------ */
 /* Regular integral over a linear TRIA element                              */
 void int_tri_lin(const gauss_t *g,
                  const double *nodes,
@@ -21,25 +81,27 @@ void int_tri_lin(const gauss_t *g,
                  double *br,
                  double *bi)
 {
+#define NDIM 3
+#define NVERT 3
     int i, j, s;
-    double r[3], norm[3], jac, gr, gi, dgr, dgi;
+    double r[NDIM], norm[NDIM], jac, gr, gi, dgr, dgi;
 
-    for (s = 0; s < 3; s++)
+    for (s = 0; s < NVERT; s++)
         ar[s] = ai[s] = br[s] = bi[s] = 0.0;
 
     jac = sqrt(dot(accelerator->n0, accelerator->n0));
-    for (j = 0; j < 3; j++)
+    for (j = 0; j < NDIM; j++)
         norm[j] = accelerator->n0[j]/jac;
 
     /* for each gaussian integration point */
     for (i = 0; i < g->num; i++)
     {
         /* computing integration location */
-        for (j = 0; j < 3; j++)
+        for (j = 0; j < NDIM; j++)
         {
             r[j] = -q[j];
-            for (s = 0; s < 3; s++)
-                r[j] += g->N[i+s*g->num]*nodes[s+3*j];
+            for (s = 0; s < NVERT; s++)
+                r[j] += g->N[i+s*g->num]*nodes[s+NDIM*j];
         }
 
         green(r, k, &gr, &gi, norm, &dgr, &dgi);
@@ -49,7 +111,7 @@ void int_tri_lin(const gauss_t *g,
         dgr *= g->w[i];
         dgi *= g->w[i];
 
-        for (s = 0; s < 3; s++)
+        for (s = 0; s < NVERT; s++)
         {
             ar[s] += g->N[i+s*g->num]*dgr;
             ai[s] += g->N[i+s*g->num]*dgi;
@@ -58,7 +120,7 @@ void int_tri_lin(const gauss_t *g,
         }
     }
 
-    for (s = 0; s < 3; s++)
+    for (s = 0; s < NVERT; s++)
     {
         ar[s] *= jac;
         ai[s] *= jac;
@@ -262,6 +324,54 @@ void int_quad_lin_sing(const gauss_t *g,
     free(xiprime);
     free(etaprime);
     free(wprime);
+}
+
+/* ------------------------------------------------------------------------ */
+/* Regular integral over a constant LINE element                            */
+void int_line_const(gauss2D_t g,
+                   const double *nodes,
+                   const accelerator2D_t *accelerator,
+                   const double *q,
+                   double k,
+                   double *ar,
+                   double *ai,
+                   double *br,
+                   double *bi)
+{
+#define NDIM 2
+#define NVERT 2
+    int i, j, s;
+    double r[NDIM], norm[NDIM], jac, gr, gi, dgr, dgi;
+
+    *ar = *ai = *br = *bi = 0.0;
+
+    jac = sqrt(dot2D(accelerator->n0, accelerator->n0));
+    for (j = 0; j < NDIM; j++)
+        norm[j] = accelerator->n0[j]/jac;
+
+    /* for each gaussian integration point */
+    for (i = 0; i < g.num; i++)
+    {
+        /* computing integration location */
+        for (j = 0; j < NDIM; j++)
+        {
+            r[j] = -q[j];
+            for (s = 0; s < NVERT; s++)
+                r[j] += g.N[i+s*g.num]*nodes[s+NDIM*j];
+        }
+
+        green2D(r, k, &gr, &gi, norm, &dgr, &dgi);
+
+        *ar += dgr*g.w[i];
+        *ai += dgi*g.w[i];
+        *br += gr*g.w[i];
+        *bi += gi*g.w[i];
+    }
+
+    *ar *= jac;
+    *ai *= jac;
+    *br *= jac;
+    *bi *= jac;
 }
 
 /* ------------------------------------------------------------------------ */

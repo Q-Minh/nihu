@@ -12,6 +12,16 @@ typedef struct
     double *xi;		/* Gaussian locations */
 } gauss_t;
 
+/* Structure containing Gaussian integration data */
+typedef struct
+{
+    int    num;		/* number of Gaussian points */
+    double *N;		/* Shape funtion values */
+    double *Nxi;	/* Shape function derivatives */
+    double *w;		/* Gaussian weights */
+    double *xi;		/* Gaussian locations */
+} gauss2D_t;
+
 /* Structure containing accelerator data for fast integration */
 typedef struct
 {
@@ -21,6 +31,13 @@ typedef struct
 	double neta[3];
 	double gradN[3*3];
 } accelerator_t;
+
+/* Structure containing accelerator data for fast integration on 2D elements*/
+typedef struct
+{
+	double center[2];	/* element center */
+	double n0[2];		/* element normal */
+} accelerator2D_t;
 
 typedef unsigned char boolean;
 

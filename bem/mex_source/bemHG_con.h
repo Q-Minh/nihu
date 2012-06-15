@@ -15,6 +15,18 @@ void matrix_surf_const(int nnodes,
                        double *Br,
                        double *Bi);
 
+void matrix_surf_const2D(int nnodes,
+                       const double *nodes,
+                       int nelements,
+                       const double *elements,
+                       const gauss2D_t *g,
+                       const double *dist,
+                       double k,
+                       double *Ar,
+                       double *Ai,
+                       double *Br,
+                       double *Bi);
+
 void matrix_field_const(int nnodes,
                         const double *nodes,
                         int nelements,
