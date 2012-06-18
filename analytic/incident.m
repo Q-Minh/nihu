@@ -24,10 +24,9 @@ switch lower(type)
             dvec = r - repmat(r0(m,:), N, 1);
             d = sqrt(dot(dvec, dvec, 2));
             dvec = dvec ./ repmat(d, 1, 3);
-            p = p + exp(-1i*k*d)./ d / (4*pi);
-            if nargout == 2 && ~isempty(n)
-                q = q -(1+1i*k*d)./d .* p .* dot(dvec, n, 2);
-            end
+            kp = sqrt(k^2-kx.^2);
+            p = -1i/4 * besselh(0, 2, kp*dvec);
+            q = 1i*k/8 * besselh(1, 2, kp*dvec);
         end
         if symm
             [p2, q2] = incident('point', r0*diag([1 1 -1]), r, n, k);
