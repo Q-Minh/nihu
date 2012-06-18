@@ -25,6 +25,7 @@ v = zeros(N, m+1);  % Krylov subspace base vectors
 eps = zeros(m, 1);  % residuals
 
 %% initialization phase
+% TODO CHECK HAPPY CONDITION
 x0 = zeros(N,1);
 r0 = b - A(x0, varargin{:});    % starting residual
 beta = norm(r0);    % normalize
