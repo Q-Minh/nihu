@@ -1,0 +1,42 @@
+\documentclass[a4paper, 10pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{a4wide}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{bm}
+
+\newcommand{\te}{\mathrm{e}}
+\newcommand{\ti}{\mathrm{i}}
+
+\newcommand{\tn}{\bm{\mathnormal{n}}}
+\newcommand{\tr}{\bm{\mathnormal{r}}}
+\newcommand{\tx}{\bm{\mathnormal{x}}}
+\newcommand{\ty}{\bm{\mathnormal{y}}}
+
+\author{Péter Rucz}
+\title{Burton-Miller}
+
+\begin{document}
+
+\maketitle
+
+\begin{equation}
+	G_k(\tx, \ty) = \frac{\te^{-\ti k r}}{4 \pi r}
+\end{equation}
+
+\begin{equation}
+	\frac{\partial G_k}{\partial n(\tx)} = -\frac{\te^{-\ti k r}}{4 \pi r^2}(1 + \ti kr)\frac{\partial r}{\partial \tn(\tx)} \qquad \text{with} \qquad \frac{\partial r}{\partial \tn(\tx)} = \frac{\tr \cdot \tn(\tx)}{r}
+\end{equation}
+
+%(exp(-k*r*i)*(- k^2*r^2 + k*r*(2*i) + 2))/(4*pi*r^3)
+
+\begin{equation}
+	\frac{\partial G_k(\tx, \ty)}{\partial \tn(\tx) \partial \tn(\ty)} = \frac{\te^{- \ti kr}}{4 \pi r^3}\left[(3 + 3 \ti kr - k^2 r^2) \frac{\partial r}{\partial \tn(\tx)}\frac{\partial r}{\partial \tn(\ty)} + (1 + \ti kr) \tn(\tx) \cdot \tn (\ty) \right]
+\end{equation}
+
+
+\begin{align}
+\end{align}
+
+\end{document}
