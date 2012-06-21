@@ -15,11 +15,12 @@
 
 
 /* ------------------------------------------------------------------------ */
-/* Regular integral over a linear QUAD element                              */
+/* Regular integral over a linear QUAD element - Burton-Miller              */
 void int_quad_lin_bm(const gauss_t *g,
-                  const double *nodes,
-                  const accelerator_t *accelerator,
-                  const double *q, 						/* source point */
+					const double *nodes,
+					const accelerator_t *accelerator,
+					const double *q, 						/* source point */
+					const double *nq, 						/* normal at source point */
                   double k,
                   double *ar,
                   double *ai,
@@ -84,6 +85,7 @@ void int_quad_lin_sing_bm(const gauss_t *g,
                        double *br,
                        double *bi)
 {
+	
     int i, j, s, gnum;
     double r[3], norm[3], jac, gr, gi, dgr, dgi;
     double *xiprime, *etaprime, *wprime;
@@ -102,7 +104,6 @@ void int_quad_lin_sing_bm(const gauss_t *g,
     for (i = 0; i < gnum; i++)
     {
         shapefun_quad(xiprime[i], etaprime[i], N);
-
         /* computing integration location */
         for (j = 0; j < 3; j++)
         {
@@ -137,4 +138,5 @@ void int_quad_lin_sing_bm(const gauss_t *g,
     free(xiprime);
     free(etaprime);
     free(wprime);
+	
 }
