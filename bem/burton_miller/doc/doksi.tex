@@ -8,11 +8,22 @@
 
 \newcommand{\te}{\mathrm{e}}
 \newcommand{\ti}{\mathrm{i}}
+\newcommand{\td}{\mathrm{d}}
 
 \newcommand{\tn}{\bm{\mathnormal{n}}}
 \newcommand{\tr}{\bm{\mathnormal{r}}}
 \newcommand{\tx}{\bm{\mathnormal{x}}}
+\newcommand{\tT}{^{\mathrm{T}}}
 \newcommand{\ty}{\bm{\mathnormal{y}}}
+\newcommand{\sx}{\bm{\mathnormal{x}}}
+\newcommand{\sy}{\bm{\mathnormal{y}}}
+\newcommand{\sn}{\bm{\mathnormal{n}}}
+\newcommand{\bN}{\mathbf{N}}
+\newcommand{\bp}{\mathbf{p}}
+\newcommand{\bq}{\mathbf{q}}
+\newcommand{\bH}{\mathbf{H}}
+\newcommand{\bG}{\mathbf{G}}
+
 
 \author{Péter Rucz}
 \title{Burton-Miller}
@@ -20,6 +31,10 @@
 \begin{document}
 
 \maketitle
+
+\section{The Green function and its derivatives}
+
+The Green-function reads as
 
 \begin{equation}
 	G_k(\tx, \ty) = \frac{\te^{-\ti k r}}{4 \pi r}
@@ -35,8 +50,110 @@
 	\frac{\partial G_k(\tx, \ty)}{\partial \tn(\tx) \partial \tn(\ty)} = \frac{\te^{- \ti kr}}{4 \pi r^3}\left[(3 + 3 \ti kr - k^2 r^2) \frac{\partial r}{\partial \tn(\tx)}\frac{\partial r}{\partial \tn(\ty)} + (1 + \ti kr) \tn(\tx) \cdot \tn (\ty) \right]
 \end{equation}
 
+The static part is given as:
+
+\begin{equation}
+	G_0(\tx, \ty) = \frac{1}{4\pi r}
+\end{equation}
+
+\begin{equation}
+	\frac{\partial G_0(\tx, \ty)}{\partial \tn(\tx)} = -\frac{1}{4\pi r^2} \frac{\partial r}{\partial \tn(\tx)}
+\end{equation}
+
+\begin{equation}
+	\frac{\partial G_0(\tx, \ty)}{\partial \tn(\tx) \partial \tn(\ty)} = \frac{1}{4 \pi r^3} \left[3 \frac{\partial r}{\partial \tn(\tx)}\frac{\partial r}{\partial \tn(\ty)} + \tn(\tx) \cdot \tn (\ty) \right]
+\end{equation}
+
+Taking the difference of the second derivatives:
 
 \begin{align}
+	\frac{\partial G_k(\tx, \ty)}{\partial \tn(\tx) \partial \tn(\ty)} - \frac{\partial G_0(\tx, \ty)}{\partial \tn(\tx) \partial \tn(\ty)} = 
+	\frac{\te^{- \ti kr}}{4 \pi r^3}\left[3 \cdot (1 - \te^{\ti kr}) + 3 \ti kr - k^2 r^2) \frac{\partial r}{\partial \tn(\tx)}\frac{\partial r}{\partial \tn(\ty)} + (1 - \te^{\ti kr} + \ti kr) \tn(\tx) \cdot \tn (\ty) \right]
 \end{align}
+
+Taking the limit $r \rightarrow 0$, the difference can be expressed as a Taylor-series
+
+\begin{align}
+	\lim\limits_{\sy \rightarrow \sx} \left(\frac{\partial G_k(\tx, \ty)}{\partial \tn(\tx) \partial \tn(\ty)} - \frac{\partial G_0(\tx, \ty)}{\partial \tn(\tx) \partial \tn(\ty)}\right) = 
+	\frac{\te^{- \ti kr}}{4 \pi r^3}\left[3 \cdot (1 - \te^{\ti kr}) + 3 \ti kr - k^2 r^2) \frac{\partial r}{\partial \tn(\tx)}\frac{\partial r}{\partial \tn(\ty)} + (1 - \te^{\ti kr} + \ti kr) \tn(\tx) \cdot \tn (\ty) \right]
+\end{align}
+
+\begin{align}
+	D(r) = \frac{k^2}{8 \pi r} + \frac{\ti k^3}{14 \pi} + o(r)
+\end{align}
+
+
+
+\section{The Burton-Miller formulation}
+
+\begin{equation}
+	C(\sx) p (\sx) = \int_{\Gamma}\left[-\frac{\partial{G}_k (\sx, \sy)}{\partial \sn_y} p(\sy) + G_k(\sx,\sy)\frac{\partial p(\sy)}{\partial \sn_y}\right] \td \Gamma_y + p_{in}(\sx)
+\end{equation}
+
+The normal derivative ($ \partial / \partial \sn_x$):
+
+\begin{equation}
+	C(\sx) \frac{\partial p(\sx)}{\sn_x} = \int_{\Gamma}\left[-\frac{\partial^2{G}_k (\sx, \sy)}{\partial \sn_y \partial \sn_x} p(\sy) + \frac{\partial G_k(\sx,\sy)}{\partial \sn_x}\frac{\partial p(\sy)}{\partial \sn_y}\right] \td \Gamma_y + \frac{\partial p_{in}(\sx)}{\partial \sn_x}
+\end{equation}
+
+Using the Burton-Miller formulation for surface points ($C(\sx) = 1/2$), the linear combination is calculated with the coupling constant $\alpha$
+
+\begin{align}
+	\alpha & \int_\Gamma \frac{\partial^2{G}_k (\sx, \sy)}{\partial \sn_y \partial \sn_x} p(\sy) \td \Gamma_y -
+	\alpha \int_\Gamma \frac{\partial{G}_k (\sx, \sy)}{\partial \sn_x} \frac{\partial p(\sy)}{\partial \sn_y} \td \Gamma_y = \nonumber \\
+	& = \int_{\Gamma}\left[-\frac{\partial{G}_k (\sx, \sy)}{\partial \sn_y} p(\sy) + G_k(\sx,\sy)\frac{\partial p(\sy)}{\partial \sn_y}\right] \td \Gamma_y - \frac{1}{2} p(\sx) - \frac{1}{2}\alpha \frac{ \partial p(\sx)}{\partial \sn_x} + p_{in}(\sx) + \alpha \frac{\partial p_{in}(\sx)}{\partial \sn_x}
+\end{align}
+
+Using shape functions $N_i(\sx)$ for the pressure and its normal derivative:
+
+\begin{align}
+	p(\sx) & = \sum\limits_{i=1}^P N_i(\sx)p_i \\
+	\frac{\partial p(\sx)}{\partial \sn(\sx)} & = \sum\limits_{i=1}^P \frac{\partial N_i(\sx)}{\partial \sn(\sx)}p_i
+\end{align}
+
+Rearranging:
+
+\begin{align}
+	\frac{1}{2}p(\sx_i) & - p_{in}(\sx_i) + \frac{\alpha}{2}\frac{\partial p(\sx_i)}{\partial \sn(\sx)} - \alpha \frac{\partial p_{in}(\sx_i)}{\partial \sn(\sx)} = \nonumber \\
+	& \alpha \int_\Gamma \frac{\partial{G}_k (\sx_i, \sy)}{\partial \sn(\sx)} \bN(\sy)\bq \td \Gamma(\sy)
+	- \alpha \int_\Gamma \frac{\partial^2{G}_k (\sx_i, \sy)}{\partial \sn_y \partial \sn_x} \bN(\sy) \bp \td \Gamma(\sy) - \nonumber \\
+	& \int_{\Gamma}\left[\frac{\partial{G}_k (\sx_i, \sy)}{\partial \sn_y} \bN(\sy) \bp - G_k(\sx_i,\sy) \bN(\sy) \bq \right] \td \Gamma (\sy) 
+\end{align}
+
+In matrix form:
+
+\begin{align}
+	\frac{1}{2} \mathbf{p} - \mathbf{p}_{in} + \frac{\alpha}{2} \mathbf{q} - \alpha \mathbf{q}_{in} = \bH \bp - \bG \bq
+\end{align}
+
+With
+
+\begin{align}
+	\bH_{ij} & = \int_{\Gamma}\frac{\partial{G}_k (\sx_i, \sy)}{\partial \sn_y} N_j(\sy) \td \Gamma(\sy)
+	- \alpha \int_\Gamma \frac{\partial^2{G}_k (\sx_i, \sy)}{\partial \sn_y \partial \sn_x} N_j(\sy) \td \Gamma(\sy) \nonumber \\
+	\bG_{ij} & = \int_{\Gamma} G_k(\sx_i,\sy) N_j(\sy) \td \Gamma(\sy) - \alpha \int_\Gamma \frac{\partial{G}_k (\sx_i, \sy)}{\partial \sn(\sx)} N_j(\sy) \td \Gamma(\sy)
+\end{align}
+
+
+
+
+\section{Treatment of hypersingular integrals}
+
+Using the Burton-Miller formulation for surface points ($C(\sx) = 1/2$), the linear combination is calculated with the coupling constant $\alpha$
+
+\begin{align}
+	\alpha & \int_\Gamma \frac{\partial^2{G}_k (\sx, \sy)}{\partial \sn_y \partial \sn_x} p(\sy) \td \Gamma_y -
+	\alpha \int_\Gamma \frac{\partial{G}_k (\sx, \sy)}{\partial \sn_x} \frac{\partial p(\sy)}{\partial \sn_y} \td \Gamma_y = \nonumber \\
+	& = \int_{\Gamma}\left[-\frac{\partial{G}_k (\sx, \sy)}{\partial \sn_y} p(\sy) + G_k(\sx,\sy)\frac{\partial p(\sy)}{\partial \sn_y}\right] \td \Gamma_y - \frac{1}{2} p(\sx) - \frac{1}{2}\alpha \frac{ \partial p(\sx)}{\partial \sn_x} + p_{in}(\sx) + \alpha \frac{\partial p_{in}(\sx)}{\partial \sn_x}
+\end{align}
+
+\begin{align}
+	\int_\Gamma \frac{\partial G_0(\sx, \sy)}{\partial \sn_y} \td \Gamma_y & = 0 \\
+	\int_\Gamma \frac{\partial^2 G_0(\sx, \sy)}{\partial \sn_x \partial \sn_y} \td \Gamma_y & = 0 \\
+	\int_\Gamma \frac{\partial^2 G_0(\sx, \sy)}{\partial \sn_x \partial \sn_y}(\sy - \sx) \td \Gamma_y & = \int_\Gamma \frac{\partial G_0(\sx, \sy)}{\partial \sn_x} \sn_y \td \Gamma_y 
+\end{align}
+
+
+
 
 \end{document}

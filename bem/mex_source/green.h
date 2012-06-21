@@ -17,6 +17,7 @@ void green2D(const double *r,
            double *dgr,
            double *dgi);
 		   
+/* Second derivative of green function */
 void ddgreen(const double *r,
 	double k,
 	const double *nx,
