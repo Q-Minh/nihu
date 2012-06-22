@@ -17,12 +17,27 @@ void green2D(const double *r,
            double *dgr,
            double *dgi);
 		   
-/* Second derivative of green function */
-void ddgreen(const double *r,
+/* 3D Green's function and its derivatives  */
+void ddgreen(const double *r, /* y - x */
 	double k,
 	const double *nx,
 	const double *ny,
-	double *ddgr,
+	double *gr, 	/* Green's function */
+	double *gi,
+	double *dgxr, 	/* normal derivative with respect to x */
+	double *dgxi,
+	double *dgyr,	/* normal derivative with respect to y */
+	double *dgyi,
+	double *ddgr, 	/* double normal derivative */
 	double *ddgi);
 
+/* 3D static Green's function and its derivatives  */
+void ddgreen0(const double *r, /* y - x */
+	const double *nx,
+	const double *ny,
+	double *g, 	/* Green's function */
+	double *dgx, 	/* normal derivative with respect to x */
+	double *dgy,	/* normal derivative with respect to y */
+	double *ddg); 	/* double normal derivative */
+	
 #endif

@@ -4,19 +4,21 @@
 
 void inverse_matrix_tri(double *nodes, double *gradN)
 {
-	double dNxi[3] = {-1.0, 1.0, 0.0};
-	double dNeta[3] = {-1.0, 0.0, 1.0};
-	double drxi[3], dreta[3], norm[3], b;
-	double c[3], d[3];
-	int i, j, s;
+#define NVERT 3
+#define NDIM 3
+	double dNxi[NVERT] = {-1.0, 1.0, 0.0};
+	double dNeta[NVERT] = {-1.0, 0.0, 1.0};
+	double drxi[NDIM], dreta[NDIM], norm[NDIM], b;
+	double c[NDIM], d[NDIM];
+	int j, s;
 	
-	for (j = 0; j < 3; j++)
+	for (j = 0; j < NDIM; j++)
 	{
 		drxi[j] = dreta[j] = 0.0;
-		for (s = 0; s < 3; s++)
+		for (s = 0; s < NVERT; s++)
 		{
-			drxi[j] += nodes[s+3*j] * dNxi[s];
-			dreta[j] += nodes[s+3*j] * dNeta[s];
+			drxi[j] += nodes[s+NVERT*j] * dNxi[s];
+			dreta[j] += nodes[s+NVERT*j] * dNeta[s];
 		}
 	}
 	
@@ -26,58 +28,46 @@ void inverse_matrix_tri(double *nodes, double *gradN)
 	
 	b = dot(norm, norm);
 	
-	for (s = 0; s < 3; s++)
-	{
-		c[s] /= b;
-		d[s] /= b;
-	}
-		
-	for (i = 0; i < 3; i++)
-		for (j = 0; j < 3; j++)
-			gradN[i+3*j] = c[i] * dNxi[j] + d[i] * dNeta[j];
-	
+	for (j = 0; j < NDIM; ++j) 
+		for (s = 0; s < NVERT; s++)
+			gradN[j+NDIM*s] = (c[j] * dNxi[s] + d[j] * dNeta[s]) / b;
+#undef NVERT
+#undef NDIM
 }
 
-void inverse_matrix_quad(double *nodes, double xi, double eta, double *gradN)
+void inverse_matrix_quad(const double *nodes, double xi, double eta, double *gradN)
 {
-	double dNxi[4], dNeta[4];				/* Shape functions' derivatives */
-	
-	double drxi[3], dreta[3], norm[3], b;
-	double c[3], d[3];
-	int i, j, s;
+#define NVERT 4
+#define NDIM 3
+	double dNxi[NVERT], dNeta[NVERT];				/* Shape functions' derivatives */
+	double drxi[NDIM], dreta[NDIM], norm[NDIM], b;
+	double c[NDIM], d[NDIM];
+	int j, s;
 	
 	/* Evaluate shape functions */
 	d_shapefun_quad(xi, eta, dNxi, dNeta);
 	
-	/* Go through all dimensions */
-	for (j = 0; j < 3; j++)
+	for (j = 0; j < NDIM; j++)
 	{
-		/* Go through all nodes */
 		drxi[j] = dreta[j] = 0.0;
-		for (s = 0; s < 4; s++)
+		for (s = 0; s < NVERT; s++)
 		{
-			drxi[j] += nodes[s+3*j] * dNxi[s];
-			dreta[j] += nodes[s+3*j] * dNeta[s];
+			drxi[j] += nodes[s+NVERT*j] * dNxi[s];
+			dreta[j] += nodes[s+NVERT*j] * dNeta[s];
 		}
 	}
 	
 	cross(drxi, dreta, norm);
 	cross(dreta, norm, c);
 	cross(norm, drxi, d);
-	
+
 	b = dot(norm, norm);
 	
-	/* Go through all nodes */
-	for (s = 0; s < 4; s++)
-	{
-		c[s] /= b;
-		d[s] /= b;
-	}
-		
-	for (i = 0; i < 4; i++)    		/* All nodes */
-		for (j = 0; j < 3; j++)     /* All dimensions */
-			gradN[i+3*j] = c[i] * dNxi[j] + d[i] * dNeta[j];
-	
+	for (j = 0; j < NDIM; ++j)
+		for (s = 0; s < NVERT; s++)
+			gradN[j+NDIM*s] = (c[j] * dNxi[s] + d[j] * dNeta[s]) / b;
+#undef NVERT
+#undef NDIM
 }
 
 void init_accelerators(int nnodes,
@@ -171,6 +161,8 @@ void init_accelerators2D(int nnodes,
 		accelerators[e].n0[0] = a[1];
 		accelerators[e].n0[1] = -a[0];
     }
+#undef NVERT
+#undef NDIM
 }
 
 /* ------------------------------------------------------------------------ */
@@ -192,6 +184,7 @@ int gauss_division(const double *q,
     if (d < dist[1])
         return 2;
     return 3;
+#undef NDIM
 }
 
 /* ------------------------------------------------------------------------ */
@@ -213,4 +206,5 @@ int gauss_division2D(const double *q,
     if (d < dist[1])
         return 2;
     return 3;
+#undef NDIM
 }

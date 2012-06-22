@@ -46,9 +46,12 @@ The Green-function reads as
 
 %(exp(-k*r*i)*(- k^2*r^2 + k*r*(2*i) + 2))/(4*pi*r^3)
 
-\begin{equation}
-	\frac{\partial G_k(\tx, \ty)}{\partial \tn(\tx) \partial \tn(\ty)} = \frac{\te^{- \ti kr}}{4 \pi r^3}\left[(3 + 3 \ti kr - k^2 r^2) \frac{\partial r}{\partial \tn(\tx)}\frac{\partial r}{\partial \tn(\ty)} + (1 + \ti kr) \tn(\tx) \cdot \tn (\ty) \right]
-\end{equation}
+\begin{align}
+	\frac{\partial^2 G_k(\tx, \ty)}{\partial \tn(\tx) \partial \tn(\ty)}
+	&= \frac{\te^{- \ti kr}}{4 \pi r^3}\left[(3 + 3 \ti kr - k^2 r^2) \frac{\partial r}{\partial \tn(\tx)}\frac{\partial r}{\partial \tn(\ty)} + (1 + \ti kr) \tn(\tx) \cdot \tn (\ty) \right] \\
+	&= G_k(\tx,\ty)\left[\left(\frac{3}{r^2} + \frac{3\ti k}{r} - k^2\right) \frac{\partial r}{\partial \tn(\tx)}\frac{\partial r}{\partial \tn(\ty)}
+	+ \frac{1}{r^2}(1 + \ti kr) \tn(\tx) \cdot \tn (\ty) \right]
+\end{align}
 
 The static part is given as:
 
@@ -65,21 +68,22 @@ The static part is given as:
 \end{equation}
 
 Taking the difference of the second derivatives:
-
-\begin{align}
-	\frac{\partial G_k(\tx, \ty)}{\partial \tn(\tx) \partial \tn(\ty)} - \frac{\partial G_0(\tx, \ty)}{\partial \tn(\tx) \partial \tn(\ty)} = 
+%
+\begin{multline}
+	\frac{\partial G_k(\tx, \ty)}{\partial \tn(\tx) \partial \tn(\ty)} - \frac{\partial G_0(\tx, \ty)}{\partial \tn(\tx) \partial \tn(\ty)} = \\
 	\frac{\te^{- \ti kr}}{4 \pi r^3}\left[3 \cdot (1 - \te^{\ti kr}) + 3 \ti kr - k^2 r^2) \frac{\partial r}{\partial \tn(\tx)}\frac{\partial r}{\partial \tn(\ty)} + (1 - \te^{\ti kr} + \ti kr) \tn(\tx) \cdot \tn (\ty) \right]
-\end{align}
-
+\end{multline}
+%
 Taking the limit $r \rightarrow 0$, the difference can be expressed as a Taylor-series
+%
+\begin{multline}
+	\lim\limits_{\sy \rightarrow \sx} \left(\frac{\partial G_k(\tx, \ty)}{\partial \tn(\tx) \partial \tn(\ty)} - \frac{\partial G_0(\tx, \ty)}{\partial \tn(\tx) \partial \tn(\ty)}\right) = \\
+	\frac{\te^{- \ti kr}}{4 \pi r^3}
+	\left[\left(3 \cdot (1 - \te^{\ti kr}) + 3 \ti kr - k^2 r^2\right) \frac{\partial r}{\partial \tn(\tx)}\frac{\partial r}{\partial \tn(\ty)} + (1 - \te^{\ti kr} + \ti kr) \tn(\tx) \cdot \tn (\ty) \right]
+\end{multline}
 
 \begin{align}
-	\lim\limits_{\sy \rightarrow \sx} \left(\frac{\partial G_k(\tx, \ty)}{\partial \tn(\tx) \partial \tn(\ty)} - \frac{\partial G_0(\tx, \ty)}{\partial \tn(\tx) \partial \tn(\ty)}\right) = 
-	\frac{\te^{- \ti kr}}{4 \pi r^3}\left[3 \cdot (1 - \te^{\ti kr}) + 3 \ti kr - k^2 r^2) \frac{\partial r}{\partial \tn(\tx)}\frac{\partial r}{\partial \tn(\ty)} + (1 - \te^{\ti kr} + \ti kr) \tn(\tx) \cdot \tn (\ty) \right]
-\end{align}
-
-\begin{align}
-	D(r) = \frac{k^2}{8 \pi r} + \frac{\ti k^3}{14 \pi} + o(r)
+	D(r) = \frac{k^2}{8 \pi r} + \frac{\ti k^3}{12 \pi} + o(r)
 \end{align}
 
 
@@ -87,38 +91,73 @@ Taking the limit $r \rightarrow 0$, the difference can be expressed as a Taylor-
 \section{The Burton-Miller formulation}
 
 \begin{equation}
-	C(\sx) p (\sx) = \int_{\Gamma}\left[-\frac{\partial{G}_k (\sx, \sy)}{\partial \sn_y} p(\sy) + G_k(\sx,\sy)\frac{\partial p(\sy)}{\partial \sn_y}\right] \td \Gamma_y + p_{in}(\sx)
+	C(\sx) p (\sx) = \int_{\Gamma}\left[\frac{\partial{G}_k (\sx, \sy)}{\partial \sn_y} p(\sy)
+	- G_k(\sx,\sy)\frac{\partial p(\sy)}{\partial \sn_y}\right] \td \Gamma_y + p_{in}(\sx)
 \end{equation}
 
 The normal derivative ($ \partial / \partial \sn_x$):
 
 \begin{equation}
-	C(\sx) \frac{\partial p(\sx)}{\sn_x} = \int_{\Gamma}\left[-\frac{\partial^2{G}_k (\sx, \sy)}{\partial \sn_y \partial \sn_x} p(\sy) + \frac{\partial G_k(\sx,\sy)}{\partial \sn_x}\frac{\partial p(\sy)}{\partial \sn_y}\right] \td \Gamma_y + \frac{\partial p_{in}(\sx)}{\partial \sn_x}
+	C(\sx) \frac{\partial p(\sx)}{\partial \sn_x}
+	=
+	\int_{\Gamma}\left[\frac{\partial^2{G}_k (\sx, \sy)}{\partial \sn_y \partial \sn_x} p(\sy) - \frac{\partial G_k(\sx,\sy)}{\partial \sn_x}\frac{\partial p(\sy)}{\partial \sn_y}\right] \td \Gamma_y + \frac{\partial p_{in}(\sx)}{\partial \sn_x}
 \end{equation}
 
 Using the Burton-Miller formulation for surface points ($C(\sx) = 1/2$), the linear combination is calculated with the coupling constant $\alpha$
 
-\begin{align}
-	\alpha & \int_\Gamma \frac{\partial^2{G}_k (\sx, \sy)}{\partial \sn_y \partial \sn_x} p(\sy) \td \Gamma_y -
-	\alpha \int_\Gamma \frac{\partial{G}_k (\sx, \sy)}{\partial \sn_x} \frac{\partial p(\sy)}{\partial \sn_y} \td \Gamma_y = \nonumber \\
-	& = \int_{\Gamma}\left[-\frac{\partial{G}_k (\sx, \sy)}{\partial \sn_y} p(\sy) + G_k(\sx,\sy)\frac{\partial p(\sy)}{\partial \sn_y}\right] \td \Gamma_y - \frac{1}{2} p(\sx) - \frac{1}{2}\alpha \frac{ \partial p(\sx)}{\partial \sn_x} + p_{in}(\sx) + \alpha \frac{\partial p_{in}(\sx)}{\partial \sn_x}
-\end{align}
+\begin{multline}
+	C(\sx) p (\sx)
+	-
+	p_{in}(\sx)
+	+
+	\alpha
+	C(\sx) \frac{\partial p(\sx)}{\partial \sn_x}
+	-
+	\alpha \frac{\partial p_{in}(\sx)}{\partial \sn_x}
+	= \\
+	\int_{\Gamma}\left[\frac{\partial{G}_k (\sx, \sy)}{\partial \sn_y} p(\sy)
+	- G_k(\sx,\sy)\frac{\partial p(\sy)}{\partial \sn_y}\right] \td \Gamma_y
+	+
+	\alpha \int_{\Gamma}
+	\left[
+	\frac{\partial^2{G}_k (\sx, \sy)}{\partial \sn_y \partial \sn_x} p(\sy)
+	- \frac{\partial G_k(\sx,\sy)}{\partial \sn_x}\frac{\partial p(\sy)}{\partial \sn_y}
+	\right] \td \Gamma_y
+\end{multline}
 
 Using shape functions $N_i(\sx)$ for the pressure and its normal derivative:
 
 \begin{align}
 	p(\sx) & = \sum\limits_{i=1}^P N_i(\sx)p_i \\
-	\frac{\partial p(\sx)}{\partial \sn(\sx)} & = \sum\limits_{i=1}^P \frac{\partial N_i(\sx)}{\partial \sn(\sx)}p_i
+	\frac{\partial p(\sx)}{\partial \sn_x} & = q(\sx) = \sum\limits_{i=1}^P N_i(\sx)q_i
 \end{align}
 
 Rearranging:
 
-\begin{align}
-	\frac{1}{2}p(\sx_i) & - p_{in}(\sx_i) + \frac{\alpha}{2}\frac{\partial p(\sx_i)}{\partial \sn(\sx)} - \alpha \frac{\partial p_{in}(\sx_i)}{\partial \sn(\sx)} = \nonumber \\
-	& \alpha \int_\Gamma \frac{\partial{G}_k (\sx_i, \sy)}{\partial \sn(\sx)} \bN(\sy)\bq \td \Gamma(\sy)
-	- \alpha \int_\Gamma \frac{\partial^2{G}_k (\sx_i, \sy)}{\partial \sn_y \partial \sn_x} \bN(\sy) \bp \td \Gamma(\sy) - \nonumber \\
-	& \int_{\Gamma}\left[\frac{\partial{G}_k (\sx_i, \sy)}{\partial \sn_y} \bN(\sy) \bp - G_k(\sx_i,\sy) \bN(\sy) \bq \right] \td \Gamma (\sy) 
-\end{align}
+\begin{multline}
+	\frac{1}{2} p (\sx)
+	-
+	p_{in}(\sx)
+	+
+	\frac{\alpha}{2} q(\sx)
+	-
+	\alpha q_{in}(\sx)
+	= \\
+	\left(
+	\int_{\Gamma} \frac{\partial{G}_k (\sx, \sy)}{\partial \sn_y} p(\sy) \td \Gamma_y
+	+
+	\alpha \int_{\Gamma}
+	\frac{\partial^2{G}_k (\sx, \sy)}{\partial \sn_y \partial \sn_x} p(\sy) \td \Gamma_y
+	\right)
+	\\
+	-
+	\left(
+	\int_{\Gamma} G_k(\sx,\sy) q(\sy) \td \Gamma_y
+	+
+	\alpha \int_{\Gamma}
+	\frac{\partial G_k(\sx,\sy)}{\partial \sn_x}q(\sy) \td \Gamma_y
+	\right)
+\end{multline}
 
 In matrix form:
 
@@ -129,9 +168,12 @@ In matrix form:
 With
 
 \begin{align}
-	\bH_{ij} & = \int_{\Gamma}\frac{\partial{G}_k (\sx_i, \sy)}{\partial \sn_y} N_j(\sy) \td \Gamma(\sy)
-	- \alpha \int_\Gamma \frac{\partial^2{G}_k (\sx_i, \sy)}{\partial \sn_y \partial \sn_x} N_j(\sy) \td \Gamma(\sy) \nonumber \\
-	\bG_{ij} & = \int_{\Gamma} G_k(\sx_i,\sy) N_j(\sy) \td \Gamma(\sy) - \alpha \int_\Gamma \frac{\partial{G}_k (\sx_i, \sy)}{\partial \sn(\sx)} N_j(\sy) \td \Gamma(\sy)
+	\bH_{ij}
+	& = \int_{\Gamma}\frac{\partial{G}_k (\sx_i, \sy)}{\partial \sn_y} N_j(\sy) \td \Gamma(\sy)
+	+ \alpha \int_\Gamma \frac{\partial^2{G}_k (\sx_i, \sy)}{\partial \sn_y \partial \sn_x} N_j(\sy) \td \Gamma(\sy) \nonumber \\
+	\bG_{ij}
+	& = \int_{\Gamma} G_k(\sx_i,\sy) N_j(\sy) \td \Gamma(\sy)
+	+ \alpha \int_\Gamma \frac{\partial{G}_k (\sx_i, \sy)}{\partial \sn_x} N_j(\sy) \td \Gamma(\sy)
 \end{align}
 
 

@@ -14,14 +14,12 @@ void green(const double *r,
            double *dgr,
            double *dgi)
 {
-    double ar, rn;
-
-    ar = sqrt(dot(r, r));
+    double ar = sqrt(dot(r, r));
     *gr = cos(k*ar) / ar / (4.0 * M_PI);
     *gi = -sin(k*ar) / ar / (4.0 * M_PI);
     if (n)
     {
-        rn = dot(r, n) / ar;
+        double rn = dot(r, n) / ar;
         *dgr = (- *gr / ar + *gi * k) * rn;
         *dgi = (- *gi / ar - *gr * k) * rn;
     }
@@ -39,77 +37,65 @@ void green2D(const double *r,
 {
 }
 
-/* Double derivative of 3D Green function d^2 G / (dnx dny) */
-void ddgreen(const double *r,
+/* 3D Green's function and its derivatives  */
+void ddgreen(const double *r, /* y - x */
 	double k,
 	const double *nx,
 	const double *ny,
-	double *ddgr,
+	double *gr, 	/* Green's function */
+	double *gi,
+	double *dgxr, 	/* normal derivative with respect to x */
+	double *dgxi,
+	double *dgyr,	/* normal derivative with respect to y */
+	double *dgyi,
+	double *ddgr, 	/* double normal derivative */
 	double *ddgi)
 {
-	double ar, ar2, br, bi;
-	double drnxdrny;
-	double nxny;
-	double gr, gi;
+	double ar2 = dot(r,r);
+	double ar = sqrt(ar2);
+    double rnx = -dot(r, nx) / ar;
+    double rny = dot(r, ny) / ar;
+	double rnxrny = rnx*rny;
+	double nxny = dot(nx, ny);
+	double br = (3.0/ar2 - k*k) * rnxrny + nxny / ar2;
+	double bi = k/ar * (3.0*rnxrny + nxny);
 	
-	ar2 = dot(r,r);
-	ar = sqrt(ar2);
+	/* Green's function */
+	*gr = cos(k*ar)/ar / (4.0 * M_PI);
+	*gi = -sin(k*ar)/ar / (4.0 * M_PI);
 	
-	gr = cos(k*ar)/ar / (4.0 * M_PI);
-	gi = -sin(k*ar)/ar / (4.0 * M_PI);
+	/* Normal derivatives */
+    *dgxr = (- *gr / ar + *gi * k) * rnx;
+    *dgxi = (- *gi / ar - *gr * k) * rnx;
+    *dgyr = (- *gr / ar + *gi * k) * rny;
+    *dgyi = (- *gi / ar - *gr * k) * rny;
 	
-	drnxdrny = -dot(r, nx)*dot(r, ny)/ar2;
-	nxny = dot(nx, ny);
-	
-	br = (3.0/ar2 - k*k) * drnxdrny + nxny / ar2;
-	bi = k/ar * (3.0*drnxdrny + nxny);
-	
-	*ddgr = gr*br - gi*bi;
-	*ddgi = gr*bi + gi*br;
+	/* Double normal derivative */
+	*ddgr = *gr * br - *gi * bi;
+	*ddgi = *gr * bi + *gi * br;
 }
 
-/* Static green function */
-void green0(const double *r,
-           double k,
-           double *gr,
-           double *gi,
-           const double *n,
-           double *dgr,
-           double *dgi)
+/* 3D static Green's function and its derivatives  */
+void ddgreen0(const double *r, /* y - x */
+	const double *nx, 	/* unit normal at x */
+	const double *ny, 	/* unit normal at y */
+	double *g, 	/* Green's function */
+	double *dgx, 	/* normal derivative with respect to x */
+	double *dgy,	/* normal derivative with respect to y */
+	double *ddg) 	/* double normal derivative */
 {
-	double ar, rn;
-	ar = sqrt(dot(r, r));
-	*gr = 1.0 / (4.0*M_PI*ar);
-	*gi = 0.0;
-	/* If normal is given */
-	if (n)
-	{
-		rn = dot(r, n) / ar;
-		*dgr = - *gr / ar * rn;
-		*dgi = 0.0;
-	}
-}
-
-/* Double derivative of static 3D Green function d^2 G0 */
-/* TODO: implement this */
-void ddgreen0(const double *r,
-	double k,
-	const double *nx,
-	const double *ny,
-	double *ddgr,
-	double *ddgi)
-{
-	double ar, ar2, br, bi;
-	double drnxdrny;
-	double nxny;
-	double gr, gi;
+	double ar2 = dot(r,r);
+	double ar = sqrt(ar2);
+	/* Normal derivatives */
+    double rnx = -dot(r, nx) / ar;
+    double rny = dot(r, ny) / ar;
 	
-	ar2 = dot(r,r);
-	ar = sqrt(ar2);
+	/* Green's function */
+	*g = 1.0/(4.0 * M_PI * ar);
 	
-	drnxdrny = -dot(r, nx)*dot(r, ny)/ar2;
-	nxny = dot(nx, ny);
+    *dgx = -*g / ar * rnx;
+    *dgy = -*g / ar * rny;
 	
-	*ddgr = 1.0 / (4.0*M_PI*ar2*ar) * (3*drnxdrny + nxny);
-	*ddgi = 0.0;
+	/* Double normal derivative */
+	*ddg = *g/ar2 * (3.0 * rnx*rny + dot(nx, ny));
 }
