@@ -1,4 +1,4 @@
-function [H, G] = bemHG_bm(model, k)
+function [H, G] = bemHG_bm(model, k, alpha)
 %BEMHG Build matrices of an acoustic bem model
 %  [H, G] = bemHG(model, k, type, points, pairs) computes the bem system
 %  matrices H and G.
@@ -20,14 +20,6 @@ function [H, G] = bemHG_bm(model, k)
 % Peter Fiala
 % Last modified: 17.11.2009.
 
-%% parameter check
-if nargin < 5
-    pairs = [];
-end
-if nargin < 4
-    points = [];
-end
-
 %% Gaussian quadrature divisions
 %         singular near mid far
 gauss3 = assemble_gauss_struct(3, [9 7 5 2]);
@@ -36,8 +28,9 @@ gauss4 = assemble_gauss_struct(4, [9 7 5 2]);
 dist = nodes(elements(:,3)+1,:) - nodes(elements(:,2)+1,:);
 dist = [2 5] * max(sqrt(dot(dist,dist,2)));
 
-[H, G] = bemHG_lin_bm(nodes, elements, gauss3, gauss4, dist, k);
-        
+% make sure alpha is complex
+alpha = complex(real(alpha), imag(alpha));
+
+[H, G] = bemHG_lin_bm(nodes, elements, gauss3, gauss4, dist, k, alpha);
 
 end
-

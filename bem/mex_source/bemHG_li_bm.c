@@ -23,17 +23,10 @@ void matrix_surf_lin_bm(int nnodes,
                      double *Br,
                      double *Bi)
 {
-    double q[3];
-    int j, e, s, n;
-    int elem[4], nvert;
-    double nod[12];
-    double ai[4], bi[4], ar[4], br[4];
-    accelerator_t* accelerators;
-    boolean sing;
-    int corner, gs;
+	int n, j;
 
     /* Compute element centres */
-    accelerators = (accelerator_t *)calloc(nelements, sizeof(accelerator_t));
+    accelerator_t* accelerators = (accelerator_t *)calloc(nelements, sizeof(accelerator_t));
     init_accelerators(nnodes, nodes, nelements, elements, accelerators);
 
     /* Clear output matrices */
@@ -44,17 +37,26 @@ void matrix_surf_lin_bm(int nnodes,
     /* Integration for each node as reference point */
     for (n = 0; n < nnodes; ++n)
     {
-        /* reference location */
+		double q[3];
+		int e;
+
+		/* reference location */
         for (j = 0; j < 3; ++j)
             q[j] = nodes[n+j*nnodes];
 
         /* Integration for each element */
         for (e = 0; e < nelements; ++e)
         {
-            nvert = (int)elements[e];
+			int s;
+			int elem[4];
+			double nod[12];
+			double ai[4], bi[4], ar[4], br[4];
+			int corner, gs;
+		
+            int nvert = (int)elements[e];
 
             /* Collect element vertex nodes and coordinates */
-            sing = 0;
+            boolean sing = 0;
             for (s = 0; s < nvert; ++s)
             {
                 elem[s] = (int)elements[e+(s+1)*nelements];
@@ -72,15 +74,9 @@ void matrix_surf_lin_bm(int nnodes,
             {
                 switch(nvert)
                 {
-				/*
-                case 3:
-                    int_tri_lin_sing(&g4[0], nod, &accelerators[e], corner, k, ar, ai, br, bi);
-                    break;
-				*/
                 case 4:
-					 /* Singular QUAD */
-                    int_quad_lin_sing_bm(&g4[0], nod, &accelerators[e], corner, 
-					 q, k, alphar, alphai, ar, ai, br, bi); */
+                    int_quad_lin_sing_bm(&g4[0], nod, &accelerators[e], corner, q,
+					k, alphar, alphai, ar, ai, br, bi);
                     break;
 				default:
 					/* Nincs más elem! */
@@ -93,11 +89,6 @@ void matrix_surf_lin_bm(int nnodes,
                 gs = gauss_division(q, accelerators[e].center, dist);
                 switch(nvert)
                 {
-				/* 
-				case 3:
-					int_tri_lin(&g3[gs], nod, &accelerators[e], q, k, ar, ai, br, bi);
-					break;
-				*/
                 case 4:
                     int_quad_lin_bm(&g4[gs], nod, &accelerators[e], q, q, 
 					k, alphar, alphai, ar, ai, br, bi);

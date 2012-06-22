@@ -6,11 +6,13 @@
 
 #include "green.h"
 #include "element.h"
+#include "mesh.h"
 #include "quadrature.h"
 
 #include "vector.h" /* dot, cross */
 
-#include <math.h>   /* sqrt */
+#define _USE_MATH_DEFINES
+#include <math.h>   /* sqrt, M_PI */
 #include <stdlib.h> /* malloc */
 
 
@@ -29,10 +31,7 @@ void int_quad_lin_bm(const gauss_t *g,
                   double *br,
                   double *bi)
 {
-    int i, j, s;
-    double r[3], rxi[3], reta[3], norm[3], jac, gr, gi, dgr, dgi, ddgr, ddgi;
-	double Hr, Hi, Gr, Gi; /*Matrix elements */
-	double grx, gix, dgrx, dgix; /* For x stuff */
+    int i, s;
 	
     for (s = 0; s < 4; s++)
         ar[s] = ai[s] = br[s] = bi[s] = 0.0;
@@ -40,6 +39,11 @@ void int_quad_lin_bm(const gauss_t *g,
     /* for each gaussian integration point */
     for (i = 0; i < g->num; i++)
     {
+		int j;
+		double r[3], rxi[3], reta[3], norm[3], jac;
+		double gr, gi, dgxr, dgxi, dgyr, dgyi, ddgr, ddgi;
+		double Hr, Hi, Gr, Gi; /*Matrix elements */
+		
         /* for each coordinate direction */
         for (j = 0; j < 3; j++)
         {
@@ -60,24 +64,18 @@ void int_quad_lin_bm(const gauss_t *g,
             norm[j] /= jac;
         jac *= g->w[i];
 
-        green(r, k, &gr, &gi, norm, &dgr, &dgi);
-		green(r, k, &grx, &gix, nq, &dgrx, &dgix);
-		ddgreen(r, k, norm, nq, &ddgr, &ddgi);
+		ddgreen(r, k, nq, norm, &gr, &gi, &dgxr, &dgxi, &dgyr, &dgyi, &ddgr, &ddgi);
 
-        gr = gr*jac;
-        gi = gi*jac;
-        dgr = dgr*jac;
-        dgi = dgi*jac;
-		dgrx = -dgrx*jac;
-        dgix = -dgix*jac;
-		ddgr = ddgr*jac;
-		ddgi = ddgi*jac;
-
-		Hr = dgr - alphar * ddgr + alphai * ddgi;
-		Hi = dgi - alphar * ddgi - alphai * ddgr;
+		Hr = dgyr + alphar * ddgr - alphai * ddgi;
+		Hi = dgyi + alphar * ddgi + alphai * ddgr;
 		
-		Gr = gr - alphar * dgrx + alphai * dgix;
-		Gi = gi - alphar * dgix - alphai * dgrx;
+		Gr = gr + alphar * dgxr - alphai * dgxi;
+		Gi = gi + alphar * dgxi + alphai * dgxr;
+		
+		Hr *= jac;
+		Hi *= jac;
+		Gr *= jac;
+		Gi *= jac;
 		
         for (s = 0; s < 4; s++)
         {
@@ -92,152 +90,117 @@ void int_quad_lin_bm(const gauss_t *g,
 }
 
 /* ------------------------------------------------------------------------ */
-/* Singular integral over a linear QUAD element                             */
-void int_quad_lin_sing_bm(const gauss_t *g,
-                       const double *nodes,
+/* Singular integral over a linear QUAD element - Burton-Miller             */
+void int_quad_lin_sing_bm(const gauss_t *g, 	/* gaussian integration points and weights */
+                       const double *nodes, 	/* element corner nodes */
                        const accelerator_t *accelerator,
-                       int corner,
-					   double *nq, 							/* Normal vector at source point */
-                       double k,
-					   double alphar,
+                       int corner, 				/* singular corner index */
+					   const double *nq, 		/* Normal vector at source point */
+                       double k, 				/* wave number */
+					   double alphar, 			/* real part of coupling constant */
 					   double alphai,
-                       double *ar,
+                       double *ar, 				/* real part of matrix H or A */
                        double *ai,
-                       double *br,
+                       double *br, 				/* real part of matrix  G  or B */
                        double *bi)
 {
-	
-    int i, j, s, gnum;
-    double r[3], norm[3], jac, gr, gi, dgr, dgi;
-	
-	double g0rx, g0ix;
-	double ddgr, ddgi, ddg0r, ddg0i;
-	double dgrx, dgix, dg0rx, dg0ix;
-	
-	double Nq[4], gradNq[12];
-		
-	double xiq, etaq;
-	
-	double dNdotny[4], dNdotnx[4];
-	
-	/* Terms in integral */
-	double t1r, t1i;		/* Term 1: int N_j(y) [ d^2 Gk - d^2G0] */
-	double t2, t2r, t2i;  		/* Term 2: (gradN(x) dot ny) * (dG0/dnx) */
-	
-	double t4[4]; 				/* Term 4: -1/2 grad N(x) * nx */ 
-	
-	/* Evaluate the shape functions */
-	switch(corner)
+	double gradNq[4*3], Nq[4];
+	/* Evaluate nabla N(x) and its normal component */
 	{
-		case 0: xiq = -1.0; etaq = -1.0; break;
-		case 1: xiq =  1.0; etaq = -1.0; break;
-		case 2: xiq =  1.0; etaq =  1.0; break;
-		case 3: xiq = -1.0; etaq =  1.0; break;
+		int s;
+		double xiq, etaq;
+		
+		/* Evaluate the shape functions */
+		switch(corner)
+		{
+			case 0: xiq = -1.0; etaq = -1.0; break;
+			case 1: xiq =  1.0; etaq = -1.0; break;
+			case 2: xiq =  1.0; etaq =  1.0; break;
+			case 3: xiq = -1.0; etaq =  1.0; break;
+		}
+		
+		/* Evaluate shape functions and gradient */
+		shapefun_quad(xiq, etaq, Nq);
+		inverse_matrix_quad(nodes, xiq, etaq, gradNq);
+		
+		/* Initialize dNdotnx */
+		for (s = 0; s < 4; s++)
+		{
+			double gradNqdotnx = dot(nq, gradNq+3*s) / 2.0;
+			ar[s] = -alphar * gradNqdotnx;
+			ai[s] = -alphai * gradNqdotnx;
+			br[s] = bi[s] = 0.0;
+			/* ar[s] = ai[s] = 0; */
+		}
 	}
 	
-	/* Evaluate shape functions and gradient */
-	shapefun_quad(xiq, etaq, Nq);
-	inverse_matrix_quad(nodes, xiq, etaq, gradNq);
 	
-	/* Initialize dNdotnx */
-	for (s = 0; s < 4; s++)
-		dNdotnx[s] = dot(nq, gradNq+3*s);
-	
-    double *xiprime, *etaprime, *wprime;
-    double N[4];
+	{
+		int i, gnum;
 
-	/* Initialize the result */
-    for (s = 0; s < 4; s++)
-        ar[s] = ai[s] = br[s] = bi[s] = 0.0;
-	
-	/* Calculate term4 */
-	for (s = 0; s < 4; s++)
-		t4[s] = -0.5 * dNdotnx[s];
+		/* Preallocate for the singular quadrature */
+		double *xiprime = (double *)malloc(sizeof(double)*2*g->num);
+		double *etaprime = (double *)malloc(sizeof(double)*2*g->num);
+		double *wprime = (double *)malloc(sizeof(double)*2*g->num);
 
-	/* Preallocate for the singular quadrature */
-    xiprime = (double *)malloc(sizeof(double)*2*g->num);
-    etaprime = (double *)malloc(sizeof(double)*2*g->num);
-    wprime = (double *)malloc(sizeof(double)*2*g->num);
+		/* Obtain the singular quadrature */
+		sing_quadr_corner_quad(g, corner, &gnum, xiprime, etaprime, wprime);
 
-	/* Obtain the singular quadrature */
-    sing_quadr_corner_quad(g, corner, &gnum, xiprime, etaprime, wprime);
-
-	/* TODO: obtain normal at x node */
-	/* NOTE: taken as parameter */
-	
-    /* for each gaussian integration point */
-    for (i = 0; i < gnum; i++)
-    {
-        shapefun_quad(xiprime[i], etaprime[i], N);
-        /* computing integration location */
-        for (j = 0; j < 3; j++)
-        {
-            r[j] = -nodes[corner+4*j];
-            for (s = 0; s < 4; s++)
-                r[j] += N[s]*nodes[s+4*j];
-
-            norm[j] = accelerator->n0[j] + accelerator->nxi[j] * xiprime[i] + accelerator->neta[j] * etaprime[i];
-        }
-
-        jac = sqrt(dot(norm, norm));
-        for (j = 0; j < 3; j++)
-            norm[j] /= jac;
-        jac *= wprime[i];
-
-		/* Evaluate green function */
-        green(r, k, &gr, &gi, norm, &dgr, &dgi);
-		
-		/* Evaluate hypersingular parts */
-		/* #1 component */
-		ddgreen(r, k, norm, nq, &ddgr, &ddgi);
-		ddgreen0(r, k, norm, nq, &ddg0r, &ddg0i);
-		
-		green(r, k, &gr, &gi, norm, &dgr, &dgi);
-		/* NOTE: sign for switching source and receiver? */
-		green(r, k, &grx, &gix, nq, &dgrx, &dgix);
-		green0(r, k, &g0rx, &g0ix, nq, &dg0rx, &dg0ix);
-
-        gr *= jac;
-        gi *= jac;
-        dgr *= jac;
-        dgi *= jac;
-		ddgr *= jac;
-		ddgi *= jac;
-		dgrx *= jac;
-		dgix *= jac;
-		ddg0r *= jac;
-		ddg0i *= jac;
-		
-		/* Term 1 */
-		t1r = -(ddgr - ddg0r)*alphar + (ddgi - ddg0i)*alphai; t1r *= jac;
-		t1i = -(ddgi - ddg0i)*alphar - (ddgr - ddg0r)*alphai; t1i *= jac;
-
-        for (s = 0; s < 4; s++)
-        {
-			/* Calculate grad N * ny */
-			dNdotny[s] = dot(norm, gradNq+3*s);
+		/* for each gaussian integration point */
+		for (i = 0; i < gnum; i++)
+		{
+			double N[4];
+			int s, j;
+			double r[3], norm[3], jac;
 			
-			/* Calculate term2 */
-			t2 = dNdotny[s]*dg0rx;
-			t2i = alphai*t2;
-			t2r = alphar*t2;
+			double gr, gi, g0;
+			double dgxr, dgxi, dgyr, dgyi, dg0x, dg0y;
+			double ddgr, ddgi, ddg0;
 			
-			/* H matrix: Add term 1 */
-			ar[s] += N[s]*t1r;
-            ai[s] += N[s]*t1i;
-			/* H matrix: Add term 4 */
-			ar[s] += t4[s]*jac;
-            			
-            ar[s] += N[s]*dgr;
-            ai[s] += N[s]*dgi;
-            br[s] += N[s]*gr;
-            bi[s] += N[s]*gi;
-        }
-    }
+			double gradNqdotny[4];
+			
+			shapefun_quad(xiprime[i], etaprime[i], N);
+			/* computing integration location */
+			for (j = 0; j < 3; j++)
+			{
+				r[j] = -nodes[corner+4*j];
+				for (s = 0; s < 4; s++)
+					r[j] += N[s]*nodes[s+4*j];
 
-	/* Free singular quadrature points */
-    free(xiprime);
-    free(etaprime);
-    free(wprime);
-	
+				norm[j] = accelerator->n0[j] + accelerator->nxi[j] * xiprime[i] + accelerator->neta[j] * etaprime[i];
+			}
+
+			jac = sqrt(dot(norm, norm));
+			for (j = 0; j < 3; j++)
+				norm[j] /= jac;
+			jac *= wprime[i];
+
+			/* Evaluate Green's functions */
+			ddgreen(r, k, nq, norm, &gr, &gi, &dgxr, &dgxi, &dgyr, &dgyi, &ddgr, &ddgi);
+			ddgreen0(r, nq, norm, &g0, &dg0x, &dg0y, &ddg0);
+			
+			for (s = 0; s < 4; ++s)
+			{
+				/* Term 1 */
+				double tr = N[s] * k*k/8/M_PI/sqrt(dot(r,r));
+				double ti = N[s] * k*k*k/12/M_PI;
+				/* Term 2 */
+				tr += (N[s] - Nq[s] - dot(gradNq+3*s, r)) * ddg0;
+				/* Term 3 */
+				tr += dot(gradNq+3*s, norm) * dg0x;
+				
+				/* H matrix: Add terms */
+				ar[s] += (N[s] * dgyr + alphar * tr - alphai * ti) * jac;
+				ai[s] += (N[s] * dgyi + alphar * ti + alphai * tr) * jac;
+				
+				br[s] += N[s]*(gr + alphar * dgxr - alphai * dgxi)  * jac;
+				bi[s] += N[s]*(gi + alphar * dgxi + alphai * dgxr)  * jac;
+			}
+		}
+
+		/* Free singular quadrature points */
+		free(xiprime);
+		free(etaprime);
+		free(wprime);
+	}
 }

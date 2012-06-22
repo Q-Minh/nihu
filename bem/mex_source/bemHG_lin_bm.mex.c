@@ -11,13 +11,8 @@
  *              obtained from GAUSSQUAD2
  *   dist     : Distance limits governing integration density parameter
  *   k        : acoustic wave number
- *   points   : optional, if not given, then the acoustuc surface matrices
- *              are computed. If defined, then the field point matrices
- *              are returned. Points is a M x 3 matrix containing the xyz
- *              coordinates of the field points
+ *   alpha    : Burton-Miller coupling constant
  *
- * Peter Fiala
- * 2009
  */
 
 /* $Make: mex -O -output bemHG_lin_bm bemHG_lin_bm.mex.c bemHG_li_bm.c mesh.c integral_direct_bm.c quadrature.c element.c vector.c green.c $ */
@@ -34,7 +29,7 @@ void mexFunction(int nlhs,
                  int nrhs,
                  const mxArray *prhs[])
 {
-    double *nodes, *elements, *points, *dist, k;
+    double *nodes, *elements, *points, *dist, k, alphar, alphai;
     int nnodes, nelements, npoints;
     gauss_t *g3, *g4;
     double *Ar, *Ai, *Br, *Bi;
@@ -68,23 +63,21 @@ void mexFunction(int nlhs,
     }
     dist = mxGetPr(prhs[4]);
     k = mxGetScalar(prhs[5]);
+    alphar = *mxGetPr(prhs[6]);
+	alphai = *mxGetPi(prhs[6]);
 
-    if (nrhs == 6)
-    {
-        /* Allocate output parameters */
-        plhs[0] = mxCreateDoubleMatrix(nnodes, nnodes, mxCOMPLEX);
-        plhs[1] = mxCreateDoubleMatrix(nnodes, nnodes, mxCOMPLEX);
-        Ar = mxGetPr(plhs[0]);
-        Ai = mxGetPi(plhs[0]);
-        Br = mxGetPr(plhs[1]);
-        Bi = mxGetPi(plhs[1]);
+	/* Allocate output parameters */
+	plhs[0] = mxCreateDoubleMatrix(nnodes, nnodes, mxCOMPLEX);
+	plhs[1] = mxCreateDoubleMatrix(nnodes, nnodes, mxCOMPLEX);
+	Ar = mxGetPr(plhs[0]);
+	Ai = mxGetPi(plhs[0]);
+	Br = mxGetPr(plhs[1]);
+	Bi = mxGetPi(plhs[1]);
 
-        /* call C subroutine */
-		/* NOTE: alpha = 1i / k is implied */
-		/* NOTE: A: matrix H, B: matrix G */
-        matrix_surf_lin_bm(nnodes, nodes, nelements, elements, g3, g4, dist, 
-		k, 0.0, 1.0/k, Ar, Ai, Br, Bi);
-    }
+	/* call C subroutine */
+	/* NOTE: A: matrix H, B: matrix G */
+	matrix_surf_lin_bm(nnodes, nodes, nelements, elements, g3, g4, dist, 
+	k, alphar, alphai, Ar, Ai, Br, Bi);
 
     free(g3);
     free(g4);
