@@ -16,6 +16,8 @@ void matrix_surf_lin_bm(int nnodes,
                      const gauss_t *g4,
                      const double *dist,
                      double k,
+					 double alphar,
+					 double alphai,
                      double *Ar,
                      double *Ai,
                      double *Br,
@@ -94,7 +96,8 @@ void matrix_surf_lin_bm(int nnodes,
 					break;
 				*/
                 case 4:
-                    int_quad_lin_bm(&g4[gs], nod, &accelerators[e], q, q, k, ar, ai, br, bi);
+                    int_quad_lin_bm(&g4[gs], nod, &accelerators[e], q, q, 
+					k, alphar, alphai, ar, ai, br, bi);
                     break;
                 }
             }

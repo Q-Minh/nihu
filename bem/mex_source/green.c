@@ -68,6 +68,48 @@ void ddgreen(const double *r,
 	*ddgi = gr*bi + gi*br;
 }
 
+/* Static green function */
+void green0(const double *r,
+           double k,
+           double *gr,
+           double *gi,
+           const double *n,
+           double *dgr,
+           double *dgi)
+{
+	double ar, rn;
+	ar = sqrt(dot(r, r));
+	*gr = 1.0 / (4.0*M_PI*ar);
+	*gi = 0.0;
+	/* If normal is given */
+	if (n)
+	{
+		rn = dot(r, n) / ar;
+		*dgr = - *gr / ar * rn;
+		*dgi = 0.0;
+	}
+}
+
 /* Double derivative of static 3D Green function d^2 G0 */
 /* TODO: implement this */
-void ddgreen0();
+void ddgreen0(const double *r,
+	double k,
+	const double *nx,
+	const double *ny,
+	double *ddgr,
+	double *ddgi)
+{
+	double ar, ar2, br, bi;
+	double drnxdrny;
+	double nxny;
+	double gr, gi;
+	
+	ar2 = dot(r,r);
+	ar = sqrt(ar2);
+	
+	drnxdrny = -dot(r, nx)*dot(r, ny)/ar2;
+	nxny = dot(nx, ny);
+	
+	*ddgr = 1.0 / (4.0*M_PI*ar2*ar) * (3*drnxdrny + nxny);
+	*ddgi = 0.0;
+}
