@@ -68,8 +68,8 @@ void int_quad_lin_bm(const gauss_t *g,
         gi = gi*jac;
         dgr = dgr*jac;
         dgi = dgi*jac;
-		dgrx = dgrx*jac;
-        dgix = dgix*jac;
+		dgrx = -dgrx*jac;
+        dgix = -dgix*jac;
 		ddgr = ddgr*jac;
 		ddgi = ddgi*jac;
 
@@ -110,15 +110,21 @@ void int_quad_lin_sing_bm(const gauss_t *g,
     int i, j, s, gnum;
     double r[3], norm[3], jac, gr, gi, dgr, dgi;
 	
+	double g0rx, g0ix;
 	double ddgr, ddgi, ddg0r, ddg0i;
-	double dgrx, dgix;
+	double dgrx, dgix, dg0rx, dg0ix;
 	
 	double Nq[4], gradNq[12];
 		
 	double xiq, etaq;
 	
+	double dNdotny[4], dNdotnx[4];
+	
 	/* Terms in integral */
 	double t1r, t1i;		/* Term 1: int N_j(y) [ d^2 Gk - d^2G0] */
+	double t2, t2r, t2i;  		/* Term 2: (gradN(x) dot ny) * (dG0/dnx) */
+	
+	double t4[4]; 				/* Term 4: -1/2 grad N(x) * nx */ 
 	
 	/* Evaluate the shape functions */
 	switch(corner)
@@ -133,12 +139,20 @@ void int_quad_lin_sing_bm(const gauss_t *g,
 	shapefun_quad(xiq, etaq, Nq);
 	inverse_matrix_quad(nodes, xiq, etaq, gradNq);
 	
+	/* Initialize dNdotnx */
+	for (s = 0; s < 4; s++)
+		dNdotnx[s] = dot(nq, gradNq+3*s);
+	
     double *xiprime, *etaprime, *wprime;
     double N[4];
 
 	/* Initialize the result */
     for (s = 0; s < 4; s++)
         ar[s] = ai[s] = br[s] = bi[s] = 0.0;
+	
+	/* Calculate term4 */
+	for (s = 0; s < 4; s++)
+		t4[s] = -0.5 * dNdotnx[s];
 
 	/* Preallocate for the singular quadrature */
     xiprime = (double *)malloc(sizeof(double)*2*g->num);
@@ -179,7 +193,9 @@ void int_quad_lin_sing_bm(const gauss_t *g,
 		ddgreen0(r, k, norm, nq, &ddg0r, &ddg0i);
 		
 		green(r, k, &gr, &gi, norm, &dgr, &dgi);
+		/* NOTE: sign for switching source and receiver? */
 		green(r, k, &grx, &gix, nq, &dgrx, &dgix);
+		green0(r, k, &g0rx, &g0ix, nq, &dg0rx, &dg0ix);
 
         gr *= jac;
         gi *= jac;
@@ -193,10 +209,25 @@ void int_quad_lin_sing_bm(const gauss_t *g,
 		ddg0i *= jac;
 		
 		/* Term 1 */
-		t1r = -(ddgr - ddg0r)*alphar - (ddgi - ddg0i)*alphai;
+		t1r = -(ddgr - ddg0r)*alphar + (ddgi - ddg0i)*alphai; t1r *= jac;
+		t1i = -(ddgi - ddg0i)*alphar - (ddgr - ddg0r)*alphai; t1i *= jac;
 
         for (s = 0; s < 4; s++)
         {
+			/* Calculate grad N * ny */
+			dNdotny[s] = dot(norm, gradNq+3*s);
+			
+			/* Calculate term2 */
+			t2 = dNdotny[s]*dg0rx;
+			t2i = alphai*t2;
+			t2r = alphar*t2;
+			
+			/* H matrix: Add term 1 */
+			ar[s] += N[s]*t1r;
+            ai[s] += N[s]*t1i;
+			/* H matrix: Add term 4 */
+			ar[s] += t4[s]*jac;
+            			
             ar[s] += N[s]*dgr;
             ai[s] += N[s]*dgi;
             br[s] += N[s]*gr;
