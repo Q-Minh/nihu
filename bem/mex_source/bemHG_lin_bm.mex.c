@@ -80,7 +80,10 @@ void mexFunction(int nlhs,
         Bi = mxGetPi(plhs[1]);
 
         /* call C subroutine */
-        matrix_surf_lin_bm(nnodes, nodes, nelements, elements, g3, g4, dist, k, Ar, Ai, Br, Bi);
+		/* NOTE: alpha = 1i / k is implied */
+		/* NOTE: A: matrix H, B: matrix G */
+        matrix_surf_lin_bm(nnodes, nodes, nelements, elements, g3, g4, dist, 
+		k, 0.0, 1.0/k, Ar, Ai, Br, Bi);
     }
 
     free(g3);

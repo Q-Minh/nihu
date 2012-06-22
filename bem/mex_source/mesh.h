@@ -33,5 +33,7 @@ int gauss_division2D(const double *q,
                    const double *elemcenter,
                    const double *dist);
 
+/* Shapefun gradient calculation for quads */
+void inverse_matrix_quad(double *nodes, double xi, double eta, double *gradN);
 
 #endif
