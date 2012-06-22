@@ -67,6 +67,7 @@ void matrix_surf_lin_bm(int nnodes,
             for (s = 0; s < nvert; ++s)
                 for (j = 0; j < 3; ++j)
                     nod[s+nvert*j] = nodes[elem[s]+j*nnodes];
+			/* Singular integrals */
             if (sing)
             {
                 switch(nvert)
@@ -77,14 +78,16 @@ void matrix_surf_lin_bm(int nnodes,
                     break;
 				*/
                 case 4:
-					 /* TODO: singular! */
-                    /* int_quad_lin_sing_bm(&g4[0], nod, &accelerators[e], corner, k, ar, ai, br, bi); */
+					 /* Singular QUAD */
+                    int_quad_lin_sing_bm(&g4[0], nod, &accelerators[e], corner, 
+					 q, k, alphar, alphai, ar, ai, br, bi); */
                     break;
 				default:
 					/* Nincs más elem! */
 					break;
                 }
             }
+            /* Non-singular integrals */
             else
             {
                 gs = gauss_division(q, accelerators[e].center, dist);
