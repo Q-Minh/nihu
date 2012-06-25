@@ -35,58 +35,52 @@
 \section{The Green function and its derivatives}
 
 The Green-function reads as
-
+%
 \begin{equation}
-	G_k(\tx, \ty) = \frac{\te^{-\ti k r}}{4 \pi r}
+	G_k(\tx, \ty) = \frac{\te^{-\ti k r}}{4 \pi r}, \quad
+	r = |\ty - \tx|
 \end{equation}
-
-\begin{equation}
-	\frac{\partial G_k}{\partial n(\tx)} = -\frac{\te^{-\ti k r}}{4 \pi r^2}(1 + \ti kr)\frac{\partial r}{\partial \tn(\tx)} \qquad \text{with} \qquad \frac{\partial r}{\partial \tn(\tx)} = \frac{\tr \cdot \tn(\tx)}{r}
-\end{equation}
-
-%(exp(-k*r*i)*(- k^2*r^2 + k*r*(2*i) + 2))/(4*pi*r^3)
 
 \begin{align}
-	\frac{\partial^2 G_k(\tx, \ty)}{\partial \tn(\tx) \partial \tn(\ty)}
-	&= \frac{\te^{- \ti kr}}{4 \pi r^3}\left[(3 + 3 \ti kr - k^2 r^2) \frac{\partial r}{\partial \tn(\tx)}\frac{\partial r}{\partial \tn(\ty)} + (1 + \ti kr) \tn(\tx) \cdot \tn (\ty) \right] \\
-	&= G_k(\tx,\ty)\left[\left(\frac{3}{r^2} + \frac{3\ti k}{r} - k^2\right) \frac{\partial r}{\partial \tn(\tx)}\frac{\partial r}{\partial \tn(\ty)}
-	+ \frac{1}{r^2}(1 + \ti kr) \tn(\tx) \cdot \tn (\ty) \right]
+	\frac{\partial G_k(\tx, \ty)}{\partial \tn_y}
+	&= -G_k(\tx, \ty) \frac{1 + \ti kr}{r}\frac{\partial r}{\partial \tn_y} \qquad \text{with} \qquad \frac{\partial r}{\partial \tn_y} = \frac{\tr \cdot \tn_y}{r} \\
+	\frac{\partial G_k(\tx, \ty)}{\partial \tn_x}
+	&= -G_k(\tx, \ty) \frac{1 + \ti kr}{r}\frac{\partial r}{\partial \tn_x} \qquad \text{with} \qquad \frac{\partial r}{\partial \tn_x} = -\frac{\tr \cdot \tn_x}{r}
+\end{align}
+
+\begin{align}
+	\frac{\partial^2 G_k(\tx, \ty)}{\partial \tn_x \partial \tn_y}
+	&= \frac{\te^{- \ti kr}}{4 \pi r^3}\left[\left(3 + 3 \ti kr - k^2 r^2\right) \frac{\partial r}{\partial \tn_x}\frac{\partial r}{\partial \tn_y} + (1 + \ti kr) \tn_x \cdot \tn_y \right] \\
+	&= G_k(\tx,\ty)\left[\left(\frac{3}{r^2} + \frac{3\ti k}{r} - k^2\right) \frac{\partial r}{\partial \tn_x}\frac{\partial r}{\partial \tn_y}
+	+ \frac{1}{r^2}(1 + \ti kr) \tn_x \cdot \tn_y \right]
 \end{align}
 
 The static part is given as:
-
+%
 \begin{equation}
 	G_0(\tx, \ty) = \frac{1}{4\pi r}
 \end{equation}
 
 \begin{equation}
-	\frac{\partial G_0(\tx, \ty)}{\partial \tn(\tx)} = -\frac{1}{4\pi r^2} \frac{\partial r}{\partial \tn(\tx)}
+	\frac{\partial G_0(\tx, \ty)}{\partial \tn_x} = -\frac{G_0(\tx, \ty)}{r} \frac{\partial r}{\partial \tn_x}
 \end{equation}
 
 \begin{equation}
-	\frac{\partial G_0(\tx, \ty)}{\partial \tn(\tx) \partial \tn(\ty)} = \frac{1}{4 \pi r^3} \left[3 \frac{\partial r}{\partial \tn(\tx)}\frac{\partial r}{\partial \tn(\ty)} + \tn(\tx) \cdot \tn (\ty) \right]
+	\frac{\partial G_0(\tx, \ty)}{\partial \tn_x \partial \tn_y} = \frac{G_0(\tx, \ty)}{r^2} \left[3 \frac{\partial r}{\partial \tn_x}\frac{\partial r}{\partial \tn_y} + \tn_x \cdot \tn_y \right]
 \end{equation}
 
 Taking the difference of the second derivatives:
 %
 \begin{multline}
-	\frac{\partial G_k(\tx, \ty)}{\partial \tn(\tx) \partial \tn(\ty)} - \frac{\partial G_0(\tx, \ty)}{\partial \tn(\tx) \partial \tn(\ty)} = \\
-	\frac{\te^{- \ti kr}}{4 \pi r^3}\left[3 \cdot (1 - \te^{\ti kr}) + 3 \ti kr - k^2 r^2) \frac{\partial r}{\partial \tn(\tx)}\frac{\partial r}{\partial \tn(\ty)} + (1 - \te^{\ti kr} + \ti kr) \tn(\tx) \cdot \tn (\ty) \right]
+	\frac{\partial G_k(\tx, \ty)}{\partial \tn_x \partial \tn_y} - \frac{\partial G_0(\tx, \ty)}{\partial \tn_x \partial \tn_y} = \\
+	\frac{\te^{- \ti kr}}{4 \pi r^3}\left[\left(3 \cdot (1 - \te^{\ti kr}) + 3 \ti kr - k^2 r^2\right) \frac{\partial r}{\partial \tn_x}\frac{\partial r}{\partial \tn_y} + (1 - \te^{\ti kr} + \ti kr) \tn_x \cdot \tn_y \right]
 \end{multline}
 %
 Taking the limit $r \rightarrow 0$, the difference can be expressed as a Taylor-series
 %
-\begin{multline}
-	\lim\limits_{\sy \rightarrow \sx} \left(\frac{\partial G_k(\tx, \ty)}{\partial \tn(\tx) \partial \tn(\ty)} - \frac{\partial G_0(\tx, \ty)}{\partial \tn(\tx) \partial \tn(\ty)}\right) = \\
-	\frac{\te^{- \ti kr}}{4 \pi r^3}
-	\left[\left(3 \cdot (1 - \te^{\ti kr}) + 3 \ti kr - k^2 r^2\right) \frac{\partial r}{\partial \tn(\tx)}\frac{\partial r}{\partial \tn(\ty)} + (1 - \te^{\ti kr} + \ti kr) \tn(\tx) \cdot \tn (\ty) \right]
-\end{multline}
-
-\begin{align}
-	D(r) = \frac{k^2}{8 \pi r} + \frac{\ti k^3}{12 \pi} + o(r)
-\end{align}
-
-
+\begin{equation}
+	\lim\limits_{\sy \rightarrow \sx} \left(\frac{\partial G_k(\tx, \ty)}{\partial \tn_x \partial \tn_y} - \frac{\partial G_0(\tx, \ty)}{\partial \tn_x \partial \tn_y}\right) = \frac{k^2}{8 \pi r} + \frac{\ti k^3}{12 \pi} + o(r)
+\end{equation}
 
 \section{The Burton-Miller formulation}
 
@@ -106,17 +100,14 @@ The normal derivative ($ \partial / \partial \sn_x$):
 Using the Burton-Miller formulation for surface points ($C(\sx) = 1/2$), the linear combination is calculated with the coupling constant $\alpha$
 
 \begin{multline}
-	C(\sx) p (\sx)
-	-
-	p_{in}(\sx)
+	C(\sx) p (\sx) - p_{in}(\sx)
 	+
-	\alpha
-	C(\sx) \frac{\partial p(\sx)}{\partial \sn_x}
+	\alpha C(\sx) \frac{\partial p(\sx)}{\partial \sn_x}
 	-
 	\alpha \frac{\partial p_{in}(\sx)}{\partial \sn_x}
 	= \\
 	\int_{\Gamma}\left[\frac{\partial{G}_k (\sx, \sy)}{\partial \sn_y} p(\sy)
-	- G_k(\sx,\sy)\frac{\partial p(\sy)}{\partial \sn_y}\right] \td \Gamma_y
+	- G_k(\sx,\sy)\frac{\partial p(\sy)}{\partial \sn_y}\right] \td \Gamma_y \\
 	+
 	\alpha \int_{\Gamma}
 	\left[
@@ -182,12 +173,13 @@ With
 \section{Treatment of hypersingular integrals}
 
 Using the Burton-Miller formulation for surface points ($C(\sx) = 1/2$), the linear combination is calculated with the coupling constant $\alpha$
-
-\begin{align}
-	\alpha & \int_\Gamma \frac{\partial^2{G}_k (\sx, \sy)}{\partial \sn_y \partial \sn_x} p(\sy) \td \Gamma_y -
-	\alpha \int_\Gamma \frac{\partial{G}_k (\sx, \sy)}{\partial \sn_x} \frac{\partial p(\sy)}{\partial \sn_y} \td \Gamma_y = \nonumber \\
-	& = \int_{\Gamma}\left[-\frac{\partial{G}_k (\sx, \sy)}{\partial \sn_y} p(\sy) + G_k(\sx,\sy)\frac{\partial p(\sy)}{\partial \sn_y}\right] \td \Gamma_y - \frac{1}{2} p(\sx) - \frac{1}{2}\alpha \frac{ \partial p(\sx)}{\partial \sn_x} + p_{in}(\sx) + \alpha \frac{\partial p_{in}(\sx)}{\partial \sn_x}
-\end{align}
+%
+\begin{multline}
+	\alpha \int_\Gamma \frac{\partial^2{G}_k (\sx, \sy)}{\partial \sn_y \partial \sn_x} p(\sy) \td \Gamma_y -
+	\alpha \int_\Gamma \frac{\partial{G}_k (\sx, \sy)}{\partial \sn_x} \frac{\partial p(\sy)}{\partial \sn_y} \td \Gamma_y = \\
+	 = \int_{\Gamma}\left[-\frac{\partial{G}_k (\sx, \sy)}{\partial \sn_y} p(\sy) + G_k(\sx,\sy)\frac{\partial p(\sy)}{\partial \sn_y}\right] \td \Gamma_y \\
+	- \frac{1}{2} p(\sx) - \frac{1}{2}\alpha \frac{ \partial p(\sx)}{\partial \sn_x} + p_{in}(\sx) + \alpha \frac{\partial p_{in}(\sx)}{\partial \sn_x}
+\end{multline}
 
 \begin{align}
 	\int_\Gamma \frac{\partial G_0(\sx, \sy)}{\partial \sn_y} \td \Gamma_y & = 0 \\
