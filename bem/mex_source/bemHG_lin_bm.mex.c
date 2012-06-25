@@ -1,5 +1,5 @@
-/*bemHG_lin  Generate acoustic BEM system matrices
- *   [H, G] = bemHG_lin(nodes, elements, g3, g4, dist, k, points)
+/*bemHG_lin  Generate acoustic BEM system matrices with Burton Miller method
+ *   [H, G] = bemHG_lin_bm(nodes, elements, g3, g4, dist, k, alpha)
  *   Computes the acoustic BEM system matrices H and G for the case of
  *   linear shape functions.
  * Parameters:
@@ -15,19 +15,19 @@
  *
  */
 
-/* $Make: mex -O -output bemHG_lin_bm bemHG_lin_bm.mex.c bemHG_li_bm.c mesh.c integral_direct_bm.c quadrature.c element.c vector.c green.c $ */
+/* $Make: mex -O -output bemHG_lin_bm bemHG_lin_bm.mex.c bemHG_li_bm.c integral_direct_bm.c mesh.c quadrature.c element.c vector.c green.c $ */
 
 #include "mex.h"
 #include "bemHG_li_bm.h"
 
 /* ------------------------------------------------------------------------ */
-/* The entry point of the mex function. */
-/* This function reads Matlab parameters, allocates space for the output */
-/* and calls C routines that perform the computations */
-void mexFunction(int nlhs,
-                 mxArray *plhs[],
-                 int nrhs,
-                 const mxArray *prhs[])
+/* The entry point of the mex function.                                     */
+/* This function reads Matlab parameters, allocates space for the output    */
+/* and calls C routines that perform the computations                       */
+void mexFunction(int nlhs, 				/* number of lhs parameters */
+                 mxArray *plhs[], 		/* pointer to lhs parameters */
+                 int nrhs, 				/* number of rhs parameters */
+                 const mxArray *prhs[]) /* pointer to rhs parameters */
 {
     double *nodes, *elements, *points, *dist, k, alphar, alphai;
     int nnodes, nelements, npoints;
@@ -77,7 +77,7 @@ void mexFunction(int nlhs,
 	/* call C subroutine */
 	/* NOTE: A: matrix H, B: matrix G */
 	matrix_surf_lin_bm(nnodes, nodes, nelements, elements, g3, g4, dist, 
-	k, alphar, alphai, Ar, Ai, Br, Bi);
+		k, alphar, alphai, Ar, Ai, Br, Bi);
 
     free(g3);
     free(g4);
