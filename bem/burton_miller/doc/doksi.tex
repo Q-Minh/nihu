@@ -24,6 +24,14 @@
 \newcommand{\bq}{\mathbf{q}}
 \newcommand{\bH}{\mathbf{H}}
 \newcommand{\bG}{\mathbf{G}}
+\newcommand{\limeps}{\lim\limits_{\epsilon \rightarrow 0}}
+\newcommand{\intsph}{\int\limits_{0}^{2\pi} \int\limits_{0}^{\pi/2}}
+\newcommand{\dsph}{\mathrm{d}\theta \mathrm{d}\phi}
+\newcommand{\drph}{\mathrm{d} r \mathrm{d}\theta}
+\newcommand{\summ}{\sum\limits_{m=1}^3}
+\newcommand{\intme}{\int\limits_{\theta_1^m}^{\theta_2^m}\int\limits_\epsilon^{R(\theta)}}
+\newcommand{\intmn}{\int\limits_{\theta_1^m}^{\theta_2^m}\int\limits_0^{R(\theta)}}
+\newcommand{\intms}{\int\limits_{\theta_1^m}^{\theta_2^m}}
 
 
 \author{Péter Rucz}
@@ -253,6 +261,213 @@ And finally, the hypersingular integral can be written as
 	\int_\Gamma \frac{\partial^2 G_k(\sx, \sy)}{\partial \sn_x \partial \sn_y} \phi(\sy) \td \Gamma_y & = \int_\Gamma \left[\frac{\partial^2 G_k(\sx, \sy)}{\partial \sn_x \partial \sn_y} - \frac{\partial^2 G_0(\sx, \sy)}{\partial \sn_x \partial \sn_y}\right] \phi(\sy) \td \Gamma_y \nonumber \\
 	& + \int_\Gamma \left[\phi(\sy) - \phi(\sx) - \nabla \phi(\sx) (\sy - \sx) \right] \frac{\partial^2 G_0(\sx, \sy)}{\partial \sn_x \partial \sn_y} \td \Gamma_y \nonumber \\
 	& + \int_\Gamma \nabla \phi(\sx) \cdot \sn_y \frac{\partial G_0(\sx,\sy)}{\partial \sn_x} \td \Gamma_y -\frac{1}{2} \nabla \phi(\sx) \cdot \sn_x
+\end{align}
+
+\section{Constant triangular elements}
+
+By taking a hemisphere of radius $\epsilon$ in the element center the integration domain for a~triangular element can be expanded as
+%
+\begin{align}
+	\int_{\Gamma_\Delta} f(\sy)\td\Gamma(\sy) = \lim\limits_{\epsilon \rightarrow 0 }\left[\int_{\Gamma_\epsilon} f(\sy) \td \Gamma(\sy) + \int_{S_{\epsilon}} f(\sy) \td \Gamma (\sy) \right] .
+\end{align}
+%
+The singular integrals 
+%
+\begin{align}
+	\bH_{ii}
+	& = \int_{\Gamma}\frac{\partial{G}_k (\sx_i, \sy)}{\partial \sn_y} N_i(\sy) \td \Gamma(\sy)
+	+ \alpha \int_\Gamma \frac{\partial^2{G}_k (\sx_i, \sy)}{\partial \sn_y \partial \sn_x} N_i(\sy) \td \Gamma(\sy) \nonumber \\
+	\bG_{ii}
+	& = \int_{\Gamma} G_k(\sx_i,\sy) N_i(\sy) \td \Gamma(\sy)
+	+ \alpha \int_\Gamma \frac{\partial{G}_k (\sx_i, \sy)}{\partial \sn_x} N_i(\sy) \td \Gamma(\sy)
+\end{align}
+%
+in the diagonals can be expressed using constant ($N(\bm{\xi}) = 1$) elements as:
+%
+\begin{align}
+	\bG_{ii}
+	& = \limeps \int_{\Gamma_\epsilon} G_k(\sx_i,\sy) \td \Gamma(\sy) +
+	\limeps \int_{S_\epsilon} G_k(\sx_i, \sy) \td \Gamma(\sy) \nonumber \\
+	& + \alpha \limeps \int_{\Gamma_\epsilon} \frac{\partial{G}_k (\sx_i, \sy)}{\partial \sn_x} \td \Gamma(\sy)
+	+ \alpha \limeps \int_{S_\epsilon} \frac{\partial{G}_k (\sx_i, \sy)}{\partial \sn_x} \td \Gamma(\sy)
+\end{align}
+
+\begin{align}
+	\bH_{ii}
+	& = \limeps \int_{\Gamma_\epsilon}\frac{\partial{G}_k (\sx_i, \sy)}{\partial \sn_y} \td \Gamma(\sy)
+    + \limeps \int_{S_\epsilon}\frac{\partial{G}_k (\sx_i, \sy)}{\partial \sn_y} \td \Gamma(\sy) \nonumber \\
+	& + \alpha \limeps \int_{\Gamma_\epsilon} \frac{\partial^2{G}_k (\sx_i, \sy)}{\partial \sn_y \partial \sn_x} \td \Gamma(\sy) 
+    + \alpha \limeps \int_{\S_\epsilon} \frac{\partial^2{G}_k (\sx_i, \sy)}{\partial \sn_y \partial \sn_x} \td \Gamma(\sy) \nonumber \\
+\end{align}
+
+Taking the first integral of matrix $\bG$ on the triangle and making use of the identity:
+
+\begin{align}
+	\int \frac{\te ^{-\ti kr}}{4 \pi} \mathrm{d} r = \frac{\ti}{ k} \frac{\te ^{-\ti kr}}{4 \pi}
+\end{align}
+
+
+\begin{align}
+	G_1 = \limeps \int_{\Gamma_\epsilon} G_k(\sx_i,\sy) \td \Gamma(\sy) 
+	& = \limeps \summ \intme \frac{\te ^{- \ti k r}}{4 \pi r} r \drph \nonumber \\
+	& = \summ \intmn \frac{\te^{-\ti kr}}{4 \pi} \drph 
+	= \summ \intms \frac{i}{4\pi k}\left(\te^{-\ti k R(\theta)} -1\right) \mathrm{d} \theta \nonumber \\
+	& = \frac{i}{2k}\left(\frac{1}{2\pi}\summ \intms \te ^{-\ti kR(\theta)} \mathrm{d} \theta -1 \right)
+\end{align}
+
+For the first term of matrix $\bH$ first integral over the triangle, it can be used that $\partial r / \partial \sn_y$ over the planar element, and therefore the term vanishes
+
+\begin{align}
+	H_1 = \limeps \int_{\Gamma_\epsilon}\frac{\partial{G}_k (\sx_i, \sy)}{\partial \sn_y} \td \Gamma(\sy) =
+	\limeps \int_{\Gamma_\epsilon}-\frac{\te ^{-\ti k r}}{4 \pi r^2}(1 + \ti kr) \frac{\partial r}{\partial \sn_y} \mathrm{d} \Gamma_y = 0
+\end{align}
+
+
+Introducing the coordinate system $\tau(\sx)$, $s(\sx)$ and $n(\sx)$ over the Hemisphere, the second integral on the RHS can be expressed as:
+
+\begin{align}
+	G_2 = \int_{S_\epsilon} G_k(\sx_i, \sy) \frac{\partial p}{\partial \sn_y} \td \Gamma(\sy) & = \intsph \frac{\te^{-\ti k \epsilon}}{4 \pi \epsilon} \frac{\partial p}{\partial \sn_y} \epsilon^2 \sin \theta \mathrm{d} \theta \mathrm{d} \phi \nonumber \\
+	& = \frac{\epsilon \te ^{-\ti k \epsilon}}{4 \pi} \intsph \left(\frac{\partial p(\sy)}{\partial \sn_y} -\frac{\partial p(\sx)}{\partial \sn_y} \right) \sin \theta \mathrm{d} \theta \mathrm{d} \phi \nonumber \\
+	& + \frac{\epsilon \te ^{-\ti k \epsilon}}{4 \pi} \intsph \sn_y \sin \theta \mathrm{d} \theta \mathrm{d} \phi \cdot \nabla p(\sx)
+\end{align}
+
+Taking the limit $\epsilon \rightarrow 0$
+
+\begin{align}
+	\limeps G_2 = 0
+\end{align}
+
+Term $H_2$ can be expressed by making use of the fact that $\partial r / \partial n = 1$ on the hemishpere surface:
+
+\begin{align}
+	\int_{S_\epsilon}\frac{\partial{G}_k (\sx_i, \sy)}{\partial \sn_y} p(\sy) \td \Gamma(\sy) & = 
+	\intsph  \left[-\frac{\te^{-\ti k \epsilon}}{4 \pi \epsilon^2}(1 + \ti k \epsilon) p(\sy) \right] \epsilon^2 \sin \theta \mathrm{d} \theta \mathrm{d} \phi = \nonumber \\
+	& = -\frac{\te ^{\ti k\epsilon}}{4\pi}(1 + \ti k\epsilon) \intsph \left(p(\sy) - p(\sx)\right) \sin \theta \dsph \nonumber \\
+	& + -\frac{\te ^{\ti k\epsilon}}{4\pi}(1 + \ti k\epsilon) \intsph \sin \theta \dsph p(\sx)
+\end{align}
+
+The first integral on the RHS vanishes as $\epsilon \rightarrow 0$ and the second integral is constant (equals $2\pi$), therfore
+
+\begin{equation}
+	\limeps H_2 = -\frac{1}{2}p(\sx)
+\end{equation}
+
+Now, looking at the components arising from the Burton-Miller formulation:
+
+The third part in matrix $\bG$ vanishes since $\partial r / \partial \sn_x = 0$ 
+
+\begin{align}
+	G_3 = \limeps \int_{\Gamma_\epsilon} \frac{\partial{G}_k (\sx_i, \sy)}{\partial \sn_x} \td \Gamma(\sy) = 
+	\int_{\Gamma_\epsilon} \frac{\te ^{-\ti kr}}{4 \pi r^2}(1 + \ti kr) \frac{\partial r}{\partial \sn_x} \mathrm{d} \Gamma_y = 0
+\end{align}
+
+The fourth part in matrix $\bG$:
+
+\begin{align}
+	G_4 = \int_{S_\epsilon} \frac{\partial{G}_k (\sx_i, \sy)}{\partial \sn_x} \frac{\partial p}{\partial \sn_y}\td \Gamma(\sy) & = 
+	\intsph - \frac{\te ^{-\ti k\epsilon}}{4 \pi \epsilon^2} (1 + \ti k \epsilon) \frac{\partial r}{\partial \sn_x} \frac{\partial p}{\partial \sn_y} \epsilon^2 \sin \theta \dsph \nonumber \\
+	& = \intsph- \frac{\te ^{-\ti k\epsilon}}{4 \pi \epsilon^2} (1 + \ti k \epsilon) \frac{\partial r}{\partial \sn_x}\left[ \frac{\partial p(\sy)}{\partial \sn_y} - \frac{\partial p(\sx)}{\partial \sn_y}\right] \epsilon^2 \sin \theta \dsph \nonumber \\
+	& + \intsph - \frac{\te ^{-\ti k\epsilon}}{4 \pi \epsilon^2} (1 + \ti k \epsilon) \frac{\partial r}{\partial \sn_x} \frac{\partial p(\sx)}{\partial \sn_y}  \epsilon^2 \sin \theta \dsph 
+\end{align}
+
+The first integral on the RHS vanishes and by using the relation $\partial r / \partial \sn_x = - \cos \theta$ on the hemisphere, then we have:
+
+\begin{align}
+	G_4 & = \frac{\te ^{-\ti k\epsilon}}{4 \pi} (1 + \ti k \epsilon) \intsph \frac{\partial p(\sx)}{\partial \sn_y} \sin \theta \cos \theta \dsph \nonumber \\
+	& =  \frac{\te ^{-\ti k\epsilon}}{4 \pi} (1 + \ti k \epsilon) \intsph \left[ \sin \theta \cos \theta \frac{\partial p(\sx)}{\partial \tau} + \sin \theta \sin \phi \frac{\partial p(\sx)}{\partial s} + \cos\theta \frac{\partial p(\sx)}{\partial n} \right] \sin\theta \cos\theta \dsph
+\end{align}
+
+The results of the three integral terms on the RHS are $0$, $0$ and $2\pi / 3$, respectively, which gives:
+
+\begin{align}
+	G_4 & = \frac{1}{4\pi}\frac{2\pi}{3}\frac{\partial p(\sx)}{\partial n} = \frac{1}{6} \frac{\partial p(\sx)}{\partial n}
+\end{align}
+
+The third term in matrix $\bH$ can be integrated by making use of $\sn(\sx) = \sn(\sy)$ and $\partial r / \partial \sn_y = 0$ on $\Gamma_\epsilon$ and the double derivative of the Green function can be simplified as:
+
+\begin{align}
+	\frac{\partial^2 G_k(\tx, \ty)}{\partial \tn_x \partial \tn_y}
+	&= \frac{\te^{- \ti kr}}{4 \pi r^3}\left[\left(3 + 3 \ti kr - k^2 r^2\right) \frac{\partial r}{\partial \tn_x}\frac{\partial r}{\partial \tn_y} + (1 + \ti kr) \tn_x \cdot \tn_y \right] = \nonumber\\
+	& = \frac{\te^{- \ti kr}}{4 \pi r^3}\left(1 + \ti kr\right),  \qquad \text{if} \quad \sx, \sy \in \Gamma_\epsilon
+\end{align}
+
+Therefore
+
+\begin{align}
+	H_3 = \limeps \int_{\Gamma_\epsilon} \frac{\partial^2{G}_k (\sx_i, \sy)}{\partial \sn_y \partial \sn_x} \td \Gamma(\sy) & =
+	\limeps \summ \intme \frac{\te^{- \ti kr}}{4 \pi r^3}\left(1 + \ti kr\right) r \mathrm{d} r \mathrm{d} \theta \nonumber \\
+\end{align}
+
+Since the term appearing in the integral on the RHS is the negative derivative of the Green's function
+
+\begin{align}
+	\frac{\te^{- \ti kr}}{4 \pi r^3}\left(1 + \ti kr\right) r = -\frac{\partial}{\partial r}\frac{\te ^ {-\ti kr}}{4\pi r}
+\end{align}
+
+The primitive function can be substituted into the integral
+
+\begin{align}
+	H_3 = \limeps \summ \intme \frac{\te^{- \ti kr}}{4 \pi r^3}\left(1 + \ti kr\right) r \mathrm{d} r \mathrm{d} \theta & =
+	\limeps \summ \intms \left[\frac{\te ^{-\ti k \epsilon}}{4 \pi \epsilon} - \frac{\te ^{-\ti k R(\theta)}}{4 \pi R(\theta)}\right] \mathrm{d} \theta \nonumber\\ 
+	& = \frac{1}{2\epsilon} - \frac{\ti k}{2}- \summ \intms \frac{\te ^{-\ti k R(\theta)}}{4 \pi R(\theta)} \mathrm{d} \theta
+\end{align}
+
+(Note: the term $-\frac{\ti k}{2}$ is from the Taylor-series approximation.)
+
+Finally, term $H_4$
+
+\begin{align}
+	H_4 = \int_{S_\epsilon} \frac{\partial^2{G}_k (\sx_i, \sy)}{\partial \sn_y \partial \sn_x} p(\sy) \td \Gamma(\sy)
+	& = \int_{S_\epsilon} \frac{\partial^2{G}_k (\sx_i, \sy)}{\partial \sn_y \partial \sn_x} \left[p(\sy) - p(\sx) - \nabla p(\sx) (\sy - \sx)\right]\nonumber \\
+	& + p(\sx) \int_{S_\epsilon} \frac{\partial^2{G}_k (\sx_i, \sy)}{\partial \sn_y \partial \sn_x} \mathrm{d} \Gamma_y
+	+ \nabla p(\sx) \cdot \int_{S_\epsilon} \frac{\partial^2{G}_k (\sx_i, \sy)}{\partial \sn_y \partial \sn_x} (\sy - \sx) \Gamma_y
+\end{align}
+
+On the hemisphere surface $\partial r / \partial n(\sx) = -\cos(\theta)$, $\partial r / \partial n(\sy) = 1$ and $r = \epsilon$:
+
+\begin{align}
+	\frac{\partial^2{G}_k (\sx_i, \sy)}{\partial \sn_y \partial \sn_x} & = 
+	\frac{\te^{- \ti kr}}{4 \pi r^3}\left[\left(3 + 3 \ti kr - k^2 r^2\right) \frac{\partial r}{\partial \tn_x}\frac{\partial r}{\partial \tn_y} + (1 + \ti kr) \tn_x \cdot \tn_y \right] \nonumber \\
+	& = - \frac{\te^{-\ti k \epsilon}}{4 \pi \epsilon^3} \left[2 + 2\ti k \epsilon -k^2 \epsilon^2\right] \cos \theta , \qquad \text{if} \quad \sx, \sy \in S_\epsilon
+\end{align}
+
+The first integral on the RHS for $H_4$ gives zero ($H_{41} = 0$) in the limit $\epsilon \rightarrow 0$, because of Hölder 1,$\alpha$ continuity of $p(\sy)$. 
+
+The second term $H_{42}$ can be treated as:
+
+\begin{align}
+	H_{42} &  = \limeps \intsph \frac{\te ^{-\ti k \epsilon}}{4 \pi \epsilon^3}\left[-2 -2\ti k \epsilon + k^2 \epsilon^2\right] \cos \theta \epsilon^2 \sin \theta \dsph \nonumber \\
+	& = \limeps \frac{\te ^{-\ti k \epsilon}}{4 \pi \epsilon}\left[-2 -2\ti k \epsilon + k^2 \epsilon^2\right] \intsph \sin \theta \cos \theta \dsph \nonumber \\
+	& = \limeps \frac{\te ^{-\ti k \epsilon}}{4 \pi \epsilon}\left[-2 -2\ti k \epsilon + k^2 \epsilon^2\right] \pi = - \frac{1}{2 \epsilon} + \frac{\ti k}{2} - \frac{\ti k}{2} = -\frac{1}{2 \epsilon} 
+\end{align}
+
+Now, the following is applied:
+
+\begin{align}
+	(\sy - \sx) \cdot \nabla p(\sx) & = \left[(\sin \theta \cos \phi \bm{\tau} + (\sin\theta \sin\phi)\bm{s} + \cos \theta \bm{n}
+	\right] \frac{\partial p(\sx)}{\partial n} \bm{n} = r \frac{\partial p(\sx)}{\partial n} \cos \theta \nonumber \\
+	& = \frac{\partial p(\sx)}{\partial n} \cos^2 \theta \qquad \text{if} \quad \sx, \sy \in S_\epsilon
+\end{align}
+
+The third term $H_{43}$ can be evaluated as:
+
+\begin{align}
+	H_{43} & = \limeps\nabla p(\sx) \cdot \int_{S_\epsilon} \frac{\partial^2{G}_k (\sx_i, \sy)}{\partial \sn_y \partial \sn_x} (\sy - \sx) \Gamma_y \nonumber \\
+	&= \limeps \intsph \frac{\te^{-\ti k \epsilon}}{4 \pi \epsilon^3}\left[-2 -2\ti k \epsilon + k^2 \epsilon^2\right] \epsilon \frac{\partial p(\sx)}{\partial \sn_x} \cos^2 \theta \epsilon^2 \sin \theta \dsph \nonumber \\
+	&= \limeps \frac{\te^{-\ti k \epsilon}}{4 \pi}\left[-2 -2\ti k \epsilon + k^2 \epsilon^2\right] \frac{\partial p(\sx)}{\partial n} \intsph \sin \theta \cos^2 \theta \dsph \nonumber \\
+	& = \limeps \frac{\te^{-\ti k \epsilon}}{4 \pi}\left[-2 -2\ti k \epsilon + k^2 \epsilon^2\right] \frac{\partial p(\sx)}{\partial n} \frac{2 \pi}{3} = -\frac{1}{3} \frac{\partial{p(\sx)}}{\sn_x}
+\end{align}
+
+Summing up the terms:
+
+\begin{align}
+	H & = H_1 + H_2 + \alpha H_3 + \alpha \left(H_{41} + H_{42} + H_{43}\right) = \nonumber \\ 
+	&= 0 - \frac{1}{2} p(\sx) + \alpha \left[\frac{1}{2\epsilon} - \frac{\ti k}{2}- \summ \intms \frac{\te ^{-\ti k R(\theta)}}{4 \pi R(\theta)} \mathrm{d} \theta\right] p(\sx) + \alpha \left[0 - \frac{1}{2\epsilon} p(\sx) - \frac{1}{3} \frac{\partial{p(\sx)}}{\partial n}\right]
+\end{align}
+
+\begin{align}
+	G & = G_1 + G_2 + \alpha G_3 + \alpha G_4 \nonumber \\
+	& = \frac{i}{2k}\left[\frac{1}{2\pi}\summ \intms \te ^{-\ti kR(\theta)} \mathrm{d} \theta -1 \right]\frac{\partial p(\sx)}{\partial n} + 0 + \alpha \cdot 0 + \alpha \frac{1}{6} \frac{\partial p(\sx)}{\partial n}
 \end{align}
 
 
