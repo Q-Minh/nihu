@@ -4,7 +4,7 @@ nodes = [0 0; 1 0; 0 1]*1;
 
 x0 = [1 1]/3;
 
-[xi, w] = gaussquad1(3);
+[xi, w] = gaussquad1(7);
 
 
 I = 0;

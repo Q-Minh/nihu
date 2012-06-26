@@ -204,3 +204,137 @@ void int_quad_lin_sing_bm(const gauss_t *g, 	/* gaussian integration points and 
 		free(wprime);
 	}
 }
+
+/* ------------------------------------------------------------------------ */
+/* Regular integral over a constant TRIA element using Burton-Miller        */
+void int_tri_const_bm(const gauss_t *g,
+                   const double *nodes,
+                   const accelerator_t *accelerator,
+                   const double *q,
+				   const double *nq, 		/* source normal */
+                   double k,
+				   double alphar,
+				   double alphai,
+                   double *ar,
+                   double *ai,
+                   double *br,
+                   double *bi)
+{
+    int i,j,s;
+    double norm[3], jac;
+
+	/* Initialize result */
+    *ar = *ai = *br = *bi = 0.0;
+
+    jac = sqrt(dot(accelerator->n0, accelerator->n0));
+    for (j = 0; j < 3; j++)
+        norm[j] = accelerator->n0[j]/jac;
+
+    /* for each gaussian integration point */
+    for (i = 0; i < g->num; i++)
+    {
+		double r[3];
+		double gr, gi, dgxr, dgxi, dgyr, dgyi, ddgr, ddgi;
+		
+        /* computing integration location */
+        for (j = 0; j < 3; j++)
+        {
+            r[j] = -q[j];
+            for (s = 0; s < 3; s++)
+                r[j] += g->N[i+s*g->num]*nodes[s+3*j];
+        }
+
+        /* Evaluate Green function and its derivatives */
+        ddgreen(r, k, nq, norm, &gr, &gi, &dgxr, &dgxi, &dgyr, &dgyi, &ddgr, &ddgi);
+
+		/* Evaluate matrix elements */
+		*ar += (dgyr + alphar * ddgr - alphai * ddgi)*(g->w[i]);
+		*ai += (dgyi + alphar * ddgi + alphai * ddgr)*(g->w[i]);
+		
+		*br += (gr + alphar * dgxr - alphai * dgxi)*(g->w[i]);
+		*bi += (gi + alphar * dgxi + alphai * dgxr)*(g->w[i]);
+    }
+
+    /* Finally, multiply with jacobian */
+    *ar *= jac;
+    *ai *= jac;
+    *br *= jac;
+    *bi *= jac;
+}
+
+/* ------------------------------------------------------------------------ */
+/* Singular integral over a constant TRIA element using Burton-Miller       */
+void int_tri_const_sing_bm(const gauss_t *g,   /* This will use line gauss! */
+						const double *nodes,
+						const accelerator_t *accelerator,
+						const double *q, 		/* Source location */
+						const double *nq, 		/* Source normal */
+						double k, 				/* Wave number */
+						double alphar,			/* Coupling constant real */
+						double alphai, 			/* Coupling constant imag */
+						double *ar,
+						double *ai,
+						double *br,
+						double *bi)
+{
+    int i, j, s;
+    double gr, gi;
+	
+	/* TODO: temporary */
+	double xi[5], w[5];
+	int gnum = 5;
+	xi[0] =  -0.906179845938664; w[0] = 0.236926885056189;
+	xi[1] =  -0.538469310105683; w[1] = 0.478628670499367;
+	xi[2] =   0.000000000000000; w[2] = 0.568888888888889;
+	xi[3] =   0.538469310105683; w[3] = 0.478628670499367;
+	xi[4] =   0.906179845938664; w[4] = 0.236926885056189;
+
+	/* Initialize the result */
+    *ar = *ai = *br = *bi = 0.0;
+
+	/* Go through all three sides */
+    for (i = 0; i < 3; ++i)
+	{
+		double L; 				     	/* Length of side */
+		int n1, n2;						/* The two node numbers */
+		int ig;
+		double d[3];					
+		/* Initialize nodes */
+		n1 = i; n2 = (n1+1)%3; 			/* Calculate between ith and i+1th nodes */
+		/* Obtain distance vector */
+		for (j = 0; j < 3; ++j) /* For all dimensions */
+			d[j] = nodes[n2+3*j] - nodes[n1+3*j];
+		/* Calculate element length */
+		L = sqrt(dot(d,d));
+		
+		/* Go through all integration points */
+		for (ig = 0; ig < gnum; ig++)
+		{
+			double r[3], lr, jac;  		/* actual r vector, r, and jacobian */
+			double tmp;
+			/* Calculate actual location x(\xi)-x_q*/
+			for (j=0; j < 3; ++j)
+				r[j] = 0.5*(1.0-xi[ig])*nodes[n1+3*j] + 0.5*(1.0+xi[ig])*nodes[n2+3*j] - q[j];
+			/* Absolute value of distance */
+			lr = sqrt(dot(r,r));
+			/* Jacobian is sin(beta)/ar*L/2 */
+			/* Weight is also part of jacobian */
+			tmp = dot(r,d)/(lr*L);
+			jac = w[ig] * sqrt(1.0 - tmp*tmp) / lr * L / 2.0;
+			
+			/* Here the calculation of the integrand should be performed */
+			/* Matrix H: the negative of the simple green function should be evaluated */
+			green(r, k, &gr, &gi, NULL, NULL, NULL);
+
+			*ar -= (gr * alphar - gi*alphai)*jac;
+			*ai -= (gr * alphai + gi*alphar)*jac;
+			
+			/* Matrix G: the reduced Green is evaluated */
+			greenr(r, k, &gr, &gi);
+			
+			*br += gr*jac;
+			*bi += gi*jac;
+		}
+	}
+	
+}
