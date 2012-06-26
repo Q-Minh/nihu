@@ -6,6 +6,19 @@
 
 /* ------------------------------------------------------------------------ */
 /* Compute Green's function and its normal derivative                       */
+void greenr(const double *r,
+           double k,
+           double *gr,
+           double *gi)
+{
+    double ar = sqrt(dot(r, r));
+	/* exp(-ikr)/(4*pi*k)*i */
+    *gi = cos(k*ar) / (4.0 * M_PI * k);
+    *gr = sin(k*ar) / (4.0 * M_PI * k);
+}
+
+/* ------------------------------------------------------------------------ */
+/* Compute Green's function and its normal derivative                       */
 void green(const double *r,
            double k,
            double *gr,

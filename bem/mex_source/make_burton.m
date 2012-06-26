@@ -1,6 +1,7 @@
+clc
 clear mex
 
-make bemHG_lin_bm.mex.c
+make bemHG_const_bm.mex.c
 
 movefile(sprintf('*.%s', mexext), '../');
 
