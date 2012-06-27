@@ -208,24 +208,25 @@ void int_quad_lin_sing_bm(const gauss_t *g, 	/* gaussian integration points and 
 /* ------------------------------------------------------------------------ */
 /* Regular integral over a constant TRIA element using Burton-Miller        */
 void int_tri_const_bm(const gauss_t *g,
-                   const double *nodes,
-                   const accelerator_t *accelerator,
-                   const double *q,
-				   const double *nq, 		/* source normal */
-                   double k,
-				   double alphar,
-				   double alphai,
-                   double *ar,
-                   double *ai,
-                   double *br,
-                   double *bi)
+					const double *nodes,
+					const accelerator_t *accelerator,
+					const double *q,					/* source location */
+					const double *nq, 					/* source normal vector */
+					double k, 							/* Wave number */
+					double alphar,						/* Coupling real */
+					double alphai,						/* Coupling imag */
+					double *ar,
+					double *ai,
+					double *br,
+					double *bi)
 {
     int i,j,s;
     double norm[3], jac;
 
-	/* Initialize result */
+	/* Initialize result to zero */
     *ar = *ai = *br = *bi = 0.0;
 
+	/* Jacobian and surface normal calculation  */
     jac = sqrt(dot(accelerator->n0, accelerator->n0));
     for (j = 0; j < 3; j++)
         norm[j] = accelerator->n0[j]/jac;
@@ -237,10 +238,10 @@ void int_tri_const_bm(const gauss_t *g,
 		double gr, gi, dgxr, dgxi, dgyr, dgyi, ddgr, ddgi;
 		
         /* computing integration location */
-        for (j = 0; j < 3; j++)
+        for (j = 0; j < 3; j++) 				/* for all directions */
         {
             r[j] = -q[j];
-            for (s = 0; s < 3; s++)
+            for (s = 0; s < 3; s++) 			/* for all vertices */
                 r[j] += g->N[i+s*g->num]*nodes[s+3*j];
         }
 

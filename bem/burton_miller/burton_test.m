@@ -1,8 +1,8 @@
 R = 1;
-nR = 7;
+nR = 6;
 mesh = quad2tria(create_sphere_boundary(R, nR));
 
-k = 1;
+k = 0.5;
 alpha = 1i/k;
 
 %%

@@ -1,6 +1,6 @@
 clear;
 
-nodes = [0 0; 1 0; 0 1]*1;
+nodes = [0 0; 1 0; 0 1]*2;
 
 x0 = [1 1]/3;
 
@@ -20,9 +20,9 @@ for ipair = 1:size(nodepairs,1)
 for ixi = 1:length(xi)
     xip = xi(ixi);
     
-    x = nodes(node1,:)*(1-xip)/2 + nodes(node2,:)*(1+xip)/2;
-    r = norm(x-x0);
-    sina = sqrt(1 - (dot(x - x0, d) / r / L)^2);
+    x = nodes(node1,:)*(1-xip)/2 + nodes(node2,:)*(1+xip)/2 - x0;
+    r = norm(x);
+    sina = sqrt(1 - (dot(x, d) / r / L)^2);
     
     jac = sina/r*L/2;
     I = I+0.5*r*r*w(ixi)*jac;

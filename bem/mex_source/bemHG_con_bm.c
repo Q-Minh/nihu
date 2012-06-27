@@ -10,19 +10,19 @@
 /* ------------------------------------------------------------------------ */
 /* Compute surface system matrices of a bem model */
 void matrix_surf_const_bm(int nnodes,
-                       const double *nodes,
-                       int nelements,
-                       const double *elements,
-                       const gauss_t *g3,
-                       const gauss_t *g4,
-                       const double *dist,
-                       double k,
-					   double alphar, 
-					   double alphai,
-                       double *Ar,
-                       double *Ai,
-                       double *Br,
-                       double *Bi)
+						const double *nodes,
+						int nelements,
+						const double *elements,
+						const gauss_t *g3,
+						const gauss_t *g4,
+						const double *dist,
+						double k,
+						double alphar, 
+						double alphai,
+						double *Ar,
+						double *Ai,
+						double *Br,
+						double *Bi)
 {
     accelerator_t *accelerators;
     const double *q;
@@ -38,6 +38,7 @@ void matrix_surf_const_bm(int nnodes,
     /* Integration for each node as reference point */
     for (n = 0; n < nelements; n++)
     {
+		/* Source location is element center */
         q = accelerators[n].center;
 
         /* Integration for each element */
@@ -52,6 +53,7 @@ void matrix_surf_const_bm(int nnodes,
                 for (j = 0; j < 3; j++)
                     nod[s+nvert*j] = nodes[elem[s]+j*nnodes];
             }
+            /* Singular element */
             if (e == n)
             {
                 switch(nvert)
@@ -64,6 +66,7 @@ void matrix_surf_const_bm(int nnodes,
                     break;
                 }
             }
+            /* Non-singular element */
             else
             {
                 gs = gauss_division(q, accelerators[e].center, dist);
