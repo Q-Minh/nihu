@@ -11,9 +11,9 @@ void greenr(const double ar,
            double *gr,
            double *gi)
 {
-	/* i*exp(-ikr)/(4*pi*k) */
-    *gr = cos(k*ar) / (4.0 * M_PI * k);
-    *gi = -sin(k*ar) / (4.0 * M_PI * k);
+	/* exp(-ikr)/(4*pi*k) */
+    *gr =  cos(k*ar) / (4.0 * M_PI * k);
+    *gi = -sin(k*ar) / (4.0 * M_PI * k); 
 }
 
 /* ------------------------------------------------------------------------ */

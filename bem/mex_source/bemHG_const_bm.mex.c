@@ -35,13 +35,12 @@ void mexFunction(int nlhs,
                  int nrhs,
                  const mxArray *prhs[])
 {
-	mexPrintf("bemHG_const_bm called!\n");
-	
     /* input parameters */
     double *nodes, *elements, *points, *dist, k;
     int nnodes, nelements, npoints;
     gauss_t *g3, *g4;
     /* output parameters */
+	double alphar, alphai;
     double *Ar, *Ai, *Br, *Bi;
     /* local variables */
     int j;
@@ -73,40 +72,20 @@ void mexFunction(int nlhs,
     }
     dist = mxGetPr(prhs[4]);
     k = mxGetScalar(prhs[5]);
+	alphar = *mxGetPr(prhs[6]);
+	alphai = *mxGetPi(prhs[6]);
 
-    if (nrhs == 6)
-    {
-        /* Allocate output parameters */
-        plhs[0] = mxCreateDoubleMatrix(nelements, nelements, mxCOMPLEX);
-        plhs[1] = mxCreateDoubleMatrix(nelements, nelements, mxCOMPLEX);
-        Ar = mxGetPr(plhs[0]);
-        Ai = mxGetPi(plhs[0]);
-        Br = mxGetPr(plhs[1]);
-        Bi = mxGetPi(plhs[1]);
+    plhs[0] = mxCreateDoubleMatrix(nelements, nelements, mxCOMPLEX);
+    plhs[1] = mxCreateDoubleMatrix(nelements, nelements, mxCOMPLEX);
+    Ar = mxGetPr(plhs[0]);
+    Ai = mxGetPi(plhs[0]);
+    Br = mxGetPr(plhs[1]);
+    Bi = mxGetPi(plhs[1]);
 
-		/* debug */
-		mexPrintf("Calling integral!\n");
-        /* call C subroutine */
-        matrix_surf_const_bm(nnodes, nodes, nelements, elements,
-                          g3, g4, dist, k, 0.0, 0.0,  Ar, Ai, Br, Bi); 
-    }
-    else if (nrhs == 7)
-    {
-        points = mxGetPr(prhs[6]);
-        npoints = mxGetM(prhs[6]);
-
-        /* Allocate output parameters */
-        plhs[0] = mxCreateDoubleMatrix(npoints, nelements, mxCOMPLEX);
-        plhs[1] = mxCreateDoubleMatrix(npoints, nelements, mxCOMPLEX);
-        Ar = mxGetPr(plhs[0]);
-        Ai = mxGetPi(plhs[0]);
-        Br = mxGetPr(plhs[1]);
-        Bi = mxGetPi(plhs[1]);
-
-        /* call C subroutine */
-        /*matrix_field_const_bm(nnodes, nodes, nelements, elements,
-                           npoints, points, g3, g4, dist, k, Ar, Ai, Br, Bi); */
-    }
+	/* call C subroutine */
+    matrix_surf_const_bm(nnodes, nodes, nelements, elements,
+        g3, g4, dist, k, alphar, alphai,  Ar, Ai, Br, Bi); 
+    
 
     free(g3);
     free(g4);
