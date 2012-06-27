@@ -265,39 +265,75 @@ And finally, the hypersingular integral can be written as
 
 \section{Constant triangular elements}
 
+The boundary integrals in the Burton-Miller formulation:
+
+\begin{multline}
+	\frac{1}{2} p (\sx)
+	-
+	p_{in}(\sx)
+	+
+	\frac{\alpha}{2} q(\sx)
+	-
+	\alpha q_{in}(\sx)
+	= \\
+	\left(
+	\int_{\Gamma} \frac{\partial{G}_k (\sx, \sy)}{\partial \sn_y} p(\sy) \td \Gamma_y
+	+
+	\alpha \int_{\Gamma}
+	\frac{\partial^2{G}_k (\sx, \sy)}{\partial \sn_y \partial \sn_x} p(\sy) \td \Gamma_y
+	\right)
+	\\
+	-
+	\left(
+	\int_{\Gamma} G_k(\sx,\sy) q(\sy) \td \Gamma_y
+	+
+	\alpha \int_{\Gamma}
+	\frac{\partial G_k(\sx,\sy)}{\partial \sn_x}q(\sy) \td \Gamma_y
+	\right)
+\end{multline}
+
+The integrals 
+%
+
+\begin{align}
+	H = \int_{\Gamma}\frac{\partial{G}_k (\sx_i, \sy)}{\partial \sn_y} p(\sy) \td \Gamma(\sy)
+	+ \alpha \int_\Gamma \frac{\partial^2{G}_k (\sx_i, \sy)}{\partial \sn_y \partial \sn_x} p(\sy) \td \Gamma(\sy) \nonumber \\
+	G = \int_{\Gamma} G_k(\sx_i,\sy) \frac{\partial p(\sy)}{\partial \sn_y} \td \Gamma(\sy)
+	+ \alpha \int_\Gamma \frac{\partial{G}_k (\sx_i, \sy)}{\partial \sn_x} \frac{\partial p(\sy)}{\partial \sn_y}  \td \Gamma(\sy)
+\end{align}
+
+become hypersingular, which is treated by extending the integration area by a hemishphere and taking the limit.
 By taking a hemisphere of radius $\epsilon$ in the element center the integration domain for a~triangular element can be expanded as
 %
 \begin{align}
 	\int_{\Gamma_\Delta} f(\sy)\td\Gamma(\sy) = \lim\limits_{\epsilon \rightarrow 0 }\left[\int_{\Gamma_\epsilon} f(\sy) \td \Gamma(\sy) + \int_{S_{\epsilon}} f(\sy) \td \Gamma (\sy) \right] .
 \end{align}
 %
-The singular integrals 
-%
-\begin{align}
-	\bH_{ii}
-	& = \int_{\Gamma}\frac{\partial{G}_k (\sx_i, \sy)}{\partial \sn_y} N_i(\sy) \td \Gamma(\sy)
-	+ \alpha \int_\Gamma \frac{\partial^2{G}_k (\sx_i, \sy)}{\partial \sn_y \partial \sn_x} N_i(\sy) \td \Gamma(\sy) \nonumber \\
-	\bG_{ii}
-	& = \int_{\Gamma} G_k(\sx_i,\sy) N_i(\sy) \td \Gamma(\sy)
-	+ \alpha \int_\Gamma \frac{\partial{G}_k (\sx_i, \sy)}{\partial \sn_x} N_i(\sy) \td \Gamma(\sy)
-\end{align}
-%
-in the diagonals can be expressed using constant ($N(\bm{\xi}) = 1$) elements as:
-%
-\begin{align}
-	\bG_{ii}
-	& = \limeps \int_{\Gamma_\epsilon} G_k(\sx_i,\sy) \td \Gamma(\sy) +
-	\limeps \int_{S_\epsilon} G_k(\sx_i, \sy) \td \Gamma(\sy) \nonumber \\
-	& + \alpha \limeps \int_{\Gamma_\epsilon} \frac{\partial{G}_k (\sx_i, \sy)}{\partial \sn_x} \td \Gamma(\sy)
-	+ \alpha \limeps \int_{S_\epsilon} \frac{\partial{G}_k (\sx_i, \sy)}{\partial \sn_x} \td \Gamma(\sy)
-\end{align}
 
+% \begin{align}
+% 	\bH_{ii}
+% 	& = \int_{\Gamma}\frac{\partial{G}_k (\sx_i, \sy)}{\partial \sn_y} N_i(\sy) \td \Gamma(\sy)
+% 	+ \alpha \int_\Gamma \frac{\partial^2{G}_k (\sx_i, \sy)}{\partial \sn_y \partial \sn_x} N_i(\sy) \td \Gamma(\sy) \nonumber \\
+% 	\bG_{ii}
+% 	& = \int_{\Gamma} G_k(\sx_i,\sy) N_i(\sy) \td \Gamma(\sy)
+% 	+ \alpha \int_\Gamma \frac{\partial{G}_k (\sx_i, \sy)}{\partial \sn_x} N_i(\sy) \td \Gamma(\sy)
+% \end{align}
+%
 \begin{align}
-	\bH_{ii}
-	& = \limeps \int_{\Gamma_\epsilon}\frac{\partial{G}_k (\sx_i, \sy)}{\partial \sn_y} \td \Gamma(\sy)
-    + \limeps \int_{S_\epsilon}\frac{\partial{G}_k (\sx_i, \sy)}{\partial \sn_y} \td \Gamma(\sy) \nonumber \\
-	& + \alpha \limeps \int_{\Gamma_\epsilon} \frac{\partial^2{G}_k (\sx_i, \sy)}{\partial \sn_y \partial \sn_x} \td \Gamma(\sy) 
-    + \alpha \limeps \int_{\S_\epsilon} \frac{\partial^2{G}_k (\sx_i, \sy)}{\partial \sn_y \partial \sn_x} \td \Gamma(\sy) \nonumber \\
+	H_\Delta
+	& = \limeps \int_{\Gamma_\epsilon}\frac{\partial{G}_k (\sx_i, \sy)}{\partial \sn_y} p(\sy) \td \Gamma(\sy)
+    + \limeps \int_{S_\epsilon}\frac{\partial{G}_k (\sx_i, \sy)}{\partial \sn_y} p(\sy) \td \Gamma(\sy) \nonumber \\
+	& + \alpha \limeps \int_{\Gamma_\epsilon} \frac{\partial^2{G}_k (\sx_i, \sy)}{\partial \sn_y \partial \sn_x} p(\sy) \td \Gamma(\sy) 
+    + \alpha \limeps \int_{\S_\epsilon} \frac{\partial^2{G}_k (\sx_i, \sy)}{\partial \sn_y \partial \sn_x} p(\sy) \td \Gamma(\sy) 
+\end{align}
+%
+and
+%
+\begin{align}
+	G_\Delta & = \limeps \int_{\Gamma_\epsilon} G_k(\sx_i,\sy) \frac{\partial p(\sy)}{\partial \sn_y}\td \Gamma(\sy) +
+	\limeps \int_{S_\epsilon} G_k(\sx_i, \sy) \frac{\partial p(\sy)}{\partial \sn_y} \td \Gamma(\sy) \nonumber \\
+	& + \alpha \limeps \int_{\Gamma_\epsilon} \frac{\partial{G}_k (\sx_i, \sy)}{\partial \sn_x} \frac{\partial p(\sy)}{\partial \sn_y} \td \Gamma(\sy)
+	+ \alpha \limeps \int_{S_\epsilon} \frac{\partial{G}_k (\sx_i, \sy)}{\partial \sn_x} \frac{\partial p(\sy)}{\partial \sn_y} \td \Gamma(\sy)
 \end{align}
 
 Taking the first integral of matrix $\bG$ on the triangle and making use of the identity:
@@ -306,24 +342,26 @@ Taking the first integral of matrix $\bG$ on the triangle and making use of the 
 	\int \frac{\te ^{-\ti kr}}{4 \pi} \mathrm{d} r = \frac{\ti}{ k} \frac{\te ^{-\ti kr}}{4 \pi}
 \end{align}
 
+The first integral, $G_1$, making use of the identity on the constant triangle $\partial p(\sy) / \partial \sn_y = q(\sx)$ reads as
 
 \begin{align}
-	G_1 = \limeps \int_{\Gamma_\epsilon} G_k(\sx_i,\sy) \td \Gamma(\sy) 
-	& = \limeps \summ \intme \frac{\te ^{- \ti k r}}{4 \pi r} r \drph \nonumber \\
-	& = \summ \intmn \frac{\te^{-\ti kr}}{4 \pi} \drph 
-	= \summ \intms \frac{i}{4\pi k}\left(\te^{-\ti k R(\theta)} -1\right) \mathrm{d} \theta \nonumber \\
-	& = \frac{i}{2k}\left(\frac{1}{2\pi}\summ \intms \te ^{-\ti kR(\theta)} \mathrm{d} \theta -1 \right)
+	G_1 = \limeps \int_{\Gamma_\epsilon} G_k(\sx_i,\sy) \frac{\partial p(\sy)}{\partial \sn_y} \td \Gamma(\sy) 
+	& = \limeps \int_{\Gamma_\epsilon} G_k(\sx_i,\sy) q(\sx) \td \Gamma(\sy) q(\sx) \nonumber \\
+	& = \limeps \summ \intme \frac{\te ^{- \ti k r}}{4 \pi r} r \drph q(\sx) \nonumber \\
+	& = \summ \intmn \frac{\te^{-\ti kr}}{4 \pi} \drph q(\sx) \nonumber \\
+	& = \summ \intms \frac{\ti}{4\pi k}\left(\te^{-\ti k R(\theta)} -1\right) \mathrm{d} \theta q(\sx) \nonumber \\
+	& = \frac{\ti}{2k}\left(\frac{1}{2\pi}\summ \intms \te ^{-\ti kR(\theta)} \mathrm{d} \theta -1 \right) q(\sx) \nonumber \\
+    & = -\frac{\ti}{2k} q(\sx) + \frac{\ti}{4\pi k}\summ \intms \te ^{-\ti kR(\theta)} \mathrm{d} \theta q(\sx)
 \end{align}
 
 For the first term of matrix $\bH$ first integral over the triangle, it can be used that $\partial r / \partial \sn_y$ over the planar element, and therefore the term vanishes
 
 \begin{align}
-	H_1 = \limeps \int_{\Gamma_\epsilon}\frac{\partial{G}_k (\sx_i, \sy)}{\partial \sn_y} \td \Gamma(\sy) =
-	\limeps \int_{\Gamma_\epsilon}-\frac{\te ^{-\ti k r}}{4 \pi r^2}(1 + \ti kr) \frac{\partial r}{\partial \sn_y} \mathrm{d} \Gamma_y = 0
+	H_1 = \limeps \int_{\Gamma_\epsilon}\frac{\partial{G}_k (\sx_i, \sy)}{\partial \sn_y} p(\sy) \td \Gamma(\sy) =
+	\limeps \int_{\Gamma_\epsilon}-\frac{\te ^{-\ti k r}}{4 \pi r^2}(1 + \ti kr) \frac{\partial r}{\partial \sn_y} p(\sy) \mathrm{d} \Gamma_y = 0
 \end{align}
 
-
-Introducing the coordinate system $\tau(\sx)$, $s(\sx)$ and $n(\sx)$ over the Hemisphere, the second integral on the RHS can be expressed as:
+Introducing the coordinate system $\tau(\sx)$, $s(\sx)$ and $n(\sx)$ over the Hemisphere, the second integral in $G_\Delta$ can be expressed as:
 
 \begin{align}
 	G_2 = \int_{S_\epsilon} G_k(\sx_i, \sy) \frac{\partial p}{\partial \sn_y} \td \Gamma(\sy) & = \intsph \frac{\te^{-\ti k \epsilon}}{4 \pi \epsilon} \frac{\partial p}{\partial \sn_y} \epsilon^2 \sin \theta \mathrm{d} \theta \mathrm{d} \phi \nonumber \\
@@ -346,7 +384,7 @@ Term $H_2$ can be expressed by making use of the fact that $\partial r / \partia
 	& + -\frac{\te ^{ -\ti k\epsilon}}{4\pi}(1 + \ti k\epsilon) \intsph \sin \theta \dsph p(\sx)
 \end{align}
 
-The first integral on the RHS vanishes as $\epsilon \rightarrow 0$ and the second integral is constant (equals $2\pi$), therfore
+The first integral on the RHS vanishes as $\epsilon \rightarrow 0$ and the second integral is constant (equals $2\pi$), therefore
 
 \begin{equation}
 	\limeps H_2 = -\frac{1}{2}p(\sx)
@@ -357,8 +395,8 @@ Now, looking at the components arising from the Burton-Miller formulation:
 The third part in matrix $\bG$ vanishes since $\partial r / \partial \sn_x = 0$ 
 
 \begin{align}
-	G_3 = \limeps \int_{\Gamma_\epsilon} \frac{\partial{G}_k (\sx_i, \sy)}{\partial \sn_x} \td \Gamma(\sy) = 
-	\int_{\Gamma_\epsilon} \frac{\te ^{-\ti kr}}{4 \pi r^2}(1 + \ti kr) \frac{\partial r}{\partial \sn_x} \mathrm{d} \Gamma_y = 0
+	G_3 = \limeps \int_{\Gamma_\epsilon} \frac{\partial{G}_k (\sx_i, \sy)}{\partial \sn_x} \frac{\partial p(\sy)}{\partial \sn_y}\td \Gamma(\sy) = 
+	\int_{\Gamma_\epsilon} \frac{\te ^{-\ti kr}}{4 \pi r^2}(1 + \ti kr) \frac{\partial r}{\partial \sn_x} \frac{\partial p(\sy)}{\partial \sn_y} \mathrm{d} \Gamma_y = 0
 \end{align}
 
 The fourth part in matrix $\bG$:
@@ -380,10 +418,10 @@ The first integral on the RHS vanishes and by using the relation $\partial r / \
 The results of the three integral terms on the RHS are $0$, $0$ and $2\pi / 3$, respectively, which gives:
 
 \begin{align}
-	G_4 & = \frac{1}{4\pi}\frac{2\pi}{3}\frac{\partial p(\sx)}{\partial n} = \frac{1}{6} \frac{\partial p(\sx)}{\partial n}
+	G_4 & = \frac{1}{4\pi}\frac{2\pi}{3}\frac{\partial p(\sx)}{\partial n} = \frac{1}{6} \frac{\partial p(\sx)}{\partial n} = \frac{1}{6} q(\sx)
 \end{align}
 
-The third term in matrix $\bH$ can be integrated by making use of $\sn(\sx) = \sn(\sy)$ and $\partial r / \partial \sn_y = 0$ on $\Gamma_\epsilon$ and the double derivative of the Green function can be simplified as:
+The third term in matrix $\bH$ can be integrated by making use of $\sn(\sx) = \sn(\sy)$ and $\partial r / \partial \sn_y = 0$ on $\Gamma_\epsilon$ the double derivative of the Green function can be simplified as:
 
 \begin{align}
 	\frac{\partial^2 G_k(\tx, \ty)}{\partial \tn_x \partial \tn_y}
@@ -423,11 +461,12 @@ Finally, term $H_4$
 	+ \nabla p(\sx) \cdot \int_{S_\epsilon} \frac{\partial^2{G}_k (\sx_i, \sy)}{\partial \sn_y \partial \sn_x} (\sy - \sx) \Gamma_y
 \end{align}
 
-On the hemisphere surface $\partial r / \partial n(\sx) = -\cos(\theta)$, $\partial r / \partial n(\sy) = 1$ and $r = \epsilon$:
+On the hemisphere surface $\partial r / \partial n(\sx) = -\cos(\theta)$, $\partial r / \partial n(\sy) = 1$ and $r = \epsilon$ and  $\sn_x \cdot \sn_y = \cos \theta$:
 
 \begin{align}
 	\frac{\partial^2{G}_k (\sx_i, \sy)}{\partial \sn_y \partial \sn_x} & = 
 	\frac{\te^{- \ti kr}}{4 \pi r^3}\left[\left(3 + 3 \ti kr - k^2 r^2\right) \frac{\partial r}{\partial \tn_x}\frac{\partial r}{\partial \tn_y} + (1 + \ti kr) \tn_x \cdot \tn_y \right] \nonumber \\
+	& = \frac{\te^{- \ti k\epsilon}}{4 \pi \epsilon^3}\left[\left(3 + 3 \ti k\epsilon - k^2 r^2\right) (-\cos \theta) + (1 + \ti k\epsilon) \cos \theta) \right] \nonumber \\
 	& = - \frac{\te^{-\ti k \epsilon}}{4 \pi \epsilon^3} \left[2 + 2\ti k \epsilon -k^2 \epsilon^2\right] \cos \theta , \qquad \text{if} \quad \sx, \sy \in S_\epsilon
 \end{align}
 
@@ -470,6 +509,62 @@ Summing up the terms:
 	& = \frac{i}{2k}\left[\frac{1}{2\pi}\summ \intms \te ^{-\ti kR(\theta)} \mathrm{d} \theta -1 \right]\frac{\partial p(\sx)}{\partial n} + 0 + \alpha \cdot 0 + \alpha \frac{1}{6} \frac{\partial p(\sx)}{\partial n}
 \end{align}
 
+Substituting into the Burton-Miller formulation for the surface matrices:
+
+\begin{multline}
+	\frac{1}{2} p (\sx)
+	-
+	p_{in}(\sx)
+	+
+	\frac{\alpha}{2} q(\sx)
+	-
+	\alpha q_{in}(\sx)
+	= \\
+	\left(
+	\int_{\Gamma} \frac{\partial{G}_k (\sx, \sy)}{\partial \sn_y} p(\sy) \td \Gamma_y
+	+
+	\alpha \int_{\Gamma}
+	\frac{\partial^2{G}_k (\sx, \sy)}{\partial \sn_y \partial \sn_x} p(\sy) \td \Gamma_y
+	\right)
+	\\
+	-
+	\left(
+	\int_{\Gamma} G_k(\sx,\sy) q(\sy) \td \Gamma_y
+	+
+	\alpha \int_{\Gamma}
+	\frac{\partial G_k(\sx,\sy)}{\partial \sn_x}q(\sy) \td \Gamma_y
+	\right)
+\end{multline}
+
+\begin{multline}
+	\frac{1}{2} p (\sx)
+	-
+	p_{in}(\sx)
+	+
+	\frac{\alpha}{2} q(\sx)
+	-
+	\alpha q_{in}(\sx)
+	= \\
+	\int_{\Gamma-\Gamma_\Delta} \frac{\partial{G}_k (\sx, \sy)}{\partial \sn_y} p(\sy) \td \Gamma_y
+	+
+	\left[-\frac{1}{2}p(\sx) - \summ \intms \frac{\te ^{-\ti k R(\theta)}}{4 \pi R(\theta)} \mathrm{d} \theta p(\sx)\right] 
+	\\ + 
+	\alpha \left[\int_{\Gamma-\Gamma_\Delta}
+	\frac{\partial^2{G}_k (\sx, \sy)}{\partial \sn_y \partial \sn_x} p(\sy) \td \Gamma_y
+	- \frac{\ti k}{2} p(\sx) - \frac{1}{3}q(\sx)\right]
+	\\
+	-
+	\int_{\Gamma-\Gamma_\Delta} G_k(\sx,\sy) q(\sy) \td \Gamma_y
+	-
+	\frac{\ti}{2k}\left[\frac{1}{2\pi}\summ \intms \te ^{-\ti kR(\theta)} \mathrm{d} \theta -1 \right] q(\sx)
+	\\
+	-
+	\alpha \int_{\Gamma-\Gamma_\Delta}
+	\frac{\partial G_k(\sx,\sy)}{\partial \sn_x}q(\sy) \td \Gamma_y
+	- \alpha \frac{1}{6}q(\sx)
+\end{multline}
+
+
 Finally, the matrix formulation reads as:
 
 \begin{align}
@@ -481,21 +576,6 @@ Finally, the matrix formulation reads as:
 	\left(1 + \frac{\alpha \ti k}{2}\right)\bp + \left(\alpha - \frac{\ti }{2 k}\right) \bq =\bH \bp - \bG \bq
 \end{align}
 
-\begin{multline}
-	C(\sx) p (\sx) - p_{in}(\sx)
-	+
-	\alpha C(\sx) \frac{\partial p(\sx)}{\partial \sn_x}
-	-
-	\alpha \frac{\partial p_{in}(\sx)}{\partial \sn_x}
-	= \\
-	\int_{\Gamma}\left[\frac{\partial{G}_k (\sx, \sy)}{\partial \sn_y} p(\sy)
-	- G_k(\sx,\sy)\frac{\partial p(\sy)}{\partial \sn_y}\right] \td \Gamma_y \\
-	+
-	\alpha \int_{\Gamma}
-	\left[
-	\frac{\partial^2{G}_k (\sx, \sy)}{\partial \sn_y \partial \sn_x} p(\sy)
-	- \frac{\partial G_k(\sx,\sy)}{\partial \sn_x}\frac{\partial p(\sy)}{\partial \sn_y}
-	\right] \td \Gamma_y
-\end{multline}
+
 
 \end{document}

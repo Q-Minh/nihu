@@ -5,14 +5,14 @@
 #include "vector.h"
 
 /* ------------------------------------------------------------------------ */
-/* Compute Green's function and its normal derivative                       */
+/* Compute reduced Green's function                                         */
 void greenr(const double *r,
            double k,
            double *gr,
            double *gi)
 {
     double ar = sqrt(dot(r, r));
-	/* exp(-ikr)/(4*pi*k)*i */
+	/* i*exp(-ikr)/(4*pi*k) */
     *gi = cos(k*ar) / (4.0 * M_PI * k);
     *gr = sin(k*ar) / (4.0 * M_PI * k);
 }
