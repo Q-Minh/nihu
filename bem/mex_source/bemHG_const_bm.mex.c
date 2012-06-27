@@ -88,7 +88,7 @@ void mexFunction(int nlhs,
 		mexPrintf("Calling integral!\n");
         /* call C subroutine */
         matrix_surf_const_bm(nnodes, nodes, nelements, elements,
-                          g3, g4, dist, k, 0.0, 1.0/k,  Ar, Ai, Br, Bi); 
+                          g3, g4, dist, k, 0.0, 0.0,  Ar, Ai, Br, Bi); 
     }
     else if (nrhs == 7)
     {

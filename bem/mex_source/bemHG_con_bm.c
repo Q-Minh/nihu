@@ -62,7 +62,7 @@ void matrix_surf_const_bm(int nnodes,
                     /* int_quad_const_sing(&g4[0], nod, &accelerators[e], q, k, &ar, &ai, &br, &bi); */
                     break;
                 case 3:
-                    int_tri_const_sing_bm(&g4[0], nod, &accelerators[e], q, q, k, 0, 1.0/k, &ar, &ai, &br, &bi);
+                    int_tri_const_sing_bm(&g4[0], nod, &accelerators[e], q, q, k, alphar, alphai, &ar, &ai, &br, &bi);
                     break;
                 }
             }
@@ -76,7 +76,7 @@ void matrix_surf_const_bm(int nnodes,
                     /*int_quad_const(&g4[gs], nod, &accelerators[e], q, k, &ar, &ai, &br, &bi); */
                     break;
                 case 3:
-                    int_tri_const_bm(&g3[gs], nod, &accelerators[e], q, q, k, 0, 1.0/k,  &ar, &ai, &br, &bi);
+                    int_tri_const_bm(&g3[gs], nod, &accelerators[e], q, q, k, alphar, alphai,  &ar, &ai, &br, &bi);
                     break;
                 }
             }
