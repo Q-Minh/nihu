@@ -1,6 +1,12 @@
 #ifndef GREEN_H
 #define GREEN_H
 
+/* exp(-1ikr) */
+void greenr(const double *r,
+			double k,
+			double *gr,
+			double *gi);
+
 void green(const double *r,
            double k,
            double *gr,

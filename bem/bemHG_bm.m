@@ -29,8 +29,11 @@ dist = nodes(elements(:,3)+1,:) - nodes(elements(:,2)+1,:);
 dist = [2 5] * max(sqrt(dot(dist,dist,2)));
 
 % make sure alpha is complex
-alpha = complex(real(alpha), imag(alpha));
+%alpha = complex(real(alpha), imag(alpha));
 
-[H, G] = bemHG_lin_bm(nodes, elements, gauss3, gauss4, dist, k, alpha);
+%[H, G] = bemHG_lin_bm(nodes, elements, gauss3, gauss4, dist, k, alpha);
+
+
+[H, G] = bemHG_const_bm(nodes, elements, gauss3, gauss4, dist, k);
 
 end
