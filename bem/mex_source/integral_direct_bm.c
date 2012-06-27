@@ -279,20 +279,50 @@ void int_tri_const_sing_bm(const gauss_t *g,   /* This will use line gauss! */
 						double *bi)
 {
     int i, j, s;
-    double gr, gi;
+    
 	
 	/* TODO: temporary */
-	double xi[5], w[5];
-	int gnum = 5;
+	double xi[16], w[16];
+	int gnum = 16;
+	/*
 	xi[0] =  -0.906179845938664; w[0] = 0.236926885056189;
 	xi[1] =  -0.538469310105683; w[1] = 0.478628670499367;
 	xi[2] =   0.000000000000000; w[2] = 0.568888888888889;
 	xi[3] =   0.538469310105683; w[3] = 0.478628670499367;
 	xi[4] =   0.906179845938664; w[4] = 0.236926885056189;
-
+	*/
+	/*
+	xi[0] = -0.968160239507626; w[0] = 0.081274388361575;
+    xi[1] = -0.836031107326636; w[1] = 0.180648160694858;
+    xi[2] = -0.613371432700590; w[2] = 0.260610696402935;
+    xi[3] = -0.324253423403809; w[3] = 0.312347077040002;
+    xi[4] =  0.000000000000000; w[4] = 0.330239355001259;
+    xi[5] =  0.324253423403809; w[5] = 0.312347077040002;
+    xi[6] =  0.613371432700591; w[6] = 0.260610696402936;
+    xi[7] =  0.836031107326636; w[7] = 0.180648160694857;
+    xi[8] =  0.968160239507626; w[8] = 0.081274388361575;
+	*/
+	
+xi[ 0] = -0.9894009349916495;   w[ 0] = 0.0271524594117546;
+xi[ 1] = -0.9445750230732327;   w[ 1] = 0.0622535239386470;
+xi[ 2] = -0.8656312023878319;   w[ 2] = 0.0951585116824926;
+xi[ 3] = -0.7554044083550033;   w[ 3] = 0.1246289712555342;
+xi[ 4] = -0.6178762444026443;   w[ 4] = 0.1495959888165764;
+xi[ 5] = -0.4580167776572275;   w[ 5] = 0.1691565193950028;
+xi[ 6] = -0.2816035507792588;   w[ 6] = 0.1826034150449246;
+xi[ 7] = -0.0950125098376372;   w[ 7] = 0.1894506104550683;
+xi[ 8] = 0.0950125098376372;   w[ 8] = 0.1894506104550689;
+xi[ 9] = 0.2816035507792590;   w[ 9] = 0.1826034150449239;
+xi[10] = 0.4580167776572271;   w[10] = 0.1691565193950028;
+xi[11] = 0.6178762444026440;   w[11] = 0.1495959888165774;
+xi[12] = 0.7554044083550031;   w[12] = 0.1246289712555348;
+xi[13] = 0.8656312023878318;   w[13] = 0.0951585116824925;
+xi[14] = 0.9445750230732326;   w[14] = 0.0622535239386481;
+xi[15] = 0.9894009349916498;   w[15] = 0.0271524594117544;
+	
 	/* Initialize the result */
     *ar = *ai = *br = *bi = 0.0;
-
+	
 	/* Go through all three sides */
     for (i = 0; i < 3; ++i)
 	{
@@ -312,6 +342,7 @@ void int_tri_const_sing_bm(const gauss_t *g,   /* This will use line gauss! */
 		for (ig = 0; ig < gnum; ig++)
 		{
 			double r[3], lr, jac;  		/* actual r vector, r, and jacobian */
+			double gr, gi, grr, gri;
 			double tmp;
 			/* Calculate actual location x(\xi)-x_q*/
 			for (j=0; j < 3; ++j)
@@ -323,6 +354,9 @@ void int_tri_const_sing_bm(const gauss_t *g,   /* This will use line gauss! */
 			tmp = dot(r,d)/(lr*L);
 			jac = w[ig] * sqrt(1.0 - tmp*tmp) / lr * L / 2.0;
 			
+			if (jac < 0)
+				mexPrintf("Jac < 0!\n");
+			
 			/* Here the calculation of the integrand should be performed */
 			/* Matrix H: the negative of the simple green function should be evaluated */
 			green(r, k, &gr, &gi, NULL, NULL, NULL);
@@ -331,13 +365,11 @@ void int_tri_const_sing_bm(const gauss_t *g,   /* This will use line gauss! */
 			*ai -= (gr * alphai + gi*alphar)*jac;
 			
 			/* Matrix G: the reduced Green is evaluated */
-			greenr(lr, k, &gr, &gi);
+			greenr(lr, k, &grr, &gri);
 			
-			/*gr = dot(r,r)/2;
-			gi = 0.0;*/
+			*br += -gri*jac;
+			*bi += grr*jac;
 			
-			*br += -gi*jac;
-			*bi += gr*jac;
 		}
 	}
 	
