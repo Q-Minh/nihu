@@ -174,13 +174,13 @@ With
 \section{Treatment of hypersingular integrals}
 
 In the sequel, the following four identities are used:
-
+%
 % \begin{align}
 % 	\alpha & \int_\Gamma \frac{\partial^2{G}_k (\sx, \sy)}{\partial \sn_y \partial \sn_x} p(\sy) \td \Gamma_y -
 % 	\alpha \int_\Gamma \frac{\partial{G}_k (\sx, \sy)}{\partial \sn_x} \frac{\partial p(\sy)}{\partial \sn_y} \td \Gamma_y = \nonumber \\
 % 	& = \int_{\Gamma}\left[-\frac{\partial{G}_k (\sx, \sy)}{\partial \sn_y} p(\sy) + G_k(\sx,\sy)\frac{\partial p(\sy)}{\partial \sn_y}\right] \td \Gamma_y - \frac{1}{2} p(\sx) - \frac{1}{2}\alpha \frac{ \partial p(\sx)}{\partial \sn_x} + p_{in}(\sx) + \alpha \frac{\partial p_{in}(\sx)}{\partial \sn_x}
 % \end{align}
-
+%
 \begin{align}
 	\int_\Gamma \frac{\partial G_0(\sx, \sy)}{\partial \sn_y} \td \Gamma_y & = 0 \\
 	\int_\Gamma \frac{\partial^2 G_0(\sx, \sy)}{\partial \sn_x \partial \sn_y} \td \Gamma_y & = 0 \\
@@ -190,15 +190,15 @@ In the sequel, the following four identities are used:
 \end{align}
 
 The hypersingular integral in matrix $\bH$
-
-\begin{align}
-	\int_\Gamma \frac{\partial^2 G_k(\sx, \sy)}{\partial \sn_x \partial \sn_y} \phi(\sy) \td \Gamma_y & = 
-	\int_\Gamma \left[\frac{\partial^2 G_k(\sx, \sy)}{\partial \sn_x \partial \sn_y} - \frac{\partial^2 G_0(\sx, \sy)}{\partial \sn_x \partial \sn_y}\right] \phi(\sy) \td \Gamma_y \nonumber \\
-	& + \int_\Gamma \frac{\partial^2 G_0(\sx, \sy)}{\partial \sn_x \partial \sn_y} \phi(\sy) \td \Gamma_y
-\end{align}
+%
+\begin{multline}
+	\int_\Gamma \frac{\partial^2 G_k(\sx, \sy)}{\partial \sn_x \partial \sn_y} \phi(\sy) \td \Gamma_y = 
+	\int_\Gamma \left[\frac{\partial^2 G_k(\sx, \sy)}{\partial \sn_x \partial \sn_y} - \frac{\partial^2 G_0(\sx, \sy)}{\partial \sn_x \partial \sn_y}\right] \phi(\sy) \td \Gamma_y \\
+	+ \int_\Gamma \frac{\partial^2 G_0(\sx, \sy)}{\partial \sn_x \partial \sn_y} \phi(\sy) \td \Gamma_y
+\end{multline}
 
 The difference of the second derivative of the two Green functions can be expressed by the Taylor-series:
-
+%
 \begin{equation}
 	\frac{\partial^2 G_k(\sx, \sy)}{\partial \sn_x \partial \sn_y} - \frac{\partial^2 G_0(\sx, \sy)}{\partial \sn_x \partial \sn_y} = 
 	\frac{k^2}{8 \pi r} + \frac{\ti k^3}{12 \pi} + o(r)
@@ -206,54 +206,55 @@ The difference of the second derivative of the two Green functions can be expres
 
 This shows that the first integral on the right hand side is only weakly singular.
 The second integral needs to be taken care of. By adding and subtracting the same terms:
-
-\begin{align}
-	\int_\Gamma \frac{\partial^2 G_0(\sx, \sy)}{\partial \sn_x \partial \sn_y} \phi(\sy) \td \Gamma_y & =
-	\int_\Gamma \left[\phi(\sy) - \phi(\sx) - \nabla \phi(\sx) (\sy - \sx) \right] \frac{\partial^2 G_0(\sx, \sy)}{\partial \sn_x \partial \sn_y} \td \Gamma_y \nonumber \\
-	& + \phi(\sx) \int_\Gamma \frac{\partial^2 G_0(\sx, \sy)}{\partial \sn_x \partial \sn_y} \td \Gamma_y +
+%
+\begin{multline}
+	\int_\Gamma \frac{\partial^2 G_0(\sx, \sy)}{\partial \sn_x \partial \sn_y} \phi(\sy) \td \Gamma_y =
+	\int_\Gamma \left[\phi(\sy) - \phi(\sx) - \nabla \phi(\sx) (\sy - \sx) \right] \frac{\partial^2 G_0(\sx, \sy)}{\partial \sn_x \partial \sn_y} \td \Gamma_y \\
+	+ \phi(\sx) \int_\Gamma \frac{\partial^2 G_0(\sx, \sy)}{\partial \sn_x \partial \sn_y} \td \Gamma_y +
 	\int_\Gamma \nabla \phi(\sx) (\sy - \sx) \frac{\partial^2 G_0(\sx, \sy)}{\partial \sn_x \partial \sn_y} \td \Gamma_y
-\end{align}
+\end{multline}
 
 Making use of identity 2, the second term on the right hand side vanishes, which leads to
-
-\begin{align}
-	\int_\Gamma \frac{\partial^2 G_0(\sx, \sy)}{\partial \sn_x \partial \sn_y} \phi(\sy) \td \Gamma_y & =
-	\int_\Gamma \left[\phi(\sy) - \phi(\sx) - \nabla \phi(\sx) (\sy - \sx) \right] \frac{\partial^2 G_0(\sx, \sy)}{\partial \sn_x \partial \sn_y} \td \Gamma_y \nonumber \\
-	& + \int_\Gamma \nabla \phi(\sx) (\sy - \sx) \frac{\partial^2 G_0(\sx, \sy)}{\partial \sn_x \partial \sn_y} \td \Gamma_y
-\end{align}
+%
+\begin{multline}
+	\int_\Gamma \frac{\partial^2 G_0(\sx, \sy)}{\partial \sn_x \partial \sn_y} \phi(\sy) \td \Gamma_y =
+	\int_\Gamma \left[\phi(\sy) - \phi(\sx) - \nabla \phi(\sx) (\sy - \sx) \right] \frac{\partial^2 G_0(\sx, \sy)}{\partial \sn_x \partial \sn_y} \td \Gamma_y \\
+	+ \int_\Gamma \nabla \phi(\sx) (\sy - \sx) \frac{\partial^2 G_0(\sx, \sy)}{\partial \sn_x \partial \sn_y} \td \Gamma_y
+\end{multline}
 
 The terms in brackets in the first integral of the right hand side are the difference of $\phi(\sy)$ and its Taylor series, which means that the difference in the brackets is $o(r^2)$ here and therefore the first integral is now weakly singular.
 
-The second term on the RHS should be treated by making use of identity 4, with $\sa = \nabla(\sx)$ and $k = 0$.
+The second term on the RHS should be treated by making use of identity 4, with $\sa = \nabla\phi(\sx)$ and $k = 0$.
 
 \begin{align}
 	\int_\Gamma \nabla \phi(\sx) (\sy - \sx) \frac{\partial^2 G_0(\sx, \sy)}{\partial \sn_x \partial \sn_y} \td \Gamma_y & = 
 	\int_\Gamma \nabla \phi(\sx) \cdot \sn_y \frac{\partial G_0(\sx,\sy)}{\partial \sn_x} \td \Gamma_y \nonumber \\
-	&+ \int_\Gamma -k^2 \nabla \phi(\sx) \cdot (\sy - \sx) \frac{\partial G_0(\sx, \sy)}{\partial \sn_x} \td \Omega_y
+	&+ \int_\Omega -k^2 \nabla \phi(\sx) \cdot (\sy - \sx) \frac{\partial G_0(\sx, \sy)}{\partial \sn_x} \td \Omega_y
 	-\frac{1}{2} \nabla \phi(\sx) \cdot \sn_x
 \end{align}
 
 Since $k = 0$ in the static case, the volume integral on the RHS disappears and we get
-
-\begin{align}
-	\int_\Gamma \nabla \phi(\sx) (\sy - \sx) \frac{\partial^2 G_0(\sx, \sy)}{\partial \sn_x \partial \sn_y} \td \Gamma_y & = 
+%
+\begin{equation}
+	\int_\Gamma \nabla \phi(\sx) (\sy - \sx) \frac{\partial^2 G_0(\sx, \sy)}{\partial \sn_x \partial \sn_y} \td \Gamma_y = 
 	\int_\Gamma \nabla \phi(\sx) \cdot \sn_y \frac{\partial G_0(\sx,\sy)}{\partial \sn_x} \td \Gamma_y -\frac{1}{2} \nabla \phi(\sx) \cdot \sn_x
-\end{align}
+\end{equation}
 
 The surface integral of the static green function is obtained
-
-\begin{align}
-	\int_\Gamma \frac{\partial^2 G_0(\sx, \sy)}{\partial \sn_x \partial \sn_y} \phi(\sy) \td \Gamma_y & = \int_\Gamma \left[\phi(\sy) - \phi(\sx) - \nabla \phi(\sx) (\sy - \sx) \right] \frac{\partial^2 G_0(\sx, \sy)}{\partial \sn_x \partial \sn_y} \td \Gamma_y \nonumber \\
-	& + \int_\Gamma \nabla \phi(\sx) \cdot \sn_y \frac{\partial G_0(\sx,\sy)}{\partial \sn_x} \td \Gamma_y -\frac{1}{2} \nabla \phi(\sx) \cdot \sn_x
-\end{align}
+%
+\begin{multline}
+	\int_\Gamma \frac{\partial^2 G_0(\sx, \sy)}{\partial \sn_x \partial \sn_y} \phi(\sy) \td \Gamma_y
+= \int_\Gamma \left[\phi(\sy) - \phi(\sx) - \nabla \phi(\sx) (\sy - \sx) \right] \frac{\partial^2 G_0(\sx, \sy)}{\partial \sn_x \partial \sn_y} \td \Gamma_y \\
+	+ \int_\Gamma \nabla \phi(\sx) \cdot \sn_y \frac{\partial G_0(\sx,\sy)}{\partial \sn_x} \td \Gamma_y -\frac{1}{2} \nabla \phi(\sx) \cdot \sn_x
+\end{multline}
 
 And finally, the hypersingular integral can be written as
-
-\begin{align}
-	\int_\Gamma \frac{\partial^2 G_k(\sx, \sy)}{\partial \sn_x \partial \sn_y} \phi(\sy) \td \Gamma_y & = \int_\Gamma \left[\frac{\partial^2 G_k(\sx, \sy)}{\partial \sn_x \partial \sn_y} - \frac{\partial^2 G_0(\sx, \sy)}{\partial \sn_x \partial \sn_y}\right] \phi(\sy) \td \Gamma_y \nonumber \\
-	& + \int_\Gamma \left[\phi(\sy) - \phi(\sx) - \nabla \phi(\sx) (\sy - \sx) \right] \frac{\partial^2 G_0(\sx, \sy)}{\partial \sn_x \partial \sn_y} \td \Gamma_y \nonumber \\
-	& + \int_\Gamma \nabla \phi(\sx) \cdot \sn_y \frac{\partial G_0(\sx,\sy)}{\partial \sn_x} \td \Gamma_y -\frac{1}{2} \nabla \phi(\sx) \cdot \sn_x
-\end{align}
+%
+\begin{multline}
+	\int_\Gamma \frac{\partial^2 G_k(\sx, \sy)}{\partial \sn_x \partial \sn_y} \phi(\sy) \td \Gamma_y = \int_\Gamma \left[\frac{\partial^2 G_k(\sx, \sy)}{\partial \sn_x \partial \sn_y} - \frac{\partial^2 G_0(\sx, \sy)}{\partial \sn_x \partial \sn_y}\right] \phi(\sy) \td \Gamma_y \\
+	+ \int_\Gamma \left[\phi(\sy) - \phi(\sx) - \nabla \phi(\sx) (\sy - \sx) \right] \frac{\partial^2 G_0(\sx, \sy)}{\partial \sn_x \partial \sn_y} \td \Gamma_y \\
+	+ \int_\Gamma \nabla \phi(\sx) \cdot \sn_y \frac{\partial G_0(\sx,\sy)}{\partial \sn_x} \td \Gamma_y -\frac{1}{2} \nabla \phi(\sx) \cdot \sn_x
+\end{multline}
 
 
 
