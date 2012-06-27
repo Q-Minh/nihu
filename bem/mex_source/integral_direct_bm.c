@@ -331,10 +331,13 @@ void int_tri_const_sing_bm(const gauss_t *g,   /* This will use line gauss! */
 			*ai -= (gr * alphai + gi*alphar)*jac;
 			
 			/* Matrix G: the reduced Green is evaluated */
-			greenr(r, k, &gr, &gi);
+			greenr(lr, k, &gr, &gi);
 			
-			*br += gr*jac;
-			*bi += gi*jac;
+			/*gr = dot(r,r)/2;
+			gi = 0.0;*/
+			
+			*br += -gi*jac;
+			*bi += gr*jac;
 		}
 	}
 	

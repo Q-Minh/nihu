@@ -6,15 +6,14 @@
 
 /* ------------------------------------------------------------------------ */
 /* Compute reduced Green's function                                         */
-void greenr(const double *r,
+void greenr(const double ar,
            double k,
            double *gr,
            double *gi)
 {
-    double ar = sqrt(dot(r, r));
 	/* i*exp(-ikr)/(4*pi*k) */
-    *gi = cos(k*ar) / (4.0 * M_PI * k);
-    *gr = sin(k*ar) / (4.0 * M_PI * k);
+    *gr = cos(k*ar) / (4.0 * M_PI * k);
+    *gi = -sin(k*ar) / (4.0 * M_PI * k);
 }
 
 /* ------------------------------------------------------------------------ */

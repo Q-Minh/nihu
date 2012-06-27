@@ -2,7 +2,7 @@
 #define GREEN_H
 
 /* exp(-1ikr) */
-void greenr(const double *r,
+void greenr(const double ar,
 			double k,
 			double *gr,
 			double *gi);
