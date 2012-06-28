@@ -3,11 +3,11 @@ clear;
 nodes = [0 0 0; 0 1 1; 1 0 0]*0.02;
 
 x0 = sum(nodes,1)/3;
-
-[xi, w] = gaussquad1(31);
+%%
+[xi, w] = gaussquad1(127);
 
 for i = 1:length(xi)
-    fprintf('xi[%2d] = %0.10f;   w[%2d] = %f;\n',i,xi(i),i,w(i));
+    fprintf('xi[%2d] = %0.16f;   w[%2d] = %0.16f;\n',i-1,xi(i),i-1,w(i));
 end
 %%
 k = 1;

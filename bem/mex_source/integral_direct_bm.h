@@ -32,6 +32,7 @@ void int_quad_lin_sing_bm(const gauss_t *g,
                        double *br,
                        double *bi);
 
+
 /* Regular integral over a constant TRIA element using Burton-Miller        */
 void int_tri_const_bm(const gauss_t *g,
                    const double *nodes,

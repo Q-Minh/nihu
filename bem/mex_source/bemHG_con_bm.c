@@ -30,7 +30,9 @@ void matrix_surf_const_bm(int nnodes,
     int elem[4], nvert;
     double nod[12];
     double ai, bi, ar, br;
-
+	double nq[3];
+	double jac;
+	
     /* Compute element centres */
     accelerators = (accelerator_t *)calloc(nelements, sizeof(accelerator_t));
     init_accelerators(nnodes, nodes, nelements, elements, accelerators);
@@ -40,6 +42,11 @@ void matrix_surf_const_bm(int nnodes,
     {
 		/* Source location is element center */
         q = accelerators[n].center;
+		
+		/* Source normal calculation */
+		jac = sqrt(dot(accelerators[n].n0, accelerators[n].n0));
+		for (j = 0; j < 3; j++)
+			nq[j] = accelerators[n].n0[j]/jac;
 
         /* Integration for each element */
         for (e = 0; e < nelements; e++)
@@ -62,7 +69,7 @@ void matrix_surf_const_bm(int nnodes,
                     /* int_quad_const_sing(&g4[0], nod, &accelerators[e], q, k, &ar, &ai, &br, &bi); */
                     break;
                 case 3:
-                    int_tri_const_sing_bm(&g4[0], nod, &accelerators[e], q, q, k, alphar, alphai, &ar, &ai, &br, &bi);
+                    int_tri_const_sing_bm(&g4[0], nod, &accelerators[e], q, nq, k, alphar, alphai, &ar, &ai, &br, &bi);
                     break;
                 }
             }
@@ -76,7 +83,7 @@ void matrix_surf_const_bm(int nnodes,
                     /*int_quad_const(&g4[gs], nod, &accelerators[e], q, k, &ar, &ai, &br, &bi); */
                     break;
                 case 3:
-                    int_tri_const_bm(&g3[gs], nod, &accelerators[e], q, q, k, alphar, alphai,  &ar, &ai, &br, &bi);
+                    int_tri_const_bm(&g3[gs], nod, &accelerators[e], q, nq, k, alphar, alphai,  &ar, &ai, &br, &bi); 
                     break;
                 }
             }
