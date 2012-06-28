@@ -6,15 +6,14 @@
 
 /* ------------------------------------------------------------------------ */
 /* Compute reduced Green's function                                         */
-void greenr(const double *r,
+void greenr(const double ar,
            double k,
            double *gr,
            double *gi)
 {
-    double ar = sqrt(dot(r, r));
-	/* i*exp(-ikr)/(4*pi*k) */
-    *gi = cos(k*ar) / (4.0 * M_PI * k);
-    *gr = sin(k*ar) / (4.0 * M_PI * k);
+	/* exp(-ikr)/(4*pi*k) */
+    *gr =  cos(k*ar) / (4.0 * M_PI * k);
+    *gi = -sin(k*ar) / (4.0 * M_PI * k); 
 }
 
 /* ------------------------------------------------------------------------ */
@@ -67,8 +66,11 @@ void ddgreen(const double *r, /* y - x */
 	double ar2 = dot(r,r); 			/* square norm of distance vector */
 	double ar = sqrt(ar2); 			/* norm of distance vector */
     double rnx = -dot(r, nx) / ar;	/* normal derivative of distance wrt x */
-    double rny = dot(r, ny) / ar;	/* normal derivative of distance wrt y */
+    double rny = dot(r, ny) / ar;		/* normal derivative of distance wrt y */
 	double rnxrny = rnx*rny;
+	
+	/* Double derivative helpers */
+	double nxny, br, bi;
 	
 	/* Green's function */
 	*gr = cos(k*ar)/ar / (4.0 * M_PI);
@@ -80,14 +82,14 @@ void ddgreen(const double *r, /* y - x */
     *dgyr = (- *gr / ar + *gi * k) * rny;
     *dgyi = (- *gi / ar - *gr * k) * rny;
 
-	{
-		double nxny = dot(nx, ny);
-		double br = (3.0/ar2 - k*k) * rnxrny + nxny / ar2;
-		double bi = k/ar * (3.0*rnxrny + nxny);
-		/* Double normal derivative */
-		*ddgr = *gr * br - *gi * bi;
-		*ddgi = *gr * bi + *gi * br;
-	}
+	/* Double derivative */
+	nxny = dot(nx, ny);
+	br = (3.0/ar2 - k*k) * rnxrny + nxny / ar2;
+	bi = k/ar * (3.0*rnxrny + nxny);
+	/* Double normal derivative */
+	*ddgr = *gr * br - *gi * bi;
+	*ddgi = *gr * bi + *gi * br;
+	
 }
 
 /* 3D static Green's function and its derivatives  */

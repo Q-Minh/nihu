@@ -24,6 +24,7 @@
 \newcommand{\bq}{\mathbf{q}}
 \newcommand{\bH}{\mathbf{H}}
 \newcommand{\bG}{\mathbf{G}}
+\newcommand{\bI}{\mathbf{I}}
 \newcommand{\limeps}{\lim\limits_{\epsilon \rightarrow 0}}
 \newcommand{\intsph}{\int\limits_{0}^{2\pi} \int\limits_{0}^{\pi/2}}
 \newcommand{\dsph}{\mathrm{d}\theta \mathrm{d}\phi}
@@ -556,7 +557,7 @@ Substituting into the Burton-Miller formulation for the surface matrices:
 	= \\
 	\int_{\Gamma-\Gamma_\Delta} \frac{\partial{G}_k (\sx, \sy)}{\partial \sn_y} p(\sy) \td \Gamma_y
 	+
-	\left[-\frac{1}{2}p(\sx) - \summ \intms \frac{\te ^{-\ti k R(\theta)}}{4 \pi R(\theta)} \mathrm{d} \theta p(\sx)\right] 
+	\left[-\frac{1}{2}p(\sx) - \alpha \summ \intms \frac{\te ^{-\ti k R(\theta)}}{4 \pi R(\theta)} \mathrm{d} \theta p(\sx)\right] 
 	\\ + 
 	\alpha \left[\int_{\Gamma-\Gamma_\Delta}
 	\frac{\partial^2{G}_k (\sx, \sy)}{\partial \sn_y \partial \sn_x} p(\sy) \td \Gamma_y
@@ -573,16 +574,42 @@ Substituting into the Burton-Miller formulation for the surface matrices:
 	- \alpha \frac{1}{6}q(\sx)
 \end{multline}
 
-
-Finally, the matrix formulation reads as:
+Introducing matrix notations, making use of constant shape functions:
 
 \begin{align}
-	\frac{1}{2} \mathbf{p} - \mathbf{p}_{in} + \frac{\alpha}{2} \mathbf{q} - \alpha \mathbf{q}_{in} = - \frac{1}{2} \bp - \alpha \frac{\ti k}{2} \bp - \alpha \frac{1}{3} \bq 
-	+ \frac{\ti }{2k} \bq - \alpha \frac{1}{6} \bq + \bH \bp - \bG \bq
+	\bH_{ij}
+	& = \int_{\Gamma_j}\frac{\partial{G}_k (\sx_i, \sy)}{\partial \sn_y} \td \Gamma_j(\sy)
+	+ \alpha \int_\Gamma \frac{\partial^2{G}_k (\sx_i, \sy)}{\partial \sn_y \partial \sn_x} \td \Gamma_j(\sy)
+	& \text{if} \quad i \ne j \nonumber \\
+	\bH_{ii}
+	& = - \alpha \summ \intms \frac{\te ^{-\ti k R(\theta)}}{4 \pi R(\theta)} \mathrm{d} \theta 
+	& \text{if} \quad i = j \nonumber \\
+	\bG_{ij}
+	& = \int_{\Gamma_j} G_k(\sx_i,\sy) \td \Gamma_j(\sy)
+	+ \alpha \int_{\Gamma_j} \frac{\partial{G}_k (\sx_i, \sy)}{\partial \sn_x} \td \Gamma_j(\sy)
+	& \text{if} \quad i \ne j \nonumber \\
+	\bG_{ii}
+	& = \frac{\ti}{4\pi k}\summ \intms \te ^{-\ti kR(\theta)} \mathrm{d} \theta 
+	& \text{if} \quad i = j
 \end{align}
-
+%
+The matrix formulation reads as:
+%
 \begin{align}
-	\left(1 + \frac{\alpha \ti k}{2}\right)\bp + \left(\alpha - \frac{\ti }{2 k}\right) \bq =\bH \bp - \bG \bq
+	\frac{1}{2} \mathbf{p} - \mathbf{p}_{in} + \frac{\alpha}{2} \mathbf{q} - \alpha \mathbf{q}_{in} = - \alpha \frac{\ti k}{2} \bp 
+	+ \frac{\ti }{2k} \bq + \bH \bp - \bG \bq
+\end{align}
+%
+Rearranging leads to:
+%
+\begin{align}
+	\left(\frac{1}{2} + \frac{\alpha \ti k}{2}\right)\bp - \bp_{in}+ \left(\alpha - \frac{\ti }{2 k}\right) \bq - \alpha \bq_{in} =\bH \bp - \bG \bq
+\end{align}
+%
+Solution without incident field is obtained either for given $\bp$ or $\bq$ on the surface as:
+%
+\begin{align}
+	\left[\bH - \bI\left(\frac{1}{2} + \frac{\alpha \ti k}{2}\right) \right]^{-1} \bp = \left[\bG + \bI \left(\alpha - \frac{\ti}{2k}\right) \right] \bq .
 \end{align}
 
 

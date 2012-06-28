@@ -260,9 +260,13 @@ switch nvert
                     0.021641769688645
                     ];
             otherwise
-                error('NiHu:gaussquad2:argValue',...
-                    'Quadrature number %d is not supported for triangles', order);
-                %             end
+                [xx ww] = dunavant_rule(order);
+                xx = fliplr(xx.');
+                ww = ww/2;
+%             otherwise
+%                 error('NiHu:gaussquad2:argValue',...
+%                     'Quadrature number %d is not supported for triangles', order);
+%                 %             end
         end
     otherwise
         error('NiHu:gaussquad2:argValue',...
