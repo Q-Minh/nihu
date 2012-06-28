@@ -320,43 +320,51 @@ By taking a hemisphere of radius $\epsilon$ in the element center the integratio
 % 	+ \alpha \int_\Gamma \frac{\partial{G}_k (\sx_i, \sy)}{\partial \sn_x} N_i(\sy) \td \Gamma(\sy)
 % \end{align}
 %
-\begin{align}
+\begin{multline}
 	H_\Delta
-	& = \limeps \int_{\Gamma_\epsilon}\frac{\partial{G}_k (\sx_i, \sy)}{\partial \sn_y} p(\sy) \td \Gamma(\sy)
-    + \limeps \int_{S_\epsilon}\frac{\partial{G}_k (\sx_i, \sy)}{\partial \sn_y} p(\sy) \td \Gamma(\sy) \nonumber \\
-	& + \alpha \limeps \int_{\Gamma_\epsilon} \frac{\partial^2{G}_k (\sx_i, \sy)}{\partial \sn_y \partial \sn_x} p(\sy) \td \Gamma(\sy) 
-    + \alpha \limeps \int_{\S_\epsilon} \frac{\partial^2{G}_k (\sx_i, \sy)}{\partial \sn_y \partial \sn_x} p(\sy) \td \Gamma(\sy) 
-\end{align}
+	=
+	\underbrace{\limeps \int_{\Gamma_\epsilon}\frac{\partial{G}_k (\sx_i, \sy)}{\partial \sn_y} p(\sy) \td \Gamma(\sy)}_{H_1}
+    +
+	\underbrace{\limeps \int_{S_\epsilon}\frac{\partial{G}_k (\sx_i, \sy)}{\partial \sn_y} p(\sy) \td \Gamma(\sy) \nonumber}_{H_2} \\
+	+
+	\alpha \underbrace{\limeps \int_{\Gamma_\epsilon} \frac{\partial^2{G}_k (\sx_i, \sy)}{\partial \sn_y \partial \sn_x} p(\sy) \td \Gamma(\sy)}_{H_3} 
+    +
+	\alpha \underbrace{\limeps \int_{\S_\epsilon} \frac{\partial^2{G}_k (\sx_i, \sy)}{\partial \sn_y \partial \sn_x} p(\sy) \td \Gamma(\sy)}_{H_4}
+\end{multline}
 %
 and
 %
-\begin{align}
-	G_\Delta & = \limeps \int_{\Gamma_\epsilon} G_k(\sx_i,\sy) \frac{\partial p(\sy)}{\partial \sn_y}\td \Gamma(\sy) +
-	\limeps \int_{S_\epsilon} G_k(\sx_i, \sy) \frac{\partial p(\sy)}{\partial \sn_y} \td \Gamma(\sy) \nonumber \\
-	& + \alpha \limeps \int_{\Gamma_\epsilon} \frac{\partial{G}_k (\sx_i, \sy)}{\partial \sn_x} \frac{\partial p(\sy)}{\partial \sn_y} \td \Gamma(\sy)
-	+ \alpha \limeps \int_{S_\epsilon} \frac{\partial{G}_k (\sx_i, \sy)}{\partial \sn_x} \frac{\partial p(\sy)}{\partial \sn_y} \td \Gamma(\sy)
-\end{align}
+\begin{multline}
+	G_\Delta
+	=
+	\underbrace{\limeps \int_{\Gamma_\epsilon} G_k(\sx_i,\sy) \frac{\partial p(\sy)}{\partial \sn_y}\td \Gamma(\sy)}_{G_1}
+	+
+	\underbrace{\limeps \int_{S_\epsilon} G_k(\sx_i, \sy) \frac{\partial p(\sy)}{\partial \sn_y} \td \Gamma(\sy) \nonumber}_{G_2} \\
+	+
+	\alpha \underbrace{\limeps \int_{\Gamma_\epsilon} \frac{\partial{G}_k (\sx_i, \sy)}{\partial \sn_x} \frac{\partial p(\sy)}{\partial \sn_y} \td \Gamma(\sy)}_{G_3}
+	+
+	\alpha \underbrace{\limeps \int_{S_\epsilon} \frac{\partial{G}_k (\sx_i, \sy)}{\partial \sn_x} \frac{\partial p(\sy)}{\partial \sn_y} \td \Gamma(\sy)}_{G_4}
+\end{multline}
 
 Taking the first integral of matrix $\bG$ on the triangle and making use of the identity:
-
+%
 \begin{align}
 	\int \frac{\te ^{-\ti kr}}{4 \pi} \mathrm{d} r = \frac{\ti}{ k} \frac{\te ^{-\ti kr}}{4 \pi}
 \end{align}
 
 The first integral, $G_1$, making use of the identity on the constant triangle $\partial p(\sy) / \partial \sn_y = q(\sx)$ reads as
-
+%
 \begin{align}
 	G_1 = \limeps \int_{\Gamma_\epsilon} G_k(\sx_i,\sy) \frac{\partial p(\sy)}{\partial \sn_y} \td \Gamma(\sy) 
-	& = \limeps \int_{\Gamma_\epsilon} G_k(\sx_i,\sy) q(\sx) \td \Gamma(\sy) q(\sx) \nonumber \\
+	& = \limeps \int_{\Gamma_\epsilon} G_k(\sx_i,\sy) \td \Gamma(\sy) q(\sx) \nonumber \\
 	& = \limeps \summ \intme \frac{\te ^{- \ti k r}}{4 \pi r} r \drph q(\sx) \nonumber \\
 	& = \summ \intmn \frac{\te^{-\ti kr}}{4 \pi} \drph q(\sx) \nonumber \\
 	& = \summ \intms \frac{\ti}{4\pi k}\left(\te^{-\ti k R(\theta)} -1\right) \mathrm{d} \theta q(\sx) \nonumber \\
-	& = \frac{\ti}{2k}\left(\frac{1}{2\pi}\summ \intms \te ^{-\ti kR(\theta)} \mathrm{d} \theta -1 \right) q(\sx) \nonumber \\
     & = -\frac{\ti}{2k} q(\sx) + \frac{\ti}{4\pi k}\summ \intms \te ^{-\ti kR(\theta)} \mathrm{d} \theta q(\sx)
 \end{align}
 
 For the first term of matrix $\bH$ first integral over the triangle, it can be used that $\partial r / \partial \sn_y$ over the planar element, and therefore the term vanishes
-
+%
 \begin{align}
 	H_1 = \limeps \int_{\Gamma_\epsilon}\frac{\partial{G}_k (\sx_i, \sy)}{\partial \sn_y} p(\sy) \td \Gamma(\sy) =
 	\limeps \int_{\Gamma_\epsilon}-\frac{\te ^{-\ti k r}}{4 \pi r^2}(1 + \ti kr) \frac{\partial r}{\partial \sn_y} p(\sy) \mathrm{d} \Gamma_y = 0

@@ -120,7 +120,7 @@ void recover(int nnod,              /* number of nodes */
             double phi = dot(kdvec, &s[p*3]);
             double cphi = cos(phi);
             double sphi = sin(phi);
-            /* p += N*exp(-phi)*w */
+            /* p += N*exp(-i*phi)*w */
             pr[j] += (Nr[f*ns+p]*cphi+Ni[f*ns+p]*sphi) * w[p];
             pi[j] += (Ni[f*ns+p]*cphi-Nr[f*ns+p]*sphi) * w[p];
         }
