@@ -1,6 +1,6 @@
 R = 1;
 nR = 5;
-mesh = quad2tria(create_sphere_boundary(R, nR));
+mesh = quad2tria2(create_sphere_boundary(R, nR));
 
 % First inner resonant frequency
 k0 = pi;
