@@ -22,18 +22,19 @@ function [H, G] = bemHG_bm(model, k, alpha)
 
 %% Gaussian quadrature divisions
 %         singular near mid far
-gauss3 = assemble_gauss_struct(3, [9 7 5 2]);
+%gauss3 = assemble_gauss_struct(3, [9 7 5 2]);
+gauss3 = assemble_gauss_struct(3, [1 13 7 2]);
 gauss4 = assemble_gauss_struct(4, [9 7 5 2]);
 [nodes, elements] = extract_bem_mesh(model);
 dist = nodes(elements(:,3)+1,:) - nodes(elements(:,2)+1,:);
 dist = [2 5] * max(sqrt(dot(dist,dist,2)));
 
 % make sure alpha is complex
-%alpha = complex(real(alpha), imag(alpha));
+alpha = complex(real(alpha), imag(alpha));
 
 %[H, G] = bemHG_lin_bm(nodes, elements, gauss3, gauss4, dist, k, alpha);
 
 
-[H, G] = bemHG_const_bm(nodes, elements, gauss3, gauss4, dist, k);
+[H, G] = bemHG_const_bm(nodes, elements, gauss3, gauss4, dist, k, alpha);
 
 end
