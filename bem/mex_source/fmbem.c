@@ -127,6 +127,53 @@ void recover(int nnod,              /* number of nodes */
     }
 }
 
+void recover_bm(int nnod,              /* number of nodes */
+                const double *r,       /* nodal distances */
+				const double *n,       /* nodal normal vectors */
+                const double *Nr,      /* real part of near field signatures */
+                const double *Ni,      /* imaginary part of near field signatures */
+                const int32_t *father, /* father cluster indices */
+                int ns,                /* number of points on the unit sphere */
+                const double *s,       /* points on the unit sphere */
+                const double *w,       /* quadrature weights on the unit sphere */
+                double k,              /* wave number */
+				double alphar,         /* real part of coupling constant */
+				double alphai,         /* imaginary part of coupling constant */
+                double *pr,            /* real part of pressure */
+                double *pi)            /* imaginary part of pressure */
+{
+    /* for each receiver node */
+    int i;
+    for (i = 0; i < nnod; i++)
+    {
+        double kdvec[3];
+        int j, p;
+        /* father cluster of receiver */
+        int32_t f = father[i];
+        /* numerical integration initialization */
+        pr[i] = pi[i] = 0.0;
+        /* distance vector ( k*(x-X) ) */
+        for (j = 0; j < 3; j++)
+            kdvec[j] = -k*(r[i*3+j]); /* minus sign is needed because r is defined as X-x in the tree */
+        /* for each direction */
+        for (p = 0; p < ns; p++)
+        {
+            /* phi = k*d*s */
+            double phi = dot(kdvec, &s[p*3]);
+            double cphi = cos(phi);
+            double sphi = sin(phi);
+			double kns = k*dot(&n[i*3], &s[p*3]);
+            /* p += N*exp(-i*phi)*w * (1+alpha*(-ik*s*n)) */
+			double tmpr = (Nr[f*ns+p]*cphi+Ni[f*ns+p]*sphi) * w[p];
+			double tmpi = (Ni[f*ns+p]*cphi-Nr[f*ns+p]*sphi) * w[p];
+			double aikns = 1 + alphai*kns;
+			double arkns = alphar*kns;
+            pr[i] += tmpr*aikns + tmpi*arkns;
+            pi[i] += tmpi*aikns - tmpr*arkns;
+        }
+    }
+}
+
 void upward(int nnod,               /* number of nodes */
             const double *r,        /* nodal distances */
             const double *qr,       /* real part of signatures */
