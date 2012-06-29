@@ -43,6 +43,21 @@ void recover(int nnod,              /* number of nodes */
              double *pr,            /* real part of pressure */
              double *pi);           /* imaginary part of pressure */
 
+void recover_bm(int nnod,              /* number of nodes */
+                const double *r,       /* nodal distances */
+				const double *n,       /* nodal normal vectors */
+                const double *Nr,      /* real part of near field signatures */
+                const double *Ni,      /* imaginary part of near field signatures */
+                const int32_t *father, /* father cluster indices */
+                int ns,                /* number of points on the unit sphere */
+                const double *s,       /* points on the unit sphere */
+                const double *w,       /* quadrature weights on the unit sphere */
+                double k,              /* wave number */
+				double alphar,         /* real part of coupling constant */
+				double alphai,         /* imaginary part of coupling constant */
+                double *pr,            /* real part of pressure */
+                double *pi);           /* imaginary part of pressure */
+
 void upward(int nnod,               /* number of nodes */
             const double *r,        /* nodal distances */
             const double *qr,       /* real part of signatures */

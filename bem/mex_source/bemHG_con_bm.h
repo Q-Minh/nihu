@@ -21,4 +21,23 @@ void matrix_surf_const_bm(int nnodes,
                      double *Br,
                      double *Bi);
 
+/* ------------------------------------------------------------------------ */
+/* Compute surface sparse system matrices of a bem model - Burton Miller    */
+void matrix_surf_const_bm_sparse(int nnodes,
+                     const double *nodes,
+                     int nelements,
+                     const double *elements,
+                     int npairs,
+                     const double *pairs,
+                     const gauss_t *g3,
+                     const gauss_t *g4,
+                     const double *dist,
+                     double k,
+					 double alphar,
+					 double alphai,
+                     double *Ar,
+                     double *Ai,
+                     double *Br,
+                     double *Bi);
+
 #endif

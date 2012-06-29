@@ -1,19 +1,22 @@
 clear mex
 
-make bemHG_const
-make bemHG_lin
-make ibemB_lin
-make ibemD_const
-make ibemD_lin
+make bemHG_const.mex.c
+make bemHG_const_bm.mex.c
+make bemHG_lin.mex.c
+% make ibemB_lin.mex.c
+% make ibemD_const.mex.c
+% make ibemD_lin.mex.c
 
-make bemHG_const_sp
+make bemHG_const_sp.mex.c
+make bemHG_const_bm_sp.mex.c
 
-make leafHp
-make shiftup
-make trans
-make recover
-make leafGq
-make shiftdown
+make leafHp.mex.c
+make shiftup.mex.c
+make trans.mex.c
+make recover.mex.c
+make recover_bm.mex.c
+make leafGq.mex.c
+make shiftdown.mex.c
 
 movefile(sprintf('*.%s', mexext), '../');
 
