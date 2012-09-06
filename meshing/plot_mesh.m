@@ -37,8 +37,8 @@ function plot_mesh(mesh, varargin)
 % Last modified: 30.11.2009.
 
 %% Argument check and default parameters
-narginchk(1, 4);
-nargoutchk(0, 0);
+error(nargchk(1, 4, nargin, 'struct'));
+error(nargoutchk(0, 0, nargout, 'struct'));
 
 switch nargin
     case 1  % PLOT_MESH(MESH);
