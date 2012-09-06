@@ -18,11 +18,11 @@ switch type
         for m = 1 : size(r0,1)  % for each source
             dvec = r(:,2:3) - repmat(r0(m,2:3), N, 1);   % distance vector
             d = sqrt(dot(dvec, dvec, 2));       % transversal distance
-            rdn = dot(dvec, n(:,2:3), 2)./d;    % normal derivative of transversal distance
-            kt = -1i*sqrt(kx^2-k^2);            % transversal wave number
+            kt = -1i*sqrt(kx.^2-k^2);            % transversal wave number
             padd = -1i/4 * besselh(0,2, kt*d);
             p = p + padd;   % incident pressure
-            if nargin > 1
+            if nargout > 1
+                rdn = dot(dvec, n(:,2:3), 2)./d;    % normal derivative of transversal distance
                 q = q - 1i*kx.*n(:,1).*padd +...   % incident velocity
                     1i*kt*rdn/4 .* besselh(1, 2, kt*d);
             end
