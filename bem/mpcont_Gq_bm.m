@@ -1,7 +1,7 @@
 function [Gq tleaf ttrans tsampup tshiftup tsampdn tshiftdn trec] =...
     mpcont_Gq_bm(rr, rs, nr, q, tree, intdata, k, alpha, fs, fr, symm)
 %MPCONT_GQ Multipole contribution of the Gq integral operator
-%  Gq = mpcont_Gq(rr, rs, q, rtree, intdata, k, fs, fr, symm)
+%  Gq = mpcont_Gq_bm(rr, rs, nr, q, rtree, intdata, k, fs, fr, symm)
 %   Computes the multipole transfer between sources and receivers.
 % Parameters:
 %   rr      : 3xN matrix, xyz coordinates of receivers.
