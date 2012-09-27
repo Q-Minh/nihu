@@ -66,7 +66,7 @@ void matrix_surf_const_bm(int nnodes,
                 switch(nvert)
                 {
                 case 4:
-                    /* int_quad_const_sing(&g4[0], nod, &accelerators[e], q, k, &ar, &ai, &br, &bi); */
+                    int_quad_const_sing_bm(&g4[0], nod, &accelerators[e], q, nq, k, alphar, alphai, &ar, &ai, &br, &bi);
                     break;
                 case 3:
                     int_tri_const_sing_bm(&g4[0], nod, &accelerators[e], q, nq, k, alphar, alphai, &ar, &ai, &br, &bi);
@@ -80,7 +80,7 @@ void matrix_surf_const_bm(int nnodes,
                 switch(nvert)
                 {
                 case 4:
-                    /*int_quad_const(&g4[gs], nod, &accelerators[e], q, k, &ar, &ai, &br, &bi); */
+                    int_quad_const_bm(&g4[gs], nod, &accelerators[e], q, nq, k, alphar, alphai, &ar, &ai, &br, &bi);
                     break;
                 case 3:
                     int_tri_const_bm(&g3[gs], nod, &accelerators[e], q, nq, k, alphar, alphai,  &ar, &ai, &br, &bi); 
@@ -154,7 +154,7 @@ void matrix_surf_const_bm_sparse(int nnodes,
             switch(nvert)
             {
             case 4:
-                /* int_quad_const_sing(&g4[0], nod, &accelerators[e], q, k, &ar, &ai, &br, &bi); */
+                int_quad_const_sing_bm(&g4[0], nod, &accelerators[e], q, nq, k, alphar, alphai, &ar, &ai, &br, &bi);
                 break;
             case 3:
                 int_tri_const_sing_bm(&g4[0], nod, &accelerators[e], q, nq, k, alphar, alphai, &ar, &ai, &br, &bi);
@@ -167,7 +167,7 @@ void matrix_surf_const_bm_sparse(int nnodes,
 			switch(nvert)
 			{
 			case 4:
-				/*int_quad_const(&g4[gs], nod, &accelerators[e], q, k, &ar, &ai, &br, &bi); */
+				int_quad_const_bm(&g4[gs], nod, &accelerators[e], q, nq, k, alphar, alphai, &ar, &ai, &br, &bi);
 				break;
 			case 3:
 				int_tri_const_bm(&g3[gs], nod, &accelerators[e], q, nq, k, alphar, alphai,  &ar, &ai, &br, &bi); 
