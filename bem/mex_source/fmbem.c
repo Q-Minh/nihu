@@ -4,6 +4,8 @@
 #include "math.h"
 #include "vector.h"
 
+enum {NDIM = 3};
+
 /* Compute the leaf level far field signatures of the product Gq */
 void leafGq(int nnod,               /* number of nodes */
             const double *r,        /* nodal coordinates */
@@ -33,7 +35,7 @@ void leafGq(int nnod,               /* number of nodes */
         {
             /* F = q * exp(-i*k*d*s) */
             /* phi = d*s */
-            double phi = k * dot(&r[j*3], &s[p*3]);
+            double phi = k * dot(&r[j*NDIM], &s[p*NDIM]);
             double cphi = cos(phi);
             double sphi = sin(phi);
             Fr[f*ns+p] += qr[j]*cphi+qi[j]*sphi;
@@ -66,22 +68,22 @@ void leafHp(int nnod,
     for (j = 0; j < nnod; j++)
     {
         int i;
-        double kdvec[3];
+        double kdvec[NDIM];
         /* father cluster index */
        	int32_t f = father[j];
         /* distance vector (kd) */
-        for (i = 0; i < 3; i++)
-            kdvec[i] = k*r[j*3+i];
+        for (i = 0; i < NDIM; i++)
+            kdvec[i] = k*r[j*NDIM+i];
         /* for each	direction (s) */
         for (p = 0; p < ns; p++)
         {
             /* phi = d*s */
-            double phi = dot(kdvec, &s[p*3]);
+            double phi = dot(kdvec, &s[p*NDIM]);
             double cphi = cos(phi);
             double sphi = sin(phi);
             /* F = i*k* q * exp(-i*k*d*s) * (n*s) */
             /* k*n*s */
-            double kns = k*dot(&n[j*3], &s[p*3]);
+            double kns = k*dot(&n[j*NDIM], &s[p*NDIM]);
             Fr[f*ns+p] -= kns*(pi[j]*cphi-pr[j]*sphi);
             Fi[f*ns+p] += kns*(pr[j]*cphi+pi[j]*sphi);
         }
@@ -104,20 +106,20 @@ void recover(int nnod,              /* number of nodes */
     int j;
     for (j = 0; j < nnod; j++)
     {
-        double kdvec[3];
+        double kdvec[NDIM];
         int i, p;
         /* father cluster of receiver */
         int32_t f = father[j];
         /* numerical integration initialization */
         pr[j] = pi[j] = 0.0;
         /* distance vector ( k*(r-R) ) */
-        for (i = 0; i < 3; i++)
-            kdvec[i] = -k*(r[j*3+i]);
+        for (i = 0; i < NDIM; i++)
+            kdvec[i] = -k*(r[j*NDIM+i]);
         /* for each direction */
         for (p = 0; p < ns; p++)
         {
             /* phi = k*d*s */
-            double phi = dot(kdvec, &s[p*3]);
+            double phi = dot(kdvec, &s[p*NDIM]);
             double cphi = cos(phi);
             double sphi = sin(phi);
             /* p += N*exp(-i*phi)*w */
@@ -146,23 +148,23 @@ void recover_bm(int nnod,              /* number of nodes */
     int i;
     for (i = 0; i < nnod; i++)
     {
-        double kdvec[3];
+        double kdvec[NDIM];
         int j, p;
         /* father cluster of receiver */
         int32_t f = father[i];
         /* numerical integration initialization */
         pr[i] = pi[i] = 0.0;
         /* distance vector ( k*(x-X) ) */
-        for (j = 0; j < 3; j++)
-            kdvec[j] = -k*(r[i*3+j]); /* minus sign is needed because r is defined as X-x in the tree */
+        for (j = 0; j < NDIM; j++)
+            kdvec[j] = -k*(r[i*NDIM+j]); /* minus sign is needed because r is defined as X-x in the tree */
         /* for each direction */
         for (p = 0; p < ns; p++)
         {
             /* phi = k*d*s */
-            double phi = dot(kdvec, &s[p*3]);
+            double phi = dot(kdvec, &s[p*NDIM]);
             double cphi = cos(phi);
             double sphi = sin(phi);
-			double kns = k*dot(&n[i*3], &s[p*3]);
+			double kns = k*dot(&n[i*NDIM], &s[p*NDIM]);
             /* p += N*exp(-i*phi)*w * (1+alpha*(-ik*s*n)) */
 			double tmpr = (Nr[f*ns+p]*cphi+Ni[f*ns+p]*sphi) * w[p];
 			double tmpi = (Ni[f*ns+p]*cphi-Nr[f*ns+p]*sphi) * w[p];
@@ -194,13 +196,13 @@ void upward(int nnod,               /* number of nodes */
     for (j = 0; j < nnod; j++)
     {
         int32_t f = father[j];
-        double kdvec[3];
+        double kdvec[NDIM];
         int i;
-        for (i = 0; i < 3; i++)
-            kdvec[i] = k*r[j*3+i];
+        for (i = 0; i < NDIM; i++)
+            kdvec[i] = k*r[j*NDIM+i];
         for (p = 0; p < ns; p++)
         {
-            double phi = dot(kdvec, &s[3*p]);
+            double phi = dot(kdvec, &s[NDIM*p]);
             double cphi = cos(phi);
             double sphi = sin(phi);
             Fr[f*ns+p] += qr[j*ns+p]*cphi+qi[j*ns+p]*sphi;
@@ -284,14 +286,14 @@ void downward(int nnod,             /* number of nodes */
         /* index of father source cluster */
         int32_t f = father[j];
         /* distance vector (k*(R-r)) */
-        double kdvec[3];
-        for (i = 0; i < 3; i++)
-            kdvec[i] = -k*r[j*3+i];
+        double kdvec[NDIM];
+        for (i = 0; i < NDIM; i++)
+            kdvec[i] = -k*r[j*NDIM+i];
         /* for each direction (unit sphere) */
         for (p = 0; p < ns; p++)
         {
             /* phi = kds */
-            double phi = dot(kdvec, &s[3*p]);
+            double phi = dot(kdvec, &s[NDIM*p]);
             double cphi = cos(phi);
             double sphi = sin(phi);
             /* N = q*exp(-kds) */
