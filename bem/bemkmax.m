@@ -8,7 +8,12 @@ function k = bemkmax(model, ratio)
 %   k     : nEx1 vector with wave numbers for each element
 
 % Peter Fiala
-% 2009
+% 2012
+
+%%
+if nargin < 2
+    ratio = 8;
+end
 
 %% preproc
 elem = drop_IDs(model);

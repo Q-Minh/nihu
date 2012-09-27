@@ -1,7 +1,7 @@
 R = 1;
 nR = 5;
 mesh = create_sphere_boundary(R, nR);
-% mesh = quad2tria2(mesh);
+mesh = quad2tria(mesh);
 
 % First inner resonant frequency
 k0 = pi;
@@ -51,11 +51,4 @@ for ik = 1:length(kvec);
     set(h(1), 'YData', error_std);
     set(h(2), 'YData', error_bm);
     drawnow;
-    
-    % Display progress bar
-    %progbar(1,length(kvec), ik);
-    
 end
-
-% Display result
-%disp(error_bm);
