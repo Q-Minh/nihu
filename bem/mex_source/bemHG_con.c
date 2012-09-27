@@ -22,11 +22,13 @@ void matrix_surf_const(int nnodes,
                        double *Br,
                        double *Bi)
 {
+    enum {MAXNVERT = 4, NDIM = 3};
+    
     accelerator_t *accelerators;
     const double *q;
     int j, e, s, n, gs;
-    int elem[4], nvert;
-    double nod[12];
+    int elem[MAXNVERT], nvert;
+    double nod[MAXNVERT*NDIM];
     double ai, bi, ar, br;
 
     /* Compute element centres */
@@ -47,7 +49,7 @@ void matrix_surf_const(int nnodes,
             for (s = 0; s < nvert; s++)
             {
                 elem[s] = (int)elements[e+(s+1)*nelements];
-                for (j = 0; j < 3; j++)
+                for (j = 0; j < NDIM; j++)
                     nod[s+nvert*j] = nodes[elem[s]+j*nnodes];
             }
             if (e == n)
@@ -98,8 +100,8 @@ void matrix_surf_const2D(int nnodes,
                        double *Br,
                        double *Bi)
 {
-#define NDIM 2
-#define NVERT 2
+    enum {NDIM = 2, NVERT = 2};
+
     accelerator2D_t *accelerators;
     const double *q;
     int j, e, s, n, gs;
@@ -159,11 +161,13 @@ void matrix_field_const(int nnodes,
                         double *Br,
                         double *Bi)
 {
+    enum {MAXNVERT = 4, NDIM = 3};
+
     accelerator_t *accelerators;
-    double q[3];
-    double nod[12];
+    double q[NDIM];
+    double nod[MAXNVERT*NDIM];
     int j, e, s, n, gs;
-    int elem[4], nvert;
+    int elem[MAXNVERT], nvert;
     double ai, bi, ar, br;
 
     /* Allocate space for element centres */
@@ -174,7 +178,7 @@ void matrix_field_const(int nnodes,
     for (n = 0; n < npoints; n++)
     {
         /* reference location */
-        for (j = 0; j < 3; j++)
+        for (j = 0; j < NDIM; j++)
             q[j] = points[n+j*npoints];
 
         /* Integration for each element */
@@ -186,7 +190,7 @@ void matrix_field_const(int nnodes,
             for (s = 0; s < nvert; s++)
             {
                 elem[s] = (int)elements[e+(s+1)*nelements];
-                for (j = 0; j < 3; j++)
+                for (j = 0; j < NDIM; j++)
                     nod[s+nvert*j] = nodes[elem[s]+j*nnodes];
             }
             /* perform the integration */
@@ -225,8 +229,8 @@ void matrix_field_const2D(int nnodes,
                         double *Br,
                         double *Bi)
 {
-#define NDIM 2
-#define NVERT 2
+    enum {NDIM = 2, NVERT = 2};
+
     accelerator2D_t *accelerators;
     double q[NDIM];
     double nod[NVERT*NDIM];
@@ -284,11 +288,13 @@ void matrix_surf_const_sparse(int nnodes,
                               double *Br,
                               double *Bi)
 {
+    enum {MAXNVERT = 4, NDIM = 3};
+
     accelerator_t *accelerators;
     const double *q;
     int j, e, s, n, gs, p;
-    int elem[4], nvert;
-    double nod[12];
+    int elem[MAXNVERT], nvert;
+    double nod[MAXNVERT*NDIM];
     double ai, bi, ar, br;
 
     /* Allocate space for element centres */
@@ -309,7 +315,7 @@ void matrix_surf_const_sparse(int nnodes,
         for (s = 0; s < nvert; s++)
         {
             elem[s] = (int)elements[e+(s+1)*nelements];
-            for (j = 0; j < 3; j++)
+            for (j = 0; j < NDIM; j++)
                 nod[s+nvert*j] = nodes[elem[s]+j*nnodes];
         }
 
@@ -366,11 +372,13 @@ void matrix_field_const_sparse(int nnodes,
                                double *Br,
                                double *Bi)
 {
+    enum {MAXNVERT = 4, NDIM = 3};
+
     accelerator_t *accelerators;
-    double q[3];
-    double nod[12];
+    double q[NDIM];
+    double nod[MAXNVERT*NDIM];
     int j, e, s, n, gs, p;
-    int elem[4], nvert;
+    int elem[MAXNVERT], nvert;
     double ai, bi, ar, br;
 
     /* Allocate space for element centres */
@@ -384,7 +392,7 @@ void matrix_field_const_sparse(int nnodes,
         e = (int)pairs[p+npairs];
 
         /* reference location */
-        for (j = 0; j < 3; j++)
+        for (j = 0; j < NDIM; j++)
             q[j] = points[n+j*npoints];
 
         nvert = (int)elements[e];
@@ -392,7 +400,7 @@ void matrix_field_const_sparse(int nnodes,
         for (s = 0; s < nvert; s++)
         {
             elem[s] = (int)elements[e+(s+1)*nelements];
-            for (j = 0; j < 3; j++)
+            for (j = 0; j < NDIM; j++)
                 nod[s+nvert*j] = nodes[elem[s]+j*nnodes];
         }
 
