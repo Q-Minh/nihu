@@ -20,11 +20,14 @@
  * 2009
  */
 
-/* $Make: mex -O -output bemHG_const_bm bemHG_const_bm.mex.c bemHG_con_bm.c mesh.c integral_direct_bm.c quadrature.c element.c vector.c green.c$ */
+/* $Make: mex -O -output bemHG_const bemHG_const.mex.cpp bemHG_con.cpp mesh.c integral_direct.c quadrature.c element.c vector.c green.c$ */
 
 #include "mex.h"
-#include "bemHG_con_bm.h"
+#include "bemHG_con.h"
 #include "types.h"
+
+#include <complex>
+using std::complex;
 
 /* ------------------------------------------------------------------------ */
 /* The entry point of the mex function. */
@@ -36,11 +39,11 @@ void mexFunction(int nlhs,
                  const mxArray *prhs[])
 {
     /* input parameters */
-    double *nodes, *elements, *points, *dist, k;
+    double *nodes, *elements, *points, *dist;
+    complex<double> k;
     int nnodes, nelements, npoints;
     gauss_t *g3, *g4;
     /* output parameters */
-    double alphar, alphai;
     double *Ar, *Ai, *Br, *Bi;
     /* local variables */
     int j;
@@ -71,21 +74,39 @@ void mexFunction(int nlhs,
         g4[j].w = mxGetPr(mxGetField(prhs[3], j, "w"));
     }
     dist = mxGetPr(prhs[4]);
-    k = mxGetScalar(prhs[5]);
-    alphar = *mxGetPr(prhs[6]);
-    alphai = *mxGetPi(prhs[6]);
+    k = complex<double>(*(mxGetPr(prhs[5])), *(mxGetPi(prhs[5])));
 
-    plhs[0] = mxCreateDoubleMatrix(nelements, nelements, mxCOMPLEX);
-    plhs[1] = mxCreateDoubleMatrix(nelements, nelements, mxCOMPLEX);
-    Ar = mxGetPr(plhs[0]);
-    Ai = mxGetPi(plhs[0]);
-    Br = mxGetPr(plhs[1]);
-    Bi = mxGetPi(plhs[1]);
+    if (nrhs == 6)
+    {
+        /* Allocate output parameters */
+        plhs[0] = mxCreateDoubleMatrix(nelements, nelements, mxCOMPLEX);
+        plhs[1] = mxCreateDoubleMatrix(nelements, nelements, mxCOMPLEX);
+        Ar = mxGetPr(plhs[0]);
+        Ai = mxGetPi(plhs[0]);
+        Br = mxGetPr(plhs[1]);
+        Bi = mxGetPi(plhs[1]);
 
-    /* call C subroutine */
-    matrix_surf_const_bm(nnodes, nodes, nelements, elements,
-                         g3, g4, dist, k, alphar, alphai,  Ar, Ai, Br, Bi);
+        /* call C subroutine */
+        matrix_surf_const(nnodes, nodes, nelements, elements,
+                          g3, g4, dist, k, Ar, Ai, Br, Bi);
+    }
+    else if (nrhs == 7)
+    {
+        points = mxGetPr(prhs[6]);
+        npoints = mxGetM(prhs[6]);
 
+        /* Allocate output parameters */
+        plhs[0] = mxCreateDoubleMatrix(npoints, nelements, mxCOMPLEX);
+        plhs[1] = mxCreateDoubleMatrix(npoints, nelements, mxCOMPLEX);
+        Ar = mxGetPr(plhs[0]);
+        Ai = mxGetPi(plhs[0]);
+        Br = mxGetPr(plhs[1]);
+        Bi = mxGetPi(plhs[1]);
+
+        /* call C subroutine */
+        matrix_field_const(nnodes, nodes, nelements, elements,
+                           npoints, points, g3, g4, dist, k, Ar, Ai, Br, Bi);
+    }
 
     free(g3);
     free(g4);
