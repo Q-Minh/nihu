@@ -1,14 +1,17 @@
 #include "green.hpp"
 
-#define _USE_MATH_DEFINES
-#include <cmath>
 #include "vector.h"
 
-// definition of imaginary unit j
 const complex_scalar compJ = complex_scalar(0.0, 1.0);
 
-/* ------------------------------------------------------------------------ */
-/* Compute Green's function and its normal derivative                       */
+complex_scalar greenr(const double ar,
+           const complex_scalar &k)
+{
+	/* exp(-ikr)/(4*pi*k) */
+    return exp(-compJ * k*ar) / (4.0 * M_PI * k);
+}
+
+
 void green(const double *r,
            const complex_scalar &k,
            complex_scalar &g,
@@ -24,8 +27,6 @@ void green(const double *r,
     }
 }
 
-/* ------------------------------------------------------------------------ */
-/* Compute Green's function and its normal derivative                       */
 void green2D(const double *r,
              const complex_scalar &k,
              complex_scalar &g,
@@ -34,7 +35,6 @@ void green2D(const double *r,
 {
 }
 
-/* 3D Green's function and its derivatives  */
 void ddgreen(const double *r, /* y - x */
              const complex_scalar &k,
              const double *nx, 	/* unit normal at x */

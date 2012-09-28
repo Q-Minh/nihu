@@ -4,6 +4,11 @@
 #include <complex>
 typedef std::complex<double> complex_scalar;
 
+extern const complex_scalar compJ;
+
+complex_scalar greenr(const double ar,
+                      const complex_scalar &k);
+
 void green(const double *r,
            const complex_scalar &k,
            complex_scalar &g,
