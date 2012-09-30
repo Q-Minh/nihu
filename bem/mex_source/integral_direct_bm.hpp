@@ -8,9 +8,9 @@
 #include "elem_traits.hpp"
 
 template <class ElemType, typename kType>
-void int_const_bm(const gauss_t *gau,
+void int_const_bm(const gauss_t &gau,
                   const double *nodes,
-                  const accelerator_t *accelerator,
+                  const accelerator_t &accelerator,
                   const double *q,					/* source location */
                   const double *nq, 				/* source normal vector */
                   const kType &k, 			/* Wave number */
@@ -30,13 +30,13 @@ void int_const_bm(const gauss_t *gau,
     if (isLinear)
     {
         /* Jacobian and surface normal calculation  */
-        jac = sqrt(dot(accelerator->n0, accelerator->n0));
+        jac = sqrt(dot(accelerator.n0, accelerator.n0));
         for (int j = 0; j < NDIM; j++)
-            norm[j] = accelerator->n0[j]/jac;
+            norm[j] = accelerator.n0[j]/jac;
     }
 
     /* for each gaussian integration point */
-    for (int i = 0; i < gau->num; i++)
+    for (int i = 0; i < gau.num; i++)
     {
         double r[NDIM], rxi[NDIM], reta[NDIM];
 
@@ -48,11 +48,11 @@ void int_const_bm(const gauss_t *gau,
                 rxi[j] = reta[j] = 0.0;
             for (int s = 0; s < nNodes; s++) 		/* for all vertices */
             {
-                r[j] += gau->N[i+s*gau->num]*nodes[s+nNodes*j];
+                r[j] += gau.N[i+s*gau.num]*nodes[s+nNodes*j];
                 if (!isLinear)
                 {
-                    rxi[j] += gau->Nxi[i+s*gau->num]*nodes[s+nNodes*j];
-                    reta[j] += gau->Neta[i+s*gau->num]*nodes[s+nNodes*j];
+                    rxi[j] += gau.Nxi[i+s*gau.num]*nodes[s+nNodes*j];
+                    reta[j] += gau.Neta[i+s*gau.num]*nodes[s+nNodes*j];
                 }
             }
         }
@@ -65,10 +65,10 @@ void int_const_bm(const gauss_t *gau,
             w = sqrt(dot(norm, norm));
             for (int j = 0; j < NDIM; j++)
                 norm[j] /= w;
-            w *= gau->w[i];
+            w *= gau.w[i];
         }
         else
-            w = gau->w[i];
+            w = gau.w[i];
 
         /* Evaluate Green function and its derivatives */
         complex_scalar g, dgx, dgy, ddg;
@@ -111,7 +111,7 @@ enum {GNUM = sizeof(gauss_w_bm_sing)/sizeof(gauss_w_bm_sing[0])};
 
 template <class ElemType, typename kType>
 void int_const_sing_bm(const double *nodes,
-                       const accelerator_t *accelerator,
+                       const accelerator_t &accelerator,
                        const double *q, 		    /* Source location */
                        const double *nq, 		    /* Source normal */
                        const kType &k, 	/* Wave number */
