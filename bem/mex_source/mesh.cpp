@@ -1,7 +1,7 @@
 #include "mesh.h"
-#include <math.h>
+#include <cmath>
 #include "vector.h"
-#include "element.h"
+#include "element.hpp"
 
 void inverse_matrix_tri(double *nodes, double *gradN)
 {
@@ -46,7 +46,7 @@ void inverse_matrix_quad(const double *nodes, double xi, double eta, double *gra
 	int j, s;
 
 	/* Evaluate shape functions */
-	d_shapefun_quad(xi, eta, dNxi, dNeta);
+	d_shapefun<QuadElem>(xi, eta, dNxi, dNeta);
 
 	for (j = 0; j < NDIM; j++)
 	{

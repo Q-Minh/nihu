@@ -1,17 +1,10 @@
-/* $Make: mex -O -output bemHG_const bemHG_const.mex.cpp mesh.cpp element.cpp vector.cpp$ */
+/* $Make: mex -O -output bemHG_const bemHG_const.mex.cpp mesh.cpp vector.cpp$ */
 
 #include "mex.h"
 #include "bemHG_con.hpp"
 #include "types.h"
 
-/* ------------------------------------------------------------------------ */
-/* The entry point of the mex function. */
-/* This function reads Matlab parameters, allocates space for the output */
-/* and calls C routines that perform the computations */
-void mexFunction(int nlhs,
-                 mxArray *plhs[],
-                 int nrhs,
-                 const mxArray *prhs[])
+void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
     /* Allocate memory for Gaussian integration structures */
     gauss_t *g3 = new gauss_t[4];

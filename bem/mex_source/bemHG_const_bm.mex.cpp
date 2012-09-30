@@ -1,4 +1,4 @@
-/* $Make: mex -O -output bemHG_const_bm bemHG_const_bm.mex.cpp mesh.cpp element.cpp vector.cpp$ */
+/* $Make: mex -O -output bemHG_const_bm bemHG_const_bm.mex.cpp mesh.cpp vector.cpp$ */
 
 #include "mex.h"
 #include "bemHG_con_bm.hpp"

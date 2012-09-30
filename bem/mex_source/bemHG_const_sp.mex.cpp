@@ -4,14 +4,7 @@
 #include "bemHG_con.h"
 #include "types.h"
 
-/* ------------------------------------------------------------------------ */
-/* The entry point of the mex function. */
-/* This function reads Matlab parameters, allocates space for the output */
-/* and calls C routines that perform the computations */
-void mexFunction(int nlhs,
-                 mxArray *plhs[],
-                 int nrhs,
-                 const mxArray *prhs[])
+void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
     /* Allocate memory for Gaussian integration structures */
     gauss_t *g3 = new gauss_t[4];
