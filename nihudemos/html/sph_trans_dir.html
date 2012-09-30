@@ -1,96 +1,61 @@
 
 <!DOCTYPE html
   PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
-   <head>
+<html><head>
       <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-   
-      <!--
-This HTML is auto-generated from an M-file.
-To make changes, update the M-file and republish this document.
-      -->
-      <title>Exterior Dirichlet radiation problem</title>
-      <meta name="generator" content="MATLAB 7.8">
-      <meta name="date" content="2009-11-10">
-      <meta name="m-file" content="sph_trans_dir"><style type="text/css">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Exterior Dirichlet radiation problem</title><meta name="generator" content="MATLAB 7.14"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2012-09-30"><meta name="DC.source" content="sph_trans_dir.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
-body {
-  background-color: white;
-  margin:10px;
-}
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
 
-h1 {
-  color: #990000; 
-  font-size: x-large;
-}
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
 
-h2 {
-  color: #990000;
-  font-size: medium;
-}
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
 
-/* Make the text shrink to fit narrow windows, but not stretch too far in 
-wide windows. */ 
-p,h1,h2,div.content div {
-  max-width: 600px;
-  /* Hack for IE6 */
-  width: auto !important; width: 600px;
-}
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img { margin-bottom:0px; } 
 
-pre.codeinput {
-  background: #EEEEEE;
-  padding: 10px;
-}
-@media print {
-  pre.codeinput {word-wrap:break-word; width:100%;}
-} 
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
 
-span.keyword {color: #0000FF}
-span.comment {color: #228B22}
-span.string {color: #A020F0}
-span.untermstring {color: #B20000}
-span.syscmd {color: #B28C00}
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
 
-pre.codeoutput {
-  color: #666666;
-  padding: 10px;
-}
+pre, tt, code { font-size:12px; }
+pre { margin:0px 0px 20px; }
+pre.error { color:red; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
 
-pre.error {
-  color: red;
-}
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
 
-p.footer {
-  text-align: right;
-  font-size: xx-small;
-  font-weight: lighter;
-  font-style: italic;
-  color: gray;
-}
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
 
-  </style></head>
-   <body>
-      <div class="content">
-         <h1>Exterior Dirichlet radiation problem</h1>
-         <!--introduction-->
-         <p>This tutorial shows how to use the toolbox <tt>NIHU</tt> to compute a simple acoustic radiation problem with Dirichlet boundary condition.
-         </p>
-         <!--/introduction-->
-         <h2>Contents</h2>
-         <div>
-            <ul>
-               <li><a href="#1">Mesh generation</a></li>
-               <li><a href="#2">Excitation</a></li>
-               <li><a href="#3">Build cluster tree</a></li>
-               <li><a href="#4">Sparse matrices</a></li>
-               <li><a href="#5">FMM integration parameters</a></li>
-               <li><a href="#6">BEM spatial quadrature and relative tree</a></li>
-               <li><a href="#7">Solution</a></li>
-            </ul>
-         </div>
-         <h2>Mesh generation<a name="1"></a></h2>
-         <p>Use a toolbox function <tt>create_sphere_boundary</tt> to create a sphere mesh with given radius and division parameter. Determine maximal wavelength applicable to the mesh with
-            a given element-per-wavelength ratio, using the toolbox function <tt>bemkmax</tt></p><pre class="codeinput">R = 1;      <span class="comment">% radius</span>
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+
+  </style></head><body><div class="content"><h1>Exterior Dirichlet radiation problem</h1><!--introduction--><p>This tutorial shows how to use the toolbox <tt>NIHU</tt> to compute a simple acoustic radiation problem with Dirichlet boundary condition.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Mesh generation</a></li><li><a href="#2">Excitation</a></li><li><a href="#3">Build cluster tree</a></li><li><a href="#4">Sparse matrices</a></li><li><a href="#5">FMM integration parameters</a></li><li><a href="#6">BEM spatial quadrature and relative tree</a></li><li><a href="#7">Solution</a></li><li><a href="#10">Field point mesh</a></li><li><a href="#11">Build cluster tree</a></li><li><a href="#12">Near field</a></li><li><a href="#16">plot results</a></li></ul></div><h2>Mesh generation<a name="1"></a></h2><p>Use a toolbox function <tt>create_sphere_boundary</tt> to create a sphere mesh with given radius and division parameter. Determine maximal wavelength applicable to the mesh with a given element-per-wavelength ratio, using the toolbox function <tt>bemkmax</tt></p><pre class="codeinput">R = 1;      <span class="comment">% radius</span>
 nR = 20;    <span class="comment">% division parameter</span>
 mesh = create_sphere_boundary(R, nR);
 ratio = 7;  <span class="comment">% element-per-wavelength ratio</span>
@@ -99,90 +64,85 @@ k = min(kmax);
 
 figure;
 plot_mesh(mesh, kmax); view(3);
-</pre><img vspace="5" hspace="5" src="sph_trans_dir_01.png" alt=""> <h2>Excitation<a name="2"></a></h2>
-         <p>The excitation will be the pressure field of a point source located inside the sphere, slightly shifed from the center. Constant
-            elements are used with one DOF located at the element centers, so the pressure is computed in the element center locations.
-            For error analysis purposes, the analytical pressure derivative values are also computed. The element centers and normals
-            are determined by a toolbox function <tt>centnorm</tt>, and the incident wave field is computed by the toolbox function <tt>incident</tt>.
-         </p><pre class="codeinput">r0 = [-.2 0 0];                    <span class="comment">% location of the source monopole</span>
+</pre><img vspace="5" hspace="5" src="sph_trans_dir_01.png" alt=""> <h2>Excitation<a name="2"></a></h2><p>The excitation will be the pressure field of a point source located inside the sphere, slightly shifed from the center. Constant elements are used with one DOF located at the element centers, so the pressure is computed in the element center locations. For error analysis purposes, the analytical pressure derivative values are also computed. The element centers and normals are determined by a toolbox function <tt>centnorm</tt>, and the incident wave field is computed by the toolbox function <tt>incident</tt>.</p><pre class="codeinput">r0 = [-.2 0 0];                    <span class="comment">% location of the source monopole</span>
 [cent, normal] = centnorm(mesh);   <span class="comment">% element centers and normals</span>
 [ps, qs0] = incident(<span class="string">'point'</span>, r0, cent, normal, k);
 
 figure;
 plot_mesh(mesh, ps); view(3); colorbar;
-</pre><img vspace="5" hspace="5" src="sph_trans_dir_02.png" alt=""> <h2>Build cluster tree<a name="3"></a></h2>
-         <p>The cluster tree is built with the toolbox function <tt>clustertree</tt>. The depth of the tree is determined by the mesh's dimensions and the minimal dimensionless cluster size at the leaf level
-            as
-         </p>
-         <p><img src="sph_trans_dir_eq43249.png" alt="$$ depth = \log_2 \frac{2kR}{kd_{\mathrm{min}}}$$"></p><pre class="codeinput">kdmin = 3;  <span class="comment">% minimal dimensionless cluster size at leaf level</span>
+</pre><img vspace="5" hspace="5" src="sph_trans_dir_02.png" alt=""> <h2>Build cluster tree<a name="3"></a></h2><p>The cluster tree is built with the toolbox function <tt>clustertree</tt>. The depth of the tree is determined by the mesh's dimensions and the minimal dimensionless cluster size at the leaf level as</p><p><img src="sph_trans_dir_eq43249.png" alt="$$ depth = \log_2 \frac{2kR}{kd_{\mathrm{min}}}$$"></p><pre class="codeinput">kdmin = 3;  <span class="comment">% minimal dimensionless cluster size at leaf level</span>
 kD = 2*k*R; <span class="comment">% mesh dimension</span>
 depth = round(log2(kD/kdmin));
 [tree, fs, fr] = clustertree(depth, cent);
-</pre><h2>Sparse matrices<a name="4"></a></h2>
-         <p>The near field sparse bem matrices are determined by the toolbox function <tt>bemHG</tt>. The sparsity structure (location of nonzeros) of these matrices is determined using the cluster tree by the toolbox function
-            <tt>nfij</tt></p><pre class="codeinput">[i, j] = nfij(tree(end).nearfield, tree(end).nodsou);
+</pre><h2>Sparse matrices<a name="4"></a></h2><p>The near field sparse bem matrices are determined by the toolbox function <tt>bemHG</tt>. The sparsity structure (location of nonzeros) of these matrices is determined using the cluster tree by the toolbox function <tt>nfij</tt></p><pre class="codeinput">[i, j] = nfij(tree(end).nearfield, tree(end).nodsou);
 [Hnf, Gnf] = bemHG(mesh, k, <span class="string">'const'</span>, [], [i j]);
 
 figure;
 spy(Hnf);
-</pre><img vspace="5" hspace="5" src="sph_trans_dir_03.png" alt=""> <h2>FMM integration parameters<a name="5"></a></h2>
-         <p>The expansion lengths, the quadrature points over the unit sphere and the precomputed translation operators and interpolation
-            matrices are generated by the toolbox function <tt>integpar</tt>.
-         </p><pre class="codeinput">C = 3;  <span class="comment">% Accuracy parameter related to the expansion length</span>
+</pre><img vspace="5" hspace="5" src="sph_trans_dir_03.png" alt=""> <h2>FMM integration parameters<a name="5"></a></h2><p>The expansion lengths, the quadrature points over the unit sphere and the precomputed translation operators and interpolation matrices are generated by the toolbox function <tt>integpar</tt>.</p><pre class="codeinput">C = 3;  <span class="comment">% Accuracy parameter related to the expansion length</span>
 I = integpar(tree, k, C);
-</pre><h2>BEM spatial quadrature and relative tree<a name="6"></a></h2>
-         <p>The Gaussian integration points and weights on the surface are computed by the toolbox function <tt>geo2gauss</tt>. The parameters of the function are the mesh and the quadrature points for triangles and quadrangles, respectively.
-         </p>
-         <p>In order to optimally use the C (MEX) code, the tree is converted into a relative tree that contains distances between entries
-            rather than absolute locations.
-         </p><pre class="codeinput">[t, gs, gn, w, gind] = geo2gauss(mesh, [3 9]);
+</pre><h2>BEM spatial quadrature and relative tree<a name="6"></a></h2><p>The Gaussian integration points and weights on the surface are computed by the toolbox function <tt>geo2gauss</tt>. The parameters of the function are the mesh and the quadrature points for triangles and quadrangles, respectively.</p><p>In order to optimally use the C (MEX) code, the tree is converted into a relative tree that contains distances between entries rather than absolute locations.</p><pre class="codeinput">[gs, gn, w, gind] = geo2gauss(mesh, 3);
 [tr, rr, rs, ns] = reltree(tree, cent, fr, gs, fs(gind), gn);
-</pre><h2>Solution<a name="7"></a></h2>
-         <p>The right hand side of the linear system of equations is computed now. The near field part is computed by multiplication by
-            the near field matrix, the far field contribution is computed by means of the MLFMA, using the toolbox function <tt>mpcont_Gq</tt>.
-         </p><pre class="codeinput">Hp = Hnf*ps + -2*pi*ps + <span class="keyword">...</span>
+</pre><h2>Solution<a name="7"></a></h2><p>The right hand side of the linear system of equations is computed now. The near field part is computed by multiplication by the near field matrix, the far field contribution is computed by means of the MLFMA, using the toolbox function <tt>mpcont_Gq</tt>.</p><pre class="codeinput">Hp = Hnf*ps -ps/2 + <span class="keyword">...</span>
     mpcont_Hp(rr, rs, ns, ps(gind).*w, tr, I, k, fs(gind), fr);
-</pre><p>The iterative solution of the system of equations is computed by the toolbox function <tt>my_gmres</tt>, where the matrix-vector products are evaluated by the toolbox function <tt>gmres_iter_dirichlet</tt>.
-         </p><pre class="codeinput">m = 100;        <span class="comment">% max. number of iterations</span>
+</pre><p>The iterative solution of the system of equations is computed by the toolbox function <tt>my_gmres</tt>, where the matrix-vector products are evaluated by the toolbox function <tt>gmres_iter_dirichlet</tt>.</p><pre class="codeinput">m = 100;        <span class="comment">% max. number of iterations</span>
 tol = 1e-3;     <span class="comment">% prescribed backward relative tolerance</span>
 [qs, eps] = my_gmres(<span class="keyword">...</span>
     @(q) gmres_iter_dirichlet(q, Gnf, rr, rs, w, gind, tr, I, k, fs, fr),<span class="keyword">...</span>
     Hp, m, tol, speye(size(Gnf)));
-</pre><pre class="codeoutput">	Iteration: 1, residual: 4.454880e-001
-	Iteration: 2, residual: 3.003006e-001
-	Iteration: 3, residual: 1.234620e-001
-	Iteration: 4, residual: 3.913409e-002
-	Iteration: 5, residual: 2.714825e-002
-	Iteration: 6, residual: 2.462790e-002
-	Iteration: 7, residual: 2.216687e-002
-	Iteration: 8, residual: 2.000439e-002
-	Iteration: 9, residual: 1.953523e-002
-	Iteration: 10, residual: 1.923569e-002
-	Iteration: 11, residual: 1.890274e-002
-	Iteration: 12, residual: 1.757445e-002
-	Iteration: 13, residual: 1.359434e-002
-	Iteration: 14, residual: 1.265646e-002
-	Iteration: 15, residual: 8.420311e-003
-	Iteration: 16, residual: 6.443942e-003
-	Iteration: 17, residual: 4.782193e-003
-	Iteration: 18, residual: 3.576773e-003
-	Iteration: 19, residual: 2.965318e-003
-	Iteration: 20, residual: 2.541211e-003
-	Iteration: 21, residual: 1.940346e-003
-	Iteration: 22, residual: 1.605770e-003
-	Iteration: 23, residual: 1.390790e-003
-	Iteration: 24, residual: 1.177304e-003
-	Iteration: 25, residual: 9.040387e-004
-</pre><p>The solution is plotted with the toolbox function <tt>plot_mesh</tt>, and is compared with the analytical solution
-         </p><pre class="codeinput">e = norm(qs-qs0)/norm(qs0); <span class="comment">% relative error</span>
+</pre><pre class="codeoutput">	Iteration: 1, residual: 4.455157e-01
+	Iteration: 2, residual: 3.003140e-01
+	Iteration: 3, residual: 1.234675e-01
+	Iteration: 4, residual: 3.915468e-02
+	Iteration: 5, residual: 2.716010e-02
+	Iteration: 6, residual: 2.464459e-02
+	Iteration: 7, residual: 2.217447e-02
+	Iteration: 8, residual: 2.001985e-02
+	Iteration: 9, residual: 1.954781e-02
+	Iteration: 10, residual: 1.924722e-02
+	Iteration: 11, residual: 1.891634e-02
+	Iteration: 12, residual: 1.758885e-02
+	Iteration: 13, residual: 1.357606e-02
+	Iteration: 14, residual: 1.262235e-02
+	Iteration: 15, residual: 8.357619e-03
+	Iteration: 16, residual: 6.422745e-03
+	Iteration: 17, residual: 4.688340e-03
+	Iteration: 18, residual: 3.545828e-03
+	Iteration: 19, residual: 2.957667e-03
+	Iteration: 20, residual: 2.538479e-03
+	Iteration: 21, residual: 1.943084e-03
+	Iteration: 22, residual: 1.602044e-03
+	Iteration: 23, residual: 1.384334e-03
+	Iteration: 24, residual: 1.169579e-03
+	Iteration: 25, residual: 9.028173e-04
+</pre><p>The solution is plotted with the toolbox function <tt>plot_mesh</tt>, and is compared with the analytical solution</p><pre class="codeinput">e = norm(qs-qs0)/norm(qs0); <span class="comment">% relative error</span>
 
 figure;
 plot_mesh(mesh, real(qs)); view(3);
 title(sprintf(<span class="string">'Error: %.2e'</span>, e));
-</pre><img vspace="5" hspace="5" src="sph_trans_dir_04.png" alt=""> <p class="footer"><br>
-            Published with MATLAB&reg; 7.8<br></p>
-      </div>
-      <!--
+</pre><img vspace="5" hspace="5" src="sph_trans_dir_04.png" alt=""> <h2>Field point mesh<a name="10"></a></h2><pre class="codeinput">xlimits = R * [1.1 3];
+tlimits = [0 pi/2];
+line = create_line([xlimits(1) 0 0; xlimits(2) 0 0], ceil(diff(xlimits)*k*ratio/2/pi));
+ntheta = ceil(max(xlimits)*diff(tlimits)*k*ratio/2/pi);
+dtheta = diff(tlimits)/ntheta;
+field = revolve_mesh(line, [0 0 0], [0 -1 0], dtheta, ntheta);
+</pre><h2>Build cluster tree<a name="11"></a></h2><pre class="codeinput">points = field.Nodes(:,2:4);
+[tree, fs, fr] = clustertree(depth, cent, points);
+</pre><h2>Near field<a name="12"></a></h2><pre class="codeinput">[i, j] = nfij(tree(end).nearfield, tree(end).nodsou, tree(end).nodrec);
+[Hnf, Gnf] = bemHG(mesh, k, <span class="string">'const'</span>, points, [i j]);
+</pre><pre class="codeinput">C = 3;  <span class="comment">% Accuracy parameter related to the expansion length</span>
+I = integpar(tree, k, C);
+</pre><pre class="codeinput">[tr, rr, rs, ns] = reltree(tree, points, fr, gs, fs(gind), gn);
+</pre><pre class="codeinput">pf = Hnf * ps + mpcont_Hp(rr, rs, ns, ps(gind).*w, tr, I, k, fs(gind), fr) -<span class="keyword">...</span>
+    Gnf * qs - mpcont_Gq(rr, rs, qs(gind).*w, tr, I, k, fs(gind), fr);
+</pre><h2>plot results<a name="16"></a></h2><pre class="codeinput">figure;
+pf0 = incident(<span class="string">'point'</span>, r0, points, [], k);
+plot_mesh(field, pf);
+shading <span class="string">interp</span>;
+plot_mesh(mesh, ps);
+title(sprintf(<span class="string">'Error: %.3x'</span>, norm(pf-pf0)/norm(pf0)));
+</pre><img vspace="5" hspace="5" src="sph_trans_dir_05.png" alt=""> <p class="footer"><br>
+      Published with MATLAB&reg; 7.14<br></p></div><!--
 ##### SOURCE BEGIN #####
 %% Exterior Dirichlet radiation problem
 % This tutorial shows how to use the toolbox |NIHU| to compute a simple
@@ -258,7 +218,7 @@ I = integpar(tree, k, C);
 % In order to optimally use the C (MEX) code, the tree is converted into a
 % relative tree that contains distances between entries rather than
 % absolute locations.
-[t, gs, gn, w, gind] = geo2gauss(mesh, [3 9]);
+[gs, gn, w, gind] = geo2gauss(mesh, 3);
 [tr, rr, rs, ns] = reltree(tree, cent, fr, gs, fs(gind), gn);
 
 %% Solution
@@ -266,7 +226,7 @@ I = integpar(tree, k, C);
 % The near field part is computed by multiplication by the near field
 % matrix, the far field contribution is computed by means of the MLFMA,
 % using the toolbox function |mpcont_Gq|.
-Hp = Hnf*ps + -2*pi*ps + ...
+Hp = Hnf*ps -ps/2 + ...
     mpcont_Hp(rr, rs, ns, ps(gind).*w, tr, I, k, fs(gind), fr);
 
 %% 
@@ -287,7 +247,40 @@ e = norm(qs-qs0)/norm(qs0); % relative error
 figure;
 plot_mesh(mesh, real(qs)); view(3);
 title(sprintf('Error: %.2e', e));
+
+%% Field point mesh
+xlimits = R * [1.1 3];
+tlimits = [0 pi/2];
+line = create_line([xlimits(1) 0 0; xlimits(2) 0 0], ceil(diff(xlimits)*k*ratio/2/pi));
+ntheta = ceil(max(xlimits)*diff(tlimits)*k*ratio/2/pi);
+dtheta = diff(tlimits)/ntheta;
+field = revolve_mesh(line, [0 0 0], [0 -1 0], dtheta, ntheta);
+
+%% Build cluster tree
+points = field.Nodes(:,2:4);
+[tree, fs, fr] = clustertree(depth, cent, points);
+
+%% Near field
+[i, j] = nfij(tree(end).nearfield, tree(end).nodsou, tree(end).nodrec);
+[Hnf, Gnf] = bemHG(mesh, k, 'const', points, [i j]);
+
+%%
+C = 3;  % Accuracy parameter related to the expansion length
+I = integpar(tree, k, C);
+
+%%
+[tr, rr, rs, ns] = reltree(tree, points, fr, gs, fs(gind), gn);
+
+%%
+pf = Hnf * ps + mpcont_Hp(rr, rs, ns, ps(gind).*w, tr, I, k, fs(gind), fr) -...
+    Gnf * qs - mpcont_Gq(rr, rs, qs(gind).*w, tr, I, k, fs(gind), fr);
+
+%% plot results
+figure;
+pf0 = incident('point', r0, points, [], k);
+plot_mesh(field, pf);
+shading interp;
+plot_mesh(mesh, ps);
+title(sprintf('Error: %.3x', norm(pf-pf0)/norm(pf0)));
 ##### SOURCE END #####
--->
-   </body>
-</html>
+--></body></html>
