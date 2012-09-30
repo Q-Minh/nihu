@@ -1,3 +1,6 @@
+#ifndef ELEM_TRAITS_HPP
+#define ELEM_TRAITS_HPP
+
 template <class elemType>
 struct elem_traits;
 
@@ -24,3 +27,5 @@ struct elem_traits<QuadElem>
         isLinear = false
     };
 };
+
+#endif

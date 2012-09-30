@@ -1,16 +1,19 @@
+#ifndef INTEGRAL_DIRECT_BM_HPP
+#define INTEGRAL_DIRECT_BM_HPP
+
 #include "green.hpp"
 #include "types.h"
 #include "vector.h"
 
 #include "elem_traits.hpp"
 
-template <class ElemType>
+template <class ElemType, typename kType>
 void int_const_bm(const gauss_t *gau,
                   const double *nodes,
                   const accelerator_t *accelerator,
                   const double *q,					/* source location */
                   const double *nq, 				/* source normal vector */
-                  const complex_scalar &k, 			/* Wave number */
+                  const kType &k, 			/* Wave number */
                   const complex_scalar &alpha,		/* Coupling real */
                   complex_scalar &a,
                   complex_scalar &b)
@@ -106,12 +109,12 @@ double gauss_w_bm_sing[] =
 
 enum {GNUM = sizeof(gauss_w_bm_sing)/sizeof(gauss_w_bm_sing[0])};
 
-template <class ElemType>
+template <class ElemType, typename kType>
 void int_const_sing_bm(const double *nodes,
                        const accelerator_t *accelerator,
                        const double *q, 		    /* Source location */
                        const double *nq, 		    /* Source normal */
-                       const complex_scalar &k, 	/* Wave number */
+                       const kType &k, 	/* Wave number */
                        const complex_scalar &alpha,	/* coupling constant */
                        complex_scalar &a,
                        complex_scalar &b)
@@ -159,3 +162,5 @@ void int_const_sing_bm(const double *nodes,
         }
     }
 }
+
+#endif
