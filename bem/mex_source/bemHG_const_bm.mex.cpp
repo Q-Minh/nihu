@@ -1,4 +1,4 @@
-/* $Make: mex -O -output bemHG_const_bm bemHG_const_bm.mex.cpp bemHG_con_bm.cpp mesh.cpp element.cpp vector.cpp green.cpp$ */
+/* $Make: mex -O -output bemHG_const_bm bemHG_const_bm.mex.cpp mesh.cpp element.cpp vector.cpp$ */
 
 #include "mex.h"
 #include "bemHG_con_bm.hpp"
@@ -42,8 +42,12 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     double *Bi = mxGetPi(plhs[1]);
 
     /* call C++ subroutine */
-    matrix_surf_const_bm(nnodes, nodes, nelements, elements,
-                         g3, g4, dist, k, alpha, Ar, Ai, Br, Bi);
+    if (k.imag() == 0.0)
+        matrix_surf_const_bm(nnodes, nodes, nelements, elements,
+                             g3, g4, dist, k.real(), alpha, Ar, Ai, Br, Bi);
+    else
+        matrix_surf_const_bm(nnodes, nodes, nelements, elements,
+                             g3, g4, dist, k, alpha, Ar, Ai, Br, Bi);
 
     delete[] g3;
     delete[] g4;
