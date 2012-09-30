@@ -34,8 +34,9 @@ gauss4 = assemble_gauss_struct(4, [9 7 5 2]);
 dist = nodes(elements(:,3)+1,:) - nodes(elements(:,2)+1,:);
 dist = [2 5] * max(sqrt(dot(dist,dist,2)));
 
-% make sure alpha is complex
+% make sure alpha and k are complex
 alpha = complex(real(alpha), imag(alpha));
+k = complex(real(k), imag(k));
 
 %[H, G] = bemHG_lin_bm(nodes, elements, gauss3, gauss4, dist, k, alpha);
 

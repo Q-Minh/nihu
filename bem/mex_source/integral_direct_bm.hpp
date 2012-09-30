@@ -2,42 +2,16 @@
 #include "types.h"
 #include "vector.h"
 
-template <class elemType>
-struct elem_traits;
-
-class TriElem;
-class QuadElem;
-
-template<>
-struct elem_traits<TriElem>
-{
-    enum
-    {
-        nNodes = 3,
-        isLinear = true
-    };
-};
-
-
-template<>
-struct elem_traits<QuadElem>
-{
-    enum
-    {
-        nNodes = 4,
-        isLinear = false
-    };
-};
-
+#include "elem_traits.hpp"
 
 template <class ElemType>
 void int_const_bm(const gauss_t *gau,
                   const double *nodes,
                   const accelerator_t *accelerator,
                   const double *q,					/* source location */
-                  const double *nq, 					/* source normal vector */
-                  const complex_scalar &k, 							/* Wave number */
-                  const complex_scalar &alpha,						/* Coupling real */
+                  const double *nq, 				/* source normal vector */
+                  const complex_scalar &k, 			/* Wave number */
+                  const complex_scalar &alpha,		/* Coupling real */
                   complex_scalar &a,
                   complex_scalar &b)
 {
@@ -113,57 +87,21 @@ void int_const_bm(const gauss_t *gau,
 
 double gauss_xi_bm_sing[] =
 {
-    -0.995187219997022,
-    -0.974728555971310,
-    -0.938274552002733,
-    -0.886415527004401,
-    -0.820001985973903,
-    -0.740124191578554,
-    -0.648093651936975,
-    -0.545421471388839,
-    -0.433793507626045,
-    -0.315042679696164,
-    -0.191118867473616,
-    -0.064056892862606,
-    0.064056892862605,
-    0.191118867473617,
-    0.315042679696164,
-    0.433793507626045,
-    0.545421471388839,
-    0.648093651936975,
-    0.740124191578555,
-    0.820001985973903,
-    0.886415527004401,
-    0.938274552002733,
-    0.974728555971310,
-    0.995187219997021
+    -0.995187219997022,    -0.974728555971310,    -0.938274552002733,    -0.886415527004401,
+    -0.820001985973903,    -0.740124191578554,    -0.648093651936975,    -0.545421471388839,
+    -0.433793507626045,    -0.315042679696164,    -0.191118867473616,    -0.064056892862606,
+    0.064056892862605,    0.191118867473617,    0.315042679696164,    0.433793507626045,
+    0.545421471388839,    0.648093651936975,    0.740124191578555,    0.820001985973903,
+    0.886415527004401,    0.938274552002733,    0.974728555971310,    0.995187219997021
 };
 double gauss_w_bm_sing[] =
 {
-    0.012341229799987,
-    0.028531388628934,
-    0.044277438817420,
-    0.059298584915436,
-    0.073346481411081,
-    0.086190161531953,
-    0.097618652104114,
-    0.107444270115965,
-    0.115505668053726,
-    0.121670472927803,
-    0.125837456346828,
-    0.127938195346752,
-    0.127938195346752,
-    0.125837456346828,
-    0.121670472927803,
-    0.115505668053726,
-    0.107444270115965,
-    0.097618652104114,
-    0.086190161531953,
-    0.073346481411080,
-    0.059298584915437,
-    0.044277438817420,
-    0.028531388628933,
-    0.012341229799988
+    0.012341229799987,    0.028531388628934,    0.044277438817420,    0.059298584915436,
+    0.073346481411081,    0.086190161531953,    0.097618652104114,    0.107444270115965,
+    0.115505668053726,    0.121670472927803,    0.125837456346828,    0.127938195346752,
+    0.127938195346752,    0.125837456346828,    0.121670472927803,    0.115505668053726,
+    0.107444270115965,    0.097618652104114,    0.086190161531953,    0.073346481411080,
+    0.059298584915437,    0.044277438817420,    0.028531388628933,    0.012341229799988
 };
 
 enum {GNUM = sizeof(gauss_w_bm_sing)/sizeof(gauss_w_bm_sing[0])};
@@ -171,10 +109,10 @@ enum {GNUM = sizeof(gauss_w_bm_sing)/sizeof(gauss_w_bm_sing[0])};
 template <class ElemType>
 void int_const_sing_bm(const double *nodes,
                        const accelerator_t *accelerator,
-                       const double *q, 		/* Source location */
-                       const double *nq, 		/* Source normal */
-                       const complex_scalar &k, 				/* Wave number */
-                       const complex_scalar &alpha,			/* Coupling constant real */
+                       const double *q, 		    /* Source location */
+                       const double *nq, 		    /* Source normal */
+                       const complex_scalar &k, 	/* Wave number */
+                       const complex_scalar &alpha,	/* coupling constant */
                        complex_scalar &a,
                        complex_scalar &b)
 {
@@ -201,25 +139,21 @@ void int_const_sing_bm(const double *nodes,
         /* Go through all integration points */
         for (int ig = 0; ig < GNUM; ig++)
         {
-            double r[NDIM], lr, jac;  		/* actual r vector, r, and jacobian */
             /* Calculate actual location x(\xi)-x_q*/
+            double r[NDIM];
             for (int j=0; j < NDIM; ++j)
                 r[j] = 0.5*(1.0-gauss_xi_bm_sing[ig])*nodes[n1+nNodes*j]
                        + 0.5*(1.0+gauss_xi_bm_sing[ig])*nodes[n2+nNodes*j] - q[j];
             /* Absolute value of distance */
-            lr = sqrt(dot(r,r));
+            double lr = sqrt(dot(r,r));
             /* Jacobian is sin(beta)/ar*L/2 */
             /* Weight is also part of jacobian */
             double tmp = dot(r,d)/(lr*L);
-            jac = gauss_w_bm_sing[ig] * sqrt(1.0 - tmp*tmp) / lr * L / 2.0;
+            double jac = gauss_w_bm_sing[ig] * sqrt(1.0 - tmp*tmp) / lr * L / 2.0;
 
             /* Here the calculation of the integrand should be performed */
             /* Matrix H: the negative of the simple green function should be evaluated */
-            complex_scalar g;
-            green(r, k, g, NULL);
-
-            a -= (g * alpha)*jac;
-
+            a -= (green(r, k) * alpha)*jac;
             /* Matrix G: the reduced Green is evaluated */
             b += compJ * greenr(lr, k) * jac;
         }
