@@ -61,10 +61,10 @@ void matrix_surf_const_bm(int nnodes,
                 switch(nvert)
                 {
                 case 4:
-                    int_const_sing_bm<QuadElem>(nod, &accelerators[e], q, nq, k, alpha, a, b);
+                    int_const_sing_bm<QuadElem>(nod, accelerators[e], q, nq, k, alpha, a, b);
                     break;
                 case 3:
-                    int_const_sing_bm<TriaElem>(nod, &accelerators[e], q, nq, k, alpha, a, b);
+                    int_const_sing_bm<TriaElem>(nod, accelerators[e], q, nq, k, alpha, a, b);
                     break;
                 }
             }
@@ -75,10 +75,10 @@ void matrix_surf_const_bm(int nnodes,
                 switch(nvert)
                 {
                 case 4:
-                    int_const_bm<QuadElem>(&g4[gs], nod, &accelerators[e], q, nq, k, alpha, a, b);
+                    int_const_bm<QuadElem>(g4[gs], nod, accelerators[e], q, nq, k, alpha, a, b);
                     break;
                 case 3:
-                    int_const_bm<TriaElem>(&g3[gs], nod, &accelerators[e], q, nq, k, alpha, a, b);
+                    int_const_bm<TriaElem>(g3[gs], nod, accelerators[e], q, nq, k, alpha, a, b);
                     break;
                 }
             }
@@ -147,10 +147,10 @@ void matrix_surf_const_bm_sparse(int nnodes,
             switch(nvert)
             {
             case 4:
-                int_const_sing_bm<QuadElem>(nod, &accelerators[e], q, nq, k, alpha, a, b);
+                int_const_sing_bm<QuadElem>(nod, accelerators[e], q, nq, k, alpha, a, b);
                 break;
             case 3:
-                int_const_sing_bm<TriaElem>(nod, &accelerators[e], q, nq, k, alpha, a, b);
+                int_const_sing_bm<TriaElem>(nod, accelerators[e], q, nq, k, alpha, a, b);
                 break;
             }
         }
@@ -160,10 +160,10 @@ void matrix_surf_const_bm_sparse(int nnodes,
             switch(nvert)
             {
             case 4:
-                int_const_bm<QuadElem>(&g4[gs], nod, &accelerators[e], q, nq, k, alpha, a, b);
+                int_const_bm<QuadElem>(g4[gs], nod, accelerators[e], q, nq, k, alpha, a, b);
                 break;
             case 3:
-                int_const_bm<QuadElem>(&g3[gs], nod, &accelerators[e], q, nq, k, alpha, a, b);
+                int_const_bm<QuadElem>(g3[gs], nod, accelerators[e], q, nq, k, alpha, a, b);
                 break;
             }
         }

@@ -39,15 +39,6 @@ void green(const double *r,
 }
 
 template <typename kType>
-void green2D(const double *r,
-             const kType &k,
-             complex_scalar &g,
-             const double *n,
-             complex_scalar &dg)
-{
-}
-
-template <typename kType>
 void ddgreen(const double *r, /* y - x */
              const kType &k,
              const double *nx, 	/* unit normal at x */

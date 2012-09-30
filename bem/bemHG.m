@@ -36,6 +36,9 @@ gauss4 = assemble_gauss_struct(4, [9 7 5 2]);
 dist = nodes(elements(:,3)+1,:) - nodes(elements(:,2)+1,:);
 dist = [2 5] * max(sqrt(dot(dist,dist,2)));
 
+%% Ensure that k is complex
+k = complex(real(k), imag(k));
+
 %% System matrices
 if ~isempty(pairs)
     %% sparse matrices (FMBEM mode)
