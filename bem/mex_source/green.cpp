@@ -12,6 +12,14 @@ complex_scalar greenr(const double ar,
 }
 
 
+complex_scalar green(const double *r,
+           const complex_scalar &k)
+{
+    double ar = sqrt(dot(r, r));
+    return exp(-compJ*k*ar) / (4.0 * M_PI * ar);
+}
+
+
 void green(const double *r,
            const complex_scalar &k,
            complex_scalar &g,
@@ -20,11 +28,8 @@ void green(const double *r,
 {
     double ar = sqrt(dot(r, r));
     g = exp(-compJ*k*ar) / (4.0 * M_PI * ar);
-    if (n != NULL)
-    {
-        double rn = dot(r, n) / ar;
-        dg = -g * (1.0 + compJ*k*ar)/ar * rn;
-    }
+    double rn = dot(r, n) / ar;
+    dg = -g * (1.0 + compJ*k*ar)/ar * rn;
 }
 
 void green2D(const double *r,
