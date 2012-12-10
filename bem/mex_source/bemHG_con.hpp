@@ -1,10 +1,11 @@
 #ifndef BEMHG_CON_HPP
 #define BEMHG_CON_HPP
 
+#include "elem_traits.hpp"
+
 #include "integral_direct.hpp"
 #include "vector.h"
 #include "mesh.h"
-#include "elem_traits.hpp"
 
 /* ------------------------------------------------------------------------ */
 /* Compute surface system matrices of a bem model */

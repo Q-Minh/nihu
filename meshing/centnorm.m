@@ -11,10 +11,6 @@ function [cent, normal] = centnorm(model)
 
 % Last modified: 18.11.2009.
 
-%% Argument check
-%error(nargchk(1, 1, nargin, 'struct'));
-%error(nargoutchk(0, 2, nargout, 'struct'));
-
 %% Initialization
 Elements = drop_IDs(model);
 X = model.Nodes(:,2);

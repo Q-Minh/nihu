@@ -10,9 +10,6 @@ function [gcoord, gnorm, weight, gind] = vert2gauss(order, X, Y, Z, type, elem)
 
 % Last modified: 02.12.2009.
 
-%% Argument check
-error(nargchk(6, 6, nargin, 'struct'));
-
 %%
 nE = size(elem,1);  % number of elements
 x = X(elem);        % vertices

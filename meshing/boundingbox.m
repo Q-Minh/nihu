@@ -7,11 +7,8 @@ function bb = boundingbox(mesh)
 %   Budapest University of Technology and Economics
 %   Dept. of Telecommunications
 
-% Last modified: 02.12.2009
-%% Parameter check
-error(nargchk(1, 1, nargin,'struct'));
+% Last modified: 2012.12.10.
 
-%%
 bb = [
     min(mesh.Nodes(:,2:4), [], 1);
     max(mesh.Nodes(:,2:4), [], 1)
