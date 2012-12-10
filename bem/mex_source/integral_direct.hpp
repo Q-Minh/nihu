@@ -1,13 +1,14 @@
 #ifndef INTEGRAL_DIRECT_HPP
 #define INTEGRAL_DIRECT_HPP
 
+#include "elem_traits.hpp"
+
 #include "green.hpp"
 #include "quadrature.hpp"
 #include "element.hpp"
 #include "types.h"
 #include "vector.h"
 
-#include "elem_traits.hpp"
 
 /* ------------------------------------------------------------------------ */
 /* Regular integral over a constant element                            */
