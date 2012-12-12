@@ -9,29 +9,21 @@ function [cent, normal] = centnorm(model)
 %   Budapest University of Technology and Economics
 %   Dept. of Telecommunications
 
-% Last modified: 18.11.2009.
+% Last modified: 2012.12.11.
 
 %% Initialization
 Elements = drop_IDs(model);
-X = model.Nodes(:,2);
-Y = model.Nodes(:,3);
-Z = model.Nodes(:,4);
+coords = model.Nodes(:,2:4);
 
-%% Process line elements
-lin = find(Elements(:,2) == 12);
-if ~isempty(lin)
-    [cent(lin,:), normal(lin,:)] = vert2gauss(1, X,Y,Z, 12, Elements(lin,5:6));
+cent = zeros(size(Elements,1),3);
+normal = zeros(size(Elements,1),3);
+
+for t = [12 23 24]
+    sel = Elements(:,2) == t;
+    if any(sel)
+        [cent(sel,:), normal(sel,:)] =...
+            vert2gauss(1, coords, t, Elements(sel,4+(1:mod(t,10))));
+    end
 end
 
-%% Process tria elements
-tri = find(Elements(:,2) == 23);
-if ~isempty(tri)
-    [cent(tri,:), normal(tri,:)] = vert2gauss(1, X,Y,Z, 23, Elements(tri,5:7));
-end
-
-%% Process quad elements
-quad = find(Elements(:,2) == 24);
-if ~isempty(quad)
-    [cent(quad,:), normal(quad,:)] = vert2gauss(1, X,Y,Z, 24, Elements(quad,5:8));
-end
 end
