@@ -37,7 +37,7 @@ plot_mesh(lin); view(3);
 %%
 % In the third method, the line's nodes ${\bf x}_i$ are directly defined.
 % In this case, the line is aligned along the $x$ axis.
-Cx = -1:.1:+2;          % internal nodes
+Cx = (-1:.1:+2)';          % internal nodes
 lin = create_line(Cx);
 
 figure;

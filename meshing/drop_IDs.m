@@ -12,8 +12,6 @@ function Elements = drop_IDs(model)
 % Last updated: 02.12.2009.
 
 %% Parameter check
-error(nargchk(1, 1, nargin, 'struct'));
-
 if size(model.Elements,1) == 0
     Elements = model.Elements;
     return
