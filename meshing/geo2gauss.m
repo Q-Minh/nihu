@@ -24,21 +24,16 @@ function [gcoord, gnorm, weight, gind] = geo2gauss(model, order)
 %   Budapest University of Technology and Economics
 %   Dept. of Telecommunications
 
-% Last modified: 02.12.2009.
-
-%% Parameter check
-error(nargchk(2, 2, nargin, 'struct'));
+% Last modified: 2012.12.12.
 
 %% Initialization
 Elements = drop_IDs(model);
-X = model.Nodes(:,2);
-Y = model.Nodes(:,3);
-Z = model.Nodes(:,4);
+coords = model.Nodes(:,2:4);
 
 %% Process line elements
 lin = find(Elements(:,2) == 12);
 if ~isempty(lin)
-    [gc12, gn12, w12, gi12] = vert2gauss(order, X,Y,Z, 12, Elements(lin,5:6));
+    [gc12, gn12, w12, gi12] = vert2gauss(order, coords, 12, Elements(lin,5:6));
     gi12 = lin(gi12);
 else
     gc12 = zeros(0,3);
@@ -50,7 +45,7 @@ end
 %% Process tria elements
 tri = find(Elements(:,2) == 23);
 if ~isempty(tri)
-    [gc3, gn3, w3, gi3] = vert2gauss(order, X,Y,Z, 23, Elements(tri,5:7));
+    [gc3, gn3, w3, gi3] = vert2gauss(order, coords, 23, Elements(tri,5:7));
     gi3 = tri(gi3);
 else
     gc3 = zeros(0,3);
@@ -62,7 +57,7 @@ end
 %% Process quad elements
 quad = find(Elements(:,2) == 24);
 if ~isempty(quad)
-    [gc4, gn4, w4, gi4] = vert2gauss(order, X,Y,Z, 24, Elements(quad,5:8));
+    [gc4, gn4, w4, gi4] = vert2gauss(order, coords, 24, Elements(quad,5:8));
     gi4 = quad(gi4);
 else
     gc4 = zeros(0,3);

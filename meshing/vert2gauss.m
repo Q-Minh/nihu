@@ -1,6 +1,6 @@
-function [gcoord, gnorm, weight, gind] = vert2gauss(order, X, Y, Z, type, elem)
+function [gcoord, gnorm, weight, gind] = vert2gauss(order, coords, type, elem)
 %VERT2GAUSS Gaussian quadrature from vertices and elements
-%  [XG, NG, W, IG] = VERT2GAUSS(ORDER, X, Y, Z, TYPE, ELEM)
+%  [XG, NG, W, IG] = VERT2GAUSS(ORDER, COORDS, TYPE, ELEM)
 %
 % See also: GEO2GAUSS, GAUSSQUAD1, GAUSSQUAD2, GAUSSQUAD3, SHAPEFUN
 
@@ -12,6 +12,11 @@ function [gcoord, gnorm, weight, gind] = vert2gauss(order, X, Y, Z, type, elem)
 
 %%
 nE = size(elem,1);  % number of elements
+
+X = coords(:,1);
+Y = coords(:,2);
+Z = coords(:,3);
+
 x = X(elem);        % vertices
 y = Y(elem);
 z = Z(elem);

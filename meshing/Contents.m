@@ -29,7 +29,7 @@
 %   merge_coincident_nodes   - Merge coincident nodes in a mesh
 %   join_meshes              - Create a single mesh from several submeshes
 %   split_independent_meshes - Split mesh to independent submeshes
-%   flip_elements            - Flip elements of a fe model
+%   flip_elements            - Flip elements of a NiHu mesh
 %   get_boundary             - Extract domain boundary
 %   get_faces                - Extract all faces of a FE mesh
 %   get_free_faces           - Extract free (boundary) faces from FE faces
@@ -53,4 +53,16 @@
 %
 % Other
 %   boundingbox              - Compute bounding box of a NiHu mesh
-%   isinside                 - Check whether points are inside a mesh
+%   isinside                 - Check whether points are inside a mesh volume
+%   adjacency                - Compute adjacency matrix of a fe mesh
+%   field_bbx                - Cross-shaped field point mesh based on bounding box data
+%   fill_polygon             - Create 2D TRI-mesh from polygon mesh
+%   gaussquad                - Gaussian quadrature integration.
+%   invmap                   - Inverse isoparametric mapping
+%   mesh_kmax                - Maximal wave numbers of a NiHu mesh
+%   plot_node_numbers        - Plot node numbers of a NiHu mesh
+%   plot_mesh                - Plot colored NiHu mesh
+%   node_normals             - calculate outward normal vectors in nodes
+%   plot_elem_normals        - Plot element normals of a mesh
+%   mesh_volume              - Returns vector v, the volume for each element
+%   node_volume              - Calculates corresponding volume for nodes
