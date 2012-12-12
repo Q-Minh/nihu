@@ -22,19 +22,17 @@ function brick = create_brick_boundary(L, N)
 % Last modifed: 02.12.2009
 
 %% Parameter check
-error(nargchk(1, 2, nargin, 'struct'));
-
 if nargin == 1
     N = L;
 end
-if length(L) == 1
+if isscalar(L)
     L = repmat(L,1,3);
 end
-if length(N) == 1
+if isscalar(N)
     N = repmat(N,1,3);
 end
 
-%% Craete six faces of the brick model
+%% Create six faces of the brick model
 % Create faces z = 0 and z = L(3)
 s1 = create_slab(L(1:2), N(1:2));
 s1 = join_meshes(flip_elements(s1), translate_mesh(s1, [0 0 L(3)]));

@@ -1,75 +1,9 @@
 #include "mesh.h"
+
 #include <cmath>
 #include "vector.h"
+
 #include "element.hpp"
-
-void inverse_matrix_tri(double *nodes, double *gradN)
-{
-#define NVERT 3
-#define NDIM 3
-	double dNxi[NVERT] = {-1.0, 1.0, 0.0};
-	double dNeta[NVERT] = {-1.0, 0.0, 1.0};
-	double drxi[NDIM], dreta[NDIM], norm[NDIM], b;
-	double c[NDIM], d[NDIM];
-	int j, s;
-
-	for (j = 0; j < NDIM; j++)
-	{
-		drxi[j] = dreta[j] = 0.0;
-		for (s = 0; s < NVERT; s++)
-		{
-			drxi[j] += nodes[s+NVERT*j] * dNxi[s];
-			dreta[j] += nodes[s+NVERT*j] * dNeta[s];
-		}
-	}
-
-	cross(drxi, dreta, norm);
-	cross(dreta, norm, c);
-	cross(norm, drxi, d);
-
-	b = dot(norm, norm);
-
-	for (j = 0; j < NDIM; ++j)
-		for (s = 0; s < NVERT; s++)
-			gradN[j+NDIM*s] = (c[j] * dNxi[s] + d[j] * dNeta[s]) / b;
-#undef NVERT
-#undef NDIM
-}
-
-void inverse_matrix_quad(const double *nodes, double xi, double eta, double *gradN)
-{
-#define NVERT 4
-#define NDIM 3
-	double dNxi[NVERT], dNeta[NVERT];				/* Shape functions' derivatives */
-	double drxi[NDIM], dreta[NDIM], norm[NDIM], b;
-	double c[NDIM], d[NDIM];
-	int j, s;
-
-	/* Evaluate shape functions */
-	d_shapefun<QuadElem>(xi, eta, dNxi, dNeta);
-
-	for (j = 0; j < NDIM; j++)
-	{
-		drxi[j] = dreta[j] = 0.0;
-		for (s = 0; s < NVERT; s++)
-		{
-			drxi[j] += nodes[s+NVERT*j] * dNxi[s];
-			dreta[j] += nodes[s+NVERT*j] * dNeta[s];
-		}
-	}
-
-	cross(drxi, dreta, norm);
-	cross(dreta, norm, c);
-	cross(norm, drxi, d);
-
-	b = dot(norm, norm);
-
-	for (j = 0; j < NDIM; ++j)
-		for (s = 0; s < NVERT; s++)
-			gradN[j+NDIM*s] = (c[j] * dNxi[s] + d[j] * dNeta[s]) / b;
-#undef NVERT
-#undef NDIM
-}
 
 void init_accelerators(int nnodes,
                        const double *nodes,
@@ -94,7 +28,7 @@ void init_accelerators(int nnodes,
 			for (j = 0; j < 3; j++)
 				for (s = 0; s < 3; s++)
 					nod[s+3*j] = nodes[elem[s]+j*nnodes];
-			inverse_matrix_tri(nod, accelerators[e].gradN);
+			inverse_matrix<TriaElem>(nod, accelerators[e].gradN);
 		}
 
 

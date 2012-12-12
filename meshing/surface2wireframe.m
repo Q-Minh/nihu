@@ -1,6 +1,6 @@
 function wireframe = surface2wireframe(mesh, angletol)
 
-%   Copyright 2008-2010 P. Fiala
+%SURFACE2WIREFRAME Extract surface TRIA and QUAD elements
 %   Budapest University of Technology and Economics
 %   Dept. of Telecommunications
 
