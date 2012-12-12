@@ -90,8 +90,8 @@ plot_mesh(slab); view(3);
 %%
 % With the third method, non-uniformly meshed slabs can be easily defined
 % as follows:
-Cx = logspace(1, 2, 30);    % internal nodes along the x axis
-Cy = linspace(10, 30, 10);  % internal nodes along the y axis
+Cx = logspace(1, 2, 30).';    % internal nodes along the x axis
+Cy = linspace(10, 30, 10).';  % internal nodes along the y axis
 slab = create_slab(Cx, Cy);
 
 figure;
