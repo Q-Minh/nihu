@@ -1,7 +1,7 @@
-function brick = create_brick(L, N, Cz)
+function brick = create_brick(varargin)
 %CREATE_BRICK  Create a brick volume mesh
 %   BRICK = CREATE_BRICK(L, N) creates a brick model with side lengths
-%   given in the 2dim vector L and division given in the 3dim vector N.
+%   given in the 3D vector L and division given in the 3D vector N.
 %   The brick is located at the origin of the coordinate system, its faces
 %   are aligned along the coordinate axes. N contains the number of brick
 %   elements along the three directions. For a scalar input L, it is
@@ -10,10 +10,10 @@ function brick = create_brick(L, N, Cz)
 %
 %   BRICK = CREATE_BRICK(C, N) where C is a 8x3 matrix creates a brick with
 %   given corner nodes defined in the rows of the matrix C. N is a scalar
-%   or a 3dim vector containing the number of elements along the three
+%   or a 3D vector containing the number of elements along the three
 %   directions.
 %
-%   BRICK = CREATE_BRICK(Cx, Cy, Cz) where Ci are scalar arrays creates a
+%   BRICK = CREATE_BRICK(Cx, Cy, Cz) where Ci are column vectors creates a
 %   brick whose nodes are elements of the Descartes product Cx x Cy x Cz.
 %   If only Cx is defined, it is asumed that Cy = Cz = Cx.
 %
@@ -28,20 +28,18 @@ function brick = create_brick(L, N, Cz)
 % Last modifed: 02.12.2009
 
 %% Parameter check
-error(nargchk(1, 3, nargin, 'struct'));
-
-if numel(L) == 1
+if isscalar(L)
     L = repmat(L,1,3);
 end
 if nargin == 1
     N = L;
     Cz = L;
 end
-if numel(N) == 1
+if isscalar(N)
     N = repmat(N,1,3);
 end
 
-%% Creating the slab model
+%% Creating the brick model
 if numel(N) > 3 % Node vectors are given
     Cx = L;
     Cy = N;
@@ -54,22 +52,11 @@ elseif size(L, 1) == 8  % corner nodes are given
     % uniform centered slab
     brick = translate_mesh(create_brick(2, N), -[1 1 1]);
     % node transformation
-    xi = brick.Nodes(:,2);
-    eta = brick.Nodes(:,3);
-    zeta = brick.Nodes(:,4);
-    phi = [...
-        (1-xi).*(1-eta).*(1-zeta),...
-        (1+xi).*(1-eta).*(1-zeta),...
-        (1+xi).*(1+eta).*(1-zeta),...
-        (1-xi).*(1+eta).*(1-zeta),...
-        (1-xi).*(1-eta).*(1+zeta),...
-        (1+xi).*(1-eta).*(1+zeta),...
-        (1+xi).*(1+eta).*(1+zeta),...
-        (1-xi).*(1+eta).*(1+zeta),...
-        ]/8;
-    brick.Nodes(:,1+(1:size(L,2))) = phi * L;
+    phi = shapefun(brick.Nodes(:,2:4), 38);
+    brick.Nodes(:,2:4) = phi * L;
 else    % side lengths are given
     brick = extrude_mesh(create_slab(L(1:2), N(1:2)), [0 0 L(3)/N(3)], N(3));
 end
 
 end
+
