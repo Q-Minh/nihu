@@ -13,7 +13,7 @@ void greenr(const double ar,
 {
 	/* exp(-ikr)/(4*pi*k) */
     *gr =  cos(k*ar) / (4.0 * M_PI * k);
-    *gi = -sin(k*ar) / (4.0 * M_PI * k); 
+    *gi = -sin(k*ar) / (4.0 * M_PI * k);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -68,14 +68,14 @@ void ddgreen(const double *r, /* y - x */
     double rnx = -dot(r, nx) / ar;	/* normal derivative of distance wrt x */
     double rny = dot(r, ny) / ar;		/* normal derivative of distance wrt y */
 	double rnxrny = rnx*rny;
-	
+
 	/* Double derivative helpers */
 	double nxny, br, bi;
-	
+
 	/* Green's function */
 	*gr = cos(k*ar)/ar / (4.0 * M_PI);
 	*gi = -sin(k*ar)/ar / (4.0 * M_PI);
-	
+
 	/* Normal derivatives */
     *dgxr = (- *gr / ar + *gi * k) * rnx;
     *dgxi = (- *gi / ar - *gr * k) * rnx;
@@ -89,7 +89,7 @@ void ddgreen(const double *r, /* y - x */
 	/* Double normal derivative */
 	*ddgr = *gr * br - *gi * bi;
 	*ddgi = *gr * bi + *gi * br;
-	
+
 }
 
 /* 3D static Green's function and its derivatives  */
@@ -106,13 +106,13 @@ void ddgreen0(const double *r, /* y - x */
 	/* Normal derivatives */
     double rnx = -dot(r, nx) / ar;
     double rny = dot(r, ny) / ar;
-	
+
 	/* Green's function */
 	*g = 1.0/(4.0 * M_PI * ar);
-	
+
     *dgx = -*g / ar * rnx;
     *dgy = -*g / ar * rny;
-	
+
 	/* Double normal derivative */
 	*ddg = *g/ar2 * (3.0 * rnx*rny + dot(nx, ny));
 }

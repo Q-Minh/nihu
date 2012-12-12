@@ -1,14 +1,18 @@
 R = 1;
 nR = 5;
 mesh = create_sphere_boundary(R, nR);
-% mesh = quad2tria2(mesh);
+mesh = quad2tria(mesh);
 
 % First inner resonant frequency
 k0 = pi;
 
 kvec = k0 + (-0.05:.005:0.05);
-error_std = zeros(size(kvec));
-error_bm =  zeros(size(kvec));
+error_std = nan(size(kvec));
+error_bm =  nan(size(kvec));
+
+figure;
+h = semilogy(kvec, error_std, kvec, error_bm);
+legend({'Error std', 'Error bm'});
 
 for ik = 1:length(kvec);
     fprintf('%3d / %3d\n', ik, length(kvec));
@@ -44,13 +48,7 @@ for ik = 1:length(kvec);
     error_std(ik) = norm(p_an - p_std)/norm(p_an);
     error_bm(ik) = norm(p_an - p_bm)/norm(p_an);
     
-    % Display progress bar
-    %progbar(1,length(kvec), ik);
-    
+    set(h(1), 'YData', error_std);
+    set(h(2), 'YData', error_bm);
+    drawnow;
 end
-
-% Display result
-figure;
-semilogy(kvec, error_std, kvec, error_bm);
-legend({'Error std', 'Error bm'});
-%disp(error_bm);

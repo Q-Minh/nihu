@@ -19,65 +19,67 @@
 /* ------------------------------------------------------------------------ */
 /* Regular integral over a linear QUAD element - Burton-Miller              */
 void int_quad_lin_bm(const gauss_t *g,
-        const double *nodes,
-        const accelerator_t *accelerator,
-        const double *q, 						/* source point */
-        const double *nq, 						/* normal at source point */
-        double k,
-        double alphar,
-        double alphai,
-        double *ar,
-        double *ai,
-        double *br,
-        double *bi)
+                     const double *nodes,
+                     const accelerator_t *accelerator,
+                     const double *q, 						/* source point */
+                     const double *nq, 						/* normal at source point */
+                     double k,
+                     double alphar,
+                     double alphai,
+                     double *ar,
+                     double *ai,
+                     double *br,
+                     double *bi)
 {
+    enum {NVERT = 4, NDIM = 3};
+
     int i, s;
-    
-    for (s = 0; s < 4; s++)
+
+    for (s = 0; s < NVERT; s++)
         ar[s] = ai[s] = br[s] = bi[s] = 0.0;
-    
+
     /* for each gaussian integration point */
     for (i = 0; i < g->num; i++)
     {
         int j;
-        double r[3], rxi[3], reta[3], norm[3], jac;
+        double r[NDIM], rxi[NDIM], reta[NDIM], norm[NDIM], jac;
         double gr, gi, dgxr, dgxi, dgyr, dgyi, ddgr, ddgi;
         double Hr, Hi, Gr, Gi; /*Matrix elements */
-        
+
         /* for each coordinate direction */
-        for (j = 0; j < 3; j++)
+        for (j = 0; j < NDIM; j++)
         {
             r[j] = -q[j];
             rxi[j] = reta[j] = 0.0;
             /* computing integration location and its derivatives */
-            for (s = 0; s < 4; s++)
+            for (s = 0; s < NVERT; s++)
             {
-                r[j] += g->N[i+s*g->num]*nodes[s+4*j];
-                rxi[j] += g->Nxi[i+s*g->num]*nodes[s+4*j];
-                reta[j] += g->Neta[i+s*g->num]*nodes[s+4*j];
+                r[j] += g->N[i+s*g->num]*nodes[s+NVERT*j];
+                rxi[j] += g->Nxi[i+s*g->num]*nodes[s+NVERT*j];
+                reta[j] += g->Neta[i+s*g->num]*nodes[s+NVERT*j];
             }
         }
         /* surface normal and jacobian */
         cross(rxi, reta, norm);
         jac = sqrt(dot(norm, norm));
-        for (j = 0; j < 3; j++)
+        for (j = 0; j < NDIM; j++)
             norm[j] /= jac;
         jac *= g->w[i];
-        
+
         ddgreen(r, k, nq, norm, &gr, &gi, &dgxr, &dgxi, &dgyr, &dgyi, &ddgr, &ddgi);
-        
+
         Hr = dgyr + alphar * ddgr - alphai * ddgi;
         Hi = dgyi + alphar * ddgi + alphai * ddgr;
-        
+
         Gr = gr + alphar * dgxr - alphai * dgxi;
         Gi = gi + alphar * dgxi + alphai * dgxr;
-        
+
         Hr *= jac;
         Hi *= jac;
         Gr *= jac;
         Gi *= jac;
-        
-        for (s = 0; s < 4; s++)
+
+        for (s = 0; s < NVERT; s++)
         {
             /* H matrix */
             ar[s] += g->N[i+s*g->num]*Hr;
@@ -92,112 +94,125 @@ void int_quad_lin_bm(const gauss_t *g,
 /* ------------------------------------------------------------------------ */
 /* Singular integral over a linear QUAD element - Burton-Miller             */
 void int_quad_lin_sing_bm(const gauss_t *g, 	/* gaussian integration points and weights */
-        const double *nodes, 	/* element corner nodes */
-        const accelerator_t *accelerator,
-        int corner, 				/* singular corner index */
-        const double *nq, 		/* Normal vector at source point */
-        double k, 				/* wave number */
-        double alphar, 			/* real part of coupling constant */
-        double alphai,
-        double *ar, 				/* real part of matrix H or A */
-        double *ai,
-        double *br, 				/* real part of matrix  G  or B */
-        double *bi)
+                          const double *nodes, 	/* element corner nodes */
+                          const accelerator_t *accelerator,
+                          int corner, 				/* singular corner index */
+                          const double *nq, 		/* Normal vector at source point */
+                          double k, 				/* wave number */
+                          double alphar, 			/* real part of coupling constant */
+                          double alphai,
+                          double *ar, 				/* real part of matrix H or A */
+                          double *ai,
+                          double *br, 				/* real part of matrix  G  or B */
+                          double *bi)
 {
-    double gradNq[4*3], Nq[4];
+    enum {NVERT = 4, NDIM = 3};
+
+    double gradNq[NVERT*NDIM], Nq[NVERT];
     /* Evaluate nabla N(x) and its normal component */
     {
         int s;
         double xiq, etaq;
-        
+
         /* Evaluate the shape functions */
         switch(corner)
         {
-            case 0: xiq = -1.0; etaq = -1.0; break;
-            case 1: xiq =  1.0; etaq = -1.0; break;
-            case 2: xiq =  1.0; etaq =  1.0; break;
-            case 3: xiq = -1.0; etaq =  1.0; break;
+        case 0:
+            xiq = -1.0;
+            etaq = -1.0;
+            break;
+        case 1:
+            xiq =  1.0;
+            etaq = -1.0;
+            break;
+        case 2:
+            xiq =  1.0;
+            etaq =  1.0;
+            break;
+        case 3:
+            xiq = -1.0;
+            etaq =  1.0;
+            break;
         }
-        
+
         /* Evaluate shape functions and gradient */
         shapefun_quad(xiq, etaq, Nq);
         inverse_matrix_quad(nodes, xiq, etaq, gradNq);
-        
+
         /* Initialize dNdotnx */
-        for (s = 0; s < 4; s++)
+        for (s = 0; s < NVERT; s++)
         {
-            double gradNqdotnx = dot(nq, gradNq+3*s) / 2.0;
+            double gradNqdotnx = dot(nq, gradNq+NDIM*s) / 2.0;
             ar[s] = -alphar * gradNqdotnx;
             ai[s] = -alphai * gradNqdotnx;
             br[s] = bi[s] = 0.0;
-            /* ar[s] = ai[s] = 0; */
         }
     }
-    
-    
+
+
     {
         int i, gnum;
-        
+
         /* Preallocate for the singular quadrature */
-        double *xiprime = (double *)malloc(sizeof(double)*2*g->num);
-        double *etaprime = (double *)malloc(sizeof(double)*2*g->num);
-        double *wprime = (double *)malloc(sizeof(double)*2*g->num);
-        
+        double *xiprime = (double *)malloc(sizeof(double)*(NVERT-2)*g->num);
+        double *etaprime = (double *)malloc(sizeof(double)*(NVERT-2)*g->num);
+        double *wprime = (double *)malloc(sizeof(double)*(NVERT-2)*g->num);
+
         /* Obtain the singular quadrature */
         sing_quadr_corner_quad(g, corner, &gnum, xiprime, etaprime, wprime);
-        
+
         /* for each gaussian integration point */
         for (i = 0; i < gnum; i++)
         {
-            double N[4];
+            double N[NVERT];
             int s, j;
-            double r[3], norm[3], jac;
-            
+            double r[NDIM], norm[NDIM], jac;
+
             double gr, gi, g0;
             double dgxr, dgxi, dgyr, dgyi, dg0x, dg0y;
             double ddgr, ddgi, ddg0;
-            
-            double gradNqdotny[4];
-            
+
+            double gradNqdotny[NVERT];
+
             shapefun_quad(xiprime[i], etaprime[i], N);
             /* computing integration location */
-            for (j = 0; j < 3; j++)
+            for (j = 0; j < NDIM; j++)
             {
-                r[j] = -nodes[corner+4*j];
-                for (s = 0; s < 4; s++)
-                    r[j] += N[s]*nodes[s+4*j];
-                
+                r[j] = -nodes[corner+NVERT*j];
+                for (s = 0; s < NVERT; s++)
+                    r[j] += N[s]*nodes[s+NVERT*j];
+
                 norm[j] = accelerator->n0[j] + accelerator->nxi[j] * xiprime[i] + accelerator->neta[j] * etaprime[i];
             }
-            
+
             jac = sqrt(dot(norm, norm));
-            for (j = 0; j < 3; j++)
+            for (j = 0; j < NDIM; j++)
                 norm[j] /= jac;
             jac *= wprime[i];
-            
+
             /* Evaluate Green's functions */
             ddgreen(r, k, nq, norm, &gr, &gi, &dgxr, &dgxi, &dgyr, &dgyi, &ddgr, &ddgi);
             ddgreen0(r, nq, norm, &g0, &dg0x, &dg0y, &ddg0);
-            
-            for (s = 0; s < 4; ++s)
+
+            for (s = 0; s < NVERT; ++s)
             {
                 /* Term 1 */
                 double tr = N[s] * k*k/8/M_PI/sqrt(dot(r,r));
                 double ti = N[s] * k*k*k/12/M_PI;
                 /* Term 2 */
-                tr += (N[s] - Nq[s] - dot(gradNq+3*s, r)) * ddg0;
+                tr += (N[s] - Nq[s] - dot(gradNq+NDIM*s, r)) * ddg0;
                 /* Term 3 */
-                tr += dot(gradNq+3*s, norm) * dg0x;
-                
+                tr += dot(gradNq+NDIM*s, norm) * dg0x;
+
                 /* H matrix: Add terms */
                 ar[s] += (N[s] * dgyr + alphar * tr - alphai * ti) * jac;
                 ai[s] += (N[s] * dgyi + alphar * ti + alphai * tr) * jac;
-                
+
                 br[s] += N[s]*(gr + alphar * dgxr - alphai * dgxi)  * jac;
                 bi[s] += N[s]*(gi + alphar * dgxi + alphai * dgxr)  * jac;
             }
         }
-        
+
         /* Free singular quadrature points */
         free(xiprime);
         free(etaprime);
@@ -208,128 +223,128 @@ void int_quad_lin_sing_bm(const gauss_t *g, 	/* gaussian integration points and 
 /* ------------------------------------------------------------------------ */
 /* Regular integral over a constant TRIA element using Burton-Miller        */
 void int_tri_const_bm(const gauss_t *g,
-        const double *nodes,
-        const accelerator_t *accelerator,
-        const double *q,					/* source location */
-        const double *nq, 					/* source normal vector */
-        double k, 							/* Wave number */
-        double alphar,						/* Coupling real */
-        double alphai,						/* Coupling imag */
-        double *ar,
-        double *ai,
-        double *br,
-        double *bi)
+                      const double *nodes,
+                      const accelerator_t *accelerator,
+                      const double *q,					/* source location */
+                      const double *nq, 					/* source normal vector */
+                      double k, 							/* Wave number */
+                      double alphar,						/* Coupling real */
+                      double alphai,						/* Coupling imag */
+                      double *ar,
+                      double *ai,
+                      double *br,
+                      double *bi)
 {
-#define NVERT 3
+    enum {NVERT = 3, NDIM = 3};
+
     int i,j,s;
-double norm[3], jac;
+    double norm[NDIM], jac;
 
-/* Initialize result to zero */
-*ar = *ai = *br = *bi = 0.0;
+    /* Initialize result to zero */
+    *ar = *ai = *br = *bi = 0.0;
 
-/* Jacobian and surface normal calculation  */
-jac = sqrt(dot(accelerator->n0, accelerator->n0));
-for (j = 0; j < 3; j++)
-    norm[j] = accelerator->n0[j]/jac;
+    /* Jacobian and surface normal calculation  */
+    jac = sqrt(dot(accelerator->n0, accelerator->n0));
+    for (j = 0; j < NDIM; j++)
+        norm[j] = accelerator->n0[j]/jac;
 
-/* for each gaussian integration point */
-for (i = 0; i < g->num; i++)
-{
-    double r[3];
-    double gr, gi, dgxr, dgxi, dgyr, dgyi, ddgr, ddgi;
-    
-    /* computing integration location */
-    for (j = 0; j < 3; j++) 				/* for all directions */
+    /* for each gaussian integration point */
+    for (i = 0; i < g->num; i++)
     {
-        r[j] = -q[j];
-        for (s = 0; s < NVERT; s++) 			/* for all vertices */
-            r[j] += g->N[i+s*g->num]*nodes[s+NVERT*j];
-    }
-    
-    /* Evaluate Green function and its derivatives */
-    ddgreen(r, k, nq, norm, &gr, &gi, &dgxr, &dgxi, &dgyr, &dgyi, &ddgr, &ddgi);
-    
-    /* Evaluate matrix elements */
-    *ar += (dgyr + alphar * ddgr - alphai * ddgi)*(g->w[i]);
-    *ai += (dgyi + alphar * ddgi + alphai * ddgr)*(g->w[i]);
-    
-    *br += (gr + alphar * dgxr - alphai * dgxi)*(g->w[i]);
-    *bi += (gi + alphar * dgxi + alphai * dgxr)*(g->w[i]);
-}
+        double r[NDIM];
+        double gr, gi, dgxr, dgxi, dgyr, dgyi, ddgr, ddgi;
 
-/* Finally, multiply with jacobian */
-*ar *= jac;
-*ai *= jac;
-*br *= jac;
-*bi *= jac;
-#undef NVERT
+        /* computing integration location */
+        for (j = 0; j < NDIM; j++) 				/* for all directions */
+        {
+            r[j] = -q[j];
+            for (s = 0; s < NVERT; s++) 			/* for all vertices */
+                r[j] += g->N[i+s*g->num]*nodes[s+NVERT*j];
+        }
+
+        /* Evaluate Green function and its derivatives */
+        ddgreen(r, k, nq, norm, &gr, &gi, &dgxr, &dgxi, &dgyr, &dgyi, &ddgr, &ddgi);
+
+        /* Evaluate matrix elements */
+        *ar += (dgyr + alphar * ddgr - alphai * ddgi)*(g->w[i]);
+        *ai += (dgyi + alphar * ddgi + alphai * ddgr)*(g->w[i]);
+
+        *br += (gr + alphar * dgxr - alphai * dgxi)*(g->w[i]);
+        *bi += (gi + alphar * dgxi + alphai * dgxr)*(g->w[i]);
+    }
+
+    /* Finally, multiply with jacobian */
+    *ar *= jac;
+    *ai *= jac;
+    *br *= jac;
+    *bi *= jac;
 }
 
 
 /* ------------------------------------------------------------------------ */
 /* Regular integral over a constant TRIA element using Burton-Miller        */
 void int_quad_const_bm(const gauss_t *g,
-        const double *nodes,
-        const accelerator_t *accelerator,
-        const double *q,					/* source location */
-        const double *nq, 					/* source normal vector */
-        double k, 							/* Wave number */
-        double alphar,						/* Coupling real */
-        double alphai,						/* Coupling imag */
-        double *ar,
-        double *ai,
-        double *br,
-        double *bi)
+                       const double *nodes,
+                       const accelerator_t *accelerator,
+                       const double *q,					/* source location */
+                       const double *nq, 					/* source normal vector */
+                       double k, 							/* Wave number */
+                       double alphar,						/* Coupling real */
+                       double alphai,						/* Coupling imag */
+                       double *ar,
+                       double *ai,
+                       double *br,
+                       double *bi)
 {
-#define NVERT 4
+    enum {NVERT = 4, NDIM = 3};
+
     int i,j,s;
 
-/* Initialize result to zero */
-*ar = *ai = *br = *bi = 0.0;
+    /* Initialize result to zero */
+    *ar = *ai = *br = *bi = 0.0;
 
-/* for each gaussian integration point */
-for (i = 0; i < g->num; i++)
-{
-    int j, s;
-    double r[3], rxi[3], reta[3], norm[3], jac, gr, gi, dgxr, dgxi, dgyr, dgyi, ddgr, ddgi;
-    
-    /* for each coordinate direction */
-    for (j = 0; j < 3; j++)
+    /* for each gaussian integration point */
+    for (i = 0; i < g->num; i++)
     {
-        r[j] = -q[j];
-        rxi[j] = reta[j] = 0.0;
-        /* computing integration location and its derivatives */
-        for (s = 0; s < NVERT; s++)
+        int j, s;
+        double r[NDIM], rxi[NDIM], reta[NDIM], norm[NDIM], jac, gr, gi, dgxr, dgxi, dgyr, dgyi, ddgr, ddgi;
+
+        /* for each coordinate direction */
+        for (j = 0; j < NDIM; j++)
         {
-            r[j] += g->N[i+s*g->num]*nodes[s+NVERT*j];
-            rxi[j] += g->Nxi[i+s*g->num]*nodes[s+NVERT*j];
-            reta[j] += g->Neta[i+s*g->num]*nodes[s+NVERT*j];
+            r[j] = -q[j];
+            rxi[j] = reta[j] = 0.0;
+            /* computing integration location and its derivatives */
+            for (s = 0; s < NVERT; s++)
+            {
+                r[j] += g->N[i+s*g->num]*nodes[s+NVERT*j];
+                rxi[j] += g->Nxi[i+s*g->num]*nodes[s+NVERT*j];
+                reta[j] += g->Neta[i+s*g->num]*nodes[s+NVERT*j];
+            }
         }
+
+        /* surface normal and jacobian */
+        cross(rxi, reta, norm);
+        jac = sqrt(dot(norm, norm));
+        for (j = 0; j < NDIM; j++)
+            norm[j] /= jac;
+        jac *= g->w[i];
+
+        /* Evaluate Green function and its derivatives */
+        ddgreen(r, k, nq, norm, &gr, &gi, &dgxr, &dgxi, &dgyr, &dgyi, &ddgr, &ddgi);
+
+        /* Evaluate matrix elements */
+        *ar += (dgyr + alphar * ddgr - alphai * ddgi)*jac;
+        *ai += (dgyi + alphar * ddgi + alphai * ddgr)*jac;
+
+        *br += (gr + alphar * dgxr - alphai * dgxi)*jac;
+        *bi += (gi + alphar * dgxi + alphai * dgxr)*jac;
     }
-    
-    /* surface normal and jacobian */
-    cross(rxi, reta, norm);
-    jac = sqrt(dot(norm, norm));
-    for (j = 0; j < 3; j++)
-        norm[j] /= jac;
-    jac *= g->w[i];
-    
-    /* Evaluate Green function and its derivatives */
-    ddgreen(r, k, nq, norm, &gr, &gi, &dgxr, &dgxi, &dgyr, &dgyi, &ddgr, &ddgi);
-    
-    /* Evaluate matrix elements */
-    *ar += (dgyr + alphar * ddgr - alphai * ddgi)*jac;
-    *ai += (dgyi + alphar * ddgi + alphai * ddgr)*jac;
-    
-    *br += (gr + alphar * dgxr - alphai * dgxi)*jac;
-    *bi += (gi + alphar * dgxi + alphai * dgxr)*jac;
-}
-
-#undef NVERT
 }
 
 
-double gauss_xi_bm_sing[] = {
+double gauss_xi_bm_sing[] =
+{
     -0.995187219997022,
     -0.974728555971310,
     -0.938274552002733,
@@ -355,7 +370,8 @@ double gauss_xi_bm_sing[] = {
     0.974728555971310,
     0.995187219997021
 };
-double gauss_w_bm_sing[] = {
+double gauss_w_bm_sing[] =
+{
     0.012341229799987,
     0.028531388628934,
     0.044277438817420,
@@ -382,149 +398,148 @@ double gauss_w_bm_sing[] = {
     0.012341229799988
 };
 
+enum {GNUM = sizeof(gauss_w_bm_sing)/sizeof(gauss_w_bm_sing[0])};
+
 /* ------------------------------------------------------------------------ */
 /* Singular integral over a constant TRIA element using Burton-Miller       */
 void int_tri_const_sing_bm(const gauss_t *g,   /* This will use line gauss! */
-        const double *nodes,
-        const accelerator_t *accelerator,
-        const double *q, 		/* Source location */
-        const double *nq, 		/* Source normal */
-        double k, 				/* Wave number */
-        double alphar,			/* Coupling constant real */
-        double alphai, 			/* Coupling constant imag */
-        double *ar,
-        double *ai,
-        double *br,
-        double *bi)
+                           const double *nodes,
+                           const accelerator_t *accelerator,
+                           const double *q, 		/* Source location */
+                           const double *nq, 		/* Source normal */
+                           double k, 				/* Wave number */
+                           double alphar,			/* Coupling constant real */
+                           double alphai, 			/* Coupling constant imag */
+                           double *ar,
+                           double *ai,
+                           double *br,
+                           double *bi)
 {
-#define NVERT 3
+    enum {NDIM = 3, NVERT = 3};
+
     int i, j, s;
 
-/* TODO: temporary */
-int gnum = sizeof(gauss_w_bm_sing)/sizeof(gauss_w_bm_sing[0]);
+    /* Initialize the result */
+    *ar = *ai = *br = *bi = 0.0;
 
-/* Initialize the result */
-*ar = *ai = *br = *bi = 0.0;
-
-/* Go through all three sides */
-for (i = 0; i < NVERT; ++i)
-{
-    double L; 				     	/* Length of side */
-    int n1, n2;						/* The two node numbers */
-    int ig;
-    double d[3];
-    /* Initialize nodes */
-    n1 = i; n2 = (n1+1)%NVERT; 			/* Calculate between ith and i+1th nodes */
-    /* Obtain distance vector */
-    for (j = 0; j < 3; ++j) /* For all dimensions */
-        d[j] = nodes[n2+NVERT*j] - nodes[n1+NVERT*j];
-    /* Calculate element length */
-    L = sqrt(dot(d,d));
-    
-    /* Go through all integration points */
-    for (ig = 0; ig < gnum; ig++)
+    /* Go through all three sides */
+    for (i = 0; i < NVERT; ++i)
     {
-        double r[3], lr, jac;  		/* actual r vector, r, and jacobian */
-        double gr, gi, grr, gri;
-        double tmp;
-        /* Calculate actual location x(\xi)-x_q*/
-        for (j=0; j < 3; ++j)
-            r[j] = 0.5*(1.0-gauss_xi_bm_sing[ig])*nodes[n1+NVERT*j]
-                    + 0.5*(1.0+gauss_xi_bm_sing[ig])*nodes[n2+NVERT*j] - q[j];
-        /* Absolute value of distance */
-        lr = sqrt(dot(r,r));
-        /* Jacobian is sin(beta)/ar*L/2 */
-        /* Weight is also part of jacobian */
-        tmp = dot(r,d)/(lr*L);
-        jac = gauss_w_bm_sing[ig] * sqrt(1.0 - tmp*tmp) / lr * L / 2.0;
-        
-        /* Here the calculation of the integrand should be performed */
-        /* Matrix H: the negative of the simple green function should be evaluated */
-        green(r, k, &gr, &gi, NULL, NULL, NULL);
-        
-        *ar -= (gr * alphar - gi*alphai)*jac;
-        *ai -= (gr * alphai + gi*alphar)*jac;
-        
-        /* Matrix G: the reduced Green is evaluated */
-        greenr(lr, k, &grr, &gri);
-        
-        *br += -gri*jac;
-        *bi += grr*jac;
+        double L; 				     	/* Length of side */
+        int n1, n2;						/* The two node numbers */
+        int ig;
+        double d[NDIM];
+        /* Initialize nodes */
+        n1 = i;
+        n2 = (n1+1)%NVERT; 			/* Calculate between ith and i+1th nodes */
+        /* Obtain distance vector */
+        for (j = 0; j < NDIM; ++j) /* For all dimensions */
+            d[j] = nodes[n2+NVERT*j] - nodes[n1+NVERT*j];
+        /* Calculate element length */
+        L = sqrt(dot(d,d));
+
+        /* Go through all integration points */
+        for (ig = 0; ig < GNUM; ig++)
+        {
+            double r[NDIM], lr, jac;  		/* actual r vector, r, and jacobian */
+            double gr, gi, grr, gri;
+            double tmp;
+            /* Calculate actual location x(\xi)-x_q*/
+            for (j=0; j < NDIM; ++j)
+                r[j] = 0.5*(1.0-gauss_xi_bm_sing[ig])*nodes[n1+NVERT*j]
+                       + 0.5*(1.0+gauss_xi_bm_sing[ig])*nodes[n2+NVERT*j] - q[j];
+            /* Absolute value of distance */
+            lr = sqrt(dot(r,r));
+            /* Jacobian is sin(beta)/ar*L/2 */
+            /* Weight is also part of jacobian */
+            tmp = dot(r,d)/(lr*L);
+            jac = gauss_w_bm_sing[ig] * sqrt(1.0 - tmp*tmp) / lr * L / 2.0;
+
+            /* Here the calculation of the integrand should be performed */
+            /* Matrix H: the negative of the simple green function should be evaluated */
+            green(r, k, &gr, &gi, NULL, NULL, NULL);
+
+            *ar -= (gr * alphar - gi*alphai)*jac;
+            *ai -= (gr * alphai + gi*alphar)*jac;
+
+            /* Matrix G: the reduced Green is evaluated */
+            greenr(lr, k, &grr, &gri);
+
+            *br += -gri*jac;
+            *bi += grr*jac;
+        }
     }
-}
-#undef NVERT
 }
 
 
 /* ------------------------------------------------------------------------ */
 /* Singular integral over a constant QUAD element using Burton-Miller       */
 void int_quad_const_sing_bm(const gauss_t *g,   /* This will use line gauss! */
-        const double *nodes,
-        const accelerator_t *accelerator,
-        const double *q, 		/* Source location */
-        const double *nq, 		/* Source normal */
-        double k, 				/* Wave number */
-        double alphar,			/* Coupling constant real */
-        double alphai, 			/* Coupling constant imag */
-        double *ar,
-        double *ai,
-        double *br,
-        double *bi)
+                            const double *nodes,
+                            const accelerator_t *accelerator,
+                            const double *q, 		/* Source location */
+                            const double *nq, 		/* Source normal */
+                            double k, 				/* Wave number */
+                            double alphar,			/* Coupling constant real */
+                            double alphai, 			/* Coupling constant imag */
+                            double *ar,
+                            double *ai,
+                            double *br,
+                            double *bi)
 {
-#define NVERT 4
-    int i, j, s;
+    enum {NDIM = 3, NVERT = 4};
 
-/* TODO: temporary */
-int gnum = sizeof(gauss_w_bm_sing)/sizeof(gauss_w_bm_sing[0]);
+    int i;
 
-/* Initialize the result */
-*ar = *ai = *br = *bi = 0.0;
+    /* Initialize the result */
+    *ar = *ai = *br = *bi = 0.0;
 
-/* Go through all three sides */
-for (i = 0; i < NVERT; ++i)
-{
-    double L; 				     	/* Length of side */
-    int n1, n2;						/* The two node numbers */
-    int ig;
-    double d[3];
-    /* Initialize nodes */
-    n1 = i; n2 = (n1+1)%NVERT; 			/* Calculate between ith and i+1th nodes */
-    /* Obtain distance vector */
-    for (j = 0; j < 3; ++j) /* For all dimensions */
-        d[j] = nodes[n2+NVERT*j] - nodes[n1+NVERT*j];
-    /* Calculate element length */
-    L = sqrt(dot(d,d));
-    
-    /* Go through all integration points */
-    for (ig = 0; ig < gnum; ig++)
+    /* Go through all three sides */
+    for (i = 0; i < NVERT; ++i)
     {
-        double r[3], lr, jac;  		/* actual r vector, r, and jacobian */
-        double gr, gi, grr, gri;
-        double tmp;
-        /* Calculate actual location x(\xi)-x_q*/
-        for (j=0; j < 3; ++j)
-            r[j] = 0.5*(1.0-gauss_xi_bm_sing[ig])*nodes[n1+NVERT*j]
-                    + 0.5*(1.0+gauss_xi_bm_sing[ig])*nodes[n2+NVERT*j] - q[j];
-        /* Absolute value of distance */
-        lr = sqrt(dot(r,r));
-        /* Jacobian is sin(beta)/ar*L/2 */
-        /* Weight is also part of jacobian */
-        tmp = dot(r,d)/(lr*L);
-        jac = gauss_w_bm_sing[ig] * sqrt(1.0 - tmp*tmp) / lr * L / 2.0;
-        
-        /* Here the calculation of the integrand should be performed */
-        /* Matrix H: the negative of the simple green function should be evaluated */
-        green(r, k, &gr, &gi, NULL, NULL, NULL);
-        
-        *ar -= (gr * alphar - gi*alphai)*jac;
-        *ai -= (gr * alphai + gi*alphar)*jac;
-        
-        /* Matrix G: the reduced Green is evaluated */
-        greenr(lr, k, &grr, &gri);
-        
-        *br += -gri*jac;
-        *bi += grr*jac;
+        int j, s;
+        double L; 				     	/* Length of side */
+        int n1, n2;						/* The two node numbers */
+        int ig;
+        double d[NDIM];
+        /* Initialize nodes */
+        n1 = i;
+        n2 = (n1+1)%NVERT; 			/* Calculate between ith and i+1th nodes */
+        /* Obtain distance vector */
+        for (j = 0; j < NDIM; ++j) /* For all dimensions */
+            d[j] = nodes[n2+NVERT*j] - nodes[n1+NVERT*j];
+        /* Calculate element length */
+        L = sqrt(dot(d,d));
+
+        /* Go through all integration points */
+        for (ig = 0; ig < GNUM; ig++)
+        {
+            double r[NDIM], lr, jac;  		/* actual r vector, r, and jacobian */
+            double gr, gi, grr, gri;
+            double tmp;
+            /* Calculate actual location x(\xi)-x_q*/
+            for (j=0; j < NDIM; ++j)
+                r[j] = 0.5*(1.0-gauss_xi_bm_sing[ig])*nodes[n1+NVERT*j]
+                       + 0.5*(1.0+gauss_xi_bm_sing[ig])*nodes[n2+NVERT*j] - q[j];
+            /* Absolute value of distance */
+            lr = sqrt(dot(r,r));
+            /* Jacobian is sin(beta)/ar*L/2 */
+            /* Weight is also part of jacobian */
+            tmp = dot(r,d)/(lr*L);
+            jac = gauss_w_bm_sing[ig] * sqrt(1.0 - tmp*tmp) / lr * L / 2.0;
+
+            /* Here the calculation of the integrand should be performed */
+            /* Matrix H: the negative of the simple green function should be evaluated */
+            green(r, k, &gr, &gi, NULL, NULL, NULL);
+
+            *ar -= (gr * alphar - gi*alphai)*jac;
+            *ai -= (gr * alphai + gi*alphar)*jac;
+
+            /* Matrix G: the reduced Green is evaluated */
+            greenr(lr, k, &grr, &gri);
+
+            *br += -gri*jac;
+            *bi += grr*jac;
+        }
     }
-}
-#undef NVERT
 }
