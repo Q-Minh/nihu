@@ -40,7 +40,7 @@ void mexFunction(int nlhs,
     int nnodes, nelements, npoints;
     gauss_t *g3, *g4;
     /* output parameters */
-	double alphar, alphai;
+    double alphar, alphai;
     double *Ar, *Ai, *Br, *Bi;
     /* local variables */
     int j;
@@ -72,8 +72,8 @@ void mexFunction(int nlhs,
     }
     dist = mxGetPr(prhs[4]);
     k = mxGetScalar(prhs[5]);
-	alphar = *mxGetPr(prhs[6]);
-	alphai = *mxGetPi(prhs[6]);
+    alphar = *mxGetPr(prhs[6]);
+    alphai = *mxGetPi(prhs[6]);
 
     plhs[0] = mxCreateDoubleMatrix(nelements, nelements, mxCOMPLEX);
     plhs[1] = mxCreateDoubleMatrix(nelements, nelements, mxCOMPLEX);
@@ -82,10 +82,10 @@ void mexFunction(int nlhs,
     Br = mxGetPr(plhs[1]);
     Bi = mxGetPi(plhs[1]);
 
-	/* call C subroutine */
+    /* call C subroutine */
     matrix_surf_const_bm(nnodes, nodes, nelements, elements,
-        g3, g4, dist, k, alphar, alphai,  Ar, Ai, Br, Bi); 
-    
+                         g3, g4, dist, k, alphar, alphai,  Ar, Ai, Br, Bi);
+
 
     free(g3);
     free(g4);

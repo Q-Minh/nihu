@@ -7,32 +7,34 @@
 #include <math.h>
 #include <stdlib.h>
 
-/* ------------------------------------------------------------------------ */
+/* ---------------------------------------------- */
 /* Compute surface system matrices of a bem model */
 void matrix_surf_const_bm(int nnodes,
-						const double *nodes,
-						int nelements,
-						const double *elements,
-						const gauss_t *g3,
-						const gauss_t *g4,
-						const double *dist,
-						double k,
-						double alphar, 
-						double alphai,
-						double *Ar,
-						double *Ai,
-						double *Br,
-						double *Bi)
+                          const double *nodes,
+                          int nelements,
+                          const double *elements,
+                          const gauss_t *g3,
+                          const gauss_t *g4,
+                          const double *dist,
+                          double k,
+                          double alphar,
+                          double alphai,
+                          double *Ar,
+                          double *Ai,
+                          double *Br,
+                          double *Bi)
 {
+    enum {MAXNVERT = 4, NDIM = 3};
+
     accelerator_t *accelerators;
     const double *q;
     int j, e, s, n, gs;
-    int elem[4], nvert;
-    double nod[12];
+    int elem[MAXNVERT], nvert;
+    double nod[MAXNVERT*NDIM];
     double ai, bi, ar, br;
-	double nq[3];
-	double jac;
-	
+    double nq[NDIM];
+    double jac;
+
     /* Compute element centres */
     accelerators = (accelerator_t *)calloc(nelements, sizeof(accelerator_t));
     init_accelerators(nnodes, nodes, nelements, elements, accelerators);
@@ -40,13 +42,13 @@ void matrix_surf_const_bm(int nnodes,
     /* Integration for each node as reference point */
     for (n = 0; n < nelements; n++)
     {
-		/* Source location is element center */
+        /* Source location is element center */
         q = accelerators[n].center;
-		
-		/* Source normal calculation */
-		jac = sqrt(dot(accelerators[n].n0, accelerators[n].n0));
-		for (j = 0; j < 3; j++)
-			nq[j] = accelerators[n].n0[j]/jac;
+
+        /* Source normal calculation */
+        jac = sqrt(dot(accelerators[n].n0, accelerators[n].n0));
+        for (j = 0; j < NDIM; j++)
+            nq[j] = accelerators[n].n0[j]/jac;
 
         /* Integration for each element */
         for (e = 0; e < nelements; e++)
@@ -57,7 +59,7 @@ void matrix_surf_const_bm(int nnodes,
             for (s = 0; s < nvert; s++)
             {
                 elem[s] = (int)elements[e+(s+1)*nelements];
-                for (j = 0; j < 3; j++)
+                for (j = 0; j < NDIM; j++)
                     nod[s+nvert*j] = nodes[elem[s]+j*nnodes];
             }
             /* Singular element */
@@ -83,7 +85,7 @@ void matrix_surf_const_bm(int nnodes,
                     int_quad_const_bm(&g4[gs], nod, &accelerators[e], q, nq, k, alphar, alphai, &ar, &ai, &br, &bi);
                     break;
                 case 3:
-                    int_tri_const_bm(&g3[gs], nod, &accelerators[e], q, nq, k, alphar, alphai,  &ar, &ai, &br, &bi); 
+                    int_tri_const_bm(&g3[gs], nod, &accelerators[e], q, nq, k, alphar, alphai,  &ar, &ai, &br, &bi);
                     break;
                 }
             }
@@ -100,27 +102,29 @@ void matrix_surf_const_bm(int nnodes,
 /* ------------------------------------------------------------------------ */
 /* Compute surface sparse system matrices of a bem model */
 void matrix_surf_const_bm_sparse(int nnodes,
-                     const double *nodes,
-                     int nelements,
-                     const double *elements,
-                     int npairs,
-                     const double *pairs,
-                     const gauss_t *g3,
-                     const gauss_t *g4,
-                     const double *dist,
-                     double k,
-					 double alphar,
-					 double alphai,
-                     double *Ar,
-                     double *Ai,
-                     double *Br,
-                     double *Bi)
+                                 const double *nodes,
+                                 int nelements,
+                                 const double *elements,
+                                 int npairs,
+                                 const double *pairs,
+                                 const gauss_t *g3,
+                                 const gauss_t *g4,
+                                 const double *dist,
+                                 double k,
+                                 double alphar,
+                                 double alphai,
+                                 double *Ar,
+                                 double *Ai,
+                                 double *Br,
+                                 double *Bi)
 {
+    enum {MAXNVERT = 4, NDIM = 3};
+
     accelerator_t *accelerators;
     const double *q;
     int j, e, s, n, gs, p;
-    int elem[4], nvert;
-    double nod[12], nq[3], jac;
+    int elem[MAXNVERT], nvert;
+    double nod[MAXNVERT*NDIM], nq[NDIM], jac;
     double ai, bi, ar, br;
 
     /* Allocate space for element centres */
@@ -135,22 +139,22 @@ void matrix_surf_const_bm_sparse(int nnodes,
 
         /* reference location */
         q = accelerators[n].center;
-		/* Source normal calculation */
-		jac = sqrt(dot(accelerators[n].n0, accelerators[n].n0));
-		for (j = 0; j < 3; j++)
-			nq[j] = accelerators[n].n0[j]/jac;
+        /* Source normal calculation */
+        jac = sqrt(dot(accelerators[n].n0, accelerators[n].n0));
+        for (j = 0; j < NDIM; j++)
+            nq[j] = accelerators[n].n0[j]/jac;
 
         nvert = (int)elements[e];
 
         for (s = 0; s < nvert; s++)
         {
             elem[s] = (int)elements[e+(s+1)*nelements];
-            for (j = 0; j < 3; j++)
+            for (j = 0; j < NDIM; j++)
                 nod[s+nvert*j] = nodes[elem[s]+j*nnodes];
         }
 
         if (e == n) /* singular case */
-		{
+        {
             switch(nvert)
             {
             case 4:
@@ -160,25 +164,25 @@ void matrix_surf_const_bm_sparse(int nnodes,
                 int_tri_const_sing_bm(&g4[0], nod, &accelerators[e], q, nq, k, alphar, alphai, &ar, &ai, &br, &bi);
                 break;
             }
-		}
+        }
         else /* regular case */
-		{
-			gs = gauss_division(q, accelerators[e].center, dist);
-			switch(nvert)
-			{
-			case 4:
-				int_quad_const_bm(&g4[gs], nod, &accelerators[e], q, nq, k, alphar, alphai, &ar, &ai, &br, &bi);
-				break;
-			case 3:
-				int_tri_const_bm(&g3[gs], nod, &accelerators[e], q, nq, k, alphar, alphai,  &ar, &ai, &br, &bi); 
-				break;
-			}
-		}
+        {
+            gs = gauss_division(q, accelerators[e].center, dist);
+            switch(nvert)
+            {
+            case 4:
+                int_quad_const_bm(&g4[gs], nod, &accelerators[e], q, nq, k, alphar, alphai, &ar, &ai, &br, &bi);
+                break;
+            case 3:
+                int_tri_const_bm(&g3[gs], nod, &accelerators[e], q, nq, k, alphar, alphai,  &ar, &ai, &br, &bi);
+                break;
+            }
+        }
 
-		Ar[p] = ar;
-		Ai[p] = ai;
-		Br[p] = br;
-		Bi[p] = bi;
-	}
+        Ar[p] = ar;
+        Ai[p] = ai;
+        Br[p] = br;
+        Bi[p] = bi;
+    }
     free(accelerators);
 }
