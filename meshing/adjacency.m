@@ -13,6 +13,8 @@ function [S, DOF] = adjacency(mesh)
 %   Budapest University of Technology and Economics
 %   Dept. of Telecommunications
 
+% Last modified: 2012.12.10.
+
 %% Preprocessing
 % drop User IDs
 Elements = drop_IDs(mesh);
@@ -27,7 +29,7 @@ N = start(end); % total number of matrix entries (non overlapped)
 I = zeros(N,1); % preallocating row indices
 J = zeros(N,1); % preallocating column indices
 
-%% Computing the acoustic matrices
+%% Filling elements of S
 nElem = size(Elements,1);
 for iElem = 1 : nElem
     elem = Elements(iElem,:);

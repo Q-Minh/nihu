@@ -1,5 +1,5 @@
 function [A DOF] = model_a(boundary)
-%boundary_A Compute excitation surface matrix of the FE boundary
+%MODEL_A Compute excitation surface matrix of the FE boundary
 %   [A DOF] = model_A(boundary) Computes the boundary excitation matrix A of
 %   the finite element boundary boundary.
 %

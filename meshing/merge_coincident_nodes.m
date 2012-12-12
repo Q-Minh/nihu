@@ -25,7 +25,6 @@ function [mesh, nodind, dropind] = merge_coincident_nodes(mesh, tol)
 % Last updated: 02.12.2009.
 
 %% Parameter check
-error(nargchk(1, 2, nargin, 'struct'));
 if nargin < 2
     tol = 1e-3;
 end
@@ -34,7 +33,7 @@ end
 elements = drop_IDs(mesh);
 
 %% Coincident nodes
-[trash, nodind, perm] = unique(round(mesh.Nodes(:,2:4)/tol), 'rows');
+[~, nodind, perm] = unique(round(mesh.Nodes(:,2:4)/tol), 'rows');
 if nargout > 2
     dropind = setdiff(1:size(mesh.Nodes,1), nodind);
 end
