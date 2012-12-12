@@ -1,4 +1,4 @@
-function model = create_line(L, N)
+function model = create_line(varargin)
 %CREATE_LINE  Create a line mesh
 %   LINE = CREATE_LINE(L, N) creates a line model with length given
 %   in L and division given in N. The line starts at the origin, and is
@@ -18,26 +18,33 @@ function model = create_line(L, N)
 %   Budapest University of Technology and Economics
 %   Dept. of Telecommunications
 
-% Last modifed: 07.09.2010
+% Last modifed: 2012.12.12
 
-%% Parameter check
-error(nargchk(1, 2, nargin, 'struct'));
+% TODO: Cx mode not working yet
 
-if nargin == 1
-    N = length(L)-1;
-    model.Nodes = [(1:N+1).' sort(L(:)), repmat([0 0], N+1, 1)];
-elseif numel(L) == 1    % Side length is given
-    model.Nodes = [(1:N+1).' linspace(0,L,N+1).', repmat([0 0], N+1, 1)];
-elseif size(L,1) == 2
-    model.Nodes = [(1:N+1).', ...
-        linspace(L(1,1), L(2,1), N+1).', ...
-        linspace(L(1,2), L(2,2), N+1).', ...
-        linspace(L(1,3), L(2,3), N+1).'];
+% Process input arguments
+switch nargin
+    case 2 % Two arguments mode
+        if (isscalar(varargin{2})) % L and N are given
+            if (size(varargin{1},1) == 1)
+                R = [0 0 0;
+                     varargin{1}, zeros(1, 3-size(varargin{1},2))];
+            elseif (size(varargin{1},1) == 2)
+                R = [varargin{1}, zeros(2, 3-size(varargin{1},2))];
+            end
+            N = varargin{2};
+        else
+            error('NiHu:create_line:argFormat',...
+                'Unsupported format of input arguments.');
+        end
+    otherwise
+         error('NiHu:create_line:argNumber',...
+            'Unsupported number of arguments: %d.', nargin);
 end
 
-%%
-model.Elements = [(1:N).', repmat([12 1 1], N, 1), (1:N).', (2:N+1).'];
-model.Materials = [1 1];
-model.Properties = [1 1];
+% Transformation
+model = create_line_base(N);            % Create base
+phi = shapefun(model.Nodes(:,2), 12);   % Obtain shape values
+model.Nodes(:,2:4) = phi * R;           % Finish transformation
 
 end
