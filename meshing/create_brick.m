@@ -21,7 +21,7 @@ function model = create_brick(varargin)
 % CREATE_CIRCLE_QUADRANT, CREATE_SPHERE, CREATE_SPHERE_BOUNDARY,
 % CREATE_CATSEYE
 
-%   Copyright 2008-2010 P. Fiala, P. Rucz
+%   Copyright 2008-2012 P. Fiala, P. Rucz
 %   Budapest University of Technology and Economics
 %   Dept. of Telecommunications
 
@@ -105,3 +105,4 @@ elseif exist('Cx', 'var')
 end
 
 end
+
