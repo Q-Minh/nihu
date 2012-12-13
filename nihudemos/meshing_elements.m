@@ -2,24 +2,23 @@
 % This tutorial describes how to create simple meshes using the toolbox
 % |NIHU|.
 
-%% Create a straight line
-% Simple straight lines can be created using the toolbox function
-% <matlab:doc('create_line') create_line>. There are three different ways of meshing straight lines:
+%% Create a line
+% Simple line meshes can be created using the toolbox function
+% <matlab:doc('create_line') create_line>. There are different ways
+% of meshing lines:
 %
 % * Defining its length $L$ and the number of elements $n_E$
 % * Defining its starting and ending positions ${\bf x}_1$ and ${\bf x}_2$,
 % as well as the number of elements $n_E$
-% * Defining the internal nodes ${\bf x}_i$ of the straight line.
-%
+% * Defining the internal nodes ${\bf x}_i$ of the line.
+
+
+%%
 % In the first example, the first method is applied.
-%
 L = 5;              % length of the line
 Le = 0.3;           % approximate length of a line element
 N = ceil(L/Le);     % number of elements
-lin = create_line(L, N);
-
-figure;
-plot_mesh(lin);
+lin1 = create_line(L, N);
 
 %%
 % The second method can be applied as follows:
@@ -29,24 +28,38 @@ R = [                               % start and end locations
     ];
 Le = 0.3;                           % approx. length of a line element
 N = ceil(norm(diff(R,[],1))/Le);    % number of elements
-lin = create_line(R, N);
+lin2 = create_line(R, N);
 
-figure;
-plot_mesh(lin); view(3);
+%%
+% If the first row of |R| is omitted, then the line starts at the origin:
+
+R = [2 3 1];
+lin3 = create_line(R, N);
 
 %%
 % In the third method, the line's nodes ${\bf x}_i$ are directly defined.
 % In this case, the line is aligned along the $x$ axis.
 Cx = (-1:.1:+2)';          % internal nodes
-lin = create_line(Cx);
+lin4 = create_line(Cx);
+
+%%
+% the nodes ${\bf x}_i$ can be defined as three-dimensional coordinates. In
+% this case |Cx| is an nx3 (or nx2) matrix:
+l = (0:1e-2:1)';
+Cx = [ l l.^2 l.^3 ];          % internal nodes
+lin5 = create_line(Cx);
 
 figure;
-plot_mesh(lin);
-
+subplot(2,3,1); plot_mesh(lin1);
+subplot(2,3,2); plot_mesh(lin2);
+subplot(2,3,3); plot_mesh(lin3);
+subplot(2,3,4); plot_mesh(lin4);
+subplot(2,3,5); plot_mesh(lin5);
 
 %% Create slab
-% Rectangular slabs can be created using the toolbox function
-% <matlab:doc('create_slab') create_slab>. There are three ways of defining slabs:
+% Slabs can be created using the toolbox function
+% <matlab:doc('create_slab') create_slab>. There are three ways of
+% defining slabs:
 %
 % * Define its side lengths $L_x$ and $L_y$, and the number of elements
 % $N_x$ and $N_y$
@@ -54,24 +67,24 @@ plot_mesh(lin);
 % elements along the two dimensions.
 % * Define the internal nodes $x_i$, $y_j$ directly,
 % so that the slab's nodes are elements of the Descartes product $x_i \times y_j$.
-%
+
+%%
 % In the first case, the slab is located at the origin, its sides are
 % aligned along the $x$ and $y$ axes.
 L = [4 3];                  % side lengths
 Le = .3;                    % approximate side length of an element
 N = ceil(L/Le);             % number of elements along the two sides
-slab = create_slab(L, N);
-
-figure;
-plot_mesh(slab);
+slab1 = create_slab(L, N);
 
 %%
 % The parameters |L| and |N| can be defined as scalars, so that the same
 % meshing parameters are used in the two directions.
-slab = create_slab(4, 7);
+slab2 = create_slab(4, 7);
 
-figure;
-plot_mesh(slab);
+%%
+% If |L| is defined with two rows, then the slab is located between the
+% coordinates defined by the rows of |L|
+slab3 = create_slab([1 2; 3 4], [10 20]);
 
 %%
 % In the second method, the four corner nodes are defined in the 4x3 matrix
@@ -82,28 +95,26 @@ C = [                       % corner coordinates
     .7  1 1
     .2 .7 0
     ];
-N = [10 7];                 % division parameters
-slab = create_slab(C, N);
-figure;
-plot_mesh(slab); view(3);
+slab4 = create_slab(C, [10 7]);
 
 %%
 % With the third method, non-uniformly meshed slabs can be easily defined
 % as follows:
 Cx = logspace(1, 2, 30).';    % internal nodes along the x axis
 Cy = linspace(10, 30, 10).';  % internal nodes along the y axis
-slab = create_slab(Cx, Cy);
-
-figure;
-plot_mesh(slab);
+slab5 = create_slab(Cx, Cy);
 
 %%
 % If only |Cx| is defined, the same nodes are applied for both dimensions:
-Cx = logspace(1, 2, 20);    % internal nodes along the x and y axes
-slab = create_slab(Cx);
+slab6 = create_slab(Cx);
 
 figure;
-plot_mesh(slab);
+subplot(2,3,1); plot_mesh(slab1);
+subplot(2,3,2); plot_mesh(slab2);
+subplot(2,3,3); plot_mesh(slab3);
+subplot(2,3,4); plot_mesh(slab4);
+subplot(2,3,5); plot_mesh(slab5);
+subplot(2,3,6); plot_mesh(slab6);
 
 %% Create circle
 % Circle quadrants can be meshed by using the function
