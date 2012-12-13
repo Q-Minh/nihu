@@ -28,7 +28,7 @@ switch nargin
     case 1 % One argument mode (Cx, Cx mode)
         Cx = sort(varargin{1});
         Cy = Cx;
-        N = [length(Cx)-1 length(Cy)-1];
+        N = length(Cx) * [1 1] - 1;
     case 2 % Two argument mode
         % Cx, Cy mode
         if (size(varargin{1},1) > 2 && size(varargin{1},2) == 1) || size(varargin{2},1) > 2
