@@ -4,8 +4,7 @@ function model = create_circle(R, nR, varargin)
 %   origin. The radius of the circle is R, its division parameter is N. N
 %   is equal to the number of elements along the radius, this value needs
 %   to be even, otherwise it is modified to the nearest larger even number.
-%   The circle is located in the xy plane, its sides are parallel
-%   with the x and y axes.
+%   The circle is located in the xy plane.
 %
 % See also: CREATE_LINE, CREATE_SLAB, CREATE_CIRCLE_QUADRANT, CREATE_BRICK,
 % CREATE_BRICK_BOUNDARY, CREATE_SPHERE, CREATE_SPHERE_BOUNDARY,
@@ -15,16 +14,14 @@ function model = create_circle(R, nR, varargin)
 %   Budapest University of Technology and Economics
 %   Dept. of Telecommunications
 
-% Last modified 07.09.2010
-%% Parameter check
-error(nargchk(2, 3, nargin, 'struct'));
+% Last modified 2012.12.13.
 
-%% Create and reflect a circle quadrant
+% Create and reflect a circle quadrant
 model = create_circle_quadrant(R, nR, varargin{:});
 model = join_meshes(model, reflect_mesh(model, [0 0 0], [1 0 0]));
 model = join_meshes(model, reflect_mesh(model, [0 0 0], [0 1 0]));
 
-%% Merge model and get rid of IDs
+% Merge model and get rid of IDs
 model = merge_coincident_nodes(model,varargin{:});
 model.Elements = drop_IDs(model);
 model.Elements(:,[3 4]) = repmat([1,1],size(model.Elements,1),1);
