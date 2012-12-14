@@ -14,18 +14,15 @@ function model = create_circle(R, nR, varargin)
 %   Budapest University of Technology and Economics
 %   Dept. of Telecommunications
 
-% Last modified 2012.12.13.
+% Last modified 2012.12.14.
 
 % Create and reflect a circle quadrant
-model = create_circle_quadrant(R, nR, varargin{:});
-model = join_meshes(model, reflect_mesh(model, [0 0 0], [1 0 0]));
-model = join_meshes(model, reflect_mesh(model, [0 0 0], [0 1 0]));
+model = create_circle_quadrant(R, nR);
+model = join_meshes(model, reflect_mesh(model, [1 0 0]));
+model = join_meshes(model, reflect_mesh(model, [0 1 0]));
 
 % Merge model and get rid of IDs
-model = merge_coincident_nodes(model,varargin{:});
-model.Elements = drop_IDs(model);
-model.Elements(:,[3 4]) = repmat([1,1],size(model.Elements,1),1);
-model.Properties = [1 1];
-model.Materials = [1 1];
-model.Nodes(:,1) = 1 : size(model.Nodes,1);
+model = merge_coincident_nodes(model, R/nR/10);
+model = drop_mesh_IDs(model);
+
 end

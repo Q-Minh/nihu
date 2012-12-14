@@ -1,5 +1,5 @@
 function mesh = translate_mesh(mesh, dir)
-%TRANSLATE_MESH Translate mesh along a given vector
+%TRANSLATE_MESH Translate mesh along a given vector (NiHu / meshing)
 %   MESH = TRANSLATE_MESH(MESH, DIR) translates the mesh MESH along the
 %   direction vector DIR.
 %
@@ -10,13 +10,10 @@ function mesh = translate_mesh(mesh, dir)
 %   Budapest University of Technology and Economics
 %   Dept. of Telecommunications
 
-% Last modifed: 02.12.2009
+% Last modifed: 2012.12.14.
 
-%% Argument check
-error(nargchk(2, 2, nargin, 'struct'));
-
-%%
 ind = 1+(1:length(dir));
 mesh.Nodes(:,ind) = mesh.Nodes(:,ind) + ...
     repmat(dir(:).',size(mesh.Nodes,1),1);
+
 end

@@ -4,12 +4,11 @@ function mesh = import_bulk_mesh(fname)
 %
 % See also: EXPORT_BULK_MESH
 
-%   Copyright 2008-2011 P. Fiala
+%   Copyright 2008-2012 P. Fiala, P. Rucz
 %   Budapest University of Technology and Economics
 %   Dept. of Telecommunications
 
-%% Parameter check
-error(nargchk(1, 1, nargin, 'struct'));
+% Last modified: 2012.12.14.
 
 %% Open and read the file
 fid = fopen(fname, 'rt');
@@ -96,9 +95,9 @@ for net = 1 : size(ElementTypes)
         rows = [rows; rows+1]; %#ok<AGROW>
     end
     data = sscanf(cell2mat(c(:)'), repmat('%d', 1, nnod+1), [nnod+1,l]);
-    Elements(ind, [1 4+(1:nnod)]) = data';
-    Elements(ind, 2) = type;
-    Elements(ind, 3:4) = 1;
+    Elements(ind, [1 4+(1:nnod)]) = data'; %#ok<AGROW>
+    Elements(ind, 2) = type; %#ok<AGROW>
+    Elements(ind, 3:4) = 1; %#ok<AGROW>
     file = file(setdiff(1:length(file), rows));
     fprintf(1, 'Done\n');
 end

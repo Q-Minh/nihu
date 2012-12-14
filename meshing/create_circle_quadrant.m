@@ -1,4 +1,4 @@
-function model = create_circle_quadrant(R, nR, varargin)
+function model = create_circle_quadrant(R, nR)
 %CREATE_CIRCLE_QUADRANT Create quadrant of a circle surface mesh
 %   CIRCLE = CREATE_CIRCLE_QUADRANT(R, N) creates the quadrant of a
 %   circular mesh located at the origin. The radius of the circle is R, its
@@ -12,16 +12,13 @@ function model = create_circle_quadrant(R, nR, varargin)
 % CREATE_BRICK_BOUNDARY, CREATE_SPHERE, CREATE_SPHERE_BOUNDARY,
 % CREATE_CATSEYE
 
-%   Copyright 2008-2010 P. Fiala
+%   Copyright 2008-2012 P. Fiala, P. Rucz
 %   Budapest University of Technology and Economics
 %   Dept. of Telecommunications
 
-% Last modifed: 02.12.2009
+% Last modifed: 2012.12.14.
 
-%% Parameter check
-error(nargchk(2, 3, nargin, 'struct'));
 
-%%
 nR = ceil(nR/2)*2; % number of elements over the radius (have to be even)
 center = .6/sqrt(2) * [1 1]; % 'center' point of the quadrant
 % internal slice
@@ -48,12 +45,12 @@ outer2 = create_slab(cou, nR/2*[1 1]);
 level = repmat(level,1,3);
 outer.Nodes(:,2:4) = (1-level) .* outer1.Nodes(:,2:4) + level .* outer2.Nodes(:,2:4);
 % combine innner, outer and outer's image regions
-model = join_meshes(inner, outer, reflect_mesh(outer, [0 0 0], [-1 +1 0]));
+model = join_meshes(inner, outer, reflect_mesh(outer, [-1 +1 0]));
 % scale to radius
 model.Nodes(:,2:4) = R * model.Nodes(:,2:4);
 % merge coincident nodes
-model = merge_coincident_nodes(model,varargin{:});
-model.Elements = drop_IDs(model);
-model.Nodes(:,1) = 1 : size(model.Nodes,1);
+tol = R / (10*nR);
+model = merge_coincident_nodes(model, tol);
+model = drop_mesh_IDs(model);
 
 end

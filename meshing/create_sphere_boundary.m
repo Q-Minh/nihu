@@ -8,21 +8,16 @@ function mesh = create_sphere_boundary(R, nR)
 % See also: CREATE_LINE, CREATE_SLAB, CREATE_CIRCLE, CREATE_CIRCLE_QUADRANT,
 % CREATE_BRICK, CREATE_BRICK_BOUNDARY, CREATE_SPHERE, CREATE_CATSEYE
 
-%   Copyright 2008-2010 P. Fiala
+%   Copyright 2008-2012 P. Fiala, P. Rucz
 %   Budapest University of Technology and Economics
 %   Dept. of Telecommunications
 
-% Last modifed: 02.12.2009
+% Last modifed: 2012.12.14.
 
-%% Parameter check
-error(nargchk(2, 2, nargin, 'struct'));
 
-%%
-mesh = translate_mesh(create_brick_boundary(2, nR*2), -[1 1 1]);
+mesh = create_brick_boundary_base(nR*2*[1 1 1]);
 nodes = mesh.Nodes(:,2:4);
-for k = 1 : 3
-    nodes(:,k) = tan(pi/4*nodes(:,k));
-end
-nodes = nodes ./ repmat(sqrt(dot(nodes,nodes,2)),1,3);
-mesh.Nodes(:,2:4) = R * nodes;
+nodes = nodes .* repmat(max(abs(nodes), [], 2)./sqrt(dot(nodes,nodes,2)),1,3);
+mesh.Nodes(:,2:4) = nodes * R;
+
 end
