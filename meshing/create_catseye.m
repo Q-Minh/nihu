@@ -1,5 +1,5 @@
 function mesh = create_catseye(R, nR)
-%CREATE_CATSEYE  Create a Cat's eye surface mesh
+%CREATE_CATSEYE Create a Cat's eye surface mesh (NiHu / meshing)
 %   MESH = CREATE_CATSEYE(R, N) Creates a Cat's eye surface mesh with
 %   radius R and division parameter N.
 %

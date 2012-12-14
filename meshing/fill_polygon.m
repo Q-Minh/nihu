@@ -4,8 +4,7 @@ function mesh = fill_polygon(poly, L)
 
 %%
 poly = drop_unused_nodes(poly);
-poly.Elements = drop_IDs(poly);
-poly.Nodes(:,1) = 1:size(poly.Nodes,1);
+poly = drop_mesh_IDs(poly);
 
 %% Call Mesh2D
 hdata.hmax = 1.5*L;

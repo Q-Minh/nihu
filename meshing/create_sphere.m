@@ -1,5 +1,5 @@
 function sphere = create_sphere(R, nR)
-%CREATE_SPHERE  Create a sphere volume mesh
+%CREATE_SPHERE Create a sphere volume mesh (NiHu / meshing)
 %   SPHERE  = CREATE_SPHERE(R, N) creates a sphere volume model with radius
 %   R and division N. The sphere is created as a "blown up cube" with
 %   parameters L = [2 2 2] and Ncube = [2N 2N 2N], so N means the number of

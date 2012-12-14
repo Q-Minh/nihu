@@ -1,4 +1,5 @@
 function args = create_slab_args(varargin)
+%CREATE_SLAB_ARGS Process slab mesh arguments. (NiHu / meshing)
 
 switch nargin
     case 1 % One argument mode (Cx, Cx mode)

@@ -1,4 +1,5 @@
 function args = create_brick_args(varargin)
+%CREATE_BRICK_ARGS Process brick mesh arguments. (NiHu / meshing)
 
 switch nargin
     case 1 % Cx (= Cy = Cz) mode

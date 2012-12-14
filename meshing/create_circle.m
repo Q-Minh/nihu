@@ -1,5 +1,5 @@
 function model = create_circle(R, nR, varargin)
-%CREATE_CIRCLE Create a circle surface mesh
+%CREATE_CIRCLE Create a circle surface mesh (NiHu / meshing)
 %   CIRCLE = CREATE_CIRCLE(R, N) creates a circular mesh located at the
 %   origin. The radius of the circle is R, its division parameter is N. N
 %   is equal to the number of elements along the radius, this value needs

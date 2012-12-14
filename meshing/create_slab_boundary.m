@@ -1,5 +1,5 @@
 function model = create_slab_boundary(varargin)
-%CREATE_SLAB_BUONDARY  Create a slab volume mesh
+%CREATE_SLAB_BOUNDARY Create a slab boundary mesh (NiHu / meshing)
 %   SLAB = CREATE_SLAB_BOUNDARY(L, N) creates a slab model with side lengths
 %   given in the 3D vector L and division given in the 3D vector N.
 %   The slab is located at the origin of the coordinate system, its faces

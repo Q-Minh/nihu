@@ -16,9 +16,6 @@ function mesh = join_meshes(mesh1, mesh2, varargin)
 
 % Last modifed: 07.09.2010
 
-%% Parameter check
-error(nargchk(1, Inf, nargin, 'struct'));
-
 %% Recursive mechanism
 if nargin > 2
     mesh = join_meshes(join_meshes(mesh1, mesh2), varargin{:});
