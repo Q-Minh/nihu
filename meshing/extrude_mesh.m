@@ -19,10 +19,7 @@ function mesh2 = extrude_mesh(mesh, dir, nRep)
 %   Budapest University of Technology and Economics
 %   Dept. of Telecommunications
 
-% Last modifed: 02.12.2009
-
-%% Parameter check
-error(nargchk(3, 3, nargin, 'struct'));
+% Last modifed: 2012.12.14.
 
 dir = dir(:).'; % ensure that dir is a row vector
 
@@ -41,7 +38,7 @@ if size(Elements,2) < 8
 end
 
 % Get cell normals
-[cent, normal] = centnorm(mesh);
+[~, normal] = centnorm(mesh);
 
 % Select which elements to 'rotate' to conserve outward normals
 flip = dot(normal,repmat(dir, size(Elements,1), 1),2) > 0;

@@ -2,16 +2,17 @@
 % Version 1.0 (R2006a) 08-Nov-2009
 %
 % Creating simple meshes
-%   create_empty_mesh        - 
+%   create_empty_mesh        - Create an empty NiHu mesh (NiHu / meshing)
 %   create_line              - Create a line mesh (NiHu / meshing)
 %   create_slab              - Create slab mesh (NiHu / meshing)
-%   create_circle_quadrant   - Create quadrant of a circle surface mesh
-%   create_circle            - Create a circle surface mesh
+%   create_slab_boundary     - Create a slab boundary mesh (NiHu / meshing)
+%   create_circle_quadrant   - Create quadrant of a circle surface mesh (NiHu / meshing)
+%   create_circle            - Create a circle surface mesh (NiHu / meshing)
 %   create_brick_boundary    - Create a brick surface mesh (NiHu / meshing)
-%   create_sphere_boundary   - Create a sphere surface mesh
-%   create_catseye           - Create a Cat's eye surface mesh
-%   create_brick             - Create a brick volume mesh
-%   create_sphere            - Create a sphere volume mesh
+%   create_sphere_boundary   - Create a sphere surface mesh (NiHu / meshing)
+%   create_catseye           - Create a Cat's eye surface mesh (NiHu / meshing)
+%   create_brick             - Create a brick volume mesh (NiHu / meshing)
+%   create_sphere            - Create a sphere volume mesh (NiHu / meshing)
 %
 % Internal mesh creating functions
 %   create_line_base         - Create basic line mesh. (NiHu / meshing)
@@ -23,7 +24,7 @@
 %   create_brick_boundary_base - Create a basic brick mesh. (NiHu / meshing)
 %
 % Basic mesh transforms
-%   translate_mesh           - Translate mesh along a given vector
+%   translate_mesh           - Translate mesh along a given vector (NiHu / meshing)
 %   scale_mesh               - Scale mesh
 %   reflect_mesh             - Reflect mesh to a symmetry plane
 %   rotate_mesh              - Rotate mesh around a given vector
@@ -35,7 +36,7 @@
 %   mesh_select              - Element and node selection
 %   mesh_section             - Return a rectangular section of a mesh
 %   drop_IDs                 - Get rid of material, property, element and node IDs
-%   drop_mesh_IDs
+%   drop_mesh_IDs            - Get rid of material, property, element and node IDs
 %   drop_unused_nodes        - Exclude unused nodes from a mesh
 %   merge_coincident_nodes   - Merge coincident nodes in a mesh
 %   join_meshes              - Create a single mesh from several submeshes
@@ -77,3 +78,4 @@
 %   plot_elem_normals        - Plot element normals of a mesh
 %   mesh_volume              - Returns vector v, the volume for each element
 %   node_volume              - Calculates corresponding volume for nodes
+%   rotation_matrix          - Matrix of rotation around a vector

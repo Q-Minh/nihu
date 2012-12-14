@@ -1,5 +1,5 @@
 function T = rotation_matrix(alpha, v)
-%ROTATION_MATRIX matrix of rotation around a vector
+%ROTATION_MATRIX Matrix of rotation around a vector
 %   T = ROTATION_MATRIX(ALPHA, V) generates the 3x3 matrix of rotation
 %   around vector V by an angle ALPHA. The matrix can be applied as
 %   x2 = x * T

@@ -1,5 +1,5 @@
 function model = create_circle_quadrant(R, nR)
-%CREATE_CIRCLE_QUADRANT Create quadrant of a circle surface mesh
+%CREATE_CIRCLE_QUADRANT Create quadrant of a circle surface mesh (NiHu / meshing)
 %   CIRCLE = CREATE_CIRCLE_QUADRANT(R, N) creates the quadrant of a
 %   circular mesh located at the origin. The radius of the circle is R, its
 %   division parameter is N. N is equal to the number of elements along the

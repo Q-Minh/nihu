@@ -1,5 +1,5 @@
 function mesh = create_sphere_boundary(R, nR)
-%CREATE_SPHERE_BOUNDARY  Create a sphere surface mesh
+%CREATE_SPHERE_BOUNDARY Create a sphere surface mesh (NiHu / meshing)
 %   SPHERE  = CREATE_SPHERE_BOUNDARY(R, N) creates a sphere surface mesh
 %   with radius R and division N. The sphere is created as a "blown up
 %   cube surface" with parameters L = [2 2 2] and Ncube = [2N 2N 2N], so N

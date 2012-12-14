@@ -1,5 +1,5 @@
 function mesh = create_slab_boundary_base(N)
-% CREATE_SLAB_BOUNDARY_BASE Creates a basic slab mesh. (NiHu / meshing)
+%CREATE_SLAB_BOUNDARY_BASE Create a basic slab mesh. (NiHu / meshing)
 % Creates a basic slab mesh which is used for further
 % transformations. The basic slab is hexahedron with edge length 2
 % centered at (0,0,0) and having N(1), N(2) and N(3) elements along the

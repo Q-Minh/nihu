@@ -1,5 +1,5 @@
 function model = create_brick(varargin)
-%CREATE_BRICK  Create a brick volume mesh
+%CREATE_BRICK Create a brick volume mesh (NiHu / meshing)
 %   BRICK = CREATE_BRICK(L, N) creates a brick model with side lengths
 %   given in the 3D vector L and division given in the 3D vector N.
 %   The brick is located at the origin of the coordinate system, its faces
