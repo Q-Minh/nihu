@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>Basic mesh elements</title><meta name="generator" content="MATLAB 7.14"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2012-12-13"><meta name="DC.source" content="meshing_elements.m"><style type="text/css">
+      --><title>Basic mesh elements</title><meta name="generator" content="MATLAB 7.14"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2012-12-14"><meta name="DC.source" content="meshing_elements.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -55,7 +55,7 @@ span.syscmd { color:#B28C00 }
 .footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
 .footer p { margin:0px; }
 
-  </style></head><body><div class="content"><h1>Basic mesh elements</h1><!--introduction--><p>This tutorial describes how to create simple meshes using the toolbox <tt>NIHU</tt>.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Create a line</a></li><li><a href="#7">Create slab</a></li><li><a href="#14">Create circle</a></li><li><a href="#16">Create brick volume and brick surface</a></li><li><a href="#20">Create sphere and sphere surface</a></li><li><a href="#22">Create Cat's eye</a></li></ul></div><h2>Create a line<a name="1"></a></h2><p>Simple line meshes can be created using the toolbox function <a href="matlab:doc('create_line')">create_line</a>. There are different ways of meshing lines:</p><div><ul><li>Defining its length <img src="meshing_elements_eq93576.png" alt="$L$"> and the number of elements <img src="meshing_elements_eq14413.png" alt="$n_E$"></li><li>Defining its starting and ending positions <img src="meshing_elements_eq41609.png" alt="${\bf x}_1$"> and <img src="meshing_elements_eq14839.png" alt="${\bf x}_2$">, as well as the number of elements <img src="meshing_elements_eq14413.png" alt="$n_E$"></li><li>Defining the internal nodes <img src="meshing_elements_eq05306.png" alt="${\bf x}_i$"> of the line.</li></ul></div><p>In the first example, the first method is applied.</p><pre class="codeinput">L = 5;              <span class="comment">% length of the line</span>
+  </style></head><body><div class="content"><h1>Basic mesh elements</h1><!--introduction--><p>This tutorial describes how to create simple meshes using the toolbox <tt>NIHU</tt>.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Create a line</a></li><li><a href="#7">Create slab</a></li><li><a href="#14">Create brick volume and brick surface</a></li><li><a href="#18">Create circles and spheres</a></li><li><a href="#20">Create sphere and sphere surface</a></li><li><a href="#22">Create Cat's eye</a></li></ul></div><h2>Create a line<a name="1"></a></h2><p>Simple line meshes can be created using the toolbox function <a href="matlab:doc('create_line')">create_line</a>. There are different ways of meshing lines:</p><div><ul><li>Defining its length <img src="meshing_elements_eq93576.png" alt="$L$"> and the number of elements <img src="meshing_elements_eq14413.png" alt="$n_E$"></li><li>Defining its starting and ending positions <img src="meshing_elements_eq41609.png" alt="${\bf x}_1$"> and <img src="meshing_elements_eq14839.png" alt="${\bf x}_2$">, as well as the number of elements <img src="meshing_elements_eq14413.png" alt="$n_E$"></li><li>Defining the internal nodes <img src="meshing_elements_eq05306.png" alt="${\bf x}_i$"> of the line.</li></ul></div><p>In the first example, the first method is applied.</p><pre class="codeinput">L = 5;              <span class="comment">% length of the line</span>
 Le = 0.3;           <span class="comment">% approximate length of a line element</span>
 N = ceil(L/Le);     <span class="comment">% number of elements</span>
 lin1 = create_line(L, N);
@@ -105,26 +105,11 @@ subplot(2,3,3); plot_mesh(slab3);
 subplot(2,3,4); plot_mesh(slab4);
 subplot(2,3,5); plot_mesh(slab5);
 subplot(2,3,6); plot_mesh(slab6);
-</pre><img vspace="5" hspace="5" src="meshing_elements_02.png" alt=""> <h2>Create circle<a name="14"></a></h2><p>Circle quadrants can be meshed by using the function <a href="matlab:doc('create_circle_quadrant')">create_circle_quadrant</a>. The necessary parameters are the circle's radius <img src="meshing_elements_eq85930.png" alt="$R$"> and a division parameter <img src="meshing_elements_eq04645.png" alt="$n_R$">. The division parameter defines the number of elements along the radius of the circle quadrant, the same as the number of elements along the perimeter. The circle quadrant is located in the <img src="meshing_elements_eq54256.png" alt="$xy$"> plane, the center is at the origin, and the sides are aligned along the <img src="meshing_elements_eq43551.png" alt="$x$"> and <img src="meshing_elements_eq44020.png" alt="$y$"> axes.</p><pre class="codeinput">R = 2;      <span class="comment">% radius</span>
-nR = 10;    <span class="comment">% division parameter</span>
-circlequad = create_circle_quadrant(R, nR);
-
-figure;
-plot_mesh(circlequad);
-</pre><img vspace="5" hspace="5" src="meshing_elements_03.png" alt=""> <p>Circles can be meshed by using the function <a href="matlab:doc('create_circle')">create_circle</a>. The necessary parameters are the circle's radius <img src="meshing_elements_eq85930.png" alt="$R$"> and a division parameter <img src="meshing_elements_eq04645.png" alt="$n_R$">. The circle is located in the <img src="meshing_elements_eq54256.png" alt="$xy$"> plane, the center being at the origin.  The number of elements along the perimeter is <img src="meshing_elements_eq64950.png" alt="$4 n_R$">.</p><pre class="codeinput">R = 2;      <span class="comment">% radius</span>
-nR = 10;    <span class="comment">% division parameter</span>
-circle = create_circle(R, nR);
-
-figure;
-plot_mesh(circle);
-</pre><img vspace="5" hspace="5" src="meshing_elements_04.png" alt=""> <h2>Create brick volume and brick surface<a name="16"></a></h2><p>Bricks volume meshes can be created using the toolbox function <a href="matlab:doc('create_brick')">create_brick</a>. There are three ways of defining brick volumes:</p><div><ul><li>Define its side lengths <img src="meshing_elements_eq78540.png" alt="$[L_x, L_y, L_z]$"> and division paramters <img src="meshing_elements_eq72736.png" alt="$[N_x N_y N_z]$"></li><li>Define its corner nodes <img src="meshing_elements_eq05306.png" alt="${\bf x}_i$">, <img src="meshing_elements_eq28768.png" alt="$i = 1 \dots 8$">,</li><li>Define its internal nodes <img src="meshing_elements_eq01017.png" alt="$x_i$">, <img src="meshing_elements_eq98674.png" alt="$y_j$">, <img src="meshing_elements_eq45771.png" alt="$z_k$"> along the three dimensions</li></ul></div><p>The first method is demonstrated first, where the brick is located in the origin, with sides parallel to the coordinate axes:</p><pre class="codeinput">L = [5 4 3];        <span class="comment">% Brick dimensions [Lx Ly Lz]</span>
+</pre><img vspace="5" hspace="5" src="meshing_elements_02.png" alt=""> <h2>Create brick volume and brick surface<a name="14"></a></h2><p>Bricks volume meshes can be created using the toolbox function <a href="matlab:doc('create_brick')">create_brick</a>. There are three ways of defining brick volumes:</p><div><ul><li>Define its side lengths <img src="meshing_elements_eq78540.png" alt="$[L_x, L_y, L_z]$"> and division paramters <img src="meshing_elements_eq72736.png" alt="$[N_x N_y N_z]$"></li><li>Define its corner nodes <img src="meshing_elements_eq05306.png" alt="${\bf x}_i$">, <img src="meshing_elements_eq28768.png" alt="$i = 1 \dots 8$">,</li><li>Define its internal nodes <img src="meshing_elements_eq01017.png" alt="$x_i$">, <img src="meshing_elements_eq98674.png" alt="$y_j$">, <img src="meshing_elements_eq45771.png" alt="$z_k$"> along the three dimensions</li></ul></div><p>The first method is demonstrated first, where the brick is located in the origin, with sides parallel to the coordinate axes:</p><pre class="codeinput">L = [5 4 3];        <span class="comment">% Brick dimensions [Lx Ly Lz]</span>
 Le = .3;            <span class="comment">% element length</span>
 N = ceil(L / Le);   <span class="comment">% Division parameter [Nx Ny Nz]</span>
-brick = create_brick(L, N);
-
-figure;
-plot_mesh(brick); view(3);
-</pre><img vspace="5" hspace="5" src="meshing_elements_05.png" alt=""> <p>The second method makes it possible to define skewed bricks, by defining the corner nodes</p><pre class="codeinput">C = [           <span class="comment">% 8 corner nodes of the brick</span>
+brick1 = create_brick(L, N);
+</pre><p>The second method makes it possible to define skewed bricks, by defining the corner nodes</p><pre class="codeinput">C = [           <span class="comment">% 8 corner nodes of the brick</span>
     0   0  0
     1   0  0
     1.5 1  0
@@ -134,43 +119,32 @@ plot_mesh(brick); view(3);
     1.5 1  1
     -.1 .7 1
     ];
-brick = create_brick(C, [10, 10, 10]);
-
-figure;
-plot_mesh(brick); view(3);
-</pre><img vspace="5" hspace="5" src="meshing_elements_06.png" alt=""> <p>With the third method, non-uniform sampling can easily be defined:</p><pre class="codeinput">Cx = (.1:.05:1).^2; <span class="comment">% nodes along the x axis</span>
+brick2 = create_brick(C, [10, 10, 10]);
+</pre><p>With the third method, non-uniform sampling can easily be defined:</p><pre class="codeinput">Cx = (.1:.05:1).^2; <span class="comment">% nodes along the x axis</span>
 Cy = (.1:.05:1).^3; <span class="comment">% nodes along the y axis</span>
 Cz = (.1:.05:1).^4; <span class="comment">% nodes along the z axis</span>
-brick = create_brick(Cx, Cy, Cz);
+brick3 = create_brick(Cx, Cy, Cz);
+</pre><p>Brick boundaries can be meshed using the toolbox function <a href="matlab:doc('create_brick_boundary')">create_brick_boundary</a>, by defining the brick dimensions and division parameters.</p><pre class="codeinput">N = ceil(L / Le);   <span class="comment">% Division parameter [Nx Ny Nz]</span>
+brickb = create_brick_boundary(L, N);
 
 figure;
-plot_mesh(brick); view(3);
-</pre><img vspace="5" hspace="5" src="meshing_elements_07.png" alt=""> <p>Brick boundaries can be meshed using the toolbox function <a href="matlab:doc('create_brick_boundary')">create_brick_boundary</a>, by defining the brick dimensions and division parameters.</p><pre class="codeinput">L = [5 4 3];        <span class="comment">% Brick dimensions [Lx Ly Lz]</span>
-Le = .3;            <span class="comment">% element length</span>
-N = ceil(L / Le);   <span class="comment">% Division parameter [Nx Ny Nz]</span>
-brick = create_brick_boundary(L, N);
+subplot(1,3,1); plot_mesh(brick1);
+subplot(1,3,2); plot_mesh(brick2);
+subplot(1,3,3); plot_mesh(brick3);
+</pre><img vspace="5" hspace="5" src="meshing_elements_03.png" alt=""> <h2>Create circles and spheres<a name="18"></a></h2><p>Circle quadrants can be meshed by using the function <a href="matlab:doc('create_circle_quadrant')">create_circle_quadrant</a>. The necessary parameters are the circle's radius <img src="meshing_elements_eq85930.png" alt="$R$"> and a division parameter <img src="meshing_elements_eq04645.png" alt="$n_R$">. The division parameter defines the number of elements along the radius of the circle quadrant, the same as the number of elements along the perimeter. The circle quadrant is located in the <img src="meshing_elements_eq54256.png" alt="$xy$"> plane, the center is at the origin, and the sides are aligned along the <img src="meshing_elements_eq43551.png" alt="$x$"> and <img src="meshing_elements_eq44020.png" alt="$y$"> axes.</p><pre class="codeinput">R = 2;      <span class="comment">% radius</span>
+nR = 10;    <span class="comment">% division parameter</span>
+circlequad = create_circle_quadrant(R, nR);
+</pre><p>Circles can be meshed by using the function <a href="matlab:doc('create_circle')">create_circle</a>. The necessary parameters are the circle's radius <img src="meshing_elements_eq85930.png" alt="$R$"> and a division parameter <img src="meshing_elements_eq04645.png" alt="$n_R$">. The circle is located in the <img src="meshing_elements_eq54256.png" alt="$xy$"> plane, the center being at the origin.  The number of elements along the perimeter is <img src="meshing_elements_eq64950.png" alt="$4 n_R$">.</p><pre class="codeinput">circle = create_circle(R, nR);
+</pre><h2>Create sphere and sphere surface<a name="20"></a></h2><p>Spherical volumes can be created using the toolbox function <a href="matlab:doc('create_sphere')">create_sphere</a>, by defining the sphere radius <img src="meshing_elements_eq85930.png" alt="$R$"> and a division parameter <img src="meshing_elements_eq04645.png" alt="$n_R$">. The division parameter defines the number of elements along the sphere radius. The number of elements along the perimeter is <img src="meshing_elements_eq64950.png" alt="$4 n_R$">.</p><pre class="codeinput">sphere = create_sphere(R, nR);
+</pre><p>Sphere boundaries can be created using the toolbox function <a href="matlab:doc('create_sphere_boundary')">create_sphere_boundary</a>, by defining the sphere radius <img src="meshing_elements_eq85930.png" alt="$R$"> and division parameter <img src="meshing_elements_eq04645.png" alt="$n_R$">.</p><pre class="codeinput">sphereb = create_sphere_boundary(R, nR);
+</pre><h2>Create Cat's eye<a name="22"></a></h2><p>Cat's eye surface models can be created using the function <a href="matlab:doc('create_catseye')">create_catseye</a>, by defining the radius <img src="meshing_elements_eq85930.png" alt="$R$"> and division parameter <img src="meshing_elements_eq04645.png" alt="$n_R$">.</p><pre class="codeinput">cat = create_catseye(R, nR);
 
 figure;
-plot_mesh(brick); view(3);
-</pre><img vspace="5" hspace="5" src="meshing_elements_08.png" alt=""> <h2>Create sphere and sphere surface<a name="20"></a></h2><p>Spherical volumes can be created using the toolbox function <a href="matlab:doc('create_sphere')">create_sphere</a>, by defining the sphere radius <img src="meshing_elements_eq85930.png" alt="$R$"> and a division parameter <img src="meshing_elements_eq04645.png" alt="$n_R$">. The division parameter defines the number of elements along the sphere radius. The number of elements along the perimeter is <img src="meshing_elements_eq64950.png" alt="$4 n_R$">.</p><pre class="codeinput">R = 2;          <span class="comment">% sphere radius</span>
-nR = 10;        <span class="comment">% number of elements along the radius</span>
-sphere = create_sphere(R, nR);
-
-figure;
-plot_mesh(sphere); view(3);
-</pre><img vspace="5" hspace="5" src="meshing_elements_09.png" alt=""> <p>Sphere boundaries can be created using the toolbox function <a href="matlab:doc('create_sphere_boundary')">create_sphere_boundary</a>, by defining the sphere radius <img src="meshing_elements_eq85930.png" alt="$R$"> and division parameter <img src="meshing_elements_eq04645.png" alt="$n_R$">.</p><pre class="codeinput">R = 2;
-nR = 10;
-sphere = create_sphere_boundary(R, nR);
-
-figure;
-plot_mesh(sphere); view(3);
-</pre><img vspace="5" hspace="5" src="meshing_elements_10.png" alt=""> <h2>Create Cat's eye<a name="22"></a></h2><p>Cat's eye surface models can be created using the function <a href="matlab:doc('create_catseye')">create_catseye</a>, by defining the radius <img src="meshing_elements_eq85930.png" alt="$R$"> and division parameter <img src="meshing_elements_eq04645.png" alt="$n_R$">.</p><pre class="codeinput">R = 2;
-nR = 10;
-cat = create_catseye(R, nR);
-
-figure;
-plot_mesh(cat); view([110 35]);
-</pre><img vspace="5" hspace="5" src="meshing_elements_11.png" alt=""> <p class="footer"><br>
+subplot(2,2,1); plot_mesh(circlequad);
+subplot(2,2,2); plot_mesh(circle);
+subplot(2,2,3); plot_mesh(sphere);
+subplot(2,2,4); plot_mesh(cat);  view([110 35]);
+</pre><img vspace="5" hspace="5" src="meshing_elements_04.png" alt=""> <p class="footer"><br>
       Published with MATLAB&reg; 7.14<br></p></div><!--
 ##### SOURCE BEGIN #####
 %% Basic mesh elements
@@ -291,34 +265,6 @@ subplot(2,3,4); plot_mesh(slab4);
 subplot(2,3,5); plot_mesh(slab5);
 subplot(2,3,6); plot_mesh(slab6);
 
-%% Create circle
-% Circle quadrants can be meshed by using the function
-% <matlab:doc('create_circle_quadrant') create_circle_quadrant>. The necessary parameters are the circle's
-% radius $R$ and a division parameter $n_R$. The division parameter defines
-% the number of elements along the radius of the circle quadrant,
-% the same as the number of elements along the perimeter. The circle
-% quadrant is located in the $xy$ plane, the center is at the origin, and
-% the sides are aligned along the $x$ and $y$ axes.
-R = 2;      % radius
-nR = 10;    % division parameter
-circlequad = create_circle_quadrant(R, nR);
-
-figure;
-plot_mesh(circlequad);
-
-%%
-% Circles can be meshed by using the function <matlab:doc('create_circle') create_circle>. The
-% necessary parameters are the circle's radius $R$ and a division
-% parameter $n_R$. The circle is located in the $xy$ plane, the center being
-% at the origin.  The number of elements along the perimeter is
-% $4 n_R$.
-R = 2;      % radius
-nR = 10;    % division parameter
-circle = create_circle(R, nR);
-
-figure;
-plot_mesh(circle);
-
 %% Create brick volume and brick surface
 % Bricks volume meshes can be created using the toolbox function
 % <matlab:doc('create_brick') create_brick>.
@@ -333,10 +279,7 @@ plot_mesh(circle);
 L = [5 4 3];        % Brick dimensions [Lx Ly Lz]
 Le = .3;            % element length
 N = ceil(L / Le);   % Division parameter [Nx Ny Nz]
-brick = create_brick(L, N);
-
-figure;
-plot_mesh(brick); view(3);
+brick1 = create_brick(L, N);
 
 %%
 % The second method makes it possible to define skewed bricks, by defining
@@ -351,32 +294,47 @@ C = [           % 8 corner nodes of the brick
     1.5 1  1
     -.1 .7 1
     ];
-brick = create_brick(C, [10, 10, 10]);
-
-figure;
-plot_mesh(brick); view(3);
+brick2 = create_brick(C, [10, 10, 10]);
 
 %%
 % With the third method, non-uniform sampling can easily be defined:
 Cx = (.1:.05:1).^2; % nodes along the x axis
 Cy = (.1:.05:1).^3; % nodes along the y axis
 Cz = (.1:.05:1).^4; % nodes along the z axis
-brick = create_brick(Cx, Cy, Cz);
-
-figure;
-plot_mesh(brick); view(3);
+brick3 = create_brick(Cx, Cy, Cz);
 
 %%
 % Brick boundaries can be meshed using the toolbox function
 % <matlab:doc('create_brick_boundary') create_brick_boundary>, by defining the brick dimensions and division
 % parameters.
-L = [5 4 3];        % Brick dimensions [Lx Ly Lz]
-Le = .3;            % element length
 N = ceil(L / Le);   % Division parameter [Nx Ny Nz]
-brick = create_brick_boundary(L, N);
+brickb = create_brick_boundary(L, N);
 
 figure;
-plot_mesh(brick); view(3);
+subplot(1,3,1); plot_mesh(brick1);
+subplot(1,3,2); plot_mesh(brick2);
+subplot(1,3,3); plot_mesh(brick3);
+
+%% Create circles and spheres
+% Circle quadrants can be meshed by using the function
+% <matlab:doc('create_circle_quadrant') create_circle_quadrant>. The necessary parameters are the circle's
+% radius $R$ and a division parameter $n_R$. The division parameter defines
+% the number of elements along the radius of the circle quadrant,
+% the same as the number of elements along the perimeter. The circle
+% quadrant is located in the $xy$ plane, the center is at the origin, and
+% the sides are aligned along the $x$ and $y$ axes.
+R = 2;      % radius
+nR = 10;    % division parameter
+circlequad = create_circle_quadrant(R, nR);
+
+%%
+% Circles can be meshed by using the function <matlab:doc('create_circle') create_circle>. The
+% necessary parameters are the circle's radius $R$ and a division
+% parameter $n_R$. The circle is located in the $xy$ plane, the center being
+% at the origin.  The number of elements along the perimeter is
+% $4 n_R$.
+circle = create_circle(R, nR);
+
 
 %% Create sphere and sphere surface
 % Spherical volumes can be created using the toolbox function
@@ -384,32 +342,24 @@ plot_mesh(brick); view(3);
 % parameter $n_R$. The division parameter defines the number of elements
 % along the sphere radius. The number of elements along the perimeter is
 % $4 n_R$.
-R = 2;          % sphere radius
-nR = 10;        % number of elements along the radius
 sphere = create_sphere(R, nR);
-
-figure;
-plot_mesh(sphere); view(3);
 
 %%
 % Sphere boundaries can be created using the toolbox function
 % <matlab:doc('create_sphere_boundary') create_sphere_boundary>, by defining the sphere radius $R$ and division
 % parameter $n_R$.
-R = 2;
-nR = 10;
-sphere = create_sphere_boundary(R, nR);
-
-figure;
-plot_mesh(sphere); view(3);
+sphereb = create_sphere_boundary(R, nR);
 
 %% Create Cat's eye
 % Cat's eye surface models can be created using the function
 % <matlab:doc('create_catseye') create_catseye>, by defining the radius $R$ and division parameter $n_R$.
-R = 2;
-nR = 10;
 cat = create_catseye(R, nR);
 
 figure;
-plot_mesh(cat); view([110 35]);
+subplot(2,2,1); plot_mesh(circlequad);
+subplot(2,2,2); plot_mesh(circle);
+subplot(2,2,3); plot_mesh(sphere);
+subplot(2,2,4); plot_mesh(cat);  view([110 35]);
+
 ##### SOURCE END #####
 --></body></html>

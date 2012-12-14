@@ -9,19 +9,16 @@ function sphere = create_sphere(R, nR)
 % CREATE_BRICK, CREATE_BRICK_BOUNDARY, CREATE_SPHERE_BOUNDARY,
 % CREATE_CATSEYE
 
-%   Copyright 2008-2010 P. Fiala
+%   Copyright 2008-2012 P. Fiala, P. Rucz
 %   Budapest University of Technology and Economics
 %   Dept. of Telecommunications
 
-% Last modifed: 02.12.2009
+% Last modifed: 2012.12.14.
 
-%% Parameter check
-error(nargchk(2, 2, nargin, 'struct'));
-
-%%
-sphere = translate_mesh(create_brick(2, nR*2), [-1, -1, -1]);
+sphere = create_brick_base(nR*2*[1 1 1]);
 nodes = sphere.Nodes(:,2:4);
 nodes = nodes .* repmat(max(abs(nodes), [], 2)./sqrt(dot(nodes,nodes,2)),1,3);
 nodes(isnan(nodes)) = 0;
-sphere.Nodes(:,2:4) = R * nodes;
+sphere.Nodes(:,2:4) = nodes * R;
+
 end

@@ -95,3 +95,5 @@ faces(faces(:,6) == 0, 2) = 23;
 faces(faces(:,5) == 0, 2) = 12;
 
 faces = faces(:,any(faces, 1));
+
+end

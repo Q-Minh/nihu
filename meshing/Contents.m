@@ -2,15 +2,25 @@
 % Version 1.0 (R2006a) 08-Nov-2009
 %
 % Creating simple meshes
-%   create_line              - Create a line mesh
-%   create_slab              - Create slab mesh
+%   create_empty_mesh        - 
+%   create_line              - Create a line mesh (NiHu / meshing)
+%   create_slab              - Create slab mesh (NiHu / meshing)
 %   create_circle_quadrant   - Create quadrant of a circle surface mesh
 %   create_circle            - Create a circle surface mesh
-%   create_brick_boundary    - Create a brick surface mesh
+%   create_brick_boundary    - Create a brick surface mesh (NiHu / meshing)
 %   create_sphere_boundary   - Create a sphere surface mesh
 %   create_catseye           - Create a Cat's eye surface mesh
 %   create_brick             - Create a brick volume mesh
 %   create_sphere            - Create a sphere volume mesh
+%
+% Internal mesh creating functions
+%   create_line_base         - Create basic line mesh. (NiHu / meshing)
+%   create_slab_args         - Process slab mesh arguments. (NiHu / meshing)
+%   create_slab_base         - Create basic slab mesh. (NiHu / meshing)
+%   create_slab_boundary_base - Create a basic slab mesh. (NiHu / meshing)
+%   create_brick_args        - Process brick mesh arguments. (NiHu / meshing)
+%   create_brick_base        - Create a basic brick mesh. (NiHu / meshing)
+%   create_brick_boundary_base - Create a basic brick mesh. (NiHu / meshing)
 %
 % Basic mesh transforms
 %   translate_mesh           - Translate mesh along a given vector
@@ -25,6 +35,7 @@
 %   mesh_select              - Element and node selection
 %   mesh_section             - Return a rectangular section of a mesh
 %   drop_IDs                 - Get rid of material, property, element and node IDs
+%   drop_mesh_IDs
 %   drop_unused_nodes        - Exclude unused nodes from a mesh
 %   merge_coincident_nodes   - Merge coincident nodes in a mesh
 %   join_meshes              - Create a single mesh from several submeshes
@@ -48,8 +59,8 @@
 % Mesh import and export
 %   read_epspath             - Read curves from .eps file
 %   meshpath                 - Create line mesh from a path of lines and Bezier Curves
-%   import_bulk_mesh         - Import NiHu mesh from bulk file (.bdf)
-%   export_bulk_mesh         - Export NiHu mesh into bulk file
+
+
 %
 % Other
 %   boundingbox              - Compute bounding box of a NiHu mesh

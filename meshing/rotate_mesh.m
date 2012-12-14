@@ -1,40 +1,34 @@
-function mesh = rotate_mesh(mesh, varargin)
+function mesh = rotate_mesh(mesh, ang, dir, base)
 %ROTATE_MESH Rotate mesh around a given vector
-%   MESH = ROTATE_MESH(MESH, DIR, DEG) or
-%   MESH = ROTATE_MESH(MESH, BASE, DIR, DEG) rotates the mesh MESH
-%   along the central line specified by BASE and DIR by and amount of
-%   DEG (expressed in radians).
+%   MESH = ROTATE_MESH(MESH, ANG, DIR, BASE) rotates the mesh MESH
 %
 % See also: TRANSLATE_MESH, SCALE_MESH, REVOLVE_MESH, EXTRUDE_MESH,
 % REPEAT_MESH, REFLECT_MESH
 
-%   Copyright 2008-2010 P. Fiala
+%   Copyright 2008-2010 P. Fiala, P. Rucz
 %   Budapest University of Technology and Economics
 %   Dept. of Telecommunications
 
-% Last modifed: 02.12.2009
+% Last modifed: 2012.12.14.
 
-%% Argument check
-error(nargchk(3, 4, nargin, 'struct'));
-switch nargin
-    case 3
-        base = [0 0 0];
-        dir = varargin{1};
-        phi = varargin{2};
-    case 4
-        base = varargin{1};
-        dir = varargin{2};
-        phi = varargin{3};
+if nargin < 3
+    dir = eye(numel(ang));
+end
+dir = [dir, zeros(size(dir,1), 3-size(dir,2))];
+
+% construct rotation matrix
+T = eye(3);
+for i = 1 : numel(ang)
+    T = T * rotation_matrix(ang(i), dir(i,:));
 end
 
-coord = mesh.Nodes(:,2:4);
-nNod = size(coord,1);
-dir = dir/norm(dir); % unit normal vector
-d = repmat(dir,nNod,1);
-b = repmat(base,nNod,1);
-x = coord - b;
-a = repmat(dot(x,d,2),1,3).*d;
-w1 = x - a;
-w2 = cross(d,w1,2);
-mesh.Nodes(:,2:4) = (a + cos(phi)*w1+sin(phi)*w2)+b;
+% perform rotation
+if nargin > 3
+    mesh = translate_mesh(mesh, -base);
+end
+mesh.Nodes(:,2:4) = mesh.Nodes(:,2:4) * T;
+if nargin > 3
+    mesh = translate_mesh(mesh, base);
+end
+
 end

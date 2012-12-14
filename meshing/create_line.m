@@ -34,8 +34,10 @@ switch nargin
     case 2 % Two arguments mode
         if (isscalar(varargin{2})) % L and N are given
             s = size(varargin{1});
-            R = [zeros(2-s(1), 3);
-                varargin{1}, zeros(1, 3-s(2))];
+            R = [
+                zeros(2-s(1), 3);
+                varargin{1}, zeros(s(1), 3-s(2))
+                ];
             N = varargin{2};
         else
             error('NiHu:create_line:argFormat',...

@@ -9,8 +9,7 @@ function export_bulk_mesh(model, fname)
 %   Budapest University of Technology and Economics
 %   Dept. of Telecommunications
 
-%% Parameter check
-error(nargchk(2, 2, nargin, 'struct'));
+% Last modified: 2012.12.14.
 
 %% Open the file
 fid = fopen(fname, 'w');

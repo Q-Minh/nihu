@@ -137,8 +137,8 @@ slab = translate_mesh(slab, [L/2, -L/2]);
 quadrant = create_circle_quadrant(L, N);
 quadrant = translate_mesh(quadrant, [L/2, L/2]);
 part = join_meshes(slab, quadrant);
-part = join_meshes(part, rotate_mesh(part, [0 0 0], [0 0 1], pi/2));
-part = join_meshes(part, rotate_mesh(part, [0 0 0], [0 0 1], pi))
+part = join_meshes(part, rotate_mesh(part, pi/2, [0 0 1]));
+part = join_meshes(part, rotate_mesh(part, pi, [0 0 1]));
 figure;
 plot_mesh(part);
 %%
@@ -159,7 +159,7 @@ part
 % Meshes containing independent submeshes can be split using the function
 % <matlab:doc('split_independent_meshes') split_independent_meshes>. In the
 % following example, a section of a ring is split into independent parts.
-line = create_line(1:.1:2); % generating line
+line = create_line((1:.1:2).'); % generating line
 ring = revolve_mesh(line, [0 0 0], [0 0 1], pi/50, 100); % create ring
 section = mesh_section(ring, [-.5 -Inf -Inf; +.5 Inf Inf]); % section
 section = drop_unused_nodes(section);

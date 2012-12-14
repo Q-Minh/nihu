@@ -1,5 +1,5 @@
 function line = create_line_base(N)
-% CREATE_LINE_BASE Creates basic line mesh. (NiHu / meshing)
+%CREATE_LINE_BASE Create basic line mesh. (NiHu / meshing)
 
 x = linspace(-1, 1, N+1).';
     

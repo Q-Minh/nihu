@@ -39,7 +39,7 @@ lin = create_line([1 0 0;1 1 0], 10); % create a line to rotatae
 base = [0 0 0];             % Base of vector of rotaton
 dir = [0 0 1];              % Direction of vector of rotaton
 phi = pi/3;                 % Angle of rotation [radians]
-lin2 = rotate_mesh(lin, base, dir, phi);
+lin2 = rotate_mesh(lin, phi, dir, base);
 
 figure;
 plot_mesh(lin);
@@ -77,7 +77,7 @@ plot_mesh(bar), view(3);
 
 %%
 % Similarly, 1D objects can be extruded to 2D surfaces as follows:
-line = create_line(0:.1:1);
+line = create_line(1, 10);
 slab = extrude_mesh(line, [.1 .05 0], 10);
 
 figure;
