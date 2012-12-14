@@ -57,7 +57,7 @@ plot_mesh(mesh);
 %% Build the volume mesh
 % The volume mesh is created from the cross section by rotating it into the
 % $xz$ plane followed by extrusion along the $y$ direction.
-mesh = rotate_mesh(mesh, [0 0 0], [1 0 0], pi/2);
+mesh = rotate_mesh(mesh, pi/2);
 ny = ceil(D/Le);    % number of elements in the y direction
 mesh = extrude_mesh(mesh, [0 D 0]/ny, ny);
 

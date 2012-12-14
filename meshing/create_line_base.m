@@ -7,8 +7,7 @@ line.Nodes = [(1:N+1).', x, zeros(size(x,1),2)];
 line.Elements = [(1:N).', repmat([12 1 1], N, 1), (1:N).', (2:N+1).'];
 
 % TODO: materials, properties?
-line.Materials = [1 1 1 1 0 0];
-line.Properties = [1 1 0 0 0 0];
+[line.Materials, line.Properties] = default_mat_prop();
 
 end % create_line_base
 
