@@ -8,7 +8,7 @@ function model = create_line(varargin)
 %   in the 2x3 matrix R and division number given in N.
 %
 %   LINE = CREATE_LINE(Cx) creates a line model aligned along the x axis,
-%   with nodes located at the positions given in vector Cx.
+%   with nodes located at the positions given in the vector or matrix Cx.
 %
 % See also: CREATE_SLAB, CREATE_CIRCLE, CREATE_CIRCLE_QUADRANT,
 % CREATE_BRICK, CREATE_BRICK_BOUNDARY, CREATE_SPHERE,
@@ -19,8 +19,6 @@ function model = create_line(varargin)
 %   Dept. of Telecommunications
 
 % Last modifed: 2012.12.12
-
-% TODO: Cx mode not working yet
 
 % Process input arguments
 switch nargin

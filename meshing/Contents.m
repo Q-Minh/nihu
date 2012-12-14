@@ -6,13 +6,13 @@
 %   create_line              - Create a line mesh (NiHu / meshing)
 %   create_slab              - Create slab mesh (NiHu / meshing)
 %   create_slab_boundary     - Create a slab boundary mesh (NiHu / meshing)
-%   create_circle_quadrant   - Create quadrant of a circle surface mesh (NiHu / meshing)
-%   create_circle            - Create a circle surface mesh (NiHu / meshing)
 %   create_brick_boundary    - Create a brick surface mesh (NiHu / meshing)
 %   create_sphere_boundary   - Create a sphere surface mesh (NiHu / meshing)
-%   create_catseye           - Create a Cat's eye surface mesh (NiHu / meshing)
 %   create_brick             - Create a brick volume mesh (NiHu / meshing)
+%   create_circle_quadrant   - Create quadrant of a circle surface mesh (NiHu / meshing)
+%   create_circle            - Create a circle surface mesh (NiHu / meshing)
 %   create_sphere            - Create a sphere volume mesh (NiHu / meshing)
+%   create_catseye           - Create a Cat's eye surface mesh (NiHu / meshing)
 %
 % Internal mesh creating functions
 %   create_line_base         - Create basic line mesh. (NiHu / meshing)
@@ -46,7 +46,7 @@
 %   get_faces                - Extract all faces of a FE mesh
 %   get_free_faces           - Extract free (boundary) faces from FE faces
 %   quad2tria                - Replace Quad elements with TRIA elements
-%   surface2wireframe        - Extract surface TRIA and QUAD elements
+%   surface2wireframe        - 
 %
 % Numerical integration over meshes
 %   gaussquad1               - 1D Gaussian quadrature integration
@@ -60,8 +60,6 @@
 % Mesh import and export
 %   read_epspath             - Read curves from .eps file
 %   meshpath                 - Create line mesh from a path of lines and Bezier Curves
-
-
 %
 % Other
 %   boundingbox              - Compute bounding box of a NiHu mesh
@@ -79,3 +77,4 @@
 %   mesh_volume              - Returns vector v, the volume for each element
 %   node_volume              - Calculates corresponding volume for nodes
 %   rotation_matrix          - Matrix of rotation around a vector
+%   default_mat_prop         - Default Materials and Properties matrices (NiHu / meshing)

@@ -2,6 +2,8 @@ function [gcoord, gnorm, weight, gind] = vert2gauss(order, coords, type, elem)
 %VERT2GAUSS Gaussian quadrature from vertices and elements
 %  [XG, NG, W, IG] = VERT2GAUSS(ORDER, COORDS, TYPE, ELEM)
 %
+% Example:
+%
 % See also: GEO2GAUSS, GAUSSQUAD1, GAUSSQUAD2, GAUSSQUAD3, SHAPEFUN
 
 %   Copyright 2008-2010 P. Fiala

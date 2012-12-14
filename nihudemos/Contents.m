@@ -10,7 +10,7 @@
 %   guitarmeshdemo    - Create BE surface mesh of a guitar body
 %
 % Conventional Helmholtz BEM
-%   sph_puls          - Radiation from a pulsating sphere
+%   pulsating_sphere_dirichlet_BEM - Radiation from a pulsating sphere
 %   sph_puls_chief    - Fictitious eigenfrequencies and the CHIEF method
 %   lshape_dirichlet  - Dirichlet exterior radiation problem
 %   room_scat_neum    - Neumann interior scattering problem

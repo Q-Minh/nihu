@@ -28,7 +28,7 @@ scale = [2 3 4];
 ellipse = scale_mesh(sphere, scale);
 
 figure;
-plot_mesh(ellipse); view(3);
+plot_mesh(ellipse);
 
 %% Rotate
 % Meshes can be rotated around a given vector of rotation, using the
@@ -36,10 +36,7 @@ plot_mesh(ellipse); view(3);
 % In the present example, a line model is rotated around the $z$ axis by an
 % angle of $\pi/3$.
 lin = create_line([1 0 0;1 1 0], 10); % create a line to rotatae
-base = [0 0 0];             % Base of vector of rotaton
-dir = [0 0 1];              % Direction of vector of rotaton
-phi = pi/3;                 % Angle of rotation [radians]
-lin2 = rotate_mesh(lin, phi, dir, base);
+lin2 = rotate_mesh(lin, pi/3, [0 0 1]);
 
 figure;
 plot_mesh(lin);
@@ -50,9 +47,7 @@ plot_mesh(lin2);
 % <matlab:doc('reflect_mesh') reflect_mesh>. The present example reflects a straight line to the $x=0$
 % plane.
 lin = create_line([1 0 0; 2 1 0], 5);
-base = [0 0 0]; % base vector of the reflection plane
-dir = [1 0 0];  % direction normal of the reflection plane
-lin2 = reflect_mesh(lin, base, dir);
+lin2 = reflect_mesh(lin, [1 0 0]);
 
 figure;
 plot_mesh(lin);
@@ -68,12 +63,10 @@ plot_mesh(lin2);
 % bar volume. The extrusion is governed by an extrusion direction vector $d$
 % and the number of repetitions $n_{\mathrm{rep}}$.
 circle = create_circle_quadrant(1, 5);
-dir = [0 0 .2];     % direction and length of extrusion
-nRep = 10;          % number of repetitions
-bar = extrude_mesh(circle, dir, nRep);
+bar = extrude_mesh(circle, [0 0 .2], 10);
 
 figure;
-plot_mesh(bar), view(3);
+plot_mesh(bar);
 
 %%
 % Similarly, 1D objects can be extruded to 2D surfaces as follows:
@@ -102,7 +95,7 @@ nPhi = 20;          % number of repetitions
 ring = revolve_mesh(lin, base, dir, dphi, nPhi);
 
 figure;
-plot_mesh(ring); view(3);
+plot_mesh(ring);
 
 %%
 % In the next example, a slab is revolved in order to form a cylindrical
@@ -115,7 +108,7 @@ nPhi = 20;          % number of repetitions
 solid = revolve_mesh(slab, base, dir, dphi, nPhi);
 
 figure;
-plot_mesh(solid); view(3);
+plot_mesh(solid);
 
 %% Repeat
 % Meshes can be repeated using the toolbox function <matlab:doc('repeat_mesh') repeat_mesh>. In the
@@ -125,8 +118,8 @@ dir1 = [5 0 1]; % direction of repetition in the first direction
 n1 = 3;         % number of repetitions
 dir2 = [0 3 1]; % direction of repetition in the second direction
 n2 = 5;         % number of repetitions
-cats = repeat_mesh(cat, dir1, n1);
-cats = repeat_mesh(cats, dir2, n2);
+cat = repeat_mesh(cat, dir1, n1);
+cat = repeat_mesh(cat, dir2, n2);
 
 figure;
-plot_mesh(cats); view([100 25]);
+plot_mesh(cat); view([100 25]);

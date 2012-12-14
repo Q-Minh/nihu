@@ -13,12 +13,12 @@ function mesh2 = repeat_mesh(mesh, dir, nrep)
 
 % Last modifed: 02.12.2009
 
-%% Argument check
-error(nargchk(3, 3, nargin, 'struct'));
 
-%%
-mesh2 = mesh;
-for iRep = 1 : nrep
+%
+mesh2 = create_empty_mesh();
+for iRep = 0 : nrep
     mesh2 = join_meshes(mesh2, translate_mesh(mesh, iRep * dir));
 end
+
 end
+
