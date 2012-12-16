@@ -1,5 +1,5 @@
 function mesh = scale_mesh(mesh, scale, base)
-%SCALE_MESH Scale mesh
+%SCALE_MESH Scale mesh (NiHu / meshing)
 %   MESH = SCALE_MESH(MESH, SCALE) scales the mesh MESH using the
 %   scale factor(s) given by the scalar or vector SCALE
 %

@@ -1,5 +1,5 @@
 function mesh = rotate_mesh(mesh, ang, dir, base)
-%ROTATE_MESH Rotate mesh around a given vector
+%ROTATE_MESH Rotate mesh around a given vector (NiHu / meshing)
 %   MESH = ROTATE_MESH(MESH, ANG, DIR, BASE) rotates the mesh MESH
 %
 % See also: TRANSLATE_MESH, SCALE_MESH, REVOLVE_MESH, EXTRUDE_MESH,

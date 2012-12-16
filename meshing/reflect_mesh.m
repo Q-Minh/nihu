@@ -1,5 +1,5 @@
 function mesh = reflect_mesh(mesh, normal, base)
-%REFLECT_MESH Reflect mesh to a symmetry plane
+%REFLECT_MESH Reflect mesh to a symmetry plane (NiHu / meshing)
 %   MESH = REFLECT_MESH(MESH, NORMAL) or 
 %   MESH = REFLECT_MESH(MESH, NORMAL, BASE) reflects the NiHu mesh MESH to
 %   the symmetry plane defined by BASE and NORMAL.

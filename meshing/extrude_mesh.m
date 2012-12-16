@@ -1,5 +1,5 @@
 function mesh2 = extrude_mesh(mesh, dir, nRep)
-%EXTRUDE_MESH Extrude 1D and 2D mesh along a given direction
+%EXTRUDE_MESH Extrude 1D and 2D mesh along a given direction (NiHu / meshing)
 %   MESH = EXTRUDE_MESH(MESH, DIR, NREP) extrudes the 1D or 2D
 %   FE mesh MESH along the direction DIR and creates a new FE mesh.
 %   The LINE elements of an initial 1D mesh are extruded into QUAD elements.
