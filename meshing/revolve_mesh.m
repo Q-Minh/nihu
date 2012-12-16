@@ -1,5 +1,5 @@
 function mesh2 = revolve_mesh(mesh, varargin)
-%REVOLVE_MESH Revolve 1D and 2D mesh around a given vector
+%REVOLVE_MESH Revolve 1D and 2D mesh around a given vector (NiHu / meshing)
 %   MESH = REVOLVE_MESH(MESH, DIR, DPHI, NPHI) or
 %   MESH = REVOLVE_MESH(MESH, BASE, DIR, DPHI, NPHI) revolves the 1D or 2D
 %   NiHu mesh mesh around the central line given by the vectors BASE and

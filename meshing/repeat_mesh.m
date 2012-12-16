@@ -1,5 +1,5 @@
 function mesh2 = repeat_mesh(mesh, dir, nrep)
-%REPEAT_MESH Repeat (Copy) mesh along a given vector
+%REPEAT_MESH Repeat (Copy) mesh along a given vector (NiHu / meshing)
 %   MESH = REPEAT(MESH, DIR, NREP) repeats the mesh MESH
 %   NREP times so that each new repetition is the original mesh translated
 %   along the direction vector DIR.

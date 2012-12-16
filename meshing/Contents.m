@@ -25,12 +25,12 @@
 %
 % Basic mesh transforms
 %   translate_mesh           - Translate mesh along a given vector (NiHu / meshing)
-%   scale_mesh               - Scale mesh
-%   reflect_mesh             - Reflect mesh to a symmetry plane
-%   rotate_mesh              - Rotate mesh around a given vector
-%   repeat_mesh              - Repeat (Copy) mesh along a given vector
-%   extrude_mesh             - Extrude 1D and 2D mesh along a given direction
-%   revolve_mesh             - Revolve 1D and 2D mesh around a given vector
+%   scale_mesh               - Scale mesh (NiHu / meshing)
+%   reflect_mesh             - Reflect mesh to a symmetry plane (NiHu / meshing)
+%   rotate_mesh              - Rotate mesh around a given vector (NiHu / meshing)
+%   repeat_mesh              - Repeat (Copy) mesh along a given vector (NiHu / meshing)
+%   extrude_mesh             - Extrude 1D and 2D mesh along a given direction (NiHu / meshing)
+%   revolve_mesh             - Revolve 1D and 2D mesh around a given vector (NiHu / meshing)
 %
 % Mesh manipulation
 %   mesh_select              - Element and node selection
