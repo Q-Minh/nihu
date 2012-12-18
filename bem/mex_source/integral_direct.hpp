@@ -172,3 +172,4 @@ void int_const_sing(const gauss_t &gau,
 }
 
 #endif
+
