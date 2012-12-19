@@ -6,9 +6,9 @@
 #include "element.hpp"
 
 void init_accelerators(int nnodes,
-                       const double *nodes,
+                       double const *nodes,
                        int nelements,
-                       const double *elements,
+                       double const *elements,
                        accelerator_t *accelerators)
 {
 	enum {NDIM = 3, MAXNNODE = 4};
@@ -65,9 +65,9 @@ void init_accelerators(int nnodes,
 }
 
 void init_accelerators2D(int nnodes,
-                       const double *nodes,
+                       double const *nodes,
                        int nelements,
-                       const double *elements,
+                       double const *elements,
                        accelerator2D_t *accelerators)
 {
 	enum {NDIM=2, NVERT=2};
@@ -100,9 +100,9 @@ void init_accelerators2D(int nnodes,
 /* ------------------------------------------------------------------------ */
 /* Determine Gaussian integration density based on distance between source */
 /* and element center */
-int gauss_division(const double *q,
-                   const double *elemcenter,
-                   const double *dist)
+int gauss_division(double const *q,
+                   double const *elemcenter,
+                   double const *dist)
 {
 	enum{NDIM = 3};
     int j;
@@ -121,9 +121,9 @@ int gauss_division(const double *q,
 /* ------------------------------------------------------------------------ */
 /* Determine Gaussian integration density based on distance between source */
 /* and element center */
-int gauss_division2D(const double *q,
-                   const double *elemcenter,
-                   const double *dist)
+int gauss_division2D(double const *q,
+                   double const *elemcenter,
+                   double const *dist)
 {
 	enum {NDIM = 2};
     int j;
