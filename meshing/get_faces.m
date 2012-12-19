@@ -11,13 +11,12 @@ function faces = get_faces(elements)
 %   where ElemID refers to the parent element of the face.
 %   FaceType can be 12, 23 or 24
 
-%   Copyright 2008-2010 P. Fiala
+%   Copyright 2008-2012 P. Fiala
 %   Budapest University of Technology and Economics
 %   Dept. of Telecommunications
 
-if size(elements,2) < 12
-    elements(1,12) = 0;
-end
+% zero padding
+elements = [elements zeros(size(elements,1), 12-size(elements,2))];
 
 tria = elements(elements(:,2) == 23,[1 (5:7)]);
 quad = elements((elements(:,2) == 24) | (elements(:,2) == 122),[1 (5:8)]);

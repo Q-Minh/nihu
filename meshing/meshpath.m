@@ -10,11 +10,9 @@ function m = meshpath(path, Le)
 %   Budapest University of Technology and Economics
 %   Dept. of Telecommunications
 
-% Last updated: 02.12.2009
-%% Argument check
-error(nargchk(2, 2, nargin, 'struct'));
+% Last updated: 2012.12.19.
 
-%%
+%
 nP = size(path,1);
 for iP = 1 : nP
     switch path(iP,1)
@@ -41,7 +39,7 @@ m.Elements(:,3) = 1;
 m.Elements(:,4) = 1;
 end
 
-%%
+%
 function r = bezier(R, Le)
 %BEZIER Coordinates of Bezier curve
 %  R = BEZIER(P, L) returns the coordinates of a cubic Bezier curve

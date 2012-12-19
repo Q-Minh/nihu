@@ -1,5 +1,5 @@
 function [mesh, nodeind, elemind] = mesh_section(mesh, limits, selmode)
-%MESH_SECTION   Return a rectangular section of a mesh
+%MESH_SECTION   Return a rectangular section of a mesh (NiHu / meshing)
 %   [SECTION, NODEIND, ELEMIND] = MESH_SECTION(MESH, LIMITS, SELMODE)
 %   returns a rectangular section of the fe mesh mesh. The section mesh
 %   contains those elements that are located within the LIMITS
@@ -15,7 +15,7 @@ function [mesh, nodeind, elemind] = mesh_section(mesh, limits, selmode)
 %                   the limits.
 %            'nall': An element is selected if not all of its nodes are
 %                   within the limits.
-%  SECTION : AcouFEM mesh structure containing the desired section. The
+%  SECTION : mesh structure containing the desired section. The
 %            returned mesh contains all the nodes of the original mesh,
 %            only the element structure is changed.
 %  NODEIND : The indices of those nodes that are located within the limits.
@@ -30,14 +30,11 @@ function [mesh, nodeind, elemind] = mesh_section(mesh, limits, selmode)
 %   
 % See also: FE_SELECT
 
-%   Copyright 2008-2010 P. Fiala
+%   Copyright 2008-2010 P. Fiala, P. Rucz
 %   Budapest University of Technology and Economics
 %   Dept. of Telecommunications
 
-% Last updated: 02.12.2009.
-
-%% Parameter check
-error(nargchk(2, 3, nargin, 'struct'));
+% Last updated: 2012.12.19.
 
 d = find(size(limits) == 3);
 if d == 1
@@ -47,8 +44,8 @@ if nargin < 3
     selmode = 'all';
 end
 
-%% selection of appropriate nodes and elements
-expression = sprintf('x>=%f & x<=%f & y>=%f & y<=%f & z>=%f & z<=%f', limits);
+% selection of appropriate nodes and elements
+expression = sprintf('(x>=%g) & (x<=%g) & (y>=%g) & (y<=%g) & (z>=%g) & (z<=%g)', limits);
 [nodeind elemind] = mesh_select(mesh, expression, 'ind', selmode);
 mesh.Elements = mesh.Elements(elemind,:);
 end

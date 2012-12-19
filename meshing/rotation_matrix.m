@@ -16,18 +16,18 @@ function T = rotation_matrix(alpha, v)
 theta = pi/2-theta; % conventional math notation
 
 % rotation components
-Tz = [
+Tz = [ % rotate v into xz plane
     cos(phi) -sin(phi) 0
     sin(phi) cos(phi) 0
     0 0 1
     ];
-Ty = [
+Ty = [ % rotate v into z axis
     cos(theta) 0 sin(theta)
     0 1 0
     -sin(theta) 0 cos(theta)
     ];
 
-Tmain = [
+Tmain = [ % rotate around z axis
     cos(alpha) -sin(alpha) 0
     sin(alpha) cos(alpha) 0
     0 0 1

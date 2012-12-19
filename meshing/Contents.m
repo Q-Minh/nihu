@@ -15,6 +15,7 @@
 %   create_catseye           - Create a Cat's eye surface mesh (NiHu / meshing)
 %
 % Internal mesh creating functions
+%   default_mat_prop         - Default Materials and Properties matrices (NiHu / meshing)
 %   create_line_base         - Create basic line mesh. (NiHu / meshing)
 %   create_slab_args         - Process slab mesh arguments. (NiHu / meshing)
 %   create_slab_base         - Create basic slab mesh. (NiHu / meshing)
@@ -77,4 +78,3 @@
 %   mesh_volume              - Returns vector v, the volume for each element
 %   node_volume              - Calculates corresponding volume for nodes
 %   rotation_matrix          - Matrix of rotation around a vector
-%   default_mat_prop         - Default Materials and Properties matrices (NiHu / meshing)

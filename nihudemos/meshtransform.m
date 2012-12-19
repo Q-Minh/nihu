@@ -16,19 +16,19 @@ sphere = translate_mesh(sphere, d);
 % magnified to a larger radius.
 sphere = create_sphere_boundary(1, 10);
 scale = 5;
-sphere = scale_mesh(sphere, scale);
+sphere1 = scale_mesh(sphere, scale);
 
 %%
 % Meshes can be scaled without keepeng the aspect ratio, by defining the
 % scaling parameters separately along the $x$, $y$
 % and $z$ axes. In the following example, a unit sphere is generated
 % and is scaled to an ellipse
-sphere = create_sphere_boundary(1, 10);
 scale = [2 3 4];
 ellipse = scale_mesh(sphere, scale);
 
 figure;
-plot_mesh(ellipse);
+subplot(1,2,1); plot_mesh(sphere1);
+subplot(1,2,2); plot_mesh(ellipse);
 
 %% Rotate
 % Meshes can be rotated around a given vector of rotation, using the
@@ -65,16 +65,14 @@ plot_mesh(lin2);
 circle = create_circle_quadrant(1, 5);
 bar = extrude_mesh(circle, [0 0 .2], 10);
 
-figure;
-plot_mesh(bar);
-
 %%
 % Similarly, 1D objects can be extruded to 2D surfaces as follows:
 line = create_line(1, 10);
 slab = extrude_mesh(line, [.1 .05 0], 10);
 
 figure;
-plot_mesh(slab);
+subplot(1,2,1); plot_mesh(bar);
+subplot(1,2,2); plot_mesh(slab);
 %% Revolve
 % Meshes can be revolved using the toolbox function <matlab:doc('revolve_mesh') revolve_mesh>.
 %
@@ -92,23 +90,18 @@ base = [-1 0 0];    % base of rotation vector
 dir = [0 0 1];      % direction of rotation vector
 dphi = pi/50;       % amount of a rotation segment
 nPhi = 20;          % number of repetitions
-ring = revolve_mesh(lin, base, dir, dphi, nPhi);
-
-figure;
-plot_mesh(ring);
+ring = revolve_mesh(lin, dphi, nPhi, dir, base);
 
 %%
 % In the next example, a slab is revolved in order to form a cylindrical
 % annular solid volume.
 slab = create_slab([1 1], [10 10]);
-base = [-1 0 0];    % base of rotation vector
 dir = [0 -1 0];     % direction of rotation vector
-dphi = pi/50;       % amount of a rotation segment
-nPhi = 20;          % number of repetitions
-solid = revolve_mesh(slab, base, dir, dphi, nPhi);
+solid = revolve_mesh(slab, dPhi, nPhi, dir, base);
 
 figure;
-plot_mesh(solid);
+subplot(1,2,1); plot_mesh(ring);
+subplot(1,2,2); plot_mesh(solid);
 
 %% Repeat
 % Meshes can be repeated using the toolbox function <matlab:doc('repeat_mesh') repeat_mesh>. In the

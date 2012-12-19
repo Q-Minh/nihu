@@ -7,43 +7,42 @@ function [bb, path] = read_epspath(filename)
 %
 % See also: MESHPATH
 
-%   Copyright 2008-2010 P. Fiala
+%   Copyright 2008-2012 P. Fiala
 %   Budapest University of Technology and Economics
 %   Dept. of Telecommunications
-%% Argument check
-error(nargchk(1, 1, nargin, 'struct'));
 
-%% Default parameters
+% Last modified: 2012.12.19.
+
+% Default parameters
 scale = [1 1];
 translate = [0 0];
 
-%% Read eps file
-feps = textread(filename, '%s', 'delimiter', '\n');
+% Read eps file
+fid = fopen(filename, 'rt');
+feps = textscan(fid, '%s', 'delimiter', '\n');
+fclose(fid);
+feps = feps{1};
 
-stop = strmatch('%%EndComments', feps, 'exact');
+stop = find(strcmp('%%EndComments', feps));
 Comments = feps(1:stop-1);
-for i = 1 : length(Comments)
-    Comments{i} = [Comments{i} ' '];
-end
+Comments = strcat(Comments, {' '});
 
-start = strmatch('%%BeginProlog', feps, 'exact');
+start = find(strcmp('%%BeginProlog', feps));
 if ~isempty(start)
-    stop = strmatch('%%EndProlog', feps, 'exact');
+    stop = find(strcmp('%%EndProlog', feps));
     Prolog = feps(start+1:stop-1);
 else
     Prolog = [];
 end
 
-start = strmatch('%%Page: 1 1', feps, 'exact');
+start = find(strcmp('%%Page: 1 1', feps));
 Page = feps(start+1:end);
-for i = 1 : length(Page)
-    Page{i} = [Page{i} ' '];
-end
+Page = strcat(Page, {' '});
 
 float = '[-+]?[0-9]*\.?[0-9]+';
 floats = ['(' float '\s+)+'];
 
-%% Read Bounding Box from Comments
+% Read Bounding Box from Comments
 I = skipempty(regexp(Comments, ['%%BoundingBox:\s*(?<bb>' floats ')'], 'names'));
 bb = reshape(sscanf(I.bb, '%g'),2,2)';
 
@@ -52,7 +51,7 @@ if ~isempty(I)
     bb = reshape(sscanf(I.bb, '%g'),2,2)';
 end
 
-%%
+%
 if ~isempty(Prolog)
     I = skipempty(regexp(Prolog, '/(?<token>\S+)\s*{\s*(?<command>.*)\s*}\s*bind\s*def', 'names'));
     for l = 1 : length(I)
@@ -60,7 +59,7 @@ if ~isempty(Prolog)
     end
 end
 
-%%
+%
 Commands = regexp(cell2mat(Page(:)'), ['(?<lw>' floats ')(?<command>scale|translate|moveto|lineto|curveto|6 array astore concat)'], 'names');
 nCom = length(Commands);
 
@@ -96,7 +95,7 @@ end
 % delete zeros lines from path
 path = path(1:iEntry,:);
 
-%% Scale and translate coordinates
+% Scale and translate coordinates
 path(:,2:2:end) = path(:,2:2:end)*scale(1);
 path(:,3:2:end) = path(:,3:2:end)*scale(2);
 path(:,2:2:end) = path(:,2:2:end)+translate(1);
@@ -113,4 +112,5 @@ for i = 1 : length(Items)
     end
 end
 Items = cell2mat(Items(1:k));
+
 end

@@ -11,9 +11,10 @@ void init_accelerators(int nnodes,
                        const double *elements,
                        accelerator_t *accelerators)
 {
+	enum {NDIM = 3, MAXNNODE = 4};
     int e, j, s, nvert;
-    int elem[4];
-    double a[3], b[3], c[3];
+    int elem[MAXNNODE];
+    double a[NDIM], b[NDIM], c[NDIM];
 	double nod[3*3];
 
     /* for each element */
@@ -25,14 +26,13 @@ void init_accelerators(int nnodes,
 
 		if (nvert == 3)
 		{
-			for (j = 0; j < 3; j++)
+			for (j = 0; j < NDIM; j++)
 				for (s = 0; s < 3; s++)
 					nod[s+3*j] = nodes[elem[s]+j*nnodes];
 			inverse_matrix<TriaElem>(nod, accelerators[e].gradN);
 		}
 
-
-        for (j = 0; j < 3; j++)
+        for (j = 0; j < NDIM; j++)
         {
             accelerators[e].center[j] = 0.0;
             for (s = 0; s < nvert; s++)
@@ -42,7 +42,7 @@ void init_accelerators(int nnodes,
 
         if (nvert == 3)
         {
-            for (j = 0; j < 3; j++)
+            for (j = 0; j < NDIM; j++)
             {
                 a[j] = nodes[elem[1]+j*nnodes]-nodes[elem[0]+j*nnodes];
                 b[j] = nodes[elem[2]+j*nnodes]-nodes[elem[0]+j*nnodes];
@@ -51,7 +51,7 @@ void init_accelerators(int nnodes,
         }
         else
         {
-            for (j = 0; j < 3; j++)
+            for (j = 0; j < NDIM; j++)
             {
                 a[j] = (nodes[elem[1]+j*nnodes]-nodes[elem[0]+j*nnodes]+nodes[elem[2]+j*nnodes]-nodes[elem[3]+j*nnodes])/4.0;
                 b[j] = (nodes[elem[0]+j*nnodes]-nodes[elem[1]+j*nnodes]+nodes[elem[2]+j*nnodes]-nodes[elem[3]+j*nnodes])/4.0;
@@ -70,8 +70,7 @@ void init_accelerators2D(int nnodes,
                        const double *elements,
                        accelerator2D_t *accelerators)
 {
-#define NDIM 2
-#define NVERT 2
+	enum {NDIM=2, NVERT=2};
     int e, j, s, nvert;
     int elem[NVERT];
 	double a[NDIM];
@@ -96,8 +95,6 @@ void init_accelerators2D(int nnodes,
 		accelerators[e].n0[0] = a[1];
 		accelerators[e].n0[1] = -a[0];
     }
-#undef NVERT
-#undef NDIM
 }
 
 /* ------------------------------------------------------------------------ */
@@ -107,7 +104,7 @@ int gauss_division(const double *q,
                    const double *elemcenter,
                    const double *dist)
 {
-#define NDIM 3
+	enum{NDIM = 3};
     int j;
     double distance[NDIM], d;
 
@@ -119,7 +116,6 @@ int gauss_division(const double *q,
     if (d < dist[1])
         return 2;
     return 3;
-#undef NDIM
 }
 
 /* ------------------------------------------------------------------------ */
@@ -129,7 +125,7 @@ int gauss_division2D(const double *q,
                    const double *elemcenter,
                    const double *dist)
 {
-#define NDIM 2
+	enum {NDIM = 2};
     int j;
     double distance[NDIM], d;
 
@@ -141,5 +137,4 @@ int gauss_division2D(const double *q,
     if (d < dist[1])
         return 2;
     return 3;
-#undef NDIM
 }
