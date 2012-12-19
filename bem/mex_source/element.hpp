@@ -11,7 +11,7 @@ template <class ElemType>
 void d_shapefun(double xi, double eta, double *Nxi, double *Neta);
 
 template <>
-void shapefun<QuadElem>(double xi, double eta, double *N)
+inline void shapefun<QuadElem>(double xi, double eta, double *N)
 {
     N[0] = (1.0-xi)*(1.0-eta)/4.0;
     N[1] = (1.0+xi)*(1.0-eta)/4.0;
@@ -20,7 +20,7 @@ void shapefun<QuadElem>(double xi, double eta, double *N)
 }
 
 template <>
-void shapefun<TriaElem>(double xi, double eta, double *N)
+inline void shapefun<TriaElem>(double xi, double eta, double *N)
 {
     N[0] = (1.0-xi-eta);
     N[1] = xi;
@@ -28,7 +28,7 @@ void shapefun<TriaElem>(double xi, double eta, double *N)
 }
 
 template <>
-void d_shapefun<QuadElem>(double xi, double eta, double *Nxi, double *Neta)
+inline void d_shapefun<QuadElem>(double xi, double eta, double *Nxi, double *Neta)
 {
     Nxi[0] = (-1.0)*(1.0-eta)/4.0;
     Nxi[1] = (+1.0)*(1.0-eta)/4.0;
@@ -42,7 +42,7 @@ void d_shapefun<QuadElem>(double xi, double eta, double *Nxi, double *Neta)
 }
 
 template <>
-void d_shapefun<TriaElem>(double xi, double eta, double *Nxi, double *Neta)
+inline void d_shapefun<TriaElem>(double xi, double eta, double *Nxi, double *Neta)
 {
     Nxi[0] = -1.0;
     Nxi[1] = 1.0;
