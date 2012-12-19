@@ -35,14 +35,13 @@ function [nodes elements] = mesh_select(mesh, expression, indmode, selmode)
 %
 % See also: MESH_SECTION, DROP_UNUSED_NODES
 
-%   Copyright 2008-2010 P. Fiala, P. Rucz
+%   Copyright 2008-2012 P. Fiala, P. Rucz
 %   Budapest University of Technology and Economics
 %   Dept. of Telecommunications
 
-% Last updated: 06.09.2010.
+% Last updated: 2012.12.19.
 
-%% Parameter check
-error(nargchk(2, 4, nargin, 'struct'));
+% Default parameters
 if nargin < 4
     selmode = 'all';
 end
@@ -50,7 +49,7 @@ if nargin < 3
     indmode = 'ID';
 end
 
-%% Defining the expression variables
+% Defining the expression variables
 x = mesh.Nodes(:,2);
 y = mesh.Nodes(:,3);
 z = mesh.Nodes(:,4);
@@ -59,14 +58,14 @@ theta = atan2(z,r); %#ok<NASGU>
 R = sqrt(x.^2 + y.^2 + z.^2); %#ok<NASGU>
 phi = atan2(y,x); %#ok<NASGU>
 
-%% Expression evaluation
+% Expression evaluation
 Elements = drop_IDs(mesh);
 nElements = size(Elements,1);
 % find node indices satisfying the condition
 if ischar(expression)
     nodeind = find(eval(expression));
 else
-    [trash, nodeind] = ismember(expression, mesh.Nodes(:,1)); %#ok<ASGLU>
+    [~, nodeind] = ismember(expression, mesh.Nodes(:,1));
 end
 switch lower(selmode)
     case 'any'
@@ -82,13 +81,14 @@ switch lower(selmode)
             sum(Elements(:,5:end) ~=0, 2));
         elemind = setdiff(1:nElements,elemind);
     otherwise
-        error('Invalid selection mode selector: %s', selmode);
+        error('NiHu:mesh_select:argValue', ...
+            'Invalid selection mode selector: %s', selmode);
 end
 % IDs
 nodeID = mesh.Nodes(nodeind, 1);
 elemID = mesh.Elements(elemind, 1);
 
-%% output selection
+% output selection
 switch lower(indmode)
     case 'id'
         nodes = nodeID;
@@ -97,6 +97,7 @@ switch lower(indmode)
         nodes = nodeind;
         elements = elemind;
     otherwise
-        error('Invalid index mode selector: %s', indmode);
+        error('NiHu:mesh_select:argValue', ...
+            'Invalid index mode selector: %s', indmode);
 end
 end

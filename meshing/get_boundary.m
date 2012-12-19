@@ -21,19 +21,16 @@ function [boundary, elemind] = get_boundary(model)
 %   Budapest University of Technology and Economics
 %   Dept. of Telecommunications
 
-% Last modified 15.07.2010.
-%% Argument check
-error(nargchk(1, 1, nargin, 'struct'));
-error(nargoutchk(1, 2, nargout, 'struct'));
+% Last modified 2012.12.19.
 
-%% Extract boundary
+% Extract boundary
 boundary.Materials = model.Materials;
 boundary.Properties = model.Properties;
 boundary.Nodes = model.Nodes;
 faces = get_faces(model.Elements);
 faces = get_free_faces(faces);
 boundary.Elements(:,[2 4+(1:size(faces,2)-2)]) = faces(:,2:end);
-[thrash, elemind] = ismember(faces(:,1), model.Elements(:,1));
+[~, elemind] = ismember(faces(:,1), model.Elements(:,1));
 if ~isempty(boundary.Elements)
     boundary.Elements(:,[3 4]) = model.Elements(elemind,[3 4]);
     boundary.Elements(:,1) = 1:size(boundary.Elements,1);

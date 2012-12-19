@@ -15,33 +15,31 @@ function mesh2 = extrude_mesh(mesh, dir, nRep)
 % See also: TRANSLATE_MESH, SCALE_MESH, ROTATE_MESH, REVOLVE_MESH,
 % REPEAT_MESH, REFLECT_MESH
 
-%   Copyright 2008-2010 P. Fiala
+%   Copyright 2008-2012 P. Fiala, P. Rucz
 %   Budapest University of Technology and Economics
 %   Dept. of Telecommunications
 
-% Last modifed: 2012.12.14.
+% Last modifed: 2012.12.19.
 
 dir = dir(:).'; % ensure that dir is a row vector
 
-%% Create new nodes
+% Create new nodes
 nNod = size(mesh.Nodes,1);
 coord = zeros((nRep+1)*nNod,3);
 for iRep = 0 : nRep
     coord(iRep*nNod+(1:nNod),:) = mesh.Nodes(:,2:4)+iRep*repmat(dir,nNod,1);
 end
 
-%% Create new elements
+% Create new elements
 Elements = drop_IDs(mesh);
-
-if size(Elements,2) < 8
-    Elements(1,8) = 0;
-end
+% zero padding
+Elements = [Elements zeros(size(Elements,1), 8-size(Elements,2))];
 
 % Get cell normals
 [~, normal] = centnorm(mesh);
 
-% Select which elements to 'rotate' to conserve outward normals
-flip = dot(normal,repmat(dir, size(Elements,1), 1),2) > 0;
+% Select which elements to flip to conserve outward normals
+flip = (normal * dir.') > 0;
 
 quads = Elements(:,2) == 24;
 quad = Elements(quads,:);
@@ -71,7 +69,7 @@ for iRep = 1 : nRep
 end
 
 
-%% Assemble new mesh structure
+% Assemble new mesh structure
 mesh2.Nodes(:,2:4) = coord;
 mesh2.Nodes(:,1) = 1:size(mesh2.Nodes,1);
 mesh2.Elements = Elem;

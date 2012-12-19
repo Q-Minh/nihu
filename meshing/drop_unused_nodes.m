@@ -13,10 +13,7 @@ function [mesh, nodind, dropind] = drop_unused_nodes(mesh)
 %   Budapest University of Technology and Economics
 %   Dept. of Telecommunications
 
-% Last updated: 02.12.2009.
-
-%% Parameter check
-error(nargchk(1, 1, nargin, 'struct'));
+% Last updated: 2012.12.19.
 
 nodind = find(ismember(mesh.Nodes(:,1), mesh.Elements(:,5:end)));
 if nargout > 2

@@ -16,3 +16,5 @@ df2 = find(sum(flipud(abs(diff(flipud(fff),[],1))),2) == 0);
 ind2 = setdiff(1:size(faces,1), union(df1,df2));
 ind = ind(ind2);
 f = faces(ind,:);
+
+end

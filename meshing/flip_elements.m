@@ -6,11 +6,9 @@ function model = flip_elements(model)
 %   Budapest University of Technology and Economics
 %   Dept. of Telecommunications
 
-% Last modified 02.12.2009.
-%% Parameter check
-error(nargchk(1, 1, nargin, 'struct'));
+% Last modified 2012.12.19.
 
-%%
+%
 types = [12 23 24 36 38];
 
 for t = 1 : length(types)
