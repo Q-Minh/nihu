@@ -35,9 +35,9 @@ view(3);
 % $$L_e \le \lambda / 7$$
 % 
 % The maximal applicable wave number at each element of the mesh is
-% computed by the toolbox function |bemkmax|.
+% computed by the toolbox function |mesh_kmax|.
 ratio = 7;
-kmax_elem = bemkmax(mesh, ratio);
+kmax_elem = mesh_kmax(mesh, ratio);
 
 figure;
 plot_mesh(mesh, kmax_elem); view(3);
@@ -94,7 +94,7 @@ title(sprintf('Error: %e', e));
 L = [1 1];
 Le = 2*pi/k/ratio;
 field = create_slab(L, ceil(L/Le));
-field = rotate_mesh(field, [0 0 0], [0 -1 0], pi/2);
+field = rotate_mesh(field, pi/2, [0 -1 0]);
 field = translate_mesh(field, [.5 -.5 .5]);
 
 figure;

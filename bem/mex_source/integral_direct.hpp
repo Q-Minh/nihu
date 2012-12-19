@@ -13,23 +13,23 @@
 /* ------------------------------------------------------------------------ */
 /* Regular integral over a constant element                            */
 template <class ElemType, typename kType>
-void int_const(const gauss_t &gau,
-               const double *nodes,
-               const accelerator_t &accelerator,
-               const double *q,
-               const kType &k,
-               complex_scalar &a,
-               complex_scalar &b)
+        void int_const(const gauss_t &gau,
+        double const *nodes,
+        const accelerator_t &accelerator,
+        double const *q,
+        const kType &k,
+        complex_scalar &a,
+        complex_scalar &b)
 {
     enum {NDIM = 3};
     const bool isLinear = elem_traits<ElemType>::isLinear;
     const unsigned nNodes = elem_traits<ElemType>::nNodes;
-
+    
     double norm[NDIM], jac;
-
+    
     /* Initialize result to zero */
     a = b = 0.0;
-
+    
     if (isLinear)
     {
         /* Jacobian and surface normal calculation  */
@@ -37,12 +37,12 @@ void int_const(const gauss_t &gau,
         for (int j = 0; j < NDIM; j++)
             norm[j] = accelerator.n0[j]/jac;
     }
-
+    
     /* for each gaussian integration point */
     for (int i = 0; i < gau.num; i++)
     {
         double r[NDIM], rxi[NDIM], reta[NDIM];
-
+        
         /* computing integration location */
         for (int j = 0; j < NDIM; j++) 				/* for all directions */
         {
@@ -59,7 +59,7 @@ void int_const(const gauss_t &gau,
                 }
             }
         }
-
+        
         double w;
         if (!isLinear)
         {
@@ -72,15 +72,15 @@ void int_const(const gauss_t &gau,
         }
         else
             w = gau.w[i];
-
+        
         complex_scalar g, dg;
         green(r, k, g, norm, dg);
-
+        
         /* Evaluate matrix elements */
         a += dg*w;
         b += g*w;
     }
-
+    
     if (isLinear)
     {
         /* Finally, multiply with jacobian */
@@ -90,47 +90,47 @@ void int_const(const gauss_t &gau,
 }
 
 /* ------------------------------------------------------------------------ */
-/* Singular integral over a constant TRIA element                           */
+/* Singular integral over a constant element                           */
 template <class ElemType, typename kType>
-void int_const_sing(const gauss_t &gau,
-                    const double *nodes,
-                    const accelerator_t &accelerator,
-                    const double *q,
-                    const kType &k,
-                    complex_scalar &a,
-                    complex_scalar &b)
+        void int_const_sing(const gauss_t &gau,
+        double const *nodes,
+        const accelerator_t &accelerator,
+        double const *q,
+        const kType &k,
+        complex_scalar &a,
+        complex_scalar &b)
 {
     enum {NDIM = 3};
     const bool isLinear = elem_traits<ElemType>::isLinear;
     const unsigned nNodes = elem_traits<ElemType>::nNodes;
-
+    
     double norm[NDIM], jac;
-
+    
     a = b = 0.0;
-
+    
     if (isLinear)
     {
         jac = sqrt(dot(accelerator.n0, accelerator.n0));
         for (int j = 0; j < NDIM; j++)
             norm[j] = accelerator.n0[j] / jac;
     }
-
+    
     double *xiprime = new double [nNodes * gau.num];
     double *etaprime = new double [nNodes * gau.num];
     double *wprime = new double [nNodes * gau.num];
-
+    
     int gnum;
     if (nNodes == 3)
         sing_quadr_face<ElemType>(gau, 1.0/3.0, 1.0/3.0, &gnum, xiprime, etaprime, wprime);
     else if (nNodes == 4)
         sing_quadr_face<ElemType>(gau, 0.0, 0.0, &gnum, xiprime, etaprime, wprime);
-
+    
     /* for each gaussian integration point */
     for (int i = 0; i < gnum; i++)
     {
         double N[nNodes], r[NDIM];
         shapefun<ElemType>(xiprime[i], etaprime[i], N);
-
+        
         /* for each coordinate direction */
         for (int j = 0; j < NDIM; j++)
         {
@@ -141,7 +141,7 @@ void int_const_sing(const gauss_t &gau,
             if (!isLinear)
                 norm[j] = accelerator.n0[j] + accelerator.nxi[j] * xiprime[i] + accelerator.neta[j]*etaprime[i];
         }
-
+        
         double w;
         if (!isLinear)
         {
@@ -152,24 +152,147 @@ void int_const_sing(const gauss_t &gau,
         }
         else
             w = wprime[i];
-
+        
         complex_scalar g, dg;
         green(r, k, g, norm, dg);
-
+        
         a += dg*w;
         b += g*w;
     }
-
+    
     if (isLinear)
     {
         a *= jac;
         b *= jac;
     }
-
+    
     delete [] xiprime;
     delete [] etaprime;
     delete [] wprime;
 }
+
+
+/* ------------------------------------------------------------------------ */
+/* Regular integral over a linear element                              */
+template <class ElemType, typename kType>
+        void int_lin(gauss_t const &gau,
+        double const *nodes,
+        accelerator_t const &accelerator,
+        double const *q,
+        kType const &k,
+        complex_scalar a[],
+        complex_scalar b[])
+{
+    enum {NDIM = 3};
+    const bool isLinear = elem_traits<ElemType>::isLinear;
+    const unsigned nNodes = elem_traits<ElemType>::nNodes;
+    
+    for (int s = 0; s < nNodes; s++)
+        a[s] = b[s] = 0.0;
+    
+    /* for each gaussian integration point */
+    for (int i = 0; i < gau.num; i++)
+    {
+        double r[NDIM], rxi[NDIM], reta[NDIM], norm[NDIM];
+        
+        /* for each coordinate direction */
+        for (int j = 0; j < NDIM; j++)
+        {
+            r[j] = -q[j];
+            rxi[j] = reta[j] = 0.0;
+            /* computing integration location and its derivatives */
+            for (int s = 0; s < nNodes; s++)
+            {
+                r[j] += gau.N[i+s*gau.num]*nodes[s+nNodes*j];
+                rxi[j] += gau.Nxi[i+s*gau.num]*nodes[s+nNodes*j];
+                reta[j] += gau.Neta[i+s*gau.num]*nodes[s+nNodes*j];
+            }
+        }
+        /* surface normal and jacobian */
+        cross(rxi, reta, norm);
+        double jac = sqrt(dot(norm, norm));
+        for (int j = 0; j < NDIM; j++)
+            norm[j] /= jac;
+        jac *= gau.w[i];
+        
+        complex_scalar g, dg;
+        green(r, k, g, norm, dg);
+        
+        g *= jac;
+        dg *= jac;
+        
+        for (int s = 0; s < nNodes; s++)
+        {
+            a[s] += gau.N[i+s*gau.num]*dg;
+            b[s] += gau.N[i+s*gau.num]*g;
+        }
+    }
+}
+
+template <class ElemType, typename kType>
+        void int_lin_sing(gauss_t const &gau,
+        double const *nodes,
+        accelerator_t const &accelerator,
+        int corner,
+        kType const &k,
+        complex_scalar a[],
+        complex_scalar b[])
+{
+    enum {NDIM = 3};
+    const bool isLinear = elem_traits<ElemType>::isLinear;
+    const unsigned nNodes = elem_traits<ElemType>::nNodes;
+    
+    for (int s = 0; s < nNodes; s++)
+        a[s] = b[s] = 0.0;
+    
+    double *xiprime = new double [2*gau.num];
+    double *etaprime = new double [2*gau.num];
+    double *wprime = new double [2*gau.num];
+    
+    int gnum;
+    sing_quadr_corner<ElemType>(gau, corner, &gnum, xiprime, etaprime, wprime);
+    
+    /* for each gaussian integration point */
+    for (int i = 0; i < gnum; i++)
+    {
+        double r[NDIM], norm[NDIM];
+        double N[nNodes];
+        
+        shapefun<ElemType>(xiprime[i], etaprime[i], N);
+        
+        /* computing integration location */
+        for (int j = 0; j < NDIM; j++)
+        {
+            r[j] = -nodes[corner+nNodes*j];
+            for (int s = 0; s < nNodes; s++)
+                r[j] += N[s]*nodes[s+nNodes*j];
+            
+            norm[j] = accelerator.n0[j] + accelerator.nxi[j] * xiprime[i] + accelerator.neta[j] * etaprime[i];
+        }
+        
+        double jac = sqrt(dot(norm, norm));
+        for (int j = 0; j < NDIM; j++)
+            norm[j] /= jac;
+        jac *= wprime[i];
+        
+        complex_scalar g, dg;
+        green(r, k, g, norm, dg);
+        
+        g *= jac;
+        dg *= jac;
+        
+        for (int s = 0; s < nNodes; s++)
+        {
+            a[s] += N[s]*dg;
+            b[s] += N[s]*g;
+        }
+    }
+    
+    delete [] xiprime;
+    delete [] etaprime;
+    delete [] wprime;
+}
+
 
 #endif
 

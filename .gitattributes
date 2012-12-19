@@ -2,6 +2,8 @@
 
 *.m text eol=crlf
 *.c text eol=crlf
+*.cpp text eol=crlf
 *.h text eol=crlf
+*.hpp text eol=crlf
 *.html text eol=crlf
 
