@@ -15,23 +15,15 @@ bem/mex_source/*.m
 *.*~
 .fuse*
 
-<<<<<<< HEAD
-# LaTeX documentation tmp files
-*.aux
-=======
 # LaTeX documentation tmp and output files
 *.aux
 *.dvi
->>>>>>> origin/ruster
 *.gz
 *.lof
 *.log
 *.lot
 *.out
-<<<<<<< HEAD
-=======
 *.pdf
->>>>>>> origin/ruster
 *.toc
 *.vrb
 
