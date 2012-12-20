@@ -15,13 +15,15 @@ bem/mex_source/*.m
 *.*~
 .fuse*
 
-# LaTeX documentation tmp files
+# LaTeX documentation tmp and output files
 *.aux
+*.dvi
 *.gz
 *.lof
 *.log
 *.lot
 *.out
+*.pdf
 *.toc
 *.vrb
 
