@@ -105,7 +105,7 @@ void matrix_surf_const(int nnodes, double const nodes[],
 * \param nelements number of elements
 * \param elements element node indices
 * \param npoints number of field points
-* \param field point coordinates
+* \param points field point coordinates
 * \param g3 Gaussian structures for Tria elements
 * \param g4 Gaussian structures for Quad elements
 * \param dist distance vector

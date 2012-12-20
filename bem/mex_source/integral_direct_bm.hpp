@@ -127,7 +127,6 @@ enum {GNUM = sizeof(gauss_w_bm_sing)/sizeof(gauss_w_bm_sing[0])};
 
 /**
 * \brief Numerical integration of Green's functions over singular BEM element with Burton and Miller
-* \param gau Gaussian integration structure
 * \param nodes node coordinates
 * \param accelerator integration accelerator structure
 * \param q reference node coordinates
