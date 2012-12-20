@@ -1,21 +1,22 @@
-/* $Make: mex -O -output bemHG_const_sp bemHG_const_sp.mex.c bemHG_con.c mesh.c integral_direct.c quadrature.c element.c vector.c green.c$ */
+/* $Make: mex -O -output bemHG_const_sp bemHG_const_sp.mex.cpp mesh.cpp vector.cpp$ */
 
 #include "mex.h"
-#include "bemHG_con.h"
+#include "bemHG_con.hpp"
 #include "types.h"
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
+    enum {NGAUSS = 4};
     /* Allocate memory for Gaussian integration structures */
-    gauss_t *g3 = new gauss_t[4];
-    gauss_t *g4 = new gauss_t[4];
+    gauss_t *g3 = new gauss_t[NGAUSS];
+    gauss_t *g4 = new gauss_t[NGAUSS];
 
     /* transfer input parameters */
     double *nodes = mxGetPr(prhs[0]);
     int nnodes = mxGetM(prhs[0]);
     double *elements = mxGetPr(prhs[1]);
     int nelements = mxGetM(prhs[1]);
-    for (int j = 0; j < 4; j++)
+    for (int j = 0; j < NGAUSS; j++)
     {
         g3[j].num = mxGetM(mxGetField(prhs[2], j, "N"));
         g3[j].N = mxGetPr(mxGetField(prhs[2], j, "N"));
