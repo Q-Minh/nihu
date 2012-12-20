@@ -1,17 +1,21 @@
+/**
+* \file vector.h
+* \brief header file of vector.cpp
+* \author Peter Fiala fiala@hit.bme.hu
+*/
+
 #ifndef VECTOR_H
 #define VECTOR_H
 
-/* Compute dot product of two 3D vectors */
-double dot(const double *,
-           const double *);
+double dot(double const v1[],
+           double const v2[]);
 		   
-/* Compute dot product of two 2D vectors */
-double dot2D(const double *,
-           const double *);
+double dot2D(double const v1[],
+             double const v2[]);
 		   
-/* Compute cross product of two 3D vectors */
-double * cross(const double *,
-               const double *,
-               double *);
+double *cross(double const v1[],
+              double const v2[],
+              double w[]);
+
 #endif
 

@@ -1,3 +1,9 @@
+/**
+* \file integral_direct_bm.hpp
+* \brief Numerical integration of Green's functions over BEM elements with Burton and Miller
+* \author Peter Fiala fiala@hit.bme.hu
+*/
+
 #ifndef INTEGRAL_DIRECT_BM_HPP
 #define INTEGRAL_DIRECT_BM_HPP
 
@@ -7,20 +13,30 @@
 
 #include "elem_traits.hpp"
 
+/**
+* \brief Numerical integration of Green's functions over regular BEM element with Burton and Miller
+* \param gau Gaussian integration structure
+* \param nodes node coordinates
+* \param accelerator integration accelerator structure
+* \param q reference node coordinates
+* \param nq reference normal vector
+* \param k wave number
+* \param alpha coupling coefficient
+* \param a A elem integral
+* \param b B elem integral
+*/
 template <class ElemType, typename kType>
 void int_const_bm(const gauss_t &gau,
-                  const double *nodes,
-                  const accelerator_t &accelerator,
-                  const double *q,					/* source location */
-                  const double *nq, 				/* source normal vector */
-                  const kType &k, 			/* Wave number */
-                  const complex_scalar &alpha,		/* Coupling real */
-                  complex_scalar &a,
-                  complex_scalar &b)
+                  double const nodes[],
+                  accelerator_t const &accelerator,
+                  double const q[],
+                  double const nq[],
+                  kType const &k, complex_scalar const &alpha,
+                  complex_scalar &a, complex_scalar &b)
 {
     enum {NDIM = 3};
-    const bool isLinear = elem_traits<ElemType>::isLinear;
-    const unsigned nNodes = elem_traits<ElemType>::nNodes;
+    bool const isLinear = elem_traits<ElemType>::isLinear;
+    unsigned const nNodes = elem_traits<ElemType>::nNodes;
 
     double norm[NDIM], jac;
 
@@ -109,19 +125,28 @@ double gauss_w_bm_sing[] =
 
 enum {GNUM = sizeof(gauss_w_bm_sing)/sizeof(gauss_w_bm_sing[0])};
 
+/**
+* \brief Numerical integration of Green's functions over singular BEM element with Burton and Miller
+* \param gau Gaussian integration structure
+* \param nodes node coordinates
+* \param accelerator integration accelerator structure
+* \param q reference node coordinates
+* \param nq reference normal vector
+* \param k wave number
+* \param alpha coupling coefficient
+* \param a A elem integral
+* \param b B elem integral
+*/
 template <class ElemType, typename kType>
-void int_const_sing_bm(const double *nodes,
-                       const accelerator_t &accelerator,
-                       const double *q, 		    /* Source location */
-                       const double *nq, 		    /* Source normal */
-                       const kType &k, 	/* Wave number */
-                       const complex_scalar &alpha,	/* coupling constant */
-                       complex_scalar &a,
-                       complex_scalar &b)
+void int_const_sing_bm(double const nodes[],
+                       accelerator_t const &accelerator,
+                       double const q[], double const nq[], 		    /* Source normal */
+                       kType const &k, 	complex_scalar const &alpha,	/* coupling constant */
+                       complex_scalar &a, complex_scalar &b)
 {
     enum {NDIM = 3};
-    const bool isLinear = elem_traits<ElemType>::isLinear;
-    const unsigned nNodes = elem_traits<ElemType>::nNodes;
+    bool const isLinear = elem_traits<ElemType>::isLinear;
+    unsigned const nNodes = elem_traits<ElemType>::nNodes;
 
     /* Initialize the result */
     a = b = 0.0;
@@ -158,9 +183,10 @@ void int_const_sing_bm(const double *nodes,
             /* Matrix H: the negative of the simple green function should be evaluated */
             a -= (green(r, k) * alpha)*jac;
             /* Matrix G: the reduced Green is evaluated */
-            b += compJ * greenr(lr, k) * jac;
+            b += compJ * green(lr, k) * jac;
         }
     }
 }
 
 #endif
+

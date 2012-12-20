@@ -1,7 +1,7 @@
 /* $Make: mex -O -output bemHG_const_sp bemHG_const_sp.mex.cpp mesh.cpp vector.cpp$ */
 
 #include "mex.h"
-#include "bemHG_con.hpp"
+#include "bemHG_const.hpp"
 #include "types.h"
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])

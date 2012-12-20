@@ -1,3 +1,10 @@
+/**
+* \file mesh.cpp
+* \brief Element accelerator initialisation and Gauss density determination
+* \author Peter Fiala fiala@hit.bme.hu
+*/
+
+
 #include "mesh.h"
 
 #include <cmath>
@@ -5,6 +12,14 @@
 
 #include "element.hpp"
 
+/**
+* \brief Fill accelerator structure
+* \param nnodes number of nodes
+* \param nodes node coordinates
+* \param nelements number of elements
+* \param elements element indices
+* \param accelerators array of accelerators for each element - to be filled
+*/
 void init_accelerators(int nnodes,
                        double const nodes[],
                        int nelements,
@@ -65,11 +80,19 @@ void init_accelerators(int nnodes,
 }
 
 
+/**
+* \brief Fill accelerator structure of a 2D mesh
+* \param nnodes number of nodes
+* \param nodes node coordinates
+* \param nelements number of elements
+* \param elements element indices
+* \param accelerators array of accelerators for each element - to be filled
+*/
 void init_accelerators2D(int nnodes,
-                       double const *nodes,
-                       int nelements,
-                       double const *elements,
-                       accelerator2D_t *accelerators)
+                         double const nodes[],
+                         int nelements,
+                         double const elements[],
+                         accelerator2D_t accelerators[])
 {
 	enum {NDIM=2, NVERT=2};
 
@@ -97,9 +120,13 @@ void init_accelerators2D(int nnodes,
     }
 }
 
-/* ------------------------------------------------------------------------ */
-/* Determine Gaussian integration density based on distance between source */
-/* and element center */
+/**
+* \brief Determine Gaussian integration density
+* \param q source point
+* \param elemcenter element center
+* \param dist array of distance limits
+* \returns index of Gaussian integration
+*/
 int gauss_division(double const q[],
                    double const elemcenter[],
                    double const dist[])
@@ -117,12 +144,16 @@ int gauss_division(double const q[],
     return 3;
 }
 
-/* ------------------------------------------------------------------------ */
-/* Determine Gaussian integration density based on distance between source */
-/* and element center */
+/**
+* \brief Determine Gaussian integration density
+* \param q source point
+* \param elemcenter element center
+* \param dist array of distance limits
+* \returns index of Gaussian integration
+*/
 int gauss_division2D(double const q[],
-                   double const elemcenter[],
-                   double const dist[])
+                     double const elemcenter[],
+                     double const dist[])
 {
 	enum {NDIM = 2};
     double distance[NDIM];

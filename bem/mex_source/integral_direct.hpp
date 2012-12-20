@@ -1,3 +1,9 @@
+/**
+* \file integral_direct.hpp
+* \brief Numerical integration of Green's functions over BEM elements
+* \author Peter Fiala fiala@hit.bme.hu
+*/
+
 #ifndef INTEGRAL_DIRECT_HPP
 #define INTEGRAL_DIRECT_HPP
 
@@ -10,20 +16,27 @@
 #include "vector.h"
 
 
-/* ------------------------------------------------------------------------ */
-/* Regular integral over a constant element                            */
+/**
+* \brief Regular integral of Green's functions over constant BEM element
+* \param gau Gaussian integration structure
+* \param nodes node coordinates
+* \param accelerator integration accelerator structure
+* \param q reference node coordinates
+* \param k wave number
+* \param a A elem integral
+* \param b B elem integral
+*/
 template <class ElemType, typename kType>
-        void int_const(const gauss_t &gau,
-        double const *nodes,
-        const accelerator_t &accelerator,
-        double const *q,
-        const kType &k,
-        complex_scalar &a,
-        complex_scalar &b)
+void int_const(const gauss_t &gau,
+        double const nodes[],
+        accelerator_t const &accelerator,
+        double const q[],
+        kType const &k,
+        complex_scalar &a, complex_scalar &b)
 {
     enum {NDIM = 3};
-    const bool isLinear = elem_traits<ElemType>::isLinear;
-    const unsigned nNodes = elem_traits<ElemType>::nNodes;
+    bool const isLinear = elem_traits<ElemType>::isLinear;
+    unsigned const nNodes = elem_traits<ElemType>::nNodes;
     
     double norm[NDIM], jac;
     
@@ -89,20 +102,27 @@ template <class ElemType, typename kType>
     }
 }
 
-/* ------------------------------------------------------------------------ */
-/* Singular integral over a constant element                           */
+/**
+* \brief Singular integral of Green's functions over constant BEM element
+* \param gau Gaussian integration structure
+* \param nodes node coordinates
+* \param accelerator integration accelerator structure
+* \param q reference node coordinates
+* \param k wave number
+* \param a A elem integral
+* \param b B elem integral
+*/
 template <class ElemType, typename kType>
-        void int_const_sing(const gauss_t &gau,
-        double const *nodes,
-        const accelerator_t &accelerator,
-        double const *q,
-        const kType &k,
-        complex_scalar &a,
-        complex_scalar &b)
+void int_const_sing(const gauss_t &gau,
+        double const nodes[],
+        accelerator_t const &accelerator,
+        double const q[],
+        kType const &k,
+        complex_scalar &a, complex_scalar &b)
 {
     enum {NDIM = 3};
-    const bool isLinear = elem_traits<ElemType>::isLinear;
-    const unsigned nNodes = elem_traits<ElemType>::nNodes;
+    bool const isLinear = elem_traits<ElemType>::isLinear;
+    unsigned const nNodes = elem_traits<ElemType>::nNodes;
     
     double norm[NDIM], jac;
     
@@ -172,20 +192,27 @@ template <class ElemType, typename kType>
 }
 
 
-/* ------------------------------------------------------------------------ */
-/* Regular integral over a linear element                              */
+/**
+* \brief Regular integral of Green's functions over a linear BEM element
+* \param gau Gaussian integration structure
+* \param nodes node coordinates
+* \param accelerator integration accelerator structure
+* \param q reference node coordinates
+* \param k wave number
+* \param a A elem integrals
+* \param b B elem integrals
+*/
 template <class ElemType, typename kType>
-        void int_lin(gauss_t const &gau,
+void int_lin(gauss_t const &gau,
         double const *nodes,
         accelerator_t const &accelerator,
         double const *q,
         kType const &k,
-        complex_scalar a[],
-        complex_scalar b[])
+        complex_scalar a[], complex_scalar b[])
 {
     enum {NDIM = 3};
-    const bool isLinear = elem_traits<ElemType>::isLinear;
-    const unsigned nNodes = elem_traits<ElemType>::nNodes;
+    bool const isLinear = elem_traits<ElemType>::isLinear;
+    unsigned const nNodes = elem_traits<ElemType>::nNodes;
     
     for (int s = 0; s < nNodes; s++)
         a[s] = b[s] = 0.0;
@@ -229,18 +256,27 @@ template <class ElemType, typename kType>
     }
 }
 
+/**
+* \brief Singular integral of Green's functions over a linear BEM element
+* \param gau Gaussian integration structure
+* \param nodes node coordinates
+* \param accelerator integration accelerator structure
+* \param corner singular corner index
+* \param k wave number
+* \param a A elem integrals
+* \param b B elem integrals
+*/
 template <class ElemType, typename kType>
-        void int_lin_sing(gauss_t const &gau,
-        double const *nodes,
+void int_lin_sing(gauss_t const &gau,
+        double const nodes[],
         accelerator_t const &accelerator,
         int corner,
         kType const &k,
-        complex_scalar a[],
-        complex_scalar b[])
+        complex_scalar a[], complex_scalar b[])
 {
     enum {NDIM = 3};
-    const bool isLinear = elem_traits<ElemType>::isLinear;
-    const unsigned nNodes = elem_traits<ElemType>::nNodes;
+    bool const isLinear = elem_traits<ElemType>::isLinear;
+    unsigned const nNodes = elem_traits<ElemType>::nNodes;
     
     for (int s = 0; s < nNodes; s++)
         a[s] = b[s] = 0.0;

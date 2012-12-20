@@ -1,10 +1,13 @@
 /* $Make: mex -O -output bemHG_const bemHG_const.mex.cpp mesh.cpp vector.cpp$ */
 
 #include "mex.h"
-#include "bemHG_con.hpp"
-#include "types.h"
+#include "bemHG_const.hpp"
+#include "types.h"          // gauss_t
 
-void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
+void mexFunction(int nlhs,
+                 mxArray *plhs[],
+                 int nrhs,
+                 const mxArray *prhs[])
 {
     enum {NGAUSS = 4};
     /* Allocate memory for Gaussian integration structures */
@@ -64,7 +67,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         double *Br = mxGetPr(plhs[1]);
         double *Bi = mxGetPi(plhs[1]);
 
-        /* call C subroutine */
+        /* call C++ subroutine */
         if (k.imag() == 0.0)
             matrix_field_const(nnodes, nodes, nelements, elements,
                                npoints, points, g3, g4, dist, k.real(), Ar, Ai, Br, Bi);
@@ -75,6 +78,5 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
     delete [] g3;
     delete [] g4;
-    return;
 }
 

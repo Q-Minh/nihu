@@ -1,3 +1,9 @@
+/**
+* \file bemHG_const_bm.hpp
+* \brief Surface and Field point system matrices of a constant bem model with Burton Miller
+* \author Peter Fiala fiala@hit.bme.hu
+*/
+
 #ifndef BEMHG_COM_BM_HPP
 #define BEMHG_COM_BM_HPP
 
@@ -5,20 +11,29 @@
 #include "integral_direct_bm.hpp"
 #include "vector.h"
 
+/**
+* \brief Surface system matrix of a constant bem model
+* \param nnodes number of nodes
+* \param nodes node coordinates
+* \param nelements number of elements
+* \param elements element node indices
+* \param g3 Gaussian structures for Tria elements
+* \param g4 Gaussian structures for Quad elements
+* \param dist distance vector
+* \param k wave number
+* \param alpha coupling coefficient
+* \param Ar real part of matrix A
+* \param Ai imaginary part of matrix A
+* \param Br real part of matrix B
+* \param Bi imaginary part of matrix B
+*/
 template <typename kType>
-void matrix_surf_const_bm(int nnodes,
-                          const double *nodes,
-                          int nelements,
-                          const double *elements,
-                          const gauss_t *g3,
-                          const gauss_t *g4,
-                          const double *dist,
-                          const kType &k,
-                          const complex_scalar &alpha,
-                          double *Ar,
-                          double *Ai,
-                          double *Br,
-                          double *Bi)
+void matrix_surf_const_bm(int nnodes, const double nodes[],
+                          int nelements, const double elements[],
+                          const gauss_t g3[], const gauss_t g4[],
+                          const double dist[],
+                          const kType &k, const complex_scalar &alpha,
+                          double Ar[], double Ai[], double Br[], double Bi[])
 {
     enum {MAXNVERT = 4, NDIM = 3};
 
@@ -93,22 +108,32 @@ void matrix_surf_const_bm(int nnodes,
 }
 
 
+/**
+* \brief Sparse surface system matrix of a constant bem model
+* \param nnodes number of nodes
+* \param nodes node coordinates
+* \param nelements number of elements
+* \param elements element node indices
+* \param npairs number of element-element pairs
+* \param pairs pair indices
+* \param g3 Gaussian structures for Tria elements
+* \param g4 Gaussian structures for Quad elements
+* \param dist distance vector
+* \param k wave number
+* \param alpha coupling coefficient
+* \param Ar real part of matrix A
+* \param Ai imaginary part of matrix A
+* \param Br real part of matrix B
+* \param Bi imaginary part of matrix B
+*/
 template <typename kType>
-void matrix_surf_const_bm_sparse(int nnodes,
-                                 const double *nodes,
-                                 int nelements,
-                                 const double *elements,
-                                 int npairs,
-                                 const double *pairs,
-                                 const gauss_t *g3,
-                                 const gauss_t *g4,
-                                 const double *dist,
-                                 const kType& k,
-                                 const complex_scalar &alpha,
-                                 double *Ar,
-                                 double *Ai,
-                                 double *Br,
-                                 double *Bi)
+void matrix_surf_const_bm_sparse(int nnodes, const double nodes[],
+                                 int nelements, const double elements[],
+                                 int npairs, const double pairs[],
+                                 const gauss_t g3[], const gauss_t g4[],
+                                 const double dist[],
+                                 const kType& k, const complex_scalar &alpha,
+                                 double Ar[], double Ai[], double Br[], double Bi[])
 {
     enum {MAXNVERT = 4, NDIM = 3};
 
@@ -177,3 +202,4 @@ void matrix_surf_const_bm_sparse(int nnodes,
 }
 
 #endif // BEM_HG_CON_BM_HPP
+
