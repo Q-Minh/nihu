@@ -77,3 +77,4 @@ end
 
 error = abs(g_multi-g_anal)./abs(g_anal);
 fprintf(1, 'Error: %x\n', error);
+
