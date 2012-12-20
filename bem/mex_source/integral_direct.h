@@ -24,26 +24,4 @@ void int_line_lin_sing(const gauss2D_t *g,
                  double *br,
                  double *bi);
 
-/* Regular integral over a constant LINE element */
-void int_line_const(const gauss2D_t *g,
-                   const double *nodes,
-                   const accelerator2D_t *accelerator,
-                   const double *q,
-                   double k,
-                   double *ar,
-                   double *ai,
-                   double *br,
-                   double *bi);
-
-/* Singular integral over a constant LINE element */
-void int_line_const_sing(const gauss2D_t *g,
-                   const double *nodes,
-                   const accelerator2D_t *accelerator,
-                   const double *q,
-                   double k,
-                   double *ar,
-                   double *ai,
-                   double *br,
-                   double *bi);
-
 #endif

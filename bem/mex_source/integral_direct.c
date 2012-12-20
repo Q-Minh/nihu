@@ -69,7 +69,7 @@ void int_line_lin(const gauss2D_t *g,
 }
 
 /* ------------------------------------------------------------------------ */
-/* Singular integral over a linear TRIA element                             */
+/* Singular integral over a linear LINE element                             */
 void int_line_lin_sing(const gauss2D_t *g,
         const double *nodes,
         const accelerator2D_t *accelerator,
@@ -149,5 +149,4 @@ void int_line_const_sing(const gauss2D_t *g,
     enum {NDIM = 2, NVERT = 2};
     *ar = *ai = *br = *bi = 0.0;
 }
-
 

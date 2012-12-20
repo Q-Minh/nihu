@@ -7,6 +7,7 @@
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
     enum {NGAUSS = 4};
+
     /* Allocate memory for Gaussian integration structures */
     gauss_t *g3 = new gauss_t[NGAUSS];
     gauss_t *g4 = new gauss_t[NGAUSS];
@@ -56,3 +57,4 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
     return;
 }
+
