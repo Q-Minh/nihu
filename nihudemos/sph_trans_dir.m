@@ -11,7 +11,7 @@ R = 1;      % radius
 nR = 20;    % division parameter
 mesh = create_sphere_boundary(R, nR);
 ratio = 7;  % element-per-wavelength ratio
-kmax = bemkmax(mesh, ratio);
+kmax = mesh_kmax(mesh, ratio);
 k = min(kmax);
 
 figure;
@@ -108,7 +108,7 @@ tlimits = [0 pi/2];
 line = create_line([xlimits(1) 0 0; xlimits(2) 0 0], ceil(diff(xlimits)*k*ratio/2/pi));
 ntheta = ceil(max(xlimits)*diff(tlimits)*k*ratio/2/pi);
 dtheta = diff(tlimits)/ntheta;
-field = revolve_mesh(line, [0 0 0], [0 -1 0], dtheta, ntheta);
+field = revolve_mesh(line, dtheta, ntheta, [0 -1 0]);
 
 %% Build cluster tree
 points = field.Nodes(:,2:4);

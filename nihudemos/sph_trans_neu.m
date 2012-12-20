@@ -11,7 +11,7 @@ R = 1;      % radius
 nR = 20;    % division parameter
 mesh = create_sphere_boundary(R, nR);
 ratio = 7;  % element-per-wavelength ratio
-kmax = bemkmax(mesh, ratio);
+kmax = mesh_kmax(mesh, ratio);
 k = min(kmax);
 
 figure;
