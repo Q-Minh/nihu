@@ -1,16 +1,31 @@
+# BEM .m files created from mex
 bem/mex_source/*.m
 
+# Matlab stored data
+*.mat
+
+# Matlab autosave files
 *.asv
+
+# Matlab mex binaries
 *.mexw*
 *.mexa*
 
+# Ubuntu linux tmp files
 *.*~
 .fuse*
 
+# LaTeX documentation tmp files
 *.aux
 *.gz
 *.lof
 *.log
 *.lot
+*.out
 *.toc
+*.vrb
+
+# Other binary formats
+*.wav
+*.mp3
 

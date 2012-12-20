@@ -6,7 +6,7 @@
 % Use a toolbox function |create_sphere_boundary| to create a sphere mesh
 % with given radius and division parameter. Determine maximal wavelength
 % applicable to the mesh with a given element-per-wavelength ratio, using
-% the toolbox function |bemkmax|
+% the toolbox function |mesh_kmax|
 R = 1;      % radius
 nR = 20;    % division parameter
 mesh = create_sphere_boundary(R, nR);

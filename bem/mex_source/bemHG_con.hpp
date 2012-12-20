@@ -217,10 +217,17 @@ template <typename kType>
             switch(nvert)
             {
                 case 4:
+<<<<<<< HEAD
                     int_const<QuadElem>(g4[gs], nod, accelerators[e], q, k, a, b);
                     break;
                 case 3:
                     int_const<TriaElem>(g3[gs], nod, accelerators[e], q, k, a, b);
+=======
+                    int_quad_const(&g4[gs], nod, &accelerators[e], q, k, a, b);
+                    break;
+                case 3:
+                    int_tri_const(&g3[gs], nod, &accelerators[e], q, k, a, b);
+>>>>>>> 2e5e52b51081c61ea6764dd0ac316eb7703a07ca
                     break;
             }
         }
@@ -247,7 +254,11 @@ template <typename kType>
         const gauss_t *g3,
         const gauss_t *g4,
         double const *dist,
+<<<<<<< HEAD
         kType const &k,
+=======
+        double k,
+>>>>>>> 2e5e52b51081c61ea6764dd0ac316eb7703a07ca
         double *Ar,
         double *Ai,
         double *Br,
@@ -255,6 +266,15 @@ template <typename kType>
 {
     enum {MAXNVERT = 4, NDIM = 3};
     
+<<<<<<< HEAD
+=======
+    double q[NDIM];
+    double nod[MAXNVERT*NDIM];
+    int j, e, s, n, gs, p;
+    int elem[MAXNVERT], nvert;
+    complex_scalar a, b;;
+    
+>>>>>>> 2e5e52b51081c61ea6764dd0ac316eb7703a07ca
     /* Allocate space for element centres */
     accelerator_t *accelerators = new accelerator_t[nelements];
     init_accelerators(nnodes, nodes, nelements, elements, accelerators);
@@ -262,25 +282,37 @@ template <typename kType>
     /* Integration for each node as reference point */
     for (int p = 0; p < npairs; p++)
     {
+<<<<<<< HEAD
         int n = (int)pairs[p];
         int e = (int)pairs[p+npairs];
+=======
+        n = (int)pairs[p];
+        e = (int)pairs[p+npairs];
+>>>>>>> 2e5e52b51081c61ea6764dd0ac316eb7703a07ca
         
         /* reference location */
         double q[NDIM];
         for (int j = 0; j < NDIM; j++)
             q[j] = points[n+j*npoints];
         
+<<<<<<< HEAD
         int nvert = (int)elements[e];
         int elem[MAXNVERT];
         double nod[MAXNVERT*NDIM];
         
         for (int s = 0; s < nvert; s++)
+=======
+        nvert = (int)elements[e];
+        
+        for (s = 0; s < nvert; s++)
+>>>>>>> 2e5e52b51081c61ea6764dd0ac316eb7703a07ca
         {
             elem[s] = (int)elements[e+(s+1)*nelements];
             for (int j = 0; j < NDIM; j++)
                 nod[s+nvert*j] = nodes[elem[s]+j*nnodes];
         }
         
+<<<<<<< HEAD
         int gs = gauss_division(q, accelerators[e].center, dist);
         complex_scalar a, b;
     
@@ -291,6 +323,16 @@ template <typename kType>
                 break;
             case 3:
                 int_const<TriaElem>(g3[gs], nod, accelerators[e], q, k, a, b);
+=======
+        gs = gauss_division(q, accelerators[e].center, dist);
+        switch(nvert)
+        {
+            case 4:
+                int_quad_const(&g4[gs], nod, &accelerators[e], q, k, a, b);
+                break;
+            case 3:
+                int_tri_const(&g3[gs], nod, &accelerators[e], q, k, a, b);
+>>>>>>> 2e5e52b51081c61ea6764dd0ac316eb7703a07ca
                 break;
         }
         Ar[p] = a.real();
