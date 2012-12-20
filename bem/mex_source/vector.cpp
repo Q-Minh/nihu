@@ -14,7 +14,7 @@ double dot2D(const double *v1,
     return v1[0]*v2[0] + v1[1]*v2[1];
 }
 
-/* Compute cross product of two vectors */
+/* Compute cross product of two 3D vectors */
 double * cross(const double *v1,
                const double *v2,
                double *w)
@@ -25,3 +25,4 @@ double * cross(const double *v1,
 
     return w;
 }
+

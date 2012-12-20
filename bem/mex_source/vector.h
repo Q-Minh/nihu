@@ -9,8 +9,9 @@ double dot(const double *,
 double dot2D(const double *,
            const double *);
 		   
-/* Compute cross product of two vectors */
+/* Compute cross product of two 3D vectors */
 double * cross(const double *,
                const double *,
                double *);
 #endif
+

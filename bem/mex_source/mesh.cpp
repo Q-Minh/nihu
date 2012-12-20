@@ -6,43 +6,42 @@
 #include "element.hpp"
 
 void init_accelerators(int nnodes,
-                       double const *nodes,
+                       double const nodes[],
                        int nelements,
-                       double const *elements,
-                       accelerator_t *accelerators)
+                       double const elements[],
+                       accelerator_t accelerators[])
 {
 	enum {NDIM = 3, MAXNNODE = 4};
-    int e, j, s, nvert;
-    int elem[MAXNNODE];
-    double a[NDIM], b[NDIM], c[NDIM];
-	double nod[3*3];
 
     /* for each element */
-    for (e = 0; e < nelements; e++)
+    for (int e = 0; e < nelements; e++)
     {
-        nvert = (int)elements[e]; /* number of element vertices */
-        for (s = 0; s < nvert; s++)
+        int elem[MAXNNODE];
+        int nvert = (int)elements[e]; /* number of element vertices */
+        for (int s = 0; s < nvert; s++)
             elem[s] = (int)elements[e+(s+1)*nelements];
 
 		if (nvert == 3)
 		{
-			for (j = 0; j < NDIM; j++)
-				for (s = 0; s < 3; s++)
+        	double nod[3*3];
+			for (int j = 0; j < NDIM; j++)
+				for (int s = 0; s < 3; s++)
 					nod[s+3*j] = nodes[elem[s]+j*nnodes];
 			inverse_matrix<TriaElem>(nod, accelerators[e].gradN);
 		}
 
-        for (j = 0; j < NDIM; j++)
+        for (int j = 0; j < NDIM; j++)
         {
             accelerators[e].center[j] = 0.0;
-            for (s = 0; s < nvert; s++)
+            for (int s = 0; s < nvert; s++)
                 accelerators[e].center[j] += nodes[elem[s]+j*nnodes];
             accelerators[e].center[j] /= (double)nvert;
         }
 
         if (nvert == 3)
         {
-            for (j = 0; j < NDIM; j++)
+            double a[NDIM], b[NDIM], c[NDIM];
+            for (int j = 0; j < NDIM; j++)
             {
                 a[j] = nodes[elem[1]+j*nnodes]-nodes[elem[0]+j*nnodes];
                 b[j] = nodes[elem[2]+j*nnodes]-nodes[elem[0]+j*nnodes];
@@ -51,7 +50,8 @@ void init_accelerators(int nnodes,
         }
         else
         {
-            for (j = 0; j < NDIM; j++)
+            double a[NDIM], b[NDIM], c[NDIM];
+            for (int j = 0; j < NDIM; j++)
             {
                 a[j] = (nodes[elem[1]+j*nnodes]-nodes[elem[0]+j*nnodes]+nodes[elem[2]+j*nnodes]-nodes[elem[3]+j*nnodes])/4.0;
                 b[j] = (nodes[elem[0]+j*nnodes]-nodes[elem[1]+j*nnodes]+nodes[elem[2]+j*nnodes]-nodes[elem[3]+j*nnodes])/4.0;
@@ -64,6 +64,7 @@ void init_accelerators(int nnodes,
     }
 }
 
+
 void init_accelerators2D(int nnodes,
                        double const *nodes,
                        int nelements,
@@ -71,25 +72,24 @@ void init_accelerators2D(int nnodes,
                        accelerator2D_t *accelerators)
 {
 	enum {NDIM=2, NVERT=2};
-    int e, j, s, nvert;
-    int elem[NVERT];
-	double a[NDIM];
 
     /* for each element */
-    for (e = 0; e < nelements; e++)
+    for (int e = 0; e < nelements; e++)
     {
-        for (s = 0; s < NVERT; s++)
+        int elem[NVERT];
+        for (int s = 0; s < NVERT; s++)
             elem[s] = (int)elements[e+s*nelements];
 
-        for (j = 0; j < NDIM; j++)
+        for (int j = 0; j < NDIM; j++)
         {
             accelerators[e].center[j] = 0.0;
-            for (s = 0; s < NVERT; s++)
+            for (int s = 0; s < NVERT; s++)
                 accelerators[e].center[j] += nodes[elem[s]+j*nnodes];
-            accelerators[e].center[j] /= (double)nvert;
+            accelerators[e].center[j] /= (double)NVERT;
         }
 
-		for (j = 0; j < NDIM; j++)
+    	double a[NDIM];
+		for (int j = 0; j < NDIM; j++)
 			a[j] = nodes[elem[1]+j*nnodes]-nodes[elem[0]+j*nnodes];
 
 		accelerators[e].n0[0] = a[1];
@@ -100,17 +100,16 @@ void init_accelerators2D(int nnodes,
 /* ------------------------------------------------------------------------ */
 /* Determine Gaussian integration density based on distance between source */
 /* and element center */
-int gauss_division(double const *q,
-                   double const *elemcenter,
-                   double const *dist)
+int gauss_division(double const q[],
+                   double const elemcenter[],
+                   double const dist[])
 {
 	enum{NDIM = 3};
-    int j;
-    double distance[NDIM], d;
+    double distance[NDIM];
 
-    for (j = 0; j < NDIM; j++)
+    for (int j = 0; j < NDIM; j++)
         distance[j] = elemcenter[j] - q[j];
-    d = sqrt(dot(distance,distance));
+    double d = sqrt(dot(distance,distance));
     if (d < dist[0])
         return 1;
     if (d < dist[1])
@@ -121,20 +120,20 @@ int gauss_division(double const *q,
 /* ------------------------------------------------------------------------ */
 /* Determine Gaussian integration density based on distance between source */
 /* and element center */
-int gauss_division2D(double const *q,
-                   double const *elemcenter,
-                   double const *dist)
+int gauss_division2D(double const q[],
+                   double const elemcenter[],
+                   double const dist[])
 {
 	enum {NDIM = 2};
-    int j;
-    double distance[NDIM], d;
+    double distance[NDIM];
 
-    for (j = 0; j < NDIM; j++)
+    for (int j = 0; j < NDIM; j++)
         distance[j] = elemcenter[j] - q[j];
-    d = sqrt(dot(distance,distance));
+    double d = sqrt(dot(distance,distance));
     if (d < dist[0])
         return 1;
     if (d < dist[1])
         return 2;
     return 3;
 }
+
