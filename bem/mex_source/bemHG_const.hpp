@@ -332,8 +332,8 @@ void matrix_field_const_sparse(int nnodes, double const nodes[],
         }
         Ar[p] = a.real();
         Ai[p] = a.imag();
-        Br[p] = b.imag();
-        Bi[p] = b.real();
+        Br[p] = b.real();
+        Bi[p] = b.imag();
     }
 
     delete [] accelerators;

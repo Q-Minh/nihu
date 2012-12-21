@@ -126,8 +126,8 @@ I = integpar(tree, k, C);
 [tr, rr, rs, ns] = reltree(tree, points, fr, gs, fs(gind), gn);
 
 %%
-pf = Hnf * ps + mpcont_Hp(rr, rs, ns, ps(gind).*w, tr, I, k, fs(gind), fr) -...
-    Gnf * qs - mpcont_Gq(rr, rs, qs(gind).*w, tr, I, k, fs(gind), fr);
+pf = Hnf * ps + mpcont_Hp(rr, rs, ns, ps(gind).*w, tr, I, k, fs(gind), fr)...
+    -Gnf * qs - mpcont_Gq(rr, rs, qs(gind).*w, tr, I, k, fs(gind), fr);
 
 %% plot results
 figure;
