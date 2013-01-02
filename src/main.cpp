@@ -1,13 +1,12 @@
+/**
+ * \file main.cpp
+ * \brief test file for numerical integration with quadrature
+ */
+ 
+#include "integrate.hpp"
+
 #include <iostream>
-
 #include <vector>
-#include <numeric>
-
-template <class Quad>
-struct quad_weight_type;
-
-template <class Quad>
-struct quad_location_type;
 
 struct myQuad;
 template <> struct quad_weight_type<myQuad> { typedef double type; };
@@ -18,13 +17,6 @@ struct myQuad {
 	quad_weight_type<myQuad>::type w;
 };
 
-
-
-template <class Kernel>
-struct kernel_result_type;
-
-template <class Kernel>
-struct kernel_arg_type;
 
 struct myKernel;
 template<> struct kernel_result_type<myKernel> { typedef double type; };
@@ -40,22 +32,7 @@ struct myKernel
 };
 
 
-template <class A, class B>
-struct product_type;
-
 template <> struct product_type<double, double> { typedef double type; };
-
-
-template <class Kernel, class Quad>
-struct IntegFunctor
-{
-	typedef typename product_type<
-		typename kernel_result_type<Kernel>::type,
-		typename quad_weight_type<Quad>::type
-	>::type res_t;
-	res_t operator () (res_t const &x, Quad const &q) 	{ return x + Kernel::apply(q.x)*q.w; }
-};
-
 
 int main(void)
 {

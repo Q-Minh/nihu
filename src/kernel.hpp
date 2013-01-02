@@ -16,3 +16,4 @@ template <>
 struct requires_normal<simpleKernel> : false_ {};
 
 #endif
+
