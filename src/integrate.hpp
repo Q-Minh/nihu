@@ -7,6 +7,8 @@
 #define INTEGRATE_HPP
 
 #include <numeric>
+#include "product.hpp"
+#include "iterator.hpp"
 
 /**
  * \brief metafunction to return type of quadrature weight
@@ -37,26 +39,30 @@ template <class Kernel>
 struct kernel_arg_type;
 
 /**
- * \brief metafunction to return the type of a product
- * \tparam A left hand side term type
- * \tparam B right hand side term type
- */
-template <class A, class B>
-struct product_type;
-
-/**
  * \brief functor performing weighted accumulation, used with std::accumulate
  * \tparam Kernel kernel class
  * \tparam Quad quadrature class
  */
 template <class Kernel, class Quad>
-struct IntegFunctor
+struct WeightedAccumulator
 {
 	typedef typename product_type<
 		typename kernel_result_type<Kernel>::type,
 		typename quad_weight_type<Quad>::type
 	>::type res_t;
-	res_t operator () (res_t const &x, Quad const &q) 	{ return x + Kernel::apply(q.x)*q.w; }
+	res_t operator () (res_t const &x, Quad const &q) 	{ return x + Kernel::eval(q.x)*q.w; }
+};
+
+template<class InputIterator, class Kernel>
+struct Integral
+{
+	typedef typename iterator_value_type<InputIterator>::type quad_t;
+	typedef typename WeightedAccumulator<Kernel, quad_t>::res_t res_t;
+
+	static res_t eval(InputIterator begin, InputIterator end)
+	{
+		return std::accumulate(begin, end, res_t(), WeightedAccumulator<Kernel, quad_t>());
+	}
 };
 
 #endif

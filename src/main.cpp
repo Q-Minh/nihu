@@ -6,7 +6,6 @@
 #include "integrate.hpp"
 
 #include <iostream>
-#include <vector>
 
 struct myQuad;
 template <> struct quad_weight_type<myQuad> { typedef double type; };
@@ -25,22 +24,23 @@ template<> struct kernel_arg_type<myKernel> { typedef double type; };
 struct myKernel
 {
 	static kernel_result_type<myKernel>::type
-		apply (kernel_arg_type<myKernel>::type x)
+		eval (kernel_arg_type<myKernel>::type x)
 	{
 		return x*x;
 	}
 };
 
 
-template <> struct product_type<double, double> { typedef double type; };
-
 int main(void)
 {
-	std::vector<myQuad> quadrature;
+	myQuad q[] = {
+		{-1.0, 1.0/3.0},
+		{0.0, 1.0/3.0},
+		{1.0, 1.0/3.0}
+	};
 
-	IntegFunctor<myKernel, myQuad>::res_t res = std::accumulate(quadrature.begin(), quadrature.end(), IntegFunctor<myKernel, myQuad>::res_t(), IntegFunctor<myKernel, myQuad>());
-
-	std::cout << res << quadrature.size() << std::endl;
+	std::cout << Integral<myQuad*, myKernel>::eval(q, q+3) << std::endl;
 
 	return 0;
 }
+
