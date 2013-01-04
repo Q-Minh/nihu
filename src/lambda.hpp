@@ -1,3 +1,8 @@
+/**
+ * \file lambda.hpp
+ * \brief lambda function implementation
+ */
+
 #ifndef LAMBDA_HPP
 #define LAMBDA_HPP
 
@@ -7,8 +12,8 @@ template <class Fun>
 struct lambda_plExp // dummy case
 {
 	typedef struct {
-		template <class A1, class A2>
-		struct apply; // intentionally left empty, never instantiated
+		template <class A1 = void_, class A2 = void_>
+		struct apply { typedef void_ type; }; // intentionally left empty, never instantiated
 	} type;
 };
 
@@ -17,7 +22,7 @@ struct lambda_plExp<arg<N> >
 {
 	typedef struct
 	{
-		template <class A1, class A2>
+		template <class A1 = void_, class A2 = void_>
 		struct apply : arg<N>::template apply<A1, A2> {};
 	} type;
 };
@@ -27,7 +32,7 @@ struct lambda_plExp<MetaFun<a1> >
 {
 	typedef struct
 	{
-		template <class A1, class A2>
+		template <class A1 = void_, class A2 = void_>
 		struct apply : MetaFun< typename lambda_plExp<a1>::type::template apply<A1, A2>::type > {};
 	} type;
 };
@@ -37,7 +42,7 @@ struct lambda_plExp<MetaFun<a1, a2> >
 {
 	typedef struct
 	{
-		template <class A1, class A2>
+		template <class A1 = void_, class A2 = void_>
 		struct apply : MetaFun<
 			typename if_<
 				typename isPlaceholderExpression<a1>::type,
@@ -53,11 +58,20 @@ struct lambda_plExp<MetaFun<a1, a2> >
 	} type;
 };
 
-template <class Fun>
+/**
+ * \brief generate metafunction class from placeholder expression
+ * \tparam Exp placeholder expression or metafunction class
+ * \return metafunction class encapsulating the placeholder expression or the input class itself
+ */
+template <class Exp>
 struct lambda : if_<
-	typename isPlaceholderExpression<Fun>::type,
-	typename lambda_plExp<Fun>::type,
-	Fun
+	typename isPlaceholderExpression<Exp>::type,
+	typename lambda_plExp<Exp>::type,
+	Exp
 > {};
 
+template <class Fun, class Arg1 = void_, class Arg2 = void_>
+struct apply : lambda<Fun>::type::template apply<Arg1, Arg2> {};
+
 #endif
+

@@ -1,6 +1,16 @@
+/**
+ * \file integer.hpp
+ * \brief integer type representation and basic integer arithmetics
+ */
+
 #ifndef INTEGER_HPP
 #define INTEGER_HPP
 
+#include "operator.hpp"
+
+/**
+ * \brief integer type representation
+ */
 template <int N>
 struct int_
 {
@@ -12,33 +22,35 @@ struct int_
 };
 
 /**
- * metafunction returning next element
+ * \brief metafunction returning next integer
  */
-template <class Pos>
-struct next;
-
 template <int N>
 struct next<int_<N> > : int_<int_<N>::next> {};
 
 /**
- * metafunction returning previous element
+ * \brief metafunction returning previous integer
  */
-template <class Pos>
-struct prev;
-
 template <int N>
 struct prev<int_<N> > : int_<int_<N>::prev> {};
 
-template <class Pos1, class Pos2>
-struct plus;
-
+/**
+ * \brief metafunction returning sum of two integers
+ */
 template <int N, int M>
 struct plus<int_<N>, int_<M> > : int_<N+M> {};
 
-template <class Pos1, class Pos2>
-struct minus;
-
+/**
+ * \brief metafunction returning difference of two integers
+ */
 template <int N, int M>
 struct minus<int_<N>, int_<M> > : int_<N-M> {};
 
+/**
+ * \brief metafunction returning difference of two integers
+ */
+template <int N, int M>
+struct mul<int_<N>, int_<M> > : int_<N*M> {};
+
+
 #endif
+

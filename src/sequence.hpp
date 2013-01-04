@@ -1,90 +1,29 @@
-template <int N>
-struct int_
-{
-	typedef int_ type;
-
-	static int const value = N;
-	static int const next = N+1;
-	static int const prev = N-1;
-};
+#ifndef SEQUENCE_HPP
+#define SEQUENCE_HPP
 
 /**
- * metafunction returning next element
+ * \file sequence.hpp
+ * \brief implementation of a vector
  */
-template <class Pos>
-struct next;
-
-template <int N>
-struct next<int_<N> > : int_<int_<N>::next> {};
+#include "integer.hpp"
 
 /**
- * metafunction returning previous element
+ * \brief metafunctor to implement size operation
  */
-template <class Pos>
-struct prev;
-
-template <int N>
-struct prev<int_<N> > : int_<int_<N>::prev> {};
-
-template <class Pos1, class Pos2>
-struct plus;
-
-template <int N, int M>
-struct plus<int_<N>, int_<M> > : int_<N+M> {};
-
-template <class Pos1, class Pos2>
-struct minus;
-
-template <int N, int M>
-struct minus<int_<N>, int_<M> > : int_<N-M> {};
-
-
-struct empty{};
-
-struct arg_seq4_tag{};
-
-template <class A0 = empty, class A1 = empty, class A2 = empty, class A3 = empty>
-struct arg_seq4
-{
-	typedef arg_seq4 type; 	/* self-returning */
-
-	typedef arg_seq4_tag tag;	/* tagged */
-
-	typedef A0 arg0;
-	typedef A1 arg1;
-	typedef A2 arg2;
-	typedef A3 arg3;
-};
-
-
-template <class Arg, int Pos>
-struct arg_seq4_at;
-
-template <class A0, class A1, class A2, class A3>
-struct arg_seq4_at<arg_seq4<A0, A1, A2, A3>, 0> { typedef A0 type; };
-
-template <class A0, class A1, class A2, class A3>
-struct arg_seq4_at<arg_seq4<A0, A1, A2, A3>, 1> { typedef A1 type; };
-
-template <class A0, class A1, class A2, class A3>
-struct arg_seq4_at<arg_seq4<A0, A1, A2, A3>, 2> { typedef A2 type; };
-
-template <class A0, class A1, class A2, class A3>
-struct arg_seq4_at<arg_seq4<A0, A1, A2, A3>, 3> { typedef A3 type; };
-
+template <class tag>
+struct size_impl;
 
 /**
- * \brief metafunction class (metafunctor) to implement at operation
+ * \brief metafunction returning size (uses size_impl metafunctor)
+ */
+template <class Seq>
+struct size : size_impl<typename Seq::tag>::template apply<Seq> {};
+
+/**
+ * \brief metafunctor to implement at operation
  */
 template <class tag>
 struct at_impl;
-
-template <>
-struct at_impl<arg_seq4_tag>
-{
-	template <class Seq, class Pos>
-	struct apply : arg_seq4_at<Seq, Pos::value> {};
-};
 
 /**
  * \brief metafunction returning element at a given position (uses at_impl metafunctor)
@@ -92,45 +31,199 @@ struct at_impl<arg_seq4_tag>
 template <class Seq, class Pos>
 struct at : at_impl<typename Seq::tag>::template apply<Seq, Pos> {};
 
-
-template <class Seq, class Pos>
-struct arg_seq4_iterator;
-
-template <class Seq, class Pos>
-struct next<arg_seq4_iterator<Seq, Pos> >
-{ /* metafunction forwarding impossible because arg_seq4_iterator is incomplete type */
-	typedef arg_seq4_iterator<Seq, typename next<Pos>::type> type;
-};
-
-template <class Seq, class Pos>
-struct prev<arg_seq4_iterator<Seq, Pos> >
-{ /* metafunction forwarding impossible because arg_seq4_iterator is incomplete type */
-	typedef arg_seq4_iterator<Seq, typename prev<Pos>::type> type;
-};
-
-template <class Iter>
-struct deref;
-
-template <class Seq, class Pos>
-struct deref<arg_seq4_iterator<Seq, Pos> > : at<Seq, Pos> {};
-
 /**
- * \brief metafunction class (metafunctor) to implement begin operation
+ * \brief metafunctor to implement begin operation
  */
 template <class tag>
 struct begin_impl;
 
-template <>
-struct begin_impl<arg_seq4_tag>
-{
-	template <class Seq>
-	struct apply
-	{ /* metafunction forwarding impossible because arg_seq4_iterator is incomplete type */
-		typedef arg_seq4_iterator<Seq, int_<0> > type;
-	};
-};
-
+/**
+ * \brief metafunction returning begin iterator of a sequence (uses begin_impl metafunctor)
+ */
 template <class Seq>
 struct begin : begin_impl<typename Seq::tag> :: template apply<Seq> {};
 
+/**
+ * \brief metafunctor to implement end operation
+ */
+template <class tag>
+struct end_impl;
+
+/**
+ * \brief metafunction returning end iterator of a sequence (uses end_impl metafunctor)
+ */
+template <class Seq>
+struct end : end_impl<typename Seq::tag> :: template apply<Seq> {};
+
+/**
+ * \brief metafunctor to implement clear operation
+ */
+template <class tag>
+struct clear_impl;
+
+/**
+ * \brief metafunction clearing a sequence (uses clear_impl metafunctor)
+ */
+template <class Seq>
+struct clear : clear_impl<typename Seq::tag> :: template apply<Seq> {};
+
+/**
+ * \brief metafunctor to implement push_front operation
+ */
+template <class tag>
+struct push_front_impl;
+
+/**
+ * \brief metafunction pushing an element to the front (uses push_front_impl metafunctor)
+ */
+template <class Seq, class T>
+struct push_front : push_front_impl<typename Seq::tag> :: template apply<Seq, T> {};
+
+/**
+ * \brief metafunctor to implement push_back operation
+ */
+template <class tag>
+struct push_back_impl;
+
+/**
+ * \brief metafunction pushing an element to the back (uses push_back_impl metafunctor)
+ */
+template <class Seq, class T>
+struct push_back : push_back_impl<typename Seq::tag> :: template apply<Seq, T> {};
+
+
+template <class Iter>
+struct deref;
+
+struct none;
+
+struct tiny_tag;
+
+template <class A0 = none, class A1 = none, class A2 = none>
+struct tiny
+{
+	typedef tiny type; 	/* self-returning */
+
+	typedef tiny_tag tag;	/* tagged */
+
+	typedef A0 arg0;
+	typedef A1 arg1;
+	typedef A2 arg2;
+};
+
+
+template <class Arg, int Pos>
+struct tiny_at;
+
+template <class A0, class A1, class A2>
+struct tiny_at<tiny<A0, A1, A2>, 0> { typedef A0 type; };
+
+template <class A0, class A1, class A2>
+struct tiny_at<tiny<A0, A1, A2>, 1> { typedef A1 type; };
+
+template <class A0, class A1, class A2>
+struct tiny_at<tiny<A0, A1, A2>, 2> { typedef A2 type; };
+
+template <>
+struct at_impl<tiny_tag>
+{
+	template <class Seq, class Pos>
+	struct apply : tiny_at<Seq, Pos::value> {};
+};
+
+
+template <class Seq, class Pos>
+struct tiny_iterator;
+
+template <class Seq, class Pos>
+struct next<tiny_iterator<Seq, Pos> >
+{ /* metafunction forwarding impossible because tiny_iterator is incomplete type */
+	typedef tiny_iterator<Seq, typename next<Pos>::type> type;
+};
+
+template <class Seq, class Pos>
+struct prev<tiny_iterator<Seq, Pos> >
+{ /* metafunction forwarding impossible because tiny_iterator is incomplete type */
+	typedef tiny_iterator<Seq, typename prev<Pos>::type> type;
+};
+
+template <class T0, class T1, class T2>
+struct tiny_size : int_<3> {};
+
+template <class T0, class T1>
+struct tiny_size<T0, T1, none> : int_<2> {};
+
+template <class T0>
+struct tiny_size<T0, none, none> : int_<1> {};
+
+template <>
+struct tiny_size<none, none, none> : int_<0> {};
+
+template <>
+struct size_impl<tiny_tag>
+{
+	template <class Seq>
+	struct apply : tiny_size<typename Seq::arg0, typename Seq::arg1, typename Seq::arg2> {};
+};
+
+template <class Seq, class Pos>
+struct deref<tiny_iterator<Seq, Pos> > : at<Seq, Pos> {};
+
+template <>
+struct begin_impl<tiny_tag>
+{
+	template <class Tiny>
+	struct apply
+	{ /* metafunction forwarding impossible because tiny_iterator is incomplete type */
+		typedef tiny_iterator<Tiny, int_<0> > type;
+	};
+};
+
+template <>
+struct end_impl<tiny_tag>
+{
+	template <class Tiny>
+	struct apply
+	{
+		typedef tiny_iterator<
+			Tiny,
+			typename tiny_size<typename Tiny::arg0, typename Tiny::arg1, typename Tiny::arg2>::type
+		> type;
+	};
+};
+
+template <>
+struct clear_impl<tiny_tag>
+{
+	template <class Seq>
+	struct apply : tiny<> {};
+};
+
+template <>
+struct push_front_impl<tiny_tag>
+{
+	template <class Tiny, class T>
+	struct apply : tiny<T, typename Tiny::arg0, typename Tiny::arg1> {};
+};
+
+template <class Tiny, class T, int N>
+struct tiny_push_back;
+
+template <class Tiny, class T>
+struct tiny_push_back<Tiny, T, 0> : tiny<T> {};
+
+template <class Tiny, class T>
+struct tiny_push_back<Tiny, T, 1> : tiny<typename Tiny::arg0, T> {};
+
+template <class Tiny, class T>
+struct tiny_push_back<Tiny, T, 2> : tiny<typename Tiny::arg0, typename Tiny::arg1, T> {};
+
+template <>
+struct push_back_impl<tiny_tag>
+{
+	template <class Seq, class T>
+	struct apply : tiny_push_back<Seq, T, size<Seq>::value > {};
+};
+
+#endif
 
