@@ -1,0 +1,13 @@
+*.*~
+*~
+
+*.o
+*.out
+
+*.asm
+
+*.filter
+*.user
+*.sdf
+*.suo
+
