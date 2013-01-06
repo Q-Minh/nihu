@@ -8,6 +8,7 @@
 
 #include "lambda.hpp"
 #include "sequence.hpp"
+#include "operator.hpp"
 
 /**
  * \brief accumulate elements of a container using a user-specified functor
@@ -27,11 +28,17 @@ struct accumulate : accumulate<
 /**
  * \brief terminating case of accumulate where the end iterator has been reached
  * \tparam End end iterator
- * \tparam Inic initial value of accumulation
- * \tparam Fun accumulating functor, the default is plus
+ * \tparam Init initial value of accumulation
+ * \tparam Fun accumulating functor
  */
-template <class End, class Inic, class Fun>
-struct accumulate<End, End, Init, Fun> : Inic {};
+template <class End, class Init, class Fun>
+struct accumulate<End, End, Init, Fun> : Init {};
+
+template <class Beg, class End>
+struct min : accumulate<Beg, End, typename deref<Beg>::type, if_< less<_1,_2>, _1, _2> > {};
+
+template <class Beg, class End>
+struct max : accumulate<Beg, End, typename deref<Beg>::type, if_< less<_1,_2>, _2, _1> > {};
 
 #endif
 

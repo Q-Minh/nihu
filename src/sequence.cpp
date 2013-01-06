@@ -64,7 +64,16 @@ int main(void)
 		>::type
 		::value << std::endl;
 	
+	// minimum by accumulation
+	std::cout <<
+		min< begin<seq0>::type, end<seq0>::type >::type
+		::value << std::endl;
+	
+	// maximum by accumulation
+	std::cout <<
+		max< begin<seq0>::type, end<seq0>::type >::type
+		::value << std::endl;
+	
 	return 0;
 }
-
 

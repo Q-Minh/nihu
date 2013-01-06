@@ -8,25 +8,28 @@
 #define OPERATOR_HPP
 
 /** \brief increment operator */
-template <class Pos>
+template <class A>
 struct next;
 
 /** \brief decrement operator */
-template <class Pos>
+template <class A>
 struct prev;
 
 /** \brief binary plus */
-template <class Pos1, class Pos2>
+template <class A, class B>
 struct plus;
 
 /** \brief binary minus */
-template <class Pos1, class Pos2>
+template <class A, class B>
 struct minus;
 
 /** \brief binary multiply */
-template <class Pos1, class Pos2>
+template <class A, class B>
 struct mul;
 
+/** \brief binary less than */
+template <class A, class B>
+struct less;
 
 #endif
 

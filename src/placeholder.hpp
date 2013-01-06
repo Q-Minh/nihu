@@ -70,5 +70,12 @@ struct isPlaceholderExpression<MF<Arg1, Arg2> > : or_<
 	typename isPlaceholderExpression<Arg2>::type
 > {};
 
+template <template <class Arg1, class Arg2, class Arg3> class MF, class Arg1, class Arg2, class Arg3>
+struct isPlaceholderExpression<MF<Arg1, Arg2, Arg3> > : or_<
+	typename isPlaceholderExpression<Arg1>::type,
+	typename isPlaceholderExpression<Arg2>::type,
+	typename isPlaceholderExpression<Arg3>::type
+> {};
+
 #endif
 

@@ -7,6 +7,7 @@
 #define INTEGER_HPP
 
 #include "operator.hpp"
+#include "bool.hpp"
 
 /**
  * \brief integer type representation
@@ -51,6 +52,11 @@ struct minus<int_<N>, int_<M> > : int_<N-M> {};
 template <int N, int M>
 struct mul<int_<N>, int_<M> > : int_<N*M> {};
 
+/**
+ * \brief metafunction returning difference of two integers
+ */
+template <int N, int M>
+struct less<int_<N>, int_<M> > : bool_<N < M> {};
 
 #endif
 

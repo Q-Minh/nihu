@@ -5,7 +5,7 @@ template <bool x>
 struct bool_
 {
 	static bool const value = x;
-	typedef bool_<x> type;
+	typedef bool_ type;
 };
 
 typedef bool_<true> true_;
@@ -22,22 +22,9 @@ template <class T, class F>
 struct if_<false_, T, F> { typedef F type; };
 
 
-template <class A> struct not_;
-template <> struct not_<true_> : false_ {};
-template <> struct not_<false_> : true_ {};
-
-template <class A, class B> struct or_;
-template <> struct or_<true_, true_> : true_ {};
-template <> struct or_<false_, true_> : true_ {};
-template <> struct or_<true_, false_> : true_ {};
-template <> struct or_<false_, false_> : false_ {};
-
-template <class A, class B> struct and_;
-template <> struct and_<true_, true_> : true_ {};
-template <> struct and_<false_, true_> : false_ {};
-template <> struct and_<true_, false_> : false_ {};
-template <> struct and_<false_, false_> : false_ {};
-
+template <class A> struct not_ : bool_<!A::value> {};
+template <class A, class B, class C = false_> struct or_ : bool_<A::value || B::value || C::value> {};
+template <class A, class B, class C = true_> struct and_ : bool_<A::value && B::value && C::value> {};
 
 #endif
 

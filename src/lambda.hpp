@@ -13,7 +13,7 @@ struct lambda_plExp // dummy case
 {
 	typedef struct {
 		template <class A1 = void_, class A2 = void_>
-		struct apply { typedef void_ type; }; // intentionally left empty, never instantiated
+		struct apply { typedef void_ type; }; // GCC needs this to compile, but this class is never used
 	} type;
 };
 
@@ -53,6 +53,32 @@ struct lambda_plExp<MetaFun<a1, a2> >
 				typename isPlaceholderExpression<a2>::type,
 				typename lambda_plExp<a2>::type::template apply<A1, A2>::type,
 				a2
+			>::type
+		> {};
+	} type;
+};
+
+template <template <class a1, class a2, class a3> class MetaFun, class a1, class a2, class a3>
+struct lambda_plExp<MetaFun<a1, a2, a3> >
+{
+	typedef struct
+	{
+		template <class A1 = void_, class A2 = void_>
+		struct apply : MetaFun<
+			typename if_<
+				typename isPlaceholderExpression<a1>::type,
+				typename lambda_plExp<a1>::type::template apply<A1, A2>::type,
+				a1
+			>::type,
+			typename if_<
+				typename isPlaceholderExpression<a2>::type,
+				typename lambda_plExp<a2>::type::template apply<A1, A2>::type,
+				a2
+			>::type,
+			typename if_<
+				typename isPlaceholderExpression<a3>::type,
+				typename lambda_plExp<a3>::type::template apply<A1, A2>::type,
+				a3
 			>::type
 		> {};
 	} type;
