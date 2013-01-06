@@ -31,3 +31,5 @@ bem/mex_source/*.m
 *.wav
 *.mp3
 
+# Doxygen generated documentation
+doc/*
