@@ -3,6 +3,7 @@
 
 #include "sequence.hpp"
 #include "lambda.hpp"
+#include "algorithm.hpp"
 
 template <class functor, class next, class Arg1, class Arg2>
 struct inner_type 
@@ -75,4 +76,40 @@ struct call_each<End, End, Fun, Arg1, Arg2>
 };
 
 
+template <class A, class B>
+struct is_same : false_ {};
+
+template <class A>
+struct is_same<A, A> : true_ {};
+
+
+template <class Begin, class End, class Transform>
+struct for_each_str
+{
+	static void eval(void)
+	{
+		typedef typename apply<Transform, typename deref<Begin>::type>::type cur;
+		cur c;
+		c();
+		for_each_str<typename next<Begin>::type, End, Transform>::eval();
+	}
+};
+
+template <class End, class Transform>
+struct for_each_str<End, End, Transform>
+{
+	static void eval(void) { }
+};
+
+template <class Seq, class Transform>
+static void for_each(void)
+{
+	for_each_str<
+		typename begin<Seq>::type,
+		typename end<Seq>::type,
+		Transform
+	>::eval();
+}
+
 #endif
+
