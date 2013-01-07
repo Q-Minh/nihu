@@ -1,7 +1,7 @@
-#include "placeholder.hpp"
+#include "tmp/placeholder.hpp"
 
-#include "lambda.hpp"
-#include "integer.hpp"
+#include "tmp/lambda.hpp"
+#include "tmp/integer.hpp"
 
 #include <iostream>
 

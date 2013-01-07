@@ -1,27 +1,18 @@
 #include "mesh.hpp"
 
-#include <algorithm>
-#include <iostream>
-
+typedef tiny<TriaElem, QuadElem> ElemTypes;
 
 int main(void)
 {
-	Mesh<3> mesh;
-	
-	mesh.add_elem(QuadElem());
-	mesh.add_elem(TriaElem());
-	
-	std::for_each(
-		mesh.begin<QuadElem>(),
-		mesh.end<QuadElem>(),
-		[] (QuadElem &e) { std::cout << e[0] << std::endl; }
-	);
+	unsigned e[] = {
+		3, 1, 2, 3, 0,
+		4, 4, 5, 6, 7
+	};
 
-	std::for_each(
-		mesh.begin<QuadElem>(),
-		mesh.end<QuadElem>(),
-		[] (QuadElem &e) { std::cout << e[0] << std::endl; }
-	);
+	Mesh<3, ElemTypes> mesh;
+
+	mesh.add_elem(e);
+	mesh.add_elem(e+5);
 
 	return 0;
 }

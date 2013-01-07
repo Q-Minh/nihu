@@ -1,45 +1,70 @@
-#include <array>
+#ifndef MESH_HPP
+#define MESH_HPP
 
-template <unsigned nDim>
-class Coord : public std::array<double, nDim> { };
+#include "../tmp/integer.hpp"
+#include "../tmp/sequence.hpp"
+#include "../tmp/algorithm.hpp"
+#include "../tmp/call_each.hpp"
 
-
-class tria_tag;
-class quad_tag;
-
-template <class> class nNodes;
-template<> struct nNodes<quad_tag> { static unsigned const value = 3; };
-template<> struct nNodes<tria_tag> { static unsigned const value = 4; };
-
-template <class ElemType>
-class Elem : public std::array<unsigned, nNodes<ElemType>::value> { };
-
-typedef Elem<quad_tag> QuadElem;
-typedef Elem<tria_tag> TriaElem;
+#include "element.hpp"
 
 #include <vector>
 
-template <class Elem>
-class ElemContainer
-{
-protected:
-	std::vector<Elem > elements;
-};
+/** \brief metafunction to convert T into vector<T> */
+template <class T>
+struct vectorize { typedef std::vector<T> type; };
 
-template <unsigned nDim>
-class Mesh : public ElemContainer<QuadElem>, ElemContainer<TriaElem>
+
+template <unsigned nDim, class ElemTypes>
+class Mesh
 {
 private:
-	std::vector<TriaElem > trias;
+	/** \brief transform sequence of ElemType into sequence of vector<ElemType> T */
+	typedef typename transform<
+		typename begin<ElemTypes>::type,
+		typename end<ElemTypes>::type,
+		inserter<tiny<>, push_back<_1,_2> >,
+		vectorize<_1>
+	>::type elem_vectors;
+
+	/** \brief combine vectors into a big heterogeneous vector container T */
+	typedef typename inherit<
+		typename begin<elem_vectors>::type,
+		typename end<elem_vectors>::type
+	>::type ElemVector;
+
+	std::vector<Coord<3> > nodes;	/**< \brief nodal coordinates */
+	ElemVector elements;			/**< element nodes (heterogeneous container) */
+
+	/** \brief functor template used by call_each to build add_elem member function's for loop */
+	template <class ElemType>
+	struct elem_adder
+	{
+		void operator() (unsigned input[], ElemVector &v)
+		{
+			ElemType e;
+			if (e.build(input))
+				v.std::vector<ElemType>::push_back(e);
+		}
+	};
 
 public:
-	template <class Elem>
-	void add_elem(Elem const &e) { ElemContainer<Elem>::elements.push_back(e); }
 
-	template <class Elem>
-	typename std::vector<Elem>::iterator begin(void) { return ElemContainer<Elem>::elements.begin(); }
+	void add_elem(unsigned input[])
+	{
+		/* build class that subsequently invokes elem_adder<T>() for each element type T */
+		typedef typename call_each<
+			typename begin<ElemTypes>::type,
+			typename end<ElemTypes>::type,
+			elem_adder<_1>,
+			unsigned*,
+			ElemVector &
+		>::type b;
 
-	template <class Elem>
-	typename std::vector<Elem>::iterator end(void) { return ElemContainer<Elem>::elements.end(); }
+		/* here are the calls invoked */
+		b::apply(input, elements);
+	}
 };
+
+#endif
 

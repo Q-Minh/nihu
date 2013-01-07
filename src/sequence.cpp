@@ -1,6 +1,5 @@
-#include "sequence.hpp"
-
-#include "algorithm.hpp"
+#include "tmp/sequence.hpp"
+#include "tmp/algorithm.hpp"
 
 #include <iostream>
 
@@ -50,7 +49,8 @@ int main(void)
 		accumulate<
 			begin<seq0>::type,
 			end<seq0>::type,
-			int_<0> // default summation
+			int_<0>
+			// default summation
 		>::type
 		::value << std::endl;
 	
@@ -66,14 +66,41 @@ int main(void)
 	
 	// minimum by accumulation
 	std::cout <<
-		min< begin<seq0>::type, end<seq0>::type >::type
+		mn< begin<seq0>::type, end<seq0>::type >::type
 		::value << std::endl;
 	
 	// maximum by accumulation
 	std::cout <<
-		max< begin<seq0>::type, end<seq0>::type >::type
+		mx< begin<seq0>::type, end<seq0>::type >::type
 		::value << std::endl;
-	
+
+	// copy elements into new tiny
+	typedef copy<
+		begin<seq0>::type,
+		end<seq0>::type,
+		inserter<tiny<>, push_back<_1, _2> >
+	>::type seq2;
+
+	std::cout <<
+		at<seq2, int_<0> >::type::value << " " <<
+		at<seq2, int_<1> >::type::value << " " <<
+		at<seq2, int_<2> >::type::value << " " <<
+		std::endl;
+
+	// copy increased elements into new tiny
+	typedef transform<
+		begin<seq0>::type,
+		end<seq0>::type,
+		inserter<tiny<>, push_front<_1, _2> >,
+		next<_1>
+	>::type seq3;
+
+	std::cout <<
+		at<seq3, int_<0> >::type::value << " " <<
+		at<seq3, int_<1> >::type::value << " " <<
+		at<seq3, int_<2> >::type::value << " " <<
+		std::endl;
+
 	return 0;
 }
 

@@ -225,5 +225,13 @@ struct push_back_impl<tiny_tag>
 	struct apply : tiny_push_back<Seq, T, size<Seq>::value > {};
 };
 
+template <class State, class Operation>
+struct inserter
+{
+	typedef State state;
+	typedef Operation operation;
+};
+
+
 #endif
 

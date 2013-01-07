@@ -1,64 +1,63 @@
+#include "../tmp/algorithm.hpp"
 #include "../tmp/sequence.hpp"
+#include "../tmp/call_each.hpp"
 
 #include <string>
 #include <vector>
 #include <algorithm>
 
-class empty {};
+#include <iostream>
 
-template <class Begin, class End, class Aggr = empty>
-struct generate
-{
-	typedef typename deref<Begin>::type A;
-	struct temp : public A, Aggr
-	{
-		
-	};
- 	struct type : public generate<typename next<Begin>::type, End, temp>::type {};
-};
+class A { public: void f(void) { std::cout << 'a' <<std::endl; } };
+class B { public: void f(void) { std::cout << 'b' <<std::endl; } };
+class C { public: void f(void) { std::cout << 'c' <<std::endl; } };
 
-template <class End, class Aggr>
-struct generate<End, End, Aggr>
-{
-	struct type : public Aggr {};
-};
+typedef tiny<A, B, C> types;
 
-class A {
-public: void f(void) {}
-};
+// convert type sequence into container sequence
+typedef transform<
+	begin<types>::type,
+	end<types>::type,
+	inserter<tiny<>, push_back<_1,_2> >,
+	vectorize<_1>
+>::type vtypes;
 
-class B {
-public: void f(void) {}
-};
-
-class C {
-public: void f(void) {}
-};
-
-typedef tiny<std::vector<A>, std::vector<B> > types;
-
-typedef generate<
-	typename begin<types>::type,
-	typename end<types>::type
+// generate big Container from containers
+typedef inherit<
+	typename begin<vtypes>::type,
+	typename end<vtypes>::type
 >::type Vector;
+
+template  <class T>
+struct F
+{
+	void operator() (Vector &v)
+	{
+		std::for_each(
+			v.T::begin(),
+			v.T::end(),
+			[] (typename T::value_type t) { t.f(); }
+		);
+	}
+};
 
 int main(void)
 {
 	Vector v;
+
+	v.std::vector<C>::push_back(C());
 	v.std::vector<A>::push_back(A());
 	v.std::vector<B>::push_back(B());
-	
-	std::for_each(
-		v.std::vector<A>::begin(),
-		v.std::vector<A>::end(),
-		[] (A &a) { a.f(); }
-	);
-	
-	std::for_each(
-		v.std::vector<B>::begin(),
-		v.std::vector<B>::end(),
-		[] (B &b) { b.f(); }
-	);
+	v.std::vector<A>::push_back(A());
+
+	typedef call_each<
+		begin<vtypes>::type,
+		end<vtypes>::type,
+		F<_1>,
+		Vector &
+	>::type caller; // Caller csucsu
+
+	caller::apply(v);
 	
 	return 0;
 }
