@@ -1,0 +1,22 @@
+﻿Build started 2013.01.05. 18:29:07.
+     1>Project "G:\Peti\research\Boonen13\Boonen13.vcxproj" on node 2 (build target(s)).
+     1>InitializeBuildStatus:
+         Creating "Release\Boonen13.unsuccessfulbuild" because "AlwaysCreate" was specified.
+       ClCompile:
+         C:\Program Files\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt src\caller.cpp
+         caller.cpp
+       Link:
+         C:\Program Files\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"G:\Peti\Research\Boonen13\Release\Boonen13.exe" /INCREMENTAL:NO /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Release\Boonen13.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"G:\Peti\Research\Boonen13\Release\Boonen13.pdb" /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"G:\Peti\Research\Boonen13\Release\Boonen13.lib" /MACHINE:X86 Release\caller.obj
+         Generating code
+         Finished generating code
+         Boonen13.vcxproj -> G:\Peti\Research\Boonen13\Release\Boonen13.exe
+       Manifest:
+         C:\Program Files\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /outputresource:"G:\Peti\Research\Boonen13\Release\Boonen13.exe;#1" /manifest Release\Boonen13.exe.intermediate.manifest
+       FinalizeBuildStatus:
+         Deleting file "Release\Boonen13.unsuccessfulbuild".
+         Touching "Release\Boonen13.lastbuildstate".
+     1>Done Building Project "G:\Peti\research\Boonen13\Boonen13.vcxproj" (build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:06.82
