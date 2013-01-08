@@ -19,18 +19,13 @@ template <unsigned nDim, class ElemTypes>
 class Mesh
 {
 private:
-	/** \brief transform sequence of ElemType into sequence of vector<ElemType> T */
-	typedef typename transform<
-		typename begin<ElemTypes>::type,
-		typename end<ElemTypes>::type,
-		inserter<tiny<>, push_back<_1,_2> >,
-		vectorize<_1>
-	>::type elem_vectors;
-
-	/** \brief combine vectors into a big heterogeneous vector container T */
+	/** \brief combine ElemTypes into a big heterogeneous vector container */
 	typedef typename inherit<
-		typename begin<elem_vectors>::type,
-		typename end<elem_vectors>::type
+		typename transform<
+			ElemTypes,
+			inserter<tiny<>, push_back<_1,_2> >,
+			vectorize<_1>
+		>::type
 	>::type ElemVector;
 
 	std::vector<Coord<3> > nodes;	/**< \brief nodal coordinates */
@@ -40,29 +35,26 @@ private:
 	template <class ElemType>
 	struct elem_adder
 	{
-		void operator() (unsigned input[], ElemVector &v)
-		{
-			ElemType e;
-			if (e.build(input))
-				v.std::vector<ElemType>::push_back(e);
-		}
+		struct type {
+			bool operator() (unsigned input[], Mesh<nDim, ElemTypes> &m)
+			{
+				ElemType e;
+				if (e.build(input, m.nodes.begin()))
+				{
+					m.elements.std::vector<ElemType>::push_back(e);
+					return true;
+				}
+
+				return false;
+			}
+		};
 	};
 
 public:
 
-	void add_elem(unsigned input[])
+	bool add_elem(unsigned input[])
 	{
-		/* build class that subsequently invokes elem_adder<T>() for each element type T */
-		typedef typename call_each<
-			typename begin<ElemTypes>::type,
-			typename end<ElemTypes>::type,
-			elem_adder<_1>,
-			unsigned*,
-			ElemVector &
-		>::type b;
-
-		/* here are the calls invoked */
-		b::apply(input, elements);
+		return call_until<ElemTypes, elem_adder<_1> >(input, *this);
 	}
 };
 

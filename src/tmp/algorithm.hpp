@@ -11,14 +11,14 @@
 #include "operator.hpp"
 
 /**
- * \brief accumulate elements in a range using a user-specified metafunctor
+ * \brief accumulate_impl elements in a range using a user-specified metafunctor
  * \tparam Beg begin iterator
  * \tparam End end iterator
  * \tparam Init initial value of accumulation
  * \tparam Fun accumulating functor, the default is plus
  */
-template <class Beg, class End, class Init, class Fun = plus<_1,_2> >
-struct accumulate : accumulate<
+template <class Beg, class End, class Init, class Fun >
+struct accumulate_impl : accumulate_impl<
 	typename next<Beg>::type,
 	End,
 	typename apply<Fun, Init, typename deref<Beg>::type>::type,
@@ -26,29 +26,45 @@ struct accumulate : accumulate<
 > {};
 
 /**
- * \brief terminating case of accumulate where the end iterator has been reached
+ * \brief terminating case of accumulate_impl where the end iterator has been reached
  */
 template <class End, class Init, class Fun>
-struct accumulate<End, End, Init, Fun>
+struct accumulate_impl<End, End, Init, Fun>
 {
 	typedef Init type;
 };
+
+template <class Seq, class Init, class Fun = plus<_1,_2> >
+struct accumulate : accumulate_impl<
+	typename begin<Seq>::type,
+	typename end<Seq>::type,
+	Init,
+	Fun
+> {};
 
 /**
  * \brief minimum of range
  * \tparam Beg begin iterator
  * \tparam End end iterator
  */
-template <class Beg, class End>
-struct mn : accumulate<Beg, End, typename deref<Beg>::type, if_<less<_1,_2>,_1,_2> > {};
+template <class Seq>
+struct mn : accumulate<
+	Seq,
+	typename deref<typename begin<Seq>::type>::type,
+	if_<less<_1,_2>,_1,_2>
+> {};
 
 /**
  * \brief maximum of range
  * \tparam Beg begin iterator
  * \tparam End end iterator
  */
-template <class Beg, class End>
-struct mx : accumulate<Beg, End, typename deref<Beg>::type, if_<less<_1,_2>,_2,_1> > {};
+template <class Seq>
+struct mx : accumulate<
+	Seq,
+	typename deref<typename begin<Seq>::type>::type,
+	if_<less<_1,_2>,_2,_1>
+> {};
 
 
 template <class A, class B>
@@ -65,8 +81,8 @@ struct inheriter<empty, B>
 	struct type : public B {};
 };
 
-template <class Begin, class End, class Aggr = empty>
-struct inherit : accumulate<Begin, End, Aggr, inheriter<_1,_2> > {};
+template <class Seq, class Aggr = empty>
+struct inherit : accumulate<Seq, Aggr, inheriter<_1,_2> > {};
 
 /**
  * \brief transform elements in a range using a user-specified metafunctor and an inserter
@@ -76,7 +92,7 @@ struct inherit : accumulate<Begin, End, Aggr, inheriter<_1,_2> > {};
  * \tparam Trans transformation functor
  */
 template <class Beg, class End, class Ins, class Trans>
-struct transform : transform<
+struct transform_impl : transform_impl<
 	typename next<Beg>::type,
 	End,
 	inserter<
@@ -98,10 +114,19 @@ struct transform : transform<
  * \brief terminating case of transform where the end iterator has been reached
  */
 template <class End, class Ins, class Trans>
-struct transform<End, End, Ins, Trans>
+struct transform_impl<End, End, Ins, Trans>
 {
 	typedef typename Ins::state type;
 };
+
+template <class Seq, class Ins, class Trans>
+struct transform : transform_impl<
+	typename begin<Seq>::type,
+	typename end<Seq>::type,
+	Ins,
+	Trans
+> {};
+
 
 /**
  * \brief copy elements from a range into a container
@@ -109,8 +134,8 @@ struct transform<End, End, Ins, Trans>
  * \tparam End end iterator
  * \tparam Ins inserter used to fill output container
  */
-template <class Beg, class End, class Ins>
-struct copy : transform<Beg, End, Ins, _1> {};
+template <class Seq, class Ins>
+struct copy : transform<Seq, Ins, _1> {};
 
 #endif
 
