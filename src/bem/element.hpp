@@ -1,118 +1,77 @@
-#ifndef ELEMENT_HPP
-#define ELEMENT_HPP
+#ifndef ELEMENT_HPP_INCLUDED
+#define ELEMENT_HPP_INCLUDED
 
-#include <Eigen/Dense>
-using Eigen::Matrix;
+#include "lset.hpp"
 
-class tria_tag;		/* triangular element */
-class lin_quad_tag;	/* quad element with constant Jacobian (parallelogram) */
-class plane_quad_tag;	/* quad element with constant normal */
-class quad_tag;	/* general quad element */
+template <class element>
+struct element_traits;
 
-/** \brief metafunction returning number of element nodes */
-template <class tag> class nNodes;
-template<> struct nNodes<tria_tag> : int_<3> {};
-template<> struct nNodes<lin_quad_tag> : int_<4> {};
-template<> struct nNodes<plane_quad_tag> : int_<4> {};
-template<> struct nNodes<quad_tag> : int_<4> {};
+template <class lset, class variant>
+struct recogniser;
 
-template <class elem_tag>
-class ElemTypeRecogniser;
-
-
-template <class ElemTag>
-class Elem : public Matrix<int, nNodes<ElemTag>::value, 1>
+template <class Derived>
+class ElementBase
 {
 public:
-	typedef ElemTag elem_tag;
-	typedef Elem type;	/* self-returning structure */
-	static int const nNod = nNodes<elem_tag>::value;
+	typedef element_traits<Derived> traits;
 
-	template <class nodeIterator>
-	bool build(int input[], nodeIterator iter)
+	static int const dimension = traits::dimension::value;
+	typedef typename traits::lset lset;
+
+	static int const num_nodes = lset::num_nodes;
+	typedef typename lset::xi_type xi_type;
+	typedef typename lset::L_type L_type;
+	typedef typename lset::dL_type dL_type;
+
+	typedef Matrix<double, 1, dimension> x_type;
+	typedef Matrix<double, num_nodes, dimension> coords_type;
+
+	x_type get_x(xi_type const &xi)
 	{
-		if (ElemTypeRecogniser<elem_tag>::eval(input, iter))
-		{
-			for (int i = 0; i < nNod; ++i)
-				(*this)[i] = *(input+i+1);
-			return true;
-		}
-		return false;
+		L_type L = lset::eval_L(xi);
+		return L.transpose() * coords;
 	}
+
+	ElementBase(coords_type const &coords) : coords(coords) {}
+
+protected:
+	coords_type coords;
 };
+
+class tria_1_elem;
+template <>
+struct element_traits<tria_1_elem>
+{
+	typedef tria_1_lset lset;
+	typedef int_<3> dimension;
+};
+class tria_1_elem : public ElementBase<tria_1_elem> {};
+
+class quad_1_elem;
+template <>
+struct element_traits<quad_1_elem>
+{
+	typedef quad_1_lset lset;
+	typedef int_<3> dimension;
+};
+class quad_1_elem : public ElementBase<quad_1_elem> {};
+
+class parallelogram_elem;
 
 template <>
-class ElemTypeRecogniser<tria_tag>
+struct element_traits<parallelogram_elem>
 {
-public:
-	template <class nodeIterator>
-	static bool eval(int input[], nodeIterator)
-	{
-		return (input[0] == nNodes<tria_tag>::value);
-	}
+	typedef tria_1_lset lset;
+	typedef int_<3> dimension;
 };
 
-template <>
-class ElemTypeRecogniser<lin_quad_tag>
+class parallelogram_elem : public ElementBase<parallelogram_elem>
 {
 public:
-	template <class nodeIterator>
-	static bool eval(int input[], nodeIterator iter)
-	{
-		typedef typename nodeIterator::value_type node_type;
-		
-		if (input[0] == nNodes<lin_quad_tag>::value)
-		{
-			node_type c0 = *(iter+input[1]);
-			node_type c1 = *(iter+input[2]);
-			node_type c2 = *(iter+input[3]);
-			node_type c3 = *(iter+input[4]);
-			
-			return ((c1-c0) + (c3-c0) - (c2-c0)).norm() < 1e-3;
-		}
-		else
-			return false;
-	}
+	parallelogram_elem(coords_type const &coords) : ElementBase(coords) {}
 };
 
-template <>
-class ElemTypeRecogniser<plane_quad_tag>
-{
-public:
-	template <class nodeIterator>
-	static bool eval(int input[], nodeIterator iter)
-	{
-		typedef typename nodeIterator::value_type node_type;
-		
-		if (input[0] == nNodes<plane_quad_tag>::value)
-		{
-			node_type c0 = *(iter+input[1]);
-			node_type c1 = *(iter+input[2]);
-			node_type c2 = *(iter+input[3]);
-			node_type c3 = *(iter+input[4]);
-			
-			return ((c1-c0).cross(c2-c0)).dot(c3-c0) < 1e-3;
-		}
-		else
-			return false;
-	}
-};
 
-template <>
-class ElemTypeRecogniser<quad_tag>
-{
-public:
-	template <class nodeIterator>
-	static bool eval(int input[], nodeIterator)
-	{
-		return input[0] == nNodes<lin_quad_tag>::value;
-	}
-};
-
-typedef Elem<tria_tag> TriaElem;
-typedef Elem<lin_quad_tag> LinQuadElem;
-typedef Elem<plane_quad_tag> PlaneQuadElem;
-typedef Elem<quad_tag> QuadElem;
 
 #endif
 

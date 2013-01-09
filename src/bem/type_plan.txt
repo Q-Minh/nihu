@@ -1,0 +1,13 @@
+Domain	<- Dimension *
+
+LSet 	<- Domain
+		<- nNode *
+
+		L_i(xi) (i = 1 ... nNode, xi in Domain)
+		dL_i(xi) (i = 1 ... nNode, xi in Domain)
+
+Elem 	<- LSet
+		<- Dim *
+
+		coords
+
