@@ -7,6 +7,7 @@
 #include "../tmp/call_each.hpp"
 
 #include "element.hpp"
+#include "node.hpp"
 
 #include <vector>
 
@@ -15,7 +16,7 @@ template <class T>
 struct vectorize { typedef std::vector<T> type; };
 
 
-template <unsigned nDim, class ElemTypes>
+template <int nDim, class ElemTypes>
 class Mesh
 {
 private:
@@ -28,15 +29,14 @@ private:
 		>::type
 	>::type ElemVector;
 
-	std::vector<Coord<3> > nodes;	/**< \brief nodal coordinates */
-	ElemVector elements;			/**< element nodes (heterogeneous container) */
+	std::vector<Coord<nDim> > nodes;	/**< \brief nodal coordinates */
 
 	/** \brief functor template used by call_each to build add_elem member function's for loop */
 	template <class ElemType>
 	struct elem_adder
 	{
 		struct type {
-			bool operator() (unsigned input[], Mesh<nDim, ElemTypes> &m)
+			bool operator() (int input[], Mesh<nDim, ElemTypes> &m)
 			{
 				ElemType e;
 				if (e.build(input, m.nodes.begin()))
@@ -52,11 +52,21 @@ private:
 
 public:
 
-	bool add_elem(unsigned input[])
+	ElemVector elements;			/**< element nodes (heterogeneous container) */
+	
+	bool add_elem(int input[])
 	{
 		return call_until<ElemTypes, elem_adder<_1> >(input, *this);
+	}
+
+	void add_node(double input[])
+	{
+		Coord<nDim> c;
+		c << input[0], input[1], input[2];
+		nodes.push_back(c);
 	}
 };
 
 #endif
+
 

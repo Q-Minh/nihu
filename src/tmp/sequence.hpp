@@ -99,7 +99,7 @@ struct none;
 
 struct tiny_tag;
 
-template <class A0 = none, class A1 = none, class A2 = none>
+template <class A0 = none, class A1 = none, class A2 = none, class A3 = none>
 struct tiny
 {
 	typedef tiny type; 	/* self-returning */
@@ -109,20 +109,24 @@ struct tiny
 	typedef A0 arg0;
 	typedef A1 arg1;
 	typedef A2 arg2;
+	typedef A3 arg3;
 };
 
 
 template <class Arg, int Pos>
 struct tiny_at;
 
-template <class A0, class A1, class A2>
-struct tiny_at<tiny<A0, A1, A2>, 0> { typedef A0 type; };
+template <class A0, class A1, class A2, class A3>
+struct tiny_at<tiny<A0, A1, A2, A3>, 0> { typedef A0 type; };
 
-template <class A0, class A1, class A2>
-struct tiny_at<tiny<A0, A1, A2>, 1> { typedef A1 type; };
+template <class A0, class A1, class A2, class A3>
+struct tiny_at<tiny<A0, A1, A2, A3>, 1> { typedef A1 type; };
 
-template <class A0, class A1, class A2>
-struct tiny_at<tiny<A0, A1, A2>, 2> { typedef A2 type; };
+template <class A0, class A1, class A2, class A3>
+struct tiny_at<tiny<A0, A1, A2, A3>, 2> { typedef A2 type; };
+
+template <class A0, class A1, class A2, class A3>
+struct tiny_at<tiny<A0, A1, A2, A3>, 3> { typedef A3 type; };
 
 template <>
 struct at_impl<tiny_tag>
@@ -147,23 +151,26 @@ struct prev<tiny_iterator<Seq, Pos> >
 	typedef tiny_iterator<Seq, typename prev<Pos>::type> type;
 };
 
+template <class T0, class T1, class T2, class T3>
+struct tiny_size : int_<4> {};
+
 template <class T0, class T1, class T2>
-struct tiny_size : int_<3> {};
+struct tiny_size<T0, T1, T2, none> : int_<3> {};
 
 template <class T0, class T1>
-struct tiny_size<T0, T1, none> : int_<2> {};
+struct tiny_size<T0, T1, none, none> : int_<2> {};
 
 template <class T0>
-struct tiny_size<T0, none, none> : int_<1> {};
+struct tiny_size<T0, none, none, none> : int_<1> {};
 
 template <>
-struct tiny_size<none, none, none> : int_<0> {};
+struct tiny_size<none, none, none, none> : int_<0> {};
 
 template <>
 struct size_impl<tiny_tag>
 {
 	template <class Seq>
-	struct apply : tiny_size<typename Seq::arg0, typename Seq::arg1, typename Seq::arg2> {};
+	struct apply : tiny_size<typename Seq::arg0, typename Seq::arg1, typename Seq::arg2, typename Seq::arg3> {};
 };
 
 template <class Seq, class Pos>
@@ -187,7 +194,7 @@ struct end_impl<tiny_tag>
 	{
 		typedef tiny_iterator<
 			Tiny,
-			typename tiny_size<typename Tiny::arg0, typename Tiny::arg1, typename Tiny::arg2>::type
+			typename tiny_size<typename Tiny::arg0, typename Tiny::arg1, typename Tiny::arg2, typename Tiny::arg3>::type
 		> type;
 	};
 };
@@ -203,7 +210,7 @@ template <>
 struct push_front_impl<tiny_tag>
 {
 	template <class Tiny, class T>
-	struct apply : tiny<T, typename Tiny::arg0, typename Tiny::arg1> {};
+	struct apply : tiny<T, typename Tiny::arg0, typename Tiny::arg1, typename Tiny::arg2> {};
 };
 
 template <class Tiny, class T, int N>
@@ -217,6 +224,9 @@ struct tiny_push_back<Tiny, T, 1> : tiny<typename Tiny::arg0, T> {};
 
 template <class Tiny, class T>
 struct tiny_push_back<Tiny, T, 2> : tiny<typename Tiny::arg0, typename Tiny::arg1, T> {};
+
+template <class Tiny, class T>
+struct tiny_push_back<Tiny, T, 3> : tiny<typename Tiny::arg0, typename Tiny::arg1, typename Tiny::arg2, T> {};
 
 template <>
 struct push_back_impl<tiny_tag>
