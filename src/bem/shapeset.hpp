@@ -1,17 +1,17 @@
-#ifndef LSET_HPP_INCLUDED
-#define LSET_HPP_INCLUDED
+#ifndef SHAPESET_HPP_INCLUDED
+#define SHAPESET_HPP_INCLUDED
 
 #include "../tmp/integer.hpp"
 #include "domain.hpp"
 
-template <class lset>
-struct lset_traits;
+template <class shape_set>
+struct shape_set_traits;
 
 template <class Derived>
-class LSetBase
+class ShapeSetBase
 {
 public:
-	typedef lset_traits<Derived> traits;
+	typedef shape_set_traits<Derived> traits;
 	typedef typename traits::domain domain;
 	static int const num_nodes = traits::num_nodes::value;
 
@@ -31,42 +31,49 @@ public:
 };
 
 
-
-struct line_1_lset;		// linear line lset (-1; +1)
-struct tria_1_lset;		// linear triangle lset
-struct quad_1_lset;		// linear quad lset
-struct brick_1_lset;	// linear brick lset
+struct line_1_shape_set;		// linear line shape_set (-1; +1)
+struct tria_1_shape_set;		// linear triangle shape_set
+struct parallelogram_shape_set;		// linear quad shape_set
+struct quad_1_shape_set;		// linear quad shape_set
+struct brick_1_shape_set;	// linear brick shape_set
 
 template<>
-struct lset_traits<line_1_lset>
+struct shape_set_traits<line_1_shape_set>
 {
 	typedef line_domain	domain;
 	typedef int_<2>		num_nodes;
 };
 
 template<>
-struct lset_traits<tria_1_lset>
+struct shape_set_traits<tria_1_shape_set>
 {
 	typedef tria_domain	domain;
 	typedef int_<3>		num_nodes;
 };
 
 template<>
-struct lset_traits<quad_1_lset>
+struct shape_set_traits<parallelogram_shape_set>
+{
+	typedef quad_domain	domain;
+	typedef int_<3>		num_nodes;
+};
+
+template<>
+struct shape_set_traits<quad_1_shape_set>
 {
 	typedef quad_domain	domain;
 	typedef int_<4>		num_nodes;
 };
 
 template<>
-struct lset_traits<brick_1_lset>
+struct shape_set_traits<brick_1_shape_set>
 {
 	typedef brick_domain	domain;
 	typedef int_<8>			num_nodes;
 };
 
 
-class line_1_lset : public LSetBase<line_1_lset>
+class line_1_shape_set : public ShapeSetBase<line_1_shape_set>
 {
 public:
 	static L_type eval_L(xi_type const &xi)
@@ -89,7 +96,7 @@ public:
 };
 
 
-class tria_1_lset : public LSetBase<tria_1_lset>
+class tria_1_shape_set : public ShapeSetBase<tria_1_shape_set>
 {
 public:
 	static L_type eval_L(xi_type const &xi)
@@ -105,15 +112,41 @@ public:
 	static dL_type eval_dL(xi_type const &)
 	{
 		dL_type dL;
-		dL << -1.0, -1.0,
-			1.0, 0.0,
-			0.0, 1.0;
+		dL <<
+			-1.0, -1.0,
+			+1.0,  0.0,
+			 0.0, +1.0;
 		return dL;
 	}
 };
 
 
-class quad_1_lset : public LSetBase<quad_1_lset>
+class parallelogram_shape_set : public ShapeSetBase<parallelogram_shape_set>
+{
+public:
+	static L_type eval_L(xi_type const &xi)
+	{
+		L_type L;
+		L <<
+			(-xi[0]-xi[1])/2.0,
+			(1.0+xi[0])/2.0,
+			(1.0+xi[1])/2.0;
+		return L;
+	}
+
+	static dL_type eval_dL(xi_type const &xi)
+	{
+		dL_type dL;
+		dL <<
+			-1.0, -1.0,
+			+1.0,  0.0,
+			 0.0, +1.0;
+		return dL;
+	}
+};
+
+
+class quad_1_shape_set : public ShapeSetBase<quad_1_shape_set>
 {
 public:
 	static L_type eval_L(xi_type const &xi)
@@ -140,19 +173,27 @@ public:
 };
 
 
-template <class lset_from, class lset_to>
-struct lset_converter;
+template <class shape_set_from, class shape_set_to>
+struct shape_set_converter;
 
 template <>
-struct lset_converter<quad_1_lset, tria_1_lset>
+struct shape_set_converter<quad_1_shape_set, parallelogram_shape_set>
 {
+	typedef quad_1_shape_set from_set;
+	typedef parallelogram_shape_set to_set;
+	
 	template <int dim>
 	static bool eval(Matrix<double, 4, dim> const &coords)
 	{
-		tria_1_lset::xi_type xi;
+		Matrix<double, 3, dim> c;
+		c.row(0) = coords.row(0);
+		c.row(1) = coords.row(1);
+		c.row(2) = coords.row(3);
+		
+		to_set::xi_type xi;
 		xi << 1.0, 1.0;
-		tria_1_lset::L_type L = tria_1_lset::eval_L(xi);
-		return (L.transpose() * coords.topRows(3) - coords.row(3)).norm() < 1e-3;
+		
+		return (to_set::eval_L(xi).transpose() * c - coords.row(2)).norm() < 1e-3;
 	}
 };
 

@@ -1,13 +1,9 @@
 CC=g++
-CFLAGS=-Wall -pedantic -O3 -I/usr/local/include/eigen3 -std=c++0x
+CFLAGS=-Wall -pedantic -O3 -I /usr/local/include/eigen3 -std=c++0x
 
-main: src/main.cpp
-	$(CC) $(CFLAGS) src/main.cpp -o main
-main_seq: src/main_seq.cpp
-	$(CC) $(CFLAGS) src/main_seq.cpp -o main_seq
-
-mesh: src/bem/mesh.cpp src/bem/mesh.hpp src/bem/node.hpp src/bem/element.hpp
-	$(CC) $(CFLAGS) src/bem/mesh.cpp -o mesh
+element_test: src/bem/element_test.cpp src/bem/element.hpp src/bem/shapeset.hpp src/bem/element.hpp
+	$(CC) $(CFLAGS) src/bem/element_test.cpp -o element_test
 
 clean:
-	rm main_seq main mesh
+	rm element_test
+
