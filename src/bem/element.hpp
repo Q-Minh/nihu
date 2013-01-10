@@ -1,85 +1,71 @@
+/**
+ * \file element.hpp
+ * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
+ * \brief Declaration of class Element and its specialisations
+ */
 #ifndef ELEMENT_HPP_INCLUDED
 #define ELEMENT_HPP_INCLUDED
 
 #include "shapeset.hpp"
 
-template <class element>
-struct element_traits;
-
-template <class Derived>
-class ElementBase
+/**
+ * \brief The geometrical element representation
+ * \tparam LSet the shape function set describing the geometrical behaviour
+ * \tparam Dimension the dimensionality of the elements space
+ * \details The element is defined by its L-set, dimension and the nodal coordinates.
+ * The class provides a method to compute the location \f$x\f$
+ */
+template <class LSet, unsigned Dimension>
+class Element
 {
 public:
-	typedef element_traits<Derived> traits;
+	/** \brief the dimension of the element's independent location variable \f$x\f$ */
+	static int const dimension = Dimension;
+	/** \brief the elements's L-set */
+	typedef LSet lset;
 
-	static int const dimension = traits::dimension::value;
-	typedef typename traits::lset lset;
-
+	/** \brief number of shape functions in the set, inherited from the LSet */
 	static int const num_nodes = lset::num_nodes;
+	/** \brief type of the shape functions' independent variable \f$\xi\f$, inherited from the LSet  */
 	typedef typename lset::xi_type xi_type;
+	/** \brief type of an \f$L(\xi)\f$ vector, inherited from the LSet */
 	typedef typename lset::L_type L_type;
+	/** \brief type of an \f$\nabla L(\xi)\f$ gradient matrix, inherited from the LSet */
 	typedef typename lset::dL_type dL_type;
 
+	/** \brief type of the element's independent location variable \f$x\f$ */
 	typedef Matrix<double, 1, dimension> x_type;
+	/** \brief matrix type that stores the element's corner coordinates \f$x_i\f$ */
 	typedef Matrix<double, num_nodes, dimension> coords_type;
 
 protected:
+	/** \brief the element's corner coordinates \f$x_i\f$ */
 	coords_type coords;
 
 public:
-	ElementBase(coords_type const &coords) : coords(coords) {}
+	/**
+	 * \brief constructor
+	 * \param coords location of corners \f$x_i\f$
+	 */
+	Element(coords_type const &coords) : coords(coords) {}
 
+	/**
+	 * \brief return element location
+	 * \param \xi location \f$\xi\f$ in the base domain
+	 * \return location \f$x\f$ in the element
+	 */
 	x_type get_x(xi_type const &xi)
 	{
 		return lset::eval_L(xi).transpose() * coords;
 	}
-
 };
 
-class tria_1_elem;
-
-template <>
-struct element_traits<tria_1_elem>
-{
-	typedef tria_1_shape_set lset;
-	typedef int_<3> dimension;
-};
-
-class tria_1_elem : public ElementBase<tria_1_elem>
-{
-public:
-	tria_1_elem(coords_type const &coords) : ElementBase(coords) {}
-};
-
-class parallelogram_elem;
-
-template <>
-struct element_traits<parallelogram_elem>
-{
-	typedef parallelogram_shape_set lset;
-	typedef int_<3> dimension;
-};
-
-class parallelogram_elem : public ElementBase<parallelogram_elem>
-{
-public:
-	parallelogram_elem(coords_type const &coords) : ElementBase(coords) {}
-};
-
-class quad_1_elem;
-
-template <>
-struct element_traits<quad_1_elem>
-{
-	typedef quad_1_shape_set lset;
-	typedef int_<3> dimension;
-};
-
-class quad_1_elem : public ElementBase<quad_1_elem>
-{
-public:
-	quad_1_elem(coords_type const &coords) : ElementBase(coords) {}
-};
+/** \brief a linear triangle element in 3D space */
+typedef Element<tria_1_shape_set, 3> tria_1_elem;
+/** \brief a linear parallelogram element in 3D space */
+typedef Element<parallelogram_shape_set, 3> parallelogram_elem;
+/** \brief a linear quad element in 3D space */
+typedef Element<quad_1_shape_set, 3> quad_1_elem;
 
 #endif
 
