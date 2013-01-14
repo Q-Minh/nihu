@@ -1,12 +1,13 @@
 /**
  * \file shapeset.hpp
  * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
- * \brief Declaration of class ShapeSet and its specialisations
+ * \brief Definition of class ShapeSet and its specialisations
  */
 #ifndef SHAPESET_HPP_INCLUDED
 #define SHAPESET_HPP_INCLUDED
 
 #include "domain.hpp"
+#include "../tmp/bool.hpp"
 
 /**
  * \brief Shape function set
@@ -63,8 +64,8 @@ public:
 	{
 		dL_type dL;
 		dL <<
-			-.5,
-			+.5;
+			-0.5,
+			+0.5;
 		return dL;
 	}
 };
@@ -140,9 +141,9 @@ public:
 	{
 		dL_type dL;
 		dL <<
-			-1.0, -1.0,
-			+1.0,  0.0,
-			 0.0, +1.0;
+			-.5, -.5,
+			+.5,  .0,
+			 .0, +.5;
 		return dL;
 	}
 };
@@ -187,6 +188,15 @@ public:
 		return dL;
 	}
 };
+
+/**
+ * \brief metafunction returns true if the argument is a linear shape function set
+ * \tparam ShapeSet the shape function set class
+ */
+template <class ShapeSet>
+struct is_linear : false_ {};
+template <> struct is_linear<tria_1_shape_set> : true_ {};
+template <> struct is_linear<parallelogram_shape_set> : true_ {};
 
 
 template <class shape_set_from, class shape_set_to>

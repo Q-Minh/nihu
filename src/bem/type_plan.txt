@@ -1,13 +1,26 @@
 Domain	<- Dimension *
 
+Quadrature	<- Domain
+		static quad(order)
+		
+
 LSet 	<- Domain
 		<- nNode *
 
-		L_i(xi) (i = 1 ... nNode, xi in Domain)
-		dL_i(xi) (i = 1 ... nNode, xi in Domain)
+		static L_i(xi) (i = 1 ... nNode, xi in Domain)
+		static dL_i(xi) (i = 1 ... nNode, xi in Domain)
 
 Elem 	<- LSet
 		<- Dim *
 
 		coords
+
+		x(xi)
+		x'xi(xi)
+		norm(xi)
+		jac(xi)
+
+Mapper 	<- Elem
+		<- KernelInput
+
 

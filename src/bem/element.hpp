@@ -19,10 +19,12 @@ template <class LSet, unsigned Dimension>
 class Element
 {
 public:
-	/** \brief the dimension of the element's independent location variable \f$x\f$ */
-	static int const dimension = Dimension;
+	/** \brief the dimension of the element's location variable \f$x\f$ */
+	static int const x_dim = Dimension;
 	/** \brief the elements's L-set */
 	typedef LSet lset;
+	/** \brief the dimension of the element's domain variable \f$xi\f$ */
+	static int const xi_dim = lset::domain::dimension;
 
 	/** \brief number of shape functions in the set, inherited from the LSet */
 	static int const num_nodes = lset::num_nodes;
@@ -34,9 +36,11 @@ public:
 	typedef typename lset::dL_type dL_type;
 
 	/** \brief type of the element's independent location variable \f$x\f$ */
-	typedef Matrix<double, 1, dimension> x_type;
+	typedef Matrix<double, 1, x_dim> x_type;
+	/** \brief type of the gradient of the element's independent location variable \f$x'_{\xi}\f$ */
+	typedef Matrix<double, xi_dim, x_dim> dx_type;
 	/** \brief matrix type that stores the element's corner coordinates \f$x_i\f$ */
-	typedef Matrix<double, num_nodes, dimension> coords_type;
+	typedef Matrix<double, num_nodes, x_dim> coords_type;
 
 protected:
 	/** \brief the element's corner coordinates \f$x_i\f$ */
@@ -57,6 +61,16 @@ public:
 	x_type get_x(xi_type const &xi)
 	{
 		return lset::eval_L(xi).transpose() * coords;
+	}
+
+	/**
+	 * \brief return element location gradient
+	 * \param \xi location \f$\xi\f$ in the base domain
+	 * \return location gradient \f$x'_{\xi}\f$ in the element
+	 */
+	dx_type get_dx(xi_type const &xi)
+	{
+		return lset::eval_dL(xi).transpose() * coords;
 	}
 };
 
