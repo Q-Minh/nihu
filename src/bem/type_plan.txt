@@ -1,8 +1,11 @@
 Domain	<- Dimension *
 
 Quadrature	<- Domain
-		static quad(order)
-		
+		<- Order
+
+		static init(void)
+		static get_xi(void)
+		static get_w(void)
 
 LSet 	<- Domain
 		<- nNode *
@@ -23,4 +26,7 @@ Elem 	<- LSet
 Mapper 	<- Elem
 		<- KernelInput
 
+Integral <- Elem
+		<- Kernel
 
+		static eval<N>(Elem &e)

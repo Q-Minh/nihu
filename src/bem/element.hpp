@@ -72,6 +72,22 @@ public:
 	{
 		return lset::eval_dL(xi).transpose() * coords;
 	}
+
+	/**
+	 * \brief return element normal
+	 * \param \xi location \f$\xi\f$ in the base domain
+	 * \return element normal vector \f$n\f$ in the element
+	 */
+	x_type get_normal(xi_type const &xi)
+	{
+		static_assert(xi_dim == x_dim-1, "Element does not have normal");
+		static_assert(xi_dim == 2, "Element normal is not yet implemented for this dimension");
+		if (xi_dim == 2) // evaluated compile-time
+		{
+			dx_type dx = get_dx(xi);
+			return dx.row(0).cross(dx.row(1));
+		}
+	}
 };
 
 /** \brief a linear triangle element in 3D space */
