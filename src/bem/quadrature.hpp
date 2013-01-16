@@ -1,18 +1,21 @@
+#ifndef QUADRATURE_HPP_INCLUDED
+#define QUADRATURE_HPP_INCLUDED
+
 #include <Eigen/Dense>
 #include <Eigen/Eigenvalues> 
 
 #include "domain.hpp"
 
 template <class Domain, unsigned N>
-class GaussQuad;
+class gauss_quad;
 
 template <unsigned N>
-class GaussQuad<line_domain, N>
+class gauss_quad<line_domain, N>
 {
 public:
 	static const unsigned size = N;
-	typedef Eigen::Matrix<double, size, 1> xi_type;
-	typedef Eigen::Matrix<double, size, 1> weight_type;
+	typedef Eigen::Matrix<double, size, 1> xivec_t;
+	typedef Eigen::Matrix<double, size, 1> weightvec_t;
 
 	static void init(void)
 	{
@@ -25,15 +28,25 @@ public:
 		w = 2.0 * S.eigenvectors().row(0).cwiseAbs2().transpose();
 	}
 	
-	static xi_type const &get_xi(void) { return xi; }
-	static weight_type const &get_weight(void) { return w; }
+	static xivec_t const &get_xi(void)
+	{
+		return xi;
+	}
+	
+	static weightvec_t const &get_weight(void)
+	{
+		return w;
+	}
 
 protected:
-	static xi_type xi;
-	static weight_type w;
+	static xivec_t xi;
+	static weightvec_t w;
 };
 
 template <unsigned N>
-typename GaussQuad<line_domain, N>::xi_type GaussQuad<line_domain, N>::xi;
+typename gauss_quad<line_domain, N>::xivec_t gauss_quad<line_domain, N>::xi;
 template <unsigned N>
-typename GaussQuad<line_domain, N>::weight_type GaussQuad<line_domain, N>::w;
+typename gauss_quad<line_domain, N>::weightvec_t gauss_quad<line_domain, N>::w;
+
+#endif
+

@@ -9,7 +9,7 @@ class Domain
 {
 public:
 	static unsigned const dimension = Dimension;
-	typedef Matrix<double, dimension, 1> xi_type;
+	typedef Matrix<double, dimension, 1> xi_t;
 };
 
 class line_domain : public Domain<1> {};

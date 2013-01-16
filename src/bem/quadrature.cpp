@@ -1,11 +1,9 @@
 #include "quadrature.hpp"
-
 #include <iostream>
-
 
 int main(void)
 {
-	typedef GaussQuad<line_domain, 10> G;
+	typedef gauss_quad<line_domain, 10> G;
 	G::init();
 
 	std::cout << G::get_xi() << std::endl << std::endl << G::get_weight() << std::endl;

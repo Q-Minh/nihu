@@ -21,16 +21,16 @@ class ShapeSet
 {
 public:
 	/** \brief the shape function's domain type */
-	typedef Domain domain;	
+	typedef Domain domain_t;
 	/** \brief number of shape functions in the set */
 	static unsigned const num_nodes = NumNodes;
 
 	/** \brief type of the shape functions' independent variable \f$\xi\f$ */
-	typedef typename domain::xi_type xi_type;
+	typedef typename domain_t::xi_t xi_t;
 	/** \brief type of an \f$L(\xi)\f$ vector */
-	typedef Matrix<double, num_nodes, 1> L_type;
+	typedef Matrix<double, num_nodes, 1> L_t;
 	/** \brief type of an \f$\nabla L(\xi)\f$ gradient matrix */
-	typedef Matrix<double, num_nodes, domain::dimension> dL_type;
+	typedef Matrix<double, num_nodes, domain_t::dimension> dL_t;
 };
 
 
@@ -47,9 +47,9 @@ public:
 	 * \brief shape function vector \f$L_i(\xi)\f$
 	 * \param \xi independent variable \f$\xi\f$
 	 */
-	static L_type eval_L(xi_type const &xi)
+	static L_t eval_L(xi_t const &xi)
 	{
-		L_type L;
+		L_t L;
 		L <<
 			(1.0-xi[0])/2.0,
 			(1.0+xi[0])/2.0;
@@ -60,9 +60,9 @@ public:
 	 * \brief shape function gradient matrix \f$\nabla L_i(\xi)\f$
 	 * \param \xi independent variable \f$\xi\f$
 	 */
-	static dL_type eval_dL(xi_type const &)
+	static dL_t eval_dL(xi_t const &)
 	{
-		dL_type dL;
+		dL_t dL;
 		dL <<
 			-0.5,
 			+0.5;
@@ -84,9 +84,9 @@ public:
 	 * \brief shape function vector \f$L_i(\xi)\f$
 	 * \param \xi independent variable \f$\xi\f$
 	 */
-	static L_type eval_L(xi_type const &xi)
+	static L_t eval_L(xi_t const &xi)
 	{
-		L_type L;
+		L_t L;
 		L <<
 			1.0-xi[0]-xi[1],
 			xi[0],
@@ -98,9 +98,9 @@ public:
 	 * \brief shape function gradient matrix \f$\nabla L_i(\xi)\f$
 	 * \param \xi independent variable \f$\xi\f$
 	 */
-	static dL_type eval_dL(xi_type const &)
+	static dL_t eval_dL(xi_t const &)
 	{
-		dL_type dL;
+		dL_t dL;
 		dL <<
 			-1.0, -1.0,
 			+1.0,  0.0,
@@ -123,9 +123,9 @@ public:
 	 * \brief shape function vector \f$L_i(\xi)\f$
 	 * \param \xi independent variable \f$\xi\f$
 	 */
-	static L_type eval_L(xi_type const &xi)
+	static L_t eval_L(xi_t const &xi)
 	{
-		L_type L;
+		L_t L;
 		L <<
 			(-xi[0]-xi[1])/2.0,
 			(1.0+xi[0])/2.0,
@@ -137,9 +137,9 @@ public:
 	 * \brief shape function gradient matrix \f$\nabla L_i(\xi)\f$
 	 * \param \xi independent variable \f$\xi\f$
 	 */
-	static dL_type eval_dL(xi_type const &xi)
+	static dL_t eval_dL(xi_t const &xi)
 	{
-		dL_type dL;
+		dL_t dL;
 		dL <<
 			-.5, -.5,
 			+.5,  .0,
@@ -162,9 +162,9 @@ public:
 	 * \brief shape function vector \f$L_i(\xi)\f$
 	 * \param \xi independent variable \f$\xi\f$
 	 */
-	static L_type eval_L(xi_type const &xi)
+	static L_t eval_L(xi_t const &xi)
 	{
-		L_type L;
+		L_t L;
 		L <<
 			(1.0-xi[0])*(1.0-xi[1])/4.0,
 			(1.0+xi[0])*(1.0-xi[1])/4.0,
@@ -177,9 +177,9 @@ public:
 	 * \brief shape function gradient matrix \f$\nabla L_i(\xi)\f$
 	 * \param \xi independent variable \f$\xi\f$
 	 */
-	static dL_type eval_dL(xi_type const &xi)
+	static dL_t eval_dL(xi_t const &xi)
 	{
-		dL_type dL;
+		dL_t dL;
 		dL <<
 			-.25 * (1-xi[1]), (1.0-xi[0]) * -.25,
 			+.25 * (1-xi[1]), (1.0+xi[0]) * -.25,
@@ -216,7 +216,7 @@ struct shape_set_converter<quad_1_shape_set, parallelogram_shape_set>
 		c.row(1) = coords.row(1);
 		c.row(2) = coords.row(3);
 		
-		to_set::xi_type xi;
+		to_set::xi_t xi;
 		xi << 1.0, 1.0;
 		
 		return (

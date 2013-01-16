@@ -39,7 +39,7 @@ int main(void)
 	}
 	*/
 
-	GaussQuad<line_domain, 5>::init();
+	gauss_quad<line_domain, 5>::init();
 
 	Matrix<double,2,2> line_coords;
 	line_coords <<
@@ -53,3 +53,4 @@ int main(void)
 
 	return 0;
 }
+
