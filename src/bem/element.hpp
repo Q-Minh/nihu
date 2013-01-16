@@ -1,20 +1,20 @@
 /**
- * \file element.hpp
- * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
- * \brief Declaration of class Element and its specialisations
- */
+* \file element.hpp
+* \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
+* \brief Declaration of class Element and its specialisations
+*/
 #ifndef ELEMENT_HPP_INCLUDED
 #define ELEMENT_HPP_INCLUDED
 
 #include "shapeset.hpp"
 
 /**
- * \brief The geometrical element representation
- * \tparam LSet the shape function set describing the geometrical behaviour
- * \tparam Dimension the dimensionality of the elements space
- * \details The element is defined by its L-set, dimension and the nodal coordinates.
- * The class provides a method to compute the location \f$x\f$
- */
+* \brief The geometrical element representation
+* \tparam LSet the shape function set describing the geometrical behaviour
+* \tparam Dimension the dimensionality of the elements space
+* \details The element is defined by its L-set, dimension and the nodal coordinates.
+* The class provides a method to compute the location \f$x\f$
+*/
 template <class LSet, unsigned Dimension>
 class Element
 {
@@ -48,47 +48,59 @@ protected:
 
 public:
 	/**
-	 * \brief constructor
-	 * \param coords location of corners \f$x_i\f$
-	 */
+	* \brief constructor
+	* \param coords location of corners \f$x_i\f$
+	*/
 	Element(coords_type const &coords) : coords(coords) {}
 
 	/**
-	 * \brief return element location
-	 * \param \xi location \f$\xi\f$ in the base domain
-	 * \return location \f$x\f$ in the element
-	 */
-	x_type get_x(xi_type const &xi)
+	* \brief return element location
+	* \param \xi location \f$\xi\f$ in the base domain
+	* \return location \f$x\f$ in the element
+	*/
+	x_type get_x(xi_type const &xi) const
 	{
 		return lset::eval_L(xi).transpose() * coords;
 	}
 
 	/**
-	 * \brief return element location gradient
-	 * \param \xi location \f$\xi\f$ in the base domain
-	 * \return location gradient \f$x'_{\xi}\f$ in the element
-	 */
-	dx_type get_dx(xi_type const &xi)
+	* \brief return element location gradient
+	* \param \xi location \f$\xi\f$ in the base domain
+	* \return location gradient \f$x'_{\xi}\f$ in the element
+	*/
+	dx_type get_dx(xi_type const &xi) const
 	{
 		return lset::eval_dL(xi).transpose() * coords;
 	}
 
 	/**
-	 * \brief return element normal
-	 * \param \xi location \f$\xi\f$ in the base domain
-	 * \return element normal vector \f$n\f$ in the element
-	 */
-	x_type get_normal(xi_type const &xi)
+	* \brief return element normal
+	* \param \xi location \f$\xi\f$ in the base domain
+	* \return element normal vector \f$n\f$ in the element
+	*/
+	x_type get_normal(xi_type const &xi) const
 	{
 		static_assert(xi_dim == x_dim-1, "Element does not have normal");
-		static_assert(xi_dim == 2, "Element normal is not yet implemented for this dimension");
-		if (xi_dim == 2) // evaluated compile-time
+		static_assert(xi_dim <= 2, "Element normal is not yet implemented for this dimension");
+		if (xi_dim == 1) // compile-time switch
 		{
-			dx_type dx = get_dx(xi);
-			return dx.row(0).cross(dx.row(1));
+				dx_type dx = get_dx(xi);
+				dx << dx(1), -dx(0);
+				return dx;
+		}
+		else if (xi_dim == 2)
+		{
+//			dx_type dx = get_dx(xi);
+//			return dx.row(0).cross(dx.row(1));
+		}
+		else
+		{
 		}
 	}
 };
+
+/** \brief a linear triangle element in 2D space */
+typedef Element<line_1_shape_set, 2> line_1_elem;
 
 /** \brief a linear triangle element in 3D space */
 typedef Element<tria_1_shape_set, 3> tria_1_elem;

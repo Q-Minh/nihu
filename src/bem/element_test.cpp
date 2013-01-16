@@ -1,8 +1,10 @@
 #include <iostream>
 #include "element.hpp"
+#include "elem_descriptor.hpp"
 
 int main(void)
 {
+	/*
 	Matrix<double,4,3> coords;
 	coords <<
 		0, 0, 0,
@@ -35,7 +37,19 @@ int main(void)
 		std::cout << "normal: " << e.get_normal(xi) << std::endl;
 		std::cout << e.get_dx(xi) << std::endl;
 	}
+	*/
+
+	GaussQuad<line_domain, 5>::init();
+
+	Matrix<double,2,2> line_coords;
+	line_coords <<
+		0, 0,
+		1, 1;
+	line_1_elem l(line_coords);
+	ElemAccelerator<line_1_elem, 5> a(l);
+
+	for (auto i = a.begin(); i != a.end(); ++i)
+		std::cout << i->get_x() << std::endl;
 
 	return 0;
 }
-
