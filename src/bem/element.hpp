@@ -47,16 +47,16 @@ class Element
 {
 public:
 	/** \brief the dimension of the element's location variable \f$x\f$ */
-	static int const x_dim = Dimension;
+	static unsigned const x_dim = Dimension;
 	/** \brief the elements's L-set */
 	typedef LSet lset_t;
 	/** \brief the elements's domain */
 	typedef typename lset_t::domain_t domain_t;
 	/** \brief the dimension of the element's domain variable \f$xi\f$ */
-	static int const xi_dim = domain_t::dimension;
+	static unsigned const xi_dim = domain_t::dimension;
 
 	/** \brief number of shape functions in the set, inherited from the LSet */
-	static int const num_nodes = lset_t::num_nodes;
+	static unsigned const num_nodes = lset_t::num_nodes;
 	/** \brief type of the shape functions' independent variable \f$\xi\f$, inherited from the LSet  */
 	typedef typename lset_t::xi_t xi_t;
 	/** \brief type of an \f$L(\xi)\f$ vector, inherited from the LSet */

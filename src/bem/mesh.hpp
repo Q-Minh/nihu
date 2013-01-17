@@ -34,10 +34,10 @@ private:
 	typedef typename x_t::Scalar scalar_t;
 	/** \brief number of dimensions */
 	static unsigned const nDim = x_t::SizeAtCompileTime;
-
+	
 	std::vector<x_t> nodes;		/**< \brief nodal coordinates */
-	ElemVector elements;		/**< element nodes (heterogeneous container) */
-
+	ElemVector elements;		/**< \brief element geometries (heterogeneous container) */
+	
 	template <class RefElem, class ElemType>
 	struct elem_adder
 	{
@@ -54,51 +54,57 @@ private:
 						);
 					return true;
 				}
-				else
-					return false;
+				return false;
 			}
 		};
 	};
 
+	template <class smallElemTypes>
+	struct elem_adder_outer
+	{
+		struct type {
+			bool operator() (unsigned const input[], Mesh<ElemTypes> &m)
+			{
+				typedef typename deref<
+					typename prev<
+						typename end<smallElemTypes>::type
+					>::type
+				>::type ref_elem_t;
+
+				if (input[0] == ref_elem_t::domain_t::id)
+				{
+					typename ref_elem_t::coords_t coords;
+					for (unsigned i = 0; i < ref_elem_t::num_nodes; ++i)
+						coords.row(i) = m.nodes[input[1+i]];
+
+					return call_until<
+						smallElemTypes,
+						elem_adder<ref_elem_t, _1>,
+						typename ref_elem_t::coords_t const &, Mesh<ElemTypes> &
+					>(coords, m);
+				}
+				return false;
+			}
+		};
+	};
+
+
 public:
 
-	bool add_elem(unsigned input[])
+	bool add_elem(unsigned const input[])
 	{
-		switch (input[0])
-		{
-		case 3:
-			{
-				tria_1_elem::coords_t coords;
-				for (unsigned i = 0; i < tria_1_elem::num_nodes; ++i)
-					coords.row(i) = nodes[input[1+i]];
-				elements.std::vector<tria_1_elem, Eigen::aligned_allocator<tria_1_elem> >::push_back(tria_1_elem(coords));
-			}
-			break;
-		case 4:
-			{
-				quad_1_elem::coords_t coords;
-				for (unsigned i = 0; i < quad_1_elem::num_nodes; ++i)
-					coords.row(i) = nodes[input[1+i]];
-
-				typedef tiny<parallelogram_elem, quad_1_elem> smallElemTypes;
-
-				call_until<
-					smallElemTypes,
-					elem_adder<quad_1_elem, _1>,
-					quad_1_elem::coords_t const &, Mesh<ElemTypes> &
-				>(coords, *this);
-			}
-			break;
-		default:
-			return false;
-		}
-		return true;
+		typedef tiny< tiny<tria_1_elem>, tiny<parallelogram_elem, quad_1_elem> > elemArray;
+		return call_until<
+			elemArray,
+			elem_adder_outer<_1>,
+			unsigned const*, Mesh<ElemTypes> &
+		>(input, *this);
 	}
 
 	void add_node(scalar_t input[])
 	{
 		x_t c;
-		typedef x_t::Index index_t;
+		typedef typename x_t::Index index_t;
 		for (index_t i = 0; i < nDim; ++i)
 			c[i] = input[i];
 		nodes.push_back(c);
