@@ -1,6 +1,18 @@
 #include <iostream>
 #include "element.hpp"
 #include "elem_descriptor.hpp"
+#include "integral.hpp"
+
+#include <algorithm>
+
+class kernel_t
+{
+public:
+	static double eval(Descriptor<line_1_elem::x_t> const &e)
+	{
+		return 1.0;
+	}
+};
 
 int main(void)
 {
@@ -39,18 +51,22 @@ int main(void)
 	}
 	*/
 
-	gauss_quad<line_domain, 5>::init();
+	gauss_quad<line_domain, 10>::init();
 
 	Matrix<double,2,2> line_coords;
 	line_coords <<
 		0, 0,
 		1, 1;
 	line_1_elem l(line_coords);
-	ElemAccelerator<line_1_elem, 5> a(l);
+	ElemAccelerator<line_1_elem, 10> a(l);
 
-	for (auto i = a.begin(); i != a.end(); ++i)
-		std::cout << i->get_x() << std::endl;
+	std::for_each(
+		a.begin(),
+		a.end(),
+		[] (Descriptor<line_1_elem::x_t> const &e) { std::cout << e.get_x() << std::endl; }
+	);
+
+	std::cout << "Length: " << integral<Descriptor<line_1_elem::x_t>, kernel_t>::eval(a.begin(), a.end()) << std::endl;
 
 	return 0;
 }
-

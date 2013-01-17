@@ -50,8 +50,10 @@ public:
 	static int const x_dim = Dimension;
 	/** \brief the elements's L-set */
 	typedef LSet lset_t;
+	/** \brief the elements's domain */
+	typedef typename lset_t::domain_t domain_t;
 	/** \brief the dimension of the element's domain variable \f$xi\f$ */
-	static int const xi_dim = lset_t::domain_t::dimension;
+	static int const xi_dim = domain_t::dimension;
 
 	/** \brief number of shape functions in the set, inherited from the LSet */
 	static int const num_nodes = lset_t::num_nodes;
@@ -74,6 +76,11 @@ protected:
 	coords_t coords;
 
 public:
+	/**
+	* \brief default constructor
+	*/
+	Element() {}
+
 	/**
 	* \brief constructor
 	* \param coords location of corners \f$x_i\f$

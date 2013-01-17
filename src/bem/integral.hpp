@@ -1,35 +1,32 @@
 /**
- * \file integral.hpp
- * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
- * \brief Declaration of class Integral and its specialisations
- */
+* \file integral.hpp
+* \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
+* \brief Declaration of class Integral and its specialisations
+*/
 #ifndef INTEGRAL_HPP_INCLUDED
 #define INTEGRAL_HPP_INCLUDED
 
-#include "element.hpp"
-#include <algorithm>
+#include "elem_descriptor.hpp"
+#include <numeric>
 
 /**
- * \brief 
- */
-template <class Domain, class Function>
-class Integral
+* \brief 
+*/
+template <class ElemDescriptor, class Kernel>
+class integral
 {
 public:
-	ret_t eval(Domain const &domain)
+	typedef double ret_t;
+	typedef Kernel kernel_t;
+
+	template <class InputIterator>
+	static ret_t eval(InputIterator begin, InputIterator end)
 	{
-		if (is_linear<Domain>::value)
-			return std::accumulate(
-				quad.begin(),
-				quad.end(),
-				[] (arg_t &q) { Kernel::eval(q.x) * q.w; }
-			) * domain.get_jac();
-		else
-			return std::accumulate(
-				quad.begin(),
-				quad.end(),
-				[] (arg_t &q) { Kernel::eval(q)  * q.w * domain.get_jac(q); }
-			);
+		// initialise result to zero
+		return std::accumulate(
+			begin, end, ret_t(),
+			[] (ret_t const &x, ElemDescriptor const &ed) { return x + kernel_t::eval(ed) * ed.get_jacobian(); }
+		);
 	}
 };
 

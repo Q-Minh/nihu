@@ -199,31 +199,76 @@ template <> struct is_linear<tria_1_shape_set> : true_ {};
 template <> struct is_linear<parallelogram_shape_set> : true_ {};
 
 
-template <class shape_set_from, class shape_set_to>
+// TODO - use x_t instead of nDim template parameter
+template <class shape_set_from, class shape_set_to, unsigned nDim>
 struct shape_set_converter;
 
-template <>
-struct shape_set_converter<quad_1_shape_set, parallelogram_shape_set>
+template <class Shape, unsigned nDim>
+struct shape_set_converter<Shape, Shape, nDim>
+{
+	typedef Shape from_set;
+	typedef Shape to_set;
+
+	typedef Matrix<double, from_set::num_nodes, nDim> from_coords_t;
+	typedef Matrix<double, to_set::num_nodes, nDim> to_coords_t;
+
+public:
+	static bool eval(from_coords_t const &coords)
+	{
+		to_coords = coords;
+		return true;
+	}
+
+	static to_coords_t const &get_coords(void)
+	{
+		return to_coords;
+	}
+
+protected:
+	static to_coords_t to_coords;
+};
+
+template <class Shape, unsigned nDim>
+typename shape_set_converter<Shape, Shape, nDim>::to_coords_t
+	shape_set_converter<Shape, Shape, nDim>::to_coords;
+
+
+
+template <unsigned nDim>
+struct shape_set_converter<quad_1_shape_set, parallelogram_shape_set, nDim>
 {
 	typedef quad_1_shape_set from_set;
 	typedef parallelogram_shape_set to_set;
-	
-	template <int dim>
-	static bool eval(Matrix<double, 4, dim> const &coords)
+
+	typedef Matrix<double, from_set::num_nodes, nDim> from_coords_t;
+	typedef Matrix<double, to_set::num_nodes, nDim> to_coords_t;
+
+public:
+	static bool eval(from_coords_t const &coords)
 	{
-		Matrix<double, 3, dim> c;
-		c.row(0) = coords.row(0);
-		c.row(1) = coords.row(1);
-		c.row(2) = coords.row(3);
+		
+		to_coords.row(0) = coords.row(0);
+		to_coords.row(1) = coords.row(1);
+		to_coords.row(2) = coords.row(3);
 		
 		to_set::xi_t xi;
 		xi << 1.0, 1.0;
 		
-		return (
-			to_set::eval_L(xi).transpose() * c - coords.row(2)
-		).norm() < 1e-3;
+		return (to_set::eval_L(xi).transpose() * to_coords - coords.row(2)).norm() < 1e-3;
 	}
+
+	static to_coords_t const &get_coords(void)
+	{
+		return to_coords;
+	}
+
+protected:
+	static to_coords_t to_coords;
 };
+
+template <unsigned nDim>
+typename shape_set_converter<quad_1_shape_set, parallelogram_shape_set, nDim>::to_coords_t
+	shape_set_converter<quad_1_shape_set, parallelogram_shape_set, nDim>::to_coords;
 
 #endif
 

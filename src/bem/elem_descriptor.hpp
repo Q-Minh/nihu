@@ -3,21 +3,20 @@
 
 #include "element.hpp"
 
-template <class Elem>
-class ElemDescriptor
+template <class xType>
+class Descriptor
 {
 public:
-	typedef Elem elem_t;
-	typedef typename elem_t::x_t x_t;
+	typedef typename xType x_t;
 
 	/**
 	 * \brief default constructor needed for array container in ElemAccelerator
 	 */
-	ElemDescriptor()
+	Descriptor()
 	{
 	}
 	
-	ElemDescriptor(x_t const &x, x_t const &normal, double jac)
+	Descriptor(x_t const &x, x_t const &normal, double jacobian)
 		: x(x), normal(normal/normal.norm()), jacobian(jacobian)
 	{
 	}
@@ -52,17 +51,19 @@ class ElemAccelerator
 {
 public:
 	typedef Elem elem_t;
+	typedef typename elem_t::x_t x_t;
 	typedef typename elem_t::lset_t::domain_t domain_t;
 	typedef gauss_quad<domain_t, N> quadrature_t;
 	static const unsigned size = quadrature_t::size;
-	typedef std::array<ElemDescriptor<elem_t>, size> container_t;
+	typedef std::array<Descriptor<x_t>, size> container_t;
 	typedef typename container_t::const_iterator iterator_t;
 	typedef typename quadrature_t::xivec_t xivec_t;
-	typedef typename elem_t::x_t x_t;
+	typedef typename quadrature_t::weightvec_t weightvec_t;
 
 	ElemAccelerator(elem_t const &e) : e(e)
 	{
 		xivec_t const &xi_vec = quadrature_t::get_xi();
+		weightvec_t const &weight_vec = quadrature_t::get_weight();
 		typedef typename xivec_t::Index index;
 		for (index i = 0; i < size; ++i)
 		{
@@ -70,7 +71,7 @@ public:
 			x_t normal = e.get_normal(xi_vec.row(i));
 			double jacobian = normal.norm();
 			normal /= jacobian;
-			data[i] = ElemDescriptor<elem_t>(x, normal, jacobian);
+			data[i] = Descriptor<x_t>(x, normal, jacobian*weight_vec[i]);
 		}
 	}
 

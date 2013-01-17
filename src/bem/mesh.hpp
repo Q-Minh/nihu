@@ -1,5 +1,5 @@
-#ifndef MESH_HPP
-#define MESH_HPP
+#ifndef MESH_HPP_INCLUDED
+#define MESH_HPP_INCLUDED
 
 #include "../tmp/integer.hpp"
 #include "../tmp/sequence.hpp"
@@ -7,66 +7,103 @@
 #include "../tmp/call_each.hpp"
 
 #include "element.hpp"
-#include "node.hpp"
 
-#include <vector>
+#include <Eigen/StdVector>
 
 /** \brief metafunction to convert T into vector<T> */
 template <class T>
-struct vectorize { typedef std::vector<T> type; };
+struct vectorize { typedef std::vector<T, Eigen::aligned_allocator<T> > type; };
 
 
-template <int nDim, class ElemTypes>
+template <class ElemTypes>
 class Mesh
 {
 private:
 	/** \brief combine ElemTypes into a big heterogeneous vector container */
 	typedef typename inherit<
 		typename transform<
-			ElemTypes,
-			inserter<tiny<>, push_back<_1,_2> >,
-			vectorize<_1>
+		ElemTypes,
+		inserter<tiny<>, push_back<_1,_2> >,
+		vectorize<_1>
 		>::type
 	>::type ElemVector;
 
-	std::vector<Coord<nDim> > nodes;	/**< \brief nodal coordinates */
+	/** \brief type of a nodal vector */
+	typedef typename deref<  typename begin<ElemTypes>::type  >::type::x_t x_t;
+	/** \brief type of a nodal coordinate */
+	typedef typename x_t::Scalar scalar_t;
+	/** \brief number of dimensions */
+	static unsigned const nDim = x_t::SizeAtCompileTime;
 
-	/** \brief functor template used by call_each to build add_elem member function's for loop */
-	template <class ElemType>
+	std::vector<x_t> nodes;		/**< \brief nodal coordinates */
+	ElemVector elements;		/**< element nodes (heterogeneous container) */
+
+	template <class RefElem, class ElemType>
 	struct elem_adder
 	{
+		typedef typename RefElem::coords_t coords_t;
+		typedef shape_set_converter<typename RefElem::lset_t, typename ElemType::lset_t, nDim> converter_t;
+
 		struct type {
-			bool operator() (int input[], Mesh<nDim, ElemTypes> &m)
+			bool operator() (coords_t const &coords, Mesh<ElemTypes> &m)
 			{
-				ElemType e;
-				if (e.build(input, m.nodes.begin()))
+				if (converter_t::eval(coords))
 				{
-					m.elements.std::vector<ElemType>::push_back(e);
+					m.elements.std::vector<ElemType, Eigen::aligned_allocator<ElemType> >::push_back(
+						ElemType(converter_t::get_coords())
+						);
 					return true;
 				}
-
-				return false;
+				else
+					return false;
 			}
 		};
 	};
 
 public:
 
-	ElemVector elements;			/**< element nodes (heterogeneous container) */
-	
-	bool add_elem(int input[])
+	bool add_elem(unsigned input[])
 	{
-		return call_until<ElemTypes, elem_adder<_1> >(input, *this);
+		switch (input[0])
+		{
+		case 3:
+			{
+				tria_1_elem::coords_t coords;
+				for (unsigned i = 0; i < tria_1_elem::num_nodes; ++i)
+					coords.row(i) = nodes[input[1+i]];
+				elements.std::vector<tria_1_elem, Eigen::aligned_allocator<tria_1_elem> >::push_back(tria_1_elem(coords));
+			}
+			break;
+		case 4:
+			{
+				quad_1_elem::coords_t coords;
+				for (unsigned i = 0; i < quad_1_elem::num_nodes; ++i)
+					coords.row(i) = nodes[input[1+i]];
+
+				typedef tiny<parallelogram_elem, quad_1_elem> smallElemTypes;
+
+				call_until<
+					smallElemTypes,
+					elem_adder<quad_1_elem, _1>,
+					quad_1_elem::coords_t const &, Mesh<ElemTypes> &
+				>(coords, *this);
+			}
+			break;
+		default:
+			return false;
+		}
+		return true;
 	}
 
-	void add_node(double input[])
+	void add_node(scalar_t input[])
 	{
-		Coord<nDim> c;
-		c << input[0], input[1], input[2];
+		x_t c;
+		typedef x_t::Index index_t;
+		for (index_t i = 0; i < nDim; ++i)
+			c[i] = input[i];
 		nodes.push_back(c);
 	}
 };
 
 #endif
-
 
