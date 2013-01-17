@@ -7,7 +7,7 @@ template <class xType>
 class Descriptor
 {
 public:
-	typedef typename xType x_t;
+	typedef xType x_t;
 
 	/**
 	 * \brief default constructor needed for array container in ElemAccelerator
