@@ -13,13 +13,13 @@ struct generate_field;
 template <class ElemType>
 struct generate_field<ElemType, constant>
 {
-	typedef typename ConstantField<ElemType> type;
+	typedef ConstantField<ElemType> type;
 };
 
 template <class ElemType>
 struct generate_field<ElemType, isoparametric>
 {
-	typedef typename IsoParametricField<ElemType> type;
+	typedef IsoParametricField<ElemType> type;
 };
 
 template<class ElemVector, class FieldGenerationMethod>

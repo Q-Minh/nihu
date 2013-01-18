@@ -76,10 +76,10 @@ public:
 protected:
 	/** \brief the element's identifier */
 	unsigned id; 
-	/** \brief the element's corner coordinates \f$x_i\f$ */
-	coords_t coords;
 	/** \brief the element's nodal indices in the mesh */
 	nodes_t nodes;
+	/** \brief the element's corner coordinates \f$x_i\f$ */
+	coords_t coords;
 
 public:
 	/**

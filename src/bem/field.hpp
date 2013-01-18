@@ -68,7 +68,7 @@ class ConstantField
 {
 public:
 	typedef ElemType elem_t;
-	typedef typename constant_shape_set<typename elem_t::domain_t> nset_t;
+	typedef constant_shape_set<typename elem_t::domain_t> nset_t;
 
 	static const unsigned num_dofs = nset_t::num_nodes; // 1
 	typedef unsigned dofs_t;

@@ -15,6 +15,8 @@
 
 #include <Eigen/StdVector>
 
+#include <iostream>
+
 #define EIGENSTDVECTOR(_T) std::vector<_T, Eigen::aligned_allocator<_T> >
 
 	/** \brief metafunction to convert T into std::vector<T> */

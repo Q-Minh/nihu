@@ -194,13 +194,18 @@ template <class domain>
 class constant_shape_set : public ShapeSet<domain, 1>
 {
 public:
+	typedef ShapeSet<domain, 1> shape_t;
+	typedef typename shape_t::L_t L_t;
+	typedef typename shape_t::dL_t dL_t;
+	typedef typename shape_t::xi_t xi_t;
+
 	/** 
 	 * \brief shape function vector \f$L_i(\xi)\f$
 	 * \param \xi independent variable \f$\xi\f$
 	 */
 	static L_t eval_L(xi_t const &xi)
 	{
-		return L_t::Ones();
+		return typename ShapeSet<domain, 1>::L_t::Ones();
 	}
 
 	/**

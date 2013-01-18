@@ -12,6 +12,9 @@ quad_test: src/bem/quad_test.cpp src/bem/quadrature.hpp
 mesh_test: src/bem/mesh_test.cpp src/bem/mesh.hpp
 	$(CC) $(CFLAGS) src/bem/mesh_test.cpp -o mesh_test
 
+field_test: src/bem/field_test.cpp src/bem/field.hpp
+	$(CC) $(CFLAGS) src/bem/field_test.cpp -o field_test
+
 clean:
 	rm *test
 
