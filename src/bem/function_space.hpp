@@ -13,18 +13,13 @@ struct generate_field;
 template <class ElemType>
 struct generate_field<ElemType, constant>
 {
-	typedef Field<
-		ElemType,
-		typename constant_shape_set<
-			typename ElemType::domain_t
-		>
-	> type;
+	typedef typename ConstantField<ElemType> type;
 };
 
 template <class ElemType>
 struct generate_field<ElemType, isoparametric>
 {
-	typedef typename Field<ElemType, typename ElemType::lset_t> type;
+	typedef typename IsoParametricField<ElemType> type;
 };
 
 template<class ElemVector, class FieldGenerationMethod>

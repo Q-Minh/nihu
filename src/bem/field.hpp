@@ -34,4 +34,61 @@ protected:
 	dofs_t dofs;
 };
 
+
+template <class ElemType>
+class IsoParametricField
+{
+public:
+	typedef ElemType elem_t;
+	typedef typename elem_t::lset_t nset_t;
+
+	static const unsigned num_dofs = nset_t::num_nodes;
+	typedef Eigen::Matrix<unsigned, 1, num_dofs> dofs_t;
+
+	IsoParametricField() : elem(NULL)
+	{
+	}
+
+	IsoParametricField(elem_t const *elem) : elem(elem)
+	{
+	}
+
+	dofs_t const &get_dofs(void) const
+	{
+		return elem->get_nodes();
+	}
+
+protected:
+	elem_t const *elem; // pointer needed in order to have a default constructor (std::vector)
+};
+
+
+template <class ElemType>
+class ConstantField
+{
+public:
+	typedef ElemType elem_t;
+	typedef typename constant_shape_set<typename elem_t::domain_t> nset_t;
+
+	static const unsigned num_dofs = nset_t::num_nodes; // 1
+	typedef unsigned dofs_t;
+
+	ConstantField() : elem(NULL)
+	{
+	}
+
+	ConstantField(elem_t const *elem) : elem(elem)
+	{
+	}
+
+	dofs_t const &get_dofs(void) const
+	{
+		return elem->get_id();
+	}
+
+protected:
+	elem_t const *elem; // pointer needed in order to have a default constructor (std::vector)
+};
+
+
 #endif
