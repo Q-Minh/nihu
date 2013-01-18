@@ -205,7 +205,7 @@ public:
 	 */
 	static L_t eval_L(xi_t const &xi)
 	{
-		return typename ShapeSet<domain, 1>::L_t::Ones();
+		return ShapeSet<domain, 1>::L_t::Ones();
 	}
 
 	/**

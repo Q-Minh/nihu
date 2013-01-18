@@ -1,8 +1,8 @@
 /**
-* \file integral.hpp
-* \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
-* \brief Declaration of class Integral and its specialisations
-*/
+ * \file integral.hpp
+ * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
+ * \brief Declaration of class Integral and its specialisations
+ */
 #ifndef INTEGRAL_HPP_INCLUDED
 #define INTEGRAL_HPP_INCLUDED
 
@@ -10,8 +10,8 @@
 #include <numeric>
 
 /**
-* \brief 
-*/
+ * \brief 
+ */
 template <class ElemDescriptor, class Kernel>
 class integral
 {
@@ -31,3 +31,4 @@ public:
 };
 
 #endif
+

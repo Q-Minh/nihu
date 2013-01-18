@@ -72,10 +72,12 @@ public:
 	typedef Matrix<unsigned, 1, num_nodes> nodes_t;
 	/** \brief matrix type that stores the element's corner coordinates \f$x_i\f$ */
 	typedef Matrix<double, num_nodes, x_dim> coords_t;
+	/** \brief type that stores the element's id */
+	typedef unsigned id_t;
 
 protected:
 	/** \brief the element's identifier */
-	unsigned id; 
+	id_t id; 
 	/** \brief the element's nodal indices in the mesh */
 	nodes_t nodes;
 	/** \brief the element's corner coordinates \f$x_i\f$ */
@@ -93,7 +95,7 @@ public:
 	*/
 	Element(unsigned id, nodes_t const &nodes, coords_t const &coords) : id(id), nodes(nodes), coords(coords) {}
 
-	unsigned get_id(void) const
+	id_t const &get_id(void) const
 	{
 		return id;
 	}

@@ -1,8 +1,8 @@
 /**
-* \file mesh.hpp
-* \brief Decalaration of class Mesh
-* \author Peter fiala fiala@hit.bme.hu, Peter Rucz rucz@hit.bme.hu
-*/
+ * \file mesh.hpp
+ * \author Peter fiala fiala@hit.bme.hu, Peter Rucz rucz@hit.bme.hu
+ * \brief Decalaration of class Mesh
+ */
 #ifndef MESH_HPP_INCLUDED
 #define MESH_HPP_INCLUDED
 
@@ -14,16 +14,9 @@
 #include "element.hpp"
 
 #include <Eigen/StdVector>
-
-#include <iostream>
-
 #define EIGENSTDVECTOR(_T) std::vector<_T, Eigen::aligned_allocator<_T> >
 
-	/** \brief metafunction to convert T into std::vector<T> */
-	template <class T>
-	struct vectorize { typedef EIGENSTDVECTOR(T) type; };
-
-
+#include <iostream>
 
 template <class ElemTypeVector>
 class Mesh
@@ -34,6 +27,10 @@ private:
 
 	/** \brief the type of the mesh class itself */
 	typedef Mesh<elem_type_vector_t> mesh_t;
+
+	/** \brief metafunction to convert T into std::vector<T> */
+	template <class T>
+	struct vectorize { typedef EIGENSTDVECTOR(T) type; };
 
 	/** \brief combine elem_vector into a BIG heterogeneous std::vector container */
 	typedef typename inherit<
@@ -58,9 +55,7 @@ private:
 	EIGENSTDVECTOR(x_t) nodes;	/**< \brief nodal coordinates */
 	elem_container_t elements;	/**< \brief element geometries (BIG heterogeneous container) */
 
-	/**
-	* \brief wrapper class of member function print_coords used by call_each
-	*/ 
+	/** \brief wrapper class of member function print_coords used by call_each */ 
 	template <class ElemType>
 	struct printCoords
 	{
@@ -99,9 +94,27 @@ private:
 
 public:
 	/**
-	* \biref print element coordinates
-	* \tparam ElemType the eleme type that is processed
-	*/
+	 * \brief return begin iterator of the elements
+	 */
+	template <class ElemType>
+	typename EIGENSTDVECTOR(ElemType)::const_iterator elembegin(void) const
+	{
+		return elements.EIGENSTDVECTOR(ElemType)::begin();
+	}
+	
+	/**
+	 * \brief return end iterator of the elements
+	 */
+	template <class ElemType>
+	typename EIGENSTDVECTOR(ElemType)::const_iterator elemend(void) const
+	{
+		return elements.EIGENSTDVECTOR(ElemType)::end();
+	}
+	
+	/**
+	 * \biref print element coordinates
+	 * \tparam ElemType the eleme type that is processed
+	 */
 	template <class ElemType>
 	void print_coords()
 	{
@@ -114,11 +127,11 @@ public:
 	}
 
 	/**
-	* \brief add a new element to the mesh
-	* \param input array of unsigned values.
-	* input[0] is the elem ID, the subsequent elements are the nodal indices in the mesh
-	* \returns true if the element is inserted into the mesh
-	*/
+	 * \brief add a new element to the mesh
+	 * \param input array of unsigned values.
+	 * input[0] is the elem ID, the subsequent elements are the nodal indices in the mesh
+	 * \returns true if the element is inserted into the mesh
+	 */
 	bool add_elem(unsigned const input[])
 	{
 		return call_until<
