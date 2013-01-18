@@ -189,14 +189,47 @@ public:
 	}
 };
 
+
+template <class domain>
+class constant_shape_set : public ShapeSet<domain, 1>
+{
+public:
+	/** 
+	 * \brief shape function vector \f$L_i(\xi)\f$
+	 * \param \xi independent variable \f$\xi\f$
+	 */
+	static L_t eval_L(xi_t const &xi)
+	{
+		return L_t::Ones();
+	}
+
+	/**
+	 * \brief shape function gradient matrix \f$\nabla L_i(\xi)\f$
+	 * \param \xi independent variable \f$\xi\f$
+	 */
+	static dL_t eval_dL(xi_t const &xi)
+	{
+		return dL_t::Zero();
+	}
+};
+
+
 /**
- * \brief metafunction returns true if the argument is a linear shape function set
- * \tparam ShapeSet the shape function set class
+ * \brief constant 3-noded triangular shape functions
+ * \details The shape functions are
+ *
+ * \f$L_1(\xi) = 1 \f$
  */
-template <class ShapeSet>
-struct is_linear : false_ {};
-template <> struct is_linear<tria_1_shape_set> : true_ {};
-template <> struct is_linear<parallelogram_shape_set> : true_ {};
+typedef constant_shape_set<tria_domain> tria_0_shape_Set;
+
+/**
+ * \brief constant 4-noded quadrilateral shape functions
+ * \details The shape functions are
+ *
+ * \f$L_1(\xi) = 1 \f$
+ */
+typedef constant_shape_set<quad_domain> quad_0_shape_Set;
+
 
 
 // TODO - use x_t instead of nDim template parameter

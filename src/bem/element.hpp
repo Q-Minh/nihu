@@ -69,15 +69,21 @@ public:
 	/** \brief type of the gradient of the element's independent location variable \f$x'_{\xi}\f$ */
 	typedef Matrix<double, xi_dim, x_dim> dx_t;
 	/** \brief matrix type that stores the element's corner coordinates \f$x_i\f$ */
+	typedef Matrix<unsigned, 1, num_nodes> nodes_t;
+	/** \brief matrix type that stores the element's corner coordinates \f$x_i\f$ */
 	typedef Matrix<double, num_nodes, x_dim> coords_t;
 
 protected:
+	/** \brief the element's identifier */
+	unsigned id; 
 	/** \brief the element's corner coordinates \f$x_i\f$ */
 	coords_t coords;
+	/** \brief the element's nodal indices in the mesh */
+	nodes_t nodes;
 
 public:
 	/**
-	* \brief default constructor
+	* \brief default constructor for std::vector container
 	*/
 	Element() {}
 
@@ -85,7 +91,22 @@ public:
 	* \brief constructor
 	* \param coords location of corners \f$x_i\f$
 	*/
-	Element(coords_t const &coords) : coords(coords) {}
+	Element(unsigned id, nodes_t const &nodes, coords_t const &coords) : id(id), nodes(nodes), coords(coords) {}
+
+	unsigned get_id(void) const
+	{
+		return id;
+	}
+
+	nodes_t const &get_nodes(void) const
+	{
+		return nodes;
+	}
+
+	coords_t const &get_coords(void) const
+	{
+		return coords;
+	}
 
 	/**
 	* \brief return element location

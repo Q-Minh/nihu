@@ -1,3 +1,8 @@
+/**
+* \file mesh.hpp
+* \brief Decalaration of class Mesh
+* \author Peter fiala fiala@hit.bme.hu, Peter Rucz rucz@hit.bme.hu
+*/
 #ifndef MESH_HPP_INCLUDED
 #define MESH_HPP_INCLUDED
 
@@ -10,94 +15,115 @@
 
 #include <Eigen/StdVector>
 
-/** \brief metafunction to convert T into vector<T> */
-template <class T>
-struct vectorize { typedef std::vector<T, Eigen::aligned_allocator<T> > type; };
+#define EIGENSTDVECTOR(_T) std::vector<_T, Eigen::aligned_allocator<_T> >
+
+	/** \brief metafunction to convert T into std::vector<T> */
+	template <class T>
+	struct vectorize { typedef EIGENSTDVECTOR(T) type; };
 
 
-template <class ElemTypes>
+
+template <class ElemTypeVector>
 class Mesh
 {
 private:
-	/** \brief combine ElemTypes into a big heterogeneous vector container */
+	/** \brief define template parameter as nested type */
+	typedef ElemTypeVector elem_type_vector_t;
+
+	/** \brief the type of the mesh class itself */
+	typedef Mesh<elem_type_vector_t> mesh_t;
+
+	/** \brief combine elem_vector into a BIG heterogeneous std::vector container */
 	typedef typename inherit<
 		typename transform<
-		ElemTypes,
+		elem_type_vector_t,
 		inserter<tiny<>, push_back<_1,_2> >,
 		vectorize<_1>
 		>::type
-	>::type ElemVector;
+	>::type elem_container_t;
 
 	/** \brief type of a nodal vector */
-	typedef typename deref<  typename begin<ElemTypes>::type  >::type::x_t x_t;
+	typedef typename deref<
+		typename begin<elem_type_vector_t>::type
+	>::type::x_t x_t;
+
 	/** \brief type of a nodal coordinate */
 	typedef typename x_t::Scalar scalar_t;
+
 	/** \brief number of dimensions */
 	static unsigned const nDim = x_t::SizeAtCompileTime;
-	
-	std::vector<x_t> nodes;		/**< \brief nodal coordinates */
-	ElemVector elements;		/**< \brief element geometries (heterogeneous container) */
-	
-	template <class RefElem, class ElemType>
+
+	EIGENSTDVECTOR(x_t) nodes;	/**< \brief nodal coordinates */
+	elem_container_t elements;	/**< \brief element geometries (BIG heterogeneous container) */
+
+	/**
+	* \brief wrapper class of member function print_coords used by call_each
+	*/ 
+	template <class ElemType>
+	struct printCoords
+	{
+		struct type
+		{
+			void operator() (int, mesh_t &m)
+			{
+				m.print_coords<ElemType>();
+			}
+		};
+	};
+
+	template <class elem_t>
 	struct elem_adder
 	{
-		typedef typename RefElem::coords_t coords_t;
-		typedef shape_set_converter<typename RefElem::lset_t, typename ElemType::lset_t, nDim> converter_t;
-
-		struct type {
-			bool operator() (coords_t const &coords, Mesh<ElemTypes> &m)
+		struct type
+		{
+			bool operator() (unsigned const input[], mesh_t &m)
 			{
-				if (converter_t::eval(coords))
+				if (input[0] == elem_t::domain_t::id)
 				{
-					m.elements.std::vector<ElemType, Eigen::aligned_allocator<ElemType> >::push_back(
-						ElemType(converter_t::get_coords())
-						);
-					return true;
+					// construct element
+					typename elem_t::nodes_t nodes;
+					typename elem_t::coords_t coords;
+					for (unsigned i = 0; i < elem_t::num_nodes; ++i)
+					{
+						nodes[i] = input[i+1];
+						coords.row(i) = m.nodes[nodes[i]];
+					}
+					m.push_element(elem_t(0, nodes, coords));
 				}
 				return false;
 			}
 		};
 	};
-
-	template <class smallElemTypes>
-	struct elem_adder_outer
-	{
-		struct type {
-			bool operator() (unsigned const input[], Mesh<ElemTypes> &m)
-			{
-				typedef typename deref<
-					typename prev<
-						typename end<smallElemTypes>::type
-					>::type
-				>::type ref_elem_t;
-
-				if (input[0] == ref_elem_t::domain_t::id)
-				{
-					typename ref_elem_t::coords_t coords;
-					for (unsigned i = 0; i < ref_elem_t::num_nodes; ++i)
-						coords.row(i) = m.nodes[input[1+i]];
-
-					return call_until<
-						smallElemTypes,
-						elem_adder<ref_elem_t, _1>,
-						typename ref_elem_t::coords_t const &, Mesh<ElemTypes> &
-					>(coords, m);
-				}
-				return false;
-			}
-		};
-	};
-
 
 public:
+	/**
+	* \biref print element coordinates
+	* \tparam ElemType the eleme type that is processed
+	*/
+	template <class ElemType>
+	void print_coords()
+	{
+		std::cout << ElemType::domain_t::id << " " << ElemType::num_nodes << std::endl;
+		std::for_each(
+			elements.EIGENSTDVECTOR(ElemType)::begin(),
+			elements.EIGENSTDVECTOR(ElemType)::end(),
+			[] (ElemType const &e) { std::cout << e.get_coords() << std::endl << std::endl; }
+		);
+	}
 
+	/**
+	* \brief add a new element to the mesh
+	* \param input array of unsigned values.
+	* input[0] is the elem ID, the subsequent elements are the nodal indices in the mesh
+	* \returns true if the element is inserted into the mesh
+	*/
 	bool add_elem(unsigned const input[])
 	{
-		typedef tiny< tiny<tria_1_elem>, tiny<parallelogram_elem, quad_1_elem> > elemArray;
 		return call_until<
-			elemArray,
-			elem_adder_outer<_1>,
-			unsigned const*, Mesh<ElemTypes> &
+			elem_type_vector_t,
+			elem_adder<_1>,
+			unsigned const*,
+			mesh_t &
 		>(input, *this);
 	}
 
@@ -108,6 +134,23 @@ public:
 		for (index_t i = 0; i < nDim; ++i)
 			c[i] = input[i];
 		nodes.push_back(c);
+	}
+
+	template <class elem_t>
+	void push_element(elem_t const &e)
+	{
+		elements.EIGENSTDVECTOR(elem_t)::push_back(e);
+	}
+
+	void print_elements(void)
+	{
+		int a = int();
+		call_each<
+			elem_type_vector_t,
+			printCoords<_1>,
+			int,
+			mesh_t &
+		>(a, *this);
 	}
 };
 

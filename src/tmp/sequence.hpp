@@ -91,6 +91,18 @@ struct push_back_impl;
 template <class Seq, class T>
 struct push_back : push_back_impl<typename Seq::tag> :: template apply<Seq, T> {};
 
+/**
+ * \brief metafunctor to implement pop_back operation
+ */
+template <class tag>
+struct pop_back_impl;
+
+/**
+ * \brief metafunction popping an element from the back (uses pop_back_impl metafunctor)
+ */
+template <class Seq>
+struct pop_back : pop_back_impl<typename Seq::tag> :: template apply<Seq> {};
+
 
 template <class Iter>
 struct deref;
@@ -234,6 +246,34 @@ struct push_back_impl<tiny_tag>
 	template <class Seq, class T>
 	struct apply : tiny_push_back<Seq, T, size<Seq>::value > {};
 };
+
+
+
+
+template <class Tiny, int N>
+struct tiny_pop_back;
+
+template <class Tiny>
+struct tiny_pop_back<Tiny, 1> : tiny<> {};
+
+template <class Tiny>
+struct tiny_pop_back<Tiny, 2> : tiny<typename Tiny::arg0> {};
+
+template <class Tiny>
+struct tiny_pop_back<Tiny, 3> : tiny<typename Tiny::arg0, typename Tiny::arg1> {};
+
+template <class Tiny>
+struct tiny_pop_back<Tiny, 4> : tiny<typename Tiny::arg0, typename Tiny::arg1, typename Tiny::arg2> {};
+
+template <>
+struct pop_back_impl<tiny_tag>
+{
+	template <class Seq>
+	struct apply : tiny_pop_back<Seq, size<Seq>::value > {};
+};
+
+
+
 
 template <class State, class Operation>
 struct inserter

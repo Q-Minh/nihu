@@ -137,5 +137,11 @@ struct transform : transform_impl<
 template <class Seq, class Ins>
 struct copy : transform<Seq, Ins, _1> {};
 
-#endif
 
+template <class Seq1, class Seq2>
+struct concatenate : transform<Seq2, inserter<Seq1, push_back<_1, _2> >, _1> {};
+
+template <class Seq>
+struct serialise : accumulate<Seq, tiny<>, concatenate<_1, _2> > {};
+
+#endif

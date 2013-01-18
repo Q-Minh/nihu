@@ -1,4 +1,4 @@
-#include "mesh.hpp"
+#include "function_space.hpp"
 
 typedef tiny<tria_1_elem, quad_1_elem> elem_vector;
 
@@ -24,7 +24,8 @@ int main(void)
 	for (unsigned i = 0; i < 3; ++i)
 		mesh.add_elem(e+i*5);
 
-	mesh.print_elements();
+	FunctionSpace<elem_vector, constant> con_func(mesh);
+	FunctionSpace<elem_vector, isoparametric> iso_func(mesh);
 
 	return 0;
 }
