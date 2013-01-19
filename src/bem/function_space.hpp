@@ -9,15 +9,27 @@
 #include "field.hpp"
 #include "mesh.hpp"
 
-template<class ElemVector, class FieldOption>
+/**
+ * \brief FunctionSpace is a mesh extended with a Field generating option
+ * \tparam MeshT the underlying Mesh type
+ * \tparam FieldOption determines how the field is generated from the mesh
+ */
+template<class MeshT, class FieldOption>
 class FunctionSpace
 {
 public:
-	typedef ElemVector elem_type_vector_t;
+	/** \brief template parameter as nested type */
+	typedef MeshT mesh_t;
+	/** \brief template parameter as nested type */
 	typedef FieldOption field_option;
 	
-	typedef Mesh<elem_type_vector_t> mesh_t;
+	/** \brief elem_type_vector inherited from mesh */
+	typedef typename mesh_t::elem_type_vector_t elem_type_vector_t;
 
+	/**
+	 * \brief constructor storing a reference from the mesh
+	 * \param mesh the mesh object to extend
+	 */
 	FunctionSpace(mesh_t const &mesh) : mesh(mesh)
 	{
 	}
@@ -38,6 +50,7 @@ public:
 	}
 
 protected:
+	/** \brief the stored mesh reference */
 	mesh_t const &mesh;
 };
 

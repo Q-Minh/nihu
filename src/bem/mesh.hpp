@@ -9,7 +9,7 @@
 #include "../tmp/integer.hpp"
 #include "../tmp/sequence.hpp"
 #include "../tmp/algorithm.hpp"
-#include "../tmp/call_each.hpp"
+#include "../tmp/control.hpp"
 
 #include "element.hpp"
 
@@ -21,7 +21,7 @@
 template <class ElemTypeVector>
 class Mesh
 {
-private:
+public:
 	/** \brief define template parameter as nested type */
 	typedef ElemTypeVector elem_type_vector_t;
 
@@ -52,6 +52,7 @@ private:
 	/** \brief number of dimensions */
 	static unsigned const nDim = x_t::SizeAtCompileTime;
 
+protected:
 	EIGENSTDVECTOR(x_t) nodes;	/**< \brief nodal coordinates */
 	elem_container_t elements;	/**< \brief element geometries (BIG heterogeneous container) */
 
@@ -61,7 +62,7 @@ private:
 	{
 		struct type
 		{
-			void operator() (int, mesh_t &m)
+			void operator() (mesh_t &m)
 			{
 				m.print_coords<ElemType>();
 			}
@@ -134,7 +135,7 @@ public:
 	 */
 	bool add_elem(unsigned const input[])
 	{
-		return call_until<
+		return tmp::call_until<
 			elem_type_vector_t,
 			elem_adder<_1>,
 			unsigned const*,
@@ -159,13 +160,11 @@ public:
 
 	void print_elements(void)
 	{
-		int a = int();
-		call_each<
+		tmp::call_each<
 			elem_type_vector_t,
 			printCoords<_1>,
-			int,
 			mesh_t &
-		>(a, *this);
+		>(*this);
 	}
 };
 

@@ -24,12 +24,12 @@ int main(void)
 	for (unsigned i = 0; i < 3; ++i)
 		mesh.add_elem(e+i*5);
 
-	FunctionSpace<elem_vector, constant_field> con_func(mesh);
+	FunctionSpace<Mesh<elem_vector>, constant_field> con_func(mesh);
 	con_func.go();
 	
 	std::cout << std::endl;
 	
-	FunctionSpace<elem_vector, isoparametric_field> iso_func(mesh);
+	FunctionSpace<Mesh<elem_vector>, isoparametric_field> iso_func(mesh);
 	iso_func.go();
 
 	return 0;

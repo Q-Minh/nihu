@@ -1,72 +1,36 @@
 #include <iostream>
 #include "element.hpp"
-#include "elem_descriptor.hpp"
-#include "integral.hpp"
+#include "../tmp/sequence.hpp"
+#include "../tmp/control.hpp"
 
-#include <algorithm>
-
-class kernel_t
+template <class ElemType>
+struct tester
 {
-public:
-	static double eval(Descriptor<line_1_elem::x_t> const &e)
+	struct type
 	{
-		return 1.0;
-	}
+		void operator() (void)
+		{
+			ElemType e(0, ElemType::nodes_t::Zero(), ElemType::coords_t::Random());
+			typename ElemType::xi_t xi = ElemType::xi_t::Zero();
+			typename ElemType::x_t x = e.get_x(xi);
+			typename ElemType::x_t n = e.get_normal(xi);
+			
+			std::cout << "xi: " << xi << std::endl;
+			std::cout << "x: " << x << std::endl;
+			std::cout << "n: " << n << std::endl;
+		}
+	};
 };
 
 int main(void)
 {
-	/*
-	Matrix<double,4,3> coords;
-	coords <<
-		0, 0, 0,
-		1, 0, 0,
-		1, 1, 0,
-		0, 1, 1;
-	if (shape_set_converter<quad_1_shape_set, parallelogram_shape_set>::eval<3>(coords))
-	{
-		std::cout << coords << ": parallelogram" << std::endl;
-
-		parallelogram_elem::coords_type c;
-		c.row(0) = coords.row(0);
-		c.row(1) = coords.row(1);
-		c.row(2) = coords.row(3);
-		parallelogram_elem e(c);
-
-		parallelogram_elem::xi_type xi = parallelogram_elem::xi_type::Zero();
-
-		std::cout << "normal: " << e.get_normal(xi) << std::endl;
-		std::cout << e.get_dx(xi) << std::endl;
-	}
-	else
-	{
-		std::cout << coords << ": general quad_1_element" << std::endl;
-
-		quad_1_elem e(coords);
-
-		quad_1_elem::xi_type xi = parallelogram_elem::xi_type::Zero();
-
-		std::cout << "normal: " << e.get_normal(xi) << std::endl;
-		std::cout << e.get_dx(xi) << std::endl;
-	}
-	*/
-
-	gauss_quad<line_domain, 10>::init();
-
-	Matrix<double,2,2> line_coords;
-	line_coords <<
-		0, 0,
-		1, 1;
-	line_1_elem l(line_coords);
-	ElemAccelerator<line_1_elem, 10> a(l);
-
-	std::for_each(
-		a.begin(),
-		a.end(),
-		[] (Descriptor<line_1_elem::x_t> const &e) { std::cout << e.get_x() << std::endl; }
-	);
-
-	std::cout << "Length: " << integral<Descriptor<line_1_elem::x_t>, kernel_t>::eval(a.begin(), a.end()) << std::endl;
-
+	typedef tiny<
+		line_1_elem,
+		tria_1_elem,
+		parallelogram_elem,
+		quad_1_elem
+	> elemVector;
+	tmp::call_each<elemVector, tester<_1> >();
 	return 0;
 }
+
