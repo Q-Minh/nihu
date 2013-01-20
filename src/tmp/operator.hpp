@@ -7,29 +7,32 @@
 #ifndef OPERATOR_HPP
 #define OPERATOR_HPP
 
-/** \brief increment operator */
-template <class A>
-struct next;
+namespace tmp
+{
+	/** \brief increment operator */
+	template <class A>
+	struct next;
 
-/** \brief decrement operator */
-template <class A>
-struct prev;
+	/** \brief decrement operator */
+	template <class A>
+	struct prev;
 
-/** \brief binary plus */
-template <class A, class B>
-struct plus;
+	/** \brief binary plus */
+	template <class A, class B>
+	struct plus;
 
-/** \brief binary minus */
-template <class A, class B>
-struct minus;
+	/** \brief binary minus */
+	template <class A, class B>
+	struct minus;
 
-/** \brief binary multiply */
-template <class A, class B>
-struct mul;
+	/** \brief binary multiply */
+	template <class A, class B>
+	struct mul;
 
-/** \brief binary less than */
-template <class A, class B>
-struct less;
+	/** \brief binary less than */
+	template <class A, class B>
+	struct less;
+}
 
 #endif
 

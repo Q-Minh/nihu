@@ -9,18 +9,15 @@
 
 namespace tmp
 {
-	namespace internal
-	{
-		struct none;
-		struct vector_tag;
-	}
+	struct none;
+	struct vector_tag;
 
-	template <class A0 = internal::none, class A1 = internal::none, class A2 = internal::none, class A3 = internal::none>
+	template <class A0 = none, class A1 = none, class A2 = none, class A3 = none>
 	struct vector
 	{
 		typedef vector type; 	/* self-returning */
 
-		typedef internal::vector_tag tag;	/* tagged */
+		typedef vector_tag tag;	/* tagged */
 
 		typedef A0 arg0;
 		typedef A1 arg1;
@@ -51,22 +48,25 @@ namespace tmp
 			template <class Seq, class Pos>
 			struct apply : vector_at<Seq, Pos::value> {};
 		};
+	}
 
-		template <class Seq, class Pos>
-		struct vector_iterator;
+	template <class Seq, class Pos>
+	struct vector_iterator;
 
-		template <class Seq, class Pos>
-		struct next<vector_iterator<Seq, Pos> >
-		{ /* metafunction forwarding impossible because vector_iterator is incomplete type */
-			typedef vector_iterator<Seq, typename next<Pos>::type> type;
-		};
+	template <class Seq, class Pos>
+	struct next<vector_iterator<Seq, Pos> >
+	{ /* metafunction forwarding impossible because vector_iterator is incomplete type */
+		typedef vector_iterator<Seq, typename next<Pos>::type> type;
+	};
 
-		template <class Seq, class Pos>
-		struct prev<vector_iterator<Seq, Pos> >
-		{ /* metafunction forwarding impossible because vector_iterator is incomplete type */
-			typedef vector_iterator<Seq, typename prev<Pos>::type> type;
-		};
+	template <class Seq, class Pos>
+	struct prev<vector_iterator<Seq, Pos> >
+	{ /* metafunction forwarding impossible because vector_iterator is incomplete type */
+		typedef vector_iterator<Seq, typename prev<Pos>::type> type;
+	};
 
+	namespace internal
+	{
 		template <class T0, class T1, class T2, class T3>
 		struct vector_size : int_<4> {};
 
@@ -88,29 +88,32 @@ namespace tmp
 			template <class Seq>
 			struct apply : vector_size<typename Seq::arg0, typename Seq::arg1, typename Seq::arg2, typename Seq::arg3> {};
 		};
+	}
 
-		template <class Seq, class Pos>
-		struct deref<vector_iterator<Seq, Pos> > : at<Seq, Pos> {};
+	template <class Seq, class Pos>
+	struct deref<vector_iterator<Seq, Pos> > : at<Seq, Pos> {};
 
+	namespace internal
+	{
 		template <>
 		struct begin_impl<vector_tag>
 		{
-			template <class vector>
+			template <class Vect>
 			struct apply
 			{ /* metafunction forwarding impossible because vector_iterator is incomplete type */
-				typedef vector_iterator<vector, int_<0> > type;
+				typedef vector_iterator<Vect, int_<0> > type;
 			};
 		};
 
 		template <>
 		struct end_impl<vector_tag>
 		{
-			template <class vector>
+			template <class Vect>
 			struct apply
 			{
 				typedef vector_iterator<
-					vector,
-					typename vector_size<typename vector::arg0, typename vector::arg1, typename vector::arg2, typename vector::arg3>::type
+					Vect,
+					typename vector_size<typename Vect::arg0, typename Vect::arg1, typename Vect::arg2, typename Vect::arg3>::type
 				> type;
 			};
 		};
@@ -125,24 +128,24 @@ namespace tmp
 		template <>
 		struct push_front_impl<vector_tag>
 		{
-			template <class vector, class T>
-			struct apply : vector<T, typename vector::arg0, typename vector::arg1, typename vector::arg2> {};
+			template <class Vect, class T>
+			struct apply : vector<T, typename Vect::arg0, typename Vect::arg1, typename Vect::arg2> {};
 		};
 
-		template <class vector, class T, int N>
+		template <class Vect, class T, int N>
 		struct vector_push_back;
 
-		template <class vector, class T>
-		struct vector_push_back<vector, T, 0> : vector<T> {};
+		template <class Vect, class T>
+		struct vector_push_back<Vect, T, 0> : vector<T> {};
 
-		template <class vector, class T>
-		struct vector_push_back<vector, T, 1> : vector<typename vector::arg0, T> {};
+		template <class Vect, class T>
+		struct vector_push_back<Vect, T, 1> : vector<typename Vect::arg0, T> {};
 
-		template <class vector, class T>
-		struct vector_push_back<vector, T, 2> : vector<typename vector::arg0, typename vector::arg1, T> {};
+		template <class Vect, class T>
+		struct vector_push_back<Vect, T, 2> : vector<typename Vect::arg0, typename Vect::arg1, T> {};
 
-		template <class vector, class T>
-		struct vector_push_back<vector, T, 3> : vector<typename vector::arg0, typename vector::arg1, typename vector::arg2, T> {};
+		template <class Vect, class T>
+		struct vector_push_back<Vect, T, 3> : vector<typename Vect::arg0, typename Vect::arg1, typename Vect::arg2, T> {};
 
 		template <>
 		struct push_back_impl<vector_tag>
@@ -151,20 +154,20 @@ namespace tmp
 			struct apply : vector_push_back<Seq, T, size<Seq>::value > {};
 		};
 
-		template <class vector, int N>
+		template <class Vect, int N>
 		struct vector_pop_back;
 
-		template <class vector>
-		struct vector_pop_back<vector, 1> : vector<> {};
+		template <class Vect>
+		struct vector_pop_back<Vect, 1> : vector<> {};
 
-		template <class vector>
-		struct vector_pop_back<vector, 2> : vector<typename vector::arg0> {};
+		template <class Vect>
+		struct vector_pop_back<Vect, 2> : vector<typename Vect::arg0> {};
 
-		template <class vector>
-		struct vector_pop_back<vector, 3> : vector<typename vector::arg0, typename vector::arg1> {};
+		template <class Vect>
+		struct vector_pop_back<Vect, 3> : vector<typename Vect::arg0, typename Vect::arg1> {};
 
-		template <class vector>
-		struct vector_pop_back<vector, 4> : vector<typename vector::arg0, typename vector::arg1, typename vector::arg2> {};
+		template <class Vect>
+		struct vector_pop_back<Vect, 4> : vector<typename Vect::arg0, typename Vect::arg1, typename Vect::arg2> {};
 
 		template <>
 		struct pop_back_impl<vector_tag>

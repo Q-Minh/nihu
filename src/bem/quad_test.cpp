@@ -28,7 +28,7 @@ int main(void)
 		gauss_quad<quad_domain, 4>
 	> quadSequence;
 
-	tmp::call_each<quadSequence, tester<_1> >();
+	tmp::call_each<quadSequence, tester<tmp::_1> >();
 
 	return 0;
 }

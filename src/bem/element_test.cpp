@@ -30,7 +30,7 @@ int main(void)
 		parallelogram_elem,
 		quad_1_elem
 	> elemVector;
-	tmp::call_each<elemVector, tester<_1> >();
+	tmp::call_each<elemVector, tester<tmp::_1> >();
 	return 0;
 }
 

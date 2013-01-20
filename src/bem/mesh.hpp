@@ -36,14 +36,14 @@ public:
 	typedef typename tmp::inherit<
 		typename tmp::transform<
 		elem_type_vector_t,
-		inserter<tmp::vector<>, push_back<_1,_2> >,
-		vectorize<_1>
+		tmp::inserter<tmp::vector<>, tmp::push_back<tmp::_1,tmp::_2> >,
+		vectorize<tmp::_1>
 		>::type
 	>::type elem_container_t;
 
 	/** \brief type of a nodal vector */
-	typedef typename deref<
-		typename begin<elem_type_vector_t>::type
+	typedef typename tmp::deref<
+		typename tmp::begin<elem_type_vector_t>::type
 	>::type::x_t x_t;
 
 	/** \brief type of a nodal coordinate */
@@ -137,7 +137,7 @@ public:
 	{
 		return tmp::call_until<
 			elem_type_vector_t,
-			elem_adder<_1>,
+			elem_adder<tmp::_1>,
 			unsigned const*,
 			mesh_t &
 		>(input, *this);
@@ -162,7 +162,7 @@ public:
 	{
 		tmp::call_each<
 			elem_type_vector_t,
-			printCoords<_1>,
+			printCoords<tmp::_1>,
 			mesh_t &
 		>(*this);
 	}

@@ -8,6 +8,7 @@
 
 #include "lambda.hpp"
 #include "sequence.hpp"
+#include "vector.hpp"
 #include "operator.hpp"
 
 namespace tmp
@@ -39,7 +40,7 @@ namespace tmp
 		};
 	}
 
-	template <class Seq, class Init, class Fun = plus<_1,_2> >
+	template <class Seq, class Init, class Fun = tmp::plus<_1,_2> >
 	struct accumulate : internal::accumulate_impl<
 		typename begin<Seq>::type,
 		typename end<Seq>::type,
@@ -70,26 +71,23 @@ namespace tmp
 	> {};
 
 
-	namespace internal
+	class empty;
+
+	template <class A, class B>
+	struct inheriter
 	{
-		class empty;
+		struct type : public A, B {};
+	};
 
-		template <class A, class B>
-		struct inheriter
-		{
-			struct type : public A, B {};
-		};
+	template <class B>
+	struct inheriter<empty, B>
+	{
+		struct type : public B {};
+	};
 
-		template <class B>
-		struct inheriter<empty, B>
-		{
-			struct type : public B {};
-		};
-	}
-
-	template <class Seq, class Aggr = internal::empty>
-	struct inherit : accumulate<Seq, Aggr, internal::inheriter<_1,_2> > {};
-
+	template <class Seq, class Aggr = empty>
+	struct inherit : accumulate<Seq, Aggr, inheriter<_1,_2> > {};
+	
 	namespace internal
 	{
 		/**
@@ -162,7 +160,7 @@ namespace tmp
 	template <class Seq>
 	struct serialise : accumulate<
 		Seq,
-		tiny<>,
+		vector<>,
 		concatenate<_1, _2>
 	> {};
 }
