@@ -70,23 +70,23 @@ namespace tmp
 		{
 			static void eval(void) { }
 		};
+	}
 
-		/**
-		 * \brief call function object with different types
-		 * \tparam Seq a type sequence
-		 * \tparam Trans a function object
-		 */
-		template <class Seq, class Trans, class Arg1 = void, class Arg2 = void>
-		static void call_each(Arg1 &arg1, Arg2 &arg2)
-		{
-			call_each_impl<
-				typename begin<Seq>::type,
-				typename end<Seq>::type,
-				Trans,
-				typename add_ref<Arg1>::type,
-				typename add_ref<Arg2>::type
-			>::eval(arg1, arg2);
-		}
+	/**
+	 * \brief call function object with different types
+	 * \tparam Seq a type sequence
+	 * \tparam Trans a function object
+	 */
+	template <class Seq, class Trans, class Arg1, class Arg2>
+	static void call_each(Arg1 &arg1, Arg2 &arg2)
+	{
+		call_each_impl<
+			typename begin<Seq>::type,
+			typename end<Seq>::type,
+			Trans,
+			typename add_ref<Arg1>::type,
+			typename add_ref<Arg2>::type
+		>::eval(arg1, arg2);
 	}
 
 
