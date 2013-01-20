@@ -77,18 +77,15 @@ namespace tmp
 	 * \tparam Seq a type sequence
 	 * \tparam Trans a function object
 	 */
-	template <class Seq, class Trans, class Arg1, class Arg2>
-	static void call_each(Arg1 &arg1, Arg2 &arg2)
+	template <class Seq, class Trans>
+	static void call_each(void)
 	{
-		call_each_impl<
+		internal::call_each_impl<
 			typename begin<Seq>::type,
 			typename end<Seq>::type,
-			Trans,
-			typename add_ref<Arg1>::type,
-			typename add_ref<Arg2>::type
-		>::eval(arg1, arg2);
+			Trans
+		>::eval();
 	}
-
 
 	/** \brief one argument version of call_each */
 	template <class Seq, class Trans, class Arg1>
@@ -104,15 +101,18 @@ namespace tmp
 
 
 	/** \brief two argument version of call_each */
-	template <class Seq, class Trans>
-	static void call_each(void)
+	template <class Seq, class Trans, class Arg1, class Arg2>
+	static void call_each(Arg1 &arg1, Arg2 &arg2)
 	{
 		internal::call_each_impl<
 			typename begin<Seq>::type,
 			typename end<Seq>::type,
-			Trans
-		>::eval();
+			Trans,
+			typename add_ref<Arg1>::type,
+			typename add_ref<Arg2>::type
+		>::eval(arg1, arg2);
 	}
+
 
 	namespace internal
 	{

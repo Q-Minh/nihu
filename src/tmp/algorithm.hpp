@@ -40,6 +40,12 @@ namespace tmp
 		};
 	}
 
+	/**
+	 * \brief accumulate elements of a sequence using a binary metafunction
+	 * \tparam Seq the sequence the elements of which are accumulated
+	 * \tparam Init initial value of accumulation
+	 * \tparam Fun accumulating functor, the default is plus
+	 */
 	template <class Seq, class Init, class Fun = tmp::plus<_1,_2> >
 	struct accumulate : internal::accumulate_impl<
 		typename begin<Seq>::type,
@@ -73,20 +79,27 @@ namespace tmp
 
 	class empty;
 
-	template <class A, class B>
-	struct inheriter
+	namespace internal
 	{
-		struct type : public A, B {};
-	};
+		template <class A, class B>
+		struct inheriter
+		{
+			struct type : public A, B {};
+		};
 
-	template <class B>
-	struct inheriter<empty, B>
-	{
-		struct type : public B {};
-	};
+		template <class B>
+		struct inheriter<empty, B>
+		{
+			struct type : public B {};
+		};
+	}
 
-	template <class Seq, class Aggr = empty>
-	struct inherit : accumulate<Seq, Aggr, inheriter<_1,_2> > {};
+	/**
+	 * \brief combine a sequence of classes so that the result is inherited from each element
+	 * \tparam Seq the sequence the elements of which are transformed
+	 */
+	template <class Seq>
+	struct inherit : accumulate<Seq, empty, internal::inheriter<_1,_2> > {};
 	
 	namespace internal
 	{
@@ -125,6 +138,12 @@ namespace tmp
 		};
 	}
 
+	/**
+	 * \brief transform elements in a sequence using a user-specified metafunctor and an inserter
+	 * \tparam Seq the sequence the elements of which are transformed
+	 * \tparam Ins inserter used to fill output container
+	 * \tparam Trans transformation functor
+	 */
 	template <class Seq, class Ins, class Trans>
 	struct transform : internal::transform_impl<
 		typename begin<Seq>::type,
@@ -154,7 +173,7 @@ namespace tmp
 	> {};
 
 	/**
-	 * \brief transform sequence of sequences into a sequence
+	 * \brief transform sequence of sequences into a flat sequence
 	 * \tparam Seq sequence of sequences
 	 */
 	template <class Seq>

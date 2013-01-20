@@ -12,17 +12,24 @@ namespace tmp
 	struct none;
 	struct vector_tag;
 
+	/**
+	 * A vector with up to 4 elements
+	 * \tparam A0 0-th element
+	 * \tparam A1 1-st element
+	 * \tparam A2 2-nd element
+	 * \tparam A3 3-rd element
+	 */
 	template <class A0 = none, class A1 = none, class A2 = none, class A3 = none>
 	struct vector
 	{
-		typedef vector type; 	/* self-returning */
+		typedef vector type; 	/**< \brief self-returning */
 
-		typedef vector_tag tag;	/* tagged */
+		typedef vector_tag tag;	/**< \brief tagged */
 
-		typedef A0 arg0;
-		typedef A1 arg1;
-		typedef A2 arg2;
-		typedef A3 arg3;
+		typedef A0 arg0;	/**< \brief 0-th element */
+		typedef A1 arg1;	/**< \brief 1-th element */
+		typedef A2 arg2;	/**< \brief 2-th element */
+		typedef A3 arg3;	/**< \brief 3-th element */
 	};
 
 	namespace internal
@@ -154,6 +161,13 @@ namespace tmp
 			struct apply : vector_push_back<Seq, T, size<Seq>::value > {};
 		};
 
+		template <>
+		struct pop_front_impl<vector_tag>
+		{
+			template <class Vect>
+			struct apply : vector<typename Vect::arg0, typename Vect::arg1, typename Vect::arg2> {};
+		};
+
 		template <class Vect, int N>
 		struct vector_pop_back;
 
@@ -172,8 +186,8 @@ namespace tmp
 		template <>
 		struct pop_back_impl<vector_tag>
 		{
-			template <class Seq>
-			struct apply : vector_pop_back<Seq, size<Seq>::value > {};
+			template <class Vect>
+			struct apply : vector_pop_back<Vect, size<Vect>::value > {};
 		};
 	}
 }
