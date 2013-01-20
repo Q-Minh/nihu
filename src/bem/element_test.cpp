@@ -24,7 +24,7 @@ struct tester
 
 int main(void)
 {
-	typedef tiny<
+	typedef tmp::vector<
 		line_1_elem,
 		tria_1_elem,
 		parallelogram_elem,

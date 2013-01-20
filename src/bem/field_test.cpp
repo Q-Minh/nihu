@@ -1,6 +1,6 @@
 #include "function_space.hpp"
 
-typedef tiny<tria_1_elem, quad_1_elem> elem_vector;
+typedef tmp::vector<tria_1_elem, quad_1_elem> elem_vector;
 
 #include <iostream>
 

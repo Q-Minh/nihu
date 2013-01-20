@@ -33,10 +33,10 @@ public:
 	struct vectorize { typedef EIGENSTDVECTOR(T) type; };
 
 	/** \brief combine elem_vector into a BIG heterogeneous std::vector container */
-	typedef typename inherit<
-		typename transform<
+	typedef typename tmp::inherit<
+		typename tmp::transform<
 		elem_type_vector_t,
-		inserter<tiny<>, push_back<_1,_2> >,
+		inserter<tmp::vector<>, push_back<_1,_2> >,
 		vectorize<_1>
 		>::type
 	>::type elem_container_t;

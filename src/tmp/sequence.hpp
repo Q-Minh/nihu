@@ -1,287 +1,123 @@
-#ifndef SEQUENCE_HPP
-#define SEQUENCE_HPP
-
 /**
  * \file sequence.hpp
  * \brief implementation of a vector
  */
+#ifndef SEQUENCE_HPP
+#define SEQUENCE_HPP
+
 #include "integer.hpp"
 
-/**
- * \brief metafunctor to implement size operation
- */
-template <class tag>
-struct size_impl;
-
-/**
- * \brief metafunction returning size (uses size_impl metafunctor)
- */
-template <class Seq>
-struct size : size_impl<typename Seq::tag>::template apply<Seq> {};
-
-/**
- * \brief metafunctor to implement at operation
- */
-template <class tag>
-struct at_impl;
-
-/**
- * \brief metafunction returning element at a given position (uses at_impl metafunctor)
- */
-template <class Seq, class Pos>
-struct at : at_impl<typename Seq::tag>::template apply<Seq, Pos> {};
-
-/**
- * \brief metafunctor to implement begin operation
- */
-template <class tag>
-struct begin_impl;
-
-/**
- * \brief metafunction returning begin iterator of a sequence (uses begin_impl metafunctor)
- */
-template <class Seq>
-struct begin : begin_impl<typename Seq::tag> :: template apply<Seq> {};
-
-/**
- * \brief metafunctor to implement end operation
- */
-template <class tag>
-struct end_impl;
-
-/**
- * \brief metafunction returning end iterator of a sequence (uses end_impl metafunctor)
- */
-template <class Seq>
-struct end : end_impl<typename Seq::tag> :: template apply<Seq> {};
-
-/**
- * \brief metafunctor to implement clear operation
- */
-template <class tag>
-struct clear_impl;
-
-/**
- * \brief metafunction clearing a sequence (uses clear_impl metafunctor)
- */
-template <class Seq>
-struct clear : clear_impl<typename Seq::tag> :: template apply<Seq> {};
-
-/**
- * \brief metafunctor to implement push_front operation
- */
-template <class tag>
-struct push_front_impl;
-
-/**
- * \brief metafunction pushing an element to the front (uses push_front_impl metafunctor)
- */
-template <class Seq, class T>
-struct push_front : push_front_impl<typename Seq::tag> :: template apply<Seq, T> {};
-
-/**
- * \brief metafunctor to implement push_back operation
- */
-template <class tag>
-struct push_back_impl;
-
-/**
- * \brief metafunction pushing an element to the back (uses push_back_impl metafunctor)
- */
-template <class Seq, class T>
-struct push_back : push_back_impl<typename Seq::tag> :: template apply<Seq, T> {};
-
-/**
- * \brief metafunctor to implement pop_back operation
- */
-template <class tag>
-struct pop_back_impl;
-
-/**
- * \brief metafunction popping an element from the back (uses pop_back_impl metafunctor)
- */
-template <class Seq>
-struct pop_back : pop_back_impl<typename Seq::tag> :: template apply<Seq> {};
-
-
-template <class Iter>
-struct deref;
-
-struct none;
-
-struct tiny_tag;
-
-template <class A0 = none, class A1 = none, class A2 = none, class A3 = none>
-struct tiny
+namespace tmp
 {
-	typedef tiny type; 	/* self-returning */
-
-	typedef tiny_tag tag;	/* tagged */
-
-	typedef A0 arg0;
-	typedef A1 arg1;
-	typedef A2 arg2;
-	typedef A3 arg3;
-};
-
-
-template <class Arg, int Pos>
-struct tiny_at;
-
-template <class A0, class A1, class A2, class A3>
-struct tiny_at<tiny<A0, A1, A2, A3>, 0> { typedef A0 type; };
-
-template <class A0, class A1, class A2, class A3>
-struct tiny_at<tiny<A0, A1, A2, A3>, 1> { typedef A1 type; };
-
-template <class A0, class A1, class A2, class A3>
-struct tiny_at<tiny<A0, A1, A2, A3>, 2> { typedef A2 type; };
-
-template <class A0, class A1, class A2, class A3>
-struct tiny_at<tiny<A0, A1, A2, A3>, 3> { typedef A3 type; };
-
-template <>
-struct at_impl<tiny_tag>
-{
-	template <class Seq, class Pos>
-	struct apply : tiny_at<Seq, Pos::value> {};
-};
-
-
-template <class Seq, class Pos>
-struct tiny_iterator;
-
-template <class Seq, class Pos>
-struct next<tiny_iterator<Seq, Pos> >
-{ /* metafunction forwarding impossible because tiny_iterator is incomplete type */
-	typedef tiny_iterator<Seq, typename next<Pos>::type> type;
-};
-
-template <class Seq, class Pos>
-struct prev<tiny_iterator<Seq, Pos> >
-{ /* metafunction forwarding impossible because tiny_iterator is incomplete type */
-	typedef tiny_iterator<Seq, typename prev<Pos>::type> type;
-};
-
-template <class T0, class T1, class T2, class T3>
-struct tiny_size : int_<4> {};
-
-template <class T0, class T1, class T2>
-struct tiny_size<T0, T1, T2, none> : int_<3> {};
-
-template <class T0, class T1>
-struct tiny_size<T0, T1, none, none> : int_<2> {};
-
-template <class T0>
-struct tiny_size<T0, none, none, none> : int_<1> {};
-
-template <>
-struct tiny_size<none, none, none, none> : int_<0> {};
-
-template <>
-struct size_impl<tiny_tag>
-{
-	template <class Seq>
-	struct apply : tiny_size<typename Seq::arg0, typename Seq::arg1, typename Seq::arg2, typename Seq::arg3> {};
-};
-
-template <class Seq, class Pos>
-struct deref<tiny_iterator<Seq, Pos> > : at<Seq, Pos> {};
-
-template <>
-struct begin_impl<tiny_tag>
-{
-	template <class Tiny>
-	struct apply
-	{ /* metafunction forwarding impossible because tiny_iterator is incomplete type */
-		typedef tiny_iterator<Tiny, int_<0> > type;
-	};
-};
-
-template <>
-struct end_impl<tiny_tag>
-{
-	template <class Tiny>
-	struct apply
+	namespace internal
 	{
-		typedef tiny_iterator<
-			Tiny,
-			typename tiny_size<typename Tiny::arg0, typename Tiny::arg1, typename Tiny::arg2, typename Tiny::arg3>::type
-		> type;
-	};
-};
+		/**
+		 * \brief metafunctor to implement size operation
+		 */
+		template <class tag>
+		struct size_impl;
 
-template <>
-struct clear_impl<tiny_tag>
-{
+		/**
+		 * \brief metafunctor to implement at operation
+		 */
+		template <class tag>
+		struct at_impl;
+
+		/**
+		 * \brief metafunctor to implement begin operation
+		 */
+		template <class tag>
+		struct begin_impl;
+
+		/**
+		 * \brief metafunctor to implement end operation
+		 */
+		template <class tag>
+		struct end_impl;
+
+		/**
+		 * \brief metafunctor to implement clear operation
+		 */
+		template <class tag>
+		struct clear_impl;
+
+		/**
+		 * \brief metafunctor to implement push_front operation
+		 */
+		template <class tag>
+		struct push_front_impl;
+
+		/**
+		 * \brief metafunctor to implement push_back operation
+		 */
+		template <class tag>
+		struct push_back_impl;
+
+		/**
+		 * \brief metafunctor to implement pop_back operation
+		 */
+		template <class tag>
+		struct pop_back_impl;
+	}
+
+	/**
+	 * \brief metafunction returning size (uses size_impl metafunctor)
+	 */
 	template <class Seq>
-	struct apply : tiny<> {};
-};
+	struct size : internal::size_impl<typename Seq::tag>::template apply<Seq> {};
 
-template <>
-struct push_front_impl<tiny_tag>
-{
-	template <class Tiny, class T>
-	struct apply : tiny<T, typename Tiny::arg0, typename Tiny::arg1, typename Tiny::arg2> {};
-};
+	/**
+	 * \brief metafunction returning element at a given position (uses at_impl metafunctor)
+	 */
+	template <class Seq, class Pos>
+	struct at : internal::at_impl<typename Seq::tag>::template apply<Seq, Pos> {};
 
-template <class Tiny, class T, int N>
-struct tiny_push_back;
+	/**
+	 * \brief metafunction returning begin iterator of a sequence (uses begin_impl metafunctor)
+	 */
+	template <class Seq>
+	struct begin : internal::begin_impl<typename Seq::tag> :: template apply<Seq> {};
 
-template <class Tiny, class T>
-struct tiny_push_back<Tiny, T, 0> : tiny<T> {};
+	/**
+	 * \brief metafunction returning end iterator of a sequence (uses end_impl metafunctor)
+	 */
+	template <class Seq>
+	struct end : internal::end_impl<typename Seq::tag> :: template apply<Seq> {};
 
-template <class Tiny, class T>
-struct tiny_push_back<Tiny, T, 1> : tiny<typename Tiny::arg0, T> {};
+	/**
+	 * \brief metafunction clearing a sequence (uses clear_impl metafunctor)
+	 */
+	template <class Seq>
+	struct clear : internal::clear_impl<typename Seq::tag> :: template apply<Seq> {};
 
-template <class Tiny, class T>
-struct tiny_push_back<Tiny, T, 2> : tiny<typename Tiny::arg0, typename Tiny::arg1, T> {};
-
-template <class Tiny, class T>
-struct tiny_push_back<Tiny, T, 3> : tiny<typename Tiny::arg0, typename Tiny::arg1, typename Tiny::arg2, T> {};
-
-template <>
-struct push_back_impl<tiny_tag>
-{
+	/**
+	 * \brief metafunction pushing an element to the front (uses push_front_impl metafunctor)
+	 */
 	template <class Seq, class T>
-	struct apply : tiny_push_back<Seq, T, size<Seq>::value > {};
-};
+	struct push_front : internal::push_front_impl<typename Seq::tag> :: template apply<Seq, T> {};
 
+	/**
+	 * \brief metafunction pushing an element to the back (uses push_back_impl metafunctor)
+	 */
+	template <class Seq, class T>
+	struct push_back : internal::push_back_impl<typename Seq::tag> :: template apply<Seq, T> {};
 
-
-
-template <class Tiny, int N>
-struct tiny_pop_back;
-
-template <class Tiny>
-struct tiny_pop_back<Tiny, 1> : tiny<> {};
-
-template <class Tiny>
-struct tiny_pop_back<Tiny, 2> : tiny<typename Tiny::arg0> {};
-
-template <class Tiny>
-struct tiny_pop_back<Tiny, 3> : tiny<typename Tiny::arg0, typename Tiny::arg1> {};
-
-template <class Tiny>
-struct tiny_pop_back<Tiny, 4> : tiny<typename Tiny::arg0, typename Tiny::arg1, typename Tiny::arg2> {};
-
-template <>
-struct pop_back_impl<tiny_tag>
-{
+	/**
+	 * \brief metafunction popping an element from the back (uses pop_back_impl metafunctor)
+	 */
 	template <class Seq>
-	struct apply : tiny_pop_back<Seq, size<Seq>::value > {};
-};
+	struct pop_back : internal::pop_back_impl<typename Seq::tag> :: template apply<Seq> {};
 
+	template <class Iter>
+	struct deref;
 
-
-
-template <class State, class Operation>
-struct inserter
-{
-	typedef State state;
-	typedef Operation operation;
-};
-
+	template <class State, class Operation>
+	struct inserter
+	{
+		typedef State state;
+		typedef Operation operation;
+	};
+}
 
 #endif
 

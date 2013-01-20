@@ -1,5 +1,5 @@
 #include "quadrature.hpp"
-#include "../tmp/sequence.hpp"
+#include "../tmp/vector.hpp"
 #include "../tmp/control.hpp"
 #include <iostream>
 
@@ -23,7 +23,7 @@ struct tester
 
 int main(void)
 {
-	typedef tiny<
+	typedef tmp::vector<
 		gauss_quad<line_domain, 10>,
 		gauss_quad<quad_domain, 4>
 	> quadSequence;
