@@ -36,7 +36,7 @@ protected:
 };
 
 dcomplex green_kernel::k;
-Matrix<double, 1, 3> green_kernel::x0;
+Eigen::Matrix<double, 1, 3> green_kernel::x0;
 
 #endif
 

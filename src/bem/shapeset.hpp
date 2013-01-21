@@ -28,9 +28,9 @@ public:
 	/** \brief type of the shape functions' independent variable \f$\xi\f$ */
 	typedef typename domain_t::xi_t xi_t;
 	/** \brief type of an \f$L(\xi)\f$ vector */
-	typedef Matrix<double, num_nodes, 1> L_t;
+	typedef Eigen::Matrix<double, num_nodes, 1> L_t;
 	/** \brief type of an \f$\nabla L(\xi)\f$ gradient matrix */
-	typedef Matrix<double, num_nodes, domain_t::dimension> dL_t;
+	typedef Eigen::Matrix<double, num_nodes, domain_t::dimension> dL_t;
 };
 
 
@@ -247,8 +247,8 @@ struct shape_set_converter<Shape, Shape, nDim>
 	typedef Shape from_set;
 	typedef Shape to_set;
 
-	typedef Matrix<double, from_set::num_nodes, nDim> from_coords_t;
-	typedef Matrix<double, to_set::num_nodes, nDim> to_coords_t;
+	typedef Eigen::Matrix<double, from_set::num_nodes, nDim> from_coords_t;
+	typedef Eigen::Matrix<double, to_set::num_nodes, nDim> to_coords_t;
 
 public:
 	static bool eval(from_coords_t const &coords)
@@ -278,8 +278,8 @@ struct shape_set_converter<quad_1_shape_set, parallelogram_shape_set, nDim>
 	typedef quad_1_shape_set from_set;
 	typedef parallelogram_shape_set to_set;
 
-	typedef Matrix<double, from_set::num_nodes, nDim> from_coords_t;
-	typedef Matrix<double, to_set::num_nodes, nDim> to_coords_t;
+	typedef Eigen::Matrix<double, from_set::num_nodes, nDim> from_coords_t;
+	typedef Eigen::Matrix<double, to_set::num_nodes, nDim> to_coords_t;
 
 public:
 	static bool eval(from_coords_t const &coords)

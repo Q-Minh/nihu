@@ -65,19 +65,19 @@ public:
 	typedef typename lset_t::dL_t dL_t;
 
 	/** \brief type of the element's independent location variable \f$x\f$ */
-	typedef Matrix<double, 1, x_dim> x_t;
+	typedef Eigen::Matrix<double, 1, x_dim> x_t;
 	/** \brief type of the gradient of the element's independent location variable \f$x'_{\xi}\f$ */
-	typedef Matrix<double, xi_dim, x_dim> dx_t;
+	typedef Eigen::Matrix<double, xi_dim, x_dim> dx_t;
 	/** \brief matrix type that stores the element's corner coordinates \f$x_i\f$ */
-	typedef Matrix<unsigned, 1, num_nodes> nodes_t;
+	typedef Eigen::Matrix<unsigned, 1, num_nodes> nodes_t;
 	/** \brief matrix type that stores the element's corner coordinates \f$x_i\f$ */
-	typedef Matrix<double, num_nodes, x_dim> coords_t;
+	typedef Eigen::Matrix<double, num_nodes, x_dim> coords_t;
 	/** \brief type that stores the element's id */
 	typedef unsigned id_t;
 
 protected:
 	/** \brief the element's identifier */
-	id_t id; 
+	id_t id;
 	/** \brief the element's nodal indices in the mesh */
 	nodes_t nodes;
 	/** \brief the element's corner coordinates \f$x_i\f$ */

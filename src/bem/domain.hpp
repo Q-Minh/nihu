@@ -1,23 +1,41 @@
+/**
+ * \file domain.hpp
+ * \brief declaration of class domain and its derived domains
+ * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
+ */
 #ifndef DOMAIN_HPP_INCLUDED
 #define DOMAIN_HPP_INCLUDED
 
 #include <Eigen/Dense>
-using Eigen::Matrix;
 
+/**
+ * \brief class Domain represents a subset of the xi space. All elements are defined on a domain.
+ * \tparam Dimension the dimensionality of the space
+ * \tparam ID A domain ID used when elements are inserted into a mesh
+ */
 template <unsigned Dimension, unsigned ID>
-class Domain
+class domain
 {
 public:
-    typedef double scalar_t;
+	/** \brief template argument as nested type */
 	static unsigned const dimension = Dimension;
+	/** \brief template argument as nested type */
 	static unsigned const id = ID;
-	typedef Matrix<double, dimension, 1> xi_t;
+
+	/** \brief the scalar type of the location vector */
+    typedef double scalar_t;
+	/** \brief the location vector */
+	typedef Eigen::Matrix<double, dimension, 1> xi_t;
 };
 
-class line_domain : public Domain<1, 2> {};
-class tria_domain : public Domain<2, 3> {};
-class quad_domain : public Domain<2, 4> {};
-class brick_domain : public Domain<3, 8> {};
+/** \brief a 1D line domain \f$-1 \le \xi \le +1\f$*/
+class line_domain : public domain<1, 2> {};
+/** \brief a 2D triangle domain */
+class tria_domain : public domain<2, 3> {};
+/** \brief a 2D quad domain */
+class quad_domain : public domain<2, 4> {};
+/** \brief a 3D brick domain */
+class brick_domain : public domain<3, 8> {};
 
 #endif
 
