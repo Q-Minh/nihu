@@ -18,12 +18,12 @@ struct constant_field;
 /**
  * \brief A field is an element extended with a shape function set.
  * \details In our present implementation, the shape function set is not defined generally,
- * but is determined by the FieldOption template parameter: constant_field or isoparametric_field
+ * but is determined by the template parameter FieldOption: constant_field or isoparametric_field
  * \tparam ElemType the element type the field is associated with
  * \tparam FieldOption constant_field or isoparametric_field
  */
 template <class ElemType, class FieldOption>
-class Field;
+class field;
 
 
 /**
@@ -33,7 +33,7 @@ class Field;
  * \tparam FieldOption constant_field or isoparametric_field
  */
 template <class ElemType>
-class Field<ElemType, isoparametric_field>
+class field<ElemType, isoparametric_field>
 {
 public:
 	/** \brief template parameter as nested type */
@@ -50,10 +50,15 @@ public:
 	 * \brief constructor initialising the reference member
 	 * \param elem The element the field is attached to
 	 */
-	Field(elem_t const &elem) : elem(elem)
+	field(elem_t const &elem) : elem(elem)
 	{
 	}
 	
+	elem_t const &get_elem(void) const
+	{
+		return elem;
+	}
+
 	/**
 	 * \brief return DOF vector
 	 * \returns DOF vector
@@ -70,7 +75,7 @@ protected:
 
 
 template <class ElemType>
-class Field<ElemType, constant_field>
+class field<ElemType, constant_field>
 {
 public:
 	/** \brief template parameter as nested type */
@@ -87,8 +92,13 @@ public:
 	 * \brief constructor initialising the reference member
 	 * \param elem The element the field is attached to
 	 */
-	Field(elem_t const &elem) : elem(elem)
+	field(elem_t const &elem) : elem(elem)
 	{
+	}
+
+	elem_t const &get_elem(void) const
+	{
+		return elem;
 	}
 
 	/**

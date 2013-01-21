@@ -24,8 +24,10 @@ struct tester
 int main(void)
 {
 	typedef tmp::vector<
-		gauss_quad<line_domain, 10>,
-		gauss_quad<quad_domain, 4>
+		gauss_quad<tria_domain, 1>,
+		gauss_quad<tria_domain, 2>,
+		gauss_quad<tria_domain, 3>,
+		gauss_quad<tria_domain, 5>
 	> quadSequence;
 
 	tmp::call_each<quadSequence, tester<tmp::_1> >();

@@ -15,7 +15,7 @@
  * \tparam FieldOption determines how the field is generated from the mesh
  */
 template<class MeshT, class FieldOption>
-class FunctionSpace
+class function_space
 {
 public:
 	/** \brief template parameter as nested type */
@@ -30,11 +30,16 @@ public:
 	 * \brief constructor storing a reference from the mesh
 	 * \param mesh the mesh object to extend
 	 */
-	FunctionSpace(mesh_t const &mesh) : mesh(mesh)
+	function_space(mesh_t const &mesh) : mesh(mesh)
 	{
 	}
+
+	mesh_t const &get_mesh(void) const
+	{
+		return mesh;
+	}
 	
-	void go(void)
+	void go(void) const
 	{
 		std::for_each(
 			mesh.template elembegin<tria_1_elem>(),
@@ -43,7 +48,9 @@ public:
 			{
 				tria_1_elem::xi_t xi = tria_1_elem::xi_t::Zero();
 				double f = e.get_x(xi).norm();
-				typename Field<tria_1_elem, field_option>::nset_t::L_t N = Field<tria_1_elem, field_option>::nset_t::eval_L(xi);
+				typedef typename field<tria_1_elem, field_option>::nset_t nset_t;
+				typedef typename nset_t::L_t L_t;
+				L_t N = nset_t::eval_L(xi);
 				std::cout << f * N << std::endl;
 			}
 		);

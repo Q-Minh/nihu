@@ -1,32 +1,50 @@
 /**
  * \file integral.hpp
  * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
- * \brief Declaration of class Integral and its specialisations
+ * \brief Declaration of class integral and its specialisations
  */
 #ifndef INTEGRAL_HPP_INCLUDED
 #define INTEGRAL_HPP_INCLUDED
 
-#include "elem_descriptor.hpp"
-#include <numeric>
+#include "kernel.hpp"
+#include "field.hpp"
+#include "quadrature.hpp"
 
-/**
- * \brief 
- */
-template <class ElemDescriptor, class Kernel>
+template <class Field, class Kernel, unsigned N>
 class integral
 {
 public:
-	typedef double ret_t;
 	typedef Kernel kernel_t;
+	typedef Field field_t;
 
-	template <class InputIterator>
-	static ret_t eval(InputIterator begin, InputIterator end)
+	typedef typename kernel_t::input_t input_t;
+	typedef typename kernel_t::result_t kernel_result_t;
+	typedef typename field_t::elem_t elem_t;
+	typedef typename elem_t::xi_t xi_t;
+	typedef typename elem_t::domain_t domain_t;
+	typedef gauss_quad<domain_t, N> quadrature_t;
+	typedef typename quadrature_t::xivec_t xivec_t;
+	typedef typename quadrature_t::weightvec_t weightvec_t;
+	typedef typename field_t::nset_t nset_t;
+	typedef typename Eigen::Matrix<dcomplex, field_t::nset_t::num_nodes, 1> result_t;
+
+	static result_t eval(field_t const &field)
 	{
-		// initialise result to zero
-		return std::accumulate(
-			begin, end, ret_t(),
-			[] (ret_t const &x, ElemDescriptor const &ed) { return x + kernel_t::eval(ed) * ed.get_jacobian(); }
-		);
+		xivec_t xivec = quadrature_t::get_xi();
+		weightvec_t weightvec = quadrature_t::get_weight();
+
+		typedef typename xivec_t::Index index_t;
+
+		result_t I = result_t();
+		for (index_t i = 0; i < quadrature_t::size; ++i)
+		{
+			xi_t xi = xivec.row(i);
+			input_t input(field.get_elem(), xi);
+			kernel_result_t kernel_res = kernel_t::eval(input);
+			I += nset_t::eval_L(xi) * (kernel_res * input.get_jacobian() * weightvec(i));
+		}
+
+		return I;
 	}
 };
 

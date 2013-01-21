@@ -1,8 +1,18 @@
-#ifndef BOOL_HPP
-#define BOOL_HPP
+/**
+ * \file bool.hpp
+ * \brief implementation of bool_ and Boolean functions
+ * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
+ */
+
+#ifndef BOOL_HPP_INCLUDED
+#define BOOL_HPP_INCLUDED
 
 namespace tmp
 {
+	/**
+	 * \brief Boolean type representation
+	 * \tparam x the underlying Boolean value
+	 */
 	template <bool x>
 	struct bool_
 	{
@@ -10,10 +20,12 @@ namespace tmp
 		typedef bool_ type;
 	};
 
+	/** \brief true type */
 	typedef bool_<true> true_;
+	/** \brief false type */
 	typedef bool_<false> false_;
 
-	template <class C, class T, class F>
+	template <class Cond, class T, class F>
 	struct if_;
 
 	template <class T, class F>

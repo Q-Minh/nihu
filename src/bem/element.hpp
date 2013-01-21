@@ -43,7 +43,7 @@ struct normal_vector<2>
 * The class provides a method to compute the location \f$x\f$
 */
 template <class LSet, unsigned Dimension>
-class Element
+class element
 {
 public:
 	/** \brief the dimension of the element's location variable \f$x\f$ */
@@ -87,13 +87,11 @@ public:
 	/**
 	* \brief default constructor for std::vector container
 	*/
-	Element() {}
+	element() {}
 
-	/**
-	* \brief constructor
-	* \param coords location of corners \f$x_i\f$
-	*/
-	Element(unsigned id, nodes_t const &nodes, coords_t const &coords) : id(id), nodes(nodes), coords(coords) {}
+	element(unsigned id, nodes_t const &nodes, coords_t const &coords) : id(id), nodes(nodes), coords(coords) {}
+
+	element(coords_t const &coords) : id(0), nodes(nodes_t()), coords(coords) {}
 
 	id_t const &get_id(void) const
 	{
@@ -144,14 +142,14 @@ public:
 };
 
 /** \brief a linear triangle element in 2D space */
-typedef Element<line_1_shape_set, 2> line_1_elem;
+typedef element<line_1_shape_set, 2> line_1_elem;
 
 /** \brief a linear triangle element in 3D space */
-typedef Element<tria_1_shape_set, 3> tria_1_elem;
+typedef element<tria_1_shape_set, 3> tria_1_elem;
 /** \brief a linear parallelogram element in 3D space */
-typedef Element<parallelogram_shape_set, 3> parallelogram_elem;
+typedef element<parallelogram_shape_set, 3> parallelogram_elem;
 /** \brief a linear quad element in 3D space */
-typedef Element<quad_1_shape_set, 3> quad_1_elem;
+typedef element<quad_1_shape_set, 3> quad_1_elem;
 
 #endif
 

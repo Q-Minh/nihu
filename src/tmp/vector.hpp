@@ -2,8 +2,8 @@
  * \file vector.hpp
  * \brief implementation of tmp::vector
  */
-#ifndef VECTOR_HPP
-#define VECTOR_HPP
+#ifndef VECTOR_HPP_INCLUDED
+#define VECTOR_HPP_INCLUDED
 
 #include "sequence.hpp"
 
@@ -13,7 +13,7 @@ namespace tmp
 	struct vector_tag;
 
 	/**
-	 * A vector with up to 4 elements
+	 * \brief A random access vector with up to 4 elements
 	 * \tparam A0 0-th element
 	 * \tparam A1 1-st element
 	 * \tparam A2 2-nd element
