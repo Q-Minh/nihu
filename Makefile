@@ -1,7 +1,7 @@
 CC=g++
 CFLAGS=-Wall -pedantic -O3 -I /usr/local/include/eigen3 -std=c++0x -pg
 
-tests: quad_test element_test mesh_test field_test
+tests: *test
 
 quad_test: src/bem/quad_test.cpp src/bem/quadrature.hpp
 	$(CC) $(CFLAGS) src/bem/quad_test.cpp -o quad_test

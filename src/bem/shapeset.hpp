@@ -1,7 +1,7 @@
 /**
  * \file shapeset.hpp
  * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
- * \brief Definition of class ShapeSet and its specialisations
+ * \brief Definition of class shape_set and its specialisations
  */
 #ifndef SHAPESET_HPP_INCLUDED
 #define SHAPESET_HPP_INCLUDED
@@ -17,7 +17,7 @@
  * The class defines some convenient types that are used in the derived definition.
  */
 template <class Domain, unsigned NumNodes>
-class ShapeSet
+class shape_set
 {
 public:
 	/** \brief the shape function's domain type */
@@ -40,10 +40,10 @@ public:
  *
  * \f$L_1(\xi) = (1-\xi)/2 \\ L_2(\xi) = (1+\xi)/2 \f$
  */
-class line_1_shape_set : public ShapeSet<line_domain, 2>
+class line_1_shape_set : public shape_set<line_domain, 2>
 {
 public:
-	/** 
+	/**
 	 * \brief shape function vector \f$L_i(\xi)\f$
 	 * \param \xi independent variable \f$\xi\f$
 	 */
@@ -77,10 +77,10 @@ public:
  *
  * \f$L_1(\xi) = 1-\xi-\eta \\ L_2(\xi) = \xi \\ L_3(\xi) = \eta \f$
  */
-class tria_1_shape_set : public ShapeSet<tria_domain, 3>
+class tria_1_shape_set : public shape_set<tria_domain, 3>
 {
 public:
-	/** 
+	/**
 	 * \brief shape function vector \f$L_i(\xi)\f$
 	 * \param \xi independent variable \f$\xi\f$
 	 */
@@ -116,10 +116,10 @@ public:
  *
  * \f$L_1(\xi) = (-\xi-\eta)/2 \\ L_2(\xi) = (1+\xi)/2 \\ L_3(\xi) = (1+\eta)/2 \f$
  */
-class parallelogram_shape_set : public ShapeSet<quad_domain, 3>
+class parallelogram_shape_set : public shape_set<quad_domain, 3>
 {
 public:
-	/** 
+	/**
 	 * \brief shape function vector \f$L_i(\xi)\f$
 	 * \param \xi independent variable \f$\xi\f$
 	 */
@@ -155,10 +155,10 @@ public:
  *
  * \f$L_1(\xi) = (1-\xi)(1-\eta)/4 \\ L_2(\xi) = (1+\xi)(1-\eta)/4 \\ L_3(\xi) = (1+\xi)(1+\eta)/4 \\ L_4(\xi) = (1-\xi)(1+\eta)/4 \f$
  */
-class quad_1_shape_set : public ShapeSet<quad_domain, 4>
+class quad_1_shape_set : public shape_set<quad_domain, 4>
 {
 public:
-	/** 
+	/**
 	 * \brief shape function vector \f$L_i(\xi)\f$
 	 * \param \xi independent variable \f$\xi\f$
 	 */
@@ -191,21 +191,21 @@ public:
 
 
 template <class domain>
-class constant_shape_set : public ShapeSet<domain, 1>
+class constant_shape_set : public shape_set<domain, 1>
 {
 public:
-	typedef ShapeSet<domain, 1> shape_t;
+	typedef shape_set<domain, 1> shape_t;
 	typedef typename shape_t::L_t L_t;
 	typedef typename shape_t::dL_t dL_t;
 	typedef typename shape_t::xi_t xi_t;
 
-	/** 
+	/**
 	 * \brief shape function vector \f$L_i(\xi)\f$
 	 * \param \xi independent variable \f$\xi\f$
 	 */
 	static L_t eval_L(xi_t const &xi)
 	{
-		return ShapeSet<domain, 1>::L_t::Ones();
+		return shape_set<domain, 1>::L_t::Ones();
 	}
 
 	/**
@@ -284,14 +284,14 @@ struct shape_set_converter<quad_1_shape_set, parallelogram_shape_set, nDim>
 public:
 	static bool eval(from_coords_t const &coords)
 	{
-		
+
 		to_coords.row(0) = coords.row(0);
 		to_coords.row(1) = coords.row(1);
 		to_coords.row(2) = coords.row(3);
-		
+
 		to_set::xi_t xi;
 		xi << 1.0, 1.0;
-		
+
 		return (to_set::eval_L(xi).transpose() * to_coords - coords.row(2)).norm() < 1e-3;
 	}
 

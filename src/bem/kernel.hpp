@@ -12,7 +12,7 @@ public:
 	typedef location<Eigen::Matrix<double, 1, 3> > input_t;
 	typedef dcomplex result_t;
 
-	typedef typename input_t::x_t x_t;
+	typedef input_t::x_t x_t;
 
 	static void set_wave_number(dcomplex const &k)
 	{

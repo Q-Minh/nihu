@@ -1,30 +1,51 @@
 /**
  * \file quadrature.hpp
  * \author Peter fiala fiala@hit.bme.hu, Peter Rucz rucz@hit.bme.hu
- * \brief Decalaration of class gauss_quad and its specialisations
+ * \brief Decalaration of class quadrature, class gauss_quad and its specialisations
  */
 #ifndef QUADRATURE_HPP_INCLUDED
 #define QUADRATURE_HPP_INCLUDED
 
 #include <Eigen/Dense>
-#include <Eigen/Eigenvalues> 
+#include <Eigen/Eigenvalues>
 
 #include "domain.hpp"
 
+/**
+ * \brief store quadrature base points and weights
+ * \tparam Domain the base domain where the quadrature points are defined
+ * \tparam Size number of quadrature points
+ */
 template <class Domain, unsigned Size>
 class quadrature
 {
 public:
+    /** \brief template parameter as nested type */
 	typedef Domain domain_t;
+    /** \brief template parameter as nested constant */
 	static unsigned const size = Size;
-	typedef Eigen::Matrix<double, size, domain_t::dimension> xivec_t;
-	typedef Eigen::Matrix<double, size, 1> weightvec_t;
 
+    /** \brief scalar type of the domain */
+	typedef typename domain_t::scalar_t scalar_t;
+
+    /** \brief type of the base points matrix */
+	typedef Eigen::Matrix<scalar_t, size, domain_t::dimension> xivec_t;
+    /** \brief type of the weights vector */
+	typedef Eigen::Matrix<scalar_t, size, 1> weightvec_t;
+
+    /**
+      * \brief return base points
+      * \return reference to statically stored base points
+      */
 	static xivec_t const &get_xi(void)
 	{
 		return xi;
 	}
-	
+
+    /**
+      * \brief return weights
+      * \return reference to statically stored weights
+      */
 	static weightvec_t const &get_weight(void)
 	{
 		return w;
@@ -52,7 +73,7 @@ public:
 
 	static void init(void)
 	{
-		typedef Eigen::Matrix<double, base::size, base::size> Mat_t;
+		typedef Eigen::Matrix<typename base::scalar_t, base::size, base::size> Mat_t;
 		Mat_t A = Mat_t::Zero();
 		for (unsigned i = 1; i < base::size; ++i)
 			A(i, i-1) = A(i-1, i) = i / sqrt(4.0*(i*i)-1.0);
@@ -71,7 +92,7 @@ public:
 	static void init(void)
 	{
 		gauss_quad<line_domain, N>::init();
-		
+
 		typename gauss_quad<line_domain, N>::xivec_t _xi = gauss_quad<line_domain, N>::get_xi();
 		typename gauss_quad<line_domain, N>::weightvec_t _w = gauss_quad<line_domain, N>::get_weight();
 

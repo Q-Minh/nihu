@@ -8,6 +8,7 @@ template <unsigned Dimension, unsigned ID>
 class Domain
 {
 public:
+    typedef double scalar_t;
 	static unsigned const dimension = Dimension;
 	static unsigned const id = ID;
 	typedef Matrix<double, dimension, 1> xi_t;

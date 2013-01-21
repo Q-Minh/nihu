@@ -19,10 +19,13 @@ int main(void)
 	};
 
 	Mesh<elem_vector> mesh;
-	for (unsigned i = 0; i < 4; ++i)
-		mesh.add_node(c+i*3);
-	for (unsigned i = 0; i < 3; ++i)
-		mesh.add_elem(e+i*5);
+    for (unsigned n = 0; n < 1000; ++n)
+    {
+        for (unsigned i = 0; i < 4; ++i)
+            mesh.add_node(c+i*3);
+        for (unsigned i = 0; i < 3; ++i)
+            mesh.add_elem(e+i*5);
+    }
 
 	function_space<Mesh<elem_vector>, constant_field> con_func(mesh);
 	weighted_integral<function_space<Mesh<elem_vector>, constant_field>, green_kernel> wi(con_func);
