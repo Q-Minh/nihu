@@ -6,6 +6,8 @@
 #ifndef ALGORITHM_HPP
 #define ALGORITHM_HPP
 
+#include "bool.hpp"
+#include "general.hpp"
 #include "lambda.hpp"
 #include "sequence.hpp"
 #include "vector.hpp"

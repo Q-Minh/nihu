@@ -25,12 +25,7 @@ int main(void)
 		mesh.add_elem(e+i*5);
 
 	function_space<Mesh<elem_vector>, constant_field> con_func(mesh);
-	con_func.go();
-	
-	std::cout << std::endl;
-	
 	function_space<Mesh<elem_vector>, isoparametric_field> iso_func(mesh);
-	iso_func.go();
 
 	return 0;
 }

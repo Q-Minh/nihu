@@ -24,12 +24,10 @@ int main(void)
 	for (unsigned i = 0; i < 3; ++i)
 		mesh.add_elem(e+i*5);
 
-	function_space<Mesh<elem_vector>, isoparametric_field> func(mesh);
-	weighted_integral<function_space<Mesh<elem_vector>, isoparametric_field>, green_kernel> wi(func);
-
 	gauss_quad<tria_domain, 5>::init();
 
-	wi.eval();
+	function_space<Mesh<elem_vector>, isoparametric_field> func(mesh);
+	weighted_integral::eval<function_space<Mesh<elem_vector>, isoparametric_field>, green_kernel>(func);
 
 	return 0;
 }
