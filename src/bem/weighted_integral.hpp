@@ -3,7 +3,7 @@
 * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
 * \brief declaration of class weighted_integral
 */
-#ifndef WEIGHTED_INTEGRAL_SPACE_HPP_INCLUDED
+#ifndef WEIGHTED_INTEGRAL_HPP_INCLUDED
 #define WEIGHTED_INTEGRAL_HPP_INCLUDED
 
 #include "kernel.hpp"
@@ -49,29 +49,46 @@ public:
 };
 
 
+/**
+ * \brief 
+ */
+template <class FunctionSpace, class Kernel>
 class weighted_integral
 {
+	typedef typename FunctionSpace::elem_type_vector_t elem_type_vector_t;
+		
+	template <class elem_t>
+	struct eval_on_elemtype
+	{
+		struct type
+		{
+			void operator() (FunctionSpace const &func_space)
+			{
+				gauss_quad<typename elem_t::domain_t, 5>::init();
+				typedef field<elem_t, typename FunctionSpace::field_option> field_t;
+				
+				std::for_each(
+					func_space.template begin<elem_t>(),
+					func_space.template end<elem_t>(),
+					[] (field_t const &f)
+					{
+						std::cout << weighted_field_integral<field_t, Kernel, 5>::eval(f) << std::endl << std::endl;
+					}
+				);
+			}
+		};
+	};
+
 public:
-	template<class FunctionSpace, class Kernel>
 	static void eval(FunctionSpace const &func_space)
 	{
-		typedef FunctionSpace function_space_t;
-		typedef Kernel kernel_t;
-
-		typedef typename function_space_t::mesh_t mesh_t;
-		typedef typename mesh_t::elem_type_vector_t elem_type_vector_t;
-
-		typedef tria_1_elem elem_t;
-		typedef field<elem_t, typename function_space_t::field_option> field_t;
-		std::for_each(
-			func_space.template begin<elem_t>(),
-			func_space.template end<elem_t>(),
-			[] (field_t const &f)
-		{
-			std::cout << weighted_field_integral<field_t, kernel_t, 5>::eval(f) << std::endl << std::endl;
-		}
-		);
+		tmp::call_each<
+			elem_type_vector_t,
+			eval_on_elemtype<tmp::_1>,
+			FunctionSpace const&
+		>(func_space);
 	}
 };
 
 #endif
+

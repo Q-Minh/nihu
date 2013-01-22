@@ -36,7 +36,7 @@ public:
 			field_p.end(),
 			[this] (x_t const &x) {
 				kernel_t::set_x0(x);
-				weighted_integral::eval<function_space_t, kernel_t>(function_space_t(mesh));
+				weighted_integral<function_space_t, kernel_t>::eval(function_space_t(mesh));
 			}
 		);
 	}
@@ -48,3 +48,4 @@ protected:
 };
 
 #endif
+

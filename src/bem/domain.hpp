@@ -2,6 +2,10 @@
  * \file domain.hpp
  * \brief declaration of class domain and its derived domains
  * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
+ * \details Domains are the domain set of geometrical transformations that desrcibe elements.
+ * Each element is mapped from its domain set to its actual geometry by means
+ * of a transformation \f$x = x(\xi)\f$, where \f$\xi \in \mathcal{D}\f$. In this description,
+ * \f$\mathcal{D}\f$ denotes the element's domain.
  */
 #ifndef DOMAIN_HPP_INCLUDED
 #define DOMAIN_HPP_INCLUDED
@@ -9,7 +13,7 @@
 #include <Eigen/Dense>
 
 /**
- * \brief class Domain represents a subset of the xi space. All elements are defined on a domain.
+ * \brief a subset of the \f$\xi\f$ space. All elements are defined on a domain.
  * \tparam Dimension the dimensionality of the space
  * \tparam ID A domain ID used when elements are inserted into a mesh
  */

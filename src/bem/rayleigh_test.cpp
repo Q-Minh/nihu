@@ -27,9 +27,6 @@ int main(void)
 	field_points<x_t> field_p;
 	field_p.add_point(x_t());
 
-	gauss_quad<tria_domain, 5>::init();
-	gauss_quad<quad_domain, 5>::init();
-
 	rayleigh<elem_vector, constant_field> r(mesh, field_p, 1.0);
 	r.eval();
 
