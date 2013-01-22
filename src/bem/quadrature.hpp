@@ -52,14 +52,23 @@ public:
 	}
 
 protected:
+	/** \brief indicates whether the weights have been computed or not */
+	static bool is_initialised;
+	/** \brief the stored base points */
 	static xivec_t xi;
+	/** \brief the stored weights */
 	static weightvec_t w;
 };
 
+/** \brief definition of the stored base points */
 template <class Domain, unsigned Size>
 typename quadrature<Domain, Size>::xivec_t quadrature<Domain, Size>::xi;
+/** \brief definition of the stored weights */
 template <class Domain, unsigned Size>
 typename quadrature<Domain, Size>::weightvec_t quadrature<Domain, Size>::w;
+/** \brief extnernal definition of static member for initialisation */
+template <class Domain, unsigned Size>
+bool quadrature<Domain, Size>::is_initialised = false;
 
 
 template <class Domain, unsigned N>
@@ -73,6 +82,9 @@ public:
 
 	static void init(void)
 	{
+		if (base::is_initialised)
+			return;
+		base::is_initialised = true;
 		typedef Eigen::Matrix<typename base::scalar_t, base::size, base::size> Mat_t;
 		Mat_t A = Mat_t::Zero();
 		for (unsigned i = 1; i < base::size; ++i)
@@ -91,6 +103,10 @@ public:
 
 	static void init(void)
 	{
+		if (base::is_initialised)
+			return;
+		base::is_initialised = true;
+
 		gauss_quad<line_domain, N>::init();
 
 		typename gauss_quad<line_domain, N>::xivec_t _xi = gauss_quad<line_domain, N>::get_xi();
@@ -117,6 +133,10 @@ public:
 
 	static void init(void)
 	{
+		if (base::is_initialised)
+			return;
+		base::is_initialised = true;
+
 		base::xi <<
 			1.0/3.0, 1.0/3.0;
 		base::w <<
@@ -133,6 +153,10 @@ public:
 
 	static void init(void)
 	{
+		if (base::is_initialised)
+			return;
+		base::is_initialised = true;
+
 		base::xi <<
 			1.0/6.0, 4.0/6.0,
 			1.0/6.0, 1.0/6.0,
@@ -153,6 +177,10 @@ public:
 
 	static void init(void)
 	{
+		if (base::is_initialised)
+			return;
+		base::is_initialised = true;
+
 		base::xi <<
 			1.0/3.0, 1.0/3.0,
 			1.0/5.0, 3.0/5.0,
@@ -175,6 +203,10 @@ public:
 
 	static void init(void)
 	{
+		if (base::is_initialised)
+			return;
+		base::is_initialised = true;
+
 		base::xi <<
 			0.445948490915965, 0.108103018168070,
 			0.445948490915965, 0.445948490915965,
@@ -201,6 +233,10 @@ public:
 
 	static void init(void)
 	{
+		if (base::is_initialised)
+			return;
+		base::is_initialised = true;
+
 		base::xi <<
 			0.333333333333333, 0.333333333333333,
 			0.470142064105115, 0.059715871789770,
