@@ -100,7 +100,7 @@ namespace tmp
 	 */
 	template <class Seq>
 	struct inherit : accumulate<Seq, empty, internal::inheriter<_1,_2> > {};
-
+	
 	namespace internal
 	{
 		/**
@@ -186,14 +186,14 @@ namespace tmp
 	namespace internal
 	{
 		template <class Beg, class End, class Elem>
-		struct find_impl : if_<
+		struct find : if_<
 			typename is_same<typename deref<Beg>::type, Elem>::type,
 			Beg,
-			typename find_impl<typename next<Beg>::type, End, Elem>::type
+			typename find<typename next<Beg>::type>::type
 		> {};
 
 		template <class End, class Elem>
-		struct find_impl<End, End, Elem>
+		struct find<End, End, Elem>
 		{
 			typedef End type;
 		};
@@ -210,7 +210,7 @@ namespace tmp
 	struct is_member : not_<
 		typename is_same<
 			typename find<Seq, Elem>::type,
-			Elem
+			typename end<Seq>::type
 		>::type
 	> {};
 
@@ -218,7 +218,7 @@ namespace tmp
 	struct unique : accumulate<
 		Seq,
 		vector<>,
-		if_<is_member<_1, _2>, _1, push_back<_1, _2> >
+		if_<is_member<_1,_2>, _1, push_back<_1,_2> >
 	> {};
 }
 
