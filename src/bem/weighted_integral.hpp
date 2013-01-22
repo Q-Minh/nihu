@@ -51,8 +51,6 @@ public:
 };
 
 
-
-
 template<class FunctionSpace, class Kernel>
 class weighted_integral
 {
