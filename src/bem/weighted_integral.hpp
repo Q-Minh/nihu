@@ -38,7 +38,7 @@ public:
 		result_t I = result_t();
 		for (typename xivec_t::Index i = 0; i < quadrature_t::size; ++i)
 		{
-			xi_t xi = xivec.row(i);
+			auto xi = xivec.row(i);
 			kernel_input_t input(field.get_elem(), xi);
 			kernel_result_t kernel_res = kernel_t::eval(input);
 			I += nset_t::eval_L(xi) * (kernel_res * input.get_jacobian() * weightvec(i));
@@ -49,37 +49,29 @@ public:
 };
 
 
-template<class FunctionSpace, class Kernel>
 class weighted_integral
 {
 public:
-	typedef FunctionSpace function_space_t;
-	typedef Kernel kernel_t;
-
-	typedef typename function_space_t::mesh_t mesh_t;
-	typedef typename mesh_t::elem_type_vector_t elem_type_vector_t;
-
-	weighted_integral(function_space_t const &func_space) : func_space(func_space)
+	template<class FunctionSpace, class Kernel>
+	static void eval(FunctionSpace const &func_space)
 	{
-	}
+		typedef FunctionSpace function_space_t;
+		typedef Kernel kernel_t;
 
-	void do_it(void)
-	{
+		typedef typename function_space_t::mesh_t mesh_t;
+		typedef typename mesh_t::elem_type_vector_t elem_type_vector_t;
+
 		typedef tria_1_elem elem_t;
 		typedef field<elem_t, typename function_space_t::field_option> field_t;
 		std::for_each(
-			func_space.get_mesh().template elembegin<elem_t>(),
-			func_space.get_mesh().template elemend<elem_t>(),
-			[] (elem_t const &e)
+			func_space.template begin<elem_t>(),
+			func_space.template end<elem_t>(),
+			[] (field_t const &f)
 		{
-			std::cout << weighted_field_integral<field_t, kernel_t, 5>::eval(field_t(e)) << std::endl;
+			std::cout << weighted_field_integral<field_t, kernel_t, 5>::eval(f) << std::endl << std::endl;
 		}
 		);
 	}
-
-protected:
-	function_space_t const &func_space;
 };
 
 #endif
-

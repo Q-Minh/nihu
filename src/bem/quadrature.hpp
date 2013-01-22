@@ -71,6 +71,11 @@ template <class Domain, unsigned Size>
 bool quadrature<Domain, Size>::is_initialised = false;
 
 
+/**
+ * \brief gaussian quadrature with given linear point number
+ * \tparam Domain the base domain where the quadrature points are defined
+ * \tparam N linear number of quadrature points
+ */
 template <class Domain, unsigned N>
 class gauss_quad;
 
@@ -85,6 +90,7 @@ public:
 		if (base::is_initialised)
 			return;
 		base::is_initialised = true;
+
 		typedef Eigen::Matrix<typename base::scalar_t, base::size, base::size> Mat_t;
 		Mat_t A = Mat_t::Zero();
 		for (unsigned i = 1; i < base::size; ++i)
@@ -255,7 +261,6 @@ public:
 			0.062969590272414;
 	}
 };
-
 
 #endif
 
