@@ -186,14 +186,14 @@ namespace tmp
 	namespace internal
 	{
 		template <class Beg, class End, class Elem>
-		struct find : if_<
+		struct find_impl : if_<
 			typename is_same<typename deref<Beg>::type, Elem>::type,
 			Beg,
-			typename find<typename next<Beg>::type>::type
+			typename find_impl<typename next<Beg>::type, End, Elem>::type
 		> {};
 
 		template <class End, class Elem>
-		struct find<End, End, Elem>
+		struct find_impl<End, End, Elem>
 		{
 			typedef End type;
 		};

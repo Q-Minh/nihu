@@ -2,7 +2,7 @@
 
 typedef tmp::vector<tria_1_elem, quad_1_elem> elem_vector;
 typedef tmp::unique<elem_vector>::type unique_vector;
-typedef typename tria_1_elem::x_t x_t;
+typedef tria_1_elem::x_t x_t;
 
 int main(void)
 {
