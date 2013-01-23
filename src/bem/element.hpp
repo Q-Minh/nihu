@@ -6,6 +6,8 @@
 #ifndef ELEMENT_HPP_INCLUDED
 #define ELEMENT_HPP_INCLUDED
 
+#include <Eigen/Dense>
+
 #include "shapeset.hpp"
 
 template <unsigned nDim>
@@ -73,7 +75,7 @@ public:
 	/** \brief matrix type that stores the element's corner coordinates \f$x_i\f$ */
 	typedef Eigen::Matrix<double, num_nodes, x_dim> coords_t;
 	/** \brief type that stores the element's id */
-	typedef unsigned id_t;
+	typedef Eigen::Matrix<unsigned, 1, 1> id_t;
 
 protected:
 	/** \brief the element's identifier */
@@ -89,9 +91,12 @@ public:
 	*/
 	element() {}
 
-	element(unsigned id, nodes_t const &nodes, coords_t const &coords) : id(id), nodes(nodes), coords(coords) {}
+	element(unsigned id, nodes_t const &nodes, coords_t const &coords) : nodes(nodes), coords(coords)
+	{
+		this->id << id;
+	}
 
-	element(coords_t const &coords) : id(0), nodes(nodes_t()), coords(coords) {}
+	element(coords_t const &coords) : id(id_t()), nodes(nodes_t()), coords(coords) {}
 
 	id_t const &get_id(void) const
 	{

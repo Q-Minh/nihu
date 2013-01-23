@@ -9,6 +9,28 @@
 #include "field.hpp"
 #include "mesh.hpp"
 
+template <class mesh_t, class field_option>
+struct get_num_dofs_impl;
+
+template <class mesh_t>
+struct get_num_dofs_impl<mesh_t, constant_field>
+{
+	static unsigned eval(mesh_t const &mesh)
+	{
+		return mesh.get_num_elements();
+	}
+};
+
+template <class mesh_t>
+struct get_num_dofs_impl<mesh_t, isoparametric_field>
+{
+	static unsigned eval(mesh_t const &mesh)
+	{
+		return mesh.get_num_points();
+	}
+};
+
+
 /**
  * \brief FunctionSpace is a mesh extended with a Field generating option
  * \tparam MeshT the underlying Mesh type
@@ -81,6 +103,11 @@ public:
 	field_iterator_t<ElemType> end(void) const
 	{
 		return mesh.end<ElemType>(); // automatic conversion by iterator constructor
+	}
+
+	unsigned get_num_dofs(void) const
+	{
+		return get_num_dofs_impl<mesh_t, field_option>::eval(mesh);
 	}
 
 protected:

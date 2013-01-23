@@ -9,5 +9,10 @@
 *.filter
 *.user
 *.sdf
+*.sln
 *.suo
+*.filters
+*.user
 
+*.depend
+*.layout

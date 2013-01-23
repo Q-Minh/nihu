@@ -27,7 +27,9 @@ int main(void)
 	gauss_quad<tria_domain, 5>::init();
 
 	function_space<Mesh<elem_vector>, isoparametric_field> func(mesh);
-	weighted_integral::eval<function_space<Mesh<elem_vector>, isoparametric_field>, green_kernel>(func);
+	weighted_integral<function_space<Mesh<elem_vector>, isoparametric_field>, green_kernel> wi(func);
+
+	wi.eval();
 
 	return 0;
 }

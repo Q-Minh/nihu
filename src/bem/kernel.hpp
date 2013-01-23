@@ -10,7 +10,8 @@ class green_kernel
 {
 public:
 	typedef location<Eigen::Matrix<double, 1, 3> > input_t;
-	typedef dcomplex result_t;
+	typedef dcomplex scalar_t;
+	typedef scalar_t result_t;
 
 	typedef input_t::x_t x_t;
 
@@ -24,19 +25,21 @@ public:
 		green_kernel::x0 = x0;
 	}
 
-	static result_t eval (input_t const &input)
+	static result_t const &eval (input_t const &input)
 	{
 		double r = (input.get_x() - x0).norm();
-		return std::exp(-dcomplex(0.0,1.0)*k*r) / r;
+		return result = std::exp(-dcomplex(0.0,1.0)*k*r) / r;
 	}
 
 protected:
 	static dcomplex k;
 	static x_t x0;
+	static result_t result;
 };
 
 dcomplex green_kernel::k;
-Eigen::Matrix<double, 1, 3> green_kernel::x0;
+green_kernel::x_t green_kernel::x0;
+green_kernel::result_t green_kernel::result;
 
 #endif
 

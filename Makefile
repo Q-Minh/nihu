@@ -18,12 +18,12 @@ field_test: src/bem/field_test.cpp src/bem/field.hpp
 integral_test: src/bem/integral_test.cpp src/bem/kernel.hpp src/bem/integral.hpp
 	$(CC) $(CFLAGS) src/bem/integral_test.cpp -o integral_test
 
-weighted_test: src/bem/weighted_integral_test.cpp
+weighted_test: src/bem/weighted_integral_test.cpp src/bem/weighted_integral.hpp
 	$(CC) $(CFLAGS) src/bem/weighted_integral_test.cpp -o weighted_test
 
-rayleigh_test: src/bem/rayleigh_test.cpp
+rayleigh_test: src/bem/rayleigh_test.cpp src/bem/rayleigh.hpp src/bem/weighted_integral.hpp  src/bem/function_space.hpp
 	$(CC) $(CFLAGS) src/bem/rayleigh_test.cpp -o rayleigh_test
 
 clean:
-	rm *test
+	rm *_test
 

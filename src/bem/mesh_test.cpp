@@ -24,7 +24,11 @@ int main(void)
 	for (unsigned i = 0; i < 3; ++i)
 		mesh.add_elem(e+i*5);
 
-	mesh.print_elements();
+	std::for_each(
+		mesh.begin<tria_1_elem>(),
+		mesh.end<tria_1_elem>(),
+		[] (tria_1_elem const &t) { std::cout << t.get_nodes() << std::endl; }
+	);
 
 	return 0;
 }

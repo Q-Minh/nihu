@@ -20,7 +20,7 @@
 
 /**
  * \brief container class for field points
- *  \tparam xType type of a field point
+ * \tparam xType type of a field point
  */
 template <class xType>
 class field_points
@@ -42,6 +42,11 @@ public:
 	void add_point(x_t const &p)
 	{
 		points.push_back(p);
+	}
+
+	unsigned get_num_points(void) const
+	{
+		return points.size();
 	}
 
 protected:
@@ -100,19 +105,7 @@ public:
 
 protected:
 	elem_container_t elements;	/**< \brief element geometries (BIG heterogeneous container) */
-
-	/** \brief wrapper class of member function print_coords used by call_each */
-	template <class ElemType>
-	struct printCoords
-	{
-		struct type
-		{
-			void operator() (mesh_t &m)
-			{
-				m.print_coords<ElemType>();
-			}
-		};
-	};
+	unsigned num_elements;
 
 	template <class elem_t>
 	struct elem_adder
@@ -139,6 +132,10 @@ protected:
 	};
 
 public:
+	Mesh() : num_elements(0)
+	{
+	}
+
 	/**
 	 * \brief return begin iterator of the elements
 	 */
@@ -155,21 +152,6 @@ public:
 	typename elem_iterator_t<ElemType>::type end(void) const
 	{
 		return elements.EIGENSTDVECTOR(ElemType)::end();
-	}
-
-	/**
-	 * \biref print element coordinates
-	 * \tparam ElemType the eleme type that is processed
-	 */
-	template <class ElemType>
-	void print_coords()
-	{
-		std::cout << ElemType::domain_t::id << " " << ElemType::num_nodes << std::endl;
-		std::for_each(
-			elements.EIGENSTDVECTOR(ElemType)::begin(),
-			elements.EIGENSTDVECTOR(ElemType)::end(),
-			[] (ElemType const &e) { std::cout << e.get_coords() << std::endl << std::endl; }
-		);
 	}
 
 	/**
@@ -201,15 +183,12 @@ public:
 	void push_element(elem_t const &e)
 	{
 		elements.EIGENSTDVECTOR(elem_t)::push_back(e);
+		++num_elements;
 	}
 
-	void print_elements(void)
+	unsigned get_num_elements(void) const
 	{
-		tmp::call_each<
-			elem_type_vector_t,
-			printCoords<tmp::_1>,
-			mesh_t &
-		>(*this);
+		return num_elements;
 	}
 };
 

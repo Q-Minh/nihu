@@ -16,35 +16,27 @@ public:
 	/** \brief template parameter as nested type */
 	typedef FieldOption field_option_t;
 
-	typedef typename first_elements_x_type<elem_type_vector_t>::type x_t;
-	typedef field_points<x_t> field_points_t;
 	typedef Mesh<elem_type_vector_t> mesh_t;
+	typedef typename mesh_t::x_t x_t;
 	typedef function_space<mesh_t, field_option_t> function_space_t;
 	typedef green_kernel kernel_t;
+	typedef weighted_integral<function_space_t, kernel_t> weighted_integral_t;
+	typedef typename weighted_integral_t::result_vector_t result_vector_t;
 
-	rayleigh(mesh_t const &mesh, field_points_t const &field_p, dcomplex wave_number)
-	: mesh(mesh), field_p(field_p), wave_number(wave_number)
+	rayleigh(mesh_t const &mesh) : f_space(mesh), wi(f_space)
 	{
 	}
 
-	void eval(void)
+	result_vector_t const &eval(x_t const &x0, dcomplex const &k)
 	{
-		kernel_t::set_wave_number(wave_number);
-
-		std::for_each(
-			field_p.begin(),
-			field_p.end(),
-			[this] (x_t const &x) {
-				kernel_t::set_x0(x);
-				weighted_integral<function_space_t, kernel_t>::eval(function_space_t(mesh));
-			}
-		);
+		kernel_t::set_x0(x0);
+		kernel_t::set_wave_number(k);
+		return wi.eval();
 	}
 
 protected:
-	mesh_t mesh;
-	field_points_t field_p;
-	dcomplex wave_number;
+	function_space_t f_space;
+	weighted_integral_t wi;
 };
 
 #endif
