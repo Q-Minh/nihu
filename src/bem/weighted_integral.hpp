@@ -35,11 +35,9 @@ public:
 	typedef typename kernel_t::result_t kernel_result_t;
 
 	/** \brief type of the quadrature */
-	typedef gauss_quad<typename field_t::elem_t::domain_t, N> quadrature_t;
-	/** \brief type of the quadrature base points vector */
-	typedef typename quadrature_t::xivec_t xivec_t;
-	/** \brief type of the quadrature weights vector */
-	typedef typename quadrature_t::weightvec_t weightvec_t;
+	typedef gauss_quadrature<typename field_t::elem_t::domain_t> quadrature_t;
+	/** \brief type of the quadrature */
+	typedef typename quadrature_t::quadrature_elem_t quadrature_elem_t;
 	/** \brief type of the element's N-set */
 	typedef typename field_t::nset_t nset_t;
 	/** \brief type of the weighted kernel result */
@@ -52,26 +50,17 @@ public:
 	 */
 	static result_t const &eval(field_t const &field)
 	{
-		// get quadrature base points and weights in Eigen Matrix
-		xivec_t xivec = quadrature_t::get_xi();
-		weightvec_t weightvec = quadrature_t::get_weight();
+		// create quadrature (very expensive, memory is allocated here dynamically)
+		quadrature_t q(5);
 
-		// clear result vector
-		result = result_t();
-		// for each quadrature point
-		for (typename xivec_t::Index i = 0; i < quadrature_t::size; ++i)
-		{
-			// auto is used to have optimal performance (reference to a row)
-			auto xi = xivec.row(i);
-			// evaluate the kernel input and store the result
+		result = result_t();	/* clear result */
+		std::for_each(q.begin(), q.end(),
+			[&] (quadrature_elem_t const &qe) {
+			auto xi = qe.get_xi();
 			kernel_input_t input(field.get_elem(), xi);
-			// evaluate the kernel and store a reference to the result
 			auto kernel_res = kernel_t::eval(input);
-			// accumulate result multiplied by shape function weights and jacobian
-			result += nset_t::eval_L(xi) * (kernel_res * (input.get_jacobian() * weightvec(i)));
-		}
-
-		// return reference to the stored result
+			result += nset_t::eval_L(xi) * (kernel_res * (input.get_jacobian() * qe.get_w()));
+		});
 		return result;
 	}
 
@@ -125,22 +114,23 @@ protected:
 			/** \brief the field type */
 			typedef field<elem_t, typename function_space_t::field_option> field_t;
 
+			typedef typename weighted_field_integral<field_t, Kernel, num_quadrature_points>::result_t result_t;
+			typedef typename field_t::dofs_t dofs_t;
+
 			void operator() (weighted_integral_t &wi)
 			{
-				// initialise quadrature (this is done only once)
-				gauss_quad<typename elem_t::domain_t, num_quadrature_points>::init();
-
 				// integrate for each element of the same type
 				std::for_each(
 					wi.func_space.template begin<elem_t>(),
 					wi.func_space.template end<elem_t>(),
 					[&wi] (field_t const &f)
 				{
-					typedef typename weighted_field_integral<field_t, Kernel, num_quadrature_points>::result_t result_t;
+					typedef weighted_field_integral<field_t, Kernel, num_quadrature_points>::result_t result_t;
+					typedef field_t::dofs_t dofs_t;
 					// autos are used to increase performance (reference is passed)
 					result_t const &I = weighted_field_integral<field_t, Kernel, num_quadrature_points>::eval(f);
-					typename field_t::dofs_t const &dofs = f.get_dofs();
-					for (typename result_t::Index i = 0; i < field_t::num_dofs; ++i)
+					dofs_t const &dofs = f.get_dofs();
+					for (unsigned i = 0; i < field_t::num_dofs; ++i)
 						wi.result_vector(dofs(i)) += I(i);
 				}
 				);

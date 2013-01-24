@@ -1,36 +1,29 @@
 #include "quadrature.hpp"
-#include "../tmp/vector.hpp"
-#include "../tmp/control.hpp"
-#include <iostream>
 
-template <class Q>
+#include "../tmp/control.hpp"
+
+template <class D>
 struct tester
 {
 	struct type
 	{
 		void operator() (void)
 		{
-			Q::init();
-			typename Q::xivec_t xi = Q::get_xi();
-			typename Q::weightvec_t w = Q::get_weight();
-			std::cout << "size: " << Q::size << std::endl;
-			std::cout << "base points:" << std::endl << xi << std::endl;
-			std::cout << "weights:" << std::endl << w << std::endl;
-			std::cout << "sum of weights: " << w.sum() << std::endl;
+			gauss_quadrature<D> q(5);
+			std::cout << q << std::endl;
+			std::cout << "Sum of weights: " <<
+				std::accumulate(q.begin(), q.end(), 0.0, [] (double x, quadrature_elem<D> &qe) {
+				return x + qe.get_w();
+			}) << std::endl;
 		}
 	};
 };
 
 int main(void)
 {
-	typedef tmp::vector<
-		gauss_quad<tria_domain, 1>,
-		gauss_quad<tria_domain, 2>,
-		gauss_quad<tria_domain, 3>,
-		gauss_quad<tria_domain, 5>
-	> quadSequence;
+	typedef tmp::vector<line_domain, tria_domain, quad_domain> DomSequence;
 
-	tmp::call_each<quadSequence, tester<tmp::_1> >();
+	tmp::call_each<DomSequence, tester<tmp::_1> >();
 
 	return 0;
 }

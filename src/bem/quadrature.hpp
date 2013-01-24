@@ -1,266 +1,356 @@
-/**
- * \file quadrature.hpp
- * \author Peter fiala fiala@hit.bme.hu, Peter Rucz rucz@hit.bme.hu
- * \brief Decalaration of class quadrature, class gauss_quad and its specialisations
- */
 #ifndef QUADRATURE_HPP_INCLUDED
 #define QUADRATURE_HPP_INCLUDED
 
-#include <Eigen/Dense>
-#include <Eigen/Eigenvalues>
-
 #include "domain.hpp"
+#include "shapeset.hpp"
 
-/**
- * \brief store quadrature base points and weights
- * \tparam Domain the base domain where the quadrature points are defined
- * \tparam Size number of quadrature points
- */
-template <class Domain, unsigned Size>
-class quadrature
+#include <iostream>
+
+#include <Eigen/StdVector>
+#define EIGENSTDVECTOR(_T) std::vector<_T, Eigen::aligned_allocator<_T> >
+
+template <class Domain>
+class quadrature_elem
 {
 public:
-    /** \brief template parameter as nested type */
 	typedef Domain domain_t;
-    /** \brief template parameter as nested constant */
-	static unsigned const size = Size;
-
-    /** \brief scalar type of the domain */
 	typedef typename domain_t::scalar_t scalar_t;
+	typedef typename domain_t::xi_t xi_t;
 
-    /** \brief type of the base points matrix */
-	typedef Eigen::Matrix<scalar_t, size, domain_t::dimension> xivec_t;
-    /** \brief type of the weights vector */
-	typedef Eigen::Matrix<scalar_t, size, 1> weightvec_t;
+	quadrature_elem(xi_t const &xi = xi_t(), scalar_t const &w = scalar_t()) : xi(xi), w(w)
+	{
+	}
 
-    /**
-      * \brief return base points
-      * \return reference to statically stored base points
-      */
-	static xivec_t const &get_xi(void)
+	xi_t const &get_xi(void) const
 	{
 		return xi;
 	}
 
-    /**
-      * \brief return weights
-      * \return reference to statically stored weights
-      */
-	static weightvec_t const &get_weight(void)
+	scalar_t const &get_w(void) const
 	{
 		return w;
 	}
 
 protected:
-	/** \brief indicates whether the weights have been computed or not */
-	static bool is_initialised;
-	/** \brief the stored base points */
-	static xivec_t xi;
-	/** \brief the stored weights */
-	static weightvec_t w;
+	xi_t xi;
+	scalar_t w;
 };
 
-/** \brief definition of the stored base points */
-template <class Domain, unsigned Size>
-typename quadrature<Domain, Size>::xivec_t quadrature<Domain, Size>::xi;
-/** \brief definition of the stored weights */
-template <class Domain, unsigned Size>
-typename quadrature<Domain, Size>::weightvec_t quadrature<Domain, Size>::w;
-/** \brief extnernal definition of static member for initialisation */
-template <class Domain, unsigned Size>
-bool quadrature<Domain, Size>::is_initialised = false;
-
-
-/**
- * \brief gaussian quadrature with given linear point number
- * \tparam Domain the base domain where the quadrature points are defined
- * \tparam N linear number of quadrature points
- */
-template <class Domain, unsigned N>
-class gauss_quad;
-
-template <unsigned N>
-class gauss_quad<line_domain, N> : public quadrature<line_domain, N>
+template <class Domain>
+class quadrature : public EIGENSTDVECTOR(quadrature_elem<Domain>)
 {
 public:
-	typedef quadrature<line_domain, N> base;
+	typedef Domain domain_t;
+	typedef quadrature_elem<domain_t> quadrature_elem_t;
+	typedef typename quadrature_elem_t::scalar_t scalar_t;
 
-	static void init(void)
+	quadrature(unsigned N = 0)
 	{
-		if (base::is_initialised)
-			return;
-		base::is_initialised = true;
+		this->reserve(N);
+	}
 
-		typedef Eigen::Matrix<typename base::scalar_t, base::size, base::size> Mat_t;
-		Mat_t A = Mat_t::Zero();
-		for (unsigned i = 1; i < base::size; ++i)
-			A(i, i-1) = A(i-1, i) = i / sqrt(4.0*(i*i)-1.0);
-		Eigen::SelfAdjointEigenSolver<Mat_t> S(A);
-		base::xi = S.eigenvalues();
-		base::w = 2.0 * S.eigenvectors().row(0).cwiseAbs2().transpose();
+	std::ostream & print (std::ostream & os) const
+	{
+		os << "Base points: \t Weights:" << std::endl;
+		std::for_each(this->begin(), this->end(), [&os] (quadrature_elem_t const &e) {
+			os << e.get_xi() << '\t' << e.get_w() << std::endl;
+		});
+		return os;
+	}
+
+	/*
+	template <unsigned nNode>
+	quadrature<T, nKer> createSingular(const CShape<T, nKer, nNode>  &LSet, const Matrix<T, nKer, 1> & xi0) const
+	{
+		quadrature<T, nKer> result(0);
+
+		Matrix<T, nKer, 4> TMatrix;
+		const Matrix<T, nKer, nNode> & coords = LSet.getCorners();
+		TMatrix.col(0) = TMatrix.col(1) = xi0;
+
+		// Create nNode subquadratures
+		for (unsigned k = 0; k < nNode; ++k)
+		{
+			bool create = true;
+			// Fill other nodes
+			for (unsigned i = 0; i < 2; ++i)
+			{
+				TMatrix.col(i+2) = coords.col((i+k)%nNode);
+				if ((TMatrix.col(i+2) - xi0).norm() < 0.000001)
+				{
+					create = false;
+					break;
+				}
+			}
+			if (create)
+				result+= this->transform<4>(singularTransShape, TMatrix);
+
+		}
+		return result;
+
+	}
+
+
+	// Transformation
+	template <unsigned nNode>
+	quadrature<T, nKer> transform(const CShape<T, nKer, nNode> &LSet, const Matrix<T, nKer, nNode> &coords) const
+	{
+		quadrature<T, nKer> result(this->size());
+		// Calculate the new local coordinates
+		for (unsigned i = 0; i < this->size(); ++i)
+		{
+			CDescriptor<T, nKer> LD;
+			Matrix<T, nKer, 1> xi = (*this)[i].getLocation();
+			LD.setLocation(coords*LSet.getShape(xi));
+			T jac = abs((coords*LSet.getGradShape(xi)).determinant());
+			LD.setWeight((*this)[i].getWeight()*jac);
+			result.push_back(LD);
+		}
+		return result;
+	}
+
+	// Transformation in place
+	template <unsigned nNode>
+	void transformInPlace(const CShape<T, nKer, nNode> &LSet, const Matrix<T, nKer, nNode> &coords)
+	{
+		for (unsigned i = 0; i < this->size(); ++i)
+		{
+			// Calculate the new local coordinates
+			(*this)[i].setLocation(coords*LSet.getShape((*this)[i].getLocation()));
+			// Calculate the jacobian and update weight
+			T jac = abs((coords*LSet.getGradShape((*this)[i].getLocation())).determinant());
+			(*this)[i].setWeight((*this)[i].getWeight()*jac);
+		}
+	}
+
+	// Addition
+	quadrature<T, nKer> operator +(const quadrature<T, nKer> &other) const
+	{
+		quadrature<T, nKer> result(size()+other.size());
+		result.insert(result.end(), begin(), end());
+		result.insert(result.end(), other.begin(), other.end());
+		return result;
+	}
+
+	quadrature<T, nKer> &operator +=(const quadrature<T, nKer> &other)
+	{
+		insert(end(), other.begin(), other.end());
+		return *this;
+	}
+
+	*/
+};
+
+/*
+template <class T, unsigned nKer>
+const CQuad4Shape<T> quadrature<T, nKer>::singularTransShape;
+*/
+
+template <class Domain>
+class gauss_quadrature;
+
+
+template <class scalar_t>
+Eigen::Matrix<scalar_t, Eigen::Dynamic, 2> gauss_impl(unsigned N)
+{
+	typedef Eigen::Matrix<scalar_t, Eigen::Dynamic, Eigen::Dynamic> mat_t;
+
+	mat_t M(N, N);
+	M.setZero();
+
+	// Fill the diagonals of the matrix
+	for (unsigned i = 0; i < N-1; ++i)
+	{
+		scalar_t v = scalar_t(i+1);
+		scalar_t u = v / sqrt(4.0*v*v - 1);
+		M(i,i+1) = u;
+		M(i+1,i) = u;
+	}
+
+	// Get the eigenvalues and eigenvectors
+	Eigen::SelfAdjointEigenSolver<mat_t> es(M);
+	Eigen::Matrix<scalar_t, Eigen::Dynamic, 2> V;
+	V.resize(N,2);
+	V.col(0) = es.eigenvalues();
+	V.col(1) = 2.0 * es.eigenvectors().row(0).cwiseAbs2();
+
+	return V;
+}
+
+
+template <>
+class gauss_quadrature<line_domain> : public quadrature<line_domain>
+{
+public:
+	typedef quadrature<line_domain> base;
+	typedef base::quadrature_elem_t::xi_t xi_t;
+	typedef base::scalar_t scalar_t;
+
+	gauss_quadrature(unsigned N) : quadrature<line_domain>(N)
+	{
+		typedef Eigen::Matrix<scalar_t, Eigen::Dynamic, 2> eig_t;
+		eig_t V = gauss_impl<scalar_t>(N);
+
+		// Fill the points and weights
+		for(eig_t::Index i = 0; i < N; ++i)
+		{
+			xi_t xi;
+			xi << V(i,0);
+			push_back(quadrature_elem_t(xi, V(i,1)));
+		}
 	}
 };
 
-template <unsigned N>
-class gauss_quad<quad_domain, N> : public quadrature<quad_domain, N*N>
+
+template <>
+class gauss_quadrature<quad_domain> : public quadrature<quad_domain>
 {
 public:
-	typedef quadrature<quad_domain, N*N> base;
+	typedef quadrature<quad_domain> base;
+	typedef base::quadrature_elem_t::xi_t xi_t;
+	typedef base::scalar_t scalar_t;
 
-	static void init(void)
+	gauss_quadrature(unsigned N) : quadrature<quad_domain>(N*N)
 	{
-		if (base::is_initialised)
-			return;
-		base::is_initialised = true;
+		typedef Eigen::Matrix<scalar_t, Eigen::Dynamic, 2> eig_t;
+		eig_t V = gauss_impl<scalar_t>(N);
 
-		gauss_quad<line_domain, N>::init();
-
-		typename gauss_quad<line_domain, N>::xivec_t _xi = gauss_quad<line_domain, N>::get_xi();
-		typename gauss_quad<line_domain, N>::weightvec_t _w = gauss_quad<line_domain, N>::get_weight();
-
-		typedef typename base::xivec_t::Index index_t;
-		for (index_t i = 0, k = 0; i < N; ++i)
+		// Fill the points and weights
+		for(eig_t::Index i = 0; i < N; ++i)
 		{
-			for (index_t j = 0; j < N; ++j, ++k)
+			for(eig_t::Index j = 0; j < N; ++j)
 			{
-				base::xi(k,0) = _xi(i);
-				base::xi(k,1) = _xi(j);
-				base::w(k) = _w(i)*_w(j);
+				xi_t xi;
+				xi << V(i,0), V(j,0);
+				push_back(quadrature_elem_t(xi, V(i,1)*V(j,1)));
 			}
 		}
 	}
 };
 
-template <>
-class gauss_quad<tria_domain, 1> : public quadrature<tria_domain, 1>
+static unsigned const dunavant_num[] = {0, 1, 3, 4, 6, 7, 12, 13, 16, 19};
+
+template<>
+class gauss_quadrature<tria_domain> : public quadrature<tria_domain>
 {
 public:
-	typedef quadrature<tria_domain, 1> base;
+	typedef quadrature<tria_domain> base;
+	typedef base::quadrature_elem_t quadrature_elem_t;
+	typedef quadrature_elem_t::xi_t xi_t;
 
-	static void init(void)
+	gauss_quadrature(unsigned degree) : quadrature<tria_domain>(dunavant_num[degree])
 	{
-		if (base::is_initialised)
-			return;
-		base::is_initialised = true;
-
-		base::xi <<
-			1.0/3.0, 1.0/3.0;
-		base::w <<
-			1.0/2.0;
+		switch(degree)
+		{
+		case 1:
+			push_back(quadrature_elem_t(xi_t(1./3., 1./3.0), 1./2.0));
+			break;
+		case 2:
+			push_back(quadrature_elem_t(xi_t(1./6., 4./6.0), 1./6.0));
+			push_back(quadrature_elem_t(xi_t(1./6., 1./6.0), 1./6.0));
+			push_back(quadrature_elem_t(xi_t(4./6., 1./6.0), 1./6.0));
+			break;
+		case 3:
+			push_back(quadrature_elem_t(xi_t(1./3., 1./3.0), -0.281250000000000));
+			push_back(quadrature_elem_t(xi_t(1./5., 3./5.0),  0.260416666666667));
+			push_back(quadrature_elem_t(xi_t(1./5., 1./5.0),  0.260416666666667));
+			push_back(quadrature_elem_t(xi_t(3./5., 1./5.0),  0.260416666666667));
+			break;
+		case 4:
+			push_back(quadrature_elem_t(xi_t(0.445948490915965, 0.108103018168070),  0.111690794839006));
+			push_back(quadrature_elem_t(xi_t(0.445948490915965, 0.445948490915965),  0.111690794839006));
+			push_back(quadrature_elem_t(xi_t(0.108103018168070, 0.445948490915965),  0.111690794839006));
+			push_back(quadrature_elem_t(xi_t(0.091576213509771, 0.816847572980459),  0.054975871827661));
+			push_back(quadrature_elem_t(xi_t(0.091576213509771, 0.091576213509771),  0.054975871827661));
+			push_back(quadrature_elem_t(xi_t(0.816847572980459, 0.091576213509771),  0.054975871827661));
+			break;
+		case 5:
+			push_back(quadrature_elem_t(xi_t(0.333333333333333, 0.333333333333333),  0.112500000000000));
+			push_back(quadrature_elem_t(xi_t(0.470142064105115, 0.059715871789770),  0.066197076394253));
+			push_back(quadrature_elem_t(xi_t(0.470142064105115, 0.470142064105115),  0.066197076394253));
+			push_back(quadrature_elem_t(xi_t(0.059715871789770, 0.470142064105115),  0.066197076394253));
+			push_back(quadrature_elem_t(xi_t(0.101286507323456, 0.797426985353087),  0.062969590272414));
+			push_back(quadrature_elem_t(xi_t(0.101286507323456, 0.101286507323456),  0.062969590272414));
+			push_back(quadrature_elem_t(xi_t(0.797426985353087, 0.101286507323456),  0.062969590272414));
+			break;
+		case 6:
+			push_back(quadrature_elem_t(xi_t(0.249286745170910, 0.501426509658179),  0.058393137863189));
+			push_back(quadrature_elem_t(xi_t(0.249286745170910, 0.249286745170910),  0.058393137863189));
+			push_back(quadrature_elem_t(xi_t(0.501426509658179, 0.249286745170910),  0.058393137863189));
+			push_back(quadrature_elem_t(xi_t(0.063089014491502, 0.873821971016996),  0.025422453185104));
+			push_back(quadrature_elem_t(xi_t(0.063089014491502, 0.063089014491502),  0.025422453185104));
+			push_back(quadrature_elem_t(xi_t(0.873821971016996, 0.063089014491502),  0.025422453185104));
+			push_back(quadrature_elem_t(xi_t(0.310352451033784, 0.053145049844817),  0.041425537809187));
+			push_back(quadrature_elem_t(xi_t(0.636502499121399, 0.310352451033784),  0.041425537809187));
+			push_back(quadrature_elem_t(xi_t(0.053145049844817, 0.636502499121399),  0.041425537809187));
+			push_back(quadrature_elem_t(xi_t(0.053145049844817, 0.310352451033784),  0.041425537809187));
+			push_back(quadrature_elem_t(xi_t(0.310352451033784, 0.636502499121399),  0.041425537809187));
+			push_back(quadrature_elem_t(xi_t(0.636502499121399, 0.053145049844817),  0.041425537809187));
+			break;
+		case 7:
+			push_back(quadrature_elem_t(xi_t(0.333333333333333, 0.333333333333333), -0.074785022233841));
+			push_back(quadrature_elem_t(xi_t(0.260345966079040, 0.479308067841920), 0.087807628716604));
+			push_back(quadrature_elem_t(xi_t(0.260345966079040, 0.260345966079040), 0.087807628716604));
+			push_back(quadrature_elem_t(xi_t(0.479308067841920, 0.260345966079040), 0.087807628716604));
+			push_back(quadrature_elem_t(xi_t(0.065130102902216, 0.869739794195568), 0.026673617804419));
+			push_back(quadrature_elem_t(xi_t(0.065130102902216, 0.065130102902216), 0.026673617804419));
+			push_back(quadrature_elem_t(xi_t(0.869739794195568, 0.065130102902216), 0.026673617804419));
+			push_back(quadrature_elem_t(xi_t(0.312865496004874, 0.048690315425316), 0.038556880445128));
+			push_back(quadrature_elem_t(xi_t(0.638444188569810, 0.312865496004874), 0.038556880445128));
+			push_back(quadrature_elem_t(xi_t(0.048690315425316, 0.638444188569810), 0.038556880445128));
+			push_back(quadrature_elem_t(xi_t(0.048690315425316, 0.312865496004874), 0.038556880445128));
+			push_back(quadrature_elem_t(xi_t(0.312865496004874, 0.638444188569810), 0.038556880445128));
+			push_back(quadrature_elem_t(xi_t(0.638444188569810, 0.048690315425316), 0.038556880445128));
+			break;
+		case 8:
+			push_back(quadrature_elem_t(xi_t(0.333333333333333 ,  0.333333333333333), 0.072157803838894));
+			push_back(quadrature_elem_t(xi_t(0.459292588292723 ,  0.081414823414554), 0.047545817133642));
+			push_back(quadrature_elem_t(xi_t(0.459292588292723 ,  0.459292588292723), 0.047545817133642));
+			push_back(quadrature_elem_t(xi_t(0.081414823414554 ,  0.459292588292723), 0.047545817133642));
+			push_back(quadrature_elem_t(xi_t(0.170569307751760 ,  0.658861384496480), 0.051608685267359));
+			push_back(quadrature_elem_t(xi_t(0.170569307751760 ,  0.170569307751760), 0.051608685267359));
+			push_back(quadrature_elem_t(xi_t(0.658861384496480 ,  0.170569307751760), 0.051608685267359));
+			push_back(quadrature_elem_t(xi_t(0.050547228317031 ,  0.898905543365938), 0.016229248811599));
+			push_back(quadrature_elem_t(xi_t(0.050547228317031 ,  0.050547228317031), 0.016229248811599));
+			push_back(quadrature_elem_t(xi_t(0.898905543365938 ,  0.050547228317031), 0.016229248811599));
+			push_back(quadrature_elem_t(xi_t(0.263112829634638 ,  0.008394777409958), 0.013615157087218));
+			push_back(quadrature_elem_t(xi_t(0.728492392955404 ,  0.263112829634638), 0.013615157087218));
+			push_back(quadrature_elem_t(xi_t(0.008394777409958 ,  0.728492392955404), 0.013615157087218));
+			push_back(quadrature_elem_t(xi_t(0.008394777409958 ,  0.263112829634638), 0.013615157087218));
+			push_back(quadrature_elem_t(xi_t(0.263112829634638 ,  0.728492392955404), 0.013615157087218));
+			push_back(quadrature_elem_t(xi_t(0.728492392955404 ,  0.008394777409958), 0.013615157087218));
+			break;
+		case 9:
+			push_back(quadrature_elem_t(xi_t(0.333333333333333,   0.333333333333333), 0.048567898141400));
+			push_back(quadrature_elem_t(xi_t(0.489682519198738,   0.020634961602525), 0.015667350113570));
+			push_back(quadrature_elem_t(xi_t(0.489682519198738,   0.489682519198738), 0.015667350113570));
+			push_back(quadrature_elem_t(xi_t(0.020634961602525,   0.489682519198738), 0.015667350113570));
+			push_back(quadrature_elem_t(xi_t(0.437089591492937,   0.125820817014127), 0.038913770502387));
+			push_back(quadrature_elem_t(xi_t(0.437089591492937,   0.437089591492937), 0.038913770502387));
+			push_back(quadrature_elem_t(xi_t(0.125820817014127,   0.437089591492937), 0.038913770502387));
+			push_back(quadrature_elem_t(xi_t(0.188203535619033,   0.623592928761935), 0.039823869463605));
+			push_back(quadrature_elem_t(xi_t(0.188203535619033,   0.188203535619033), 0.039823869463605));
+			push_back(quadrature_elem_t(xi_t(0.623592928761935,   0.188203535619033), 0.039823869463605));
+			push_back(quadrature_elem_t(xi_t(0.044729513394453,   0.910540973211095), 0.012788837829349));
+			push_back(quadrature_elem_t(xi_t(0.044729513394453,   0.044729513394453), 0.012788837829349));
+			push_back(quadrature_elem_t(xi_t(0.910540973211095,   0.044729513394453), 0.012788837829349));
+			push_back(quadrature_elem_t(xi_t(0.221962989160766,   0.036838412054736), 0.021641769688645));
+			push_back(quadrature_elem_t(xi_t(0.741198598784498,   0.221962989160766), 0.021641769688645));
+			push_back(quadrature_elem_t(xi_t(0.036838412054736,   0.741198598784498), 0.021641769688645));
+			push_back(quadrature_elem_t(xi_t(0.036838412054736,   0.221962989160766), 0.021641769688645));
+			push_back(quadrature_elem_t(xi_t(0.221962989160766,   0.741198598784498), 0.021641769688645));
+			push_back(quadrature_elem_t(xi_t(0.741198598784498,   0.036838412054736), 0.021641769688645));
+		default:
+			break;
+		}
 	}
 };
 
 
-template <>
-class gauss_quad<tria_domain, 2> : public quadrature<tria_domain, 3>
+template<class Domain>
+std::ostream & operator << (std::ostream & os, const quadrature<Domain>& Q)
 {
-public:
-	typedef quadrature<tria_domain, 3> base;
-
-	static void init(void)
-	{
-		if (base::is_initialised)
-			return;
-		base::is_initialised = true;
-
-		base::xi <<
-			1.0/6.0, 4.0/6.0,
-			1.0/6.0, 1.0/6.0,
-			4.0/6.0, 1.0/6.0;
-		base::w <<
-			1.0/6.0,
-			1.0/6.0,
-			1.0/6.0;
-	}
-};
-
-
-template <>
-class gauss_quad<tria_domain, 3> : public quadrature<tria_domain, 4>
-{
-public:
-	typedef quadrature<tria_domain, 4> base;
-
-	static void init(void)
-	{
-		if (base::is_initialised)
-			return;
-		base::is_initialised = true;
-
-		base::xi <<
-			1.0/3.0, 1.0/3.0,
-			1.0/5.0, 3.0/5.0,
-			1.0/5.0, 1.0/5.0,
-			3.0/5.0, 1.0/5.0;
-		base::w <<
-			-0.281250000000000,
-			 0.260416666666667,
-			 0.260416666666667,
-			 0.260416666666667;
-	}
-};
-
-
-template <>
-class gauss_quad<tria_domain, 4> : public quadrature<tria_domain, 6>
-{
-public:
-	typedef quadrature<tria_domain, 6> base;
-
-	static void init(void)
-	{
-		if (base::is_initialised)
-			return;
-		base::is_initialised = true;
-
-		base::xi <<
-			0.445948490915965, 0.108103018168070,
-			0.445948490915965, 0.445948490915965,
-			0.108103018168070, 0.445948490915965,
-			0.091576213509771, 0.816847572980459,
-			0.091576213509771, 0.091576213509771,
-			0.816847572980459, 0.091576213509771;
-		base::w <<
-			0.111690794839006,
-			0.111690794839006,
-			0.111690794839006,
-			0.054975871827661,
-			0.054975871827661,
-			0.054975871827661;
-	}
-};
-
-
-template <>
-class gauss_quad<tria_domain, 5> : public quadrature<tria_domain, 7>
-{
-public:
-	typedef quadrature<tria_domain, 7> base;
-
-	static void init(void)
-	{
-		if (base::is_initialised)
-			return;
-		base::is_initialised = true;
-
-		base::xi <<
-			0.333333333333333, 0.333333333333333,
-			0.470142064105115, 0.059715871789770,
-			0.470142064105115, 0.470142064105115,
-			0.059715871789770, 0.470142064105115,
-			0.101286507323456, 0.797426985353087,
-			0.101286507323456, 0.101286507323456,
-			0.797426985353087, 0.101286507323456;
-		base::w <<
-			0.112500000000000,
-			0.066197076394253,
-			0.066197076394253,
-			0.066197076394253,
-			0.062969590272414,
-			0.062969590272414,
-			0.062969590272414;
-	}
-};
+	return Q.print(os);
+}
 
 #endif
-

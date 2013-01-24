@@ -176,7 +176,7 @@ public:
 		typedef typename x_t::Index index_t;
 		for (index_t i = 0; i < nDim; ++i)
 			c[i] = input[i];
-		add_point(c);
+		this->add_point(c);
 	}
 
 	template <class elem_t>
