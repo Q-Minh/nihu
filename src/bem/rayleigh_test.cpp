@@ -8,30 +8,30 @@ typedef rayleigh<elem_type_vector, constant_field> const_rayleigh_t;
 
 int main(void)
 {
-	double c[] = {
-		0., 0., 0.,
-		1., 0., 0.,
-		2., 0., 0.,
-		0., 1., 0.,
-		1., 1., 0.,
-		2., 1., 0.,
-		0., 2., 0.,
-		1., 2., 0.,
-		2., 2., 0.
+	double c[][3] = {
+		{0., 0., 0.},
+		{1., 0., 0.},
+		{2., 0., 0.},
+		{0., 1., 0.},
+		{1., 1., 0.},
+		{2., 1., 0.},
+		{0., 2., 0.},
+		{1., 2., 0.},
+		{2., 2., 0.}
 	};
-	unsigned e[] = {
-		4,  0, 1, 4, 3,
-		4,  1, 2, 5, 4,
-		4,  3, 4, 7, 6,
-		3,  4, 5, 8, 0,
-		3,  4, 8, 7, 0
+	unsigned e[][5] = {
+		{4,  0, 1, 4, 3},
+		{4,  1, 2, 5, 4},
+		{4,  3, 4, 7, 6},
+		{3,  4, 5, 8, 0},
+		{3,  4, 8, 7, 0}
 	};
 
 	mesh_t mesh;
-	for (unsigned i = 0; i < sizeof(c)/sizeof(c[0])/3; ++i)
-		mesh.add_node(c+i*3);
-	for (unsigned i = 0; i < sizeof(e)/sizeof(e[0])/5; ++i)
-		mesh.add_elem(e+i*5);
+	for (unsigned i = 0; i < sizeof(c)/sizeof(c[0]); ++i)
+		mesh.add_node(c[i]);
+	for (unsigned i = 0; i < sizeof(e)/sizeof(e[0]); ++i)
+		mesh.add_elem(e[i]);
 
 	x_t x0 = x_t::Ones();
 	dcomplex k = 1.0;

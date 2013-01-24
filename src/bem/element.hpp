@@ -124,6 +124,15 @@ public:
 	}
 
 	/**
+	 * \brief return element center
+	 * \return location \f$x_0\f$ in the element center
+	 */
+	x_t get_center(void) const
+	{
+		return get_x(domain_t::get_center());
+	}
+
+	/**
 	* \brief return element location gradient
 	* \param \xi location \f$\xi\f$ in the base domain
 	* \return location gradient \f$x'_{\xi}\f$ in the element

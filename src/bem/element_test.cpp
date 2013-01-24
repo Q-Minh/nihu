@@ -10,14 +10,16 @@ struct tester
 	{
 		void operator() (void)
 		{
-			ElemType e(0, ElemType::nodes_t::Zero(), ElemType::coords_t::Random());
-			typename ElemType::xi_t xi = ElemType::xi_t::Zero();
+			ElemType e(ElemType::coords_t::Random());
+			typename ElemType::x_t c = e.get_center();
+			typename ElemType::xi_t xi = ElemType::xi_t::Ones();
 			typename ElemType::x_t x = e.get_x(xi);
 			typename ElemType::x_t n = e.get_normal(xi);
-			
+
+			std::cout << "center: " << c << std::endl;
 			std::cout << "xi: " << xi << std::endl;
-			std::cout << "x: " << x << std::endl;
-			std::cout << "n: " << n << std::endl;
+			std::cout << "x(xi): " << x << std::endl;
+			std::cout << "n(xi): " << n << std::endl;
 		}
 	};
 };

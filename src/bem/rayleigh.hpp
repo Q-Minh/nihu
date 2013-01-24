@@ -7,6 +7,14 @@
 
  #include "weighted_integral.hpp"
 
+/**
+ * \brief evaluate the Rayleigh integral on a function space
+ * \details The Rayleigh integral is evaluated over a function space
+ * consisting of elements listed in the template parameter ElemVector and
+ * extended into a function space defined by FieldOption.
+ * \tparam ElemVector vector of element types that can be contained by the mesh
+ * \tparam FieldOption function space generation option (constant_field or isoparametric_field)
+ */
 template <class ElemVector, class FieldOption>
 class rayleigh
 {
@@ -23,10 +31,19 @@ public:
 	typedef weighted_integral<function_space_t, kernel_t> weighted_integral_t;
 	typedef typename weighted_integral_t::result_vector_t result_vector_t;
 
+	/**
+	 * \brief the constructor initialises the stored function space and weighted integral
+	 * \param mesh the stored mesh
+	 */
 	rayleigh(mesh_t const &mesh) : f_space(mesh), wi(f_space)
 	{
 	}
 
+	/**
+	 * \brief evaluate the Rayleigh integral for a source point and a wave number
+	 * \param x0 the source point
+	 * \param the k wave number
+	 */
 	result_vector_t const &eval(x_t const &x0, dcomplex const &k)
 	{
 		kernel_t::set_x0(x0);
@@ -35,7 +52,9 @@ public:
 	}
 
 protected:
+	/** \brief the function space object over which integration is performed */
 	function_space_t f_space;
+	/** \brief the weighted integral object that performs integration */
 	weighted_integral_t wi;
 };
 

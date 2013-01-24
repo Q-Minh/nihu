@@ -30,16 +30,40 @@ public:
     typedef double scalar_t;
 	/** \brief the location vector */
 	typedef Eigen::Matrix<double, dimension, 1> xi_t;
+
+	/**
+	 * \brief return the central point of the domain
+	 * \return center point
+	 */
+	static xi_t const &get_center(void)
+	{
+		return center;
+	}
+
+protected:
+	/** \brief the center point of the domain */
+	static xi_t center;
 };
 
 /** \brief a 1D line domain \f$-1 \le \xi \le +1\f$*/
-class line_domain : public domain<1, 2> {};
+typedef domain<1, 2> line_domain;
+template<>
+line_domain::xi_t line_domain::center = line_domain::xi_t::Zero();
+
 /** \brief a 2D triangle domain */
-class tria_domain : public domain<2, 3> {};
+typedef domain<2, 3> tria_domain;
+template<>
+tria_domain::xi_t tria_domain::center = tria_domain::xi_t::Ones()/3.0;
+
 /** \brief a 2D quad domain */
-class quad_domain : public domain<2, 4> {};
+typedef domain<2, 4> quad_domain;
+template<>
+quad_domain::xi_t quad_domain::center = quad_domain::xi_t::Zero();
+
 /** \brief a 3D brick domain */
-class brick_domain : public domain<3, 8> {};
+typedef domain<3, 8> brick_domain;
+template<>
+brick_domain::xi_t brick_domain::center = brick_domain::xi_t::Zero();
 
 #endif
 

@@ -15,7 +15,7 @@
  * \brief integrates a kernel over a field with a quadrature of specified order
  * \details stores the result in a static variable
  * \tparam Field the field type that needs to be handled
- * \tparam Kernel the kernel type tha needs to be evaluated
+ * \tparam Kernel the kernel type that needs to be evaluated
  * \tparam N the order of quadrature
  */
 template <class Field, class Kernel, unsigned N>
