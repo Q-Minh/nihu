@@ -1,7 +1,7 @@
 CC=g++
 CFLAGS=-Wall -pedantic -O3 -I /usr/local/include/eigen3 -std=c++0x
 
-tests: quad_test element_test mesh_test field_test integral_test weighted_test rayleigh_test
+tests: quad_test element_test mesh_test field_test weighted_test rayleigh_test bem_test
 
 quad_test: src/bem/quad_test.cpp src/bem/quadrature.hpp
 	$(CC) $(CFLAGS) src/bem/quad_test.cpp -o quad_test
@@ -14,9 +14,6 @@ mesh_test: src/bem/mesh_test.cpp src/bem/mesh.hpp
 
 field_test: src/bem/field_test.cpp src/bem/field.hpp
 	$(CC) $(CFLAGS) src/bem/field_test.cpp -o field_test
-
-integral_test: src/bem/integral_test.cpp src/bem/kernel.hpp src/bem/integral.hpp
-	$(CC) $(CFLAGS) src/bem/integral_test.cpp -o integral_test
 
 weighted_test: src/bem/weighted_integral_test.cpp src/bem/weighted_integral.hpp
 	$(CC) $(CFLAGS) src/bem/weighted_integral_test.cpp -o weighted_test

@@ -1,7 +1,7 @@
 #include <mex.h>
 #include "bem.hpp"
 
-typedef tmp::vector<quad_1_elem> elem_type_vector;
+typedef tmp::vector<tria_1_elem, quad_1_elem> elem_type_vector;
 typedef Mesh<elem_type_vector> mesh_t;
 typedef mesh_t::x_t x_t;
 typedef bem<elem_type_vector, isoparametric_field> bem_t;

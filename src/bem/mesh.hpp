@@ -1,7 +1,7 @@
 /**
  * \file mesh.hpp
  * \author Peter fiala fiala@hit.bme.hu, Peter Rucz rucz@hit.bme.hu
- * \brief Decalaration of class Mesh
+ * \brief Declaration of class Mesh
  */
 #ifndef MESH_HPP_INCLUDED
 #define MESH_HPP_INCLUDED

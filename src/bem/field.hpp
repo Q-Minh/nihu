@@ -7,7 +7,6 @@
 #define FIELD_HPP_INCLUDED
 
 #include "element.hpp"
-#include "../tmp/general.hpp"
 
 /** \brief tag class used to describe an isoparametric field */
 struct isoparametric_field;

@@ -36,10 +36,10 @@ public:
 	typedef gauss_quadrature<typename field_t::elem_t::domain_t> quadrature_t;
 	/** \brief type of the quadrature */
 	typedef typename quadrature_t::quadrature_elem_t quadrature_elem_t;
+
 	/** \brief type of the element's N-set */
 	typedef typename field_t::nset_t nset_t;
 	/** \brief type of the weighted kernel result */
-	/// TODO ///
 	typedef typename Eigen::Matrix<typename kernel_t::scalar_t, field_t::num_dofs, kernel_t::num_elements> result_t;
 
 	/**
@@ -47,11 +47,8 @@ public:
 	 * \param field the field over which the integration is performed
 	 * \return reference to the result of the integral. The actual result is stored in static variable
 	 */
-	static result_t const &eval(field_t const &field)
+	static result_t const &eval(field_t const &field, quadrature_t const &q)
 	{
-		// create quadrature (very expensive, memory is allocated here dynamically)
-		quadrature_t q(5);
-
 		result = result_t();	/* clear result */
 		std::for_each(q.begin(), q.end(),
 			[&] (quadrature_elem_t const &qe) {
@@ -114,20 +111,26 @@ protected:
 			/** \brief the field type */
 			typedef field<elem_t, typename function_space_t::field_option> field_t;
 
-			typedef weighted_field_integral<field_t, Kernel> weighted_field_integral_t;
+			typedef weighted_field_integral<field_t, kernel_t> weighted_field_integral_t;
 			typedef typename weighted_field_integral_t::result_t result_t;
 			typedef typename field_t::dofs_t dofs_t;
 
+			/** \brief type of the quadrature */
+			typedef gauss_quadrature<typename elem_t::domain_t> quadrature_t;
+
 			void operator() (weighted_integral_t &wi)
 			{
+				// create quadrature (expensive, memory is allocated and eigenvalue problem is solved)
+				quadrature_t q(2);
+				
 				// integrate for each element of the same type
 				std::for_each(
 					wi.func_space.template begin<elem_t>(),
 					wi.func_space.template end<elem_t>(),
-					[&wi] (field_t const &f)
+					[&wi, &q] (field_t const &f)
 				{
 					// autos are used to increase performance (reference is passed)
-					result_t const &I = weighted_field_integral_t::eval(f);
+					result_t const &I = weighted_field_integral_t::eval(f, q);
 					dofs_t const &dofs = f.get_dofs();
 					for (unsigned i = 0; i < field_t::num_dofs; ++i)
 						wi.result_vector.row(dofs(i)) += I.row(i);

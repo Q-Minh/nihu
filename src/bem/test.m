@@ -4,7 +4,7 @@ make
 clc;
 
 mesh = create_sphere_boundary(1,10);
-field = create_slab([2 0 0; 4 2 0], [20, 20]);
+field = create_slab([2 0 0; 4 2 0], [25, 25]);
 
 k = 0.3;
 
