@@ -39,7 +39,8 @@ public:
 	/** \brief type of the element's N-set */
 	typedef typename field_t::nset_t nset_t;
 	/** \brief type of the weighted kernel result */
-	typedef typename Eigen::Matrix<typename kernel_t::scalar_t, field_t::num_dofs, 1> result_t;
+	/// TODO ///
+	typedef typename Eigen::Matrix<typename kernel_t::scalar_t, field_t::num_dofs, kernel_t::num_elements> result_t;
 
 	/**
 	 * \brief evaluate the integral over a specific field
@@ -97,8 +98,7 @@ public:
 	/** \brief the element type vector inherited from the function space */
 	typedef typename function_space_t::elem_type_vector_t elem_type_vector_t;
 	/** \brief integration result type */
-	typedef Eigen::Matrix<typename kernel_t::scalar_t, Eigen::Dynamic, 1> result_vector_t;
-
+	typedef Eigen::Matrix<typename kernel_t::scalar_t, Eigen::Dynamic, kernel_t::num_elements> result_vector_t;
 
 protected:
 	/**
@@ -130,7 +130,7 @@ protected:
 					result_t const &I = weighted_field_integral_t::eval(f);
 					dofs_t const &dofs = f.get_dofs();
 					for (unsigned i = 0; i < field_t::num_dofs; ++i)
-						wi.result_vector(dofs(i)) += I(i);
+						wi.result_vector.row(dofs(i)) += I.row(i);
 				}
 				);
 			}
@@ -143,7 +143,7 @@ public:
 	 */
 	weighted_integral(function_space_t const &func_space) : func_space(func_space)
 	{
-		result_vector.resize(func_space.get_num_dofs());
+		result_vector.resize(func_space.get_num_dofs(),Eigen::NoChange);
 	}
 
 	/**
@@ -151,7 +151,7 @@ public:
 	 */
 	result_vector_t const &eval(void)
 	{
-		result_vector = result_vector_t::Zero(result_vector.size());
+		result_vector = result_vector_t::Zero(result_vector.rows(), result_vector.ColsAtCompileTime);
 		tmp::call_each<
 			elem_type_vector_t,
 			eval_on_elemtype<tmp::_1>,

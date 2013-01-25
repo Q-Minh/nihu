@@ -35,5 +35,27 @@ protected:
 };
 
 
+template <class xType>
+class location_with_normal : public location<xType>
+{
+public:
+	typedef xType x_t;
+
+	template <class elem_t>
+	location_with_normal(elem_t const &elem, typename elem_t::xi_t const &xi) : location<xType>(elem, xi)
+	{
+		normal = elem.get_normal(xi);
+	}
+
+	x_t const &get_normal(void) const
+	{
+		return normal;
+	}
+
+protected:
+	x_t normal;
+};
+
+
 #endif
 

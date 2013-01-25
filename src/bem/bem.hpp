@@ -2,21 +2,21 @@
  * \file rayleigh.hpp
  * \brief implementation of the Rayleigh integeral in 3D
  */
- #ifndef RAYLEIGH_HPP_INCLUDED
- #define RAYLEIGH_HPP_INCLUDED
+ #ifndef BEM_HPP_INCLUDED
+ #define BEM_HPP_INCLUDED
 
  #include "weighted_integral.hpp"
 
 /**
- * \brief evaluate the Rayleigh integral on a function space
- * \details The Rayleigh integral is evaluated over a function space
+ * \brief evaluate the BEM radiation integral on a function space
+ * \details The integral is evaluated over a function space
  * consisting of elements listed in the template parameter ElemVector and
  * extended into a function space defined by FieldOption.
  * \tparam ElemVector vector of element types that can be contained by the mesh
  * \tparam FieldOption function space generation option (constant_field or isoparametric_field)
  */
 template <class ElemVector, class FieldOption>
-class rayleigh
+class bem
 {
 public:
 	/** \brief template parameter as nested type */
@@ -27,7 +27,7 @@ public:
 	typedef Mesh<elem_type_vector_t> mesh_t;
 	typedef typename mesh_t::x_t x_t;
 	typedef function_space<mesh_t, field_option_t> function_space_t;
-	typedef green_G_kernel kernel_t;
+	typedef green_HG_kernel kernel_t;
 	typedef weighted_integral<function_space_t, kernel_t> weighted_integral_t;
 	typedef typename weighted_integral_t::result_vector_t result_vector_t;
 
@@ -35,12 +35,12 @@ public:
 	 * \brief the constructor initialises the stored function space and weighted integral
 	 * \param mesh the stored mesh
 	 */
-	rayleigh(mesh_t const &mesh) : f_space(mesh), wi(f_space)
+	bem(mesh_t const &mesh) : f_space(mesh), wi(f_space)
 	{
 	}
 
 	/**
-	 * \brief evaluate the Rayleigh integral for a source point and a wave number
+	 * \brief evaluate the bem integral for a source point and a wave number
 	 * \param x0 the source point
 	 * \param the k wave number
 	 */

@@ -24,6 +24,9 @@ weighted_test: src/bem/weighted_integral_test.cpp src/bem/weighted_integral.hpp
 rayleigh_test: src/bem/rayleigh_test.cpp src/bem/rayleigh.hpp src/bem/weighted_integral.hpp  src/bem/function_space.hpp
 	$(CC) $(CFLAGS) src/bem/rayleigh_test.cpp -o rayleigh_test
 
+bem_test: src/bem/bem_test.cpp src/bem/bem.hpp src/bem/weighted_integral.hpp  src/bem/function_space.hpp
+	$(CC) $(CFLAGS) src/bem/bem_test.cpp -o bem_test
+
 clean:
 	rm *_test
 
