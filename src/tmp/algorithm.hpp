@@ -6,8 +6,9 @@
 #ifndef ALGORITHM_HPP
 #define ALGORITHM_HPP
 
+#include <type_traits>
+
 #include "bool.hpp"
-#include "general.hpp"
 #include "lambda.hpp"
 #include "sequence.hpp"
 #include "vector.hpp"
@@ -102,7 +103,7 @@ namespace tmp
 	 */
 	template <class Seq>
 	struct inherit : accumulate<Seq, empty, internal::inheriter<_1,_2> > {};
-	
+
 	namespace internal
 	{
 		/**
@@ -189,7 +190,7 @@ namespace tmp
 	{
 		template <class Beg, class End, class Elem>
 		struct find_impl : if_<
-			typename is_same<typename deref<Beg>::type, Elem>::type,
+			typename std::is_same<typename deref<Beg>::type, Elem>::type,
 			Beg,
 			typename find_impl<typename next<Beg>::type, End, Elem>::type
 		> {};
@@ -210,7 +211,7 @@ namespace tmp
 
 	template <class Seq, class Elem>
 	struct is_member : not_<
-		typename is_same<
+		typename std::is_same<
 			typename find<Seq, Elem>::type,
 			typename end<Seq>::type
 		>::type

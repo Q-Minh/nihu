@@ -18,7 +18,7 @@
  * \tparam Kernel the kernel type that needs to be evaluated
  * \tparam N the order of quadrature
  */
-template <class Field, class Kernel, unsigned N>
+template <class Field, class Kernel>
 class weighted_field_integral
 {
 public:
@@ -26,8 +26,6 @@ public:
 	typedef Field field_t;
 	/** \brief template parameter as nested type */
 	typedef Kernel kernel_t;
-	/** \brief template parameter as nested constant */
-	static unsigned const quad_n = N;
 
 	/** \brief the input type of the kernel */
 	typedef typename kernel_t::input_t kernel_input_t;
@@ -56,9 +54,13 @@ public:
 		result = result_t();	/* clear result */
 		std::for_each(q.begin(), q.end(),
 			[&] (quadrature_elem_t const &qe) {
+			// get reference to quadrature location
 			auto xi = qe.get_xi();
+			// compute kernel input
 			kernel_input_t input(field.get_elem(), xi);
+			// get reference to kernel result
 			auto kernel_res = kernel_t::eval(input);
+			// multiply kernel with a real matrix
 			result += nset_t::eval_L(xi) * (kernel_res * (input.get_jacobian() * qe.get_w()));
 		});
 		return result;
@@ -70,9 +72,9 @@ protected:
 };
 
 /** \brief definition of the integral result */
-template <class Field, class Kernel, unsigned N>
-typename weighted_field_integral<Field, Kernel, N>::result_t
-	weighted_field_integral<Field, Kernel, N>::result;
+template <class Field, class Kernel>
+typename weighted_field_integral<Field, Kernel>::result_t
+	weighted_field_integral<Field, Kernel>::result;
 
 
 /**
@@ -109,12 +111,11 @@ protected:
 	{
 		struct type
 		{
-			/** \brief quadrature order */
-			static unsigned const num_quadrature_points = 5;
 			/** \brief the field type */
 			typedef field<elem_t, typename function_space_t::field_option> field_t;
 
-			typedef typename weighted_field_integral<field_t, Kernel, num_quadrature_points>::result_t result_t;
+			typedef weighted_field_integral<field_t, Kernel> weighted_field_integral_t;
+			typedef typename weighted_field_integral_t::result_t result_t;
 			typedef typename field_t::dofs_t dofs_t;
 
 			void operator() (weighted_integral_t &wi)
@@ -125,10 +126,8 @@ protected:
 					wi.func_space.template end<elem_t>(),
 					[&wi] (field_t const &f)
 				{
-					typedef weighted_field_integral<field_t, Kernel, num_quadrature_points>::result_t result_t;
-					typedef field_t::dofs_t dofs_t;
 					// autos are used to increase performance (reference is passed)
-					result_t const &I = weighted_field_integral<field_t, Kernel, num_quadrature_points>::eval(f);
+					result_t const &I = weighted_field_integral_t::eval(f);
 					dofs_t const &dofs = f.get_dofs();
 					for (unsigned i = 0; i < field_t::num_dofs; ++i)
 						wi.result_vector(dofs(i)) += I(i);

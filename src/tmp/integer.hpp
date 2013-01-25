@@ -58,7 +58,7 @@ namespace tmp
 	 * \brief metafunction returning difference of two integers
 	 */
 	template <int N, int M>
-	struct less<int_<N>, int_<M> > : bool_<N < M> {};
+	struct less<int_<N>, int_<M> > : std::integral_constant<bool, N < M> {};
 }
 
 #endif

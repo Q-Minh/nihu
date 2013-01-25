@@ -7,41 +7,27 @@
 #ifndef BOOL_HPP_INCLUDED
 #define BOOL_HPP_INCLUDED
 
+#include <type_traits>
+
 namespace tmp
 {
-	/**
-	 * \brief Boolean type representation
-	 * \tparam x the underlying Boolean value
-	 */
-	template <bool x>
-	struct bool_
-	{
-		static bool const value = x;
-		typedef bool_ type;
-	};
-
-	/** \brief true type */
-	typedef bool_<true> true_;
-	/** \brief false type */
-	typedef bool_<false> false_;
-
 	template <class Cond, class T, class F>
 	struct if_;
 
 	template <class T, class F>
-	struct if_<true_, T, F> { typedef T type; };
+	struct if_<std::true_type, T, F> { typedef T type; };
 
 	template <class T, class F>
-	struct if_<false_, T, F> { typedef F type; };
+	struct if_<std::false_type, T, F> { typedef F type; };
 
 	template <class A>
-	struct not_ : bool_<!A::value> {};
-	
-	template <class A, class B, class C = false_>
-	struct or_ : bool_<A::value || B::value || C::value> {};
-	
-	template <class A, class B, class C = true_>
-	struct and_ : bool_<A::value && B::value && C::value> {};
+	struct not_ : std::integral_constant<bool, !A::value> {};
+
+	template <class A, class B, class C = std::false_type>
+	struct or_ : std::integral_constant<bool, A::value || B::value || C::value> {};
+
+	template <class A, class B, class C = std::true_type>
+	struct and_ : std::integral_constant<bool, A::value && B::value && C::value> {};
 }
 
 #endif

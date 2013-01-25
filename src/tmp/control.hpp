@@ -6,10 +6,11 @@
 #ifndef CALL_EACH_HPP
 #define CALL_EACH_HPP
 
+#include <type_traits>
+
 #include "sequence.hpp"
 #include "lambda.hpp"
 #include "algorithm.hpp"
-#include "general.hpp"
 
 namespace tmp
 {
@@ -95,7 +96,7 @@ namespace tmp
 			typename begin<Seq>::type,
 			typename end<Seq>::type,
 			Trans,
-			typename add_ref<Arg1>::type
+			typename std::add_lvalue_reference<Arg1>::type
 		>::eval(arg1);
 	}
 
@@ -108,8 +109,8 @@ namespace tmp
 			typename begin<Seq>::type,
 			typename end<Seq>::type,
 			Trans,
-			typename add_ref<Arg1>::type,
-			typename add_ref<Arg2>::type
+			typename std::add_lvalue_reference<Arg1>::type,
+			typename std::add_lvalue_reference<Arg2>::type
 		>::eval(arg1, arg2);
 	}
 
@@ -200,7 +201,7 @@ namespace tmp
 			typename begin<Seq>::type,
 			typename end<Seq>::type,
 			Trans,
-			typename add_ref<Arg1>::type
+			typename std::add_lvalue_reference<Arg1>::type
 		>::eval(arg1);
 	}
 
@@ -213,8 +214,8 @@ namespace tmp
 			typename begin<Seq>::type,
 			typename end<Seq>::type,
 			Trans,
-			typename add_ref<Arg1>::type,
-			typename add_ref<Arg2>::type
+			typename std::add_lvalue_reference<Arg1>::type,
+			typename std::add_lvalue_reference<Arg2>::type
 		>::eval(arg1, arg2);
 	}
 }

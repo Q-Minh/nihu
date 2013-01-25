@@ -46,23 +46,23 @@ namespace tmp
 
 
 	/**
-	 * \brief metafunction returning true_ if its argument is a placeholder
+	 * \brief metafunction returning std::true_type if its argument is a placeholder
 	 */
 	template <class C>
-	struct isPlaceholder : false_ {};
+	struct isPlaceholder : std::false_type {};
 
 	template <int N>
-	struct isPlaceholder<arg<N> > : true_ {};
+	struct isPlaceholder<arg<N> > : std::true_type {};
 
 
 	/**
-	 * \brief metafunction returning true_ if its argument is a placeholder expression
+	 * \brief metafunction returning std::true_type if its argument is a placeholder expression
 	 */
 	template <class C>
-	struct isPlaceholderExpression : false_ {};
+	struct isPlaceholderExpression : std::false_type {};
 
 	template <int N>
-	struct isPlaceholderExpression<arg<N> > : true_ {};
+	struct isPlaceholderExpression<arg<N> > : std::true_type {};
 
 	template <template <class Arg1> class MF, class Arg1>
 	struct isPlaceholderExpression<MF<Arg1> > : isPlaceholderExpression<Arg1> {};
