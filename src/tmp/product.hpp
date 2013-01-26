@@ -4,6 +4,8 @@
 template <class A, class B>
 struct product_type;
 
-template <> struct product_type<double, double> { typedef double type; };
+template <class T>
+struct product_type<T, T> { typedef T type; };
 
 #endif
+

@@ -202,6 +202,13 @@ namespace tmp
 		};
 	}
 
+	/**
+	 * \brief Find an element in a sequence
+	 * \details return an iterator for the first match. The end iterator is returned if the element is not found.
+	 * \tparam Seq the sequence
+	 * \tparam Elem the element
+	 * \return itrerator to the first occurrence of Elem in Seq or the end iterator if Elem is not found
+	 */
 	template <class Seq, class Elem>
 	struct find : internal::find_impl<
 		typename begin<Seq>::type,
@@ -209,6 +216,12 @@ namespace tmp
 		Elem
 	> {};
 
+	/**
+	 * \brief return true if the element is member of a sequence
+	 * \details returns true_type if Elem is found in Seq
+	 * \tparam Seq the sequence
+	 * \tparam Elem the element
+	 */
 	template <class Seq, class Elem>
 	struct is_member : not_<
 		typename std::is_same<
@@ -217,6 +230,11 @@ namespace tmp
 		>::type
 	> {};
 
+	/**
+	 * \brief return a vector containing each element of Seq exactly once
+	 * \tparam Seq a sequence
+	 * \return a new sequence that contains each element of Seq exactly once
+	 */
 	template <class Seq>
 	struct unique : accumulate<
 		Seq,

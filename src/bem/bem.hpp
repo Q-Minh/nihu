@@ -1,6 +1,6 @@
 /**
- * \file rayleigh.hpp
- * \brief implementation of the Rayleigh integeral in 3D
+ * \file bem.hpp
+ * \brief implementation of the Helmholtz BEM radiation problem in 3D
  */
  #ifndef BEM_HPP_INCLUDED
  #define BEM_HPP_INCLUDED

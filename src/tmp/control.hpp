@@ -1,7 +1,7 @@
 /**
  * \file control.hpp
  * \author Peter fiala fiala@hit.bme.hu, Peter Rucz rucz@hit.bme.hu
- * \brief Implementation of call_each and call_until control structures
+ * \brief Implementation of code generating control structures
  */
 #ifndef CALL_EACH_HPP
 #define CALL_EACH_HPP
@@ -12,6 +12,9 @@
 #include "lambda.hpp"
 #include "algorithm.hpp"
 
+/**
+ * \brief template metaprogramming functions
+ */
 namespace tmp
 {
 	namespace internal
