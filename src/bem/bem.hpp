@@ -24,11 +24,18 @@ public:
 	/** \brief template parameter as nested type */
 	typedef FieldOption field_option_t;
 
-	typedef Mesh<elem_type_vector_t> mesh_t;
-	typedef typename mesh_t::x_t x_t;
-	typedef function_space<mesh_t, field_option_t> function_space_t;
+	/** \brief specify the actual kernel to integrate */
 	typedef green_HG_kernel kernel_t;
+
+	/** \brief the stored mesh type */
+	typedef Mesh<elem_type_vector_t> mesh_t;
+	/** \brief the location vector type */
+	typedef typename mesh_t::x_t x_t;
+	/** \brief the function space type */
+	typedef function_space<mesh_t, field_option_t> function_space_t;
+	/** \brief the weighted integral type */
 	typedef weighted_integral<function_space_t, kernel_t> weighted_integral_t;
+	/** \brief the result type of integration */
 	typedef typename weighted_integral_t::result_vector_t result_vector_t;
 
 	/**
@@ -43,18 +50,21 @@ public:
 	 * \brief evaluate the bem integral for a source point and a wave number
 	 * \param x0 the source point
 	 * \param the k wave number
+	 * \return reference to the internally stored result vector
 	 */
 	result_vector_t const &eval(x_t const &x0, dcomplex const &k)
 	{
+		// initialise the kernel
 		kernel_t::set_x0(x0);
 		kernel_t::set_wave_number(k);
+		// evaluate the weighted integral
 		return wi.eval();
 	}
 
 protected:
 	/** \brief the function space object over which integration is performed */
 	function_space_t f_space;
-	/** \brief the weighted integral object that performs integration */
+	/** \brief the weighted integral object that integrates and stores the result */
 	weighted_integral_t wi;
 };
 

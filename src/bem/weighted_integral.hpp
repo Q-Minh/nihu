@@ -6,17 +6,18 @@
 #ifndef WEIGHTED_INTEGRAL_HPP_INCLUDED
 #define WEIGHTED_INTEGRAL_HPP_INCLUDED
 
+#include <Eigen/Dense>
+
 #include "kernel.hpp"
 #include "quadrature.hpp"
 #include "descriptor.hpp"
 #include "function_space.hpp"
 
 /**
- * \brief integrates a kernel over a field with a quadrature of specified order
+ * \brief integrates a kernel over a field and stores the result in a static variable
  * \details stores the result in a static variable
  * \tparam Field the field type that needs to be handled
  * \tparam Kernel the kernel type that needs to be evaluated
- * \tparam N the order of quadrature
  */
 template <class Field, class Kernel>
 class weighted_field_integral
@@ -34,7 +35,7 @@ public:
 
 	/** \brief type of the quadrature */
 	typedef gauss_quadrature<typename field_t::elem_t::domain_t> quadrature_t;
-	/** \brief type of the quadrature */
+	/** \brief type of a quadrature element */
 	typedef typename quadrature_t::quadrature_elem_t quadrature_elem_t;
 
 	/** \brief type of the element's N-set */
@@ -43,22 +44,24 @@ public:
 	typedef typename Eigen::Matrix<typename kernel_t::scalar_t, field_t::num_dofs, kernel_t::num_elements> result_t;
 
 	/**
-	 * \brief evaluate the integral over a specific field
-	 * \param field the field over which the integration is performed
+	 * \brief evaluate the integral over a specific field with a quadrature
+	 * \param field the field over which integration is performed
+	 * \param q the quadrature
 	 * \return reference to the result of the integral. The actual result is stored in static variable
 	 */
 	static result_t const &eval(field_t const &field, quadrature_t const &q)
 	{
-		result = result_t();	/* clear result */
+		// clear result
+		result = result_t();
 		std::for_each(q.begin(), q.end(),
 			[&] (quadrature_elem_t const &qe) {
 			// get reference to quadrature location
 			auto xi = qe.get_xi();
-			// compute kernel input
+			// construct kernel input
 			kernel_input_t input(field.get_elem(), xi);
-			// get reference to kernel result
+			// evaluate kernel and get reference to result
 			auto kernel_res = kernel_t::eval(input);
-			// multiply kernel with a real matrix
+			// multiply kernel result with weighting matrix and quadrature weight
 			result += nset_t::eval_L(xi) * (kernel_res * (input.get_jacobian() * qe.get_w()));
 		});
 		return result;
@@ -69,7 +72,7 @@ protected:
 	static result_t result;
 };
 
-/** \brief definition of the integral result */
+/** \brief definition of the static integral result */
 template <class Field, class Kernel>
 typename weighted_field_integral<Field, Kernel>::result_t
 	weighted_field_integral<Field, Kernel>::result;
@@ -77,7 +80,7 @@ typename weighted_field_integral<Field, Kernel>::result_t
 
 /**
  * \brief  integrates a kernel over a function space and stores the result in static variable
- * \tparam FunctionSpace the function space over which the integration is performed
+ * \tparam FunctionSpace the function space over which integration is performed
  * \tparam Kernel the kernel to be integrated
  */
 template <class FunctionSpace, class Kernel>
@@ -106,13 +109,16 @@ protected:
 	template <class elem_t>
 	struct eval_on_elemtype
 	{
+		// internal struct type is needed because tmp::call_each works on metafunctions
 		struct type
 		{
 			/** \brief the field type */
 			typedef field<elem_t, typename function_space_t::field_option> field_t;
-
+			/** \brief the field integrator type */
 			typedef weighted_field_integral<field_t, kernel_t> weighted_field_integral_t;
+			/** \brief result type of field integrator */
 			typedef typename weighted_field_integral_t::result_t result_t;
+			/** \brief dofs type needed to iterate */
 			typedef typename field_t::dofs_t dofs_t;
 
 			/** \brief type of the quadrature */
@@ -129,8 +135,9 @@ protected:
 					wi.func_space.template end<elem_t>(),
 					[&wi, &q] (field_t const &f)
 				{
-					// autos are used to increase performance (reference is passed)
+					// get reference to field integral result
 					result_t const &I = weighted_field_integral_t::eval(f, q);
+					// write result into result vector
 					dofs_t const &dofs = f.get_dofs();
 					for (unsigned i = 0; i < field_t::num_dofs; ++i)
 						wi.result_vector.row(dofs(i)) += I.row(i);
@@ -143,6 +150,7 @@ protected:
 public:
 	/**
 	 * \brief constructor initialises the function space reference member and allocates for the result
+	 * \param func_space the function space over which integration is performed
 	 */
 	weighted_integral(function_space_t const &func_space) : func_space(func_space)
 	{
@@ -151,6 +159,7 @@ public:
 
 	/**
 	 * \brief evaluate integral and return reference to result vector
+	 * \return reference to static member result
 	 */
 	result_vector_t const &eval(void)
 	{
