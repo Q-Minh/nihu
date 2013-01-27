@@ -1,3 +1,8 @@
+/**
+ * \file quadrature.hpp
+ * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
+ * \brief implementation of class quadrature, gauss_quadrature and their elements
+ */
 #ifndef QUADRATURE_HPP_INCLUDED
 #define QUADRATURE_HPP_INCLUDED
 
@@ -6,26 +11,39 @@
 
 #include <iostream>
 
+#include <Eigen/Dense>
 #include <Eigen/StdVector>
 #define EIGENSTDVECTOR(_T) std::vector<_T, Eigen::aligned_allocator<_T> >
 
+
+/**
+ * \brief a quadrature element is a base point and a weight
+ * \tparam Domain the domain over which integration is performed
+ */
 template <class Domain>
 class quadrature_elem
 {
 public:
+	/** \brief template parameter as nested type */
 	typedef Domain domain_t;
+
+	/** \brief scalar type inherited from domain */
 	typedef typename domain_t::scalar_t scalar_t;
+	/** \brief vector type inherited from domain */
 	typedef typename domain_t::xi_t xi_t;
 
+	/** \brief constructor initialising all members */
 	quadrature_elem(xi_t const &xi = xi_t(), scalar_t const &w = scalar_t()) : xi(xi), w(w)
 	{
 	}
 
+	/** \brief return constant reference to base point */
 	xi_t const &get_xi(void) const
 	{
 		return xi;
 	}
 
+	/** \brief return constant reference to weight */
 	scalar_t const &get_w(void) const
 	{
 		return w;
@@ -35,6 +53,7 @@ protected:
 	xi_t xi;
 	scalar_t w;
 };
+
 
 template <class Domain>
 class quadrature : public EIGENSTDVECTOR(quadrature_elem<Domain>)
@@ -354,3 +373,4 @@ std::ostream & operator << (std::ostream & os, const quadrature<Domain>& Q)
 }
 
 #endif
+
