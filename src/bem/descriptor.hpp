@@ -10,6 +10,7 @@ class location
 {
 public:
 	typedef xType x_t;
+	typedef typename x_t::Scalar scalar_t;
 
 	template <class elem_t>
 	location(elem_t const &elem, typename elem_t::xi_t const &xi)
@@ -19,7 +20,7 @@ public:
 		jacobian = elem.get_normal(xi).norm();
 	}
 
-	double get_jacobian(void) const
+	scalar_t const &get_jacobian(void) const
 	{
 		return jacobian;
 	}
@@ -31,7 +32,7 @@ public:
 
 protected:
 	x_t x;
-	double jacobian;
+	scalar_t jacobian;
 };
 
 
