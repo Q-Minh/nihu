@@ -6,7 +6,7 @@
 #include "elem_accelerator.hpp"
 #include "nset_accelerator.hpp"
 
-template <class ElemType, class  KernelInput>
+template <class ElemType, class KernelInput>
 class accelerator
 {
 public:
