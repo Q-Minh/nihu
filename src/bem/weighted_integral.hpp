@@ -8,9 +8,12 @@
 
 #include <Eigen/Dense>
 
+#include <vector>
+
 #include "kernel.hpp"
 #include "quadrature.hpp"
 #include "descriptor.hpp"
+#include "elem_accelerator.hpp"
 #include "function_space.hpp"
 
 /**
@@ -55,14 +58,12 @@ public:
 		result = result_t();
 		std::for_each(q.begin(), q.end(),
 			[&] (quadrature_elem_t const &qe) {
-			// get reference to quadrature location
-			auto xi = qe.get_xi();
 			// construct kernel input
-			kernel_input_t input(field.get_elem(), xi);
+			kernel_input_t input(field.get_elem(), qe);
 			// evaluate kernel and get reference to result
 			auto kernel_res = kernel_t::eval(input);
 			// multiply kernel result with weighting matrix and quadrature weight
-			result += nset_t::eval_L(xi) * (kernel_res * (input.get_jacobian() * qe.get_w()));
+			result += nset_t::eval_L(qe.get_xi()) * (kernel_res * (input.get_jacobian()));
 		});
 		return result;
 	}
@@ -94,6 +95,10 @@ public:
 
 	/** \brief the class type abbreviated */
 	typedef weighted_integral<function_space_t, kernel_t> weighted_integral_t;
+
+	/** \brief the kernel input type */
+	typedef typename kernel_t::input_t kernel_input_t;
+	typedef elem_accelerator<kernel_input_t> elem_accelerator_t;
 
 	/** \brief the element type vector inherited from the function space */
 	typedef typename function_space_t::elem_type_vector_t elem_type_vector_t;
@@ -154,7 +159,30 @@ public:
 	 */
 	weighted_integral(function_space_t const &func_space) : func_space(func_space)
 	{
-		result_vector.resize(func_space.get_num_dofs(),Eigen::NoChange);
+		result_vector.resize(func_space.get_num_dofs(), Eigen::NoChange);
+	}
+
+	/** \brief this works only for quad_1_elem elements */
+	void accelerate(void)
+	{
+		typedef quad_1_elem elem_t;
+		typedef gauss_quadrature<elem_t::domain_t> quadrature_t;
+		typedef field<elem_t,  typename function_space_t::field_option> field_t;
+
+		// create quadrature (expensive, memory is allocated and eigenvalue problem is solved)
+		quadrature_t q(2);
+				
+		// accelerate for each element of the same type
+		std::for_each(
+			func_space.template begin<elem_t>(),
+			func_space.template end<elem_t>(),
+			[this, &q] (field_t const &f)
+		{
+				elem_acc.push_back(
+					elem_accelerator_t(f.get_elem(), q)
+					);
+		}
+		);
 	}
 
 	/**
@@ -177,6 +205,8 @@ protected:
 	function_space_t const &func_space;
 	/** \brief the result vector */
 	result_vector_t result_vector;
+
+	EIGENSTDVECTOR(elem_accelerator_t) elem_acc;
 };
 
 #endif

@@ -44,6 +44,7 @@ public:
 	 */
 	bem(mesh_t const &mesh) : f_space(mesh), wi(f_space)
 	{
+//		wi.accelerate();
 	}
 
 	/**

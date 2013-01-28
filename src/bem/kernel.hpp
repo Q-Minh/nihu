@@ -101,7 +101,7 @@ public:
 		double r = rvec.norm();
 		result[0] = std::exp(-dcomplex(0.,1.)*k*r) / r / 4.0 / M_PI;
 		// dr / dn
-		double rdn = rvec.dot(input.get_normal()) / r / input.get_normal().norm();
+		double rdn = rvec.dot(input.get_normal()) / r;
 		result[1] = result[0] * (-(1.0 + dcomplex(0.,1.)*k*r) / r) * rdn;
 		return result;
 	}

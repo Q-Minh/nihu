@@ -237,6 +237,7 @@ typedef constant_shape_set<quad_domain> quad_0_shape_Set;
 
 
 
+/*
 // TODO - use x_t instead of nDim template parameter
 template <class shape_set_from, class shape_set_to, unsigned nDim>
 struct shape_set_converter;
@@ -307,6 +308,8 @@ protected:
 template <unsigned nDim>
 typename shape_set_converter<quad_1_shape_set, parallelogram_shape_set, nDim>::to_coords_t
 	shape_set_converter<quad_1_shape_set, parallelogram_shape_set, nDim>::to_coords;
+
+*/
 
 #endif
 

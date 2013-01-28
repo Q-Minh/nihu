@@ -49,6 +49,8 @@ public:
 		return w;
 	}
 
+	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
 protected:
 	xi_t xi;
 	scalar_t w;
