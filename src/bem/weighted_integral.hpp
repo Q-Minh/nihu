@@ -58,15 +58,13 @@ public:
 	}
 
 protected:
-	/** \brief the integral result stored as static variable */
-	static result_t result;
+	static result_t result; /**< \brief the integral result stored as static variable */
 };
 
 /** \brief definition of the static integral result */
 template <class Field, class Kernel>
 typename weighted_field_integral<Field, Kernel>::result_t
 	weighted_field_integral<Field, Kernel>::result;
-
 
 /**
  * \brief integrates a kernel over a field and stores the result in a static variable
@@ -199,7 +197,7 @@ protected:
 			{
 				auto nset_it = wi.accel.template get_nset_pool<elem_t>()[1].begin();
 
-				typename function_space_t::template field_iterator_t<elem_t> field_it = wi.func_space.template begin<elem_t>();
+				auto field_it = wi.func_space.template begin<elem_t>();
 				for (auto acc_it = wi.accel.template elem_begin<elem_t>();
 					acc_it != wi.accel.template elem_end<elem_t>();
 					++acc_it, ++field_it)
@@ -218,16 +216,15 @@ protected:
 	template <class elem_t>
 	struct accelerate_on
 	{
+		// internal struct type is needed because tmp::call_each works on metafunctions
 		struct type
 		{
 			void operator() (weighted_integral_t &wi)
 			{
-				std::for_each(
-					wi.func_space.template begin<elem_t>(),
-					wi.func_space.template end<elem_t>(),
-					[&] (field<elem_t, typename function_space_t::field_option_t> const &f) {
-						wi.accel.add_elem(f.get_elem());
-				});
+				for (auto it = wi.func_space.template begin<elem_t>();
+						it != wi.func_space.template end<elem_t>();
+						++it)
+					wi.accel.add_elem((*it).get_elem());
 			}
 		};
 	};
@@ -240,11 +237,7 @@ public:
 	weighted_integral(function_space_t const &func_space) : func_space(func_space)
 	{
 		result_vector.resize(func_space.get_num_dofs(), Eigen::NoChange);
-		accelerate();
-	}
 
-	void accelerate(void)
-	{
 		tmp::call_each<
 			elem_type_vector_t,
 			accelerate_on<tmp::_1>,
@@ -272,7 +265,7 @@ protected:
 	function_space_t const &func_space;	/**< \brief reference to the function space */
 	result_vector_t result_vector;		/**< \brief the result vector */
 
-	accelerator_t accel;
+	accelerator_t accel;				/**< \brief accelerator structure */
 };
 
 #endif

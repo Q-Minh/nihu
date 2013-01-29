@@ -13,9 +13,9 @@ tic;
 [GB, HB] = Boonen13(nodes, elements, k, points);
 tBoonen_acc = toc;
 
-tic;
-[H, G] = bemHG(mesh, k, 'lin', points);
-tOldSchool = toc;
+% tic;
+% [H, G] = bemHG(mesh, k, 'lin', points);
+% tOldSchool = toc;
 
 %%
 figure;

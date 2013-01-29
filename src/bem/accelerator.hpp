@@ -31,6 +31,7 @@ public:
 		// initialise quadrature pool
 		q.push_back(quadrature_t(1));
 		q.push_back(quadrature_t(2));
+		q.push_back(quadrature_t(3));
 		// initialise nset-pool
 		n_pool = nset_pool_t(q.begin(), q.end());
 	}

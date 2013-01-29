@@ -27,6 +27,10 @@ class field_points
 {
 public:
 	typedef xType x_t;
+
+	/** \brief number of dimensions */
+	static unsigned const nDim = x_t::SizeAtCompileTime;
+
 	typedef typename EIGENSTDVECTOR(x_t)::const_iterator iterator_t;
 
 	iterator_t begin(void) const
@@ -72,6 +76,8 @@ public:
 	/** \brief type of base class */
 	typedef field_points<typename first_elements_x_type<ElemTypeVector>::type> base;
 
+	static unsigned const nDim = base::nDim;
+
 	/** \brief the type of the mesh class itself */
 	typedef Mesh<elem_type_vector_t> mesh_t;
 
@@ -93,9 +99,6 @@ public:
 
 	/** \brief type of a nodal coordinate */
 	typedef typename x_t::Scalar scalar_t;
-
-	/** \brief number of dimensions */
-	static unsigned const nDim = x_t::SizeAtCompileTime;
 
 	template <class ElemType>
 	struct elem_iterator_t
@@ -134,6 +137,26 @@ protected:
 public:
 	Mesh() : num_elements(0)
 	{
+	}
+
+	template <unsigned N_MAX_ELEM>
+	void build_from_mex(double nodes[], unsigned nnodes, double elements[], unsigned nelements)
+	{
+		double c[nDim];
+
+		for (unsigned i = 0; i < nnodes; ++i)
+		{
+			for (unsigned j = 0; j < nDim; ++j)
+				c[j] = nodes[i+j*nnodes];
+			add_node(c);
+		}
+		unsigned e[N_MAX_ELEM];
+		for (unsigned i = 0; i < nelements; ++i)
+		{
+			for (unsigned j = 0; j < N_MAX_ELEM; ++j)
+				e[j] = elements[i+j*nelements];
+			add_elem(e);
+		}
 	}
 
 	/**

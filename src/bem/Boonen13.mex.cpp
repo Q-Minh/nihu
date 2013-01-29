@@ -15,20 +15,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
 	/* build mesh */
 	mesh_t mesh;
-	double c[3];
-	for (unsigned i = 0; i < nnodes; ++i)
-	{
-		for (unsigned j = 0; j < 3; ++j)
-			c[j] = nodes[i+j*nnodes];
-		mesh.add_node(c);
-	}
-	unsigned e[5];
-	for (unsigned i = 0; i < nelements; ++i)
-	{
-		for (unsigned j = 0; j < 5; ++j)
-			e[j] = elements[i+j*nelements];
-		mesh.add_elem(e);
-	}
+	mesh.build_from_mex<4+1>(nodes, nnodes, elements, nelements);
 	bem_t b(mesh);
 
     double k = mxGetScalar(prhs[2]);
