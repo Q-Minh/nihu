@@ -45,7 +45,7 @@ public:
 	/** \brief template parameter as nested type */
 	typedef MeshT mesh_t;
 	/** \brief template parameter as nested type */
-	typedef FieldOption field_option;
+	typedef FieldOption field_option_t;
 
 	/** \brief elem_type_vector inherited from mesh */
 	typedef typename mesh_t::elem_type_vector_t elem_type_vector_t;
@@ -59,7 +59,7 @@ public:
 	{
 	public:
 		typedef typename mesh_t::template elem_iterator_t<ElemType>::type base_it;
-		typedef field<ElemType, field_option> value_t;
+		typedef field<ElemType, field_option_t> value_t;
 
 		/**
 		 * \brief constructor from base iterator
@@ -107,7 +107,7 @@ public:
 
 	unsigned get_num_dofs(void) const
 	{
-		return get_num_dofs_impl<mesh_t, field_option>::eval(mesh);
+		return get_num_dofs_impl<mesh_t, field_option_t>::eval(mesh);
 	}
 
 protected:

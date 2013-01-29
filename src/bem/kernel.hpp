@@ -77,7 +77,7 @@ public:
 		// source receiver distance
 		double r = (input.get_x() - x0).norm();
 		// complex kernel
-		result[0] = std::exp(-dcomplex(0.0,1.0)*k*r) / r / 4.0 / M_PI;
+		result[0] = std::exp(-dcomplex(0.0,1.0)*k*r) / r / (4.0 * M_PI);
 		return result;
 	}
 };
@@ -97,12 +97,14 @@ public:
 	static result_t const &eval (input_t const &input)
 	{
 		x_t rvec = input.get_x() - x0;
+		double r2 = rvec.squaredNorm();
+		double r = sqrt(r2);
+		dcomplex ikr(dcomplex(0.,1.)*k*r);
 
-		double r = rvec.norm();
-		result[0] = std::exp(-dcomplex(0.,1.)*k*r) / r / 4.0 / M_PI;
-		// dr / dn
-		double rdn = rvec.dot(input.get_normal()) / r;
-		result[1] = result[0] * (-(1.0 + dcomplex(0.,1.)*k*r) / r) * rdn;
+		result[0] = std::exp(-ikr) / r / (4.0 * M_PI);
+		double rdn = rvec.dot(input.get_normal());
+		result[1] = result[0] * (1.0 + ikr)  * (-rdn / r2);
+
 		return result;
 	}
 };

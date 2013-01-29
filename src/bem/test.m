@@ -1,19 +1,17 @@
 make
 
 %%
-clc;
+mesh = create_sphere_boundary(1,20);
+field = create_slab([2 0 0; 4 2 0], [50, 50]);
 
-mesh = create_sphere_boundary(1,10);
-field = create_slab([2 0 0; 4 2 0], [25, 25]);
-
-k = 0.3;
+k = mesh_kmax(mesh, 7) * .8;
 
 [nodes, elements] = extract_bem_mesh(mesh);
 points = field.Nodes(:,2:4);
 
 tic;
 [GB, HB] = Boonen13(nodes, elements, k, points);
-tBoonen = toc;
+tBoonen_acc = toc;
 
 tic;
 [H, G] = bemHG(mesh, k, 'lin', points);
