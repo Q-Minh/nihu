@@ -47,24 +47,24 @@ public:
 	 */
 	static result_t const &eval(field_t const &field, quadrature_t const &q)
 	{
-		result = result_t();
+		m_result = result_t();	// clear result
 		for(auto it = q.begin(); it != q.end(); ++it)
 		{
 			kernel_input_t input(field.get_elem(), *it);
 			auto kernel_res = kernel_t::eval(input);
-			result += nset_t::eval_L(it->get_xi()) * (kernel_res * (input.get_jacobian()));
+			m_result += nset_t::eval_L(it->get_xi()) * (kernel_res * (input.get_jacobian()));
 		}
-		return result;
+		return m_result;
 	}
 
 protected:
-	static result_t result; /**< \brief the integral result stored as static variable */
+	static result_t m_result; /**< \brief the integral result stored as static variable */
 };
 
 /** \brief definition of the static integral result */
 template <class Field, class Kernel>
 typename weighted_field_integral<Field, Kernel>::result_t
-	weighted_field_integral<Field, Kernel>::result;
+	weighted_field_integral<Field, Kernel>::m_result;
 
 /**
  * \brief integrates a kernel over a field and stores the result in a static variable
@@ -80,7 +80,6 @@ public:
 	typedef typename base::result_t result_t;
 	typedef typename base::kernel_t kernel_t;
 	typedef typename base::kernel_input_t kernel_input_t;
-	using base::result;
 
 	/**
 	 * \brief evaluate the integral over a specific field with a quadrature
@@ -89,9 +88,9 @@ public:
 	template <class kernel_iter_t, class nset_iter_t>
 	static result_t const &eval(kernel_iter_t k_begin, kernel_iter_t k_end, nset_iter_t n_begin)
 	{
-		for (result = result_t(); k_begin != k_end; ++k_begin, ++n_begin)
-			result += (*n_begin) * (kernel_t::eval(*k_begin) * k_begin->get_jacobian());
-		return result;
+		for (base::m_result = result_t(); k_begin != k_end; ++k_begin, ++n_begin)
+			base::m_result += (*n_begin) * (kernel_t::eval(*k_begin) * k_begin->get_jacobian());
+		return base::m_result;
 	}
 };
 
@@ -133,45 +132,40 @@ protected:
 	 * \tparam elem_t the element type over which integration is performed
 	 */
 	template <class elem_t>
-	struct eval_on
-	{
-		// internal struct type is needed because tmp::call_each works on metafunctions
-		struct type
+	struct eval_on { struct type {
+		/** \brief the field type */
+		typedef field<elem_t, typename function_space_t::field_option_t> field_t;
+		/** \brief the field integrator type */
+		typedef weighted_field_integral<field_t, kernel_t> weighted_field_integral_t;
+		/** \brief result type of field integrator */
+		typedef typename weighted_field_integral_t::result_t result_t;
+		/** \brief dofs type needed to iterate */
+		typedef typename field_t::dofs_t dofs_t;
+
+		/** \brief type of the quadrature */
+		typedef gauss_quadrature<typename elem_t::domain_t> quadrature_t;
+
+		void operator() (weighted_integral_t &wi)
 		{
-			/** \brief the field type */
-			typedef field<elem_t, typename function_space_t::field_option_t> field_t;
-			/** \brief the field integrator type */
-			typedef weighted_field_integral<field_t, kernel_t> weighted_field_integral_t;
-			/** \brief result type of field integrator */
-			typedef typename weighted_field_integral_t::result_t result_t;
-			/** \brief dofs type needed to iterate */
-			typedef typename field_t::dofs_t dofs_t;
+			// create quadrature (expensive, memory is allocated and eigenvalue problem is solved)
+			quadrature_t q(2);
 
-			/** \brief type of the quadrature */
-			typedef gauss_quadrature<typename elem_t::domain_t> quadrature_t;
-
-			void operator() (weighted_integral_t &wi)
+			// integrate for each element of the same type
+			std::for_each(
+				wi.m_func_space.template begin<elem_t>(),
+				wi.m_func_space.template end<elem_t>(),
+				[&] (field_t const &f)
 			{
-				// create quadrature (expensive, memory is allocated and eigenvalue problem is solved)
-				quadrature_t q(2);
-				
-				// integrate for each element of the same type
-				std::for_each(
-					wi.func_space.template begin<elem_t>(),
-					wi.func_space.template end<elem_t>(),
-					[&wi, &q] (field_t const &f)
-				{
-					// get reference to field integral result
-					result_t const &I = weighted_field_integral_t::eval(f, q);
-					// write result into result vector
-					dofs_t const &dofs = f.get_dofs();
-					for (unsigned i = 0; i < field_t::num_dofs; ++i)
-						wi.result_vector.row(dofs(i)) += I.row(i);
-				}
-				);
+				// get reference to field integral result
+				result_t const &I = weighted_field_integral_t::eval(f, q);
+				// write result into result vector
+				dofs_t const &dofs = f.get_dofs();
+				for (unsigned i = 0; i < field_t::num_dofs; ++i)
+					wi.m_result_vector.row(dofs(i)) += I.row(i);
 			}
-		};
-	};
+			);
+		}
+	};};
 
 	/**
 	 * \brief evaluate integral on one element type and store the results into the result vector
@@ -179,64 +173,56 @@ protected:
 	 * \tparam elem_t the element type over which integration is performed
 	 */
 	template <class elem_t>
-	struct accelerated_eval_on
+	struct accelerated_eval_on { struct type : public eval_on<elem_t>::type
 	{
-		// internal struct type is needed because tmp::call_each works on metafunctions
-		struct type : public eval_on<elem_t>::type
+		typedef typename eval_on<elem_t>::type base;
+
+		typedef typename base::field_t field_t;
+		typedef typename base::dofs_t dofs_t;
+		typedef typename base::result_t result_t;
+
+		/** \brief the field integrator type */
+		typedef weighted_accelerated_field_integral<field_t, kernel_t> weighted_field_integral_t;
+
+		void operator() (weighted_integral_t &wi)
 		{
-			typedef typename eval_on<elem_t>::type base;
+			auto nset_it = wi.m_accel.template get_nset_pool<elem_t>()[1].begin();
 
-			typedef typename base::field_t field_t;
-			typedef typename base::dofs_t dofs_t;
-			typedef typename base::result_t result_t;
-
-			/** \brief the field integrator type */
-			typedef weighted_accelerated_field_integral<field_t, kernel_t> weighted_field_integral_t;
-
-			void operator() (weighted_integral_t &wi)
+			auto field_it = wi.m_func_space.template begin<elem_t>();
+			for (auto acc_it = wi.m_accel.template elem_begin<elem_t>();
+				acc_it != wi.m_accel.template elem_end<elem_t>();
+				++acc_it, ++field_it)
 			{
-				auto nset_it = wi.accel.template get_nset_pool<elem_t>()[1].begin();
-
-				auto field_it = wi.func_space.template begin<elem_t>();
-				for (auto acc_it = wi.accel.template elem_begin<elem_t>();
-					acc_it != wi.accel.template elem_end<elem_t>();
-					++acc_it, ++field_it)
-				{
-					result_t const &I = weighted_field_integral_t::eval((*acc_it)[1].begin(), (*acc_it)[1].end(), nset_it);
-					// write result into result vector
-					dofs_t const &dofs = (*field_it).get_dofs();
-					for (unsigned i = 0; i < field_t::num_dofs; ++i)
-						wi.result_vector.row(dofs(i)) += I.row(i);
-				}
+				result_t const &I = weighted_field_integral_t::eval((*acc_it)[1].begin(), (*acc_it)[1].end(), nset_it);
+				// write result into result vector
+				dofs_t const &dofs = (*field_it).get_dofs();
+				for (unsigned i = 0; i < field_t::num_dofs; ++i)
+					wi.m_result_vector.row(dofs(i)) += I.row(i);
 			}
-		};
-	};
+		}
+	};};
 
 
 	template <class elem_t>
-	struct accelerate_on
+	struct accelerate_on {	struct type
 	{
-		// internal struct type is needed because tmp::call_each works on metafunctions
-		struct type
+		void operator() (weighted_integral_t &wi)
 		{
-			void operator() (weighted_integral_t &wi)
-			{
-				for (auto it = wi.func_space.template begin<elem_t>();
-						it != wi.func_space.template end<elem_t>();
-						++it)
-					wi.accel.add_elem((*it).get_elem());
-			}
-		};
-	};
+			for (auto it = wi.m_func_space.template begin<elem_t>();
+					it != wi.m_func_space.template end<elem_t>();
+					++it)
+				wi.m_accel.add_elem((*it).get_elem());
+		}
+	};};
 
 public:
 	/**
-	 * \brief constructor initialises the function space reference member and allocates for the result
+	 * \brief constructor initialises the function space reference member and allocates the result
 	 * \param func_space the function space over which integration is performed
 	 */
-	weighted_integral(function_space_t const &func_space) : func_space(func_space)
+	weighted_integral(function_space_t const &func_space) : m_func_space(func_space)
 	{
-		result_vector.resize(func_space.get_num_dofs(), Eigen::NoChange);
+		m_result_vector.resize(m_func_space.get_num_dofs(), Eigen::NoChange);
 
 		tmp::call_each<
 			elem_type_vector_t,
@@ -251,21 +237,21 @@ public:
 	 */
 	result_vector_t const &eval(void)
 	{
-		result_vector = result_vector_t::Zero(result_vector.rows(), result_vector.ColsAtCompileTime);
+		m_result_vector = result_vector_t::Zero(m_result_vector.rows(), m_result_vector.ColsAtCompileTime);
 		tmp::call_each<
 			elem_type_vector_t,
 			accelerated_eval_on<tmp::_1>,
 			weighted_integral_t &
 		>(*this);
-		return result_vector;
+		return m_result_vector;
 	}
 
 protected:
-	
-	function_space_t const &func_space;	/**< \brief reference to the function space */
-	result_vector_t result_vector;		/**< \brief the result vector */
 
-	accelerator_t accel;				/**< \brief accelerator structure */
+	function_space_t const &m_func_space;	/**< \brief reference to the function space */
+	result_vector_t m_result_vector;		/**< \brief the result vector */
+
+	accelerator_t m_accel;				/**< \brief accelerator structure */
 };
 
 #endif

@@ -1,4 +1,4 @@
-#include "function_space.hpp"
+#include "../bem/function_space.hpp"
 
 typedef tmp::vector<tria_1_elem, quad_1_elem> elem_vector;
 

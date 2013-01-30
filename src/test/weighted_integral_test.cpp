@@ -1,6 +1,7 @@
-#include "weighted_integral.hpp"
+#include "../bem/weighted_integral.hpp"
 
 typedef tmp::vector<tria_1_elem, quad_1_elem> elem_vector;
+typedef Mesh<elem_vector> mesh_t;
 
 #include <iostream>
 
@@ -24,7 +25,7 @@ int main(void)
 	for (unsigned i = 0; i < 3; ++i)
 		mesh.add_elem(e+i*5);
 
-	function_space<Mesh<elem_vector>, isoparametric_field> func(mesh);
+	function_space<mesh_t, isoparametric_field> func(mesh);
 	weighted_integral<function_space<Mesh<elem_vector>, isoparametric_field>, green_G_kernel> wi(func);
 
 	wi.eval();

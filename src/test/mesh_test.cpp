@@ -1,4 +1,4 @@
-#include "mesh.hpp"
+#include "../bem/mesh.hpp"
 
 typedef tmp::vector<tria_1_elem, quad_1_elem> elem_vector;
 
