@@ -3,7 +3,7 @@
 
 typedef tmp::vector<tria_1_elem, quad_1_elem> elem_type_vector;
 typedef Mesh<elem_type_vector> mesh_t;
-typedef bem<elem_type_vector, isoparametric_field> bem_t;
+typedef bem<elem_type_vector, isoparametric_field, green_HG_kernel> bem_t;
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
@@ -15,9 +15,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	mesh_t mesh;
 	mesh.build_from_mex<4+1>(nodes, nnodes, elements, nelements);
 
-	mexPrintf("Acceleration in progress..."); mexEvalString("drawnow;");
 	bem_t b(mesh);
-	mexPrintf("Done\n"); mexEvalString("drawnow;");
 
     double k = mxGetScalar(prhs[2]);
 

@@ -15,7 +15,7 @@
  * \tparam ElemVector vector of element types that can be contained by the mesh
  * \tparam FieldOption function space generation option (constant_field or isoparametric_field)
  */
-template <class ElemVector, class FieldOption>
+template <class ElemVector, class FieldOption, class Kernel>
 class bem
 {
 public:
@@ -23,9 +23,8 @@ public:
 	typedef ElemVector elem_type_vector_t;
 	/** \brief template parameter as nested type */
 	typedef FieldOption field_option_t;
-
 	/** \brief specify the actual kernel to integrate */
-	typedef green_HG_kernel kernel_t;
+	typedef Kernel kernel_t;
 
 	/** \brief the stored mesh type */
 	typedef Mesh<elem_type_vector_t> mesh_t;
@@ -44,7 +43,6 @@ public:
 	 */
 	bem(mesh_t const &mesh) : f_space(mesh), wi(f_space)
 	{
-//		wi.accelerate();
 	}
 
 	/**

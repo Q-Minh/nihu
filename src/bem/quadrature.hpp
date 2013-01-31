@@ -24,36 +24,36 @@ template <class Domain>
 class quadrature_elem
 {
 public:
-	/** \brief template parameter as nested type */
-	typedef Domain domain_t;
+	typedef Domain domain_t;	/**< \brief template parameter as nested type */
+	
+	typedef typename domain_t::scalar_t scalar_t;	/**< \brief scalar type from domain */
+	typedef typename domain_t::xi_t xi_t;			/**< \brief vector type from domain */
 
-	/** \brief scalar type inherited from domain */
-	typedef typename domain_t::scalar_t scalar_t;
-	/** \brief vector type inherited from domain */
-	typedef typename domain_t::xi_t xi_t;
+	/**
+	 * \brief constructor initialising all members
+	 * \param xi base location
+	 * \param w weight
+	 */
+	quadrature_elem(xi_t const &xi = xi_t(), scalar_t const &w = scalar_t()) : m_xi(xi), m_w(w) { }
 
-	/** \brief constructor initialising all members */
-	quadrature_elem(xi_t const &xi = xi_t(), scalar_t const &w = scalar_t()) : xi(xi), w(w)
-	{
-	}
+	/**
+	 * \brief return constant reference to base point
+	 * \return reference to base point
+	 */
+	xi_t const &get_xi(void) const { return m_xi; }
 
-	/** \brief return constant reference to base point */
-	xi_t const &get_xi(void) const
-	{
-		return xi;
-	}
+	/**
+	 * \brief return constant reference to weight
+	 * \return reference to weight
+	 */
+	scalar_t const &get_w(void) const { return m_w; }
 
-	/** \brief return constant reference to weight */
-	scalar_t const &get_w(void) const
-	{
-		return w;
-	}
-
+	// struct is used in a std::vector, therefore this declaration is necessary
 	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 protected:
-	xi_t xi;
-	scalar_t w;
+	xi_t m_xi;		/**< \brief base point */
+	scalar_t m_w;	/**< \brief weight */
 };
 
 
@@ -170,7 +170,6 @@ const CQuad4Shape<T> quadrature<T, nKer>::singularTransShape;
 template <class Domain>
 class gauss_quadrature;
 
-
 template <class scalar_t>
 Eigen::Matrix<scalar_t, Eigen::Dynamic, 2> gauss_impl(unsigned N)
 {
@@ -207,8 +206,9 @@ public:
 	typedef base::quadrature_elem_t::xi_t xi_t;
 	typedef base::scalar_t scalar_t;
 
-	gauss_quadrature(unsigned N) : quadrature<line_domain>(N)
+	gauss_quadrature(unsigned d) : quadrature<line_domain>(d/2+1)
 	{
+		unsigned N = d/2+1;
 		typedef Eigen::Matrix<scalar_t, Eigen::Dynamic, 2> eig_t;
 		eig_t V = gauss_impl<scalar_t>(N);
 
@@ -231,8 +231,9 @@ public:
 	typedef base::quadrature_elem_t::xi_t xi_t;
 	typedef base::scalar_t scalar_t;
 
-	gauss_quadrature(unsigned N) : quadrature<quad_domain>(N*N)
+	gauss_quadrature(unsigned d) : quadrature<quad_domain>((d/2+1) * (d/2+1))
 	{
+		unsigned N = d/2+1;
 		typedef Eigen::Matrix<scalar_t, Eigen::Dynamic, 2> eig_t;
 		eig_t V = gauss_impl<scalar_t>(N);
 
@@ -249,7 +250,7 @@ public:
 	}
 };
 
-static unsigned const dunavant_num[] = {0, 1, 3, 4, 6, 7, 12, 13, 16, 19};
+static unsigned const dunavant_num[] = {1, 1, 3, 4, 6, 7, 12, 13, 16, 19};
 
 template<>
 class gauss_quadrature<tria_domain> : public quadrature<tria_domain>
@@ -263,6 +264,7 @@ public:
 	{
 		switch(degree)
 		{
+		case 0:
 		case 1:
 			push_back(quadrature_elem_t(xi_t(1./3., 1./3.0), 1./2.0));
 			break;

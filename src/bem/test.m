@@ -2,41 +2,49 @@ make
 
 %%
 mesh = create_sphere_boundary(1,20);
-field = create_slab([2 0 0; 4 2 0], [30, 30]);
+mesh = quad2tria(mesh);
+field = create_slab([2 0 0; 4 2 0], [20, 20]);
 
-k = mesh_kmax(mesh, 7) * .8;
+k = min(mesh_kmax(mesh, 7)) * .5;
 
 [nodes, elements] = extract_bem_mesh(mesh);
 points = field.Nodes(:,2:4);
 
+%% matrices
 tic;
 [GB, HB] = Boonen13(nodes, elements, k, points);
 tBoonen = toc;
 
-% tic;
-% [H, G] = bemHG(mesh, k, 'lin', points);
-% tOldSchool = toc;
+%% matrices
+tic;
+[H0, G0] = bemHG(mesh, k, 'lin', points);
+tOldSchool = toc;
+
+%% excitation and response
+r0 = [0 0 0];
+[ps, qs] = incident('point', r0, nodes, nodes, k);
+
+pf0 = incident('point', r0, points, [], k);
+pf_Boonen = HB * ps - GB * qs;
+pf_OldSchool = H0 * ps - G0 * qs;
 
 %%
-figure;
-subplot(1,2,1);
-pcolor(log10(abs(deltaG)));
-shading interp
-subplot(1,2,2);
-pcolor(log10(abs(deltaH)));
+figure(1);
+
+subplot(2,2,1);
+plot_mesh(field, pf0);
 shading interp
 
-%%
-v = mesh.Nodes(:,2);
-subplot(1,3,1);
-plot_mesh(field, real(G*v));
-shading interp;
-C = caxis;
-subplot(1,3,2);
-plot_mesh(field, real(B*v));
-shading interp;
-caxis(C);
-subplot(1,3,3);
-plot_mesh(field, log10(abs((G*v-B*v)./(G*v))));
-shading interp;
+subplot(2,2,2);
+plot_mesh(field, pf_Boonen);
+shading interp
+
+subplot(2,2,3);
+plot_mesh(field, log10(abs(pf_Boonen./pf0-1)));
 colorbar;
+shading interp
+
+subplot(2,2,4);
+plot_mesh(field, log10(abs(pf_OldSchool./pf0-1)));
+colorbar;
+shading interp

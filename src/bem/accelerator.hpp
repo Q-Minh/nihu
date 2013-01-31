@@ -21,24 +21,24 @@ public:
 	typedef gauss_quadrature<domain_t> quadrature_t;
 	typedef typename field<elem_t, field_option_t>::nset_t nset_t;
 
-	typedef elem_pool<elem_t, kernel_input_t> elem_pool_t;
+	typedef std::vector<quadrature_t> quadrature_pool_t;
 	typedef nset_pool<nset_t> nset_pool_t;
+	typedef elem_pool<elem_t, kernel_input_t> elem_pool_t;
 
 	typedef typename std::vector<elem_pool_t>::const_iterator elem_pool_iterator_t;
 
 	accelerator_by()
 	{
 		// initialise quadrature pool
-		q.push_back(quadrature_t(1));
-		q.push_back(quadrature_t(2));
-		q.push_back(quadrature_t(3));
+		for (unsigned i = 0; i < 10; ++i)
+			m_quadrature_pool.push_back(quadrature_t(i));
 		// initialise nset-pool
-		n_pool = nset_pool_t(q.begin(), q.end());
+		m_nset_pool = nset_pool_t(m_quadrature_pool.begin(), m_quadrature_pool.end());
 	}
 
 	void add_elem(elem_t const &elem)
 	{
-		elem_pools.push_back(elem_pool_t(elem, q.begin(), q.end()));
+		elem_pools.push_back(elem_pool_t(elem, m_quadrature_pool.begin(), m_quadrature_pool.end()));
 	}
 
 	elem_pool_iterator_t elem_pool_begin(void) const
@@ -53,13 +53,18 @@ public:
 
 	nset_pool_t const &get_npool(void) const
 	{
-		return n_pool;
+		return m_nset_pool;
+	}
+
+	quadrature_pool_t const &get_quadrature_pool(void) const
+	{
+		return m_quadrature_pool;
 	}
 
 protected:
-	std::vector<quadrature_t> q;
+	quadrature_pool_t m_quadrature_pool;
+	nset_pool_t m_nset_pool;
 	std::vector<elem_pool_t> elem_pools;
-	nset_pool_t n_pool;
 };
 
 
@@ -84,22 +89,31 @@ public:
 	struct elem_pool_t { typedef typename accelerator_by<elem_t, field_option_t, kernel_input_t>::elem_pool_t type; };
 
 	template <class elem_t>
-	typename accelerator_by<elem_t, field_option_t, kernel_input_t>::elem_pool_iterator_t elem_begin(void) const
+	typename accelerator_by<elem_t, field_option_t, kernel_input_t>::elem_pool_iterator_t
+		elem_begin(void) const
 	{
 		return container.accelerator_by<elem_t, field_option_t, kernel_input_t>::elem_pool_begin();
 	}
 
 	template <class elem_t>
-	typename accelerator_by<elem_t, field_option_t, kernel_input_t>::elem_pool_iterator_t elem_end(void) const
+	typename accelerator_by<elem_t, field_option_t, kernel_input_t>::elem_pool_iterator_t
+		elem_end(void) const
 	{
 		return container.accelerator_by<elem_t, field_option_t, kernel_input_t>::elem_pool_end();
 	}
 
 	template <class elem_t>
 	typename accelerator_by<elem_t, field_option_t, kernel_input_t>::nset_pool_t const &
-	get_nset_pool(void) const
+		get_nset_pool(void) const
 	{
 		return container.accelerator_by<elem_t, field_option_t, kernel_input_t>::get_npool();
+	}
+
+	template <class elem_t>
+	typename accelerator_by<elem_t, field_option_t, kernel_input_t>::quadrature_pool_t const &
+		get_quadrature_pool(void) const
+	{
+		return container.accelerator_by<elem_t, field_option_t, kernel_input_t>::get_quadrature_pool();
 	}
 
 private:

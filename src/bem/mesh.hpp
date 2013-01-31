@@ -154,7 +154,7 @@ public:
 		for (unsigned i = 0; i < nelements; ++i)
 		{
 			for (unsigned j = 0; j < N_MAX_ELEM; ++j)
-				e[j] = elements[i+j*nelements];
+				e[j] = (unsigned)elements[i+j*nelements];
 			add_elem(e);
 		}
 	}

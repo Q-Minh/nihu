@@ -79,11 +79,11 @@ public:
 
 protected:
 	/** \brief the element's identifier */
-	id_t id;
+	id_t m_id;
 	/** \brief the element's nodal indices in the mesh */
-	nodes_t nodes;
+	nodes_t m_nodes;
 	/** \brief the element's corner coordinates \f$x_i\f$ */
-	coords_t coords;
+	coords_t m_coords;
 
 public:
 	/**
@@ -91,26 +91,26 @@ public:
 	*/
 	element() {}
 
-	element(unsigned id, nodes_t const &nodes, coords_t const &coords) : nodes(nodes), coords(coords)
+	element(unsigned id, nodes_t const &nodes, coords_t const &coords) : m_nodes(nodes), m_coords(coords)
 	{
-		this->id << id;
+		this->m_id << id;
 	}
 
-	element(coords_t const &coords) : id(id_t()), nodes(nodes_t()), coords(coords) {}
+	element(coords_t const &coords) : m_id(id_t()), m_nodes(nodes_t()), m_coords(coords) {}
 
 	id_t const &get_id(void) const
 	{
-		return id;
+		return m_id;
 	}
 
 	nodes_t const &get_nodes(void) const
 	{
-		return nodes;
+		return m_nodes;
 	}
 
 	coords_t const &get_coords(void) const
 	{
-		return coords;
+		return m_coords;
 	}
 
 	/**
@@ -120,7 +120,7 @@ public:
 	*/
 	x_t get_x(xi_t const &xi) const
 	{
-		return lset_t::eval_L(xi).transpose() * coords;
+		return lset_t::eval_L(xi).transpose() * m_coords;
 	}
 
 	/**
@@ -139,7 +139,7 @@ public:
 	*/
 	dx_t get_dx(xi_t const &xi) const
 	{
-		return lset_t::eval_dL(xi).transpose() * coords;
+		return lset_t::eval_dL(xi).transpose() * m_coords;
 	}
 
 	/**

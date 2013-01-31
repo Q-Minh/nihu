@@ -45,14 +45,18 @@ public:
 	 * \param q the quadrature
 	 * \return reference to the result of the integral. The actual result is stored in static variable
 	 */
-	static result_t const &eval(field_t const &field, quadrature_t const &q)
+	template <class quad_pool>
+	static result_t const &eval(field_t const &field, quad_pool const &q_pool)
 	{
+		// select quadrature
+		kernel_input_t trial(field.get_elem(), q_pool[0][0]);
+		unsigned degree = kernel_t::estimate_complexity(trial);
+
 		m_result = result_t();	// clear result
-		for(auto it = q.begin(); it != q.end(); ++it)
+		for(auto it = q_pool[degree].begin(); it != q_pool[degree].end(); ++it)
 		{
 			kernel_input_t input(field.get_elem(), *it);
-			auto kernel_res = kernel_t::eval(input);
-			m_result += nset_t::eval_L(it->get_xi()) * (kernel_res * (input.get_jacobian()));
+			m_result += nset_t::eval_L(it->get_xi()) * (kernel_t::eval(input) * (input.get_jacobian()));
 		}
 		return m_result;
 	}
@@ -88,7 +92,8 @@ public:
 	template <class kernel_iter_t, class nset_iter_t>
 	static result_t const &eval(kernel_iter_t k_begin, kernel_iter_t k_end, nset_iter_t n_begin)
 	{
-		for (base::m_result = result_t(); k_begin != k_end; ++k_begin, ++n_begin)
+		base::m_result = result_t();
+		for (;k_begin != k_end; ++k_begin, ++n_begin)
 			base::m_result += (*n_begin) * (kernel_t::eval(*k_begin) * k_begin->get_jacobian());
 		return base::m_result;
 	}
@@ -133,23 +138,16 @@ protected:
 	 */
 	template <class elem_t>
 	struct eval_on { struct type {
-		/** \brief the field type */
-		typedef field<elem_t, typename function_space_t::field_option_t> field_t;
-		/** \brief the field integrator type */
-		typedef weighted_field_integral<field_t, kernel_t> weighted_field_integral_t;
-		/** \brief result type of field integrator */
-		typedef typename weighted_field_integral_t::result_t result_t;
-		/** \brief dofs type needed to iterate */
-		typedef typename field_t::dofs_t dofs_t;
-
-		/** \brief type of the quadrature */
-		typedef gauss_quadrature<typename elem_t::domain_t> quadrature_t;
+		typedef field<elem_t, typename function_space_t::field_option_t> field_t;		/**< \brief the field type */
+		typedef weighted_field_integral<field_t, kernel_t> weighted_field_integral_t;	/**< \brief the field integrator type */
+		typedef typename weighted_field_integral_t::result_t result_t;					/**< \brief result type of field integrator */
+		typedef typename field_t::dofs_t dofs_t;										/**< \brief dofs type needed to iterate */
+		
+		typedef gauss_quadrature<typename elem_t::domain_t> quadrature_t; /**< \brief type of quadrature */
 
 		void operator() (weighted_integral_t &wi)
 		{
-			// create quadrature (expensive, memory is allocated and eigenvalue problem is solved)
-			quadrature_t q(2);
-
+			auto quadrature_pool = wi.m_accel.template get_quadrature_pool<elem_t>();
 			// integrate for each element of the same type
 			std::for_each(
 				wi.m_func_space.template begin<elem_t>(),
@@ -157,7 +155,7 @@ protected:
 				[&] (field_t const &f)
 			{
 				// get reference to field integral result
-				result_t const &I = weighted_field_integral_t::eval(f, q);
+				result_t const &I = weighted_field_integral_t::eval(f, quadrature_pool);
 				// write result into result vector
 				dofs_t const &dofs = f.get_dofs();
 				for (unsigned i = 0; i < field_t::num_dofs; ++i)
@@ -224,11 +222,13 @@ public:
 	{
 		m_result_vector.resize(m_func_space.get_num_dofs(), Eigen::NoChange);
 
+		/*
 		tmp::call_each<
 			elem_type_vector_t,
 			accelerate_on<tmp::_1>,
 			weighted_integral_t &
 		>(*this);
+		*/
 	}
 
 	/**
@@ -238,16 +238,17 @@ public:
 	result_vector_t const &eval(void)
 	{
 		m_result_vector = result_vector_t::Zero(m_result_vector.rows(), m_result_vector.ColsAtCompileTime);
+
 		tmp::call_each<
 			elem_type_vector_t,
-			accelerated_eval_on<tmp::_1>,
+			eval_on<tmp::_1>,
 			weighted_integral_t &
 		>(*this);
+
 		return m_result_vector;
 	}
 
 protected:
-
 	function_space_t const &m_func_space;	/**< \brief reference to the function space */
 	result_vector_t m_result_vector;		/**< \brief the result vector */
 
