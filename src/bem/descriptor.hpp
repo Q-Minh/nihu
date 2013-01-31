@@ -52,6 +52,7 @@ template <class xType>
 class location_with_normal : public location<xType>
 {
 public:
+	typedef location<xType> base;
 	typedef xType x_t;
 
 	/**
@@ -63,10 +64,15 @@ public:
 
 	template <class elem_t>
 	location_with_normal(elem_t const &elem, quadrature_elem<typename elem_t::domain_t> const &q)
-		: location<xType>(elem, q)
 	{
+		static_assert(std::is_same<x_t, typename elem_t::x_t>::value,
+			"Element and descriptor location types must match");
+		typename elem_t::xi_t xi = q.get_xi();
+		base::m_x = elem.get_x(xi);
 		m_normal = elem.get_normal(q.get_xi());
-		m_normal /= m_normal.norm();
+		base::m_jacobian = m_normal.norm();
+		m_normal /= base::m_jacobian;
+		base::m_jacobian *= q.get_w();
 	}
 
 	x_t const &get_normal(void) const
@@ -77,7 +83,7 @@ public:
 	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 protected:
-	x_t m_normal;
+	x_t m_normal;	/**< \brief the stored unit normal vector */
 };
 
 

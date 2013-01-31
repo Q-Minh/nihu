@@ -41,6 +41,14 @@ public:
 		green_base::m_x0 = x0;
 	}
 
+	/**
+	 * \brief associate relative distance with a required polynomial degree
+	 */
+	struct kernel_precision {
+		double rel_distance;	/**< \brief the relative distance from the kernel's source point */
+		unsigned degree;		/**< \brief polynomial degree required for accurate integration */
+	};
+
 protected:
 	/** \brief wave number */
 	static dcomplex m_k;
@@ -61,12 +69,6 @@ template <unsigned NumElements>
 typename green_base<NumElements>::result_t green_base<NumElements>::m_result;
 
 
-struct kernel_precision {
-	double rel_distance;
-	unsigned degree;
-};
-
-
 /**
  * \brief 3D Helmholtz kernel \f$\exp(-ikr)/4\pi r\f$
  * \tparam NumElements number of scalars in the kernel
@@ -74,6 +76,8 @@ struct kernel_precision {
 class green_G_kernel : public green_base<1>
 {
 public:
+	typedef green_base<1> base;
+
 	/** \brief kernel input type */
 	typedef location<x_t> input_t;
 
@@ -97,10 +101,10 @@ public:
 	}
 
 protected:
-	static const kernel_precision limits[];
+	static const base::kernel_precision limits[];
 };
 
-const kernel_precision green_G_kernel::limits[6] = {
+const green_G_kernel::base::kernel_precision green_G_kernel::limits[6] = {
 	{9.2, 1},
 	{1.6, 3},
 	{1.0, 5},
@@ -116,6 +120,8 @@ const kernel_precision green_G_kernel::limits[6] = {
 class green_HG_kernel : public green_base<2>
 {
 public:
+	typedef green_base<2> base;
+
 	/** \brief kernel input type */
 	typedef location_with_normal<x_t> input_t;
 
@@ -144,10 +150,10 @@ public:
 	}
 
 protected:
-	static const kernel_precision limits[];
+	static const base::kernel_precision limits[];
 };
 
-const kernel_precision green_HG_kernel::limits[]  = {
+const green_HG_kernel::base::kernel_precision green_HG_kernel::limits[]  = {
 	{5.0, 2},
 	{2.0, 5},
 	{1.5, 7}

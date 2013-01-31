@@ -24,12 +24,12 @@ public:
 	/** \brief template parameter as nested type */
 	typedef FieldOption field_option_t;
 
-	typedef Mesh<elem_type_vector_t> mesh_t;
-	typedef typename mesh_t::x_t x_t;
-	typedef function_space<mesh_t, field_option_t> function_space_t;
-	typedef green_G_kernel kernel_t;
-	typedef weighted_integral<function_space_t, kernel_t> weighted_integral_t;
-	typedef typename weighted_integral_t::result_vector_t result_vector_t;
+	typedef Mesh<elem_type_vector_t> mesh_t;	/**< \brief type of the mesh */
+	typedef typename mesh_t::x_t x_t;			/**< \brief type of location vector */
+	typedef function_space<mesh_t, field_option_t> function_space_t;	/**< \brief type of function space */
+	typedef green_G_kernel kernel_t;			/**< \brief kernel type */
+	typedef weighted_integral<function_space_t, kernel_t> weighted_integral_t;	/**< \brief integrator type */
+	typedef typename weighted_integral_t::result_vector_t result_vector_t;	/**< \brief integration result type */
 
 	/**
 	 * \brief the constructor initialises the stored function space and weighted integral
@@ -42,7 +42,7 @@ public:
 	/**
 	 * \brief evaluate the Rayleigh integral for a source point and a wave number
 	 * \param x0 the source point
-	 * \param the k wave number
+	 * \param k the wave number
 	 */
 	result_vector_t const &eval(x_t const &x0, dcomplex const &k)
 	{

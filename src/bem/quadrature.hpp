@@ -25,7 +25,7 @@ class quadrature_elem
 {
 public:
 	typedef Domain domain_t;	/**< \brief template parameter as nested type */
-	
+
 	typedef typename domain_t::scalar_t scalar_t;	/**< \brief scalar type from domain */
 	typedef typename domain_t::xi_t xi_t;			/**< \brief vector type from domain */
 
@@ -61,15 +61,24 @@ template <class Domain>
 class quadrature : public EIGENSTDVECTOR(quadrature_elem<Domain>)
 {
 public:
-	typedef Domain domain_t;
-	typedef quadrature_elem<domain_t> quadrature_elem_t;
-	typedef typename quadrature_elem_t::scalar_t scalar_t;
+	typedef Domain domain_t;	/**< \brief template parameter as nested type */
+	typedef quadrature_elem<domain_t> quadrature_elem_t;	/**< \brief the quadrature elem type */
+	typedef typename quadrature_elem_t::scalar_t scalar_t;/**< \brief scalar type */
 
+	/**
+	 * \brief constructor allocating space for the quadrature elements
+	 * \param N number of quadrature elements
+	 */
 	quadrature(unsigned N = 0)
 	{
 		this->reserve(N);
 	}
 
+	/**
+	 * \brief print a quadrature into an output stream
+	 * \param os the output stream
+	 * \return reference to the stream
+	 */
 	std::ostream & print (std::ostream & os) const
 	{
 		os << "Base points: \t Weights:" << std::endl;
