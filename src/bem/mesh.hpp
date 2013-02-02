@@ -26,23 +26,11 @@ template <class xType>
 class field_points
 {
 public:
-	typedef xType x_t;
+	typedef xType x_t; /**< \brief template parameter as nested type */
+	static unsigned const nDim = x_t::SizeAtCompileTime; /**< \brief number of dimensions */
+	typedef typename EIGENSTDVECTOR(x_t)::const_iterator iterator_t;	/**< \brief node iterator type */
 
-	/** \brief number of dimensions */
-	static unsigned const nDim = x_t::SizeAtCompileTime;
-
-	typedef typename EIGENSTDVECTOR(x_t)::const_iterator iterator_t;
-
-	iterator_t begin(void) const
-	{
-		return points.begin();
-	}
-
-	iterator_t end(void) const
-	{
-		return points.end();
-	}
-
+	/** \brief add a point */
 	void add_point(x_t const &p)
 	{
 		points.push_back(p);
@@ -111,28 +99,29 @@ protected:
 	unsigned num_elements;
 
 	template <class elem_t>
-	struct elem_adder
-	{
-		struct type
+	struct elem_adder { struct type	{
+		/**
+		 * \brief add an element of given type to the mesh
+		 * \param m the mesh to extend
+		 * \param input array containing element node indices
+		 */
+		bool operator() (unsigned const input[], mesh_t &m)
 		{
-			bool operator() (unsigned const input[], mesh_t &m)
+			if (input[0] == elem_t::domain_t::id)
 			{
-				if (input[0] == elem_t::domain_t::id)
+				// construct element
+				typename elem_t::nodes_t nodes;
+				typename elem_t::coords_t coords;
+				for (unsigned i = 0; i < elem_t::num_nodes; ++i)
 				{
-					// construct element
-					typename elem_t::nodes_t nodes;
-					typename elem_t::coords_t coords;
-					for (unsigned i = 0; i < elem_t::num_nodes; ++i)
-					{
-						nodes[i] = input[i+1];
-						coords.row(i) = m.points[nodes[i]];
-					}
-					m.push_element(elem_t(0, nodes, coords));
+					nodes[i] = input[i+1];
+					coords.row(i) = m.points[nodes[i]];
 				}
-				return false;
+				m.push_element(elem_t(0, nodes, coords));
 			}
-		};
-	};
+			return false;
+		}
+	};};
 
 public:
 	Mesh() : num_elements(0)

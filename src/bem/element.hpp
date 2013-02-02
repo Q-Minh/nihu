@@ -10,15 +10,26 @@
 
 #include "shapeset.hpp"
 
+/**
+ * \brief functor computing normal vector
+ * \tparam nDim number of diensions
+ */
 template <unsigned nDim>
 struct normal_vector
 {
 	static_assert(nDim <= 2, "Element normal is not yet implemented for this dimension");
 };
 
+/**
+ * \brief specialisation of normal vector for the 1D case
+ */
 template <>
 struct normal_vector<1>
 {
+	/**
+	 * \brief compute normal vector in 1D
+	 * \param dx position derivative matrix
+	 */
 	Eigen::Matrix<double, 1, 2> operator() (Eigen::Matrix<double, 1, 2> const &dx) const
 	{
 		Eigen::Matrix<double, 1, 2> res;
@@ -27,9 +38,16 @@ struct normal_vector<1>
 	}
 };
 
+/**
+ * \brief specialisation of normal vector for the 2D case
+ */
 template <>
 struct normal_vector<2>
 {
+	/**
+	 * \brief compute normal vector in two dimensions
+	 * \param dx position derivative matrix
+	 */
 	Eigen::Matrix<double, 1, 3> operator() (Eigen::Matrix<double, 2, 3> const &dx) const
 	{
 		return dx.row(0).cross(dx.row(1));
