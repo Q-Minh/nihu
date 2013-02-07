@@ -185,8 +185,7 @@ public:
 	void add_node(scalar_t input[])
 	{
 		x_t c;
-		typedef typename x_t::Index index_t;
-		for (index_t i = 0; i < nDim; ++i)
+		for (unsigned i = 0; i < nDim; ++i)
 			c[i] = input[i];
 		this->add_point(c);
 	}

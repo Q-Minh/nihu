@@ -222,7 +222,7 @@ public:
 		eig_t V = gauss_impl<scalar_t>(N);
 
 		// Fill the points and weights
-		for(eig_t::Index i = 0; i < N; ++i)
+		for(unsigned i = 0; i < N; ++i)
 		{
 			xi_t xi;
 			xi << V(i,0);
@@ -247,9 +247,9 @@ public:
 		eig_t V = gauss_impl<scalar_t>(N);
 
 		// Fill the points and weights
-		for(eig_t::Index i = 0; i < N; ++i)
+		for(unsigned i = 0; i < N; ++i)
 		{
-			for(eig_t::Index j = 0; j < N; ++j)
+			for(unsigned j = 0; j < N; ++j)
 			{
 				xi_t xi;
 				xi << V(i,0), V(j,0);
