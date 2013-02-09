@@ -7,12 +7,13 @@
 #define ELEMENT_HPP_INCLUDED
 
 #include <Eigen/Dense>
+#include <type_traits>
 
 #include "shapeset.hpp"
 
 /**
  * \brief functor computing normal vector
- * \tparam nDim number of diensions
+ * \tparam nDim number of dimensions
  */
 template <unsigned nDim>
 struct normal_vector
