@@ -110,23 +110,45 @@ public:
 	*/
 	element() {}
 
+	/**
+	* \brief constructor
+	* \param id the elem id
+	* \param nodes the elem node indices
+	* \param coords the elem coordinates
+	*/
 	element(unsigned id, nodes_t const &nodes, coords_t const &coords) : m_nodes(nodes), m_coords(coords)
 	{
 		this->m_id << id;
 	}
 
+	/**
+	* \brief constructor
+	* \param coords the elem coordinates
+	*/
 	element(coords_t const &coords) : m_id(id_t()), m_nodes(nodes_t()), m_coords(coords) {}
 
+	/**
+	* \brief return elem id
+	* \return elem id
+	*/
 	id_t const &get_id(void) const
 	{
 		return m_id;
 	}
 
+	/**
+	* \brief return nodes
+	* \return elem nodes
+	*/
 	nodes_t const &get_nodes(void) const
 	{
 		return m_nodes;
 	}
 
+	/**
+	* \brief return coordinates
+	* \return elem coordinates
+	*/
 	coords_t const &get_coords(void) const
 	{
 		return m_coords;

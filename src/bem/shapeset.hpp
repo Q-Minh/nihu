@@ -58,7 +58,6 @@ public:
 
 	/**
 	 * \brief shape function gradient matrix \f$\nabla L_i(\xi)\f$
-	 * \param \xi independent variable \f$\xi\f$
 	 */
 	static dL_t eval_dL(xi_t const &)
 	{
@@ -190,14 +189,20 @@ public:
 };
 
 
-template <class domain>
-class constant_shape_set : public shape_set<domain, 1>
+/**
+ * \brief constant shape function set
+ * \tparam Domain the domain over which the shape function set is defined
+ */
+template <class Domain>
+class constant_shape_set : public shape_set<Domain, 1>
 {
 public:
-	typedef shape_set<domain, 1> shape_t;
-	typedef typename shape_t::L_t L_t;
-	typedef typename shape_t::dL_t dL_t;
-	typedef typename shape_t::xi_t xi_t;
+	typedef Domain domain_t;	/**< \brief template argument as nested type */
+	
+	typedef shape_set<domain_t, 1> shape_t;	/**< \brief the shape set's type */
+	typedef typename shape_t::L_t L_t;	/**< \brief the L type */
+	typedef typename shape_t::dL_t dL_t;	/**< \brief the dL type */
+	typedef typename shape_t::xi_t xi_t;	/**< \brief the xi type */
 
 	/**
 	 * \brief shape function vector \f$L_i(\xi)\f$
@@ -205,7 +210,7 @@ public:
 	 */
 	static L_t eval_L(xi_t const &xi)
 	{
-		return shape_set<domain, 1>::L_t::Ones();
+		return shape_set<domain_t, 1>::L_t::Ones();
 	}
 
 	/**
