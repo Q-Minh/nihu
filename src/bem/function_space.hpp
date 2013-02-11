@@ -9,21 +9,38 @@
 #include "field.hpp"
 #include "mesh.hpp"
 
+/**
+ * \brief helper class to return total number of degrees of freedom of a mesh
+ * \tparam mesh_t the mesh type
+ * \tparam field_option field generation option
+ */
 template <class mesh_t, class field_option>
 struct get_num_dofs_impl;
 
+/** \brief specialisation of get_num_dofs_impl for the constant case */
 template <class mesh_t>
 struct get_num_dofs_impl<mesh_t, constant_field>
 {
+	/**
+	 * \brief return number of degrees of freedom
+	 * \param mesh the mesh
+	 * \return total number of degrees of freedom
+	 */
 	static unsigned eval(mesh_t const &mesh)
 	{
 		return mesh.get_num_elements();
 	}
 };
 
+/** \brief specialisation of get_num_dofs_impl for the isoparametric case */
 template <class mesh_t>
 struct get_num_dofs_impl<mesh_t, isoparametric_field>
 {
+	/**
+	 * \brief return number of degrees of freedom
+	 * \param mesh the mesh
+	 * \return total number of degrees of freedom
+	 */
 	static unsigned eval(mesh_t const &mesh)
 	{
 		return mesh.get_num_points();
@@ -58,8 +75,8 @@ public:
 	class field_iterator_t : public mesh_t::template elem_iterator_t<ElemType>::type
 	{
 	public:
-		typedef typename mesh_t::template elem_iterator_t<ElemType>::type base_it;
-		typedef field<ElemType, field_option_t> value_t;
+		typedef typename mesh_t::template elem_iterator_t<ElemType>::type base_it;	/**< \brief the base iteartor type */
+		typedef field<ElemType, field_option_t> value_t;	/**< \brief the pointed data type */
 
 		/**
 		 * \brief constructor from base iterator
@@ -90,9 +107,9 @@ public:
 	 * \tparam ElemType the element type to access
 	 */
 	template <class ElemType>
-	field_iterator_t<ElemType> begin(void) const
+	field_iterator_t<ElemType> elem_begin(void) const
 	{
-		return mesh.begin<ElemType>(); // automatic conversion by iterator constructor
+		return mesh.template begin<ElemType>(); // automatic conversion by iterator constructor
 	}
 
 	/**
@@ -100,11 +117,15 @@ public:
 	 * \tparam ElemType the element type to access
 	 */
 	template <class ElemType>
-	field_iterator_t<ElemType> end(void) const
+	field_iterator_t<ElemType> elem_end(void) const
 	{
-		return mesh.end<ElemType>(); // automatic conversion by iterator constructor
+		return mesh.template end<ElemType>(); // automatic conversion by iterator constructor
 	}
 
+	/**
+	 * \brief return number of degrees of freedom
+	 * \return number of degrees of freedom
+	 */
 	unsigned get_num_dofs(void) const
 	{
 		return get_num_dofs_impl<mesh_t, field_option_t>::eval(mesh);

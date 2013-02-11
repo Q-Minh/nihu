@@ -176,9 +176,18 @@ template <class T, unsigned nKer>
 const CQuad4Shape<T> quadrature<T, nKer>::singularTransShape;
 */
 
+/**
+ * \brief Gaussian quadrature
+ * \tparam Domain the domain of integration
+ */
 template <class Domain>
 class gauss_quadrature;
 
+/**
+ * \brief return 1D N-point Guassian quadrature
+ * \tparam scalar_t the scalar type
+ * \param N number of points
+ */
 template <class scalar_t>
 Eigen::Matrix<scalar_t, Eigen::Dynamic, 2> gauss_impl(unsigned N)
 {
@@ -207,17 +216,24 @@ Eigen::Matrix<scalar_t, Eigen::Dynamic, 2> gauss_impl(unsigned N)
 }
 
 
+/**
+ * \brief specialisation of gauss_quadrature for a line domain
+ */
 template <>
 class gauss_quadrature<line_domain> : public quadrature<line_domain>
 {
 public:
-	typedef quadrature<line_domain> base;
-	typedef base::quadrature_elem_t::xi_t xi_t;
-	typedef base::scalar_t scalar_t;
+	typedef quadrature<line_domain> base;	/**< \brief the base class */
+	typedef base::quadrature_elem_t::xi_t xi_t;	/**< \brief the locatin type */
+	typedef base::scalar_t scalar_t;	/**< \brief the scalar type*/
 
-	gauss_quadrature(unsigned d) : quadrature<line_domain>(d/2+1)
+	/**
+	 * constructor for a given polynomial degree
+	 * \param degree polynomial degree
+	 */
+	gauss_quadrature(unsigned degree) : quadrature<line_domain>(degree/2+1)
 	{
-		unsigned N = d/2+1;
+		unsigned N = degree/2+1;
 		typedef Eigen::Matrix<scalar_t, Eigen::Dynamic, 2> eig_t;
 		eig_t V = gauss_impl<scalar_t>(N);
 
@@ -232,43 +248,55 @@ public:
 };
 
 
+/**
+ * \brief specialisation of gauss_quadrature for a quad domain
+ */
 template <>
 class gauss_quadrature<quad_domain> : public quadrature<quad_domain>
 {
 public:
-	typedef quadrature<quad_domain> base;
-	typedef base::quadrature_elem_t::xi_t xi_t;
-	typedef base::scalar_t scalar_t;
+	typedef quadrature<quad_domain> base;	/**< \brief the base class */
+	typedef base::quadrature_elem_t::xi_t xi_t;	/**< \brief the location type */
+	typedef base::scalar_t scalar_t;	/**< \brief the scalar type */
 
-	gauss_quadrature(unsigned d) : quadrature<quad_domain>((d/2+1) * (d/2+1))
+	/**
+	 * \brief constructor for a given polynomial order
+	 * \param degree polynomial order
+	 */
+	gauss_quadrature(unsigned degree) : quadrature<quad_domain>((degree/2+1) * (degree/2+1))
 	{
-		unsigned N = d/2+1;
+		unsigned N = degree/2+1;
 		typedef Eigen::Matrix<scalar_t, Eigen::Dynamic, 2> eig_t;
 		eig_t V = gauss_impl<scalar_t>(N);
 
 		// Fill the points and weights
 		for(unsigned i = 0; i < N; ++i)
-		{
 			for(unsigned j = 0; j < N; ++j)
 			{
 				xi_t xi;
 				xi << V(i,0), V(j,0);
 				push_back(quadrature_elem_t(xi, V(i,1)*V(j,1)));
 			}
-		}
 	}
 };
 
 static unsigned const dunavant_num[] = {1, 1, 3, 4, 6, 7, 12, 13, 16, 19};
 
+/**
+ * \brief specialisation of gauss_quadrature for a triangle domain
+ */
 template<>
 class gauss_quadrature<tria_domain> : public quadrature<tria_domain>
 {
 public:
-	typedef quadrature<tria_domain> base;
-	typedef base::quadrature_elem_t quadrature_elem_t;
-	typedef quadrature_elem_t::xi_t xi_t;
+	typedef quadrature<tria_domain> base;	/**< \brief base class */
+	typedef base::quadrature_elem_t quadrature_elem_t;	/**< \brief the quadrature elem */
+	typedef quadrature_elem_t::xi_t xi_t; /**< \brief the quadrature location type */
 
+	/**
+	 * \brief constructor for a given polynomial order
+	 * \param degree polynomial order
+	 */
 	gauss_quadrature(unsigned degree) : quadrature<tria_domain>(dunavant_num[degree])
 	{
 		switch(degree)
@@ -379,6 +407,13 @@ public:
 };
 
 
+/**
+ * \brief print a quadrature into an ouput stream
+ * \tparam the quadrature's domain type
+ * \param os the output stream
+ * \param Q the quadrature
+ * \return the modified output stream
+ */
 template<class Domain>
 std::ostream & operator << (std::ostream & os, const quadrature<Domain>& Q)
 {

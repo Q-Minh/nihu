@@ -15,7 +15,7 @@
 
 #include <Eigen/StdVector>
 /**
- * \brief macro declaring an Eigen std::vector type with the appropriate allocator 
+ * \brief macro declaring an Eigen std::vector type with the appropriate allocator
  */
 #define EIGENSTDVECTOR(_T) std::vector<_T, Eigen::aligned_allocator<_T> >
 
@@ -151,18 +151,18 @@ public:
 	 * \param nelements number of elements
 	 */
 	template <unsigned N_MAX_ELEM>
-	void build_from_mex(double nodes[], unsigned nnodes, double elements[], unsigned nelements)
+	void build_from_mex(double nodes[], size_t nnodes, double elements[], size_t nelements)
 	{
 		double c[nDim];
 
-		for (unsigned i = 0; i < nnodes; ++i)
+		for (size_t i = 0; i < nnodes; ++i)
 		{
 			for (unsigned j = 0; j < nDim; ++j)
 				c[j] = nodes[i+j*nnodes];
 			add_node(c);
 		}
 		unsigned e[N_MAX_ELEM];
-		for (unsigned i = 0; i < nelements; ++i)
+		for (size_t i = 0; i < nelements; ++i)
 		{
 			for (unsigned j = 0; j < N_MAX_ELEM; ++j)
 				e[j] = (unsigned)elements[i+j*nelements];

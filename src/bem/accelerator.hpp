@@ -9,13 +9,19 @@
 #include "../tmp/vector.hpp"
 #include "../tmp/control.hpp"
 
+/**
+ * \brief an accelerator class storing quadratures and shape sets for an element type and quadrature dimensions
+ * \tparam ElemType the accelerated element type
+ * \tparam FieldOption field generation option
+ * \tparam KernelInput the kernel input class to be stored
+ */
 template <class ElemType, class FieldOption, class KernelInput>
 class accelerator_by
 {
 public:
-	typedef ElemType elem_t;
-	typedef FieldOption field_option_t;
-	typedef KernelInput kernel_input_t;
+	typedef ElemType elem_t;	/**< \brief template argument as nested type */
+	typedef FieldOption field_option_t;	/**< \brief template argument as nested type */
+	typedef KernelInput kernel_input_t;	/**< \brief template argument as nested type */
 
 	typedef typename elem_t::domain_t domain_t;
 	typedef gauss_quadrature<domain_t> quadrature_t;

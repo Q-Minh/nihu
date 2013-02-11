@@ -112,11 +112,11 @@ class weighted_integral
 {
 public:
 	typedef FunctionSpace function_space_t;	/**< \brief template paramter as nested type */
-	typedef Kernel kernel_t;					/**< \brief template paramter as nested type */
+	typedef Kernel kernel_t;	/**< \brief template paramter as nested type */
 
 	typedef weighted_integral<function_space_t, kernel_t> weighted_integral_t;	/**< \brief the class type abbreviated */
 	typedef typename function_space_t::field_option_t field_option_t;	/**< \brief field option parameter */
-	typedef typename kernel_t::input_t kernel_input_t;				/**< \brief kernel input type */
+	typedef typename kernel_t::input_t kernel_input_t;	/**< \brief kernel input type */
 	typedef typename function_space_t::elem_type_vector_t elem_type_vector_t;	/**< \brief the element type vector */
 	typedef Eigen::Matrix<typename kernel_t::scalar_t, Eigen::Dynamic, kernel_t::num_elements> result_vector_t;	/**< \brief integration result type */
 
@@ -146,8 +146,8 @@ protected:
 			auto quadrature_pool = wi.m_accel.template get_quadrature_pool<elem_t>();
 			// integrate for each element of the same type
 			std::for_each(
-				wi.m_func_space.template begin<elem_t>(),
-				wi.m_func_space.template end<elem_t>(),
+				wi.m_func_space.template elem_begin<elem_t>(),
+				wi.m_func_space.template elem_end<elem_t>(),
 				[&] (field_t const &f)
 			{
 				// get reference to field integral result
@@ -254,9 +254,9 @@ public:
 
 protected:
 	function_space_t const &m_func_space;	/**< \brief reference to the function space */
-	result_vector_t m_result_vector;		/**< \brief the result vector */
+	result_vector_t m_result_vector;	/**< \brief the result vector */
 
-	accelerator_t m_accel;				/**< \brief accelerator structure */
+	accelerator_t m_accel;	/**< \brief accelerator structure */
 };
 
 #endif
