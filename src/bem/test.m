@@ -1,4 +1,4 @@
-% make
+make
 
 %%
 mesh = create_sphere_boundary(1,20);
@@ -15,7 +15,6 @@ tic;
 [GB, HB] = Boonen13(nodes, elements, k, points);
 tBoonen = toc;
 
-%% matrices
 tic;
 [H0, G0] = bemHG(mesh, k, 'lin', points);
 tOldSchool = toc;
