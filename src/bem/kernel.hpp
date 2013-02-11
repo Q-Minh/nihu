@@ -9,6 +9,7 @@
 #include "descriptor.hpp"
 
 #include <complex>
+/** \brief double complex type */
 typedef std::complex<double> dcomplex;
 
 /**
@@ -76,7 +77,7 @@ typename green_base<NumElements>::result_t green_base<NumElements>::m_result;
 class green_G_kernel : public green_base<1>
 {
 public:
-	typedef green_base<1> base;
+	typedef green_base<1> base;	/**< \brief the base class' type */
 
 	/** \brief kernel input type */
 	typedef location<x_t> input_t;
@@ -91,6 +92,10 @@ public:
 		return m_result;
 	}
 
+	/** \brief estimate kernel complexity for a given input
+	 * \param input
+	 * \return plynomial order of the kernel
+	 */
 	static unsigned estimate_complexity(input_t const &input)
 	{
 		double rel_distance = ((input.get_x() - m_x0).norm()) / sqrt(input.get_jacobian());
@@ -101,7 +106,7 @@ public:
 	}
 
 protected:
-	static const base::kernel_precision limits[];
+	static const base::kernel_precision limits[];	/**< \brief array of distance limits */
 };
 
 const green_G_kernel::base::kernel_precision green_G_kernel::limits[6] = {
@@ -120,7 +125,7 @@ const green_G_kernel::base::kernel_precision green_G_kernel::limits[6] = {
 class green_HG_kernel : public green_base<2>
 {
 public:
-	typedef green_base<2> base;
+	typedef green_base<2> base;	/**< \brief base class' type */
 
 	/** \brief kernel input type */
 	typedef location_with_normal<x_t> input_t;
@@ -140,6 +145,10 @@ public:
 		return m_result;
 	}
 
+	/** \brief estimate kernel complexity for a given input
+	 * \param input
+	 * \return plynomial order of the kernel
+	 */
 	static unsigned estimate_complexity(input_t const &input)
 	{
 		double rel_distance = ((input.get_x() - m_x0).norm()) / sqrt(input.get_jacobian());
@@ -150,7 +159,7 @@ public:
 	}
 
 protected:
-	static const base::kernel_precision limits[];
+	static const base::kernel_precision limits[];	/**< \brief array of distance limits */
 };
 
 const green_HG_kernel::base::kernel_precision green_HG_kernel::limits[]  = {

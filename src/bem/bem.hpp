@@ -48,7 +48,7 @@ public:
 	/**
 	 * \brief evaluate the bem integral for a source point and a wave number
 	 * \param x0 the source point
-	 * \param the k wave number
+	 * \param k the wave number
 	 * \return reference to the internally stored result vector
 	 */
 	result_vector_t const &eval(x_t const &x0, dcomplex const &k)

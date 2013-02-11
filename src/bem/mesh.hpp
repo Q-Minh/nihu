@@ -14,6 +14,9 @@
 #include "element.hpp"
 
 #include <Eigen/StdVector>
+/**
+ * \brief macro declaring an Eigen std::vector type with the appropriate allocator 
+ */
 #define EIGENSTDVECTOR(_T) std::vector<_T, Eigen::aligned_allocator<_T> >
 
 #include <iostream>
@@ -30,12 +33,19 @@ public:
 	static unsigned const nDim = x_t::SizeAtCompileTime; /**< \brief number of dimensions */
 	typedef typename EIGENSTDVECTOR(x_t)::const_iterator iterator_t;	/**< \brief node iterator type */
 
-	/** \brief add a point */
+	/**
+	 * \brief add a point to the field point mesh
+	 * \param p the point to be added
+	 */
 	void add_point(x_t const &p)
 	{
 		points.push_back(p);
 	}
 
+	/**
+	 * \brief return number of points
+	 * \return number of points
+	 */
 	unsigned get_num_points(void) const
 	{
 		return points.size();
@@ -54,6 +64,10 @@ struct first_elements_x_type
 	>::type::x_t type;
 };
 
+/**
+ * \brief container class for a mesh
+ * \tparam ElemTypeVector compile time vector of the contained element types
+ */
 template <class ElemTypeVector>
 class Mesh : public field_points<typename first_elements_x_type<ElemTypeVector>::type>
 {
@@ -64,7 +78,7 @@ public:
 	/** \brief type of base class */
 	typedef field_points<typename first_elements_x_type<ElemTypeVector>::type> base;
 
-	static unsigned const nDim = base::nDim;
+	static unsigned const nDim = base::nDim;	/**< \brief number of dimensions of the mesh */
 
 	/** \brief the type of the mesh class itself */
 	typedef Mesh<elem_type_vector_t> mesh_t;
@@ -96,7 +110,7 @@ public:
 
 protected:
 	elem_container_t elements;	/**< \brief element geometries (BIG heterogeneous container) */
-	unsigned num_elements;
+	unsigned num_elements;	/**< \brief total number of elements in the mesh */
 
 	template <class elem_t>
 	struct elem_adder { struct type	{
@@ -128,6 +142,14 @@ public:
 	{
 	}
 
+	/**
+	 * \brief build the mesh from MATLAB matrices
+	 * \tparam N_MAX_ELEM the maximal width of the matrix elements
+	 * \param nodes matrix of nodal coordinates
+	 * \param nnodes number of nodes
+	 * \param elements matrix of element nodes
+	 * \param nelements number of elements
+	 */
 	template <unsigned N_MAX_ELEM>
 	void build_from_mex(double nodes[], unsigned nnodes, double elements[], unsigned nelements)
 	{
@@ -182,6 +204,10 @@ public:
 		>(input, *this);
 	}
 
+	/**
+	 * \brief add a new node to the mesh
+	 * \param input array of scalars containing the coordinates
+	 */
 	void add_node(scalar_t input[])
 	{
 		x_t c;
@@ -190,6 +216,11 @@ public:
 		this->add_point(c);
 	}
 
+	/**
+	 * \brief add a new element to the mesh
+	 * \tparam elem_t the element type
+	 * \param e the element to be added
+	 */
 	template <class elem_t>
 	void push_element(elem_t const &e)
 	{
@@ -197,6 +228,10 @@ public:
 		++num_elements;
 	}
 
+	/**
+	 * \brief return number of elements
+	 * \return number of elements in the mesh
+	 */
 	unsigned get_num_elements(void) const
 	{
 		return num_elements;
