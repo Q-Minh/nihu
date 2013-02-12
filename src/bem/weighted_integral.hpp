@@ -39,14 +39,15 @@ public:
 		typename kernel_t::scalar_t, field_t::num_dofs, kernel_t::num_elements
 	> result_t;									/**< \brief integration result type */
 
+protected:
 	/**
-	 * \brief evaluate the integral over a specific field with a quadrature
+	 * \brief evaluate the regular integral over a specific field with a quadrature
 	 * \param field the field over which integration is performed
 	 * \param q_pool the quadrature pool
 	 * \return reference to the result of the integral. The actual result is stored in static variable
 	 */
 	template <class quad_pool>
-	static result_t const &eval(field_t const &field, quad_pool const &q_pool)
+	static result_t const &eval_regular_impl(field_t const &field, quad_pool const &q_pool)
 	{
 		// select quadrature
 		kernel_input_t trial(field.get_elem(), q_pool[0][0]);
@@ -59,6 +60,41 @@ public:
 			m_result += nset_t::eval_L(it->get_xi()) * (kernel_t::eval(input) * (input.get_jacobian()));
 		}
 		return m_result;
+	}
+
+public:
+	/**
+	 * \brief evaluate the regular integral over a specific field with a quadrature
+	 * \param field the field over which integration is performed
+	 * \param q_pool the quadrature pool
+	 * \return reference to the result of the integral. The actual result is stored in static variable
+	 */
+	template <class quad_pool>
+	static result_t const &eval_regular(field_t const &field, quad_pool const &q_pool)
+	{
+		m_result = result_t();	// clear result
+		return eval_regular_impl(field, q_pool);
+	}
+
+	/**
+	 * \brief evaluate the possibly singular integral over a specific field with a quadrature
+	 * \param field the field over which integration is performed
+	 * \param source_dof the source dof
+	 * \param q_pool the quadrature pool
+	 * \return reference to the result of the integral. The actual result is stored in static variable
+	 */
+	template <class quad_pool>
+	static result_t const &eval_surface(field_t const &field, unsigned source_dof, quad_pool const &q_pool)
+	{
+		m_result = result_t();	// clear result
+
+		// check whether singular quadrature is needed
+		typename field_t::dofs_t dofs = field.get_dofs();
+		for (unsigned i = 0; i < field_t::num_dofs; ++i)
+			if (dofs[i] == source_dof)
+				return m_result;
+
+		return eval_regular_impl(field, q_pool);
 	}
 
 protected:
@@ -151,7 +187,7 @@ protected:
 				[&] (field_t const &f)
 			{
 				// get reference to field integral result
-				result_t const &I = weighted_field_integral_t::eval(f, quadrature_pool);
+				result_t const &I = weighted_field_integral_t::eval_regular(f, quadrature_pool);
 				// write result into result vector
 				dofs_t const &dofs = f.get_dofs();
 				for (unsigned i = 0; i < field_t::num_dofs; ++i)
