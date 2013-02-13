@@ -101,7 +101,7 @@ public:
 	> result_t;									/**< \brief integration result type */
 	typedef typename Eigen::Matrix<
 		typename kernel_t::scalar_t, field2_t::num_dofs, kernel_t::num_elements
-	> local_result_t;									/**< \brief integration result type */
+	> local_result_t;									/**< \brief local integration result type */
 
 	/**
 	 * \brief evaluate the integral over a specific field pair with a quadrature
@@ -126,7 +126,6 @@ public:
 			local_result_t result();
 
 			kernel_input_t input1(field1.get_elem(), *it1);
-			auto N1 = nset1_t::eval_L(it1->get_xi());
 			for(auto it2 = q_pool2[degree].begin(); it2 != q_pool2[degree].end(); ++it2)
 			{
 				kernel_input_t input2(field2.get_elem(), *it2);
@@ -134,6 +133,7 @@ public:
 			}
 			result *= input1.get_jacobian();
 
+			auto N1 = nset1_t::eval_L(it1->get_xi());
 			for (int i = 0; i < field1_t::num_dofs; ++i)
 				m_result.block<field2_t::num_dofs, kernel_t::num_elements>(i*field2_t::num_dofs,0) += result * N1[i];
 		}
@@ -211,7 +211,7 @@ protected:
 	 * \tparam elem_t the element type over which integration is performed
 	 */
 	template <class elem_t>
-	struct eval_on { struct type {
+	struct integrate_on { struct type {
 		typedef field<elem_t, typename function_space_t::field_option_t> field_t;		/**< \brief the field type */
 		typedef weighted_field_integral<field_t, kernel_t> weighted_field_integral_t;	/**< \brief the field integrator type */
 		typedef typename weighted_field_integral_t::result_t result_t;				/**< \brief result type of field integrator */
@@ -249,9 +249,9 @@ protected:
 	 * \tparam elem_t the element type over which integration is performed
 	 */
 	template <class elem_t>
-	struct accelerated_eval_on { struct type : public eval_on<elem_t>::type
+	struct accelerated_integrate_on { struct type : public integrate_on<elem_t>::type
 	{
-		typedef typename eval_on<elem_t>::type base;	/**< \brief base class abbreviation */
+		typedef typename integrate_on<elem_t>::type base;	/**< \brief base class abbreviation */
 
 		typedef typename base::field_t field_t;	/**< \brief type of elem-field */
 		typedef typename base::dofs_t dofs_t;		/**< \brief type of DOF vector */
@@ -321,13 +321,13 @@ public:
 	 * \brief evaluate integral and return reference to result vector
 	 * \return reference to static member result
 	 */
-	result_vector_t const &eval(void)
+	result_vector_t const &integrate(void)
 	{
 		m_result_vector = result_vector_t::Zero(m_result_vector.rows(), m_result_vector.ColsAtCompileTime);
 
 		tmp::call_each<
 			elem_type_vector_t,
-			eval_on<tmp::_1>,
+			integrate_on<tmp::_1>,
 			weighted_integral_t &
 		>(*this);
 
@@ -336,6 +336,7 @@ public:
 
 protected:
 	function_space_t const &m_func_space;	/**< \brief reference to the function space */
+
 	result_vector_t m_result_vector;	/**< \brief the result vector */
 
 	accelerator_t m_accel;	/**< \brief accelerator structure */

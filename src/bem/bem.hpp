@@ -57,7 +57,7 @@ public:
 		kernel_t::set_x0(x0);
 		kernel_t::set_wave_number(k);
 		// evaluate the weighted integral
-		return wi.eval();
+		return wi.integrate();
 	}
 
 protected:
