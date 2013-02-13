@@ -58,7 +58,6 @@ public:
 
 	/**
 	 * \brief shape function gradient matrix \f$\nabla L_i(\xi)\f$
-	 * \param \xi independent variable \f$\xi\f$
 	 */
 	static dL_t eval_dL(xi_t const &)
 	{

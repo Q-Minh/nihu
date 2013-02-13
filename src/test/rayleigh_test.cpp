@@ -1,10 +1,11 @@
-#include "../bem/rayleigh.hpp"
+#include "../bem/kernel.hpp"
+#include "../bem/bem.hpp"
 
 typedef tmp::vector<tria_1_elem, quad_1_elem> elem_type_vector;
 typedef Mesh<elem_type_vector> mesh_t;
 typedef mesh_t::x_t x_t;
-typedef rayleigh<elem_type_vector, isoparametric_field> iso_rayleigh_t;
-typedef rayleigh<elem_type_vector, constant_field> const_rayleigh_t;
+typedef bem<elem_type_vector, isoparametric_field, green_G_kernel> iso_rayleigh_t;
+typedef bem<elem_type_vector, constant_field, green_G_kernel> const_rayleigh_t;
 
 int main(void)
 {
@@ -46,4 +47,5 @@ int main(void)
 
 	return 0;
 }
+
 

@@ -15,10 +15,11 @@ tic;
 [GB, HB] = Boonen13(nodes, elements, k, points);
 tBoonen = toc;
 
-%% matrices
 tic;
 [H0, G0] = bemHG(mesh, k, 'lin', points);
 tOldSchool = toc;
+
+disp(tBoonen / tOldSchool);
 
 %% excitation and response
 r0 = [0 0 0];
