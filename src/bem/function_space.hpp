@@ -98,7 +98,7 @@ public:
 	 * \brief constructor storing a reference from the mesh
 	 * \param mesh the mesh object to extend
 	 */
-	function_space(mesh_t const &mesh) : mesh(mesh)
+	function_space(mesh_t const &mesh) : m_mesh(mesh)
 	{
 	}
 
@@ -109,7 +109,7 @@ public:
 	template <class ElemType>
 	field_iterator_t<ElemType> elem_begin(void) const
 	{
-		return mesh.template begin<ElemType>(); // automatic conversion by iterator constructor
+		return m_mesh.template begin<ElemType>(); // automatic conversion by iterator constructor
 	}
 
 	/**
@@ -119,7 +119,7 @@ public:
 	template <class ElemType>
 	field_iterator_t<ElemType> elem_end(void) const
 	{
-		return mesh.template end<ElemType>(); // automatic conversion by iterator constructor
+		return m_mesh.template end<ElemType>(); // automatic conversion by iterator constructor
 	}
 
 	/**
@@ -128,12 +128,12 @@ public:
 	 */
 	unsigned get_num_dofs(void) const
 	{
-		return get_num_dofs_impl<mesh_t, field_option_t>::eval(mesh);
+		return get_num_dofs_impl<mesh_t, field_option_t>::eval(m_mesh);
 	}
 
 protected:
 	/** \brief the stored mesh reference */
-	mesh_t const &mesh;
+	mesh_t const &m_mesh;
 };
 
 #endif

@@ -109,6 +109,7 @@ protected:
 	static const base::kernel_precision limits[];	/**< \brief array of distance limits */
 };
 
+
 const green_G_kernel::base::kernel_precision green_G_kernel::limits[6] = {
 	{9.2, 1},
 	{1.6, 3},
