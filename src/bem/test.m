@@ -19,6 +19,8 @@ tic;
 [H0, G0] = bemHG(mesh, k, 'lin', points);
 tOldSchool = toc;
 
+disp(tBoonen / tOldSchool);
+
 %% excitation and response
 r0 = [0 0 0];
 [ps, qs] = incident('point', r0, nodes, nodes, k);

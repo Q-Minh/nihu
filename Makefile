@@ -18,7 +18,7 @@ field_test: src/test/field_test.cpp src/bem/field.hpp
 weighted_test: src/test/weighted_integral_test.cpp src/bem/weighted_integral.hpp
 	$(CC) $(CFLAGS) src/test/weighted_integral_test.cpp -o weighted_test
 
-rayleigh_test: src/test/rayleigh_test.cpp src/bem/rayleigh.hpp src/bem/weighted_integral.hpp  src/bem/function_space.hpp
+rayleigh_test: src/test/rayleigh_test.cpp src/bem/bem.hpp src/bem/weighted_integral.hpp  src/bem/function_space.hpp
 	$(CC) $(CFLAGS) src/test/rayleigh_test.cpp -o rayleigh_test
 
 bem_test: src/test/bem_test.cpp src/bem/bem.hpp src/bem/bem.hpp src/bem/weighted_integral.hpp  src/bem/function_space.hpp

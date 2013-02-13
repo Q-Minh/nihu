@@ -1,3 +1,9 @@
+/**
+ * \file descriptor.hpp
+ * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
+ * \brief implementation of kernel inputs
+ */
+
 #ifndef DESCRIPTOR_HPP_INCLUDED
 #define DESCRIPTOR_HPP_INCLUDED
 
@@ -7,28 +13,30 @@
 #include "quadrature.hpp"
 
 /**
- * \brief location class containing a locatin and a jacobian
- * \tparam xType type of the location
+ * \brief class representing a kernel input consisting of a location and a jacobian
+ * \details A location is constructed from and element and a quadrature point.
+ * The jacobian incorporates the quadrature weight.
+ * \tparam xType location type of the element
  */
 template <class xType>
 class location
 {
 public:
-	typedef xType x_t;	/**< \brief template argument as nested type */
-	typedef typename x_t::Scalar scalar_t; /**< \brief the scalar type of the descriptor */
+	typedef xType x_t;	/**< \brief template parameter as nested type */
+	typedef typename x_t::Scalar scalar_t;	/**< \brief the scalar type of the location */
 
 	/**
-	 * \brief default constructor needed for elem_accelerator
+	 * \brief default constructor needed to avoid constructor call in derived classes
 	 */
 	location()
 	{
 	}
 
 	/**
-	 * \brief constructor from an element and a quadrature point
-	 * \tparam elem_t
-	 * \param elem the element
-	 * \param q a quadrature elem
+	 * \brief constructor from element and quadrature point
+	 * \tparam elem_t the element type
+	 * \param elem an element
+	 * \param q a quadrature point
 	 */
 	template <class elem_t>
 	location(elem_t const &elem, quadrature_elem<typename elem_t::domain_t> const &q)
@@ -50,8 +58,8 @@ public:
 	}
 
 	/**
-	 * \brief return the location
-	 * \return the location
+	 * \brief return location
+	 * \return location
 	 */
 	x_t const &get_x(void) const
 	{
@@ -61,34 +69,29 @@ public:
 	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 protected:
-	x_t m_x;	/**< \brief the stored location */
-	scalar_t m_jacobian; /**< \brief the stored jacobian */
+	x_t m_x;	/**< \brief the location */
+	scalar_t m_jacobian;	/**< \brief the jacobian */
 };
 
 
 /**
- * \brief location class containing a location, a normal and a jacobian
- * \tparam xType type of the location
+ * \brief class representing a kernel input consisting of a location, normal vector and a jacobian
+ * \tparam xType location type of the element
+ * \details A location is constructed from and element and a quadrature point.
+ * The jacobian incorporates the quadrature weight.
  */
 template <class xType>
 class location_with_normal : public location<xType>
 {
 public:
-	typedef xType x_t; 	/**< \brief template argument as nested type */
-	typedef location<xType> base; 	/**< \brief the base class */
+	typedef xType x_t;	 /**< \brief template  parameter as nested type */
+	typedef location<xType> base;	/**< \brief the base class */
 
 	/**
-	 * \brief default constructor needed for elem_accelerator
-	 */
-	location_with_normal()
-	{
-	}
-
-	/**
-	 * \brief constructor from an element and a quadrature point
-	 * \tparam elem_t
-	 * \param elem the element
-	 * \param q a quadrature elem
+	 * \brief constructor from element and quadrature point
+	 * \tparam elem_t the element type
+	 * \param elem an element
+	 * \param q a quadrature point
 	 */
 	template <class elem_t>
 	location_with_normal(elem_t const &elem, quadrature_elem<typename elem_t::domain_t> const &q)
