@@ -8,9 +8,9 @@ typedef bem<elem_type_vector, isoparametric_field, green_HG_kernel> bem_t;
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
     double *nodes = mxGetPr(prhs[0]);
-    unsigned nnodes = mxGetM(prhs[0]);
+    size_t nnodes = mxGetM(prhs[0]);
     double *elements = mxGetPr(prhs[1]);
-    unsigned nelements = mxGetM(prhs[1]);
+    size_t nelements = mxGetM(prhs[1]);
 
 	mesh_t mesh;
 	mesh.build_from_mex<4+1>(nodes, nnodes, elements, nelements);
@@ -20,7 +20,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     double k = mxGetScalar(prhs[2]);
 
 	double *points = mxGetPr(prhs[3]);
-    unsigned npoints = mxGetM(prhs[3]);
+    size_t npoints = mxGetM(prhs[3]);
 
     plhs[0] = mxCreateDoubleMatrix(npoints, nnodes, mxCOMPLEX);
     double *Gr = mxGetPr(plhs[0]);
@@ -35,7 +35,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	{
 		typedef mesh_t::x_t x_t;
 		x_t x0;
-		
+
 		x0 << points[iPoint], points[iPoint+npoints], points[iPoint+2*npoints];
 		auto result = b.eval(x0, k);
 
@@ -43,8 +43,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 		{
 			Gr[iPoint+i*npoints] = result(i,0).real();
 			Gi[iPoint+i*npoints] = result(i,0).imag();
-			Hr[iPoint+i*npoints] = result(i,1).real();
-			Hi[iPoint+i*npoints] = result(i,1).imag();
+ 			Hr[iPoint+i*npoints] = result(i,1).real();
+ 			Hi[iPoint+i*npoints] = result(i,1).imag();
 		}
 
 		unsigned proc = 80*iPoint/npoints;

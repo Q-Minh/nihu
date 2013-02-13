@@ -1,9 +1,9 @@
-% make
+make
 
 %%
 mesh = create_sphere_boundary(1,20);
 % mesh = quad2tria(mesh);
-field = create_slab([2 0 0; 4 2 0], [10, 10]);
+field = create_slab([2 0 0; 4 2 0], [20, 20]);
 
 k = min(mesh_kmax(mesh, 7)) * .5;
 

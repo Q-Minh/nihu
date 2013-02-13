@@ -49,8 +49,8 @@ public:
 	}
 
 	/**
-	 * \brief return jacobian
-	 * \return jacobian
+	 * \brief return the jacobian
+	 * \return the jacobian
 	 */
 	scalar_t const &get_jacobian(void) const
 	{
@@ -107,8 +107,8 @@ public:
 	}
 
 	/**
-	 * \brief return normal vector
-	 * \return normal vector
+	 * \brief return the normal
+	 * \return the unit normal vector
 	 */
 	x_t const &get_normal(void) const
 	{
