@@ -12,9 +12,9 @@
 #include "shapeset.hpp"
 
 /**
- * \brief functor computing normal vector
- * \tparam nDim number of dimensions
- */
+* \brief functor computing normal vector
+* \tparam nDim number of dimensions
+*/
 template <unsigned nDim>
 struct normal_vector
 {
@@ -22,15 +22,15 @@ struct normal_vector
 };
 
 /**
- * \brief specialisation of normal vector for the 1D case
- */
+* \brief specialisation of normal vector for the 1D case
+*/
 template <>
 struct normal_vector<1>
 {
 	/**
-	 * \brief compute normal vector in 1D
-	 * \param dx position derivative matrix
-	 */
+	* \brief compute normal vector in 1D
+	* \param dx position derivative matrix
+	*/
 	Eigen::Matrix<double, 1, 2> operator() (Eigen::Matrix<double, 1, 2> const &dx) const
 	{
 		Eigen::Matrix<double, 1, 2> res;
@@ -40,15 +40,15 @@ struct normal_vector<1>
 };
 
 /**
- * \brief specialisation of normal vector for the 2D case
- */
+* \brief specialisation of normal vector for the 2D case
+*/
 template <>
 struct normal_vector<2>
 {
 	/**
-	 * \brief compute normal vector in two dimensions
-	 * \param dx position derivative matrix
-	 */
+	* \brief compute normal vector in two dimensions
+	* \param dx position derivative matrix
+	*/
 	Eigen::Matrix<double, 1, 3> operator() (Eigen::Matrix<double, 2, 3> const &dx) const
 	{
 		return dx.row(0).cross(dx.row(1));
@@ -161,13 +161,13 @@ public:
 	*/
 	x_t get_x(xi_t const &xi) const
 	{
-		return lset_t::eval_L(xi).transpose() * m_coords;
+		return lset_t::eval_shape(xi).transpose() * m_coords;
 	}
 
 	/**
-	 * \brief return element center
-	 * \return location \f$x_0\f$ in the element center
-	 */
+	* \brief return element center
+	* \return location \f$x_0\f$ in the element center
+	*/
 	x_t get_center(void) const
 	{
 		return get_x(domain_t::get_center());
@@ -180,7 +180,7 @@ public:
 	*/
 	dx_t get_dx(xi_t const &xi) const
 	{
-		return lset_t::eval_dL(xi).transpose() * m_coords;
+		return lset_t::eval_dshape(xi).transpose() * m_coords;
 	}
 
 	/**

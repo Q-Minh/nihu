@@ -30,7 +30,7 @@ public:
 		std::transform(
 			q.begin(), q.end(),
 			std::back_inserter(*this),
-			[] (quadrature_elem_t const &qe) { return nset_t::eval_L(qe.get_xi()); }
+			[] (quadrature_elem_t const &qe) { return nset_t::eval_shape(qe.get_xi()); }
 		);
 	}
 };

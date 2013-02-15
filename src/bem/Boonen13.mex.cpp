@@ -1,9 +1,11 @@
 #include <mex.h>
 #include "bem.hpp"
+#include "mex_matrix.hpp"
 
 typedef tmp::vector<tria_1_elem, quad_1_elem> elem_type_vector;
 typedef Mesh<elem_type_vector> mesh_t;
-typedef bem<elem_type_vector, isoparametric_field, green_HG_kernel> bem_t;
+typedef green_HG_kernel kernel_t;
+typedef bem<elem_type_vector, isoparametric_field, kernel_t> bem_t;
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
@@ -21,14 +23,10 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
 	double *points = mxGetPr(prhs[3]);
     size_t npoints = mxGetM(prhs[3]);
-
-    plhs[0] = mxCreateDoubleMatrix(npoints, nnodes, mxCOMPLEX);
-    double *Gr = mxGetPr(plhs[0]);
-    double *Gi = mxGetPi(plhs[0]);
-
-    plhs[1] = mxCreateDoubleMatrix(npoints, nnodes, mxCOMPLEX);
-    double *Hr = mxGetPr(plhs[1]);
-    double *Hi = mxGetPi(plhs[1]);
+	
+	mex_complex_matrix<kernel_t::num_elements> output(npoints, nnodes);
+    for (size_t i = 0; i < kernel_t::num_elements; ++i)
+        plhs[i] = output.get_matrix(i);
 
 	unsigned prevproc = 0;
 	for (unsigned iPoint = 0; iPoint < npoints; ++iPoint)
@@ -40,12 +38,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 		auto result = b.eval(x0, k);
 
 		for (unsigned i = 0; i < nnodes; ++i)
-		{
-			Gr[iPoint+i*npoints] = result(i,0).real();
-			Gi[iPoint+i*npoints] = result(i,0).imag();
- 			Hr[iPoint+i*npoints] = result(i,1).real();
- 			Hi[iPoint+i*npoints] = result(i,1).imag();
-		}
+			output(iPoint, i) += result.row(i);
 
 		unsigned proc = 80*iPoint/npoints;
 		if (proc > prevproc)

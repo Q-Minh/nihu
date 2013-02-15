@@ -47,7 +47,7 @@ public:
 	 * \brief shape function vector \f$L_i(\xi)\f$
 	 * \param \xi independent variable \f$\xi\f$
 	 */
-	static L_t eval_L(xi_t const &xi)
+	static L_t eval_shape(xi_t const &xi)
 	{
 		L_t L;
 		L <<
@@ -59,7 +59,7 @@ public:
 	/**
 	 * \brief shape function gradient matrix \f$\nabla L_i(\xi)\f$
 	 */
-	static dL_t eval_dL(xi_t const &)
+	static dL_t eval_dshape(xi_t const &)
 	{
 		dL_t dL;
 		dL <<
@@ -83,7 +83,7 @@ public:
 	 * \brief shape function vector \f$L_i(\xi)\f$
 	 * \param \xi independent variable \f$\xi\f$
 	 */
-	static L_t eval_L(xi_t const &xi)
+	static L_t eval_shape(xi_t const &xi)
 	{
 		L_t L;
 		L <<
@@ -97,7 +97,7 @@ public:
 	 * \brief shape function gradient matrix \f$\nabla L_i(\xi)\f$
 	 * \brief return shape function gradient matrix
 	 */
-	static dL_t eval_dL(xi_t const &)
+	static dL_t eval_dshape(xi_t const &)
 	{
 		dL_t dL;
 		dL <<
@@ -122,7 +122,7 @@ public:
 	 * \brief shape function vector \f$L_i(\xi)\f$
 	 * \param \xi independent variable \f$\xi\f$
 	 */
-	static L_t eval_L(xi_t const &xi)
+	static L_t eval_shape(xi_t const &xi)
 	{
 		L_t L;
 		L <<
@@ -136,7 +136,7 @@ public:
 	 * \brief shape function gradient matrix \f$\nabla L_i(\xi)\f$
 	 * \param \xi independent variable \f$\xi\f$
 	 */
-	static dL_t eval_dL(xi_t const &xi)
+	static dL_t eval_dshape(xi_t const &xi)
 	{
 		dL_t dL;
 		dL <<
@@ -161,7 +161,7 @@ public:
 	 * \brief shape function vector \f$L_i(\xi)\f$
 	 * \param \xi independent variable \f$\xi\f$
 	 */
-	static L_t eval_L(xi_t const &xi)
+	static L_t eval_shape(xi_t const &xi)
 	{
 		L_t L;
 		L <<
@@ -176,7 +176,7 @@ public:
 	 * \brief shape function gradient matrix \f$\nabla L_i(\xi)\f$
 	 * \param \xi independent variable \f$\xi\f$
 	 */
-	static dL_t eval_dL(xi_t const &xi)
+	static dL_t eval_dshape(xi_t const &xi)
 	{
 		dL_t dL;
 		dL <<
@@ -208,7 +208,7 @@ public:
 	 * \brief shape function vector \f$L_i(\xi)\f$
 	 * \param \xi independent variable \f$\xi\f$
 	 */
-	static L_t eval_L(xi_t const &xi)
+	static L_t eval_shape(xi_t const &xi)
 	{
 		return shape_set<domain_t, 1>::L_t::Ones();
 	}
@@ -217,7 +217,7 @@ public:
 	 * \brief shape function gradient matrix \f$\nabla L_i(\xi)\f$
 	 * \param \xi independent variable \f$\xi\f$
 	 */
-	static dL_t eval_dL(xi_t const &xi)
+	static dL_t eval_dshape(xi_t const &xi)
 	{
 		return dL_t::Zero();
 	}
