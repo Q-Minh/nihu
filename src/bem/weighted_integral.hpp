@@ -81,7 +81,7 @@ public:
 	typedef FunctionSpace function_space_t;	/**< \brief template paramter as nested type */
 	typedef Kernel kernel_t;	/**< \brief template paramter as nested type */
 
-	typedef weighted_integral<function_space_t, kernel_t> weighted_integral_t;	/**< \brief the class type abbreviated */
+	typedef weighted_integral<kernel_t, function_space_t> weighted_integral_t;	/**< \brief the class type abbreviated */
 	typedef typename function_space_t::field_option_t field_option_t;	/**< \brief field option parameter */
 	typedef typename kernel_t::input_t kernel_input_t;	/**< \brief kernel input type */
 	typedef typename function_space_t::elem_type_vector_t elem_type_vector_t;	/**< \brief the element type vector */

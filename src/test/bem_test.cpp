@@ -3,8 +3,8 @@
 typedef tmp::vector<tria_1_elem, quad_1_elem> elem_type_vector;
 typedef Mesh<elem_type_vector> mesh_t;
 typedef mesh_t::x_t x_t;
-typedef bem<elem_type_vector, isoparametric_field, green_G_kernel> iso_bem_t;
-typedef bem<elem_type_vector, constant_field, green_HG_kernel> const_bem_t;
+typedef bem_radiation<green_G_kernel, elem_type_vector, isoparametric_field> iso_bem_t;
+typedef bem_radiation<green_HG_kernel, elem_type_vector, constant_field> const_bem_t;
 
 int main(void)
 {

@@ -31,7 +31,7 @@ public:
 	/** \brief the function space type */
 	typedef function_space<mesh_t, field_option_t> function_space_t;
 	/** \brief the weighted integral type */
-	typedef weighted_integral<function_space_t, kernel_t> weighted_integral_t;
+	typedef weighted_integral<kernel_t, function_space_t> weighted_integral_t;
 	/** \brief the result type of integration */
 	typedef typename weighted_integral_t::result_vector_t result_vector_t;
 
