@@ -81,9 +81,9 @@ public:
 	/** \brief type of the shape functions' independent variable \f$\xi\f$, inherited from the LSet  */
 	typedef typename lset_t::xi_t xi_t;
 	/** \brief type of an \f$L(\xi)\f$ vector, inherited from the LSet */
-	typedef typename lset_t::L_t L_t;
+	typedef typename lset_t::shape_t L_t;
 	/** \brief type of an \f$\nabla L(\xi)\f$ gradient matrix, inherited from the LSet */
-	typedef typename lset_t::dL_t dL_t;
+	typedef typename lset_t::dshape_t dL_t;
 
 	/** \brief type of the element's independent location variable \f$x\f$ */
 	typedef Eigen::Matrix<double, 1, x_dim> x_t;

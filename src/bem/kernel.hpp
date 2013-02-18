@@ -92,6 +92,13 @@ public:
 		return m_result;
 	}
 
+	/** \brief evaluate the kernel for a given input */
+	static result_t const &eval (input_t const &input1, input_t const &input2)
+	{
+		set_x0(input1.get_x());
+		return eval(input2);
+	}
+
 	/** \brief estimate kernel complexity for a given input
 	 * \param input
 	 * \return plynomial order of the kernel
@@ -103,6 +110,12 @@ public:
 			if (limits[i].rel_distance < rel_distance)
 				return limits[i].degree;
 		return 5;
+	}
+
+	static unsigned estimate_complexity(input_t const &input1, input_t const &input2)
+	{
+		set_x0(input1.get_x());
+		return estimate_complexity(input2);
 	}
 
 protected:

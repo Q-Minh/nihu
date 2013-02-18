@@ -11,7 +11,7 @@
 #include "shapeset.hpp"
 
 template <class NSet>
-class nset_accelerator : public EIGENSTDVECTOR(typename NSet::L_t)
+class nset_accelerator : public EIGENSTDVECTOR(typename NSet::shape_t)
 {
 public:
 	typedef NSet nset_t;	/**< template parameter as nested type */

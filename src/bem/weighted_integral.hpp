@@ -20,7 +20,7 @@
  * \tparam Field the field type that needs to be handled
  * \tparam Kernel the kernel type that needs to be evaluated
  */
-template <class Field, class Kernel>
+template <class Kernel, class Field>
 class weighted_field_integral
 {
 public:
@@ -74,7 +74,7 @@ typename weighted_field_integral<Field, Kernel>::result_t
  * \tparam FunctionSpace the function space over which integration is performed
  * \tparam Kernel the kernel to be integrated
  */
-template <class FunctionSpace, class Kernel>
+template <class Kernel, class FunctionSpace>
 class weighted_integral
 {
 public:
@@ -87,7 +87,7 @@ public:
 	typedef typename function_space_t::elem_type_vector_t elem_type_vector_t;	/**< \brief the element type vector */
 	typedef Eigen::Matrix<typename kernel_t::scalar_t, Eigen::Dynamic, kernel_t::num_elements> result_vector_t;	/**< \brief integration result type */
 
-	typedef accelerator<elem_type_vector_t, field_option_t, kernel_input_t> accelerator_t;	/**< \brief type of accelerator class */
+	typedef accelerator<elem_type_vector_t> accelerator_t;	/**< \brief type of accelerator class */
 
 protected:
 	/** \brief evaluate integral on one element type and store the results into the result vector
@@ -97,7 +97,7 @@ protected:
 	template <class elem_t>
 	struct integrate_on { struct type {
 		typedef field<elem_t, typename function_space_t::field_option_t> field_t;		/**< \brief the field type */
-		typedef weighted_field_integral<field_t, kernel_t> weighted_field_integral_t;	/**< \brief the field integrator type */
+		typedef weighted_field_integral<kernel_t, field_t> weighted_field_integral_t;	/**< \brief the field integrator type */
 		typedef typename weighted_field_integral_t::result_t result_t;				/**< \brief result type of field integrator */
 		typedef typename field_t::dofs_t dofs_t;										/**< \brief dofs type needed to iterate */
 

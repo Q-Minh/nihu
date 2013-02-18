@@ -28,9 +28,9 @@ public:
 	/** \brief type of the shape functions' independent variable \f$\xi\f$ */
 	typedef typename domain_t::xi_t xi_t;
 	/** \brief type of an \f$L(\xi)\f$ vector */
-	typedef Eigen::Matrix<double, num_nodes, 1> L_t;
+	typedef Eigen::Matrix<double, num_nodes, 1> shape_t;
 	/** \brief type of an \f$\nabla L(\xi)\f$ gradient matrix */
-	typedef Eigen::Matrix<double, num_nodes, domain_t::dimension> dL_t;
+	typedef Eigen::Matrix<double, num_nodes, domain_t::dimension> dshape_t;
 };
 
 
@@ -47,9 +47,9 @@ public:
 	 * \brief shape function vector \f$L_i(\xi)\f$
 	 * \param \xi independent variable \f$\xi\f$
 	 */
-	static L_t eval_shape(xi_t const &xi)
+	static shape_t eval_shape(xi_t const &xi)
 	{
-		L_t L;
+		shape_t L;
 		L <<
 			(1.0-xi[0])/2.0,
 			(1.0+xi[0])/2.0;
@@ -59,9 +59,9 @@ public:
 	/**
 	 * \brief shape function gradient matrix \f$\nabla L_i(\xi)\f$
 	 */
-	static dL_t eval_dshape(xi_t const &)
+	static dshape_t eval_dshape(xi_t const &)
 	{
-		dL_t dL;
+		dshape_t dL;
 		dL <<
 			-0.5,
 			+0.5;
@@ -83,9 +83,9 @@ public:
 	 * \brief shape function vector \f$L_i(\xi)\f$
 	 * \param \xi independent variable \f$\xi\f$
 	 */
-	static L_t eval_shape(xi_t const &xi)
+	static shape_t eval_shape(xi_t const &xi)
 	{
-		L_t L;
+		shape_t L;
 		L <<
 			1.0-xi[0]-xi[1],
 			xi[0],
@@ -97,9 +97,9 @@ public:
 	 * \brief shape function gradient matrix \f$\nabla L_i(\xi)\f$
 	 * \brief return shape function gradient matrix
 	 */
-	static dL_t eval_dshape(xi_t const &)
+	static dshape_t eval_dshape(xi_t const &)
 	{
-		dL_t dL;
+		dshape_t dL;
 		dL <<
 			-1.0, -1.0,
 			+1.0,  0.0,
@@ -122,9 +122,9 @@ public:
 	 * \brief shape function vector \f$L_i(\xi)\f$
 	 * \param \xi independent variable \f$\xi\f$
 	 */
-	static L_t eval_shape(xi_t const &xi)
+	static shape_t eval_shape(xi_t const &xi)
 	{
-		L_t L;
+		shape_t L;
 		L <<
 			(-xi[0]-xi[1])/2.0,
 			(1.0+xi[0])/2.0,
@@ -136,9 +136,9 @@ public:
 	 * \brief shape function gradient matrix \f$\nabla L_i(\xi)\f$
 	 * \param \xi independent variable \f$\xi\f$
 	 */
-	static dL_t eval_dshape(xi_t const &xi)
+	static dshape_t eval_dshape(xi_t const &xi)
 	{
-		dL_t dL;
+		dshape_t dL;
 		dL <<
 			-.5, -.5,
 			+.5,  .0,
@@ -161,9 +161,9 @@ public:
 	 * \brief shape function vector \f$L_i(\xi)\f$
 	 * \param \xi independent variable \f$\xi\f$
 	 */
-	static L_t eval_shape(xi_t const &xi)
+	static shape_t eval_shape(xi_t const &xi)
 	{
-		L_t L;
+		shape_t L;
 		L <<
 			(1.0-xi[0])*(1.0-xi[1])/4.0,
 			(1.0+xi[0])*(1.0-xi[1])/4.0,
@@ -176,9 +176,9 @@ public:
 	 * \brief shape function gradient matrix \f$\nabla L_i(\xi)\f$
 	 * \param \xi independent variable \f$\xi\f$
 	 */
-	static dL_t eval_dshape(xi_t const &xi)
+	static dshape_t eval_dshape(xi_t const &xi)
 	{
-		dL_t dL;
+		dshape_t dL;
 		dL <<
 			-.25 * (1-xi[1]), (1.0-xi[0]) * -.25,
 			+.25 * (1-xi[1]), (1.0+xi[0]) * -.25,
@@ -199,27 +199,27 @@ class constant_shape_set : public shape_set<Domain, 1>
 public:
 	typedef Domain domain_t;	/**< \brief template argument as nested type */
 	
-	typedef shape_set<domain_t, 1> shape_t;	/**< \brief the shape set's type */
-	typedef typename shape_t::L_t L_t;	/**< \brief the L type */
-	typedef typename shape_t::dL_t dL_t;	/**< \brief the dL type */
-	typedef typename shape_t::xi_t xi_t;	/**< \brief the xi type */
+	typedef shape_set<domain_t, 1> base;	/**< \brief the shape set's type */
+	typedef typename base::shape_t shape_t;	/**< \brief the L type */
+	typedef typename base::dshape_t dshape_t;	/**< \brief the dL type */
+	typedef typename base::xi_t xi_t;	/**< \brief the xi type */
 
 	/**
 	 * \brief shape function vector \f$L_i(\xi)\f$
 	 * \param \xi independent variable \f$\xi\f$
 	 */
-	static L_t eval_shape(xi_t const &xi)
+	static shape_t eval_shape(xi_t const &xi)
 	{
-		return shape_set<domain_t, 1>::L_t::Ones();
+		return shape_set<domain_t, 1>::shape_t::Ones();
 	}
 
 	/**
 	 * \brief shape function gradient matrix \f$\nabla L_i(\xi)\f$
 	 * \param \xi independent variable \f$\xi\f$
 	 */
-	static dL_t eval_dshape(xi_t const &xi)
+	static dshape_t eval_dshape(xi_t const &xi)
 	{
-		return dL_t::Zero();
+		return dshape_t::Zero();
 	}
 };
 
