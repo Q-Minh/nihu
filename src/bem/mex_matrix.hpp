@@ -1,3 +1,8 @@
+/**
+ * \file mex_matrix.hpp
+ * \brief A Matlab mex complex matrix interface
+ * \author Peter Fiala fiala@hit.bme.hu, Peter Rucz rucz@hit.bme.hu
+ */
 #ifndef MEX_MATRIX_HPP_INCLUDED
 #define MEX_MATRIX_HPP_INCLUDED
 
@@ -23,13 +28,13 @@ public:
 	 */
 	index_proxy(mex_complex_matrix<N> cont, size_t row, size_t col) : m_parent(cont), m_row(row), m_col(col) {}
 
-	/** \brief increase operator
+	/** \brief increment operator
 	 * \param data the data to add to the conatiner
 	 */
 	template <class data_t>
 	void operator +=(data_t const &data)
 	{
-		m_parent.increase(m_row, m_col, data);
+		m_parent.increment(m_row, m_col, data);
 	}
 
 private:
@@ -60,13 +65,14 @@ public:
 		}
 	}
 
-	/** \brief increase a given element of all matrices with a vector data
+	/** \brief increment a given element of all matrices with a vector data
+	 * \details for each i, M[i](row, col) += data[i]
 	 * \param row row index
 	 * \param col column index
 	 * \param data the data to increase our matrix with
 	 */
 	template <class data_t>
-	void increase(size_t row, size_t col, data_t data)
+	void increment(size_t row, size_t col, data_t data)
 	{
 		for (size_t i = 0; i <N; ++i)
 		{
@@ -97,7 +103,7 @@ public:
 protected:
 	size_t const m_rows; /**< \brief number of rows */
 	size_t const m_cols; /**< \brief number of columns */
-	mxArray *m_matrix[N]; /**< \brief array of Matlab matrices */
+	mxArray *m_matrix[N]; /**< \brief arrays of Matlab matrices */
 	double *m_real[N];	/**< \brief arrays of real data */
 	double *m_imag[N];	/**< \brief arrays of imaginary data */
 };
