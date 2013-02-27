@@ -63,7 +63,7 @@ void matrix_surf_const(int nnodes, double const nodes[],
             }
 
             complex_scalar a, b;
-            if (e == n)
+            if (e == n) /* singular */
             {
                 switch(nvert)
                 {

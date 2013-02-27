@@ -32,7 +32,7 @@ complex_scalar const compJ = complex_scalar(0.0, 1.0);
 */
 template <typename kType>
 complex_scalar green(double ar,
-                      kType const &k)
+                     kType const &k)
 {
     return exp(-compJ * k*ar) / (4.0 * M_PI * k);
 }

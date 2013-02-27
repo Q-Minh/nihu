@@ -44,7 +44,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     double *Br = mxGetPr(plhs[1]);
     double *Bi = mxGetPi(plhs[1]);
 
-    /* call C subroutine */
+    /* call C++ subroutine */
     if (k.imag() == 0.0)
         matrix_surf_const_bm_sparse(nnodes, nodes, nelements, elements,
                                     npairs, pairs, g3, g4, dist, k.real(), alpha, Ar, Ai, Br, Bi);

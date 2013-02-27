@@ -49,7 +49,8 @@ if ~isempty(pairs)
     H = sparse(pairs(:,1), pairs(:,2), Hp, n, n);
     G = sparse(pairs(:,1), pairs(:,2), Gp, n, n);
 else
-    [H, G] = bemHG_const_bm(nodes, elements, gauss3, gauss4, dist, k, alpha);
+    [H, G] = bemHG_const_bm(...
+        nodes, elements, gauss3, gauss4, dist, k, alpha);
 end
 
 end

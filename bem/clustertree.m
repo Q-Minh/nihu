@@ -1,4 +1,4 @@
-function [tree fathersou fatherrec] = clustertree(depth, source, receiver, symm)
+function [tree, fathersou, fatherrec] = clustertree(depth, source, varargin)
 %CLUSTERTREE Build cluster tree of a fast multipole bem model
 %   [tree, fs, fr] = clustertree(depth, xs, xr)
 %   Builds the cluster tree based on a set of source and receiver nodes.
@@ -37,11 +37,20 @@ function [tree fathersou fatherrec] = clustertree(depth, source, receiver, symm)
 
 %% Parameter check
 % default arguments
-if nargin < 4
+
+[opts, args] = options(varargin{:});
+
+if numel(args) < 2
     symm = 0;
 end
-if nargin < 3
+if numel(args) < 1
     receiver = []; % receiver = source, each node is both source and receiver
+end
+
+if isfield(opts, 'quiet')
+    quiet = opts.quiet;
+else
+    quiet = false;
 end
 
 if isempty(receiver)
@@ -170,7 +179,9 @@ for l = 1 : depth
     interlist = zeros(nC, 6^3-3^3);
     for iS = 1 : nS
         iC = so(iS);
-        progbar(1, nS, iS);
+        if ~quiet
+            progbar(1, nS, iS);
+        end
         uncle = T2.nearfield(T.father(iC),:);
         uncle = uncle(uncle ~= 0);
         il = T2.child(uncle,:);
@@ -194,7 +205,9 @@ for l = 1 : depth
         interlist = zeros(nC, 6^3-3^3);
         for iS = 1 : nS
             iC = so(iS);
-            progbar(1, nS, iS);
+            if ~quiet
+                progbar(1, nS, iS);
+            end
             uncle = T2.imnearfield(T.father(iC),:);
             uncle = uncle(uncle ~= 0);
             il = T2.child(uncle,:);

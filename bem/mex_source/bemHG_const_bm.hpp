@@ -188,7 +188,7 @@ void matrix_surf_const_bm_sparse(int nnodes, const double nodes[],
                 int_const_bm<QuadElem>(g4[gs], nod, accelerators[e], q, nq, k, alpha, a, b);
                 break;
             case 3:
-                int_const_bm<QuadElem>(g3[gs], nod, accelerators[e], q, nq, k, alpha, a, b);
+                int_const_bm<TriaElem>(g3[gs], nod, accelerators[e], q, nq, k, alpha, a, b);
                 break;
             }
         }
