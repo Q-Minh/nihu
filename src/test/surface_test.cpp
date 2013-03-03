@@ -1,45 +1,67 @@
-#include "../bem/bem.hpp"
+#include <cstddef>
+#include <tuple>
+#include <type_traits>
+#include <utility>
 
-typedef tmp::vector<tria_1_elem, quad_1_elem> elem_type_vector;
-typedef Mesh<elem_type_vector> mesh_t;
-typedef bem_surface_system<green_G_kernel, elem_type_vector, isoparametric_field, isoparametric_field> bem_t;
+template<size_t N>
+struct Apply
+{
+    template<typename F, typename T, typename... A>
+    static inline auto apply(F&& f, T && t, A &&... a)
+    -> decltype(
+        Apply<N-1>::apply(
+            std::forward<F>(f),
+            std::forward<T>(t),
+            std::get<N-1>(std::forward<T>(t)),
+            std::forward<A>(a)...
+        )
+    )
+    {
+        return Apply<N-1>::apply(
+                   std::forward<F>(f),
+                   std::forward<T>(t),
+                   std::get<N-1>(std::forward<T>(t)),
+                   std::forward<A>(a)...
+               );
+    }
+};
+
+template<>
+struct Apply<0>
+{
+    template<typename F, typename T, typename... A>
+    static inline auto apply(F && f, T &&, A &&... a)
+    -> decltype(std::forward<F>(f)(std::forward<A>(a)...))
+    {
+        return std::forward<F>(f)(std::forward<A>(a)...);
+    }
+};
+
+template<typename F, typename T>
+inline auto apply(F && f, T && t)
+-> decltype(Apply< std::tuple_size<
+            typename std::decay<T>::type
+            >::value>::apply(std::forward<F>(f), std::forward<T>(t))
+           )
+{
+    return Apply<
+           std::tuple_size<
+           typename std::decay<T>::type
+           >::value
+           >::apply(f, std::forward<T>(t));
+}
+
+double func(int x, double y)
+{
+    return x + y;
+}
+
+#include <iostream>
 
 int main(void)
 {
-	double c[][3] = {
-		{0., 0., 0.},
-		{1., 0., 0.},
-		{2., 0., 0.},
-		{0., 1., 0.},
-		{1., 1., 0.},
-		{2., 1., 0.},
-		{0., 2., 0.},
-		{1., 2., 0.},
-		{2., 2., 0.}
-	};
-	unsigned e[][5] = {
-		{4,  0, 1, 4, 3},
-		{4,  1, 2, 5, 4},
-		{4,  3, 4, 7, 6},
-		{3,  4, 5, 8, 0},
-		{3,  4, 8, 7, 0}
-	};
+    std::tuple<int, double> args(2, 5.3);
+    std::cout << apply(func, args);
 
-	mesh_t mesh;
-	for (unsigned i = 0; i < sizeof(c)/sizeof(c[0]); ++i)
-		mesh.add_node(c[i]);
-	for (unsigned i = 0; i < sizeof(e)/sizeof(e[0]); ++i)
-		mesh.add_elem(e[i]);
-
-	dcomplex k = 1.0;
-
-	bem_t bem(mesh);
-	Eigen::Matrix<dcomplex, 8, 8> result = Eigen::Matrix<dcomplex, 8, 8>::Zero();
-	bem.eval(k, result);
-
-	std::cout << result;
-
-
-	return 0;
+    return 0;
 }
-
