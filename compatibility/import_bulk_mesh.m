@@ -86,7 +86,7 @@ for net = 1 : size(ElementTypes)
     end
     ind = max(ind) + (1:l);
     c = regexprep(file(rows),...
-        sprintf('.{8}(.{8}).{8}(.{%d})(.{1,8}).*', 8*(nnod-1)), '$1 $2 $3');
+        sprintf('.{8}(.{8}).{8}(.{%d})(.{1,8}).*', 8*(nnod-1)), '$1 $2 $3 ');
     if nnod2 ~= 0
         c2 = regexprep(file(rows+1),...
             sprintf('.{8}(.{%d})(.{1,8}).*', 8*(nnod2-1)), '$1 $2');
