@@ -1,20 +1,11 @@
-Kell egy osztály, ami Test-Trial elempárra integrálja a kernelt, és az eredmény mátrixot tárolja.
-
-template <class Kernel, class Test, class Trial>
-class DoubleIntegral;
-
-Ez a Galkerkin defaultból, de
-
-template <class Kernel, class Trial>
-class DoubleIntegral<Kernel, Kernel::KernelInput, Trial>
-
-a Collocational
-
 TODO
 
 - NSet Acceleration in double_integral
-- Store Dual kernels in double intergral result
-- Accelerators stored outside of double_integral
+- Accelerators should be stored outside of double_integral
+
+- Store Dual kernels in double integral result
 - double_integral::eval_on_quadrature accelerated by splitting N K N' into N (K N')
 
-- element::id_t is Eigen::Matrix(1,1) currently. Does it make sens?
+- element::id_t is Eigen::Matrix(1,1) currently. Does it make sense?
+
+- test copy constructor calls in call_each

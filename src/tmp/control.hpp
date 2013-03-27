@@ -81,37 +81,37 @@ namespace tmp
 	 * \tparam Seq a type sequence
 	 * \tparam Trans a function object
 	 */
-	template <class Seq, class Trans>
+	template <class Seq, class Transform>
 	static void call_each(void)
 	{
 		internal::call_each_impl<
 			typename begin<Seq>::type,
 			typename end<Seq>::type,
-			Trans
+			Transform
 		>::eval();
 	}
 
 	/** \brief one argument version of call_each */
-	template <class Seq, class Trans, class Arg1>
+	template <class Seq, class Transform, class Arg1>
 	static void call_each(Arg1 arg1)
 	{
 		internal::call_each_impl<
 			typename begin<Seq>::type,
 			typename end<Seq>::type,
-			Trans,
+			Transform,
 			typename std::add_lvalue_reference<Arg1>::type
 		>::eval(arg1);
 	}
 
 
 	/** \brief two argument version of call_each */
-	template <class Seq, class Trans, class Arg1, class Arg2>
+	template <class Seq, class Transform, class Arg1, class Arg2>
 	static void call_each(Arg1 arg1, Arg2 arg2)
 	{
 		internal::call_each_impl<
 			typename begin<Seq>::type,
 			typename end<Seq>::type,
-			Trans,
+			Transform,
 			typename std::add_lvalue_reference<Arg1>::type,
 			typename std::add_lvalue_reference<Arg2>::type
 		>::eval(arg1, arg2);
@@ -122,7 +122,9 @@ namespace tmp
 		template <class Begin, class End, class SeqIn, class Transform, class Arg1 = void, class Arg2 = void>
 		struct d_call_each_impl
 		{
-			typedef typename lambda<Transform>::type::template apply<typename deref<Begin>::type, _1> partially_evaluated_transform;
+			typedef typename lambda<Transform>::type::template apply<
+				typename deref<Begin>::type, _1
+			> partially_evaluated_transform;
 			static void eval(Arg1 arg1, Arg2 arg2)
 			{
 				call_each<
@@ -225,38 +227,38 @@ namespace tmp
 	 * \tparam Seq a type sequence
 	 * \tparam Trans a function object
 	 */
-	template <class Seq, class Trans>
+	template <class Seq, class Transform>
 	static bool call_until(void)
 	{
 		return internal::call_until_impl<
 			typename begin<Seq>::type,
 			typename end<Seq>::type,
-			Trans
+			Transform
 		>::eval();
 	}
 
 
 	/** \brief one argument version of call_until */
-	template <class Seq, class Trans, class Arg1>
+	template <class Seq, class Transform, class Arg1>
 	static bool call_until(Arg1 &arg1)
 	{
 		return internal::call_until_impl<
 			typename begin<Seq>::type,
 			typename end<Seq>::type,
-			Trans,
+			Transform,
 			typename std::add_lvalue_reference<Arg1>::type
 		>::eval(arg1);
 	}
 
 
 	/** \brief two argument version of call_until */
-	template <class Seq, class Trans, class Arg1, class Arg2>
+	template <class Seq, class Transform, class Arg1, class Arg2>
 	static bool call_until(Arg1 &arg1, Arg2 &arg2)
 	{
 		return internal::call_until_impl<
 			typename begin<Seq>::type,
 			typename end<Seq>::type,
-			Trans,
+			Transform,
 			typename std::add_lvalue_reference<Arg1>::type,
 			typename std::add_lvalue_reference<Arg2>::type
 		>::eval(arg1, arg2);

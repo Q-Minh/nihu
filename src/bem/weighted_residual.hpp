@@ -29,7 +29,7 @@ public:
 	typedef TrialSpace trial_space_t;	/**< \brief template paramter as nested type */
 	typedef Kernel kernel_t;			/**< \brief template paramter as nested type */
 
-protected:
+private:
 	/** \brief evaluate integral on one element type and store the results into the result vector
 	 * \details This is a helper functor called by tmp::call_each
 	 * \tparam elem_t the element type over which integration is performed
@@ -43,9 +43,6 @@ protected:
 
 		typedef typename double_integral_t::result_t result_t;				/**< \brief result type of field integrator */
 
-		/** \brief evaluate integral on one element type
-		 * \param wi constant reference to weighted integral object
-		 */
 		template <class result_t>
 		void operator() (weighted_residual const &wr, result_t &result)
 		{
@@ -55,9 +52,7 @@ protected:
 				for (auto trial_it = wr.m_trial_space.template field_begin<trial_field_t>();
 					trial_it != wr.m_trial_space.template field_end<trial_field_t>(); ++trial_it)
 				{
-/*
-					result(test_it->get_dofs(),trial_it->get_dofs()) += double_integral_t::eval(*test_it, *trial_it);
-*/
+					// result(test_it->get_dofs(),trial_it->get_dofs()) += double_integral_t::eval(*test_it, *trial_it);
 					std::cout << double_integral_t::eval(*test_it, *trial_it) << std::endl << std::endl;
 				}
 			}
@@ -79,20 +74,15 @@ public:
 	template <class result_t>
 	result_t &eval(result_t &result)
 	{
+		typedef field<quad_1_elem, isoparametric_field> test_t;
+
 		tmp::d_call_each<
 			typename test_space_t::field_type_vector_t,
 			typename trial_space_t::field_type_vector_t,
 			eval_on<tmp::_1, tmp::_2>,
-			weighted_residual &,
+			weighted_residual<kernel_t, test_space_t, trial_space_t> const &,
 			result_t &
 		>(*this, result);
-
-/*
-		typedef field<quad_1_elem, isoparametric_field> test_t;
-		typedef field<quad_1_elem, isoparametric_field> trial_t;
-		typename eval_on<test_t, trial_t>::type instance;
-		instance(*this, result);
-*/
 
 		return result;
 	}

@@ -18,13 +18,14 @@ int main(void)
 	};
 	unsigned e[] = {
 		4,  0, 1, 4, 3,
-		4,  1, 2, 5, 4
+		4,  1, 2, 5, 4,
+		3,  1, 2, 5, 0
 	};
 
 	Mesh<elem_vector> mesh;
 	for (unsigned i = 0; i < 6; ++i)
 		mesh.add_node(c+i*3);
-	for (unsigned i = 0; i < 2; ++i)
+	for (unsigned i = 0; i < 3; ++i)
 		mesh.add_elem(e+i*5);
 
 	func_space_t func(mesh);
