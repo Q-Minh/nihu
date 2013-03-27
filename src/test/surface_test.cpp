@@ -1,12 +1,12 @@
-#include "..\bem\double_integral.hpp"
+#include "../bem/double_integral.hpp"
 
-#include "..\bem\field.hpp"
+#include "../bem/field.hpp"
 
 typedef tria_1_elem test_elem_t;
-typedef field<test_elem_t, constant_field> test_field_t;
+typedef field<test_elem_t, isoparametric_field> test_field_t;
 
 typedef quad_1_elem trial_elem_t;
-typedef field<trial_elem_t, constant_field> trial_field_t;
+typedef field<trial_elem_t, isoparametric_field> trial_field_t;
 
 typedef green_G_kernel kernel_t;
 
@@ -32,9 +32,14 @@ int main(void)
 
 	kernel_t::set_wave_number(1.0);
 
-	double_integral<kernel_t, test_field_t, trial_field_t> di;
+	quadrature_elem<typename test_elem_t::domain_t> q(test_elem_t::domain_t::get_center(), 1.0);
 
-	std::cout << di.eval(test_field, trial_field);
+	kernel_t::input_t x0(test_elem, q);
+
+	std::cout << double_integral<kernel_t, test_field_t, trial_field_t>::eval(test_field, trial_field);
+	std::cout << std::endl << std::endl;
+	std::cout << double_integral<kernel_t, typename kernel_t::input_t, trial_field_t>::eval(x0, trial_field);
 
 	return 0;
 }
+

@@ -6,7 +6,7 @@
 #ifndef KERNEL_HPP_INCLUDED
 #define KERNEL_HPP_INCLUDED
 
-#include "descriptor.hpp"
+#include "kernel_input.hpp"
 
 #include <complex>
 /** \brief double complex type */

@@ -10,7 +10,7 @@
 
 #include "kernel.hpp"
 #include "quadrature.hpp"
-#include "descriptor.hpp"
+#include "kernel_input.hpp"
 #include "accelerator.hpp"
 
 
@@ -57,7 +57,8 @@ public:
 			{
 				kernel_input_t trial_input(trial_field.get_elem(), *trial_it);
 
-				m_result += test_nset_t::eval_shape(test_it->get_xi()) *
+				m_result +=
+					test_nset_t::eval_shape(test_it->get_xi()) *
 					kernel_t::eval(test_input, trial_input) *
 					test_input.get_jacobian() *
 					trial_input.get_jacobian() *
@@ -99,6 +100,78 @@ typename double_integral<Kernel, Test, Trial>::test_accelerator_t
 template <class Kernel, class Test, class Trial>
 typename double_integral<Kernel, Test, Trial>::trial_accelerator_t
 	double_integral<Kernel, Test, Trial>::m_trial_accelerator;
+
+
+
+template <class Kernel, class Trial>
+class double_integral<Kernel, typename Kernel::input_t, Trial>
+{
+public:
+	typedef Kernel kernel_t;		/**< \brief template parameter as nested type */
+
+	typedef Trial trial_field_t;	/**< \brief template parameter as nested type */
+
+	typedef typename kernel_t::input_t kernel_input_t;		/**< \brief input type of kernel */
+	typedef typename kernel_t::result_t kernel_result_t;	/**< \brief result type of kernel */
+
+	typedef gauss_quadrature<typename trial_field_t::elem_t::domain_t> trial_quadrature_t;	/**< \brief type of trial quadrature */
+
+	typedef typename trial_quadrature_t::quadrature_elem_t quadrature_elem_t;	/**< \brief type of quadrature element */
+
+	typedef accelerator_by<typename trial_field_t::elem_t> trial_accelerator_t;
+
+	typedef typename trial_field_t::nset_t trial_nset_t;	/**< \brief type of element's N-set */
+
+	typedef typename Eigen::Matrix<
+		typename kernel_t::scalar_t, 1, trial_field_t::num_dofs
+	> result_t;		/**< \brief integration result type */
+
+
+	static result_t const &eval_on_quadrature(
+		kernel_input_t const &x0,
+		trial_field_t const &trial_field,
+		trial_quadrature_t const &trial_quad)
+	{
+		m_result = result_t();	// clear result
+
+		for(auto trial_it = trial_quad.begin(); trial_it != trial_quad.end(); ++trial_it)
+		{
+			kernel_input_t trial_input(trial_field.get_elem(), *trial_it);
+
+			m_result +=
+				kernel_t::eval(x0, trial_input) *
+				trial_input.get_jacobian() *
+				trial_nset_t::eval_shape(trial_it->get_xi()).transpose();
+		}
+
+		return m_result;
+	}
+
+	static result_t const &eval(kernel_input_t const &x0, trial_field_t const &trial_field)
+	{
+		auto trial_quad_pool = m_trial_accelerator.get_quadrature_pool();
+
+		// select quadrature
+		kernel_input_t trial_center(trial_field.get_elem(), trial_quad_pool[0][0]);
+		unsigned degree = kernel_t::estimate_complexity(x0, trial_center);
+
+		return eval_on_quadrature(x0, trial_field, trial_quad_pool[degree]);
+	}
+
+protected:
+	static result_t m_result; /**< \brief the integral result stored as static variable */
+
+	static trial_accelerator_t m_trial_accelerator; /**< \brief accelerator of the trial field */
+};
+
+template <class Kernel, class Trial>
+typename double_integral<Kernel, typename Kernel::input_t, Trial>::result_t
+	double_integral<Kernel, typename Kernel::input_t, Trial>::m_result;
+
+template <class Kernel, class Trial>
+typename double_integral<Kernel, typename Kernel::input_t, Trial>::trial_accelerator_t
+	double_integral<Kernel, typename Kernel::input_t, Trial>::m_trial_accelerator;
+
 
 #endif
 

@@ -8,7 +8,7 @@
 #define EIGENSTDVECTOR(_T) std::vector<_T, Eigen::aligned_allocator<_T> >
 
 #include "quadrature.hpp"
-#include "descriptor.hpp"
+#include "kernel_input.hpp"
 
 template <class ElemDescriptor>
 class elem_accelerator : public EIGENSTDVECTOR(ElemDescriptor)

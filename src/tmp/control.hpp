@@ -93,7 +93,7 @@ namespace tmp
 
 	/** \brief one argument version of call_each */
 	template <class Seq, class Trans, class Arg1>
-	static void call_each(Arg1 &arg1)
+	static void call_each(Arg1 arg1)
 	{
 		internal::call_each_impl<
 			typename begin<Seq>::type,
@@ -106,7 +106,7 @@ namespace tmp
 
 	/** \brief two argument version of call_each */
 	template <class Seq, class Trans, class Arg1, class Arg2>
-	static void call_each(Arg1 &arg1, Arg2 &arg2)
+	static void call_each(Arg1 arg1, Arg2 arg2)
 	{
 		internal::call_each_impl<
 			typename begin<Seq>::type,
@@ -115,6 +115,46 @@ namespace tmp
 			typename std::add_lvalue_reference<Arg1>::type,
 			typename std::add_lvalue_reference<Arg2>::type
 		>::eval(arg1, arg2);
+	}
+
+	namespace internal
+	{
+		template <class Begin, class End, class SeqIn, class Transform, class Arg1 = void, class Arg2 = void>
+		struct d_call_each_impl
+		{
+			typedef typename lambda<Transform>::type::template apply<typename deref<Begin>::type, _1> partially_evaluated_transform;
+			static void eval(Arg1 arg1, Arg2 arg2)
+			{
+				call_each<
+					SeqIn,
+					partially_evaluated_transform,
+					Arg1,
+					Arg2
+				>(arg1, arg2);
+				d_call_each_impl<typename next<Begin>::type, End, SeqIn, Transform, Arg1, Arg2>::eval(arg1, arg2);
+			}
+		};
+
+
+		template <class End, class SeqIn, class Transform, class Arg1, class Arg2>
+		struct d_call_each_impl<End, End, SeqIn, Transform, Arg1, Arg2>
+		{
+			static void eval(Arg1 arg1, Arg2 arg2) {}
+		};
+	}
+
+
+	template <class SeqOut, class SeqIn, class Trans, class Arg1, class Arg2>
+	static void d_call_each(Arg1 a1, Arg2 a2)
+	{
+		internal::d_call_each_impl<
+					typename begin<SeqOut>::type,
+					typename end<SeqOut>::type,
+					SeqIn,
+					Trans,
+					typename std::add_lvalue_reference<Arg1>::type,
+					typename std::add_lvalue_reference<Arg2>::type
+				>::eval(a1, a2);
 	}
 
 

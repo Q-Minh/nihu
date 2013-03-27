@@ -67,16 +67,28 @@ public:
 	/** \brief elem_type_vector inherited from mesh */
 	typedef typename mesh_t::elem_type_vector_t elem_type_vector_t;
 
+	template <class elem_t>
+	struct fieldize
+	{
+		typedef field<elem_t, field_option_t> type;
+	};
+
+	typedef typename tmp::transform<
+		elem_type_vector_t,
+		tmp::inserter<tmp::vector<>, tmp::push_back<tmp::_1, tmp::_2> >,
+		fieldize<tmp::_1>
+	>::type field_type_vector_t;
+
 	/**
 	 * \brief internal iterator class provides access to the mesh's elements as fields
 	 * \tparam ElemType the element types that need to be accessed
 	 */
-	template <class ElemType>
-	class field_iterator_t : public mesh_t::template elem_iterator_t<ElemType>::type
+	template <class FieldType>
+	class field_iterator_t : public mesh_t::template elem_iterator_t<typename FieldType::elem_t>::type
 	{
 	public:
-		typedef typename mesh_t::template elem_iterator_t<ElemType>::type base_it;	/**< \brief the base iteartor type */
-		typedef field<ElemType, field_option_t> value_t;	/**< \brief the pointed data type */
+		typedef typename mesh_t::template elem_iterator_t<typename FieldType::elem_t>::type base_it;	/**< \brief the base iteartor type */
+		typedef FieldType value_t;	/**< \brief the pointed data type */
 
 		/**
 		 * \brief constructor from base iterator
@@ -106,20 +118,20 @@ public:
 	 * \brief first field of given element type
 	 * \tparam ElemType the element type to access
 	 */
-	template <class ElemType>
-	field_iterator_t<ElemType> elem_begin(void) const
+	template <class FieldType>
+	field_iterator_t<FieldType> field_begin(void) const
 	{
-		return m_mesh.template begin<ElemType>(); // automatic conversion by iterator constructor
+		return m_mesh.template begin<typename FieldType::elem_t>(); // automatic conversion by iterator constructor
 	}
 
 	/**
 	 * \brief last field of given element type
 	 * \tparam ElemType the element type to access
 	 */
-	template <class ElemType>
-	field_iterator_t<ElemType> elem_end(void) const
+	template <class FieldType>
+	field_iterator_t<FieldType> field_end(void) const
 	{
-		return m_mesh.template end<ElemType>(); // automatic conversion by iterator constructor
+		return m_mesh.template end<typename FieldType::elem_t>(); // automatic conversion by iterator constructor
 	}
 
 	/**

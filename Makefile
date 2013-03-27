@@ -15,9 +15,6 @@ mesh_test: src/test/mesh_test.cpp src/bem/mesh.hpp
 field_test: src/test/field_test.cpp src/bem/field.hpp
 	$(CC) $(CFLAGS) src/test/field_test.cpp -o field_test
 
-weighted_test: src/test/weighted_integral_test.cpp src/bem/weighted_integral.hpp
-	$(CC) $(CFLAGS) src/test/weighted_integral_test.cpp -o weighted_test
-
 rayleigh_test: src/test/rayleigh_test.cpp src/bem/bem.hpp src/bem/weighted_integral.hpp  src/bem/function_space.hpp
 	$(CC) $(CFLAGS) src/test/rayleigh_test.cpp -o rayleigh_test
 
@@ -26,6 +23,12 @@ bem_test: src/test/bem_test.cpp src/bem/bem.hpp src/bem/bem.hpp src/bem/weighted
 
 accelerator_test: src/test/accelerator_test.cpp src
 	$(CC) $(CFLAGS) src/test/accelerator_test.cpp -o accelerator_test
+
+double_integral_test: src/test/surface_test.cpp src
+	$(CC) $(CFLAGS) src/test/surface_test.cpp -o double_integral_test
+
+weighted_residual_test: src/test/weighted_residual_test.cpp src
+	$(CC) $(CFLAGS) src/test/weighted_residual_test.cpp -o weighted_residual_test
 
 clean:
 	rm *_test
