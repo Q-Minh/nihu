@@ -146,14 +146,22 @@ namespace tmp
 	}
 
 
-	template <class SeqOut, class SeqIn, class Trans, class Arg1, class Arg2>
+	/**
+	 * \brief call function object specialised with different type pairs
+	 * \tparam SeqOut a type sequence
+	 * \tparam SeqIn a type sequence
+	 * \tparam Trans a function object
+	 * \tparam Arg1 type of the first argument
+	 * \tparam Arg2 type of the second argument
+	 */
+	template <class SeqOut, class SeqIn, class Transform, class Arg1, class Arg2>
 	static void d_call_each(Arg1 a1, Arg2 a2)
 	{
 		internal::d_call_each_impl<
 					typename begin<SeqOut>::type,
 					typename end<SeqOut>::type,
 					SeqIn,
-					Trans,
+					Transform,
 					typename std::add_lvalue_reference<Arg1>::type,
 					typename std::add_lvalue_reference<Arg2>::type
 				>::eval(a1, a2);

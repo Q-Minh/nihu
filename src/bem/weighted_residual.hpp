@@ -16,7 +16,7 @@
 #include "function_space.hpp"
 #include "double_integral.hpp"
 
-/** \brief  integrates a kernel over two function spaces and stores the result in a matrix
+/** \brief  integrates a kernel over two function spaces
  * \tparam Kernel the kernel to be integrated
  * \tparam TestSpace the test function space over which integration is performed
  * \tparam TrialSpace the trial function space over which integration is performed
@@ -32,15 +32,15 @@ public:
 private:
 	/** \brief evaluate integral on one element type and store the results into the result vector
 	 * \details This is a helper functor called by tmp::call_each
-	 * \tparam elem_t the element type over which integration is performed
+	 * \tparam TestField the test field type over which integration is performed
+	 * \tparam TrialField the trial field type over which integration is performed
 	 */
 	template <class TestField, class TrialField>
 	struct eval_on { struct type {
-		typedef TestField test_field_t;		/**< \brief the field type */
-		typedef TrialField trial_field_t;		/**< \brief the field type */
+		typedef TestField test_field_t;		/**< \brief the test field type */
+		typedef TrialField trial_field_t;	/**< \brief the trial field type */
 
 		typedef double_integral<kernel_t, test_field_t, trial_field_t> double_integral_t;	/**< \brief the internal integrator type */
-
 		typedef typename double_integral_t::result_t result_t;				/**< \brief result type of field integrator */
 
 		template <class result_t>
@@ -69,13 +69,11 @@ public:
 	}
 
 	/** \brief evaluate integral and return reference to result vector
-	 * \return reference to static member result
+	 * \return reference to the result
 	 */
 	template <class result_t>
 	result_t &eval(result_t &result)
 	{
-		typedef field<quad_1_elem, isoparametric_field> test_t;
-
 		tmp::d_call_each<
 			typename test_space_t::field_type_vector_t,
 			typename trial_space_t::field_type_vector_t,
