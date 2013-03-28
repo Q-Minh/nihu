@@ -25,9 +25,9 @@ template <class Kernel, class TestSpace, class TrialSpace>
 class weighted_residual
 {
 public:
-	typedef TestSpace test_space_t;		/**< \brief template paramter as nested type */
-	typedef TrialSpace trial_space_t;	/**< \brief template paramter as nested type */
-	typedef Kernel kernel_t;			/**< \brief template paramter as nested type */
+	typedef TestSpace test_space_t;		/**< \brief template parameter as nested type */
+	typedef TrialSpace trial_space_t;	/**< \brief template parameter as nested type */
+	typedef Kernel kernel_t;			/**< \brief template parameter as nested type */
 
 private:
 	/** \brief evaluate weighted residual on homogeneous function spaces
@@ -61,8 +61,8 @@ private:
 
 public:
 	/** \brief constructor initialises the function space reference members
-	 * \param test_space the function space over which integration is performed
-	 * \param trial_space the function space over which integration is performed
+	 * \param [in] test_space the test function space over which integration is performed
+	 * \param [in] trial_space the trial function space over which integration is performed
 	 */
 	weighted_residual(test_space_t const &test_space, trial_space_t const &trial_space) : m_test_space(test_space), m_trial_space(trial_space)
 	{
