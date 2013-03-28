@@ -4,36 +4,58 @@
  * \brief implementation of a block matrix
  */
 
-template <class Matrix, class Index>
+
+#include <cstddef> // for size_t
+
+/**
+ * \brief proxy class to represent a block of a matrix
+ * \tparam Matrix the matrix type that is indexed
+ * \tparam RowIndex the row index vector type
+ * \tparam ColIndex the column index vector type
+ */
+template <class Matrix, class RowIndex, class ColIndex = RowIndex>
 class matrix_block
 {
 public:
-	matrix_block(Matrix &m, Index const &rows, Index const &cols) : m_matrix(m), m_rows(rows), m_cols(cols)
+	matrix_block(Matrix &m, RowIndex const &rows, ColIndex const &cols) : m_matrix(m), m_rows(rows), m_cols(cols)
 	{
 	}
-	
+
 	template <class SubMatrix>
 	void operator +=(SubMatrix const &rhs) const
 	{
-		for (size_t i = 0; i < m_rows.size(); ++i)
-			for (size_t j = 0; j < m_cols.size(); ++j)
-				m_matrix(m_rows[i], m_cols[j]) += rhs(i, j);
+		for (int i = 0; i < m_rows.size(); ++i)
+			for (int j = 0; j < m_cols.size(); ++j)
+				m_matrix(m_rows(i), m_cols(j)) += rhs(i, j);
 	}
-	
+
 protected:
 	Matrix &m_matrix;
-	Index const &m_rows;
-	Index const &m_cols;
+	RowIndex const &m_rows;
+	ColIndex const &m_cols;
 };
 
 
-#include <iostream>
-
-template <class Matrix, class Index>
-matrix_block<Matrix, Index> block(Matrix &matrix, Index const &rows, Index const &cols)
+/**
+ * \brief factory function of matrix_block
+ * \details The function allows easy creation of block instances of an arbitrary matrix object
+ * \tparam Matrix the matric type
+ * \tparam RowIndex the row index vector type
+ * \tparam ColIndex the column index vector type
+ * \param matrix [in] the matrix object to index
+ * \param rows [in] the rows to be selected
+ * \param cols [in] the columns to be selected
+ * \return the block proxy
+ */
+template <class Matrix, class RowIndex, class ColIndex>
+matrix_block<Matrix, RowIndex, ColIndex> block(Matrix &matrix, RowIndex const &rows, ColIndex const &cols)
 {
-	return matrix_block<Matrix, Index>(matrix, rows, cols);
+	return matrix_block<Matrix, RowIndex, ColIndex>(matrix, rows, cols);
 }
+
+/*
+
+#include <iostream>
 
 template <size_t R, size_t C>
 class matrix
@@ -93,3 +115,6 @@ int main(void)
 
 	return 0;
 }
+
+*/
+

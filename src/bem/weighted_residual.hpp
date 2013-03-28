@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "../tmp/control.hpp"
+#include "matrix_block.hpp"
 
 #include "kernel.hpp"
 #include "function_space.hpp"
@@ -48,14 +49,9 @@ private:
 		{
 			for (auto test_it = wr.m_test_space.template field_begin<test_field_t>();
 				test_it != wr.m_test_space.template field_end<test_field_t>(); ++test_it)
-			{
 				for (auto trial_it = wr.m_trial_space.template field_begin<trial_field_t>();
 					trial_it != wr.m_trial_space.template field_end<trial_field_t>(); ++trial_it)
-				{
-					// result(test_it->get_dofs(),trial_it->get_dofs()) += double_integral_t::eval(*test_it, *trial_it);
-					std::cout << double_integral_t::eval(*test_it, *trial_it) << std::endl << std::endl;
-				}
-			}
+					block(result, (*test_it).get_dofs(), (*trial_it).get_dofs()) += double_integral_t::eval(*test_it, *trial_it);
 		}
 	};};
 
@@ -99,5 +95,5 @@ protected:
 	trial_space_t const &m_trial_space;	/**< \brief reference to the function space */
 };
 
-#endif // ifndef WEIGHTED_RESIDUAL
+#endif // ifndef WEIGHTED_RESIDUAL_HPP_INCLUDED
 

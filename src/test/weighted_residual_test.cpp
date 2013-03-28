@@ -31,8 +31,10 @@ int main(void)
 	func_space_t func(mesh);
 	weighted_residual<green_G_kernel, func_space_t, func_space_t> wr(func, func);
 
-	int a;
+	Eigen::Matrix<std::complex<double>, 6, 6> a;
 	wr.eval(a);
+
+	std::cout << a << std::endl;
 
 	return 0;
 }
