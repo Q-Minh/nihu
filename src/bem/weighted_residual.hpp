@@ -30,7 +30,7 @@ public:
 	typedef Kernel kernel_t;			/**< \brief template paramter as nested type */
 
 private:
-	/** \brief evaluate integral on one element type and store the results into the result vector
+	/** \brief evaluate weighted residual on homogeneous function spaces
 	 * \details This is a helper functor called by tmp::call_each
 	 * \tparam TestField the test field type over which integration is performed
 	 * \tparam TrialField the trial field type over which integration is performed
@@ -68,17 +68,25 @@ public:
 	{
 	}
 
-	/** \brief evaluate integral and return reference to result vector
-	 * \return reference to the result
+	/** \brief evaluate weighted residual and return reference to the result matrix
+	 * \details This function evaluates the weighted residual of a kernel over a test and a trial field.
+	 * The two fields have been initialised by the constructor, and are stored in member variables.
+	 * The result is copied into a user specified structure, passed as function argument.
+	 *
+	 * \tparam result_t type of the result matrix
+	 * \param [out] result reference to the result matrix
+	 * \return reference to the result for cascading
 	 */
 	template <class result_t>
 	result_t &eval(result_t &result)
 	{
+		// Integration is performed separately on homogneous subfields, using tmp::d_call_each
+		// d_call_each calls eval_on for the Descartes product of the test and trial field type vectors
 		tmp::d_call_each<
 			typename test_space_t::field_type_vector_t,
 			typename trial_space_t::field_type_vector_t,
 			eval_on<tmp::_1, tmp::_2>,
-			weighted_residual<kernel_t, test_space_t, trial_space_t> const &,
+			weighted_residual const &,
 			result_t &
 		>(*this, result);
 
