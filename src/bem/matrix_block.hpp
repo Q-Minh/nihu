@@ -3,12 +3,13 @@
  * \author Peter Fiala and Peter Rucz, fiala@hit.bme.hu, rucz@hit.bme.hu
  * \brief implementation of a block matrix
  */
-
-
-#include <cstddef> // for size_t
+ 
+#ifndef MATRIX_BLOCK_HPP_INCLUDED
+#define MATRIX_BLOCK_HPP_INCLUDED
 
 /**
  * \brief proxy class to represent a block of a matrix
+ * \details The class is used to represent a matrix block selected by two index vectors.
  * \tparam Matrix the matrix type that is indexed
  * \tparam RowIndex the row index vector type
  * \tparam ColIndex the column index vector type
@@ -17,10 +18,21 @@ template <class Matrix, class RowIndex, class ColIndex = RowIndex>
 class matrix_block
 {
 public:
+	/**
+	 * \brief constructor from a matrix and two index vectors
+	 * \param [in] m the matrix to be indexed
+	 * \param [in] rows the index vector of selected rows
+	 * \param [in] cols the index vector of selected columns
+	 */
 	matrix_block(Matrix &m, RowIndex const &rows, ColIndex const &cols) : m_matrix(m), m_rows(rows), m_cols(cols)
 	{
 	}
 
+	/**
+	 * \brief increment the block with a submatrix
+	 * \tparam SubMatrix the submatrix type
+	 * \param [in] rhs the submatrix to add to the block
+	 */
 	template <class SubMatrix>
 	void operator +=(SubMatrix const &rhs) const
 	{
@@ -30,16 +42,16 @@ public:
 	}
 
 protected:
-	Matrix &m_matrix;
-	RowIndex const &m_rows;
-	ColIndex const &m_cols;
+	Matrix &m_matrix;		/**< \brief the matrix to be indexed */
+	RowIndex const &m_rows;	/**< \brief the row index vector */
+	ColIndex const &m_cols;	/**< \brief the column index vector */
 };
 
 
 /**
  * \brief factory function of matrix_block
  * \details The function allows easy creation of block instances of an arbitrary matrix object
- * \tparam Matrix the matric type
+ * \tparam Matrix the matrix type
  * \tparam RowIndex the row index vector type
  * \tparam ColIndex the column index vector type
  * \param matrix [in] the matrix object to index
@@ -53,68 +65,4 @@ matrix_block<Matrix, RowIndex, ColIndex> block(Matrix &matrix, RowIndex const &r
 	return matrix_block<Matrix, RowIndex, ColIndex>(matrix, rows, cols);
 }
 
-/*
-
-#include <iostream>
-
-template <size_t R, size_t C>
-class matrix
-{
-private:
-	double data[R][C];
-public:
-	double &operator()(size_t r, size_t c)
-	{
-		return data[r][c];
-	}
-
-	double operator()(size_t r, size_t c) const
-	{
-		return data[r][c];
-	}
-
-};
-
-template <size_t N>
-class vector
-{
-private:
-	size_t data[N];
-public:
-	size_t operator[] (size_t i) const
-	{
-		return data[i];
-	}
-
-	size_t &operator[] (size_t i)
-	{
-		return data[i];
-	}
-
-	size_t size(void) const { return N; }
-};
-
-int main(void)
-{
-	matrix<10,10> big;
-	matrix<2,2> small;
-	vector<3> rows;
-	vector<3> cols;
-
-	rows[0] = 0;
-	rows[1] = 1;
-	rows[2] = 2;
-
-	cols[0] = 0;
-	cols[1] = 1;
-	cols[2] = 2;
-
-	std::cout << rows[0];
-
-	block(big, rows, cols) += small;
-
-	return 0;
-}
-
-*/
-
+#endif // MATRIX_BLOCK_HPP_INCLUDED

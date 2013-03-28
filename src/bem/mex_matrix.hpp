@@ -8,46 +8,37 @@
 
 #include <mex.h>
 
-/** \brief container class of N complex matrices stored in Matlab format
- * \tparam N number of complex matrices
- */
-template <size_t N>
+/** \brief container class of a complex matrix stored in Matlab format */
 class mex_complex_matrix;
 
-/** \brief index proxy class of N complex matrices
- * \tparam N number of complex matrices
- */
-template <size_t N>
+/** \brief index proxy class of a complex matrix */
 class index_proxy
 {
 public:
 	/** \brief constructor
-	 * \param cont the parent container class
+	 * \param matrix the parent container class
 	 * \param row the row index
 	 * \param col the column index
 	 */
-	index_proxy(mex_complex_matrix<N> cont, size_t row, size_t col) : m_parent(cont), m_row(row), m_col(col) {}
+	index_proxy(mex_complex_matrix &matrix, int row, int col) : m_matrix(matrix), m_row(row), m_col(col) {}
 
 	/** \brief increment operator
 	 * \param data the data to add to the conatiner
 	 */
 	template <class data_t>
-	void operator +=(data_t const &data)
+	void operator +=(data_t const &data) const
 	{
-		m_parent.increment(m_row, m_col, data);
+		m_matrix.increment(m_row, m_col, data);
 	}
 
 private:
-	mex_complex_matrix<N> & m_parent; /**< \brief reference to the parent */
-	size_t const m_row; /**< \brief the row index */
-	size_t const m_col; /**< \brief the column index */
+	mex_complex_matrix &m_matrix; /**< \brief reference to the parent */
+	int const m_row; /**< \brief the row index */
+	int const m_col; /**< \brief the column index */
 };
 
 
-/** \brief container class of N complex matrices stored in Matlab format
- * \tparam N number of complex matrices
- */
-template <size_t N>
+/** \brief container class of a complex matrix stored in Matlab format */
 class mex_complex_matrix
 {
 public:
@@ -55,30 +46,23 @@ public:
 	 * \param rows number of rows
 	 * \param cols number of columns
 	 */
-	mex_complex_matrix(size_t rows, size_t cols) : m_rows(rows), m_cols(cols)
+	mex_complex_matrix(int rows, int cols) : m_rows(rows), m_cols(cols)
 	{
-		for (size_t i = 0; i < N; ++i)
-		{
-			m_matrix[i] = mxCreateDoubleMatrix(m_rows, m_cols, mxCOMPLEX);
-			m_real[i] = mxGetPr(m_matrix[i]);
-			m_imag[i] = mxGetPi(m_matrix[i]);
-		}
+		m_matrix = mxCreateDoubleMatrix(m_rows, m_cols, mxCOMPLEX);
+		m_real = mxGetPr(m_matrix);
+		m_imag = mxGetPi(m_matrix);
 	}
 
-	/** \brief increment a given element of all matrices with a vector data
-	 * \details for each i, M[i](row, col) += data[i]
+	/** \brief increment a given element of the matrix with a complex data
 	 * \param row row index
 	 * \param col column index
 	 * \param data the data to increase our matrix with
 	 */
 	template <class data_t>
-	void increment(size_t row, size_t col, data_t data)
+	void increment(int row, int col, data_t data)
 	{
-		for (size_t i = 0; i <N; ++i)
-		{
-			m_real[i][row+m_rows*col] += data[i].real();
-			m_imag[i][row+m_rows*col] += data[i].imag();
-		}
+		m_real[row+m_rows*col] += data.real();
+		m_imag[row+m_rows*col] += data.imag();
 	}
 
 	/** \brief index operator that returns a proxy
@@ -86,26 +70,25 @@ public:
 	 * \param col column index
 	 * \return proxy object storing the parent container and the indices
 	 */
-	index_proxy<N> operator() (size_t row, size_t col)
+	index_proxy operator() (int row, int col)
 	{
-		return index_proxy<N>(*this, row, col);
+		return index_proxy(*this, row, col);
 	}
 
-	/** \brief return the i-th Matlab matrix
-	 * \param i matrix index
-	 * \return the i-th matrix in Matlab format
+	/** \brief return the Matlab matrix
+	 * \return the matrix in Matlab format
 	 */
-	mxArray *get_matrix(size_t i = 0) const
+	mxArray *get_matrix() const
 	{
-		return m_matrix[i];
+		return m_matrix;
 	}
 
 protected:
-	size_t const m_rows; /**< \brief number of rows */
-	size_t const m_cols; /**< \brief number of columns */
-	mxArray *m_matrix[N]; /**< \brief arrays of Matlab matrices */
-	double *m_real[N];	/**< \brief arrays of real data */
-	double *m_imag[N];	/**< \brief arrays of imaginary data */
+	int const m_rows;	/**< \brief number of rows */
+	int const m_cols;	/**< \brief number of columns */
+	mxArray *m_matrix;	/**< \brief Matlab matrix */
+	double *m_real;		/**< \brief array of real data */
+	double *m_imag;		/**< \brief array of imaginary data */
 };
 
 #endif // MEX_MATRIX_HPP_INCLUDED
