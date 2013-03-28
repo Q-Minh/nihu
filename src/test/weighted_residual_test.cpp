@@ -22,14 +22,14 @@ int main(void)
 		3,  1, 2, 5, 0
 	};
 
-	Mesh<elem_vector> mesh;
+	mesh_t mesh;
 	for (unsigned i = 0; i < 6; ++i)
 		mesh.add_node(c+i*3);
 	for (unsigned i = 0; i < 3; ++i)
 		mesh.add_elem(e+i*5);
 
 	func_space_t func(mesh);
-	weighted_residual<green_G_kernel, func_space_t, func_space_t>wr(func, func);
+	weighted_residual<green_G_kernel, func_space_t, func_space_t> wr(func, func);
 
 	int a;
 	wr.eval(a);

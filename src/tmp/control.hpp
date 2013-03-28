@@ -147,10 +147,10 @@ namespace tmp
 
 
 	/**
-	 * \brief call function object specialised with different type pairs
-	 * \tparam SeqOut a type sequence
-	 * \tparam SeqIn a type sequence
-	 * \tparam Trans a function object
+	 * \brief call binary function object for each element of the Descartes product of two type sequences
+	 * \tparam SeqOut outer type sequence
+	 * \tparam SeqIn inner type sequence
+	 * \tparam Transform the binary function object to call
 	 * \tparam Arg1 type of the first argument
 	 * \tparam Arg2 type of the second argument
 	 */

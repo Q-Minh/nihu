@@ -1,25 +1,28 @@
+/**
+ * \file accelerator.hpp
+ * \brief Declaration of class accelerator
+ * \author Peter Fiala and Peter Rucz, fiala@hit.bme.hu, rucz@hit.bme.hu
+ */
+
 #ifndef ACCELERATOR_HPP_INCLUDED
 #define ACCELERATOR_HPP_INCLUDED
 
 #include <vector>
 
-#include "elem_accelerator.hpp"
-#include "nset_accelerator.hpp"
-
 #include "../tmp/vector.hpp"
 #include "../tmp/control.hpp"
 
 /**
- * \brief an accelerator class storing quadratures and shape sets for an element type and quadrature dimensions
+ * \brief an accelerator class storing quadratures for an element type
  * \tparam ElemType the accelerated element type
- * \tparam FieldOption field generation option
- * \tparam KernelInput the kernel input class to be stored
  */
 template <class ElemType>
 class accelerator_by
 {
 public:
 	typedef ElemType elem_t;	/**< \brief template argument as nested type */
+
+	static const size_t MAX_ORDER = 10;
 
 	typedef typename elem_t::domain_t domain_t;
 	typedef gauss_quadrature<domain_t> quadrature_t;
@@ -28,7 +31,7 @@ public:
 	accelerator_by()
 	{
 		// initialise quadrature pool
-		for (unsigned i = 0; i < 10; ++i)
+		for (unsigned i = 0; i < MAX_ORDER; ++i)
 			m_quadrature_pool.push_back(quadrature_t(i));
 	}
 
@@ -42,6 +45,10 @@ protected:
 };
 
 
+/**
+ * \brief an accelerator class storing quadratures for a vector of element types
+ * \tparam ElemTypeVector vector of element types to accelerate
+ */
 template <class ElemTypeVector>
 class accelerator
 {
@@ -68,5 +75,5 @@ private:
 	>::type	container;
 };
 
-#endif
+#endif // ifndef ACCELERATOR_HPP_INCLUDED
 

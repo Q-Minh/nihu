@@ -75,13 +75,14 @@ public:
 	 *
 	 * \tparam result_t type of the result matrix
 	 * \param [out] result reference to the result matrix
-	 * \return reference to the result for cascading
+	 * \return reference to the result matrix for cascading
 	 */
 	template <class result_t>
 	result_t &eval(result_t &result)
 	{
 		// Integration is performed separately on homogneous subfields, using tmp::d_call_each
-		// d_call_each calls eval_on for the Descartes product of the test and trial field type vectors
+		// d_call_each calls eval_on for each element of the the Descartes product of the test and
+		// trial field type vectors
 		tmp::d_call_each<
 			typename test_space_t::field_type_vector_t,
 			typename trial_space_t::field_type_vector_t,
