@@ -150,22 +150,22 @@ public:
 	 * \param elements matrix of element nodes
 	 * \param nelements number of elements
 	 */
-	template <unsigned N_MAX_ELEM>
-	void build_from_mex(double nodes[], size_t nnodes, double elements[], size_t nelements)
+	template <unsigned N_MAX_ELEM, class node_t, class elem_t>
+	void build_from_mex(node_t const &nodes, elem_t const &elements)
 	{
 		double c[nDim];
 
-		for (size_t i = 0; i < nnodes; ++i)
+		for (size_t i = 0; i < nodes.rows(); ++i)
 		{
 			for (unsigned j = 0; j < nDim; ++j)
-				c[j] = nodes[i+j*nnodes];
+				c[j] = nodes(i,j);
 			add_node(c);
 		}
 		unsigned e[N_MAX_ELEM];
-		for (size_t i = 0; i < nelements; ++i)
+		for (size_t i = 0; i < elements.rows(); ++i)
 		{
 			for (unsigned j = 0; j < N_MAX_ELEM; ++j)
-				e[j] = (unsigned)elements[i+j*nelements];
+				e[j] = (unsigned)elements(i,j);
 			add_elem(e);
 		}
 	}

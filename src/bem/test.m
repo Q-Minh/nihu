@@ -1,25 +1,25 @@
 make
 
 %%
-mesh = create_sphere_boundary(1,20);
+mesh = create_sphere_boundary(1, 5);
 % mesh = quad2tria(mesh);
-field = create_slab([2 0 0; 4 2 0], [20, 20]);
+% field = create_slab([2 0 0; 4 2 0], [20, 20]);
 
 k = min(mesh_kmax(mesh, 7)) * .5;
 
 [nodes, elements] = extract_bem_mesh(mesh);
-points = field.Nodes(:,2:4);
+% points = field.Nodes(:,2:4);
 
 %% matrices
 tic;
-[GB, HB] = Boonen13(nodes, elements, k, points);
+G = Boonen13(nodes, elements, k);
 tBoonen = toc;
 
-tic;
-[H0, G0] = bemHG(mesh, k, 'lin', points);
-tOldSchool = toc;
+% tic;
+% [H0, G0] = bemHG(mesh, k, 'lin');
+% tOldSchool = toc;
 
-disp(tBoonen / tOldSchool);
+% disp(tBoonen / tOldSchool);
 
 %% excitation and response
 r0 = [0 0 0];
