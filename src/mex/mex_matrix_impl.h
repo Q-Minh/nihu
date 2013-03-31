@@ -103,12 +103,12 @@ namespace mex {
 	{
 	}
 
-	double &index_proxy::real(void) const
+	inline double &index_proxy::real(void) const
 	{
 		return m_parent.m_real[m_row + m_parent.rows()*m_col];
 	}
 
-	double &index_proxy::imag(void) const
+	inline double &index_proxy::imag(void) const
 	{
 		return m_parent.m_imag[m_row + m_parent.rows()*m_col];
 	}
