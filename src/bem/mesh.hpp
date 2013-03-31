@@ -109,9 +109,6 @@ public:
 	};
 
 protected:
-	elem_container_t elements;	/**< \brief element geometries (BIG heterogeneous container) */
-	unsigned num_elements;	/**< \brief total number of elements in the mesh */
-
 	template <class elem_t>
 	struct elem_adder { struct type	{
 		/**
@@ -131,14 +128,14 @@ protected:
 					nodes[i] = input[i+1];
 					coords.row(i) = m.points[nodes[i]];
 				}
-				m.push_element(elem_t(0, nodes, coords));
+				m.push_element(elem_t(m.m_num_elements++, nodes, coords));
 			}
 			return false;
 		}
 	};};
 
 public:
-	Mesh() : num_elements(0)
+	Mesh() : m_num_elements(0)
 	{
 	}
 
@@ -176,7 +173,7 @@ public:
 	template <class ElemType>
 	typename elem_iterator_t<ElemType>::type begin(void) const
 	{
-		return elements.EIGENSTDVECTOR(ElemType)::begin();
+		return m_elements.EIGENSTDVECTOR(ElemType)::begin();
 	}
 
 	/**
@@ -185,14 +182,14 @@ public:
 	template <class ElemType>
 	typename elem_iterator_t<ElemType>::type end(void) const
 	{
-		return elements.EIGENSTDVECTOR(ElemType)::end();
+		return m_elements.EIGENSTDVECTOR(ElemType)::end();
 	}
 
 	/**
 	 * \brief add a new element to the mesh
 	 * \param input array of unsigned values.
 	 * input[0] is the elem ID, the subsequent elements are the nodal indices in the mesh
-	 * \returns true if the element is inserted into the mesh
+	 * \return true if the element is inserted into the mesh
 	 */
 	bool add_elem(unsigned const input[])
 	{
@@ -224,8 +221,7 @@ public:
 	template <class elem_t>
 	void push_element(elem_t const &e)
 	{
-		elements.EIGENSTDVECTOR(elem_t)::push_back(e);
-		++num_elements;
+		m_elements.EIGENSTDVECTOR(elem_t)::push_back(e);
 	}
 
 	/**
@@ -234,8 +230,12 @@ public:
 	 */
 	unsigned get_num_elements(void) const
 	{
-		return num_elements;
+		return m_num_elements;
 	}
+
+protected:
+	elem_container_t m_elements;	/**< \brief element geometries (BIG heterogeneous container) */
+	unsigned m_num_elements;	/**< \brief total number of elements in the mesh */
 };
 
 #endif
