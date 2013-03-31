@@ -248,7 +248,7 @@ namespace tmp
 
 	/** \brief one argument version of call_until */
 	template <class Seq, class Transform, class Arg1>
-	static bool call_until(Arg1 &arg1)
+	static bool call_until(Arg1 arg1)
 	{
 		return internal::call_until_impl<
 			typename begin<Seq>::type,
@@ -261,7 +261,7 @@ namespace tmp
 
 	/** \brief two argument version of call_until */
 	template <class Seq, class Transform, class Arg1, class Arg2>
-	static bool call_until(Arg1 &arg1, Arg2 &arg2)
+	static bool call_until(Arg1 arg1, Arg2 arg2)
 	{
 		return internal::call_until_impl<
 			typename begin<Seq>::type,

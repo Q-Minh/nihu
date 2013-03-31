@@ -8,7 +8,12 @@
 
 namespace mex {
 
-	inline matrix_base::matrix_base(size_t rows, size_t cols) : m_rows(rows), m_cols(cols)
+	//-------------------------------------------------------------------------
+	// implementation of  class matrix_base
+	//-------------------------------------------------------------------------
+
+	inline matrix_base::matrix_base(size_t rows, size_t cols)
+		: m_rows(rows), m_cols(cols)
 	{
 	}
 
@@ -29,15 +34,20 @@ namespace mex {
 	}
 
 
-	inline real_matrix::real_matrix(size_t rows, size_t cols, mxArray *&output) : matrix_base(rows, cols)
+	//-------------------------------------------------------------------------
+	// implementation of  class real_matrix
+	//-------------------------------------------------------------------------
+
+	inline real_matrix::real_matrix(size_t rows, size_t cols, mxArray *&output)
+		: matrix_base(rows, cols)
 	{
 		output = mxCreateDoubleMatrix(m_rows, m_cols, mxREAL);
 		m_real = mxGetPr(output);
 	}
 
-	inline real_matrix::real_matrix(mxArray const *mex_matrix) : matrix_base(mex_matrix)
+	inline real_matrix::real_matrix(mxArray const *mex_matrix)
+		: matrix_base(mex_matrix)
 	{
-		// get real data pointer from the Matlab matrix
 		m_real = mxGetPr(mex_matrix);
 	}
 
@@ -52,14 +62,20 @@ namespace mex {
 	}
 
 
-	inline complex_matrix::complex_matrix(size_t rows, size_t cols, mxArray *&output) : matrix_base(rows, cols)
+	//-------------------------------------------------------------------------
+	// implementation of  class complex_matrix
+	//-------------------------------------------------------------------------
+
+	inline complex_matrix::complex_matrix(size_t rows, size_t cols, mxArray *&output)
+		: matrix_base(rows, cols)
 	{
 		output = mxCreateDoubleMatrix(m_rows, m_cols, mxCOMPLEX);
 		m_real = mxGetPr(output);
 		m_imag = mxGetPi(output);
 	}
 
-	inline complex_matrix::complex_matrix(mxArray const *mex_matrix) : matrix_base(mex_matrix)
+	inline complex_matrix::complex_matrix(mxArray const *mex_matrix)
+		: matrix_base(mex_matrix)
 	{
 		// get real and imaginary data pointers from the Matlab matrix
 		m_real = mxGetPr(mex_matrix);
@@ -72,15 +88,29 @@ namespace mex {
 									m_imag[row+m_rows*col]);
 	}
 
-
 	inline index_proxy complex_matrix::operator() (size_t row, size_t col)
 	{
 		return index_proxy(*this, row, col);
 	}
 
+
+	//-------------------------------------------------------------------------
+	// implementation of  class index_proxy
+	//-------------------------------------------------------------------------
+
 	inline index_proxy::index_proxy(complex_matrix &matrix, size_t row, size_t col)
-		: m_matrix(matrix), m_row(row), m_col(col)
+		: m_parent(matrix), m_row(row), m_col(col)
 	{
+	}
+
+	double &index_proxy::real(void) const
+	{
+		return m_parent.m_real[m_row + m_parent.rows()*m_col];
+	}
+
+	double &index_proxy::imag(void) const
+	{
+		return m_parent.m_imag[m_row + m_parent.rows()*m_col];
 	}
 
 	template <class complex_rhs_t>
@@ -88,12 +118,6 @@ namespace mex {
 	{
 		real() += data.real();
 		imag() += data.imag();
-	}
-
-	template <>
-	inline void index_proxy::operator +=<double>(double const &data) const
-	{
-		real() += data;
 	}
 
 } // namespace mex

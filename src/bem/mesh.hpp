@@ -144,11 +144,11 @@ public:
 
 	/**
 	 * \brief build the mesh from MATLAB matrices
-	 * \tparam N_MAX_ELEM the maximal width of the matrix elements
-	 * \param nodes matrix of nodal coordinates
-	 * \param nnodes number of nodes
-	 * \param elements matrix of element nodes
-	 * \param nelements number of elements
+	 * \tparam N_MAX_ELEM the maximal width of the elements matrix
+	 * \tparam type of nodes matrix
+	 * \tparam type of elements matrix
+	 * \param [in] nodes matrix of nodal coordinates
+	 * \param [in] elements matrix of element node indices
 	 */
 	template <unsigned N_MAX_ELEM, class node_t, class elem_t>
 	void build_from_mex(node_t const &nodes, elem_t const &elements)

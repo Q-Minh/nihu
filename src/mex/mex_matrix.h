@@ -23,7 +23,9 @@ namespace mex {
 
 /**
  * \brief base class of a Matlab mex matrix
- * \details This class is only used by the dervied classes, and cannot be instantiated.
+ * \details This class provides a common interface to mex matrices.
+ * The class stores and can return the matrix size.
+ * This class is only used by the dervied classes, and cannot be instantiated.
  */
 class matrix_base
 {
@@ -67,12 +69,13 @@ public:
 	 * \details This constructor is used when we create a new matrix in C++ to pass it back to Matlab
 	 * \param [in] rows number of rows
 	 * \param [in] cols number of columns
+	 * \param [out] output pointer to the result matrix  is copied here
 	 */
 	real_matrix(size_t rows, size_t cols, mxArray *&output);
 
 	/** \brief input matrix constructor
 	 * \details This constructor is used when we construct a Matlab-allocated matrix
-	 * \param [in] mex_matrix pointer to the native Matlab matrix format
+	 * \param [in] input pointer to the native Matlab matrix format
 	 */
 	real_matrix(mxArray const *input);
 
@@ -106,13 +109,14 @@ public:
 	/** \brief output matrix (allocating) constructor
 	 * \param [in] rows number of rows
 	 * \param [in] cols number of columns
+	 * \param [out] output pointer to the result matrix  is copied here
 	 */
-	complex_matrix(size_t rows, size_t cols, mxArray *&input);
+	complex_matrix(size_t rows, size_t cols, mxArray *&output);
 
 	/** \brief input matrix constructor
-	 * \param [in] mex_matrix pointer to the native Matlab matrix format
+	 * \param [in] input pointer to the native Matlab matrix format
 	 */
-	complex_matrix(mxArray const *mex_matrix);
+	complex_matrix(mxArray const *input);
 
 	/** \brief index operator that returns a complex number
 	 * \param row row index
@@ -148,18 +152,12 @@ public:
 	/** \brief return reference to the real part
 	 * \return reference to the real part of the complex element
 	 */
-	double &real(void) const
-	{
-		return m_matrix.m_real[m_row + m_matrix.rows()*m_col];
-	}
+	double &real(void) const;
 
 	/** \brief return reference to the imaginary part
 	 * \return reference to the imaginary part of the complex element
 	 */
-	double &imag(void) const
-	{
-		return m_matrix.m_imag[m_row + m_matrix.rows()*m_col];
-	}
+	double &imag(void) const;
 
 	/** \brief increment operator
 	 * \param data the data to add to the container
@@ -168,7 +166,7 @@ public:
 	void operator +=(complex_rhs_t const &data) const;
 
 private:
-	complex_matrix &m_matrix; /**< \brief reference to the parent */
+	complex_matrix &m_parent; /**< \brief reference to the parent */
 	size_t const m_row; /**< \brief the row index */
 	size_t const m_col; /**< \brief the column index */
 };

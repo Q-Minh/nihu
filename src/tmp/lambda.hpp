@@ -30,7 +30,7 @@ namespace tmp
 		};
 	};
 
-	typedef arg<1> _1;
+	typedef arg<1> _1; /**< \brief placeholder for the first argument of a metafunction */
 
 	template <>
 	struct arg<2>
@@ -42,7 +42,7 @@ namespace tmp
 		};
 	};
 
-	typedef arg<2> _2;
+	typedef arg<2> _2; /**< \brief placeholder for the second argument of a metafunction */
 
 
 	/**

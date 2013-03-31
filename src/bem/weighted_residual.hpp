@@ -44,6 +44,13 @@ private:
 		typedef double_integral<kernel_t, test_field_t, trial_field_t> double_integral_t;	/**< \brief the internal integrator type */
 		typedef typename double_integral_t::result_t result_t;				/**< \brief result type of field integrator */
 
+		/** \brief evaluate weighted residual on homogeneous function spaces
+		 * \tparam result_t the type of the result matrix
+		 * \details This function is called by weighted_residual::apply for each homogeneous
+		 * subspace-pair.
+		 * \param [in] wr reference to the weighted_residual object that stores the two function spaces
+		 * \param [out] result reference to the result matrix the result block is inserted to
+		 */
 		template <class result_t>
 		void operator() (weighted_residual const &wr, result_t &result)
 		{
@@ -68,7 +75,6 @@ public:
 	 * \details This function evaluates the weighted residual of a kernel over a test and a trial field.
 	 * The two fields have been initialised by the constructor, and are stored in member variables.
 	 * The result is copied into a user specified structure, passed as function argument.
-	 *
 	 * \tparam result_t type of the result matrix
 	 * \param [out] result reference to the result matrix
 	 * \return reference to the result matrix for cascading
