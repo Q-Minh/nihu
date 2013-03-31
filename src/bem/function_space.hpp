@@ -67,6 +67,7 @@ public:
 	/** \brief elem_type_vector inherited from mesh */
 	typedef typename mesh_t::elem_type_vector_t elem_type_vector_t;
 
+	/** \brief metafunction to convert an element type into a field type */
 	template <class elem_t>
 	struct fieldize
 	{
