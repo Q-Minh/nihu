@@ -98,8 +98,8 @@ protected:
 	struct integrate_on { struct type {
 		typedef field<elem_t, typename function_space_t::field_option_t> field_t;		/**< \brief the field type */
 		typedef weighted_field_integral<kernel_t, field_t> weighted_field_integral_t;	/**< \brief the field integrator type */
-		typedef typename weighted_field_integral_t::result_t result_t;				/**< \brief result type of field integrator */
-		typedef typename field_t::dofs_t dofs_t;										/**< \brief dofs type needed to iterate */
+		typedef typename weighted_field_integral_t::result_t result_t;	/**< \brief result type of field integrator */
+		typedef typename field_t::dofs_t dofs_t;	/**< \brief dofs type needed to iterate */
 
 		typedef gauss_quadrature<typename elem_t::domain_t> quadrature_t; /**< \brief type of quadrature */
 

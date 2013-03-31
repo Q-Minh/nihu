@@ -14,6 +14,12 @@
 #include "accelerator.hpp"
 
 
+/**
+ * \brief class evaluating double integrals of the weighted residual approach
+ * \tparam Kernel type of the kernel to integrate
+ * \tparam Test type of the test field
+ * \tparam Trial type of the trial field
+ */
 template <class Kernel, class Test, class Trial>
 class double_integral
 {
@@ -31,8 +37,8 @@ public:
 
 	typedef typename test_quadrature_t::quadrature_elem_t quadrature_elem_t;	/**< \brief type of quadrature element */
 
-	typedef accelerator_by<typename test_field_t::elem_t> test_accelerator_t;
-	typedef accelerator_by<typename trial_field_t::elem_t> trial_accelerator_t;
+	typedef accelerator_by<typename test_field_t::elem_t> test_accelerator_t;	/**< \brief type of the accelerator of the test field */
+	typedef accelerator_by<typename trial_field_t::elem_t> trial_accelerator_t;	/**< \brief type of the accelerator of the trial field */
 
 	typedef typename test_field_t::nset_t test_nset_t;		/**< \brief type of element's N-set */
 	typedef typename trial_field_t::nset_t trial_nset_t;	/**< \brief type of element's N-set */
@@ -42,6 +48,13 @@ public:
 	> result_t;		/**< \brief integration result type */
 
 
+	/** \brief evaluate double integral with selected quadratures
+	 * \param [in] test_field the test field to integrate on
+	 * \param [in] test_quad the test quadrature
+	 * \param [in] trial_field the trial field to integrate on
+	 * \param [in] trial_quad the trial quadrature
+	 * \return reference to the integration result
+	 */
 	static result_t const &eval_on_quadrature(
 		test_field_t const &test_field,
 		test_quadrature_t const &test_quad,
@@ -69,6 +82,11 @@ public:
 		return m_result;
 	}
 
+	/** \brief evaluate double integral on given fields
+	 * \param [in] test_field the test field to integrate on
+	 * \param [in] trial_field the trial field to integrate on
+	 * \return reference to the integration result
+	 */
 	static result_t const &eval(test_field_t const &test_field, trial_field_t const &trial_field)
 	{
 		auto test_quad_pool = m_test_accelerator.get_quadrature_pool();
@@ -103,6 +121,11 @@ typename double_integral<Kernel, Test, Trial>::trial_accelerator_t
 
 
 
+/**
+ * \brief specialisation of double_integral for the collocational scheme
+ * \tparam Kernel type of the kernel to integrate
+ * \tparam Trial type of the trial field
+ */
 template <class Kernel, class Trial>
 class double_integral<Kernel, typename Kernel::input_t, Trial>
 {
@@ -118,7 +141,7 @@ public:
 
 	typedef typename trial_quadrature_t::quadrature_elem_t quadrature_elem_t;	/**< \brief type of quadrature element */
 
-	typedef accelerator_by<typename trial_field_t::elem_t> trial_accelerator_t;
+	typedef accelerator_by<typename trial_field_t::elem_t> trial_accelerator_t; /**< \brief type of the trial field's accelerator */
 
 	typedef typename trial_field_t::nset_t trial_nset_t;	/**< \brief type of element's N-set */
 
@@ -127,6 +150,12 @@ public:
 	> result_t;		/**< \brief integration result type */
 
 
+	/** \brief evaluate double integral with selected quadratures
+	 * \param [in] x0 the collocation point
+	 * \param [in] trial_field the trial field to integrate on
+	 * \param [in] trial_quad the trial quadrature
+	 * \return reference to the integration result
+	 */
 	static result_t const &eval_on_quadrature(
 		kernel_input_t const &x0,
 		trial_field_t const &trial_field,
@@ -147,6 +176,11 @@ public:
 		return m_result;
 	}
 
+	/** \brief evaluate double integral with selected quadratures
+	 * \param [in] x0 the collocation point
+	 * \param [in] trial_field the trial field to integrate on
+	 * \return reference to the integration result
+	 */
 	static result_t const &eval(kernel_input_t const &x0, trial_field_t const &trial_field)
 	{
 		auto trial_quad_pool = m_trial_accelerator.get_quadrature_pool();
