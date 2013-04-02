@@ -3,9 +3,21 @@ TODO
 - NSet Acceleration in double_integral
 - Accelerators should be stored outside of double_integral
 
-- Store Dual kernels in double integral result
+- Store Dual kernels (H and G) in double integral result
 - double_integral::eval_on_quadrature accelerated by splitting N K N' into N (K N')
 
 - element::id_t is Eigen::Matrix(1,1) currently. Does it make sense?
 
+DONE
+
 - test copy constructor calls in call_each
+
+
+Dirac field support
+=========================
+
+What is needed from a kernel_input field?
+-----------------------------------------
+
+-	double_integral  -	nothing more than evaluating the kernel in x0
+-	weighted_residual -	get_dofs() return

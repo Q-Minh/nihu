@@ -150,7 +150,7 @@ public:
 	> result_t;		/**< \brief integration result type */
 
 
-	/** \brief evaluate double integral with selected quadratures
+	/** \brief evaluate single integral with selected quadrature
 	 * \param [in] x0 the collocation point
 	 * \param [in] trial_field the trial field to integrate on
 	 * \param [in] trial_quad the trial quadrature
@@ -176,7 +176,7 @@ public:
 		return m_result;
 	}
 
-	/** \brief evaluate double integral with selected quadratures
+	/** \brief evaluate single integral for a reference point and a field
 	 * \param [in] x0 the collocation point
 	 * \param [in] trial_field the trial field to integrate on
 	 * \return reference to the integration result
