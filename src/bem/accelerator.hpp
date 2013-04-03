@@ -22,7 +22,7 @@ class accelerator_by
 public:
 	typedef ElemType elem_t;	/**< \brief template argument as nested type */
 
-	static const size_t MAX_ORDER = 10;	/**< \brief maximal quadrature order */
+	static const size_t MAX_ORDER = 8;	/**< \brief maximal quadrature order */
 
 	typedef typename elem_t::domain_t domain_t;	/**< \brief the domain type of the element */
 	typedef gauss_quadrature<domain_t> quadrature_t;	/**< \brief the quadrature type of the element */

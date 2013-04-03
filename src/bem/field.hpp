@@ -11,6 +11,9 @@
 struct isoparametric_field;	///< \brief tag to describe an isoparametric field
 struct constant_field;		///< \brief tag to describe a constant field */
 
+struct dirac_field;	///< \brief tag to describe an isoparametric field
+struct function_field;		///< \brief tag to describe a constant field */
+
 /**
  * \brief a comon base type for both fields
  * \tparam ElemType the element type of the field
@@ -46,7 +49,7 @@ protected:
  * \tparam ElemType the element type the field is associated with
  * \tparam FieldOption constant_field or isoparametric_field
  */
-template <class ElemType, class FieldOption>
+template <class ElemType, class FieldOption, class DiracOption = function_field>
 class field;
 
 /**
@@ -54,14 +57,15 @@ class field;
  * \details On an isoparametric field the shape function set equals the geometrical L-set.
  * \tparam ElemType the element type the field is associated with
  */
-template <class ElemType>
-class field<ElemType, isoparametric_field> : public field_base<ElemType>
+template <class ElemType, class DiracOption>
+class field<ElemType, isoparametric_field, DiracOption> : public field_base<ElemType>
 {
 public:
 	typedef field_base<ElemType> base;	///< \brief base's type
 
 	typedef typename base::elem_t elem_t;	///< \brief the field's elem type
 	typedef isoparametric_field field_option_t;	///< \brief the field generating option type
+	typedef DiracOption dirac_option_t;	///< \brief the field generating option type
 
 	typedef typename elem_t::lset_t nset_t;				///< \brief N-set = L-set
 	static unsigned const num_dofs = nset_t::num_nodes; ///< \brief the number of dofs
@@ -89,14 +93,15 @@ public:
  * \details On a constant field the shape function set equals the constant shape function set of the domain.
  * \tparam ElemType the element type the field is associated with
  */
-template <class ElemType>
-class field<ElemType, constant_field> : public field_base<ElemType>
+template <class ElemType, class DiracOption>
+class field<ElemType, constant_field, DiracOption> : public field_base<ElemType>
 {
 public:
 	typedef field_base<ElemType> base;	///< \brief base's type
 
 	typedef typename base::elem_t elem_t;	///< \brief the field's elem type
 	typedef constant_field field_option_t;		///< \brief the field generating option
+	typedef DiracOption dirac_option_t;	///< \brief the field generating option type
 
 	typedef constant_shape_set<typename elem_t::domain_t> nset_t; ///< \brief type of N-set
 	static unsigned const num_dofs = nset_t::num_nodes;	///< \brief the number of dofs
