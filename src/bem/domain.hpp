@@ -55,7 +55,7 @@ template<>
 line_domain::xi_t line_domain::m_center = line_domain::xi_t::Zero();
 
 template<>
-line_domain::corners_t line_domain::m_corners = {line_domain::xi_t(-1.0), line_domain::xi_t(1.0)};
+line_domain::corners_t line_domain::m_corners = {line_domain::xi_t::Ones()*(-1.0), line_domain::xi_t::Ones()*(1.0)};
 
 /** \brief a 2D triangle domain */
 typedef domain<2, 3> tria_domain;

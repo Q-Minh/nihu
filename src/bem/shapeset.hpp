@@ -84,7 +84,7 @@ public:
 };
 
 template <>
-shape_set<line_domain,2>::corners_t const shape_set<line_domain,2>::m_corners = {line_1_shape_set::xi_t(-1.0), line_1_shape_set::xi_t(1.0)};
+shape_set<line_domain,2>::corners_t const shape_set<line_domain,2>::m_corners = {line_1_shape_set::xi_t::Ones()*(-1.0), line_1_shape_set::xi_t::Ones()*(1.0)};
 
 
 /**
