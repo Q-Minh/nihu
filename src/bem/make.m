@@ -8,8 +8,8 @@ k = 1;
 %% Galerkin matrix C++ version
 tic;
 [nodes, elements] = extract_bem_mesh(mesh);
-G = Boonen13(nodes, elements, k);
-tG = toc;
+H = Boonen13(nodes, elements, k);
+tH = toc;
 
 %% Galerkin matrix Matlab version
 tic;
@@ -26,11 +26,11 @@ tM = toc;
 
 %% bemHG matrix matlab version
 tic;
-[HOld, GOld] = bemHG(mesh, k, 'const');
+[Hold, ~] = bemHG(mesh, k, 'lin');
 tbemHG = toc;
 
 %%
-pcolor(log10(abs((G - GOld)./GOld)));
+pcolor(log10(abs((H - Hold)./Hold)));
 shading interp;
 set(gca, 'ydir', 'reverse');
 c = colorbar;
