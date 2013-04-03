@@ -20,33 +20,39 @@
  * \brief a quadrature element is a base point and a weight
  * \tparam Domain the domain over which integration is performed
  */
-template <class Domain>
+template <class XiType, class ScalarType>
 class quadrature_elem
 {
 public:
-	typedef Domain domain_t;	/**< \brief template parameter as nested type */
-
-	typedef typename domain_t::scalar_t scalar_t;	/**< \brief scalar type from domain */
-	typedef typename domain_t::xi_t xi_t;			/**< \brief vector type from domain */
+	typedef XiType xi_t;			/**< \brief template argument as tested type */
+	typedef ScalarType scalar_t;	/**< \brief template argument as nested type */
 
 	/**
 	 * \brief constructor initialising all members
 	 * \param xi base location
 	 * \param w weight
 	 */
-	quadrature_elem(xi_t const &xi = xi_t(), scalar_t const &w = scalar_t()) : m_xi(xi), m_w(w) { }
+	quadrature_elem(xi_t const &xi = xi_t(), scalar_t const &w = scalar_t()) : m_xi(xi), m_w(w)
+	{
+	}
 
 	/**
 	 * \brief return constant reference to base point
 	 * \return reference to base point
 	 */
-	xi_t const &get_xi(void) const { return m_xi; }
+	xi_t const &get_xi(void) const
+	{
+		return m_xi;
+	}
 
 	/**
 	 * \brief return constant reference to weight
 	 * \return reference to weight
 	 */
-	scalar_t const &get_w(void) const { return m_w; }
+	scalar_t const &get_w(void) const
+	{
+		return m_w;
+	}
 
 	// struct is used in a std::vector, therefore this declaration is necessary
 	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -58,11 +64,12 @@ protected:
 
 
 template <class Domain>
-class quadrature : public EIGENSTDVECTOR(quadrature_elem<Domain>)
+class quadrature :
+	public std::vector<quadrature_elem<typename Domain::xi_t, typename Domain::scalar_t> , Eigen::aligned_allocator<quadrature_elem<typename Domain::xi_t, typename Domain::scalar_t> > >
 {
 public:
 	typedef Domain domain_t;	/**< \brief template parameter as nested type */
-	typedef quadrature_elem<domain_t> quadrature_elem_t;	/**< \brief the quadrature elem type */
+	typedef quadrature_elem<typename Domain::xi_t, typename Domain::scalar_t> quadrature_elem_t;	/**< \brief the quadrature elem type */
 	typedef typename quadrature_elem_t::scalar_t scalar_t;/**< \brief scalar type */
 
 	/**

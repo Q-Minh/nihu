@@ -2,7 +2,8 @@
 
 typedef tmp::vector<tria_1_elem, quad_1_elem> elem_vector;
 typedef Mesh<elem_vector> mesh_t;
-typedef function_space<mesh_t, isoparametric_field> func_space_t;
+typedef function_space<mesh_t, isoparametric_field, dirac_field> test_space_t;
+typedef function_space<mesh_t, isoparametric_field, function_field> trial_space_t;
 
 #include <iostream>
 
@@ -28,8 +29,9 @@ int main(void)
 	for (unsigned i = 0; i < 3; ++i)
 		mesh.add_elem(e+i*5);
 
-	func_space_t func(mesh);
-	weighted_residual<green_G_kernel, func_space_t, func_space_t> wr(func, func);
+	test_space_t test_func(mesh);
+	trial_space_t trial_func(mesh);
+	weighted_residual<green_G_kernel, test_space_t, trial_space_t> wr(test_func, trial_func);
 
 	Eigen::Matrix<std::complex<double>, 6, 6> a;
 	wr.eval(a);

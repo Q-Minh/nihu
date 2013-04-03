@@ -1,8 +1,8 @@
 %% compile C++ mex code
-mex -v CXXFLAGS="\$CXXFLAGS -std=c++0x -O3" Boonen13.mex.cpp -I../../../eigen -output Boonen13
+mex -v CXXFLAGS="\$CXXFLAGS -std=c++11 -O3" Boonen13.mex.cpp -I../../../eigen -output Boonen13
 
 %% Build a good little mesh
-mesh = create_sphere_boundary(1,5);
+mesh = create_sphere_boundary(1,10);
 k = 1;
 
 %% Galerkin matrix C++ version
@@ -14,17 +14,23 @@ tG = toc;
 %% Galerkin matrix Matlab version
 tic;
 [x, ~, w, i] = geo2gauss(mesh, 5);
-r = sqrt(bsxfun(@minus, x(:,1), x(:,1)').^2 + ...
-    bsxfun(@minus, x(:,2), x(:,2)').^2 + ...
-    bsxfun(@minus, x(:,3), x(:,3)').^2);
+x0 = centnorm(mesh);
+r = sqrt(bsxfun(@minus, x0(:,1), x(:,1)').^2 + ...
+    bsxfun(@minus, x0(:,2), x(:,2)').^2 + ...
+    bsxfun(@minus, x0(:,3), x(:,3)').^2);
 g = exp(-1i*k*r) ./ (4*pi*r);
 
 W = sparse(1:length(i), i, w);
-GMat = W' * g * W;
+GMat = g * W;
 tM = toc;
 
+%% bemHG matrix matlab version
+tic;
+[HOld, GOld] = bemHG(mesh, k, 'const');
+tbemHG = toc;
+
 %%
-pcolor(log10(abs((G - GMat)./GMat)));
+pcolor(log10(abs((G - GOld)./GOld)));
 shading interp;
 set(gca, 'ydir', 'reverse');
 c = colorbar;
