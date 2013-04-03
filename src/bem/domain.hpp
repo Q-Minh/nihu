@@ -41,6 +41,11 @@ public:
 	{
 		return m_center;
 	}
+	
+	static xi_t* const get_corners(void)
+	{
+		return m_corners;
+	}
 
 protected:
 	/** \brief the center point of the domain */
