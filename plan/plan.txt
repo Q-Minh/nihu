@@ -6,7 +6,7 @@ TODO
 - Store Dual kernels (H and G) in double integral result
 - double_integral::eval_on_quadrature accelerated by splitting N K N' into N (K N')
 
-- element::id_t is Eigen::Matrix(1,1) currently. Does it make sense?
+- element::id_t is Eigen::Matrix(1,1) currently. Does it make sense? Other possibility is that result matrix can be indexed by a scalar
 
 DONE
 

@@ -20,28 +20,28 @@ struct shape_set_traits;
  * \tparam Derived The derived shapeset class
  */
 template <class Derived>
-class shape_set_base 
+class shape_set_base
 {
 public:
-	typedef typename shape_set_traits<Derived>::domain_t domain_t;				/** \brief Domain */
+	typedef typename shape_set_traits<Derived>::domain_t domain_t;			/** \brief Domain */
 	static unsigned const num_nodes = shape_set_traits<Derived>::num_nodes;	/** \brief Number of nodes */
-	
+
 	/** \brief type of the local coordinate */
 	typedef typename domain_t::xi_t xi_t;
 	/** \brief type of an \f$L(\xi)\f$ vector */
 	typedef Eigen::Matrix<double, num_nodes, 1> shape_t;
 	/** \brief type of an \f$\nabla L(\xi)\f$ gradient matrix */
 	typedef Eigen::Matrix<double, num_nodes, domain_t::dimension> dshape_t;
-	
+
 public:
-	/** 
+	/**
 	 *\brief shape function vector \fL_i(\xi)\f$
 	 */
 	static shape_t eval_shape(xi_t const &xi)
 	{
 		return Derived::eval_shape(xi);
 	}
-	
+
 	/**
 	 * \brief shape function gradient matrix \f$\nabla L_i(\xi)\f$
 	 */
@@ -49,7 +49,7 @@ public:
 	{
 		return Derived::eval_dshape(xi);
 	}
-	
+
 	/**
 	 * \brief begin iterator of corner nodes
 	 */
@@ -57,7 +57,7 @@ public:
 	{
 		return Derived::corner_begin_impl();
 	}
-	
+
 	/**
 	 * \brief end iterator of corner nodes
 	 */
@@ -90,7 +90,7 @@ class constant_shape_set : public shape_set_base<constant_shape_set<Domain> >
 public:
 	typedef shape_set_base<constant_shape_set<Domain> > base_t;
 	typedef typename base_t::domain_t domain_t;
-	typedef typename base_t::xi_t xi_t; 
+	typedef typename base_t::xi_t xi_t;
 	typedef typename base_t::shape_t shape_t;
 	typedef typename base_t::dshape_t dshape_t;
 public:
@@ -104,7 +104,7 @@ public:
 	{
 		return shape_t::Ones();
 	}
-	
+
 	/**
 	 * \brief Derivatives of constant shape functions
 	 * \details The derivatives are
@@ -120,7 +120,7 @@ public:
 	{
 		return &(domain_t::get_center());
 	}
-	
+
 	static xi_t const *corner_end_impl(void)
 	{
 		return &(domain_t::get_center()) + 1;
@@ -149,20 +149,20 @@ class isoparam_shape_set : public shape_set_base<isoparam_shape_set<Domain> >
 {
 public:
 	typedef Domain domain_t;
-		
+
 	typedef shape_set_base<isoparam_shape_set<Domain> > base_t;
-	typedef typename base_t::xi_t xi_t; 
+	typedef typename base_t::xi_t xi_t;
 	typedef typename base_t::shape_t shape_t;
 	typedef typename base_t::dshape_t dshape_t;
-	
+
 	static shape_t eval_shape(xi_t const &xi);
 	static dshape_t eval_dshape(xi_t const &xi);
-	
+
 	static xi_t const * corner_begin_impl(void)
 	{
 		return domain_t::get_corners();
 	}
-	
+
 	static xi_t const * corner_end_impl(void)
 	{
 		return domain_t::get_corners() + domain_t::id;	//Note: ID has actually nothing to do with id, its the number of corners
@@ -287,7 +287,7 @@ class parallelogram_shape_set : public shape_set_base<parallelogram_shape_set>
 public:
 	typedef shape_set_base<parallelogram_shape_set> base_t;
 	typedef typename base_t::domain_t domain_t;
-	typedef typename base_t::xi_t xi_t; 
+	typedef typename base_t::xi_t xi_t;
 	typedef typename base_t::shape_t shape_t;
 	typedef typename base_t::dshape_t dshape_t;
 public:
@@ -315,12 +315,12 @@ public:
 			.0, +.5;
 		return dL;
 	}
-	
+
 	static xi_t const * corner_begin_impl(void)
 	{
 		return domain_t::get_corners();
 	}
-	
+
 	static xi_t const * corner_end_impl(void)
 	{
 		return domain_t::get_corners() + domain_t::id;	//Note: ID has actually nothing to do with id, its the number of corners
