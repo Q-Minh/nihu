@@ -130,12 +130,12 @@ typename double_integral<Kernel, Test, Trial>::trial_accelerator_t
  * \tparam Trial type of the trial field
  */
 template<class Kernel, class Trial, class ElemType, class FieldOption>
-class double_integral<Kernel, Field<ElemType, FieldOption, Dirac>, Trial>
+class double_integral<Kernel, field<ElemType, FieldOption, dirac_field>, Trial>
 {
 public:
 	typedef Kernel kernel_t;		/**< \brief template parameter as nested type */
 
-	typedef Field<ElemType, FieldOption, Dirac> test_field_t;		/**< \brief template parameter as nested type */
+	typedef field<ElemType, FieldOption, dirac_field> test_field_t;		/**< \brief template parameter as nested type */
 	typedef Trial trial_field_t;	/**< \brief template parameter as nested type */
 
 	typedef typename kernel_t::input_t kernel_input_t;		/**< \brief input type of kernel */
@@ -166,20 +166,17 @@ public:
 	{
 		m_result = result_t();	// clear result
 
-		size_t row_index = 0;
 		for(auto test_it = test_nset_t::corner_begin(); test_it != test_nset_t::corner_end(); ++test_it)
 		{
-			kernel_input_t collocation_point(test_field.get_elem(), *test_it);
+			kernel_input_t collocational_point(test_field.get_elem(), *test_it);
 			for(auto trial_it = trial_quad.begin(); trial_it != trial_quad.end(); ++trial_it)
 			{
 				kernel_input_t trial_input(trial_field.get_elem(), *trial_it);
 
-				m_result.row(i) +=
+				m_result.row(test_it - test_nset_t::corner_begin()) +=
 					kernel_t::eval(collocational_point, trial_input) *
 					trial_input.get_jacobian() *
 					trial_nset_t::eval_shape(trial_it->get_xi()).transpose();
-
-				row_index++;
 			}
 		}
 
@@ -193,11 +190,10 @@ public:
 	 */
 	static result_t const &eval(test_field_t const &test_field, trial_field_t const &trial_field)
 	{
-		auto test_quad_pool = m_test_accelerator.get_quadrature_pool();
 		auto trial_quad_pool = m_trial_accelerator.get_quadrature_pool();
 
 		// select quadrature
-		kernel_input_t test_center(test_field.get_elem(), test_quad_pool[0][0]);
+		kernel_input_t test_center(test_field.get_elem(), test_field_t::elem_t::domain_t::get_center());
 		kernel_input_t trial_center(trial_field.get_elem(), trial_quad_pool[0][0]);
 		unsigned degree = kernel_t::estimate_complexity(test_center, trial_center);
 
@@ -207,21 +203,16 @@ public:
 protected:
 	static result_t m_result; /**< \brief the integral result stored as static variable */
 
-	static test_accelerator_t m_test_accelerator; /**< \brief accelerator of the test field */
 	static trial_accelerator_t m_trial_accelerator; /**< \brief accelerator of the trial field */
 };
 
 template<class Kernel, class Trial, class ElemType, class FieldOption>
-typename double_integral<Kernel, Field<ElemType, FieldOption, Dirac>, Trial>::result_t
-	double_integral<Kernel, Field<ElemType, FieldOption, Dirac>, Trial>::m_result;
+typename double_integral<Kernel, field<ElemType, FieldOption, dirac_field>, Trial>::result_t
+	double_integral<Kernel, field<ElemType, FieldOption, dirac_field>, Trial>::m_result;
 
 template<class Kernel, class Trial, class ElemType, class FieldOption>
-typename double_integral<Kernel, Field<ElemType, FieldOption, Dirac>, Trial>::test_accelerator_t
-	double_integral<Kernel, Field<ElemType, FieldOption, Dirac>, Trial>::m_test_accelerator;
-
-template<class Kernel, class Trial, class ElemType, class FieldOption>
-typename double_integral<Kernel, Field<ElemType, FieldOption, Dirac>, Trial>::trial_accelerator_t
-	double_integral<Kernel, Field<ElemType, FieldOption, Dirac>, Trial>::m_trial_accelerator;
+typename double_integral<Kernel, field<ElemType, FieldOption, dirac_field>, Trial>::trial_accelerator_t
+	double_integral<Kernel, field<ElemType, FieldOption, dirac_field>, Trial>::m_trial_accelerator;
 
 
 
