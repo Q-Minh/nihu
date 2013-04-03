@@ -30,8 +30,8 @@ double_integral_test: src/test/surface_test.cpp src
 weighted_residual_test: src/test/weighted_residual_test.cpp src
 	$(CC) $(CFLAGS) src/test/weighted_residual_test.cpp -o weighted_residual_test
 
-shape2_test: src/test/shape2_test.cpp src/bem/shapeset2.hpp src
-	$(CC) $(CFLAGS) src/test/shape2_test.cpp -o shape2_test
+shape_test: src/test/shape_test.cpp src/bem/shapeset.hpp src
+	$(CC) $(CFLAGS) src/test/shape_test.cpp -o shape_test
 
 clean:
 	rm *_test
