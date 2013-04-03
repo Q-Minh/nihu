@@ -27,10 +27,24 @@ public:
 
 	/** \brief type of the shape functions' independent variable \f$\xi\f$ */
 	typedef typename domain_t::xi_t xi_t;
+	/** \brief type of corner storage */
+	typedef xi_t corners_t[NumNodes];
 	/** \brief type of an \f$L(\xi)\f$ vector */
 	typedef Eigen::Matrix<double, num_nodes, 1> shape_t;
 	/** \brief type of an \f$\nabla L(\xi)\f$ gradient matrix */
 	typedef Eigen::Matrix<double, num_nodes, domain_t::dimension> dshape_t;
+	
+	static xi_t const *corner_begin(void)
+	{
+		return m_corners;
+	}
+
+	static xi_t const *corner_end(void)
+	{
+		return m_corners + num_nodes;
+	}
+protected:
+	static corners_t const m_corners;
 };
 
 
@@ -68,6 +82,9 @@ public:
 		return dL;
 	}
 };
+
+template <>
+shape_set<line_domain,2>::corners_t const shape_set<line_domain,2>::m_corners = {line_1_shape_set::xi_t(-1.0), line_1_shape_set::xi_t(1.0)};
 
 
 /**
@@ -108,6 +125,9 @@ public:
 	}
 };
 
+template<>
+shape_set<tria_domain, 3>::corners_t const shape_set<tria_domain, 3>::m_corners =  {tria_1_shape_set::xi_t(0.0,0.0), tria_1_shape_set::xi_t(1.0,0.0), tria_1_shape_set::xi_t(0.0,1.0)};
+
 
 /**
  * \brief linear 3-noded parallelogram shape functions
@@ -146,6 +166,9 @@ public:
 		return dL;
 	}
 };
+
+template<>
+shape_set<quad_domain, 3>::corners_t const shape_set<quad_domain, 3>::m_corners =  {parallelogram_shape_set::xi_t(-1.0,-1.0), parallelogram_shape_set::xi_t(1.0,-1.0), parallelogram_shape_set::xi_t(1.0,1.0)};
 
 
 /**
@@ -188,6 +211,10 @@ public:
 	}
 };
 
+template<>
+shape_set<quad_domain, 4>::corners_t const shape_set<quad_domain, 4>::m_corners =  {quad_1_shape_set::xi_t(-1.0,-1.0), quad_1_shape_set::xi_t(1.0,-1.0),
+	quad_1_shape_set::xi_t(1.0,1.0), quad_1_shape_set::xi_t(-1.0,1.0)};
+
 
 /**
  * \brief constant shape function set
@@ -204,6 +231,8 @@ public:
 	typedef typename base::dshape_t dshape_t;	/**< \brief the dL type */
 	typedef typename base::xi_t xi_t;	/**< \brief the xi type */
 
+	typedef typename base::corners_t corners_t;
+	
 	/**
 	 * \brief shape function vector \f$L_i(\xi)\f$
 	 * \param \xi independent variable \f$\xi\f$
@@ -221,6 +250,17 @@ public:
 	{
 		return dshape_t::Zero();
 	}
+	/*
+	static xi_t const *corner_begin(void)
+	{
+		return &(domain_t::get_center());
+	}
+
+	static xi_t const *corner_end(void)
+	{
+		return &(domain_t::get_center())+1;
+	}
+	*/
 };
 
 
@@ -230,7 +270,10 @@ public:
  *
  * \f$L_1(\xi) = 1 \f$
  */
-typedef constant_shape_set<tria_domain> tria_0_shape_Set;
+typedef constant_shape_set<tria_domain> tria_0_shape_set;
+
+template<>
+shape_set<tria_domain, 1>::corners_t const shape_set<tria_domain, 1>::m_corners = {tria_domain::get_center()};
 
 /**
  * \brief constant 4-noded quadrilateral shape functions
@@ -238,8 +281,10 @@ typedef constant_shape_set<tria_domain> tria_0_shape_Set;
  *
  * \f$L_1(\xi) = 1 \f$
  */
-typedef constant_shape_set<quad_domain> quad_0_shape_Set;
+typedef constant_shape_set<quad_domain> quad_0_shape_set;
 
+template<>
+shape_set<quad_domain, 1>::corners_t const shape_set<quad_domain, 1>::m_corners = {quad_domain::get_center()};
 
 
 /*

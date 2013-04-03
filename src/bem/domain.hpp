@@ -31,6 +31,8 @@ public:
 	/** \brief the location vector */
 	typedef Eigen::Matrix<double, dimension, 1> xi_t;
 
+	typedef xi_t corners_t[id];
+	
 	/**
 	 * \brief return the central point of the domain
 	 * \return center point
@@ -43,6 +45,8 @@ public:
 protected:
 	/** \brief the center point of the domain */
 	static xi_t m_center;
+	
+	static corners_t m_corners;
 };
 
 /** \brief a 1D line domain \f$-1 \le \xi \le +1\f$*/
@@ -50,20 +54,37 @@ typedef domain<1, 2> line_domain;
 template<>
 line_domain::xi_t line_domain::m_center = line_domain::xi_t::Zero();
 
+template<>
+line_domain::corners_t line_domain::m_corners = {line_domain::xi_t(-1.0), line_domain::xi_t(1.0)};
+
 /** \brief a 2D triangle domain */
 typedef domain<2, 3> tria_domain;
 template<>
 tria_domain::xi_t tria_domain::m_center = tria_domain::xi_t::Ones()/3.0;
+
+template<>
+tria_domain::corners_t tria_domain::m_corners = {tria_domain::xi_t(0.0,0.0), tria_domain::xi_t(1.0,0.0), tria_domain::xi_t(0.0,1.0)};
+
 
 /** \brief a 2D quad domain */
 typedef domain<2, 4> quad_domain;
 template<>
 quad_domain::xi_t quad_domain::m_center = quad_domain::xi_t::Zero();
 
+template<>
+quad_domain::corners_t quad_domain::m_corners = {quad_domain::xi_t(-1.0,-1.0), quad_domain::xi_t(1.0,-1.0), quad_domain::xi_t(1.0,1.0), quad_domain::xi_t(-1.0,1.0)};
+
+
 /** \brief a 3D brick domain */
 typedef domain<3, 8> brick_domain;
 template<>
 brick_domain::xi_t brick_domain::m_center = brick_domain::xi_t::Zero();
+
+template<>
+brick_domain::corners_t brick_domain::m_corners = {brick_domain::xi_t(-1.0,-1.0,-1.0), brick_domain::xi_t(1.0,-1.0,-1.0), brick_domain::xi_t(1.0,1.0,-1.0), brick_domain::xi_t(-1.0,1.0,-1.0), 
+	brick_domain::xi_t(-1.0,-1.0,1.0), brick_domain::xi_t(1.0,-1.0,1.0), brick_domain::xi_t(1.0,1.0,1.0), brick_domain::xi_t(-1.0,1.0,1.0)
+};
+
 
 #endif
 
