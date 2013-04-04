@@ -33,6 +33,9 @@ weighted_residual_test: src/test/weighted_residual_test.cpp src
 shape_test: src/test/shape_test.cpp src/bem/shapeset.hpp src
 	$(CC) $(CFLAGS) src/test/shape_test.cpp -o shape_test
 
+field_accelerator_test: src/test/field_accelerator_test.cpp src/bem/field_type_accelerator.hpp src
+	$(CC) $(CFLAGS) src/test/field_accelerator_test.cpp -o field_accelerator_test
+
 clean:
 	rm *_test
 
