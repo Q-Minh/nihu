@@ -73,7 +73,7 @@ if isfield(args, 'R')
     phi = shapefun(model.Nodes(:,2:4), 38);
     model.Nodes(:,2:4) = phi * args.R;
 elseif isfield(args, 'Cx')
-    [z y x] = meshgrid(args.Cz,args.Cy,args.Cx);    % create coordinates
+    [y, x, z] = meshgrid(args.Cy,args.Cx,args.Cz);    % create coordinates
     model.Nodes(:,2:4) = [x(:) y(:) z(:)];          % replace coordinates
 end
 
