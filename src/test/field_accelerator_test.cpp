@@ -8,7 +8,7 @@ typedef field<elem_t, isoparametric_field, function_field> field_t;
 int main(void)
 {
 	field_type_accelerator<field_t> fta(5);
-	for (auto it = fta.begin(); it != fta.end(); ++it)
+	for (auto it = fta.cbegin(); it != fta.cend(); ++it)
 	{
 		std::cout << it->get_quadrature_elem().get_xi().transpose() << std::endl;
 		std::cout << it->get_shape().transpose() << std::endl;
