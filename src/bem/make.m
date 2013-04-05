@@ -1,5 +1,5 @@
 %% compile C++ mex code
-mex -v CXXFLAGS="\$CXXFLAGS -std=c++11 -O3" Boonen13.mex.cpp -I../../../eigen -output Boonen13
+mex -v CXXFLAGS="\$CXXFLAGS -std=c++0x -O3" Boonen13.mex.cpp -I../../../eigen -output Boonen13
 
 %% Build a good little mesh
 mesh = create_sphere_boundary(1,10);
@@ -9,7 +9,7 @@ k = 1;
 tic;
 [nodes, elements] = extract_bem_mesh(mesh);
 H = Boonen13(nodes, elements, k);
-tH = toc;
+tHacc = toc;
 
 %% Galerkin matrix Matlab version
 tic;
