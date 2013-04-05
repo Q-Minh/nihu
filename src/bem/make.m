@@ -26,7 +26,7 @@ tM = toc;
 
 %% bemHG matrix matlab version
 tic;
-[Hold, ~] = bemHG(mesh, k, 'lin');
+[Hold, ~] = bemHG(mesh, k, 'const');
 tbemHG = toc;
 
 %%

@@ -10,6 +10,8 @@
 #include "field.hpp"
 #include "quadrature.hpp"
 
+#include <vector>
+
 /** \brief abbreviation for Eigen's std::vector declaration */
 #include <Eigen/StdVector>
 #define EIGENSTDVECTOR(_T) std::vector<_T, Eigen::aligned_allocator<_T> >
@@ -173,6 +175,29 @@ public:
 protected:
 	quadrature_t m_quadrature;	/**< \brief the stored quadrature points */
 	nset_vector_t m_nset_vector;	/**< \brief the stored shape functions */
+};
+
+
+template <class Field>
+class field_type_accelerator_pool : public std::vector<field_type_accelerator<Field> *>
+{
+public:
+	typedef Field field_t;
+
+	static const unsigned MAX_ORDER = 10;
+
+	field_type_accelerator_pool(void)
+	{
+		this->reserve(MAX_ORDER);
+		for (unsigned order = 0; order < MAX_ORDER; ++order)
+			this->push_back(new field_type_accelerator<field_t>(order));
+	}
+
+	~field_type_accelerator_pool(void)
+	{
+		for (unsigned order = 0; order < MAX_ORDER; ++order)
+			delete (*this)[order];
+	}
 };
 
 #endif // FIELD_TYPE_ACCELERATOR_HPP_INCLUDED

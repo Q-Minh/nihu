@@ -1,7 +1,7 @@
 /**
 * \file element.hpp
 * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
-* \brief Declaration of class Element and its specialisations
+* \brief Declaration of class ::element and its specialisations
 */
 #ifndef ELEMENT_HPP_INCLUDED
 #define ELEMENT_HPP_INCLUDED

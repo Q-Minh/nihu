@@ -1,7 +1,7 @@
 /**
  * \file shapeset.hpp
  * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
- * \brief Definition of class shape_set and its specialisations
+ * \brief Definition of various shape function sets
  */
 #ifndef SHAPESET_HPP_INCLUDED
 #define SHAPESET_HPP_INCLUDED
@@ -286,10 +286,10 @@ class parallelogram_shape_set : public shape_set_base<parallelogram_shape_set>
 {
 public:
 	typedef shape_set_base<parallelogram_shape_set> base_t;
-	typedef typename base_t::domain_t domain_t;
-	typedef typename base_t::xi_t xi_t;
-	typedef typename base_t::shape_t shape_t;
-	typedef typename base_t::dshape_t dshape_t;
+	typedef base_t::domain_t domain_t;
+	typedef base_t::xi_t xi_t;
+	typedef base_t::shape_t shape_t;
+	typedef base_t::dshape_t dshape_t;
 public:
 	/**
 	 * \brief linear 3-noded parallelogram shape functions
@@ -414,3 +414,4 @@ typename shape_set_converter<quad_1_shape_set, parallelogram_shape_set, nDim>::t
 	shape_set_converter<quad_1_shape_set, parallelogram_shape_set, nDim>::to_coords;
 
 */
+
