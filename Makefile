@@ -33,6 +33,9 @@ weighted_residual_test: src/test/weighted_residual_test.cpp src
 shape_test: src/test/shape_test.cpp src/bem/shapeset.hpp src
 	$(CC) $(CFLAGS) src/test/shape_test.cpp -o shape_test
 
+couple_test: src/test/couple_test.cpp src/bem/couple.hpp src
+	$(CC) $(CFLAGS) src/test/couple_test.cpp -o couple_test
+
 clean:
 	rm *_test
 
