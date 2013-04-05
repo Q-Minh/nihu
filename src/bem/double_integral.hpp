@@ -73,9 +73,9 @@ public:
 				m_result +=
 					test_it->get_shape() *
 					kernel_t::eval(test_input, trial_input) *
-					test_input.get_jacobian() *
+					(test_input.get_jacobian() *
 					trial_input.get_jacobian() *
-					trial_it->get_shape().transpose();
+					trial_it->get_shape().transpose());
 			}
 		}
 
