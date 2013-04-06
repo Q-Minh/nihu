@@ -9,6 +9,9 @@
 
 #include "field.hpp"
 #include "quadrature.hpp"
+#include "shapeset.hpp"
+
+#include <vector>
 
 /** \brief abbreviation for Eigen's std::vector declaration */
 #include <Eigen/StdVector>
@@ -173,6 +176,40 @@ public:
 protected:
 	quadrature_t m_quadrature;	/**< \brief the stored quadrature points */
 	nset_vector_t m_nset_vector;	/**< \brief the stored shape functions */
+};
+
+
+/**
+ * \brief container class to store accelerators with different quadrature orders
+ * \tparam Field the field type that is accelerated
+ */
+template <class Field>
+class field_type_accelerator_pool : public std::vector<field_type_accelerator<Field> *>
+{
+public:
+	/** \brief template argument as nested type */
+	typedef Field field_t;
+	/** \brief maximum order of quadratures */
+	static const unsigned MAX_ORDER = 10;
+
+	/**
+	 * \brief allocate memory and initialise accelerators
+	 */
+	field_type_accelerator_pool(void)
+	{
+		this->reserve(MAX_ORDER);
+		for (unsigned order = 0; order < MAX_ORDER; ++order)
+			this->push_back(new field_type_accelerator<field_t>(order));
+	}
+
+	/**
+	 * \brief free memory allocated for the accelerators
+	 */
+	~field_type_accelerator_pool(void)
+	{
+		for (unsigned order = 0; order < MAX_ORDER; ++order)
+			delete (*this)[order];
+	}
 };
 
 #endif // FIELD_TYPE_ACCELERATOR_HPP_INCLUDED

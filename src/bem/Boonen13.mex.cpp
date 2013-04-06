@@ -4,7 +4,7 @@
 typedef tmp::vector<tria_1_elem, quad_1_elem> elem_type_vector;
 typedef Mesh<elem_type_vector> mesh_t;
 typedef function_space<mesh_t, constant_field, dirac_field> test_space_t;
-typedef function_space<mesh_t, isoparametric_field, function_field> trial_space_t;
+typedef function_space<mesh_t, constant_field, function_field> trial_space_t;
 typedef green_H_kernel kernel_t;
 typedef weighted_residual<kernel_t, test_space_t, trial_space_t> wr_t;
 

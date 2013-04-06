@@ -1,7 +1,7 @@
 /**
  * \file quadrature.hpp
  * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
- * \brief implementation of class quadrature, gauss_quadrature and their elements
+ * \brief implementation of class ::quadrature, ::gauss_quadrature and their elements
  */
 #ifndef QUADRATURE_HPP_INCLUDED
 #define QUADRATURE_HPP_INCLUDED
