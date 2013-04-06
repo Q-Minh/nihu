@@ -36,6 +36,9 @@ shape_test: src/test/shape_test.cpp src/bem/shapeset.hpp src
 field_accelerator_test: src/test/field_accelerator_test.cpp src/bem/field_type_accelerator.hpp src
 	$(CC) $(CFLAGS) src/test/field_accelerator_test.cpp -o field_accelerator_test
 
+couple_test: src/test/couple_test.cpp src/bem/couple.hpp src
+	$(CC) $(CFLAGS) src/test/couple_test.cpp -o couple_test
+
 clean:
 	rm *_test
 

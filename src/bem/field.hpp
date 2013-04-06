@@ -1,7 +1,7 @@
 /**
  * \file field.hpp
  * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
- * \brief declaration of class Field and its specialisations
+ * \brief declaration of class ::field and its specialisations
  */
 #ifndef FIELD_HPP_INCLUDED
 #define FIELD_HPP_INCLUDED
