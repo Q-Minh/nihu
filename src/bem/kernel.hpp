@@ -13,88 +13,117 @@
 /** \brief double complex type */
 typedef std::complex<double> dcomplex;
 
+// forward declaration
 template <class Derived>
 struct green_kernel_traits;
 
 /**
- * \brief base class of 3D Helmholtz kernels
+ * \brief CRTP base class of 3D Helmholtz kernels and its derivatives
+ * \tparam Derived type of the derived class in the CRTP scheme
  */
 template <class Derived>
 class green_base
 {
 public:
+	/** \brief type of the location */
 	typedef typename green_kernel_traits<Derived>::x_t x_t;
+	/** \brief type of the kernel input */
 	typedef typename green_kernel_traits<Derived>::input_t input_t;
+	/** \brief type of the kernel's scalar */
 	typedef typename green_kernel_traits<Derived>::scalar_t scalar_t;
+	/** \brief type of the kernel's result */
 	typedef typename green_kernel_traits<Derived>::result_t result_t;
 
-	/** \brief set the wave number to a defined value */
+	/** \brief associate relative distance with a required polynomial degree */
+	struct kernel_precision
+	{
+		double rel_distance;	/**< \brief relative distance from the source point */
+		unsigned degree;		/**< \brief polynomial degree required for integration */
+	};
+
+	/**
+	 * \brief set the wave number to a defined value
+	 * \param [in] k wave number
+	 */
 	static void set_wave_number(dcomplex const &k)
 	{
 		green_base::m_k = k;
 	}
 
-	/** \brief set the source location to a defined value */
+	/**
+	 * \brief set the source location number to a defined value
+	 * \param [in] x0 source location
+	 */
 	static void set_x0(x_t const &x0)
 	{
 		green_base::m_x0 = x0;
 	}
 
 	/**
-	 * \brief associate relative distance with a required polynomial degree
+	 * \brief evaluate kernel at a given receiver position
+	 * \param [in] x receiver position
+	 * \return kernel evaluated in x
 	 */
-	struct kernel_precision {
-		double rel_distance;	/**< \brief the relative distance from the kernel's source point */
-		unsigned degree;		/**< \brief polynomial degree required for accurate integration */
-	};
-
-	/** \brief evaluate the kernel for a given input */
-	static result_t const &eval (input_t const &input1)
+	static result_t const &eval (input_t const &x)
 	{
-		return Derived::eval(input1);
+		return Derived::eval(x);
 	}
 
-	/** \brief evaluate the kernel for a given input */
-	static result_t const &eval (input_t const &input1, input_t const &input2)
+	/**
+	 * \brief evaluate kernel at a given source and receiver position
+	 * \param [in] x0 source position
+	 * \param [in] x receiver position
+	 * \return kernel evaluated in x0 and x
+	 */
+	static result_t const &eval (input_t const &x0, input_t const &x)
 	{
-		set_x0(input1.get_x());
-		return eval(input2);
+		set_x0(x0.get_x());
+		return eval(x);
 	}
 
-	static unsigned estimate_complexity(input_t const &input)
+	/**
+	 * \brief determine kernel's polynomial complexity at a given receiver position
+	 * \param [in] x receiver position
+	 * \return polynomial degree needed for accurate integration
+	 */
+	static unsigned estimate_complexity(input_t const &x)
 	{
-		double rel_distance = ((input.get_x() - m_x0).norm()) / sqrt(input.get_jacobian());
+		double rel_distance = ((x.get_x() - m_x0).norm()) / sqrt(x.get_jacobian());
 		unsigned i;
 		for (i = 0; rel_distance < Derived::limits[i].rel_distance; ++i);
 		return Derived::limits[i].degree;
 	}
 
-	static unsigned estimate_complexity(input_t const &input1, input_t const &input2)
+	/**
+	 * \brief determine kernel's polynomial complexity at a given receiver position
+	 * \param [in] x0 source position
+	 * \param [in] x receiver position
+	 * \return polynomial degree needed for accurate integration
+	 */
+	static unsigned estimate_complexity(input_t const &x0, input_t const &x1)
 	{
-		set_x0(input1.get_x());
-		return estimate_complexity(input2);
+		set_x0(x0.get_x());
+		return estimate_complexity(x1);
 	}
 
 protected:
-	/** \brief wave number */
-	static dcomplex m_k;
-	/** \brief source location */
-	static x_t m_x0;
-	/** \brief kernel result */
-	static result_t m_result;
+	static dcomplex m_k;		/**< \brief wave number */
+	static x_t m_x0;			/**< \brief source location */
+	static result_t m_result;	/**< \brief kernel result */
 };
 
-/** \brief definition of static member wave number */
+/**< \brief static member wave number */
 template <class Derived>
 dcomplex green_base<Derived>::m_k;
-/** \brief definition of static member source location */
+/**< \brief static member source location */
 template <class Derived>
 typename green_base<Derived>::x_t green_base<Derived>::m_x0;
-/** \brief definition of static member kernel result */
+/**< \brief static member kernel result */
 template <class Derived>
 typename green_base<Derived>::result_t green_base<Derived>::m_result;
 
 
+// forward declaration
 class green_G_kernel;
 
 template<>
@@ -118,7 +147,11 @@ public:
 	using base_t::eval;
 	using base_t::estimate_complexity;
 
-	/** \brief evaluate the kernel for a given input */
+	/**
+	 * \brief evaluate kernel at a given receiver position
+	 * \param [in] x receiver position
+	 * \return kernel evaluated in x
+	 */
 	static result_t const &eval (input_t const &input)
 	{
 		// source receiver distance
@@ -169,16 +202,20 @@ public:
 	using base_t::eval;
 	using base_t::estimate_complexity;
 
-	/** \brief evaluate the kernel for a given input */
-	static result_t const &eval (input_t const &input)
+	/**
+	 * \brief evaluate kernel at a given receiver position
+	 * \param [in] x receiver position
+	 * \return kernel evaluated in x
+	 */
+	static result_t const &eval (input_t const &x)
 	{
-		x_t rvec = input.get_x() - m_x0;
+		x_t rvec = x.get_x() - m_x0;
 		double r2 = rvec.squaredNorm();
 		double r = sqrt(r2);
 		dcomplex ikr(dcomplex(0.,1.)*m_k*r);
 
 		m_result = std::exp(-ikr) / r / (4.0 * M_PI);
-		double rdn = rvec.dot(input.get_normal());
+		double rdn = rvec.dot(x.get_normal());
 		m_result = m_result * (1.0 + ikr) * (-rdn / r2);
 
 		return m_result;
@@ -218,16 +255,20 @@ public:
 	using base_t::eval;
 	using base_t::estimate_complexity;
 
-	/** \brief evaluate the kernel for a given input */
-	static result_t const &eval (input_t const &input)
+	/**
+	 * \brief evaluate kernel at a given receiver position
+	 * \param [in] x receiver position
+	 * \return kernel evaluated in x
+	 */
+	static result_t const &eval (input_t const &x)
 	{
-		x_t rvec = input.get_x() - m_x0;
+		x_t rvec = x.get_x() - m_x0;
 		double r2 = rvec.squaredNorm();
 		double r = sqrt(r2);
 		dcomplex ikr(dcomplex(0.,1.)*m_k*r);
 
 		m_result.first() = std::exp(-ikr) / r / (4.0 * M_PI);
-		double rdn = rvec.dot(input.get_normal());
+		double rdn = rvec.dot(x.get_normal());
 		m_result.second() = m_result.first() * (1.0 + ikr) * (-rdn / r2);
 
 		return m_result;
@@ -243,5 +284,4 @@ const green_HG_kernel::kernel_precision green_HG_kernel::limits[]  = {
 	{0.0, 7}
 	};
 
-#endif
-
+#endif // KERNEL_HPP_INCLUDED
