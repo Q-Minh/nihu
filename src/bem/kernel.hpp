@@ -13,18 +13,22 @@
 /** \brief double complex type */
 typedef std::complex<double> dcomplex;
 
+template <class Derived>
+struct green_kernel_traits;
+
 /**
  * \brief base class of 3D Helmholtz kernels
  */
+template <class Derived>
 class green_base
 {
 public:
-	/** \brief 3D location */
-	typedef tria_1_elem::x_t x_t;
-	/** \brief the scalar type of the kernel */
-	typedef dcomplex scalar_t;
+	typedef typename green_kernel_traits<Derived>::x_t x_t;
+	typedef typename green_kernel_traits<Derived>::input_t input_t;
+	typedef typename green_kernel_traits<Derived>::scalar_t scalar_t;
+	typedef typename green_kernel_traits<Derived>::result_t result_t;
 
-	/** \brief set the wave number do a defined value */
+	/** \brief set the wave number to a defined value */
 	static void set_wave_number(dcomplex const &k)
 	{
 		green_base::m_k = k;
@@ -44,32 +48,75 @@ public:
 		unsigned degree;		/**< \brief polynomial degree required for accurate integration */
 	};
 
+	/** \brief evaluate the kernel for a given input */
+	static result_t const &eval (input_t const &input1)
+	{
+		return Derived::eval(input1);
+	}
+
+	/** \brief evaluate the kernel for a given input */
+	static result_t const &eval (input_t const &input1, input_t const &input2)
+	{
+		set_x0(input1.get_x());
+		return eval(input2);
+	}
+
+	static unsigned estimate_complexity(input_t const &input)
+	{
+		double rel_distance = ((input.get_x() - m_x0).norm()) / sqrt(input.get_jacobian());
+		unsigned i;
+		for (i = 0; rel_distance < Derived::limits[i].rel_distance; ++i);
+		return Derived::limits[i].degree;
+	}
+
+	static unsigned estimate_complexity(input_t const &input1, input_t const &input2)
+	{
+		set_x0(input1.get_x());
+		return estimate_complexity(input2);
+	}
+
 protected:
 	/** \brief wave number */
 	static dcomplex m_k;
 	/** \brief source location */
 	static x_t m_x0;
+	/** \brief kernel result */
+	static result_t m_result;
 };
 
 /** \brief definition of static member wave number */
-dcomplex green_base::m_k;
+template <class Derived>
+dcomplex green_base<Derived>::m_k;
 /** \brief definition of static member source location */
-green_base::x_t green_base::m_x0;
+template <class Derived>
+typename green_base<Derived>::x_t green_base<Derived>::m_x0;
+/** \brief definition of static member kernel result */
+template <class Derived>
+typename green_base<Derived>::result_t green_base<Derived>::m_result;
 
+
+class green_G_kernel;
+
+template<>
+struct green_kernel_traits<green_G_kernel>
+{
+	typedef tria_1_elem::x_t x_t;
+	typedef dcomplex scalar_t;
+	typedef location<x_t> input_t;
+	typedef dcomplex result_t;
+};
 
 /**
  * \brief 3D Helmholtz kernel \f$\exp(-ikr)/4\pi r\f$
  */
-class green_G_kernel : public green_base
+class green_G_kernel : public green_base<green_G_kernel>
 {
+	friend class green_base<green_G_kernel>;
 public:
-	typedef green_base base;	/**< \brief the base class' type */
+	typedef green_base<green_G_kernel> base_t;	/**< \brief the base class' type */
 
-	/** \brief the result type of the kernel */
-	typedef scalar_t result_t;
-
-	/** \brief kernel input type */
-	typedef location<x_t> input_t;
+	using base_t::eval;
+	using base_t::estimate_complexity;
 
 	/** \brief evaluate the kernel for a given input */
 	static result_t const &eval (input_t const &input)
@@ -81,47 +128,14 @@ public:
 		return m_result;
 	}
 
-	/** \brief evaluate the kernel for a given input */
-	static result_t const &eval (input_t const &input1, input_t const &input2)
-	{
-		set_x0(input1.get_x());
-		return eval(input2);
-	}
-
-	/** \brief estimate kernel complexity for a given input
-	 * \param input
-	 * \return polynomial order of the kernel
-	 */
-	static unsigned estimate_complexity(input_t const &input)
-	{
-		double rel_distance = ((input.get_x() - m_x0).norm()) / sqrt(input.get_jacobian());
-		for (unsigned i = 0; i < 2; ++i)
-			if (limits[i].rel_distance < rel_distance)
-				return limits[i].degree;
-		return 7;
-	}
-
-	static unsigned estimate_complexity(input_t const &input1, input_t const &input2)
-	{
-		set_x0(input1.get_x());
-		return estimate_complexity(input2);
-	}
-
 protected:
-	static const base::kernel_precision limits[];	/**< \brief array of distance limits */
-
-	/** \brief kernel result */
-	static result_t m_result;
+	static const kernel_precision limits[];	/**< \brief array of distance limits */
 };
 
-/** \brief definition of static member kernel result */
-green_G_kernel::result_t green_G_kernel::m_result;
-
-
-
-const green_G_kernel::base::kernel_precision green_G_kernel::limits[] = {
+const green_G_kernel::kernel_precision green_G_kernel::limits[] = {
 	{5.0, 2},
-	{2.0, 5}
+	{2.0, 5},
+	{0.0, 7}
 /*
 	{9.2, 1},
 	{1.6, 3},
@@ -132,19 +146,28 @@ const green_G_kernel::base::kernel_precision green_G_kernel::limits[] = {
 */
 	};
 
-/**
- * \brief 3D Helmholtz kernel \f$ \exp(-ikr)/4\pi r \left\{1, -(1+ikr)/r \cdot dr/dn\right\} \f$
- */
-class green_H_kernel : public green_base
+class green_H_kernel;
+
+template<>
+struct green_kernel_traits<green_H_kernel>
 {
-public:
-	typedef green_base base;	/**< \brief base class' type */
-
-	/** \brief the result type of the kernel */
-	typedef scalar_t result_t;
-
-	/** \brief kernel input type */
+	typedef tria_1_elem::x_t x_t;
+	typedef dcomplex scalar_t;
 	typedef location_with_normal<x_t> input_t;
+	typedef dcomplex result_t;
+};
+
+/**
+ * \brief 3D Helmholtz kernel \f$ \exp(-ikr)/4\pi r \left(-(1+ikr)/r\right) \cdot dr/dn \f$
+ */
+class green_H_kernel : public green_base<green_H_kernel>
+{
+	friend class green_base<green_H_kernel>;
+public:
+	typedef green_base<green_H_kernel> base_t;	/**< \brief the base class' type */
+
+	using base_t::eval;
+	using base_t::estimate_complexity;
 
 	/** \brief evaluate the kernel for a given input */
 	static result_t const &eval (input_t const &input)
@@ -161,62 +184,39 @@ public:
 		return m_result;
 	}
 
-	/** \brief estimate kernel complexity for a given input
-	 * \param input
-	 * \return plynomial order of the kernel
-	 */
-	static unsigned estimate_complexity(input_t const &input)
-	{
-		double rel_distance = ((input.get_x() - m_x0).norm()) / sqrt(input.get_jacobian());
-		for (unsigned i = 0; i < 3; ++i)
-			if (limits[i].rel_distance < rel_distance)
-				return limits[i].degree;
-		return 7;
-	}
-
-	/** \brief evaluate the kernel for a given input */
-	static result_t const &eval (input_t const &input1, input_t const &input2)
-	{
-		set_x0(input1.get_x());
-		return eval(input2);
-	}
-
-	static unsigned estimate_complexity(input_t const &input1, input_t const &input2)
-	{
-		set_x0(input1.get_x());
-		return estimate_complexity(input2);
-	}
-
 protected:
-	static const base::kernel_precision limits[];	/**< \brief array of distance limits */
-
-	/** \brief kernel result */
-	static result_t m_result;
+	static const kernel_precision limits[];	/**< \brief array of distance limits */
 };
 
-
-/** \brief definition of static member kernel result */
-green_H_kernel::result_t green_H_kernel::m_result;
-
-const green_H_kernel::base::kernel_precision green_H_kernel::limits[]  = {
+const green_H_kernel::kernel_precision green_H_kernel::limits[]  = {
 	{5.0, 2},
 	{2.0, 5},
-	{1.5, 7}
+	{0.0, 7}
 	};
 
+
+class green_HG_kernel;
+
+template<>
+struct green_kernel_traits<green_HG_kernel>
+{
+	typedef tria_1_elem::x_t x_t;
+	typedef dcomplex scalar_t;
+	typedef location_with_normal<x_t> input_t;
+	typedef couple<dcomplex> result_t;
+};
 
 /**
  * \brief 3D Helmholtz kernel \f$ \exp(-ikr)/4\pi r \left\{1, -(1+ikr)/r \cdot dr/dn\right\} \f$
  */
-class green_HG_kernel : public green_base
+class green_HG_kernel : public green_base<green_HG_kernel>
 {
+	friend class green_base<green_HG_kernel>;
 public:
-	typedef green_base base;	/**< \brief base class' type */
+	typedef green_base<green_HG_kernel> base_t;	/**< \brief base class' type */
 
-	typedef couple<dcomplex> result_t;
-
-	/** \brief kernel input type */
-	typedef location_with_normal<x_t> input_t;
+	using base_t::eval;
+	using base_t::estimate_complexity;
 
 	/** \brief evaluate the kernel for a given input */
 	static result_t const &eval (input_t const &input)
@@ -233,47 +233,14 @@ public:
 		return m_result;
 	}
 
-	/** \brief evaluate the kernel for a given input */
-	static result_t const &eval (input_t const &input1, input_t const &input2)
-	{
-		set_x0(input1.get_x());
-		return eval(input2);
-	}
-
-
-	/** \brief estimate kernel complexity for a given input
-	 * \param input
-	 * \return plynomial order of the kernel
-	 */
-	static unsigned estimate_complexity(input_t const &input)
-	{
-		double rel_distance = ((input.get_x() - m_x0).norm()) / sqrt(input.get_jacobian());
-		for (unsigned i = 0; i < 3; ++i)
-			if (limits[i].rel_distance < rel_distance)
-				return limits[i].degree;
-		return 7;
-	}
-
-	static unsigned estimate_complexity(input_t const &input1, input_t const &input2)
-	{
-		set_x0(input1.get_x());
-		return estimate_complexity(input2);
-	}
-
 protected:
-	static const base::kernel_precision limits[];	/**< \brief array of distance limits */
-
-	/** \brief kernel result */
-	static result_t m_result;
+	static const kernel_precision limits[];	/**< \brief array of distance limits */
 };
 
-/** \brief definition of static member kernel result */
-green_HG_kernel::result_t green_HG_kernel::m_result;
-
-const green_HG_kernel::base::kernel_precision green_HG_kernel::limits[]  = {
+const green_HG_kernel::kernel_precision green_HG_kernel::limits[]  = {
 	{5.0, 2},
 	{2.0, 5},
-	{1.5, 7}
+	{0.0, 7}
 	};
 
 #endif

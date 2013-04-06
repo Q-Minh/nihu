@@ -2,7 +2,7 @@
 
 typedef tmp::vector<tria_1_elem, quad_1_elem> elem_vector;
 typedef Mesh<elem_vector> mesh_t;
-typedef function_space<mesh_t, constant_field, function_field> test_space_t;
+typedef function_space<mesh_t, constant_field, dirac_field> test_space_t;
 typedef function_space<mesh_t, isoparametric_field, function_field> trial_space_t;
 
 #include <iostream>

@@ -9,7 +9,6 @@
 
 #include "../util/product_type.hpp"
 
-
 // forward declaration
 template <class Derived>
 struct couple_traits;
@@ -278,6 +277,5 @@ protected:
 	Left const &m_left;			/**< \brief left hand side term */
 	RDerived const &m_right;	/**< \brief right hand side term */
 };
-
 
 #endif //  COUPLE_HPP_INCLUDED
