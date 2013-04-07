@@ -122,8 +122,8 @@ class couple : public couple_base<couple<First, Second> >
 {
 public:
 	typedef couple_base<couple<First, Second> > base_t;
-	typedef typename base_t::first_t first_t;
-	typedef typename base_t::second_t second_t;
+	using first_t = typename base_t::first_t;
+	using second_t = typename base_t::second_t;
 
 	couple(first_t const &f = first_t(), Second const &s = Second()) : m_first(f), m_second(s)
 	{
@@ -188,8 +188,8 @@ class couple_product_right : public couple_base<couple_product_right<LDerived, R
 {
 public:
 	typedef couple_base<couple_product_right<LDerived, Right> > base_t;
-	typedef typename base_t::first_t first_t;
-	typedef typename base_t::second_t second_t;
+	using first_t = typename base_t::first_t;
+	using second_t = typename base_t::second_t;
 
 	/**
 	 * \brief constructor from two term references
@@ -242,8 +242,8 @@ class couple_product_left : public couple_base<couple_product_left<Left, RDerive
 {
 public:
 	typedef couple_base<couple_product_left<Left, RDerived> > base_t;
-	typedef typename base_t::first_t first_t;
-	typedef typename base_t::second_t second_t;
+	using first_t = typename base_t::first_t;
+	using second_t = typename base_t::second_t;
 
 	/**
 	 * \brief constructor from two term references

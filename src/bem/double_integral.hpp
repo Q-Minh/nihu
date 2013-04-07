@@ -43,10 +43,19 @@ public:
 	typedef typename test_field_t::nset_t test_nset_t;		/**< \brief type of element's N-set */
 	typedef typename trial_field_t::nset_t trial_nset_t;	/**< \brief type of element's N-set */
 
-	typedef typename Eigen::Matrix<
-		typename kernel_t::scalar_t, test_field_t::num_dofs, trial_field_t::num_dofs
-	> result_t;		/**< \brief integration result type */
+//	typedef typename Eigen::Matrix<
+//		typename kernel_t::scalar_t, test_field_t::num_dofs, trial_field_t::num_dofs
+//	> result_t;		/**< \brief integration result type */
 
+	typedef typename plain_type<
+		typename product_type<
+			typename product_type<
+				typename test_field_t::nset_t::shape_t,
+				typename kernel_t::result_t
+			>::type,
+			Eigen::Transpose<typename trial_field_t::nset_t::shape_t>
+		>::type
+	>::type result_t;
 
 	/** \brief evaluate double integral with selected quadratures
 	 * \param [in] test_field the test field to integrate on
@@ -75,7 +84,7 @@ public:
 					kernel_t::eval(test_input, trial_input) *
 					(test_input.get_jacobian() *
 					trial_input.get_jacobian() *
-					trial_it->get_shape().transpose()).eval();
+					trial_it->get_shape().transpose());
 			}
 		}
 
@@ -142,11 +151,18 @@ public:
 	typedef field_type_accelerator_pool<trial_field_t> trial_field_type_accelerator_pool_t;	/**< \brief type of the accelerator pool of the trial field */
 
 	typedef typename test_field_t::nset_t test_nset_t;		/**< \brief type of element's N-set */
+	typedef typename trial_field_t::nset_t trial_nset_t;		/**< \brief type of element's N-set */
 
-	typedef typename Eigen::Matrix<
-		typename kernel_t::scalar_t, test_field_t::num_dofs, trial_field_t::num_dofs
-	> result_t;		/**< \brief integration result type */
+//	typedef typename Eigen::Matrix<
+//		typename kernel_t::scalar_t, test_field_t::num_dofs, trial_field_t::num_dofs
+//	> result_t;		/**< \brief integration result type */
 
+	typedef typename plain_type<
+		typename product_type<
+			typename kernel_t::result_t,
+			Eigen::Transpose<typename trial_field_t::nset_t::shape_t>
+		>::type
+	>::type result_t;
 
 	/** \brief evaluate double integral with selected trial field quadrature
 	 * \param [in] test_field the test field to integrate on
@@ -172,7 +188,7 @@ public:
 				m_result.row(test_it - test_nset_t::corner_begin()) +=
 					kernel_t::eval(collocational_point, trial_input) *
 					(trial_input.get_jacobian() *
-					trial_it->get_shape().transpose()).eval();
+					trial_it->get_shape().transpose());
 			}
 		}
 

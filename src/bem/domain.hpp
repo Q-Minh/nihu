@@ -1,6 +1,6 @@
 /**
  * \file domain.hpp
- * \brief declaration of class domain and its derived domains
+ * \brief declaration of class ::domain and its derived domains
  * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
  * \details Domains are the domain set of geometrical transformations that desrcibe elements.
  * Each element is mapped from its domain set to its actual geometry by means
