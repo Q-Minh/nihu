@@ -12,7 +12,7 @@ struct tester
 			gauss_quadrature<D> q(5);
 			std::cout << q << std::endl;
 			std::cout << "Sum of weights: " <<
-				std::accumulate(q.begin(), q.end(), 0.0, [] (double x, quadrature_elem<D> &qe) {
+				std::accumulate(q.begin(), q.end(), 0.0, [] (double x, quadrature_elem<typename D::xi_t, typename D::scalar_t> &qe) {
 				return x + qe.get_w();
 			}) << std::endl;
 		}

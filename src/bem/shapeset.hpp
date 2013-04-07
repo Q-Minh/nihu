@@ -89,10 +89,10 @@ class constant_shape_set : public shape_set_base<constant_shape_set<Domain> >
 {
 public:
 	typedef shape_set_base<constant_shape_set<Domain> > base_t;
-	using domain_t = typename base_t::domain_t;
-	using xi_t = typename base_t::xi_t;
-	using shape_t = typename base_t::shape_t;
-	using dshape_t = typename base_t::dshape_t;
+	typedef typename base_t::domain_t domain_t;
+	typedef typename base_t::xi_t xi_t;
+	typedef typename base_t::shape_t shape_t;
+	typedef typename base_t::dshape_t dshape_t;
 
 public:
 	/**
@@ -152,9 +152,9 @@ public:
 	typedef Domain domain_t;
 
 	typedef shape_set_base<isoparam_shape_set<Domain> > base_t;
-	using xi_t = typename base_t::xi_t;
-	using shape_t = typename base_t::shape_t;
-	using dshape_t = typename base_t::dshape_t;
+	typedef typename base_t::xi_t xi_t;
+	typedef typename base_t::shape_t shape_t;
+	typedef typename base_t::dshape_t dshape_t;
 
 	static shape_t eval_shape(xi_t const &xi);
 	static dshape_t eval_dshape(xi_t const &xi);
@@ -287,10 +287,10 @@ class parallelogram_shape_set : public shape_set_base<parallelogram_shape_set>
 {
 public:
 	typedef shape_set_base<parallelogram_shape_set> base_t;
-	using domain_t = base_t::domain_t;
-	using xi_t = base_t::xi_t;
-	using shape_t = base_t::shape_t;
-	using dshape_t = base_t::dshape_t;
+	typedef typename base_t::domain_t domain_t;
+	typedef typename base_t::xi_t xi_t;
+	typedef typename base_t::shape_t shape_t;
+	typedef typename base_t::dshape_t dshape_t;
 public:
 	/**
 	 * \brief linear 3-noded parallelogram shape functions
