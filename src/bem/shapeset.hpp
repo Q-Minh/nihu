@@ -192,7 +192,7 @@ isoparam_shape_set<line_domain>::eval_shape(typename isoparam_shape_set<line_dom
  */
 template<>
 typename isoparam_shape_set<line_domain>::dshape_t
-isoparam_shape_set<line_domain>::eval_dshape(typename isoparam_shape_set<line_domain>::xi_t const &xi)
+isoparam_shape_set<line_domain>::eval_dshape(typename isoparam_shape_set<line_domain>::xi_t const &)
 {
 	dshape_t dL;
 	dL <<
@@ -225,7 +225,7 @@ isoparam_shape_set<tria_domain>::eval_shape(typename isoparam_shape_set<tria_dom
  */
 template<>
 typename isoparam_shape_set<tria_domain>::dshape_t
-isoparam_shape_set<tria_domain>::eval_dshape(typename isoparam_shape_set<tria_domain>::xi_t const &xi)
+isoparam_shape_set<tria_domain>::eval_dshape(typename isoparam_shape_set<tria_domain>::xi_t const &)
 {
 	dshape_t dL;
 	dL <<
@@ -307,7 +307,7 @@ public:
 			(1.0+xi[1])/2.0;
 		return L;
 	}
-	static dshape_t eval_dshape(xi_t const &xi)
+	static dshape_t eval_dshape(xi_t const &)
 	{
 		dshape_t dL;
 		dL <<

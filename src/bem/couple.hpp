@@ -48,16 +48,18 @@ private:
 	}
 
 public:
+	typedef typename couple_traits<Derived>::first_value_t first_value_t;
+	typedef typename couple_traits<Derived>::second_value_t second_value_t;
 	/** \brief type of the first member */
-	typedef typename couple_traits<Derived>::first_t first_t;
+	typedef typename couple_traits<Derived>::first_expr_t first_expr_t;
 	/** \brief type of the second member */
-	typedef typename couple_traits<Derived>::second_t second_t;
+	typedef typename couple_traits<Derived>::second_expr_t second_expr_t;
 
 	/**
 	 * \brief interface function to return first member
 	 * \return const reference to first member
 	 */
-	first_t const &first(void) const
+	first_expr_t first(void) const
 	{
 		return derived().first();
 	}
@@ -66,7 +68,7 @@ public:
 	 * \brief interface function to return second member
 	 * \return const reference to secon member
 	 */
-	second_t const &second(void) const
+	second_expr_t second(void) const
 	{
 		return derived().second();
 	}
@@ -106,8 +108,10 @@ class couple;
 template <class First, class Second>
 struct couple_traits<couple<First, Second> >
 {
-	typedef First first_t;
-	typedef Second second_t;
+	typedef First first_value_t;
+	typedef Second second_value_t;
+	typedef First const &first_expr_t;
+	typedef Second const &second_expr_t;
 };
 
 /**
@@ -122,31 +126,20 @@ class couple : public couple_base<couple<First, Second> >
 {
 public:
 	typedef couple_base<couple<First, Second> > base_t;
-	typedef typename base_t::first_t first_t;
-	typedef typename base_t::second_t second_t;
+	typedef typename base_t::first_value_t first_value_t;
+	typedef typename base_t::second_value_t second_value_t;
+	typedef typename base_t::first_expr_t first_expr_t;
+	typedef typename base_t::second_expr_t second_expr_t;
 
-	couple(first_t const &f = first_t(), Second const &s = Second()) : m_first(f), m_second(s)
+	couple(first_value_t const &f = first_value_t(), second_value_t const &s = second_value_t())
+		: m_first(f), m_second(s)
 	{
 	}
 
-	first_t const &first(void) const
+	template <class OtherDerived>
+	couple(couple_base<OtherDerived> const &other)
+		: m_first(other.first()), m_second(other.second())
 	{
-		return m_first;
-	}
-
-	first_t &first(void)
-	{
-		return m_first;
-	}
-
-	second_t const &second(void) const
-	{
-		return m_second;
-	}
-
-	second_t &second(void)
-	{
-		return m_second;
 	}
 
 	template <class OtherDerived>
@@ -155,6 +148,26 @@ public:
 		m_first = other.first();
 		m_second = other.second();
 		return *this;
+	}
+
+	first_expr_t first(void) const
+	{
+		return m_first;
+	}
+
+	first_value_t &first(void)
+	{
+		return m_first;
+	}
+
+	second_expr_t const &second(void) const
+	{
+		return m_second;
+	}
+
+	second_value_t &second(void)
+	{
+		return m_second;
 	}
 
 	template <class OtherDerived>
@@ -166,16 +179,18 @@ public:
 	}
 
 protected:
-	first_t m_first;	/**< \brief the first stored object */
-	second_t m_second;	/**< \brief the second stored object */
+	first_value_t m_first;	/**< \brief the first stored object */
+	second_value_t m_second;	/**< \brief the second stored object */
 };
 
 
 template <class LDerived, class R>
 struct couple_traits<couple_product_right<LDerived, R> >
 {
-	typedef typename product_type<typename LDerived::first_t, R>::type first_t;
-	typedef typename product_type<typename LDerived::second_t, R>::type second_t;
+	typedef typename product_type<typename LDerived::first_value_t, R>::type first_value_t;
+	typedef typename product_type<typename LDerived::second_value_t, R>::type second_value_t;
+	typedef first_value_t first_expr_t;
+	typedef second_value_t second_expr_t;
 };
 
 /**
@@ -188,8 +203,10 @@ class couple_product_right : public couple_base<couple_product_right<LDerived, R
 {
 public:
 	typedef couple_base<couple_product_right<LDerived, Right> > base_t;
-	typedef typename base_t::first_t first_t;
-	typedef typename base_t::second_t second_t;
+	typedef typename base_t::first_value_t first_value_t;
+	typedef typename base_t::second_value_t second_value_t;
+	typedef typename base_t::first_expr_t first_expr_t;
+	typedef typename base_t::second_expr_t second_expr_t;
 
 	/**
 	 * \brief constructor from two term references
@@ -205,7 +222,7 @@ public:
 	 * \brief return first object of the product
 	 * \return first object
 	 */
-	first_t first(void) const
+	first_expr_t first(void) const
 	{
 		return m_left.first() * m_right;
 	}
@@ -214,7 +231,7 @@ public:
 	 * \brief return second object of the product
 	 * \return second object
 	 */
-	second_t second(void) const
+	second_expr_t second(void) const
 	{
 		return m_left.second() * m_right;
 	}
@@ -228,8 +245,10 @@ protected:
 template <class L, class RDerived>
 struct couple_traits<couple_product_left<L, RDerived> >
 {
-	typedef typename product_type<L, typename RDerived::first_t>::type first_t;
-	typedef typename product_type<L, typename RDerived::second_t>::type second_t;
+	typedef typename product_type<L, typename RDerived::first_value_t>::type first_value_t;
+	typedef typename product_type<L, typename RDerived::second_value_t>::type second_value_t;
+	typedef first_value_t first_expr_t;
+	typedef second_value_t second_expr_t;
 };
 
 /**
@@ -242,8 +261,8 @@ class couple_product_left : public couple_base<couple_product_left<Left, RDerive
 {
 public:
 	typedef couple_base<couple_product_left<Left, RDerived> > base_t;
-	typedef typename base_t::first_t first_t;
-	typedef typename base_t::second_t second_t;
+	typedef typename base_t::first_expr_t first_expr_t;
+	typedef typename base_t::second_expr_t second_expr_t;
 
 	/**
 	 * \brief constructor from two term references
@@ -259,7 +278,7 @@ public:
 	 * \brief return first object of the product
 	 * \return first object
 	 */
-	first_t first(void) const
+	first_expr_t first(void) const
 	{
 		return m_left * m_right.first();
 	}
@@ -268,7 +287,7 @@ public:
 	 * \brief return second object of the product
 	 * \return second object
 	 */
-	second_t second(void) const
+	second_expr_t second(void) const
 	{
 		return m_left * m_right.second();
 	}

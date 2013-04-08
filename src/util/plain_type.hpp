@@ -29,8 +29,8 @@ template <class T>
 struct plain_type<T, false, true>
 {
 	typedef couple<
-		typename plain_type<typename T::first_t>::type,
-		typename plain_type<typename T::second_t>::type
+		typename plain_type<typename T::first_value_t>::type,
+		typename plain_type<typename T::second_value_t>::type
 	> type;
 };
 

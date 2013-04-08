@@ -32,7 +32,7 @@ public:
 	typedef Eigen::Matrix<double, dimension, 1> xi_t;
 
 	typedef xi_t corners_t[id];
-	
+
 	/**
 	 * \brief return the central point of the domain
 	 * \return center point
@@ -41,8 +41,8 @@ public:
 	{
 		return m_center;
 	}
-	
-	static xi_t* const get_corners(void)
+
+	static xi_t const *get_corners(void)
 	{
 		return m_corners;
 	}
@@ -50,7 +50,7 @@ public:
 protected:
 	/** \brief the center point of the domain */
 	static xi_t m_center;
-	
+	/** \brief the corner points of the domain */
 	static corners_t m_corners;
 };
 
@@ -86,7 +86,7 @@ template<>
 brick_domain::xi_t brick_domain::m_center = brick_domain::xi_t::Zero();
 
 template<>
-brick_domain::corners_t brick_domain::m_corners = {brick_domain::xi_t(-1.0,-1.0,-1.0), brick_domain::xi_t(1.0,-1.0,-1.0), brick_domain::xi_t(1.0,1.0,-1.0), brick_domain::xi_t(-1.0,1.0,-1.0), 
+brick_domain::corners_t brick_domain::m_corners = {brick_domain::xi_t(-1.0,-1.0,-1.0), brick_domain::xi_t(1.0,-1.0,-1.0), brick_domain::xi_t(1.0,1.0,-1.0), brick_domain::xi_t(-1.0,1.0,-1.0),
 	brick_domain::xi_t(-1.0,-1.0,1.0), brick_domain::xi_t(1.0,-1.0,1.0), brick_domain::xi_t(1.0,1.0,1.0), brick_domain::xi_t(-1.0,1.0,1.0)
 };
 

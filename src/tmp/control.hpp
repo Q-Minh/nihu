@@ -141,7 +141,7 @@ namespace tmp
 		template <class End, class SeqIn, class Transform, class Arg1, class Arg2>
 		struct d_call_each_impl<End, End, SeqIn, Transform, Arg1, Arg2>
 		{
-			static void eval(Arg1 arg1, Arg2 arg2) {}
+			static void eval(Arg1, Arg2) {}
 		};
 	}
 

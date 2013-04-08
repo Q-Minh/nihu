@@ -65,8 +65,8 @@ template <class Lhs, class Rhs, bool isLhsEigen, bool isRhsEigen>
 struct product_type_impl<Lhs, Rhs, isLhsEigen, isRhsEigen, true, false>
 {
 	typedef couple<
-		typename product_type_impl<typename Lhs::first_t, Rhs, isLhsEigen, isRhsEigen, false, false>::type,
-		typename product_type_impl<typename Lhs::second_t, Rhs, isLhsEigen, isRhsEigen, false, false>::type
+		typename product_type_impl<typename Lhs::first_value_t, Rhs, isLhsEigen, isRhsEigen, false, false>::type,
+		typename product_type_impl<typename Lhs::second_value_t, Rhs, isLhsEigen, isRhsEigen, false, false>::type
 	> type;
 };
 
@@ -75,8 +75,8 @@ template <class Lhs, class Rhs, bool isLhsEigen, bool isRhsEigen>
 struct product_type_impl<Lhs, Rhs, isLhsEigen, isRhsEigen, false, true>
 {
 	typedef couple<
-		typename product_type_impl<Lhs, typename Rhs::first_t, isLhsEigen, isRhsEigen, false, false>::type,
-		typename product_type_impl<Lhs, typename Rhs::second_t, isLhsEigen, isRhsEigen, false, false>::type
+		typename product_type_impl<Lhs, typename Rhs::first_value_t, isLhsEigen, isRhsEigen, false, false>::type,
+		typename product_type_impl<Lhs, typename Rhs::second_value_t, isLhsEigen, isRhsEigen, false, false>::type
 	> type;
 };
 
