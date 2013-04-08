@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS=-Wall -pedantic -O3 -I /usr/local/include/eigen3 -std=c++0x
+CFLAGS=-Wall -pedantic -O3 -I /usr/local/include/eigen3 -std=c++11
 
 tests: quad_test element_test mesh_test field_test weighted_residual_test shape_test field_accelerator_test couple_test
 

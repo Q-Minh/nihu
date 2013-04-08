@@ -13,9 +13,12 @@
 #include <Eigen/Dense>
 
 // forward declaration
+template <class Derived>
+class couple_base;
+
+// forward declaration
 template <class First, class Second>
 class couple;
-
 
 
 /**
@@ -35,13 +38,16 @@ template <class Lhs, class Rhs>
 struct is_eigen_matrix<Eigen::GeneralProduct<Lhs, Rhs> > : std::true_type {};
 
 
+/**
+ * \brief helper class to decide whether its argument is a couple expression
+ * \details The class checks if T is a direct derived class of ::couple_base
+ * \tparam T an arbitrary parameter
+ */
 template <class T>
 struct is_couple
 {
 	static const bool value = std::is_base_of<couple_base<T>, T>::value;
 };
-
-
 
 
 /**
@@ -165,3 +171,4 @@ struct product_type : product_type_impl<
 
 
 #endif // PRODUCT_TYPE_HPP_INCLUDED
+

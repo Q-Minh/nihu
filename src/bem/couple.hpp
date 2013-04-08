@@ -279,3 +279,4 @@ protected:
 };
 
 #endif //  COUPLE_HPP_INCLUDED
+
