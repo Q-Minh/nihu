@@ -31,9 +31,11 @@ int main(void)
 
 	test_space_t test_func(mesh);
 	trial_space_t trial_func(mesh);
-	weighted_residual<green_G_kernel, test_space_t, trial_space_t> wr(test_func, trial_func);
+	weighted_residual<green_HG_kernel, test_space_t, trial_space_t> wr(test_func, trial_func);
 
-	Eigen::Matrix<std::complex<double>, 6, 6> a;
+	Eigen::Matrix<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic> a(test_func.get_num_dofs(), trial_func.get_num_dofs());
+	a.setZero();
+
 	wr.eval(a);
 
 	std::cout << a << std::endl;

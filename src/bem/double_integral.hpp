@@ -9,6 +9,7 @@
 #include <Eigen/Dense>
 
 #include "kernel.hpp"
+#include "../util/plain_type.hpp"
 #include "quadrature.hpp"
 #include "kernel_input.hpp"
 #include "field_type_accelerator.hpp"
@@ -25,35 +26,24 @@ class double_integral
 {
 public:
 	typedef Kernel kernel_t;		/**< \brief template parameter as nested type */
-
 	typedef Test test_field_t;		/**< \brief template parameter as nested type */
 	typedef Trial trial_field_t;	/**< \brief template parameter as nested type */
 
 	typedef typename kernel_t::input_t kernel_input_t;		/**< \brief input type of kernel */
 	typedef typename kernel_t::result_t kernel_result_t;	/**< \brief result type of kernel */
 
-	typedef gauss_quadrature<typename test_field_t::elem_t::domain_t> test_quadrature_t; 	/**< \brief type of test quadrature */
-	typedef gauss_quadrature<typename trial_field_t::elem_t::domain_t> trial_quadrature_t;	/**< \brief type of trial quadrature */
-
 	typedef field_type_accelerator<test_field_t> test_field_type_accelerator_t;	/**< \brief type of the accelerator of the test field */
 	typedef field_type_accelerator_pool<test_field_t> test_field_type_accelerator_pool_t;	/**< \brief type of the accelerator pool of the test field */
 	typedef field_type_accelerator<trial_field_t> trial_field_type_accelerator_t;	/**< \brief type of the accelerator of the trial field */
 	typedef field_type_accelerator_pool<trial_field_t> trial_field_type_accelerator_pool_t;	/**< \brief type of the accelerator pool of the trial field */
 
-	typedef typename test_field_t::nset_t test_nset_t;		/**< \brief type of element's N-set */
-	typedef typename trial_field_t::nset_t trial_nset_t;	/**< \brief type of element's N-set */
-
-//	typedef typename Eigen::Matrix<
-//		typename kernel_t::scalar_t, test_field_t::num_dofs, trial_field_t::num_dofs
-//	> result_t;		/**< \brief integration result type */
+	typedef typename test_field_t::nset_t::shape_t test_shape_t;	/**< \brief type of test shape function */
+	typedef typename trial_field_t::nset_t::shape_t trial_shape_t;	/**< \brief type of trial shape function */
 
 	typedef typename plain_type<
 		typename product_type<
-			typename product_type<
-				typename test_field_t::nset_t::shape_t,
-				typename kernel_t::result_t
-			>::type,
-			Eigen::Transpose<typename trial_field_t::nset_t::shape_t>
+			kernel_result_t,
+			typename product_type<test_shape_t, Eigen::Transpose<trial_shape_t> >::type
 		>::type
 	>::type result_t;
 
@@ -78,13 +68,9 @@ public:
 			for(auto trial_it = trial_acc.cbegin(); trial_it != trial_acc.cend(); ++trial_it)
 			{
 				kernel_input_t trial_input(trial_field.get_elem(), trial_it->get_quadrature_elem());
-
-				m_result +=
-					test_it->get_shape() *
-					kernel_t::eval(test_input, trial_input) *
-					(test_input.get_jacobian() *
-					trial_input.get_jacobian() *
-					trial_it->get_shape().transpose());
+				m_result += kernel_t::eval(test_input, trial_input) *
+					((test_it->get_shape() * test_input.get_jacobian()) *
+					(trial_it->get_shape().transpose() * trial_input.get_jacobian()));
 			}
 		}
 
@@ -143,6 +129,7 @@ public:
 	typedef Trial trial_field_t;	/**< \brief template parameter as nested type */
 
 	typedef typename kernel_t::input_t kernel_input_t;		/**< \brief input type of kernel */
+	typedef typename kernel_t::result_t kernel_result_t;		/**< \brief input type of kernel */
 
 	typedef gauss_quadrature<typename trial_field_t::elem_t::domain_t> trial_quadrature_t;	/**< \brief type of trial quadrature */
 	typedef typename trial_quadrature_t::quadrature_elem_t quadrature_elem_t;	/**< \brief type of quadrature element */
@@ -151,17 +138,10 @@ public:
 	typedef field_type_accelerator_pool<trial_field_t> trial_field_type_accelerator_pool_t;	/**< \brief type of the accelerator pool of the trial field */
 
 	typedef typename test_field_t::nset_t test_nset_t;		/**< \brief type of element's N-set */
-	typedef typename trial_field_t::nset_t trial_nset_t;		/**< \brief type of element's N-set */
-
-//	typedef typename Eigen::Matrix<
-//		typename kernel_t::scalar_t, test_field_t::num_dofs, trial_field_t::num_dofs
-//	> result_t;		/**< \brief integration result type */
+	typedef typename trial_field_t::nset_t::shape_t trial_shape_t;		/**< \brief type of element's N-set */
 
 	typedef typename plain_type<
-		typename product_type<
-			typename kernel_t::result_t,
-			Eigen::Transpose<typename trial_field_t::nset_t::shape_t>
-		>::type
+		typename product_type<kernel_result_t, Eigen::Transpose<trial_shape_t> >::type
 	>::type result_t;
 
 	/** \brief evaluate double integral with selected trial field quadrature
@@ -187,8 +167,7 @@ public:
 
 				m_result.row(test_it - test_nset_t::corner_begin()) +=
 					kernel_t::eval(collocational_point, trial_input) *
-					(trial_input.get_jacobian() *
-					trial_it->get_shape().transpose());
+					(trial_input.get_jacobian() * trial_it->get_shape().transpose());
 			}
 		}
 

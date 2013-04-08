@@ -7,6 +7,8 @@
 #ifndef MATRIX_BLOCK_HPP_INCLUDED
 #define MATRIX_BLOCK_HPP_INCLUDED
 
+#include "../bem/couple.hpp"
+
 /**
  * \brief proxy class to represent a block of a matrix
  * \details The class is used to represent a matrix block selected by two index vectors.
@@ -39,6 +41,14 @@ public:
 		for (int i = 0; i < m_rows.size(); ++i)
 			for (int j = 0; j < m_cols.size(); ++j)
 				m_matrix(m_rows(i), m_cols(j)) += rhs(i, j);
+	}
+
+	template <class SubMatrix>
+	void operator +=(couple<SubMatrix> const &rhs) const
+	{
+		for (int i = 0; i < m_rows.size(); ++i)
+			for (int j = 0; j < m_cols.size(); ++j)
+				m_matrix(m_rows(i), m_cols(j)) += rhs.first()(i, j);
 	}
 
 protected:

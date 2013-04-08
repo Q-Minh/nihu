@@ -75,6 +75,7 @@ public:
 	 * \details This function evaluates the weighted residual of a kernel over a test and a trial field.
 	 * The two fields have been initialised by the constructor, and are stored in member variables.
 	 * The result is copied into a user specified structure, passed as function argument.
+	 * For flexibility, it is assumed that result is already set to zero.
 	 * \tparam result_t type of the result matrix
 	 * \param [out] result reference to the result matrix
 	 * \return reference to the result matrix for cascading
