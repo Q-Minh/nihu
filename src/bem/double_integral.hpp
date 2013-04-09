@@ -65,12 +65,12 @@ public:
 		for(auto test_it = test_acc.cbegin(); test_it != test_acc.cend(); ++test_it)
 		{
 			kernel_input_t test_input(test_field.get_elem(), test_it->get_quadrature_elem());
+			auto left = (test_it->get_shape() * test_input.get_jacobian()).eval();
 			for(auto trial_it = trial_acc.cbegin(); trial_it != trial_acc.cend(); ++trial_it)
 			{
 				kernel_input_t trial_input(trial_field.get_elem(), trial_it->get_quadrature_elem());
-				m_result += kernel_t::eval(test_input, trial_input) *
-					((test_it->get_shape() * test_input.get_jacobian()) *
-					(trial_it->get_shape().transpose() * trial_input.get_jacobian()));
+				auto right = (trial_it->get_shape().transpose() * trial_input.get_jacobian()).eval();
+				m_result += left * kernel_t::eval(test_input, trial_input) * right;
 			}
 		}
 

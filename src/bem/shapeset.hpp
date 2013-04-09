@@ -101,7 +101,7 @@ public:
 	 *
 	 * \f$L_1(\xi) = 1 \f$
 	 */
-	static shape_t eval_shape(xi_t const &xi)
+	static shape_t eval_shape(xi_t const &)
 	{
 		return shape_t::Ones();
 	}
