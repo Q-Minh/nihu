@@ -44,8 +44,8 @@ class singularity_check<Kernel, field<Elem, constant_field, function_field>, Tri
 public:
 	typedef field<Elem, constant_field, function_field> test_field_t;
 	typedef TrialField  trial_field_t;
-	typedef test_field_t::elem_t test_elem_t;
-	typedef trial_field_t::elem_t trial_elem_t;
+	typedef typename test_field_t::elem_t test_elem_t;
+	typedef typename trial_field_t::elem_t trial_elem_t;
 
 	static bool eval(test_field_t const &test_field, trial_field_t const &trial_field)
 	{

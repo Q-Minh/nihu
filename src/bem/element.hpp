@@ -11,6 +11,19 @@
 
 #include "shapeset.hpp"
 
+class element_overlapping
+{
+public:
+	unsigned num;		/** \brief number of coincident nodes */
+	unsigned ind1, ind2;		/** \brief start node indices */
+	/** \brief constructor */
+	element_overlapping(unsigned num = 0, unsigned ind1 = 0, unsigned ind2 = 0) : 
+		num(num), ind1(ind1), ind2(ind2)
+	{
+	}
+};
+
+
 /**
 * \brief functor computing normal vector
 * \tparam nDim number of dimensions
@@ -200,15 +213,42 @@ public:
 	}
 
 	template <class OtherElem>
-	unsigned get_num_coinc_nodes(OtherElem const &other) const
+	element_overlapping get_overlapping(OtherElem const &other) const
 	{
-		unsigned k = 0;
+		unsigned num_coinc = 0;	/// number of coincident nodes
+		unsigned start_ind1;
+		unsigned start_ind2;
+		
 		auto const &otherNodes = other.get_nodes();
 		for (unsigned i = 0; i < num_nodes; ++i)
 			for (unsigned j = 0; j < OtherElem::num_nodes; ++j)
 				if (m_nodes[i] == otherNodes[j])
-					k++;
-		return k;
+				{
+					/// no previous coincident nodes
+					if (num_coinc == 0)
+					{
+						start_ind1 = i; start_ind2 = j;
+					}
+					else
+					{
+						if (i < start_ind1 || (i==num_nodes-1 && start_ind1 == 0 && num_coinc < num_nodes-1))
+							start_ind1 = i;
+						/*
+						if (i > stop_ind1 || (i==0 && stop_ind1 == num_nodes-1))
+							stop_ind1 = i;
+						*/
+						if (j < start_ind2 || (j==OtherElem::num_nodes-1 && start_ind2 == 0 && num_coinc < OtherElem::num_nodes-1))
+							start_ind2 = j;
+						/*
+						else if (j > stop_ind2 || (j==0 && stop_ind2==OtherElem::num_nodes-1))
+							stop_ind2 = j;
+						*/
+					}
+					num_coinc++;
+				}
+		if (num_coinc == 0)
+			return element_overlapping();
+		return element_overlapping(num_coinc, start_ind1, start_ind2);
 	}
 };
 
