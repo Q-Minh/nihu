@@ -27,6 +27,9 @@ field_accelerator_test: src/test/field_accelerator_test.cpp src/bem/field_type_a
 couple_test: src/test/couple_test.cpp src/bem/couple.hpp src
 	$(CC) $(CFLAGS) src/test/couple_test.cpp -o couple_test
 
+singulartity_check_test: src/test/singularity_check_test.cpp src/bem/element.hpp src/bem/singularity_check.hpp src
+	$(CC) $(CFLAGS) src/test/singularity_check_test.cpp -o singularity_check_test
+
 clean:
 	rm *_test
 
