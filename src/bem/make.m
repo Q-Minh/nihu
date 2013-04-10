@@ -2,7 +2,7 @@
 mex -v CXXFLAGS="\$CXXFLAGS -std=c++11 -O3" Boonen13.mex.cpp -I../../../eigen -output Boonen13
 
 %% Build a good little mesh
-mesh = create_sphere_boundary(1,10);
+mesh = create_sphere_boundary(1,5);
 k = 1;
 
 %% Galerkin matrix C++ version

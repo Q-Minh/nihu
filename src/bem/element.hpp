@@ -116,7 +116,8 @@ public:
 	* \param nodes the elem node indices
 	* \param coords the elem coordinates
 	*/
-	element(unsigned id, nodes_t const &nodes, coords_t const &coords) : m_nodes(nodes), m_coords(coords)
+	element(unsigned id, nodes_t const &nodes, coords_t const &coords)
+		: m_nodes(nodes), m_coords(coords)
 	{
 		this->m_id << id;
 	}
@@ -125,7 +126,10 @@ public:
 	* \brief constructor
 	* \param coords the elem coordinates
 	*/
-	element(coords_t const &coords) : m_id(id_t()), m_nodes(nodes_t()), m_coords(coords) {}
+	element(coords_t const &coords)
+		: m_id(id_t()), m_nodes(nodes_t()), m_coords(coords)
+	{
+	}
 
 	/**
 	* \brief return elem id
@@ -193,6 +197,18 @@ public:
 		static_assert(xi_dim == x_dim-1, "Element does not have normal");
 		normal_vector<xi_dim> n;
 		return n(get_dx(xi));
+	}
+
+	template <class OtherElem>
+	unsigned get_num_coinc_nodes(OtherElem const &other) const
+	{
+		unsigned k = 0;
+		auto const &otherNodes = other.get_nodes();
+		for (unsigned i = 0; i < num_nodes; ++i)
+			for (unsigned j = 0; j < OtherElem::num_nodes; ++j)
+				if (m_nodes[i] == otherNodes[j])
+					k++;
+		return k;
 	}
 };
 
