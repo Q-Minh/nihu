@@ -47,16 +47,19 @@ public:
 	typedef typename test_field_t::elem_t test_elem_t;
 	typedef typename trial_field_t::elem_t trial_elem_t;
 
-	static bool eval(test_field_t const &test_field, trial_field_t const &trial_field)
+	static singularity_type eval(test_field_t const &test_field, trial_field_t const &trial_field)
 	{
 		// check face match for same element types
 		if (std::is_same<test_elem_t, trial_elem_t>::value)
 			if (test_field.get_elem().get_id() == trial_field.get_elem().get_id())
 				return FACE_MATCH;
+
+		element_overlapping eo = test_field.get_elem().get_overlapping(trial_field.get_elem());
 		// check edge match
-
-		// check corner match
-
+		if (eo.get_num() > 1)
+			return EDGE_MATCH;
+		if (eo.get_num() > 0)
+			return CORNER_MATCH;
 		return REGULAR;
 	}
 };

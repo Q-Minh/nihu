@@ -13,7 +13,7 @@
 #include "quadrature.hpp"
 #include "kernel_input.hpp"
 #include "field_type_accelerator.hpp"
-
+#include "singularity_check.hpp"
 
 /**
  * \brief class evaluating double integrals of the weighted residual approach
@@ -60,8 +60,6 @@ public:
 		trial_field_t const &trial_field,
 		trial_field_type_accelerator_t const &trial_acc)
 	{
-		m_result = result_t();	// clear result
-
 		for(auto test_it = test_acc.cbegin(); test_it != test_acc.cend(); ++test_it)
 		{
 			kernel_input_t test_input(test_field.get_elem(), test_it->get_quadrature_elem());
@@ -84,6 +82,12 @@ public:
 	 */
 	static result_t const &eval(test_field_t const &test_field, trial_field_t const &trial_field)
 	{
+		m_result = result_t();	// clear result
+
+		// select quadrature
+		if (singularity_check<kernel_t, test_field_t, trial_field_t>::eval(test_field, trial_field) != REGULAR)
+			return m_result;
+
 		// select quadrature
 		kernel_input_t test_center(test_field.get_elem(), m_test_field_accelerator_pool[0]->cbegin()->get_quadrature_elem());
 		kernel_input_t trial_center(trial_field.get_elem(), m_trial_field_accelerator_pool[0]->cbegin()->get_quadrature_elem());
@@ -155,8 +159,6 @@ public:
 		trial_field_t const &trial_field,
 		trial_field_type_accelerator_t const &trial_acc)
 	{
-		m_result = result_t();	// clear result
-
 		for(auto test_it = test_nset_t::corner_begin(); test_it != test_nset_t::corner_end(); ++test_it)
 		{
 			quadrature_elem_t qe(*test_it);
@@ -181,6 +183,12 @@ public:
 	 */
 	static result_t const &eval(test_field_t const &test_field, trial_field_t const &trial_field)
 	{
+		m_result = result_t();	// clear result
+
+		// select quadrature
+		if (singularity_check<kernel_t, test_field_t, trial_field_t>::eval(test_field, trial_field) != REGULAR)
+			return m_result;
+
 		// select quadrature
 		quadrature_elem_t qe(test_field_t::elem_t::domain_t::get_center());
 		kernel_input_t test_center(test_field.get_elem(), qe);

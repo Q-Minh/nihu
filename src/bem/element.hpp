@@ -13,9 +13,13 @@
 
 class element_overlapping
 {
-public:
 	unsigned num;		/** \brief number of coincident nodes */
 	unsigned ind1, ind2;		/** \brief start node indices */
+public:
+	unsigned get_num(void) const { 	return num; }
+	unsigned get_ind1(void) const { return ind1; }
+	unsigned get_ind2(void) const { return ind2; }
+
 	/** \brief constructor */
 	element_overlapping(unsigned num = 0, unsigned ind1 = 0, unsigned ind2 = 0) : 
 		num(num), ind1(ind1), ind2(ind2)
@@ -221,7 +225,9 @@ public:
 		
 		auto const &otherNodes = other.get_nodes();
 		for (unsigned i = 0; i < num_nodes; ++i)
+		{
 			for (unsigned j = 0; j < OtherElem::num_nodes; ++j)
+			{
 				if (m_nodes[i] == otherNodes[j])
 				{
 					/// no previous coincident nodes
@@ -246,6 +252,8 @@ public:
 					}
 					num_coinc++;
 				}
+			}
+		}
 		if (num_coinc == 0)
 			return element_overlapping();
 		return element_overlapping(num_coinc, start_ind1, start_ind2);
