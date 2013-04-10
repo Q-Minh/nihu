@@ -26,10 +26,19 @@ tM = toc;
 
 %% bemHG matrix matlab version
 tic;
-[Hold, ~] = bemHG(mesh, k, 'const');
+[Hold, Gold] = bemHG(mesh, k, 'const');
 tbemHG = toc;
 
 %%
+Gold = Gold - diag(diag(Gold));
+pcolor(log10(abs((G - Gold)./Gold)));
+shading interp;
+set(gca, 'ydir', 'reverse');
+c = colorbar;
+ylabel(c, 'log10 relative error');
+
+%%
+Hold = Hold - diag(diag(Hold));
 pcolor(log10(abs((H - Hold)./Hold)));
 shading interp;
 set(gca, 'ydir', 'reverse');

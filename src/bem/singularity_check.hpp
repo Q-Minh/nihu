@@ -38,11 +38,11 @@ public:
 };
 
 
-template <class Kernel, class Elem, class TrialField>
-class singularity_check<Kernel, field<Elem, constant_field, function_field>, TrialField>
+template <class Kernel, class Elem, class TestOption, class TrialField>
+class singularity_check<Kernel, field<Elem, TestOption, function_field>, TrialField>
 {
 public:
-	typedef field<Elem, constant_field, function_field> test_field_t;
+	typedef field<Elem, TestOption, function_field> test_field_t;
 	typedef TrialField  trial_field_t;
 	typedef typename test_field_t::elem_t test_elem_t;
 	typedef typename trial_field_t::elem_t trial_elem_t;
