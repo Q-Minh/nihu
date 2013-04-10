@@ -23,7 +23,10 @@ public:
 
 
 template <class Kernel, class Elem, class TrialFieldOption, class TrialDiracOption>
-class singularity_check<Kernel, field<Elem, constant_field, dirac_field>, field<Elem, TrialFieldOption, TrialDiracOption> >
+class singularity_check<
+	Kernel,
+	field<Elem, constant_field, dirac_field>,
+	field<Elem, TrialFieldOption, TrialDiracOption> >
 {
 public:
 	typedef field<Elem, constant_field, dirac_field> test_field_t;
@@ -39,7 +42,10 @@ public:
 
 
 template <class Kernel, class Elem, class TestOption, class TrialField>
-class singularity_check<Kernel, field<Elem, TestOption, function_field>, TrialField>
+class singularity_check<
+	Kernel,
+	field<Elem, TestOption, function_field>,
+	TrialField>
 {
 public:
 	typedef field<Elem, TestOption, function_field> test_field_t;
@@ -58,11 +64,11 @@ public:
 		// check edge match
 		if (eo.get_num() > 1)
 			return EDGE_MATCH;
+		// check corner match
 		if (eo.get_num() > 0)
 			return CORNER_MATCH;
 		return REGULAR;
 	}
 };
-
 
 #endif // SINGULARITY_CHECK_HPP_INCLUDED

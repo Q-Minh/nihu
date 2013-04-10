@@ -11,20 +11,28 @@
 
 #include "shapeset.hpp"
 
+/**
+ * \brief class describing the overlapping state of two element
+ */
 class element_overlapping
 {
-	unsigned num;		/** \brief number of coincident nodes */
-	unsigned ind1, ind2;		/** \brief start node indices */
 public:
+	/** \brief return number of coincident nodes */
 	unsigned get_num(void) const { 	return num; }
+	/** \brief return index of first coincident node in element 1 */
 	unsigned get_ind1(void) const { return ind1; }
+	/** \brief return index of first coincident node in element 2 */
 	unsigned get_ind2(void) const { return ind2; }
 
 	/** \brief constructor */
-	element_overlapping(unsigned num = 0, unsigned ind1 = 0, unsigned ind2 = 0) : 
+	element_overlapping(unsigned num = 0, unsigned ind1 = 0, unsigned ind2 = 0) :
 		num(num), ind1(ind1), ind2(ind2)
 	{
 	}
+
+private:
+	unsigned num;			/** \brief number of coincident nodes */
+	unsigned ind1, ind2;	/** \brief start node indices */
 };
 
 
@@ -216,13 +224,20 @@ public:
 		return n(get_dx(xi));
 	}
 
+
+	/**
+	 * \brief check overlapping state with other element
+	 * \tparam OtherElem type of the other element
+	 * \param [in] other reference to the other element
+	 * \return structure containing overlapping information
+	 */
 	template <class OtherElem>
 	element_overlapping get_overlapping(OtherElem const &other) const
 	{
 		unsigned num_coinc = 0;	/// number of coincident nodes
 		unsigned start_ind1;
 		unsigned start_ind2;
-		
+
 		auto const &otherNodes = other.get_nodes();
 		for (unsigned i = 0; i < num_nodes; ++i)
 		{

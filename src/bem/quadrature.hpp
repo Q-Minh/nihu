@@ -32,7 +32,8 @@ public:
 	 * \param xi base location
 	 * \param w weight
 	 */
-	quadrature_elem(xi_t const &xi = xi_t(), scalar_t const &w = scalar_t()) : m_xi(xi), m_w(w)
+	quadrature_elem(xi_t const &xi = xi_t(), scalar_t const &w = scalar_t())
+		: m_xi(xi), m_w(w)
 	{
 	}
 
@@ -159,23 +160,22 @@ public:
 			(*this)[i].setWeight((*this)[i].getWeight()*jac);
 		}
 	}
+	*/
 
 	// Addition
-	quadrature<T, nKer> operator +(const quadrature<T, nKer> &other) const
+	quadrature<domain_t> operator+(quadrature<domain_t> const &other) const
 	{
-		quadrature<T, nKer> result(size()+other.size());
-		result.insert(result.end(), begin(), end());
-		result.insert(result.end(), other.begin(), other.end());
+		quadrature<domain_t> result(this->size()+other.size());
+		result += *this;
+		result += other;
 		return result;
 	}
 
-	quadrature<T, nKer> &operator +=(const quadrature<T, nKer> &other)
+	quadrature &operator+=(quadrature<domain_t> const &other)
 	{
-		insert(end(), other.begin(), other.end());
+		insert(this->end(), other.begin(), other.end());
 		return *this;
 	}
-
-	*/
 };
 
 /*
