@@ -2,14 +2,14 @@
 
 #include "../tmp/control.hpp"
 
-template <class Q>
+template <class Family, class Domain>
 struct tester
 {
 	struct type
 	{
 		void operator() (void)
 		{
-			Q q(5);
+			typename quadrature_domain_traits<Family, Domain>::quadrature_type q(5);
 			std::cout << q << std::endl;
 		}
 	};
@@ -33,9 +33,11 @@ void test_transform(void)
 
 int main(void)
 {
-	typedef tmp::vector<gauss_quad, gauss_tria> QuadSequence;
+	typedef gauss_family_tag gauss;
+	typedef tmp::vector<line_domain, tria_domain, quad_domain> DomainSequence;
+	//typedef tmp::vector<gauss_quad, gauss_tria> QuadSequence;
 
-	tmp::call_each<QuadSequence, tester<tmp::_1> >();
+	tmp::call_each<DomainSequence, tester<gauss, tmp::_1> >();
 
 	test_transform();
 

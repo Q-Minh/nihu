@@ -20,7 +20,8 @@
 
 /**
  * \brief a quadrature element is a base point and a weight
- * \tparam Domain the domain over which integration is performed
+ * \tparam XiType the local coordinate type
+ * \tparam ScalarType the scalar of given coordinates
  */
 template <class XiType, class ScalarType>
 class quadrature_elem
@@ -90,22 +91,27 @@ class quadrature_base :
 	public std::vector<quadrature_elem<typename quadrature_traits<Derived>::domain_t::xi_t, typename quadrature_traits<Derived>::domain_t::scalar_t> , Eigen::aligned_allocator<quadrature_elem<typename quadrature_traits<Derived>::domain_t::xi_t, typename quadrature_traits<Derived>::domain_t::scalar_t> > >
 {
 protected:
+	/**
+	 * \brief static cast to derived const type
+	 */
 	Derived const &derived(void) const
 	{
 		return static_cast<Derived const &>(*this);
 	}
 
-
+	/**
+	 * \brief static cast to derived type
+	 */
 	Derived &derived(void)
 	{
 		return static_cast<Derived &>(*this);
 	}
 
 public:
-	typedef quadrature_traits<Derived> traits_t;
-	typedef typename traits_t::domain_t domain_t;	/**< \brief template parameter as nested type */
-	typedef typename domain_t::xi_t xi_t;
-	typedef typename domain_t::scalar_t scalar_t;
+	typedef quadrature_traits<Derived> traits_t;				/**< \brief corresponding traits type */
+	typedef typename traits_t::domain_t domain_t;				/**< \brief template parameter as nested type */
+	typedef typename domain_t::xi_t xi_t; 						/**< \brief local coordinate type */
+	typedef typename domain_t::scalar_t scalar_t; 				/**< \brief local scalar type */
 	typedef quadrature_elem<xi_t, scalar_t> quadrature_elem_t;	/**< \brief the quadrature elem type */
 
 	/**
@@ -136,15 +142,26 @@ public:
 		return os;
 	}
 
-	// Transformation
+	/**
+	 * \brief transform the domain of the quadrature with a given shape set
+	 * \tparam LSet shape set type of transformation
+	 * \param coords corner coordinates of transformed domain
+	 * \return transformed quadrature
+	 */
 	template <class LSet>
 	Derived transform(const Eigen::Matrix<scalar_t, LSet::num_nodes, LSet::domain_t::dimension> &coords) const
 	{
+		// TODO: assert LSet's xi type matches quadrature xi type
 		Derived result(derived());
 		return result.transform_inplace<LSet>(coords);
 	}
 
-	// Transformation in place
+	/**
+	 * \brief transform the domain of the quadrature in place
+	 * \tparam LSet shape set type of transformation
+	 * \param coords corner coordinates of transformed domain
+	 * \return reference to the transformed quadrature
+	 */
 	template <class LSet>
 	Derived &transform_inplace(const Eigen::Matrix<scalar_t, LSet::num_nodes, LSet::domain_t::dimension> &coords)
 	{
@@ -153,15 +170,30 @@ public:
 		return derived();
 	}
 
-	// Addition
-	Derived operator +(const quadrature_base<Derived> &other) const
+	/**
+	 * \brief add two quadrature
+	 * It is assured that the dimensions match.
+	 * \tparam otherDerived other quadrature type
+	 * \param other the other quadrature
+	 * \return new quadrature
+	 */
+	template <class otherDerived>
+	Derived operator +(const quadrature_base<otherDerived> &other) const
 	{
+		static_assert(std::is_same<xi_t, typename otherDerived::xi_t>::value, "Quadrature domain dimensions must match");
 		Derived result(this->size()+other.size());
 		result.insert(result.end(), this->begin(), this->end());
 		result.insert(result.end(), other.begin(), other.end());
 		return result;
 	}
 
+	/**
+	 * \brief add another quadrature to this
+	 * It is assured that the dimensions match.
+	 * \tparam otherDerived other quadrature type
+	 * \param other the other quadrature
+	 * \return reference to the new quadrature
+	 */
 	template <class otherDerived>
 	Derived &operator +=(const quadrature_base<otherDerived> &other)
 	{
@@ -171,6 +203,9 @@ public:
 		return derived();
 	}
 
+	/**
+	 * \brief create a singular quadrature from a selected center point
+	 */
 	static Derived singular_quadrature_inside(unsigned degree, xi_t const &singular_point)
 	{
 		typedef singular_traits<Derived> singular_traits_t;
@@ -198,7 +233,7 @@ public:
 		}
 		return result;
 	}
-};
+}; // quadrature_base
 
 
 /**
@@ -213,8 +248,6 @@ std::ostream & operator << (std::ostream & os, const quadrature_base<Derived>& Q
 {
 	return Q.print(os);
 }
-
-
 
 /**
  * \brief return 1D N-point Guassian quadrature
@@ -248,14 +281,14 @@ Eigen::Matrix<scalar_t, Eigen::Dynamic, 2> gauss_impl(unsigned N)
 	return V;
 }
 
-
 /**
  * \brief Gaussian quadrature
- * \tparam Domain the domain of integration
  */
 class gauss_line;
 
-
+/**
+ * \brief traits of gaussian line quadrature
+ */
 template <>
 struct quadrature_traits<gauss_line>
 {
@@ -511,6 +544,36 @@ const int singular_traits<gauss_tria>::index_inside[singular_traits<gauss_tria>:
 	{2, 0, -1, -1}
 };
 
+// Quadrature families
+
+/**
+ * \brief tag for the family of gaussian quadratures
+ */
+struct gauss_family_tag;
+
+/**
+ * \brief traits for quadrature families
+ */
+template <class Family, class Domain>
+struct quadrature_domain_traits;
+
+template<>
+struct quadrature_domain_traits<gauss_family_tag, line_domain>
+{
+	typedef gauss_line quadrature_type;
+};
+
+template<>
+struct quadrature_domain_traits<gauss_family_tag, tria_domain>
+{
+	typedef gauss_tria quadrature_type;
+};
+
+template<>
+struct quadrature_domain_traits<gauss_family_tag, quad_domain>
+{
+	typedef gauss_quad quadrature_type;
+};
 
 #endif
 

@@ -6,6 +6,7 @@
 #ifndef KERNEL_HPP_INCLUDED
 #define KERNEL_HPP_INCLUDED
 
+#include "quadrature.hpp"			// for quadrature families
 #include "kernel_input.hpp"
 #include "couple.hpp"
 
@@ -133,6 +134,7 @@ struct green_kernel_traits<green_G_kernel>
 	typedef dcomplex scalar_t;
 	typedef location<x_t> input_t;
 	typedef dcomplex result_t;
+	typedef gauss_family_tag quadrature_family_t;
 };
 
 /**
@@ -188,6 +190,7 @@ struct green_kernel_traits<green_H_kernel>
 	typedef dcomplex scalar_t;
 	typedef location_with_normal<x_t> input_t;
 	typedef dcomplex result_t;
+	typedef gauss_family_tag quadrature_family_t;
 };
 
 /**
@@ -241,6 +244,7 @@ struct green_kernel_traits<green_HG_kernel>
 	typedef dcomplex scalar_t;
 	typedef location_with_normal<x_t> input_t;
 	typedef couple<dcomplex> result_t;
+	typedef gauss_family_tag quadrature_family_t;
 };
 
 /**

@@ -31,11 +31,13 @@ public:
 
 	typedef typename kernel_t::input_t kernel_input_t;		/**< \brief input type of kernel */
 	typedef typename kernel_t::result_t kernel_result_t;	/**< \brief result type of kernel */
+	
+	typedef typename green_kernel_traits<kernel_t>::quadrature_family_t quadrature_family_t;
 
-	typedef field_type_accelerator<test_field_t> test_field_type_accelerator_t;	/**< \brief type of the accelerator of the test field */
-	typedef field_type_accelerator_pool<test_field_t> test_field_type_accelerator_pool_t;	/**< \brief type of the accelerator pool of the test field */
-	typedef field_type_accelerator<trial_field_t> trial_field_type_accelerator_t;	/**< \brief type of the accelerator of the trial field */
-	typedef field_type_accelerator_pool<trial_field_t> trial_field_type_accelerator_pool_t;	/**< \brief type of the accelerator pool of the trial field */
+	typedef field_type_accelerator<test_field_t, quadrature_family_t> test_field_type_accelerator_t;	/**< \brief type of the accelerator of the test field */
+	typedef field_type_accelerator_pool<test_field_t, quadrature_family_t> test_field_type_accelerator_pool_t;	/**< \brief type of the accelerator pool of the test field */
+	typedef field_type_accelerator<trial_field_t, quadrature_family_t> trial_field_type_accelerator_t;	/**< \brief type of the accelerator of the trial field */
+	typedef field_type_accelerator_pool<trial_field_t, quadrature_family_t> trial_field_type_accelerator_pool_t;	/**< \brief type of the accelerator pool of the trial field */
 
 	typedef typename test_field_t::nset_t::shape_t test_shape_t;	/**< \brief type of test shape function */
 	typedef typename trial_field_t::nset_t::shape_t trial_shape_t;	/**< \brief type of trial shape function */
@@ -134,12 +136,14 @@ public:
 
 	typedef typename kernel_t::input_t kernel_input_t;		/**< \brief input type of kernel */
 	typedef typename kernel_t::result_t kernel_result_t;		/**< \brief input type of kernel */
+	
+	typedef typename green_kernel_traits<kernel_t>::quadrature_family_t quadrature_family_t;		/**< \brief quadrature family type */
 
-	typedef gauss_quadrature<typename trial_field_t::elem_t::domain_t> trial_quadrature_t;	/**< \brief type of trial quadrature */
+	typedef typename quadrature_domain_traits<quadrature_family_t, typename trial_field_t::elem_t::domain_t>::quadrature_type trial_quadrature_t;	/**< \brief type of trial quadrature */
 	typedef typename trial_quadrature_t::quadrature_elem_t quadrature_elem_t;	/**< \brief type of quadrature element */
 
-	typedef field_type_accelerator<trial_field_t> trial_field_type_accelerator_t;	/**< \brief type of the accelerator of the trial field */
-	typedef field_type_accelerator_pool<trial_field_t> trial_field_type_accelerator_pool_t;	/**< \brief type of the accelerator pool of the trial field */
+	typedef field_type_accelerator<trial_field_t, quadrature_family_t> trial_field_type_accelerator_t;	/**< \brief type of the accelerator of the trial field */
+	typedef field_type_accelerator_pool<trial_field_t, quadrature_family_t> trial_field_type_accelerator_pool_t;	/**< \brief type of the accelerator pool of the trial field */
 
 	typedef typename test_field_t::nset_t test_nset_t;		/**< \brief type of element's N-set */
 	typedef typename trial_field_t::nset_t::shape_t trial_shape_t;		/**< \brief type of element's N-set */
