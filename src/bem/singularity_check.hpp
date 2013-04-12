@@ -15,7 +15,7 @@ template <class Kernel, class TestField, class TrialField>
 class singularity_check
 {
 public:
-	static singularity_type eval(TestField const &test_field, TrialField const &trial_field)
+	static singularity_type eval(TestField const &, TrialField const &)
 	{
 		return REGULAR;
 	}
