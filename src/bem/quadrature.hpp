@@ -1,7 +1,7 @@
 /**
  * \file quadrature.hpp
  * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
- * \brief implementation of class ::quadrature, ::gauss_quadrature and their elements
+ * \brief implementation of class ::quadrature_elem, ::quadrature_base and gaussian quadratures
  */
 #ifndef QUADRATURE_HPP_INCLUDED
 #define QUADRATURE_HPP_INCLUDED
@@ -9,9 +9,10 @@
 #include "domain.hpp"
 #include "shapeset.hpp"
 
-#include <type_traits>
+#include <type_traits> // is_same
 
 #include <iostream>
+#include <stdexcept>
 
 #include <Eigen/Dense>
 #include <Eigen/StdVector>
@@ -57,6 +58,12 @@ public:
 		return m_w;
 	}
 
+	/**
+	 * \brief transform a location according to a shape function set
+	 * \tparam LSet the shape function set
+	 * \param coords transformation corners
+	 * \return reference to the transformed object
+	 */
 	template <class LSet>
 	quadrature_elem &transform_inplace(const Eigen::Matrix<scalar_t, LSet::num_nodes, LSet::domain_t::dimension> &coords)
 	{
@@ -66,7 +73,6 @@ public:
 		m_xi = LSet::eval_shape(m_xi).transpose() * coords;
 		return *this;
 	}
-
 
 	// struct is used in a std::vector, therefore this declaration is necessary
 	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -81,11 +87,15 @@ protected:
 template <class quadrature>
 struct singular_traits;
 
-
+// forward declaration of quadrature traits
 template <class Derived>
 struct quadrature_traits;
 
 
+/**
+ * \brief CRTP base class of all quadratures
+ * \tparam Derived the CRTP derived class
+ */
 template <class Derived>
 class quadrature_base :
 	public std::vector<quadrature_elem<typename quadrature_traits<Derived>::domain_t::xi_t, typename quadrature_traits<Derived>::domain_t::scalar_t> , Eigen::aligned_allocator<quadrature_elem<typename quadrature_traits<Derived>::domain_t::xi_t, typename quadrature_traits<Derived>::domain_t::scalar_t> > >
@@ -143,7 +153,7 @@ public:
 	}
 
 	/**
-	 * \brief transform the domain of the quadrature with a given shape set
+	 * \brief transform the domain of the quadrature with a given shape set and corner points
 	 * \tparam LSet shape set type of transformation
 	 * \param coords corner coordinates of transformed domain
 	 * \return transformed quadrature
@@ -151,7 +161,7 @@ public:
 	template <class LSet>
 	Derived transform(const Eigen::Matrix<scalar_t, LSet::num_nodes, LSet::domain_t::dimension> &coords) const
 	{
-		// TODO: assert LSet's xi type matches quadrature xi type
+		static_assert(std::is_same<xi_t, typename LSet::xi_t>::value, "Quadrature and shape set dimensions must match");
 		Derived result(derived());
 		return result.transform_inplace<LSet>(coords);
 	}
@@ -165,14 +175,15 @@ public:
 	template <class LSet>
 	Derived &transform_inplace(const Eigen::Matrix<scalar_t, LSet::num_nodes, LSet::domain_t::dimension> &coords)
 	{
+		static_assert(std::is_same<xi_t, typename LSet::xi_t>::value, "Quadrature and shape set dimensions must match");
 		for (auto it = this->begin(); it != this->end(); ++it)
 			it->transform_inplace<LSet>(coords);
 		return derived();
 	}
 
 	/**
-	 * \brief add two quadrature
-	 * It is assured that the dimensions match.
+	 * \brief add two quadratures
+	 * \details It is assured that the dimensions match.
 	 * \tparam otherDerived other quadrature type
 	 * \param other the other quadrature
 	 * \return new quadrature
@@ -189,7 +200,7 @@ public:
 
 	/**
 	 * \brief add another quadrature to this
-	 * It is assured that the dimensions match.
+	 * \details It is assured that the dimensions match.
 	 * \tparam otherDerived other quadrature type
 	 * \param other the other quadrature
 	 * \return reference to the new quadrature
@@ -204,7 +215,9 @@ public:
 	}
 
 	/**
-	 * \brief create a singular quadrature from a selected center point
+	 * \brief create a singular quadrature from a selected internal point
+	 * \param [in] degree quadrature degree of the generating element
+	 * \param [in] singular_point the internal singular point
 	 */
 	static Derived singular_quadrature_inside(unsigned degree, xi_t const &singular_point)
 	{
@@ -216,8 +229,7 @@ public:
 
 		xi_t const *corners = domain_t::get_corners();
 
-		Derived result(0);
-		result.clear();
+		Derived result;
 		singular_source_t source_quad(degree);
 		for (unsigned r = 0; r < nResolution; ++r)
 		{
@@ -305,8 +317,14 @@ public:
 	typedef base_t::xi_t xi_t;	/**< \brief the locatin type */
 	typedef base_t::scalar_t scalar_t;	/**< \brief the scalar type*/
 
+
 	/**
-	 * constructor for a given polynomial degree
+	 * \breaf default constructor creating an empty quadrature
+	 */
+	gauss_line() : base_t(0) {};
+
+	/**
+	 * \brief constructor for a given polynomial degree
 	 * \param degree polynomial degree
 	 */
 	gauss_line(unsigned degree) : base_t(degree/2+1)
@@ -326,10 +344,12 @@ public:
 };
 
 
-
+// forward declaration
 class gauss_quad;
 
-
+/**
+ * \brief traits of gaussian quad quadrature
+ */
 template <>
 struct quadrature_traits<gauss_quad>
 {
@@ -347,6 +367,11 @@ public:
 	typedef typename base_t::domain_t domain_t;	/**< \brief the domain type */
 	typedef typename base_t::xi_t xi_t;	/**< \brief the location type */
 	typedef typename base_t::scalar_t scalar_t;	/**< \brief the scalar type */
+
+	/**
+	 * \breaf default constructor creating an empty quadrature
+	 */
+	gauss_quad() : base_t(0) {};
 
 	/**
 	 * \brief constructor for a given polynomial order
@@ -370,6 +395,9 @@ public:
 };
 
 
+/**
+ * \brief singular traits of gaussian quad quadrature
+ */
 template <>
 struct singular_traits<gauss_quad>
 {
@@ -388,12 +416,13 @@ const int singular_traits<gauss_quad>::index_inside[singular_traits<gauss_quad>:
 };
 
 
-
-
-
+// forward declaration
 class gauss_tria;
 
 
+/**
+ * \brief traits of gaussian tria quadrature
+ */
 template <>
 struct quadrature_traits<gauss_tria>
 {
@@ -401,7 +430,9 @@ struct quadrature_traits<gauss_tria>
 };
 
 
-
+/**
+ * \brief number of quadrature points for different dunavat orders
+ */
 static unsigned const dunavant_num[] = {1, 1, 3, 4, 6, 7, 12, 13, 16, 19};
 
 /**
@@ -413,6 +444,12 @@ public:
 	typedef quadrature_base<gauss_tria> base_t;	/**< \brief base class */
 	typedef base_t::quadrature_elem_t quadrature_elem_t;	/**< \brief the quadrature elem */
 	typedef base_t::xi_t xi_t; /**< \brief the quadrature location type */
+
+
+	/**
+	 * \brief default constructor creating an empty quadrature
+	 */
+	gauss_tria() : base_t(0) {}
 
 	/**
 	 * \brief constructor for a given polynomial order
@@ -521,13 +558,18 @@ public:
 			push_back(quadrature_elem_t(xi_t(0.036838412054736,   0.221962989160766), 0.021641769688645));
 			push_back(quadrature_elem_t(xi_t(0.221962989160766,   0.741198598784498), 0.021641769688645));
 			push_back(quadrature_elem_t(xi_t(0.741198598784498,   0.036838412054736), 0.021641769688645));
+			break;
 		default:
+			throw std::out_of_range("unsupported dunavant degree");
 			break;
 		}
 	}
 };
 
 
+/**
+ * \brief singular traits of a gaussian tria quadrature
+ */
 template <>
 struct singular_traits<gauss_tria>
 {

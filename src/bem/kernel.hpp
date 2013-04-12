@@ -16,40 +16,21 @@ typedef std::complex<double> dcomplex;
 
 // forward declaration
 template <class Derived>
-struct green_kernel_traits;
+struct kernel_traits;
 
-/**
- * \brief CRTP base class of 3D Helmholtz kernels and its derivatives
- * \tparam Derived type of the derived class in the CRTP scheme
- */
+
 template <class Derived>
-class green_base
+class kernel_base
 {
 public:
 	/** \brief type of the location */
-	typedef typename green_kernel_traits<Derived>::x_t x_t;
+	typedef typename kernel_traits<Derived>::x_t x_t;
 	/** \brief type of the kernel input */
-	typedef typename green_kernel_traits<Derived>::input_t input_t;
+	typedef typename kernel_traits<Derived>::input_t input_t;
 	/** \brief type of the kernel's scalar */
-	typedef typename green_kernel_traits<Derived>::scalar_t scalar_t;
+	typedef typename kernel_traits<Derived>::scalar_t scalar_t;
 	/** \brief type of the kernel's result */
-	typedef typename green_kernel_traits<Derived>::result_t result_t;
-
-	/** \brief associate relative distance with a required polynomial degree */
-	struct kernel_precision
-	{
-		double rel_distance;	/**< \brief relative distance from the source point */
-		unsigned degree;		/**< \brief polynomial degree required for integration */
-	};
-
-	/**
-	 * \brief set the wave number to a defined value
-	 * \param [in] k wave number
-	 */
-	static void set_wave_number(dcomplex const &k)
-	{
-		green_base::m_k = k;
-	}
+	typedef typename kernel_traits<Derived>::result_t result_t;
 
 	/**
 	 * \brief set the source location number to a defined value
@@ -57,7 +38,7 @@ public:
 	 */
 	static void set_x0(x_t const &x0)
 	{
-		green_base::m_x0 = x0;
+		m_x0 = x0;
 	}
 
 	/**
@@ -80,6 +61,53 @@ public:
 	{
 		set_x0(x0.get_x());
 		return eval(x);
+	}
+
+protected:
+	static x_t m_x0;			/**< \brief source location */
+	static result_t m_result;	/**< \brief kernel result */
+};
+
+/**< \brief static member source location */
+template <class Derived>
+typename kernel_base<Derived>::x_t kernel_base<Derived>::m_x0;
+/**< \brief static member kernel result */
+template <class Derived>
+typename kernel_base<Derived>::result_t kernel_base<Derived>::m_result;
+
+
+/**
+ * \brief CRTP base class of 3D Helmholtz kernels and its derivatives
+ * \tparam Derived type of the derived class in the CRTP scheme
+ */
+template <class Derived>
+class helmholtz_base : public kernel_base<Derived>
+{
+public:
+	typedef kernel_base<Derived> base_t;
+	using x_t = typename base_t::x_t;
+	using input_t = typename base_t::input_t;
+	using scalar_t = typename base_t::scalar_t;
+	using result_t = typename base_t::result_t;
+
+	using base_t::set_x0;
+	using base_t::eval;
+	using base_t::m_x0;
+
+	/** \brief associate relative distance with a required polynomial degree */
+	struct kernel_precision
+	{
+		double rel_distance;	/**< \brief relative distance from the source point */
+		unsigned degree;		/**< \brief polynomial degree required for integration */
+	};
+
+	/**
+	 * \brief set the wave number to a defined value
+	 * \param [in] k wave number
+	 */
+	static void set_wave_number(dcomplex const &k)
+	{
+		helmholtz_base::m_k = k;
 	}
 
 	/**
@@ -109,26 +137,18 @@ public:
 
 protected:
 	static dcomplex m_k;		/**< \brief wave number */
-	static x_t m_x0;			/**< \brief source location */
-	static result_t m_result;	/**< \brief kernel result */
 };
 
 /**< \brief static member wave number */
 template <class Derived>
-dcomplex green_base<Derived>::m_k;
-/**< \brief static member source location */
-template <class Derived>
-typename green_base<Derived>::x_t green_base<Derived>::m_x0;
-/**< \brief static member kernel result */
-template <class Derived>
-typename green_base<Derived>::result_t green_base<Derived>::m_result;
+dcomplex helmholtz_base<Derived>::m_k;
 
 
 // forward declaration
-class green_G_kernel;
+class helmholtz_G_kernel;
 
 template<>
-struct green_kernel_traits<green_G_kernel>
+struct kernel_traits<helmholtz_G_kernel>
 {
 	typedef tria_1_elem::x_t x_t;
 	typedef dcomplex scalar_t;
@@ -140,14 +160,13 @@ struct green_kernel_traits<green_G_kernel>
 /**
  * \brief 3D Helmholtz kernel \f$\exp(-ikr)/4\pi r\f$
  */
-class green_G_kernel : public green_base<green_G_kernel>
+class helmholtz_G_kernel : public helmholtz_base<helmholtz_G_kernel>
 {
-	friend class green_base<green_G_kernel>;
+	friend class helmholtz_base<helmholtz_G_kernel>;
 public:
-	typedef green_base<green_G_kernel> base_t;	/**< \brief the base class' type */
+	typedef helmholtz_base<helmholtz_G_kernel> base_t;	/**< \brief the base class' type */
 
 	using base_t::eval;
-	using base_t::estimate_complexity;
 
 	/**
 	 * \brief evaluate kernel at a given receiver position
@@ -167,7 +186,7 @@ protected:
 	static const kernel_precision limits[];	/**< \brief array of distance limits */
 };
 
-const green_G_kernel::kernel_precision green_G_kernel::limits[] = {
+const helmholtz_G_kernel::kernel_precision helmholtz_G_kernel::limits[] = {
 	{5.0, 2},
 	{2.0, 5},
 	{0.0, 7}
@@ -181,10 +200,10 @@ const green_G_kernel::kernel_precision green_G_kernel::limits[] = {
 */
 	};
 
-class green_H_kernel;
+class helmholtz_H_kernel;
 
 template<>
-struct green_kernel_traits<green_H_kernel>
+struct kernel_traits<helmholtz_H_kernel>
 {
 	typedef tria_1_elem::x_t x_t;
 	typedef dcomplex scalar_t;
@@ -196,14 +215,13 @@ struct green_kernel_traits<green_H_kernel>
 /**
  * \brief 3D Helmholtz kernel \f$ \exp(-ikr)/4\pi r \left(-(1+ikr)/r\right) \cdot dr/dn \f$
  */
-class green_H_kernel : public green_base<green_H_kernel>
+class helmholtz_H_kernel : public helmholtz_base<helmholtz_H_kernel>
 {
-	friend class green_base<green_H_kernel>;
+	friend class helmholtz_base<helmholtz_H_kernel>;
 public:
-	typedef green_base<green_H_kernel> base_t;	/**< \brief the base class' type */
+	typedef helmholtz_base<helmholtz_H_kernel> base_t;	/**< \brief the base class' type */
 
 	using base_t::eval;
-	using base_t::estimate_complexity;
 
 	/**
 	 * \brief evaluate kernel at a given receiver position
@@ -228,17 +246,17 @@ protected:
 	static const kernel_precision limits[];	/**< \brief array of distance limits */
 };
 
-const green_H_kernel::kernel_precision green_H_kernel::limits[]  = {
+const helmholtz_H_kernel::kernel_precision helmholtz_H_kernel::limits[]  = {
 	{5.0, 2},
 	{2.0, 5},
 	{0.0, 7}
 	};
 
 
-class green_HG_kernel;
+class helmholtz_HG_kernel;
 
 template<>
-struct green_kernel_traits<green_HG_kernel>
+struct kernel_traits<helmholtz_HG_kernel>
 {
 	typedef tria_1_elem::x_t x_t;
 	typedef dcomplex scalar_t;
@@ -250,14 +268,13 @@ struct green_kernel_traits<green_HG_kernel>
 /**
  * \brief 3D Helmholtz kernel \f$ \exp(-ikr)/4\pi r \left\{1, -(1+ikr)/r \cdot dr/dn\right\} \f$
  */
-class green_HG_kernel : public green_base<green_HG_kernel>
+class helmholtz_HG_kernel : public helmholtz_base<helmholtz_HG_kernel>
 {
-	friend class green_base<green_HG_kernel>;
+	friend class helmholtz_base<helmholtz_HG_kernel>;
 public:
-	typedef green_base<green_HG_kernel> base_t;	/**< \brief base class' type */
+	typedef helmholtz_base<helmholtz_HG_kernel> base_t;	/**< \brief base class' type */
 
 	using base_t::eval;
-	using base_t::estimate_complexity;
 
 	/**
 	 * \brief evaluate kernel at a given receiver position
@@ -282,10 +299,11 @@ protected:
 	static const kernel_precision limits[];	/**< \brief array of distance limits */
 };
 
-const green_HG_kernel::kernel_precision green_HG_kernel::limits[]  = {
+const helmholtz_HG_kernel::kernel_precision helmholtz_HG_kernel::limits[]  = {
 	{5.0, 2},
 	{2.0, 5},
 	{0.0, 7}
 	};
 
 #endif // KERNEL_HPP_INCLUDED
+

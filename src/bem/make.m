@@ -41,7 +41,7 @@ ylabel(c, 'log10 relative error');
 
 %%
 %Hold = Hold - diag(diag(Hold));
-pcolor(log10(abs((H - Hold)./Hold)));
+pcolor(log10(abs((G - Hold)./Hold)));
 shading flat;
 set(gca, 'ydir', 'reverse');
 c = colorbar;

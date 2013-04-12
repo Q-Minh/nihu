@@ -32,7 +32,7 @@ public:
 	typedef typename kernel_t::input_t kernel_input_t;		/**< \brief input type of kernel */
 	typedef typename kernel_t::result_t kernel_result_t;	/**< \brief result type of kernel */
 	
-	typedef typename green_kernel_traits<kernel_t>::quadrature_family_t quadrature_family_t;
+	typedef typename kernel_traits<kernel_t>::quadrature_family_t quadrature_family_t;
 
 	typedef field_type_accelerator<test_field_t, quadrature_family_t> test_field_type_accelerator_t;	/**< \brief type of the accelerator of the test field */
 	typedef field_type_accelerator_pool<test_field_t, quadrature_family_t> test_field_type_accelerator_pool_t;	/**< \brief type of the accelerator pool of the test field */
@@ -141,7 +141,7 @@ public:
 	typedef typename kernel_t::input_t kernel_input_t;		/**< \brief input type of kernel */
 	typedef typename kernel_t::result_t kernel_result_t;		/**< \brief input type of kernel */
 	
-	typedef typename green_kernel_traits<kernel_t>::quadrature_family_t quadrature_family_t;		/**< \brief quadrature family type */
+	typedef typename kernel_traits<kernel_t>::quadrature_family_t quadrature_family_t;		/**< \brief quadrature family type */
 
 	typedef typename quadrature_domain_traits<quadrature_family_t, typename trial_field_t::elem_t::domain_t>::quadrature_type trial_quadrature_t;	/**< \brief type of trial quadrature */
 	typedef typename trial_quadrature_t::quadrature_elem_t quadrature_elem_t;	/**< \brief type of quadrature element */
@@ -158,7 +158,7 @@ public:
 	
 	
 	typedef typename quadrature_domain_traits<
-					typename green_kernel_traits<kernel_t>::quadrature_family_t,
+					typename kernel_traits<kernel_t>::quadrature_family_t,
 					typename trial_field_t::elem_t::domain_t
 					>::quadrature_type singular_quadrature_t;
 
@@ -236,7 +236,7 @@ public:
 			/// Obtain quadrature type
 			/*
 			typedef typename quadrature_domain_traits<
-					typename green_kernel_traits<kernel_t>::quadrature_family_t,
+					typename kernel_traits<kernel_t>::quadrature_family_t,
 					typename trial_field_t::elem_t::domain_t
 					>::quadrature_type quadrature_t;
 					
