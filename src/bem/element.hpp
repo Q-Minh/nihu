@@ -11,12 +11,13 @@
 
 #include "shapeset.hpp"
 
+//template <class TestElem, class TrialElem>
 class element_overlapping
 {
-	unsigned num;		/** \brief number of coincident nodes */
-	unsigned ind1, ind2;		/** \brief start node indices */
+	unsigned num;			/**< \brief number of coincident nodes */
+	unsigned ind1, ind2;		/**< \brief start node indices */
 public:
-	unsigned get_num(void) const { 	return num; }
+	unsigned get_num(void) const  {	return num; }
 	unsigned get_ind1(void) const { return ind1; }
 	unsigned get_ind2(void) const { return ind2; }
 
@@ -25,8 +26,13 @@ public:
 		num(num), ind1(ind1), ind2(ind2)
 	{
 	}
+	
+	/*
+	check_match(void) const {
+		
+	}
+	*/
 };
-
 
 /**
 * \brief functor computing normal vector
