@@ -2,28 +2,42 @@
 
 #include "../tmp/control.hpp"
 
-template <class D>
+template <class Q>
 struct tester
 {
 	struct type
 	{
 		void operator() (void)
 		{
-			gauss_quadrature<D> q(5);
+			Q q(5);
 			std::cout << q << std::endl;
-			std::cout << "Sum of weights: " <<
-				std::accumulate(q.begin(), q.end(), 0.0, [] (double x, quadrature_elem<typename D::xi_t, typename D::scalar_t> &qe) {
-				return x + qe.get_w();
-			}) << std::endl;
 		}
 	};
 };
 
+
+void test_transform(void)
+{
+	gauss_quad q(4);
+	Eigen::Matrix<double, 4, 2> coords;
+	coords <<
+		0.0, 0.0,
+		1.0, 0.0,
+		1.0, 1.0,
+		1.0, 1.0;
+	std::cout << q.transform<quad_1_shape_set>(coords) << std::endl;
+	std::cout << gauss_quad::singular_quadrature_inside(5, quad_domain::get_center());
+	std::cout << gauss_tria::singular_quadrature_inside(5, tria_domain::get_center());
+}
+
+
 int main(void)
 {
-	typedef tmp::vector<line_domain, tria_domain, quad_domain> DomSequence;
+	typedef tmp::vector<gauss_quad, gauss_tria> QuadSequence;
 
-	tmp::call_each<DomSequence, tester<tmp::_1> >();
+	tmp::call_each<QuadSequence, tester<tmp::_1> >();
+
+	test_transform();
 
 	return 0;
 }
