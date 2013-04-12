@@ -23,8 +23,9 @@
  * shape function values for a specified quadrature order. The class provides an iterator that
  * can traverse through the stored values
  * \tparam Field the field type that is accelerated
+ * \tparam Family the quadrature family
  */
-template <class Field>
+template <class Field, class Family>
 class field_type_accelerator
 {
 public:
@@ -32,7 +33,7 @@ public:
 	typedef Field field_t;
 
 	/** \brief the quadrature vector type */
-	typedef gauss_quadrature<typename field_t::elem_t::domain_t> quadrature_t;
+	typedef typename quadrature_domain_traits<Family, typename field_t::elem_t::domain_t>::quadrature_type quadrature_t;
 	/** \brief the type of one quadrature point */
 	typedef typename quadrature_t::quadrature_elem_t quadrature_elem_t;
 	/** \brief the quadrature iterator type */
@@ -183,12 +184,13 @@ protected:
  * \brief container class to store accelerators with different quadrature orders
  * \tparam Field the field type that is accelerated
  */
-template <class Field>
-class field_type_accelerator_pool : public std::vector<field_type_accelerator<Field> *>
+template <class Field, class Family>
+class field_type_accelerator_pool : public std::vector<field_type_accelerator<Field, Family> *>
 {
 public:
 	/** \brief template argument as nested type */
 	typedef Field field_t;
+	typedef Family family_t;
 	/** \brief maximum order of quadratures */
 	static const unsigned MAX_ORDER = 10;
 
@@ -199,7 +201,7 @@ public:
 	{
 		this->reserve(MAX_ORDER);
 		for (unsigned order = 0; order < MAX_ORDER; ++order)
-			this->push_back(new field_type_accelerator<field_t>(order));
+			this->push_back(new field_type_accelerator<field_t, family_t>(order));
 	}
 
 	/**

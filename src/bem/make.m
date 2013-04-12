@@ -2,13 +2,13 @@
 mex -v CXXFLAGS="\$CXXFLAGS -std=c++11 -O3" Boonen13.mex.cpp -I../../../eigen -output Boonen13
 
 %% Build a good little mesh
-mesh = create_sphere_boundary(1,5);
+mesh = create_sphere_boundary(1,8);
 k = 1;
 
 %% Galerkin matrix C++ version
 tic;
 [nodes, elements] = extract_bem_mesh(mesh);
-H = Boonen13(nodes, elements, k);
+G = Boonen13(nodes, elements, k);
 tHacc = toc;
 
 %% Galerkin matrix Matlab version
@@ -30,17 +30,19 @@ tic;
 tbemHG = toc;
 
 %%
-Gold = Gold - diag(diag(Gold));
+%Gold = Gold - diag(diag(Gold));
 pcolor(log10(abs((G - Gold)./Gold)));
-shading interp;
+shading flat;
 set(gca, 'ydir', 'reverse');
+xlim([1 50]);
+ylim([1 50]);
 c = colorbar;
 ylabel(c, 'log10 relative error');
 
 %%
-Hold = Hold - diag(diag(Hold));
-pcolor(log10(abs((H - Hold)./Hold)));
-shading interp;
+%Hold = Hold - diag(diag(Hold));
+pcolor(log10(abs((G - Hold)./Hold)));
+shading flat;
 set(gca, 'ydir', 'reverse');
 c = colorbar;
 ylabel(c, 'log10 relative error');

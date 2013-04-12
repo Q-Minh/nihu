@@ -31,11 +31,13 @@ public:
 
 	typedef typename kernel_t::input_t kernel_input_t;		/**< \brief input type of kernel */
 	typedef typename kernel_t::result_t kernel_result_t;	/**< \brief result type of kernel */
+	
+	typedef typename kernel_traits<kernel_t>::quadrature_family_t quadrature_family_t;
 
-	typedef field_type_accelerator<test_field_t> test_field_type_accelerator_t;	/**< \brief type of the accelerator of the test field */
-	typedef field_type_accelerator_pool<test_field_t> test_field_type_accelerator_pool_t;	/**< \brief type of the accelerator pool of the test field */
-	typedef field_type_accelerator<trial_field_t> trial_field_type_accelerator_t;	/**< \brief type of the accelerator of the trial field */
-	typedef field_type_accelerator_pool<trial_field_t> trial_field_type_accelerator_pool_t;	/**< \brief type of the accelerator pool of the trial field */
+	typedef field_type_accelerator<test_field_t, quadrature_family_t> test_field_type_accelerator_t;	/**< \brief type of the accelerator of the test field */
+	typedef field_type_accelerator_pool<test_field_t, quadrature_family_t> test_field_type_accelerator_pool_t;	/**< \brief type of the accelerator pool of the test field */
+	typedef field_type_accelerator<trial_field_t, quadrature_family_t> trial_field_type_accelerator_t;	/**< \brief type of the accelerator of the trial field */
+	typedef field_type_accelerator_pool<trial_field_t, quadrature_family_t> trial_field_type_accelerator_pool_t;	/**< \brief type of the accelerator pool of the trial field */
 
 	typedef typename test_field_t::nset_t::shape_t test_shape_t;	/**< \brief type of test shape function */
 	typedef typename trial_field_t::nset_t::shape_t trial_shape_t;	/**< \brief type of trial shape function */
@@ -84,9 +86,13 @@ public:
 	{
 		m_result = result_t();	// clear result
 
-		// select quadrature
+		// check singularity
 		if (singularity_check<kernel_t, test_field_t, trial_field_t>::eval(test_field, trial_field) != REGULAR)
+		{
+			// TODO: calculate 
 			return m_result;
+		}
+		
 
 		// select quadrature
 		kernel_input_t test_center(test_field.get_elem(), m_test_field_accelerator_pool[0]->cbegin()->get_quadrature_elem());
@@ -134,12 +140,14 @@ public:
 
 	typedef typename kernel_t::input_t kernel_input_t;		/**< \brief input type of kernel */
 	typedef typename kernel_t::result_t kernel_result_t;		/**< \brief input type of kernel */
+	
+	typedef typename kernel_traits<kernel_t>::quadrature_family_t quadrature_family_t;		/**< \brief quadrature family type */
 
-	typedef gauss_quadrature<typename trial_field_t::elem_t::domain_t> trial_quadrature_t;	/**< \brief type of trial quadrature */
+	typedef typename quadrature_domain_traits<quadrature_family_t, typename trial_field_t::elem_t::domain_t>::quadrature_type trial_quadrature_t;	/**< \brief type of trial quadrature */
 	typedef typename trial_quadrature_t::quadrature_elem_t quadrature_elem_t;	/**< \brief type of quadrature element */
 
-	typedef field_type_accelerator<trial_field_t> trial_field_type_accelerator_t;	/**< \brief type of the accelerator of the trial field */
-	typedef field_type_accelerator_pool<trial_field_t> trial_field_type_accelerator_pool_t;	/**< \brief type of the accelerator pool of the trial field */
+	typedef field_type_accelerator<trial_field_t, quadrature_family_t> trial_field_type_accelerator_t;	/**< \brief type of the accelerator of the trial field */
+	typedef field_type_accelerator_pool<trial_field_t, quadrature_family_t> trial_field_type_accelerator_pool_t;	/**< \brief type of the accelerator pool of the trial field */
 
 	typedef typename test_field_t::nset_t test_nset_t;		/**< \brief type of element's N-set */
 	typedef typename trial_field_t::nset_t::shape_t trial_shape_t;		/**< \brief type of element's N-set */
@@ -147,6 +155,12 @@ public:
 	typedef typename plain_type<
 		typename product_type<kernel_result_t, Eigen::Transpose<trial_shape_t> >::type
 	>::type result_t;
+	
+	
+	typedef typename quadrature_domain_traits<
+					typename kernel_traits<kernel_t>::quadrature_family_t,
+					typename trial_field_t::elem_t::domain_t
+					>::quadrature_type singular_quadrature_t;
 
 	/** \brief evaluate double integral with selected trial field quadrature
 	 * \param [in] test_field the test field to integrate on
@@ -175,6 +189,35 @@ public:
 
 		return m_result;
 	}
+	
+	template <class Quadrature>
+	static result_t const &eval_on_quadrature(
+		test_field_t const &test_field,
+		trial_field_t const &trial_field,
+		Quadrature const &trial_quad)
+	{
+		for(auto test_it = test_nset_t::corner_begin(); test_it != test_nset_t::corner_end(); ++test_it)
+		{
+			quadrature_elem_t qe(*test_it);
+			kernel_input_t collocational_point(test_field.get_elem(), qe);
+			// Go through trial quadrature
+			for(auto trial_it = trial_quad.begin(); trial_it != trial_quad.end(); ++trial_it)
+			{
+				// Create kernel input
+				kernel_input_t trial_input(trial_field.get_elem(), *trial_it);
+
+				m_result.row(test_it - test_nset_t::corner_begin()) +=
+					kernel_t::eval(collocational_point, trial_input) *
+					(trial_input.get_jacobian() * 
+					 trial_field_t::nset_t::eval_shape(trial_it->get_xi()).transpose());
+					//trial_it->get_shape().transpose());
+			}
+		}
+
+		return m_result;
+	}
+	
+	
 
 	/** \brief evaluate double integral on given fields
 	 * \param [in] test_field the test field to integrate on
@@ -187,8 +230,20 @@ public:
 
 		// select quadrature
 		if (singularity_check<kernel_t, test_field_t, trial_field_t>::eval(test_field, trial_field) != REGULAR)
-			return m_result;
-
+		{
+			// NOTE: FACE_MATCH IS ASSUMED
+			
+			/// Obtain quadrature type
+			/*
+			typedef typename quadrature_domain_traits<
+					typename kernel_traits<kernel_t>::quadrature_family_t,
+					typename trial_field_t::elem_t::domain_t
+					>::quadrature_type quadrature_t;
+					
+			quadrature_t sq = quadrature_t::singular_quadrature_inside(9, trial_field_t::elem_t::domain_t::get_center());
+			*/
+			return eval_on_quadrature(test_field, trial_field, m_sq); 
+		}
 		// select quadrature
 		quadrature_elem_t qe(test_field_t::elem_t::domain_t::get_center());
 		kernel_input_t test_center(test_field.get_elem(), qe);
@@ -200,6 +255,8 @@ public:
 protected:
 	static result_t m_result; /**< \brief the integral result stored as static variable */
 	static const trial_field_type_accelerator_pool_t m_trial_field_accelerator_pool;
+	// NOTE: a singular quadrature
+	static const singular_quadrature_t m_sq;
 };
 
 template<class Kernel, class Trial, class ElemType, class FieldOption>
@@ -210,6 +267,11 @@ template<class Kernel, class Trial, class ElemType, class FieldOption>
 typename double_integral<Kernel, field<ElemType, FieldOption, dirac_field>, Trial>::trial_field_type_accelerator_pool_t
 	const double_integral<Kernel, field<ElemType, FieldOption, dirac_field>, Trial>::m_trial_field_accelerator_pool;
 
+template<class Kernel, class Trial, class ElemType, class FieldOption>
+typename double_integral<Kernel, field<ElemType, FieldOption, dirac_field>, Trial>::singular_quadrature_t
+	const double_integral<Kernel, field<ElemType, FieldOption, dirac_field>, Trial>::m_sq =
+	double_integral<Kernel, field<ElemType, FieldOption, dirac_field>, Trial>::singular_quadrature_t::singular_quadrature_inside(9,
+		double_integral<Kernel, field<ElemType, FieldOption, dirac_field>, Trial>::trial_field_t::elem_t::domain_t::get_center());
 
 #endif
 

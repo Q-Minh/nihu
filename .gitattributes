@@ -4,3 +4,6 @@
 *.h text eol=crlf
 *.hpp text eol=crlf
 *.m text eol=crlf
+Makefile eol=crlf
+Doxyfile eol=crlf
+

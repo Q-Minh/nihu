@@ -16,9 +16,11 @@
  */
 class element_overlapping
 {
+	unsigned num;			/**< \brief number of coincident nodes */
+	unsigned ind1, ind2;		/**< \brief start node indices */
 public:
 	/** \brief return number of coincident nodes */
-	unsigned get_num(void) const { 	return num; }
+	unsigned get_num(void) const  {	return num; }
 	/** \brief return index of first coincident node in element 1 */
 	unsigned get_ind1(void) const { return ind1; }
 	/** \brief return index of first coincident node in element 2 */
@@ -29,12 +31,7 @@ public:
 		num(num), ind1(ind1), ind2(ind2)
 	{
 	}
-
-private:
-	unsigned num;			/** \brief number of coincident nodes */
-	unsigned ind1, ind2;	/** \brief start node indices */
 };
-
 
 /**
 * \brief functor computing normal vector
