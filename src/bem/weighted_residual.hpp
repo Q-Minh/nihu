@@ -6,14 +6,11 @@
 #ifndef WEIGHTED_RESIDUAL_HPP_INCLUDED
 #define WEIGHTED_RESIDUAL_HPP_INCLUDED
 
-#include <Eigen/Dense>
-
 #include <vector>
 
 #include "../tmp/control.hpp"
 #include "matrix_block.hpp"
 
-#include "kernel.hpp"
 #include "function_space.hpp"
 #include "double_integral.hpp"
 

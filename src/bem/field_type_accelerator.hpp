@@ -9,7 +9,6 @@
 
 #include "field.hpp"
 #include "quadrature.hpp"
-#include "shapeset.hpp"
 
 #include <vector>
 

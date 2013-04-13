@@ -2,6 +2,7 @@
  * \file shapeset.hpp
  * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
  * \brief Definition of various shape function sets
+ * \mainpage gexci
  */
 #ifndef SHAPESET_HPP_INCLUDED
 #define SHAPESET_HPP_INCLUDED
@@ -23,19 +24,23 @@ template <class Derived>
 class shape_set_base
 {
 public:
-	typedef typename shape_set_traits<Derived>::domain_t domain_t;			/** \brief Domain */
-	static unsigned const num_nodes = shape_set_traits<Derived>::num_nodes;	/** \brief Number of nodes */
+	typedef shape_set_traits<Derived> traits_t;
+	typedef typename traits_t::domain_t domain_t;			/** \brief Domain */
+	static unsigned const num_nodes = traits_t::num_nodes;	/** \brief Number of nodes */
 
+	/** \brief scalar type inherited from the domain */
+	typedef typename domain_t::scalar_t scalar_t;
 	/** \brief type of the local coordinate */
 	typedef typename domain_t::xi_t xi_t;
 	/** \brief type of an \f$L(\xi)\f$ vector */
-	typedef Eigen::Matrix<double, num_nodes, 1> shape_t;
-	/** \brief type of an \f$\nabla L(\xi)\f$ gradient matrix */
-	typedef Eigen::Matrix<double, num_nodes, domain_t::dimension> dshape_t;
+	typedef Eigen::Matrix<scalar_t, num_nodes, 1> shape_t;
+	/** \brief type of a \f$\nabla L(\xi)\f$ gradient matrix */
+	typedef Eigen::Matrix<scalar_t, num_nodes, domain_t::dimension> dshape_t;
 
-public:
 	/**
-	 *\brief shape function vector \fL_i(\xi)\f$
+	 * \brief shape function vector \fL_i(\xi)\f$
+	 * \param [in] xi location in the base domain
+	 * \return the shape function vector
 	 */
 	static shape_t eval_shape(xi_t const &xi)
 	{
@@ -44,6 +49,8 @@ public:
 
 	/**
 	 * \brief shape function gradient matrix \f$\nabla L_i(\xi)\f$
+	 * \param [in] xi location in the base domain
+	 * \return the shape function derivative matrix
 	 */
 	static dshape_t eval_dshape(xi_t const &xi)
 	{
@@ -89,12 +96,11 @@ class constant_shape_set : public shape_set_base<constant_shape_set<Domain> >
 {
 public:
 	typedef shape_set_base<constant_shape_set<Domain> > base_t;
-	typedef typename base_t::domain_t domain_t;
-	typedef typename base_t::xi_t xi_t;
-	typedef typename base_t::shape_t shape_t;
-	typedef typename base_t::dshape_t dshape_t;
+	using domain_t = typename base_t::domain_t;
+	using xi_t = typename base_t::xi_t;
+	using shape_t = typename base_t::shape_t;
+	using dshape_t = typename base_t::dshape_t;
 
-public:
 	/**
 	 * \brief Constant shape functions
 	 * \details The shape functions are
@@ -152,19 +158,19 @@ public:
 	typedef Domain domain_t;
 
 	typedef shape_set_base<isoparam_shape_set<Domain> > base_t;
-	typedef typename base_t::xi_t xi_t;
-	typedef typename base_t::shape_t shape_t;
-	typedef typename base_t::dshape_t dshape_t;
+	using xi_t = typename base_t::xi_t;
+	using shape_t = typename base_t::shape_t;
+	using dshape_t = typename base_t::dshape_t;
 
 	static shape_t eval_shape(xi_t const &xi);
 	static dshape_t eval_dshape(xi_t const &xi);
 
-	static xi_t const * corner_begin_impl(void)
+	static xi_t const *corner_begin_impl(void)
 	{
 		return domain_t::get_corners();
 	}
 
-	static xi_t const * corner_end_impl(void)
+	static xi_t const *corner_end_impl(void)
 	{
 		return domain_t::get_corners() + domain_t::id;	//Note: ID has actually nothing to do with id, its the number of corners
 	}
@@ -288,10 +294,10 @@ class parallelogram_shape_set : public shape_set_base<parallelogram_shape_set>
 public:
 	typedef shape_set_base<parallelogram_shape_set> base_t;
 	typedef base_t::domain_t domain_t;
-	typedef base_t::xi_t xi_t;
-	typedef base_t::shape_t shape_t;
-	typedef base_t::dshape_t dshape_t;
-public:
+	using xi_t = base_t::xi_t;
+	using shape_t = base_t::shape_t;
+	using dshape_t = base_t::dshape_t;
+
 	/**
 	 * \brief linear 3-noded parallelogram shape functions
 	 * \details The shape functions are
@@ -317,12 +323,12 @@ public:
 		return dL;
 	}
 
-	static xi_t const * corner_begin_impl(void)
+	static xi_t const *corner_begin_impl(void)
 	{
 		return domain_t::get_corners();
 	}
 
-	static xi_t const * corner_end_impl(void)
+	static xi_t const *corner_end_impl(void)
 	{
 		return domain_t::get_corners() + domain_t::id;	//Note: ID has actually nothing to do with id, its the number of corners
 	}
@@ -341,78 +347,4 @@ typedef isoparam_shape_set<quad_domain> quad_1_shape_set;
 
 
 #endif // SHAPESET_HPP_INCLUDED
-
-/*
-// TODO - use x_t instead of nDim template parameter
-template <class shape_set_from, class shape_set_to, unsigned nDim>
-struct shape_set_converter;
-
-template <class Shape, unsigned nDim>
-struct shape_set_converter<Shape, Shape, nDim>
-{
-	typedef Shape from_set;
-	typedef Shape to_set;
-
-	typedef Eigen::Matrix<double, from_set::num_nodes, nDim> from_coords_t;
-	typedef Eigen::Matrix<double, to_set::num_nodes, nDim> to_coords_t;
-
-public:
-	static bool eval(from_coords_t const &coords)
-	{
-		to_coords = coords;
-		return true;
-	}
-
-	static to_coords_t const &get_coords(void)
-	{
-		return to_coords;
-	}
-
-protected:
-	static to_coords_t to_coords;
-};
-
-template <class Shape, unsigned nDim>
-typename shape_set_converter<Shape, Shape, nDim>::to_coords_t
-	shape_set_converter<Shape, Shape, nDim>::to_coords;
-
-
-
-template <unsigned nDim>
-struct shape_set_converter<quad_1_shape_set, parallelogram_shape_set, nDim>
-{
-	typedef quad_1_shape_set from_set;
-	typedef parallelogram_shape_set to_set;
-
-	typedef Eigen::Matrix<double, from_set::num_nodes, nDim> from_coords_t;
-	typedef Eigen::Matrix<double, to_set::num_nodes, nDim> to_coords_t;
-
-public:
-	static bool eval(from_coords_t const &coords)
-	{
-
-		to_coords.row(0) = coords.row(0);
-		to_coords.row(1) = coords.row(1);
-		to_coords.row(2) = coords.row(3);
-
-		to_set::xi_t xi;
-		xi << 1.0, 1.0;
-
-		return (to_set::eval_L(xi).transpose() * to_coords - coords.row(2)).norm() < 1e-3;
-	}
-
-	static to_coords_t const &get_coords(void)
-	{
-		return to_coords;
-	}
-
-protected:
-	static to_coords_t to_coords;
-};
-
-template <unsigned nDim>
-typename shape_set_converter<quad_1_shape_set, parallelogram_shape_set, nDim>::to_coords_t
-	shape_set_converter<quad_1_shape_set, parallelogram_shape_set, nDim>::to_coords;
-
-*/
 

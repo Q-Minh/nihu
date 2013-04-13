@@ -6,12 +6,8 @@
 #ifndef DOUBLE_INTEGRAL_HPP_INCLUDED
 #define DOUBLE_INTEGRAL_HPP_INCLUDED
 
-#include <Eigen/Dense>
-
 #include "../util/plain_type.hpp"
 #include "kernel.hpp"
-#include "quadrature.hpp"
-#include "kernel_input.hpp"
 #include "field_type_accelerator.hpp"
 #include "singular_accelerator.hpp"
 

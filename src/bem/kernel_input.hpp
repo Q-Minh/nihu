@@ -12,8 +12,6 @@
 #ifndef KERNELINPUT_HPP_INCLUDED
 #define KERNELINPUT_HPP_INCLUDED
 
-#include <type_traits>
-
 #include "element.hpp"
 #include "quadrature.hpp"
 

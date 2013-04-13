@@ -7,7 +7,6 @@
  #ifndef SINGULAR_ACCELERATOR_HPP_INCLUDED
 #define SINGULAR_ACCELERATOR_HPP_INCLUDED
 
-#include <type_traits>
 #include "field.hpp"
 
 enum singularity_type {

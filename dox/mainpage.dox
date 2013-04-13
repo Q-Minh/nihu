@@ -8,14 +8,14 @@
 
 \subsection subsecbem BEM in a Nuthshell
 
-From a computational point of view, BEM can be considered as the evaluation of weighted residuals of the form
+From a computational point of view, BEM can be considered as the evaluation of a ::weighted_residual of the form
 \f[ R = \int \int M(x) K(x, y) N(y) dy dx \f]
-where \f$K(x,y)\f$ denotes a kernel, \f$M(x)\f$ is a test function and \f$N(y)\f$  is a trial function.
-
-When numerically evaluated, the test and trial functions are written as a superposition of base functions
+where \f$K(x,y)\f$ denotes a kernel (::kernel_base), \f$M(x)\f$ is a test function and \f$N(y)\f$  is a trial function.
+The test and trial functions are written as a superposition of base functions
 \f[ M(x) = \sum_{i} m_i M_i(x), \quad N(y) = \sum_{j} n_j N_j(x) \f]
 So evaluation of the weighed residual is derived from to the evaluation of weighted residuals on the basis functions:
 \f[ R_{ij} = \int \int M_i(x) K(x, y) N_j(y) dy dx \f]
+The set of the basis functions \f$M_i\f$ or \f$N_i\f$ is called a ::function_space. With this notation, weighted residual is the integration of a binary kernel over to function spaces.
 
 \subsection subseccollocgalerkin Collocational and Galerkin BEM
 
@@ -25,9 +25,29 @@ When following the collocational BEM approach, the test function is a superposit
 When following the Galerkin BEM approach, the trial and test base functions are identical:
 \f[ M_i(x) = N_i(x) \rightarrow R_{ij} = \int \int N_i(x) K(x, y) N_j(y) dy dx \f]
 
-\subsection subsecelements Elements
+\subsection subsecelements Elements and Fields
 
 In a typical implementation with a general domain geometry, the base functions are expressed as piecewise polynomial functions over sufficiently small subdomains:
-\f[ R_{ij} = \int_{S_i} \int_{S_j} M_i(x) K(x, y) N_j(y) dy dx \f]
+\f[ R_{ij} = \int_{E_i} \int_{E_j} M_i(x) K(x, y) N_j(y) dy dx \f]
+The subdomain is termed ::element. An element is described by its corner nodes \f$x_k\f$ and geometrical interpolation functions \f$L_k(\xi)\f$ as
+\f[ E_i = \left\{x : x = \sum_{k} L_k(\xi) x_k, \xi \in \mathcal{D}\right\} \f]
+Here \f$\mathcal{D}\f$ denotes the element's base ::domain.
+
+An element describes only small scale geometrical behaviour of the integration domain. A set of elements is the problem geometry itself, called ::Mesh.
+
+A single element with accompaining trial of test function base members \f$N_i(x)\f$ is termed a ::field. A field is called isoparametric if its trial or test functions are identical with its element's geometrical interpolation functions. A field is called constant if its trial or test functions are constant.
+ The set of all fields (that is a mesh with its test or trial basis functions) is the ::function_space itself.
+ 
+\section secwalkthrough A bottom-up walkthrough
+
+\subsection subsecdomain class domain
+
+Class ::domain describes a base domain \f$\mathcal{D}\f$ over which interpolation functions (and elements) can be defined.
+Class ::domain defines the whole problem's real scalar type (typically double).
+Class ::domain is templated on the number of spatial dimensions of the \f$\xi\f$-space and the number of domain corners in the \f$\xi\f$-space.
+Class ::domain stores its corner nodes and its center.
+
+In the current development state, class ::domain is specialised for 1D line domain (::line_domain), 2D triangle domain (::tria_domain), 2D quadrilateral domain (::quad_domain) and 3D brick domain (::brick_domain).
+
 
 */

@@ -15,23 +15,25 @@
 /**
  * \brief a subset of the \f$\xi\f$ space. All elements are defined on a domain.
  * \tparam Dimension the dimensionality of the space
- * \tparam ID A domain ID used when elements are inserted into a mesh
+ * \tparam NumCorners the number of corners of the domain
  */
-template <unsigned Dimension, unsigned ID>
+template <unsigned Dimension, unsigned NumCorners>
 class domain
 {
 public:
 	/** \brief template argument as nested type */
 	static unsigned const dimension = Dimension;
 	/** \brief template argument as nested type */
-	static unsigned const id = ID;
+	static unsigned const num_corners = NumCorners;
+	/** \todo in the present implementation id equals the number of corner nodes. fix this! */
+	static unsigned const id = num_corners;
 
-	/** \brief the scalar type of the location vector */
+	/** \brief scalar type of the location vector */
     typedef double scalar_t;
-	/** \brief the location vector */
+	/** \brief location vector */
 	typedef Eigen::Matrix<double, dimension, 1> xi_t;
-
-	typedef xi_t corners_t[id];
+	/** \brief type of the corners' array */
+	typedef xi_t corners_t[num_corners];
 
 	/**
 	 * \brief return the central point of the domain

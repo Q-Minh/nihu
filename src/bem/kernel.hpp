@@ -6,7 +6,6 @@
 #ifndef KERNEL_HPP_INCLUDED
 #define KERNEL_HPP_INCLUDED
 
-#include "quadrature.hpp"			// for quadrature families
 #include "kernel_input.hpp"
 #include "couple.hpp"
 

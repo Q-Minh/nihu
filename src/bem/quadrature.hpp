@@ -6,7 +6,6 @@
 #ifndef QUADRATURE_HPP_INCLUDED
 #define QUADRATURE_HPP_INCLUDED
 
-#include "domain.hpp"
 #include "shapeset.hpp"
 
 #include <type_traits> // is_same
@@ -14,7 +13,6 @@
 #include <iostream>
 #include <stdexcept>
 
-#include <Eigen/Dense>
 #include <Eigen/StdVector>
 #define EIGENSTDVECTOR(_T) std::vector<_T, Eigen::aligned_allocator<_T> >
 
