@@ -4,6 +4,8 @@ typedef tmp::vector<tria_1_elem, quad_1_elem> elem_vector;
 typedef Mesh<elem_vector> mesh_t;
 typedef function_space<mesh_t, constant_field, dirac_field> test_space_t;
 typedef function_space<mesh_t, constant_field, function_field> trial_space_t;
+typedef helmholtz_G_kernel kernel_t;
+typedef weighted_residual<kernel_t, test_space_t, trial_space_t> wr_t;
 
 #include <iostream>
 
@@ -31,14 +33,13 @@ int main(void)
 
 	test_space_t test_func(mesh);
 	trial_space_t trial_func(mesh);
-	weighted_residual<helmholtz_G_kernel, test_space_t, trial_space_t> wr(test_func, trial_func);
+	wr_t wr(test_func, trial_func);
 
 	Eigen::Matrix<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic> a(test_func.get_num_dofs(), trial_func.get_num_dofs());
 	a.setZero();
 
-	wr.eval(a);
-
-	std::cout << a << std::endl;
+	std::cout << wr.eval(a) << std::endl;
+	std::cout << kernel_t::get_num_evaluations() << std::endl;
 
 	return 0;
 }

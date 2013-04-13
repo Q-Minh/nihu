@@ -25,6 +25,9 @@
 template <class Kernel, class TestSpace, class TrialSpace>
 class weighted_residual
 {
+	// CRTP check
+	static_assert(std::is_base_of<kernel_base<Kernel>, Kernel>::value,
+		"Kernel must be derived from kernel_base<Kernel>");
 public:
 	typedef TestSpace test_space_t;		/**< \brief template parameter as nested type */
 	typedef TrialSpace trial_space_t;	/**< \brief template parameter as nested type */
@@ -67,7 +70,8 @@ public:
 	 * \param [in] test_space the test function space over which integration is performed
 	 * \param [in] trial_space the trial function space over which integration is performed
 	 */
-	weighted_residual(test_space_t const &test_space, trial_space_t const &trial_space) : m_test_space(test_space), m_trial_space(trial_space)
+	weighted_residual(test_space_t const &test_space, trial_space_t const &trial_space)
+		: m_test_space(test_space), m_trial_space(trial_space)
 	{
 	}
 

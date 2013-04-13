@@ -24,6 +24,9 @@
 template <class Kernel, class Test, class Trial>
 class double_integral
 {
+	// CRTP check
+	static_assert(std::is_base_of<kernel_base<Kernel>, Kernel>::value,
+		"Kernel must be derived from kernel_base<Kernel>");
 public:
 	typedef Kernel kernel_t;		/**< \brief template parameter as nested type */
 	typedef Test test_field_t;		/**< \brief template parameter as nested type */
@@ -51,14 +54,14 @@ public:
 		>::type
 	>::type result_t;
 
-	/** \brief evaluate double integral with selected quadratures
+	/** \brief evaluate double integral with selected accelerators
 	 * \param [in] test_field the test field to integrate on
 	 * \param [in] test_acc field type accelerator of the test field
 	 * \param [in] trial_field the trial field to integrate on
 	 * \param [in] trial_acc field type accelerator of the trial field
 	 * \return reference to the integration result
 	 */
-	static result_t const &eval_on_quadrature(
+	static result_t const &eval_on_accelerator(
 		test_field_t const &test_field,
 		test_field_type_accelerator_t const &test_acc,
 		trial_field_t const &trial_field,
@@ -166,10 +169,10 @@ public:
 	/** \brief evaluate double integral with selected trial field quadrature
 	 * \param [in] test_field the test field to integrate on
 	 * \param [in] trial_field the trial field to integrate on
-	 * \param [in] trial_quad the trial quadrature
+	 * \param [in] trial_quad the trial accelerator
 	 * \return reference to the integration result
 	 */
-	static result_t const &eval_on_quadrature(
+	static result_t const &eval_on_accelerator(
 		test_field_t const &test_field,
 		trial_field_t const &trial_field,
 		trial_field_type_accelerator_t const &trial_acc)
@@ -240,7 +243,7 @@ public:
 		kernel_input_t test_center(test_field.get_elem(), qe);
 		kernel_input_t trial_center(trial_field.get_elem(), m_trial_field_accelerator_pool[0]->cbegin()->get_quadrature_elem());
 		unsigned degree = kernel_t::estimate_complexity(test_center, trial_center);
-		return eval_on_quadrature(test_field, trial_field, *(m_trial_field_accelerator_pool[degree]));
+		return eval_on_accelerator(test_field, trial_field, *(m_trial_field_accelerator_pool[degree]));
 	}
 
 protected:

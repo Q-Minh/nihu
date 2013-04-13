@@ -18,7 +18,10 @@ typedef std::complex<double> dcomplex;
 template <class Derived>
 struct kernel_traits;
 
-
+/**
+ * \brief CRTP base class of all BEM kernels
+ * \tparam the CRTP derived class
+ */
 template <class Derived>
 class kernel_base
 {
@@ -31,6 +34,16 @@ public:
 	typedef typename kernel_traits<Derived>::scalar_t scalar_t;
 	/** \brief type of the kernel's result */
 	typedef typename kernel_traits<Derived>::result_t result_t;
+
+	static void reset(void)
+	{
+		m_num_evaluations = 0;
+	}
+
+	static unsigned get_num_evaluations(void)
+	{
+		return m_num_evaluations;
+	}
 
 	/**
 	 * \brief set the source location number to a defined value
@@ -48,6 +61,7 @@ public:
 	 */
 	static result_t const &eval (input_t const &x)
 	{
+		m_num_evaluations++;
 		return Derived::eval(x);
 	}
 
@@ -66,6 +80,7 @@ public:
 protected:
 	static x_t m_x0;			/**< \brief source location */
 	static result_t m_result;	/**< \brief kernel result */
+	static unsigned m_num_evaluations;	/**< \brief number of kernel evaluations */
 };
 
 /**< \brief static member source location */
@@ -74,6 +89,9 @@ typename kernel_base<Derived>::x_t kernel_base<Derived>::m_x0;
 /**< \brief static member kernel result */
 template <class Derived>
 typename kernel_base<Derived>::result_t kernel_base<Derived>::m_result;
+/**< \brief static member kernel result */
+template <class Derived>
+unsigned kernel_base<Derived>::m_num_evaluations = 0;
 
 
 /**
@@ -173,7 +191,7 @@ public:
 	 * \param [in] x receiver position
 	 * \return kernel evaluated in x
 	 */
-	static result_t const &eval (input_t const &input)
+	static result_t const &eval(input_t const &input)
 	{
 		// source receiver distance
 		double r = (input.get_x() - m_x0).norm();
@@ -221,14 +239,14 @@ class helmholtz_H_kernel : public helmholtz_base<helmholtz_H_kernel>
 public:
 	typedef helmholtz_base<helmholtz_H_kernel> base_t;	/**< \brief the base class' type */
 
-	using base_t::eval;
+//	using base_t::eval;
 
 	/**
 	 * \brief evaluate kernel at a given receiver position
 	 * \param [in] x receiver position
 	 * \return kernel evaluated in x
 	 */
-	static result_t const &eval (input_t const &x)
+	static result_t const &eval(input_t const &x)
 	{
 		x_t rvec = x.get_x() - m_x0;
 		double r2 = rvec.squaredNorm();
@@ -274,14 +292,14 @@ class helmholtz_HG_kernel : public helmholtz_base<helmholtz_HG_kernel>
 public:
 	typedef helmholtz_base<helmholtz_HG_kernel> base_t;	/**< \brief base class' type */
 
-	using base_t::eval;
+//	using base_t::eval;
 
 	/**
 	 * \brief evaluate kernel at a given receiver position
 	 * \param [in] x receiver position
 	 * \return kernel evaluated in x
 	 */
-	static result_t const &eval (input_t const &x)
+	static result_t const &eval(input_t const &x)
 	{
 		x_t rvec = x.get_x() - m_x0;
 		double r2 = rvec.squaredNorm();

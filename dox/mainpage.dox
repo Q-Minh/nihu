@@ -1,0 +1,33 @@
+/**
+\file mainpage.dox
+\author Peter Fiala fiala@hit.bme.hu
+\mainpage
+\section secintro Introduction
+
+\section secthory Theory
+
+\subsection subsecbem BEM in a Nuthshell
+
+From a computational point of view, BEM can be considered as the evaluation of weighted residuals of the form
+\f[ R = \int \int M(x) K(x, y) N(y) dy dx \f]
+where \f$K(x,y)\f$ denotes a kernel, \f$M(x)\f$ is a test function and \f$N(y)\f$  is a trial function.
+
+When numerically evaluated, the test and trial functions are written as a superposition of base functions
+\f[ M(x) = \sum_{i} m_i M_i(x), \quad N(y) = \sum_{j} n_j N_j(x) \f]
+So evaluation of the weighed residual is derived from to the evaluation of weighted residuals on the basis functions:
+\f[ R_{ij} = \int \int M_i(x) K(x, y) N_j(y) dy dx \f]
+
+\subsection subseccollocgalerkin Collocational and Galerkin BEM
+
+When following the collocational BEM approach, the test function is a superposition of Dirac delta functions located at \f$x_i\f$, resulting in the weighted residual expression
+\f[ M_i(x) = \delta(x-x_i) \rightarrow R_{ij} = \int K(x_i, y) N_j(y) dy \f]
+
+When following the Galerkin BEM approach, the trial and test base functions are identical:
+\f[ M_i(x) = N_i(x) \rightarrow R_{ij} = \int \int N_i(x) K(x, y) N_j(y) dy dx \f]
+
+\subsection subsecelements Elements
+
+In a typical implementation with a general domain geometry, the base functions are expressed as piecewise polynomial functions over sufficiently small subdomains:
+\f[ R_{ij} = \int_{S_i} \int_{S_j} M_i(x) K(x, y) N_j(y) dy dx \f]
+
+*/

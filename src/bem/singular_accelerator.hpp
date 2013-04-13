@@ -1,4 +1,10 @@
-#ifndef SINGULAR_ACCELERATOR_HPP_INCLUDED
+/**
+ * \file singular_accelerator.hpp
+ * \brief implementation of class ::singular_accelerator
+ * \author Peter Fiala and Peter Rucz
+ */
+
+ #ifndef SINGULAR_ACCELERATOR_HPP_INCLUDED
 #define SINGULAR_ACCELERATOR_HPP_INCLUDED
 
 #include <type_traits>
