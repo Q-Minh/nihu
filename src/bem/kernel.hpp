@@ -164,6 +164,7 @@ dcomplex helmholtz_base<Derived>::m_k;
 // forward declaration
 class helmholtz_G_kernel;
 
+/** \brief traits of the helmholtz G kernel */
 template<>
 struct kernel_traits<helmholtz_G_kernel>
 {
@@ -219,6 +220,7 @@ const helmholtz_G_kernel::kernel_precision helmholtz_G_kernel::limits[] = {
 
 class helmholtz_H_kernel;
 
+/** \brief traits of the Helmholtz H kernel */
 template<>
 struct kernel_traits<helmholtz_H_kernel>
 {
@@ -272,6 +274,7 @@ const helmholtz_H_kernel::kernel_precision helmholtz_H_kernel::limits[]  = {
 
 class helmholtz_HG_kernel;
 
+/** \brief traits of the double helmholtz kernel */
 template<>
 struct kernel_traits<helmholtz_HG_kernel>
 {

@@ -1,6 +1,8 @@
 A bottom-up walkthrough {#walkthrough}
 =======================
 
+[CRTP]:http://en.wikipedia.org/wiki/Curiously_recurring_template_pattern
+
 [TOC]
 
 Introduction
@@ -35,20 +37,20 @@ class ShapeSet
 
 Implemented in shapeset.hpp
 
-ShapeSet classes define interpolation functions \f$L(\xi)\f$ on the base domain. All ShapeSet classes are derived from the CRTP base class ::shape_set_base. The interface base class ::shape_set_base obtains the derived class's parameters through a traits class ::shape_set_traits. The interface can return a vector of shape functions \f$L(\xi)\f$ for any input coordinate \f$\xi\f$, as well as the shape functions derivative \f$\nabla L(\xi)\f$ with respect to the domain variable \f$\xi\f$. Furthermore, the interface can return begin and end iterators to the interpolation function's nodal locations.
+ShapeSet classes define interpolation functions \f$L(\xi)\f$ on the base domain. All ShapeSet classes are derived from the [CRTP] base class ::shape_set_base. The interface can return a vector of shape functions \f$L(\xi)\f$ for any input coordinate \f$\xi\f$, as well as the shape functions derivative \f$\nabla L(\xi)\f$ with respect to the domain variable \f$\xi\f$. Furthermore, the interface can return begin and end iterators to the interpolation function's nodal locations.
 
-Specialisations of the CRTP base class are templated on base domains. The interface is specialised for two general families of shape sets:
+Specialisations of the [CRTP] base class are templated on base domains. The interface is generally specialised for two families of shape sets:
 - ::constant_shape_set. A ::constant_shape_set has only one nodal corner located at the ::domain's center. The shape function is constant 1, its derivatives are zero. Further specialisations of the ::constant_shape_set are
 	+ ::line_0_shape_set
 	+ ::tria_0_shape_set
 	+ ::quad_0_shape_set
-- Other important family is the family of isoparametric shape sets (::isoparam_shape_set). An isoparametric shape set's corner nodes are located at the base domain's corners. The shape functions are defined so that each shape function has the value 1 at its corner node and zero in other corner nodes. Further specialisations of the ::isoparam_shape_set are
+- ::isoparam_shape_set. An isoparametric shape set's corner nodes are located at the base domain's corners. The shape functions are defined so that each shape function has the value 1 at its corner node and zero in other corner nodes. Further specialisations of the ::isoparam_shape_set are
 	+ ::line_1_shape_set
 	+ ::tria_1_shape_set
 	+ ::quad_1_shape_set
 
-- As a special shape set, NiHu implements ::parallelogram_shape_set. A parallelogram shape set has three corner nodes, but it is defined over a quad base domain. This shape set is currently not used in the code.
-- Further shape sets can be introduced by implementing their functions that return shape functions, its derivatives and the nodal corner points.
+- As a special shape set, ::parallelogram_shape_set is implemented. A parallelogram shape set has three corner nodes, but it is defined over a quad base domain. This shape set is currently not used in the code.
+- Further shape sets (quadratic tria and quad elements) that do not fit into the constant or isoparametric families can be introduced separately by implementing their functions that return shape functions, its derivatives and the nodal corner points.
 	
 
 class Element
@@ -58,4 +60,12 @@ Implemented in element.hpp
 
 An element is described by a a set of nodal coordinates \f$x_k\f$ and a geometrical interpolation function set \f$L_k(\xi)\f$ defined over a base domain \f$\mathcal{D}\f$.
 
+Class ::element is templated on its shape function set and the number of dimensions of the \f$x\f$ space. The class stores the element's nodal coordinates in an Eigen matrix. The class is capable to compute the element center, as well as the element location, location gradient and unit normal at any internal point.
 
+As elements are usually located inside a mesh, the element class also stores the element's element id and its nodal indices too. These stored quantities are rarely used on element level, but they are essential in forming constant and isoparametric fields from elements.
+
+Class element is specialised for the following frequently used element types with plain typedefs:
+- ::line_1_elem is a linear 2 noded line in 2D space
+- ::tria_1_elem is a linear 3 noded triangle in 3D space
+- ::parallelogram_elem is a linear 3 noded parallelogram elem in 3D space
+- ::quad_1_elem is a linear 4 noded quadrilateral element in 3D space

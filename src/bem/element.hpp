@@ -272,7 +272,7 @@ public:
 	}
 };
 
-/** \brief a linear triangle element in 2D space */
+/** \brief a linear line element in 2D space */
 typedef element<line_1_shape_set, 2> line_1_elem;
 
 /** \brief a linear triangle element in 3D space */
