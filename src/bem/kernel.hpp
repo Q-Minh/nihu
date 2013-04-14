@@ -146,10 +146,10 @@ public:
 	 * \param [in] x receiver position
 	 * \return polynomial degree needed for accurate integration
 	 */
-	static unsigned estimate_complexity(input_t const &x0, input_t const &x1)
+	static unsigned estimate_complexity(input_t const &x0, input_t const &x)
 	{
 		set_x0(x0.get_x());
-		return estimate_complexity(x1);
+		return estimate_complexity(x);
 	}
 
 protected:
@@ -190,10 +190,10 @@ public:
 	 * \param [in] x receiver position
 	 * \return kernel evaluated in x
 	 */
-	static result_t const &eval(input_t const &input)
+	static result_t const &eval(input_t const &x)
 	{
 		// source receiver distance
-		double r = (input.get_x() - m_x0).norm();
+		double r = (x.get_x() - m_x0).norm();
 		// complex kernel
 		m_result = std::exp(-dcomplex(0.0,1.0)*m_k*r) / r / (4.0 * M_PI);
 		return m_result;

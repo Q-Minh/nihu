@@ -165,7 +165,7 @@ public:
 	/** \brief evaluate double integral with selected trial field quadrature
 	 * \param [in] test_field the test field to integrate on
 	 * \param [in] trial_field the trial field to integrate on
-	 * \param [in] trial_quad the trial accelerator
+	 * \param [in] trial_acc the trial accelerator
 	 * \return reference to the integration result
 	 */
 	static result_t const &eval_on_accelerator(

@@ -16,7 +16,7 @@
 class element_overlapping
 {
 	unsigned num;			/**< \brief number of coincident nodes */
-	unsigned ind1, ind2;		/**< \brief start node indices */
+	unsigned ind1, ind2;	/**< \brief start node indices */
 public:
 	/** \brief return number of coincident nodes */
 	unsigned get_num(void) const  {	return num; }
@@ -87,6 +87,7 @@ struct normal_vector<2>
 template <class LSet, unsigned Dimension>
 class element
 {
+	static_assert(std::is_base_of<shape_set_base<LSet>, LSet>::value, "LSet must be derived from shape_set_base<LSet>");
 public:
 	/** \brief the dimension of the element's location variable \f$x\f$ */
 	static unsigned const x_dim = Dimension;
@@ -219,7 +220,6 @@ public:
 		normal_vector<xi_dim> n;
 		return n(get_dx(xi));
 	}
-
 
 	/**
 	 * \brief check overlapping state with other element

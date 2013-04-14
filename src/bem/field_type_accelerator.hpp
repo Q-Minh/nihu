@@ -100,7 +100,8 @@ public:
 		}
 
 		/** \brief preincrement operator
-		 * \param [in] the operator simply increments both stored iterators
+		 * \details the operator simply increments both stored iterators
+		 * \return reference to the iterator itself
 		 */
 		const_iterator &operator++()
 		{

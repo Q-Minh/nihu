@@ -38,7 +38,7 @@ public:
 	typedef Eigen::Matrix<scalar_t, num_nodes, domain_t::dimension> dshape_t;
 
 	/**
-	 * \brief shape function vector \fL_i(\xi)\f$
+	 * \brief shape function vector \f$L_i(\xi)\f$
 	 * \param [in] xi location in the base domain
 	 * \return the shape function vector
 	 */
@@ -145,7 +145,7 @@ template <class Domain>
 struct shape_set_traits<isoparam_shape_set<Domain> >
 {
 	typedef Domain domain_t;
-	static unsigned const num_nodes = domain_t::id; //Note: ID has actually nothing to do with id
+	static unsigned const num_nodes = domain_t::num_corners;
 };
 
 /**
@@ -172,7 +172,7 @@ public:
 
 	static xi_t const *corner_end_impl(void)
 	{
-		return domain_t::get_corners() + domain_t::id;	//Note: ID has actually nothing to do with id, its the number of corners
+		return domain_t::get_corners() + domain_t::num_corners;
 	}
 };
 
@@ -183,7 +183,7 @@ public:
  * \f$L_1(\xi) = (1-\xi)/2 \\ L_2(\xi) = (1+\xi)/2 \f$
  */
 template<>
-typename isoparam_shape_set<line_domain>::shape_t
+inline typename isoparam_shape_set<line_domain>::shape_t
 isoparam_shape_set<line_domain>::eval_shape(typename isoparam_shape_set<line_domain>::xi_t const &xi)
 {
 	shape_t L;
@@ -197,7 +197,7 @@ isoparam_shape_set<line_domain>::eval_shape(typename isoparam_shape_set<line_dom
  * \brief linear 2-noded line shape function derivative matrix
  */
 template<>
-typename isoparam_shape_set<line_domain>::dshape_t
+inline typename isoparam_shape_set<line_domain>::dshape_t
 isoparam_shape_set<line_domain>::eval_dshape(typename isoparam_shape_set<line_domain>::xi_t const &)
 {
 	dshape_t dL;
@@ -215,7 +215,7 @@ isoparam_shape_set<line_domain>::eval_dshape(typename isoparam_shape_set<line_do
  * \f$L_1(\xi) = 1-\xi-\eta \\ L_2(\xi) = \xi \\ L_3(\xi) = \eta \f$
  */
 template<>
-typename isoparam_shape_set<tria_domain>::shape_t
+inline typename isoparam_shape_set<tria_domain>::shape_t
 isoparam_shape_set<tria_domain>::eval_shape(typename isoparam_shape_set<tria_domain>::xi_t const &xi)
 {
 	shape_t L;
@@ -230,7 +230,7 @@ isoparam_shape_set<tria_domain>::eval_shape(typename isoparam_shape_set<tria_dom
  * \brief linear 3-noded tria elem shape function derivative matrix
  */
 template<>
-typename isoparam_shape_set<tria_domain>::dshape_t
+inline typename isoparam_shape_set<tria_domain>::dshape_t
 isoparam_shape_set<tria_domain>::eval_dshape(typename isoparam_shape_set<tria_domain>::xi_t const &)
 {
 	dshape_t dL;
@@ -248,7 +248,7 @@ isoparam_shape_set<tria_domain>::eval_dshape(typename isoparam_shape_set<tria_do
  * \f$L_1(\xi) = (1-\xi)(1-\eta)/4 \\ L_2(\xi) = (1+\xi)(1-\eta)/4 \\ L_3(\xi) = (1+\xi)(1+\eta)/4 \\ L_4(\xi) = (1-\xi)(1+\eta)/4 \f$
  */
 template<>
-typename isoparam_shape_set<quad_domain>::shape_t
+inline typename isoparam_shape_set<quad_domain>::shape_t
 isoparam_shape_set<quad_domain>::eval_shape(typename isoparam_shape_set<quad_domain>::xi_t const &xi)
 {
 	shape_t L;
@@ -264,7 +264,7 @@ isoparam_shape_set<quad_domain>::eval_shape(typename isoparam_shape_set<quad_dom
  * \brief linear 4-noded general quadrilater shape function derivative matrix
  */
 template<>
-typename isoparam_shape_set<quad_domain>::dshape_t
+inline typename isoparam_shape_set<quad_domain>::dshape_t
 isoparam_shape_set<quad_domain>::eval_dshape(typename isoparam_shape_set<quad_domain>::xi_t const &xi)
 {
 	dshape_t dL;
@@ -283,7 +283,7 @@ template<>
 struct shape_set_traits<parallelogram_shape_set>
 {
 	typedef quad_domain domain_t;
-	static unsigned const num_nodes = 3; //Note: ID has actually nothing to do with id
+	static unsigned const num_nodes = 3;
 };
 
 /**
@@ -330,21 +330,23 @@ public:
 
 	static xi_t const *corner_end_impl(void)
 	{
-		return domain_t::get_corners() + domain_t::id;	//Note: ID has actually nothing to do with id, its the number of corners
+		return domain_t::get_corners() + domain_t::num_corners;
 	}
 };
 
-/**
- * \brief Type definitions for further usage
- */
+/** typedef for a constant line shape set */
 typedef constant_shape_set<line_domain> line_0_shape_set;
+/** typedef for a constant triangle shape set */
 typedef constant_shape_set<tria_domain> tria_0_shape_set;
+/** typedef for a constant quad shape set */
 typedef constant_shape_set<quad_domain> quad_0_shape_set;
 
+/** typedef for a linear quad shape set */
 typedef isoparam_shape_set<line_domain> line_1_shape_set;
+/** typedef for a linear quad shape set */
 typedef isoparam_shape_set<tria_domain> tria_1_shape_set;
+/** typedef for a linear quad shape set */
 typedef isoparam_shape_set<quad_domain> quad_1_shape_set;
-
 
 #endif // SHAPESET_HPP_INCLUDED
 
