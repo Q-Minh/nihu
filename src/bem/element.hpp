@@ -87,6 +87,7 @@ struct normal_vector<2>
 template <class LSet, unsigned Dimension>
 class element
 {
+	// make sure LSet is derived from the CRTP interface shape_set_base
 	static_assert(std::is_base_of<shape_set_base<LSet>, LSet>::value, "LSet must be derived from shape_set_base<LSet>");
 public:
 	/** \brief the dimension of the element's location variable \f$x\f$ */
@@ -134,9 +135,9 @@ public:
 
 	/**
 	* \brief constructor
-	* \param id the elem id
-	* \param nodes the elem node indices
-	* \param coords the elem coordinates
+	* \param [in] id the elem id
+	* \param [in] nodes the elem node indices
+	* \param [in] coords the elem coordinates
 	*/
 	element(unsigned id, nodes_t const &nodes, coords_t const &coords)
 		: m_nodes(nodes), m_coords(coords)
@@ -146,7 +147,7 @@ public:
 
 	/**
 	* \brief constructor
-	* \param coords the elem coordinates
+	* \param [in] coords the elem coordinates
 	*/
 	element(coords_t const &coords)
 		: m_id(id_t()), m_nodes(nodes_t()), m_coords(coords)
@@ -182,7 +183,7 @@ public:
 
 	/**
 	* \brief return element location
-	* \param \xi location \f$\xi\f$ in the base domain
+	* \param [in] \xi location \f$\xi\f$ in the base domain
 	* \return location \f$x\f$ in the element
 	*/
 	x_t get_x(xi_t const &xi) const
@@ -201,7 +202,7 @@ public:
 
 	/**
 	* \brief return element location gradient
-	* \param \xi location \f$\xi\f$ in the base domain
+	* \param [in] \xi location \f$\xi\f$ in the base domain
 	* \return location gradient \f$x'_{\xi}\f$ in the element
 	*/
 	dx_t get_dx(xi_t const &xi) const
@@ -211,7 +212,7 @@ public:
 
 	/**
 	* \brief return element normal
-	* \param \xi location \f$\xi\f$ in the base domain
+	* \param [in] \xi location \f$\xi\f$ in the base domain
 	* \return element normal vector \f$n\f$ in the element
 	*/
 	x_t get_normal(xi_t const &xi) const
