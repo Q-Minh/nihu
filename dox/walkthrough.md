@@ -14,6 +14,8 @@ Main Classes
 class Domain
 ------------
 
+Implemented in domain.hpp
+
 Class ::domain describes a base domain \f$\mathcal{D} = \left\{\xi\right\}\f$ over which interpolation functions \f$L(\xi)\f$, \f$N(\xi)\f$ can be defined.
 The class is templated on the number of spatial dimensions of the \f$\xi\f$-space and the number of domain corners.
 Additionally, class ::domain defines the whole problem's real scalar type (typically double).
@@ -30,6 +32,8 @@ These specialisations are plain typedefs.
 
 class ShapeSet
 --------------
+
+Implemented in shapeset.hpp
 
 ShapeSet classes define interpolation functions \f$L(\xi)\f$ on the base domain. All ShapeSet classes are derived from the CRTP base class ::shape_set_base. The interface base class ::shape_set_base obtains the derived class's parameters through a traits class ::shape_set_traits. The interface can return a vector of shape functions \f$L(\xi)\f$ for any input coordinate \f$\xi\f$, as well as the shape functions derivative \f$\nabla L(\xi)\f$ with respect to the domain variable \f$\xi\f$. Furthermore, the interface can return begin and end iterators to the interpolation function's nodal locations.
 
@@ -50,5 +54,8 @@ Specialisations of the CRTP base class are templated on base domains. The interf
 class Element
 -------------
 
-An element is a geometrical interpolation function set \f$L_k(\xi)\f$ defined over a base domain \f$\mathcal{D}\f$ and a set of nodal coordinates \f$x_k\f$.
+Implemented in element.hpp
+
+An element is described by a a set of nodal coordinates \f$x_k\f$ and a geometrical interpolation function set \f$L_k(\xi)\f$ defined over a base domain \f$\mathcal{D}\f$.
+
 
