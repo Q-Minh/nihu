@@ -92,13 +92,13 @@ class constant_shape_set : public shape_set_base<constant_shape_set<Domain> >
 public:
 	typedef shape_set_base<constant_shape_set<Domain> > base_t;	/**< \brief the base class type */
 	/** \brief the domain type */
-	using domain_t = typename base_t::domain_t;	
+	typedef typename base_t::domain_t domain_t;	
 	/** \brief type of the xi variable */
-	using xi_t = typename base_t::xi_t;
+	typedef typename base_t::xi_t xi_t;
 	/** \brief type of a shape function vector */
-	using shape_t = typename base_t::shape_t;
+	typedef typename base_t::shape_t shape_t;
 	/** \brief type of a shape function gradient matrix */
-	using dshape_t = typename base_t::dshape_t;
+	typedef typename base_t::dshape_t dshape_t;
 
 	/**
 	 * \brief return constant shape functions
@@ -164,11 +164,11 @@ public:
 
 	typedef shape_set_base<isoparam_shape_set<Domain> > base_t;	/**< \brief the base class type */
 	/** \brief the xi location vector type */
-	using xi_t = typename base_t::xi_t;
+	typedef typename base_t::xi_t xi_t;
 	/** \brief type of a shape vector */
-	using shape_t = typename base_t::shape_t;
+	typedef typename base_t::shape_t shape_t;
 	/** \brief type of a shape gradient matrix */
-	using dshape_t = typename base_t::dshape_t;
+	typedef typename base_t::dshape_t dshape_t;
 
 	/**
 	 * \brief return shape functions
@@ -333,11 +333,11 @@ public:
 	typedef shape_set_base<parallelogram_shape_set> base_t;	/**< \brief the base type */
 	typedef base_t::domain_t domain_t;	/**< \brief domain type */
 	/** \brief domain variable type */
-	using xi_t = base_t::xi_t;
+	typedef base_t::xi_t xi_t;
 	/** \brief type of a shape function vector */
-	using shape_t = base_t::shape_t;
+	typedef base_t::shape_t shape_t;
 	/** \brief type of a shape function gradient matrix */
-	using dshape_t = base_t::dshape_t;
+	typedef base_t::dshape_t dshape_t;
 
 	/**
 	 * \brief linear 3-noded parallelogram shape functions

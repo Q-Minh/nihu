@@ -104,9 +104,9 @@ public:
 	typedef field_base<field<ElemType, isoparametric_field, DiracOption> > base_t;	///< \brief base's type
 
 	/// \brief the field's elem type
-	using elem_t = typename base_t::elem_t;	
+	typedef typename base_t::elem_t elem_t;
 	/// \brief the degree of freedom vector type
-	using dofs_t = typename base_t::dofs_t;	
+	typedef typename base_t::dofs_t dofs_t;
 
 	using base_t::m_elem;
 
@@ -158,9 +158,9 @@ public:
 	typedef DiracOption dirac_option_t;	///< \brief template argument as nested type
 
 	/// \brief the field's elem type
-	using elem_t = typename base_t::elem_t;
+	typedef typename base_t::elem_t elem_t;
 	/// \brief the dof vector type
-	using dofs_t = typename base_t::dofs_t;
+	typedef typename base_t::dofs_t dofs_t;
 
 	using base_t::m_elem;
 

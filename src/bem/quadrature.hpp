@@ -363,9 +363,9 @@ class gauss_quad : public quadrature_base<gauss_quad>
 {
 public:
 	typedef quadrature_base<gauss_quad> base_t;	/**< \brief the base class */
-	typedef typename base_t::domain_t domain_t;	/**< \brief the domain type */
-	typedef typename base_t::xi_t xi_t;	/**< \brief the location type */
-	typedef typename base_t::scalar_t scalar_t;	/**< \brief the scalar type */
+	typedef base_t::domain_t domain_t;	/**< \brief the domain type */
+	typedef base_t::xi_t xi_t;	/**< \brief the location type */
+	typedef base_t::scalar_t scalar_t;	/**< \brief the scalar type */
 
 	/**
 	 * \brief default constructor creating an empty quadrature

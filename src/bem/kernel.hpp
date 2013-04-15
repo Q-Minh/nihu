@@ -102,10 +102,10 @@ class helmholtz_base : public kernel_base<Derived>
 {
 public:
 	typedef kernel_base<Derived> base_t;
-	using x_t = typename base_t::x_t;
-	using input_t = typename base_t::input_t;
-	using scalar_t = typename base_t::scalar_t;
-	using result_t = typename base_t::result_t;
+	typedef typename base_t::x_t x_t;
+	typedef typename base_t::input_t input_t;
+	typedef typename base_t::scalar_t scalar_t;
+	typedef typename base_t::result_t result_t;
 
 	using base_t::set_x0;
 	using base_t::eval;
