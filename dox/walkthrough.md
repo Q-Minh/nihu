@@ -60,7 +60,7 @@ Implemented in element.hpp
 
 An element is described by a a set of nodal coordinates \f$x_k\f$ and a geometrical interpolation function set \f$L_k(\xi)\f$ defined over a base domain \f$\mathcal{D}\f$.
 
-Class ::element is templated on its shape function set and the number of dimensions of the \f$x\f$ space. The class stores the element's nodal coordinates in an Eigen matrix. The class is capable to compute the element center, as well as the element location, location gradient and unit normal at any internal point.
+Class ::element's template prameters are its shape function set and the number of dimensions of the \f$x\f$ space. The class stores the element's nodal coordinates. The class is capable to compute the element center, as well as the element location, location gradient and unit normal at any internal point.
 
 As elements are usually located inside a mesh, the element class also stores the element's element id and its nodal indices too. These stored quantities are rarely used on element level, but they are essential in forming constant and isoparametric fields from elements.
 

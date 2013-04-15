@@ -2,6 +2,7 @@
 * \file element.hpp
 * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
 * \brief Declaration of class ::element and its specialisations
+* \todo replace double's to scalar_type in this file
 */
 #ifndef ELEMENT_HPP_INCLUDED
 #define ELEMENT_HPP_INCLUDED
