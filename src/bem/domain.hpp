@@ -44,6 +44,10 @@ public:
 		return m_center;
 	}
 
+	/**
+	 * \brief return pointer to array of corners
+	 * \return pointer to array of corners
+	 */
 	static xi_t const *get_corners(void)
 	{
 		return m_corners;

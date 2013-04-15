@@ -136,6 +136,8 @@ typename double_integral<Kernel, Test, Trial>::singular_accelerator_t
 template<class Kernel, class Trial, class ElemType, class FieldOption>
 class double_integral<Kernel, field<ElemType, FieldOption, dirac_field>, Trial>
 {
+	static_assert(is_base_of<kernel_base<Kernel>, Kernel>::value,
+		"Kernel must be derived from kernel_base<Kernel>");
 public:
 	typedef Kernel kernel_t;		/**< \brief template parameter as nested type */
 

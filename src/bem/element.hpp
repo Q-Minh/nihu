@@ -89,7 +89,8 @@ template <class LSet, unsigned Dimension>
 class element
 {
 	// make sure LSet is derived from the CRTP interface shape_set_base
-	static_assert(std::is_base_of<shape_set_base<LSet>, LSet>::value, "LSet must be derived from shape_set_base<LSet>");
+	static_assert(std::is_base_of<shape_set_base<LSet>, LSet>::value,
+		"LSet must be derived from shape_set_base<LSet>");
 public:
 	/** \brief the dimension of the element's location variable \f$x\f$ */
 	static unsigned const x_dim = Dimension;
@@ -102,11 +103,11 @@ public:
 
 	/** \brief number of shape functions in the set, inherited from the LSet */
 	static unsigned const num_nodes = lset_t::num_nodes;
-	/** \brief type of the shape functions' independent variable \f$\xi\f$, inherited from the LSet  */
+	/** \brief type of the shape functions' independent variable \f$\xi\f$ */
 	typedef typename lset_t::xi_t xi_t;
 	/** \brief type of an \f$L(\xi)\f$ vector, inherited from the LSet */
 	typedef typename lset_t::shape_t L_t;
-	/** \brief type of an \f$\nabla L(\xi)\f$ gradient matrix, inherited from the LSet */
+	/** \brief type of an \f$\nabla L(\xi)\f$ gradient matrix */
 	typedef typename lset_t::dshape_t dL_t;
 
 	/** \brief type of the element's independent location variable \f$x\f$ */

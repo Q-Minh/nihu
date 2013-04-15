@@ -20,6 +20,13 @@ enum singularity_type {
 template <class Kernel, class TestField, class TrialField>
 class singular_accelerator
 {
+	// make sure template arguments are implementing the required interfaces
+	static_assert(std::is_base_of<kernel_base<Kernel>, Kernel>::value,
+		"The kernel field must be derived from kernel_base<Kernel>");
+	static_assert(std::is_base_of<field_base<TestField>, TestField>::value,
+		"The test field must be derived from field_base<TestField>");
+	static_assert(std::is_base_of<field_base<TrialField>, TrialField>::value,
+		"The trial field must be derived from field_base<TrialField>");
 public:
 	typedef Kernel kernel_t;
 	typedef TestField test_field_t;
@@ -116,3 +123,4 @@ public:
 };
 
 #endif // SINGULAR_ACCELERATOR_HPP_INCLUDED
+

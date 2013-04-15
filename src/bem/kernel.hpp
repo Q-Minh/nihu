@@ -240,7 +240,7 @@ class helmholtz_H_kernel : public helmholtz_base<helmholtz_H_kernel>
 public:
 	typedef helmholtz_base<helmholtz_H_kernel> base_t;	/**< \brief the base class' type */
 
-//	using base_t::eval;
+	using base_t::eval; // needed so that the class sees the two argument eval function too
 
 	/**
 	 * \brief evaluate kernel at a given receiver position

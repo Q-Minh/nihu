@@ -1,7 +1,9 @@
 Theory {#theory}
 ======
 
-Weighted Residuals in a Nuthshell
+[TOC]
+
+Weighted Residuals in a Nuthshell {#weightedresidual}
 =================================
 
 From a computational point of view, BEM can be considered as the evaluation of a _Weighted Residual_ \f$R\f$ of the form
@@ -13,7 +15,7 @@ So evaluation of the weighed residual is derived from to the evaluation of weigh
 \f[ R_{ij} = \int \int M_i(x) K(x, y) N_j(y) dy dx \f]
 
 
-Collocational and Galerkin BEM
+Collocational and Galerkin BEM {#collocgalerkin}
 ------------------------------
 
 When following the _collocational BEM_ approach, the test function is a superposition of Dirac delta functions located at \f$x_i\f$, resulting in the weighted residual expression
@@ -23,7 +25,7 @@ When following the _Galerkin BEM_ approach, the trial and test functions spaces 
 \f[ M_i(x) = N_i(x) \rightarrow R_{ij} = \int \int N_i(x) K(x, y) N_j(y) dy dx \f]
 
 
-Elements and Fields
+Elements and Fields {#elemfield}
 -------------------
 
 In a typical implementation with a general domain geometry, the function spaces' base functions are piecewise polynomial functions over sufficiently small subdomains of the problem geometry:

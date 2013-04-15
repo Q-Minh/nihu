@@ -5,15 +5,16 @@ A bottom-up walkthrough {#walkthrough}
 
 [TOC]
 
-Introduction
+
+Introduction {#intro}
 ============
 
 This bottom-up walkthrough is a short programmers' guide.  If you would like to introduce your shape functions, elements or kernels into the NiHu toolbox, the best practice is to read this guide, understand the structure of the software, and modify the code afterwards.
 
-Main Classes 
+Main Classes {#classes}
 ============
 
-class Domain
+class Domain {#domain}
 ------------
 
 Implemented in domain.hpp
@@ -32,7 +33,7 @@ In the current development state, class ::domain is specialised for
 These specialisations are plain typedefs.
 
 
-class ShapeSet
+class ShapeSet {#shapeset}
 --------------
 
 Implemented in shapeset.hpp
@@ -53,7 +54,7 @@ Specialisations of the [CRTP] base class are templated on base domains. The inte
 - Further shape sets (quadratic tria and quad elements) that do not fit into the constant or isoparametric families can be introduced separately by implementing their functions that return shape functions, its derivatives and the nodal corner points.
 	
 
-class Element
+class Element {#element}
 -------------
 
 Implemented in element.hpp
@@ -69,3 +70,14 @@ Class element is specialised for the following frequently used element types wit
 - ::tria_1_elem is a linear 3 noded triangle in 3D space
 - ::parallelogram_elem is a linear 3 noded parallelogram elem in 3D space
 - ::quad_1_elem is a linear 4 noded quadrilateral element in 3D space
+
+class Field {#field}
+-----------
+
+Implemented in field.hpp
+
+A field is an element extended with shape functions \f$N(x)\f$ that describe some physical quantity's variation over the element geometry. Although shape functions are generally independent from the geometrical element representation, in most common cases the shape functions are related to the element geometry. In the present implementation, NiHu supports two kind of shape functions over elements:
+- Constant fields describe a constant quantity over an element geometry
+- Isoparametric fields describe a quantitiy that is interpolated with the element's geometrical shape functions.
+
+As these fields do not require any additional information, only the element itself, NiHu fields are are simply elements tagged with either constant_field or isoparametric_field tags.

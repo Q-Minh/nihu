@@ -14,27 +14,59 @@ struct constant_field;		///< \brief tag to describe a constant field */
 struct dirac_field;	///< \brief tag to describe an isoparametric field
 struct function_field;		///< \brief tag to describe a constant field */
 
+template <class Derived>
+struct field_traits;
+
 /**
- * \brief a comon base type for both fields
- * \tparam ElemType the element type of the field
+ * \brief CRTP base class of all fields
+ * \tparam Derived the CRTP derived class
  */
-template <class ElemType>
+template <class Derived>
 class field_base
 {
+private:
+	/** \brief helper function to return reference to the derived class */
+	Derived const &derived(void) const
+	{
+		return static_cast<Derived const &>(*this);
+	}
+
+	/** \brief helper function to return reference to the derived class */
+	Derived &derived(void)
+	{
+		return static_cast<Derived &>(*this);
+	}
+
 public:
-	typedef ElemType elem_t; ///< \brief template parameter as nested type
+	typedef field_traits<Derived> traits_t;	/**< \brief the traits class */
+	typedef typename traits_t::elem_t elem_t;	/**< \brief the element type */
+	typedef typename traits_t::dofs_t dofs_t;	/**< \brief the dofs vector type */
 
 	/**
 	 * \brief constructor initialising the reference member
 	 * \param elem The element the field is attached to
 	 */
-	field_base(elem_t const &elem) : m_elem(elem) { }
+	field_base(elem_t const &elem) : m_elem(elem)
+	{
+	}
 
 	/**
 	 * \brief return underlying element
 	 * \return the element of the field
 	 */
-	elem_t const &get_elem(void) const { return m_elem; }
+	elem_t const &get_elem(void) const
+	{
+		return m_elem;
+	}
+
+	/**
+	 * \brief return dofs vector
+	 * \return the vector containing the degrees of freedoms
+	 */
+	dofs_t const &get_dofs(void) const
+	{
+		return derived().get_dofs();
+	}
 
 protected:
 	elem_t const &m_elem;	///< \brief the element the field is attached to
@@ -52,30 +84,45 @@ protected:
 template <class ElemType, class FieldOption, class DiracOption = function_field>
 class field;
 
+/** \brief Specialisation of field_traits for the isoparametric field case */
+template <class ElemType, class DiracOption>
+struct field_traits<field<ElemType, isoparametric_field, DiracOption> >
+{
+	typedef ElemType elem_t;	/**< \brief the element type */
+	typedef typename elem_t::nodes_t dofs_t;	/**< \brief the dof vector type */
+};
+
 /**
  * \brief Specialisation of class Field for the case of an isoparameteric field
  * \details On an isoparametric field the shape function set equals the geometrical L-set.
  * \tparam ElemType the element type the field is associated with
  */
 template <class ElemType, class DiracOption>
-class field<ElemType, isoparametric_field, DiracOption> : public field_base<ElemType>
+class field<ElemType, isoparametric_field, DiracOption> : public field_base<field<ElemType, isoparametric_field, DiracOption> >
 {
 public:
-	typedef field_base<ElemType> base;	///< \brief base's type
+	typedef field_base<field<ElemType, isoparametric_field, DiracOption> > base_t;	///< \brief base's type
 
-	typedef typename base::elem_t elem_t;	///< \brief the field's elem type
+	/// \brief the field's elem type
+	using elem_t = typename base_t::elem_t;	
+	/// \brief the degree of freedom vector type
+	using dofs_t = typename base_t::dofs_t;	
+
+	using base_t::m_elem;
+
 	typedef isoparametric_field field_option_t;	///< \brief the field generating option type
 	typedef DiracOption dirac_option_t;	///< \brief the field generating option type
 
 	typedef typename elem_t::lset_t nset_t;				///< \brief N-set = L-set
 	static unsigned const num_dofs = nset_t::num_nodes; ///< \brief the number of dofs
-	typedef typename elem_t::nodes_t dofs_t;			///< \brief type of DOF vector
 
 	/**
 	 * \brief constructor passing argument to base constructor
-	 * \param elem constant reference to underlying element
+	 * \param [in] elem constant reference to underlying element
 	 */
-	field(elem_t const &elem) : field_base<elem_t>(elem) {}
+	field(elem_t const &elem) : base_t(elem)
+	{
+	}
 
 	/**
 	 * \brief return DOF vector
@@ -83,10 +130,18 @@ public:
 	 */
 	dofs_t const &get_dofs(void) const
 	{
-		return base::m_elem.get_nodes();
+		return m_elem.get_nodes();
 	}
 };
 
+
+/** \brief Specialisation of field_traits for the constant field case */
+template <class ElemType, class DiracOption>
+struct field_traits<field<ElemType, constant_field, DiracOption> >
+{
+	typedef ElemType elem_t;	/**< \brief the element type */
+	typedef typename elem_t::id_t dofs_t;	/**< \brief the dof vector type */
+};
 
 /**
  * \brief Specialisation of class Field for the case of a constant field
@@ -94,24 +149,31 @@ public:
  * \tparam ElemType the element type the field is associated with
  */
 template <class ElemType, class DiracOption>
-class field<ElemType, constant_field, DiracOption> : public field_base<ElemType>
+class field<ElemType, constant_field, DiracOption> : public field_base<field<ElemType, constant_field, DiracOption> >
 {
 public:
-	typedef field_base<ElemType> base;	///< \brief base's type
+	typedef field_base<field<ElemType, constant_field, DiracOption> > base_t;	///< \brief base's type
 
-	typedef typename base::elem_t elem_t;	///< \brief the field's elem type
-	typedef constant_field field_option_t;		///< \brief the field generating option
-	typedef DiracOption dirac_option_t;	///< \brief the field generating option type
+	typedef constant_field field_option_t;		///< \brief template argument as nested type
+	typedef DiracOption dirac_option_t;	///< \brief template argument as nested type
+
+	/// \brief the field's elem type
+	using elem_t = typename base_t::elem_t;
+	/// \brief the dof vector type
+	using dofs_t = typename base_t::dofs_t;
+
+	using base_t::m_elem;
 
 	typedef constant_shape_set<typename elem_t::domain_t> nset_t; ///< \brief type of N-set
 	static unsigned const num_dofs = nset_t::num_nodes;	///< \brief the number of dofs
-	typedef typename elem_t::id_t dofs_t;				///< \brief type of the field's DOF vector
 
 	/**
 	 * \brief constructor passing argument to base constructor
-	 * \param elem constant reference to underlying element
+	 * \param [in] elem constant reference to underlying element
 	 */
-	field(elem_t const &elem) : field_base<elem_t>(elem) {}
+	field(elem_t const &elem) : base_t(elem)
+	{
+	}
 
 	/**
 	 * \brief return DOF vector
@@ -119,7 +181,7 @@ public:
 	 */
 	dofs_t const &get_dofs(void) const
 	{
-		return base::m_elem.get_id();
+		return m_elem.get_id();
 	}
 };
 

@@ -1,8 +1,8 @@
 NiHu Boonen 13 {#mainpage}
 ==============
 
-[theoryguide]:theory.html
-[walkthrough]:walkthrough.html
+[theoryguide]:\ref theory
+[walkthrough]:\ref walkthrough
 
-- Short guide over the theory can be read [here][theoryguide].
-- Short tour for NiHu programmers can be read [here][walkthrough].
+- Short guide over the theory can be read in the [theoryguide] section.
+- Short tour for NiHu programmers can be read [walkthrough] section.

@@ -91,10 +91,14 @@ class constant_shape_set : public shape_set_base<constant_shape_set<Domain> >
 {
 public:
 	typedef shape_set_base<constant_shape_set<Domain> > base_t;	/**< \brief the base class type */
-	using domain_t = typename base_t::domain_t;	/**< \brief the domain type */
-	using xi_t = typename base_t::xi_t;	/**< \brief type of the xi variable */
-	using shape_t = typename base_t::shape_t;	/**< \brief type of a shape function vector */
-	using dshape_t = typename base_t::dshape_t;	/**< \brief type of a shape function gradient matrix */
+	/** \brief the domain type */
+	using domain_t = typename base_t::domain_t;	
+	/** \brief type of the xi variable */
+	using xi_t = typename base_t::xi_t;
+	/** \brief type of a shape function vector */
+	using shape_t = typename base_t::shape_t;
+	/** \brief type of a shape function gradient matrix */
+	using dshape_t = typename base_t::dshape_t;
 
 	/**
 	 * \brief return constant shape functions
@@ -159,11 +163,25 @@ public:
 	typedef Domain domain_t;	/**< \brief the domain type */
 
 	typedef shape_set_base<isoparam_shape_set<Domain> > base_t;	/**< \brief the base class type */
-	using xi_t = typename base_t::xi_t;	/**< \brief the xi location vector type */
-	using shape_t = typename base_t::shape_t;	/**< \brief type of a shape vector */
-	using dshape_t = typename base_t::dshape_t;	/**< \brief type of a shape graidnet matrix */
+	/** \brief the xi location vector type */
+	using xi_t = typename base_t::xi_t;
+	/** \brief type of a shape vector */
+	using shape_t = typename base_t::shape_t;
+	/** \brief type of a shape gradient matrix */
+	using dshape_t = typename base_t::dshape_t;
 
+	/**
+	 * \brief return shape functions
+	 * \param [in] xi the location in the base domain
+	 * \return the shape functions
+	 */
 	static shape_t eval_shape(xi_t const &xi);
+
+	/**
+	 * \brief return shape functions derivatives
+	 * \param [in] xi the location in the base domain
+	 * \return the shape function derivatives
+	 */
 	static dshape_t eval_dshape(xi_t const &xi);
 
 	/** \brief return begin iterator to the corner nodes
@@ -314,9 +332,12 @@ class parallelogram_shape_set : public shape_set_base<parallelogram_shape_set>
 public:
 	typedef shape_set_base<parallelogram_shape_set> base_t;	/**< \brief the base type */
 	typedef base_t::domain_t domain_t;	/**< \brief domain type */
-	using xi_t = base_t::xi_t;	/**< \brief domain variable type */
-	using shape_t = base_t::shape_t;	/**< \brief type of a shape function vector */
-	using dshape_t = base_t::dshape_t;	/**< \brief type of a shape function gradient matrix */
+	/** \brief domain variable type */
+	using xi_t = base_t::xi_t;
+	/** \brief type of a shape function vector */
+	using shape_t = base_t::shape_t;
+	/** \brief type of a shape function gradient matrix */
+	using dshape_t = base_t::dshape_t;
 
 	/**
 	 * \brief linear 3-noded parallelogram shape functions
