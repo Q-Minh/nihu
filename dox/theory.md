@@ -1,8 +1,8 @@
 Theory {#theory}
 ======
 
-BEM in a Nuthshell
-==================
+Weighted Residuals in a Nuthshell
+=================================
 
 From a computational point of view, BEM can be considered as the evaluation of a _Weighted Residual_ \f$R\f$ of the form
 \f[ R = \int \int M(x) K(x, y) N(y) dy dx \f]

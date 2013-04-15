@@ -18,7 +18,7 @@ class Domain
 
 Implemented in domain.hpp
 
-Class ::domain describes a base domain \f$\mathcal{D} = \left\{\xi\right\}\f$ over which interpolation functions \f$L(\xi)\f$, \f$N(\xi)\f$ can be defined.
+Class ::domain describes a base domain \f$\mathcal{D} = \left\{\xi\right\}\f$ over which interpolation functions \f$L(\xi)\f$ can be defined.
 The class is templated on the number of spatial dimensions of the \f$\xi\f$-space and the number of domain corners.
 Additionally, class ::domain defines the whole problem's real scalar type (typically double).
 Class ::domain stores and can return the base domain's corner nodes and center.
