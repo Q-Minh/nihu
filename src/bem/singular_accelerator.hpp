@@ -20,7 +20,7 @@ enum singularity_type {
 template <class Kernel, class TestField, class TrialField>
 class singular_accelerator
 {
-	// make sure template arguments are implementing the required interfaces
+	// CRTP check
 	static_assert(std::is_base_of<kernel_base<Kernel>, Kernel>::value,
 		"The kernel field must be derived from kernel_base<Kernel>");
 	static_assert(std::is_base_of<field_base<TestField>, TestField>::value,
@@ -34,8 +34,8 @@ public:
 	typedef typename kernel_traits<kernel_t>::quadrature_family_t quadrature_family_t;
 	typedef typename test_field_t::elem_t::domain_t test_domain_t;
 	typedef typename trial_field_t::elem_t::domain_t trial_domain_t;
-	typedef typename quadrature_domain_traits<quadrature_family_t, test_domain_t>::quadrature_type test_quadrature_t;
-	typedef typename quadrature_domain_traits<quadrature_family_t, trial_domain_t>::quadrature_type trial_quadrature_t;
+	typedef typename quadrature_type<quadrature_family_t, test_domain_t>::type test_quadrature_t;
+	typedef typename quadrature_type<quadrature_family_t, trial_domain_t>::type trial_quadrature_t;
 
 	singularity_type eval(TestField const &, TrialField const &) const
 	{
@@ -61,13 +61,16 @@ class singular_accelerator<
 	field<Elem, constant_field, dirac_field>,
 	field<Elem, TrialFieldOption, TrialDiracOption> >
 {
+	// CRTP check
+	static_assert(std::is_base_of<kernel_base<Kernel>, Kernel>::value,
+		"Kernel must be derived from kernel_base<Kernel>");
 public:
 	typedef Kernel kernel_t;
 	typedef field<Elem, constant_field, dirac_field> test_field_t;
 	typedef field<Elem, TrialFieldOption, TrialDiracOption> trial_field_t;
 	typedef typename kernel_traits<kernel_t>::quadrature_family_t quadrature_family_t;
 	typedef typename trial_field_t::elem_t::domain_t trial_domain_t;
-	typedef typename quadrature_domain_traits<quadrature_family_t, trial_domain_t>::quadrature_type trial_quadrature_t;
+	typedef typename quadrature_type<quadrature_family_t, trial_domain_t>::type trial_quadrature_t;
 
 	singular_accelerator()
 		: m_quadrature(trial_quadrature_t::singular_quadrature_inside(9, trial_domain_t::get_center()))
@@ -98,6 +101,11 @@ class singular_accelerator<
 	field<Elem, TestOption, function_field>,
 	TrialField>
 {
+	// CRTP test
+	static_assert(std::is_base_of<kernel_base<Kernel>, Kernel>::value,
+		"Kernel must be derived from kernel_base<Kernel>");
+	static_assert(std::is_base_of<field_base<TrialField>, TrialField>::value,
+		"TrialField must be derived from field_base<TrialField>");
 public:
 	typedef field<Elem, TestOption, function_field> test_field_t;
 	typedef TrialField  trial_field_t;

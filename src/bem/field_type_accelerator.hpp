@@ -27,12 +27,15 @@
 template <class Field, class Family>
 class field_type_accelerator
 {
+	// CRTP check
+	static_assert(std::is_base_of<field_base<Field>, Field>::value,
+		"Field must be derived from field_base<Test>");
 public:
 	/** \brief template argument as nested type */
 	typedef Field field_t;
 
 	/** \brief the quadrature vector type */
-	typedef typename quadrature_domain_traits<Family, typename field_t::elem_t::domain_t>::quadrature_type quadrature_t;
+	typedef typename quadrature_type<Family, typename field_t::elem_t::domain_t>::type quadrature_t;
 	/** \brief the type of one quadrature point */
 	typedef typename quadrature_t::quadrature_elem_t quadrature_elem_t;
 	/** \brief the quadrature iterator type */
@@ -187,6 +190,9 @@ protected:
 template <class Field, class Family>
 class field_type_accelerator_pool : public std::vector<field_type_accelerator<Field, Family> *>
 {
+	// CRTP check
+	static_assert(std::is_base_of<field_base<Field>, Field>::value,
+		"Field must be derived from field_base<Test>");
 public:
 	/** \brief template argument as nested type */
 	typedef Field field_t;

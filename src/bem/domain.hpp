@@ -66,7 +66,10 @@ template<>
 line_domain::xi_t line_domain::m_center = line_domain::xi_t::Zero();
 
 template<>
-line_domain::corners_t line_domain::m_corners = {line_domain::xi_t::Ones()*(-1.0), line_domain::xi_t::Ones()*(1.0)};
+line_domain::corners_t line_domain::m_corners = {
+	line_domain::xi_t::Ones()*(-1.0),
+	line_domain::xi_t::Ones()*( 1.0)
+	};
 
 /** \brief a 2D triangle domain */
 typedef domain<2, 3> tria_domain;
@@ -74,7 +77,11 @@ template<>
 tria_domain::xi_t tria_domain::m_center = tria_domain::xi_t::Ones()/3.0;
 
 template<>
-tria_domain::corners_t tria_domain::m_corners = {tria_domain::xi_t(0.0,0.0), tria_domain::xi_t(1.0,0.0), tria_domain::xi_t(0.0,1.0)};
+tria_domain::corners_t tria_domain::m_corners = {
+	tria_domain::xi_t(0.0,0.0),
+	tria_domain::xi_t(1.0,0.0),
+	tria_domain::xi_t(0.0,1.0)
+	};
 
 
 /** \brief a 2D quad domain */
@@ -83,7 +90,12 @@ template<>
 quad_domain::xi_t quad_domain::m_center = quad_domain::xi_t::Zero();
 
 template<>
-quad_domain::corners_t quad_domain::m_corners = {quad_domain::xi_t(-1.0,-1.0), quad_domain::xi_t(1.0,-1.0), quad_domain::xi_t(1.0,1.0), quad_domain::xi_t(-1.0,1.0)};
+quad_domain::corners_t quad_domain::m_corners = {
+	quad_domain::xi_t(-1.0,-1.0),
+	quad_domain::xi_t( 1.0,-1.0),
+	quad_domain::xi_t( 1.0, 1.0),
+	quad_domain::xi_t(-1.0, 1.0)
+	};
 
 
 /** \brief a 3D brick domain */
@@ -92,8 +104,15 @@ template<>
 brick_domain::xi_t brick_domain::m_center = brick_domain::xi_t::Zero();
 
 template<>
-brick_domain::corners_t brick_domain::m_corners = {brick_domain::xi_t(-1.0,-1.0,-1.0), brick_domain::xi_t(1.0,-1.0,-1.0), brick_domain::xi_t(1.0,1.0,-1.0), brick_domain::xi_t(-1.0,1.0,-1.0),
-	brick_domain::xi_t(-1.0,-1.0,1.0), brick_domain::xi_t(1.0,-1.0,1.0), brick_domain::xi_t(1.0,1.0,1.0), brick_domain::xi_t(-1.0,1.0,1.0)
+brick_domain::corners_t brick_domain::m_corners = {
+	brick_domain::xi_t(-1.0,-1.0,-1.0),
+	brick_domain::xi_t( 1.0,-1.0,-1.0),
+	brick_domain::xi_t( 1.0, 1.0,-1.0),
+	brick_domain::xi_t(-1.0, 1.0,-1.0),
+	brick_domain::xi_t(-1.0,-1.0, 1.0),
+	brick_domain::xi_t( 1.0,-1.0, 1.0),
+	brick_domain::xi_t( 1.0, 1.0, 1.0),
+	brick_domain::xi_t(-1.0, 1.0, 1.0)
 };
 
 

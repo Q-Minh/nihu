@@ -73,9 +73,10 @@ public:
 	template <class elem_t>
 	struct fieldize
 	{
-		typedef field<elem_t, field_option_t, dirac_option_t> type;
+		typedef field<elem_t, field_option_t, dirac_option_t> type; /**< \brief metafunction return type */
 	};
 
+	/** \brief a vector of field types computed from the element type vector */
 	typedef typename tmp::transform<
 		elem_type_vector_t,
 		tmp::inserter<tmp::vector<>, tmp::push_back<tmp::_1, tmp::_2> >,
@@ -89,6 +90,9 @@ public:
 	template <class FieldType>
 	class field_iterator_t : public mesh_t::template elem_iterator_t<typename FieldType::elem_t>::type
 	{
+		// CRTP check
+		static_assert(std::is_base_of<field_base<FieldType>, FieldType>::value,
+			"FieldType must be derived from field_base<FieldType>");
 	public:
 		typedef typename mesh_t::template elem_iterator_t<typename FieldType::elem_t>::type base_it;	/**< \brief the base iteartor type */
 		typedef FieldType value_t;	/**< \brief the pointed data type */
@@ -124,6 +128,10 @@ public:
 	template <class FieldType>
 	field_iterator_t<FieldType> field_begin(void) const
 	{
+		// CRTP check
+		static_assert(std::is_base_of<field_base<FieldType>, FieldType>::value,
+			"FieldType must be derived from field_base<FieldType>");
+
 		return m_mesh.template begin<typename FieldType::elem_t>(); // automatic conversion by iterator constructor
 	}
 
@@ -134,6 +142,10 @@ public:
 	template <class FieldType>
 	field_iterator_t<FieldType> field_end(void) const
 	{
+		// CRTP check
+		static_assert(std::is_base_of<field_base<FieldType>, FieldType>::value,
+			"FieldType must be derived from field_base<FieldType>");
+
 		return m_mesh.template end<typename FieldType::elem_t>(); // automatic conversion by iterator constructor
 	}
 

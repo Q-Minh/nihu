@@ -118,7 +118,7 @@ protected:
 
 public:
 	typedef quadrature_traits<Derived> traits_t;				/**< \brief corresponding traits type */
-	typedef typename traits_t::domain_t domain_t;				/**< \brief template parameter as nested type */
+	typedef typename traits_t::domain_t domain_t;				/**< \brief the domain type */
 	typedef typename domain_t::xi_t xi_t; 						/**< \brief local coordinate type */
 	typedef typename domain_t::scalar_t scalar_t; 				/**< \brief local scalar type */
 	typedef quadrature_elem<xi_t, scalar_t> quadrature_elem_t;	/**< \brief the quadrature elem type */
@@ -303,7 +303,7 @@ class gauss_line;
 template <>
 struct quadrature_traits<gauss_line>
 {
-	typedef line_domain domain_t;
+	typedef line_domain domain_t;	/**< \brief type of the domain */
 };
 
 /**
@@ -318,7 +318,7 @@ public:
 
 
 	/**
-	 * \breaf default constructor creating an empty quadrature
+	 * \brief default constructor creating an empty quadrature
 	 */
 	gauss_line() : base_t(0) {};
 
@@ -352,7 +352,7 @@ class gauss_quad;
 template <>
 struct quadrature_traits<gauss_quad>
 {
-	typedef quad_domain domain_t;
+	typedef quad_domain domain_t;	/**< \brief type of the domain */
 };
 
 
@@ -368,7 +368,7 @@ public:
 	typedef typename base_t::scalar_t scalar_t;	/**< \brief the scalar type */
 
 	/**
-	 * \breaf default constructor creating an empty quadrature
+	 * \brief default constructor creating an empty quadrature
 	 */
 	gauss_quad() : base_t(0) {};
 
@@ -400,11 +400,16 @@ public:
 template <>
 struct singular_traits<gauss_quad>
 {
+	/** \brief the singular duffy element is gaussian too */
 	typedef gauss_quad singular_source_type;
-	static const unsigned nCorners = singular_source_type::domain_t::id;
-	static const unsigned nResolution = 4;
-	static const int index_inside[nResolution][nCorners];
+	/** \brief the tria is divided into duffy quads */
 	typedef quad_1_shape_set transformation_lset;
+	/** \brief number of corners of a duffy quad = 4 */
+	static const unsigned nCorners = singular_source_type::domain_t::num_corners;
+	/** \brief number of quads in the division */
+	static const unsigned nResolution = 4;
+	/** \brief index matrix describing orientation of the duffy quads */
+	static const int index_inside[nResolution][nCorners];
 };
 
 const int singular_traits<gauss_quad>::index_inside[singular_traits<gauss_quad>::nResolution][singular_traits<gauss_quad>::nCorners] = {
@@ -425,7 +430,7 @@ class gauss_tria;
 template <>
 struct quadrature_traits<gauss_tria>
 {
-	typedef tria_domain domain_t;
+	typedef tria_domain domain_t;	/**< \brief type of the domain */
 };
 
 
@@ -572,10 +577,15 @@ public:
 template <>
 struct singular_traits<gauss_tria>
 {
+	/** \brief the singular duffy element is gaussian too */
 	typedef gauss_quad singular_source_type;
+	/** \brief duffy quads are transformed with an iso quad L-set */
 	typedef quad_1_shape_set transformation_lset;
-	static const unsigned nCorners = singular_source_type::domain_t::id;
+	/** \brief number of corners of a duffy quad = 4 */
+	static const unsigned nCorners = singular_source_type::domain_t::num_corners;
+	/** \brief number of triangles in the division */
 	static const unsigned nResolution = 3;
+	/** \brief index matrix describing orientation of the duffy quads */
 	static const int index_inside[nResolution][nCorners];
 };
 
@@ -593,27 +603,30 @@ const int singular_traits<gauss_tria>::index_inside[singular_traits<gauss_tria>:
 struct gauss_family_tag;
 
 /**
- * \brief traits for quadrature families
+ * \brief assign a quadrature type to a quadrature family and a domain
  */
 template <class Family, class Domain>
-struct quadrature_domain_traits;
+struct quadrature_type;
 
+/** \brief specialisation of quadrature_type to Gaussian family on line */
 template<>
-struct quadrature_domain_traits<gauss_family_tag, line_domain>
+struct quadrature_type<gauss_family_tag, line_domain>
 {
-	typedef gauss_line quadrature_type;
+	typedef gauss_line type; /**< \brief metafunction return type */
 };
 
+/** \brief specialisation of quadrature_type to Gaussian family on triangle */
 template<>
-struct quadrature_domain_traits<gauss_family_tag, tria_domain>
+struct quadrature_type<gauss_family_tag, tria_domain>
 {
-	typedef gauss_tria quadrature_type;
+	typedef gauss_tria type; /**< \brief metafunction return type */
 };
 
+/** \brief specialisation of quadrature_type to Gaussian family on quad */
 template<>
-struct quadrature_domain_traits<gauss_family_tag, quad_domain>
+struct quadrature_type<gauss_family_tag, quad_domain>
 {
-	typedef gauss_quad quadrature_type;
+	typedef gauss_quad type; /**< \brief metafunction return type */
 };
 
 #endif

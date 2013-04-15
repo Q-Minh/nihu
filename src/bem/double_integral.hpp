@@ -23,6 +23,10 @@ class double_integral
 	// CRTP check
 	static_assert(std::is_base_of<kernel_base<Kernel>, Kernel>::value,
 		"Kernel must be derived from kernel_base<Kernel>");
+	static_assert(std::is_base_of<field_base<Test>, Test>::value,
+		"Test must be derived from field_base<Test>");
+	static_assert(std::is_base_of<field_base<Trial>, Trial>::value,
+		"Trial must be derived from field_base<Trial>");
 public:
 	typedef Kernel kernel_t;		/**< \brief template parameter as nested type */
 	typedef Test test_field_t;		/**< \brief template parameter as nested type */
@@ -31,6 +35,7 @@ public:
 	typedef typename kernel_t::input_t kernel_input_t;		/**< \brief input type of kernel */
 	typedef typename kernel_t::result_t kernel_result_t;	/**< \brief result type of kernel */
 
+	/** \brief the quadrature family the kernel requires */
 	typedef typename kernel_traits<kernel_t>::quadrature_family_t quadrature_family_t;
 
 	typedef field_type_accelerator<test_field_t, quadrature_family_t> test_field_type_accelerator_t;	/**< \brief type of the accelerator of the test field */
@@ -38,11 +43,13 @@ public:
 	typedef field_type_accelerator<trial_field_t, quadrature_family_t> trial_field_type_accelerator_t;	/**< \brief type of the accelerator of the trial field */
 	typedef field_type_accelerator_pool<trial_field_t, quadrature_family_t> trial_field_type_accelerator_pool_t;	/**< \brief type of the accelerator pool of the trial field */
 
+	/** \brief the singular accelerator type */
 	typedef singular_accelerator<kernel_t, test_field_t, trial_field_t> singular_accelerator_t;
 
 	typedef typename test_field_t::nset_t::shape_t test_shape_t;	/**< \brief type of test shape function */
 	typedef typename trial_field_t::nset_t::shape_t trial_shape_t;	/**< \brief type of trial shape function */
 
+	/** \brief result type of the weighted residual */
 	typedef typename plain_type<
 		typename product_type<
 			kernel_result_t,
@@ -105,8 +112,11 @@ public:
 protected:
 	static result_t m_result; /**< \brief the integral result stored as static variable */
 
+	/** \brief accelerator pool of the test field */
 	static const test_field_type_accelerator_pool_t m_test_field_accelerator_pool;
+	/** \brief accelerator pool of the trial field */
 	static const trial_field_type_accelerator_pool_t m_trial_field_accelerator_pool;
+	/** \brief singular accelerator type */
 	static const singular_accelerator_t m_singular_accelerator;
 };
 
@@ -136,8 +146,13 @@ typename double_integral<Kernel, Test, Trial>::singular_accelerator_t
 template<class Kernel, class Trial, class ElemType, class FieldOption>
 class double_integral<Kernel, field<ElemType, FieldOption, dirac_field>, Trial>
 {
-	static_assert(is_base_of<kernel_base<Kernel>, Kernel>::value,
+	static_assert(std::is_base_of<kernel_base<Kernel>, Kernel>::value,
 		"Kernel must be derived from kernel_base<Kernel>");
+	// CRTP check
+	static_assert(std::is_base_of<kernel_base<Kernel>, Kernel>::value,
+		"Kernel must be derived from kernel_base<Kernel>");
+	static_assert(std::is_base_of<field_base<Trial>, Trial>::value,
+		"Trial must be derived from field_base<Trial>");
 public:
 	typedef Kernel kernel_t;		/**< \brief template parameter as nested type */
 
@@ -147,24 +162,29 @@ public:
 	typedef typename kernel_t::input_t kernel_input_t;		/**< \brief input type of kernel */
 	typedef typename kernel_t::result_t kernel_result_t;		/**< \brief input type of kernel */
 
-	typedef typename kernel_traits<kernel_t>::quadrature_family_t quadrature_family_t;		/**< \brief quadrature family type */
+	/** \brief the quadrature family the kernel requires */
+	typedef typename kernel_traits<kernel_t>::quadrature_family_t quadrature_family_t;
 
-	typedef typename quadrature_domain_traits<quadrature_family_t, typename trial_field_t::elem_t::domain_t>::quadrature_type trial_quadrature_t;	/**< \brief type of trial quadrature */
-	typedef typename trial_quadrature_t::quadrature_elem_t quadrature_elem_t;	/**< \brief type of quadrature element */
+	typedef typename quadrature_type<
+		quadrature_family_t,
+		typename trial_field_t::elem_t::domain_t
+	>::type::quadrature_elem_t quadrature_elem_t;	/**< \brief type of quadrature elem */
 
 	typedef field_type_accelerator<trial_field_t, quadrature_family_t> trial_field_type_accelerator_t;	/**< \brief type of the accelerator of the trial field */
 	typedef field_type_accelerator_pool<trial_field_t, quadrature_family_t> trial_field_type_accelerator_pool_t;	/**< \brief type of the accelerator pool of the trial field */
 
+	/** \brief the singular accelerator type */
 	typedef singular_accelerator<kernel_t, test_field_t, trial_field_t> singular_accelerator_t;
 
 	typedef typename test_field_t::nset_t test_nset_t;		/**< \brief type of element's N-set */
 	typedef typename trial_field_t::nset_t::shape_t trial_shape_t;		/**< \brief type of element's N-set */
 
+	/** \brief result type of the weighted residual */
 	typedef typename plain_type<
 		typename product_type<kernel_result_t, Eigen::Transpose<trial_shape_t> >::type
 	>::type result_t;
 
-	/** \brief evaluate double integral with selected trial field quadrature
+	/** \brief evaluate double integral with selected trial field accelerator
 	 * \param [in] test_field the test field to integrate on
 	 * \param [in] trial_field the trial field to integrate on
 	 * \param [in] trial_acc the trial accelerator
@@ -192,12 +212,23 @@ public:
 		return m_result;
 	}
 
+	/** \brief evaluate double integral with selected trial field quadrature
+	 * \tparam Quadrature the selected quadrature type
+	 * \param [in] test_field the test field to integrate on
+	 * \param [in] trial_field the trial field to integrate on
+	 * \param [in] trial_quad the trial quadrature
+	 * \return reference to the integration result
+	 */
 	template <class Quadrature>
 	static result_t const &eval_on_quadrature(
 		test_field_t const &test_field,
 		trial_field_t const &trial_field,
 		Quadrature const &trial_quad)
 	{
+		// CRTP check
+		static_assert(std::is_base_of<quadrature_base<Quadrature>, Quadrature>::value,
+			"Quadrature must be derived from quadrature_base<Quadrature>");
+
 		for(auto test_it = test_nset_t::corner_begin(); test_it != test_nset_t::corner_end(); ++test_it)
 		{
 			quadrature_elem_t qe(*test_it);
@@ -245,8 +276,11 @@ public:
 	}
 
 protected:
-	static result_t m_result; /**< \brief the integral result stored as static variable */
+	/** \brief the integral result stored as static variable */
+ 	static result_t m_result;
+ 	/** \brief the trial field accelerator pool */
 	static const trial_field_type_accelerator_pool_t m_trial_field_accelerator_pool;
+ 	/** \brief the test field accelerator */
 	static const singular_accelerator_t m_singular_accelerator;
 };
 
