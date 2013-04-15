@@ -11,28 +11,12 @@ Evaluating the Weighted Residual approach means integrating a kernel over a set 
 Dynamic polymorphism {#dynpoly}
 --------------------
 
-A straightforward C++ solution to this problem is *dynamic polymorphism* implemented with virtual functions. Using this technique, we write an integration routine that receives a pointer to an abstract kernel interface class and a pointer to an abstract element interface class as input argument. The interface classes only declare the functionalities needed to evaluate the integrals, and their derived specialisations implement the actual algorithms. The integration routine invokes the functionalities of the abstract interfaces, and the actual implementations are searched during runtime from virtual function tables.
-
-~~~~~~{.cpp}
-result_matrix integrate(Kernel *kernel, Element *elem)
-{
-	result_matrix res = 0;
-	for (it = elem->begin(); it != elem->end(); ++it)
-		res += kernel->eval(*it) * elem->shape_function(*it);
-	return res;
-}
-~~~~~~
+A straightforward C++ solution to this problem is *dynamic polymorphism* implemented with virtual functions, abstract base classes and heterogeneous collections. Using this technique, an integration routine can be written that receives pointers to abstract kernel and element interfaces classes as input, and performs integration by invoking the functionalities of the abstract interfaces. The specific behaviour of different subproblems are implemented in specialised derived classes of the abstract base.
 
 The main advantage of dynamic polymorphism is that if we build a vector of element pointers, integration over the whole mesh can be performed with a single loop over our container.
 
-~~~~~~{.cpp}
-Element *mesh[100];
-for (size_t i = 0; i < 100; ++i)
-	integrate(kernel, mesh[i]);
-~~~~~~
-
 The main drawbacks of the dynamic polymorphism approach are the following:
-- The actual function calls are dispatched during runtime, so they cannot be inlined by the compiler.
+- The actual implementaion functions are dispatched during runtime, so they cannot be inlined by the compiler.
 - The size of the result and temporary vectors is unknown compile time, so they need to be stored dynamically, and even simple traversing loops cannot be unrolled by the compiler.
 
 These drawbacks can add up to a significant decrease of overall performance.
