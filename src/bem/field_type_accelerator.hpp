@@ -12,10 +12,6 @@
 
 #include <vector>
 
-/** \brief abbreviation for Eigen's std::vector declaration */
-#include <Eigen/StdVector>
-#define EIGENSTDVECTOR(_T) std::vector<_T, Eigen::aligned_allocator<_T> >
-
 /**
  * \brief class to store quadrature points and shape functions for a field type
  * \details field_type_accelerator is used to precompute and store quadrature points and

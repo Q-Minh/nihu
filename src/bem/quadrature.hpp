@@ -66,6 +66,9 @@ public:
 	template <class LSet>
 	quadrature_elem &transform_inplace(const Eigen::Matrix<scalar_t, LSet::num_nodes, LSet::domain_t::dimension> &coords)
 	{
+		// CRTP check
+		static_assert(std::is_base_of<shape_set_base<LSet>, LSet>::value,
+			"LSet must be derived from shape_set_base<LSet>");
 		// compute Jacobian and multiply with original weight
 		m_w *= (LSet::eval_dshape(m_xi).transpose() * coords).determinant();
 		// compute new quadrature location
@@ -160,7 +163,12 @@ public:
 	template <class LSet>
 	Derived transform(const Eigen::Matrix<scalar_t, LSet::num_nodes, LSet::domain_t::dimension> &coords) const
 	{
-		static_assert(std::is_same<xi_t, typename LSet::xi_t>::value, "Quadrature and shape set dimensions must match");
+		// CRTP check
+		static_assert(std::is_base_of<shape_set_base<LSet>, LSet>::value,
+			"LSet must be derived from shape_set_base<LSet>");
+		// dimension check
+		static_assert(std::is_same<xi_t, typename LSet::xi_t>::value,
+			"Quadrature and shape set dimensions must match");
 		Derived result(derived());
 		return result.transform_inplace<LSet>(coords);
 	}
@@ -174,7 +182,12 @@ public:
 	template <class LSet>
 	Derived &transform_inplace(const Eigen::Matrix<scalar_t, LSet::num_nodes, LSet::domain_t::dimension> &coords)
 	{
-		static_assert(std::is_same<xi_t, typename LSet::xi_t>::value, "Quadrature and shape set dimensions must match");
+		// CRTP check
+		static_assert(std::is_base_of<shape_set_base<LSet>, LSet>::value,
+			"LSet must be derived from shape_set_base<LSet>");
+		// dimension check
+		static_assert(std::is_same<xi_t, typename LSet::xi_t>::value,
+			"Quadrature and shape set dimensions must match");
 		for (auto it = this->begin(); it != this->end(); ++it)
 			it->transform_inplace<LSet>(coords);
 		return derived();
@@ -190,7 +203,8 @@ public:
 	template <class otherDerived>
 	Derived operator +(const quadrature_base<otherDerived> &other) const
 	{
-		static_assert(std::is_same<xi_t, typename otherDerived::xi_t>::value, "Quadrature domain dimensions must match");
+		static_assert(std::is_same<xi_t, typename otherDerived::xi_t>::value,
+			"Quadrature domain dimensions must match");
 		Derived result(this->size()+other.size());
 		result.insert(result.end(), this->begin(), this->end());
 		result.insert(result.end(), other.begin(), other.end());
@@ -207,7 +221,8 @@ public:
 	template <class otherDerived>
 	Derived &operator +=(const quadrature_base<otherDerived> &other)
 	{
-		static_assert(std::is_same<xi_t, typename otherDerived::xi_t>::value, "Quadrature domain dimensions must match");
+		static_assert(std::is_same<xi_t, typename otherDerived::xi_t>::value,
+			"Quadrature domain dimensions must match");
 		this->reserve(this->size()+other.size());
 		this->insert(this->end(), other.begin(), other.end());
 		return derived();

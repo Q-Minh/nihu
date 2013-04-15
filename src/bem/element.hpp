@@ -2,7 +2,6 @@
 * \file element.hpp
 * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
 * \brief Declaration of class ::element and its specialisations
-* \todo replace double's to scalar_type in this file
 */
 #ifndef ELEMENT_HPP_INCLUDED
 #define ELEMENT_HPP_INCLUDED
@@ -34,51 +33,6 @@ public:
 };
 
 /**
-* \brief functor computing normal vector
-* \tparam nDim number of dimensions
-*/
-template <unsigned nDim>
-struct normal_vector
-{
-	static_assert(nDim <= 2, "Element normal is not yet implemented for this dimension");
-};
-
-/**
-* \brief specialisation of normal vector for the 1D case
-*/
-template <>
-struct normal_vector<1>
-{
-	/**
-	* \brief compute normal vector in 1D
-	* \param dx position derivative matrix
-	*/
-	Eigen::Matrix<double, 1, 2> operator() (Eigen::Matrix<double, 1, 2> const &dx) const
-	{
-		Eigen::Matrix<double, 1, 2> res;
-		res << dx(1), -dx(0);
-		return res;
-	}
-};
-
-/**
-* \brief specialisation of normal vector for the 2D case
-*/
-template <>
-struct normal_vector<2>
-{
-	/**
-	* \brief compute normal vector in two dimensions
-	* \param dx position derivative matrix
-	*/
-	Eigen::Matrix<double, 1, 3> operator() (Eigen::Matrix<double, 2, 3> const &dx) const
-	{
-		return dx.row(0).cross(dx.row(1));
-	}
-};
-
-
-/**
 * \brief The geometrical element representation
 * \tparam LSet the shape function set describing the geometrical behaviour
 * \tparam Dimension the dimensionality of the elements space
@@ -98,7 +52,9 @@ public:
 	typedef LSet lset_t;
 	/** \brief the elements's domain */
 	typedef typename lset_t::domain_t domain_t;
-	/** \brief the dimension of the element's domain variable \f$xi\f$ */
+	/** \brief the base domain's scalar variable */
+	typedef typename domain_t::scalar_t scalar_t;
+	/** \brief the dimension of the element's domain variable \f$\xi\f$ */
 	static unsigned const xi_dim = domain_t::dimension;
 
 	/** \brief number of shape functions in the set, inherited from the LSet */
@@ -111,13 +67,13 @@ public:
 	typedef typename lset_t::dshape_t dL_t;
 
 	/** \brief type of the element's independent location variable \f$x\f$ */
-	typedef Eigen::Matrix<double, 1, x_dim> x_t;
+	typedef Eigen::Matrix<scalar_t, 1, x_dim> x_t;
 	/** \brief type of the gradient of the element's independent location variable \f$x'_{\xi}\f$ */
-	typedef Eigen::Matrix<double, xi_dim, x_dim> dx_t;
+	typedef Eigen::Matrix<scalar_t, xi_dim, x_dim> dx_t;
 	/** \brief matrix type that stores the element's corner coordinates \f$x_i\f$ */
 	typedef Eigen::Matrix<unsigned, 1, num_nodes> nodes_t;
 	/** \brief matrix type that stores the element's corner coordinates \f$x_i\f$ */
-	typedef Eigen::Matrix<double, num_nodes, x_dim> coords_t;
+	typedef Eigen::Matrix<scalar_t, num_nodes, x_dim> coords_t;
 	/** \brief type that stores the element's id */
 	typedef Eigen::Matrix<unsigned, 1, 1> id_t;
 
@@ -128,6 +84,50 @@ protected:
 	nodes_t m_nodes;
 	/** \brief the element's corner coordinates \f$x_i\f$ */
 	coords_t m_coords;
+
+	/**
+	* \brief functor computing normal vector
+	* \tparam nDim number of dimensions
+	*/
+	template <unsigned nDim>
+	struct normal_vector
+	{
+		static_assert(nDim <= 2, "Element normal is not yet implemented for this dimension");
+	};
+
+	/**
+	* \brief specialisation of normal vector for the 1D case
+	*/
+	template <>
+	struct normal_vector<1>
+	{
+		/**
+		* \brief compute normal vector in 1D
+		* \param dx position derivative matrix
+		*/
+		Eigen::Matrix<scalar_t, 1, 2> operator() (Eigen::Matrix<scalar_t, 1, 2> const &dx) const
+		{
+			Eigen::Matrix<scalar_t, 1, 2> res;
+			res << dx(1), -dx(0);
+			return res;
+		}
+	};
+
+	/**
+	* \brief specialisation of normal vector for the 2D case
+	*/
+	template <>
+	struct normal_vector<2>
+	{
+		/**
+		* \brief compute normal vector in two dimensions
+		* \param dx position derivative matrix
+		*/
+		Eigen::Matrix<scalar_t, 1, 3> operator() (Eigen::Matrix<scalar_t, 2, 3> const &dx) const
+		{
+			return dx.row(0).cross(dx.row(1));
+		}
+	};
 
 public:
 	/**
