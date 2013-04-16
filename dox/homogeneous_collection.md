@@ -50,12 +50,16 @@ public:
 };
 ~~~~~~~~
 
-The `integrate` function's arguments and return type are specific to the template parameters `Elem` and `Kernel`. This means that the function can be inlined and optimised, once the template parameters are known, i.e. the template is instantiated.
-The class template can be instantiated for any element and kernel types (that provide an appropriate `eval` function, `get_shape` function and quadrature iterators). For example, specialisation with a Helmholtz kernel and triangle elements can be invoked by compiling the code segment below:
+When reading the above code, the following observations should be made:
+- Class `weighted_resudial` is implemented in terms of a general `Kernel` and `Elem` class, but it is going to be instantiated for a single specific `Kernel` and `Elem` type.
+- The `integrate` function's arguments and return type are specific to the template parameters `Elem` and `Kernel`. This means that different specialisations can have different interface, and the function can be inlined and optimised.
+
+The class template can be instantiated for any `Elem` and `Kernel` type (that provide an appropriate `eval` function, `get_shape` function and quadrature iterators). For example, specialisation with a Helmholtz kernel and triangle elements can be invoked by compiling the code segment below:
 
 ~~~~~~~~{.cpp}
-std::vector<tria_elem> tria_elements;
 helmholtz_kernel kernel;
+
+std::vector<tria_elem> tria_elements;
 
 for (auto it = tria_elements.begin(); it != tria_elements.end(); ++it)
 	weighted_integral<tria_elem, helmholtz_kernel>::integrate(*it, kernel);
@@ -64,25 +68,28 @@ for (auto it = tria_elements.begin(); it != tria_elements.end(); ++it)
 What if we need to incorporate quad elements into our program? We need to rewrite the code as
 
 ~~~~~~~~{.cpp}
+helmholtz_kernel kernel;
+
 std::vector<tria_elem> tria_elements;
 std::vector<quad_elem> quad_elements;
-helmholtz_kernel kernel;
 
 for (auto it = tria_elements.begin(); it != tria_elements.end(); ++it)
 	weighted_integral<tria_elem, helmholtz_kernel>::integrate(*it, kernel);
 for (auto it = quad_elements.begin(); it != quad_elements.end(); ++it)
 	weighted_integral<quad_elem, helmholtz_kernel>::integrate(*it, kernel);
 ~~~~~~~~
-From the code it is obvious that integrating tria and quad elements can only be done separately, one element type after the other.
+It is obvious that integrating tria and quad elements can only be done separately, one element type after the other. This is the price paid for optimal performance.
 
-What if we need to evaluate double integrals (Galerkin BEM) with arbitrary test and trial shape functions, we need to handle three different kernels and five different element types? We have to repeat our simple traversing code segment \f$5^2\times3=75\f$ times! This is where template metaprogramming needs to be exploited.
+What if we need to evaluate double integrals (Galerkin BEM) with arbitrary test and trial shape functions, we need to handle three different kernels and five different element types? We have to repeat our simple traversing code segment \f$5^2\times3=75\f$ times! This is the point where template metaprogramming needs to be exploited.
 
 Template Metaprogramming {#tmp}
 ------------------------
 
 Metaprogramming is writing programs that write programs. Template Metaprogramming is using C++ templates to write programs that write programs. To generalise the above example, we need two things:
 1. A unified container that contains a vector of tria elements, a vector of quad elements and further vectors of other element types.
-2. A loop over types that can be called to traverse each container, instantiate weighted_integral for each element type and invoke the integrate function for each element of the subcontainer.
+2. A loop over types that can be called to traverse each container, instantiate class template `weighted_integral` for each element type and invoke the `integrate` function for each element of the subcontainer.
+
+### Inheriters {#inheriter}
 
 The first task is accomplished by an inheritance trick:
 
@@ -108,7 +115,7 @@ protected:
 ...
 ~~~~~~
 
-As each A class is derived from the previous A class, the A3 class contains each element type vectors. The general recursive implementation of this inheritance pattern can be written as
+As each `Ai` class is derived from the previous `A(i-1)` class, class `A3` contains each element type vectors. The general recursive implementation of this inheritance pattern can be written as
 
 ~~~~~~{.cpp}
 template <class TypeVector>
@@ -122,3 +129,6 @@ potected:
 template <>
 class Container<EmptyType> {};
 ~~~~~~
+
+### call_each {#calleach}
+
