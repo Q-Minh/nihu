@@ -115,13 +115,13 @@ protected:
 ...
 ~~~~~~
 
-As each `Ai` class is derived from the previous `A(i-1)` class, class `A3` contains each element type vectors. The general recursive implementation of this inheritance pattern can be written as
+As each class `Ai` is derived from the previous class `A(i-1)`, class `A3` contains each element type vectors. The general recursive implementation of this inheritance pattern can be written as
 
 ~~~~~~{.cpp}
 template <class TypeVector>
 class Container : public Container<typename tail<TypeVector>::type>
 {
-potected:
+protected:
 	std::vector<typename head<TypeVector>::type> container;
 };
 
@@ -129,6 +129,8 @@ potected:
 template <>
 class Container<EmptyType> {};
 ~~~~~~
+
+This is the technique how NiHu stores inhomogeneous meshes. For more information check out the class documentattion of class ::Mesh and its inhomogeneous container member ::Mesh::m_elements.
 
 ### call_each {#calleach}
 
