@@ -9,7 +9,6 @@
 
 #include "field.hpp"
 
-
 template <class Primary, class Secondary>
 class dual_iterator
 {
@@ -59,14 +58,6 @@ protected:
 	Secondary m_sec_start;
 };
 
-
-enum singularity_type {
-	REGULAR,
-	FACE_MATCH,
-	EDGE_MATCH,
-	CORNER_MATCH
-};
-
 template <class quadrature_iterator_t>
 class singular_quadrature_iterator : public dual_iterator<quadrature_iterator_t, quadrature_iterator_t>
 {
@@ -87,6 +78,13 @@ public:
 	{
 		return this->get_sec();
 	}
+};
+
+enum singularity_type {
+	REGULAR,
+	FACE_MATCH,
+	EDGE_MATCH,
+	CORNER_MATCH
 };
 
 /// The general case
@@ -253,7 +251,6 @@ public:
 protected:
 	trial_quadrature_t const m_quadrature;
 };
-
 
 #endif // SINGULAR_ACCELERATOR_HPP_INCLUDED
 
