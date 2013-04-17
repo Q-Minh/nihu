@@ -85,6 +85,33 @@ public:
 		return m_result;
 	}
 
+	/** \brief evaluate double singular integral with selected singular accelerator
+	 * \param [in] test_field the test field to integrate on
+	 * \param [in] trial_field the trial field to integrate on
+	 * \param [in] sing_acc singular accelerator if the test and trial fields
+	 * \return reference to the integration result
+	 */
+	static result_t const &eval_singular_on_accelerator(
+		test_field_t const &test_field,
+		trial_field_t const &trial_field,
+		singular_accelerator_t const &sing_acc)
+	{
+		for(auto sing_it = sing_acc.cbegin(); sing_it != sing_acc.cend(); ++sing_it)
+		{
+			kernel_input_t test_input(test_field.get_elem(), sing_it->get_test_quadrature_elem());
+			kernel_input_t trial_input(trial_field.get_elem(), sing_it->get_trial_quadrature_elem());
+
+			auto left = (test_field_t::nset_t::eval_shape(sing_it->get_test_quadrature_elem().get_xi())
+				* test_input.get_jacobian()).eval();
+			auto right = (trial_field_t::nset_t::eval_shape(sing_it->get_trial_quadrature_elem().get_xi())
+				* trial_input.get_jacobian()).eval();
+
+			m_result += left * kernel_t::eval(test_input, trial_input) * right.transpose();
+		}
+
+		return m_result;
+	}
+
 	/** \brief evaluate double integral on given fields
 	 * \param [in] test_field the test field to integrate on
 	 * \param [in] trial_field the trial field to integrate on
@@ -219,32 +246,22 @@ public:
 	 * \param [in] trial_quad the trial quadrature
 	 * \return reference to the integration result
 	 */
-	template <class Quadrature>
-	static result_t const &eval_on_quadrature(
+	static result_t const &eval_singular_on_accelerator(
 		test_field_t const &test_field,
 		trial_field_t const &trial_field,
-		Quadrature const &trial_quad)
+		singular_accelerator_t const &sing_acc)
 	{
-		// CRTP check
-		static_assert(std::is_base_of<quadrature_base<Quadrature>, Quadrature>::value,
-			"Quadrature must be derived from quadrature_base<Quadrature>");
-
-		for(auto test_it = test_nset_t::corner_begin(); test_it != test_nset_t::corner_end(); ++test_it)
+		for(auto sing_it = sing_acc.cbegin(); sing_it != sing_acc.cend(); ++sing_it)
 		{
-			quadrature_elem_t qe(*test_it);
-			kernel_input_t collocational_point(test_field.get_elem(), qe);
+			kernel_input_t collocational_point(test_field.get_elem(), sing_it->get_test_quadrature_elem());
 			// Go through trial quadrature
-			for(auto trial_it = trial_quad.begin(); trial_it != trial_quad.end(); ++trial_it)
-			{
-				// Create kernel input
-				kernel_input_t trial_input(trial_field.get_elem(), *trial_it);
 
-				m_result.row(test_it - test_nset_t::corner_begin()) +=
-					kernel_t::eval(collocational_point, trial_input) *
+			// Create kernel input
+			kernel_input_t trial_input(trial_field.get_elem(), sing_it->get_trial_quadrature_elem());
+
+			m_result += kernel_t::eval(collocational_point, trial_input) *
 					(trial_input.get_jacobian() *
-					 trial_field_t::nset_t::eval_shape(trial_it->get_xi()).transpose());
-					//trial_it->get_shape().transpose());
-			}
+					 trial_field_t::nset_t::eval_shape(sing_it->get_trial_quadrature_elem()->get_xi()).transpose());
 		}
 
 		return m_result;

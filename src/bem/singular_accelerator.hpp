@@ -9,6 +9,57 @@
 
 #include "field.hpp"
 
+
+template <class Primary, class Secondary>
+class dual_iterator
+{
+public:
+	enum dual_iterator_mode { CIRCULAR, CONTINUOUS };
+
+	dual_iterator(Primary const *prime, Secondar const *sec, unsigned Nsec, dual_iterator_mode mode)
+		: m_prime(prime), m_sec(sec), m_Nsec(Nsec), m_cntr(0), m_mode(mode), m_sec_start(m_sec)
+	{
+	}
+
+	dual_iterator &operator++(void)
+	{
+		++m_sec;
+		++m_cntr;
+		if (m_cntr == m_Nsec)
+		{
+			m_cntr = 0;
+			++m_prime;
+			if (m_mode == CIRCULAR)
+				m_sec = m_sec_start;
+		}
+		return *this;
+	}
+
+	bool operator!=(dual_iterator const &other)
+	{
+		return m_prime != other.m_prime || m_sec != other.m_sec;
+	}
+
+	Primary const &get_prime(void) const
+	{
+		return *m_prime;
+	}
+
+	Secondary const &get_sec(void) const
+	{
+		return *m_sec;
+	}
+
+protected:
+	dual_iterator_mode m_mode;
+	Primary const *m_prime;
+	Secondary const *m_sec;
+	Secondary const *m_sec_start;
+	unsigned const m_Nsec;
+	unsigned m_cntr;
+};
+
+
 enum singularity_type {
 	REGULAR,
 	FACE_MATCH,
@@ -36,6 +87,27 @@ public:
 	typedef typename trial_field_t::elem_t::domain_t trial_domain_t;
 	typedef typename quadrature_type<quadrature_family_t, test_domain_t>::type test_quadrature_t;
 	typedef typename quadrature_type<quadrature_family_t, trial_domain_t>::type trial_quadrature_t;
+	typedef typename test_quadrature_t::quadrature_elem_t quadrature_elem_t;
+
+	class iterator : public dual_iterator<quadrature_elem_t, quadrature_elem_t>
+	{
+		typedef dual_iterator<quadrature_elem_t, quadrature_elem_t> base_t;
+	public:
+		iterator(quadrature_elem_t const *test, quadrature_elem_t const *trial, unsigned Ntrial, dual_iterator::dual_iterator_mode mode)
+			: base_t(test, trial, Ntrial, mode)
+		{
+		}
+
+		quadrature_elem_t const &get_test_quadrature_elem(void) const
+		{
+			return this->get_prime();
+		}
+
+		quadrature_elem_t const &get_trial_quadrature_elem(void) const
+		{
+			return this->get_sec();
+		}
+	};
 
 	singularity_type eval(TestField const &, TrialField const &) const
 	{
