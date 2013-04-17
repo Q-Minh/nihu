@@ -5,30 +5,34 @@ Polymorphism in NiHu {#polymorphism}
 
 [metafunction]:http://www.boost.org/doc/libs/1_53_0/libs/mpl/doc/refmanual/metafunction.html
 
-This page explains a bit about how NiHu works. The topic discussed here is not about Boundary Elements but about some programming issues. Read this page only if you are interested in C++ programming.
+This page explains a bit about how NiHu works. The topic discussed here is not about Boundary Elements but programming. We explain how static polymorphism and c++ template metaprogramming is applied to efficiently incorporate inhomogeneous meshes into the NiHu toolbox.
 
 Polymorphism in NiHu {#nihupoly}
 ====================
 
-Evaluating the Weighted Residual approach means integrating a kernel over a set of elements extended with some shape functions. Obviously, when programming a BEM, we want to write our integration routine generally, so that our code remains capable to handle as many different element and kernel types as possible.
+Evaluating the Weighted Residual approach means integrating a kernel \f$K(x_0,x)\f$ over a set of elements \f$E\f$ extended with some shape functions \f$N(x)\f$:
+\f[
+R = \int_{E}K(x_0,x) N(x) dx
+\f]
+Obviously, when programming a BEM, we want to write our integration routine generally, so that our code remains capable to handle as many different element and kernel types as possible.
 
 Dynamic polymorphism {#dynpoly}
 --------------------
 
-A straightforward C++ solution to this problem is *dynamic polymorphism* implemented with virtual functions, abstract base classes and heterogeneous collections. Using this technique, an integration routine can be written that receives pointers to abstract kernel and element interface classes as input, and performs integration by invoking the functionalities of the abstract interfaces. The specific behaviour of different subproblems are implemented in specialised derived classes of the abstract base.
+A straightforward C++ solution to this problem is *dynamic polymorphism* implemented with virtual functions, abstract base classes and heterogeneous collections. Using this technique, the integration routine receives pointers to abstract kernel and element interface classes as input, and performs integration by invoking the functionalities of the abstract interfaces. The specific behaviour of different subproblems are implemented in specialised derived classes of the abstract base.
 
 The main advantage of dynamic polymorphism is that it can easily and transparently manage heterogeneous problems, for example BEM problems where the mesh contains different kind of elements. However, dynamic polymorphism has some important drawbacks too:
 - The actual implementation functions are dispatched during runtime, so function calls cannot be inlined by the optimising compiler.
-- Although different specialisations of the same abstract base can differ in implementation, they cannot differ in argument types and return types. This means that if we would like to keep our implementation general, the interface data needs to be expressed in a general way, which usually results in hard-to-optimize dynamically allocated or redundant structures.
+- Although different specialisations of the same abstract base can differ in implementation, they cannot differ in argument types and return types. So in order to keep your implementation general, the interface data needs to be expressed in a general way, which usually results in hard-to-optimize dynamically allocated or redundant structures.
 
 These drawbacks can add up to a significant decrease of overall performance.
 
 Static polymorphism {#statpoly}
 --------------------
 
-_Static polymorphism_, on the contrary, means that we implement our problem generally, but keep in mind that only one single specific instance of the general problem will be compiled and run at once. If we want to invoke different special instances of the same abstract problem, we need to compile and call the different specialisations separately.
+_Static polymorphism_, on the contrary, means that we still implement our problem generally, but keep in mind that only one single specific instance of the general problem will be compiled and run at once. As dispatch is done compile time, invoking different special instances of the same abstract problem is managed by compiling and calling the different specialisations separately.
 
-In C++ static polymorphism is generally implemented using class templates and function templates. In the example below we demonstrate its application with a simple class template that integrates an arbitrary kernel over an arbitrary element:
+In C++ static polymorphism can be implemented using class templates and function templates. In the example below we demonstrate its application with a simple class template that integrates an arbitrary kernel over an arbitrary element:
 
 ~~~~~~~~{.cpp}
 template <class Elem, class Kernel>
@@ -93,7 +97,7 @@ Template Metaprogramming {#tmp}
 Metaprogramming is writing programs that write programs. Template Metaprogramming is using C++ templates to write programs that write programs. In the following we will apply template metaprogramming to code generation.
 
 To generalise the above example, we need two things:
-1. A unified container that contains a vector of tria elements, a vector of quad elements and further vectors of other element types.
+1. A unified container that contains a `std::vector<tria_1_elem>` member, a `std::vector<quad_1_elem>` member and further vectors of other element types.
 2. A loop over types that can be invoked to traverse each container, instantiate class template `weighted_integral` for each element type and call the `integrate` function for each element of the element type's vector container.
 
 ### Inheriters {#inheriter}
@@ -116,7 +120,7 @@ The recursive implementation of this pattern is the following:
 template <class TypeVector>
 class Container :
 	public std::vector<typename head<TypeVector>::type>,
-	Container<typename pop_front<TypeVector>::type>
+	Container<typename tail<TypeVector>::type>
 {};
 
 // terminating condition
@@ -150,7 +154,7 @@ for (auto it = mesh.std::vector<any_other_elem>::begin(); it != mesh.std::vector
 	weighted_integral<any_other_elem, helmholtz_kernel>::integrate(*it, kernel);
 ~~~~~~
 
-This pattern can be generalised using NiHu's `tmp::call_each` code generating metafunction. `call_each` is used to instantiate a class template for all entries of a specified type vector, and call the instantiated class's nested functor called `type`. The application is demonstrated as follows:
+This pattern can be generalised using NiHu's `tmp::call_each` code generating metafunction. `call_each` is used to instantiate a class template for each entry of a specified type vector, and call the instantiated class' nested functor called `type`. The application is demonstrated as follows:
 
 ~~~~~~{.cpp}
 // the class template
@@ -161,7 +165,7 @@ struct integrator
 	struct type
 	{
 		template <class kernel_t>
-		void operator() (kernel_t kernel, mesh_t mesh)
+		void operator() (kernel_t kernel, mesh_t &mesh)
 		{
 			for (auto it = mesh.std::vector<elem_t>::begin(); it != mesh.std::vector<elem_t>::end(); ++it)
 				weighted_integral<elem_t, kernel_t>::integrate(*it, kernel);
@@ -170,9 +174,9 @@ struct integrator
 };
 
 tmp::call_each<
-	elem_vector_t,	// the element type vector
+	tmp::vector<tria_1_elem, quad_1_elem, any_other_elem>,	// the element type vector
 	integrator<_1>,	// the class template with a placeholder
 	kernel_t,		// the first argument type of the functor
-	mesh_t			// the second argument type of the functor
+	mesh_t &		// the second argument type of the functor
 >(kernel, mesh);	// the arguments
 ~~~~~~
