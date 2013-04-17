@@ -164,7 +164,6 @@ struct integrator
 	// the nested functor
 	struct type
 	{
-		template <class kernel_t>
 		void operator() (kernel_t kernel, mesh_t &mesh)
 		{
 			for (auto it = mesh.std::vector<elem_t>::begin(); it != mesh.std::vector<elem_t>::end(); ++it)
