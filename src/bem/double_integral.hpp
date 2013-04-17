@@ -57,7 +57,7 @@ public:
 		>::type
 	>::type result_t;
 
-	/** \brief evaluate double integral with selected accelerators
+	/** \brief evaluate regular double integral with selected accelerators
 	 * \param [in] test_field the test field to integrate on
 	 * \param [in] test_acc field type accelerator of the test field
 	 * \param [in] trial_field the trial field to integrate on
@@ -88,22 +88,23 @@ public:
 	/** \brief evaluate double singular integral with selected singular accelerator
 	 * \param [in] test_field the test field to integrate on
 	 * \param [in] trial_field the trial field to integrate on
-	 * \param [in] sing_acc singular accelerator if the test and trial fields
 	 * \return reference to the integration result
 	 */
+	template <class singular_iterator_t>
 	static result_t const &eval_singular_on_accelerator(
 		test_field_t const &test_field,
 		trial_field_t const &trial_field,
-		singular_accelerator_t const &sing_acc)
+		singular_iterator_t const &sing_begin,
+		singular_iterator_t const &sing_end)
 	{
-		for(auto sing_it = sing_acc.cbegin(); sing_it != sing_acc.cend(); ++sing_it)
+		for(singular_iterator_t sing_it = sing_begin; sing_it != sing_end; ++sing_it)
 		{
-			kernel_input_t test_input(test_field.get_elem(), sing_it->get_test_quadrature_elem());
-			kernel_input_t trial_input(trial_field.get_elem(), sing_it->get_trial_quadrature_elem());
+			kernel_input_t test_input(test_field.get_elem(), sing_it.get_test_quadrature_elem());
+			kernel_input_t trial_input(trial_field.get_elem(), sing_it.get_trial_quadrature_elem());
 
-			auto left = (test_field_t::nset_t::eval_shape(sing_it->get_test_quadrature_elem().get_xi())
+			auto left = (test_field_t::nset_t::eval_shape(sing_it.get_test_quadrature_elem().get_xi())
 				* test_input.get_jacobian()).eval();
-			auto right = (trial_field_t::nset_t::eval_shape(sing_it->get_trial_quadrature_elem().get_xi())
+			auto right = (trial_field_t::nset_t::eval_shape(sing_it.get_trial_quadrature_elem().get_xi())
 				* trial_input.get_jacobian()).eval();
 
 			m_result += left * kernel_t::eval(test_input, trial_input) * right.transpose();
@@ -122,18 +123,20 @@ public:
 		m_result = result_t();	// clear result
 
 		// check singularity
-		if (m_singular_accelerator.eval(test_field, trial_field) != REGULAR)
-		{
-			// TODO: calculate
-			return m_result;
-		}
+		singularity_type sing_type;
+		if ((sing_type = m_singular_accelerator.eval(test_field, trial_field)) != REGULAR)
+			return eval_singular_on_accelerator(
+				test_field, 
+				trial_field, 
+				m_singular_accelerator.cbegin(sing_type), 
+				m_singular_accelerator.cend(sing_type));
 
 		// select quadrature
 		kernel_input_t test_center(test_field.get_elem(), m_test_field_accelerator_pool[0]->cbegin()->get_quadrature_elem());
 		kernel_input_t trial_center(trial_field.get_elem(), m_trial_field_accelerator_pool[0]->cbegin()->get_quadrature_elem());
 		unsigned degree = kernel_t::estimate_complexity(test_center, trial_center);
 
-		return eval_on_quadrature(test_field, *(m_test_field_accelerator_pool[degree]), trial_field, *(m_trial_field_accelerator_pool[degree]));
+		return eval_on_accelerator(test_field, *(m_test_field_accelerator_pool[degree]), trial_field, *(m_trial_field_accelerator_pool[degree]));
 	}
 
 protected:

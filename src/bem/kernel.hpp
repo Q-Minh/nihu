@@ -2,6 +2,7 @@
  * \file kernel.hpp
  * \brief implementation of various kernels
  * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
+ * \todo kernel should tell the singularity order
  */
 #ifndef KERNEL_HPP_INCLUDED
 #define KERNEL_HPP_INCLUDED
@@ -294,7 +295,7 @@ class helmholtz_HG_kernel : public helmholtz_base<helmholtz_HG_kernel>
 public:
 	typedef helmholtz_base<helmholtz_HG_kernel> base_t;	/**< \brief base class' type */
 
-//	using base_t::eval;
+	using base_t::eval;
 
 	/**
 	 * \brief evaluate kernel at a given receiver position

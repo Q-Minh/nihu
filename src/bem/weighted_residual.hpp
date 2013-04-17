@@ -80,6 +80,10 @@ public:
 	template <class result_t>
 	result_t &eval(result_t &result)
 	{
+		/**
+		 * \todo symdcalleach for the galerkin case
+		 */
+
 		// Integration is performed separately on homogneous subfields, using tmp::d_call_each
 		// d_call_each calls eval_on for each element of the the Descartes product of the test and
 		// trial field type vectors

@@ -1,10 +1,10 @@
 /**
- * \file singular_accelerator.hpp
- * \brief implementation of class ::singular_accelerator
- * \author Peter Fiala and Peter Rucz
- */
+* \file singular_accelerator.hpp
+* \brief implementation of class ::singular_accelerator
+* \author Peter Fiala and Peter Rucz
+*/
 
- #ifndef SINGULAR_ACCELERATOR_HPP_INCLUDED
+#ifndef SINGULAR_ACCELERATOR_HPP_INCLUDED
 #define SINGULAR_ACCELERATOR_HPP_INCLUDED
 
 #include "field.hpp"
@@ -16,7 +16,7 @@ class dual_iterator
 public:
 	enum dual_iterator_mode { CIRCULAR, CONTINUOUS };
 
-	dual_iterator(Primary const *prime, Secondar const *sec, unsigned Nsec, dual_iterator_mode mode)
+	dual_iterator(Primary prime, Secondary sec, unsigned Nsec, dual_iterator_mode mode)
 		: m_prime(prime), m_sec(sec), m_Nsec(Nsec), m_cntr(0), m_mode(mode), m_sec_start(m_sec)
 	{
 	}
@@ -40,23 +40,23 @@ public:
 		return m_prime != other.m_prime || m_sec != other.m_sec;
 	}
 
-	Primary const &get_prime(void) const
+	typename Primary::value_type const &get_prime(void) const
 	{
 		return *m_prime;
 	}
 
-	Secondary const &get_sec(void) const
+	typename Secondary::value_type const &get_sec(void) const
 	{
 		return *m_sec;
 	}
 
 protected:
-	dual_iterator_mode m_mode;
-	Primary const *m_prime;
-	Secondary const *m_sec;
-	Secondary const *m_sec_start;
+	Primary m_prime;
+	Secondary m_sec;
 	unsigned const m_Nsec;
 	unsigned m_cntr;
+	dual_iterator_mode m_mode;
+	Secondary m_sec_start;
 };
 
 
@@ -65,6 +65,28 @@ enum singularity_type {
 	FACE_MATCH,
 	EDGE_MATCH,
 	CORNER_MATCH
+};
+
+template <class quadrature_iterator_t>
+class singular_quadrature_iterator : public dual_iterator<quadrature_iterator_t, quadrature_iterator_t>
+{
+public:
+	typedef dual_iterator<quadrature_iterator_t, quadrature_iterator_t> base_t;
+
+	singular_quadrature_iterator(quadrature_iterator_t test, quadrature_iterator_t trial, unsigned Ntrial, typename base_t::dual_iterator_mode mode)
+		: base_t(test, trial, Ntrial, mode)
+	{
+	}
+
+	typename quadrature_iterator_t::value_type const &get_test_quadrature_elem(void) const
+	{
+		return this->get_prime();
+	}
+
+	typename quadrature_iterator_t::value_type const &get_trial_quadrature_elem(void) const
+	{
+		return this->get_sec();
+	}
 };
 
 /// The general case
@@ -82,47 +104,114 @@ public:
 	typedef Kernel kernel_t;
 	typedef TestField test_field_t;
 	typedef TrialField trial_field_t;
+	typedef typename test_field_t::elem_t test_elem_t;
+	typedef typename trial_field_t::elem_t trial_elem_t;
+	typedef typename test_elem_t::domain_t test_domain_t;
+	typedef typename trial_elem_t::domain_t trial_domain_t;
 	typedef typename kernel_traits<kernel_t>::quadrature_family_t quadrature_family_t;
-	typedef typename test_field_t::elem_t::domain_t test_domain_t;
-	typedef typename trial_field_t::elem_t::domain_t trial_domain_t;
 	typedef typename quadrature_type<quadrature_family_t, test_domain_t>::type test_quadrature_t;
 	typedef typename quadrature_type<quadrature_family_t, trial_domain_t>::type trial_quadrature_t;
 	typedef typename test_quadrature_t::quadrature_elem_t quadrature_elem_t;
+	typedef singular_quadrature_iterator<typename test_quadrature_t::iterator> iterator;
 
-	class iterator : public dual_iterator<quadrature_elem_t, quadrature_elem_t>
+	singularity_type eval(test_field_t const &test_field, trial_field_t const &trial_field) const
 	{
-		typedef dual_iterator<quadrature_elem_t, quadrature_elem_t> base_t;
-	public:
-		iterator(quadrature_elem_t const *test, quadrature_elem_t const *trial, unsigned Ntrial, dual_iterator::dual_iterator_mode mode)
-			: base_t(test, trial, Ntrial, mode)
-		{
-		}
+		// check face match for same element types
+		if (std::is_same<test_elem_t, trial_elem_t>::value)
+			if (test_field.get_elem().get_id() == trial_field.get_elem().get_id())
+				return FACE_MATCH;
 
-		quadrature_elem_t const &get_test_quadrature_elem(void) const
-		{
-			return this->get_prime();
-		}
-
-		quadrature_elem_t const &get_trial_quadrature_elem(void) const
-		{
-			return this->get_sec();
-		}
-	};
-
-	singularity_type eval(TestField const &, TrialField const &) const
-	{
+		/*
+		element_overlapping eo = test_field.get_elem().get_overlapping(trial_field.get_elem());
+		// check edge match
+		if (eo.get_num() > 1)
+			return EDGE_MATCH;
+		// check corner match
+		if (eo.get_num() > 0)
+			return CORNER_MATCH;
+		*/
 		return REGULAR;
 	}
 
-	test_quadrature_t const *get_test_quadrature(void) const
+	iterator cbegin(singularity_type sing_type) const
 	{
-		return NULL;
+		switch (sing_type)
+		{
+		case FACE_MATCH:
+			return iterator(
+				m_face_test_quadrature->begin(),
+				m_face_trial_quadrature->begin(),
+				m_face_trial_quadrature->size() / m_face_test_quadrature->size(),
+				iterator::base_t::CONTINUOUS);
+			break;
+		case EDGE_MATCH:
+			throw("Unimplemented singular quadrature");
+			break;
+		case CORNER_MATCH:
+			throw("Unimplemented singular quadrature");
+			break;
+		case REGULAR:
+			throw("Cannot return singular quadrature for regular type");
+			break;
+		default:
+			throw("Unknown singularity type");
+		}
 	}
 
-	trial_quadrature_t const *get_trial_quadrature(void) const
+	iterator cend(singularity_type sing_type) const
 	{
-		return NULL;
+		switch (sing_type)
+		{
+		case FACE_MATCH:
+			return iterator(
+				m_face_test_quadrature->end(),
+				m_face_trial_quadrature->end(),
+				m_face_trial_quadrature->size() / m_face_test_quadrature->size(),
+				iterator::CONTINUOUS);
+			break;
+		case EDGE_MATCH:
+			throw("Unimplemented singular quadrature");
+			break;
+		case CORNER_MATCH:
+			throw("Unimplemented singular quadrature");
+			break;
+		case REGULAR:
+			throw("Cannot return singular quadrature for regular type");
+			break;
+		default:
+			throw("Unknown singularity type");
+		}
 	}
+
+	singular_accelerator(void)
+	{
+		// face match is only constructed for same element types
+		if (std::is_same<test_elem_t, trial_elem_t>::value)
+		{
+			m_face_test_quadrature = new test_quadrature_t(9);
+			m_face_trial_quadrature = new trial_quadrature_t();
+			for (auto it = m_face_test_quadrature->begin();
+				it != m_face_test_quadrature->end(); ++it)
+				*m_face_trial_quadrature +=
+				trial_quadrature_t::singular_quadrature_inside(9, it->get_xi());
+		}
+	}
+
+	~singular_accelerator()
+	{
+		if (std::is_same<test_elem_t, trial_elem_t>::value)
+		{
+			delete m_face_test_quadrature;
+			delete m_face_trial_quadrature;
+		}
+	}
+
+protected:
+	/** \todo The code does not compile if the quadratures are stored statically,
+	 * not allocated dynamically. And we do not understand this sickness.
+	 */
+	test_quadrature_t *m_face_test_quadrature;
+	trial_quadrature_t *m_face_trial_quadrature;
 };
 
 
@@ -165,42 +254,6 @@ protected:
 	trial_quadrature_t const m_quadrature;
 };
 
-
-/// The general galerkin case
-template <class Kernel, class Elem, class TestOption, class TrialField>
-class singular_accelerator<
-	Kernel,
-	field<Elem, TestOption, function_field>,
-	TrialField>
-{
-	// CRTP test
-	static_assert(std::is_base_of<kernel_base<Kernel>, Kernel>::value,
-		"Kernel must be derived from kernel_base<Kernel>");
-	static_assert(std::is_base_of<field_base<TrialField>, TrialField>::value,
-		"TrialField must be derived from field_base<TrialField>");
-public:
-	typedef field<Elem, TestOption, function_field> test_field_t;
-	typedef TrialField  trial_field_t;
-	typedef typename test_field_t::elem_t test_elem_t;
-	typedef typename trial_field_t::elem_t trial_elem_t;
-
-	singularity_type eval(test_field_t const &test_field, trial_field_t const &trial_field) const
-	{
-		// check face match for same element types
-		if (std::is_same<test_elem_t, trial_elem_t>::value)
-			if (test_field.get_elem().get_id() == trial_field.get_elem().get_id())
-				return FACE_MATCH;
-
-		element_overlapping eo = test_field.get_elem().get_overlapping(trial_field.get_elem());
-		// check edge match
-		if (eo.get_num() > 1)
-			return EDGE_MATCH;
-		// check corner match
-		if (eo.get_num() > 0)
-			return CORNER_MATCH;
-		return REGULAR;
-	}
-};
 
 #endif // SINGULAR_ACCELERATOR_HPP_INCLUDED
 
