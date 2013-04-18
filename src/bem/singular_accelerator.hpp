@@ -87,7 +87,12 @@ enum singularity_type {
 	CORNER_MATCH
 };
 
-/// The general case
+/**
+ * \brief an accelerator class that stores singular quadratures for different singularity types
+ * \tparam Kernel the kernel that is integrated
+ * \tparam TestField the test field over which integration is performed
+ * \tparam TrialField the trial field over which integration is performed
+ */
 template <class Kernel, class TestField, class TrialField>
 class singular_accelerator
 {
@@ -99,23 +104,35 @@ class singular_accelerator
 	static_assert(std::is_base_of<field_base<TrialField>, TrialField>::value,
 		"The trial field must be derived from field_base<TrialField>");
 public:
-	typedef Kernel kernel_t;
-	typedef TestField test_field_t;
-	typedef TrialField trial_field_t;
-	typedef typename test_field_t::elem_t test_elem_t;
-	typedef typename trial_field_t::elem_t trial_elem_t;
-	typedef typename test_elem_t::domain_t test_domain_t;
-	typedef typename trial_elem_t::domain_t trial_domain_t;
-	typedef typename kernel_traits<kernel_t>::quadrature_family_t quadrature_family_t;
-	typedef typename quadrature_type<quadrature_family_t, test_domain_t>::type test_quadrature_t;
-	typedef typename quadrature_type<quadrature_family_t, trial_domain_t>::type trial_quadrature_t;
+	typedef Kernel kernel_t;	/**< \brief template argument as nested type */
+	typedef TestField test_field_t;	/**< \brief template argument as nested type */
+	typedef TrialField trial_field_t;	/**< \brief template argument as nested type */
+
+	typedef typename test_field_t::elem_t test_elem_t;	/**< \brief the test elem type */
+	typedef typename trial_field_t::elem_t trial_elem_t;	/**< \brief trial elem type */
+
+	typedef typename quadrature_type<
+		typename kernel_traits<kernel_t>::quadrature_family_t,
+		typename test_elem_t::domain_t
+	>::type test_quadrature_t;			/**< \brief the test quadrature type */
+	typedef typename quadrature_type<
+		typename kernel_traits<kernel_t>::quadrature_family_t,
+		typename trial_elem_t::domain_t
+	>::type trial_quadrature_t;			/**< \brief the trial quadrature type */
+
+	/**\brief the quadrature element type (it should be the same for test and trial) */
 	typedef typename test_quadrature_t::quadrature_elem_t quadrature_elem_t;
+
+	/**\brief the dual iterator type of te singular quadrature */
 	typedef singular_quadrature_iterator<typename test_quadrature_t::iterator> iterator;
+
+	/**\brief indicates whether FACE_MATCH is possible */
+	static const bool face_match_possible = std::is_same<test_elem_t, trial_elem_t>::value;
 
 	singularity_type eval(test_field_t const &test_field, trial_field_t const &trial_field) const
 	{
 		// check face match for same element types
-		if (std::is_same<test_elem_t, trial_elem_t>::value)
+		if (face_match_possible)
 			if (test_field.get_elem().get_id() == trial_field.get_elem().get_id())
 				return FACE_MATCH;
 
@@ -183,8 +200,7 @@ public:
 
 	singular_accelerator(void)
 	{
-		// face match is only constructed for same element types
-		if (std::is_same<test_elem_t, trial_elem_t>::value)
+		if (face_match_possible)
 		{
 			m_face_test_quadrature = new test_quadrature_t(9);
 			m_face_trial_quadrature = new trial_quadrature_t();
@@ -193,11 +209,16 @@ public:
 				*m_face_trial_quadrature +=
 				trial_quadrature_t::singular_quadrature_inside(9, it->get_xi());
 		}
+		else
+		{
+			m_face_test_quadrature = NULL;
+			m_face_trial_quadrature = NULL;
+		}
 	}
 
 	~singular_accelerator()
 	{
-		if (std::is_same<test_elem_t, trial_elem_t>::value)
+		if (face_match_possible)
 		{
 			delete m_face_test_quadrature;
 			delete m_face_trial_quadrature;
@@ -208,7 +229,9 @@ protected:
 	/** \todo The code does not compile if the quadratures are stored statically,
 	 * not allocated dynamically. And we do not understand this sickness.
 	 */
+	/**\brief singular quadrature on the test elem for FACE_MATCH case */
 	test_quadrature_t *m_face_test_quadrature;
+	/**\brief singular quadrature on the trial elem for FACE_MATCH case */
 	trial_quadrature_t *m_face_trial_quadrature;
 };
 
@@ -227,9 +250,11 @@ public:
 	typedef Kernel kernel_t;
 	typedef field<Elem, constant_field, dirac_field> test_field_t;
 	typedef field<Elem, TrialFieldOption, TrialDiracOption> trial_field_t;
-	typedef typename kernel_traits<kernel_t>::quadrature_family_t quadrature_family_t;
 	typedef typename trial_field_t::elem_t::domain_t trial_domain_t;
-	typedef typename quadrature_type<quadrature_family_t, trial_domain_t>::type trial_quadrature_t;
+	typedef typename quadrature_type<
+		typename kernel_traits<kernel_t>::quadrature_family_t,
+		trial_domain_t
+	>::type trial_quadrature_t;
 
 	singular_accelerator()
 		: m_quadrature(trial_quadrature_t::singular_quadrature_inside(9, trial_domain_t::get_center()))
