@@ -13,6 +13,8 @@
 #include <iostream>
 #include <stdexcept>
 
+#include <numeric>
+
 #include <Eigen/StdVector>
 #define EIGENSTDVECTOR(_T) std::vector<_T, Eigen::aligned_allocator<_T> >
 

@@ -37,7 +37,7 @@ void test_duffy(void)
 {
 	typedef tria_1_shape_set lset_t;
 	typedef quadrature_type<gauss_family_tag, typename lset_t::domain_t>::type	duffy_t;
-	duffy_t duf = duffy_quadrature_corner<lset_t>(5, 0);
+	duffy_t duf = duffy_quadrature_corner<lset_t>(25, 2);
 	std::cout << duf << std::endl;
 }
 
