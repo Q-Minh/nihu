@@ -31,8 +31,8 @@ public:
 
 	/**
 	 * \brief constructor initialising all members
-	 * \param xi base location
-	 * \param w weight
+	 * \param [in] xi base location
+	 * \param [in] w weight
 	 */
 	quadrature_elem(xi_t const &xi = xi_t(), scalar_t const &w = scalar_t())
 		: m_xi(xi), m_w(w)
@@ -60,7 +60,7 @@ public:
 	/**
 	 * \brief transform a location according to a shape function set
 	 * \tparam LSet the shape function set
-	 * \param coords transformation corners
+	 * \param [in] coords transformation corners
 	 * \return reference to the transformed object
 	 */
 	template <class LSet>
@@ -157,7 +157,7 @@ public:
 	/**
 	 * \brief transform the domain of the quadrature with a given shape set and corner points
 	 * \tparam LSet shape set type of transformation
-	 * \param coords corner coordinates of transformed domain
+	 * \param [in] coords corner coordinates of transformed domain
 	 * \return transformed quadrature
 	 */
 	template <class LSet>
@@ -176,7 +176,7 @@ public:
 	/**
 	 * \brief transform the domain of the quadrature in place
 	 * \tparam LSet shape set type of transformation
-	 * \param coords corner coordinates of transformed domain
+	 * \param [in] coords corner coordinates of transformed domain
 	 * \return reference to the transformed quadrature
 	 */
 	template <class LSet>
@@ -197,7 +197,7 @@ public:
 	 * \brief add two quadratures
 	 * \details It is assured that the dimensions match.
 	 * \tparam otherDerived other quadrature type
-	 * \param other the other quadrature
+	 * \param [in] other the other quadrature
 	 * \return new quadrature
 	 */
 	template <class otherDerived>
@@ -215,7 +215,7 @@ public:
 	 * \brief add another quadrature to this
 	 * \details It is assured that the dimensions match.
 	 * \tparam otherDerived other quadrature type
-	 * \param other the other quadrature
+	 * \param [in] other the other quadrature
 	 * \return reference to the new quadrature
 	 */
 	template <class otherDerived>
@@ -423,8 +423,12 @@ struct singular_traits<gauss_quad>
 	static const unsigned nCorners = singular_source_type::domain_t::num_corners;
 	/** \brief number of quads in the division */
 	static const unsigned nResolution = 4;
+	/** \brief number of quads in the division */
+	static const unsigned nCornerResolution = 2;
 	/** \brief index matrix describing orientation of the duffy quads */
 	static const int index_inside[nResolution][nCorners];
+	/** \brief index matrix describing orientation of the duffy quads */
+	static const int index_corner[nCornerResolution][nCorners];
 };
 
 const int singular_traits<gauss_quad>::index_inside[singular_traits<gauss_quad>::nResolution][singular_traits<gauss_quad>::nCorners] = {
@@ -432,6 +436,11 @@ const int singular_traits<gauss_quad>::index_inside[singular_traits<gauss_quad>:
 	{1, 2, -1, -1},
 	{2, 3, -1, -1},
 	{3, 0, -1, -1}
+};
+
+const int singular_traits<gauss_quad>::index_corner[singular_traits<gauss_quad>::nCornerResolution][singular_traits<gauss_quad>::nCorners] = {
+	{0, 0, 1, 2},
+	{0, 0, 2, 3}
 };
 
 
@@ -600,8 +609,12 @@ struct singular_traits<gauss_tria>
 	static const unsigned nCorners = singular_source_type::domain_t::num_corners;
 	/** \brief number of triangles in the division */
 	static const unsigned nResolution = 3;
+	/** \brief number of triangles in the division */
+	static const unsigned nCornerResolution = 1;
 	/** \brief index matrix describing orientation of the duffy quads */
 	static const int index_inside[nResolution][nCorners];
+	/** \brief index matrix describing orientation of the duffy quads */
+	static const int index_corner[nCornerResolution][nCorners];
 };
 
 const int singular_traits<gauss_tria>::index_inside[singular_traits<gauss_tria>::nResolution][singular_traits<gauss_tria>::nCorners] = {
@@ -610,6 +623,9 @@ const int singular_traits<gauss_tria>::index_inside[singular_traits<gauss_tria>:
 	{2, 0, -1, -1}
 };
 
+const int singular_traits<gauss_tria>::index_corner[singular_traits<gauss_tria>::nCornerResolution][singular_traits<gauss_tria>::nCorners] = {
+	{0, 0, 1, 2}
+};
 // Quadrature families
 
 /**

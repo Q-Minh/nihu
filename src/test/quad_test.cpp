@@ -9,7 +9,7 @@ struct tester
 	{
 		void operator() (void)
 		{
-			typename quadrature_domain_traits<Family, Domain>::quadrature_type q(5);
+			typename quadrature_type<Family, Domain>::type q(5);
 			std::cout << q << std::endl;
 		}
 	};
@@ -31,6 +31,17 @@ void test_transform(void)
 }
 
 
+#include "../bem/duffy_quadrature.hpp"
+
+void test_duffy(void)
+{
+	typedef tria_1_shape_set lset_t;
+	typedef quadrature_type<gauss_family_tag, typename lset_t::domain_t>::type	duffy_t;
+	duffy_t duf = duffy_quadrature_corner<lset_t>(5, 0);
+	std::cout << duf << std::endl;
+}
+
+
 int main(void)
 {
 	typedef gauss_family_tag gauss;
@@ -40,6 +51,8 @@ int main(void)
 	tmp::call_each<DomainSequence, tester<gauss, tmp::_1> >();
 
 	test_transform();
+
+	test_duffy();
 
 	return 0;
 }

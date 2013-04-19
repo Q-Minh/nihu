@@ -69,6 +69,11 @@ public:
 	{
 		return Derived::corner_end_impl();
 	}
+
+	static xi_t const &corner_at(size_t idx)
+	{
+		return Derived::corner_at_impl(idx);
+	}
 };
 
 // Forward declaration
@@ -92,7 +97,7 @@ class constant_shape_set : public shape_set_base<constant_shape_set<Domain> >
 public:
 	typedef shape_set_base<constant_shape_set<Domain> > base_t;	/**< \brief the base class type */
 	/** \brief the domain type */
-	typedef typename base_t::domain_t domain_t;	
+	typedef typename base_t::domain_t domain_t;
 	/** \brief type of the xi variable */
 	typedef typename base_t::xi_t xi_t;
 	/** \brief type of a shape function vector */
@@ -123,7 +128,7 @@ public:
 	{
 		return shape_t::Zero();
 	}
-	
+
 	/** \brief return begin iterator to the corner nodes
 	 * \return begin iterator to corner nodes
 	 */
@@ -198,6 +203,11 @@ public:
 	static xi_t const *corner_end_impl(void)
 	{
 		return domain_t::get_corners() + domain_t::num_corners;
+	}
+
+	static xi_t const &corner_at_impl(size_t idx)
+	{
+		return *(domain_t::get_corners() + idx);
 	}
 };
 
@@ -356,7 +366,7 @@ public:
 			(1.0+xi[1])/2.0;
 		return L;
 	}
-	
+
 	/**
 	 * \brief linear 3-noded parallelogram shape function derivatives
 	 */

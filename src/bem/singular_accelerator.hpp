@@ -111,13 +111,16 @@ public:
 	typedef typename test_field_t::elem_t test_elem_t;	/**< \brief the test elem type */
 	typedef typename trial_field_t::elem_t trial_elem_t;	/**< \brief trial elem type */
 
+	typedef typename test_elem_t::domain_t test_domain_t;
+	typedef typename trial_elem_t::domain_t trial_domain_t;
+
 	typedef typename quadrature_type<
 		typename kernel_traits<kernel_t>::quadrature_family_t,
-		typename test_elem_t::domain_t
+		test_domain_t
 	>::type test_quadrature_t;			/**< \brief the test quadrature type */
 	typedef typename quadrature_type<
 		typename kernel_traits<kernel_t>::quadrature_family_t,
-		typename trial_elem_t::domain_t
+		trial_domain_t
 	>::type trial_quadrature_t;			/**< \brief the trial quadrature type */
 
 	/**\brief the quadrature element type (it should be the same for test and trial) */
@@ -233,6 +236,9 @@ protected:
 	test_quadrature_t *m_face_test_quadrature;
 	/**\brief singular quadrature on the trial elem for FACE_MATCH case */
 	trial_quadrature_t *m_face_trial_quadrature;
+
+	test_quadrature_t *m_corner_test_quadrature[test_domain_t::num_corners];
+	trial_quadrature_t *m_corner_trial_quadrature[trial_domain_t::num_corners];
 };
 
 
