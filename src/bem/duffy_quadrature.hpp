@@ -32,14 +32,13 @@ unsigned const duffy_traits<quad_1_shape_set>::duffy_indices[4][4] = {
 	{2, /*|*/ 0, 1, 2}
 };
 
-
-
 template <class LSet>
 typename quadrature_type<gauss_family_tag, typename LSet::domain_t>::type
 	duffy_quadrature_corner(unsigned degree, unsigned singular_corner)
 {
 	typedef typename LSet::domain_t domain_t;
 	typedef typename quadrature_type<gauss_family_tag, domain_t>::type ret_quad_type;
+	typedef typename quadrature_type<gauss_family_tag, quad_domain>::type source_quad_type;
 	typedef Eigen::Matrix<typename domain_t::scalar_t, 4, domain_t::dimension> coords_t;
 
 	unsigned const *array = duffy_traits<LSet>::duffy_indices[singular_corner];
@@ -47,7 +46,7 @@ typename quadrature_type<gauss_family_tag, typename LSet::domain_t>::type
 	array++;
 
 	ret_quad_type result;
-	gauss_quad source(degree);
+	source_quad_type source(degree);
 
 	coords_t coords;
 	coords.row(0) = coords.row(1) = LSet::corner_at(singular_corner);
