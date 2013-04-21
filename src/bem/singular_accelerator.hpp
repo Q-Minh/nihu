@@ -8,6 +8,7 @@
 #define SINGULAR_ACCELERATOR_HPP_INCLUDED
 
 #include "field.hpp"
+#include "duffy_quadrature.hpp"
 
 template <class Primary, class Secondary>
 class dual_iterator
@@ -114,17 +115,18 @@ public:
 	typedef typename test_elem_t::domain_t test_domain_t;
 	typedef typename trial_elem_t::domain_t trial_domain_t;
 
-	typedef typename quadrature_type<
-		typename kernel_traits<kernel_t>::quadrature_family_t,
-		test_domain_t
-	>::type test_quadrature_t;			/**< \brief the test quadrature type */
-	typedef typename quadrature_type<
-		typename kernel_traits<kernel_t>::quadrature_family_t,
-		trial_domain_t
-	>::type trial_quadrature_t;			/**< \brief the trial quadrature type */
+	typedef typename trial_elem_t::lset_t trial_lset_t;
+	typedef typename kernel_traits<kernel_t>::quadrature_family_t quadrature_family_t;
+
+	/** \brief the test quadrature type */
+	typedef typename quadrature_type<quadrature_family_t, test_domain_t>::type test_quadrature_t;
+	/** \brief the trial quadrature type */
+	typedef typename quadrature_type<quadrature_family_t, trial_domain_t>::type trial_quadrature_t;
 
 	/**\brief the quadrature element type (it should be the same for test and trial) */
 	typedef typename test_quadrature_t::quadrature_elem_t quadrature_elem_t;
+
+	typedef duffy_quadrature<quadrature_family_t, trial_lset_t> trial_duffy_t;
 
 	/**\brief the dual iterator type of te singular quadrature */
 	typedef singular_quadrature_iterator<typename test_quadrature_t::iterator> iterator;
@@ -209,8 +211,7 @@ public:
 			m_face_trial_quadrature = new trial_quadrature_t();
 			for (auto it = m_face_test_quadrature->begin();
 				it != m_face_test_quadrature->end(); ++it)
-				*m_face_trial_quadrature +=
-				trial_quadrature_t::singular_quadrature_inside(9, it->get_xi());
+				*m_face_trial_quadrature += trial_duffy_t::on_face(9, it->get_xi());
 		}
 		else
 		{

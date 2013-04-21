@@ -22,7 +22,7 @@
 /**
  * \brief a quadrature element is a base point and a weight
  * \tparam XiType the local coordinate type
- * \tparam ScalarType the scalar of given coordinates
+ * \tparam ScalarType the scalar of coordinates
  */
 template <class XiType, class ScalarType>
 class quadrature_elem
@@ -60,7 +60,7 @@ public:
 	}
 
 	/**
-	 * \brief transform a location according to a shape function set
+	 * \brief transform a quadrature element according to a shape function set and corner nodes
 	 * \tparam LSet the shape function set
 	 * \param [in] coords transformation corners
 	 * \return reference to the transformed object
@@ -87,10 +87,6 @@ protected:
 };
 
 
-// forward declaration of singular traits
-template <class quadrature>
-struct singular_traits;
-
 // forward declaration of quadrature traits
 template <class Derived>
 struct quadrature_traits;
@@ -103,9 +99,10 @@ template <class Derived>
 class quadrature_base :
 	public std::vector<quadrature_elem<typename quadrature_traits<Derived>::domain_t::xi_t, typename quadrature_traits<Derived>::domain_t::scalar_t> , Eigen::aligned_allocator<quadrature_elem<typename quadrature_traits<Derived>::domain_t::xi_t, typename quadrature_traits<Derived>::domain_t::scalar_t> > >
 {
-protected:
+private:
 	/**
-	 * \brief static cast to derived const type
+	 * \brief CRTP helper function
+	 * \return static cast to Derived const &
 	 */
 	Derived const &derived(void) const
 	{
@@ -113,7 +110,8 @@ protected:
 	}
 
 	/**
-	 * \brief static cast to derived type
+	 * \brief CRTP helper function
+	 * \return static cast to Derived &
 	 */
 	Derived &derived(void)
 	{
@@ -121,11 +119,11 @@ protected:
 	}
 
 public:
-	typedef quadrature_traits<Derived> traits_t;				/**< \brief corresponding traits type */
-	typedef typename traits_t::domain_t domain_t;				/**< \brief the domain type */
+	typedef quadrature_traits<Derived> traits_t;				/**< \brief traits type */
+	typedef typename traits_t::domain_t domain_t;				/**< \brief domain type */
 	typedef typename domain_t::xi_t xi_t; 						/**< \brief local coordinate type */
 	typedef typename domain_t::scalar_t scalar_t; 				/**< \brief local scalar type */
-	typedef quadrature_elem<xi_t, scalar_t> quadrature_elem_t;	/**< \brief the quadrature elem type */
+	typedef quadrature_elem<xi_t, scalar_t> quadrature_elem_t;	/**< \brief quadrature elem type */
 
 	/**
 	 * \brief constructor allocating space for the quadrature elements
@@ -162,7 +160,7 @@ public:
 	 * \return transformed quadrature
 	 */
 	template <class LSet>
-	Derived transform(const Eigen::Matrix<scalar_t, LSet::num_nodes, LSet::domain_t::dimension> &coords) const
+	Derived transform(Eigen::Matrix<scalar_t, LSet::num_nodes, LSet::domain_t::dimension> const &coords) const
 	{
 		// CRTP check
 		static_assert(std::is_base_of<shape_set_base<LSet>, LSet>::value,
@@ -196,10 +194,10 @@ public:
 
 	/**
 	 * \brief add two quadratures
-	 * \details It is assured that the dimensions match.
 	 * \tparam otherDerived other quadrature type
 	 * \param [in] other the other quadrature
 	 * \return new quadrature
+	 * \details It is assured that the dimensions match.
 	 */
 	template <class otherDerived>
 	Derived operator +(const quadrature_base<otherDerived> &other) const
@@ -228,44 +226,11 @@ public:
 		this->insert(this->end(), other.begin(), other.end());
 		return derived();
 	}
-
-	/**
-	 * \brief create a singular quadrature from a selected internal point
-	 * \param [in] degree quadrature degree of the generating element
-	 * \param [in] singular_point the internal singular point
-	 */
-	static Derived singular_quadrature_inside(unsigned degree, xi_t const &singular_point)
-	{
-		typedef singular_traits<Derived> singular_traits_t;
-		typedef typename singular_traits_t::singular_source_type singular_source_t;
-		typedef typename singular_traits_t::transformation_lset transformation_lset;
-		const unsigned nResolution = singular_traits_t::nResolution;
-		const unsigned nCorners = singular_traits_t::nCorners;
-
-		xi_t const *corners = domain_t::get_corners();
-
-		Derived result;
-		singular_source_t source_quad(degree);
-		for (unsigned r = 0; r < nResolution; ++r)
-		{
-			Eigen::Matrix<scalar_t, nCorners, domain_t::dimension> coords;
-			for (unsigned c = 0; c < nCorners; ++c)
-			{
-				if (singular_traits_t::index_inside[r][c] == -1)
-					coords.row(c) = singular_point;
-				else
-					coords.row(c) = corners[singular_traits_t::index_inside[r][c]];
-			}
-			result += source_quad.transform<transformation_lset>(coords);
-		}
-		return result;
-	}
-}; // quadrature_base
-
+}; // class quadrature_base
 
 /**
  * \brief print a quadrature into an ouput stream
- * \tparam the quadrature's domain type
+ * \tparam Derived the quadrature's type
  * \param os the output stream
  * \param Q the quadrature
  * \return the modified output stream
@@ -281,6 +246,12 @@ std::ostream & operator << (std::ostream & os, const quadrature_base<Derived>& Q
  */
 template <class Family, class Domain>
 struct quadrature_type;
+
+
+
+// forward declaration of singular traits
+template <class quadrature>
+struct singular_traits;
 
 #endif
 

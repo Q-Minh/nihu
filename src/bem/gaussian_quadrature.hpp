@@ -33,7 +33,8 @@
 template <class scalar_t>
 Eigen::Matrix<scalar_t, Eigen::Dynamic, 2> gauss_impl(unsigned N)
 {
-	Eigen::Matrix<scalar_t, Eigen::Dynamic, Eigen::Dynamic> J(N, N);
+	typedef Eigen::Matrix<scalar_t, Eigen::Dynamic, Eigen::Dynamic> mat_t;
+	mat_t J(N, N);
 	J.setZero();
 
 	// Fill the diagonals of the matrix

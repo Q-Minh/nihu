@@ -26,8 +26,6 @@ void test_transform(void)
 		1.0, 1.0,
 		1.0, 1.0;
 	std::cout << q.transform<quad_1_shape_set>(coords) << std::endl;
-	std::cout << gauss_quad::singular_quadrature_inside(5, quad_domain::get_center());
-	std::cout << gauss_tria::singular_quadrature_inside(5, tria_domain::get_center());
 }
 
 
@@ -35,12 +33,17 @@ void test_transform(void)
 
 void test_duffy(void)
 {
+	std::cout << "Testing duffy quadratures" << std::endl << std::endl;
+
 	typedef tria_1_shape_set lset_t;
 	typedef quadrature_type<gauss_family_tag, typename lset_t::domain_t>::type	duffy_t;
-	duffy_t duf = duffy_quadrature_corner<lset_t>(3, 2);
-	std::cout << duf << std::endl;
-}
 
+	duffy_t duf_corner = duffy_quadrature_corner<gauss_family_tag, lset_t>(3, 2);
+	std::cout << duf_corner << std::endl;
+
+	duffy_t duf_face = duffy_quadrature_face<gauss_family_tag, lset_t>(3, lset_t::xi_t(0.0, 0.0));
+	std::cout << duf_face << std::endl;
+}
 
 int main(void)
 {
