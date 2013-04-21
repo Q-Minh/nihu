@@ -1,4 +1,5 @@
 #include "../bem/field_type_accelerator.hpp"
+#include "../bem/gaussian_quadrature.hpp"
 
 typedef quad_1_elem elem_t;
 typedef field<elem_t, isoparametric_field, function_field> field_t;

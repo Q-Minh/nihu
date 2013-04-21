@@ -94,6 +94,9 @@ template <class Derived>
 unsigned kernel_base<Derived>::m_num_evaluations = 0;
 
 
+#include "gaussian_quadrature.hpp"
+
+
 /**
  * \brief CRTP base class of 3D Helmholtz kernels and its derivatives
  * \tparam Derived type of the derived class in the CRTP scheme

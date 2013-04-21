@@ -2,9 +2,6 @@
  * \file gaussian_quadrature.hpp
  * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
  * \brief implementation of Gaussian quadratures
- */
-
- /**
  * \todo Just for fun, an alternative of the Gaussian family should be trapezoid family or something similar.
  */
 
@@ -19,30 +16,41 @@
  * \tparam scalar_t the scalar type
  * \param [in] N number of Gaussian points
  * \return matrix containing the Gaussian locations and weights
+ * \details The Gaussian locations are roots of the Legendre polynomials \f$\varphi_n(x)\f$.
+ * The polynomials obey the recurrence relation
+ *
+ * \f$\varphi_{n+1}(x) = x\varphi_{n}(x) - b_n \varphi_{n-1}(x)\f$, where \f$b_n = \frac{n^2}{4n^2-1}\f$
+ *
+ * so the roots are the eigenvalues of the tridiagonal Jacobi matrix
+ *
+ * \f$J = \begin{pmatrix}
+ * 0 & \sqrt{b_1} \\
+ * \sqrt{b_1} & 0 & \sqrt{b_2} \\
+ * & \ddots &  & \ddots \\
+ *  & & \sqrt{b_{N-2}} & 0 & \sqrt{b_{N-1}} \\
+ *  & & & \sqrt{b_{N-1}} & 0 \end{pmatrix}\f$
  */
 template <class scalar_t>
 Eigen::Matrix<scalar_t, Eigen::Dynamic, 2> gauss_impl(unsigned N)
 {
-	typedef Eigen::Matrix<scalar_t, Eigen::Dynamic, Eigen::Dynamic> mat_t;
-
-	mat_t M(N, N);
-	M.setZero();
+	Eigen::Matrix<scalar_t, Eigen::Dynamic, Eigen::Dynamic> J(N, N);
+	J.setZero();
 
 	// Fill the diagonals of the matrix
-	for (unsigned i = 0; i < N-1; ++i)
+	for (unsigned n = 0; n < N-1; ++n)
 	{
-		scalar_t v = scalar_t(i+1);
+		scalar_t v = scalar_t(n+1);
 		scalar_t u = v / sqrt(4.0*v*v - 1);
-		M(i,i+1) = u;
-		M(i+1,i) = u;
+		J(n,n+1) = u;
+		J(n+1,n) = u;
 	}
 
 	// Get the eigenvalues and eigenvectors
-	Eigen::SelfAdjointEigenSolver<mat_t> es(M);
+	Eigen::SelfAdjointEigenSolver<mat_t> solver(J);
 	Eigen::Matrix<scalar_t, Eigen::Dynamic, 2> V;
 	V.resize(N,2);
-	V.col(0) = es.eigenvalues();
-	V.col(1) = 2.0 * es.eigenvectors().row(0).cwiseAbs2();
+	V.col(0) = solver.eigenvalues();
+	V.col(1) = 2.0 * solver.eigenvectors().row(0).cwiseAbs2();
 
 	return V;
 }
