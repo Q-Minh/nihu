@@ -5,7 +5,6 @@
  * \todo Just for fun, an alternative of the Gaussian family should be trapezoid family or something similar.
  */
 
-
 #ifndef GAUSSIAN_QUADRATURE_HPP_INCLUDED
 #define GAUSSIAN_QUADRATURE_HPP_INCLUDED
 
@@ -341,80 +340,6 @@ template<>
 struct quadrature_type<gauss_family_tag, quad_domain>
 {
 	typedef gauss_quad type; /**< \brief metafunction return type */
-};
-
-
-
-/**
- * \todo the whole singular part from here on should be moved to duffy_quadrature.hpp,
- * and a general singular family type should be introduced that can be specialised to Duffy.
- */
-
-
-/**
- * \brief singular traits of gaussian quad quadrature
- */
-template <>
-struct singular_traits<gauss_quad>
-{
-	/** \brief the singular duffy element is gaussian too */
-	typedef gauss_quad singular_source_type;
-	/** \brief the tria is divided into duffy quads */
-	typedef quad_1_shape_set transformation_lset;
-	/** \brief number of corners of a duffy quad = 4 */
-	static const unsigned nCorners = singular_source_type::domain_t::num_corners;
-	/** \brief number of quads in the division */
-	static const unsigned nResolution = 4;
-	/** \brief number of quads in the division */
-	static const unsigned nCornerResolution = 2;
-	/** \brief index matrix describing orientation of the duffy quads */
-	static const int index_inside[nResolution][nCorners];
-	/** \brief index matrix describing orientation of the duffy quads */
-	static const int index_corner[nCornerResolution][nCorners];
-};
-
-const int singular_traits<gauss_quad>::index_inside[singular_traits<gauss_quad>::nResolution][singular_traits<gauss_quad>::nCorners] = {
-	{0, 1, -1, -1},
-	{1, 2, -1, -1},
-	{2, 3, -1, -1},
-	{3, 0, -1, -1}
-};
-
-const int singular_traits<gauss_quad>::index_corner[singular_traits<gauss_quad>::nCornerResolution][singular_traits<gauss_quad>::nCorners] = {
-	{0, 0, 1, 2},
-	{0, 0, 2, 3}
-};
-
-/**
- * \brief singular traits of a gaussian tria quadrature
- */
-template <>
-struct singular_traits<gauss_tria>
-{
-	/** \brief the singular duffy element is gaussian too */
-	typedef gauss_quad singular_source_type;
-	/** \brief duffy quads are transformed with an iso quad L-set */
-	typedef quad_1_shape_set transformation_lset;
-	/** \brief number of corners of a duffy quad = 4 */
-	static const unsigned nCorners = singular_source_type::domain_t::num_corners;
-	/** \brief number of triangles in the division */
-	static const unsigned nResolution = 3;
-	/** \brief number of triangles in the division */
-	static const unsigned nCornerResolution = 1;
-	/** \brief index matrix describing orientation of the duffy quads */
-	static const int index_inside[nResolution][nCorners];
-	/** \brief index matrix describing orientation of the duffy quads */
-	static const int index_corner[nCornerResolution][nCorners];
-};
-
-const int singular_traits<gauss_tria>::index_inside[singular_traits<gauss_tria>::nResolution][singular_traits<gauss_tria>::nCorners] = {
-	{0, 1, -1, -1},
-	{1, 2, -1, -1},
-	{2, 0, -1, -1}
-};
-
-const int singular_traits<gauss_tria>::index_corner[singular_traits<gauss_tria>::nCornerResolution][singular_traits<gauss_tria>::nCorners] = {
-	{0, 0, 1, 2}
 };
 
 

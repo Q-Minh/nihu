@@ -13,12 +13,10 @@
 template <class LSet>
 struct duffy_traits;
 
-
 /**
  * \brief Transform regular quadratures into weakly singular Duffy-type quadratures
  * \tparam QuadFamily the regular quadrature family
  * \tparam LSet the element geometrical shape set representation
- * \todo the on_face and on_corner functions are almost identical. Unify them!
  */
 template <class QuadFamily, class LSet>
 class duffy_quadrature
@@ -38,32 +36,32 @@ public:
 	typedef typename domain_t::xi_t xi_t;
 	/** \brief domain's scalar type */
 	typedef typename domain_t::scalar_t scalar_t;
-
 	/** \brief the return quadrature type */
 	typedef typename quadrature_type<quadrature_family_tag, domain_t>::type ret_quad_type;
+
+private:
 	/** \brief the source quadrature type (regular quad quadrature) */
 	typedef typename quadrature_type<quadrature_family_tag, quad_domain>::type source_quad_type;
-
 	/** \brief the local coordinate matrix type of the transformation */
 	typedef Eigen::Matrix<scalar_t, 4, domain_t::dimension> coords_t;
 
 	/**
-	 * \brief create a duffy quadrature that is singular on one corner of the selected element
+	 * \brief Helper function for Duffy quadrature generation
 	 * \param [in] degree the polynomial degree of the original regular quadrature
-	 * \param [in] singular_corner index of the singular corner
-	 * \return a Duffy type singular quadrature
+	 * \param [in] array indices of the Duffy triangle's nonsingular corners
+	 * \param [in] singular_point coordinates of the singular point
+	 * \param [out] reference to the result quadrature
+	 * \return reference to the result for chaining
 	 */
-	static ret_quad_type on_corner(unsigned degree, unsigned singular_corner)
+	static ret_quad_type &duffy_impl(unsigned degree, unsigned const *array, xi_t const &sing_coord, ret_quad_type &result)
 	{
-		unsigned const *array = duffy_traits<LSet>::duffy_corner_indices[singular_corner];
 		unsigned num_duffies = *array;
 		array++;
 
-		ret_quad_type result;
 		source_quad_type source(degree);
 
 		coords_t coords;
-		coords.row(0) = coords.row(1) = LSet::corner_at(singular_corner);
+		coords.row(0) = coords.row(1) = sing_coord;
 
 		for (size_t d = 0; d < num_duffies; ++d)
 		{
@@ -74,6 +72,23 @@ public:
 		}
 
 		return result;
+	}
+
+public:
+	/**
+	 * \brief create a duffy quadrature that is singular on one corner of the selected element
+	 * \param [in] degree the polynomial degree of the original regular quadrature
+	 * \param [in] singular_corner index of the singular corner
+	 * \return a Duffy type singular quadrature
+	 */
+	static ret_quad_type on_corner(unsigned degree, unsigned singular_corner)
+	{
+		ret_quad_type result;
+		return duffy_impl(
+			degree,
+			duffy_traits<LSet>::duffy_corner_indices[singular_corner],
+			LSet::corner_at(singular_corner),
+			result);
 	}
 
 	/**
@@ -84,34 +99,23 @@ public:
 	 */
 	static ret_quad_type on_face(unsigned degree, xi_t const &singular_point)
 	{
-		unsigned const *array = duffy_traits<LSet>::duffy_face_indices;
-		unsigned num_duffies = *array;
-		array++;
-
 		ret_quad_type result;
-		source_quad_type source(degree);
-
-		coords_t coords;
-		coords.row(0) = coords.row(1) = singular_point;
-
-		for (size_t d = 0; d < num_duffies; ++d)
-		{
-			coords.row(2) = LSet::corner_at(array[d]);
-			coords.row(3) = LSet::corner_at(array[d+1]);
-
-			result += source.template transform<quad_1_shape_set>(coords);
-		}
-
-		return result;
+		return duffy_impl(
+			degree,
+			duffy_traits<LSet>::duffy_face_indices,
+			singular_point,
+			result);
 	}
 }; // end of class duffy_quadrature
 
 
-
+/** \brief Duffy transformation indices for the linear triangle element */
 template <>
 struct duffy_traits<tria_1_shape_set>
 {
+	/** \brief indices of the Duffy corners for singular corners */
 	static unsigned const duffy_corner_indices[3][2+1];
+	/** \brief indices of the Duffy corners for internal singular point */
 	static unsigned const duffy_face_indices[4+1];
 };
 
@@ -126,10 +130,13 @@ unsigned const duffy_traits<tria_1_shape_set>::duffy_face_indices[4+1] = {
 };
 
 
+/** \brief Duffy transformation indices for the linear quadrilateral element */
 template <>
 struct duffy_traits<quad_1_shape_set>
 {
+	/** \brief indices of the Duffy corners for singular corners */
 	static unsigned const duffy_corner_indices[4][3+1];
+	/** \brief indices of the Duffy corners for internal singular point */
 	static unsigned const duffy_face_indices[5+1];
 };
 
@@ -143,6 +150,5 @@ unsigned const duffy_traits<quad_1_shape_set>::duffy_corner_indices[4][3+1] = {
 unsigned const duffy_traits<quad_1_shape_set>::duffy_face_indices[5+1] = {
 	4, /*|*/ 0, 1, 2, 3, 0
 };
-
 
 #endif // DUFFY_QUADRATURE_HPP_INCLUDED

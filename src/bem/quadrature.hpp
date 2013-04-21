@@ -248,10 +248,4 @@ template <class Family, class Domain>
 struct quadrature_type;
 
 
-
-// forward declaration of singular traits
-template <class quadrature>
-struct singular_traits;
-
 #endif
-

@@ -115,6 +115,7 @@ public:
 	typedef typename test_elem_t::domain_t test_domain_t;
 	typedef typename trial_elem_t::domain_t trial_domain_t;
 
+	typedef typename test_elem_t::lset_t test_lset_t;
 	typedef typename trial_elem_t::lset_t trial_lset_t;
 	typedef typename kernel_traits<kernel_t>::quadrature_family_t quadrature_family_t;
 
@@ -126,6 +127,7 @@ public:
 	/**\brief the quadrature element type (it should be the same for test and trial) */
 	typedef typename test_quadrature_t::quadrature_elem_t quadrature_elem_t;
 
+	typedef duffy_quadrature<quadrature_family_t, test_lset_t> test_duffy_t;
 	typedef duffy_quadrature<quadrature_family_t, trial_lset_t> trial_duffy_t;
 
 	/**\brief the dual iterator type of te singular quadrature */
@@ -218,6 +220,17 @@ public:
 			m_face_test_quadrature = NULL;
 			m_face_trial_quadrature = NULL;
 		}
+
+		for (unsigned i = 0; i < test_domain_t::num_corners; ++i)
+		{
+			m_corner_test_quadrature[i] = new test_quadrature_t();
+			*m_corner_test_quadrature[i] += test_duffy_t::on_corner(9, i);
+		}
+		for (unsigned i = 0; i < trial_domain_t::num_corners; ++i)
+		{
+			m_corner_trial_quadrature[i] = new trial_quadrature_t();
+			*m_corner_trial_quadrature[i] += trial_duffy_t::on_corner(9, i);
+		}
 	}
 
 	~singular_accelerator()
@@ -227,6 +240,11 @@ public:
 			delete m_face_test_quadrature;
 			delete m_face_trial_quadrature;
 		}
+
+		for (unsigned i = 0; i < test_domain_t::num_corners; ++i)
+			delete m_corner_test_quadrature[i];
+		for (unsigned i = 0; i < trial_domain_t::num_corners; ++i)
+			delete m_corner_trial_quadrature[i];
 	}
 
 protected:

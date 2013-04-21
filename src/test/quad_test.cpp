@@ -1,5 +1,5 @@
 #include "../bem/gaussian_quadrature.hpp"
-
+#include "../bem/duffy_quadrature.hpp"
 #include "../tmp/control.hpp"
 
 template <class Family, class Domain>
@@ -9,15 +9,18 @@ struct tester
 	{
 		void operator() (void)
 		{
+			std::cout << "Testing regular quadratures" << std::endl << std::endl;
+
 			typename quadrature_type<Family, Domain>::type q(5);
 			std::cout << q << std::endl;
 		}
 	};
 };
 
-
 void test_transform(void)
 {
+	std::cout << "Testing quadrature transforms" << std::endl << std::endl;
+
 	gauss_quad q(4);
 	Eigen::Matrix<double, 4, 2> coords;
 	coords <<
@@ -29,32 +32,28 @@ void test_transform(void)
 }
 
 
-#include "../bem/duffy_quadrature.hpp"
 
 void test_duffy(void)
 {
 	std::cout << "Testing duffy quadratures" << std::endl << std::endl;
 
-	typedef tria_1_shape_set lset_t;
-	typedef quadrature_type<gauss_family_tag, typename lset_t::domain_t>::type	duffy_t;
+	typedef quad_1_shape_set lset_t;
+	typedef duffy_quadrature<gauss_family_tag, lset_t> duffy_t;
 
-	duffy_t duf_corner = duffy_quadrature_corner<gauss_family_tag, lset_t>(3, 2);
-	std::cout << duf_corner << std::endl;
+	auto d_corner = duffy_t::on_corner(3, 2);
+	std::cout << d_corner << std::endl;
 
-	duffy_t duf_face = duffy_quadrature_face<gauss_family_tag, lset_t>(3, lset_t::xi_t(0.0, 0.0));
-	std::cout << duf_face << std::endl;
+	auto d_face = duffy_t::on_face(3, duffy_t::xi_t(.0, .0));
+	std::cout << d_face << std::endl;
 }
 
 int main(void)
 {
-	typedef gauss_family_tag gauss;
-	typedef tmp::vector<line_domain, tria_domain, quad_domain> DomainSequence;
-	//typedef tmp::vector<gauss_quad, gauss_tria> QuadSequence;
-
-	tmp::call_each<DomainSequence, tester<gauss, tmp::_1> >();
-
+	tmp::call_each<
+		tmp::vector<line_domain, tria_domain, quad_domain>,
+		tester<gauss_family_tag, tmp::_1>
+	>();
 	test_transform();
-
 	test_duffy();
 
 	return 0;
