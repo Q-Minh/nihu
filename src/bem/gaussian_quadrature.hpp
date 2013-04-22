@@ -18,9 +18,13 @@
  * \details The Gaussian locations are roots of the Legendre polynomials \f$\varphi_n(x)\f$.
  * The polynomials obey the recurrence relation
  *
+ * \f$\varphi_{0}(x) = 1\f$
+ *
+ * \f$\varphi_{1}(x) = x\f$
+ *
  * \f$\varphi_{n+1}(x) = x\varphi_{n}(x) - b_n \varphi_{n-1}(x)\f$, where \f$b_n = \frac{n^2}{4n^2-1}\f$
  *
- * so the roots are the eigenvalues of the tridiagonal Jacobi matrix
+ * so the Legendre polynomials are the characteristic polynomial of the tridiagonal Jacobi matrix
  *
  * \f$J = \begin{pmatrix}
  * 0 & \sqrt{b_1} \\
@@ -28,6 +32,8 @@
  * & \ddots &  & \ddots \\
  *  & & \sqrt{b_{N-2}} & 0 & \sqrt{b_{N-1}} \\
  *  & & & \sqrt{b_{N-1}} & 0 \end{pmatrix}\f$
+ *
+ * and therefore the quadrature locations are the eigenvalues of \f$J\f$
  */
 template <class scalar_t>
 Eigen::Matrix<scalar_t, Eigen::Dynamic, 2> gauss_impl(unsigned N)
