@@ -285,49 +285,108 @@ protected:
 };
 
 
-/// The collocational constant case
-template <class Kernel, class Elem, class TrialFieldOption, class TrialDiracOption>
-class singular_accelerator<
-	Kernel,
-	field<Elem, constant_field, dirac_field>,
-	field<Elem, TrialFieldOption, TrialDiracOption> >
+
+template <class Kernel, class TestElem, class TrialField>
+class singular_accelerator<Kernel, field<TestElem, constant_field, dirac_field>, TrialField>
 {
 	// CRTP check
 	static_assert(std::is_base_of<kernel_base<Kernel>, Kernel>::value,
-		"Kernel must be derived from kernel_base<Kernel>");
+		"The kernel field must be derived from kernel_base<Kernel>");
+	static_assert(std::is_base_of<field_base<TrialField>, TrialField>::value,
+		"The trial field must be derived from field_base<TrialField>");
 public:
-	typedef Kernel kernel_t;
-	typedef field<Elem, constant_field, dirac_field> test_field_t;
-	typedef field<Elem, TrialFieldOption, TrialDiracOption> trial_field_t;
-	typedef typename trial_field_t::elem_t::domain_t trial_domain_t;
-	typedef typename quadrature_type<
-		typename kernel_traits<kernel_t>::quadrature_family_t,
-		trial_domain_t
-	>::type trial_quadrature_t;
+	typedef Kernel kernel_t;	/**< \brief template argument as nested type */
+	typedef field<TestElem, constant_field, dirac_field> test_field_t;	/**< \brief template argument as nested type */
+	typedef TrialField trial_field_t;	/**< \brief template argument as nested type */
 
-	/** \todo kernel should tell the singularity order */
-	static unsigned const SINGULARITY_ORDER = 9;
+	typedef typename test_field_t::elem_t test_elem_t;	/**< \brief the test elem type */
+	typedef typename trial_field_t::elem_t trial_elem_t;	/**< \brief trial elem type */
 
-	singular_accelerator()
-		: m_quadrature(trial_quadrature_t::singular_quadrature_inside(SINGULARITY_ORDER, trial_domain_t::get_center()))
+	typedef typename test_elem_t::domain_t test_domain_t;
+	typedef typename trial_elem_t::domain_t trial_domain_t;
+
+	typedef typename test_elem_t::lset_t test_lset_t;
+	typedef typename trial_elem_t::lset_t trial_lset_t;
+	typedef typename kernel_traits<kernel_t>::quadrature_family_t quadrature_family_t;
+
+	/** \brief the test quadrature type */
+	typedef typename quadrature_type<quadrature_family_t, test_domain_t>::type test_quadrature_t;
+	/** \brief the trial quadrature type */
+	typedef typename quadrature_type<quadrature_family_t, trial_domain_t>::type trial_quadrature_t;
+
+	/**\brief the quadrature element type (it should be the same for test and trial) */
+	typedef typename test_quadrature_t::quadrature_elem_t quadrature_elem_t;
+
+	typedef duffy_quadrature<quadrature_family_t, test_lset_t> test_duffy_t;
+	typedef duffy_quadrature<quadrature_family_t, trial_lset_t> trial_duffy_t;
+
+	/**\brief the dual iterator type of te singular quadrature */
+	typedef singular_quadrature_iterator<typename test_quadrature_t::iterator> iterator;
+
+	/**\brief indicates whether FACE_MATCH is possible */
+	static const bool face_match_possible = std::is_same<test_elem_t, trial_elem_t>::value;
+
+	bool is_singular(test_field_t const &test_field, trial_field_t const &trial_field)
 	{
+		if (face_match_possible)
+		{
+			if (test_field.get_elem().get_id() == trial_field.get_elem().get_id())
+			{
+				m_sing_type = FACE_MATCH;
+				return true;
+			}
+		}
+		return false;
 	}
 
-	singularity_type eval(test_field_t const &test_field, trial_field_t const &trial_field) const
+	typename trial_quadrature_t::iterator cbegin(void) const
 	{
-		if (test_field.get_elem().get_id() == trial_field.get_elem().get_id())
-			return FACE_MATCH;
-		return REGULAR;
+		switch (m_sing_type)
+		{
+		case FACE_MATCH:
+			return m_face_trial_quadrature->begin();
+		}
 	}
 
-	trial_quadrature_t const *get_trial_quadrature(void) const
+	typename trial_quadrature_t::iterator cend(void) const
 	{
-		return &m_quadrature;
+		switch (m_sing_type)
+		{
+		case FACE_MATCH:
+			return m_face_trial_quadrature->end();
+		}
+	}
+
+	singular_accelerator(void)
+	{
+		/** \todo kernel should tell the singularity order */
+		unsigned const SINGULARITY_ORDER = 9;
+
+		if (face_match_possible)
+		{
+			m_face_trial_quadrature = new trial_quadrature_t();
+			*m_face_trial_quadrature += trial_duffy_t::on_face(SINGULARITY_ORDER, trial_domain_t::get_center());
+		}
+		else
+		{
+			m_face_trial_quadrature = NULL;
+		}
+	}
+
+	~singular_accelerator()
+	{
+		if (face_match_possible)
+		{
+			delete m_face_trial_quadrature;
+		}
 	}
 
 protected:
-	trial_quadrature_t const m_quadrature;
+	singularity_type m_sing_type;
+	trial_quadrature_t *m_face_trial_quadrature;
 };
+
+
 
 #endif // SINGULAR_ACCELERATOR_HPP_INCLUDED
 

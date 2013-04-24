@@ -232,7 +232,7 @@ public:
 			{
 				kernel_input_t trial_input(trial_field.get_elem(), trial_it->get_quadrature_elem());
 
-				m_result.row(test_it - test_nset_t::corner_begin()) +=
+				m_result +=
 					kernel_t::eval(collocational_point, trial_input) *
 					(trial_input.get_jacobian() * trial_it->get_shape().transpose());
 			}
@@ -241,29 +241,22 @@ public:
 		return m_result;
 	}
 
-	/** \brief evaluate double integral with selected trial field quadrature
-	 * \tparam Quadrature the selected quadrature type
-	 * \param [in] test_field the test field to integrate on
-	 * \param [in] trial_field the trial field to integrate on
-	 * \param [in] trial_quad the trial quadrature
-	 * \return reference to the integration result
-	 */
+
+	template <class singular_iterator_t>
 	static result_t const &eval_singular_on_accelerator(
 		test_field_t const &test_field,
 		trial_field_t const &trial_field,
-		singular_accelerator_t const &sing_acc)
+		singular_iterator_t begin,
+		singular_iterator_t end)
 	{
-		for(auto sing_it = sing_acc.cbegin(); sing_it != sing_acc.cend(); ++sing_it)
+		kernel_input_t collocational_point(test_field.get_elem(), quadrature_elem_t(test_field_t::elem_t::domain_t::get_center()));
+		for(auto sing_it = begin; sing_it != end; ++sing_it)
 		{
-			kernel_input_t collocational_point(test_field.get_elem(), sing_it->get_test_quadrature_elem());
-			// Go through trial quadrature
-
-			// Create kernel input
-			kernel_input_t trial_input(trial_field.get_elem(), sing_it->get_trial_quadrature_elem());
+			kernel_input_t trial_input(trial_field.get_elem(), *sing_it);
 
 			m_result += kernel_t::eval(collocational_point, trial_input) *
 					(trial_input.get_jacobian() *
-					 trial_field_t::nset_t::eval_shape(sing_it->get_trial_quadrature_elem()->get_xi()).transpose());
+					 trial_field_t::nset_t::eval_shape(sing_it->get_xi()).transpose());
 		}
 
 		return m_result;
@@ -279,11 +272,12 @@ public:
 		m_result = result_t();	// clear result
 
 		// check singularity
-		if (m_singular_accelerator.eval(test_field, trial_field) != REGULAR)
-			return eval_on_quadrature(
+		if (m_singular_accelerator.is_singular(test_field, trial_field))
+			return eval_singular_on_accelerator(
 				test_field,
 				trial_field,
-				*m_singular_accelerator.get_trial_quadrature()
+				m_singular_accelerator.cbegin(),
+				m_singular_accelerator.cend()
 			);
 
 		// select quadrature
@@ -300,7 +294,7 @@ protected:
  	/** \brief the trial field accelerator pool */
 	static const trial_field_type_accelerator_pool_t m_trial_field_accelerator_pool;
  	/** \brief the test field accelerator */
-	static const singular_accelerator_t m_singular_accelerator;
+	static singular_accelerator_t m_singular_accelerator;
 };
 
 template<class Kernel, class Trial, class ElemType, class FieldOption>
@@ -313,7 +307,7 @@ typename double_integral<Kernel, field<ElemType, FieldOption, dirac_field>, Tria
 
 template<class Kernel, class Trial, class ElemType, class FieldOption>
 typename double_integral<Kernel, field<ElemType, FieldOption, dirac_field>, Trial>::singular_accelerator_t
-	const double_integral<Kernel, field<ElemType, FieldOption, dirac_field>, Trial>::m_singular_accelerator;
+	double_integral<Kernel, field<ElemType, FieldOption, dirac_field>, Trial>::m_singular_accelerator;
 
 #endif
 
