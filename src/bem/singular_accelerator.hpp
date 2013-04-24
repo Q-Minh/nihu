@@ -10,17 +10,37 @@
 #include "field.hpp"
 #include "duffy_quadrature.hpp"
 
+/**
+ * \brief a dual iterator consisting of two iterators that can traverse a container different ways
+ * \tparam Primary type of the primary iterator
+ * \tparam Secondary type of the secondary iterator
+ */
 template <class Primary, class Secondary>
 class dual_iterator
 {
 public:
-	enum dual_iterator_mode { CIRCULAR, CONTINUOUS };
+	/** \brief the iteration mode */
+	enum dual_iterator_mode {
+		CIRCULAR,	/**< \brief the second iterator is reset each time the first is increased */
+		CONTINUOUS	/**< \brief the second iterator goes on when the first is increased */
+	};
 
+	/**
+	 * \brief constructor initialising all members
+	 * \param [in] prime the outer iterator
+	 * \param [in] sec the internal iterator
+	 * \param [in] Nsec the number of inner iterations
+	 * \param [in] mode iteration mode
+	 */
 	dual_iterator(Primary prime, Secondary sec, unsigned Nsec, dual_iterator_mode mode)
 		: m_prime(prime), m_sec(sec), m_Nsec(Nsec), m_cntr(0), m_mode(mode), m_sec_start(m_sec)
 	{
 	}
 
+	/**
+	 * \brief preincrement operator
+	 * \return reference to the incremented iterator
+	 */
 	dual_iterator &operator++(void)
 	{
 		++m_sec;
@@ -35,29 +55,43 @@ public:
 		return *this;
 	}
 
+	/**
+	 * \brief not equal operator
+	 * \param [in] other the other iterator
+	 * \return true if the iterators are different
+	 */
 	bool operator!=(dual_iterator const &other)
 	{
 		return m_prime != other.m_prime || m_sec != other.m_sec;
 	}
 
+	/**
+	 * \brief return the primary iterator's value
+	 * \return the primary iterator's pointed value
+	 */
 	typename Primary::value_type const &get_prime(void) const
 	{
 		return *m_prime;
 	}
 
+	/**
+	 * \brief return the secondary iterator's value
+	 * \return the secondary iterator's pointed value
+	 */
 	typename Secondary::value_type const &get_sec(void) const
 	{
 		return *m_sec;
 	}
 
 protected:
-	Primary m_prime;
-	Secondary m_sec;
-	unsigned const m_Nsec;
-	unsigned m_cntr;
-	dual_iterator_mode m_mode;
-	Secondary m_sec_start;
+	Primary m_prime;	/**< \brief the primary iterator */
+	Secondary m_sec;	/**< \brief the secondary iterator */
+	unsigned const m_Nsec;	/**< \brief the number of secondary steps for each outer iteration */
+	unsigned m_cntr;	/**< \brief couter counting inner steps */
+	dual_iterator_mode m_mode;	/**< \brief iteration mode */
+	Secondary m_sec_start;	/**< \brief the start value of the inner iterator */
 };
+
 
 template <class quadrature_iterator_t>
 class singular_quadrature_iterator : public dual_iterator<quadrature_iterator_t, quadrature_iterator_t>
@@ -81,11 +115,12 @@ public:
 	}
 };
 
+/** \brief singularity types */
 enum singularity_type {
-	REGULAR,
-	FACE_MATCH,
-	EDGE_MATCH,
-	CORNER_MATCH
+	REGULAR,	/**< \brief no singularity */
+	FACE_MATCH,	/**< \brief two elements are identical */
+	EDGE_MATCH,	/**< \brief two elements share common edge */
+	CORNER_MATCH	/**< \brief two elements share common corner */
 };
 
 /**
@@ -385,7 +420,6 @@ protected:
 	singularity_type m_sing_type;
 	trial_quadrature_t *m_face_trial_quadrature;
 };
-
 
 
 #endif // SINGULAR_ACCELERATOR_HPP_INCLUDED

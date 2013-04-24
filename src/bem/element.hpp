@@ -233,9 +233,8 @@ public:
 	template <class OtherElem>
 	element_overlapping get_overlapping(OtherElem const &other) const
 	{
-		unsigned num_coinc = 0;	/// number of coincident nodes
-		unsigned start_ind1;
-		unsigned start_ind2;
+		unsigned num_coinc = 0;	// number of coincident nodes
+		unsigned start_ind1 = 0, start_ind2 = 0;
 
 		auto const &otherNodes = other.get_nodes();
 		for (unsigned i = 0; i < num_nodes; ++i)
@@ -244,25 +243,18 @@ public:
 			{
 				if (m_nodes[i] == otherNodes[j])
 				{
-					/// no previous coincident nodes
+					// no previous coincident nodes
 					if (num_coinc == 0)
 					{
-						start_ind1 = i; start_ind2 = j;
+						start_ind1 = i;
+						start_ind2 = j;
 					}
 					else
 					{
 						if (i < start_ind1 || (i==num_nodes-1 && start_ind1 == 0 && num_coinc < num_nodes-1))
 							start_ind1 = i;
-						/*
-						if (i > stop_ind1 || (i==0 && stop_ind1 == num_nodes-1))
-							stop_ind1 = i;
-						*/
 						if (j < start_ind2 || (j==OtherElem::num_nodes-1 && start_ind2 == 0 && num_coinc < OtherElem::num_nodes-1))
 							start_ind2 = j;
-						/*
-						else if (j > stop_ind2 || (j==0 && stop_ind2==OtherElem::num_nodes-1))
-							stop_ind2 = j;
-						*/
 					}
 					num_coinc++;
 				}

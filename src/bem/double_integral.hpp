@@ -32,7 +32,7 @@ public:
 	typedef Test test_field_t;		/**< \brief template parameter as nested type */
 	typedef Trial trial_field_t;	/**< \brief template parameter as nested type */
 
-	typedef typename kernel_t::input_t kernel_input_t;		/**< \brief input type of kernel */
+	typedef typename kernel_t::input_t kernel_input_t;	/**< \brief input type of kernel */
 	typedef typename kernel_t::result_t kernel_result_t;	/**< \brief result type of kernel */
 
 	/** \brief the quadrature family the kernel requires */
@@ -125,9 +125,9 @@ public:
 		// check singularity
 		if (m_singular_accelerator.is_singular(test_field, trial_field))
 			return eval_singular_on_accelerator(
-				test_field, 
-				trial_field, 
-				m_singular_accelerator.cbegin(), 
+				test_field,
+				trial_field,
+				m_singular_accelerator.cbegin(),
 				m_singular_accelerator.cend());
 
 		// select quadrature
@@ -172,11 +172,9 @@ typename double_integral<Kernel, Test, Trial>::singular_accelerator_t
  * \tparam Test type of the test field
  * \tparam Trial type of the trial field
  */
-template<class Kernel, class Trial, class ElemType, class FieldOption>
+template<class Kernel, class ElemType, class FieldOption, class Trial>
 class double_integral<Kernel, field<ElemType, FieldOption, dirac_field>, Trial>
 {
-	static_assert(std::is_base_of<kernel_base<Kernel>, Kernel>::value,
-		"Kernel must be derived from kernel_base<Kernel>");
 	// CRTP check
 	static_assert(std::is_base_of<kernel_base<Kernel>, Kernel>::value,
 		"Kernel must be derived from kernel_base<Kernel>");
@@ -184,9 +182,10 @@ class double_integral<Kernel, field<ElemType, FieldOption, dirac_field>, Trial>
 		"Trial must be derived from field_base<Trial>");
 public:
 	typedef Kernel kernel_t;		/**< \brief template parameter as nested type */
-
-	typedef field<ElemType, FieldOption, dirac_field> test_field_t;		/**< \brief template parameter as nested type */
 	typedef Trial trial_field_t;	/**< \brief template parameter as nested type */
+
+	/** \brief template parameter as nested type */
+	typedef field<ElemType, FieldOption, dirac_field> test_field_t;
 
 	typedef typename kernel_t::input_t kernel_input_t;		/**< \brief input type of kernel */
 	typedef typename kernel_t::result_t kernel_result_t;		/**< \brief input type of kernel */
@@ -199,14 +198,15 @@ public:
 		typename trial_field_t::elem_t::domain_t
 	>::type::quadrature_elem_t quadrature_elem_t;	/**< \brief type of quadrature elem */
 
-	typedef field_type_accelerator<trial_field_t, quadrature_family_t> trial_field_type_accelerator_t;	/**< \brief type of the accelerator of the trial field */
-	typedef field_type_accelerator_pool<trial_field_t, quadrature_family_t> trial_field_type_accelerator_pool_t;	/**< \brief type of the accelerator pool of the trial field */
-
+	/** \brief type of the accelerator of the trial field */
+	typedef field_type_accelerator<trial_field_t, quadrature_family_t> trial_field_type_accelerator_t;
+	/** \brief type of the accelerator pool of the trial field */
+	typedef field_type_accelerator_pool<trial_field_t, quadrature_family_t> trial_field_type_accelerator_pool_t;
 	/** \brief the singular accelerator type */
 	typedef singular_accelerator<kernel_t, test_field_t, trial_field_t> singular_accelerator_t;
 
-	typedef typename test_field_t::nset_t test_nset_t;		/**< \brief type of element's N-set */
-	typedef typename trial_field_t::nset_t::shape_t trial_shape_t;		/**< \brief type of element's N-set */
+	typedef typename test_field_t::nset_t test_nset_t;		/**< \brief test element's N-set */
+	typedef typename trial_field_t::nset_t::shape_t trial_shape_t;	/**< \brief type of element's N-set */
 
 	/** \brief result type of the weighted residual */
 	typedef typename plain_type<
@@ -242,6 +242,14 @@ public:
 	}
 
 
+	/** \brief evaluate double integral with selected singular trial field quadrature
+	 * \tparam singular_iterator_t type of the singular quadrature iterator
+	 * \param [in] test_field the test field to integrate on
+	 * \param [in] trial_field the trial field to integrate on
+	 * \param [in] begin the begin interator of the selected quadrature
+	 * \param [in] end end iterator of the selected quadrature
+	 * \return reference to the integration result
+	 */
 	template <class singular_iterator_t>
 	static result_t const &eval_singular_on_accelerator(
 		test_field_t const &test_field,
@@ -249,7 +257,10 @@ public:
 		singular_iterator_t begin,
 		singular_iterator_t end)
 	{
-		kernel_input_t collocational_point(test_field.get_elem(), quadrature_elem_t(test_field_t::elem_t::domain_t::get_center()));
+		// compute collocational point
+		quadrature_elem_t qe(test_field_t::elem_t::domain_t::get_center());
+		kernel_input_t collocational_point(test_field.get_elem(), qe);
+
 		for(auto sing_it = begin; sing_it != end; ++sing_it)
 		{
 			kernel_input_t trial_input(trial_field.get_elem(), *sing_it);
@@ -297,15 +308,15 @@ protected:
 	static singular_accelerator_t m_singular_accelerator;
 };
 
-template<class Kernel, class Trial, class ElemType, class FieldOption>
+template<class Kernel, class ElemType, class FieldOption, class Trial>
 typename double_integral<Kernel, field<ElemType, FieldOption, dirac_field>, Trial>::result_t
 	double_integral<Kernel, field<ElemType, FieldOption, dirac_field>, Trial>::m_result;
 
-template<class Kernel, class Trial, class ElemType, class FieldOption>
+template<class Kernel, class ElemType, class FieldOption, class Trial>
 typename double_integral<Kernel, field<ElemType, FieldOption, dirac_field>, Trial>::trial_field_type_accelerator_pool_t
 	const double_integral<Kernel, field<ElemType, FieldOption, dirac_field>, Trial>::m_trial_field_accelerator_pool;
 
-template<class Kernel, class Trial, class ElemType, class FieldOption>
+template<class Kernel, class ElemType, class FieldOption, class Trial>
 typename double_integral<Kernel, field<ElemType, FieldOption, dirac_field>, Trial>::singular_accelerator_t
 	double_integral<Kernel, field<ElemType, FieldOption, dirac_field>, Trial>::m_singular_accelerator;
 
