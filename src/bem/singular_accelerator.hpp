@@ -136,28 +136,36 @@ public:
 	/**\brief indicates whether FACE_MATCH is possible */
 	static const bool face_match_possible = std::is_same<test_elem_t, trial_elem_t>::value;
 
-	singularity_type eval(test_field_t const &test_field, trial_field_t const &trial_field) const
+	bool is_singular(test_field_t const &test_field, trial_field_t const &trial_field)
 	{
 		// check face match for same element types
 		if (face_match_possible)
+		{
 			if (test_field.get_elem().get_id() == trial_field.get_elem().get_id())
-				return FACE_MATCH;
+			{
+				m_sing_type = FACE_MATCH;
+				return true;
+			}
+		}
 
-		/*
-		element_overlapping eo = test_field.get_elem().get_overlapping(trial_field.get_elem());
-		// check edge match
-		if (eo.get_num() > 1)
-			return EDGE_MATCH;
+		m_cur_overlap = test_field.get_elem().get_overlapping(trial_field.get_elem());
+//		// check edge match
+//		if (eo.get_num() > 1)
+//			return EDGE_MATCH;
 		// check corner match
-		if (eo.get_num() > 0)
-			return CORNER_MATCH;
-		*/
-		return REGULAR;
+		if (m_cur_overlap.get_num() == 1)
+		{
+			m_sing_type = CORNER_MATCH;
+			return true;
+		}
+
+		m_sing_type = REGULAR;
+		return false;
 	}
 
-	iterator cbegin(singularity_type sing_type) const
+	iterator cbegin(void) const
 	{
-		switch (sing_type)
+		switch (m_sing_type)
 		{
 		case FACE_MATCH:
 			return iterator(
@@ -170,7 +178,11 @@ public:
 			throw("Unimplemented singular quadrature");
 			break;
 		case CORNER_MATCH:
-			throw("Unimplemented singular quadrature");
+			return iterator(
+				m_corner_test_quadrature[m_cur_overlap.get_ind1()]->begin(),
+				m_corner_trial_quadrature[m_cur_overlap.get_ind2()]->begin(),
+				m_corner_trial_quadrature[m_cur_overlap.get_ind2()]->size(),
+				iterator::base_t::CIRCULAR);
 			break;
 		case REGULAR:
 			throw("Cannot return singular quadrature for regular type");
@@ -180,22 +192,27 @@ public:
 		}
 	}
 
-	iterator cend(singularity_type sing_type) const
+	iterator cend() const
 	{
-		switch (sing_type)
+		switch (m_sing_type)
 		{
 		case FACE_MATCH:
 			return iterator(
 				m_face_test_quadrature->end(),
 				m_face_trial_quadrature->end(),
 				m_face_trial_quadrature->size() / m_face_test_quadrature->size(),
-				iterator::CONTINUOUS);
+				iterator::base_t::CONTINUOUS);
 			break;
 		case EDGE_MATCH:
 			throw("Unimplemented singular quadrature");
 			break;
 		case CORNER_MATCH:
-			throw("Unimplemented singular quadrature");
+			/** \todo It is very dangerous that we need to handle the CIRCULAR case with { end-begin } dual quadrature */
+			return iterator(
+				m_corner_test_quadrature[m_cur_overlap.get_ind1()]->end(),
+				m_corner_trial_quadrature[m_cur_overlap.get_ind2()]->begin(),
+				m_corner_trial_quadrature[m_cur_overlap.get_ind2()]->size(),
+				iterator::base_t::CIRCULAR);
 			break;
 		case REGULAR:
 			throw("Cannot return singular quadrature for regular type");
@@ -207,13 +224,16 @@ public:
 
 	singular_accelerator(void)
 	{
+		/** \todo kernel should tell the singularity order */
+		unsigned const SINGULARITY_ORDER = 9;
+
 		if (face_match_possible)
 		{
-			m_face_test_quadrature = new test_quadrature_t(9);
+			m_face_test_quadrature = new test_quadrature_t(SINGULARITY_ORDER);
 			m_face_trial_quadrature = new trial_quadrature_t();
 			for (auto it = m_face_test_quadrature->begin();
 				it != m_face_test_quadrature->end(); ++it)
-				*m_face_trial_quadrature += trial_duffy_t::on_face(9, it->get_xi());
+				*m_face_trial_quadrature += trial_duffy_t::on_face(SINGULARITY_ORDER, it->get_xi());
 		}
 		else
 		{
@@ -224,12 +244,12 @@ public:
 		for (unsigned i = 0; i < test_domain_t::num_corners; ++i)
 		{
 			m_corner_test_quadrature[i] = new test_quadrature_t();
-			*m_corner_test_quadrature[i] += test_duffy_t::on_corner(9, i);
+			*m_corner_test_quadrature[i] += test_duffy_t::on_corner(SINGULARITY_ORDER, i);
 		}
 		for (unsigned i = 0; i < trial_domain_t::num_corners; ++i)
 		{
 			m_corner_trial_quadrature[i] = new trial_quadrature_t();
-			*m_corner_trial_quadrature[i] += trial_duffy_t::on_corner(9, i);
+			*m_corner_trial_quadrature[i] += trial_duffy_t::on_corner(SINGULARITY_ORDER, i);
 		}
 	}
 
@@ -248,9 +268,13 @@ public:
 	}
 
 protected:
+	singularity_type m_sing_type;
+	element_overlapping m_cur_overlap;
+
 	/** \todo The code does not compile if the quadratures are stored statically,
 	 * not allocated dynamically. And we do not understand this sickness.
 	 */
+
 	/**\brief singular quadrature on the test elem for FACE_MATCH case */
 	test_quadrature_t *m_face_test_quadrature;
 	/**\brief singular quadrature on the trial elem for FACE_MATCH case */
@@ -281,8 +305,11 @@ public:
 		trial_domain_t
 	>::type trial_quadrature_t;
 
+	/** \todo kernel should tell the singularity order */
+	static unsigned const SINGULARITY_ORDER = 9;
+
 	singular_accelerator()
-		: m_quadrature(trial_quadrature_t::singular_quadrature_inside(9, trial_domain_t::get_center()))
+		: m_quadrature(trial_quadrature_t::singular_quadrature_inside(SINGULARITY_ORDER, trial_domain_t::get_center()))
 	{
 	}
 

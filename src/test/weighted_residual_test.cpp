@@ -16,21 +16,21 @@ int main(void)
 		double c[] = {
 			0, 0, 0,
 			1, 0, 0,
-			2, 0, 0,
 			0, 1, 0,
 			1, 1, 0,
 			2, 1, 0,
+			1, 2, 0,
+			2, 2, 0
 		};
 		unsigned e[] = {
-			4,  0, 1, 4, 3,
-			4,  1, 2, 5, 4,
-			3,  1, 2, 5, 0
+			4,  0, 1, 3, 2,
+			4,  3, 4, 6, 5
 		};
 
 		mesh_t mesh;
-		for (unsigned i = 0; i < 6; ++i)
+		for (unsigned i = 0; i < 7; ++i)
 			mesh.add_node(c+i*3);
-		for (unsigned i = 0; i < 3; ++i)
+		for (unsigned i = 0; i < 2; ++i)
 			mesh.add_elem(e+i*5);
 
 		test_space_t test_func(mesh);
@@ -39,10 +39,16 @@ int main(void)
 
 		kernel_t::set_wave_number(1.0);
 
-		Eigen::Matrix<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic> a(test_func.get_num_dofs(), trial_func.get_num_dofs());
+		typedef Eigen::Matrix<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic> big_mat_t;
+		big_mat_t a(test_func.get_num_dofs(), trial_func.get_num_dofs());
 		a.setZero();
+		big_mat_t b = a;
 
-		std::cout << wr.eval(a) << std::endl;
+		couple<big_mat_t, big_mat_t> result(a, b);
+		wr.eval(result);
+
+		std::cout << result.first() << std::endl;
+		std::cout << result.second() << std::endl;
 		std::cout << kernel_t::get_num_evaluations() << std::endl;
 	}
 	catch(const char *e)

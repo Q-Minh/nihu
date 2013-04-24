@@ -37,11 +37,9 @@ struct duffy_test
 		{
 			typedef duffy_quadrature<Family, LSet> duffy_t;
 
-			auto d_corner = duffy_t::on_corner(3, 2);
-			std::cout << d_corner << std::endl;
+			std::cout << duffy_t::on_corner(3, 2) << std::endl;
 
-			auto d_face = duffy_t::on_face(3, LSet::domain_t::get_center());
-			std::cout << d_face << std::endl;
+			std::cout << duffy_t::on_face(3, LSet::domain_t::get_center()) << std::endl;
 		}
 	};
 };

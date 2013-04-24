@@ -26,7 +26,8 @@ public:
 	 * \param [in] rows the index vector of selected rows
 	 * \param [in] cols the index vector of selected columns
 	 */
-	matrix_block(Matrix &m, RowIndex const &rows, ColIndex const &cols) : m_matrix(m), m_rows(rows), m_cols(cols)
+	matrix_block(Matrix &m, RowIndex const &rows, ColIndex const &cols)
+		: m_matrix(m), m_rows(rows), m_cols(cols)
 	{
 	}
 
@@ -43,12 +44,24 @@ public:
 				m_matrix(m_rows(i), m_cols(j)) += rhs(i, j);
 	}
 
-	template <class SubMatrix>
-	void operator +=(couple<SubMatrix> const &rhs) const
+	/**
+	 * \brief increment the block with a subcouple
+	 * \tparam MA the first submatrix type in the couple
+	 * \tparam MB the second submatrix type in the couple
+	 * \details in this specialisation we assume that the block itself is a block of couples
+	 * \param [in] rhs the submatrix to add to the block
+	 */
+	template <class MA, class MB>
+	void operator +=(couple<MA, MB> const &rhs) const
 	{
 		for (int i = 0; i < m_rows.size(); ++i)
+		{
 			for (int j = 0; j < m_cols.size(); ++j)
-				m_matrix(m_rows(i), m_cols(j)) += rhs.first()(i, j);
+			{
+				m_matrix.first()(m_rows(i), m_cols(j)) += rhs.first()(i, j);
+				m_matrix.second()(m_rows(i), m_cols(j)) += rhs.second()(i, j);
+			}
+		}
 	}
 
 protected:

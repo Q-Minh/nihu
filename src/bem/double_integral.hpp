@@ -123,13 +123,12 @@ public:
 		m_result = result_t();	// clear result
 
 		// check singularity
-		singularity_type sing_type;
-		if ((sing_type = m_singular_accelerator.eval(test_field, trial_field)) != REGULAR)
+		if (m_singular_accelerator.is_singular(test_field, trial_field))
 			return eval_singular_on_accelerator(
 				test_field, 
 				trial_field, 
-				m_singular_accelerator.cbegin(sing_type), 
-				m_singular_accelerator.cend(sing_type));
+				m_singular_accelerator.cbegin(), 
+				m_singular_accelerator.cend());
 
 		// select quadrature
 		kernel_input_t test_center(test_field.get_elem(), m_test_field_accelerator_pool[0]->cbegin()->get_quadrature_elem());
@@ -147,7 +146,7 @@ protected:
 	/** \brief accelerator pool of the trial field */
 	static const trial_field_type_accelerator_pool_t m_trial_field_accelerator_pool;
 	/** \brief singular accelerator type */
-	static const singular_accelerator_t m_singular_accelerator;
+	static singular_accelerator_t m_singular_accelerator;
 };
 
 template <class Kernel, class Test, class Trial>
@@ -164,7 +163,7 @@ typename double_integral<Kernel, Test, Trial>::trial_field_type_accelerator_pool
 
 template<class Kernel, class Test, class Trial>
 typename double_integral<Kernel, Test, Trial>::singular_accelerator_t
-	const double_integral<Kernel, Test, Trial>::m_singular_accelerator;
+	double_integral<Kernel, Test, Trial>::m_singular_accelerator;
 
 
 /**
