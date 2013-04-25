@@ -29,7 +29,7 @@ public:
 	 * \brief constructor initialising all members
 	 * \param [in] prime the outer iterator
 	 * \param [in] sec the internal iterator
-	 * \param [in] Nsec the number of inner iterations
+	 * \param [in] Nsec the number of inner iterations for one outer iteration
 	 * \param [in] mode iteration mode
 	 */
 	dual_iterator(Primary prime, Secondary sec, unsigned Nsec, dual_iterator_mode mode)
@@ -93,22 +93,34 @@ protected:
 };
 
 
+/**
+ * \brief a dual iterator to store and test and a trial quadrature iterator
+ * \tparam quadrature_iterator_t the iterator type of the quadratures
+ */
 template <class quadrature_iterator_t>
 class singular_quadrature_iterator : public dual_iterator<quadrature_iterator_t, quadrature_iterator_t>
 {
 public:
+	/** \brief the base type */
 	typedef dual_iterator<quadrature_iterator_t, quadrature_iterator_t> base_t;
 
+	/** \brief constructor initialising members */
 	singular_quadrature_iterator(quadrature_iterator_t test, quadrature_iterator_t trial, unsigned Ntrial, typename base_t::dual_iterator_mode mode)
 		: base_t(test, trial, Ntrial, mode)
 	{
 	}
 
+	/** \brief return the test quadrature element
+	 * \return test quadrature element
+	 */
 	typename quadrature_iterator_t::value_type const &get_test_quadrature_elem(void) const
 	{
 		return this->get_prime();
 	}
 
+	/** \brief return the trial quadrature element
+	 * \return trial quadrature element
+	 */
 	typename quadrature_iterator_t::value_type const &get_trial_quadrature_elem(void) const
 	{
 		return this->get_sec();
@@ -144,14 +156,15 @@ public:
 	typedef TestField test_field_t;	/**< \brief template argument as nested type */
 	typedef TrialField trial_field_t;	/**< \brief template argument as nested type */
 
-	typedef typename test_field_t::elem_t test_elem_t;	/**< \brief the test elem type */
-	typedef typename trial_field_t::elem_t trial_elem_t;	/**< \brief trial elem type */
+	typedef typename test_field_t::elem_t test_elem_t;	/**< \brief test elem */
+	typedef typename trial_field_t::elem_t trial_elem_t;	/**< \brief trial elem */
 
-	typedef typename test_elem_t::domain_t test_domain_t;
-	typedef typename trial_elem_t::domain_t trial_domain_t;
+	typedef typename test_elem_t::domain_t test_domain_t;	/**< \brief test domain */
+	typedef typename trial_elem_t::domain_t trial_domain_t;	/**< \brief trial domain */
+	typedef typename test_elem_t::lset_t test_lset_t;	/**< \brief test Lset */
+	typedef typename trial_elem_t::lset_t trial_lset_t;	/**< \brief trial Lset */
 
-	typedef typename test_elem_t::lset_t test_lset_t;
-	typedef typename trial_elem_t::lset_t trial_lset_t;
+	/** \brief the quadrature family obtained from the kernel */
 	typedef typename kernel_traits<kernel_t>::quadrature_family_t quadrature_family_t;
 
 	/** \brief the test quadrature type */
@@ -162,7 +175,9 @@ public:
 	/**\brief the quadrature element type (it should be the same for test and trial) */
 	typedef typename test_quadrature_t::quadrature_elem_t quadrature_elem_t;
 
+	/** \brief Duffy quadrature type of the test field */
 	typedef duffy_quadrature<quadrature_family_t, test_lset_t> test_duffy_t;
+	/** \brief Duffy quadrature type of the trial field */
 	typedef duffy_quadrature<quadrature_family_t, trial_lset_t> trial_duffy_t;
 
 	/**\brief the dual iterator type of te singular quadrature */
@@ -171,6 +186,12 @@ public:
 	/**\brief indicates whether FACE_MATCH is possible */
 	static const bool face_match_possible = std::is_same<test_elem_t, trial_elem_t>::value;
 
+	/**
+	 * \brief determine whether field pair requires singular integration and stores the singularity type
+	 * \param [in] test_field the test field
+	 * \param [in] trial_field the trial_field
+	 * \return true if singular integration is needed
+	 */
 	bool is_singular(test_field_t const &test_field, trial_field_t const &trial_field)
 	{
 		// check face match for same element types
@@ -198,6 +219,10 @@ public:
 		return false;
 	}
 
+	/**
+	 * \brief return begin iterator of te singular quadrature
+	 * \return begin iterator of the singular quadrature
+	 */
 	iterator cbegin(void) const
 	{
 		switch (m_sing_type)
@@ -227,6 +252,10 @@ public:
 		}
 	}
 
+	/**
+	 * \brief return end iterator of te singular quadrature
+	 * \return end iterator of the singular quadrature
+	 */
 	iterator cend() const
 	{
 		switch (m_sing_type)
@@ -257,6 +286,9 @@ public:
 		}
 	}
 
+	/**
+	 * \brief constructor allocating space for the quadratures
+	 */
 	singular_accelerator(void)
 	{
 		/** \todo kernel should tell the singularity order */
@@ -288,6 +320,9 @@ public:
 		}
 	}
 
+	/**
+	 * \brief destructor freeing quadratures
+	 */
 	~singular_accelerator()
 	{
 		if (face_match_possible)
@@ -303,8 +338,8 @@ public:
 	}
 
 protected:
-	singularity_type m_sing_type;
-	element_overlapping m_cur_overlap;
+	singularity_type m_sing_type;	/**< \brief the current singulartity type */
+	element_overlapping m_cur_overlap;	/**< \brief the current overlapping state */
 
 	/** \todo The code does not compile if the quadratures are stored statically,
 	 * not allocated dynamically. And we do not understand this sickness.
@@ -315,12 +350,20 @@ protected:
 	/**\brief singular quadrature on the trial elem for FACE_MATCH case */
 	trial_quadrature_t *m_face_trial_quadrature;
 
+	/**\brief singular quadratures on the test elem for CORNER_MATCH case */
 	test_quadrature_t *m_corner_test_quadrature[test_domain_t::num_corners];
+	/**\brief singular quadratures on the trial elem for CORNER_MATCH case */
 	trial_quadrature_t *m_corner_trial_quadrature[trial_domain_t::num_corners];
 };
 
 
 
+/**
+ * \brief specialisation the singular accelerator for the collocational case
+ * \tparam Kernel the kernel to integrate
+ * \tparam TestElem the test element type
+ * \tparam TrialField the trial field type
+ */
 template <class Kernel, class TestElem, class TrialField>
 class singular_accelerator<Kernel, field<TestElem, constant_field, dirac_field>, TrialField>
 {
@@ -331,67 +374,82 @@ class singular_accelerator<Kernel, field<TestElem, constant_field, dirac_field>,
 		"The trial field must be derived from field_base<TrialField>");
 public:
 	typedef Kernel kernel_t;	/**< \brief template argument as nested type */
-	typedef field<TestElem, constant_field, dirac_field> test_field_t;	/**< \brief template argument as nested type */
+	typedef field<TestElem, constant_field, dirac_field> test_field_t;	/**< \brief the test field type */
 	typedef TrialField trial_field_t;	/**< \brief template argument as nested type */
 
 	typedef typename test_field_t::elem_t test_elem_t;	/**< \brief the test elem type */
 	typedef typename trial_field_t::elem_t trial_elem_t;	/**< \brief trial elem type */
 
-	typedef typename test_elem_t::domain_t test_domain_t;
-	typedef typename trial_elem_t::domain_t trial_domain_t;
+	typedef typename test_elem_t::domain_t test_domain_t;	/**< \brief test domain type */
+	typedef typename trial_elem_t::domain_t trial_domain_t;	/**< \brief trial domain type */
 
-	typedef typename test_elem_t::lset_t test_lset_t;
-	typedef typename trial_elem_t::lset_t trial_lset_t;
+	typedef typename trial_elem_t::lset_t trial_lset_t;	/**< \brief trial L-set type */
+
+	/** \brief quadrature family */
 	typedef typename kernel_traits<kernel_t>::quadrature_family_t quadrature_family_t;
-
-	/** \brief the test quadrature type */
-	typedef typename quadrature_type<quadrature_family_t, test_domain_t>::type test_quadrature_t;
-	/** \brief the trial quadrature type */
+	/** \brief trial quadrature type */
 	typedef typename quadrature_type<quadrature_family_t, trial_domain_t>::type trial_quadrature_t;
+	/**\brief quadrature element type (it should be the same for test and trial) */
+	typedef typename trial_quadrature_t::quadrature_elem_t quadrature_elem_t;
 
-	/**\brief the quadrature element type (it should be the same for test and trial) */
-	typedef typename test_quadrature_t::quadrature_elem_t quadrature_elem_t;
-
-	typedef duffy_quadrature<quadrature_family_t, test_lset_t> test_duffy_t;
+	/** \brief the Duffy quadrature type of the trial field */
 	typedef duffy_quadrature<quadrature_family_t, trial_lset_t> trial_duffy_t;
 
-	/**\brief the dual iterator type of te singular quadrature */
-	typedef singular_quadrature_iterator<typename test_quadrature_t::iterator> iterator;
+	/**\brief iterator type of the singular quadrature */
+	typedef typename trial_quadrature_t::iterator iterator;
 
 	/**\brief indicates whether FACE_MATCH is possible */
 	static const bool face_match_possible = std::is_same<test_elem_t, trial_elem_t>::value;
 
+	/**
+	 * \brief determine whether field pair requires singular integration and stores the singularity type
+	 * \param [in] test_field the test field
+	 * \param [in] trial_field the trial_field
+	 * \return true if singular integration is needed
+	 */
 	bool is_singular(test_field_t const &test_field, trial_field_t const &trial_field)
 	{
-		if (face_match_possible)
+		if (face_match_possible && test_field.get_elem().get_id() == trial_field.get_elem().get_id())
 		{
-			if (test_field.get_elem().get_id() == trial_field.get_elem().get_id())
-			{
-				m_sing_type = FACE_MATCH;
-				return true;
-			}
+			m_sing_type = FACE_MATCH;
+			return true;
 		}
 		return false;
 	}
 
-	typename trial_quadrature_t::iterator cbegin(void) const
+	/**
+	 * \brief return begin iterator of te singular quadrature
+	 * \return begin iterator of the singular quadrature
+	 */
+	iterator cbegin(void) const
 	{
 		switch (m_sing_type)
 		{
 		case FACE_MATCH:
 			return m_face_trial_quadrature->begin();
+		default:
+			throw "unhandled quadrature type";
 		}
 	}
 
-	typename trial_quadrature_t::iterator cend(void) const
+	/**
+	 * \brief return end iterator of te singular quadrature
+	 * \return end iterator of the singular quadrature
+	 */
+	iterator cend(void) const
 	{
 		switch (m_sing_type)
 		{
 		case FACE_MATCH:
 			return m_face_trial_quadrature->end();
+		default:
+			throw "unhandled quadrature type";
 		}
 	}
 
+	/**
+	 * \brief constructor allocating memory for the quadratures
+	 */
 	singular_accelerator(void)
 	{
 		/** \todo kernel should tell the singularity order */
@@ -403,24 +461,22 @@ public:
 			*m_face_trial_quadrature += trial_duffy_t::on_face(SINGULARITY_ORDER, trial_domain_t::get_center());
 		}
 		else
-		{
 			m_face_trial_quadrature = NULL;
-		}
 	}
 
+	/**
+	 * \brief destructor freeing quadratures
+	 */
 	~singular_accelerator()
 	{
 		if (face_match_possible)
-		{
 			delete m_face_trial_quadrature;
-		}
 	}
 
 protected:
-	singularity_type m_sing_type;
-	trial_quadrature_t *m_face_trial_quadrature;
+	singularity_type m_sing_type;	/**< \brief the actual singularity type */
+	trial_quadrature_t *m_face_trial_quadrature;	/**< \brief pointer to the trial singular quadrature */
 };
-
 
 #endif // SINGULAR_ACCELERATOR_HPP_INCLUDED
 
