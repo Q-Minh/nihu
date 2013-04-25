@@ -251,9 +251,15 @@ public:
 					}
 					else
 					{
-						if (i < start_ind1 || (i==num_nodes-1 && start_ind1 == 0 && num_coinc < num_nodes-1))
+						if (i < start_ind1
+							|| (i==num_nodes-1
+									&& start_ind1 == 0
+									&& num_coinc < num_nodes-1))
 							start_ind1 = i;
-						if (j < start_ind2 || (j==OtherElem::num_nodes-1 && start_ind2 == 0 && num_coinc < OtherElem::num_nodes-1))
+						if (j < start_ind2 ||
+							(j==OtherElem::num_nodes-1 &&
+								start_ind2 == 0 &&
+								num_coinc < OtherElem::num_nodes-1))
 							start_ind2 = j;
 					}
 					num_coinc++;

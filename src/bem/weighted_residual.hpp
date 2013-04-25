@@ -37,8 +37,10 @@ private:
 		typedef TestField test_field_t;		/**< \brief the test field type */
 		typedef TrialField trial_field_t;	/**< \brief the trial field type */
 
-		typedef double_integral<kernel_t, test_field_t, trial_field_t> double_integral_t;	/**< \brief the internal integrator type */
-		typedef typename double_integral_t::result_t result_t;				/**< \brief result type of field integrator */
+		/** \brief the internal integrator type */
+		typedef double_integral<kernel_t, test_field_t, trial_field_t> double_integral_t;
+		/** \brief result type of field integrator */
+		typedef typename double_integral_t::result_t result_t;
 
 		/** \brief evaluate weighted residual on homogeneous function spaces
 		 * \tparam result_t the type of the result matrix
@@ -54,7 +56,8 @@ private:
 				test_it != wr.m_test_space.template field_end<test_field_t>(); ++test_it)
 				for (auto trial_it = wr.m_trial_space.template field_begin<trial_field_t>();
 					trial_it != wr.m_trial_space.template field_end<trial_field_t>(); ++trial_it)
-					block(result, (*test_it).get_dofs(), (*trial_it).get_dofs()) += double_integral_t::eval(*test_it, *trial_it);
+					block(result, (*test_it).get_dofs(), (*trial_it).get_dofs())
+						+= double_integral_t::eval(*test_it, *trial_it);
 		}
 	};};
 

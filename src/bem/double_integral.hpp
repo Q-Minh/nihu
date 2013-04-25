@@ -38,10 +38,14 @@ public:
 	/** \brief the quadrature family the kernel requires */
 	typedef typename kernel_traits<kernel_t>::quadrature_family_t quadrature_family_t;
 
-	typedef field_type_accelerator<test_field_t, quadrature_family_t> test_field_type_accelerator_t;	/**< \brief type of the accelerator of the test field */
-	typedef field_type_accelerator_pool<test_field_t, quadrature_family_t> test_field_type_accelerator_pool_t;	/**< \brief type of the accelerator pool of the test field */
-	typedef field_type_accelerator<trial_field_t, quadrature_family_t> trial_field_type_accelerator_t;	/**< \brief type of the accelerator of the trial field */
-	typedef field_type_accelerator_pool<trial_field_t, quadrature_family_t> trial_field_type_accelerator_pool_t;	/**< \brief type of the accelerator pool of the trial field */
+	/** \brief type of the accelerator of the test field */
+	typedef field_type_accelerator<test_field_t, quadrature_family_t> test_field_type_accelerator_t;
+	/** \brief type of the accelerator pool of the test field */
+	typedef field_type_accelerator_pool<test_field_t, quadrature_family_t> test_field_type_accelerator_pool_t;
+	/** \brief type of the accelerator of the trial field */
+	typedef field_type_accelerator<trial_field_t, quadrature_family_t> trial_field_type_accelerator_t;
+	/** \brief type of the accelerator pool of the trial field */
+	typedef field_type_accelerator_pool<trial_field_t, quadrature_family_t> trial_field_type_accelerator_pool_t;
 
 	/** \brief the singular accelerator type */
 	typedef singular_accelerator<kernel_t, test_field_t, trial_field_t> singular_accelerator_t;
@@ -131,11 +135,19 @@ public:
 				m_singular_accelerator.cend());
 
 		// select quadrature
-		kernel_input_t test_center(test_field.get_elem(), m_test_field_accelerator_pool[0]->cbegin()->get_quadrature_elem());
-		kernel_input_t trial_center(trial_field.get_elem(), m_trial_field_accelerator_pool[0]->cbegin()->get_quadrature_elem());
+		kernel_input_t test_center(
+						test_field.get_elem(),
+						m_test_field_accelerator_pool[0]->cbegin()->get_quadrature_elem());
+		kernel_input_t trial_center(
+						trial_field.get_elem(),
+						m_trial_field_accelerator_pool[0]->cbegin()->get_quadrature_elem());
 		unsigned degree = kernel_t::estimate_complexity(test_center, trial_center);
 
-		return eval_on_accelerator(test_field, *(m_test_field_accelerator_pool[degree]), trial_field, *(m_trial_field_accelerator_pool[degree]));
+		return eval_on_accelerator(
+			test_field,
+			*(m_test_field_accelerator_pool[degree]),
+			trial_field,
+			*(m_trial_field_accelerator_pool[degree]));
 	}
 
 protected:
@@ -294,9 +306,11 @@ public:
 		// select quadrature
 		quadrature_elem_t qe(test_field_t::elem_t::domain_t::get_center());
 		kernel_input_t test_center(test_field.get_elem(), qe);
-		kernel_input_t trial_center(trial_field.get_elem(), m_trial_field_accelerator_pool[0]->cbegin()->get_quadrature_elem());
+		kernel_input_t trial_center(trial_field.get_elem(),
+			m_trial_field_accelerator_pool[0]->cbegin()->get_quadrature_elem());
 		unsigned degree = kernel_t::estimate_complexity(test_center, trial_center);
-		return eval_on_accelerator(test_field, trial_field, *(m_trial_field_accelerator_pool[degree]));
+		return eval_on_accelerator(test_field, trial_field,
+			*(m_trial_field_accelerator_pool[degree]));
 	}
 
 protected:

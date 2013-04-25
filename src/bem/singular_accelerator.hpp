@@ -105,7 +105,11 @@ public:
 	typedef dual_iterator<quadrature_iterator_t, quadrature_iterator_t> base_t;
 
 	/** \brief constructor initialising members */
-	singular_quadrature_iterator(quadrature_iterator_t test, quadrature_iterator_t trial, unsigned Ntrial, typename base_t::dual_iterator_mode mode)
+	singular_quadrature_iterator(
+		quadrature_iterator_t test,
+		quadrature_iterator_t trial,
+		unsigned Ntrial,
+		typename base_t::dual_iterator_mode mode)
 		: base_t(test, trial, Ntrial, mode)
 	{
 	}

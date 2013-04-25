@@ -43,7 +43,12 @@ public:
 	 * \param q a quadrature point
 	 */
 	template <class elem_t>
-	location(elem_t const &elem, quadrature_elem<typename elem_t::domain_t::xi_t, typename elem_t::domain_t::scalar_t> const &q)
+	location(
+		elem_t const &elem,
+		quadrature_elem<
+			typename elem_t::domain_t::xi_t,
+			typename elem_t::domain_t::scalar_t
+		> const &q)
 	{
 		static_assert(std::is_same<x_t, typename elem_t::x_t>::value,
 			"Element and descriptor location types must match");
@@ -98,7 +103,12 @@ public:
 	 * \param q a quadrature point
 	 */
 	template <class elem_t>
-	location_with_normal(elem_t const &elem, quadrature_elem<typename elem_t::domain_t::xi_t, typename elem_t::domain_t::scalar_t> const &q)
+	location_with_normal(
+		elem_t const &elem,
+		quadrature_elem<
+			typename elem_t::domain_t::xi_t,
+			typename elem_t::domain_t::scalar_t
+		> const &q)
 	{
 		static_assert(std::is_same<x_t, typename elem_t::x_t>::value,
 			"Element and descriptor location types must match");

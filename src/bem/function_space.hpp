@@ -94,7 +94,8 @@ public:
 		static_assert(std::is_base_of<field_base<FieldType>, FieldType>::value,
 			"FieldType must be derived from field_base<FieldType>");
 	public:
-		typedef typename mesh_t::template elem_iterator_t<typename FieldType::elem_t>::type base_it;	/**< \brief the base iteartor type */
+		/** \brief the base iteartor type */
+		typedef typename mesh_t::template elem_iterator_t<typename FieldType::elem_t>::type base_it;
 		typedef FieldType value_t;	/**< \brief the pointed data type */
 
 		/**

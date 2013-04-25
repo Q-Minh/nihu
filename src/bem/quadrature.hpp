@@ -97,7 +97,18 @@ struct quadrature_traits;
  */
 template <class Derived>
 class quadrature_base :
-	public std::vector<quadrature_elem<typename quadrature_traits<Derived>::domain_t::xi_t, typename quadrature_traits<Derived>::domain_t::scalar_t> , Eigen::aligned_allocator<quadrature_elem<typename quadrature_traits<Derived>::domain_t::xi_t, typename quadrature_traits<Derived>::domain_t::scalar_t> > >
+	public std::vector<
+		quadrature_elem<
+			typename quadrature_traits<Derived>::domain_t::xi_t,
+			typename quadrature_traits<Derived>::domain_t::scalar_t
+		>,
+		Eigen::aligned_allocator<
+			quadrature_elem<
+				typename quadrature_traits<Derived>::domain_t::xi_t,
+				typename quadrature_traits<Derived>::domain_t::scalar_t
+			>
+		>
+	>
 {
 private:
 	/**
