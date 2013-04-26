@@ -11,7 +11,7 @@
 #include "duffy_quadrature.hpp"
 
 /**
- * \brief a dual iterator consisting of two iterators that can traverse a container different ways
+ * \brief two iterators that can traverse a container different ways
  * \tparam Primary type of the primary iterator
  * \tparam Secondary type of the secondary iterator
  */
@@ -98,7 +98,8 @@ protected:
  * \tparam quadrature_iterator_t the iterator type of the quadratures
  */
 template <class quadrature_iterator_t>
-class singular_quadrature_iterator : public dual_iterator<quadrature_iterator_t, quadrature_iterator_t>
+class singular_quadrature_iterator
+	: public dual_iterator<quadrature_iterator_t, quadrature_iterator_t>
 {
 public:
 	/** \brief the base type */
@@ -191,7 +192,7 @@ public:
 	static const bool face_match_possible = std::is_same<test_elem_t, trial_elem_t>::value;
 
 	/**
-	 * \brief determine whether field pair requires singular integration and stores the singularity type
+	 * \brief determine if singular integration is needed and store singularity type
 	 * \param [in] test_field the test field
 	 * \param [in] trial_field the trial_field
 	 * \return true if singular integration is needed
@@ -275,7 +276,10 @@ public:
 			throw("Unimplemented singular quadrature");
 			break;
 		case CORNER_MATCH:
-			/** \todo It is very dangerous that we need to handle the CIRCULAR case with { end-begin } dual quadrature */
+			/**
+			 * \todo It is very dangerous that we need to handle the CIRCULAR case
+			 * with { end-begin } dual quadrature
+			 */
 			return iterator(
 				m_corner_test_quadrature[m_cur_overlap.get_ind1()]->end(),
 				m_corner_trial_quadrature[m_cur_overlap.get_ind2()]->begin(),
@@ -378,7 +382,8 @@ class singular_accelerator<Kernel, field<TestElem, constant_field, dirac_field>,
 		"The trial field must be derived from field_base<TrialField>");
 public:
 	typedef Kernel kernel_t;	/**< \brief template argument as nested type */
-	typedef field<TestElem, constant_field, dirac_field> test_field_t;	/**< \brief the test field type */
+	/** \brief the test field type */
+	typedef field<TestElem, constant_field, dirac_field> test_field_t;	
 	typedef TrialField trial_field_t;	/**< \brief template argument as nested type */
 
 	typedef typename test_field_t::elem_t test_elem_t;	/**< \brief the test elem type */
@@ -391,8 +396,9 @@ public:
 
 	/** \brief quadrature family */
 	typedef typename kernel_traits<kernel_t>::quadrature_family_t quadrature_family_t;
-	/** \brief trial quadrature type */
-	typedef typename quadrature_type<quadrature_family_t, trial_domain_t>::type trial_quadrature_t;
+	typedef typename quadrature_type<	/**< \brief trial quadrature type */
+		quadrature_family_t, trial_domain_t
+	>::type trial_quadrature_t;
 	/**\brief quadrature element type (it should be the same for test and trial) */
 	typedef typename trial_quadrature_t::quadrature_elem_t quadrature_elem_t;
 
@@ -406,7 +412,7 @@ public:
 	static const bool face_match_possible = std::is_same<test_elem_t, trial_elem_t>::value;
 
 	/**
-	 * \brief determine whether field pair requires singular integration and stores the singularity type
+	 * \brief determine if singular integration is needed and store singularity type
 	 * \param [in] test_field the test field
 	 * \param [in] trial_field the trial_field
 	 * \return true if singular integration is needed
@@ -462,7 +468,8 @@ public:
 		if (face_match_possible)
 		{
 			m_face_trial_quadrature = new trial_quadrature_t();
-			*m_face_trial_quadrature += trial_duffy_t::on_face(SINGULARITY_ORDER, trial_domain_t::get_center());
+			*m_face_trial_quadrature += trial_duffy_t::on_face(
+				SINGULARITY_ORDER, trial_domain_t::get_center());
 		}
 		else
 			m_face_trial_quadrature = NULL;
@@ -479,7 +486,8 @@ public:
 
 protected:
 	singularity_type m_sing_type;	/**< \brief the actual singularity type */
-	trial_quadrature_t *m_face_trial_quadrature;	/**< \brief pointer to the trial singular quadrature */
+	/** \brief pointer to the trial singular quadrature */
+	trial_quadrature_t *m_face_trial_quadrature;	
 };
 
 #endif // SINGULAR_ACCELERATOR_HPP_INCLUDED

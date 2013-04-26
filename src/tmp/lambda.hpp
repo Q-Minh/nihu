@@ -30,7 +30,8 @@ namespace tmp
 		};
 	};
 
-	typedef arg<1> _1; /**< \brief placeholder for the first argument of a metafunction */
+	/** \brief placeholder for the first argument of a metafunction */
+	typedef arg<1> _1;
 
 	template <>
 	struct arg<2>
@@ -42,7 +43,8 @@ namespace tmp
 		};
 	};
 
-	typedef arg<2> _2; /**< \brief placeholder for the second argument of a metafunction */
+	/** \brief placeholder for the second argument of a metafunction */
+	typedef arg<2> _2;
 
 
 	/**
@@ -88,7 +90,8 @@ namespace tmp
 		{
 			typedef struct {
 				template <class A1 = void_, class A2 = void_>
-				struct apply { typedef void_ type; }; // GCC needs this to compile, but this class is never used
+				// GCC needs this to compile, but this class is never used
+				struct apply { typedef void_ type; };
 			} type;
 		};
 
@@ -109,7 +112,8 @@ namespace tmp
 			{
 				template <class A1 = void_, class A2 = void_>
 				struct apply
-					: MetaFun<typename lambda_plExp<a1>::type::template apply<A1, A2>::type > {};
+					: MetaFun<typename lambda_plExp<a1>::type::template apply<A1, A2>::type >
+				{};
 			} type;
 		};
 

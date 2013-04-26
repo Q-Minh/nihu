@@ -66,7 +66,8 @@ public:
 	 * \return reference to the transformed object
 	 */
 	template <class LSet>
-	quadrature_elem &transform_inplace(const Eigen::Matrix<scalar_t, LSet::num_nodes, LSet::domain_t::dimension> &coords)
+	quadrature_elem &transform_inplace(
+		const Eigen::Matrix<scalar_t, LSet::num_nodes, LSet::domain_t::dimension> &coords)
 	{
 		// CRTP check
 		static_assert(std::is_base_of<shape_set_base<LSet>, LSet>::value,
@@ -130,11 +131,12 @@ private:
 	}
 
 public:
-	typedef quadrature_traits<Derived> traits_t;				/**< \brief traits type */
-	typedef typename traits_t::domain_t domain_t;				/**< \brief domain type */
-	typedef typename domain_t::xi_t xi_t; 						/**< \brief local coordinate type */
-	typedef typename domain_t::scalar_t scalar_t; 				/**< \brief local scalar type */
-	typedef quadrature_elem<xi_t, scalar_t> quadrature_elem_t;	/**< \brief quadrature elem type */
+	typedef quadrature_traits<Derived> traits_t;	/**< \brief traits type */
+	typedef typename traits_t::domain_t domain_t;	/**< \brief domain type */
+	typedef typename domain_t::xi_t xi_t; 			/**< \brief local coordinate type */
+	typedef typename domain_t::scalar_t scalar_t;	/**< \brief local scalar type */
+	/** \brief quadrature elem type */
+	typedef quadrature_elem<xi_t, scalar_t> quadrature_elem_t;	
 
 	/**
 	 * \brief constructor allocating space for the quadrature elements
@@ -157,7 +159,9 @@ public:
 			os << e.get_xi().transpose() << "\t\t" << e.get_w() << std::endl;
 		});
 		os << "Sum of weights: " <<
-			std::accumulate(this->begin(), this->end(), scalar_t(), [] (scalar_t x, quadrature_elem_t const &qe) {
+			std::accumulate(
+				this->begin(), this->end(),
+				scalar_t(), [] (scalar_t x, quadrature_elem_t const &qe) {
 			return x + qe.get_w();
 		}) << std::endl;
 
@@ -171,7 +175,8 @@ public:
 	 * \return transformed quadrature
 	 */
 	template <class LSet>
-	Derived transform(Eigen::Matrix<scalar_t, LSet::num_nodes, LSet::domain_t::dimension> const &coords) const
+	Derived transform(
+		Eigen::Matrix<scalar_t, LSet::num_nodes, LSet::domain_t::dimension> const &coords) const
 	{
 		// CRTP check
 		static_assert(std::is_base_of<shape_set_base<LSet>, LSet>::value,
@@ -190,7 +195,8 @@ public:
 	 * \return reference to the transformed quadrature
 	 */
 	template <class LSet>
-	Derived &transform_inplace(const Eigen::Matrix<scalar_t, LSet::num_nodes, LSet::domain_t::dimension> &coords)
+	Derived &transform_inplace(
+		const Eigen::Matrix<scalar_t, LSet::num_nodes, LSet::domain_t::dimension> &coords)
 	{
 		// CRTP check
 		static_assert(std::is_base_of<shape_set_base<LSet>, LSet>::value,

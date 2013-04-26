@@ -53,7 +53,11 @@ private:
 	 * \param [out] reference to the result quadrature
 	 * \return reference to the result for chaining
 	 */
-	static ret_quad_type &duffy_impl(unsigned degree, unsigned const *array, xi_t const &sing_coord, ret_quad_type &result)
+	static ret_quad_type &duffy_impl(
+		unsigned degree,
+		unsigned const *array,
+		xi_t const &sing_coord,
+		ret_quad_type &result)
 	{
 		unsigned num_duffies = *array;
 		array++;
