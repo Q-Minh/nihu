@@ -48,7 +48,8 @@ public:
 	 * \brief increment the block with a subcouple
 	 * \tparam MA the first submatrix type in the couple
 	 * \tparam MB the second submatrix type in the couple
-	 * \details in this specialisation we assume that the block itself is a block of couples
+	 * \details in this specialisation we assume that the block itself is a
+	 * block of couples
 	 * \param [in] rhs the submatrix to add to the block
 	 */
 	template <class MA, class MB>
@@ -73,7 +74,8 @@ protected:
 
 /**
  * \brief factory function of matrix_block
- * \details The function allows easy creation of block instances of an arbitrary matrix object
+ * \details The function allows easy creation of block instances of an
+ * arbitrary matrix object
  * \tparam Matrix the matrix type
  * \tparam RowIndex the row index vector type
  * \tparam ColIndex the column index vector type
@@ -83,7 +85,8 @@ protected:
  * \return the block proxy
  */
 template <class Matrix, class RowIndex, class ColIndex>
-matrix_block<Matrix, RowIndex, ColIndex> block(Matrix &matrix, RowIndex const &rows, ColIndex const &cols)
+matrix_block<Matrix, RowIndex, ColIndex> block(
+	Matrix &matrix, RowIndex const &rows, ColIndex const &cols)
 {
 	return matrix_block<Matrix, RowIndex, ColIndex>(matrix, rows, cols);
 }

@@ -108,6 +108,7 @@ public:
 			kernel_input_t test_input(test_field.get_elem(), sing_it.get_test_quadrature_elem());
 			kernel_input_t trial_input(trial_field.get_elem(), sing_it.get_trial_quadrature_elem());
 
+			/** \todo check if lazy evaluation is still faster */
 			auto left = (test_field_t::nset_t::eval_shape(sing_it.get_test_quadrature_elem().get_xi())
 				* test_input.get_jacobian()).eval();
 			auto right = (trial_field_t::nset_t::eval_shape(sing_it.get_trial_quadrature_elem().get_xi())
@@ -201,26 +202,39 @@ public:
 	/** \brief template parameter as nested type */
 	typedef field<ElemType, FieldOption, dirac_field> test_field_t;
 
-	typedef typename kernel_t::input_t kernel_input_t;		/**< \brief input type of kernel */
-	typedef typename kernel_t::result_t kernel_result_t;		/**< \brief input type of kernel */
+	typedef typename kernel_t::input_t kernel_input_t;	/**< \brief input type of kernel */
+	typedef typename kernel_t::result_t kernel_result_t;/**< \brief result type of kernel */
 
 	/** \brief the quadrature family the kernel requires */
 	typedef typename kernel_traits<kernel_t>::quadrature_family_t quadrature_family_t;
 
+	/** \brief type of quadrature elem */
 	typedef typename quadrature_type<
 		quadrature_family_t,
 		typename trial_field_t::elem_t::domain_t
-	>::type::quadrature_elem_t quadrature_elem_t;	/**< \brief type of quadrature elem */
+	>::type::quadrature_elem_t quadrature_elem_t;
 
 	/** \brief type of the accelerator of the trial field */
-	typedef field_type_accelerator<trial_field_t, quadrature_family_t> trial_field_type_accelerator_t;
+	typedef field_type_accelerator<
+		trial_field_t,
+		quadrature_family_t
+	> trial_field_type_accelerator_t;
 	/** \brief type of the accelerator pool of the trial field */
-	typedef field_type_accelerator_pool<trial_field_t, quadrature_family_t> trial_field_type_accelerator_pool_t;
+	typedef field_type_accelerator_pool<
+		trial_field_t,
+		quadrature_family_t
+	> trial_field_type_accelerator_pool_t;
 	/** \brief the singular accelerator type */
-	typedef singular_accelerator<kernel_t, test_field_t, trial_field_t> singular_accelerator_t;
+	typedef singular_accelerator<
+		kernel_t,
+		test_field_t,
+		trial_field_t
+	> singular_accelerator_t;
 
-	typedef typename test_field_t::nset_t test_nset_t;		/**< \brief test element's N-set */
-	typedef typename trial_field_t::nset_t::shape_t trial_shape_t;	/**< \brief type of element's N-set */
+	/** \brief test element's N-set */
+	typedef typename test_field_t::nset_t test_nset_t;
+	/** \brief type of element's N-set */
+	typedef typename trial_field_t::nset_t::shape_t trial_shape_t;
 
 	/** \brief result type of the weighted residual */
 	typedef typename plain_type<
@@ -238,11 +252,13 @@ public:
 		trial_field_t const &trial_field,
 		trial_field_type_accelerator_t const &trial_acc)
 	{
-		for(auto test_it = test_nset_t::corner_begin(); test_it != test_nset_t::corner_end(); ++test_it)
+		for(auto test_it = test_nset_t::corner_begin();
+			test_it != test_nset_t::corner_end(); ++test_it)
 		{
 			quadrature_elem_t qe(*test_it);
 			kernel_input_t collocational_point(test_field.get_elem(), qe);
-			for(auto trial_it = trial_acc.cbegin(); trial_it != trial_acc.cend(); ++trial_it)
+			for(auto trial_it = trial_acc.cbegin();
+				trial_it != trial_acc.cend(); ++trial_it)
 			{
 				kernel_input_t trial_input(trial_field.get_elem(), trial_it->get_quadrature_elem());
 
@@ -292,7 +308,9 @@ public:
 	 * \param [in] trial_field the trial field to integrate on
 	 * \return reference to the integration result
 	 */
-	static result_t const &eval(test_field_t const &test_field, trial_field_t const &trial_field)
+	static result_t const &eval(
+		test_field_t const &test_field,
+		trial_field_t const &trial_field)
 	{
 		m_result = result_t();	// clear result
 
