@@ -35,11 +35,18 @@ public:
 	/** \brief type of the kernel's result */
 	typedef typename kernel_traits<Derived>::result_t result_t;
 
+	/**
+	 * \brief reset number of evaluations to zero
+	 */
 	static void reset(void)
 	{
 		m_num_evaluations = 0;
 	}
 
+	/**
+	 * \brief return number of kernel evaluations
+	 * \return number of kernel evaluations
+	 */
 	static unsigned get_num_evaluations(void)
 	{
 		return m_num_evaluations;
@@ -105,10 +112,15 @@ template <class Derived>
 class helmholtz_base : public kernel_base<Derived>
 {
 public:
+	/** \brief base type */
 	typedef kernel_base<Derived> base_t;
+	/** \brief location type */
 	typedef typename base_t::x_t x_t;
+	/** \brief kernel input type */
 	typedef typename base_t::input_t input_t;
+	/** \brief kernel scalar type */
 	typedef typename base_t::scalar_t scalar_t;
+	/** \brief kernel result type */
 	typedef typename base_t::result_t result_t;
 
 	using base_t::set_x0;
@@ -172,10 +184,15 @@ class helmholtz_G_kernel;
 template<>
 struct kernel_traits<helmholtz_G_kernel>
 {
+	/** \brief location type */
 	typedef tria_1_elem::x_t x_t;
+	/** \brief kernel scalar type */
 	typedef dcomplex scalar_t;
+	/** \brief kernel input type */
 	typedef location<x_t> input_t;
+	/** \brief kernel result type */
 	typedef dcomplex result_t;
+	/** \brief quadrature family tag */
 	typedef gauss_family_tag quadrature_family_t;
 };
 
@@ -228,10 +245,15 @@ class helmholtz_H_kernel;
 template<>
 struct kernel_traits<helmholtz_H_kernel>
 {
+	/** \brief location type */
 	typedef tria_1_elem::x_t x_t;
+	/** \brief kernel scalar type */
 	typedef dcomplex scalar_t;
+	/** \brief kernel input type */
 	typedef location_with_normal<x_t> input_t;
+	/** \brief kernel result type */
 	typedef dcomplex result_t;
+	/** \brief quadrature family type */
 	typedef gauss_family_tag quadrature_family_t;
 };
 
@@ -282,10 +304,15 @@ class helmholtz_HG_kernel;
 template<>
 struct kernel_traits<helmholtz_HG_kernel>
 {
+	/** \brief location type */
 	typedef tria_1_elem::x_t x_t;
+	/** \brief scalar type */
 	typedef dcomplex scalar_t;
+	/** \brief kernel input type */
 	typedef location_with_normal<x_t> input_t;
+	/** \brief kernel result type */
 	typedef couple<dcomplex> result_t;
+	/** \brief quadrature family type */
 	typedef gauss_family_tag quadrature_family_t;
 };
 

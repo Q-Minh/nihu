@@ -192,7 +192,9 @@ class field_type_accelerator_pool : public std::vector<field_type_accelerator<Fi
 public:
 	/** \brief template argument as nested type */
 	typedef Field field_t;
+	/** \brief template argument as nested type */
 	typedef Family family_t;
+
 	/** \brief maximum order of quadratures */
 	static const unsigned MAX_ORDER = 10;
 

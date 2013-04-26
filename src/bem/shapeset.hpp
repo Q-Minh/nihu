@@ -70,6 +70,11 @@ public:
 		return Derived::corner_end_impl();
 	}
 
+	/**
+	 * \brief return corner at a given node number
+	 * \param [in] idx the node index
+	 * \return constant reference to the coordinates
+	 */
 	static xi_t const &corner_at(size_t idx)
 	{
 		return Derived::corner_at_impl(idx);
@@ -205,6 +210,11 @@ public:
 		return domain_t::get_corners() + domain_t::num_corners;
 	}
 
+	/**
+	 * \brief return corner at a given node number
+	 * \param [in] idx the node index
+	 * \return constant reference to the coordinates
+	 */
 	static xi_t const &corner_at_impl(size_t idx)
 	{
 		return *(domain_t::get_corners() + idx);
@@ -291,13 +301,10 @@ isoparam_shape_set<tria_domain>::eval_dshape(typename isoparam_shape_set<tria_do
  * \return the shape function vector
  * \details The shape functions are
  *
- * \f$L_1(\xi, \eta) = (1-\xi)(1-\eta)/4\f$
- *
- * \f$L_2(\xi, \eta) = (1+\xi)(1-\eta)/4\f$
- *
- * \f$L_3(\xi, \eta) = (1+\xi)(1+\eta)/4\f$
- *
- * \f$L_4(\xi, \eta) = (1-\xi)(1+\eta)/4\f$
+ * \f$L_1(\xi, \eta) = (1-\xi)(1-\eta)/4\\
+   L_2(\xi, \eta) = (1+\xi)(1-\eta)/4\\
+   L_3(\xi, \eta) = (1+\xi)(1+\eta)/4\\
+   L_4(\xi, \eta) = (1-\xi)(1+\eta)/4\f$
  */
 template<>
 inline typename isoparam_shape_set<quad_domain>::shape_t

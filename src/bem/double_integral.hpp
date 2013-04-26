@@ -92,6 +92,8 @@ public:
 	/** \brief evaluate double singular integral with selected singular accelerator
 	 * \param [in] test_field the test field to integrate on
 	 * \param [in] trial_field the trial field to integrate on
+	 * \param [in] sing_begin begin iteartor of the singular quadrature
+	 * \param [in] sing_end the iterator of the singular quadrature
 	 * \return reference to the integration result
 	 */
 	template <class singular_iterator_t>
@@ -278,8 +280,8 @@ public:
 			kernel_input_t trial_input(trial_field.get_elem(), *sing_it);
 
 			m_result += kernel_t::eval(collocational_point, trial_input) *
-					(trial_input.get_jacobian() *
-					 trial_field_t::nset_t::eval_shape(sing_it->get_xi()).transpose());
+				(trial_input.get_jacobian() *
+				trial_field_t::nset_t::eval_shape(sing_it->get_xi()).transpose());
 		}
 
 		return m_result;

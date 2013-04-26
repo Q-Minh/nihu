@@ -27,7 +27,13 @@ namespace tmp
 				typedef typename apply<Transform, typename deref<Begin>::type>::type cur;
 				cur c;
 				c(arg1, arg2);
-				call_each_impl<typename next<Begin>::type, End, Transform, Arg1, Arg2>::eval(arg1, arg2);
+				call_each_impl<
+					typename next<Begin>::type,
+					End,
+					Transform,
+					Arg1,
+					Arg2
+				>::eval(arg1, arg2);
 			}
 		};
 
@@ -133,7 +139,14 @@ namespace tmp
 					Arg1,
 					Arg2
 				>(arg1, arg2);
-				d_call_each_impl<typename next<Begin>::type, End, SeqIn, Transform, Arg1, Arg2>::eval(arg1, arg2);
+				d_call_each_impl<
+					typename next<Begin>::type,
+					End,
+					SeqIn,
+					Transform,
+					Arg1,
+					Arg2
+				>::eval(arg1, arg2);
 			}
 		};
 
@@ -178,7 +191,13 @@ namespace tmp
 				typedef typename apply<Transform, typename deref<Begin>::type>::type cur;
 				cur c;
 				if (!c(arg1, arg2))
-					return call_until_impl<typename next<Begin>::type, End, Transform, Arg1, Arg2>::eval(arg1, arg2);
+					return call_until_impl<
+						typename next<Begin>::type,
+						End,
+						Transform,
+						Arg1,
+						Arg2
+					>::eval(arg1, arg2);
 				return true;
 			}
 		};
@@ -198,7 +217,12 @@ namespace tmp
 				typedef typename apply<Transform, typename deref<Begin>::type>::type cur;
 				cur c;
 				if (!c(arg1))
-					return call_until_impl<typename next<Begin>::type, End, Transform, Arg1>::eval(arg1);
+					return call_until_impl<
+						typename next<Begin>::type,
+						End,
+						Transform,
+						Arg1
+					>::eval(arg1);
 				return true;
 			}
 		};

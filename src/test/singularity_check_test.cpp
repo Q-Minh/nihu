@@ -43,17 +43,23 @@ int main(void)
 	test_field_t test_field(test_elem);
 	trial_field_t trial_field(test_elem);
 
-	std::cout << (singularity_check<kernel, test_field_t, trial_field_t>::eval(test_field, trial_field) == FACE_MATCH) << std::endl;
+	std::cout <<
+		(singularity_check<kernel, test_field_t, trial_field_t>::eval(test_field, trial_field) == FACE_MATCH)
+		<< std::endl;
 
 	element_overlapping o1 = e1.get_overlapping(e1);
 	element_overlapping o2 = e2.get_overlapping(e1);
 	element_overlapping o3 = e2.get_overlapping(e3);
 	element_overlapping o4 = e1.get_overlapping(e2);
 
-	std::cout << "Overlapping tria  (2,6,5)   -> quad1 (0,1,4,3) : " << o4.get_num() << " " << o4.get_ind1() << " " << o4.get_ind2() << std::endl;
-	std::cout << "Overlapping tria  (2,6,5)   -> tria  (2,6,5)   : " << o1.get_num() << " " << o1.get_ind1() << " " << o1.get_ind2() << std::endl;
-	std::cout << "Overlapping quad1 (0,1,4,3) -> tria  (2,6,5)   : " << o2.get_num() << " " << o2.get_ind1() << " " << o2.get_ind2() << std::endl;
-	std::cout << "Overlapping quad1 (0,3,4,1) -> quad2 (5,2,1,4) : " << o3.get_num() << " " << o3.get_ind1() << " " << o3.get_ind2() << std::endl;
+	std::cout << "Overlapping tria  (2,6,5)   -> quad1 (0,1,4,3) : " <<
+		o4.get_num() << " " << o4.get_ind1() << " " << o4.get_ind2() << std::endl;
+	std::cout << "Overlapping tria  (2,6,5)   -> tria  (2,6,5)   : " <<
+		o1.get_num() << " " << o1.get_ind1() << " " << o1.get_ind2() << std::endl;
+	std::cout << "Overlapping quad1 (0,1,4,3) -> tria  (2,6,5)   : " <<
+		o2.get_num() << " " << o2.get_ind1() << " " << o2.get_ind2() << std::endl;
+	std::cout << "Overlapping quad1 (0,3,4,1) -> quad2 (5,2,1,4) : " <<
+		o3.get_num() << " " << o3.get_ind1() << " " << o3.get_ind2() << std::endl;
 
 	return 0;
 }

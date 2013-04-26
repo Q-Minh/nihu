@@ -23,7 +23,6 @@ namespace tmp
 	struct vector
 	{
 		typedef vector type; 	/**< \brief self-returning */
-
 		typedef vector_tag tag;	/**< \brief tagged */
 
 		typedef A0 arg0;	/**< \brief 0-th element */
@@ -93,7 +92,13 @@ namespace tmp
 		struct size_impl<vector_tag>
 		{
 			template <class Seq>
-			struct apply : vector_size<typename Seq::arg0, typename Seq::arg1, typename Seq::arg2, typename Seq::arg3> {};
+			struct apply
+				: vector_size<
+					typename Seq::arg0,
+					typename Seq::arg1,
+					typename Seq::arg2,
+					typename Seq::arg3
+				> {};
 		};
 	}
 
@@ -120,7 +125,12 @@ namespace tmp
 			{
 				typedef vector_iterator<
 					Vect,
-					typename vector_size<typename Vect::arg0, typename Vect::arg1, typename Vect::arg2, typename Vect::arg3>::type
+					typename vector_size<
+						typename Vect::arg0,
+						typename Vect::arg1,
+						typename Vect::arg2,
+						typename Vect::arg3
+					>::type
 				> type;
 			};
 		};
@@ -136,7 +146,13 @@ namespace tmp
 		struct push_front_impl<vector_tag>
 		{
 			template <class Vect, class T>
-			struct apply : vector<T, typename Vect::arg0, typename Vect::arg1, typename Vect::arg2> {};
+			struct apply
+				: vector<
+					T,
+					typename Vect::arg0,
+					typename Vect::arg1,
+					typename Vect::arg2
+				> {};
 		};
 
 		template <class Vect, class T, int N>
@@ -149,10 +165,12 @@ namespace tmp
 		struct vector_push_back<Vect, T, 1> : vector<typename Vect::arg0, T> {};
 
 		template <class Vect, class T>
-		struct vector_push_back<Vect, T, 2> : vector<typename Vect::arg0, typename Vect::arg1, T> {};
+		struct vector_push_back<Vect, T, 2>
+			: vector<typename Vect::arg0, typename Vect::arg1, T> {};
 
 		template <class Vect, class T>
-		struct vector_push_back<Vect, T, 3> : vector<typename Vect::arg0, typename Vect::arg1, typename Vect::arg2, T> {};
+		struct vector_push_back<Vect, T, 3>
+			: vector<typename Vect::arg0, typename Vect::arg1, typename Vect::arg2, T> {};
 
 		template <>
 		struct push_back_impl<vector_tag>
@@ -165,7 +183,8 @@ namespace tmp
 		struct pop_front_impl<vector_tag>
 		{
 			template <class Vect>
-			struct apply : vector<typename Vect::arg0, typename Vect::arg1, typename Vect::arg2> {};
+			struct apply
+				: vector<typename Vect::arg0, typename Vect::arg1, typename Vect::arg2> {};
 		};
 
 		template <class Vect, int N>
@@ -181,7 +200,8 @@ namespace tmp
 		struct vector_pop_back<Vect, 3> : vector<typename Vect::arg0, typename Vect::arg1> {};
 
 		template <class Vect>
-		struct vector_pop_back<Vect, 4> : vector<typename Vect::arg0, typename Vect::arg1, typename Vect::arg2> {};
+		struct vector_pop_back<Vect, 4>
+			: vector<typename Vect::arg0, typename Vect::arg1, typename Vect::arg2> {};
 
 		template <>
 		struct pop_back_impl<vector_tag>
