@@ -51,10 +51,6 @@ int main(void)
 		couple<big_mat_t, big_mat_t> result(a, b);
 		wr.eval(result);
 
-	/*
-		std::cout << result.first() << std::endl;
-		std::cout << result.second() << std::endl;
-		*/
 		std::cout << kernel_t::get_num_evaluations() << std::endl;
 	}
 	catch(const char *e)

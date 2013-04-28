@@ -30,68 +30,21 @@ public:
 	}
 };
 
-/**
-* \brief functor computing normal vector
-* \tparam nDim number of dimensions
-*/
-template <unsigned nDim, class scalar_t>
-struct normal_vector
-{
-	static_assert(nDim <= 2, "Element normal is not yet implemented for this dimension");
-};
 
-/**
-* \brief specialisation of normal vector for the 1D case
-*/
-template <class scalar_t>
-struct normal_vector<1, scalar_t>
-{
-	/**
-	* \brief compute normal vector in 1D
-	* \param dx position derivative matrix
-	*/
-	static Eigen::Matrix<scalar_t, 1, 2> eval (Eigen::Matrix<scalar_t, 1, 2> const &dx)
-	{
-		Eigen::Matrix<scalar_t, 1, 2> res;
-		res << dx(1), -dx(0);
-		return res;
-	}
-};
+template <class Derived>
+struct element_traits;
 
-/**
-* \brief specialisation of normal vector for the 2D case
-*/
-template <class scalar_t>
-struct normal_vector<2, scalar_t>
+template <class Derived>
+class element_base
 {
-	/**
-	* \brief compute normal vector in two dimensions
-	* \param dx position derivative matrix
-	*/
-	static Eigen::Matrix<scalar_t, 1, 3> eval(Eigen::Matrix<scalar_t, 2, 3> const &dx)
-	{
-		return dx.row(0).cross(dx.row(1));
-	}
-};
-
-/**
-* \brief The geometrical element representation
-* \tparam LSet the shape function set describing the geometrical behaviour
-* \tparam Dimension the dimensionality of the elements space
-* \details The element is defined by its L-set, dimension and the nodal coordinates.
-* The class provides a method to compute the location \f$x\f$
-*/
-template <class LSet, unsigned Dimension>
-class element
-{
-	// make sure LSet is derived from the CRTP interface shape_set_base
-	static_assert(std::is_base_of<shape_set_base<LSet>, LSet>::value,
-		"LSet must be derived from shape_set_base<LSet>");
 public:
+	typedef element_traits<Derived> traits_t;
+
 	/** \brief the dimension of the element's location variable \f$x\f$ */
-	static unsigned const x_dim = Dimension;
+	static unsigned const x_dim = traits_t::x_dim;
 	/** \brief the elements's L-set */
-	typedef LSet lset_t;
+	typedef typename traits_t::lset_t lset_t;
+
 	/** \brief the elements's domain */
 	typedef typename lset_t::domain_t domain_t;
 	/** \brief the base domain's scalar variable */
@@ -119,6 +72,7 @@ public:
 	/** \brief type that stores the element's id */
 	typedef Eigen::Matrix<unsigned, 1, 1> id_t;
 
+
 protected:
 	/** \brief the element's identifier */
 	id_t m_id;
@@ -126,12 +80,14 @@ protected:
 	nodes_t m_nodes;
 	/** \brief the element's corner coordinates \f$x_i\f$ */
 	coords_t m_coords;
+	/** \brief the element's ceter */
+	x_t m_center;
 
 public:
 	/**
 	* \brief default constructor for std::vector container
 	*/
-	element() {}
+	element_base() {}
 
 	/**
 	* \brief constructor
@@ -139,8 +95,8 @@ public:
 	* \param [in] nodes the elem node indices
 	* \param [in] coords the elem coordinates
 	*/
-	element(unsigned id, nodes_t const &nodes, coords_t const &coords)
-		: m_nodes(nodes), m_coords(coords)
+	element_base(unsigned id, nodes_t const &nodes, coords_t const &coords)
+		: m_nodes(nodes), m_coords(coords), m_center(get_x(domain_t::get_center()))
 	{
 		this->m_id << id;
 	}
@@ -186,9 +142,9 @@ public:
 	* \brief return element center
 	* \return location \f$x_0\f$ in the element center
 	*/
-	x_t get_center(void) const
+	x_t const &get_center(void) const
 	{
-		return get_x(domain_t::get_center());
+		return m_center;
 	}
 
 	/**
@@ -199,17 +155,6 @@ public:
 	dx_t get_dx(xi_t const &xi) const
 	{
 		return lset_t::eval_dshape(xi).transpose() * m_coords;
-	}
-
-	/**
-	* \brief return element normal
-	* \param [in] \xi location \f$\xi\f$ in the base domain
-	* \return element normal vector \f$n\f$ in the element
-	*/
-	x_t get_normal(xi_t const &xi) const
-	{
-		static_assert(xi_dim == x_dim-1, "Element does not have normal");
-		return normal_vector<xi_dim, scalar_t>::eval(get_dx(xi));
 	}
 
 	/**
@@ -260,15 +205,68 @@ public:
 	}
 };
 
-/** \brief a linear line element in 2D space */
-typedef element<line_1_shape_set, 2> line_1_elem;
 
-/** \brief a linear triangle element in 3D space */
-typedef element<tria_1_shape_set, 3> tria_1_elem;
-/** \brief a linear parallelogram element in 3D space */
-typedef element<parallelogram_shape_set, 3> parallelogram_elem;
-/** \brief a linear quad element in 3D space */
-typedef element<quad_1_shape_set, 3> quad_1_elem;
+class tria_1_elem;
+
+template <>
+struct element_traits<tria_1_elem>
+{
+	static const unsigned x_dim = 3;
+	typedef tria_1_shape_set lset_t;
+};
+
+class tria_1_elem : public element_base<tria_1_elem>
+{
+public:
+	tria_1_elem(unsigned id, nodes_t const &nodes, coords_t const &coords)
+		: element_base(id, nodes, coords)
+	{
+		m_normal = (coords.row(1)-coords.row(0)).cross(coords.row(2)-coords.row(0));
+	}
+
+	x_t const &get_normal(xi_t const &) const
+	{
+		return m_normal;
+	}
+
+protected:
+	x_t m_normal;
+};
+
+
+class quad_1_elem;
+
+template <>
+struct element_traits<quad_1_elem>
+{
+	static const unsigned x_dim = 3;
+	typedef quad_1_shape_set lset_t;
+};
+
+class quad_1_elem : public element_base<quad_1_elem>
+{
+public:
+	quad_1_elem(unsigned id, nodes_t const &nodes, coords_t const &coords)
+		: element_base(id, nodes, coords)
+	{
+		x_t a = (coords.row(1)-coords.row(0)+coords.row(2)-coords.row(3))/4.0;
+		x_t b = (coords.row(0)-coords.row(1)+coords.row(2)-coords.row(3))/4.0;
+		x_t c = (coords.row(2)-coords.row(1)+coords.row(3)-coords.row(0))/4.0;
+
+		m_n0 = a.cross(c);
+		m_n_xi.row(0) = a.cross(b);
+		m_n_xi.row(1) = b.cross(c);
+	}
+
+	x_t get_normal(xi_t const &xi) const
+	{
+		return m_n0 + xi.transpose() * m_n_xi;
+	}
+
+protected:
+	x_t m_n0;
+	Eigen::Matrix<double, 2, 3> m_n_xi;
+};
 
 #endif
 

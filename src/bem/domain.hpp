@@ -31,7 +31,7 @@ public:
 	/** \brief scalar type of the location vector */
     typedef double scalar_t;
 	/** \brief location vector */
-	typedef Eigen::Matrix<double, dimension, 1> xi_t;
+	typedef Eigen::Matrix<scalar_t, dimension, 1> xi_t;
 	/** \brief type of the corners' array */
 	typedef xi_t corners_t[num_corners];
 
