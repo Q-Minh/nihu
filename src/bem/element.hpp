@@ -50,7 +50,7 @@ struct normal_vector<1, scalar_t>
 	* \brief compute normal vector in 1D
 	* \param dx position derivative matrix
 	*/
-	Eigen::Matrix<scalar_t, 1, 2> operator() (Eigen::Matrix<scalar_t, 1, 2> const &dx) const
+	static Eigen::Matrix<scalar_t, 1, 2> eval (Eigen::Matrix<scalar_t, 1, 2> const &dx)
 	{
 		Eigen::Matrix<scalar_t, 1, 2> res;
 		res << dx(1), -dx(0);
@@ -68,7 +68,7 @@ struct normal_vector<2, scalar_t>
 	* \brief compute normal vector in two dimensions
 	* \param dx position derivative matrix
 	*/
-	Eigen::Matrix<scalar_t, 1, 3> operator() (Eigen::Matrix<scalar_t, 2, 3> const &dx) const
+	static Eigen::Matrix<scalar_t, 1, 3> eval(Eigen::Matrix<scalar_t, 2, 3> const &dx)
 	{
 		return dx.row(0).cross(dx.row(1));
 	}
@@ -209,8 +209,7 @@ public:
 	x_t get_normal(xi_t const &xi) const
 	{
 		static_assert(xi_dim == x_dim-1, "Element does not have normal");
-		normal_vector<xi_dim, scalar_t> n;
-		return n(get_dx(xi));
+		return normal_vector<xi_dim, scalar_t>::eval(get_dx(xi));
 	}
 
 	/**

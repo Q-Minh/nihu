@@ -133,15 +133,15 @@ public:
 
 	/**
 	 * \brief build the mesh from MATLAB matrices
-	 * \tparam N_MAX_ELEM the maximal width of the elements matrix
 	 * \tparam type of nodes matrix
 	 * \tparam type of elements matrix
 	 * \param [in] nodes matrix of nodal coordinates
 	 * \param [in] elements matrix of element node indices
 	 */
-	template <unsigned N_MAX_ELEM, class node_t, class elem_t>
-	void build_from_mex(node_t const &nodes, elem_t const &elements)
+	template <class node_t, class elem_t>
+	Mesh(node_t const &nodes, elem_t const &elements) : m_num_elements(0)
 	{
+		unsigned const N_MAX_ELEM = 5;
 		double c[nDim];
 
 		for (int i = 0; i < nodes.rows(); ++i)
