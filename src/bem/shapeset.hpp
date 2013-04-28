@@ -35,26 +35,6 @@ public:
 	typedef Eigen::Matrix<scalar_t, num_nodes, domain_t::dimension> dshape_t;
 
 	/**
-	 * \brief shape function vector \f$L_i(\xi)\f$
-	 * \param [in] xi location in the base domain
-	 * \return the shape function vector
-	 */
-	static shape_t eval_shape(xi_t const &xi)
-	{
-		return Derived::eval_shape(xi);
-	}
-
-	/**
-	 * \brief shape function gradient matrix \f$\nabla L_i(\xi)\f$
-	 * \param [in] xi location in the base domain
-	 * \return the shape function derivative matrix
-	 */
-	static dshape_t eval_dshape(xi_t const &xi)
-	{
-		return Derived::eval_dshape(xi);
-	}
-
-	/**
 	 * \brief begin iterator of corner nodes
 	 */
 	static xi_t const* corner_begin(void)
@@ -117,9 +97,9 @@ public:
 	 *
 	 * \f$L_1(\xi) = 1 \f$
 	 */
-	static shape_t eval_shape(xi_t const &)
+	static shape_t const &eval_shape(xi_t const &)
 	{
-		return shape_t::Ones();
+		return m_shape;
 	}
 
 	/**
@@ -129,9 +109,9 @@ public:
 	 *
 	 * \f$\nabla L_1(\xi) = 0\f$
 	 */
-	static dshape_t eval_dshape(xi_t const &xi)
+	static dshape_t const &eval_dshape(xi_t const &xi)
 	{
-		return shape_t::Zero();
+		return m_dshape;
 	}
 
 	/** \brief return begin iterator to the corner nodes
@@ -149,7 +129,19 @@ public:
 	{
 		return &(domain_t::get_center()) + 1;
 	}
+protected:
+	static const shape_t m_shape;
+	static const dshape_t m_dshape;
 };
+
+template <class domain>
+typename constant_shape_set<domain>::shape_t
+	const constant_shape_set<domain>::m_shape = constant_shape_set<domain>::shape_t::Ones();
+
+template <class domain>
+typename constant_shape_set<domain>::dshape_t
+	const constant_shape_set<domain>::m_dshape = constant_shape_set<domain>::dshape_t::Zeros();
+
 
 // Forward declaration
 template <class Domain>
