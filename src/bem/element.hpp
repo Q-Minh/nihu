@@ -249,13 +249,12 @@ public:
 	quad_1_elem(unsigned id, nodes_t const &nodes, coords_t const &coords)
 		: element_base(id, nodes, coords)
 	{
-		x_t a = (coords.row(1)-coords.row(0)+coords.row(2)-coords.row(3))/4.0;
-		x_t b = (coords.row(0)-coords.row(1)+coords.row(2)-coords.row(3))/4.0;
-		x_t c = (coords.row(2)-coords.row(1)+coords.row(3)-coords.row(0))/4.0;
+		dx_t dx0 = get_dx(xi_t::Zero());
+		dx_t dx1 = get_dx(xi_t::Ones())-dx0;
 
-		m_n0 = a.cross(c);
-		m_n_xi.row(0) = a.cross(b);
-		m_n_xi.row(1) = b.cross(c);
+		m_n0 = dx0.row(0).cross(dx0.row(1));
+		m_n_xi.row(0) = dx0.row(0).cross(dx1.row(0));
+		m_n_xi.row(1) = dx1.row(0).cross(dx0.row(1));
 	}
 
 	x_t get_normal(xi_t const &xi) const
@@ -265,7 +264,7 @@ public:
 
 protected:
 	x_t m_n0;
-	Eigen::Matrix<double, 2, 3> m_n_xi;
+	Eigen::Matrix<scalar_t, xi_dim, x_dim> m_n_xi;
 };
 
 #endif
