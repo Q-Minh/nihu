@@ -33,32 +33,6 @@ public:
 	typedef Eigen::Matrix<scalar_t, num_nodes, 1> shape_t;
 	/** \brief type of a \f$\nabla L(\xi)\f$ gradient matrix */
 	typedef Eigen::Matrix<scalar_t, num_nodes, domain_t::dimension> dshape_t;
-
-	/**
-	 * \brief begin iterator of corner nodes
-	 */
-	static xi_t const* corner_begin(void)
-	{
-		return Derived::corner_begin_impl();
-	}
-
-	/**
-	 * \brief end iterator of corner nodes
-	 */
-	static xi_t const* corner_end(void)
-	{
-		return Derived::corner_end_impl();
-	}
-
-	/**
-	 * \brief return corner at a given node number
-	 * \param [in] idx the node index
-	 * \return constant reference to the coordinates
-	 */
-	static xi_t const &corner_at(size_t idx)
-	{
-		return Derived::corner_at_impl(idx);
-	}
 };
 
 // Forward declaration
@@ -109,7 +83,7 @@ public:
 	 *
 	 * \f$\nabla L_1(\xi) = 0\f$
 	 */
-	static dshape_t const &eval_dshape(xi_t const &xi)
+	static dshape_t const &eval_dshape(xi_t const &)
 	{
 		return m_dshape;
 	}
@@ -117,7 +91,7 @@ public:
 	/** \brief return begin iterator to the corner nodes
 	 * \return begin iterator to corner nodes
 	 */
-	static xi_t const *corner_begin_impl(void)
+	static xi_t const *corner_begin(void)
 	{
 		return &(domain_t::get_center());
 	}
@@ -125,22 +99,36 @@ public:
 	/** \brief return end iterator to the corner nodes
 	 * \return end iterator to corner nodes
 	 */
-	static xi_t const *corner_end_impl(void)
+	static xi_t const *corner_end(void)
 	{
 		return &(domain_t::get_center()) + 1;
 	}
+
 protected:
 	static const shape_t m_shape;
 	static const dshape_t m_dshape;
 };
 
-template <class domain>
-typename constant_shape_set<domain>::shape_t
-	const constant_shape_set<domain>::m_shape = constant_shape_set<domain>::shape_t::Ones();
+/** \todo the static members need to be instantiated for each specialisation separately. Could this be done automatically? */
+template <>
+typename constant_shape_set<quad_domain>::shape_t
+	const constant_shape_set<quad_domain>::m_shape
+	= constant_shape_set<quad_domain>::shape_t::Ones();
 
-template <class domain>
-typename constant_shape_set<domain>::dshape_t
-	const constant_shape_set<domain>::m_dshape = constant_shape_set<domain>::dshape_t::Zeros();
+template <>
+typename constant_shape_set<quad_domain>::dshape_t
+	const constant_shape_set<quad_domain>::m_dshape
+	= constant_shape_set<quad_domain>::dshape_t::Zero();
+
+template <>
+typename constant_shape_set<tria_domain>::shape_t
+	const constant_shape_set<tria_domain>::m_shape
+	= constant_shape_set<tria_domain>::shape_t::Ones();
+
+template <>
+typename constant_shape_set<tria_domain>::dshape_t
+	const constant_shape_set<tria_domain>::m_dshape
+	= constant_shape_set<tria_domain>::dshape_t::Zero();
 
 
 // Forward declaration
@@ -189,7 +177,7 @@ public:
 	/** \brief return begin iterator to the corner nodes
 	 * \return begin iterator to corner nodes
 	 */
-	static xi_t const *corner_begin_impl(void)
+	static xi_t const *corner_begin(void)
 	{
 		return domain_t::get_corners();
 	}
@@ -197,7 +185,7 @@ public:
 	/** \brief return end iterator to the corner nodes
 	 * \return end iterator to corner nodes
 	 */
-	static xi_t const *corner_end_impl(void)
+	static xi_t const *corner_end(void)
 	{
 		return domain_t::get_corners() + domain_t::num_corners;
 	}
@@ -207,7 +195,7 @@ public:
 	 * \param [in] idx the node index
 	 * \return constant reference to the coordinates
 	 */
-	static xi_t const &corner_at_impl(size_t idx)
+	static xi_t const &corner_at(size_t idx)
 	{
 		return *(domain_t::get_corners() + idx);
 	}
@@ -388,7 +376,7 @@ public:
 	/** \brief return begin iterator to the corner nodes
 	 * \return begin iterator to corner nodes
 	 */
-	static xi_t const *corner_begin_impl(void)
+	static xi_t const *corner_begin(void)
 	{
 		return domain_t::get_corners();
 	}
@@ -396,7 +384,7 @@ public:
 	/** \brief return end iterator to the corner nodes
 	 * \return end iterator to corner nodes
 	 */
-	static xi_t const *corner_end_impl(void)
+	static xi_t const *corner_end(void)
 	{
 		return domain_t::get_corners() + domain_t::num_corners;
 	}
