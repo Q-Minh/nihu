@@ -13,8 +13,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     // read mesh from Matlab and build
     mex::real_matrix nodes(prhs[0]);
     mex::real_matrix elements(prhs[1]);
-	mesh_t mesh;
-	mesh.build_from_mex<4+1>(nodes, elements);
+	mesh_t mesh(nodes, elements);
 
     // initialise kernel
     double k = mxGetScalar(prhs[2]);
