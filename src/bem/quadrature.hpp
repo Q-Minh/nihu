@@ -8,17 +8,6 @@
 
 #include "shapeset.hpp"
 
-#include <type_traits> // is_same
-
-#include <iostream>
-#include <stdexcept>
-
-#include <numeric>
-
-#include <Eigen/StdVector>
-#define EIGENSTDVECTOR(_T) std::vector<_T, Eigen::aligned_allocator<_T> >
-
-
 /**
  * \brief a quadrature element is a base point and a weight
  * \tparam XiType the local coordinate type
@@ -95,6 +84,7 @@ struct quadrature_traits;
 /**
  * \brief CRTP base class of all quadratures
  * \tparam Derived the CRTP derived class
+ * \todo Why cannot we use the EIGENSTDVECTOR macro with two template arguments here as a base class? We do not understand this sickness.
  */
 template <class Derived>
 class quadrature_base :
@@ -102,7 +92,8 @@ class quadrature_base :
 		quadrature_elem<
 			typename quadrature_traits<Derived>::domain_t::xi_t,
 			typename quadrature_traits<Derived>::domain_t::scalar_t
-		>,
+		>
+		,
 		Eigen::aligned_allocator<
 			quadrature_elem<
 				typename quadrature_traits<Derived>::domain_t::xi_t,
@@ -111,6 +102,20 @@ class quadrature_base :
 		>
 	>
 {
+public:
+	typedef std::vector<
+		quadrature_elem<
+			typename quadrature_traits<Derived>::domain_t::xi_t,
+			typename quadrature_traits<Derived>::domain_t::scalar_t
+		>
+		,
+		Eigen::aligned_allocator<
+			quadrature_elem<
+				typename quadrature_traits<Derived>::domain_t::xi_t,
+				typename quadrature_traits<Derived>::domain_t::scalar_t
+			>
+		>
+	> base_t;	/** < \brief the base class type */
 private:
 	/**
 	 * \brief CRTP helper function
@@ -136,7 +141,7 @@ public:
 	typedef typename domain_t::xi_t xi_t; 			/**< \brief local coordinate type */
 	typedef typename domain_t::scalar_t scalar_t;	/**< \brief local scalar type */
 	/** \brief quadrature elem type */
-	typedef quadrature_elem<xi_t, scalar_t> quadrature_elem_t;	
+	typedef quadrature_elem<xi_t, scalar_t> quadrature_elem_t;
 
 	/**
 	 * \brief constructor allocating space for the quadrature elements
@@ -144,7 +149,7 @@ public:
 	 */
 	quadrature_base(unsigned N = 0)
 	{
-		this->reserve(N);
+		base_t::reserve(N);
 	}
 
 	/**
@@ -155,12 +160,12 @@ public:
 	std::ostream & print (std::ostream & os) const
 	{
 		os << "Base points: \t Weights:" << std::endl;
-		std::for_each(this->begin(), this->end(), [&os] (quadrature_elem_t const &e) {
+		std::for_each(base_t::begin(), base_t::end(), [&os] (quadrature_elem_t const &e) {
 			os << e.get_xi().transpose() << "\t\t" << e.get_w() << std::endl;
 		});
 		os << "Sum of weights: " <<
 			std::accumulate(
-				this->begin(), this->end(),
+				base_t::begin(), base_t::end(),
 				scalar_t(), [] (scalar_t x, quadrature_elem_t const &qe) {
 			return x + qe.get_w();
 		}) << std::endl;
@@ -204,7 +209,7 @@ public:
 		// dimension check
 		static_assert(std::is_same<xi_t, typename LSet::xi_t>::value,
 			"Quadrature and shape set dimensions must match");
-		for (auto it = this->begin(); it != this->end(); ++it)
+		for (auto it = base_t::begin(); it != base_t::end(); ++it)
 			it->transform_inplace<LSet>(coords);
 		return derived();
 	}
@@ -221,8 +226,8 @@ public:
 	{
 		static_assert(std::is_same<xi_t, typename otherDerived::xi_t>::value,
 			"Quadrature domain dimensions must match");
-		Derived result(this->size()+other.size());
-		result.insert(result.end(), this->begin(), this->end());
+		Derived result(base_t::size()+other.size());
+		result.insert(result.end(), base_t::begin(), base_t::end());
 		result.insert(result.end(), other.begin(), other.end());
 		return result;
 	}
@@ -239,8 +244,8 @@ public:
 	{
 		static_assert(std::is_same<xi_t, typename otherDerived::xi_t>::value,
 			"Quadrature domain dimensions must match");
-		this->reserve(this->size()+other.size());
-		this->insert(this->end(), other.begin(), other.end());
+		base_t::reserve(base_t::size()+other.size());
+		base_t::insert(base_t::end(), other.begin(), other.end());
 		return derived();
 	}
 }; // class quadrature_base

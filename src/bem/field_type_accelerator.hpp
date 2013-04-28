@@ -10,8 +10,6 @@
 #include "field.hpp"
 #include "quadrature.hpp"
 
-#include <vector>
-
 /**
  * \brief class to store quadrature points and shape functions for a field type
  * \details field_type_accelerator is used to precompute and store quadrature points and

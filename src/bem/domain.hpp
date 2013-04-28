@@ -10,7 +10,7 @@
 #ifndef DOMAIN_HPP_INCLUDED
 #define DOMAIN_HPP_INCLUDED
 
-#include <Eigen/Dense>
+#include "includes.h"
 
 /**
  * \brief a subset of the \f$\xi\f$ space. All elements are defined on a domain.

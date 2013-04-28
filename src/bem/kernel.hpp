@@ -10,10 +10,6 @@
 #include "kernel_input.hpp"
 #include "couple.hpp"
 
-#include <complex>
-/** \brief double complex type */
-typedef std::complex<double> dcomplex;
-
 // forward declaration
 template <class Derived>
 struct kernel_traits;
@@ -138,7 +134,7 @@ public:
 	 * \brief set the wave number to a defined value
 	 * \param [in] k wave number
 	 */
-	static void set_wave_number(dcomplex const &k)
+	static void set_wave_number(std::complex<double> const &k)
 	{
 		helmholtz_base::m_k = k;
 	}
@@ -169,12 +165,12 @@ public:
 	}
 
 protected:
-	static dcomplex m_k;		/**< \brief wave number */
+	static std::complex<double> m_k;		/**< \brief wave number */
 };
 
 /**< \brief static member wave number */
 template <class Derived>
-dcomplex helmholtz_base<Derived>::m_k;
+std::complex<double> helmholtz_base<Derived>::m_k;
 
 
 // forward declaration
@@ -187,11 +183,11 @@ struct kernel_traits<helmholtz_G_kernel>
 	/** \brief location type */
 	typedef tria_1_elem::x_t x_t;
 	/** \brief kernel scalar type */
-	typedef dcomplex scalar_t;
+	typedef std::complex<double> scalar_t;
 	/** \brief kernel input type */
 	typedef location<x_t> input_t;
 	/** \brief kernel result type */
-	typedef dcomplex result_t;
+	typedef std::complex<double> result_t;
 	/** \brief quadrature family tag */
 	typedef gauss_family_tag quadrature_family_t;
 };
@@ -217,7 +213,7 @@ public:
 		// source receiver distance
 		double r = (x.get_x() - m_x0).norm();
 		// complex kernel
-		m_result = std::exp(-dcomplex(0.0,1.0)*m_k*r) / r / (4.0 * M_PI);
+		m_result = std::exp(-std::complex<double>(0.0,1.0)*m_k*r) / r / (4.0 * M_PI);
 		return m_result;
 	}
 
@@ -248,11 +244,11 @@ struct kernel_traits<helmholtz_H_kernel>
 	/** \brief location type */
 	typedef tria_1_elem::x_t x_t;
 	/** \brief kernel scalar type */
-	typedef dcomplex scalar_t;
+	typedef std::complex<double> scalar_t;
 	/** \brief kernel input type */
 	typedef location_with_normal<x_t> input_t;
 	/** \brief kernel result type */
-	typedef dcomplex result_t;
+	typedef std::complex<double> result_t;
 	/** \brief quadrature family type */
 	typedef gauss_family_tag quadrature_family_t;
 };
@@ -278,7 +274,7 @@ public:
 		x_t rvec = x.get_x() - m_x0;
 		double r2 = rvec.squaredNorm();
 		double r = sqrt(r2);
-		dcomplex ikr(dcomplex(0.,1.)*m_k*r);
+		std::complex<double> ikr(std::complex<double>(0.,1.)*m_k*r);
 
 		m_result = std::exp(-ikr) / r / (4.0 * M_PI);
 		double rdn = rvec.dot(x.get_normal());
@@ -307,11 +303,11 @@ struct kernel_traits<helmholtz_HG_kernel>
 	/** \brief location type */
 	typedef tria_1_elem::x_t x_t;
 	/** \brief scalar type */
-	typedef dcomplex scalar_t;
+	typedef std::complex<double> scalar_t;
 	/** \brief kernel input type */
 	typedef location_with_normal<x_t> input_t;
 	/** \brief kernel result type */
-	typedef couple<dcomplex> result_t;
+	typedef couple<std::complex<double>> result_t;
 	/** \brief quadrature family type */
 	typedef gauss_family_tag quadrature_family_t;
 };
@@ -337,7 +333,7 @@ public:
 		x_t rvec = x.get_x() - m_x0;
 		double r2 = rvec.squaredNorm();
 		double r = sqrt(r2);
-		dcomplex ikr(dcomplex(0.,1.)*m_k*r);
+		std::complex<double> ikr(std::complex<double>(0.,1.)*m_k*r);
 
 		m_result.first() = std::exp(-ikr) / r / (4.0 * M_PI);
 		double rdn = rvec.dot(x.get_normal());

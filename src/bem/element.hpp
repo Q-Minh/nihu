@@ -6,8 +6,6 @@
 #ifndef ELEMENT_HPP_INCLUDED
 #define ELEMENT_HPP_INCLUDED
 
-#include <type_traits>
-
 #include "shapeset.hpp"
 
 /**
@@ -145,15 +143,6 @@ public:
 		: m_nodes(nodes), m_coords(coords)
 	{
 		this->m_id << id;
-	}
-
-	/**
-	* \brief constructor
-	* \param [in] coords the elem coordinates
-	*/
-	element(coords_t const &coords)
-		: m_id(id_t()), m_nodes(nodes_t()), m_coords(coords)
-	{
 	}
 
 	/**
