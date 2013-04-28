@@ -144,14 +144,14 @@ public:
 	{
 		double c[nDim];
 
-		for (size_t i = 0; i < nodes.rows(); ++i)
+		for (int i = 0; i < nodes.rows(); ++i)
 		{
 			for (unsigned j = 0; j < nDim; ++j)
 				c[j] = nodes(i,j);
 			add_node(c);
 		}
 		unsigned e[N_MAX_ELEM];
-		for (size_t i = 0; i < elements.rows(); ++i)
+		for (int i = 0; i < elements.rows(); ++i)
 		{
 			for (unsigned j = 0; j < N_MAX_ELEM; ++j)
 				e[j] = (unsigned)elements(i,j);

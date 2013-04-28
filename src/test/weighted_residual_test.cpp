@@ -7,31 +7,41 @@ typedef function_space<mesh_t, constant_field, function_field> trial_space_t;
 typedef helmholtz_HG_kernel kernel_t;
 typedef weighted_residual<kernel_t, test_space_t, trial_space_t> wr_t;
 
-#include <iostream>
-
 int main(void)
 {
 	try
 	{
-		double c[] = {
-			0, 0, 0,
-			1, 0, 0,
-			0, 1, 0,
-			1, 1, 0,
-			2, 1, 0,
-			1, 2, 0,
-			2, 2, 0
-		};
-		unsigned e[] = {
-			4,  0, 1, 3, 2,
-			4,  3, 4, 6, 5
-		};
+		int const n = 50;
+
+		Eigen::Matrix<double, Eigen::Dynamic, 3> nodes((n+1)*(n+1),3);
+		Eigen::Matrix<unsigned, Eigen::Dynamic, 5> elements(n*n,5);
+
+		for (int i = 0; i < (n+1); ++i)
+		{
+			for (int j = 0; j < (n+1); ++j)
+			{
+				int row = i*(n+1)+j;
+				nodes(row,0) = double(i);
+				nodes(row,1) = double(j);
+				nodes(row,2) = 0.0;
+			}
+		}
+
+		for (int i = 0; i < n; ++i)
+		{
+			for (int j = 0; j < n; ++j)
+			{
+				int row = i*n+j;
+				elements(row,0) = 4;
+				elements(row,1) = i*(n+1)+j+0;
+				elements(row,2) = i*(n+1)+j+1;
+				elements(row,3) = i*(n+1)+j+n+2;
+				elements(row,4) = i*(n+1)+j+n+1;
+			}
+		}
 
 		mesh_t mesh;
-		for (unsigned i = 0; i < 7; ++i)
-			mesh.add_node(c+i*3);
-		for (unsigned i = 0; i < 2; ++i)
-			mesh.add_elem(e+i*5);
+		mesh.build_from_mex<5>(nodes, elements);
 
 		test_space_t test_func(mesh);
 		trial_space_t trial_func(mesh);
@@ -47,8 +57,10 @@ int main(void)
 		couple<big_mat_t, big_mat_t> result(a, b);
 		wr.eval(result);
 
+	/*
 		std::cout << result.first() << std::endl;
 		std::cout << result.second() << std::endl;
+		*/
 		std::cout << kernel_t::get_num_evaluations() << std::endl;
 	}
 	catch(const char *e)
