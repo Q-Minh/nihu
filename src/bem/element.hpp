@@ -1,7 +1,7 @@
 /**
 * \file element.hpp
 * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
-* \brief Declaration of class ::element and its specialisations
+* \brief Declaration of element classes and specialisations
 */
 #ifndef ELEMENT_HPP_INCLUDED
 #define ELEMENT_HPP_INCLUDED
@@ -31,13 +31,19 @@ public:
 };
 
 
+/** \brief Traits class describing element properties */
 template <class Derived>
 struct element_traits;
 
+/**
+ * \brief The geometrical element representation
+ * \tparam Derived CRTP derived class
+ */
 template <class Derived>
 class element_base
 {
 public:
+	/** \brief the CRTP derived class */
 	typedef element_traits<Derived> traits_t;
 
 	/** \brief the dimension of the element's location variable \f$x\f$ */
@@ -80,7 +86,7 @@ protected:
 	nodes_t m_nodes;
 	/** \brief the element's corner coordinates \f$x_i\f$ */
 	coords_t m_coords;
-	/** \brief the element's ceter */
+	/** \brief the element's center */
 	x_t m_center;
 
 public:
@@ -206,46 +212,72 @@ public:
 };
 
 
+/** \brief a linear triangle element in 3D space */
 class tria_1_elem;
 
+/** \brief element properties of a linear 3D tria element */
 template <>
 struct element_traits<tria_1_elem>
 {
+	/** \brief dimensionality of the x space */
 	static const unsigned x_dim = 3;
+	/** \brief the shape set */
 	typedef tria_1_shape_set lset_t;
 };
 
+/** \brief a linear tria element in 3D space */
 class tria_1_elem : public element_base<tria_1_elem>
 {
 public:
+	/**
+	 * \brief constructor
+	 * \param [in] id the element id
+	 * \param [in] nodes the nodal indices
+	 * \param [in] coords the nodal coordinates
+	 */
 	tria_1_elem(unsigned id, nodes_t const &nodes, coords_t const &coords)
 		: element_base(id, nodes, coords)
 	{
-		m_normal = (coords.row(1)-coords.row(0)).cross(coords.row(2)-coords.row(0));
+		dx_t dx0 = get_dx(xi_t::Zero());
+		m_normal = dx0.row(0).cross(dx0.row(1));
 	}
 
+	/** \brief return normal vector
+	 * \return element normal
+	 */
 	x_t const &get_normal(xi_t const &) const
 	{
 		return m_normal;
 	}
 
 protected:
-	x_t m_normal;
+	x_t m_normal;	/**< \brief the normal vector */
 };
 
 
+/** \brief a linear quad element in 3D space */
 class quad_1_elem;
 
+/** \brief element properties of a linear 3D quad element */
 template <>
 struct element_traits<quad_1_elem>
 {
+	/** \brief dimensionality of the x space */
 	static const unsigned x_dim = 3;
+	/** \brief the shape set */
 	typedef quad_1_shape_set lset_t;
 };
 
+/** \brief a linear quad element in 3D space */
 class quad_1_elem : public element_base<quad_1_elem>
 {
 public:
+	/**
+	 * \brief constructor
+	 * \param [in] id the element id
+	 * \param [in] nodes the nodal indices
+	 * \param [in] coords the nodal coordinates
+	 */
 	quad_1_elem(unsigned id, nodes_t const &nodes, coords_t const &coords)
 		: element_base(id, nodes, coords)
 	{
@@ -257,14 +289,18 @@ public:
 		m_n_xi.row(1) = dx1.row(0).cross(dx0.row(1));
 	}
 
+	/** \brief return normal vector
+	 * \param [in] xi local coordinate
+	 * \return element normal
+	 */
 	x_t get_normal(xi_t const &xi) const
 	{
 		return m_n0 + xi.transpose() * m_n_xi;
 	}
 
 protected:
-	x_t m_n0;
-	Eigen::Matrix<scalar_t, xi_dim, x_dim> m_n_xi;
+	x_t m_n0;	/**< \brief the normal at xi=0 */
+	dx_t m_n_xi;	/**< \brief 1st order tag of the Taylor series of the normal */
 };
 
 #endif
