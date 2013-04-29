@@ -110,7 +110,7 @@ protected:
 		 */
 		bool operator() (unsigned const input[], mesh_t &m)
 		{
-			if (input[0] == elem_t::domain_t::id)
+			if (input[0] == elem_t::elem_id)
 			{
 				// construct element
 				typename elem_t::nodes_t nodes;

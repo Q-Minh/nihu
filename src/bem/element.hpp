@@ -46,6 +46,7 @@ public:
 	/** \brief the CRTP derived class */
 	typedef element_traits<Derived> traits_t;
 
+	static unsigned const elem_id = traits_t::elem_id;
 	/** \brief the dimension of the element's location variable \f$x\f$ */
 	static unsigned const x_dim = traits_t::x_dim;
 	/** \brief the elements's L-set */
@@ -219,6 +220,7 @@ class tria_1_elem;
 template <>
 struct element_traits<tria_1_elem>
 {
+	static const unsigned elem_id = 231;
 	/** \brief dimensionality of the x space */
 	static const unsigned x_dim = 3;
 	/** \brief the shape set */
@@ -262,6 +264,7 @@ class quad_1_elem;
 template <>
 struct element_traits<quad_1_elem>
 {
+	static const unsigned elem_id = 241;
 	/** \brief dimensionality of the x space */
 	static const unsigned x_dim = 3;
 	/** \brief the shape set */

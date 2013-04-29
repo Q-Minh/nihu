@@ -28,7 +28,7 @@ int main(void)
 			for (int j = 0; j < n; ++j)
 			{
 				int row = i*n+j;
-				elements(row,0) = 4;
+				elements(row,0) = 241;
 				elements(row,1) = i*(n+1)+j+0;
 				elements(row,2) = i*(n+1)+j+1;
 				elements(row,3) = i*(n+1)+j+n+2;

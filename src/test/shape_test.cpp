@@ -1,22 +1,36 @@
 #include "../bem/shapeset.hpp"
+#include "../tmp/control.hpp"
 
-typedef constant_shape_set<tria_domain> tria_0_shape;
-typedef isoparam_shape_set<quad_domain> quad_1_shape;
-typedef isoparam_shape_set<tria_domain> tria_1_shape;
-typedef parallelogram_shape_set para_shape;
-
-#include <iostream>
+template <class shape_set>
+struct shape_tester
+{
+	struct type {
+		void operator()(void)
+		{
+			std::cout << "corners: " << std::endl;
+			for (auto it = shape_set::corner_begin(); it != shape_set::corner_end(); ++it)
+				std::cout << it->transpose() << std::endl;
+			std::cout << "shape values" << std::endl;
+			for (auto it = shape_set::corner_begin(); it != shape_set::corner_end(); ++it)
+				std::cout << shape_set::eval_shape(*it).transpose() << std::endl;
+			std::cout << "shape derivative values" << std::endl;
+			for (auto it = shape_set::corner_begin(); it != shape_set::corner_end(); ++it)
+				std::cout << shape_set::eval_dshape(*it).transpose() << "sum: " << shape_set::eval_dshape(*it).sum() << std::endl;
+		}
+	};
+};
 
 int main(void)
 {
-	std::cout << "1st corner of tria_0: " << std::endl << *(tria_0_shape::corner_begin()) << std::endl << std::endl;
-	std::cout << "1st corner of quad_1: " << std::endl << *(quad_1_shape::corner_begin()) << std::endl << std::endl;
-	std::cout << "Shape values of quad_1 (0,0): " << std::endl <<
-		quad_1_shape::eval_shape(quad_1_shape::xi_t(0.0,0.0)) << std::endl << std::endl;
-	std::cout << "Shape derivatives of quad_1 (1.0,-0.75): " << std::endl <<
-		quad_1_shape::eval_dshape(quad_1_shape::xi_t(1.0,-0.75)) << std::endl << std::endl;
-	std::cout << "3rd corner of para_shape_set: " << std::endl <<
-		*(para_shape::corner_begin()+2) << std::endl << std::endl;
+	tmp::call_each<
+		tmp::vector<
+			quad_0_shape_set,
+			quad_1_shape_set,
+			quad_2_shape_set,
+			tria_2_shape_set
+		>,
+		shape_tester<tmp::_1>
+	>();
 	
 	return 0;
 }
