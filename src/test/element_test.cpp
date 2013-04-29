@@ -10,15 +10,22 @@ struct tester
 	{
 		void operator() (void)
 		{
-			ElemType e(ElemType::coords_t::Random());
-			typename ElemType::x_t c = e.get_center();
-			typename ElemType::xi_t xi = ElemType::xi_t::Ones();
-			typename ElemType::x_t x = e.get_x(xi);
-			typename ElemType::x_t n = e.get_normal(xi);
-
-			std::cout << "center: " << c << std::endl;
+			typename ElemType::xi_t xi = ElemType::domain_t::get_center();
 			std::cout << "xi: " << xi << std::endl;
+
+			ElemType e(ElemType::coords_t::Random());
+			std::cout << "coords: " << e.get_coords() << std::endl;
+
+			typename ElemType::dx_t dx = e.get_dx(xi);
+			std::cout << "dx: " << dx << std::endl;
+
+			typename ElemType::x_t c = e.get_center();
+			std::cout << "center: " << c << std::endl;
+
+			typename ElemType::x_t x = e.get_x(xi);
 			std::cout << "x(xi): " << x << std::endl;
+
+			typename ElemType::x_t n = e.get_normal(xi);
 			std::cout << "n(xi): " << n << std::endl;
 		}
 	};
@@ -26,15 +33,8 @@ struct tester
 
 int main(void)
 {
-	typedef tmp::vector<
-		line_1_elem,
-		tria_1_elem,
-		parallelogram_elem,
-		quad_1_elem
-	> elemVector;
-
-	tmp::call_each<elemVector, tester<tmp::_1> >();
+	tester<quad_2_elem>::type t;
+	t();
 
 	return 0;
 }
-

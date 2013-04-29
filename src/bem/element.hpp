@@ -102,7 +102,7 @@ public:
 	* \param [in] nodes the elem node indices
 	* \param [in] coords the elem coordinates
 	*/
-	element_base(unsigned id, nodes_t const &nodes, coords_t const &coords)
+	element_base(coords_t const &coords, unsigned id = 0, nodes_t const &nodes = nodes_t())
 		: m_nodes(nodes), m_coords(coords), m_center(get_x(domain_t::get_center()))
 	{
 		this->m_id << id;
@@ -237,10 +237,10 @@ public:
 	 * \param [in] nodes the nodal indices
 	 * \param [in] coords the nodal coordinates
 	 */
-	tria_1_elem(unsigned id, nodes_t const &nodes, coords_t const &coords)
-		: element_base(id, nodes, coords)
+	tria_1_elem(coords_t const &coords, unsigned id = 0, nodes_t const &nodes = nodes_t())
+		: element_base(coords, id, nodes)
 	{
-		dx_t dx0 = get_dx(xi_t::Zero());
+		dx_t dx0(get_dx(xi_t::Zero()));
 		m_normal = dx0.row(0).cross(dx0.row(1));
 	}
 
@@ -281,8 +281,8 @@ public:
 	 * \param [in] nodes the nodal indices
 	 * \param [in] coords the nodal coordinates
 	 */
-	quad_1_elem(unsigned id, nodes_t const &nodes, coords_t const &coords)
-		: element_base(id, nodes, coords)
+	quad_1_elem(coords_t const &coords, unsigned id = 0, nodes_t const &nodes = nodes_t())
+		: element_base(coords, id, nodes)
 	{
 		dx_t dx0 = get_dx(xi_t::Zero());
 		dx_t dx1 = get_dx(xi_t::Ones())-dx0;
@@ -305,6 +305,48 @@ protected:
 	x_t m_n0;	/**< \brief the normal at xi=0 */
 	dx_t m_n_xi;	/**< \brief 1st order tag of the Taylor series of the normal */
 };
+
+
+
+template <class LSet, unsigned ElementID>
+class general_surface_element;
+
+
+template <class LSet, unsigned ElementID>
+struct element_traits<general_surface_element<LSet, ElementID> >
+{
+	static const unsigned elem_id = ElementID;
+	/** \brief the shape set */
+	typedef LSet lset_t;
+	/** \brief dimensionality of the x space */
+	static const unsigned x_dim = lset_t::domain_t::dimension + 1;
+};
+
+template <class LSet, unsigned ElementID>
+class general_surface_element : public element_base<general_surface_element<LSet, ElementID> >
+{
+public:
+	typedef element_base<general_surface_element<LSet, ElementID> > base_t;
+	typedef typename base_t::nodes_t nodes_t;
+	typedef typename base_t::coords_t coords_t;
+	typedef typename base_t::xi_t xi_t;
+	typedef typename base_t::x_t x_t;
+
+	general_surface_element(coords_t const &coords, unsigned id = 0, nodes_t const &nodes = nodes_t())
+		: base_t(coords, id, nodes)
+	{
+	}
+
+	x_t get_normal(xi_t const &xi) const
+	{
+		typename base_t::dx_t dx(base_t::get_dx(xi));
+		return dx.row(0).cross(dx.row(1));
+	}
+};
+
+typedef general_surface_element<quad_2_shape_set, 242> quad_2_elem;
+typedef general_surface_element<tria_2_shape_set, 232> tria_2_elem;
+
 
 #endif
 

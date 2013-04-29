@@ -1,4 +1,5 @@
 #include "../bem/shapeset.hpp"
+
 #include "../tmp/control.hpp"
 
 template <class shape_set>
@@ -24,13 +25,13 @@ int main(void)
 {
 	tmp::call_each<
 		tmp::vector<
+			tria_2_shape_set,
 			quad_0_shape_set,
 			quad_1_shape_set,
-			quad_2_shape_set,
-			tria_2_shape_set
+			quad_2_shape_set
 		>,
 		shape_tester<tmp::_1>
 	>();
-	
+
 	return 0;
 }
