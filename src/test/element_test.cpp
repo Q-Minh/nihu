@@ -16,9 +16,6 @@ struct tester
 			ElemType e(ElemType::coords_t::Random());
 			std::cout << "coords: " << e.get_coords() << std::endl;
 
-			typename ElemType::dx_t dx = e.get_dx(xi);
-			std::cout << "dx: " << dx << std::endl;
-
 			typename ElemType::x_t c = e.get_center();
 			std::cout << "center: " << c << std::endl;
 

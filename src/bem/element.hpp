@@ -308,44 +308,61 @@ protected:
 
 
 
-template <class LSet, unsigned ElementID>
-class general_surface_element;
+class quad_2_elem;
 
-
-template <class LSet, unsigned ElementID>
-struct element_traits<general_surface_element<LSet, ElementID> >
+template <>
+struct element_traits<quad_2_elem>
 {
-	static const unsigned elem_id = ElementID;
-	/** \brief the shape set */
-	typedef LSet lset_t;
+	static const unsigned elem_id = 242;
 	/** \brief dimensionality of the x space */
-	static const unsigned x_dim = lset_t::domain_t::dimension + 1;
+	static const unsigned x_dim = 3;
+	/** \brief the shape set */
+	typedef quad_2_shape_set lset_t;
 };
 
-template <class LSet, unsigned ElementID>
-class general_surface_element : public element_base<general_surface_element<LSet, ElementID> >
+class quad_2_elem : public element_base<quad_2_elem>
 {
 public:
-	typedef element_base<general_surface_element<LSet, ElementID> > base_t;
-	typedef typename base_t::nodes_t nodes_t;
-	typedef typename base_t::coords_t coords_t;
-	typedef typename base_t::xi_t xi_t;
-	typedef typename base_t::x_t x_t;
+	quad_2_elem(coords_t const &coords, unsigned id = 0, nodes_t const &nodes = nodes_t())
+		: element_base(coords, id, nodes)
+	{
+	}
 
-	general_surface_element(coords_t const &coords, unsigned id = 0, nodes_t const &nodes = nodes_t())
-		: base_t(coords, id, nodes)
+	x_t get_normal(xi_t const &) const
+	{
+		dx_t dx = dL_t::Zero().transpose() * m_coords;
+		return dx.row(0).cross(dx.row(1));
+	}
+};
+
+
+
+class tria_2_elem;
+
+template <>
+struct element_traits<tria_2_elem>
+{
+	static const unsigned elem_id = 232;
+	/** \brief dimensionality of the x space */
+	static const unsigned x_dim = 3;
+	/** \brief the shape set */
+	typedef tria_2_shape_set lset_t;
+};
+
+class tria_2_elem : public element_base<tria_2_elem>
+{
+public:
+	tria_2_elem(coords_t const &coords, unsigned id = 0, nodes_t const &nodes = nodes_t())
+		: element_base(coords, id, nodes)
 	{
 	}
 
 	x_t get_normal(xi_t const &xi) const
 	{
-		typename base_t::dx_t dx(base_t::get_dx(xi));
+		dx_t dx = lset_t::eval_dshape(xi).transpose() * m_coords;
 		return dx.row(0).cross(dx.row(1));
 	}
 };
-
-typedef general_surface_element<quad_2_shape_set, 242> quad_2_elem;
-typedef general_surface_element<tria_2_shape_set, 232> tria_2_elem;
 
 
 #endif

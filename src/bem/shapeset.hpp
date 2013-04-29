@@ -180,6 +180,10 @@ public:
 	}
 };
 
+
+/** linear line shape set */
+typedef isoparam_shape_set<line_domain> line_1_shape_set;
+
 /**
 * \brief linear 2-noded line shape functions
 * \param [in] xi domain location vector
@@ -189,8 +193,8 @@ public:
 * \f$L_1(\xi) = (1-\xi)/2 \\ L_2(\xi) = (1+\xi)/2 \f$
 */
 template<>
-inline typename isoparam_shape_set<line_domain>::shape_t
-	isoparam_shape_set<line_domain>::eval_shape(typename isoparam_shape_set<line_domain>::xi_t const &xi)
+inline typename line_1_shape_set::shape_t
+	line_1_shape_set::eval_shape(typename line_1_shape_set::xi_t const &xi)
 {
 	shape_t L;
 	L <<
@@ -218,6 +222,9 @@ inline typename isoparam_shape_set<line_domain>::dshape_t
 }
 
 
+/** linear tria shape set */
+typedef isoparam_shape_set<tria_domain> tria_1_shape_set;
+
 /**
 * \brief linear 3-noded triangle shape functions
 * \param [in] xi the domain variable vector
@@ -227,8 +234,8 @@ inline typename isoparam_shape_set<line_domain>::dshape_t
 * \f$L_1(\xi, \eta) = 1-\xi-\eta \\ L_2(\xi, \eta) = \xi \\ L_3(\xi, \eta) = \eta \f$
 */
 template<>
-inline typename isoparam_shape_set<tria_domain>::shape_t
-	isoparam_shape_set<tria_domain>::eval_shape(typename isoparam_shape_set<tria_domain>::xi_t const &xi)
+inline typename tria_1_shape_set::shape_t
+	tria_1_shape_set::eval_shape(typename tria_1_shape_set::xi_t const &xi)
 {
 	shape_t L;
 	L <<
@@ -243,8 +250,8 @@ inline typename isoparam_shape_set<tria_domain>::shape_t
 * \return sape function derivative matrix
 */
 template<>
-inline typename isoparam_shape_set<tria_domain>::dshape_t
-	isoparam_shape_set<tria_domain>::eval_dshape(typename isoparam_shape_set<tria_domain>::xi_t const &)
+inline typename tria_1_shape_set::dshape_t
+	tria_1_shape_set::eval_dshape(typename tria_1_shape_set::xi_t const &)
 {
 	dshape_t dL;
 	dL <<
@@ -253,6 +260,10 @@ inline typename isoparam_shape_set<tria_domain>::dshape_t
 		0.0, +1.0;
 	return dL;
 }
+
+
+/** linear quad shape set */
+typedef isoparam_shape_set<quad_domain> quad_1_shape_set;
 
 /**
 * \brief linear 4-noded general quadrilateral shape functions
@@ -266,8 +277,8 @@ L_3(\xi, \eta) = (1+\xi)(1+\eta)/4\\
 L_4(\xi, \eta) = (1-\xi)(1+\eta)/4\f$
 */
 template<>
-inline typename isoparam_shape_set<quad_domain>::shape_t
-	isoparam_shape_set<quad_domain>::eval_shape(typename isoparam_shape_set<quad_domain>::xi_t const &xi)
+inline typename quad_1_shape_set::shape_t
+	quad_1_shape_set::eval_shape(typename quad_1_shape_set::xi_t const &xi)
 {
 	shape_t L;
 	L <<
@@ -283,8 +294,8 @@ inline typename isoparam_shape_set<quad_domain>::shape_t
 * \return shape function gradient matrix
 */
 template<>
-inline typename isoparam_shape_set<quad_domain>::dshape_t
-	isoparam_shape_set<quad_domain>::eval_dshape(typename isoparam_shape_set<quad_domain>::xi_t const &xi)
+inline typename quad_1_shape_set::dshape_t
+	quad_1_shape_set::eval_dshape(typename quad_1_shape_set::xi_t const &xi)
 {
 	dshape_t dL;
 	dL <<
@@ -358,6 +369,82 @@ public:
 	{
 		return domain_t::get_corners() + domain_t::num_corners;
 	}
+};
+
+
+
+// Forward declaration
+class tria_2_shape_set;
+
+/** \brief Traits for quadratic tria shapesets */
+template<>
+struct shape_set_traits<tria_2_shape_set>
+{
+	typedef tria_domain domain_t;	/**< \brief the domain type */
+	static unsigned const num_nodes = 6;	/**< \brief number of nodes */
+};
+
+/**
+* \brief quadratic 6-noded tria shape function set
+*/
+class tria_2_shape_set : public shape_set_base<tria_2_shape_set>
+{
+public:
+	/**
+	* \brief quadratic 6-noded tria shape functions
+	* \param [in] xi the domain variable
+	* \return the shape function vector
+	*/
+	static shape_t eval_shape(xi_t const &_xi)
+	{
+		scalar_t xi = _xi[0], eta = _xi[1];
+		shape_t L;
+		L <<
+			(eta+xi-1)*(2*eta+2*xi-1),
+			-4*xi*(eta+xi-1),
+			xi*(2*xi-1),
+			-4*eta*(eta+xi-1),
+			4*eta*xi,
+			eta*(2*eta-1);
+		return L;
+	}
+
+	/**
+	* \brief quadratic 6-noded tria shape function derivatives
+	*/
+	static dshape_t eval_dshape(xi_t const & _xi)
+	{
+		scalar_t xi = _xi[0], eta = _xi[1], xi2 = xi*xi, eta2 = eta*eta;
+		dshape_t dL;
+		/** \todo these derivatives were computed by Matlab's simple(). Find an optimal evaluation for better performance. */
+		dL <<
+			4*eta+4*xi-3, 4*eta+4*xi-3,
+			4-8*xi-4*eta, -4*xi,
+			4*xi-1,       0,
+			-4*eta,       4-4*xi-8*eta,
+			4*eta,        4*xi,
+			0,            4*eta-1;
+		return dL;
+	}
+
+	/** \brief return begin iterator to the corner nodes
+	* \return begin iterator to corner nodes
+	*/
+	static xi_t const *corner_begin(void)
+	{
+		return m_corners;
+	}
+
+	/** \brief return end iterator to the corner nodes
+	* \return end iterator to corner nodes
+	*/
+	static xi_t const *corner_end(void)
+	{
+		return m_corners + num_nodes;
+	}
+
+protected:
+	static const xi_t m_corners[num_nodes];
 };
 
 
@@ -446,81 +533,6 @@ protected:
 
 
 
-// Forward declaration
-class tria_2_shape_set;
-
-/** \brief Traits for quadratic tria shapesets */
-template<>
-struct shape_set_traits<tria_2_shape_set>
-{
-	typedef tria_domain domain_t;	/**< \brief the domain type */
-	static unsigned const num_nodes = 6;	/**< \brief number of nodes */
-};
-
-/**
-* \brief quadratic 6-noded tria shape function set
-*/
-class tria_2_shape_set : public shape_set_base<tria_2_shape_set>
-{
-public:
-	/**
-	* \brief quadratic 6-noded tria shape functions
-	* \param [in] xi the domain variable
-	* \return the shape function vector
-	*/
-	static shape_t eval_shape(xi_t const &_xi)
-	{
-		scalar_t xi = _xi[0], eta = _xi[1];
-		shape_t L;
-		L <<
-			(eta+xi-1)*(2*eta+2*xi-1),
-			-4*xi*(eta+xi-1),
-			xi*(2*xi-1),
-			-4*eta*(eta+xi-1),
-			4*eta*xi,
-			eta*(2*eta-1);
-		return L;
-	}
-
-	/**
-	* \brief quadratic 6-noded tria shape function derivatives
-	*/
-	static dshape_t eval_dshape(xi_t const & _xi)
-	{
-		scalar_t xi = _xi[0], eta = _xi[1], xi2 = xi*xi, eta2 = eta*eta;
-		dshape_t dL;
-		/** \todo these derivatives were computed by Matlab's simple(). Find an optimal evaluation for better performance. */
-		dL <<
-			4*eta+4*xi-3, 4*eta+4*xi-3,
-			4-8*xi-4*eta, -4*xi,
-			4*xi-1,       0,
-			-4*eta,       4-4*xi-8*eta,
-			4*eta,        4*xi,
-			0,            4*eta-1;
-		return dL;
-	}
-
-	/** \brief return begin iterator to the corner nodes
-	* \return begin iterator to corner nodes
-	*/
-	static xi_t const *corner_begin(void)
-	{
-		return m_corners;
-	}
-
-	/** \brief return end iterator to the corner nodes
-	* \return end iterator to corner nodes
-	*/
-	static xi_t const *corner_end(void)
-	{
-		return m_corners + num_nodes;
-	}
-
-protected:
-	static const xi_t m_corners[num_nodes];
-};
-
-
 
 
 /** constant line shape set */
@@ -529,13 +541,6 @@ typedef constant_shape_set<line_domain> line_0_shape_set;
 typedef constant_shape_set<tria_domain> tria_0_shape_set;
 /** constant quad shape set */
 typedef constant_shape_set<quad_domain> quad_0_shape_set;
-
-/** linear line shape set */
-typedef isoparam_shape_set<line_domain> line_1_shape_set;
-/** linear tria shape set */
-typedef isoparam_shape_set<tria_domain> tria_1_shape_set;
-/** linear quad shape set */
-typedef isoparam_shape_set<quad_domain> quad_1_shape_set;
 
 #endif // SHAPESET_HPP_INCLUDED
 
