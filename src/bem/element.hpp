@@ -333,14 +333,16 @@ public:
 	typedef typename base_t::x_t x_t;
 	typedef typename base_t::dx_t dx_t;
 
+	using base_t::get_dx;
+
 	general_surface_element(coords_t const &coords, unsigned id = 0, nodes_t const &nodes = nodes_t())
-		: element_base(coords, id, nodes)
+		: base_t(coords, id, nodes)
 	{
 	}
 
 	x_t get_normal(xi_t const &xi) const
 	{
-		dx_t dx(get_dx(xi));
+		dx_t dx = get_dx(xi);
 		return dx.row(0).cross(dx.row(1));
 	}
 };
