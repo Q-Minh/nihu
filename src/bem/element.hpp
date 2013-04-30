@@ -308,61 +308,45 @@ protected:
 
 
 
-class quad_2_elem;
+template <class LSet, unsigned ElemID>
+class general_surface_element;
 
-template <>
-struct element_traits<quad_2_elem>
+template <class LSet, unsigned ElemID>
+struct element_traits<general_surface_element<LSet, ElemID> >
 {
-	static const unsigned elem_id = 242;
+	static const unsigned elem_id = ElemID;
 	/** \brief dimensionality of the x space */
-	static const unsigned x_dim = 3;
+	static const unsigned x_dim = LSet::domain_t::dimension + 1;
 	/** \brief the shape set */
-	typedef quad_2_shape_set lset_t;
+	typedef LSet lset_t;
 };
 
-class quad_2_elem : public element_base<quad_2_elem>
+template <class LSet, unsigned ElemID>
+class general_surface_element : public element_base<general_surface_element<LSet, ElemID> >
 {
 public:
-	quad_2_elem(coords_t const &coords, unsigned id = 0, nodes_t const &nodes = nodes_t())
-		: element_base(coords, id, nodes)
-	{
-	}
+	typedef element_base<general_surface_element<LSet, ElemID> > base_t;
 
-	x_t get_normal(xi_t const &) const
-	{
-		dx_t dx = dL_t::Zero().transpose() * m_coords;
-		return dx.row(0).cross(dx.row(1));
-	}
-};
+	typedef typename base_t::coords_t coords_t;
+	typedef typename base_t::nodes_t nodes_t;
+	typedef typename base_t::xi_t xi_t;
+	typedef typename base_t::x_t x_t;
+	typedef typename base_t::dx_t dx_t;
 
-
-
-class tria_2_elem;
-
-template <>
-struct element_traits<tria_2_elem>
-{
-	static const unsigned elem_id = 232;
-	/** \brief dimensionality of the x space */
-	static const unsigned x_dim = 3;
-	/** \brief the shape set */
-	typedef tria_2_shape_set lset_t;
-};
-
-class tria_2_elem : public element_base<tria_2_elem>
-{
-public:
-	tria_2_elem(coords_t const &coords, unsigned id = 0, nodes_t const &nodes = nodes_t())
+	general_surface_element(coords_t const &coords, unsigned id = 0, nodes_t const &nodes = nodes_t())
 		: element_base(coords, id, nodes)
 	{
 	}
 
 	x_t get_normal(xi_t const &xi) const
 	{
-		dx_t dx = lset_t::eval_dshape(xi).transpose() * m_coords;
+		dx_t dx(get_dx(xi));
 		return dx.row(0).cross(dx.row(1));
 	}
 };
+
+typedef general_surface_element<quad_2_shape_set, 242> quad_2_elem;
+typedef general_surface_element<tria_2_shape_set, 232> tria_2_elem;
 
 
 #endif

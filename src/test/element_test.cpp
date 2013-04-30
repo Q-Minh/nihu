@@ -11,7 +11,7 @@ struct tester
 		void operator() (void)
 		{
 			typename ElemType::xi_t xi = ElemType::domain_t::get_center();
-			std::cout << "xi: " << xi << std::endl;
+			std::cout << "xi: " << xi.transpose() << std::endl;
 
 			ElemType e(ElemType::coords_t::Random());
 			std::cout << "coords: " << e.get_coords() << std::endl;
