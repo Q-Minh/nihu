@@ -347,8 +347,8 @@ public:
 	}
 };
 
-typedef general_surface_element<quad_2_shape_set, 242> quad_2_elem;
 typedef general_surface_element<tria_2_shape_set, 232> tria_2_elem;
+typedef general_surface_element<quad_2_shape_set, 242> quad_2_elem;
 
 
 #endif

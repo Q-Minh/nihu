@@ -11,10 +11,11 @@ int main(void)
 {
 	try
 	{
-		int const n = 30;
+		int const n = 2;
 
 		Eigen::Matrix<double, Eigen::Dynamic, 3> nodes((n+1)*(n+1),3);
 		for (int i = 0; i < (n+1); ++i)
+		{
 			for (int j = 0; j < (n+1); ++j)
 			{
 				int row = i*(n+1)+j;
@@ -22,9 +23,11 @@ int main(void)
 				nodes(row,1) = double(j);
 				nodes(row,2) = 0.0;
 			}
+		}
 
 		Eigen::Matrix<unsigned, Eigen::Dynamic, 5> elements(n*n,5);
 		for (int i = 0; i < n; ++i)
+		{
 			for (int j = 0; j < n; ++j)
 			{
 				int row = i*n+j;
@@ -34,6 +37,7 @@ int main(void)
 				elements(row,3) = i*(n+1)+j+n+2;
 				elements(row,4) = i*(n+1)+j+n+1;
 			}
+		}
 
 		mesh_t mesh(nodes, elements);
 
@@ -51,6 +55,8 @@ int main(void)
 		couple<big_mat_t, big_mat_t> result(a, b);
 		wr.eval(result);
 
+		std::cout << result.first() << std::endl << std::endl;
+		std::cout << result.second() << std::endl << std::endl;
 		std::cout << kernel_t::get_num_evaluations() << std::endl;
 	}
 	catch(const char *e)

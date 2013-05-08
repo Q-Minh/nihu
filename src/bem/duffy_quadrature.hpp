@@ -113,6 +113,7 @@ public:
 }; // end of class duffy_quadrature
 
 
+
 /** \brief Duffy transformation indices for the linear triangle element */
 template <>
 struct duffy_traits<tria_1_shape_set>
@@ -132,6 +133,7 @@ unsigned const duffy_traits<tria_1_shape_set>::duffy_corner_indices[3][2+1] = {
 unsigned const duffy_traits<tria_1_shape_set>::duffy_face_indices[4+1] = {
 	3, /*|*/ 0, 1, 2, 0
 };
+
 
 
 /** \brief Duffy transformation indices for the linear quadrilateral element */
@@ -155,4 +157,65 @@ unsigned const duffy_traits<quad_1_shape_set>::duffy_face_indices[5+1] = {
 	4, /*|*/ 0, 1, 2, 3, 0
 };
 
+
+
+/** \brief Duffy transformation indices for the linear triangle element */
+template <>
+struct duffy_traits<tria_2_shape_set>
+{
+	/** \brief indices of the Duffy corners for singular corners */
+	static unsigned const duffy_corner_indices[6][3+1];
+	/** \brief indices of the Duffy corners for internal singular point */
+	static unsigned const duffy_face_indices[4+1];
+};
+
+unsigned const duffy_traits<tria_2_shape_set>::duffy_corner_indices[6][3+1] = {
+	{1, /*|*/ 2, 4},
+	{2, /*|*/ 2, 4, 0},
+	{1, /*|*/ 4, 0},
+	{2, /*|*/ 4, 0, 2},
+	{1, /*|*/ 0, 2},
+	{2, /*|*/ 0, 2, 4}
+};
+
+unsigned const duffy_traits<tria_2_shape_set>::duffy_face_indices[4+1] = {
+	3, /*|*/ 0, 2, 4, 0
+};
+
+
+
+
+
+/** \brief Duffy transformation indices for the linear triangle element */
+template <>
+struct duffy_traits<quad_2_shape_set>
+{
+	/** \brief indices of the Duffy corners for singular corners */
+	static unsigned const duffy_corner_indices[9][5+1];
+	/** \brief indices of the Duffy corners for internal singular point */
+	static unsigned const duffy_face_indices[5+1];
+};
+
+unsigned const duffy_traits<quad_2_shape_set>::duffy_corner_indices[9][5+1] = {
+	{2, /*|*/ 2, 4, 6},
+	{3, /*|*/ 2, 4, 6, 0},
+	{2, /*|*/ 4, 6, 0},
+	{3, /*|*/ 4, 6, 0, 2},
+	{2, /*|*/ 6, 0, 2},
+	{3, /*|*/ 6, 0, 2, 4},
+	{2, /*|*/ 0, 2, 4},
+	{3, /*|*/ 0, 2, 4, 6},
+	{4, /*|*/ 0, 2, 4, 6, 0}
+};
+
+unsigned const duffy_traits<quad_2_shape_set>::duffy_face_indices[5+1] = {
+	4, /*|*/ 0, 2, 4, 6, 0
+};
+
+
+
+
+
+
 #endif // DUFFY_QUADRATURE_HPP_INCLUDED
+

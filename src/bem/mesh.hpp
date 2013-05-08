@@ -13,6 +13,7 @@
 
 #include "element.hpp"
 
+
 /**
  * \brief container class for field points
  * \tparam xType type of a field point
@@ -121,6 +122,7 @@ protected:
 					coords.row(i) = m.points[nodes[i]];
 				}
 				m.push_element(elem_t(coords, m.m_num_elements++, nodes));
+                return true;
 			}
 			return false;
 		}
@@ -141,7 +143,7 @@ public:
 	template <class node_t, class elem_t>
 	Mesh(node_t const &nodes, elem_t const &elements) : m_num_elements(0)
 	{
-		unsigned const N_MAX_ELEM = 5;
+		unsigned const N_MAX_ELEM = 1+9;
 		double c[nDim];
 
 		for (int i = 0; i < nodes.rows(); ++i)
@@ -153,7 +155,7 @@ public:
 		unsigned e[N_MAX_ELEM];
 		for (int i = 0; i < elements.rows(); ++i)
 		{
-			for (unsigned j = 0; j < N_MAX_ELEM; ++j)
+			for (unsigned j = 0; j < elements.cols(); ++j)
 				e[j] = (unsigned)elements(i,j);
 			add_elem(e);
 		}
