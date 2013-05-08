@@ -21,18 +21,17 @@ typename constant_shape_set<tria_domain>::dshape_t
 	= constant_shape_set<tria_domain>::dshape_t::Zero();
 
 
-
 quad_2_shape_set::xi_t
 	const quad_2_shape_set::m_corners[quad_2_shape_set::num_nodes] = {
 		quad_2_shape_set::xi_t(-1.0,-1.0),
 		quad_2_shape_set::xi_t( 0.0,-1.0),
 		quad_2_shape_set::xi_t(+1.0,-1.0),
-		quad_2_shape_set::xi_t(-1.0, 0.0),
-		quad_2_shape_set::xi_t( 0.0, 0.0),
 		quad_2_shape_set::xi_t(+1.0, 0.0),
-		quad_2_shape_set::xi_t(-1.0,+1.0),
+		quad_2_shape_set::xi_t(+1.0,+1.0),
 		quad_2_shape_set::xi_t( 0.0,+1.0),
-		quad_2_shape_set::xi_t(+1.0,+1.0)
+		quad_2_shape_set::xi_t(-1.0,+1.0),
+		quad_2_shape_set::xi_t(-1.0, 0.0),
+		quad_2_shape_set::xi_t( 0.0, 0.0)
 };
 
 
@@ -41,8 +40,8 @@ tria_2_shape_set::xi_t
 		tria_2_shape_set::xi_t(0.0, 0.0),
 		tria_2_shape_set::xi_t(0.5, 0.0),
 		tria_2_shape_set::xi_t(1.0, 0.0),
-		tria_2_shape_set::xi_t(0.0, 0.5),
 		tria_2_shape_set::xi_t(0.5, 0.5),
-		tria_2_shape_set::xi_t(0.0, 1.0)
+		tria_2_shape_set::xi_t(0.0, 1.0),
+		tria_2_shape_set::xi_t(0.0, 0.5)
 };
 

@@ -30,8 +30,13 @@ struct tester
 
 int main(void)
 {
-	tester<quad_2_elem>::type t;
-	t();
+	tmp::call_each<
+		tmp::vector<
+			tria_2_elem,
+			quad_2_elem
+		>,
+		tester<tmp::_1>			
+	>();
 
 	return 0;
 }

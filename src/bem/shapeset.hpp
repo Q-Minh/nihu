@@ -110,6 +110,14 @@ protected:
 };
 
 
+/** constant line shape set */
+typedef constant_shape_set<line_domain> line_0_shape_set;
+/** constant triangle shape set */
+typedef constant_shape_set<tria_domain> tria_0_shape_set;
+/** constant quad shape set */
+typedef constant_shape_set<quad_domain> quad_0_shape_set;
+
+
 // Forward declaration
 template <class Domain>
 class isoparam_shape_set;
@@ -403,9 +411,9 @@ public:
 			(eta+xi-1)*(2*eta+2*xi-1),
 			-4*xi*(eta+xi-1),
 			xi*(2*xi-1),
-			-4*eta*(eta+xi-1),
 			4*eta*xi,
-			eta*(2*eta-1);
+			eta*(2*eta-1),
+			-4*eta*(eta+xi-1);
 		return L;
 	}
 
@@ -421,9 +429,9 @@ public:
 			4*eta+4*xi-3, 4*eta+4*xi-3,
 			4-8*xi-4*eta, -4*xi,
 			4*xi-1,       0,
-			-4*eta,       4-4*xi-8*eta,
 			4*eta,        4*xi,
-			0,            4*eta-1;
+			0,            4*eta-1,
+			-4*eta,       4-4*xi-8*eta;
 		return dL;
 	}
 
@@ -476,17 +484,18 @@ public:
 		scalar_t xi = _xi[0], eta = _xi[1];
 		shape_t L;
 		L <<
-			(1-xi)*( -xi)/2.0 * (1-eta)*(-eta)/2.0,
-			(1-xi)*(1+xi)     * (1-eta)*(-eta)/2.0,
-			(1+xi)*(  xi)/2.0 * (1-eta)*(-eta)/2.0,
+			(1-xi)*( -xi)/2.0 * (1-eta)*( -eta)/2.0,
+			(1-xi)*(1+xi)     * (1-eta)*( -eta)/2.0,
+			(1+xi)*(  xi)/2.0 * (1-eta)*( -eta)/2.0,
 
-			(1-xi)*( -xi)/2.0 * (1-eta)*(1+eta),
-			(1-xi)*(1+xi)     * (1-eta)*(1+eta),
 			(1+xi)*(  xi)/2.0 * (1-eta)*(1+eta),
 
-			(1-xi)*( -xi)/2.0 * (1+eta)*(eta)/2.0,
-			(1-xi)*(1+xi)     * (1+eta)*(eta)/2.0,
-			(1+xi)*(  xi)/2.0 * (1+eta)*(eta)/2.0;
+			(1+xi)*(  xi)/2.0 * (1+eta)*( +eta)/2.0,
+			(1-xi)*(1+xi)     * (1+eta)*( +eta)/2.0,
+			(1-xi)*( -xi)/2.0 * (1+eta)*( +eta)/2.0,
+
+			(1-xi)*( -xi)/2.0 * (1-eta)*(1+eta),
+			(1-xi)*(1+xi)     * (1-eta)*(1+eta);
 		return L;
 	}
 
@@ -502,12 +511,15 @@ public:
 			eta*(2*xi-1)*(eta-1)/4, xi*(2*eta-1)*(xi-1)/4,
 			eta*xi*(1-eta),         (2*eta-1)*(1-xi2)/2,
 			eta*(2*xi+1)*(eta-1)/4, xi*(2*eta-1)*(xi+1)/4,
+
 			(1-eta2)*(2*xi-1)/2,    eta*xi*(1-xi),
-			2*xi*(eta2-1),          2*eta*(xi2-1),
-			(1-eta2)*(2*xi+1)/2,    -eta*xi*(xi+1),
-			eta*(2*xi-1)*(eta+1)/4, xi*(2*eta+1)*(xi-1)/4,
+
+			eta*(2*xi+1)*(eta+1)/4, xi*(2*eta+1)*(xi+1)/4,
 			-eta*xi*(eta+1),        -(2*eta+1)*(xi2-1)/2,
-			eta*(2*xi+1)*(eta+1)/4, xi*(2*eta+1)*(xi+1)/4;
+			eta*(2*xi-1)*(eta+1)/4, xi*(2*eta+1)*(xi-1)/4,
+
+			2*xi*(eta2-1),          2*eta*(xi2-1),
+			(1-eta2)*(2*xi+1)/2,    -eta*xi*(xi+1);
 		return dL;
 	}
 
@@ -532,15 +544,6 @@ protected:
 };
 
 
-
-
-
-/** constant line shape set */
-typedef constant_shape_set<line_domain> line_0_shape_set;
-/** constant triangle shape set */
-typedef constant_shape_set<tria_domain> tria_0_shape_set;
-/** constant quad shape set */
-typedef constant_shape_set<quad_domain> quad_0_shape_set;
 
 #endif // SHAPESET_HPP_INCLUDED
 
