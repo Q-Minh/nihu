@@ -508,15 +508,15 @@ public:
 		dshape_t dL;
 		/** \todo these derivatives were computed by Matlab's simple(). Find an optimal evaluation for better performance. */
 		dL <<
-  eta*(2*xi-1)*(eta-1)/4,  xi*(2*eta-1)*(xi-1)/4,
-             -xi*eta*(eta-1), -((xi2-1)*(2*eta-1))/2,
-  eta*(2*xi+1)*(eta-1)/4,  xi*(2*eta-1)*(xi+1)/4,
- -(2*xi+1)*(eta2-1)/2,             -xi*eta*(xi+1),
-  eta*(2*xi+1)*(eta+1)/4,  xi*(2*eta+1)*(xi+1)/4,
-             -xi*eta*(eta+1), -(xi2-1)*(2*eta+1)/2,
-  eta*(2*xi-1)*(eta+1)/4,  xi*(2*eta+1)*(xi-1)/4,
- -(2*xi-1)*(eta2-1)/2,             -xi*eta*(xi-1),
-            2*xi*(eta2-1),            2*eta*(xi2-1);
+            eta*(2*xi-1)*(eta-1)/4, xi*(2*eta-1)*(xi-1)/4,
+            -xi*eta*(eta-1),        -(xi2-1)*(2*eta-1)/2,
+            eta*(2*xi+1)*(eta-1)/4, xi*(2*eta-1)*(xi+1)/4,
+            -(2*xi+1)*(eta2-1)/2,   -xi*eta*(xi+1),
+            eta*(2*xi+1)*(eta+1)/4, xi*(2*eta+1)*(xi+1)/4,
+            -xi*eta*(eta+1),        -(xi2-1)*(2*eta+1)/2,
+            eta*(2*xi-1)*(eta+1)/4, xi*(2*eta+1)*(xi-1)/4,
+            -(2*xi-1)*(eta2-1)/2,   -xi*eta*(xi-1),
+            2*xi*(eta2-1),          2*eta*(xi2-1);
 		return dL;
 	}
 
@@ -536,19 +536,14 @@ public:
 		return m_corners + num_nodes;
 	}
 
-
 	static xi_t const &corner_at(size_t idx)
 	{
 		return m_corners[idx];
 	}
 
-
-
 protected:
 	static const xi_t m_corners[num_nodes];
 };
-
-
 
 
 
