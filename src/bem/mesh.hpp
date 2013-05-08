@@ -120,7 +120,7 @@ protected:
 					nodes[i] = input[i+1];
 					coords.row(i) = m.points[nodes[i]];
 				}
-				m.push_element(elem_t(m.m_num_elements++, nodes, coords));
+				m.push_element(elem_t(coords, m.m_num_elements++, nodes));
 			}
 			return false;
 		}
