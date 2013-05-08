@@ -508,15 +508,15 @@ public:
 		dshape_t dL;
 		/** \todo these derivatives were computed by Matlab's simple(). Find an optimal evaluation for better performance. */
 		dL <<
-  (eta*(2*xi - 1)*(eta - 1))/4,  (xi*(2*eta - 1)*(xi - 1))/4,
-             -xi*eta*(eta - 1), -((xi2 - 1)*(2*eta - 1))/2,
-  (eta*(2*xi + 1)*(eta - 1))/4,  (xi*(2*eta - 1)*(xi + 1))/4,
- -((2*xi + 1)*(eta2 - 1))/2,             -xi*eta*(xi + 1),
-  (eta*(2*xi + 1)*(eta + 1))/4,  (xi*(2*eta + 1)*(xi + 1))/4,
-             -xi*eta*(eta + 1), -((xi2 - 1)*(2*eta + 1))/2,
-  (eta*(2*xi - 1)*(eta + 1))/4,  (xi*(2*eta + 1)*(xi - 1))/4,
- -((2*xi - 1)*(eta2 - 1))/2,             -xi*eta*(xi - 1),
-            2*xi*(eta2 - 1),            2*eta*(xi2 - 1);
+  eta*(2*xi-1)*(eta-1)/4,  xi*(2*eta-1)*(xi-1)/4,
+             -xi*eta*(eta-1), -((xi2-1)*(2*eta-1))/2,
+  eta*(2*xi+1)*(eta-1)/4,  xi*(2*eta-1)*(xi+1)/4,
+ -(2*xi+1)*(eta2-1)/2,             -xi*eta*(xi+1),
+  eta*(2*xi+1)*(eta+1)/4,  xi*(2*eta+1)*(xi+1)/4,
+             -xi*eta*(eta+1), -(xi2-1)*(2*eta+1)/2,
+  eta*(2*xi-1)*(eta+1)/4,  xi*(2*eta+1)*(xi-1)/4,
+ -(2*xi-1)*(eta2-1)/2,             -xi*eta*(xi-1),
+            2*xi*(eta2-1),            2*eta*(xi2-1);
 		return dL;
 	}
 
@@ -597,8 +597,6 @@ tria_2_shape_set::xi_t
 		tria_2_shape_set::xi_t(0.0, 1.0),
 		tria_2_shape_set::xi_t(0.0, 0.5)
 };
-
-
 
 
 #endif // SHAPESET_HPP_INCLUDED

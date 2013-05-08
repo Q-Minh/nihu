@@ -2,8 +2,8 @@
 
 typedef tmp::vector<quad_2_elem> elem_vector;
 typedef Mesh<elem_vector> mesh_t;
-typedef function_space<mesh_t, constant_field, function_field> test_space_t;
 typedef function_space<mesh_t, constant_field, function_field> trial_space_t;
+typedef trial_space_t test_space_t;	// Galerkin
 typedef helmholtz_HG_kernel kernel_t;
 typedef weighted_residual<kernel_t, test_space_t, trial_space_t> wr_t;
 
@@ -30,7 +30,6 @@ int main(void)
 			2.0, 4.0, 0.0,
 			3.0, 4.0, 0.0,
 			4.0, 4.0, 0.0;
-
 
 		Eigen::Matrix<unsigned, Eigen::Dynamic, 9+1> elements(2,9+1);
 		elements <<
