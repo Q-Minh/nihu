@@ -3,6 +3,7 @@ function v = mesh_volume(model)
 % TODO: NOT TESTED YET
 %% preproc
 elem = drop_IDs(model);
+v = zeros(size(elem,1),1);
 
 %% process Line elements
 iLine = find(elem(:,2) == 12);
