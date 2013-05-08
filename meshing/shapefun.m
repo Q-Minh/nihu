@@ -20,7 +20,7 @@ switch type
         if nargout > 1
             dN = repmat([-1, +1]/2, size(xi,1),1);
         end
-    case 23
+    case {23 231}
         % TRIA element
         xi = x(:,1);
         eta = x(:,2);
@@ -29,7 +29,7 @@ switch type
             dN(:,:,1) = repmat([-1, +1,  0], size(xi,1),1);
             dN(:,:,2) = repmat([-1,  0, +1], size(xi,1),1);
         end
-    case 24
+    case {24 241}
         % QUAD element
         xi = x(:,1);
         eta = x(:,2);
@@ -38,6 +38,15 @@ switch type
         if nargout > 1
             dN(:,:,1) = [-(1-eta), (1-eta), (1+eta), -(1+eta)] / 4;
             dN(:,:,2) = [-(1-xi), -(1+xi), (1+xi), (1-xi)] / 4;
+        end
+    case 242
+        % QUADRATIC QUAD element
+        xi = x(:,1);
+        eta = x(:,2);
+        N = [ (eta.*xi.*(eta - 1).*(xi - 1))/4, -(eta.*(xi.^2 - 1).*(eta - 1))/2, (eta.*xi.*(eta - 1).*(xi + 1))/4, -(xi.*(eta.^2 - 1).*(xi + 1))/2, (eta.*xi.*(eta + 1).*(xi + 1))/4, -(eta.*(xi.^2 - 1).*(eta + 1))/2, (eta.*xi.*(eta + 1).*(xi - 1))/4, -(xi.*(eta.^2 - 1).*(xi - 1))/2, (eta.^2 - 1).*(xi.^2 - 1)];
+        if nargout > 1
+            dN(:,:,1) = [ (eta.*(2.*xi - 1).*(eta - 1))/4, -eta.*xi.*(eta - 1), (eta.*(2.*xi + 1).*(eta - 1))/4, -((eta.^2 - 1).*(2.*xi + 1))/2, (eta.*(2.*xi + 1).*(eta + 1))/4, -eta.*xi.*(eta + 1), (eta.*(2.*xi - 1).*(eta + 1))/4, -((eta.^2 - 1).*(2.*xi - 1))/2, 2.*xi.*(eta.^2 - 1)];
+            dN(:,:,2) = [ (xi.*(2.*eta - 1).*(xi - 1))/4, -((2.*eta - 1).*(xi.^2 - 1))/2, (xi.*(2.*eta - 1).*(xi + 1))/4, -eta.*xi.*(xi + 1), (xi.*(2.*eta + 1).*(xi + 1))/4, -((2.*eta + 1).*(xi.^2 - 1))/2, (xi.*(2.*eta + 1).*(xi - 1))/4, -eta.*xi.*(xi - 1), 2.*eta.*(xi.^2 - 1)];
         end
     case 34
         % TETRA element
