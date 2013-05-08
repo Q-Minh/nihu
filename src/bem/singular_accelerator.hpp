@@ -316,15 +316,15 @@ public:
 			m_face_trial_quadrature = NULL;
 		}
 
-		for (unsigned i = 0; i < test_domain_t::num_corners; ++i)
+		for (unsigned i = 0; i < test_lset_t::num_nodes; ++i)
 		{
 			m_corner_test_quadrature[i] = new test_quadrature_t();
-			*m_corner_test_quadrature[i] += test_duffy_t::on_corner(SINGULARITY_ORDER, i);
+			*(m_corner_test_quadrature[i]) += test_duffy_t::on_corner(SINGULARITY_ORDER, i);
 		}
-		for (unsigned i = 0; i < trial_domain_t::num_corners; ++i)
+		for (unsigned i = 0; i < trial_lset_t::num_nodes; ++i)
 		{
 			m_corner_trial_quadrature[i] = new trial_quadrature_t();
-			*m_corner_trial_quadrature[i] += trial_duffy_t::on_corner(SINGULARITY_ORDER, i);
+			*(m_corner_trial_quadrature[i]) += trial_duffy_t::on_corner(SINGULARITY_ORDER, i);
 		}
 	}
 
@@ -339,9 +339,9 @@ public:
 			delete m_face_trial_quadrature;
 		}
 
-		for (unsigned i = 0; i < test_domain_t::num_corners; ++i)
+		for (unsigned i = 0; i < test_lset_t::num_nodes; ++i)
 			delete m_corner_test_quadrature[i];
-		for (unsigned i = 0; i < trial_domain_t::num_corners; ++i)
+		for (unsigned i = 0; i < trial_lset_t::num_nodes; ++i)
 			delete m_corner_trial_quadrature[i];
 	}
 
@@ -359,9 +359,9 @@ protected:
 	trial_quadrature_t *m_face_trial_quadrature;
 
 	/**\brief singular quadratures on the test elem for CORNER_MATCH case */
-	test_quadrature_t *m_corner_test_quadrature[test_domain_t::num_corners];
+	test_quadrature_t *m_corner_test_quadrature[test_lset_t::num_nodes];
 	/**\brief singular quadratures on the trial elem for CORNER_MATCH case */
-	trial_quadrature_t *m_corner_trial_quadrature[trial_domain_t::num_corners];
+	trial_quadrature_t *m_corner_trial_quadrature[trial_lset_t::num_nodes];
 };
 
 

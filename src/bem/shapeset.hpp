@@ -27,7 +27,7 @@ public:
 
 	/** \brief scalar type inherited from the domain */
 	typedef typename domain_t::scalar_t scalar_t;
-	/** \brief type of the local coordinate */
+	/** type of the local coordinate */
 	typedef typename domain_t::xi_t xi_t;
 	/** \brief type of an \f$L(\xi)\f$ vector */
 	typedef Eigen::Matrix<scalar_t, num_nodes, 1> shape_t;
@@ -508,18 +508,15 @@ public:
 		dshape_t dL;
 		/** \todo these derivatives were computed by Matlab's simple(). Find an optimal evaluation for better performance. */
 		dL <<
-			eta*(2*xi-1)*(eta-1)/4, xi*(2*eta-1)*(xi-1)/4,
-			eta*xi*(1-eta),         (2*eta-1)*(1-xi2)/2,
-			eta*(2*xi+1)*(eta-1)/4, xi*(2*eta-1)*(xi+1)/4,
-
-			(1-eta2)*(2*xi-1)/2,    eta*xi*(1-xi),
-
-			eta*(2*xi+1)*(eta+1)/4, xi*(2*eta+1)*(xi+1)/4,
-			-eta*xi*(eta+1),        -(2*eta+1)*(xi2-1)/2,
-			eta*(2*xi-1)*(eta+1)/4, xi*(2*eta+1)*(xi-1)/4,
-
-			2*xi*(eta2-1),          2*eta*(xi2-1),
-			(1-eta2)*(2*xi+1)/2,    -eta*xi*(xi+1);
+  (eta*(2*xi - 1)*(eta - 1))/4,  (xi*(2*eta - 1)*(xi - 1))/4,
+             -xi*eta*(eta - 1), -((xi2 - 1)*(2*eta - 1))/2,
+  (eta*(2*xi + 1)*(eta - 1))/4,  (xi*(2*eta - 1)*(xi + 1))/4,
+ -((2*xi + 1)*(eta2 - 1))/2,             -xi*eta*(xi + 1),
+  (eta*(2*xi + 1)*(eta + 1))/4,  (xi*(2*eta + 1)*(xi + 1))/4,
+             -xi*eta*(eta + 1), -((xi2 - 1)*(2*eta + 1))/2,
+  (eta*(2*xi - 1)*(eta + 1))/4,  (xi*(2*eta + 1)*(xi - 1))/4,
+ -((2*xi - 1)*(eta2 - 1))/2,             -xi*eta*(xi - 1),
+            2*xi*(eta2 - 1),            2*eta*(xi2 - 1);
 		return dL;
 	}
 

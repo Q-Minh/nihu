@@ -1,7 +1,7 @@
 #include "weighted_residual.hpp"
 #include "../util/mex_matrix.h"
 
-#define GALERKIN_CONSTANT
+#define GALERKIN_ISO
 
 typedef tmp::vector<tria_1_elem, quad_1_elem, quad_2_elem> elem_type_vector;
 typedef Mesh<elem_type_vector> mesh_t;
@@ -13,7 +13,12 @@ typedef function_space<mesh_t, constant_field, function_field> trial_space_t;
 
 #ifdef GALERKIN_CONSTANT
 typedef function_space<mesh_t, constant_field, function_field> test_space_t;
-typedef function_space<mesh_t, constant_field, function_field> trial_space_t;
+typedef test_space_t trial_space_t;
+#endif
+
+#ifdef GALERKIN_ISO
+typedef function_space<mesh_t, isoparametric_field, function_field> test_space_t;
+typedef test_space_t trial_space_t;
 #endif
 
 typedef helmholtz_HG_kernel kernel_t;
@@ -25,6 +30,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     mex::real_matrix nodes(prhs[0]);
     mex::real_matrix elements(prhs[1]);
 	mesh_t mesh(nodes, elements);
+    
+    
 
     // initialise kernel
     double k = mxGetScalar(prhs[2]);

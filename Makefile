@@ -14,8 +14,10 @@ field_test: src/test/field_test.cpp src/bem/field.hpp
 	$(CC) $(CFLAGS) src/test/field_test.cpp -o field_test
 
 weighted_residual_test: src/test/weighted_residual_test.cpp
-	$(CC) -c $(CFLAGS) src/test/weighted_residual_test.cpp  -o weighted_residual_test.o
-	$(CC) weighted_residual_test.o -o weighted_residual_test
+	$(CC) $(CFLAGS) src/test/weighted_residual_test.cpp  -o weighted_residual_test
+
+weighted_residual_test_q: src/test/weighted_residual_test_q.cpp
+	$(CC) $(CFLAGS) src/test/weighted_residual_test_q.cpp  -o weighted_residual_test_q
 
 shape_test: src/test/shape_test.cpp src/bem/shapeset.hpp
 	$(CC) $(CFLAGS) src/test/shape_test.cpp -o shape_test

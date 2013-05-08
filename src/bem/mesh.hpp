@@ -155,7 +155,7 @@ public:
 		unsigned e[N_MAX_ELEM];
 		for (int i = 0; i < elements.rows(); ++i)
 		{
-			for (unsigned j = 0; j < elements.cols(); ++j)
+			for (int j = 0; j < elements.cols(); ++j)
 				e[j] = (unsigned)elements(i,j);
 			add_elem(e);
 		}
