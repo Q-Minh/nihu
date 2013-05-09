@@ -19,13 +19,14 @@ tBooni = toc;
 %%
 tic;
 [nodes, elements] = extract_bem_mesh(mesh);
-[HH, GG] = bemHG(mesh, k, 'const');
+[HH, GG] = bemHG(mesh, k, 'lin');
 tOldSchool = toc;
 
 %% Solve
 M = ibemRHS(qmesh);
 q = ones(size(G,1),1);
 p = (H - .5*M) \ (G * q);
+q = ones(size(GG,1),1);
 pp = (HH - .5*eye(size(GG,1))) \ (GG * q);
 
 %% Analytical
