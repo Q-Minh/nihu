@@ -39,6 +39,15 @@ switch type
             dN(:,:,1) = [-(1-eta), (1-eta), (1+eta), -(1+eta)] / 4;
             dN(:,:,2) = [-(1-xi), -(1+xi), (1+xi), (1-xi)] / 4;
         end
+    case 232
+        % QUADRATIC TRIA element
+        xi = x(:,1);
+        eta = x(:,2);
+        N = [ (eta + xi - 1).*(2.*eta + 2.*xi - 1), -4.*xi.*(eta + xi - 1), xi.*(2.*xi - 1), 4.*eta.*xi, eta.*(2.*eta - 1), -4.*eta.*(eta + xi - 1)];
+        if nargout > 1
+            dN(:,:,1) = [4.*eta+4.*xi - 3, 4-8.*xi-4.*eta,       4.*xi - 1, 4.*eta, zeros(size(xi)),           -4.*eta];
+            dN(:,:,2) = [4.*eta+4.*xi - 3,         -4.*xi, zeros(size(xi)),  4.*xi, 4.*eta - 1, 4 - 4.*xi - 8.*eta];
+        end
     case 242
         % QUADRATIC QUAD element
         xi = x(:,1);

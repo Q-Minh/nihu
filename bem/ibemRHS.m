@@ -10,6 +10,9 @@ M = sparse(nNodes, nNodes);
 [xi4, w4] = gaussquad2(5, 4);
 [N4, dN4] = shapefun(xi4, 24);
 
+[xi32, w32] = gaussquad2(7, 3);
+[N32, dN32] = shapefun(xi32, 232);
+
 [xi42, w42] = gaussquad2(7, 4);
 [N42, dN42] = shapefun(xi42, 242);
 
@@ -28,6 +31,12 @@ for e = 1 : nE
             dN = dN4;
             N = N4;
             w = w4;
+        case 232
+            elem = elements(e, 4+(1:6));
+            nodes = mesh.Nodes(elem,2:4);
+            dN = dN32;
+            N = N32;
+            w = w32;
         case 242
             elem = elements(e, 4+(1:9));
             nodes = mesh.Nodes(elem,2:4);
