@@ -43,7 +43,7 @@ public:
 	 * \brief return number of kernel evaluations
 	 * \return number of kernel evaluations
 	 */
-	static unsigned get_num_evaluations(void)
+	static long long unsigned get_num_evaluations(void)
 	{
 		return m_num_evaluations;
 	}
@@ -83,7 +83,7 @@ public:
 protected:
 	static x_t m_x0;			/**< \brief source location */
 	static result_t m_result;	/**< \brief kernel result */
-	static unsigned m_num_evaluations;	/**< \brief number of kernel evaluations */
+	static long long unsigned m_num_evaluations;	/**< \brief number of kernel evaluations */
 };
 
 /**< \brief static member source location */
@@ -94,7 +94,7 @@ template <class Derived>
 typename kernel_base<Derived>::result_t kernel_base<Derived>::m_result;
 /**< \brief static member kernel result */
 template <class Derived>
-unsigned kernel_base<Derived>::m_num_evaluations = 0;
+long long unsigned kernel_base<Derived>::m_num_evaluations = 0;
 
 
 #include "gaussian_quadrature.hpp"

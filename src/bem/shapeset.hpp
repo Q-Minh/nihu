@@ -422,7 +422,7 @@ public:
 	*/
 	static dshape_t eval_dshape(xi_t const & _xi)
 	{
-		scalar_t xi = _xi[0], eta = _xi[1], xi2 = xi*xi, eta2 = eta*eta;
+		scalar_t xi = _xi[0], eta = _xi[1];
 		dshape_t dL;
 		/** \todo these derivatives were computed by Matlab's simple(). Find an optimal evaluation for better performance. */
 		dL <<
@@ -450,6 +450,13 @@ public:
 	{
 		return m_corners + num_nodes;
 	}
+    
+    /** \todo this function should be defined generally, not for each new general shape set, because this is a sickness and we do not want it therefore */
+    static xi_t const &corner_at(size_t idx)
+	{
+		return m_corners[idx];
+	}
+    
 
 protected:
 	static const xi_t m_corners[num_nodes];
@@ -508,15 +515,15 @@ public:
 		dshape_t dL;
 		/** \todo these derivatives were computed by Matlab's simple(). Find an optimal evaluation for better performance. */
 		dL <<
-  (eta*(2*xi - 1)*(eta - 1))/4,  (xi*(2*eta - 1)*(xi - 1))/4,
-             -xi*eta*(eta - 1), -((xi2 - 1)*(2*eta - 1))/2,
-  (eta*(2*xi + 1)*(eta - 1))/4,  (xi*(2*eta - 1)*(xi + 1))/4,
- -((2*xi + 1)*(eta2 - 1))/2,             -xi*eta*(xi + 1),
-  (eta*(2*xi + 1)*(eta + 1))/4,  (xi*(2*eta + 1)*(xi + 1))/4,
-             -xi*eta*(eta + 1), -((xi2 - 1)*(2*eta + 1))/2,
-  (eta*(2*xi - 1)*(eta + 1))/4,  (xi*(2*eta + 1)*(xi - 1))/4,
- -((2*xi - 1)*(eta2 - 1))/2,             -xi*eta*(xi - 1),
-            2*xi*(eta2 - 1),            2*eta*(xi2 - 1);
+            eta*(2*xi-1)*(eta-1)/4, xi*(2*eta-1)*(xi-1)/4,
+            -xi*eta*(eta-1),        -(xi2-1)*(2*eta-1)/2,
+            eta*(2*xi+1)*(eta-1)/4, xi*(2*eta-1)*(xi+1)/4,
+            -(2*xi+1)*(eta2-1)/2,   -xi*eta*(xi+1),
+            eta*(2*xi+1)*(eta+1)/4, xi*(2*eta+1)*(xi+1)/4,
+            -xi*eta*(eta+1),        -(xi2-1)*(2*eta+1)/2,
+            eta*(2*xi-1)*(eta+1)/4, xi*(2*eta+1)*(xi-1)/4,
+            -(2*xi-1)*(eta2-1)/2,   -xi*eta*(xi-1),
+            2*xi*(eta2-1),          2*eta*(xi2-1);
 		return dL;
 	}
 
@@ -536,19 +543,14 @@ public:
 		return m_corners + num_nodes;
 	}
 
-
 	static xi_t const &corner_at(size_t idx)
 	{
 		return m_corners[idx];
 	}
 
-
-
 protected:
 	static const xi_t m_corners[num_nodes];
 };
-
-
 
 
 
@@ -597,8 +599,6 @@ tria_2_shape_set::xi_t
 		tria_2_shape_set::xi_t(0.0, 1.0),
 		tria_2_shape_set::xi_t(0.0, 0.5)
 };
-
-
 
 
 #endif // SHAPESET_HPP_INCLUDED
