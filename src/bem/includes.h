@@ -15,9 +15,8 @@
 
 #include <Eigen/Dense>
 #include <Eigen/StdVector>
-/**
- * \brief macro declaring an Eigen std::vector type with the appropriate allocator
- */
+
+/** \brief macro declaring an Eigen std::vector type with the appropriate allocator */
 #define EIGENSTDVECTOR(_T) std::vector<_T, Eigen::aligned_allocator<_T> >
 
 #endif // INCLUDES_H_INCLUDED

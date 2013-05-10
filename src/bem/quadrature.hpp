@@ -115,7 +115,7 @@ public:
 				typename quadrature_traits<Derived>::domain_t::scalar_t
 			>
 		>
-	> base_t;	/** < \brief the base class type */
+	> base_t;	/**< \brief the base class type */
 private:
 	/**
 	 * \brief CRTP helper function

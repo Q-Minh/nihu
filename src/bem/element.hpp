@@ -46,6 +46,7 @@ public:
 	/** \brief the CRTP derived class */
 	typedef element_traits<Derived> traits_t;
 
+	/** \brief the element id */
 	static unsigned const elem_id = traits_t::elem_id;
 	/** \brief the dimension of the element's location variable \f$x\f$ */
 	static unsigned const x_dim = traits_t::x_dim;
@@ -220,6 +221,7 @@ class tria_1_elem;
 template <>
 struct element_traits<tria_1_elem>
 {
+	/** \brief the element id */
 	static const unsigned elem_id = 231;
 	/** \brief dimensionality of the x space */
 	static const unsigned x_dim = 3;
@@ -264,6 +266,7 @@ class quad_1_elem;
 template <>
 struct element_traits<quad_1_elem>
 {
+	/** \brief the element id */
 	static const unsigned elem_id = 241;
 	/** \brief dimensionality of the x space */
 	static const unsigned x_dim = 3;
@@ -308,12 +311,15 @@ protected:
 
 
 
+// forward declaration
 template <class LSet, unsigned ElemID>
 class general_surface_element;
 
+/** \brief specialisation of element_traits for the general surface element */
 template <class LSet, unsigned ElemID>
 struct element_traits<general_surface_element<LSet, ElemID> >
 {
+	/** \brief the element id */
 	static const unsigned elem_id = ElemID;
 	/** \brief dimensionality of the x space */
 	static const unsigned x_dim = LSet::domain_t::dimension + 1;
@@ -321,25 +327,44 @@ struct element_traits<general_surface_element<LSet, ElemID> >
 	typedef LSet lset_t;
 };
 
+/** \brief class describing a general surface element that computes its normal in the general way
+ * \tparam LSet type of the geometry shape set
+ * \tparam ElemID the element ID
+ */
 template <class LSet, unsigned ElemID>
 class general_surface_element : public element_base<general_surface_element<LSet, ElemID> >
 {
 public:
+	/** \brief the base class type */
 	typedef element_base<general_surface_element<LSet, ElemID> > base_t;
 
+	/** \brief type of the coordinate matrix */
 	typedef typename base_t::coords_t coords_t;
+	/** \brief type of the node index vector */
 	typedef typename base_t::nodes_t nodes_t;
+	/** \brief type of the coordinate  on the standard element */
 	typedef typename base_t::xi_t xi_t;
+	/** \brief type of the coordinate vector */
 	typedef typename base_t::x_t x_t;
+	/** \brief type of the coordinate derivative vector */
 	typedef typename base_t::dx_t dx_t;
 
 	using base_t::get_dx;
 
+	/** \brief constructor
+	 * \param [in] coords the coordinate matrix
+	 * \param [in] id element id
+	 * \param [in] nodes the nodal index vector
+	 */
 	general_surface_element(coords_t const &coords, unsigned id = 0, nodes_t const &nodes = nodes_t())
 		: base_t(coords, id, nodes)
 	{
 	}
 
+	/** \brief return normal vector at given location
+	 * \param [in] xi the location in the standard domain
+	 * \return normal vector
+	 */
 	x_t get_normal(xi_t const &xi) const
 	{
 		dx_t dx = get_dx(xi);
@@ -347,9 +372,10 @@ public:
 	}
 };
 
+/** \brief quadratic 6-noded triangle element */
 typedef general_surface_element<tria_2_shape_set, 232> tria_2_elem;
+/** \brief quadratic 9-noded quadrilateral element */
 typedef general_surface_element<quad_2_shape_set, 242> quad_2_elem;
-
 
 #endif
 

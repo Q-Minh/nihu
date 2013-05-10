@@ -118,6 +118,28 @@ typedef constant_shape_set<tria_domain> tria_0_shape_set;
 typedef constant_shape_set<quad_domain> quad_0_shape_set;
 
 
+/** \brief shape functions of the constant quad shape set */
+template <>
+typename tria_0_shape_set::shape_t
+	const tria_0_shape_set::m_shape = tria_0_shape_set::shape_t::Ones();
+
+/** \brief shape function derivatives of the constant quad shape set */
+template <>
+typename tria_0_shape_set::dshape_t
+	const tria_0_shape_set::m_dshape = tria_0_shape_set::dshape_t::Zero();
+
+/** \brief shape functions of the constant tria shape set */
+template <>
+typename quad_0_shape_set::shape_t
+	const quad_0_shape_set::m_shape = constant_shape_set<quad_domain>::shape_t::Ones();
+
+/** \brief shape function derivatives of the constant tria shape set */
+template <>
+typename quad_0_shape_set::dshape_t
+	const quad_0_shape_set::m_dshape = constant_shape_set<quad_domain>::dshape_t::Zero();
+
+
+
 // Forward declaration
 template <class Domain>
 class isoparam_shape_set;
@@ -400,7 +422,7 @@ class tria_2_shape_set : public shape_set_base<tria_2_shape_set>
 public:
 	/**
 	* \brief quadratic 6-noded tria shape functions
-	* \param [in] xi the domain variable
+	* \param [in] _xi the domain variable
 	* \return the shape function vector
 	*/
 	static shape_t eval_shape(xi_t const &_xi)
@@ -451,7 +473,12 @@ public:
 		return m_corners + num_nodes;
 	}
     
-    /** \todo this function should be defined generally, not for each new general shape set, because this is a sickness and we do not want it therefore */
+	/**
+	* \brief return corner at a given node number
+	* \param [in] idx the node index
+	* \return constant reference to the coordinates
+	* \todo this function should be defined generally, not for each new general shape set, because this is a sickness and we do not want it therefore.
+	*/
     static xi_t const &corner_at(size_t idx)
 	{
 		return m_corners[idx];
@@ -459,7 +486,18 @@ public:
     
 
 protected:
+	/** \brief the corner nodes of the shape set */
 	static const xi_t m_corners[num_nodes];
+};
+
+tria_2_shape_set::xi_t
+	const tria_2_shape_set::m_corners[tria_2_shape_set::num_nodes] = {
+		tria_2_shape_set::xi_t(0.0, 0.0),
+		tria_2_shape_set::xi_t(0.5, 0.0),
+		tria_2_shape_set::xi_t(1.0, 0.0),
+		tria_2_shape_set::xi_t(0.5, 0.5),
+		tria_2_shape_set::xi_t(0.0, 1.0),
+		tria_2_shape_set::xi_t(0.0, 0.5)
 };
 
 
@@ -483,7 +521,7 @@ class quad_2_shape_set : public shape_set_base<quad_2_shape_set>
 public:
 	/**
 	* \brief quadratic 9-noded quad shape functions
-	* \param [in] xi the domain variable
+	* \param [in] _xi the domain variable
 	* \return the shape function vector
 	*/
 	static shape_t eval_shape(xi_t const &_xi)
@@ -543,37 +581,21 @@ public:
 		return m_corners + num_nodes;
 	}
 
+	/**
+	* \brief return corner at a given node number
+	* \param [in] idx the node index
+	* \return constant reference to the coordinates
+	* \todo this function should be defined generally, not for each new general shape set, because this is a sickness and we do not want it therefore.
+	*/
 	static xi_t const &corner_at(size_t idx)
 	{
 		return m_corners[idx];
 	}
 
 protected:
+	/** \brief the corner nodes of the shape set */
 	static const xi_t m_corners[num_nodes];
 };
-
-
-
-
-template <>
-typename constant_shape_set<quad_domain>::shape_t
-	const constant_shape_set<quad_domain>::m_shape
-	= constant_shape_set<quad_domain>::shape_t::Ones();
-
-template <>
-typename constant_shape_set<quad_domain>::dshape_t
-	const constant_shape_set<quad_domain>::m_dshape
-	= constant_shape_set<quad_domain>::dshape_t::Zero();
-
-template <>
-typename constant_shape_set<tria_domain>::shape_t
-	const constant_shape_set<tria_domain>::m_shape
-	= constant_shape_set<tria_domain>::shape_t::Ones();
-
-template <>
-typename constant_shape_set<tria_domain>::dshape_t
-	const constant_shape_set<tria_domain>::m_dshape
-	= constant_shape_set<tria_domain>::dshape_t::Zero();
 
 
 quad_2_shape_set::xi_t
@@ -587,17 +609,6 @@ quad_2_shape_set::xi_t
 		quad_2_shape_set::xi_t(-1.0,+1.0),
 		quad_2_shape_set::xi_t(-1.0, 0.0),
 		quad_2_shape_set::xi_t( 0.0, 0.0)
-};
-
-
-tria_2_shape_set::xi_t
-	const tria_2_shape_set::m_corners[tria_2_shape_set::num_nodes] = {
-		tria_2_shape_set::xi_t(0.0, 0.0),
-		tria_2_shape_set::xi_t(0.5, 0.0),
-		tria_2_shape_set::xi_t(1.0, 0.0),
-		tria_2_shape_set::xi_t(0.5, 0.5),
-		tria_2_shape_set::xi_t(0.0, 1.0),
-		tria_2_shape_set::xi_t(0.0, 0.5)
 };
 
 
