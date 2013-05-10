@@ -527,20 +527,19 @@ public:
 	static shape_t eval_shape(xi_t const &_xi)
 	{
 		scalar_t xi = _xi[0], eta = _xi[1];
+		scalar_t _1mxi = 1-xi, _1pxi = 1+xi;
+		scalar_t _1meta = 1-eta, _1peta = 1+eta;
 		shape_t L;
 		L <<
-			(1-xi)*( -xi)/2.0 * (1-eta)*( -eta)/2.0,
-			(1-xi)*(1+xi)     * (1-eta)*( -eta)/2.0,
-			(1+xi)*(  xi)/2.0 * (1-eta)*( -eta)/2.0,
-
-			(1+xi)*(  xi)/2.0 * (1-eta)*(1+eta),
-
-			(1+xi)*(  xi)/2.0 * (1+eta)*( +eta)/2.0,
-			(1-xi)*(1+xi)     * (1+eta)*( +eta)/2.0,
-			(1-xi)*( -xi)/2.0 * (1+eta)*( +eta)/2.0,
-
-			(1-xi)*( -xi)/2.0 * (1-eta)*(1+eta),
-			(1-xi)*(1+xi)     * (1-eta)*(1+eta);
+			_1mxi*xi * _1meta*eta/4.0,
+			_1mxi*_1pxi * _1meta*(-eta)/2.0,
+			_1pxi*xi * _1meta*(-eta)/4.0,
+			_1pxi*xi * _1meta*_1peta/2.0,
+			_1pxi*xi * _1peta*eta/4.0,
+			_1mxi*_1pxi * _1peta*eta/2.0,
+			_1mxi*(-xi) * _1peta*eta/4.0,
+			_1mxi*(-xi) * _1meta*_1peta/2.0,
+			_1mxi*_1pxi * _1meta*_1peta;
 		return L;
 	}
 
@@ -553,15 +552,15 @@ public:
 		dshape_t dL;
 		/** \todo these derivatives were computed by Matlab's simple(). Find an optimal evaluation for better performance. */
 		dL <<
-            eta*(2*xi-1)*(eta-1)/4, xi*(2*eta-1)*(xi-1)/4,
-            -xi*eta*(eta-1),        -(xi2-1)*(2*eta-1)/2,
-            eta*(2*xi+1)*(eta-1)/4, xi*(2*eta-1)*(xi+1)/4,
-            -(2*xi+1)*(eta2-1)/2,   -xi*eta*(xi+1),
-            eta*(2*xi+1)*(eta+1)/4, xi*(2*eta+1)*(xi+1)/4,
-            -xi*eta*(eta+1),        -(xi2-1)*(2*eta+1)/2,
-            eta*(2*xi-1)*(eta+1)/4, xi*(2*eta+1)*(xi-1)/4,
-            -(2*xi-1)*(eta2-1)/2,   -xi*eta*(xi-1),
-            2*xi*(eta2-1),          2*eta*(xi2-1);
+            eta*(2.0*xi-1.0)*(eta-1.0)/4.0, xi*(2.0*eta-1.0)*(xi-1.0)/4.0,
+            -xi*eta*(eta-1.0),              -(xi2-1.0)*(2.0*eta-1.0)/2.0,
+            eta*(2.0*xi+1.0)*(eta-1.0)/4.0, xi*(2.0*eta-1.0)*(xi+1.0)/4.0,
+            -(2.0*xi+1.0)*(eta2-1.0)/2.0, -xi*eta*(xi+1.0),
+            eta*(2.0*xi+1.0)*(eta+1.0)/4.0, xi*(2.0*eta+1.0)*(xi+1.0)/4.0,
+            -xi*eta*(eta+1.0),              -(xi2-1.0)*(2.0*eta+1.0)/2.0,
+            eta*(2.0*xi-1.0)*(eta+1.0)/4.0, xi*(2.0*eta+1.0)*(xi-1.0)/4.0,
+            -(2.0*xi-1.0)*(eta2-1.0)/2.0,   -xi*eta*(xi-1.0),
+            2.0*xi*(eta2-1.0),              2.0*eta*(xi2-1.0);
 		return dL;
 	}
 
