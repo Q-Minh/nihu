@@ -110,7 +110,7 @@ inline couple_product_left<Left, RDerived> operator*(Left const &lhs, couple_bas
 template <class First, class Second>
 class couple;
 
-/** \brief specialisation of ::couple_traits for a couple
+/** \brief specialisation of ::couple_traits for a ::couple
  * \tparam First the first type of the couple
  * \tparam Second the second type of the couple
  */
@@ -219,7 +219,7 @@ protected:
 
 
 /**
- * \brief couple traits of ::couple_product_left
+ * \brief specialisation of ::couple_traits for ::couple_product_right
  * \tparam LDerived the left hand side couple type
  * \tparam R the type of the right hand side
  */
@@ -237,7 +237,7 @@ struct couple_traits<couple_product_right<LDerived, R> >
 };
 
 /**
- * \brief class to represent a product proxy of a couple and an arbitrary type
+ * \brief class to represent a product expression of a couple and an arbitrary type
  * \tparam LDerived the couple type
  * \tparam Right the type of the right hand side
  */
@@ -284,7 +284,7 @@ protected:
 
 
 /**
- * \brief couple traits of ::couple_product_left
+ * \brief specialisation of ::couple_traits for ::couple_product_left
  * \tparam L the type of the left hand side
  * \tparam RDerived the right hand side couple type
  */

@@ -9,7 +9,7 @@
 
 #include "quadrature.hpp"
 
-// forward declaration
+/** \brief Traits class of a Duffy quadrature */
 template <class LSet>
 struct duffy_traits;
 
@@ -114,7 +114,7 @@ public:
 
 
 
-/** \brief Duffy transformation indices for the linear triangle element */
+/** \brief Specialisation of ::duffy_traits for ::tria_1_shape_set */
 template <>
 struct duffy_traits<tria_1_shape_set>
 {
@@ -136,7 +136,7 @@ unsigned const duffy_traits<tria_1_shape_set>::duffy_face_indices[4+1] = {
 
 
 
-/** \brief Duffy transformation indices for the linear quadrilateral element */
+/** \brief Specialisation of ::duffy_traits for ::quad_1_shape_set */
 template <>
 struct duffy_traits<quad_1_shape_set>
 {
@@ -159,7 +159,7 @@ unsigned const duffy_traits<quad_1_shape_set>::duffy_face_indices[5+1] = {
 
 
 
-/** \brief Duffy transformation indices for the linear triangle element */
+/** \brief Specialisation of ::duffy_traits for ::tria_2_shape_set */
 template <>
 struct duffy_traits<tria_2_shape_set>
 {
@@ -186,7 +186,7 @@ unsigned const duffy_traits<tria_2_shape_set>::duffy_face_indices[4+1] = {
 
 
 
-/** \brief Duffy transformation indices for the linear triangle element */
+/** \brief Specialisation of ::duffy_traits for ::quad_2_shape_set */
 template <>
 struct duffy_traits<quad_2_shape_set>
 {

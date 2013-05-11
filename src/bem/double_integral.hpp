@@ -182,7 +182,7 @@ typename double_integral<Kernel, Test, Trial>::singular_accelerator_t
 
 
 /**
- * \brief specialisation of double integral for the collocational approach
+ * \brief specialisation of ::double_integral for the collocational approach
  * \tparam Kernel type of the kernel to integrate
  * \tparam Test type of the test field
  * \tparam Trial type of the trial field

@@ -48,7 +48,7 @@ struct shape_set_traits<constant_shape_set<Domain> >
 };
 
 /**
-* \brief Constant shape sets
+* \brief Constant interpolation functions
 */
 template <class Domain>
 class constant_shape_set : public shape_set_base<constant_shape_set<Domain> >
