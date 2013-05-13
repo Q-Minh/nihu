@@ -30,7 +30,7 @@ if B == N % Method 1
     colind = zeros(nnonzero,1);
     values = zeros(nnonzero,1);
     % starting indices of each new row
-    limits = [0 cumsum(sum(S ~= 0, 2))];
+    limits = [0; cumsum(sum(S ~= 0, 2))];
     for n = 1 : N
         ind = limits(n)+1:limits(n+1);
         j = find(S(n,:));

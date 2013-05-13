@@ -12,7 +12,7 @@ function [x, eps, times] = my_gmres(A, b, m, tol, Mright, varargin)
 % Output:
 %   x   : Solution vector
 %   eps : Nit vector containing the backward errors in each iteration step
-%   eps : Nit vector containing the total running time for each iteration
+%   times : Nit vector containing the total running time for each iteration
 %
 % MY_GMRES(..., 'quiet', true) suppresses textual output
 %
@@ -85,3 +85,4 @@ times = times(1:j);
 y = R(1:end-1,:) \ g(1:end-1);
 x = x0 + (Mright * v(:,1:j) * y);
 end
+
