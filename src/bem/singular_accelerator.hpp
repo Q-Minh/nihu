@@ -22,7 +22,8 @@ public:
 	/** \brief the iteration mode */
 	enum dual_iterator_mode {
 		CIRCULAR,	/**< \brief the second iterator is reset each time the first is increased */
-		CONTINUOUS	/**< \brief the second iterator goes on when the first is increased */
+		CONTINUOUS,	/**< \brief the second iterator goes on when the first is increased */
+		FLAT		/**< \brief the two iterators traverse together */
 	};
 
 	/**
@@ -34,6 +35,16 @@ public:
 	 */
 	dual_iterator(Primary prime, Secondary sec, unsigned Nsec, dual_iterator_mode mode)
 		: m_prime(prime), m_sec(sec), m_Nsec(Nsec), m_cntr(0), m_mode(mode), m_sec_start(m_sec)
+	{
+	}
+
+	/**
+	 * \brief constructor initialising a flat dual iterator
+	 * \param [in] prime the outer iterator
+	 * \param [in] sec the internal iterator
+	 */
+	dual_iterator(Primary prime, Secondary sec)
+		: m_prime(prime), m_sec(sec), m_Nsec(1), m_cntr(0), m_mode(FLAT), m_sec_start(m_sec)
 	{
 	}
 
@@ -66,7 +77,7 @@ public:
 	}
 
 	/**
-	 * \brief return the primary iterator's value
+	 * \brief return the primary iterator's pointed value
 	 * \return the primary iterator's pointed value
 	 */
 	typename Primary::value_type const &get_prime(void) const
@@ -75,7 +86,7 @@ public:
 	}
 
 	/**
-	 * \brief return the secondary iterator's value
+	 * \brief return the secondary iterator's pointed value
 	 * \return the secondary iterator's pointed value
 	 */
 	typename Secondary::value_type const &get_sec(void) const
@@ -94,7 +105,7 @@ protected:
 
 
 /**
- * \brief a dual iterator to store and test and a trial quadrature iterator
+ * \brief a dual iterator to store a test and a trial quadrature iterator
  * \tparam quadrature_iterator_t the iterator type of the quadratures
  */
 template <class quadrature_iterator_t>
@@ -179,13 +190,15 @@ public:
 
 	/**\brief the quadrature element type (it should be the same for test and trial) */
 	typedef typename test_quadrature_t::quadrature_elem_t quadrature_elem_t;
+	static_assert(std::is_same<quadrature_elem_t, typename trial_quadrature_t::quadrature_elem_t>::value,
+		"The trial and test quadrature elements must be of the same type");
 
 	/** \brief Duffy quadrature type of the test field */
 	typedef duffy_quadrature<quadrature_family_t, test_lset_t> test_duffy_t;
 	/** \brief Duffy quadrature type of the trial field */
 	typedef duffy_quadrature<quadrature_family_t, trial_lset_t> trial_duffy_t;
 
-	/**\brief the dual iterator type of te singular quadrature */
+	/**\brief the dual iterator type of the singular quadrature */
 	typedef singular_quadrature_iterator<typename test_quadrature_t::iterator> iterator;
 
 	/**\brief indicates whether FACE_MATCH is possible */
@@ -210,9 +223,12 @@ public:
 		}
 
 		m_cur_overlap = test_field.get_elem().get_overlapping(trial_field.get_elem());
-//		// check edge match
-//		if (eo.get_num() > 1)
-//			return EDGE_MATCH;
+		// check edge match
+		if (m_cur_overlap.get_num() > 1)
+		{
+			m_sing_type = EDGE_MATCH;
+			return true;
+		}
 		// check corner match
 		if (m_cur_overlap.get_num() == 1)
 		{
@@ -225,7 +241,7 @@ public:
 	}
 
 	/**
-	 * \brief return begin iterator of te singular quadrature
+	 * \brief return begin iterator of the singular quadrature
 	 * \return begin iterator of the singular quadrature
 	 */
 	iterator cbegin(void) const
@@ -258,7 +274,7 @@ public:
 	}
 
 	/**
-	 * \brief return end iterator of te singular quadrature
+	 * \brief return end iterator of the singular quadrature
 	 * \return end iterator of the singular quadrature
 	 */
 	iterator cend() const
@@ -428,7 +444,7 @@ public:
 	}
 
 	/**
-	 * \brief return begin iterator of te singular quadrature
+	 * \brief return begin iterator of the singular quadrature
 	 * \return begin iterator of the singular quadrature
 	 */
 	iterator cbegin(void) const
@@ -443,7 +459,7 @@ public:
 	}
 
 	/**
-	 * \brief return end iterator of te singular quadrature
+	 * \brief return end iterator of the singular quadrature
 	 * \return end iterator of the singular quadrature
 	 */
 	iterator cend(void) const

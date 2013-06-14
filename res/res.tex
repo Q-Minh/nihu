@@ -3,11 +3,54 @@
 \usepackage{amsmath,bm}
 \usepackage{tikz}
 
+\newcommand{\td}{\mathrm{d}}
+
 \begin{document}
+
+
+\section{General}
+
+We construct numerical quadrature to evaluate the weakly singular integral
+%
+\begin{equation}
+\int_X
+\int_Y
+\frac{1}{r}
+\td \bm{\eta},
+\td \bm{\xi}
+\quad
+r = |\bm{\xi}-\bm{\eta}|
+\end{equation}
+%
+where $X$ and $Y$ denote two simplex domains.
+
+
+transform variable $\bm{\mu} = \bm{\xi}-\bm{\eta}$
+%
+\begin{equation}
+\int_X
+\int_{M(\bm{\xi})}
+\frac{1}{|\bm{\mu}|}
+\td \bm{\mu},
+\td \bm{\xi}
+\end{equation}
+%
+Exchange integration
+%
+\begin{equation}
+\int_{M}
+\frac{1}{|\bm{\mu}|}
+\int_{X(\bm{\mu})}
+\td \bm{\xi}
+\td \bm{\mu},
+\end{equation}
+
+
 
 \begin{equation}
 {\color{blue}\bm{\xi}} = -\bm{\mu} + {\color{red}\bm{\eta}}
 \end{equation}
+
 
 
 \subsection{tria}

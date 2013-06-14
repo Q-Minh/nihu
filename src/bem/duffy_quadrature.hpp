@@ -40,10 +40,12 @@ public:
 	typedef typename quadrature_type<quadrature_family_tag, domain_t>::type ret_quad_type;
 
 private:
-	/** \brief the source quadrature type (regular quad quadrature) */
+	/** \brief the source quadrature type (regular quad quadrature)
+		\todo quad domain is hard coded here
+	*/
 	typedef typename quadrature_type<quadrature_family_tag, quad_domain>::type source_quad_type;
 	/** \brief the local coordinate matrix type of the transformation */
-	typedef Eigen::Matrix<scalar_t, 4, domain_t::dimension> coords_t;
+	typedef Eigen::Matrix<scalar_t, quad_domain::num_corners, domain_t::dimension> coords_t;
 
 	/**
 	 * \brief Helper function for Duffy quadrature generation
@@ -52,6 +54,7 @@ private:
 	 * \param [in] singular_point coordinates of the singular point
 	 * \param [out] reference to the result quadrature
 	 * \return reference to the result for chaining
+	 * \todo quad_1_shape_set is hardcoded
 	 */
 	static ret_quad_type &duffy_impl(
 		unsigned degree,
