@@ -7,7 +7,12 @@
 
 \newcommand{\td}{\mathrm{d}}
 
+\author{Peter Fiala and Peter Rucz, the biggest integrators}
+\title{Integrating like Geexci}
+
 \begin{document}
+
+\maketitle
 
 \section{General -- state of the art}
 
@@ -64,6 +69,181 @@ Now the quadrature is defined by
 \end{itemize}
 
 
+\section{Quad-quad case}
+
+\subsection{Facial}
+
+The simplex domains $X$, $Y$ and the difference  domain $M$ are displayed below.
+The difference domain is split up into eight Duffy elements. \\
+%
+\begin{tikzpicture}[scale=1.5]
+\path [draw, thick] (0,0) -- (1,0) -- (1,1) -- (0,1) -- cycle;
+\path [draw, ->] (0,0) -- (1.2,0) node [anchor = west] {$\xi_1$};
+\path [draw, ->] (0,0) -- (0,1.2) node [anchor = south] {$\xi_2$};
+\path (.5,.5) node {X,Y};
+\end{tikzpicture} 
+\begin{tikzpicture}[scale=1.5]
+\path [draw, thick, fill] (0,0) circle (.05);
+\path [draw, thick] (-1,-1) -- (1,-1) -- (1,1) -- (-1,1) -- cycle;
+\path [draw, thick] (-1,0) -- (1,0);
+\path [draw, thick] (0,-1) -- (0,1);
+\path [draw, thick] (0,0) -- (1,1);
+\path [draw, thick] (0,0) -- (-1,1);
+\path [draw, thick] (0,0) -- (-1,-1);
+\path [draw, thick] (0,0) -- (1,-1);
+\path [draw, ->] (0,0) -- (1.2,0) node [anchor = west] {$\mu_1$};
+\path [draw, ->] (0,0) -- (0,1.2) node [anchor = south] {$\mu_2$};
+\end{tikzpicture}
+
+
+\subsection{Edge match}
+
+The simplex domains $X$, $Y$ and the difference  domain $M$ are displayed below.
+The difference domain is split up into four Duffy and two regular subelements. \\
+%
+\begin{tikzpicture}[scale=1.5]
+\path [draw, ->] (0,0) -- (1.2,0) node [anchor = west] {$\xi_1$};
+\path [draw, ->] (0,0) -- (0,1.2) node [anchor = south] {$\xi_2$};
+\path [draw, thick] (0,0) -- (1,0) -- (1,1) -- (0,1) -- cycle;
+\path (.5,.5) node {X};
+\path [draw, thick] (0,0) -- (1,0) -- (1,-1) -- (0,-1) -- cycle;
+\path (.5,-.5) node {Y};
+\end{tikzpicture}
+%
+%
+\begin{tikzpicture}[scale=1.5]
+\path [draw, fill] (0,0) circle (.05);
+\path [draw, thick] (-1,-2) -- (1,-2) -- (1,0) -- (-1,0) -- cycle;
+\path [draw, thick] (-1,-1) -- (1,-1);
+\path [draw, thick] (0,-2) -- (0,0);
+\path [draw, thick] (0,0) -- (-1,-1);
+\path [draw, thick] (0,0) -- (1,-1);
+\path [draw, ->] (0,0) -- (1.2,0) node [anchor = west] {$\mu_1$};
+\path [draw, ->] (0,0) -- (0,.3) node [anchor = south] {$\mu_2$};
+\end{tikzpicture}
+
+
+
+\subsection{Corner match}
+
+The simplex domains $X$, $Y$ and the difference  domain $M$ are displayed below.
+The difference domain is split up into two Duffy and three regular subelements. \\
+%
+\begin{tikzpicture}[scale=1.5]
+\path [draw, ->] (0,0) -- (1.2,0) node [anchor = west] {$\xi_1$};
+\path [draw, ->] (0,0) -- (0,1.2) node [anchor = south] {$\xi_2$};
+\path [draw, thick] (0,0) -- (1,0) -- (1,1) -- (0,1) -- cycle;
+\path (.5,.5) node {X};
+\path [draw, thick] (-1,0) -- (0,0) -- (0,-1) -- (-1,-1) -- cycle;
+\path (-.5,-.5) node {Y};
+\end{tikzpicture}
+%
+%
+\begin{tikzpicture}[scale=1.5]
+\path [draw, fill] (0,0) circle (.05);
+\path [draw, thick] (-2,-2) -- (0,-2) -- (0,0) -- (-2,0) -- cycle;
+\path [draw, thick] (-2,-1) -- (0,-1);
+\path [draw, thick] (-1,-2) -- (-1,0);
+\path [draw, thick] (0,0) -- (-1,-1);
+\path [draw, ->] (0,0) -- (.3,0) node [anchor = west] {$\mu_1$};
+\path [draw, ->] (0,0) -- (0,.3) node [anchor = south] {$\mu_2$};
+\end{tikzpicture}
+
+
+
+
+
+\section{Tria-tria case}
+
+\subsection{Facial}
+
+The simplex domains $X$, $Y$ and the difference domain $M$ with the six Duffy subelements are displayed below. \\
+%
+\begin{tikzpicture}[scale=1.5]
+\path [draw, thick] (0,0) -- (1,0) -- (1,1) -- cycle;
+\path [draw, ->] (0,0) -- (1.2,0) node [anchor = west] {$\xi_1$};
+\path [draw, ->] (0,0) -- (0,.3) node [anchor = south] {$\xi_2$};
+\path (.7,.3) node {X,Y};
+\end{tikzpicture}
+%
+%
+\begin{tikzpicture}[scale=1.5]
+\path [draw, thick, fill] (0,0) circle (.05);
+\path [draw, thick] (-1,-1) -- (0,-1) -- (1,0) -- (1,1) -- (0,1) -- (-1,0) -- cycle;
+\path [draw, thick] (-1,0) -- (1,0);
+\path [draw, thick] (0,-1) -- (0,1);
+\path [draw, thick] (-1,-1) -- (1,1);
+\path [draw, ->] (0,0) -- (1.2,0) node [anchor = west] {$\mu_1$};
+\path [draw, ->] (0,0) -- (0,1.2) node [anchor = south] {$\mu_2$};
+\end{tikzpicture} \\
+%
+As $X$ and $Y$ are oriented the same way, the intersection domain $(-\bm{\mu}+Y) \cap X$ is always a triangle, and is integrated using a regular Dunavant quadrature.
+
+
+\subsection{Edge match}
+
+The simplex domains $X$, $Y$ and the difference domain $M$ consisting of three Duffy and a Dunavant triangle are displayed below. \\
+%
+\begin{tikzpicture}[scale=1.5]
+\path [draw, ->] (0,0) -- (1.2,0) node [anchor = west] {$\xi_1$};
+\path [draw, ->] (0,0) -- (0,.3) node [anchor = south] {$\xi_2$};
+\path [draw, thick] (0,0) -- (1,0) -- (1,1) -- cycle;
+\path (.7,.3) node {X};
+\path [draw, thick] (0,0) -- (1,0) -- (0,-1) -- cycle;
+\path (.3,-.3) node {Y};
+\end{tikzpicture}
+%
+%
+\begin{tikzpicture}[scale=1.5]
+\def\x{.3}
+\def\y{.5}
+\path [draw, fill] (0,0) circle (.05);
+\path [draw, thick] (-1,-2) -- (1,0) -- (-1,0) -- cycle;
+\path [draw, thick] (-1,-1) -- (0,-1) -- (0,0) -- cycle;
+\path [draw, ->] (0,0) -- (1.2,0) node [anchor = west] {$\mu_1$};
+\path [draw, ->] (0,0) -- (0,.3) node [anchor = south] {$\mu_2$};
+\path [fill=red, opacity=.5] (0+\x,0+\y) -- (1+\x,0+\y) -- (0+\x,-1+\y) -- cycle;
+\path [fill=blue, opacity=.5] (0,0) -- (1,0) -- (1,1) -- cycle;
+\path [draw] (\x,0) -- (1,\y);
+\path (-.65,-.25) node {rect};
+\path (-.35,-.75) node {hex};
+\path (-.65,-1.25) node {para};
+\path (.35,-.25) node {para};
+\path [draw, fill] (\x,\y) circle(.03) -- (-\x,-\y) circle(.03);
+\end{tikzpicture} \\
+%
+The figure denotes the inner quadrature element types of the four subregions of $M$. There is one critical region where the corresponding intersection domain is a hexagonal element that can be split into two irregular quadrangles, as shown in the figure. All the other subdomains yield rectangles or parallelograms as intersection elements.
+
+
+
+\subsection{Corner match}
+
+The simplex domains, as well as the difference domain $M$ with two Duffy, two Dunavant and one regular subelement are displayed below:\\
+%
+\begin{tikzpicture}[scale=1.5]
+\path [draw, ->] (0,0) -- (1.2,0) node [anchor = west] {$\xi_1$};
+\path [draw, ->] (0,0) -- (0,1.2) node [anchor = south] {$\xi_2$};
+\path [draw, thick] (0,0) -- (1,0) -- (1,1) -- cycle;
+\path (.7,.3) node {X};
+\path [draw, thick] (0,0) -- (-1,-1) -- (0,-1) -- cycle;
+\path (-.3,-.7) node {Y};
+\end{tikzpicture}
+%
+%
+\begin{tikzpicture}[scale=1.5]
+\path [draw, fill] (0,0) circle (.05);
+\path [draw, thick] (-2,-2) -- (-1,-2) -- (0,-1) -- (0,0) -- (-1,0) -- (-2,-1) -- cycle;
+\path [draw, thick] (-2,-1) -- (0,-1);
+\path [draw, thick] (-1,-2) -- (-1,0);
+\path [draw, thick] (0,0) -- (-1,-1);
+\path [draw, ->] (0,0) -- (.3,0) node [anchor = west] {$\mu_1$};
+\path [draw, ->] (0,0) -- (0,.3) node [anchor = south] {$\mu_2$};
+\end{tikzpicture} \\
+%
+Just like for the case of the face match, as the $X$ and $Y$ simplicies are oriented the same way, the corresponding intersection elements are all triangles, and can be integrated using a Dunavant quadrature.
+
+
+
 
 \begin{equation}
 {\color{blue}\bm{\xi}} = -\bm{\mu} + {\color{red}\bm{\eta}}
@@ -82,7 +262,6 @@ Now the quadrature is defined by
 \path [draw, ->] (0,-.2) -- (0,1.2) node [anchor = south] {$\xi_2$};
 \path [fill=red, opacity=.5] (0-\m,0-\p) -- (1-\m,0-\p) -- (1-\m,1-\p) -- cycle;
 \path [fill = blue, opacity=.5] (0,0) -- (1,0) -- (1,1) -- cycle;
-\path [draw, fill] (\m,\p) circle(.03) -- (-\m,-\p) circle(.03);
 }
 
 
