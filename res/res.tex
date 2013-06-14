@@ -7,12 +7,9 @@
 
 \newcommand{\td}{\mathrm{d}}
 
-\newcommand{\td}{\mathrm{d}}
-
 \begin{document}
 
-
-\section{General}
+\section{General -- state of the art}
 
 We construct numerical quadrature to evaluate the weakly singular integral
 %
@@ -20,34 +17,51 @@ We construct numerical quadrature to evaluate the weakly singular integral
 \int_X
 \int_Y
 \frac{1}{r}
-\td \bm{\eta},
+\td \bm{\eta}
 \td \bm{\xi}
 \quad
-r = |\bm{\xi}-\bm{\eta}|
+r = |\bm{\eta}-\bm{\xi}|
 \end{equation}
 %
-where $X$ and $Y$ denote two simplex domains.
+where $X$ and $Y$ denote 2D simplex domains in the same coordinate system.
 
 
-transform variable $\bm{\mu} = \bm{\xi}-\bm{\eta}$
+We first introduce the coordinate difference variable $\bm{\mu} = \bm{\eta}-\bm{\xi}$.
+By replacing coordinate $\bm{\eta}$ to the difference, we map the integration domain $Y$ into the difference domain $M$, where the singularity can be cancelled:
 %
 \begin{equation}
 \int_X
 \int_{M(\bm{\xi})}
 \frac{1}{|\bm{\mu}|}
-\td \bm{\mu},
+\td \bm{\mu}
 \td \bm{\xi}
 \end{equation}
 %
-Exchange integration
+The integration domain $M$ of the internal integral depends on the outer integral variable $\bm{\xi}$ as $M(\bm{\xi}) = Y - \bm{\xi}$. In order to define quadratures in the difference domain $M$, the order of integration is exchanged:
 %
 \begin{equation}
 \int_{M}
 \frac{1}{|\bm{\mu}|}
 \int_{X(\bm{\mu})}
 \td \bm{\xi}
-\td \bm{\mu},
+\td \bm{\mu}
 \end{equation}
+%
+where
+%
+\begin{equation}
+M = \bigcup M(\bm{\xi}),
+\qquad
+X({\bm{\mu}}) = (-\bm{\mu} + Y) \cap X
+\end{equation}
+
+Now the quadrature is defined by
+\begin{itemize}
+	\item splitting the domain $M$ into non overlapping subdomains,
+	\item defining an appropriate (regular or singular) 2D outer quadrature for each subdomain.
+	\item defining a regular 2D internal quadrature over the domain $X(\bm{\mu})$ for each quadrature point $\bm{\mu}$ of the outer quadrature
+	\item combine the outer and inner quadratures using the rule $\bm{\eta} = \bm{\mu} + \bm{\xi}$
+\end{itemize}
 
 
 
