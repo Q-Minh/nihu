@@ -1,8 +1,8 @@
-\documentclass{article}
+\documentclass[a4paper,10pt,twocolumn]{article}
 
-\usepackage{a4wide}
 \usepackage{amsmath,bm}
 \usepackage{tikz}
+\usepackage{palatino}
 \usepackage{3dplot}
 
 \newcommand{\td}{\mathrm{d}}
@@ -21,7 +21,7 @@ We construct numerical quadrature to evaluate the weakly singular integral
 \begin{equation}
 \int_X
 \int_Y
-\frac{1}{r}
+\frac{f(\bm{\xi},\bm{\eta})}{r}
 \td \bm{\eta}
 \td \bm{\xi}
 \quad
@@ -32,12 +32,12 @@ where $X$ and $Y$ denote 2D simplex domains in the same coordinate system.
 
 
 We first introduce the coordinate difference variable $\bm{\mu} = \bm{\eta}-\bm{\xi}$.
-By replacing coordinate $\bm{\eta}$ to the difference, we map the integration domain $Y$ into the difference domain $M$, where the singularity can be cancelled:
+By replacing coordinate $\bm{\eta}$ by the difference, we map the integration domain $Y$ into the difference domain $M$, where the singularity can be cancelled:
 %
 \begin{equation}
 \int_X
 \int_{M(\bm{\xi})}
-\frac{1}{|\bm{\mu}|}
+\frac{f(\bm{\xi},\bm{\eta})}{|\bm{\mu}|}
 \td \bm{\mu}
 \td \bm{\xi}
 \end{equation}
@@ -48,6 +48,7 @@ The integration domain $M$ of the internal integral depends on the outer integra
 \int_{M}
 \frac{1}{|\bm{\mu}|}
 \int_{X(\bm{\mu})}
+f(\bm{\xi},\bm{\eta})
 \td \bm{\xi}
 \td \bm{\mu}
 \end{equation}
@@ -62,10 +63,10 @@ X({\bm{\mu}}) = (-\bm{\mu} + Y) \cap X
 
 Now the quadrature is defined by
 \begin{itemize}
-	\item splitting the domain $M$ into non overlapping subdomains,
-	\item defining an appropriate (regular or singular) 2D outer quadrature for each subdomain.
-	\item defining a regular 2D internal quadrature over the domain $X(\bm{\mu})$ for each quadrature point $\bm{\mu}$ of the outer quadrature
-	\item combine the outer and inner quadratures using the rule $\bm{\eta} = \bm{\mu} + \bm{\xi}$
+	\item splitting the domain $M$ into non overlapping subdomains;
+	\item defining an appropriate (regular or singular) 2D outer quadrature for each subdomain that can cancel the $1/r$ singularity;
+	\item defining a regular 2D internal quadrature over the domain $X(\bm{\mu})$ for each quadrature point $\bm{\mu}$ of the outer quadrature;
+	\item combining the outer and inner quadratures using the rule $\bm{\eta} = \bm{\mu} + \bm{\xi}$
 \end{itemize}
 
 
@@ -73,16 +74,16 @@ Now the quadrature is defined by
 
 \subsection{Facial}
 
-The simplex domains $X$, $Y$ and the difference  domain $M$ are displayed below.
+The overlapping simplex domains $X$, $Y$ and the difference  domain $M$ are displayed below.
 The difference domain is split up into eight Duffy elements. \\
 %
-\begin{tikzpicture}[scale=1.5]
+\begin{tikzpicture}[scale=1.3]
 \path [draw, thick] (0,0) -- (1,0) -- (1,1) -- (0,1) -- cycle;
 \path [draw, ->] (0,0) -- (1.2,0) node [anchor = west] {$\xi_1$};
 \path [draw, ->] (0,0) -- (0,1.2) node [anchor = south] {$\xi_2$};
 \path (.5,.5) node {X,Y};
 \end{tikzpicture} 
-\begin{tikzpicture}[scale=1.5]
+\begin{tikzpicture}[scale=1.3]
 \path [draw, thick, fill] (0,0) circle (.05);
 \path [draw, thick] (-1,-1) -- (1,-1) -- (1,1) -- (-1,1) -- cycle;
 \path [draw, thick] (-1,0) -- (1,0);
@@ -101,7 +102,7 @@ The difference domain is split up into eight Duffy elements. \\
 The simplex domains $X$, $Y$ and the difference  domain $M$ are displayed below.
 The difference domain is split up into four Duffy and two regular subelements. \\
 %
-\begin{tikzpicture}[scale=1.5]
+\begin{tikzpicture}[scale=1.3]
 \path [draw, ->] (0,0) -- (1.2,0) node [anchor = west] {$\xi_1$};
 \path [draw, ->] (0,0) -- (0,1.2) node [anchor = south] {$\xi_2$};
 \path [draw, thick] (0,0) -- (1,0) -- (1,1) -- (0,1) -- cycle;
@@ -111,7 +112,7 @@ The difference domain is split up into four Duffy and two regular subelements. \
 \end{tikzpicture}
 %
 %
-\begin{tikzpicture}[scale=1.5]
+\begin{tikzpicture}[scale=1.3]
 \path [draw, fill] (0,0) circle (.05);
 \path [draw, thick] (-1,-2) -- (1,-2) -- (1,0) -- (-1,0) -- cycle;
 \path [draw, thick] (-1,-1) -- (1,-1);
@@ -129,7 +130,7 @@ The difference domain is split up into four Duffy and two regular subelements. \
 The simplex domains $X$, $Y$ and the difference  domain $M$ are displayed below.
 The difference domain is split up into two Duffy and three regular subelements. \\
 %
-\begin{tikzpicture}[scale=1.5]
+\begin{tikzpicture}[scale=1.3]
 \path [draw, ->] (0,0) -- (1.2,0) node [anchor = west] {$\xi_1$};
 \path [draw, ->] (0,0) -- (0,1.2) node [anchor = south] {$\xi_2$};
 \path [draw, thick] (0,0) -- (1,0) -- (1,1) -- (0,1) -- cycle;
@@ -139,7 +140,7 @@ The difference domain is split up into two Duffy and three regular subelements. 
 \end{tikzpicture}
 %
 %
-\begin{tikzpicture}[scale=1.5]
+\begin{tikzpicture}[scale=1.3]
 \path [draw, fill] (0,0) circle (.05);
 \path [draw, thick] (-2,-2) -- (0,-2) -- (0,0) -- (-2,0) -- cycle;
 \path [draw, thick] (-2,-1) -- (0,-1);
@@ -159,7 +160,7 @@ The difference domain is split up into two Duffy and three regular subelements. 
 
 The simplex domains $X$, $Y$ and the difference domain $M$ with the six Duffy subelements are displayed below. As $X$ and $Y$ are oriented the same way, the intersection domain $(-\bm{\mu}+Y) \cap X$ is always a triangle, and is integrated using a regular Dunavant quadrature. \\
 %
-\begin{tikzpicture}[scale=1.5]
+\begin{tikzpicture}[scale=1.3]
 \path [draw, thick] (0,0) -- (1,0) -- (1,1) -- cycle;
 \path [draw, ->] (0,0) -- (1.2,0) node [anchor = west] {$\xi_1$};
 \path [draw, ->] (0,0) -- (0,.3) node [anchor = south] {$\xi_2$};
@@ -167,7 +168,7 @@ The simplex domains $X$, $Y$ and the difference domain $M$ with the six Duffy su
 \end{tikzpicture}
 %
 %
-\begin{tikzpicture}[scale=1.5]
+\begin{tikzpicture}[scale=1.3]
 \path [draw, thick, fill] (0,0) circle (.05);
 \path [draw, thick] (-1,-1) -- (0,-1) -- (1,0) -- (1,1) -- (0,1) -- (-1,0) -- cycle;
 \path [draw, thick] (-1,0) -- (1,0);
@@ -184,7 +185,7 @@ The simplex domains $X$, $Y$ and the difference domain $M$ consisting of three D
 The figure denotes the inner quadrature element types of the four subregions of $M$. There is one critical region where the corresponding intersection domain is a hexagonal element that can be split into two irregular quadrangles, as shown in the figure.
 All the other subdomains yield rectangles or parallelograms as intersection elements. \\
 %
-\begin{tikzpicture}[scale=1.5]
+\begin{tikzpicture}[scale=1.3]
 \path [draw, ->] (0,0) -- (1.2,0) node [anchor = west] {$\xi_1$};
 \path [draw, ->] (0,0) -- (0,.3) node [anchor = south] {$\xi_2$};
 \path [draw, thick] (0,0) -- (1,0) -- (1,1) -- cycle;
@@ -194,7 +195,7 @@ All the other subdomains yield rectangles or parallelograms as intersection elem
 \end{tikzpicture}
 %
 %
-\begin{tikzpicture}[scale=1.5]
+\begin{tikzpicture}[scale=1.3]
 \def\x{.3}
 \def\y{.5}
 \path [draw, fill] (0,0) circle (.05);
@@ -216,10 +217,10 @@ All the other subdomains yield rectangles or parallelograms as intersection elem
 
 \subsection{Corner match}
 
-The simplex domains, as well as the difference domain $M$ with two Duffy, two Dunavant and one regular subelement are displayed below:
+The simplex domains, as well as the difference domain $M$ with two Duffy and four Dunavant subelements are displayed below:
 Just like for the case of the face match, as the $X$ and $Y$ simplices are oriented the same way, the corresponding intersection elements are all triangles, and can be integrated using a Dunavant quadrature. \\
 %
-\begin{tikzpicture}[scale=1.5]
+\begin{tikzpicture}[scale=1.3]
 \path [draw, ->] (0,0) -- (1.2,0) node [anchor = west] {$\xi_1$};
 \path [draw, ->] (0,0) -- (0,1.2) node [anchor = south] {$\xi_2$};
 \path [draw, thick] (0,0) -- (1,0) -- (1,1) -- cycle;
@@ -229,12 +230,12 @@ Just like for the case of the face match, as the $X$ and $Y$ simplices are orien
 \end{tikzpicture}
 %
 %
-\begin{tikzpicture}[scale=1.5]
+\begin{tikzpicture}[scale=1.3]
 \path [draw, fill] (0,0) circle (.05);
 \path [draw, thick] (-2,-2) -- (-1,-2) -- (0,-1) -- (0,0) -- (-1,0) -- (-2,-1) -- cycle;
 \path [draw, thick] (-2,-1) -- (0,-1);
 \path [draw, thick] (-1,-2) -- (-1,0);
-\path [draw, thick] (0,0) -- (-1,-1);
+\path [draw, thick] (0,0) -- (-2,-2);
 \path [draw, ->] (0,0) -- (.3,0) node [anchor = west] {$\mu_1$};
 \path [draw, ->] (0,0) -- (0,.3) node [anchor = south] {$\mu_2$};
 \end{tikzpicture}
@@ -243,15 +244,31 @@ Just like for the case of the face match, as the $X$ and $Y$ simplices are orien
 
 \subsection{The intersection domain triangle}
 
+When we compute the inner regular quadrature over the triangle domains, we need to compute the coordinates of the intersection of the $X$ and shifted $Y$ domains.
+The figure and formulae below present how the corner nodes of the intersecting triangle are computed. \\
+%
+\begin{tikzpicture}[scale=1.3]
+\def\r{.3}
+\def\s{-.4}
+\path [draw, ->] (-.2, 0) -- (1.6, 0) node [anchor = west] {$\xi_1$};
+\path [draw, ->] (0, -.2) -- (0, .4) node [anchor = south] {$\xi_2$};
+\path [draw, thick, fill = blue, opacity=.5] (0,0) -- (1,0) -- (1,1) -- cycle;
+\path [draw, thick, fill = red, opacity=.5] (0+\r,0+\s) -- (1+\r,0+\s) -- (1+\r,1+\s) -- cycle;
+\path [draw, thick, ->] (0,0) -- (\r,\s) node [anchor = east] {{\bf s}};
+\path [draw, fill] (\r-\s,0) circle (0.03) node [anchor = east] {{\bf v}};
+\path [draw, fill] (1,1-\r+\s) circle (0.03) node [anchor = south] {{\bf w}};
+\end{tikzpicture}
+
 \begin{align}
-	c_2 &= \max(0, -\mu_2) \\
-	c_3 &= \min(1, 1-\mu_1) \\
-	c_1 &= c_2+\max(\mu_2-\mu_1, 0) \\
-	c_4 &= c_2 + c_3 - c_1
+	v_2 &= \max(0, s_2) \nonumber \\
+	w_1 &= \min(1, 1+s_1) \nonumber \\
+	v_1 &= s_2+\max(s_1-s_2, 0) \nonumber \\
+	w_2 &= v_2 + w_1 - v_1
 \end{align}
 
 
 
+\end{document}
 
 
 
@@ -584,5 +601,4 @@ The brick integral with the point singularity is evaluated by splitting the bric
 
 
 
-\end{document}
 
