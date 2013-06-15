@@ -157,7 +157,7 @@ The difference domain is split up into two Duffy and three regular subelements. 
 
 \subsection{Facial}
 
-The simplex domains $X$, $Y$ and the difference domain $M$ with the six Duffy subelements are displayed below. \\
+The simplex domains $X$, $Y$ and the difference domain $M$ with the six Duffy subelements are displayed below. As $X$ and $Y$ are oriented the same way, the intersection domain $(-\bm{\mu}+Y) \cap X$ is always a triangle, and is integrated using a regular Dunavant quadrature. \\
 %
 \begin{tikzpicture}[scale=1.5]
 \path [draw, thick] (0,0) -- (1,0) -- (1,1) -- cycle;
@@ -175,14 +175,14 @@ The simplex domains $X$, $Y$ and the difference domain $M$ with the six Duffy su
 \path [draw, thick] (-1,-1) -- (1,1);
 \path [draw, ->] (0,0) -- (1.2,0) node [anchor = west] {$\mu_1$};
 \path [draw, ->] (0,0) -- (0,1.2) node [anchor = south] {$\mu_2$};
-\end{tikzpicture} \\
-%
-As $X$ and $Y$ are oriented the same way, the intersection domain $(-\bm{\mu}+Y) \cap X$ is always a triangle, and is integrated using a regular Dunavant quadrature.
+\end{tikzpicture}
 
 
 \subsection{Edge match}
 
-The simplex domains $X$, $Y$ and the difference domain $M$ consisting of three Duffy and a Dunavant triangle are displayed below. \\
+The simplex domains $X$, $Y$ and the difference domain $M$ consisting of three Duffy and a Dunavant triangle are displayed below.
+The figure denotes the inner quadrature element types of the four subregions of $M$. There is one critical region where the corresponding intersection domain is a hexagonal element that can be split into two irregular quadrangles, as shown in the figure.
+All the other subdomains yield rectangles or parallelograms as intersection elements. \\
 %
 \begin{tikzpicture}[scale=1.5]
 \path [draw, ->] (0,0) -- (1.2,0) node [anchor = west] {$\xi_1$};
@@ -210,15 +210,14 @@ The simplex domains $X$, $Y$ and the difference domain $M$ consisting of three D
 \path (-.65,-1.25) node {para};
 \path (.35,-.25) node {para};
 \path [draw, fill] (\x,\y) circle(.03) -- (-\x,-\y) circle(.03);
-\end{tikzpicture} \\
-%
-The figure denotes the inner quadrature element types of the four subregions of $M$. There is one critical region where the corresponding intersection domain is a hexagonal element that can be split into two irregular quadrangles, as shown in the figure. All the other subdomains yield rectangles or parallelograms as intersection elements.
+\end{tikzpicture}
 
 
 
 \subsection{Corner match}
 
-The simplex domains, as well as the difference domain $M$ with two Duffy, two Dunavant and one regular subelement are displayed below:\\
+The simplex domains, as well as the difference domain $M$ with two Duffy, two Dunavant and one regular subelement are displayed below:
+Just like for the case of the face match, as the $X$ and $Y$ simplices are oriented the same way, the corresponding intersection elements are all triangles, and can be integrated using a Dunavant quadrature. \\
 %
 \begin{tikzpicture}[scale=1.5]
 \path [draw, ->] (0,0) -- (1.2,0) node [anchor = west] {$\xi_1$};
@@ -238,12 +237,29 @@ The simplex domains, as well as the difference domain $M$ with two Duffy, two Du
 \path [draw, thick] (0,0) -- (-1,-1);
 \path [draw, ->] (0,0) -- (.3,0) node [anchor = west] {$\mu_1$};
 \path [draw, ->] (0,0) -- (0,.3) node [anchor = south] {$\mu_2$};
-\end{tikzpicture} \\
-%
-Just like for the case of the face match, as the $X$ and $Y$ simplicies are oriented the same way, the corresponding intersection elements are all triangles, and can be integrated using a Dunavant quadrature.
+\end{tikzpicture}
 
 
 
+\subsection{The intersection domain triangle}
+
+\begin{align}
+	c_2 &= \max(0, -\mu_2) \\
+	c_3 &= \min(1, 1-\mu_1) \\
+	c_1 &= c_2+\max(\mu_2-\mu_1, 0) \\
+	c_4 &= c_2 + c_3 - c_1
+\end{align}
+
+
+
+
+
+
+
+
+
+
+\section{Older things}
 
 \begin{equation}
 {\color{blue}\bm{\xi}} = -\bm{\mu} + {\color{red}\bm{\eta}}

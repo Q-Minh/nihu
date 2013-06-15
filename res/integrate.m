@@ -1,6 +1,6 @@
-function I = integrate(XI, W, Teta)
+function I = integrate(XI, W)
 
-mu = XI(:,1:2) + XI(:,3:4)*Teta;
+mu = XI(:,3:4) - XI(:,1:2);
 r = sqrt(dot(mu,mu,2));
 I = W' * (1./r);
 
