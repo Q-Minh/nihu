@@ -29,12 +29,14 @@ end
 
 % Apply transform to our standard triangle
 T = [
-    1 0 0 0
-    -1 1 0 0
-    0 0 1 0
-    0 0 -1 1
+    -1 0 0 0
+    0 1 0 0
+    0 0 -1 0
+    0 0 0 1
     ];
 Xi = Xi * T;
+Xi(:,1) = Xi(:,1) + 1.0;
+Xi(:,3) = Xi(:,3) + 1.0;
 
 end
 

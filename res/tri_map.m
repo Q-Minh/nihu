@@ -9,4 +9,6 @@ x_eta = dN(:,:,2) * C;
 j = x_xi(:,1).*x_eta(:,2) - x_xi(:,2).*x_eta(:,1);
 w = w .* j;
 
+% [x, w] = quad_map(C([1 1 2 3], :), N);
+
 end

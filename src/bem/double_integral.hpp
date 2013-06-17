@@ -127,7 +127,7 @@ public:
 	 */
 	static result_t const &eval(test_field_t const &test_field, trial_field_t const &trial_field)
 	{
-		m_result = result_t();	// clear result
+		m_result.setZero();	// clear result
 
 		// check singularity
 		if (m_singular_accelerator.is_singular(test_field, trial_field))

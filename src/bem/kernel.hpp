@@ -80,64 +80,12 @@ public:
 		return eval(x);
 	}
 
-protected:
-	static x_t m_x0;			/**< \brief source location */
-	static result_t m_result;	/**< \brief kernel result */
-	static long long unsigned m_num_evaluations;	/**< \brief number of kernel evaluations */
-};
-
-/**< \brief static member source location */
-template <class Derived>
-typename kernel_base<Derived>::x_t kernel_base<Derived>::m_x0;
-/**< \brief static member kernel result */
-template <class Derived>
-typename kernel_base<Derived>::result_t kernel_base<Derived>::m_result;
-/**< \brief static member kernel result */
-template <class Derived>
-long long unsigned kernel_base<Derived>::m_num_evaluations = 0;
-
-
-#include "gaussian_quadrature.hpp"
-
-
-/**
- * \brief CRTP base class of 3D Helmholtz kernels and its derivatives
- * \tparam Derived type of the derived class in the CRTP scheme
- */
-template <class Derived>
-class helmholtz_base : public kernel_base<Derived>
-{
-public:
-	/** \brief base type */
-	typedef kernel_base<Derived> base_t;
-	/** \brief location type */
-	typedef typename base_t::x_t x_t;
-	/** \brief kernel input type */
-	typedef typename base_t::input_t input_t;
-	/** \brief kernel scalar type */
-	typedef typename base_t::scalar_t scalar_t;
-	/** \brief kernel result type */
-	typedef typename base_t::result_t result_t;
-
-	using base_t::set_x0;
-	using base_t::eval;
-	using base_t::m_x0;
-
 	/** \brief associate relative distance with a required polynomial degree */
 	struct kernel_precision
 	{
 		double rel_distance;	/**< \brief relative distance from the source point */
 		unsigned degree;		/**< \brief polynomial degree required for integration */
 	};
-
-	/**
-	 * \brief set the wave number to a defined value
-	 * \param [in] k wave number
-	 */
-	static void set_wave_number(std::complex<double> const &k)
-	{
-		helmholtz_base::m_k = k;
-	}
 
 	/**
 	 * \brief determine kernel's polynomial complexity at a given receiver position
@@ -162,6 +110,112 @@ public:
 	{
 		set_x0(x0.get_x());
 		return estimate_complexity(x);
+	}
+
+protected:
+	static x_t m_x0;			/**< \brief source location */
+	static result_t m_result;	/**< \brief kernel result */
+	static long long unsigned m_num_evaluations;	/**< \brief number of kernel evaluations */
+};
+
+/**< \brief static member source location */
+template <class Derived>
+typename kernel_base<Derived>::x_t kernel_base<Derived>::m_x0;
+/**< \brief static member kernel result */
+template <class Derived>
+typename kernel_base<Derived>::result_t kernel_base<Derived>::m_result;
+/**< \brief static member kernel result */
+template <class Derived>
+long long unsigned kernel_base<Derived>::m_num_evaluations = 0;
+
+
+#include "gaussian_quadrature.hpp"
+
+
+// forward declaration
+class unit_kernel;
+
+/** \brief traits of the helmholtz G kernel */
+template<>
+struct kernel_traits<unit_kernel>
+{
+	/** \brief location type */
+	typedef tria_1_elem::x_t x_t;
+	/** \brief kernel scalar type */
+	typedef double scalar_t;
+	/** \brief kernel input type */
+	typedef location<x_t> input_t;
+	/** \brief kernel result type */
+	typedef double result_t;
+	/** \brief quadrature family tag */
+	typedef gauss_family_tag quadrature_family_t;
+};
+
+/**
+ * \brief 3D unit kernel
+ */
+class unit_kernel : public kernel_base<unit_kernel>
+{
+public:
+	typedef kernel_base<unit_kernel> base_t;	/**< \brief the base class' type */
+	friend class base_t;
+
+	using base_t::set_x0;
+	using base_t::eval;
+	using base_t::estimate_complexity;
+
+	/**
+	 * \brief evaluate kernel at a given receiver position
+	 * \param [in] x receiver position
+	 * \return kernel evaluated in x
+	 */
+	static result_t const &eval(input_t const &x)
+	{
+		return m_result = 1.0;
+	}
+
+protected:
+	static const kernel_precision limits[];	/**< \brief array of distance limits */
+};
+
+const unit_kernel::kernel_precision unit_kernel::limits[] = {
+	{5.0, 2},
+	{2.0, 5},
+	{0.0, 7}
+	};
+
+
+
+/**
+ * \brief CRTP base class of 3D Helmholtz kernels and its derivatives
+ * \tparam Derived type of the derived class in the CRTP scheme
+ */
+template <class Derived>
+class helmholtz_base : public kernel_base<Derived>
+{
+public:
+	/** \brief base type */
+	typedef kernel_base<Derived> base_t;
+	/** \brief location type */
+	typedef typename base_t::x_t x_t;
+	/** \brief kernel input type */
+	typedef typename base_t::input_t input_t;
+	/** \brief kernel scalar type */
+	typedef typename base_t::scalar_t scalar_t;
+	/** \brief kernel result type */
+	typedef typename base_t::result_t result_t;
+
+	using base_t::set_x0;
+	using base_t::eval;
+	using base_t::estimate_complexity;
+
+	/**
+	 * \brief set the wave number to a defined value
+	 * \param [in] k wave number
+	 */
+	static void set_wave_number(std::complex<double> const &k)
+	{
+		helmholtz_base::m_k = k;
 	}
 
 protected:
@@ -318,6 +372,7 @@ struct kernel_traits<helmholtz_HG_kernel>
 class helmholtz_HG_kernel : public helmholtz_base<helmholtz_HG_kernel>
 {
 	friend class helmholtz_base<helmholtz_HG_kernel>;
+	friend class kernel_base<helmholtz_HG_kernel>;
 public:
 	typedef helmholtz_base<helmholtz_HG_kernel> base_t;	/**< \brief base class' type */
 

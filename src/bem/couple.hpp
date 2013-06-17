@@ -156,6 +156,12 @@ public:
 	{
 	}
 
+	void setZero(void)
+	{
+		m_first.setZero();
+		m_second.setZero();
+	}
+
  	/** \brief assignment operator
 	 * \param [in] other the other couple to copy
 	 * \return reference to this

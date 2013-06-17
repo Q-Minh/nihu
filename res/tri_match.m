@@ -6,8 +6,9 @@ switch type
     case 'face'
         eta_lim = [0 0; 1 0; 1 1];
         c = [1 0; 1 1; 0 1; -1 0; -1 -1; 0 -1];
-        for i = 1 : 6
-            mu_lim{i} = [0 0; 0 0; c(i,:); c(mod(i,6)+1,:)];
+        nc = size(c,1);
+        for i = 1 : nc
+            mu_lim{i} = [0 0; 0 0; c(i,:); c(mod(i,nc)+1,:)];
         end
     case 'corner'
         eta_lim = [-1 -1; 0 -1; 0 0];
