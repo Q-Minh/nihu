@@ -101,7 +101,7 @@ public:
 
 						for (unsigned idx = 0; idx < inter::num_domains; ++idx)
 						{
-							quadr4_t x = quadr4_t(x1, x2, x3, x4);
+							quadr4_t x(x1, x2, x3, x4);
 							scalar_t w = w1 * w2 * w3 * w4;
 							inter::transform(x, w, idx);
 
