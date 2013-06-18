@@ -20,7 +20,7 @@ public:
 	typedef typename quadrature_type<quadrature_family_t, trial_domain_t>::type trial_quadrature_t;
 	typedef typename test_quadrature_t::quadrature_elem_t quadrature_elem_t;
 	typedef typename quadrature_elem_t::scalar_t scalar_t;
-	typedef Eigen::Matrix<scalar_t, 4, 1> quadr4_t;
+	typedef Eigen::Matrix<scalar_t, test_domain_t::dimension+trial_domain_t::dimension, 1> quadr4_t;
 
 	template <singularity_type match_type, class test_dom_t, class trial_dom_t>
 	class helper;
@@ -70,6 +70,91 @@ public:
 		}
 	};
 
+	template <>
+	class helper<EDGE_MATCH, tria_domain, tria_domain>
+	{
+	public:
+		static bool const is_symmetric = false;
+		static unsigned const num_domains = 6;
+
+		static void transform(quadr4_t &x, scalar_t &w, unsigned idx)
+		{
+			scalar_t mu1, mu2, xi1, xi2;
+			switch (idx)
+			{
+			case 0:
+				mu1 = -x(0) * x(1);
+				mu2 = -x(0) * x(1) * x(2);
+				xi1 = (1.0-x(0)) * x(3) + x(0);
+				xi2 = x(0) * (1.0-x(1) + x(1)*x(2));
+				break;
+			case 1:
+				mu1 = x(0) * x(1);
+				mu2 = x(0) * x(1) * x(2);
+				xi1 = (1.0-x(0)) * x(3) + x(0) * (1.0-x(1));
+				xi2 = x(0) * (1.0-x(1));
+				break;
+			case 2:
+				mu1 = -x(0) * x(1) * x(2);
+				mu2 = x(0) * x(1) * (1.0 - x(2));
+				xi1 = (1.0-x(0)) * x(3) + x(0);
+				xi2 = x(0) * (1.0-x(1));
+				break;
+			case 3:
+				mu1 = x(0) * x(1) * x(2);
+				mu2 = x(0) * x(1) * (x(2) - 1.0);
+				xi1 = (1.0-x(0)) * x(3) + x(0) * (1.0 - x(1)*x(2));
+				xi2 = x(0) * (1.0 - x(1)*x(2));
+				break;
+			case 4:
+				mu1 = -x(0) * x(1) * x(2);
+				mu2 = -x(0) * x(1);
+				xi1 = (1.0-x(0)) * x(3) + x(0);
+				xi2 = x(0);
+				break;
+			case 5:
+				mu1 = x(0) * x(1) * x(2);
+				mu2 = x(0) * x(1);
+				xi1 = (1.0-x(0)) * x(3) + x(0) * (1.0-x(1)*x(2));
+				xi2 = x(0) * (1.0-x(1));
+				break;
+			}
+			double J = x(1) * x(0)*x(0) * (1.0-x(0));
+			w *= J;
+
+			// transform the quadratures back to the (0,0) (1,0) (0,1) simplex
+			x(0) = -xi1 + 1.0;
+			x(1) = xi2;
+			x(2) = -(mu1+xi1)+1.0;
+			x(3) = mu2+xi2;
+		}
+	};
+
+	template <>
+	class helper<CORNER_MATCH, tria_domain, tria_domain>
+	{
+	public:
+		static bool const is_symmetric = true;
+		static unsigned const num_domains = 1;
+
+		static void transform(quadr4_t &x, scalar_t &w, unsigned idx)
+		{
+			scalar_t xi1 = x(0);
+			scalar_t xi2 = xi1*x(1);
+			scalar_t eta1 = xi1*x(2);
+			scalar_t eta2 = eta1*x(3);
+			scalar_t J = x(2)*x(0)*x(0)*x(0);
+
+			w *= J;
+
+			// transform the quadratures back to the (0,0) (1,0) (0,1) simplex
+			x(0) = -xi1 + 1.0;
+			x(1) = xi2;
+			x(2) = -eta1+1.0;
+			x(3) = eta2;
+		}
+	};
+
 	template <singularity_type match_type>
 	static void generate(
 		test_quadrature_t &m_face_test_quadrature,
@@ -112,14 +197,13 @@ public:
 							{
 								m_face_test_quadrature.push_back(quadrature_elem_t(x.bottomRows(2), w));
 								m_face_trial_quadrature.push_back(quadrature_elem_t(x.topRows(2), 1.0));
-
 							}
 						}
-					}
-				}
-			}
-		}
-	}
+					} // for loop for i4
+				} // for loop for i3
+			} // for loop for i2
+		} // for loop for i1
+	} // function generate
 };
 
 #endif

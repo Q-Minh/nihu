@@ -21,7 +21,7 @@ typedef function_space<mesh_t, isoparametric_field, function_field> test_space_t
 typedef test_space_t trial_space_t;
 #endif
 
-typedef helmholtz_HG_kernel kernel_t;
+typedef unit_kernel kernel_t;
 typedef weighted_residual<kernel_t, test_space_t, trial_space_t> wr_t;
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
@@ -31,24 +31,18 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     mex::real_matrix elements(prhs[1]);
 	mesh_t mesh(nodes, elements);
 
-    // initialise kernel
-    double k = mxGetScalar(prhs[2]);
-    kernel_t::set_wave_number(k);
-    
     // initialise function spaces
     test_space_t test(mesh);
     trial_space_t trial(mesh);
     
     // allocate space for output matrix
-    mex::complex_matrix G(test.get_num_dofs(), trial.get_num_dofs(), plhs[0]);
-    mex::complex_matrix H(test.get_num_dofs(), trial.get_num_dofs(), plhs[1]);
-    couple<mex::complex_matrix> result(G, H);
+    mex::real_matrix G(test.get_num_dofs(), trial.get_num_dofs(), plhs[0]);
     
-    mex::real_matrix n_kernel_eval(1, 1, plhs[2]);
+    mex::real_matrix n_kernel_eval(1, 1, plhs[1]);
 
     // evaluate weighted residual into result
     wr_t wr(test, trial);
-    wr.eval(result);
+    wr.eval(G);
     
     // export number of kernel evaluations
     n_kernel_eval(0,0) = kernel_t::get_num_evaluations();
