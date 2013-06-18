@@ -90,7 +90,9 @@ public:
 	}
 
 	template <class Left, class RDerived>
-	friend couple_product_left<Left, RDerived> operator*(Left const &, couple_base<RDerived> const &);
+	friend couple_product_left<Left, RDerived> operator*(
+		Left const &,
+		couple_base<RDerived> const &);
 };
 
 /**
@@ -142,7 +144,8 @@ public:
 	 * \param [in] f the first member
 	 * \param [in] s the second member
 	 */
-	couple(first_value_t const &f = first_value_t(), second_value_t const &s = second_value_t())
+	couple(first_value_t const &f = first_value_t(),
+		   second_value_t const &s = second_value_t())
 		: m_first(f), m_second(s)
 	{
 	}
@@ -156,6 +159,9 @@ public:
 	{
 	}
 
+	/** \brief set both matrices to zero
+	 * \todo this function forges ::couple to Eigen matrices. Sick.
+	 */
 	void setZero(void)
 	{
 		m_first.setZero();

@@ -158,7 +158,7 @@ class unit_kernel : public kernel_base<unit_kernel>
 {
 public:
 	typedef kernel_base<unit_kernel> base_t;	/**< \brief the base class' type */
-	friend class base_t;
+	friend class kernel_base<unit_kernel>;
 
 	using base_t::set_x0;
 	using base_t::eval;

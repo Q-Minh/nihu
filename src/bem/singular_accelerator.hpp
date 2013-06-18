@@ -7,7 +7,8 @@
 #ifndef SINGULAR_ACCELERATOR_HPP_INCLUDED
 #define SINGULAR_ACCELERATOR_HPP_INCLUDED
 
-#include "singular_galerkin_quadrature.hpp"
+#include "singular_galerkin_quadrature.hpp"	// for the galerkin case
+#include "duffy_quadrature.hpp"		// for the collocational case
 #include "field.hpp"
 #include <utility> // pair
 
@@ -19,12 +20,13 @@ template <class Iter>
 class dual_iterator : private std::pair<Iter, Iter>
 {
 public:
+	/** \brief the base type for abbreviations */
+	typedef std::pair<Iter, Iter> base_t;
+	
 	/**
 	* \brief constructor initialising all members
 	* \param [in] prime the outer iterator
 	* \param [in] sec the internal iterator
-	* \param [in] Nsec the number of inner iterations for one outer iteration
-	* \param [in] mode iteration mode
 	*/
 	dual_iterator(Iter prime, Iter sec)
 		: std::pair<Iter, Iter>(prime, sec)
@@ -37,8 +39,8 @@ public:
 	*/
 	dual_iterator &operator++(void)
 	{
-		++first;
-		++second;
+		++base_t::first;
+		++base_t::second;
 		return *this;
 	}
 
@@ -49,7 +51,7 @@ public:
 	*/
 	bool operator!=(dual_iterator const &other)
 	{
-		return first != other.first || second != other.second;
+		return base_t::first != other.base_t::first || base_t::second != other.base_t::second;
 	}
 
 	/**
@@ -58,7 +60,7 @@ public:
 	*/
 	typename Iter::value_type const &get_prime(void) const
 	{
-		return *first;
+		return *base_t::first;
 	}
 
 	/**
@@ -67,7 +69,7 @@ public:
 	*/
 	typename Iter::value_type const &get_sec(void) const
 	{
-		return *second;
+		return *base_t::second;
 	}
 };
 
@@ -82,8 +84,13 @@ class singular_quadrature_iterator : public dual_iterator<quadrature_iterator_t>
 public:
 	/** \brief the base type */
 	typedef dual_iterator<quadrature_iterator_t> base_t;
+	/** \brief the value type of both quadratures */
+	typedef typename quadrature_iterator_t::value_type value_type;
 
-	/** \brief constructor initialising members */
+	/** \brief constructor initialising members
+	 * \param [in] test the test quadrature
+	 * \param [in] trial the trial quadrature
+	 */
 	singular_quadrature_iterator(
 		quadrature_iterator_t test,
 		quadrature_iterator_t trial)
@@ -94,7 +101,7 @@ public:
 	/** \brief return the test quadrature element
 	* \return test quadrature element
 	*/
-	typename quadrature_iterator_t::value_type const &get_test_quadrature_elem(void) const
+	value_type const &get_test_quadrature_elem(void) const
 	{
 		return this->get_prime();
 	}
@@ -102,7 +109,7 @@ public:
 	/** \brief return the trial quadrature element
 	* \return trial quadrature element
 	*/
-	typename quadrature_iterator_t::value_type const &get_trial_quadrature_elem(void) const
+	value_type const &get_trial_quadrature_elem(void) const
 	{
 		return this->get_sec();
 	}
@@ -133,16 +140,21 @@ public:
 	typedef typename test_field_t::elem_t::domain_t test_domain_t;		/**< \brief test domain */
 	typedef typename trial_field_t::elem_t::domain_t trial_domain_t;	/**< \brief trial domain */
 
+	/** \brief number of test domain corners */
 	static unsigned const n_test_corners = test_domain_t::num_corners;
+	/** \brief number of trial domain corners */
 	static unsigned const n_trial_corners = trial_domain_t::num_corners;
 
+	/** \brief the scalar type of the quadrature */
 	typedef typename test_domain_t::scalar_t scalar_t;
+	// report compiler error if the trial and test scalar types are different
 	static_assert(std::is_same<scalar_t, typename trial_domain_t::scalar_t>::value,
 		"The test and trial domain scalar types must match");
 
 	/** \brief the quadrature family obtained from the kernel */
 	typedef typename kernel_traits<kernel_t>::quadrature_family_t quadrature_family_t;
 
+	/** \brief the singular galerkin quadrature generator class */
 	typedef singular_galerkin_quadrature<quadrature_family_t, test_domain_t, trial_domain_t> quad_factory_t;
 
 	/** \brief the test quadrature type */
@@ -150,15 +162,16 @@ public:
 	/** \brief the trial quadrature type */
 	typedef typename quadrature_type<quadrature_family_t, trial_domain_t>::type trial_quadrature_t;
 
-	/**\brief the quadrature element type (it should be the same for test and trial) */
+	/** \brief the quadrature element type (it should be the same for test and trial) */
 	typedef typename test_quadrature_t::quadrature_elem_t quadrature_elem_t;
+	// report compiler error if the trial and test quadrature elements are different
 	static_assert(std::is_same<quadrature_elem_t, typename trial_quadrature_t::quadrature_elem_t>::value,
 		"The trial and test quadrature elements must be of the same type");
 
-	/**\brief the dual iterator type of the singular quadrature */
+	/** \brief the dual iterator type of the singular quadrature */
 	typedef singular_quadrature_iterator<typename test_quadrature_t::iterator> iterator;
 
-	/**\brief indicates whether FACE_MATCH is possible */
+	/** \brief indicates whether ::FACE_MATCH is possible */
 	static const bool face_match_possible = std::is_same<test_field_t, trial_field_t>::value;
 
 	/**
@@ -272,7 +285,7 @@ public:
 			// construct facials
 			m_face_test_quadrature = new test_quadrature_t;
 			m_face_trial_quadrature = new trial_quadrature_t;
-			quad_factory_t::generate<FACE_MATCH>(*m_face_test_quadrature,
+			quad_factory_t::template generate<FACE_MATCH>(*m_face_test_quadrature,
 				*m_face_trial_quadrature, SINGULARITY_ORDER);
 		}
 
@@ -283,11 +296,11 @@ public:
 		test_quadrature_t test_edge_q, test_corner_q;
 		trial_quadrature_t trial_edge_q, trial_corner_q;
 
-		// create edge quads
-		quad_factory_t::generate<EDGE_MATCH>(
+		// create quads singular on the first edge
+		quad_factory_t::template generate<EDGE_MATCH>(
 			test_edge_q, trial_edge_q, SINGULARITY_ORDER);
-		// create corner quads
-		quad_factory_t::generate<CORNER_MATCH>(
+		// create quads singular on the first corner
+		quad_factory_t::template generate<CORNER_MATCH>(
 			test_corner_q, trial_corner_q, SINGULARITY_ORDER);
 
 		// rotate test quads
@@ -299,10 +312,11 @@ public:
 
 			// rotate
 			m_corner_test_quadrature[i] = new test_quadrature_t(
-				test_corner_q.transform<isoparam_shape_set<test_domain_t> >(test_corners));
+				test_corner_q.template transform<isoparam_shape_set<test_domain_t> >(test_corners));
 			m_edge_test_quadrature[i] = new test_quadrature_t(
-				test_edge_q.transform<isoparam_shape_set<test_domain_t> >(test_corners));
+				test_edge_q.template transform<isoparam_shape_set<test_domain_t> >(test_corners));
 		}
+		// rotate trial quads
 		for (unsigned i = 0; i < n_trial_corners; ++i)
 		{
 			// fill transform coordinates
@@ -311,9 +325,9 @@ public:
 
 			// rotate
 			m_corner_trial_quadrature[i] = new trial_quadrature_t(
-				trial_corner_q.transform<isoparam_shape_set<trial_domain_t> >(trial_corners));
+				trial_corner_q.template transform<isoparam_shape_set<trial_domain_t> >(trial_corners));
 			m_edge_trial_quadrature[i] = new trial_quadrature_t(
-				trial_edge_q.transform<isoparam_shape_set<trial_domain_t> >(trial_corners));
+				trial_edge_q.template transform<isoparam_shape_set<trial_domain_t> >(trial_corners));
 		}
 	}
 
@@ -365,10 +379,6 @@ protected:
 
 
 
-
-
-
-
 /**
 * \brief specialisation the singular accelerator for the collocational case
 * \tparam Kernel the kernel to integrate
@@ -399,16 +409,21 @@ public:
 
 	/** \brief quadrature family */
 	typedef typename kernel_traits<kernel_t>::quadrature_family_t quadrature_family_t;
-	typedef typename quadrature_type<	/**< \brief trial quadrature type */
+	/** \brief the trial quadrature type */
+	typedef typename quadrature_type<	
 		quadrature_family_t, trial_domain_t
 	>::type trial_quadrature_t;
-	/**\brief quadrature element type (it should be the same for test and trial) */
+	/** \brief quadrature element type (it should be the same for test and trial) */
 	typedef typename trial_quadrature_t::quadrature_elem_t quadrature_elem_t;
 
-	/**\brief iterator type of the singular quadrature */
+	/** \brief the duffy quadrature type */
+	typedef duffy_quadrature<quadrature_family_t, trial_lset_t> trial_duffy_t;
+
+	/** \brief iterator type of the singular quadrature */
 	typedef typename trial_quadrature_t::iterator iterator;
 
-	/**\brief indicates whether FACE_MATCH is possible */
+
+	/** \brief indicates whether FACE_MATCH is possible */
 	static const bool face_match_possible = std::is_same<test_elem_t, trial_elem_t>::value;
 
 	/**
