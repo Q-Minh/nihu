@@ -12,29 +12,29 @@
 #include <utility> // pair
 
 /**
- * \brief two iterators that can traverse two parallel containers
- * \tparam Iter type of the iterator
- */
+* \brief two iterators that can traverse two parallel containers
+* \tparam Iter type of the iterator
+*/
 template <class Iter>
 class dual_iterator : private std::pair<Iter, Iter>
 {
 public:
 	/**
-	 * \brief constructor initialising all members
-	 * \param [in] prime the outer iterator
-	 * \param [in] sec the internal iterator
-	 * \param [in] Nsec the number of inner iterations for one outer iteration
-	 * \param [in] mode iteration mode
-	 */
+	* \brief constructor initialising all members
+	* \param [in] prime the outer iterator
+	* \param [in] sec the internal iterator
+	* \param [in] Nsec the number of inner iterations for one outer iteration
+	* \param [in] mode iteration mode
+	*/
 	dual_iterator(Iter prime, Iter sec)
 		: std::pair<Iter, Iter>(prime, sec)
 	{
 	}
 
 	/**
-	 * \brief preincrement operator
-	 * \return reference to the incremented iterator
-	 */
+	* \brief preincrement operator
+	* \return reference to the incremented iterator
+	*/
 	dual_iterator &operator++(void)
 	{
 		++first;
@@ -43,28 +43,28 @@ public:
 	}
 
 	/**
-	 * \brief not equal operator
-	 * \param [in] other the other iterator
-	 * \return true if the iterators are different
-	 */
+	* \brief not equal operator
+	* \param [in] other the other iterator
+	* \return true if the iterators are different
+	*/
 	bool operator!=(dual_iterator const &other)
 	{
 		return first != other.first || second != other.second;
 	}
 
 	/**
-	 * \brief return the primary iterator's pointed value
-	 * \return the primary iterator's pointed value
-	 */
+	* \brief return the primary iterator's pointed value
+	* \return the primary iterator's pointed value
+	*/
 	typename Iter::value_type const &get_prime(void) const
 	{
 		return *first;
 	}
 
 	/**
-	 * \brief return the secondary iterator's pointed value
-	 * \return the secondary iterator's pointed value
-	 */
+	* \brief return the secondary iterator's pointed value
+	* \return the secondary iterator's pointed value
+	*/
 	typename Iter::value_type const &get_sec(void) const
 	{
 		return *second;
@@ -73,9 +73,9 @@ public:
 
 
 /**
- * \brief a dual iterator to store a test and a trial quadrature iterator
- * \tparam quadrature_iterator_t the iterator type of the quadratures
- */
+* \brief a dual iterator to store a test and a trial quadrature iterator
+* \tparam quadrature_iterator_t the iterator type of the quadratures
+*/
 template <class quadrature_iterator_t>
 class singular_quadrature_iterator : public dual_iterator<quadrature_iterator_t>
 {
@@ -92,16 +92,16 @@ public:
 	}
 
 	/** \brief return the test quadrature element
-	 * \return test quadrature element
-	 */
+	* \return test quadrature element
+	*/
 	typename quadrature_iterator_t::value_type const &get_test_quadrature_elem(void) const
 	{
 		return this->get_prime();
 	}
 
 	/** \brief return the trial quadrature element
-	 * \return trial quadrature element
-	 */
+	* \return trial quadrature element
+	*/
 	typename quadrature_iterator_t::value_type const &get_trial_quadrature_elem(void) const
 	{
 		return this->get_sec();
@@ -109,12 +109,12 @@ public:
 };
 
 /**
- * \brief an accelerator class that stores singular quadratures for different singularity types
- * \tparam Kernel the kernel that is integrated
- * \tparam TestField the test field over which integration is performed
- * \tparam TrialField the trial field over which integration is performed
- * \todo templating this class on the kernel is sick.
- */
+* \brief an accelerator class that stores singular quadratures for different singularity types
+* \tparam Kernel the kernel that is integrated
+* \tparam TestField the test field over which integration is performed
+* \tparam TrialField the trial field over which integration is performed
+* \todo templating this class on the kernel is sick.
+*/
 template <class Kernel, class TestField, class TrialField>
 class singular_accelerator
 {
@@ -133,8 +133,17 @@ public:
 	typedef typename test_field_t::elem_t::domain_t test_domain_t;		/**< \brief test domain */
 	typedef typename trial_field_t::elem_t::domain_t trial_domain_t;	/**< \brief trial domain */
 
+	static unsigned const n_test_corners = test_domain_t::num_corners;
+	static unsigned const n_trial_corners = trial_domain_t::num_corners;
+
+	typedef typename test_domain_t::scalar_t scalar_t;
+	static_assert(std::is_same<scalar_t, typename trial_domain_t::scalar_t>::value,
+		"The test and trial domain scalar types must match");
+
 	/** \brief the quadrature family obtained from the kernel */
 	typedef typename kernel_traits<kernel_t>::quadrature_family_t quadrature_family_t;
+
+	typedef singular_galerkin_quadrature<quadrature_family_t, test_domain_t, trial_domain_t> quad_factory_t;
 
 	/** \brief the test quadrature type */
 	typedef typename quadrature_type<quadrature_family_t, test_domain_t>::type test_quadrature_t;
@@ -153,11 +162,11 @@ public:
 	static const bool face_match_possible = std::is_same<test_field_t, trial_field_t>::value;
 
 	/**
-	 * \brief determine if singular integration is needed and store singularity type
-	 * \param [in] test_field the test field
-	 * \param [in] trial_field the trial_field
-	 * \return true if singular integration is needed
-	 */
+	* \brief determine if singular integration is needed and store singularity type
+	* \param [in] test_field the test field
+	* \param [in] trial_field the trial_field
+	* \return true if singular integration is needed
+	*/
 	bool is_singular(test_field_t const &test_field, trial_field_t const &trial_field)
 	{
 		// check face match for same element types
@@ -189,9 +198,9 @@ public:
 	}
 
 	/**
-	 * \brief return begin iterator of the singular quadrature
-	 * \return begin iterator of the singular quadrature
-	 */
+	* \brief return begin iterator of the singular quadrature
+	* \return begin iterator of the singular quadrature
+	*/
 	iterator cbegin(void) const
 	{
 		switch (m_sing_type)
@@ -219,9 +228,9 @@ public:
 	}
 
 	/**
-	 * \brief return end iterator of the singular quadrature
-	 * \return end iterator of the singular quadrature
-	 */
+	* \brief return end iterator of the singular quadrature
+	* \return end iterator of the singular quadrature
+	*/
 	iterator cend() const
 	{
 		switch (m_sing_type)
@@ -237,10 +246,6 @@ public:
 				m_edge_trial_quadrature[m_cur_overlap.get_ind2()]->end());
 			break;
 		case CORNER_MATCH:
-			/**
-			 * \todo It is very dangerous that we need to handle the CIRCULAR case
-			 * with { end-begin } dual quadrature
-			 */
 			return iterator(
 				m_corner_test_quadrature[m_cur_overlap.get_ind1()]->end(),
 				m_corner_trial_quadrature[m_cur_overlap.get_ind2()]->end());
@@ -254,53 +259,67 @@ public:
 	}
 
 	/**
-	 * \brief constructor allocating space for the quadratures
-	 */
+	* \brief constructor allocating space for the quadratures
+	*/
 	singular_accelerator(void)
 		: m_face_test_quadrature(NULL), m_face_trial_quadrature(NULL)
 	{
 		/** \todo kernel should tell the singularity order */
-		unsigned const SINGULARITY_ORDER = 9;
+		unsigned const SINGULARITY_ORDER = 5;
 
 		if (face_match_possible)
 		{
 			// construct facials
 			m_face_test_quadrature = new test_quadrature_t;
 			m_face_trial_quadrature = new trial_quadrature_t;
-			singular_galerkin_quadrature<quadrature_family_t, test_domain_t, trial_domain_t>::generate<FACE_MATCH>(
-				*m_face_test_quadrature,
-				*m_face_trial_quadrature,
-				SINGULARITY_ORDER);
+			quad_factory_t::generate<FACE_MATCH>(*m_face_test_quadrature,
+				*m_face_trial_quadrature, SINGULARITY_ORDER);
 		}
 
-		{
-			// create corner quads
-			for	(unsigned i = 0; i < test_domain_t::num_corners; ++i)
-			{
-				// rotate test part
-			}
-			for (unsigned i = 0; i < trial_domain_t::num_corners; ++i)
-			{
-				// rotate trial part
-			}
-		}
+		Eigen::Matrix<scalar_t, n_test_corners, test_domain_t::dimension> test_corners;
+		Eigen::Matrix<scalar_t, n_trial_corners, trial_domain_t::dimension> trial_corners;
 
+		// create temporary quadratures for rotating
+		test_quadrature_t test_edge_q, test_corner_q;
+		trial_quadrature_t trial_edge_q, trial_corner_q;
+
+		// create edge quads
+		quad_factory_t::generate<EDGE_MATCH>(
+			test_edge_q, trial_edge_q, SINGULARITY_ORDER);
+		// create corner quads
+		quad_factory_t::generate<CORNER_MATCH>(
+			test_corner_q, trial_corner_q, SINGULARITY_ORDER);
+
+		// rotate test quads
+		for	(unsigned i = 0; i < n_test_corners; ++i)
 		{
-			// create edge quadratures
-			for	(unsigned i = 0; i < test_domain_t::num_corners; ++i)
-			{
-				// rotate test part
-			}
-			for (unsigned i = 0; i < trial_domain_t::num_corners; ++i)
-			{
-				// rotate trial part
-			}
+			// fill transform coordinates
+			for (unsigned k = 0; k < n_test_corners; ++k)
+				test_corners.row(k) = test_domain_t::get_corners()[(i+k) % n_test_corners].transpose();
+
+			// rotate
+			m_corner_test_quadrature[i] = new test_quadrature_t(
+				test_corner_q.transform<isoparam_shape_set<test_domain_t> >(test_corners));
+			m_edge_test_quadrature[i] = new test_quadrature_t(
+				test_edge_q.transform<isoparam_shape_set<test_domain_t> >(test_corners));
+		}
+		for (unsigned i = 0; i < n_trial_corners; ++i)
+		{
+			// fill transform coordinates
+			for (unsigned k = 0; k < n_trial_corners; ++k)
+				trial_corners.row(k) = test_domain_t::get_corners()[(i+k) % n_trial_corners].transpose();
+
+			// rotate
+			m_corner_trial_quadrature[i] = new trial_quadrature_t(
+				trial_corner_q.transform<isoparam_shape_set<trial_domain_t> >(trial_corners));
+			m_edge_trial_quadrature[i] = new trial_quadrature_t(
+				trial_edge_q.transform<isoparam_shape_set<trial_domain_t> >(trial_corners));
 		}
 	}
 
 	/**
-	 * \brief destructor freeing quadratures
-	 */
+	* \brief destructor freeing quadratures
+	*/
 	~singular_accelerator()
 	{
 		if (face_match_possible)
@@ -309,10 +328,15 @@ public:
 			delete m_face_trial_quadrature;
 		}
 
-		for (unsigned i = 0; i < test_domain_t::num_corners; ++i)
+		for (unsigned i = 0; i < n_test_corners; ++i)
 			delete m_corner_test_quadrature[i];
-		for (unsigned i = 0; i < trial_domain_t::num_corners; ++i)
+		for (unsigned i = 0; i < n_trial_corners; ++i)
 			delete m_corner_trial_quadrature[i];
+
+		for (unsigned i = 0; i < n_test_corners; ++i)
+			delete m_edge_test_quadrature[i];
+		for (unsigned i = 0; i < n_trial_corners; ++i)
+			delete m_edge_trial_quadrature[i];
 	}
 
 protected:
@@ -320,8 +344,8 @@ protected:
 	element_overlapping m_cur_overlap;	/**< \brief the current overlapping state */
 
 	/** \todo The code does not compile if the quadratures are stored statically,
-	 * not allocated dynamically. And we do not understand this sickness.
-	 */
+	* not allocated dynamically. And we do not understand this sickness.
+	*/
 
 	/**\brief singular quadrature on the test elem for FACE_MATCH case */
 	test_quadrature_t *m_face_test_quadrature;
@@ -346,11 +370,11 @@ protected:
 
 
 /**
- * \brief specialisation the singular accelerator for the collocational case
- * \tparam Kernel the kernel to integrate
- * \tparam TestElem the test element type
- * \tparam TrialField the trial field type
- */
+* \brief specialisation the singular accelerator for the collocational case
+* \tparam Kernel the kernel to integrate
+* \tparam TestElem the test element type
+* \tparam TrialField the trial field type
+*/
 template <class Kernel, class TestElem, class TrialField>
 class singular_accelerator<Kernel, field<TestElem, constant_field, dirac_field>, TrialField>
 {
@@ -388,11 +412,11 @@ public:
 	static const bool face_match_possible = std::is_same<test_elem_t, trial_elem_t>::value;
 
 	/**
-	 * \brief determine if singular integration is needed and store singularity type
-	 * \param [in] test_field the test field
-	 * \param [in] trial_field the trial_field
-	 * \return true if singular integration is needed
-	 */
+	* \brief determine if singular integration is needed and store singularity type
+	* \param [in] test_field the test field
+	* \param [in] trial_field the trial_field
+	* \return true if singular integration is needed
+	*/
 	bool is_singular(test_field_t const &test_field, trial_field_t const &trial_field)
 	{
 		if (face_match_possible && test_field.get_elem().get_id() == trial_field.get_elem().get_id())
@@ -404,9 +428,9 @@ public:
 	}
 
 	/**
-	 * \brief return begin iterator of the singular quadrature
-	 * \return begin iterator of the singular quadrature
-	 */
+	* \brief return begin iterator of the singular quadrature
+	* \return begin iterator of the singular quadrature
+	*/
 	iterator cbegin(void) const
 	{
 		switch (m_sing_type)
@@ -419,9 +443,9 @@ public:
 	}
 
 	/**
-	 * \brief return end iterator of the singular quadrature
-	 * \return end iterator of the singular quadrature
-	 */
+	* \brief return end iterator of the singular quadrature
+	* \return end iterator of the singular quadrature
+	*/
 	iterator cend(void) const
 	{
 		switch (m_sing_type)
@@ -434,8 +458,8 @@ public:
 	}
 
 	/**
-	 * \brief constructor allocating memory for the quadratures
-	 */
+	* \brief constructor allocating memory for the quadratures
+	*/
 	singular_accelerator(void)
 	{
 		/** \todo kernel should tell the singularity order */
@@ -452,8 +476,8 @@ public:
 	}
 
 	/**
-	 * \brief destructor freeing quadratures
-	 */
+	* \brief destructor freeing quadratures
+	*/
 	~singular_accelerator()
 	{
 		if (face_match_possible)

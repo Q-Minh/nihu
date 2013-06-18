@@ -12,11 +12,11 @@
 #include "singular_accelerator.hpp"
 
 /**
- * \brief class evaluating double integrals of the weighted residual approach
- * \tparam Kernel type of the kernel to integrate
- * \tparam Test type of the test field
- * \tparam Trial type of the trial field
- */
+* \brief class evaluating double integrals of the weighted residual approach
+* \tparam Kernel type of the kernel to integrate
+* \tparam Test type of the test field
+* \tparam Trial type of the trial field
+*/
 template <class Kernel, class Test, class Trial>
 class double_integral
 {
@@ -56,18 +56,18 @@ public:
 	/** \brief result type of the weighted residual */
 	typedef typename plain_type<
 		typename product_type<
-			kernel_result_t,
-			typename product_type<test_shape_t, Eigen::Transpose<trial_shape_t> >::type
+		kernel_result_t,
+		typename product_type<test_shape_t, Eigen::Transpose<trial_shape_t> >::type
 		>::type
 	>::type result_t;
 
 	/** \brief evaluate regular double integral with selected accelerators
-	 * \param [in] test_field the test field to integrate on
-	 * \param [in] test_acc field type accelerator of the test field
-	 * \param [in] trial_field the trial field to integrate on
-	 * \param [in] trial_acc field type accelerator of the trial field
-	 * \return reference to the integration result
-	 */
+	* \param [in] test_field the test field to integrate on
+	* \param [in] test_acc field type accelerator of the test field
+	* \param [in] trial_field the trial field to integrate on
+	* \param [in] trial_acc field type accelerator of the trial field
+	* \return reference to the integration result
+	*/
 	static result_t const &eval_on_accelerator(
 		test_field_t const &test_field,
 		test_field_type_accelerator_t const &test_acc,
@@ -90,12 +90,12 @@ public:
 	}
 
 	/** \brief evaluate double singular integral with selected singular accelerator
-	 * \param [in] test_field the test field to integrate on
-	 * \param [in] trial_field the trial field to integrate on
-	 * \param [in] sing_begin begin iteartor of the singular quadrature
-	 * \param [in] sing_end the iterator of the singular quadrature
-	 * \return reference to the integration result
-	 */
+	* \param [in] test_field the test field to integrate on
+	* \param [in] trial_field the trial field to integrate on
+	* \param [in] sing_begin begin iteartor of the singular quadrature
+	* \param [in] sing_end the iterator of the singular quadrature
+	* \return reference to the integration result
+	*/
 	template <class singular_iterator_t>
 	static result_t const &eval_singular_on_accelerator(
 		test_field_t const &test_field,
@@ -121,10 +121,10 @@ public:
 	}
 
 	/** \brief evaluate double integral on given fields
-	 * \param [in] test_field the test field to integrate on
-	 * \param [in] trial_field the trial field to integrate on
-	 * \return reference to the integration result
-	 */
+	* \param [in] test_field the test field to integrate on
+	* \param [in] trial_field the trial field to integrate on
+	* \return reference to the integration result
+	*/
 	static result_t const &eval(test_field_t const &test_field, trial_field_t const &trial_field)
 	{
 		m_result.setZero();	// clear result
@@ -132,18 +132,18 @@ public:
 		// check singularity
 		if (m_singular_accelerator.is_singular(test_field, trial_field))
 			return eval_singular_on_accelerator(
-				test_field,
-				trial_field,
-				m_singular_accelerator.cbegin(),
-				m_singular_accelerator.cend());
+			test_field,
+			trial_field,
+			m_singular_accelerator.cbegin(),
+			m_singular_accelerator.cend());
 
 		// select quadrature
 		kernel_input_t test_center(
-						test_field.get_elem(),
-						m_test_field_accelerator_pool[0]->cbegin()->get_quadrature_elem());
+			test_field.get_elem(),
+			m_test_field_accelerator_pool[0]->cbegin()->get_quadrature_elem());
 		kernel_input_t trial_center(
-						trial_field.get_elem(),
-						m_trial_field_accelerator_pool[0]->cbegin()->get_quadrature_elem());
+			trial_field.get_elem(),
+			m_trial_field_accelerator_pool[0]->cbegin()->get_quadrature_elem());
 		unsigned degree = kernel_t::estimate_complexity(test_center, trial_center);
 
 		return eval_on_accelerator(
@@ -182,11 +182,11 @@ typename double_integral<Kernel, Test, Trial>::singular_accelerator_t
 
 
 /**
- * \brief specialisation of ::double_integral for the collocational approach
- * \tparam Kernel type of the kernel to integrate
- * \tparam Test type of the test field
- * \tparam Trial type of the trial field
- */
+* \brief specialisation of ::double_integral for the collocational approach
+* \tparam Kernel type of the kernel to integrate
+* \tparam Test type of the test field
+* \tparam Trial type of the trial field
+*/
 template<class Kernel, class ElemType, class FieldOption, class Trial>
 class double_integral<Kernel, field<ElemType, FieldOption, dirac_field>, Trial>
 {
@@ -242,11 +242,11 @@ public:
 	>::type result_t;
 
 	/** \brief evaluate double integral with selected trial field accelerator
-	 * \param [in] test_field the test field to integrate on
-	 * \param [in] trial_field the trial field to integrate on
-	 * \param [in] trial_acc the trial accelerator
-	 * \return reference to the integration result
-	 */
+	* \param [in] test_field the test field to integrate on
+	* \param [in] trial_field the trial field to integrate on
+	* \param [in] trial_acc the trial accelerator
+	* \return reference to the integration result
+	*/
 	static result_t const &eval_on_accelerator(
 		test_field_t const &test_field,
 		trial_field_t const &trial_field,
@@ -273,13 +273,13 @@ public:
 
 
 	/** \brief evaluate double integral with selected singular trial field quadrature
-	 * \tparam singular_iterator_t type of the singular quadrature iterator
-	 * \param [in] test_field the test field to integrate on
-	 * \param [in] trial_field the trial field to integrate on
-	 * \param [in] begin the begin interator of the selected quadrature
-	 * \param [in] end end iterator of the selected quadrature
-	 * \return reference to the integration result
-	 */
+	* \tparam singular_iterator_t type of the singular quadrature iterator
+	* \param [in] test_field the test field to integrate on
+	* \param [in] trial_field the trial field to integrate on
+	* \param [in] begin the begin interator of the selected quadrature
+	* \param [in] end end iterator of the selected quadrature
+	* \return reference to the integration result
+	*/
 	template <class singular_iterator_t>
 	static result_t const &eval_singular_on_accelerator(
 		test_field_t const &test_field,
@@ -304,10 +304,10 @@ public:
 	}
 
 	/** \brief evaluate double integral on given fields
-	 * \param [in] test_field the test field to integrate on
-	 * \param [in] trial_field the trial field to integrate on
-	 * \return reference to the integration result
-	 */
+	* \param [in] test_field the test field to integrate on
+	* \param [in] trial_field the trial field to integrate on
+	* \return reference to the integration result
+	*/
 	static result_t const &eval(
 		test_field_t const &test_field,
 		trial_field_t const &trial_field)
@@ -317,10 +317,10 @@ public:
 		// check singularity
 		if (m_singular_accelerator.is_singular(test_field, trial_field))
 			return eval_singular_on_accelerator(
-				test_field,
-				trial_field,
-				m_singular_accelerator.cbegin(),
-				m_singular_accelerator.cend()
+			test_field,
+			trial_field,
+			m_singular_accelerator.cbegin(),
+			m_singular_accelerator.cend()
 			);
 
 		// select quadrature
@@ -335,10 +335,10 @@ public:
 
 protected:
 	/** \brief the integral result stored as static variable */
- 	static result_t m_result;
- 	/** \brief the trial field accelerator pool */
+	static result_t m_result;
+	/** \brief the trial field accelerator pool */
 	static const trial_field_type_accelerator_pool_t m_trial_field_accelerator_pool;
- 	/** \brief the test field accelerator */
+	/** \brief the test field accelerator */
 	static singular_accelerator_t m_singular_accelerator;
 };
 
