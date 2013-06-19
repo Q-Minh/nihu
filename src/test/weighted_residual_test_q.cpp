@@ -23,9 +23,12 @@ int main(void)
 			1.0, 2.0, 0.0,
 			2.0, 2.0, 0.0;
 
-		Eigen::Matrix<unsigned, Eigen::Dynamic, 4+1> elements(1,4+1);
+		Eigen::Matrix<unsigned, Eigen::Dynamic, 4+1> elements(4,4+1);
 		elements <<
-			241, 0, 1, 4, 3;
+			241, 0, 1, 4, 3,
+			241, 1, 2, 5, 4,
+			241, 0+3, 1+3, 4+3, 3+3,
+			241, 1+3, 2+3, 5+3, 4+3;
 
 		mesh_t mesh(nodes, elements);
 

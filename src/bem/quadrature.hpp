@@ -178,6 +178,7 @@ public:
 	 * \tparam LSet shape set type of transformation
 	 * \param [in] coords corner coordinates of transformed domain
 	 * \return transformed quadrature
+	 * \todo this transformation is sick, does not fit into our quadrature scheme conceptually
 	 */
 	template <class LSet>
 	Derived transform(
