@@ -278,7 +278,7 @@ public:
 		: m_face_test_quadrature(NULL), m_face_trial_quadrature(NULL)
 	{
 		/** \todo kernel should tell the singularity order */
-		unsigned const SINGULARITY_ORDER = 5;
+		unsigned const SINGULARITY_ORDER = 2;
 
 		if (face_match_possible)
 		{

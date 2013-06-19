@@ -18,19 +18,29 @@ enum singularity_type {
 
 
 /**
+ * \brief class computing singular Galerkin type quadratures for different domains
+ * \tparam quadrature_family_t the regular quadrature family
+ * \tparam test_domain_t the test domain type
+ * \tparam trial_domain_t the trial domain type
+ */
+template <class quadrature_family_t, class test_domain_t, class trial_domain_t>
+class singular_galerkin_quadrature;
+
+
+
+/**
  * \brief base structure for quadrature helpers
- * \tparam match_type the type of singulartiy
  * \tparam test_domain_t type of the test domain
  * \tparam trial_domain_t type of the trial domain
  */
-template <singularity_type match_type, class test_domain_t, class trial_domain_t>
+template <class test_domain_t, class trial_domain_t>
 struct helper_base
 {
 	/** \brief the scalar type of the singular quadrature */
 	typedef typename test_domain_t::scalar_t scalar_t;
-	/** \brief the matrix type of a double quadrature element */
+	/** \brief the matrix type of a Descartes quadrature element */
 	typedef Eigen::Matrix<scalar_t,
-		test_domain_t::dimension + trial_domain_t::dimension, 1> double_quad_t;
+		test_domain_t::dimension + trial_domain_t::dimension, 1> descartes_quad_t;
 };
 
 /**
@@ -45,7 +55,7 @@ class tria_helper;
  */
 template <>
 class tria_helper<FACE_MATCH>
-  : public helper_base<FACE_MATCH, tria_domain, tria_domain>
+  : public helper_base<tria_domain, tria_domain>
 {
 public:
 	/** \brief indicates whether the quadrature described below is symmetric or not */
@@ -59,7 +69,7 @@ public:
 	 * \param [in,out] w the quadrature weight
 	 * \param [in] idx the subdomain id
 	 */
-	static void transform(double_quad_t &x, scalar_t &w, unsigned idx)
+	static void transform(descartes_quad_t &x, scalar_t &w, unsigned idx)
 	{
 		scalar_t mu1, mu2, xi1, xi2, J;
 		switch (idx)
@@ -102,7 +112,7 @@ public:
  */
 template <>
 class tria_helper<EDGE_MATCH>
-  : public helper_base<EDGE_MATCH, tria_domain, tria_domain>
+  : public helper_base<tria_domain, tria_domain>
 {
 public:
 	/** \brief indicates whether the quadrature described below is symmetric or not */
@@ -116,7 +126,7 @@ public:
 	 * \param [in,out] w the quadrature weight
 	 * \param [in] idx the subdomain id
 	 */
-	static void transform(double_quad_t &x, scalar_t &w, unsigned idx)
+	static void transform(descartes_quad_t &x, scalar_t &w, unsigned idx)
 	{
 		scalar_t mu1, mu2, xi1, xi2;
 		switch (idx)
@@ -174,7 +184,7 @@ public:
  */
 template <>
 class tria_helper<CORNER_MATCH>
-  : public helper_base<CORNER_MATCH, tria_domain, tria_domain>
+  : public helper_base<tria_domain, tria_domain>
 {
 public:
 	/** \brief indicates whether the quadrature described below is symmetric or not */
@@ -187,7 +197,7 @@ public:
 	 * \param [in,out] x the quadrature points
 	 * \param [in,out] w the quadrature weight
 	 */
-	static void transform(double_quad_t &x, scalar_t &w, unsigned)
+	static void transform(descartes_quad_t &x, scalar_t &w, unsigned)
 	{
 		scalar_t xi1 = x(0);
 		scalar_t xi2 = xi1*x(1);
@@ -206,19 +216,9 @@ public:
 };
 
 
-
-/**
- * \brief class computing singular Galerkin type quadratures for different domains
- * \tparam quadrature_family_t the regular quadrature family
- * \tparam test_domain_t the test domain type
- * \tparam trial_domain_t the trial domain type
- */
-template <class quadrature_family_t, class test_domain_t, class trial_domain_t>
-class singular_galerkin_quadrature;
-
-
 /**
  * \brief specialisation of ::singular_galerkin_quadrature for the tria-tria case
+ * \details The implementation follows the paper of Tattaglia and Barzini
  * \tparam quadrature_family_t the regular quadrature family
  */
 template <class quadrature_family_t>
@@ -235,7 +235,9 @@ public:
 	 * \tparam match_type the singularity type
 	 * \param [out] test_quadrature the test quadrature to be extended
 	 * \param [out] trial_quadrature the trial quadrature to be extended
-	 * \param [in] SINGULARITY_ORDER the polynomial order of the underlying regular quadrature
+	 * \param [in] SINGULARITY_ORDER polynomial order of the underlying regular quadrature
+	 * \todo traversing four line quadratures should be replaced by traversing their
+	 * Descartes product
 	 */
 	template <singularity_type match_type>
 	static void generate(
@@ -248,12 +250,12 @@ public:
 		/** \brief the scalar type */
 		typedef typename hlp_t::scalar_t scalar_t;
 		/** \brief the double quadrature element type */
-		typedef typename hlp_t::double_quad_t double_quad_t;
+		typedef typename hlp_t::descartes_quad_t descartes_quad_t;
 
 		/** \brief the regular line quadrature type */
 		typename quadrature_type<quadrature_family_t, line_domain>::type base_quad(SINGULARITY_ORDER);
 		// transform the regular line quadrature into the (0,1) domain
-		Eigen::Matrix<scalar_t, tria_domain::dimension, 1> c(0.0, 1.0);
+		Eigen::Matrix<scalar_t, 2, 1> c(0.0, 1.0);
 		base_quad.template transform_inplace<line_1_shape_set>(c);
 
 		// traversing the four dimensional regular quadrature elements
@@ -276,7 +278,7 @@ public:
 
 						for (unsigned idx = 0; idx < hlp_t::num_domains; ++idx)
 						{
-							double_quad_t x(x1, x2, x3, x4);
+							descartes_quad_t x(x1, x2, x3, x4);
 							scalar_t w = w1 * w2 * w3 * w4;
 							
 							// transform the 4d quadrature into the desired one
@@ -299,5 +301,68 @@ public:
 		} // for loop for i1
 	} // function generate
 };
+
+
+template <singularity_type match_type>
+struct quad_helper;
+
+template <>
+struct quad_helper<FACE_MATCH> : helper_base<quad_domain, quad_domain>
+{
+	static const unsigned num_domains = 8;
+	static const bool is_symmetric = false;
+	
+	int corners[num_domains][4][2] = {
+		{{0, 0}, {0, 0}, { 1,  0}, { 1,  1}},
+		{{0, 0}, {0, 0}, { 1,  1}, { 0,  1}},
+		{{0, 0}, {0, 0}, { 0,  1}, {-1,  1}},
+		{{0, 0}, {0, 0}, {-1,  1}, {-1,  0}},
+		{{0, 0}, {0, 0}, {-1,  0}, {-1, -1}},
+		{{0, 0}, {0, 0}, {-1, -1}, { 0, -1}},
+		{{0, 0}, {0, 0}, { 0, -1}, { 1, -1}},
+		{{0, 0}, {0, 0}, { 1, -1}, { 1,  0}}
+	};
+};
+
+
+/**
+ * \brief specialisation of ::singular_galerkin_quadrature for the quad-quad case
+ * \details The implementation follows our algorithm
+ * \tparam quadrature_family_t the regular quadrature family
+ */
+template <class quadrature_family_t>
+class singular_galerkin_quadrature<quadrature_family_t, quad_domain, quad_domain>
+{
+public:
+	/** \brief the (regular) quadrature type */
+	typedef typename quadrature_type<quadrature_family_t, quad_domain>::type quadrature_t;
+	/** \brief the quadrature element type */
+	typedef typename quadrature_t::quadrature_elem_t quadrature_elem_t;
+
+	/**
+	 * \brief generate a singular quadrature for a given singularity type
+	 * \tparam match_type the singularity type
+	 * \param [out] test_quadrature the test quadrature to be extended
+	 * \param [out] trial_quadrature the trial quadrature to be extended
+	 * \param [in] SINGULARITY_ORDER polynomial order of the underlying regular quadrature
+	 */
+	template <singularity_type match_type>
+	static void generate(
+		quadrature_t &test_quadrature,
+		quadrature_t &trial_quadrature,
+		unsigned SINGULARITY_ORDER)
+	{
+		/** \brief the helper class type */
+		typedef quad_helper<match_type> hlp_t;
+
+		// create a regular quad quadrature for Duffy transformation purposes
+		quadrature_t base_quad(SINGULARITY_ORDER);
+		
+		test_quadrature = base_quad;
+		trial_quadrature = base_quad;
+	}
+};
+
+
 
 #endif
