@@ -350,7 +350,7 @@ struct quad_helper<EDGE_MATCH> : helper_base<quad_domain, quad_domain>
 	/** \brief type of the domain scalar */
 	typedef quad_domain::scalar_t scalar_t;
 	/** \brief corners of subdomains */
-	static scalar_t const corners[num_domains][4][2];
+	static scalar_t const corners[6][4][2];
 	/** \brief transform vector from Y' domain to Y domain */
 	static xi_t transform_eta(xi_t const &eta)
 	{
@@ -376,13 +376,12 @@ struct quad_helper<CORNER_MATCH> : helper_base<quad_domain, quad_domain>
 	static const unsigned num_domains = 5;
 	/** \brief indicates whether quadrature is symmetric to two variables */
 	static const bool is_symmetric = false;
-	static quad_domain::scalar_t const corners[5][4][2];
-
-	typedef quad_domain::xi_t xi_t;
 	/** \brief type of the domain scalar */
 	typedef quad_domain::scalar_t scalar_t;
 	/** \brief corners of subdomains */
-	static scalar_t const corners[num_domains][4][2];
+	static scalar_t const corners[5][4][2];
+	/** \brief type of the domain variable */
+	typedef quad_domain::xi_t xi_t;
 	/** \brief transform vector from Y' domain to Y domain */
 	static xi_t transform_eta(xi_t const &eta)
 	{
@@ -498,8 +497,6 @@ public:
 };
 
 
-
-
 /**
 * \brief specialisation of ::singular_galerkin_quadrature for the quad-tria case
 * \details The implementation follows Barzini's algorithm, but the quad is divided into trias
@@ -509,8 +506,9 @@ template <class quadrature_family_t>
 class singular_galerkin_quadrature<quadrature_family_t, quad_domain, tria_domain>
 {
 public:
-	/** \brief the (regular) quadrature type */
+	/** \brief the (regular) test quadrature type */
 	typedef typename quadrature_type<quadrature_family_t, quad_domain>::type test_quadrature_t;
+	/** \brief the (regular) trial quadrature type */
 	typedef typename quadrature_type<quadrature_family_t, tria_domain>::type trial_quadrature_t;
 	/** \brief the quadrature element type */
 	typedef typename test_quadrature_t::quadrature_elem_t quadrature_elem_t;
@@ -530,10 +528,17 @@ public:
 	static void generate(
 		test_quadrature_t &test_quadrature,
 		trial_quadrature_t &trial_quadrature,
-		unsigned SINGULARITY_ORDER);
+		unsigned SINGULARITY_ORDER)
+	{
+		// call specialised function member
+		generate(std::integral_constant<singularity_type, match_type>(),
+		test_quadrature, trial_quadrature, SINGULARITY_ORDER);
+	}
 
-	template <>
-	static void generate<CORNER_MATCH>(
+
+private:
+	static void generate(
+		std::integral_constant<singularity_type, CORNER_MATCH>,
 		test_quadrature_t &test_quadrature,
 		trial_quadrature_t &trial_quadrature,
 		unsigned SINGULARITY_ORDER)
@@ -564,9 +569,8 @@ public:
 	}
 
 
-
-	template <>
-	static void generate<EDGE_MATCH>(
+	static void generate(
+		std::integral_constant<singularity_type, EDGE_MATCH>,
 		test_quadrature_t &test_quadrature,
 		trial_quadrature_t &trial_quadrature,
 		unsigned SINGULARITY_ORDER)
@@ -601,6 +605,8 @@ public:
 		}
 	}
 };
+
+
 
 
 template <class quadrature_family_t>

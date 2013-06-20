@@ -274,14 +274,12 @@ public:
 		}
 	}
 
-	template <bool face_match_possible> // false is default
-	void generate_facial(void)
+private:
+	void generate_facial(std::false_type)
 	{
-		// do nothing
 	}
 
-	template<>
-	void generate_facial<true>(void)
+	void generate_facial(std::true_type)
 	{
 		// construct facials
 		m_face_test_quadrature = new test_quadrature_t;
@@ -290,13 +288,14 @@ public:
 			*m_face_trial_quadrature, SINGULARITY_ORDER);
 	}
 
+public:
 	/**
 	* \brief constructor allocating space for the quadratures
 	*/
 	singular_accelerator(void)
 		: m_face_test_quadrature(NULL), m_face_trial_quadrature(NULL)
 	{
-		generate_facial<face_match_possible>();
+		generate_facial(std::integral_constant<bool, face_match_possible>());
 
 		Eigen::Matrix<scalar_t, n_test_corners, test_domain_t::dimension> test_corners;
 		Eigen::Matrix<scalar_t, n_trial_corners, trial_domain_t::dimension> trial_corners;
