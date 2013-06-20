@@ -302,24 +302,36 @@ public:
 };
 
 
+/** \brief helper struct of the quad-quad algorithm
+ * \tparam match_type the type of singularity
+ */
 template <singularity_type match_type>
 struct quad_helper;
 
+/** \brief specialisation of ::quad_helper for the ::FACE_MATCH case */
 template <>
 struct quad_helper<FACE_MATCH> : helper_base<quad_domain, quad_domain>
 {
+	/** \brief number of subdomains */
 	static const unsigned num_domains = 8;
+	/** \brief indicates whether quadrature is symmetric to two variables */
 	static const bool is_symmetric = false;
-	static int const corners[num_domains][4][2];
-
+	/** \brief type of the domain variable */
 	typedef quad_domain::xi_t xi_t;
+	/** \brief type of the domain scalar */
+	typedef quad_domain::scalar_t scalar_t;
+	/** \brief corners of subdomains */
+	static scalar_t const corners[num_domains][4][2];
+	/** \brief transform vector from Y' domain to Y domain */
 	static xi_t transform_eta(xi_t const &eta)
 	{
 		return eta;
 	}
 };
 
-int const quad_helper<FACE_MATCH>::corners[quad_helper<FACE_MATCH>::num_domains][4][2] = {
+/** \brief definition of subdomain corners */
+typename quad_helper<FACE_MATCH>::scalar_t
+const quad_helper<FACE_MATCH>::corners[quad_helper<FACE_MATCH>::num_domains][4][2] = {
 	{{0, 0}, {0, 0}, { 2,  0}, { 2,  2}},
 	{{0, 0}, {0, 0}, { 2,  2}, { 0,  2}},
 	{{0, 0}, {0, 0}, { 0,  2}, {-2,  2}},
@@ -330,21 +342,30 @@ int const quad_helper<FACE_MATCH>::corners[quad_helper<FACE_MATCH>::num_domains]
 	{{0, 0}, {0, 0}, { 2, -2}, { 2,  0}}
 };
 
+/** \brief specialisation of ::quad_helper for the ::EDGE_MATCH case */
 template <>
 struct quad_helper<EDGE_MATCH> : helper_base<quad_domain, quad_domain>
 {
+	/** \brief number of subdomains */
 	static const unsigned num_domains = 6;
+	/** \brief indicates whether quadrature is symmetric to two variables */
 	static const bool is_symmetric = false;
-	static int const corners[num_domains][4][2];
-
+	/** \brief type of the domain variable */
 	typedef quad_domain::xi_t xi_t;
+	/** \brief type of the domain scalar */
+	typedef quad_domain::scalar_t scalar_t;
+	/** \brief corners of subdomains */
+	static scalar_t const corners[num_domains][4][2];
+	/** \brief transform vector from Y' domain to Y domain */
 	static xi_t transform_eta(xi_t const &eta)
 	{
 		return xi_t(eta(0), -2.0-eta(1));
 	}
 };
 
-int const quad_helper<EDGE_MATCH>::corners[quad_helper<EDGE_MATCH>::num_domains][4][2] = {
+/** \brief definition of subdomain corners */
+quad_helper<EDGE_MATCH>::scalar_t
+const quad_helper<EDGE_MATCH>::corners[quad_helper<EDGE_MATCH>::num_domains][4][2] = {
 	{{0, 0}, {0, 0}, {-2,  0}, {-2, -2}},
 	{{0, 0}, {0, 0}, {-2, -2}, { 0, -2}},
 	{{0, 0}, {0, 0}, { 0, -2}, { 2, -2}},
@@ -353,21 +374,30 @@ int const quad_helper<EDGE_MATCH>::corners[quad_helper<EDGE_MATCH>::num_domains]
 	{{0, -2}, {0, -4}, {2, -4}, {2, -2}},
 };
 
+/** \brief specialisation of ::quad_helper for the ::CORNER_MATCH case */
 template <>
 struct quad_helper<CORNER_MATCH> : helper_base<quad_domain, quad_domain>
 {
+	/** \brief number of subdomains */
 	static const unsigned num_domains = 5;
+	/** \brief indicates whether quadrature is symmetric to two variables */
 	static const bool is_symmetric = false;
-	static int const corners[num_domains][4][2];
-
+	/** \brief type of the domain variable */
 	typedef quad_domain::xi_t xi_t;
+	/** \brief type of the domain scalar */
+	typedef quad_domain::scalar_t scalar_t;
+	/** \brief corners of subdomains */
+	static scalar_t const corners[num_domains][4][2];
+	/** \brief transform vector from Y' domain to Y domain */
 	static xi_t transform_eta(xi_t const &eta)
 	{
 		return xi_t(-2.0-eta(0), -2.0-eta(1));
 	}
 };
 
-int const quad_helper<CORNER_MATCH>::corners[quad_helper<CORNER_MATCH>::num_domains][4][2] = {
+/** \brief definition of subdomain corners */
+quad_helper<CORNER_MATCH>::scalar_t
+const quad_helper<CORNER_MATCH>::corners[quad_helper<CORNER_MATCH>::num_domains][4][2] = {
 	{{0, 0}, {0, 0}, {-2,  0}, {-2, -2}},
 	{{0, 0}, {0, 0}, {-2, -2}, { 0, -2}},
 	{{-4, 0}, {-4, -2}, {-2, -2}, {-2, 0}},
@@ -421,7 +451,7 @@ public:
 			// Copy transformation corners from helper struct
 			for (unsigned c = 0; c < 4; ++c)
 				for (unsigned j = 0; j < 2; ++j)
-					corners(c,j) = scalar_t(hlp_t::corners[d][c][j]);
+					corners(c,j) = hlp_t::corners[d][c][j];
 
 			// perform transform
 			quadrature_t outer_quad = base_quad.template transform<quad_1_shape_set>(corners);
