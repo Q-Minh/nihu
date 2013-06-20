@@ -1,6 +1,6 @@
 #include "../bem/weighted_residual.hpp"
 
-typedef tmp::vector<quad_1_elem> elem_vector;
+typedef tmp::vector<tria_1_elem, quad_1_elem> elem_vector;
 typedef Mesh<elem_vector> mesh_t;
 typedef function_space<mesh_t, constant_field, function_field> trial_space_t;
 typedef trial_space_t test_space_t;	// Galerkin
@@ -11,7 +11,7 @@ int main(void)
 {
 	try
 	{
-		Eigen::Matrix<double, Eigen::Dynamic, 3> nodes(9,3);
+		Eigen::Matrix<double, Eigen::Dynamic, 3> nodes(10,3);
 		nodes <<
 			0.0, 0.0, 0.0,
 			1.0, 0.0, 0.0,
@@ -21,14 +21,17 @@ int main(void)
 			2.0, 1.0, 0.0,
 			0.0, 2.0, 0.0,
 			1.0, 2.0, 0.0,
-			2.0, 2.0, 0.0;
+			2.0, 2.0, 0.0,
+			3.0, 2.0, 0.0;
 
-		Eigen::Matrix<unsigned, Eigen::Dynamic, 4+1> elements(4,4+1);
+		Eigen::Matrix<unsigned, Eigen::Dynamic, 4+1> elements(6,4+1);
 		elements <<
 			241, 0, 1, 4, 3,
-			241, 1, 2, 5, 4,
-			241, 0+3, 1+3, 4+3, 3+3,
-			241, 1+3, 2+3, 5+3, 4+3;
+			241, 3, 4, 7, 6,
+			241, 4, 5, 8, 7,
+			231, 1, 2, 4, 0,
+			231, 2, 5, 4, 0,
+			231, 5, 9, 8, 0;
 
 		mesh_t mesh(nodes, elements);
 

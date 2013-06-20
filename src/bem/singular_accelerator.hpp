@@ -174,6 +174,9 @@ public:
 	/** \brief indicates whether ::FACE_MATCH is possible */
 	static const bool face_match_possible = std::is_same<test_field_t, trial_field_t>::value;
 
+	/** \todo kernel should tell the singularity order */
+	static unsigned const SINGULARITY_ORDER = 7;
+
 	/**
 	* \brief determine if singular integration is needed and store singularity type
 	* \param [in] test_field the test field
@@ -271,23 +274,29 @@ public:
 		}
 	}
 
+	template <bool face_match_possible> // false is default
+	void generate_facial(void)
+	{
+		// do nothing
+	}
+
+	template<>
+	void generate_facial<true>(void)
+	{
+		// construct facials
+		m_face_test_quadrature = new test_quadrature_t;
+		m_face_trial_quadrature = new trial_quadrature_t;
+		quad_factory_t::template generate<FACE_MATCH>(*m_face_test_quadrature,
+			*m_face_trial_quadrature, SINGULARITY_ORDER);
+	}
+
 	/**
 	* \brief constructor allocating space for the quadratures
 	*/
 	singular_accelerator(void)
 		: m_face_test_quadrature(NULL), m_face_trial_quadrature(NULL)
 	{
-		/** \todo kernel should tell the singularity order */
-		unsigned const SINGULARITY_ORDER = 7;
-
-		if (face_match_possible)
-		{
-			// construct facials
-			m_face_test_quadrature = new test_quadrature_t;
-			m_face_trial_quadrature = new trial_quadrature_t;
-			quad_factory_t::template generate<FACE_MATCH>(*m_face_test_quadrature,
-				*m_face_trial_quadrature, SINGULARITY_ORDER);
-		}
+		generate_facial<face_match_possible>();
 
 		Eigen::Matrix<scalar_t, n_test_corners, test_domain_t::dimension> test_corners;
 		Eigen::Matrix<scalar_t, n_trial_corners, trial_domain_t::dimension> trial_corners;
@@ -321,7 +330,7 @@ public:
 		{
 			// fill transform coordinates
 			for (unsigned k = 0; k < n_trial_corners; ++k)
-				trial_corners.row(k) = test_domain_t::get_corners()[(i+k) % n_trial_corners].transpose();
+				trial_corners.row(k) = trial_domain_t::get_corners()[(i+k) % n_trial_corners].transpose();
 
 			// rotate
 			m_corner_trial_quadrature[i] = new trial_quadrature_t(
@@ -336,11 +345,8 @@ public:
 	*/
 	~singular_accelerator()
 	{
-		if (face_match_possible)
-		{
-			delete m_face_test_quadrature;
-			delete m_face_trial_quadrature;
-		}
+		delete m_face_test_quadrature;
+		delete m_face_trial_quadrature;
 
 		for (unsigned i = 0; i < n_test_corners; ++i)
 			delete m_corner_test_quadrature[i];

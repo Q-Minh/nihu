@@ -3,7 +3,7 @@
 
 // #define GALERKIN_ISO
 
-typedef tmp::vector<quad_2_elem> elem_type_vector;
+typedef tmp::vector<tria_1_elem, quad_1_elem> elem_type_vector;
 typedef Mesh<elem_type_vector> mesh_t;
 
 #ifdef COLLOC_CONSTANT
