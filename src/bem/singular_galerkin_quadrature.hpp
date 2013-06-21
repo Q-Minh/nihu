@@ -461,7 +461,7 @@ public:
 					if (eta_lims[0](j) > eta_lims[1](j))
 						std::swap(eta_lims[0](j), eta_lims[1](j));
 
-				// compute (-mu + Y) * X
+				// compute (-mu + Y) intersection with X
 				xi_t mu = outer_quad[out_idx].get_xi();
 				scalar_t out_w = outer_quad[out_idx].get_w();
 				corners <<
@@ -532,11 +532,17 @@ public:
 	{
 		// call specialised function member
 		generate(std::integral_constant<singularity_type, match_type>(),
-		test_quadrature, trial_quadrature, SINGULARITY_ORDER);
+			test_quadrature, trial_quadrature, SINGULARITY_ORDER);
 	}
 
 
 private:
+	/**
+	* \brief specialisation of ::generate for the ::CORNER_MATCH case
+	* \param [out] test_quadrature the test quadrature to be extended
+	* \param [out] trial_quadrature the trial quadrature to be extended
+	* \param [in] SINGULARITY_ORDER polynomial order of the underlying regular quadrature
+	*/
 	static void generate(
 		std::integral_constant<singularity_type, CORNER_MATCH>,
 		test_quadrature_t &test_quadrature,
@@ -569,6 +575,12 @@ private:
 	}
 
 
+	/**
+	* \brief specialisation of ::generate for the ::EDGE_MATCH case
+	* \param [out] test_quadrature the test quadrature to be extended
+	* \param [out] trial_quadrature the trial quadrature to be extended
+	* \param [in] SINGULARITY_ORDER polynomial order of the underlying regular quadrature
+	*/
 	static void generate(
 		std::integral_constant<singularity_type, EDGE_MATCH>,
 		test_quadrature_t &test_quadrature,
@@ -590,10 +602,11 @@ private:
 			trial_quadrature.push_back(trial_base[i]);
 		}
 
+		// clear the quadrautres before filling them again
 		test_base.clear();
 		trial_base.clear();
 
-		singular_galerkin_quadrature<quadrature_family_t, tria_domain, tria_domain>::template generate<CORNER_MATCH>(
+		base_sing_t::template generate<CORNER_MATCH>(
 			test_base, trial_base, SINGULARITY_ORDER);
 
 		corners << -1.0, -1.0, 1.0, 1.0, -1.0, 1.0;
@@ -609,11 +622,18 @@ private:
 
 
 
+/**
+* \brief specialisation of ::singular_galerkin_quadrature for the tria-quad case
+* \details The implementation reuses the quad-tria specialisation
+* \tparam quadrature_family_t the regular quadrature family
+*/
 template <class quadrature_family_t>
 class singular_galerkin_quadrature<quadrature_family_t, tria_domain, quad_domain>
 {
 public:
+	/** \brief the regular test quadrature type */
 	typedef typename quadrature_type<quadrature_family_t, tria_domain>::type test_quadrature_t;
+	/** \brief the regular trial quadrature type */
 	typedef typename quadrature_type<quadrature_family_t, quad_domain>::type trial_quadrature_t;
 
 	/**
@@ -629,7 +649,12 @@ public:
 		trial_quadrature_t &trial_quadrature,
 		unsigned SINGULARITY_ORDER)
 	{
-		singular_galerkin_quadrature<quadrature_family_t, quad_domain, tria_domain>::generate<match_type>(
+		// call quad-tria version with swapped arguments
+		singular_galerkin_quadrature<
+			quadrature_family_t,
+			quad_domain,
+			tria_domain
+			>::generate<match_type>(
 			trial_quadrature, test_quadrature, SINGULARITY_ORDER);
 	}
 };
