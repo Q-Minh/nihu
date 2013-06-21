@@ -206,7 +206,6 @@ public:
 
 		w *= J;
 
-		// transform the quadratures back to the (0,0) (1,0) (0,1) simplex
 		x(0) = xi1;
 		x(1) = xi2;
 		x(2) = eta1;

@@ -1,4 +1,4 @@
-function [Xi, W] = duffy_tria(N, type)
+function [Xi, W] = duffy_tria_tria(N, type)
 
 % generate raw cube quadrature
 [x, w] = gaussquad(N, 0, 1);
@@ -25,18 +25,18 @@ switch lower(type)
             Xi = [Xi; xi];
             W = [W; ww];
         end
+    case 'corner'
+        [Xi, W] = trans_tria_corner(x, w);
 end
 
 % Apply transform to our standard triangle
 T = [
-    -1 0 0 0
-    0 1 0 0
-    0 0 -1 0
-    0 0 0 1
+    1 0 0 0
+    -1 1 0 0
+    0 0 1 0
+    0 0 -1 1
     ];
 Xi = Xi * T;
-Xi(:,1) = Xi(:,1) + 1.0;
-Xi(:,3) = Xi(:,3) + 1.0;
 
 end
 
@@ -115,3 +115,19 @@ ww = w .* J;
 
 end
 
+
+function [xi, ww] = trans_tria_corner(x, w)
+xi1 = x(:,1);
+xi2 = xi1.*x(:,2);
+eta1 = xi1.*x(:,3);
+eta2 = eta1.*x(:,4);
+J = x(:,3).*x(:,1).^3;
+
+xi = [
+    xi1 xi2 eta1 eta2
+    eta1 eta2 xi1 xi2
+    ];
+
+ww = [w .* J; w .* J];
+
+end
