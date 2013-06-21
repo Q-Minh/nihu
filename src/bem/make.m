@@ -5,4 +5,4 @@ mex -DGALERKIN_CONSTANT -v CXXFLAGS="\$CXXFLAGS -std=c++11 -O3" Boonen13.mex.cpp
 
 
 % compile UnitBoonen13 C++ mex code
-mex -DGALERKIN_CONSTANT -v CXXFLAGS="\$CXXFLAGS -std=c++11 -O3" UnitBoonen13.mex.cpp -I../../../eigen -output ../../UnitBoonen13_gal_const
+% mex -DGALERKIN_CONSTANT -v CXXFLAGS="\$CXXFLAGS -std=c++11 -O3" UnitBoonen13.mex.cpp -I../../../eigen -output ../../UnitBoonen13_gal_const

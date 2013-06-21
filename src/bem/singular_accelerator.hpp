@@ -22,7 +22,7 @@ class dual_iterator : private std::pair<Iter, Iter>
 public:
 	/** \brief the base type for abbreviations */
 	typedef std::pair<Iter, Iter> base_t;
-	
+
 	/**
 	* \brief constructor initialising all members
 	* \param [in] prime the outer iterator
@@ -88,9 +88,9 @@ public:
 	typedef typename quadrature_iterator_t::value_type value_type;
 
 	/** \brief constructor initialising members
-	 * \param [in] test the test quadrature
-	 * \param [in] trial the trial quadrature
-	 */
+	* \param [in] test the test quadrature
+	* \param [in] trial the trial quadrature
+	*/
 	singular_quadrature_iterator(
 		quadrature_iterator_t test,
 		quadrature_iterator_t trial)
@@ -114,6 +114,8 @@ public:
 		return this->get_sec();
 	}
 };
+
+#include <fstream>
 
 /**
 * \brief an accelerator class that stores singular quadratures for different singularity types
@@ -196,6 +198,7 @@ public:
 		}
 
 		m_cur_overlap = test_field.get_elem().get_overlapping(trial_field.get_elem());
+
 		// check edge match
 		if (m_cur_overlap.get_num() > 1)
 		{
@@ -297,24 +300,24 @@ public:
 	{
 		generate_facial(std::integral_constant<bool, face_match_possible>());
 
-		Eigen::Matrix<scalar_t, n_test_corners, test_domain_t::dimension> test_corners;
-		Eigen::Matrix<scalar_t, n_trial_corners, trial_domain_t::dimension> trial_corners;
-
 		// create temporary quadratures for rotating
 		test_quadrature_t test_edge_q, test_corner_q;
 		trial_quadrature_t trial_edge_q, trial_corner_q;
 
-		// create quads singular on the first edge
-		quad_factory_t::template generate<EDGE_MATCH>(
-			test_edge_q, trial_edge_q, SINGULARITY_ORDER);
 		// create quads singular on the first corner
 		quad_factory_t::template generate<CORNER_MATCH>(
 			test_corner_q, trial_corner_q, SINGULARITY_ORDER);
+		// create quads singular on the first edge
+		quad_factory_t::template generate<EDGE_MATCH>(
+			test_edge_q, trial_edge_q, SINGULARITY_ORDER);
+
+		std::ofstream os("quadratures.txt", std::ios::app);
 
 		// rotate test quads
 		for	(unsigned i = 0; i < n_test_corners; ++i)
 		{
 			// fill transform coordinates
+			Eigen::Matrix<scalar_t, n_test_corners, test_domain_t::dimension> test_corners;
 			for (unsigned k = 0; k < n_test_corners; ++k)
 				test_corners.row(k) = test_domain_t::get_corners()[(i+k) % n_test_corners].transpose();
 
@@ -323,20 +326,42 @@ public:
 				test_corner_q.template transform<isoparam_shape_set<test_domain_t> >(test_corners));
 			m_edge_test_quadrature[i] = new test_quadrature_t(
 				test_edge_q.template transform<isoparam_shape_set<test_domain_t> >(test_corners));
+
+			if (!face_match_possible)
+			{
+				os << *(m_corner_test_quadrature[i]) << std::endl << std::endl;
+				os << *(m_edge_test_quadrature[i]) << std::endl << std::endl;
+			}
 		}
 		// rotate trial quads
 		for (unsigned i = 0; i < n_trial_corners; ++i)
 		{
 			// fill transform coordinates
+			Eigen::Matrix<scalar_t, n_trial_corners, trial_domain_t::dimension> trial_corners;
 			for (unsigned k = 0; k < n_trial_corners; ++k)
 				trial_corners.row(k) = trial_domain_t::get_corners()[(i+k) % n_trial_corners].transpose();
 
 			// rotate
 			m_corner_trial_quadrature[i] = new trial_quadrature_t(
 				trial_corner_q.template transform<isoparam_shape_set<trial_domain_t> >(trial_corners));
+
+			for (unsigned k = 0; k < n_trial_corners; ++k)
+				trial_corners.row(k) = trial_domain_t::get_corners()[(i+1+n_trial_corners-k) % n_trial_corners].transpose();
+
 			m_edge_trial_quadrature[i] = new trial_quadrature_t(
 				trial_edge_q.template transform<isoparam_shape_set<trial_domain_t> >(trial_corners));
+
+			for (unsigned d = 0; d < m_edge_trial_quadrature[i]->size(); ++d)
+				(*m_edge_trial_quadrature[i])[d].set_w(-1.0 * (*m_edge_trial_quadrature[i])[d].get_w());
+
+			if (!face_match_possible)
+			{
+				os << *(m_corner_trial_quadrature[i]) << std::endl << std::endl;
+				os << *(m_edge_trial_quadrature[i]) << std::endl << std::endl;
+			}
 		}
+
+		os.close();
 	}
 
 	/**

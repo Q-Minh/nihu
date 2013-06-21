@@ -9,8 +9,8 @@
 #include "shapeset.hpp"
 
 /**
- * \brief class describing the overlapping state of two element
- */
+* \brief class describing the overlapping state of two element
+*/
 class element_overlapping
 {
 	unsigned num;			/**< \brief number of coincident nodes */
@@ -36,9 +36,9 @@ template <class Derived>
 struct element_traits;
 
 /**
- * \brief The geometrical element representation
- * \tparam Derived CRTP derived class
- */
+* \brief The geometrical element representation
+* \tparam Derived CRTP derived class
+*/
 template <class Derived>
 class element_base
 {
@@ -166,11 +166,11 @@ public:
 	}
 
 	/**
-	 * \brief check overlapping state with other element
-	 * \tparam OtherElem type of the other element
-	 * \param [in] other reference to the other element
-	 * \return structure containing overlapping information
-	 */
+	* \brief check overlapping state with other element
+	* \tparam OtherElem type of the other element
+	* \param [in] other reference to the other element
+	* \return structure containing overlapping information
+	*/
 	template <class OtherElem>
 	element_overlapping get_overlapping(OtherElem const &other) const
 	{
@@ -194,13 +194,13 @@ public:
 					{
 						if (i < start_ind1
 							|| (i==num_nodes-1
-									&& start_ind1 == 0
-									&& num_coinc < num_nodes-1))
+							&& start_ind1 == 0
+							&& num_coinc < num_nodes-1))
 							start_ind1 = i;
 						if (j < start_ind2 ||
 							(j==OtherElem::num_nodes-1 &&
-								start_ind2 == 0 &&
-								num_coinc < OtherElem::num_nodes-1))
+							start_ind2 == 0 &&
+							num_coinc < OtherElem::num_nodes-1))
 							start_ind2 = j;
 					}
 					num_coinc++;
@@ -234,11 +234,11 @@ class tria_1_elem : public element_base<tria_1_elem>
 {
 public:
 	/**
-	 * \brief constructor
-	 * \param [in] id the element id
-	 * \param [in] nodes the nodal indices
-	 * \param [in] coords the nodal coordinates
-	 */
+	* \brief constructor
+	* \param [in] id the element id
+	* \param [in] nodes the nodal indices
+	* \param [in] coords the nodal coordinates
+	*/
 	tria_1_elem(coords_t const &coords, unsigned id = 0, nodes_t const &nodes = nodes_t())
 		: element_base(coords, id, nodes)
 	{
@@ -247,8 +247,8 @@ public:
 	}
 
 	/** \brief return normal vector
-	 * \return element normal
-	 */
+	* \return element normal
+	*/
 	x_t const &get_normal(xi_t const &) const
 	{
 		return m_normal;
@@ -279,11 +279,11 @@ class quad_1_elem : public element_base<quad_1_elem>
 {
 public:
 	/**
-	 * \brief constructor
-	 * \param [in] id the element id
-	 * \param [in] nodes the nodal indices
-	 * \param [in] coords the nodal coordinates
-	 */
+	* \brief constructor
+	* \param [in] id the element id
+	* \param [in] nodes the nodal indices
+	* \param [in] coords the nodal coordinates
+	*/
 	quad_1_elem(coords_t const &coords, unsigned id = 0, nodes_t const &nodes = nodes_t())
 		: element_base(coords, id, nodes)
 	{
@@ -296,9 +296,9 @@ public:
 	}
 
 	/** \brief return normal vector
-	 * \param [in] xi local coordinate
-	 * \return element normal
-	 */
+	* \param [in] xi local coordinate
+	* \return element normal
+	*/
 	x_t get_normal(xi_t const &xi) const
 	{
 		return m_n0 + xi.transpose() * m_n_xi;
@@ -328,9 +328,9 @@ struct element_traits<general_surface_element<LSet, ElemID> >
 };
 
 /** \brief class describing a general surface element that computes its normal in the general way
- * \tparam LSet type of the geometry shape set
- * \tparam ElemID the element ID
- */
+* \tparam LSet type of the geometry shape set
+* \tparam ElemID the element ID
+*/
 template <class LSet, unsigned ElemID>
 class general_surface_element : public element_base<general_surface_element<LSet, ElemID> >
 {
@@ -352,19 +352,19 @@ public:
 	using base_t::get_dx;
 
 	/** \brief constructor
-	 * \param [in] coords the coordinate matrix
-	 * \param [in] id element id
-	 * \param [in] nodes the nodal index vector
-	 */
+	* \param [in] coords the coordinate matrix
+	* \param [in] id element id
+	* \param [in] nodes the nodal index vector
+	*/
 	general_surface_element(coords_t const &coords, unsigned id = 0, nodes_t const &nodes = nodes_t())
 		: base_t(coords, id, nodes)
 	{
 	}
 
 	/** \brief return normal vector at given location
-	 * \param [in] xi the location in the standard domain
-	 * \return normal vector
-	 */
+	* \param [in] xi the location in the standard domain
+	* \return normal vector
+	*/
 	x_t get_normal(xi_t const &xi) const
 	{
 		dx_t dx = get_dx(xi);

@@ -99,9 +99,9 @@ public:
 		w *= J * x(0);
 
 		// transform the quadratures back to the (0,0) (1,0) (0,1) simplex
-		x(0) = -xi1 + 1.0;
+		x(0) = xi1;
 		x(1) = xi2;
-		x(2) = -(mu1+xi1)+1.0;
+		x(2) = mu1+xi1;
 		x(3) = mu2+xi2;
 	}
 };
@@ -171,9 +171,9 @@ public:
 		w *= J;
 
 		// transform the quadratures back to the (0,0) (1,0) (0,1) simplex
-		x(0) = -xi1 + 1.0;
+		x(0) = xi1;
 		x(1) = xi2;
-		x(2) = -(mu1+xi1)+1.0;
+		x(2) = mu1+xi1;
 		x(3) = mu2+xi2;
 	}
 };
@@ -207,9 +207,9 @@ public:
 		w *= J;
 
 		// transform the quadratures back to the (0,0) (1,0) (0,1) simplex
-		x(0) = -xi1 + 1.0;
+		x(0) = xi1;
 		x(1) = xi2;
-		x(2) = -eta1+1.0;
+		x(2) = eta1;
 		x(3) = eta2;
 	}
 };
@@ -277,11 +277,16 @@ public:
 
 						for (unsigned idx = 0; idx < hlp_t::num_domains; ++idx)
 						{
+							// generate the descartes quadrature element
 							descartes_quad_t x(x1, x2, x3, x4);
 							scalar_t w = w1 * w2 * w3 * w4;
 
-							// transform the 4d quadrature into the desired one
+							// transform the 4d quadrature into the desired singular one
 							hlp_t::transform(x, w, idx);
+
+							// transform back into our standard triangle simplex
+							x(0) -= x(1);
+							x(2) -= x(3); // Jacobian is 1.0
 
 							// separate into test and trial quadratures
 							test_quadrature.push_back(quadrature_elem_t(x.topRows(2), w));
@@ -480,6 +485,7 @@ public:
 				{
 					xi_t xi = inner_quad[in_idx].get_xi();
 					xi_t eta = hlp_t::transform_eta(mu + xi);
+
 					scalar_t w = out_w * inner_quad[in_idx].get_w();
 
 					test_quadrature.push_back(quadrature_elem_t(xi, w));

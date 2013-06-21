@@ -1,18 +1,18 @@
 /**
- * \file quadrature.hpp
- * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
- * \brief implementation of class ::quadrature_elem, ::quadrature_base
- */
+* \file quadrature.hpp
+* \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
+* \brief implementation of class ::quadrature_elem, ::quadrature_base
+*/
 #ifndef QUADRATURE_HPP_INCLUDED
 #define QUADRATURE_HPP_INCLUDED
 
 #include "shapeset.hpp"
 
 /**
- * \brief a quadrature element is a base point and a weight
- * \tparam XiType the local coordinate type
- * \tparam ScalarType the scalar of coordinates
- */
+* \brief a quadrature element is a base point and a weight
+* \tparam XiType the local coordinate type
+* \tparam ScalarType the scalar of coordinates
+*/
 template <class XiType, class ScalarType>
 class quadrature_elem
 {
@@ -21,39 +21,44 @@ public:
 	typedef ScalarType scalar_t;	/**< \brief template argument as nested type */
 
 	/**
-	 * \brief constructor initialising all members
-	 * \param [in] xi base location
-	 * \param [in] w weight
-	 */
+	* \brief constructor initialising all members
+	* \param [in] xi base location
+	* \param [in] w weight
+	*/
 	quadrature_elem(xi_t const &xi = xi_t(), scalar_t const &w = scalar_t())
 		: m_xi(xi), m_w(w)
 	{
 	}
 
 	/**
-	 * \brief return constant reference to base point
-	 * \return reference to base point
-	 */
+	* \brief return constant reference to base point
+	* \return reference to base point
+	*/
 	xi_t const &get_xi(void) const
 	{
 		return m_xi;
 	}
 
 	/**
-	 * \brief return constant reference to weight
-	 * \return reference to weight
-	 */
+	* \brief return constant reference to weight
+	* \return reference to weight
+	*/
 	scalar_t const &get_w(void) const
 	{
 		return m_w;
 	}
 
+	void set_w(scalar_t const &w)
+	{
+		m_w = w;
+	}
+
 	/**
-	 * \brief transform a quadrature element according to a shape function set and corner nodes
-	 * \tparam LSet the shape function set
-	 * \param [in] coords transformation corners
-	 * \return reference to the transformed object
-	 */
+	* \brief transform a quadrature element according to a shape function set and corner nodes
+	* \tparam LSet the shape function set
+	* \param [in] coords transformation corners
+	* \return reference to the transformed object
+	*/
 	template <class LSet>
 	quadrature_elem &transform_inplace(
 		const Eigen::Matrix<scalar_t, LSet::num_nodes, LSet::domain_t::dimension> &coords)
@@ -82,54 +87,54 @@ template <class Derived>
 struct quadrature_traits;
 
 /**
- * \brief CRTP base class of all quadratures
- * \tparam Derived the CRTP derived class
- * \todo Why cannot we use the EIGENSTDVECTOR macro with two template arguments here as a base class? We do not understand this sickness.
- */
+* \brief CRTP base class of all quadratures
+* \tparam Derived the CRTP derived class
+* \todo Why cannot we use the EIGENSTDVECTOR macro with two template arguments here as a base class? We do not understand this sickness.
+*/
 template <class Derived>
 class quadrature_base :
 	public std::vector<
-		quadrature_elem<
-			typename quadrature_traits<Derived>::domain_t::xi_t,
-			typename quadrature_traits<Derived>::domain_t::scalar_t
-		>
-		,
-		Eigen::aligned_allocator<
-			quadrature_elem<
-				typename quadrature_traits<Derived>::domain_t::xi_t,
-				typename quadrature_traits<Derived>::domain_t::scalar_t
-			>
-		>
+	quadrature_elem<
+	typename quadrature_traits<Derived>::domain_t::xi_t,
+	typename quadrature_traits<Derived>::domain_t::scalar_t
+	>
+	,
+	Eigen::aligned_allocator<
+	quadrature_elem<
+	typename quadrature_traits<Derived>::domain_t::xi_t,
+	typename quadrature_traits<Derived>::domain_t::scalar_t
+	>
+	>
 	>
 {
 public:
 	typedef std::vector<
 		quadrature_elem<
-			typename quadrature_traits<Derived>::domain_t::xi_t,
-			typename quadrature_traits<Derived>::domain_t::scalar_t
+		typename quadrature_traits<Derived>::domain_t::xi_t,
+		typename quadrature_traits<Derived>::domain_t::scalar_t
 		>
 		,
 		Eigen::aligned_allocator<
-			quadrature_elem<
-				typename quadrature_traits<Derived>::domain_t::xi_t,
-				typename quadrature_traits<Derived>::domain_t::scalar_t
-			>
+		quadrature_elem<
+		typename quadrature_traits<Derived>::domain_t::xi_t,
+		typename quadrature_traits<Derived>::domain_t::scalar_t
+		>
 		>
 	> base_t;	/**< \brief the base class type */
 private:
 	/**
-	 * \brief CRTP helper function
-	 * \return static cast to Derived const &
-	 */
+	* \brief CRTP helper function
+	* \return static cast to Derived const &
+	*/
 	Derived const &derived(void) const
 	{
 		return static_cast<Derived const &>(*this);
 	}
 
 	/**
-	 * \brief CRTP helper function
-	 * \return static cast to Derived &
-	 */
+	* \brief CRTP helper function
+	* \return static cast to Derived &
+	*/
 	Derived &derived(void)
 	{
 		return static_cast<Derived &>(*this);
@@ -144,42 +149,44 @@ public:
 	typedef quadrature_elem<xi_t, scalar_t> quadrature_elem_t;
 
 	/**
-	 * \brief constructor allocating space for the quadrature elements
-	 * \param N number of quadrature elements
-	 */
+	* \brief constructor allocating space for the quadrature elements
+	* \param N number of quadrature elements
+	*/
 	quadrature_base(unsigned N = 0)
 	{
 		base_t::reserve(N);
 	}
 
+	scalar_t sum_of_weights(void) const
+	{
+		return std::accumulate (base_t::begin(), base_t::end(),
+			scalar_t(), [] (
+			scalar_t x, quadrature_elem_t const &qe
+			) { return x + qe.get_w(); });
+	}
+
 	/**
-	 * \brief print a quadrature into an output stream
-	 * \param os the output stream
-	 * \return reference to the stream
-	 */
+	* \brief print a quadrature into an output stream
+	* \param os the output stream
+	* \return reference to the stream
+	*/
 	std::ostream & print (std::ostream & os) const
 	{
-		os << "Base points: \t Weights:" << std::endl;
+		os << base_t::size() << std::endl;
 		std::for_each(base_t::begin(), base_t::end(), [&os] (quadrature_elem_t const &e) {
 			os << e.get_xi().transpose() << "\t\t" << e.get_w() << std::endl;
 		});
-		os << "Sum of weights: " <<
-			std::accumulate(
-				base_t::begin(), base_t::end(),
-				scalar_t(), [] (scalar_t x, quadrature_elem_t const &qe) {
-			return x + qe.get_w();
-		}) << std::endl;
 
 		return os;
 	}
 
 	/**
-	 * \brief transform the domain of the quadrature with a given shape set and corner points
-	 * \tparam LSet shape set type of transformation
-	 * \param [in] coords corner coordinates of transformed domain
-	 * \return transformed quadrature
-	 * \todo this transformation is sick, does not fit into our quadrature scheme conceptually
-	 */
+	* \brief transform the domain of the quadrature with a given shape set and corner points
+	* \tparam LSet shape set type of transformation
+	* \param [in] coords corner coordinates of transformed domain
+	* \return transformed quadrature
+	* \todo this transformation is sick, does not fit into our quadrature scheme conceptually
+	*/
 	template <class LSet>
 	Derived transform(
 		Eigen::Matrix<scalar_t, LSet::num_nodes, LSet::domain_t::dimension> const &coords) const
@@ -195,11 +202,11 @@ public:
 	}
 
 	/**
-	 * \brief transform the domain of the quadrature in place
-	 * \tparam LSet shape set type of transformation
-	 * \param [in] coords corner coordinates of transformed domain
-	 * \return reference to the transformed quadrature
-	 */
+	* \brief transform the domain of the quadrature in place
+	* \tparam LSet shape set type of transformation
+	* \param [in] coords corner coordinates of transformed domain
+	* \return reference to the transformed quadrature
+	*/
 	template <class LSet>
 	Derived &transform_inplace(
 		const Eigen::Matrix<scalar_t, LSet::num_nodes, LSet::domain_t::dimension> &coords)
@@ -216,12 +223,12 @@ public:
 	}
 
 	/**
-	 * \brief add two quadratures
-	 * \tparam otherDerived other quadrature type
-	 * \param [in] other the other quadrature
-	 * \return new quadrature
-	 * \details It is assured that the dimensions match.
-	 */
+	* \brief add two quadratures
+	* \tparam otherDerived other quadrature type
+	* \param [in] other the other quadrature
+	* \return new quadrature
+	* \details It is assured that the dimensions match.
+	*/
 	template <class otherDerived>
 	Derived operator +(const quadrature_base<otherDerived> &other) const
 	{
@@ -234,12 +241,12 @@ public:
 	}
 
 	/**
-	 * \brief add another quadrature to this
-	 * \details It is assured that the dimensions match.
-	 * \tparam otherDerived other quadrature type
-	 * \param [in] other the other quadrature
-	 * \return reference to the new quadrature
-	 */
+	* \brief add another quadrature to this
+	* \details It is assured that the dimensions match.
+	* \tparam otherDerived other quadrature type
+	* \param [in] other the other quadrature
+	* \return reference to the new quadrature
+	*/
 	template <class otherDerived>
 	Derived &operator +=(const quadrature_base<otherDerived> &other)
 	{
@@ -252,12 +259,12 @@ public:
 }; // class quadrature_base
 
 /**
- * \brief print a quadrature into an ouput stream
- * \tparam Derived the quadrature's type
- * \param os the output stream
- * \param Q the quadrature
- * \return the modified output stream
- */
+* \brief print a quadrature into an ouput stream
+* \tparam Derived the quadrature's type
+* \param os the output stream
+* \param Q the quadrature
+* \return the modified output stream
+*/
 template<class Derived>
 std::ostream & operator << (std::ostream & os, const quadrature_base<Derived>& Q)
 {
@@ -265,8 +272,8 @@ std::ostream & operator << (std::ostream & os, const quadrature_base<Derived>& Q
 }
 
 /**
- * \brief metafunction to assign a quadrature type to a quadrature family and a domain
- */
+* \brief metafunction to assign a quadrature type to a quadrature family and a domain
+*/
 template <class Family, class Domain>
 struct quadrature_type;
 
