@@ -31,7 +31,7 @@ toc;
 M = diag(w);
 
 %% excitation
-src = [0 0 0];
+src = [.2 .3 0];
 [p_inc, q_inc] = incident('point', src, c, n, k);
 
 %% solution and error
