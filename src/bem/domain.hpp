@@ -52,6 +52,15 @@ public:
 	{
 		return m_corners;
 	}
+	
+	/**
+	 * \brief return reference to a coner point
+	 * \return constant reference to a corner point
+	 */
+	static xi_t const &get_corner(unsigned idx)
+	{
+		return get_corners()[idx];
+	}
 
 protected:
 	/** \brief the center point of the domain */

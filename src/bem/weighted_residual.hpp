@@ -1,7 +1,7 @@
 /**
 * \file weighted_residual.hpp
 * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
-* \brief declaration of class weighted_residual
+* \brief declaration of class ::weighted_residual
 */
 #ifndef WEIGHTED_RESIDUAL_HPP_INCLUDED
 #define WEIGHTED_RESIDUAL_HPP_INCLUDED

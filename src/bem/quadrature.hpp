@@ -56,6 +56,16 @@ public:
 	{
 		m_w = w;
 	}
+	
+	/**
+	* \brief multiply a quadrature element by a scalar
+	* \param c the scalar multiplier
+	*/
+	quadrature_elem &operator *=(scalar_t const &c)
+	{
+		m_w *= c;
+		return *this;
+	}
 
 	/**
 	* \brief transform a quadrature element according to a shape function set and corner nodes
@@ -178,7 +188,7 @@ public:
 	* \param os the output stream
 	* \return reference to the stream
 	*/
-	std::ostream & print (std::ostream & os) const
+	std::ostream & print(std::ostream & os) const
 	{
 		os << base_t::size() << std::endl;
 		std::for_each(base_t::begin(), base_t::end(), [&os] (quadrature_elem_t const &e) {
@@ -186,6 +196,18 @@ public:
 		});
 
 		return os;
+	}
+	
+	/**
+	* \brief multiply the quadrature by a scalar
+	* \param [in] c the scalar multiplier
+	* \return reference to the the new quadrature
+	*/
+	Derived &operator *=(scalar_t const &c)
+	{
+		for (unsigned i = 0; i < base_t::size(); ++i)
+			(*this)[i] *= c;
+		return derived();
 	}
 
 	/**

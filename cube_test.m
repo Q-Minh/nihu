@@ -3,7 +3,7 @@ clear;
 %% geometry
 elemtype = 'mixed';
 
-model = create_brick_boundary(2, 10);
+model = create_brick_boundary(2, 20);
 model = translate_mesh(model, [-1 -1 -1]);
 if strcmp(elemtype, 'tria')
     model = quad2tria(model);
@@ -31,13 +31,22 @@ toc;
 M = diag(w);
 
 %% excitation
-src = [.2 .3 0];
+src = [-.2 -.3 0];
 [p_inc, q_inc] = incident('point', src, c, n, k);
 
 %% solution and error
 p = (H - .5*M) \ (G*q_inc);
+err = log10(abs(p-p_inc)./abs(p_inc));
 
-plot_mesh(model, log10(abs(p-p_inc)./abs(p_inc)));
+%% plots
+figure;
+subplot(1,2,2);
+plot_mesh(model, err);
+shading flat;
+caxis([-5 0]);
+colorbar;
+subplot(1,2,1);
+plot_mesh(model, real(p_inc));
 shading flat;
 colorbar;
 

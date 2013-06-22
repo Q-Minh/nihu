@@ -2,6 +2,8 @@
 * \file singular_galerkin_quadrature.hpp
 * \brief implementation of singular Galerkin quadratures
 * \author Peter Fiala fiala@hit.bme.hu, Peter Rucz rucz@hit.bme.hu
+* \details This file implements class ::singular_galerkin_quadrature that generates
+* quadratures integrating weakly singular (1/r) kernels in the Galerkin BEM context.
 */
 #ifndef SINGULAR_GALERKIN_QUADRATURE_HPP_INCLUDED
 #define SINGULAR_GALERKIN_QUADRATURE_HPP_INCLUDED
@@ -22,6 +24,13 @@ enum singularity_type {
 * \tparam quadrature_family_t the regular quadrature family
 * \tparam test_domain_t the test domain type
 * \tparam trial_domain_t the trial domain type
+* \details The class generates singular quadratures that integrate weakly singular (1/r)
+* kernels in the Galerkin BEM context. The class is directly specialised for different
+* domain pairs. Each specialisation is based on a slightly different algorithm, but the basic
+* approach is the same:
+* - Domain variables are transformed into coordinate differences;
+* - The resulting complex shaped domains are subdivided into simple subdomains
+* - Subdomains are transformed into polar coordinates using a Duffy-type coordinate transform.
 */
 template <class quadrature_family_t, class test_domain_t, class trial_domain_t>
 class singular_galerkin_quadrature;
@@ -47,16 +56,15 @@ struct helper_base
 * \tparam match_type the type of singulartiy
 */
 template <singularity_type match_type>
-class tria_helper;
+struct tria_helper;
 
 /**
 * \brief specialisation of ::tria_helper for the FACE_MATCH case
 */
 template <>
-class tria_helper<FACE_MATCH>
+struct tria_helper<FACE_MATCH>
 	: public helper_base<tria_domain, tria_domain>
 {
-public:
 	/** \brief indicates whether the quadrature described below is symmetric or not */
 	static bool const is_symmetric = true;
 	/** \brief the number of subdomains of the present singular quadrature */
@@ -100,8 +108,8 @@ public:
 
 		x(0) = xi1;
 		x(1) = xi2;
-		x(2) = mu1+xi1;
-		x(3) = mu2+xi2;
+		x(2) = mu1+xi1;	// eta1
+		x(3) = mu2+xi2;	// eta2
 	}
 };
 
@@ -109,10 +117,9 @@ public:
 * \brief specialisation of ::tria_helper for the EDGE_MATCH case
 */
 template <>
-class tria_helper<EDGE_MATCH>
+struct tria_helper<EDGE_MATCH>
 	: public helper_base<tria_domain, tria_domain>
 {
-public:
 	/** \brief indicates whether the quadrature described below is symmetric or not */
 	static bool const is_symmetric = false;
 	/** \brief the number of subdomains of the present singular quadrature */
@@ -171,8 +178,8 @@ public:
 
 		x(0) = xi1;
 		x(1) = xi2;
-		x(2) = mu1+xi1;
-		x(3) = mu2+xi2;
+		x(2) = mu1+xi1;	// eta1
+		x(3) = mu2+xi2;	// eta2
 	}
 };
 
@@ -180,10 +187,9 @@ public:
 * \brief specialisation of ::tria_helper for the CORNER_MATCH case
 */
 template <>
-class tria_helper<CORNER_MATCH>
+struct tria_helper<CORNER_MATCH>
 	: public helper_base<tria_domain, tria_domain>
 {
-public:
 	/** \brief indicates whether the quadrature described below is symmetric or not */
 	static bool const is_symmetric = true;
 	/** \brief the number of subdomains of the present singular quadrature */
@@ -214,8 +220,8 @@ public:
 
 /**
 * \brief specialisation of ::singular_galerkin_quadrature for the tria-tria case
-* \details The implementation follows the paper of Tattaglia and Barzini
 * \tparam quadrature_family_t the regular quadrature family
+* \details The implementation follows the paper of Tattaglia and Barzini
 */
 template <class quadrature_family_t>
 class singular_galerkin_quadrature<quadrature_family_t, tria_domain, tria_domain>
@@ -231,7 +237,7 @@ public:
 	* \tparam match_type the singularity type
 	* \param [out] test_quadrature the test quadrature to be extended
 	* \param [out] trial_quadrature the trial quadrature to be extended
-	* \param [in] SINGULARITY_ORDER polynomial order of the underlying regular quadrature
+	* \param [in] singularity_order polynomial order of the underlying regular quadrature
 	* \todo traversing four line quadratures should be replaced by traversing their
 	* Descartes product
 	*/
@@ -239,7 +245,7 @@ public:
 	static void generate(
 		quadrature_t &test_quadrature,
 		quadrature_t &trial_quadrature,
-		unsigned SINGULARITY_ORDER)
+		unsigned singularity_order)
 	{
 		/** \brief the helper class type */
 		typedef tria_helper<match_type> hlp_t;
@@ -249,7 +255,7 @@ public:
 		typedef typename hlp_t::descartes_quad_t descartes_quad_t;
 
 		/** \brief the regular line quadrature type */
-		typename quadrature_type<quadrature_family_t, line_domain>::type base_quad(SINGULARITY_ORDER);
+		typename quadrature_type<quadrature_family_t, line_domain>::type base_quad(singularity_order);
 		// transform the regular line quadrature into the (0,1) domain
 		Eigen::Matrix<scalar_t, 2, 1> c(0.0, 1.0);
 		base_quad.template transform_inplace<line_1_shape_set>(c);
@@ -290,6 +296,7 @@ public:
 							trial_quadrature.push_back(quadrature_elem_t(x.bottomRows(2), 1.0));
 
 							// and vica versa if symmetry requires
+							/** \todo ensure that symmetric kernels don't compute everything twice */
 							if (hlp_t::is_symmetric)
 							{
 								test_quadrature.push_back(quadrature_elem_t(x.bottomRows(2), w));
@@ -333,10 +340,10 @@ struct quad_helper<FACE_MATCH> : helper_base<quad_domain, quad_domain>
 
 quad_domain::scalar_t
 	const quad_helper<FACE_MATCH>::corners[4][4][2] = {
-		{{0, 0}, {0, 0}, { 2, -2}, { 2,  0}},
-		{{0, 0}, {0, 0}, { 2,  0}, { 2,  2}},
-		{{0, 0}, {0, 0}, { 2,  2}, { 0,  2}},
-		{{0, 0}, {0, 0}, { 0,  2}, {-2,  2}}
+		{{0.0, 0.0}, {0.0, 0.0}, { 2.0, -2.0}, { 2.0,  0.0}},
+		{{0.0, 0.0}, {0.0, 0.0}, { 2.0,  0.0}, { 2.0,  2.0}},
+		{{0.0, 0.0}, {0.0, 0.0}, { 2.0,  2.0}, { 0.0,  2.0}},
+		{{0.0, 0.0}, {0.0, 0.0}, { 0.0,  2.0}, {-2.0,  2.0}}
 };
 
 /** \brief specialisation of ::quad_helper for the ::EDGE_MATCH case */
@@ -362,12 +369,12 @@ struct quad_helper<EDGE_MATCH> : helper_base<quad_domain, quad_domain>
 
 quad_domain::scalar_t
 	const quad_helper<EDGE_MATCH>::corners[6][4][2] = {
-		{{ 0,  0}, { 0,  0}, {-2,  0}, {-2, -2}},
-		{{ 0,  0}, { 0,  0}, {-2, -2}, { 0, -2}},
-		{{ 0,  0}, { 0,  0}, { 0, -2}, { 2, -2}},
-		{{ 0,  0}, { 0,  0}, { 2, -2}, { 2,  0}},
-		{{-2, -2}, {-2, -4}, { 0, -4}, { 0, -2}},
-		{{ 0, -2}, { 0, -4}, { 2, -4}, { 2, -2}},
+		{{ 0.0,  0.0}, { 0.0,  0.0}, {-2.0,  0.0}, {-2.0, -2.0}},
+		{{ 0.0,  0.0}, { 0.0,  0.0}, {-2.0, -2.0}, { 0.0, -2.0}},
+		{{ 0.0,  0.0}, { 0.0,  0.0}, { 0.0, -2.0}, { 2.0, -2.0}},
+		{{ 0.0,  0.0}, { 0.0,  0.0}, { 2.0, -2.0}, { 2.0,  0.0}},
+		{{-2.0, -2.0}, {-2.0, -4.0}, { 0.0, -4.0}, { 0.0, -2.0}},
+		{{ 0.0, -2.0}, { 0.0, -4.0}, { 2.0, -4.0}, { 2.0, -2.0}},
 };
 
 /** \brief specialisation of ::quad_helper for the ::CORNER_MATCH case */
@@ -393,11 +400,11 @@ struct quad_helper<CORNER_MATCH> : helper_base<quad_domain, quad_domain>
 
 quad_domain::scalar_t
 	const quad_helper<CORNER_MATCH>::corners[5][4][2] = {
-		{{ 0,  0}, { 0,  0}, {-2,  0}, {-2, -2}},
-		{{ 0,  0}, { 0,  0}, {-2, -2}, { 0, -2}},
-		{{-4,  0}, {-4, -2}, {-2, -2}, {-2,  0}},
-		{{-4, -2}, {-4, -4}, {-2, -4}, {-2, -2}},
-		{{-2, -2}, {-2, -4}, { 0, -4}, { 0, -2}}
+		{{ 0.0,  0.0}, { 0.0,  0.0}, {-2.0,  0.0}, {-2.0, -2.0}},
+		{{ 0.0,  0.0}, { 0.0,  0.0}, {-2.0, -2.0}, { 0.0, -2.0}},
+		{{-4.0,  0.0}, {-4.0, -2.0}, {-2.0, -2.0}, {-2.0,  0.0}},
+		{{-4.0, -2.0}, {-4.0, -4.0}, {-2.0, -4.0}, {-2.0, -2.0}},
+		{{-2.0, -2.0}, {-2.0, -4.0}, { 0.0, -4.0}, { 0.0, -2.0}}
 };
 
 
@@ -423,20 +430,20 @@ public:
 	* \tparam match_type the singularity type
 	* \param [out] test_quadrature the test quadrature to be extended
 	* \param [out] trial_quadrature the trial quadrature to be extended
-	* \param [in] SINGULARITY_ORDER polynomial order of the underlying regular quadrature
+	* \param [in] singularity_order polynomial order of the underlying regular quadrature
 	*/
 	template <singularity_type match_type>
 	static void generate(
 		quadrature_t &test_quadrature,
 		quadrature_t &trial_quadrature,
-		unsigned SINGULARITY_ORDER)
+		unsigned singularity_order)
 	{
 		/** \brief the helper class type */
 		typedef quad_helper<match_type> hlp_t;
 		typedef typename hlp_t::scalar_t scalar_t;
 
 		// create a regular quad quadrature for Duffy transformation purposes
-		quadrature_t base_quad(SINGULARITY_ORDER);
+		quadrature_t base_quad(singularity_order);
 
 		for (unsigned d = 0; d < hlp_t::num_domains; ++d)
 		{
@@ -455,8 +462,8 @@ public:
 			{
 				// compute opposite corners of Y rectangle
 				xi_t eta_lims[2];
-				eta_lims[0] = hlp_t::transform_eta(quad_domain::get_corners()[0]);
-				eta_lims[1] = hlp_t::transform_eta(quad_domain::get_corners()[2]);
+				eta_lims[0] = hlp_t::transform_eta(quad_domain::get_corner(0));
+				eta_lims[1] = hlp_t::transform_eta(quad_domain::get_corner(2));
 
 				// make sure that the Y rectangle has positive side lengths
 				for (unsigned j = 0; j < 2; ++j)
@@ -488,6 +495,7 @@ public:
 					test_quadrature.push_back(quadrature_elem_t(xi, w));
 					trial_quadrature.push_back(quadrature_elem_t(eta, 1.0));
 
+					/** \todo ensure that symmetric kernels don't compute everything twice */
 					if (hlp_t::is_symmetric)
 					{
 						test_quadrature.push_back(quadrature_elem_t(eta, 1.0));
@@ -525,17 +533,17 @@ public:
 	* \tparam match_type the singularity type
 	* \param [out] test_quadrature the test quadrature to be extended
 	* \param [out] trial_quadrature the trial quadrature to be extended
-	* \param [in] SINGULARITY_ORDER polynomial order of the underlying regular quadrature
+	* \param [in] singularity_order polynomial order of the underlying regular quadrature
 	*/
 	template <singularity_type match_type>
 	static void generate(
 		test_quadrature_t &test_quadrature,
 		trial_quadrature_t &trial_quadrature,
-		unsigned SINGULARITY_ORDER)
+		unsigned singularity_order)
 	{
 		// call specialised function member
 		generate(std::integral_constant<singularity_type, match_type>(),
-			test_quadrature, trial_quadrature, SINGULARITY_ORDER);
+			test_quadrature, trial_quadrature, singularity_order);
 	}
 
 
@@ -544,18 +552,18 @@ private:
 	* \brief specialisation of ::generate for the ::CORNER_MATCH case
 	* \param [out] test_quadrature the test quadrature to be extended
 	* \param [out] trial_quadrature the trial quadrature to be extended
-	* \param [in] SINGULARITY_ORDER polynomial order of the underlying regular quadrature
+	* \param [in] singularity_order polynomial order of the underlying regular quadrature
 	*/
 	static void generate(
 		std::integral_constant<singularity_type, CORNER_MATCH>,
 		test_quadrature_t &test_quadrature,
 		trial_quadrature_t &trial_quadrature,
-		unsigned SINGULARITY_ORDER)
+		unsigned singularity_order)
 	{
 		trial_quadrature_t test_base;
 		trial_quadrature_t trial_base;
 		base_sing_t::template generate<CORNER_MATCH>(
-			test_base, trial_base, SINGULARITY_ORDER);
+			test_base, trial_base, singularity_order);
 
 		unsigned corner_idx[2][3] = {
 			{0, 1, 2},
@@ -566,7 +574,7 @@ private:
 		{
 			Eigen::Matrix<tria_domain::scalar_t, 3, 2> corners;
 			for (unsigned i = 0; i < 3; ++i)
-				corners.row(i) = quad_domain::get_corners()[corner_idx[d][i]];
+				corners.row(i) = quad_domain::get_corner(corner_idx[d][i]);
 			trial_quadrature_t test_trans = test_base.template transform<tria_1_shape_set>(corners);
 
 			for (unsigned i = 0; i < test_trans.size(); ++i)
@@ -581,13 +589,13 @@ private:
 	* \brief specialisation of ::generate for the ::EDGE_MATCH case
 	* \param [out] test_quadrature the test quadrature to be extended
 	* \param [out] trial_quadrature the trial quadrature to be extended
-	* \param [in] SINGULARITY_ORDER polynomial order of the underlying regular quadrature
+	* \param [in] singularity_order polynomial order of the underlying regular quadrature
 	*/
 	static void generate(
 		std::integral_constant<singularity_type, EDGE_MATCH>,
 		test_quadrature_t &test_quadrature,
 		trial_quadrature_t &trial_quadrature,
-		unsigned SINGULARITY_ORDER)
+		unsigned singularity_order)
 	{
 		// the quad domain is divided into two triangles
 		unsigned corner_idx[2][3] = {
@@ -602,11 +610,11 @@ private:
 		trial_quadrature_t test_base;
 		trial_quadrature_t trial_base;
 		base_sing_t::template generate<EDGE_MATCH>(
-			test_base, trial_base, SINGULARITY_ORDER);
+			test_base, trial_base, singularity_order);
 
 		// assemble corners, transform and insert into result
 		for (unsigned i = 0; i < 3; ++i)
-			corners.row(i) = quad_domain::get_corners()[corner_idx[0][i]];
+			corners.row(i) = quad_domain::get_corner(corner_idx[0][i]);
 		test_base.template transform_inplace<tria_1_shape_set>(corners);
 		for (unsigned i = 0; i < test_base.size(); ++i)
 		{
@@ -620,11 +628,11 @@ private:
 
 		// the underlying corner-singular tria-tria quadratures
 		base_sing_t::template generate<CORNER_MATCH>(
-			test_base, trial_base, SINGULARITY_ORDER);
+			test_base, trial_base, singularity_order);
 
 		// assemble corners, transform and insert into result
 		for (unsigned i = 0; i < 3; ++i)
-			corners.row(i) = quad_domain::get_corners()[corner_idx[1][i]];
+			corners.row(i) = quad_domain::get_corner(corner_idx[1][i]);
 		test_base.template transform_inplace<tria_1_shape_set>(corners);
 		for (unsigned i = 0; i < test_base.size(); ++i)
 		{
@@ -633,8 +641,6 @@ private:
 		}
 	}	// function generate
 };
-
-
 
 
 /**
@@ -656,24 +662,19 @@ public:
 	* \tparam match_type the singularity type
 	* \param [out] test_quadrature the test quadrature to be extended
 	* \param [out] trial_quadrature the trial quadrature to be extended
-	* \param [in] SINGULARITY_ORDER polynomial order of the underlying regular quadrature
+	* \param [in] singularity_order polynomial order of the underlying regular quadrature
 	*/
 	template <singularity_type match_type>
 	static void generate(
 		test_quadrature_t &test_quadrature,
 		trial_quadrature_t &trial_quadrature,
-		unsigned SINGULARITY_ORDER)
+		unsigned singularity_order)
 	{
 		// call quad-tria version with swapped arguments
-		singular_galerkin_quadrature<
-			quadrature_family_t,
-			quad_domain,
-			tria_domain
-			>::generate<match_type>(
-			trial_quadrature, test_quadrature, SINGULARITY_ORDER);
+		singular_galerkin_quadrature<quadrature_family_t, quad_domain, tria_domain>::
+			generate<match_type>(trial_quadrature, test_quadrature, singularity_order);
 	}
 };
-
 
 #endif
 

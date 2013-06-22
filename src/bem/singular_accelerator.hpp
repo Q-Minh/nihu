@@ -115,8 +115,6 @@ public:
 	}
 };
 
-#include <fstream>
-
 /**
 * \brief an accelerator class that stores singular quadratures for different singularity types
 * \tparam Kernel the kernel that is integrated
@@ -278,11 +276,11 @@ public:
 	}
 
 private:
-	void generate_facial(std::false_type)
+	void generate_face(std::false_type)
 	{
 	}
 
-	void generate_facial(std::true_type)
+	void generate_face(std::true_type)
 	{
 		// construct facials
 		m_face_test_quadrature = new test_quadrature_t;
@@ -298,40 +296,34 @@ public:
 	singular_accelerator(void)
 		: m_face_test_quadrature(NULL), m_face_trial_quadrature(NULL)
 	{
-		generate_facial(std::integral_constant<bool, face_match_possible>());
+		// generate face quadratures with separate function
+		// so that it does not compile of not needed (different domains)
+		generate_face(std::integral_constant<bool, face_match_possible>());
 
 		// create temporary quadratures for rotating
 		test_quadrature_t test_edge_q, test_corner_q;
 		trial_quadrature_t trial_edge_q, trial_corner_q;
 
-		// create quads singular on the first corner
+		// create test quadrature singular on the first corner
 		quad_factory_t::template generate<CORNER_MATCH>(
 			test_corner_q, trial_corner_q, SINGULARITY_ORDER);
-		// create quads singular on the first edge
+		// create test quadrature singular on the first edge
 		quad_factory_t::template generate<EDGE_MATCH>(
 			test_edge_q, trial_edge_q, SINGULARITY_ORDER);
 
-		std::ofstream os("quadratures.txt", std::ios::app);
-
-		// rotate test quads
+		// rotate test quadratures
 		for	(unsigned i = 0; i < n_test_corners; ++i)
 		{
 			// fill transform coordinates
 			Eigen::Matrix<scalar_t, n_test_corners, test_domain_t::dimension> test_corners;
 			for (unsigned k = 0; k < n_test_corners; ++k)
-				test_corners.row(k) = test_domain_t::get_corners()[(i+k) % n_test_corners].transpose();
+				test_corners.row(k) = test_domain_t::get_corner((i+k) % n_test_corners);
 
 			// rotate
 			m_corner_test_quadrature[i] = new test_quadrature_t(
 				test_corner_q.template transform<isoparam_shape_set<test_domain_t> >(test_corners));
 			m_edge_test_quadrature[i] = new test_quadrature_t(
 				test_edge_q.template transform<isoparam_shape_set<test_domain_t> >(test_corners));
-
-			if (!face_match_possible)
-			{
-				os << *(m_corner_test_quadrature[i]) << std::endl << std::endl;
-				os << *(m_edge_test_quadrature[i]) << std::endl << std::endl;
-			}
 		}
 		// rotate trial quads
 		for (unsigned i = 0; i < n_trial_corners; ++i)
@@ -339,29 +331,26 @@ public:
 			// fill transform coordinates
 			Eigen::Matrix<scalar_t, n_trial_corners, trial_domain_t::dimension> trial_corners;
 			for (unsigned k = 0; k < n_trial_corners; ++k)
-				trial_corners.row(k) = trial_domain_t::get_corners()[(i+k) % n_trial_corners].transpose();
+				trial_corners.row(k) = trial_domain_t::get_corner((i+k) % n_trial_corners);
 
 			// rotate
 			m_corner_trial_quadrature[i] = new trial_quadrature_t(
 				trial_corner_q.template transform<isoparam_shape_set<trial_domain_t> >(trial_corners));
+				
+			// when dealing with the EDGE_MATCH case, we need to take into consideration that the test and
+			// trial elements contain the singular edge in opposite nodal order. Therefore, if the
+			// test element's singular edge is 0-1, then the trial element's singular edge should be 1-0
+			// this numbering is implemented below: i+1-k instead of i+k
 
+			// fill transform coordinates
 			for (unsigned k = 0; k < n_trial_corners; ++k)
-				trial_corners.row(k) = trial_domain_t::get_corners()[(i+1+n_trial_corners-k) % n_trial_corners].transpose();
+				trial_corners.row(k) = trial_domain_t::get_corner((i+1+n_trial_corners-k) % n_trial_corners);
 
+			// rotate but keel weights unadjusted
 			m_edge_trial_quadrature[i] = new trial_quadrature_t(
 				trial_edge_q.template transform<isoparam_shape_set<trial_domain_t> >(trial_corners));
-
-			for (unsigned d = 0; d < m_edge_trial_quadrature[i]->size(); ++d)
-				(*m_edge_trial_quadrature[i])[d].set_w(-1.0 * (*m_edge_trial_quadrature[i])[d].get_w());
-
-			if (!face_match_possible)
-			{
-				os << *(m_corner_trial_quadrature[i]) << std::endl << std::endl;
-				os << *(m_edge_trial_quadrature[i]) << std::endl << std::endl;
-			}
+			*m_edge_trial_quadrature[i] *= -1.0;
 		}
-
-		os.close();
 	}
 
 	/**

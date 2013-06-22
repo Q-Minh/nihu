@@ -96,8 +96,8 @@ public:
 	{
 		double rel_distance = ((x.get_x() - m_x0).norm()) / sqrt(x.get_jacobian());
 		unsigned i;
-		for (i = 0; rel_distance < Derived::limits[i].rel_distance; ++i);
-		return Derived::limits[i].degree;
+		for (i = 0; rel_distance < Derived::get_limits(i).rel_distance; ++i);
+		return Derived::get_limits(i).degree;
 	}
 
 	/**
@@ -135,7 +135,7 @@ long long unsigned kernel_base<Derived>::m_num_evaluations = 0;
 // forward declaration
 class unit_kernel;
 
-/** \brief traits of the helmholtz G kernel */
+/** \brief traits of the 3D unit kernel */
 template<>
 struct kernel_traits<unit_kernel>
 {
@@ -157,13 +157,9 @@ struct kernel_traits<unit_kernel>
 class unit_kernel : public kernel_base<unit_kernel>
 {
 public:
-	typedef kernel_base<unit_kernel> base_t;	/**< \brief the base class' type */
-	friend class kernel_base<unit_kernel>;
-
-	using base_t::set_x0;
+	typedef kernel_base<unit_kernel> base_t;
 	using base_t::eval;
-	using base_t::estimate_complexity;
-
+	
 	/**
 	 * \brief evaluate kernel at a given receiver position
 	 * \param [in] x receiver position
@@ -173,15 +169,18 @@ public:
 	{
 		return m_result = 1.0;
 	}
+	
+	static kernel_precision const &get_limits(unsigned idx)
+	{
+		return limits[idx];
+	}
 
 protected:
 	static const kernel_precision limits[];	/**< \brief array of distance limits */
 };
 
 const unit_kernel::kernel_precision unit_kernel::limits[] = {
-	{5.0, 2},
-	{2.0, 5},
-	{0.0, 7}
+	{0.0, 3}
 	};
 
 
@@ -371,8 +370,6 @@ struct kernel_traits<helmholtz_HG_kernel>
  */
 class helmholtz_HG_kernel : public helmholtz_base<helmholtz_HG_kernel>
 {
-	friend class helmholtz_base<helmholtz_HG_kernel>;
-	friend class kernel_base<helmholtz_HG_kernel>;
 public:
 	typedef helmholtz_base<helmholtz_HG_kernel> base_t;	/**< \brief base class' type */
 
@@ -395,6 +392,11 @@ public:
 		m_result.second() = m_result.first() * (1.0 + ikr) * (-rdn / r2);
 
 		return m_result;
+	}
+	
+	static kernel_precision const &get_limits(unsigned idx)
+	{
+		return limits[idx];
 	}
 
 protected:
