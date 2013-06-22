@@ -519,7 +519,7 @@ public:
 	typedef typename test_quadrature_t::quadrature_elem_t quadrature_elem_t;
 	/** \brief location type of the outer and inner quadratures */
 	typedef typename quadrature_elem_t::xi_t xi_t;
-
+	/** \brief the underlying singular quadrature type (tria-tria) */
 	typedef singular_galerkin_quadrature<quadrature_family_t, tria_domain, tria_domain> base_sing_t;
 
 	/**
@@ -559,7 +559,7 @@ private:
 		base_sing_t::template generate<CORNER_MATCH>(
 			test_base, trial_base, SINGULARITY_ORDER);
 
-		int idx[2][3] = {
+		unsigned corner_idx[2][3] = {
 			{0, 1, 2},
 			{0, 2, 3}
 		};
@@ -568,7 +568,7 @@ private:
 		{
 			Eigen::Matrix<tria_domain::scalar_t, 3, 2> corners;
 			for (unsigned i = 0; i < 3; ++i)
-				corners.row(i) = quad_domain::get_corners()[idx[d][i]].transpose();
+				corners.row(i) = quad_domain::get_corners()[corner_idx[d][i]];
 			trial_quadrature_t test_trans = test_base.template transform<tria_1_shape_set>(corners);
 
 			for (unsigned i = 0; i < test_trans.size(); ++i)
@@ -578,7 +578,6 @@ private:
 			}
 		}
 	}
-
 
 	/**
 	* \brief specialisation of ::generate for the ::EDGE_MATCH case
@@ -592,14 +591,24 @@ private:
 		trial_quadrature_t &trial_quadrature,
 		unsigned SINGULARITY_ORDER)
 	{
+		// the quad domain is divided into two triangles
+		unsigned corner_idx[2][3] = {
+			{0, 1, 2},	// EDGE_MATCH
+			{0, 2, 3}	// CORNER_MATCH
+		};
+		
+		// for transformation pusposes
 		Eigen::Matrix<tria_domain::scalar_t, 3, 2> corners;
+
+		// the underlying tria-tria quadratures
 		trial_quadrature_t test_base;
 		trial_quadrature_t trial_base;
-
 		base_sing_t::template generate<EDGE_MATCH>(
 			test_base, trial_base, SINGULARITY_ORDER);
 
-		corners << -1.0, -1.0, 1.0, -1.0, 1.0, 1.0;
+		// assemble corners, transform and insert into result
+		for (unsigned i = 0; i < 3; ++i)
+			corners.row(i) = quad_domain::get_corners()[corner_idx[0][i]];
 		test_base.template transform_inplace<tria_1_shape_set>(corners);
 		for (unsigned i = 0; i < test_base.size(); ++i)
 		{
@@ -614,14 +623,16 @@ private:
 		base_sing_t::template generate<CORNER_MATCH>(
 			test_base, trial_base, SINGULARITY_ORDER);
 
-		corners << -1.0, -1.0, 1.0, 1.0, -1.0, 1.0;
+		// assemble corners, transform and insert into result
+		for (unsigned i = 0; i < 3; ++i)
+			corners.row(i) = quad_domain::get_corners()[corner_idx[1][i]];
 		test_base.template transform_inplace<tria_1_shape_set>(corners);
 		for (unsigned i = 0; i < test_base.size(); ++i)
 		{
 			test_quadrature.push_back(test_base[i]);
 			trial_quadrature.push_back(trial_base[i]);
 		}
-	}
+	}	// function generate
 };
 
 
@@ -666,3 +677,4 @@ public:
 
 
 #endif
+

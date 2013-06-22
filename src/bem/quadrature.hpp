@@ -48,6 +48,10 @@ public:
 		return m_w;
 	}
 
+	/**
+	* \brief set quadrature weight
+	* \param [in] w new weight
+	*/
 	void set_w(scalar_t const &w)
 	{
 		m_w = w;
@@ -157,6 +161,10 @@ public:
 		base_t::reserve(N);
 	}
 
+	/**
+	* \brief return sum of quadrature weights
+	* \return sum of weights
+	*/
 	scalar_t sum_of_weights(void) const
 	{
 		return std::accumulate (base_t::begin(), base_t::end(),
