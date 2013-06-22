@@ -68,7 +68,7 @@ public:
 	* \param [in,out] w the quadrature weight
 	* \param [in] idx the subdomain id
 	*/
-	static void transform(descartes_quad_t &x, scalar_t &w, unsigned idx)
+	static void transform_inplace(descartes_quad_t &x, scalar_t &w, unsigned idx)
 	{
 		scalar_t mu1, mu2, xi1, xi2, J;
 		switch (idx)
@@ -98,7 +98,6 @@ public:
 
 		w *= J * x(0);
 
-		// transform the quadratures back to the (0,0) (1,0) (0,1) simplex
 		x(0) = xi1;
 		x(1) = xi2;
 		x(2) = mu1+xi1;
@@ -125,7 +124,7 @@ public:
 	* \param [in,out] w the quadrature weight
 	* \param [in] idx the subdomain id
 	*/
-	static void transform(descartes_quad_t &x, scalar_t &w, unsigned idx)
+	static void transform_inplace(descartes_quad_t &x, scalar_t &w, unsigned idx)
 	{
 		scalar_t mu1, mu2, xi1, xi2;
 		switch (idx)
@@ -170,7 +169,6 @@ public:
 		double J = x(1) * x(0)*x(0) * (1.0-x(0));
 		w *= J;
 
-		// transform the quadratures back to the (0,0) (1,0) (0,1) simplex
 		x(0) = xi1;
 		x(1) = xi2;
 		x(2) = mu1+xi1;
@@ -196,7 +194,7 @@ public:
 	* \param [in,out] x the quadrature points
 	* \param [in,out] w the quadrature weight
 	*/
-	static void transform(descartes_quad_t &x, scalar_t &w, unsigned)
+	static void transform_inplace(descartes_quad_t &x, scalar_t &w, unsigned)
 	{
 		scalar_t xi1 = x(0);
 		scalar_t xi2 = xi1*x(1);
@@ -281,7 +279,7 @@ public:
 							scalar_t w = w1 * w2 * w3 * w4;
 
 							// transform the 4d quadrature into the desired singular one
-							hlp_t::transform(x, w, idx);
+							hlp_t::transform_inplace(x, w, idx);
 
 							// transform back into our standard triangle simplex
 							x(0) -= x(1);
@@ -600,7 +598,7 @@ private:
 		// for transformation pusposes
 		Eigen::Matrix<tria_domain::scalar_t, 3, 2> corners;
 
-		// the underlying tria-tria quadratures
+		// the underlying edge-singular tria-tria quadratures
 		trial_quadrature_t test_base;
 		trial_quadrature_t trial_base;
 		base_sing_t::template generate<EDGE_MATCH>(
@@ -620,6 +618,7 @@ private:
 		test_base.clear();
 		trial_base.clear();
 
+		// the underlying corner-singular tria-tria quadratures
 		base_sing_t::template generate<CORNER_MATCH>(
 			test_base, trial_base, SINGULARITY_ORDER);
 
