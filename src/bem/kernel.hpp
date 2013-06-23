@@ -96,8 +96,8 @@ public:
 	{
 		double rel_distance = ((x.get_x() - m_x0).norm()) / sqrt(x.get_jacobian());
 		unsigned i;
-		for (i = 0; rel_distance < Derived::get_limits(i).rel_distance; ++i);
-		return Derived::get_limits(i).degree;
+		for (i = 0; rel_distance < Derived::get_limit(i).rel_distance; ++i);
+		return Derived::get_limit(i).degree;
 	}
 
 	/**
@@ -170,7 +170,7 @@ public:
 		return m_result = 1.0;
 	}
 	
-	static kernel_precision const &get_limits(unsigned idx)
+	static kernel_precision const &get_limit(unsigned idx)
 	{
 		return limits[idx];
 	}
@@ -250,7 +250,6 @@ struct kernel_traits<helmholtz_G_kernel>
  */
 class helmholtz_G_kernel : public helmholtz_base<helmholtz_G_kernel>
 {
-	friend class helmholtz_base<helmholtz_G_kernel>;
 public:
 	typedef helmholtz_base<helmholtz_G_kernel> base_t;	/**< \brief the base class' type */
 
@@ -268,6 +267,11 @@ public:
 		// complex kernel
 		m_result = std::exp(-std::complex<double>(0.0,1.0)*m_k*r) / r / (4.0 * M_PI);
 		return m_result;
+	}
+	
+	static kernel_precision const &get_limit(unsigned idx)
+	{
+		return limits[idx];
 	}
 
 protected:
@@ -311,7 +315,6 @@ struct kernel_traits<helmholtz_H_kernel>
  */
 class helmholtz_H_kernel : public helmholtz_base<helmholtz_H_kernel>
 {
-	friend class helmholtz_base<helmholtz_H_kernel>;
 public:
 	typedef helmholtz_base<helmholtz_H_kernel> base_t;	/**< \brief the base class' type */
 
@@ -334,6 +337,11 @@ public:
 		m_result = m_result * (1.0 + ikr) * (-rdn / r2);
 
 		return m_result;
+	}
+
+	static kernel_precision const &get_limit(unsigned idx)
+	{
+		return limits[idx];
 	}
 
 protected:
@@ -394,7 +402,7 @@ public:
 		return m_result;
 	}
 	
-	static kernel_precision const &get_limits(unsigned idx)
+	static kernel_precision const &get_limit(unsigned idx)
 	{
 		return limits[idx];
 	}
