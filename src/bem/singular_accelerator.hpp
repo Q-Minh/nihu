@@ -441,7 +441,7 @@ public:
 	* \brief return begin iterator of the singular quadrature
 	* \return begin iterator of the singular quadrature
 	*/
-	iterator cbegin(void) const
+	iterator begin(void) const
 	{
 		switch (m_sing_type)
 		{
@@ -456,7 +456,7 @@ public:
 	* \brief return end iterator of the singular quadrature
 	* \return end iterator of the singular quadrature
 	*/
-	iterator cend(void) const
+	iterator end(void) const
 	{
 		switch (m_sing_type)
 		{

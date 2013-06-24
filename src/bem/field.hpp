@@ -111,8 +111,6 @@ public:
 	/// \brief the degree of freedom vector type
 	typedef typename base_t::dofs_t dofs_t;
 
-	using base_t::m_elem;
-
 	typedef isoparametric_field field_option_t;	///< \brief the field generating option type
 	typedef DiracOption dirac_option_t;	///< \brief the field generating option type
 
@@ -133,7 +131,7 @@ public:
 	 */
 	dofs_t const &get_dofs(void) const
 	{
-		return m_elem.get_nodes();
+		return base_t::get_elem().get_nodes();
 	}
 };
 
@@ -168,8 +166,6 @@ public:
 	/// \brief the dof vector type
 	typedef typename base_t::dofs_t dofs_t;
 
-	using base_t::m_elem;
-
 	typedef constant_shape_set<typename elem_t::domain_t> nset_t; ///< \brief type of N-set
 	static unsigned const num_dofs = nset_t::num_nodes;	///< \brief the number of dofs
 
@@ -187,7 +183,7 @@ public:
 	 */
 	dofs_t const &get_dofs(void) const
 	{
-		return m_elem.get_id();
+		return base_t::get_elem().get_id();
 	}
 };
 

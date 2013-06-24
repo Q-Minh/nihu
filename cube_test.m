@@ -26,9 +26,9 @@ w(gind) = w;
 k = 1;
 [nodes, elements]  = extract_Boonen_mesh(model);
 tic;
-[G, H, n_eval] = Boonen13_gal_const(nodes, elements, k);
+[G, H, n_eval] = Boonen13_col_const(nodes, elements, k);
 toc;
-M = diag(w);
+M = diag(ones(size(w)));
 
 %% excitation
 src = [-.2 -.3 0];
@@ -43,10 +43,12 @@ figure;
 subplot(1,2,2);
 plot_mesh(model, err);
 shading flat;
-caxis([-5 0]);
-colorbar;
+% caxis([-4 -1]);
+c = colorbar;
+ylabel(c, 'log10 Error');
 subplot(1,2,1);
 plot_mesh(model, real(p_inc));
 shading flat;
-colorbar;
+c = colorbar;
+ylabel(c, 'real pressure');
 

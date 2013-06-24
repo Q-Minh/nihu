@@ -106,12 +106,13 @@ public:
 	 */
 	static ret_quad_type on_face(unsigned degree, xi_t const &singular_point)
 	{
+		static unsigned const n = domain_t::num_corners;
+		unsigned face_indices[n+2];
+		face_indices[0] = n;
+		for (unsigned c = 0; c <= n; ++c)
+			face_indices[1+c] = c % n;
 		ret_quad_type result;
-		return duffy_impl(
-			degree,
-			duffy_traits<lset_t>::duffy_face_indices,
-			singular_point,
-			result);
+		return duffy_impl(degree, face_indices, singular_point, result);
 	}
 }; // end of class duffy_quadrature
 
@@ -123,8 +124,6 @@ struct duffy_traits<tria_1_shape_set>
 {
 	/** \brief indices of the Duffy corners for singular corners */
 	static unsigned const duffy_corner_indices[3][2+1];
-	/** \brief indices of the Duffy corners for internal singular point */
-	static unsigned const duffy_face_indices[4+1];
 };
 
 unsigned const duffy_traits<tria_1_shape_set>::duffy_corner_indices[3][2+1] = {
@@ -132,11 +131,6 @@ unsigned const duffy_traits<tria_1_shape_set>::duffy_corner_indices[3][2+1] = {
 	{1, /*|*/ 2, 0},
 	{1, /*|*/ 0, 1}
 };
-
-unsigned const duffy_traits<tria_1_shape_set>::duffy_face_indices[4+1] = {
-	3, /*|*/ 0, 1, 2, 0
-};
-
 
 
 /** \brief Specialisation of ::duffy_traits for ::quad_1_shape_set */
@@ -156,11 +150,6 @@ unsigned const duffy_traits<quad_1_shape_set>::duffy_corner_indices[4][3+1] = {
 	{2, /*|*/ 0, 1, 2}
 };
 
-unsigned const duffy_traits<quad_1_shape_set>::duffy_face_indices[5+1] = {
-	4, /*|*/ 0, 1, 2, 3, 0
-};
-
-
 
 /** \brief Specialisation of ::duffy_traits for ::tria_2_shape_set */
 template <>
@@ -168,8 +157,6 @@ struct duffy_traits<tria_2_shape_set>
 {
 	/** \brief indices of the Duffy corners for singular corners */
 	static unsigned const duffy_corner_indices[6][3+1];
-	/** \brief indices of the Duffy corners for internal singular point */
-	static unsigned const duffy_face_indices[4+1];
 };
 
 unsigned const duffy_traits<tria_2_shape_set>::duffy_corner_indices[6][3+1] = {
@@ -181,13 +168,6 @@ unsigned const duffy_traits<tria_2_shape_set>::duffy_corner_indices[6][3+1] = {
 	{2, /*|*/ 0, 1, 2}
 };
 
-unsigned const duffy_traits<tria_2_shape_set>::duffy_face_indices[4+1] = {
-	3, /*|*/ 0, 1, 2, 0
-};
-
-
-
-
 
 /** \brief Specialisation of ::duffy_traits for ::quad_2_shape_set */
 template <>
@@ -195,8 +175,6 @@ struct duffy_traits<quad_2_shape_set>
 {
 	/** \brief indices of the Duffy corners for singular corners */
 	static unsigned const duffy_corner_indices[9][5+1];
-	/** \brief indices of the Duffy corners for internal singular point */
-	static unsigned const duffy_face_indices[5+1];
 };
 
 unsigned const duffy_traits<quad_2_shape_set>::duffy_corner_indices[9][5+1] = {
@@ -210,11 +188,6 @@ unsigned const duffy_traits<quad_2_shape_set>::duffy_corner_indices[9][5+1] = {
 	{3, /*|*/ 0, 1, 2, 3},
 	{4, /*|*/ 0, 1, 2, 3, 0}
 };
-
-unsigned const duffy_traits<quad_2_shape_set>::duffy_face_indices[5+1] = {
-	4, /*|*/ 0, 1, 2, 3, 0
-};
-
 
 #endif // DUFFY_QUADRATURE_HPP_INCLUDED
 
