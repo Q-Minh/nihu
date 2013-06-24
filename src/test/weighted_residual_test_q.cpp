@@ -1,6 +1,8 @@
 #include "../bem/weighted_residual.hpp"
 
-typedef tmp::vector<tria_1_elem, quad_1_elem> elem_vector;
+#include "../bem/custom_gaussian_element.hpp"
+
+typedef tmp::vector<tria_1_elem, quad_1_elem, quad_1_gauss_elem> elem_vector;
 typedef Mesh<elem_vector> mesh_t;
 typedef function_space<mesh_t, constant_field, function_field> trial_space_t;
 typedef trial_space_t test_space_t;	// Galerkin

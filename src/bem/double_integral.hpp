@@ -134,8 +134,8 @@ public:
 			return eval_singular_on_accelerator(
 			test_field,
 			trial_field,
-			m_singular_accelerator.cbegin(),
-			m_singular_accelerator.cend());
+			m_singular_accelerator.begin(),
+			m_singular_accelerator.end());
 
 		// select quadrature
 		kernel_input_t test_center(

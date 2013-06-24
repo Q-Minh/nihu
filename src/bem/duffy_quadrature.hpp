@@ -72,8 +72,8 @@ private:
 
 		for (size_t d = 0; d < num_duffies; ++d)
 		{
-			coords.row(2) = LSet::corner_at(array[d]);
-			coords.row(3) = LSet::corner_at(array[d+1]);
+			coords.row(2) = domain_t::get_corner(array[d]);
+			coords.row(3) = domain_t::get_corner(array[d+1]);
 
 			result += source.template transform<quad_1_shape_set>(coords);
 		}
@@ -93,8 +93,8 @@ public:
 		ret_quad_type result;
 		return duffy_impl(
 			degree,
-			duffy_traits<LSet>::duffy_corner_indices[singular_corner],
-			LSet::corner_at(singular_corner),
+			duffy_traits<lset_t>::duffy_corner_indices[singular_corner],
+			lset_t::corner_at(singular_corner),
 			result);
 	}
 
@@ -109,7 +109,7 @@ public:
 		ret_quad_type result;
 		return duffy_impl(
 			degree,
-			duffy_traits<LSet>::duffy_face_indices,
+			duffy_traits<lset_t>::duffy_face_indices,
 			singular_point,
 			result);
 	}
@@ -173,16 +173,16 @@ struct duffy_traits<tria_2_shape_set>
 };
 
 unsigned const duffy_traits<tria_2_shape_set>::duffy_corner_indices[6][3+1] = {
-	{1, /*|*/ 2, 4},
-	{2, /*|*/ 2, 4, 0},
-	{1, /*|*/ 4, 0},
-	{2, /*|*/ 4, 0, 2},
-	{1, /*|*/ 0, 2},
-	{2, /*|*/ 0, 2, 4}
+	{1, /*|*/ 1, 2},
+	{2, /*|*/ 1, 2, 0},
+	{1, /*|*/ 2, 0},
+	{2, /*|*/ 2, 0, 1},
+	{1, /*|*/ 0, 1},
+	{2, /*|*/ 0, 1, 2}
 };
 
 unsigned const duffy_traits<tria_2_shape_set>::duffy_face_indices[4+1] = {
-	3, /*|*/ 0, 2, 4, 0
+	3, /*|*/ 0, 1, 2, 0
 };
 
 
@@ -200,24 +200,20 @@ struct duffy_traits<quad_2_shape_set>
 };
 
 unsigned const duffy_traits<quad_2_shape_set>::duffy_corner_indices[9][5+1] = {
-	{2, /*|*/ 2, 4, 6},
-	{3, /*|*/ 2, 4, 6, 0},
-	{2, /*|*/ 4, 6, 0},
-	{3, /*|*/ 4, 6, 0, 2},
-	{2, /*|*/ 6, 0, 2},
-	{3, /*|*/ 6, 0, 2, 4},
-	{2, /*|*/ 0, 2, 4},
-	{3, /*|*/ 0, 2, 4, 6},
-	{4, /*|*/ 0, 2, 4, 6, 0}
+	{2, /*|*/ 1, 2, 3},
+	{3, /*|*/ 1, 2, 3, 0},
+	{2, /*|*/ 2, 3, 0},
+	{3, /*|*/ 2, 3, 0, 1},
+	{2, /*|*/ 3, 0, 1},
+	{3, /*|*/ 3, 0, 1, 2},
+	{2, /*|*/ 0, 1, 2},
+	{3, /*|*/ 0, 1, 2, 3},
+	{4, /*|*/ 0, 1, 2, 3, 0}
 };
 
 unsigned const duffy_traits<quad_2_shape_set>::duffy_face_indices[5+1] = {
-	4, /*|*/ 0, 2, 4, 6, 0
+	4, /*|*/ 0, 1, 2, 3, 0
 };
-
-
-
-
 
 
 #endif // DUFFY_QUADRATURE_HPP_INCLUDED

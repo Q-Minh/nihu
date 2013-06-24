@@ -22,8 +22,15 @@ class shape_set_base
 {
 public:
 	typedef shape_set_traits<Derived> traits_t;	/**< \brief the traits class type */
-	typedef typename traits_t::domain_t domain_t;			/**< \brief Domain */
-	static unsigned const num_nodes = traits_t::num_nodes;	/**< \brief Number of nodes */
+
+	/** \brief Domain */
+	typedef typename traits_t::domain_t domain_t;			
+	/** \brief Number of nodes */
+	static unsigned const num_nodes = traits_t::num_nodes;
+	/** \brief highest power of a local variable in the shape_set */
+	static unsigned const polynomial_order = traits_t::polynomial_order;
+	/** \brief highest power of a local variable in the jacobian of the shape set transformation */
+	static unsigned const jacobian_order = traits_t::jacobian_order;
 
 	/** \brief scalar type inherited from the domain */
 	typedef typename domain_t::scalar_t scalar_t;
@@ -33,6 +40,25 @@ public:
 	typedef Eigen::Matrix<scalar_t, num_nodes, 1> shape_t;
 	/** \brief type of a \f$\nabla L(\xi)\f$ gradient matrix */
 	typedef Eigen::Matrix<scalar_t, num_nodes, domain_t::dimension> dshape_t;
+
+public:
+	/** \brief return end iterator to the corner nodes
+	* \return end iterator to corner nodes
+	*/
+	static xi_t const *corner_end(void)
+	{
+		return Derived::corner_begin() + num_nodes;
+	}
+
+	/**
+	* \brief return corner at a given node number
+	* \param [in] idx the node index
+	* \return constant reference to the coordinates
+	*/
+	static xi_t const &corner_at(size_t idx)
+	{
+		return *(Derived::corner_begin() + idx);
+	}
 };
 
 // Forward declaration
@@ -45,6 +71,10 @@ struct shape_set_traits<constant_shape_set<Domain> >
 {
 	typedef Domain domain_t;	/**< \brief the domain type */
 	static unsigned const num_nodes = 1;	/**< \brief number of nodes */
+	/** \brief highest power of local variables in the shape function */
+	static unsigned const polynomial_order = 0;
+	/** \brief highest power of local variables in the Jacobian */
+	static unsigned const jacobian_order = 0;
 };
 
 /**
@@ -57,7 +87,7 @@ public:
 	typedef shape_set_base<constant_shape_set<Domain> > base_t;	/**< \brief the base class type */
 	/** \brief the domain type */
 	typedef typename base_t::domain_t domain_t;
-	/** \brief type of the xi variable */
+	/** \brief type of the domain variable */
 	typedef typename base_t::xi_t xi_t;
 	/** \brief type of a shape function vector */
 	typedef typename base_t::shape_t shape_t;
@@ -96,14 +126,6 @@ public:
 		return &(domain_t::get_center());
 	}
 
-	/** \brief return end iterator to the corner nodes
-	* \return end iterator to corner nodes
-	*/
-	static xi_t const *corner_end(void)
-	{
-		return &(domain_t::get_center()) + 1;
-	}
-
 protected:
 	static const shape_t m_shape;
 	static const dshape_t m_dshape;
@@ -139,17 +161,50 @@ typename quad_0_shape_set::dshape_t
 	const quad_0_shape_set::m_dshape = constant_shape_set<quad_domain>::dshape_t::Zero();
 
 
+/** \brief Common traits for all isoparametric shape sets
+* \tparam Domain the domain class of the shape set
+*/
+template <class Domain>
+struct isoparam_shape_set_traits_base
+{
+	/** \brief the domain type */
+	typedef Domain domain_t;
+	/** \brief number of nodes */
+	static unsigned const num_nodes = domain_t::num_corners;
+	/** \brief highest power of local variables in the shape functions */
+	static unsigned const polynomial_order = 1;
+};
+
 
 // Forward declaration
 template <class Domain>
 class isoparam_shape_set;
 
-/** \brief Traits for isoparametric shape sets */
-template <class Domain>
-struct shape_set_traits<isoparam_shape_set<Domain> >
+/** \brief Traits of the isoparametric line shape set */
+template <>
+struct shape_set_traits<isoparam_shape_set<line_domain> >
+	: isoparam_shape_set_traits_base<line_domain>
 {
-	typedef Domain domain_t;	/**< \brief the domain type */
-	static unsigned const num_nodes = domain_t::num_corners;	/**< \brief number of nodes */
+	/** \brief highest power of local variables in the jacobian */
+	static unsigned const jacobian_order = 0;
+};
+
+/** \brief Traits of the isoparametric triangle shape set */
+template <>
+struct shape_set_traits<isoparam_shape_set<tria_domain> >
+	: isoparam_shape_set_traits_base<tria_domain>
+{
+	/** \brief highest power of local variables in the jacobian */
+	static unsigned const jacobian_order = 0;
+};
+
+/** \brief Traits of the isoparametric quadrangle shape set */
+template <>
+struct shape_set_traits<isoparam_shape_set<quad_domain> >
+	: isoparam_shape_set_traits_base<quad_domain>
+{
+	/** \brief highest power of local variables in the jacobian */
+	static unsigned const jacobian_order = 1;
 };
 
 /**
@@ -189,24 +244,6 @@ public:
 	static xi_t const *corner_begin(void)
 	{
 		return domain_t::get_corners();
-	}
-
-	/** \brief return end iterator to the corner nodes
-	* \return end iterator to corner nodes
-	*/
-	static xi_t const *corner_end(void)
-	{
-		return domain_t::get_corners() + domain_t::num_corners;
-	}
-
-	/**
-	* \brief return corner at a given node number
-	* \param [in] idx the node index
-	* \return constant reference to the coordinates
-	*/
-	static xi_t const &corner_at(size_t idx)
-	{
-		return *(domain_t::get_corners() + idx);
 	}
 };
 
@@ -345,6 +382,10 @@ struct shape_set_traits<parallelogram_shape_set>
 {
 	typedef quad_domain domain_t;	/**< \brief the domain type */
 	static unsigned const num_nodes = 3;	/**< \brief number of nodes */
+	/** \brief highest power of local variables in the shape function */
+	static unsigned const polynomial_order = 1;
+	/** \brief highest power of local variables in the jacobian */
+	static unsigned const jacobian_order = 0;
 };
 
 /**
@@ -391,14 +432,6 @@ public:
 	{
 		return domain_t::get_corners();
 	}
-
-	/** \brief return end iterator to the corner nodes
-	* \return end iterator to corner nodes
-	*/
-	static xi_t const *corner_end(void)
-	{
-		return domain_t::get_corners() + domain_t::num_corners;
-	}
 };
 
 
@@ -412,6 +445,10 @@ struct shape_set_traits<tria_2_shape_set>
 {
 	typedef tria_domain domain_t;	/**< \brief the domain type */
 	static unsigned const num_nodes = 6;	/**< \brief number of nodes */
+	/** \brief highest power of local variables in the shape function */
+	static unsigned const polynomial_order = 2;
+	/** \brief highest power of local variables in the jacobian */
+	static unsigned const jacobian_order = 2;
 };
 
 /**
@@ -465,26 +502,6 @@ public:
 		return m_corners;
 	}
 
-	/** \brief return end iterator to the corner nodes
-	* \return end iterator to corner nodes
-	*/
-	static xi_t const *corner_end(void)
-	{
-		return m_corners + num_nodes;
-	}
-    
-	/**
-	* \brief return corner at a given node number
-	* \param [in] idx the node index
-	* \return constant reference to the coordinates
-	* \todo this function should be defined generally, not for each new general shape set, because this is a sickness and we do not want it therefore.
-	*/
-    static xi_t const &corner_at(size_t idx)
-	{
-		return m_corners[idx];
-	}
-    
-
 protected:
 	/** \brief the corner nodes of the shape set */
 	static const xi_t m_corners[num_nodes];
@@ -511,6 +528,10 @@ struct shape_set_traits<quad_2_shape_set>
 {
 	typedef quad_domain domain_t;	/**< \brief the domain type */
 	static unsigned const num_nodes = 9;	/**< \brief number of nodes */
+	/** \brief highest power of local variables in the shape function */
+	static unsigned const polynomial_order = 2;
+	/** \brief highest power of local variables in the Jacobian */
+	static unsigned const jacobian_order = 3;
 };
 
 /**
@@ -570,25 +591,6 @@ public:
 	static xi_t const *corner_begin(void)
 	{
 		return m_corners;
-	}
-
-	/** \brief return end iterator to the corner nodes
-	* \return end iterator to corner nodes
-	*/
-	static xi_t const *corner_end(void)
-	{
-		return m_corners + num_nodes;
-	}
-
-	/**
-	* \brief return corner at a given node number
-	* \param [in] idx the node index
-	* \return constant reference to the coordinates
-	* \todo this function should be defined generally, not for each new general shape set, because this is a sickness and we do not want it therefore.
-	*/
-	static xi_t const &corner_at(size_t idx)
-	{
-		return m_corners[idx];
 	}
 
 protected:
