@@ -15,7 +15,7 @@
  * \tparam TestSpace the test function space over which integration is performed
  * \tparam TrialSpace the trial function space over which integration is performed
  */
-template <class Kernel, class TestSpace, class TrialSpace>
+template <bool isCollocational, class Kernel, class TestSpace, class TrialSpace>
 class weighted_residual
 {
 	// CRTP check
@@ -38,7 +38,7 @@ private:
 		typedef TrialField trial_field_t;	/**< \brief the trial field type */
 
 		/** \brief the internal integrator type */
-		typedef double_integral<kernel_t, test_field_t, trial_field_t> double_integral_t;
+		typedef double_integral<isCollocational, kernel_t, test_field_t, trial_field_t> double_integral_t;
 		/** \brief result type of field integrator */
 		typedef typename double_integral_t::result_t result_t;
 

@@ -120,8 +120,12 @@ public:
 * \tparam TrialField the trial field over which integration is performed
 * \todo templating this class on the kernel is sick.
 */
+template <bool is_collocational, class Kernel, class TestField, class TrialField>
+class singular_accelerator;
+
+
 template <class Kernel, class TestField, class TrialField>
-class singular_accelerator
+class singular_accelerator<false, Kernel, TestField, TrialField>
 {
 	// CRTP check
 	static_assert(std::is_base_of<kernel_base<Kernel>, Kernel>::value,
@@ -380,8 +384,8 @@ protected:
 * \tparam TestElem the test element type
 * \tparam TrialField the trial field type
 */
-template <class Kernel, class TestElem, class TrialField>
-class singular_accelerator<Kernel, field<TestElem, constant_field, dirac_field>, TrialField>
+template <class Kernel, class TestField, class TrialField>
+class singular_accelerator<true, Kernel, TestField, TrialField>
 {
 	// CRTP check
 	static_assert(std::is_base_of<kernel_base<Kernel>, Kernel>::value,
@@ -391,7 +395,7 @@ class singular_accelerator<Kernel, field<TestElem, constant_field, dirac_field>,
 public:
 	typedef Kernel kernel_t;	/**< \brief template argument as nested type */
 	/** \brief the test field type */
-	typedef field<TestElem, constant_field, dirac_field> test_field_t;	
+	typedef TestField test_field_t;	
 	typedef TrialField trial_field_t;	/**< \brief template argument as nested type */
 
 	typedef typename test_field_t::elem_t test_elem_t;	/**< \brief the test elem type */

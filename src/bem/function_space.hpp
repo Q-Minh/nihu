@@ -55,7 +55,7 @@ struct get_num_dofs_impl<mesh_t, isoparametric_field>
  * \details The class is a proxy that stores a constant reference to the mesh.
  * The class provides an iterator that can traverse the elements and derefers them as fields.
  */
-template<class MeshT, class FieldOption, class DiracOption = function_field>
+template<class MeshT, class FieldOption>
 class function_space_view
 {
 public:
@@ -63,8 +63,6 @@ public:
 	typedef MeshT mesh_t;
 	/** \brief template parameter as nested type */
 	typedef FieldOption field_option_t;
-	/** \brief template parameter as nested type */
-	typedef DiracOption dirac_option_t;
 
 	/** \brief elem_type_vector inherited from mesh */
 	typedef typename mesh_t::elem_type_vector_t elem_type_vector_t;
@@ -73,7 +71,7 @@ public:
 	template <class elem_t>
 	struct fieldize
 	{
-		typedef field_view<elem_t, field_option_t, dirac_option_t> type; /**< \brief metafunction return type */
+		typedef field_view<elem_t, field_option_t> type; /**< \brief metafunction return type */
 	};
 
 	/** \brief a vector of field types computed from the element type vector */

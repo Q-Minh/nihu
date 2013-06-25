@@ -17,20 +17,24 @@
 * \tparam Test type of the test field
 * \tparam Trial type of the trial field
 */
-template <class Kernel, class Test, class Trial>
-class double_integral
+template <bool isCollocational, class Kernel, class TestField, class TrialField>
+class double_integral;
+
+
+template <class Kernel, class TestField, class TrialField>
+class double_integral<false, Kernel, TestField, TrialField>
 {
 	// CRTP check
 	static_assert(std::is_base_of<kernel_base<Kernel>, Kernel>::value,
 		"Kernel must be derived from kernel_base<Kernel>");
-	static_assert(std::is_base_of<field_base<Test>, Test>::value,
+	static_assert(std::is_base_of<field_base<TestField>, TestField>::value,
 		"Test must be derived from field_base<Test>");
-	static_assert(std::is_base_of<field_base<Trial>, Trial>::value,
+	static_assert(std::is_base_of<field_base<TrialField>, TrialField>::value,
 		"Trial must be derived from field_base<Trial>");
 public:
 	typedef Kernel kernel_t;		/**< \brief template parameter as nested type */
-	typedef Test test_field_t;		/**< \brief template parameter as nested type */
-	typedef Trial trial_field_t;	/**< \brief template parameter as nested type */
+	typedef TestField test_field_t;		/**< \brief template parameter as nested type */
+	typedef TrialField trial_field_t;	/**< \brief template parameter as nested type */
 
 	typedef typename kernel_t::input_t kernel_input_t;	/**< \brief input type of kernel */
 	typedef typename kernel_t::result_t kernel_result_t;	/**< \brief result type of kernel */
@@ -48,7 +52,7 @@ public:
 	typedef field_type_accelerator_pool<trial_field_t, quadrature_family_t> trial_field_type_accelerator_pool_t;
 
 	/** \brief the singular accelerator type */
-	typedef singular_accelerator<kernel_t, test_field_t, trial_field_t> singular_accelerator_t;
+	typedef singular_accelerator<false, kernel_t, test_field_t, trial_field_t> singular_accelerator_t;
 
 	typedef typename test_field_t::nset_t::shape_t test_shape_t;	/**< \brief type of test shape function */
 	typedef typename trial_field_t::nset_t::shape_t trial_shape_t;	/**< \brief type of trial shape function */
@@ -165,20 +169,20 @@ protected:
 };
 
 template <class Kernel, class Test, class Trial>
-typename double_integral<Kernel, Test, Trial>::result_t
-	double_integral<Kernel, Test, Trial>::m_result;
+typename double_integral<false, Kernel, Test, Trial>::result_t
+	double_integral<false, Kernel, Test, Trial>::m_result;
 
 template<class Kernel, class Test, class Trial>
-typename double_integral<Kernel, Test, Trial>::test_field_type_accelerator_pool_t
-	const double_integral<Kernel, Test, Trial>::m_test_field_accelerator_pool;
+typename double_integral<false, Kernel, Test, Trial>::test_field_type_accelerator_pool_t
+	const double_integral<false, Kernel, Test, Trial>::m_test_field_accelerator_pool;
 
 template<class Kernel, class Test, class Trial>
-typename double_integral<Kernel, Test, Trial>::trial_field_type_accelerator_pool_t
-	const double_integral<Kernel, Test, Trial>::m_trial_field_accelerator_pool;
+typename double_integral<false, Kernel, Test, Trial>::trial_field_type_accelerator_pool_t
+	const double_integral<false, Kernel, Test, Trial>::m_trial_field_accelerator_pool;
 
 template<class Kernel, class Test, class Trial>
-typename double_integral<Kernel, Test, Trial>::singular_accelerator_t
-	double_integral<Kernel, Test, Trial>::m_singular_accelerator;
+typename double_integral<false, Kernel, Test, Trial>::singular_accelerator_t
+	double_integral<false, Kernel, Test, Trial>::m_singular_accelerator;
 
 
 /**
@@ -187,20 +191,20 @@ typename double_integral<Kernel, Test, Trial>::singular_accelerator_t
 * \tparam Test type of the test field
 * \tparam Trial type of the trial field
 */
-template<class Kernel, class ElemType, class FieldOption, class Trial>
-class double_integral<Kernel, field<ElemType, FieldOption, dirac_field>, Trial>
+template<class Kernel, class TestField, class TrialField>
+class double_integral<true, Kernel, TestField, TrialField>
 {
 	// CRTP check
 	static_assert(std::is_base_of<kernel_base<Kernel>, Kernel>::value,
 		"Kernel must be derived from kernel_base<Kernel>");
-	static_assert(std::is_base_of<field_base<Trial>, Trial>::value,
-		"Trial must be derived from field_base<Trial>");
+	static_assert(std::is_base_of<field_base<TestField>, TestField>::value,
+		"Test field must be derived from field_base<Test>");
+	static_assert(std::is_base_of<field_base<TrialField>, TrialField>::value,
+		"Trial field must be derived from field_base<Trial>");
 public:
 	typedef Kernel kernel_t;		/**< \brief template parameter as nested type */
-	typedef Trial trial_field_t;	/**< \brief template parameter as nested type */
-
-	/** \brief template parameter as nested type */
-	typedef field<ElemType, FieldOption, dirac_field> test_field_t;
+	typedef TrialField trial_field_t;	/**< \brief template parameter as nested type */
+	typedef TestField test_field_t;
 
 	typedef typename kernel_t::input_t kernel_input_t;	/**< \brief input type of kernel */
 	typedef typename kernel_t::result_t kernel_result_t;/**< \brief result type of kernel */
@@ -225,20 +229,21 @@ public:
 		quadrature_family_t
 	> trial_field_type_accelerator_pool_t;
 	/** \brief the singular accelerator type */
-	typedef singular_accelerator<
-		kernel_t,
-		test_field_t,
-		trial_field_t
-	> singular_accelerator_t;
+	typedef singular_accelerator<true, kernel_t, test_field_t, trial_field_t> singular_accelerator_t;
 
 	/** \brief test element's N-set */
 	typedef typename test_field_t::nset_t test_nset_t;
 	/** \brief type of element's N-set */
 	typedef typename trial_field_t::nset_t::shape_t trial_shape_t;
+	/** \brief type of element's N-set */
+	typedef typename test_field_t::nset_t::shape_t test_shape_t;
 
 	/** \brief result type of the weighted residual */
 	typedef typename plain_type<
-		typename product_type<kernel_result_t, Eigen::Transpose<trial_shape_t> >::type
+		typename product_type<
+		kernel_result_t,
+		typename product_type<test_shape_t, Eigen::Transpose<trial_shape_t> >::type
+		>::type
 	>::type result_t;
 
 	/** \brief evaluate double integral with selected trial field accelerator
@@ -342,17 +347,17 @@ protected:
 	static singular_accelerator_t m_singular_accelerator;
 };
 
-template<class Kernel, class ElemType, class FieldOption, class Trial>
-typename double_integral<Kernel, field<ElemType, FieldOption, dirac_field>, Trial>::result_t
-	double_integral<Kernel, field<ElemType, FieldOption, dirac_field>, Trial>::m_result;
+template<class Kernel, class TestField, class TrialField>
+typename double_integral<true, Kernel, TestField, TrialField>::result_t
+	double_integral<true, Kernel, TestField, TrialField>::m_result;
 
-template<class Kernel, class ElemType, class FieldOption, class Trial>
-typename double_integral<Kernel, field<ElemType, FieldOption, dirac_field>, Trial>::trial_field_type_accelerator_pool_t
-	const double_integral<Kernel, field<ElemType, FieldOption, dirac_field>, Trial>::m_trial_field_accelerator_pool;
+template<class Kernel, class TestField, class TrialField>
+typename double_integral<true, Kernel, TestField, TrialField>::trial_field_type_accelerator_pool_t
+	const double_integral<true, Kernel, TestField, TrialField>::m_trial_field_accelerator_pool;
 
-template<class Kernel, class ElemType, class FieldOption, class Trial>
-typename double_integral<Kernel, field<ElemType, FieldOption, dirac_field>, Trial>::singular_accelerator_t
-	double_integral<Kernel, field<ElemType, FieldOption, dirac_field>, Trial>::m_singular_accelerator;
+template<class Kernel, class TestField, class TrialField>
+typename double_integral<true, Kernel, TestField, TrialField>::singular_accelerator_t
+	double_integral<true, Kernel, TestField, TrialField>::m_singular_accelerator;
 
 #endif
 

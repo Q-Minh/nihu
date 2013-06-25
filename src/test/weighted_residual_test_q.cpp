@@ -2,10 +2,10 @@
 
 typedef tmp::vector<tria_1_elem, quad_1_elem> elem_vector;
 typedef Mesh<elem_vector> mesh_t;
-typedef function_space_view<mesh_t, constant_field, function_field> trial_space_t;
-typedef trial_space_t test_space_t;	// Galerkin
+typedef function_space_view<mesh_t, constant_field> trial_space_t;
+typedef trial_space_t test_space_t;
 typedef unit_kernel kernel_t;
-typedef weighted_residual<kernel_t, test_space_t, trial_space_t> wr_t;
+typedef weighted_residual<true, kernel_t, test_space_t, trial_space_t> wr_t;
 
 int main(void)
 {
