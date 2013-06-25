@@ -38,7 +38,7 @@ private:
 		typedef TrialField trial_field_t;	/**< \brief the trial field type */
 
 		/** \brief the internal integrator type */
-		typedef double_integral<isCollocational, kernel_t, test_field_t, trial_field_t> double_integral_t;
+		typedef double_integral<kernel_t, test_field_t, trial_field_t> double_integral_t;
 		/** \brief result type of field integrator */
 		typedef typename double_integral_t::result_t result_t;
 
@@ -57,7 +57,9 @@ private:
 				for (auto trial_it = wr.m_trial_space.template field_begin<trial_field_t>();
 					trial_it != wr.m_trial_space.template field_end<trial_field_t>(); ++trial_it)
 					block(result, (*test_it).get_dofs(), (*trial_it).get_dofs())
-						+= double_integral_t::eval(*test_it, *trial_it);
+						+= double_integral_t::eval(
+							std::integral_constant<bool, isCollocational>(),
+							*test_it, *trial_it);
 		}
 	};};
 

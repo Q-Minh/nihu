@@ -6,23 +6,26 @@
 typedef tmp::vector<tria_1_elem, quad_1_elem> elem_type_vector;
 typedef Mesh<elem_type_vector> mesh_t;
 
+typedef helmholtz_HG_kernel kernel_t;
+
 #ifdef COLLOC_CONSTANT
-typedef function_space<mesh_t, constant_field, dirac_field> test_space_t;
-typedef function_space<mesh_t, constant_field, function_field> trial_space_t;
+typedef function_space_view<mesh_t, constant_field> test_space_t;
+typedef test_space_t trial_space_t;
+typedef weighted_residual<true, kernel_t, test_space_t, trial_space_t> wr_t;
 #endif
 
 #ifdef GALERKIN_CONSTANT
-typedef function_space<mesh_t, constant_field, function_field> test_space_t;
+typedef function_space_view<mesh_t, constant_field> test_space_t;
 typedef test_space_t trial_space_t;
+typedef weighted_residual<false, kernel_t, test_space_t, trial_space_t> wr_t;
 #endif
 
 #ifdef GALERKIN_ISO
-typedef function_space<mesh_t, isoparametric_field, function_field> test_space_t;
+typedef function_space_view<mesh_t, isoparametric_field> test_space_t;
 typedef test_space_t trial_space_t;
+typedef weighted_residual<false, kernel_t, test_space_t, trial_space_t> wr_t;
 #endif
 
-typedef helmholtz_HG_kernel kernel_t;
-typedef weighted_residual<kernel_t, test_space_t, trial_space_t> wr_t;
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {

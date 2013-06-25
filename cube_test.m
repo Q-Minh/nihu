@@ -3,7 +3,7 @@ clear;
 %% geometry
 elemtype = 'mixed';
 
-model = create_brick_boundary(2, 10);
+model = create_brick_boundary(2, 20);
 model = translate_mesh(model, [-1 -1 -1]);
 if strcmp(elemtype, 'tria')
     model = quad2tria(model);
