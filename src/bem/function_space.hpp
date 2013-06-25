@@ -56,7 +56,7 @@ struct get_num_dofs_impl<mesh_t, isoparametric_field>
  * The class provides an iterator that can traverse the elements and derefers them as fields.
  */
 template<class MeshT, class FieldOption, class DiracOption = function_field>
-class function_space
+class function_space_view
 {
 public:
 	/** \brief template parameter as nested type */
@@ -73,7 +73,7 @@ public:
 	template <class elem_t>
 	struct fieldize
 	{
-		typedef field<elem_t, field_option_t, dirac_option_t> type; /**< \brief metafunction return type */
+		typedef field_view<elem_t, field_option_t, dirac_option_t> type; /**< \brief metafunction return type */
 	};
 
 	/** \brief a vector of field types computed from the element type vector */
@@ -118,7 +118,7 @@ public:
 	 * \brief constructor storing a reference from the mesh
 	 * \param mesh the mesh object to extend
 	 */
-	function_space(mesh_t const &mesh) : m_mesh(mesh)
+	function_space_view(mesh_t const &mesh) : m_mesh(mesh)
 	{
 	}
 

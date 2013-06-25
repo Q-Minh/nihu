@@ -38,9 +38,12 @@ private:
 	}
 
 public:
-	typedef field_traits<Derived> traits_t;	/**< \brief the traits class */
-	typedef typename traits_t::elem_t elem_t;	/**< \brief the element type */
-	typedef typename traits_t::dofs_t dofs_t;	/**< \brief the dofs vector type */
+	/** \brief the traits class */
+	typedef field_traits<Derived> traits_t;
+	/** \brief the element type */
+	typedef typename traits_t::elem_t elem_t;
+	/** \brief the dofs vector type */
+	typedef typename traits_t::dofs_t dofs_t;
 
 	/**
 	 * \brief constructor initialising the reference member
@@ -83,11 +86,11 @@ protected:
  * \tparam FieldOption constant_field or isoparametric_field
  */
 template <class ElemType, class FieldOption, class DiracOption = function_field>
-class field;
+class field_view;
 
 /** \brief Specialisation of field_traits for the isoparametric field case */
 template <class ElemType, class DiracOption>
-struct field_traits<field<ElemType, isoparametric_field, DiracOption> >
+struct field_traits<field_view<ElemType, isoparametric_field, DiracOption> >
 {
 	typedef ElemType elem_t;	/**< \brief the element type */
 	typedef typename elem_t::nodes_t dofs_t;	/**< \brief the dof vector type */
@@ -99,12 +102,12 @@ struct field_traits<field<ElemType, isoparametric_field, DiracOption> >
  * \tparam ElemType the element type the field is associated with
  */
 template <class ElemType, class DiracOption>
-class field<ElemType, isoparametric_field, DiracOption>
-	: public field_base<field<ElemType, isoparametric_field, DiracOption> >
+class field_view<ElemType, isoparametric_field, DiracOption>
+	: public field_base<field_view<ElemType, isoparametric_field, DiracOption> >
 {
 public:
 	/** \brief base's type */
-	typedef field_base<field<ElemType, isoparametric_field, DiracOption> > base_t;
+	typedef field_base<field_view<ElemType, isoparametric_field, DiracOption> > base_t;
 
 	/// \brief the field's elem type
 	typedef typename base_t::elem_t elem_t;
@@ -121,7 +124,7 @@ public:
 	 * \brief constructor passing argument to base constructor
 	 * \param [in] elem constant reference to underlying element
 	 */
-	field(elem_t const &elem) : base_t(elem)
+	field_view(elem_t const &elem) : base_t(elem)
 	{
 	}
 
@@ -138,7 +141,7 @@ public:
 
 /** \brief Specialisation of field_traits for the constant field case */
 template <class ElemType, class DiracOption>
-struct field_traits<field<ElemType, constant_field, DiracOption> >
+struct field_traits<field_view<ElemType, constant_field, DiracOption> >
 {
 	typedef ElemType elem_t;	/**< \brief the element type */
 	typedef typename elem_t::id_t dofs_t;	/**< \brief the dof vector type */
@@ -151,12 +154,12 @@ struct field_traits<field<ElemType, constant_field, DiracOption> >
  * \tparam ElemType the element type the field is associated with
  */
 template <class ElemType, class DiracOption>
-class field<ElemType, constant_field, DiracOption>
-	: public field_base<field<ElemType, constant_field, DiracOption> >
+class field_view<ElemType, constant_field, DiracOption>
+	: public field_base<field_view<ElemType, constant_field, DiracOption> >
 {
 public:
 	/** \brief base's type */
-	typedef field_base<field<ElemType, constant_field, DiracOption> > base_t;
+	typedef field_base<field_view<ElemType, constant_field, DiracOption> > base_t;
 
 	typedef constant_field field_option_t; ///< \brief template argument as nested type
 	typedef DiracOption dirac_option_t;	///< \brief template argument as nested type
@@ -173,7 +176,7 @@ public:
 	 * \brief constructor passing argument to base constructor
 	 * \param [in] elem constant reference to underlying element
 	 */
-	field(elem_t const &elem) : base_t(elem)
+	field_view(elem_t const &elem) : base_t(elem)
 	{
 	}
 
@@ -186,6 +189,46 @@ public:
 		return base_t::get_elem().get_id();
 	}
 };
+
+
+
+
+template <class ElemType, class NSet, class DiracOption = function_field>
+class field;
+
+/** \brief Specialisation of field_traits for the field case */
+template <class ElemType, class NSet, class DiracOption>
+struct field_traits<field<ElemType, NSet, DiracOption> >
+{
+	typedef ElemType elem_t;	/**< \brief the element type */
+	typedef Eigen::Matrix<unsigned, 1, NSet::num_nodes> dofs_t;	/**< \brief the dof vector type */
+};
+
+
+template <class ElemType, class NSet, class DiracOption>
+class field : public field_base<field<ElemType, NSet, DiracOption> >
+{
+public:
+	typedef field_base<field<ElemType, NSet, DiracOption> > base_t;
+
+	typedef typename base_t::elem_t elem_t;
+	typedef typename base_t::dofs_t dofs_t;
+
+
+	field(elem_t const &elem, dofs_t const &dofs)
+		: base_t(elem), m_dofs(dofs)
+	{
+	}
+
+	dofs_t const &get_dofs(void) const
+	{
+		return m_dofs;
+	}
+
+protected:
+	dofs_t m_dofs;
+};
+
 
 #endif
 
