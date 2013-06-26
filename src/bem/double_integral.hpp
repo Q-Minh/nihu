@@ -232,8 +232,8 @@ public:
 		typedef accel_store<false, kernel_t, test_field_t, trial_field_t> acc_store_t;
 		auto &sa = acc_store_t::m_singular_accelerator;
 
-		auto &test_ra = regular_test_store_t::m_regular_pool;
-		auto &trial_ra = regular_trial_store_t::m_regular_pool;
+		auto &test_ra = test_regular_store_t::m_regular_pool;
+		auto &trial_ra = trial_regular_store_t::m_regular_pool;
 
 		m_result.setZero();	// clear result
 
@@ -270,7 +270,7 @@ public:
 		typename acc_store_t::singular_accelerator_t &sa = acc_store_t::m_singular_accelerator;
 
 		typedef regular_pool_store<trial_field_t, quadrature_family_t> regular_trial_store_t;
-		auto &trial_ra = regular_trial_store_t::m_regular_pool;
+		auto &trial_ra = trial_regular_store_t::m_regular_pool;
 
 		m_result.setZero();	// clear result
 

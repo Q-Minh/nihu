@@ -354,7 +354,7 @@ public:
 	 * \param [in] elements matrix of element node indices
 	 */
 	template <class node_t, class field_t>
-	function_space(node_t const &nodes, field_t const &elements) : m_num_elements(0)
+	function_space(node_t const &nodes, field_t const &elements) : m_num_fields(0)
 	{
 		unsigned const N_MAX_ELEM = 100;
 		double c[nDim];
@@ -389,7 +389,7 @@ public:
 	template <class FieldType>
 	typename field_iterator_t<FieldType>::type end(void) const
 	{
-		return m_fields.EIGENSTDVECTOR(ElemType)::end();
+		return m_fields.EIGENSTDVECTOR(FieldType)::end();
 	}
 
 	/**
