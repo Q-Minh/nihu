@@ -13,6 +13,12 @@
 
 #include "element.hpp"
 
+template <class ElemType>
+struct mesh_elem_iterator_t
+{
+	typedef typename EIGENSTDVECTOR(ElemType)::const_iterator type;
+};
+
 
 /**
  * \brief container class for field points
@@ -69,9 +75,9 @@ public:
 	typedef ElemTypeVector elem_type_vector_t;
 
 	/** \brief type of base class */
-	typedef field_points<typename first_elements_x_type<ElemTypeVector>::type> base;
+	typedef field_points<typename first_elements_x_type<ElemTypeVector>::type> base_t;
 
-	static unsigned const nDim = base::nDim;	/**< \brief number of dimensions of the mesh */
+	static unsigned const nDim = base_t::nDim;	/**< \brief number of dimensions of the mesh */
 
 	/** \brief the type of the mesh class itself */
 	typedef Mesh<elem_type_vector_t> mesh_t;
@@ -90,7 +96,7 @@ public:
 	>::type elem_container_t;
 
 	/** \brief type of a nodal vector */
-	typedef typename base::x_t x_t;
+	typedef typename base_t::x_t x_t;
 
 	/** \brief type of a nodal coordinate */
 	typedef typename x_t::Scalar scalar_t;
@@ -98,8 +104,9 @@ public:
 	template <class ElemType>
 	struct elem_iterator_t
 	{
-		typedef typename EIGENSTDVECTOR(ElemType)::const_iterator type;
+		typedef typename mesh_elem_iterator_t<ElemType>::type type;
 	};
+
 
 protected:
 	template <class elem_t>

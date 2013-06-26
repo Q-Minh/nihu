@@ -13,9 +13,8 @@
 
 
 template <bool isCollocational, class Kernel, class TestField, class TrialField>
-class accel_store
+struct accel_store
 {
-public:
 	typedef singular_accelerator<isCollocational, Kernel, TestField, TrialField> singular_accelerator_t;
 	static singular_accelerator_t m_singular_accelerator;
 };
@@ -24,6 +23,17 @@ template<bool isCollocational, class Kernel, class Test, class Trial>
 typename accel_store<isCollocational, Kernel, Test, Trial>::singular_accelerator_t
 	accel_store<isCollocational, Kernel, Test, Trial>::m_singular_accelerator;
 
+
+template <class Field, class Family>
+struct regular_pool_store
+{
+	typedef field_type_accelerator_pool<Field, Family> pool_t;
+	static pool_t m_regular_pool;
+};
+
+template <class Field, class Family>
+typename regular_pool_store<Field, Family>::pool_t
+	regular_pool_store<Field, Family>::m_regular_pool;
 
 /**
 * \brief class evaluating double integrals of the weighted residual approach
@@ -57,14 +67,12 @@ public:
 		typename trial_field_t::elem_t::domain_t
 	>::type::quadrature_elem_t quadrature_elem_t;
 
-	/** \brief test field accelerator */
+	typedef regular_pool_store<test_field_t, quadrature_family_t> test_regular_store_t;
+	typedef regular_pool_store<trial_field_t, quadrature_family_t> trial_regular_store_t;
+
 	typedef field_type_accelerator<test_field_t, quadrature_family_t> test_field_type_accelerator_t;
-	/** \brief test field accelerator pool */
-	typedef field_type_accelerator_pool<test_field_t, quadrature_family_t> test_field_type_accelerator_pool_t;
-	/** \brief trial field accelerator */
 	typedef field_type_accelerator<trial_field_t, quadrature_family_t> trial_field_type_accelerator_t;
-	/** \brief trial field accelerator pool */
-	typedef field_type_accelerator_pool<trial_field_t, quadrature_family_t> trial_field_type_accelerator_pool_t;
+
 
 	/** \brief N-set of the test field */
 	typedef typename test_field_t::nset_t test_nset_t;
@@ -75,7 +83,7 @@ public:
 	typedef typename test_nset_t::shape_t test_shape_t;
 	/** \brief type of trial shape function */
 	typedef typename trial_nset_t::shape_t trial_shape_t;
-	
+
 	/** \brief result type of the weighted residual */
 	typedef typename plain_type<
 		typename product_type<
@@ -124,16 +132,19 @@ protected:
 		trial_field_t const &trial_field,
 		trial_field_type_accelerator_t const &trial_acc)
 	{
+		int row = 0;
 		for (auto test_it = test_nset_t::corner_begin(); test_it != test_nset_t::corner_end(); ++test_it)
 		{
-			quadrature_elem_t qe(*test_it);
+			quadrature_elem_t qe(*test_it);	// quadrature weight is scalar_t(), but we don't care
+			/** \todo we should not compute the Jacobian here */
 			kernel_input_t collocational_point(test_field.get_elem(), qe);
 			for (auto trial_it = trial_acc.cbegin(); trial_it != trial_acc.cend(); ++trial_it)
 			{
 				kernel_input_t trial_input(trial_field.get_elem(), trial_it->get_quadrature_elem());
-				m_result += kernel_t::eval(collocational_point, trial_input) *
+				m_result.row(row) += kernel_t::eval(collocational_point, trial_input) *
 					(trial_input.get_jacobian() * trial_it->get_shape().transpose());
 			}
+			++row;
 		}
 
 		return m_result;
@@ -166,7 +177,7 @@ protected:
 				* trial_input.get_jacobian()).eval();
 
 			m_result += left * kernel_t::eval(test_input, trial_input) * right.transpose();
-			
+
 			++begin;
 		}
 
@@ -181,26 +192,27 @@ protected:
 	* \param [in] end end iterator of the selected quadrature
 	* \return reference to the integration result
 	*/
-	template <class singular_iterator_t>
+	template <class singular_accelerator_t>
 	static result_t const &eval_collocational_singular_on_accelerator(
 		test_field_t const &test_field,
 		trial_field_t const &trial_field,
-		singular_iterator_t begin,
-		singular_iterator_t end)
+		singular_accelerator_t const &sa)
 	{
-		// compute collocational point
-		quadrature_elem_t qe(test_field_t::elem_t::domain_t::get_center());
-		kernel_input_t collocational_point(test_field.get_elem(), qe);
-
-		while (begin != end)
+		for (unsigned idx = 0; idx < test_nset_t::num_nodes; ++idx)
 		{
-			kernel_input_t trial_input(trial_field.get_elem(), *begin);
+			quadrature_elem_t qe(test_nset_t::corner_at(idx));
+			kernel_input_t collocational_point(test_field.get_elem(), qe);
 
-			m_result += kernel_t::eval(collocational_point, trial_input) *
-				(trial_input.get_jacobian() *
-				trial_field_t::nset_t::eval_shape(begin->get_xi()).transpose());
-			
-			++begin;
+			auto const &quad = sa.get_trial_quadrature(idx);
+
+			for (auto quad_it = quad.begin(); quad_it != quad.end(); ++quad_it)
+			{
+				kernel_input_t trial_input(trial_field.get_elem(), *quad_it);
+
+				m_result.row(idx) += kernel_t::eval(collocational_point, trial_input) *
+					(trial_input.get_jacobian() *
+					trial_field_t::nset_t::eval_shape(quad_it->get_xi()).transpose());
+			}
 		}
 
 		return m_result;
@@ -219,7 +231,10 @@ public:
 	{
 		typedef accel_store<false, kernel_t, test_field_t, trial_field_t> acc_store_t;
 		auto &sa = acc_store_t::m_singular_accelerator;
-		
+
+		auto &test_ra = regular_test_store_t::m_regular_pool;
+		auto &trial_ra = regular_trial_store_t::m_regular_pool;
+
 		m_result.setZero();	// clear result
 
 		// check singularity
@@ -229,20 +244,18 @@ public:
 
 		// select quadrature
 		kernel_input_t test_center(test_field.get_elem(),
-			m_test_field_accelerator_pool[0]->cbegin()->get_quadrature_elem());
+			test_ra[0]->cbegin()->get_quadrature_elem());
 		kernel_input_t trial_center(trial_field.get_elem(),
-			m_trial_field_accelerator_pool[0]->cbegin()->get_quadrature_elem());
-			
+			trial_ra[0]->cbegin()->get_quadrature_elem());
+
 		unsigned degree = kernel_t::estimate_complexity(test_center, trial_center);
 
 		return eval_on_accelerator(
-			test_field,
-			*(m_test_field_accelerator_pool[degree]),
-			trial_field,
-			*(m_trial_field_accelerator_pool[degree]));
+			test_field, *(test_ra[degree]),
+			trial_field, *(trial_ra[degree]));
 	}
-	
-	
+
+
 	/** \brief evaluate collocational integral on given fields
 	* \param [in] test_field the test field to integrate on
 	* \param [in] trial_field the trial field to integrate on
@@ -254,50 +267,38 @@ public:
 		trial_field_t const &trial_field)
 	{
 		typedef accel_store<true, kernel_t, test_field_t, trial_field_t> acc_store_t;
-		auto &sa = acc_store_t::m_singular_accelerator;
-		
+		typename acc_store_t::singular_accelerator_t &sa = acc_store_t::m_singular_accelerator;
+
+		typedef regular_pool_store<trial_field_t, quadrature_family_t> regular_trial_store_t;
+		auto &trial_ra = regular_trial_store_t::m_regular_pool;
+
 		m_result.setZero();	// clear result
 
 		// check singularity
 		if (sa.is_singular(test_field, trial_field))
 			return eval_collocational_singular_on_accelerator(
-			test_field, trial_field, sa.begin(), sa.end());
+			test_field, trial_field, sa);
 
 		// select quadrature
 		quadrature_elem_t qe(test_field_t::elem_t::domain_t::get_center());
 		kernel_input_t test_center(test_field.get_elem(), qe);
 		kernel_input_t trial_center(trial_field.get_elem(),
-			m_trial_field_accelerator_pool[0]->cbegin()->get_quadrature_elem());
-			
+			trial_ra[0]->cbegin()->get_quadrature_elem());
+
 		unsigned degree = kernel_t::estimate_complexity(test_center, trial_center);
-		
+
 		return eval_collocational_on_accelerator(
-			test_field,
-			trial_field,
-			*(m_trial_field_accelerator_pool[degree]));
+			test_field, trial_field, *(trial_ra[degree]));
 	}
 
 protected:
 	/** \brief the integral result stored as static variable */
 	static result_t m_result;
-
-	/** \brief accelerator pool of the test field */
-	static const test_field_type_accelerator_pool_t m_test_field_accelerator_pool;
-	/** \brief accelerator pool of the trial field */
-	static const trial_field_type_accelerator_pool_t m_trial_field_accelerator_pool;
 };
 
 template <class Kernel, class Test, class Trial>
 typename double_integral<Kernel, Test, Trial>::result_t
 	double_integral<Kernel, Test, Trial>::m_result;
-
-template <class Kernel, class Test, class Trial>
-typename double_integral<Kernel, Test, Trial>::test_field_type_accelerator_pool_t
-	const double_integral<Kernel, Test, Trial>::m_test_field_accelerator_pool;
-
-template <class Kernel, class Test, class Trial>
-typename double_integral<Kernel, Test, Trial>::trial_field_type_accelerator_pool_t
-	const double_integral<Kernel, Test, Trial>::m_trial_field_accelerator_pool;
 
 #endif
 

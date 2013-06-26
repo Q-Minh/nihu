@@ -383,6 +383,7 @@ protected:
 * \tparam Kernel the kernel to integrate
 * \tparam TestElem the test element type
 * \tparam TrialField the trial field type
+* \todo The class should return a vector of quadratures for each corner of the test NSet
 */
 template <class Kernel, class TestField, class TrialField>
 class singular_accelerator<true, Kernel, TestField, TrialField>
@@ -393,10 +394,12 @@ class singular_accelerator<true, Kernel, TestField, TrialField>
 	static_assert(std::is_base_of<field_base<TrialField>, TrialField>::value,
 		"The trial field must be derived from field_base<TrialField>");
 public:
-	typedef Kernel kernel_t;	/**< \brief template argument as nested type */
+	/** \brief template argument as nested type */
+	typedef Kernel kernel_t;
 	/** \brief the test field type */
-	typedef TestField test_field_t;	
-	typedef TrialField trial_field_t;	/**< \brief template argument as nested type */
+	typedef TestField test_field_t;
+	/** \brief template argument as nested type */
+	typedef TrialField trial_field_t;
 
 	typedef typename test_field_t::elem_t test_elem_t;	/**< \brief the test elem type */
 	typedef typename trial_field_t::elem_t trial_elem_t;	/**< \brief trial elem type */
@@ -405,6 +408,7 @@ public:
 	typedef typename trial_elem_t::domain_t trial_domain_t;	/**< \brief trial domain type */
 
 	typedef typename trial_elem_t::lset_t trial_lset_t;	/**< \brief trial L-set type */
+	typedef typename test_field_t::nset_t test_nset_t;
 
 	/** \brief quadrature family */
 	typedef typename kernel_traits<kernel_t>::quadrature_family_t quadrature_family_t;
@@ -445,30 +449,9 @@ public:
 	* \brief return begin iterator of the singular quadrature
 	* \return begin iterator of the singular quadrature
 	*/
-	iterator begin(void) const
+	trial_quadrature_t const &get_trial_quadrature(unsigned idx) const
 	{
-		switch (m_sing_type)
-		{
-		case FACE_MATCH:
-			return m_face_trial_quadrature.begin();
-		default:
-			throw "unhandled quadrature type";
-		}
-	}
-
-	/**
-	* \brief return end iterator of the singular quadrature
-	* \return end iterator of the singular quadrature
-	*/
-	iterator end(void) const
-	{
-		switch (m_sing_type)
-		{
-		case FACE_MATCH:
-			return m_face_trial_quadrature.end();
-		default:
-			throw "unhandled quadrature type";
-		}
+		return m_face_trial_quadratures[idx];
 	}
 
 	/**
@@ -480,14 +463,17 @@ public:
 		unsigned const SINGULARITY_ORDER = 9;
 
 		if (face_match_possible)
-			m_face_trial_quadrature += trial_duffy_t::on_face(
-				SINGULARITY_ORDER, trial_domain_t::get_center());
+		{
+			for (unsigned idx = 0; idx < test_nset_t::num_nodes; ++idx)
+				m_face_trial_quadratures[idx] += trial_duffy_t::on_face(
+					SINGULARITY_ORDER, test_nset_t::corner_at(idx));
+		}
 	}
 
 protected:
 	singularity_type m_sing_type;	/**< \brief the actual singularity type */
 	/** \brief pointer to the trial singular quadrature */
-	trial_quadrature_t m_face_trial_quadrature;	
+	trial_quadrature_t m_face_trial_quadratures[test_nset_t::num_nodes];	
 };
 
 #endif // SINGULAR_ACCELERATOR_HPP_INCLUDED
