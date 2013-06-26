@@ -8,8 +8,10 @@
 
 #include "element.hpp"
 
-struct isoparametric_field;	///< \brief tag to describe an isoparametric field
-struct constant_field;		///< \brief tag to describe a constant field
+/** \brief tag to describe an isoparametric field */
+struct isoparametric_field;
+/** \brief tag to describe a constant field */
+struct constant_field;
 
 /** \brief traits class of all fields */
 template <class Derived>
@@ -40,8 +42,13 @@ public:
 	typedef field_traits<Derived> traits_t;
 	/** \brief the element type */
 	typedef typename traits_t::elem_t elem_t;
+	/** \brief the nset type */
+	typedef typename traits_t::nset_t nset_t;
 	/** \brief the dofs vector type */
 	typedef typename traits_t::dofs_t dofs_t;
+	/** \brief the number of dofs */
+	static unsigned const num_dofs = nset_t::num_nodes;
+	
 
 	/**
 	 * \brief return underlying element
@@ -78,6 +85,7 @@ template <class ElemType>
 struct field_traits<field_view<ElemType, isoparametric_field> >
 {
 	typedef ElemType elem_t;	/**< \brief the element type */
+	typedef typename elem_t::lset_t nset_t;	/**< \brief the dof vector type */
 	typedef typename elem_t::nodes_t dofs_t;	/**< \brief the dof vector type */
 };
 
@@ -101,11 +109,6 @@ public:
 
 	/** \brief the field generating option type */
 	typedef isoparametric_field field_option_t;	
-
-	/** \brief N-set = L-set */
-	typedef typename elem_t::lset_t nset_t;
-	/** \brief number of dofs */
-	static unsigned const num_dofs = nset_t::num_nodes; 
 
 	/**
 	 * \brief constructor simply passing argument to base constructor
@@ -143,6 +146,8 @@ template <class ElemType>
 struct field_traits<field_view<ElemType, constant_field> >
 {
 	typedef ElemType elem_t;	/**< \brief the element type */
+	/** \brief type of N-set */
+	typedef constant_shape_set<typename elem_t::domain_t> nset_t; 
 	typedef typename elem_t::id_t dofs_t;	/**< \brief the dof vector type */
 };
 
@@ -165,12 +170,7 @@ public:
 	/** \brief the dof vector type */
 	typedef typename base_t::dofs_t dofs_t;
 	/** \brief the field generation option */
-	typedef constant_field field_option_t; 
-
-	/** \brief type of N-set */
-	typedef constant_shape_set<typename elem_t::domain_t> nset_t; 
-	/** \brief the number of dofs */
-	static unsigned const num_dofs = nset_t::num_nodes;
+	typedef constant_field field_option_t;
 
 	/**
 	 * \brief constructor passing argument to base constructor
@@ -214,7 +214,8 @@ template <class ElemType, class NSet>
 struct field_traits<field_extension<ElemType, NSet> >
 {
 	typedef ElemType elem_t;	/**< \brief the element type */
-	typedef Eigen::Matrix<unsigned, 1, NSet::num_nodes> dofs_t;	/**< \brief the dof vector type */
+	typedef NSet nset_t;
+	typedef Eigen::Matrix<unsigned, 1, nset_t::num_nodes> dofs_t;	/**< \brief the dof vector type */
 };
 
 /**
@@ -269,6 +270,7 @@ template <class ElemType, class NSet>
 struct field_traits<field<ElemType, NSet> >
 {
 	typedef ElemType elem_t;	/**< \brief the element type */
+	typedef NSet nset_t;
 	typedef Eigen::Matrix<unsigned, 1, NSet::num_nodes> dofs_t;	/**< \brief the dof vector type */
 };
 

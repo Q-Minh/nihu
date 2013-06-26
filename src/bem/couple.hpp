@@ -108,6 +108,44 @@ inline couple_product_left<Left, RDerived> operator*(Left const &lhs, couple_bas
 }
 
 
+/** \brief a row of a couple of matrices
+ * \tparam couple the parent couple type
+ * \todo This is a minimal implementation. couple_row should be derived from couple_base
+ */
+template <class couple>
+class couple_row
+{
+public:
+	/** \brief constructor
+	* \param parent the couple expression whos row is expressed
+	* \param idx the row index
+	*/
+	couple_row(couple &parent, unsigned idx)
+		: m_parent(parent), m_idx(idx)
+	{
+	}
+	
+	/**
+	* \brief incremenet a row by an other couple
+	* \tparam otherDerived the other couple expression type
+	* \param other constant reference to the other couple
+	*/
+	template <class otherDerived>
+	couple_row const &operator += (couple_base<otherDerived> const &other)
+	{
+		m_parent.first().row(m_idx) += other.first();
+		m_parent.second().row(m_idx) += other.second();
+		return *this;
+	}
+	
+protected:
+	/** \brief reference to the parent couple */
+	couple &m_parent;
+	/** \brief the row index */
+	unsigned const m_idx;
+};
+
+
 // forward declaration
 template <class First, class Second>
 class couple;
@@ -222,6 +260,11 @@ public:
 		m_first += other.first();
 		m_second += other.second();
 		return *this;
+	}
+	
+	couple_row<couple> row(unsigned idx)
+	{
+		return couple_row<couple>(*this, idx);
 	}
 
 protected:
