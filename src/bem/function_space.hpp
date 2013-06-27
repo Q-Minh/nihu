@@ -41,6 +41,11 @@ public:
 	{
 		return derived().template field_end<field_t>();
 	}
+
+	unsigned get_num_dofs(void) const
+	{
+		return derived().get_num_dofs();
+	}
 };
 
 
@@ -141,12 +146,15 @@ struct get_num_dofs_impl<mesh_t, isoparametric_field>
 * \details The class is a proxy that stores a constant reference to the mesh.
 * The class provides an iterator that can traverse the elements and derefers them as fields.
 */
-template<class MeshT, class FieldOption>
-class function_space_view : public function_space_base<function_space_view<MeshT, FieldOption> >
+template<class Mesh, class FieldOption>
+class function_space_view : public function_space_base<function_space_view<Mesh, FieldOption> >
 {
 public:
+	typedef function_space_base<function_space_view<Mesh, FieldOption> > crtp_base;
+	typedef typename crtp_base::traits_t traits_t;
+
 	/** \brief template parameter as nested type */
-	typedef MeshT mesh_t;
+	typedef Mesh mesh_t;
 	/** \brief template parameter as nested type */
 	typedef FieldOption field_option_t;
 
@@ -180,7 +188,7 @@ public:
 	* \tparam ElemType the element type to access
 	*/
 	template <class FieldType>
-	field_view_iterator_t<FieldType> field_begin(void) const
+	typename traits_t::template iterator<FieldType>::type field_begin(void) const
 	{
 		// CRTP check
 		static_assert(std::is_base_of<field_base<FieldType>, FieldType>::value,
@@ -194,7 +202,7 @@ public:
 	* \tparam ElemType the element type to access
 	*/
 	template <class FieldType>
-	field_view_iterator_t<FieldType> field_end(void) const
+	typename traits_t::template iterator<FieldType>::type field_end(void) const
 	{
 		// CRTP check
 		static_assert(std::is_base_of<field_base<FieldType>, FieldType>::value,
@@ -218,34 +226,8 @@ protected:
 };
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-template <class FieldType>
-struct function_space_field_iterator_t
-{
-	typedef typename EIGENSTDVECTOR(FieldType)::const_iterator type;
-};
-
-
 template <class FieldTypeVector>
 class function_space;
-
-
 
 template <class FieldTypeVector>
 struct function_space_traits<function_space<FieldTypeVector> >
@@ -253,43 +235,45 @@ struct function_space_traits<function_space<FieldTypeVector> >
 	template <class field_t>
 	struct iterator
 	{
-		typedef function_space_field_iterator_t<field_t> type;
+		typedef typename EIGENSTDVECTOR(field_t)::const_iterator type;
 	};
 };
 
 
-/** \brief metafunction computing the first field's x_t in a vector of fields */
-template <class FieldTypeVector>
-struct first_fields_x_type
+template <class field_t>
+struct elemize
 {
-	typedef typename tmp::deref<
-		typename tmp::begin<FieldTypeVector>::type
-	>::type::elem_t::x_t type;
+	typedef typename field_t::elem_t type;
 };
 
-/**
- * \brief container class for a function_space
- * \tparam FieldTypeVector compile time vector of the contained field types
- */
+template <class FieldTypeVector>
+struct elem_type_vector
+{
+	typedef typename tmp::unique<typename tmp::transform<
+		FieldTypeVector,
+		tmp::inserter<tmp::vector<>, tmp::push_back<tmp::_1, tmp::_2> >,
+		elemize<tmp::_1>
+	>::type>::type type;
+};
+
 template <class FieldTypeVector>
 class function_space :
 	public function_space_base<function_space<FieldTypeVector> >,
-	public field_points<typename first_elements_x_type<FieldTypeVector>::type>
+	public mesh<typename elem_type_vector<FieldTypeVector>::type>
 {
 public:
-	/** \brief define template parameter as nested type */
+	/** \todo this should be defined in traits class and inherited from base */
 	typedef FieldTypeVector field_type_vector_t;
 
-	/** \brief type of base class */
-	typedef field_points<typename first_fields_x_type<FieldTypeVector>::type> base_t;
+	typedef function_space_base<function_space<FieldTypeVector> > crtp_base;
+	typedef typename crtp_base::traits_t traits_t;
 
-	static unsigned const nDim = base_t::nDim;	/**< \brief number of dimensions of the mesh */
 
 	/** \brief metafunction to convert T into std::vector<T> */
 	template <class T>
 	struct vectorize { typedef EIGENSTDVECTOR(T) type; };
 
-	/** \brief combine field_vector into a BIG heterogeneous std::vector container */
+	/** \brief combine field_type_vector into a BIG heterogeneous std::vector container */
 	typedef typename tmp::inherit<
 		typename tmp::transform<
 		field_type_vector_t,
@@ -298,65 +282,55 @@ public:
 		>::type
 	>::type field_container_t;
 
-	/** \brief type of a nodal vector */
-	typedef typename base_t::x_t x_t;
-
-	/** \brief type of a nodal coordinate */
-	typedef typename x_t::Scalar scalar_t;
-
-	template <class FieldType>
-	struct field_iterator_t
-	{
-		typedef typename function_space_field_iterator_t<FieldType>::type type;
-	};
-
-
 protected:
 	template <class field_t>
-	struct field_adder { struct type	{
-		/**
-		 * \brief add a field of given type to the function space
-		 * \param m the function space to extend
-		 * \param input array containing element node indices
-		 */
-		bool operator() (unsigned const input[], function_space &fs)
+	struct field_adder { struct type {
+		bool operator() (unsigned const input[], function_space &fsp)
 		{
+			typedef typename field_t::elem_t elem_t;
 			if (input[0] == field_t::id)
 			{
-				// construct element
-				typename field_t::elem_t::nodes_t nodes;
-				typename field_t::elem_t::dofs_t dofs;
-				typename field_t::elem_t::coords_t coords;
-				for (unsigned i = 0; i < field_t::elem_t::num_nodes; ++i)
+				// construct element and push
+				typename elem_t::nodes_t nodes;
+				typename elem_t::coords_t coords;
+				for (unsigned i = 0; i < elem_t::num_nodes; ++i)
 				{
 					nodes[i] = input[i+1];
-					coords.row(i) = fs.points[nodes[i]];
+					coords.row(i) = fsp.points[nodes[i]];
 				}
-				for (unsigned i = 0; i < field_t::nset_t::num_nodes; ++i)
-					dofs[i] = input[i+field_t::elem_t::num_nodes+1];
-				fs.push_field(field_t(elem_t(coords, fs.m_num_fields++, nodes), dofs));
+				elem_t const &elemref = fsp.push_element(elem_t(coords, fsp.m_num_elements++, nodes));
+
+				// construct field and push
+				typename field_t::dofs_t dofs;
+				for (unsigned i = 0; i < field_t::num_dofs; ++i)
+					dofs[i] = input[i+elem_t::num_nodes+1];
+				fsp.push_field(field_t(elemref, dofs));
+
+				fsp.m_num_dofs = std::max(fsp.m_num_dofs, dofs.maxCoeff()+1);
                 return true;
 			}
 			return false;
 		}
 	};};
 
+private:
+	/** \brief disable copying of function spaces as the fields contain references to the elements */
+	function_space(function_space const &other);
+
+	/** \brief disable assignment of function spaces as the fields contain references to the elements */
+	function_space const &operator=(function_space const &other);
+
+
 public:
-	function_space() : m_num_fields(0)
+	function_space() : m_num_dofs(0)
 	{
 	}
 
-	/**
-	 * \brief build the mesh from MATLAB matrices
-	 * \tparam type of nodes matrix
-	 * \tparam type of elements matrix
-	 * \param [in] nodes matrix of nodal coordinates
-	 * \param [in] elements matrix of element node indices
-	 */
-	template <class node_t, class field_t>
-	function_space(node_t const &nodes, field_t const &elements) : m_num_fields(0)
+	template <class node_matrix_t, class field_matrix_t>
+	function_space(node_matrix_t const &nodes, field_matrix_t const &fields)
+		: m_num_dofs(0)
 	{
-		unsigned const N_MAX_ELEM = 100;
+		unsigned const N_MAX_FIELD = 1000;
 		double c[nDim];
 
 		for (int i = 0; i < nodes.rows(); ++i)
@@ -365,84 +339,65 @@ public:
 				c[j] = nodes(i,j);
 			add_node(c);
 		}
-		unsigned e[N_MAX_ELEM];
-		for (int i = 0; i < elements.rows(); ++i)
+		unsigned e[N_MAX_FIELD];
+		for (int i = 0; i < fields.rows(); ++i)
 		{
-			for (int j = 0; j < elements.cols(); ++j)
-				e[j] = (unsigned)elements(i,j);
+			for (int j = 0; j < fields.cols(); ++j)
+				e[j] = (unsigned)fields(i,j);
 			add_field(e);
 		}
 	}
 
-	/**
-	 * \brief return begin iterator of the elements
-	 */
 	template <class FieldType>
-	typename field_iterator_t<FieldType>::type begin(void) const
+	typename traits_t::template iterator<FieldType>::type
+		field_begin(void) const
 	{
 		return m_fields.EIGENSTDVECTOR(FieldType)::begin();
 	}
 
-	/**
-	 * \brief return end iterator of the elements
-	 */
 	template <class FieldType>
-	typename field_iterator_t<FieldType>::type end(void) const
+	typename traits_t::template iterator<FieldType>::type
+		field_end(void) const
 	{
 		return m_fields.EIGENSTDVECTOR(FieldType)::end();
 	}
 
-	/**
-	 * \brief add a new element to the mesh
-	 * \param input array of unsigned values.
-	 * input[0] is the elem ID, the subsequent elements are the nodal indices in the mesh
-	 * \return true if the element is inserted into the mesh
-	 */
 	bool add_field(unsigned const input[])
 	{
 		return tmp::call_until<
 			field_type_vector_t,
 			field_adder<tmp::_1>,
 			unsigned const*,
-			function_space &
+			function_space_t &
 		>(input, *this);
 	}
 
-	/**
-	 * \brief add a new node to the mesh
-	 * \param input array of scalars containing the coordinates
-	 */
-	void add_node(scalar_t input[])
-	{
-		x_t c;
-		for (unsigned i = 0; i < nDim; ++i)
-			c[i] = input[i];
-		this->add_point(c);
-	}
-
-	/**
-	 * \brief add a new element to the mesh
-	 * \tparam elem_t the element type
-	 * \param e the element to be added
-	 */
 	template <class field_t>
-	void push_field(field_t const &e)
+	field_t const &push_field(field_t const &f)
 	{
-		m_fields.EIGENSTDVECTOR(field_t)::push_back(e);
+		m_fields.EIGENSTDVECTOR(field_t)::push_back(f);
+		return *(m_fields.EIGENSTDVECTOR(field_t)::rbegin());
 	}
 
 	/**
-	 * \brief return number of elements
-	 * \return number of elements in the mesh
+	 * \brief return number of fields
+	 * \return number of fields in the function space
 	 */
 	unsigned get_num_fields(void) const
 	{
-		return m_num_fields;
+		return get_num_elements();
 	}
 
+	unsigned get_num_dofs(void) const
+	{
+		return m_num_dofs;
+	}
+
+
+
 protected:
-	field_container_t m_fields;	/**< \brief element geometries (BIG heterogeneous container) */
-	unsigned m_num_fields;	/**< \brief total number of elements in the mesh */
+	field_container_t m_fields;	/**< \brief fields (BIG heterogeneous container) */
+	unsigned m_num_dofs;
 };
 
 

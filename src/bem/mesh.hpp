@@ -68,7 +68,7 @@ struct first_elements_x_type
  * \tparam ElemTypeVector compile time vector of the contained element types
  */
 template <class ElemTypeVector>
-class Mesh : public field_points<typename first_elements_x_type<ElemTypeVector>::type>
+class mesh : public field_points<typename first_elements_x_type<ElemTypeVector>::type>
 {
 public:
 	/** \brief define template parameter as nested type */
@@ -78,9 +78,6 @@ public:
 	typedef field_points<typename first_elements_x_type<ElemTypeVector>::type> base_t;
 
 	static unsigned const nDim = base_t::nDim;	/**< \brief number of dimensions of the mesh */
-
-	/** \brief the type of the mesh class itself */
-	typedef Mesh<elem_type_vector_t> mesh_t;
 
 	/** \brief metafunction to convert T into std::vector<T> */
 	template <class T>
@@ -116,7 +113,7 @@ protected:
 		 * \param m the mesh to extend
 		 * \param input array containing element node indices
 		 */
-		bool operator() (unsigned const input[], mesh_t &m)
+		bool operator() (unsigned const input[], mesh &m)
 		{
 			if (input[0] == elem_t::id)
 			{
@@ -136,7 +133,7 @@ protected:
 	};};
 
 public:
-	Mesh() : m_num_elements(0)
+	mesh() : m_num_elements(0)
 	{
 	}
 
@@ -148,7 +145,7 @@ public:
 	 * \param [in] elements matrix of element node indices
 	 */
 	template <class node_t, class elem_t>
-	Mesh(node_t const &nodes, elem_t const &elements) : m_num_elements(0)
+	mesh(node_t const &nodes, elem_t const &elements) : m_num_elements(0)
 	{
 		unsigned const N_MAX_ELEM = 1+9;
 		double c[nDim];
@@ -220,9 +217,10 @@ public:
 	 * \param e the element to be added
 	 */
 	template <class elem_t>
-	void push_element(elem_t const &e)
+	elem_t const &push_element(elem_t const &e)
 	{
 		m_elements.EIGENSTDVECTOR(elem_t)::push_back(e);
+		return *(m_elements.EIGENSTDVECTOR(elem_t)::rbegin());
 	}
 
 	/**

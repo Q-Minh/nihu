@@ -26,7 +26,7 @@ struct field_id
 	/** \brief the default field id */
 	static unsigned const value =
 		elem_id<typename field_traits<field_t>::elem_t>::value * 100 +
-		shape_set_id<typename field_traits<field_t>::nset_t>::value;
+		field_traits<field_t>::nset_t::num_nodes;
 };
 
 /**
@@ -61,6 +61,7 @@ public:
 	/** \brief the number of dofs */
 	static unsigned const num_dofs = nset_t::num_nodes;
 
+	/** \brief the field identifier */
 	static unsigned const id = field_id<Derived>::value;
 	
 
@@ -121,9 +122,6 @@ public:
 	/** \brief the degree of freedom vector type */
 	typedef typename base_t::dofs_t dofs_t;
 
-	/** \brief the field generating option type */
-	typedef isoparametric_field field_option_t;	
-
 	/**
 	 * \brief constructor simply passing argument to base constructor
 	 * \param [in] elem constant reference to underlying element
@@ -183,8 +181,6 @@ public:
 	typedef typename base_t::elem_t elem_t;
 	/** \brief the dof vector type */
 	typedef typename base_t::dofs_t dofs_t;
-	/** \brief the field generation option */
-	typedef constant_field field_option_t;
 
 	/**
 	 * \brief constructor passing argument to base constructor
@@ -220,12 +216,12 @@ private:
 
 /** \brief field class that stores the dof vector and a reference to the element */
 template <class ElemType, class NSet>
-class field_extension;
+class field;
 
 
 /** \brief Specialisation of field_traits for the field_extension class */
 template <class ElemType, class NSet>
-struct field_traits<field_extension<ElemType, NSet> >
+struct field_traits<field<ElemType, NSet> >
 {
 	typedef ElemType elem_t;	/**< \brief the element type */
 	typedef NSet nset_t;
@@ -233,64 +229,7 @@ struct field_traits<field_extension<ElemType, NSet> >
 };
 
 /**
-* \brief the field class that stores the dof vector and a reference to the element
-* \tparam ElemType the underlying element type
-* \tparam NSet the shape function set
-*/
-template <class ElemType, class NSet>
-class field_extension : public field_base<field_extension<ElemType, NSet> >
-{
-public:
-	/** \brief the CRTP base type */
-	typedef field_base<field_extension<ElemType, NSet> > base_t;
-
-	/** \brief the element type */
-	typedef typename base_t::elem_t elem_t;
-	/** \brief the dofs vector type */
-	typedef typename base_t::dofs_t dofs_t;
-
-
-	field_extension(elem_t const &elem, dofs_t const &dofs) : m_elem(elem), m_dofs(dofs)
-	{
-	}
-
-	/**
-	 * \brief return underlying element
-	 * \return the element of the field
-	 */
-	elem_t const &get_elem(void) const
-	{
-		return m_elem;
-	}
-
-	dofs_t const &get_dofs(void) const
-	{
-		return m_dofs;
-	}
-
-protected:
-	elem_t const &m_elem;
-	dofs_t m_dofs;
-};
-
-
-/** \brief field class that stores the dof vector and a reference to the element */
-template <class ElemType, class NSet>
-class field;
-
-
-/** \brief Specialisation of field_traits for the field class */
-template <class ElemType, class NSet>
-struct field_traits<field<ElemType, NSet> >
-{
-	typedef ElemType elem_t;	/**< \brief the element type */
-	typedef NSet nset_t;
-	typedef Eigen::Matrix<unsigned, 1, NSet::num_nodes> dofs_t;	/**< \brief the dof vector type */
-};
-
-
-/**
-* \brief the field class that stores the dof vector and the element itself
+* \brief the field class that stores the dof vector and the element by value
 * \tparam ElemType the underlying element type
 * \tparam NSet the shape function set
 */
@@ -309,6 +248,15 @@ public:
 
 	field(elem_t const &elem, dofs_t const &dofs) : m_elem(elem), m_dofs(dofs)
 	{
+	}
+
+	/**
+	 * \brief return underlying element
+	 * \return the element of the field
+	 */
+	elem_t const &get_elem(void) const
+	{
+		return m_elem;
 	}
 
 	dofs_t const &get_dofs(void) const

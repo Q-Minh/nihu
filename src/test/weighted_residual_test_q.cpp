@@ -1,11 +1,11 @@
 #include "../bem/weighted_residual.hpp"
 
-typedef tmp::vector<tria_1_elem, quad_1_elem> elem_vector;
-typedef Mesh<elem_vector> mesh_t;
-typedef function_space_view<mesh_t, constant_field> trial_space_t;
-typedef trial_space_t test_space_t;
+typedef field<quad_1_elem, quad_0_shape_set> quad_1_field;
+
+typedef tmp::vector<quad_1_field> field_vector;
+typedef function_space<field_vector> function_space_t;
 typedef unit_kernel kernel_t;
-typedef weighted_residual<true, kernel_t, test_space_t, trial_space_t> wr_t;
+typedef weighted_residual<true, kernel_t, function_space_t, function_space_t> wr_t;
 
 int main(void)
 {
@@ -24,34 +24,29 @@ int main(void)
 			2.0, 2.0, 0.0,
 			3.0, 2.0, 0.0;
 
-		Eigen::Matrix<unsigned, Eigen::Dynamic, 4+1> elements(6,4+1);
-		elements <<
-			quad_1_elem::id, 0, 1, 4, 3,
-			quad_1_elem::id, 3, 4, 7, 6,
-			quad_1_elem::id, 4, 5, 8, 7,
-			tria_1_elem::id, 1, 2, 4, 0,
-			tria_1_elem::id, 2, 5, 4, 0,
-			tria_1_elem::id, 5, 9, 8, 0;
+		Eigen::Matrix<unsigned, Eigen::Dynamic, 4+1+1> fields(3,4+1+1);
+		fields <<
+			quad_1_field::id, 0, 1, 4, 3, 0,
+			quad_1_field::id, 3, 4, 7, 6, 1,
+			quad_1_field::id, 4, 5, 8, 7, 2;
 
-		mesh_t mesh(nodes, elements);
+		function_space_t fsp(nodes, fields);
 
-		test_space_t test_func(mesh);
-		trial_space_t trial_func(mesh);
-		wr_t wr(test_func, trial_func);
+		wr_t wr(fsp, fsp);
 
 		// kernel_t::set_wave_number(1.0);
 
 		typedef Eigen::Matrix<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic> big_mat_t;
-		big_mat_t a(test_func.get_num_dofs(), trial_func.get_num_dofs());
+		big_mat_t a(fsp.get_num_dofs(), fsp.get_num_dofs());
 		a.setZero();
 
-//		big_mat_t b = a;
+		//		big_mat_t b = a;
 
-//		couple<big_mat_t, big_mat_t> result(a, b);
+		//		couple<big_mat_t, big_mat_t> result(a, b);
 		wr.eval(a);
 
 		std::cout << a << std::endl << std::endl;
-//		std::cout << result.second() << std::endl << std::endl;
+		//		std::cout << result.second() << std::endl << std::endl;
 		std::cout << kernel_t::get_num_evaluations() << std::endl;
 	}
 	catch(const char *e)
