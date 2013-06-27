@@ -62,7 +62,7 @@ public:
 	static unsigned const num_dofs = nset_t::num_nodes;
 
 	/** \brief the field identifier */
-	static unsigned const id = field_id<Derived>::value;
+	static unsigned const id; // = field_id<Derived>::value;
 	
 
 	/**
@@ -83,6 +83,9 @@ public:
 		return derived().get_dofs();
 	}
 };
+
+template <class Derived>
+unsigned const field_base<Derived>::id = field_id<Derived>::value;
 
 
 /**

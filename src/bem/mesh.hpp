@@ -195,7 +195,7 @@ public:
 			elem_type_vector_t,
 			elem_adder<tmp::_1>,
 			unsigned const*,
-			mesh_t &
+			mesh &
 		>(input, *this);
 	}
 

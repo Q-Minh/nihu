@@ -269,6 +269,8 @@ public:
 	typedef typename crtp_base::traits_t traits_t;
 
 
+	typedef mesh<typename elem_type_vector<FieldTypeVector>::type> mesh_t;
+	
 	/** \brief metafunction to convert T into std::vector<T> */
 	template <class T>
 	struct vectorize { typedef EIGENSTDVECTOR(T) type; };
@@ -331,13 +333,13 @@ public:
 		: m_num_dofs(0)
 	{
 		unsigned const N_MAX_FIELD = 1000;
-		double c[nDim];
+		double c[mesh_t::nDim];
 
 		for (int i = 0; i < nodes.rows(); ++i)
 		{
-			for (unsigned j = 0; j < nDim; ++j)
+			for (unsigned j = 0; j < mesh_t::nDim; ++j)
 				c[j] = nodes(i,j);
-			add_node(c);
+			this->add_node(c);
 		}
 		unsigned e[N_MAX_FIELD];
 		for (int i = 0; i < fields.rows(); ++i)
@@ -368,7 +370,7 @@ public:
 			field_type_vector_t,
 			field_adder<tmp::_1>,
 			unsigned const*,
-			function_space_t &
+			function_space &
 		>(input, *this);
 	}
 
@@ -385,7 +387,7 @@ public:
 	 */
 	unsigned get_num_fields(void) const
 	{
-		return get_num_elements();
+		return this->get_num_elements();
 	}
 
 	unsigned get_num_dofs(void) const
