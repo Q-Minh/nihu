@@ -6,39 +6,41 @@ Custom element {#custom_element}
 Introduction {#intro}
 ============
 
-In this tutorial we introduce a new element type into the NiHu toolbox.
-The new element type will be a 3D four noded quadrangle element special in the sense that its shape function nodes are located inside the element, at the Gaussian integration points of the element domain.
+The purpose of this tutorial is to demonstrate how a custom element/field type can be introduced into the NiHu toolbox.
 
-In the NiHu toolbox, elements and fields are described by interpolation funcions.
-So, in order to define the new element, a new interpolation function set needs to be introduced.
+We define a custom 3-dimensional four noded quadrangle surface field.
+The geometrical representation will be a standard 4-noded linear quadrilateral element (::quad_1_elem) having its nodes at the four element corners.
+The field is going to be defined so that its shape function nodes are located at the Gaussian nodes of the element.
+The new field is shown in the figure below.
 
-The shape set {#shapeset}
-=============
+![Geometrical (red) and field (blue) nodal locations of the four noded quadrilateral element in the reference domain](gaussian_field.svg)
 
-The shape set is defined over the quadrilateral domain ::quad_domain located between coordinates \f$(-1,-1)\f$ and \f$(+1,+1)\f$.
+In the following sections we define the new shape function set, introduce the new field type, and present an example how the new field type is used in a collocational or Galerkin type BEM.
 
-The nodal locations are
+The Gaussian shape set {#shapeset}
+======================
 
-\f$\xi_1 = \left\{-\sqrt{3}/3, -\sqrt{3}/3\right\} \\
-\xi_2 = \left\{+\sqrt{3}/3, -\sqrt{3}/3\right\} \\
-\xi_3 = \left\{+\sqrt{3}/3, +\sqrt{3}/3\right\} \\
-\xi_4 = \left\{-\sqrt{3}/3, +\sqrt{3}/3\right\}\f$
+The Gaussian shape set is defined over the quadrilateral domain ::quad_domain located between coordinates \f$(-1,-1)\f$ and \f$(+1,+1)\f$.
+
+The four nodal locations are
+
+\f$\left(\xi_i,\eta_i\right) = \left(\pm\sqrt{3}/3, \pm\sqrt{3}/3\right)\f$
 
 The shape functions are defined as
 
-\f$L_1 = (1-\sqrt{3}\xi)(1-\sqrt{3}\eta)/4 \\
-L_2 = (1+\sqrt{3}\xi)(1-\sqrt{3}\eta)/4 \\
-L_3 = (1+\sqrt{3}\xi)(1+\sqrt{3}\eta)/4 \\
-L_4 = (1-\sqrt{3}\xi)(1+\sqrt{3}\eta)/4\f$
+\f$L_1(\xi,\eta) = (1-\sqrt{3}\xi)(1-\sqrt{3}\eta)/4 \\
+L_2(\xi,\eta) = (1+\sqrt{3}\xi)(1-\sqrt{3}\eta)/4 \\
+L_3(\xi,\eta) = (1+\sqrt{3}\xi)(1+\sqrt{3}\eta)/4 \\
+L_4(\xi,\eta) = (1-\sqrt{3}\xi)(1+\sqrt{3}\eta)/4\f$
 
 and their derivatives with respect to both variables are
 
-\f$L'_{1,\xi} = (-\sqrt{3})(1-\sqrt{3}\eta)/4, \quad L'_{1,\eta} = (1-\sqrt{3}\xi)(-\sqrt{3})/4 \\
-L'_{2,\xi} = (+\sqrt{3})(1-\sqrt{3}\eta)/4, \quad L'_{1,\eta} = (1-\sqrt{3}\xi)(-\sqrt{3})/4 \\
-L'_{3,\xi} = (+\sqrt{3})(1+\sqrt{3}\eta)/4, \quad L'_{1,\eta} = (1-\sqrt{3}\xi)(-\sqrt{3})/4 \\
-L'_{4,\xi} = (-\sqrt{3})(1+\sqrt{3}\eta)/4, \quad L'_{1,\eta} = (1-\sqrt{3}\xi)(-\sqrt{3})/4\f$
+\f$L'_{1,\xi}(\xi,\eta) = (-\sqrt{3})(1-\sqrt{3}\eta)/4, \quad L'_{1,\eta}(\xi,\eta) = (1-\sqrt{3}\xi)(-\sqrt{3})/4 \\
+L'_{2,\xi}(\xi,\eta) = (+\sqrt{3})(1-\sqrt{3}\eta)/4, \quad L'_{1,\eta}(\xi,\eta) = (1-\sqrt{3}\xi)(-\sqrt{3})/4 \\
+L'_{3,\xi}(\xi,\eta) = (+\sqrt{3})(1+\sqrt{3}\eta)/4, \quad L'_{1,\eta}(\xi,\eta) = (1-\sqrt{3}\xi)(-\sqrt{3})/4 \\
+L'_{4,\xi}(\xi,\eta) = (-\sqrt{3})(1+\sqrt{3}\eta)/4, \quad L'_{1,\eta}(\xi,\eta) = (1-\sqrt{3}\xi)(-\sqrt{3})/4\f$
 
-The new shape function set will be termed quad_1_gauss_shape_set, and is introduced with a forward declaration:
+The new shape function set will be termed `quad_1_gauss_shape_set`, and is introduced with a forward declaration:
 
 \snippet custom_gaussian_element.hpp Forward declaration
 
@@ -46,12 +48,15 @@ Before defining the shape functions, we first define some basic properties of th
 
 \snippet custom_gaussian_element.hpp Shape traits
 
-- We have defined the shape set domain as the ::quad_domain.
+- We have defined the shape set's domain as the ::quad_domain.
 - The number of shape set nodes is 4.
-- The polynomial order of the shape functions (the highest power of \f$\xi\f$ or \f$\eta\f$ in their definition) is 1.
+- The polynomial order of the shape functions (the highest power of \f$\xi\f$ or \f$\eta\f$ in the definition of \f$L_i(\xi,\eta)\f$) is 1.
 - The polynomial order of the Jacobian (the highest power of \f$\xi\f$ or \f$\eta\f$ in the product of the derivatives \f$L'_{\xi}\cdot L'_{\eta}\f$) is 1 too.
 
-After having defined the shape set traits, we can define the shape function class itself.
+We mention here that the order of the Jacobian is only needed if the shape function set is used as a geometrical interpolation function set.
+This will not be the case now, but we keep our code consistent with other shape function definitions.
+
+After having the shape set traits defined, we can define the shape function class itself.
 The class must define three static member functions.
 - `eval_shape` evaluates the shape functions.
 - `eval_dshape` evaluates the gradient of the shape functions.
@@ -73,17 +78,16 @@ That's all, we have defined the shape function set.
 From now on, it can be used for geometrical interpolation or field interpolation purposes.
 
 
-The element {#element}
-===========
-
 The field {#field}
 =========
 
-The new field will be termed quad_1_gauss_field, and is defined using a simple type definition:
+The new field is going to be based on the standard ::quad_1_elem element, extended with our new shape function set.
+The field will be termed `quad_1_gauss_field`, and is defined using a simple type definition:
 
 \snippet custom_gaussian_element.hpp Field typedef
 
-We can assign a unique field id to our new field type by specialising the template structure (metafunction) ::field_id to our new field type
+Each field type is automatically assigned an integer identifier.
+However, we can override the field id definition by specialising the template structure (metafunction) ::field_id to our new field type
 
 \snippet custom_gaussian_element.hpp Field id
 
@@ -92,7 +96,10 @@ Our new field type is ready to use in collocational, Galerkin or general BEM met
 Example {#example}
 =======
 
+We present a simple example evaluating a collocational BEM with a function space based on `quad_1_gauss_field` fields.
+The typedefs define the collcational BEM with a unity kernel and a homgeneous function space consisting of our new fields.
+The main function builds a hand-made simple function space and evaluates the weighted residual.
 
-
+\snippet gaussian_test.cpp main
 
 
