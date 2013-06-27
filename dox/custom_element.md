@@ -7,7 +7,7 @@ Introduction {#intro}
 ============
 
 In this tutorial we introduce a new element type into the NiHu toolbox.
-The new element type will be a 3D four noded quadrangle element special in the sense that its nodes are located inside the element, at the Gaussian integration points of the element domain.
+The new element type will be a 3D four noded quadrangle element special in the sense that its shape function nodes are located inside the element, at the Gaussian integration points of the element domain.
 
 In the NiHu toolbox, elements and fields are described by interpolation funcions.
 So, in order to define the new element, a new interpolation function set needs to be introduced.
@@ -53,9 +53,9 @@ Before defining the shape functions, we first define some basic properties of th
 
 After having defined the shape set traits, we can define the shape function class itself.
 The class must define three static member functions.
-- eval_shape evaluates the shape functions.
-- eval_dshape evaluates the gradient of the shape functions.
-- corner_begin returns a pointer to the first corner of the shape set.
+- `eval_shape` evaluates the shape functions.
+- `eval_dshape` evaluates the gradient of the shape functions.
+- `corner_begin` returns a pointer to the first corner of the shape set.
 
 The arguments and return types of the functions are defined automatically based on the traits class, and are inherited from the CRTP base class ::shape_set_base.
 
@@ -73,7 +73,26 @@ That's all, we have defined the shape function set.
 From now on, it can be used for geometrical interpolation or field interpolation purposes.
 
 
-The element {#shapeset}
+The element {#element}
 ===========
+
+The field {#field}
+=========
+
+The new field will be termed quad_1_gauss_field, and is defined using a simple type definition:
+
+\snippet custom_gaussian_element.hpp Field typedef
+
+We can assign a unique field id to our new field type by specialising the template structure (metafunction) ::field_id to our new field type
+
+\snippet custom_gaussian_element.hpp Field id
+
+Our new field type is ready to use in collocational, Galerkin or general BEM methods.
+
+Example {#example}
+=======
+
+
+
 
 
