@@ -17,6 +17,18 @@ struct constant_field;
 template <class Derived>
 struct field_traits;
 
+/** \brief metafunction assigning an id to a field
+* \tparam field_t the field type
+*/
+template <class field_t>
+struct field_id
+{
+	/** \brief the default field id */
+	static unsigned const value =
+		elem_id<typename field_traits<field_t>::elem_t>::value * 100 +
+		shape_set_id<typename field_traits<field_t>::nset_t>::value;
+};
+
 /**
  * \brief CRTP base class of all fields
  * \tparam Derived the CRTP derived class
@@ -48,6 +60,8 @@ public:
 	typedef typename traits_t::dofs_t dofs_t;
 	/** \brief the number of dofs */
 	static unsigned const num_dofs = nset_t::num_nodes;
+
+	static unsigned const id = field_id<Derived>::value;
 	
 
 	/**

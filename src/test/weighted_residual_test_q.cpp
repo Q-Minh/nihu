@@ -26,12 +26,12 @@ int main(void)
 
 		Eigen::Matrix<unsigned, Eigen::Dynamic, 4+1> elements(6,4+1);
 		elements <<
-			241, 0, 1, 4, 3,
-			241, 3, 4, 7, 6,
-			241, 4, 5, 8, 7,
-			231, 1, 2, 4, 0,
-			231, 2, 5, 4, 0,
-			231, 5, 9, 8, 0;
+			quad_1_elem::id, 0, 1, 4, 3,
+			quad_1_elem::id, 3, 4, 7, 6,
+			quad_1_elem::id, 4, 5, 8, 7,
+			tria_1_elem::id, 1, 2, 4, 0,
+			tria_1_elem::id, 2, 5, 4, 0,
+			tria_1_elem::id, 5, 9, 8, 0;
 
 		mesh_t mesh(nodes, elements);
 

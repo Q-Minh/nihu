@@ -35,6 +35,15 @@ public:
 template <class Derived>
 struct element_traits;
 
+/** \brief Metafunction providing an element id */
+template <class elem_t>
+struct elem_id
+{
+	static unsigned const value =
+		element_traits<elem_t>::x_dim * 10000 +
+		shape_set_id<typename element_traits<elem_t>::lset_t>::value;
+};
+
 /**
 * \brief The geometrical element representation
 * \tparam Derived CRTP derived class
@@ -46,12 +55,13 @@ public:
 	/** \brief the CRTP derived class */
 	typedef element_traits<Derived> traits_t;
 
-	/** \brief the element id */
-	static unsigned const elem_id = traits_t::elem_id;
 	/** \brief the dimension of the element's location variable \f$x\f$ */
 	static unsigned const x_dim = traits_t::x_dim;
 	/** \brief the elements's L-set */
 	typedef typename traits_t::lset_t lset_t;
+
+	/** \brief the element id */
+	static unsigned const id = elem_id<Derived>::value;
 
 	/** \brief the elements's domain */
 	typedef typename lset_t::domain_t domain_t;
@@ -221,8 +231,6 @@ class tria_1_elem;
 template <>
 struct element_traits<tria_1_elem>
 {
-	/** \brief the element id */
-	static const unsigned elem_id = 231;
 	/** \brief dimensionality of the x space */
 	static const unsigned x_dim = 3;
 	/** \brief the shape set */
@@ -266,8 +274,6 @@ class quad_1_elem;
 template <>
 struct element_traits<quad_1_elem>
 {
-	/** \brief the element id */
-	static const unsigned elem_id = 241;
 	/** \brief dimensionality of the x space */
 	static const unsigned x_dim = 3;
 	/** \brief the shape set */
@@ -312,15 +318,13 @@ protected:
 
 
 // forward declaration
-template <class LSet, unsigned ElemID>
+template <class LSet>
 class general_surface_element;
 
 /** \brief specialisation of element_traits for the general surface element */
-template <class LSet, unsigned ElemID>
-struct element_traits<general_surface_element<LSet, ElemID> >
+template <class LSet>
+struct element_traits<general_surface_element<LSet> >
 {
-	/** \brief the element id */
-	static const unsigned elem_id = ElemID;
 	/** \brief dimensionality of the x space */
 	static const unsigned x_dim = LSet::domain_t::dimension + 1;
 	/** \brief the shape set */
@@ -329,14 +333,13 @@ struct element_traits<general_surface_element<LSet, ElemID> >
 
 /** \brief class describing a general surface element that computes its normal in the general way
 * \tparam LSet type of the geometry shape set
-* \tparam ElemID the element ID
 */
-template <class LSet, unsigned ElemID>
-class general_surface_element : public element_base<general_surface_element<LSet, ElemID> >
+template <class LSet>
+class general_surface_element : public element_base<general_surface_element<LSet> >
 {
 public:
 	/** \brief the base class type */
-	typedef element_base<general_surface_element<LSet, ElemID> > base_t;
+	typedef element_base<general_surface_element<LSet> > base_t;
 
 	/** \brief type of the coordinate matrix */
 	typedef typename base_t::coords_t coords_t;
@@ -373,9 +376,9 @@ public:
 };
 
 /** \brief quadratic 6-noded triangle element */
-typedef general_surface_element<tria_2_shape_set, 232> tria_2_elem;
+typedef general_surface_element<tria_2_shape_set> tria_2_elem;
 /** \brief quadratic 9-noded quadrilateral element */
-typedef general_surface_element<quad_2_shape_set, 242> quad_2_elem;
+typedef general_surface_element<quad_2_shape_set> quad_2_elem;
 
 #endif
 

@@ -13,6 +13,18 @@
 template <class Dervied>
 struct shape_set_traits;
 
+/** \brief metafunction assigning a shape set id to a shape set
+* \brief tparam shape_set the shape set
+*/
+template <class shape_set>
+struct shape_set_id
+{
+	/** \brief default shape set id computation */
+	static unsigned const value = 
+		domain_id<typename shape_set_traits<shape_set>::domain_t>::value * 100 +
+		shape_set_traits<shape_set>::num_nodes;
+};
+
 /**
 * \brief Shapeset base class for CRTP
 * \tparam Derived The derived shapeset class
@@ -31,6 +43,9 @@ public:
 	static unsigned const polynomial_order = traits_t::polynomial_order;
 	/** \brief highest power of a local variable in the jacobian of the shape set transformation */
 	static unsigned const jacobian_order = traits_t::jacobian_order;
+
+	/** \brief the shape set id */
+	static unsigned const id = shape_set_id<Derived>::value;
 
 	/** \brief scalar type inherited from the domain */
 	typedef typename domain_t::scalar_t scalar_t;

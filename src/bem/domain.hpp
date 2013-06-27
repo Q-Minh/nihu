@@ -12,6 +12,11 @@
 
 #include "includes.h"
 
+/** \brief metafunction assigning an id to a domain */
+template <class domain_t>
+struct domain_id;
+
+
 /**
  * \brief a subset of the \f$\xi\f$ space. All elements are defined on a domain.
  * \tparam Dimension the dimensionality of the space
@@ -25,8 +30,8 @@ public:
 	static unsigned const dimension = Dimension;
 	/** \brief template argument as nested type */
 	static unsigned const num_corners = NumCorners;
-	/** \todo in the present implementation id equals the number of corner nodes. fix this! */
-	static unsigned const id = num_corners;
+
+	static unsigned const id = domain_id<domain>::value;
 
 	/** \brief scalar type of the location vector */
     typedef double scalar_t;
@@ -69,6 +74,19 @@ protected:
 	static corners_t const m_corners;
 };
 
+
+/** \brief metafunction assigning an id to a domain */
+template <class domain_t>
+struct domain_id
+{
+	/** \brief default computed value of a domain id */
+	static unsigned const value =
+		domain_t::dimension * 10 +
+		domain_t::num_corners;
+};
+
+
+
 /** \brief a 1D line domain \f$-1 \le \xi \le +1\f$*/
 typedef domain<1, 2> line_domain;
 
@@ -80,9 +98,6 @@ typedef domain<2, 4> quad_domain;
 
 /** \brief a 3D brick domain */
 typedef domain<3, 8> brick_domain;
-
-
-
 
 
 

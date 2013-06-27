@@ -321,7 +321,7 @@ protected:
 		 */
 		bool operator() (unsigned const input[], function_space &fs)
 		{
-			if (input[0] == field_t::field_id)
+			if (input[0] == field_t::id)
 			{
 				// construct element
 				typename field_t::elem_t::nodes_t nodes;
