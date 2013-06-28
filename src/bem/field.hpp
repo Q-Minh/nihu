@@ -120,6 +120,8 @@ public:
 	/** \brief base's type */
 	typedef field_base<field_view<ElemType, isoparametric_field> > base_t;
 
+	typedef field_view type;
+
 	/** \brief the field's elem type */
 	typedef typename base_t::elem_t elem_t;
 	/** \brief the degree of freedom vector type */
@@ -179,6 +181,8 @@ class field_view<ElemType, constant_field>
 public:
 	/** \brief base's type */
 	typedef field_base<field_view<ElemType, constant_field> > base_t;
+
+	typedef field_view type;
 
 	/** \brief the element type */
 	typedef typename base_t::elem_t elem_t;

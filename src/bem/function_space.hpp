@@ -30,6 +30,8 @@ private:
 public:
 	typedef function_space_traits<Derived> traits_t;
 
+	typedef typename traits_t::field_type_vector_t field_type_vector_t;
+
 	template <class field_t>
 	typename traits_t::template iterator<field_t>::type field_begin(void) const
 	{
@@ -55,7 +57,6 @@ class function_space_view;
 /**
 * \brief internal iterator class provides access to the mesh's elements as fields
 * \tparam ElemType the element types that need to be accessed
-* \todo this iterator should only be used in field view context
 */
 template <class FieldType>
 class field_view_iterator_t : public mesh_elem_iterator_t<typename FieldType::elem_t>::type
@@ -91,6 +92,12 @@ public:
 template <class MeshT, class FieldOption>
 struct function_space_traits<function_space_view<MeshT, FieldOption> >
 {
+	typedef typename tmp::transform<
+		typename MeshT::elem_type_vector_t,
+		tmp::inserter<tmp::vector<>, tmp::push_back<tmp::_1, tmp::_2> >,
+		field_view<tmp::_1, FieldOption>
+	>::type field_type_vector_t;
+
 	template <class field_t>
 	struct iterator
 	{
@@ -153,27 +160,12 @@ public:
 	typedef function_space_base<function_space_view<Mesh, FieldOption> > crtp_base;
 	typedef typename crtp_base::traits_t traits_t;
 
+	typedef typename traits_t::field_type_vector_t field_type_vector_t;
+
 	/** \brief template parameter as nested type */
 	typedef Mesh mesh_t;
 	/** \brief template parameter as nested type */
 	typedef FieldOption field_option_t;
-
-	/** \brief elem_type_vector inherited from mesh */
-	typedef typename mesh_t::elem_type_vector_t elem_type_vector_t;
-
-	/** \brief metafunction to convert an element type into a field type */
-	template <class elem_t>
-	struct fieldize
-	{
-		typedef field_view<elem_t, field_option_t> type; /**< \brief metafunction return type */
-	};
-
-	/** \brief a vector of field types computed from the element type vector */
-	typedef typename tmp::transform<
-		elem_type_vector_t,
-		tmp::inserter<tmp::vector<>, tmp::push_back<tmp::_1, tmp::_2> >,
-		fieldize<tmp::_1>
-	>::type field_type_vector_t;
 
 	/**
 	* \brief constructor storing a reference from the mesh
@@ -232,6 +224,8 @@ class function_space;
 template <class FieldTypeVector>
 struct function_space_traits<function_space<FieldTypeVector> >
 {
+	typedef FieldTypeVector field_type_vector_t;
+
 	template <class field_t>
 	struct iterator
 	{
@@ -262,12 +256,10 @@ class function_space :
 	public mesh<typename elem_type_vector<FieldTypeVector>::type>
 {
 public:
-	/** \todo this should be defined in traits class and inherited from base */
-	typedef FieldTypeVector field_type_vector_t;
-
 	typedef function_space_base<function_space<FieldTypeVector> > crtp_base;
 	typedef typename crtp_base::traits_t traits_t;
 
+	typedef typename traits_t::field_type_vector_t field_type_vector_t;
 
 	typedef mesh<typename elem_type_vector<FieldTypeVector>::type> mesh_t;
 	

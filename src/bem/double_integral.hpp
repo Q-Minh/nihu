@@ -61,6 +61,8 @@ public:
 
 	/** \brief the quadrature family the kernel requires */
 	typedef typename kernel_traits<kernel_t>::quadrature_family_t quadrature_family_t;
+	static bool const is_kernel_singular = kernel_traits<kernel_t>::singularity_order != 0;
+
 	/** \brief the quadrature element */
 	typedef typename quadrature_type<
 		quadrature_family_t,
@@ -83,6 +85,11 @@ public:
 	typedef typename test_nset_t::shape_t test_shape_t;
 	/** \brief type of trial shape function */
 	typedef typename trial_nset_t::shape_t trial_shape_t;
+
+	/** \brief L-set of the test field */
+	typedef typename test_field_t::elem_t::lset_t test_lset_t;
+	/** \brief L-set of the trial field */
+	typedef typename trial_field_t::elem_t::lset_t trial_lset_t;
 
 	/** \brief result type of the weighted residual */
 	typedef typename plain_type<
@@ -218,6 +225,85 @@ protected:
 		return m_result;
 	}
 
+
+	static result_t const &eval_general(
+		std::false_type,
+		test_field_t const &test_field,
+		trial_field_t const &trial_field)
+	{
+		auto &test_ra = test_regular_store_t::m_regular_pool;
+		auto &trial_ra = trial_regular_store_t::m_regular_pool;
+
+		// select quadrature
+		kernel_input_t test_center(test_field.get_elem(),
+			test_ra[0]->cbegin()->get_quadrature_elem());
+		kernel_input_t trial_center(trial_field.get_elem(),
+			trial_ra[0]->cbegin()->get_quadrature_elem());
+
+		unsigned degree = kernel_t::estimate_complexity(test_center, trial_center);
+
+		degree += std::max(test_nset_t::polynomial_order, trial_nset_t::polynomial_order)
+			+ std::max(test_lset_t::jacobian_order, trial_lset_t::jacobian_order);
+
+		return eval_on_accelerator(
+			test_field, *(test_ra[degree]),
+			trial_field, *(trial_ra[degree]));
+	}
+
+
+	static result_t const &eval_general(
+		std::true_type,
+		test_field_t const &test_field,
+		trial_field_t const &trial_field)
+	{
+		typedef accel_store<false, kernel_t, test_field_t, trial_field_t> acc_store_t;
+		auto &sa = acc_store_t::m_singular_accelerator;
+
+		// check singularity
+		if (sa.is_singular(test_field, trial_field))
+			return eval_singular_on_accelerator(
+			test_field, trial_field, sa.begin(), sa.end());
+		return eval_general(std::false_type(), test_field, trial_field);
+	}
+
+
+	static result_t const &eval_collocational(
+		std::false_type,
+		test_field_t const &test_field,
+		trial_field_t const &trial_field)
+	{
+		typedef regular_pool_store<trial_field_t, quadrature_family_t> regular_trial_store_t;
+		auto &trial_ra = trial_regular_store_t::m_regular_pool;
+
+		quadrature_elem_t qe(test_field_t::elem_t::domain_t::get_center());
+		kernel_input_t test_center(test_field.get_elem(), qe);
+		kernel_input_t trial_center(trial_field.get_elem(),
+			trial_ra[0]->cbegin()->get_quadrature_elem());
+
+		unsigned degree = kernel_t::estimate_complexity(test_center, trial_center);
+		degree += trial_nset_t::polynomial_order + trial_lset_t::jacobian_order;
+
+		return eval_collocational_on_accelerator(
+			test_field, trial_field, *(trial_ra[degree]));
+	}
+
+
+	static result_t const &eval_collocational(
+		std::true_type,
+		test_field_t const &test_field,
+		trial_field_t const &trial_field)
+	{
+		typedef accel_store<true, kernel_t, test_field_t, trial_field_t> acc_store_t;
+		typename acc_store_t::singular_accelerator_t &sa = acc_store_t::m_singular_accelerator;
+
+		// check singularity
+		if (sa.is_singular(test_field, trial_field))
+			return eval_collocational_singular_on_accelerator(
+			test_field, trial_field, sa);
+		else
+			return eval_collocational(std::false_type, test_field, trial_field);
+	}
+
 public:
 	/** \brief evaluate double integral on given fields
 	* \param [in] test_field the test field to integrate on
@@ -229,30 +315,9 @@ public:
 		test_field_t const &test_field,
 		trial_field_t const &trial_field)
 	{
-		typedef accel_store<false, kernel_t, test_field_t, trial_field_t> acc_store_t;
-		auto &sa = acc_store_t::m_singular_accelerator;
-
-		auto &test_ra = test_regular_store_t::m_regular_pool;
-		auto &trial_ra = trial_regular_store_t::m_regular_pool;
-
 		m_result.setZero();	// clear result
-
-		// check singularity
-		if (sa.is_singular(test_field, trial_field))
-			return eval_singular_on_accelerator(
-			test_field, trial_field, sa.begin(), sa.end());
-
-		// select quadrature
-		kernel_input_t test_center(test_field.get_elem(),
-			test_ra[0]->cbegin()->get_quadrature_elem());
-		kernel_input_t trial_center(trial_field.get_elem(),
-			trial_ra[0]->cbegin()->get_quadrature_elem());
-
-		unsigned degree = kernel_t::estimate_complexity(test_center, trial_center);
-
-		return eval_on_accelerator(
-			test_field, *(test_ra[degree]),
-			trial_field, *(trial_ra[degree]));
+		return eval_general(std::integral_constant<bool, is_kernel_singular>(),
+			test_field, trial_field);
 	}
 
 
@@ -266,29 +331,10 @@ public:
 		test_field_t const &test_field,
 		trial_field_t const &trial_field)
 	{
-		typedef accel_store<true, kernel_t, test_field_t, trial_field_t> acc_store_t;
-		typename acc_store_t::singular_accelerator_t &sa = acc_store_t::m_singular_accelerator;
-
-		typedef regular_pool_store<trial_field_t, quadrature_family_t> regular_trial_store_t;
-		auto &trial_ra = trial_regular_store_t::m_regular_pool;
-
 		m_result.setZero();	// clear result
 
-		// check singularity
-		if (sa.is_singular(test_field, trial_field))
-			return eval_collocational_singular_on_accelerator(
-			test_field, trial_field, sa);
-
-		// select quadrature
-		quadrature_elem_t qe(test_field_t::elem_t::domain_t::get_center());
-		kernel_input_t test_center(test_field.get_elem(), qe);
-		kernel_input_t trial_center(trial_field.get_elem(),
-			trial_ra[0]->cbegin()->get_quadrature_elem());
-
-		unsigned degree = kernel_t::estimate_complexity(test_center, trial_center);
-
-		return eval_collocational_on_accelerator(
-			test_field, trial_field, *(trial_ra[degree]));
+		return eval_collocational(std::integral_constant<bool, is_kernel_singular>(),
+			test_field, trial_field);
 	}
 
 protected:

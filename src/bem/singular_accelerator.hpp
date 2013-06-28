@@ -299,6 +299,8 @@ public:
 	*/
 	singular_accelerator(void)
 	{
+		std::cout << "instantiating singular accelerator" << std::endl;
+
 		// generate face quadratures with separate function
 		// so that it does not compile of not needed (different domains)
 		generate_face(std::integral_constant<bool, face_match_possible>());
@@ -383,7 +385,6 @@ protected:
 * \tparam Kernel the kernel to integrate
 * \tparam TestElem the test element type
 * \tparam TrialField the trial field type
-* \todo The class should return a vector of quadratures for each corner of the test NSet
 */
 template <class Kernel, class TestField, class TrialField>
 class singular_accelerator<true, Kernel, TestField, TrialField>
@@ -459,6 +460,8 @@ public:
 	*/
 	singular_accelerator(void)
 	{
+		std::cout << "instantiating singular accelerator" << std::endl;
+
 		/** \todo kernel should tell the singularity order */
 		unsigned const SINGULARITY_ORDER = 9;
 

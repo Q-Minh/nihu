@@ -15,7 +15,7 @@
  * \tparam TestSpace the test function space over which integration is performed
  * \tparam TrialSpace the trial function space over which integration is performed
  */
-template <bool isCollocational, class Kernel, class TestSpace, class TrialSpace>
+template <bool isCollocational, class Kernel, class TestSpace, class TrialSpace = TestSpace>
 class weighted_residual
 {
 	// CRTP check
