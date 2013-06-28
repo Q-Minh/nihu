@@ -301,7 +301,7 @@ protected:
 			return eval_collocational_singular_on_accelerator(
 			test_field, trial_field, sa);
 		else
-			return eval_collocational(std::false_type, test_field, trial_field);
+			return eval_collocational(std::false_type(), test_field, trial_field);
 	}
 
 public:

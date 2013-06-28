@@ -179,7 +179,7 @@ public:
 	static const bool face_match_possible = std::is_same<test_field_t, trial_field_t>::value;
 
 	/** \todo kernel should tell the singularity order */
-	static unsigned const SINGULARITY_ORDER = 7;
+	static unsigned const singular_quadrature_order = kernel_traits<kernel_t>::singular_quadrature_order;
 
 	/**
 	* \brief determine if singular integration is needed and store singularity type
@@ -290,7 +290,7 @@ private:
 		quad_factory_t::template generate<FACE_MATCH>(
 			m_face_test_quadrature,
 			m_face_trial_quadrature,
-			SINGULARITY_ORDER);
+			singular_quadrature_order);
 	}
 
 public:
@@ -311,10 +311,10 @@ public:
 
 		// create test quadrature singular on the first corner
 		quad_factory_t::template generate<CORNER_MATCH>(
-			test_corner_q, trial_corner_q, SINGULARITY_ORDER);
+			test_corner_q, trial_corner_q, singular_quadrature_order);
 		// create test quadrature singular on the first edge
 		quad_factory_t::template generate<EDGE_MATCH>(
-			test_edge_q, trial_edge_q, SINGULARITY_ORDER);
+			test_edge_q, trial_edge_q, singular_quadrature_order);
 
 		// rotate test quadratures
 		for	(unsigned i = 0; i < n_test_corners; ++i)
@@ -420,6 +420,8 @@ public:
 	/** \brief quadrature element type (it should be the same for test and trial) */
 	typedef typename trial_quadrature_t::quadrature_elem_t quadrature_elem_t;
 
+	static unsigned const singular_quadrature_order = kernel_traits<kernel_t>::singular_quadrature_order;
+
 	/** \brief the duffy quadrature type */
 	typedef duffy_quadrature<quadrature_family_t, trial_lset_t> trial_duffy_t;
 
@@ -462,14 +464,11 @@ public:
 	{
 		std::cout << "instantiating singular accelerator" << std::endl;
 
-		/** \todo kernel should tell the singularity order */
-		unsigned const SINGULARITY_ORDER = 9;
-
 		if (face_match_possible)
 		{
 			for (unsigned idx = 0; idx < test_nset_t::num_nodes; ++idx)
 				m_face_trial_quadratures[idx] += trial_duffy_t::on_face(
-					SINGULARITY_ORDER, test_nset_t::corner_at(idx));
+					singular_quadrature_order, test_nset_t::corner_at(idx));
 		}
 	}
 

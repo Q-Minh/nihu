@@ -38,6 +38,8 @@ public:
 	static bool const is_symmetric = traits_t::is_symmetric;
 	/** \brief the singularity order (r^-order) */
 	static unsigned const singularity_order = traits_t::singularity_order;
+	/** \brief the singular quadrature */
+	static unsigned const singular_quadrature_order = traits_t::singular_quadrature_order;
 
 	/**
 	 * \brief reset number of evaluations to zero
@@ -163,6 +165,8 @@ struct kernel_traits<unit_kernel>
 	static bool const is_symmetric = true;
 	/** \brief the singularity order (r^-order) */
 	static unsigned const singularity_order = 0;
+	/** \brief the singular quadrature order */
+	static unsigned const singular_quadrature_order = 0;
 };
 
 /**
@@ -261,6 +265,8 @@ struct kernel_traits<helmholtz_G_kernel>
 	static bool const is_symmetric = true;
 	/** \brief the singularity order (r^-order) */
 	static unsigned const singularity_order = 1;
+	/** \brief the singular quadrature order */
+	static unsigned const singular_quadrature_order = 7;
 };
 
 /**
@@ -330,6 +336,8 @@ struct kernel_traits<helmholtz_H_kernel>
 	static bool const is_symmetric = false;
 	/** \brief the singularity order (r^-order) */
 	static unsigned const singularity_order = 2;
+	/** \brief the singular quadrature order */
+	static unsigned const singular_quadrature_order = 7;
 };
 
 /**
@@ -397,6 +405,8 @@ struct kernel_traits<helmholtz_HG_kernel>
 	static bool const is_symmetric = false;
 	/** \brief the singularity order (r^-order) */
 	static unsigned const singularity_order = 2;
+	/** \brief the singular quadrature order */
+	static unsigned const singular_quadrature_order = 7;
 };
 
 /**

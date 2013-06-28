@@ -237,7 +237,7 @@ public:
 	* \tparam match_type the singularity type
 	* \param [out] test_quadrature the test quadrature to be extended
 	* \param [out] trial_quadrature the trial quadrature to be extended
-	* \param [in] singularity_order polynomial order of the underlying regular quadrature
+	* \param [in] singular_quadrature_order polynomial order of the underlying regular quadrature
 	* \todo traversing four line quadratures should be replaced by traversing their
 	* Descartes product
 	*/
@@ -245,7 +245,7 @@ public:
 	static void generate(
 		quadrature_t &test_quadrature,
 		quadrature_t &trial_quadrature,
-		unsigned singularity_order)
+		unsigned singular_quadrature_order)
 	{
 		/** \brief the helper class type */
 		typedef tria_helper<match_type> hlp_t;
@@ -255,7 +255,7 @@ public:
 		typedef typename hlp_t::descartes_quad_t descartes_quad_t;
 
 		/** \brief the regular line quadrature type */
-		typename quadrature_type<quadrature_family_t, line_domain>::type base_quad(singularity_order);
+		typename quadrature_type<quadrature_family_t, line_domain>::type base_quad(singular_quadrature_order);
 		// transform the regular line quadrature into the (0,1) domain
 		Eigen::Matrix<scalar_t, 2, 1> c(0.0, 1.0);
 		base_quad.template transform_inplace<line_1_shape_set>(c);
@@ -296,7 +296,6 @@ public:
 							trial_quadrature.push_back(quadrature_elem_t(x.bottomRows(2), 1.0));
 
 							// and vica versa if symmetry requires
-							/** \todo ensure that symmetric kernels don't compute everything twice */
 							if (hlp_t::is_symmetric)
 							{
 								test_quadrature.push_back(quadrature_elem_t(x.bottomRows(2), w));
@@ -430,20 +429,20 @@ public:
 	* \tparam match_type the singularity type
 	* \param [out] test_quadrature the test quadrature to be extended
 	* \param [out] trial_quadrature the trial quadrature to be extended
-	* \param [in] singularity_order polynomial order of the underlying regular quadrature
+	* \param [in] singular_quadrature_order polynomial order of the underlying regular quadrature
 	*/
 	template <singularity_type match_type>
 	static void generate(
 		quadrature_t &test_quadrature,
 		quadrature_t &trial_quadrature,
-		unsigned singularity_order)
+		unsigned singular_quadrature_order)
 	{
 		/** \brief the helper class type */
 		typedef quad_helper<match_type> hlp_t;
 		typedef typename hlp_t::scalar_t scalar_t;
 
 		// create a regular quad quadrature for Duffy transformation purposes
-		quadrature_t base_quad(singularity_order);
+		quadrature_t base_quad(singular_quadrature_order);
 
 		for (unsigned d = 0; d < hlp_t::num_domains; ++d)
 		{
@@ -495,7 +494,6 @@ public:
 					test_quadrature.push_back(quadrature_elem_t(xi, w));
 					trial_quadrature.push_back(quadrature_elem_t(eta, 1.0));
 
-					/** \todo ensure that symmetric kernels don't compute everything twice */
 					if (hlp_t::is_symmetric)
 					{
 						test_quadrature.push_back(quadrature_elem_t(eta, 1.0));
@@ -533,17 +531,17 @@ public:
 	* \tparam match_type the singularity type
 	* \param [out] test_quadrature the test quadrature to be extended
 	* \param [out] trial_quadrature the trial quadrature to be extended
-	* \param [in] singularity_order polynomial order of the underlying regular quadrature
+	* \param [in] singular_quadrature_order polynomial order of the underlying regular quadrature
 	*/
 	template <singularity_type match_type>
 	static void generate(
 		test_quadrature_t &test_quadrature,
 		trial_quadrature_t &trial_quadrature,
-		unsigned singularity_order)
+		unsigned singular_quadrature_order)
 	{
 		// call specialised function member
 		generate(std::integral_constant<singularity_type, match_type>(),
-			test_quadrature, trial_quadrature, singularity_order);
+			test_quadrature, trial_quadrature, singular_quadrature_order);
 	}
 
 
@@ -552,18 +550,18 @@ private:
 	* \brief specialisation of ::generate for the ::CORNER_MATCH case
 	* \param [out] test_quadrature the test quadrature to be extended
 	* \param [out] trial_quadrature the trial quadrature to be extended
-	* \param [in] singularity_order polynomial order of the underlying regular quadrature
+	* \param [in] singular_quadrature_order polynomial order of the underlying regular quadrature
 	*/
 	static void generate(
 		std::integral_constant<singularity_type, CORNER_MATCH>,
 		test_quadrature_t &test_quadrature,
 		trial_quadrature_t &trial_quadrature,
-		unsigned singularity_order)
+		unsigned singular_quadrature_order)
 	{
 		trial_quadrature_t test_base;
 		trial_quadrature_t trial_base;
 		base_sing_t::template generate<CORNER_MATCH>(
-			test_base, trial_base, singularity_order);
+			test_base, trial_base, singular_quadrature_order);
 
 		unsigned corner_idx[2][3] = {
 			{0, 1, 2},
@@ -589,13 +587,13 @@ private:
 	* \brief specialisation of ::generate for the ::EDGE_MATCH case
 	* \param [out] test_quadrature the test quadrature to be extended
 	* \param [out] trial_quadrature the trial quadrature to be extended
-	* \param [in] singularity_order polynomial order of the underlying regular quadrature
+	* \param [in] singular_quadrature_order polynomial order of the underlying regular quadrature
 	*/
 	static void generate(
 		std::integral_constant<singularity_type, EDGE_MATCH>,
 		test_quadrature_t &test_quadrature,
 		trial_quadrature_t &trial_quadrature,
-		unsigned singularity_order)
+		unsigned singular_quadrature_order)
 	{
 		// the quad domain is divided into two triangles
 		unsigned corner_idx[2][3] = {
@@ -610,7 +608,7 @@ private:
 		trial_quadrature_t test_base;
 		trial_quadrature_t trial_base;
 		base_sing_t::template generate<EDGE_MATCH>(
-			test_base, trial_base, singularity_order);
+			test_base, trial_base, singular_quadrature_order);
 
 		// assemble corners, transform and insert into result
 		for (unsigned i = 0; i < 3; ++i)
@@ -628,7 +626,7 @@ private:
 
 		// the underlying corner-singular tria-tria quadratures
 		base_sing_t::template generate<CORNER_MATCH>(
-			test_base, trial_base, singularity_order);
+			test_base, trial_base, singular_quadrature_order);
 
 		// assemble corners, transform and insert into result
 		for (unsigned i = 0; i < 3; ++i)
@@ -662,17 +660,17 @@ public:
 	* \tparam match_type the singularity type
 	* \param [out] test_quadrature the test quadrature to be extended
 	* \param [out] trial_quadrature the trial quadrature to be extended
-	* \param [in] singularity_order polynomial order of the underlying regular quadrature
+	* \param [in] singular_quadrature_order polynomial order of the underlying regular quadrature
 	*/
 	template <singularity_type match_type>
 	static void generate(
 		test_quadrature_t &test_quadrature,
 		trial_quadrature_t &trial_quadrature,
-		unsigned singularity_order)
+		unsigned singular_quadrature_order)
 	{
 		// call quad-tria version with swapped arguments
 		singular_galerkin_quadrature<quadrature_family_t, quad_domain, tria_domain>::
-			generate<match_type>(trial_quadrature, test_quadrature, singularity_order);
+			generate<match_type>(trial_quadrature, test_quadrature, singular_quadrature_order);
 	}
 };
 
