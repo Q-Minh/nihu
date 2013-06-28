@@ -31,6 +31,9 @@ couple_test: src/test/couple_test.cpp src/bem/couple.hpp
 singulartity_check_test: src/test/singularity_check_test.cpp src/bem/element.hpp src/bem/singularity_check.hpp
 	$(CC) $(CFLAGS) src/test/singularity_check_test.cpp -o singularity_check_test
 
+gaussian_test: examples/gaussian_test.cpp
+	$(CC) $(CFLAGS) examples/gaussian_test.cpp -o gaussian_test
+
 clean:
 	rm *_test
 

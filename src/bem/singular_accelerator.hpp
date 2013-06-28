@@ -297,8 +297,6 @@ public:
 	*/
 	singular_accelerator(void)
 	{
-		std::cout << "instantiating singular accelerator" << std::endl;
-
 		// generate face quadratures with separate function
 		// so that it does not compile of not needed (different domains)
 		generate_face(std::integral_constant<bool, face_match_possible>());
@@ -460,8 +458,6 @@ public:
 	*/
 	singular_accelerator(void)
 	{
-		std::cout << "instantiating singular accelerator" << std::endl;
-
 		if (face_match_possible)
 		{
 			for (unsigned idx = 0; idx < test_nset_t::num_nodes; ++idx)

@@ -167,7 +167,7 @@ public:
 	template <class ElemType>
 	typename elem_iterator_t<ElemType>::type begin(void) const
 	{
-		return m_elements.EIGENSTDVECTOR(ElemType)::begin();
+		return m_elements.EigenStdVector<ElemType>::type::begin();
 	}
 
 	/**
@@ -176,7 +176,7 @@ public:
 	template <class ElemType>
 	typename elem_iterator_t<ElemType>::type end(void) const
 	{
-		return m_elements.EIGENSTDVECTOR(ElemType)::end();
+		return m_elements.EigenStdVector<ElemType>::type::end();
 	}
 
 	/**
