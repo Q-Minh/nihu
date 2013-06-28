@@ -32,8 +32,6 @@ int main(void)
 
 		function_space_t fsp(nodes, fields);
 
-		wr_t wr(fsp, fsp);
-
 		// kernel_t::set_wave_number(1.0);
 
 		typedef Eigen::Matrix<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic> big_mat_t;
@@ -43,7 +41,7 @@ int main(void)
 		//		big_mat_t b = a;
 
 		//		couple<big_mat_t, big_mat_t> result(a, b);
-		wr.eval(a);
+		wr_t::eval(a, fsp, fsp);
 
 		std::cout << a << std::endl << std::endl;
 		//		std::cout << result.second() << std::endl << std::endl;
