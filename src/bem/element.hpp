@@ -14,21 +14,36 @@
 */
 class element_overlapping
 {
-	unsigned num;			/**< \brief number of coincident nodes */
-	unsigned ind1, ind2;	/**< \brief start node indices */
 public:
 	/** \brief return number of coincident nodes */
-	unsigned get_num(void) const  {	return num; }
+	unsigned get_num(void) const
+	{
+		return num;
+	}
+	
 	/** \brief return index of first coincident node in element 1 */
-	unsigned get_ind1(void) const { return ind1; }
+	unsigned get_ind1(void) const
+	{
+		return ind1;
+	}
+	
 	/** \brief return index of first coincident node in element 2 */
-	unsigned get_ind2(void) const { return ind2; }
+	unsigned get_ind2(void) const
+	{
+		return ind2;
+	}
 
 	/** \brief constructor */
 	element_overlapping(unsigned num = 0, unsigned ind1 = 0, unsigned ind2 = 0) :
 		num(num), ind1(ind1), ind2(ind2)
 	{
 	}
+
+private:
+	/** \brief number of coincident nodes */
+	unsigned num;
+	/** \brief start node indices */
+	unsigned ind1, ind2;
 };
 
 
@@ -56,28 +71,29 @@ public:
 	/** \brief the CRTP derived class */
 	typedef element_traits<Derived> traits_t;
 
+	/** \brief the element space type */
 	typedef typename traits_t::space_t space_t;
-
 	/** \brief the dimension of the element's location variable \f$x\f$ */
 	static unsigned const x_dim = space_t::dimension;
+
 	/** \brief the elements's L-set */
 	typedef typename traits_t::lset_t lset_t;
 
 	/** \brief the element id */
 	static unsigned const id = elem_id<Derived>::value;
 
-	/** \brief the elements's domain */
+	/** \brief the elements's reference domain */
 	typedef typename lset_t::domain_t domain_t;
 	/** \brief the base domain's scalar variable */
 	typedef typename space_t::scalar_t scalar_t;
 	/** \brief the dimension of the element's domain variable \f$\xi\f$ */
 	static unsigned const xi_dim = domain_t::dimension;
 
-	/** \brief number of shape functions in the set, inherited from the LSet */
+	/** \brief number of shape functions in the L-set */
 	static unsigned const num_nodes = lset_t::num_nodes;
 	/** \brief type of the shape functions' independent variable \f$\xi\f$ */
 	typedef typename lset_t::xi_t xi_t;
-	/** \brief type of an \f$L(\xi)\f$ vector, inherited from the LSet */
+	/** \brief type of an \f$L(\xi)\f$ vector */
 	typedef typename lset_t::shape_t L_t;
 	/** \brief type of an \f$\nabla L(\xi)\f$ gradient matrix */
 	typedef typename lset_t::dshape_t dL_t;
@@ -85,11 +101,11 @@ public:
 	/** \brief type of the element's independent location variable \f$x\f$ */
 	typedef typename space_t::location_t x_t;
 	/** \brief type of the gradient of the element's independent location variable \f$x'_{\xi}\f$ */
-	typedef Eigen::Matrix<scalar_t, xi_dim, x_dim> dx_t;
+	typedef Eigen::Matrix<scalar_t, x_dim, xi_dim> dx_t;
+	/** \brief matrix type that stores the element's corner nodes \f$x_i\f$ */
+	typedef Eigen::Matrix<unsigned, num_nodes, 1> nodes_t;
 	/** \brief matrix type that stores the element's corner coordinates \f$x_i\f$ */
-	typedef Eigen::Matrix<unsigned, 1, num_nodes> nodes_t;
-	/** \brief matrix type that stores the element's corner coordinates \f$x_i\f$ */
-	typedef Eigen::Matrix<scalar_t, num_nodes, x_dim> coords_t;
+	typedef Eigen::Matrix<scalar_t, x_dim, num_nodes> coords_t;
 	/** \brief type that stores the element's id */
 	typedef Eigen::Matrix<unsigned, 1, 1> id_t;
 
@@ -156,7 +172,7 @@ public:
 	*/
 	x_t get_x(xi_t const &xi) const
 	{
-		return lset_t::eval_shape(xi).transpose() * m_coords;
+		return m_coords * lset_t::eval_shape(xi);
 	}
 
 	/**
@@ -175,7 +191,7 @@ public:
 	*/
 	dx_t get_dx(xi_t const &xi) const
 	{
-		return lset_t::eval_dshape(xi).transpose() * m_coords;
+		return m_coords * lset_t::eval_dshape(xi);
 	}
 
 	/**
@@ -253,7 +269,7 @@ public:
 		: element_base(coords, id, nodes)
 	{
 		dx_t dx0(get_dx(xi_t::Zero()));
-		m_normal = dx0.row(0).cross(dx0.row(1));
+		m_normal = dx0.col(0).cross(dx0.col(1));
 	}
 
 	/** \brief return normal vector
@@ -265,7 +281,8 @@ public:
 	}
 
 protected:
-	x_t m_normal;	/**< \brief the normal vector */
+	/** \brief the normal vector */
+	x_t m_normal;
 };
 
 
@@ -298,9 +315,9 @@ public:
 		dx_t dx0 = get_dx(xi_t::Zero());
 		dx_t dx1 = get_dx(xi_t::Ones())-dx0;
 
-		m_n0 = dx0.row(0).cross(dx0.row(1));
-		m_n_xi.row(0) = dx0.row(0).cross(dx1.row(0));
-		m_n_xi.row(1) = dx1.row(0).cross(dx0.row(1));
+		m_n0 = dx0.col(0).cross(dx0.col(1));
+		m_n_xi.col(0) = dx0.col(0).cross(dx1.col(0));
+		m_n_xi.col(1) = dx1.col(0).cross(dx0.col(1));
 	}
 
 	/** \brief return normal vector
@@ -309,12 +326,14 @@ public:
 	*/
 	x_t get_normal(xi_t const &xi) const
 	{
-		return m_n0 + xi.transpose() * m_n_xi;
+		return m_n0 + m_n_xi * xi;
 	}
 
 protected:
-	x_t m_n0;	/**< \brief the normal at xi=0 */
-	dx_t m_n_xi;	/**< \brief 1st order tag of the Taylor series of the normal */
+	/** \brief the normal at xi=0 */
+	x_t m_n0;
+	/** \brief 1st order tag of the Taylor series of the normal */
+	dx_t m_n_xi;
 };
 
 
@@ -373,7 +392,7 @@ public:
 	x_t get_normal(xi_t const &xi) const
 	{
 		dx_t dx = get_dx(xi);
-		return dx.row(0).cross(dx.row(1));
+		return dx.col(0).cross(dx.col(1));
 	}
 };
 

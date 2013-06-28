@@ -10,9 +10,6 @@ domain_test: src/test/domain_test.cpp src/bem/domain.hpp src/bem/space.hpp
 shape_test: src/test/shape_test.cpp src/bem/shapeset.hpp src/bem/domain.hpp
 	$(CC) $(CFLAGS) src/test/shape_test.cpp -o shape_test
 
-quad_test: src/test/quad_test.cpp src/bem/quadrature.hpp
-	$(CC) $(CFLAGS) src/test/quad_test.cpp -o quad_test
-
 element_test: src/test/element_test.cpp src/bem/element.hpp src/bem/shapeset.hpp
 	$(CC) $(CFLAGS) src/test/element_test.cpp -o element_test
 
@@ -21,6 +18,9 @@ mesh_test: src/test/mesh_test.cpp src/bem/mesh.hpp
 
 field_test: src/test/field_test.cpp src/bem/field.hpp
 	$(CC) $(CFLAGS) src/test/field_test.cpp -o field_test
+
+quad_test: src/test/quad_test.cpp src/bem/quadrature.hpp
+	$(CC) $(CFLAGS) src/test/quad_test.cpp -o quad_test
 
 weighted_residual_test: src/test/weighted_residual_test.cpp
 	$(CC) $(CFLAGS) src/test/weighted_residual_test.cpp  -o weighted_residual_test

@@ -531,6 +531,7 @@ public:
 
 	/**
 	* \brief linear 3-noded parallelogram shape function derivatives
+	* \return the shape function gradient matrix
 	*/
 	static dshape_t eval_dshape(xi_t const &)
 	{
@@ -560,8 +561,10 @@ class tria_2_shape_set;
 template<>
 struct shape_set_traits<tria_2_shape_set>
 {
-	typedef tria_domain domain_t;	/**< \brief the domain type */
-	static unsigned const num_nodes = 6;	/**< \brief number of nodes */
+	/** \brief the domain type */
+	typedef tria_domain domain_t;
+	/** \brief number of nodes */
+	static unsigned const num_nodes = 6;
 	/** \brief highest power of local variables in the shape function */
 	static unsigned const polynomial_order = 2;
 	/** \brief highest power of local variables in the jacobian */
@@ -595,6 +598,8 @@ public:
 
 	/**
 	* \brief quadratic 6-noded tria shape function derivatives
+	* \param [in] _xi the domain variable
+	* \return the shape function gradient matrix
 	*/
 	static dshape_t eval_dshape(xi_t const & _xi)
 	{
@@ -683,6 +688,8 @@ public:
 
 	/**
 	* \brief quadratic 9-noded quad shape function derivatives
+	* \param [in] _xi the domain variable
+	* \return the shape function gradient matrix
 	*/
 	static dshape_t eval_dshape(xi_t const & _xi)
 	{
