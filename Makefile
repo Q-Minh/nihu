@@ -1,6 +1,15 @@
 CC=g++
 CFLAGS=-Wall -pedantic -O3 -I /usr/local/include/eigen3 -std=c++11
 
+space_test: src/test/space_test.cpp src/bem/space.hpp
+	$(CC) $(CFLAGS) src/test/space_test.cpp -o space_test
+
+domain_test: src/test/domain_test.cpp src/bem/domain.hpp src/bem/space.hpp 
+	$(CC) $(CFLAGS) src/test/domain_test.cpp -o domain_test
+
+shape_test: src/test/shape_test.cpp src/bem/shapeset.hpp src/bem/domain.hpp
+	$(CC) $(CFLAGS) src/test/shape_test.cpp -o shape_test
+
 quad_test: src/test/quad_test.cpp src/bem/quadrature.hpp
 	$(CC) $(CFLAGS) src/test/quad_test.cpp -o quad_test
 
@@ -18,9 +27,6 @@ weighted_residual_test: src/test/weighted_residual_test.cpp
 
 weighted_residual_test_q: src/test/weighted_residual_test_q.cpp
 	$(CC) $(CFLAGS) src/test/weighted_residual_test_q.cpp  -o weighted_residual_test_q
-
-shape_test: src/test/shape_test.cpp src/bem/shapeset.hpp
-	$(CC) $(CFLAGS) src/test/shape_test.cpp -o shape_test
 
 field_accelerator_test: src/test/field_accelerator_test.cpp src/bem/field_type_accelerator.hpp
 	$(CC) $(CFLAGS) src/test/field_accelerator_test.cpp -o field_accelerator_test

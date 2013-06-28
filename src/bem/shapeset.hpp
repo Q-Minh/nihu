@@ -3,11 +3,11 @@
 * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
 * \brief Definition of various shape function sets
 */
+
 #ifndef SHAPESET_HPP_INCLUDED
 #define SHAPESET_HPP_INCLUDED
 
 #include "domain.hpp"
-#include "../tmp/bool.hpp"
 
 /** \brief Traits for shapesets */
 template <class Dervied>
@@ -33,7 +33,8 @@ template <class Derived>
 class shape_set_base
 {
 public:
-	typedef shape_set_traits<Derived> traits_t;	/**< \brief the traits class type */
+	/** \brief the traits class type */
+	typedef shape_set_traits<Derived> traits_t;
 
 	/** \brief Domain */
 	typedef typename traits_t::domain_t domain_t;			
@@ -84,8 +85,10 @@ class constant_shape_set;
 template <class Domain>
 struct shape_set_traits<constant_shape_set<Domain> >
 {
-	typedef Domain domain_t;	/**< \brief the domain type */
-	static unsigned const num_nodes = 1;	/**< \brief number of nodes */
+	/** \brief the domain type */
+	typedef Domain domain_t;	
+	/** \brief number of nodes */	
+	static unsigned const num_nodes = 1;
 	/** \brief highest power of local variables in the shape function */
 	static unsigned const polynomial_order = 0;
 	/** \brief highest power of local variables in the Jacobian */
@@ -94,12 +97,14 @@ struct shape_set_traits<constant_shape_set<Domain> >
 
 /**
 * \brief Constant interpolation functions
+* \tparam Domain the reference domain the shape set is defined above
 */
 template <class Domain>
 class constant_shape_set : public shape_set_base<constant_shape_set<Domain> >
 {
 public:
-	typedef shape_set_base<constant_shape_set<Domain> > base_t;	/**< \brief the base class type */
+	/** \brief the CRTP base class type */
+	typedef shape_set_base<constant_shape_set<Domain> > base_t;
 	/** \brief the domain type */
 	typedef typename base_t::domain_t domain_t;
 	/** \brief type of the domain variable */
@@ -142,7 +147,9 @@ public:
 	}
 
 protected:
+	/** \brief static shape function vector */
 	static const shape_t m_shape;
+	/** \brief static shape function gradient */
 	static const dshape_t m_dshape;
 };
 
@@ -153,7 +160,19 @@ typedef constant_shape_set<line_domain> line_0_shape_set;
 typedef constant_shape_set<tria_domain> tria_0_shape_set;
 /** constant quad shape set */
 typedef constant_shape_set<quad_domain> quad_0_shape_set;
+/** constant brick shape set */
+typedef constant_shape_set<brick_domain> brick_0_shape_set;
 
+
+/** \brief shape functions of the constant line shape set */
+template <>
+typename line_0_shape_set::shape_t
+	const line_0_shape_set::m_shape = line_0_shape_set::shape_t::Ones();
+
+/** \brief shape function derivatives of the constant line shape set */
+template <>
+typename line_0_shape_set::dshape_t
+	const line_0_shape_set::m_dshape = line_0_shape_set::dshape_t::Zero();
 
 /** \brief shape functions of the constant quad shape set */
 template <>
@@ -168,12 +187,23 @@ typename tria_0_shape_set::dshape_t
 /** \brief shape functions of the constant tria shape set */
 template <>
 typename quad_0_shape_set::shape_t
-	const quad_0_shape_set::m_shape = constant_shape_set<quad_domain>::shape_t::Ones();
+	const quad_0_shape_set::m_shape = quad_0_shape_set::shape_t::Ones();
 
 /** \brief shape function derivatives of the constant tria shape set */
 template <>
 typename quad_0_shape_set::dshape_t
-	const quad_0_shape_set::m_dshape = constant_shape_set<quad_domain>::dshape_t::Zero();
+	const quad_0_shape_set::m_dshape = quad_0_shape_set::dshape_t::Zero();
+
+/** \brief shape functions of the constant brick shape set */
+template <>
+typename brick_0_shape_set::shape_t
+	const brick_0_shape_set::m_shape = brick_0_shape_set::shape_t::Ones();
+
+/** \brief shape function derivatives of the constant brick shape set */
+template <>
+typename brick_0_shape_set::dshape_t
+	const brick_0_shape_set::m_dshape = brick_0_shape_set::dshape_t::Zero();
+
 
 
 /** \brief Common traits for all isoparametric shape sets
@@ -222,6 +252,15 @@ struct shape_set_traits<isoparam_shape_set<quad_domain> >
 	static unsigned const jacobian_order = 1;
 };
 
+/** \brief Traits of the isoparametric brick shape set */
+template <>
+struct shape_set_traits<isoparam_shape_set<brick_domain> >
+	: isoparam_shape_set_traits_base<brick_domain>
+{
+	/** \brief highest power of local variables in the jacobian */
+	static unsigned const jacobian_order = 1;
+};
+
 /**
 * \brief Isoparametric shape sets
 */
@@ -229,9 +268,11 @@ template <class Domain>
 class isoparam_shape_set : public shape_set_base<isoparam_shape_set<Domain> >
 {
 public:
-	typedef Domain domain_t;	/**< \brief the domain type */
+	/** \brief the CRTP base class */
+	typedef shape_set_base<isoparam_shape_set<Domain> > base_t;
+	/** \brief the domain type */
+	typedef typename base_t::domain_t domain_t;
 
-	typedef shape_set_base<isoparam_shape_set<Domain> > base_t;	/**< \brief the base class type */
 	/** \brief the xi location vector type */
 	typedef typename base_t::xi_t xi_t;
 	/** \brief type of a shape vector */
@@ -388,6 +429,65 @@ inline typename quad_1_shape_set::dshape_t
 	return dL;
 }
 
+
+/** linear brick shape set */
+typedef isoparam_shape_set<brick_domain> brick_1_shape_set;
+
+/**
+* \brief linear 8-noded general brick shape functions
+* \param [in] xi the domain variable vector
+* \return the shape function vector
+* \details The shape functions are
+*
+* \f$L_1(\xi, \eta) = (1-\xi)(1-\eta)(1-\zeta)/8\\
+L_2(\xi, \eta) = (1+\xi)(1-\eta)(1-\zeta)/8\\
+L_3(\xi, \eta) = (1+\xi)(1+\eta)(1-\zeta)/8\\
+L_4(\xi, \eta) = (1-\xi)(1+\eta)(1-\zeta)/8\f$
+L_2(\xi, \eta) = (1-\xi)(1-\eta)(1+\zeta)/8\\
+L_2(\xi, \eta) = (1+\xi)(1-\eta)(1+\zeta)/8\\
+L_3(\xi, \eta) = (1+\xi)(1+\eta)(1+\zeta)/8\\
+L_4(\xi, \eta) = (1-\xi)(1+\eta)(1+\zeta)/8\f$
+*/
+template<>
+inline typename brick_1_shape_set::shape_t
+	brick_1_shape_set::eval_shape(typename brick_1_shape_set::xi_t const &xi)
+{
+	shape_t L;
+	L <<
+		(1.0-xi[0])*(1.0-xi[1])*(1.0-xi[2])/8.0,
+		(1.0+xi[0])*(1.0-xi[1])*(1.0-xi[2])/8.0,
+		(1.0+xi[0])*(1.0+xi[1])*(1.0-xi[2])/8.0,
+		(1.0-xi[0])*(1.0+xi[1])*(1.0-xi[2])/8.0,
+		(1.0-xi[0])*(1.0-xi[1])*(1.0+xi[2])/8.0,
+		(1.0+xi[0])*(1.0-xi[1])*(1.0+xi[2])/8.0,
+		(1.0+xi[0])*(1.0+xi[1])*(1.0+xi[2])/8.0,
+		(1.0-xi[0])*(1.0+xi[1])*(1.0+xi[2])/8.0;
+	return L;
+}
+
+/**
+* \brief linear 8-noded general brick shape function derivative matrix
+* \param [in] xi the domain variable vector
+* \return shape function gradient matrix
+*/
+template<>
+inline typename brick_1_shape_set::dshape_t
+	brick_1_shape_set::eval_dshape(typename brick_1_shape_set::xi_t const &xi)
+{
+	dshape_t dL;
+	dL <<
+		(-1.0)*(1.0-xi[1])*(1.0-xi[2])/8.0, (1.0-xi[0])*(-1.0)*(1.0-xi[2])/8.0, (1.0-xi[0])*(1.0-xi[1])*(-1.0)/8.0, 
+		(+1.0)*(1.0-xi[1])*(1.0-xi[2])/8.0, (1.0+xi[0])*(-1.0)*(1.0-xi[2])/8.0, (1.0+xi[0])*(1.0-xi[1])*(-1.0)/8.0, 
+		(+1.0)*(1.0+xi[1])*(1.0-xi[2])/8.0, (1.0+xi[0])*(+1.0)*(1.0-xi[2])/8.0, (1.0+xi[0])*(1.0+xi[1])*(-1.0)/8.0, 
+		(-1.0)*(1.0+xi[1])*(1.0-xi[2])/8.0, (1.0-xi[0])*(+1.0)*(1.0-xi[2])/8.0, (1.0-xi[0])*(1.0+xi[1])*(-1.0)/8.0, 
+		(-1.0)*(1.0-xi[1])*(1.0+xi[2])/8.0, (1.0-xi[0])*(-1.0)*(1.0+xi[2])/8.0, (1.0-xi[0])*(1.0-xi[1])*(+1.0)/8.0, 
+		(+1.0)*(1.0-xi[1])*(1.0+xi[2])/8.0, (1.0+xi[0])*(-1.0)*(1.0+xi[2])/8.0, (1.0+xi[0])*(1.0-xi[1])*(+1.0)/8.0, 
+		(+1.0)*(1.0+xi[1])*(1.0+xi[2])/8.0, (1.0+xi[0])*(+1.0)*(1.0+xi[2])/8.0, (1.0+xi[0])*(1.0+xi[1])*(+1.0)/8.0, 
+		(-1.0)*(1.0+xi[1])*(1.0+xi[2])/8.0, (1.0-xi[0])*(+1.0)*(1.0+xi[2])/8.0, (1.0-xi[0])*(1.0+xi[1])*(+1.0)/8.0;
+	return dL;
+}
+
+
 // Forward declaration
 class parallelogram_shape_set;
 
@@ -395,8 +495,10 @@ class parallelogram_shape_set;
 template<>
 struct shape_set_traits<parallelogram_shape_set>
 {
-	typedef quad_domain domain_t;	/**< \brief the domain type */
-	static unsigned const num_nodes = 3;	/**< \brief number of nodes */
+	/** \brief the domain type */
+	typedef quad_domain domain_t;	
+	/** \brief number of nodes */
+	static unsigned const num_nodes = 3;
 	/** \brief highest power of local variables in the shape function */
 	static unsigned const polynomial_order = 1;
 	/** \brief highest power of local variables in the jacobian */

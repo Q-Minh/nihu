@@ -100,6 +100,7 @@ protected:
 template <class Derived>
 struct quadrature_traits;
 
+/** \brief metafunction to assign a quadrature element to a quadrature */
 template <class Derived>
 struct quadr_elem
 {
@@ -117,6 +118,7 @@ template <class Derived>
 class quadrature_base : public EigenStdVector<typename quadr_elem<Derived>::type>::type
 {
 public:
+	/** \brief the base vector class of the quadrature */
 	typedef typename EigenStdVector<typename quadr_elem<Derived>::type>::type base_t;
 
 private:

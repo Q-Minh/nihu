@@ -2,15 +2,12 @@
  * \file domain.hpp
  * \brief declaration of class ::domain and its derived domains
  * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
- * \details Domains are the domain set of geometrical transformations that desrcibe elements.
- * Each element is mapped from its domain set to its actual geometry by means
- * of a transformation \f$x = x(\xi)\f$, where \f$\xi \in \mathcal{D}\f$. In this description,
- * \f$\mathcal{D}\f$ denotes the element's domain.
  */
+
 #ifndef DOMAIN_HPP_INCLUDED
 #define DOMAIN_HPP_INCLUDED
 
-#include "includes.h"
+#include "space.hpp"
 
 /** \brief metafunction assigning an id to a domain */
 template <class domain_t>
@@ -19,24 +16,29 @@ struct domain_id;
 
 /**
  * \brief a subset of the \f$\xi\f$ space. All elements are defined on a domain.
+ * \tparam Scalar the scalar type of the space
  * \tparam Dimension the dimensionality of the space
  * \tparam NumCorners the number of corners of the domain
  */
-template <unsigned Dimension, unsigned NumCorners>
-class domain
+template <class Scalar, unsigned Dimension, unsigned NumCorners>
+class domain : public space<Scalar, Dimension>
 {
 public:
-	/** \brief template argument as nested type */
-	static unsigned const dimension = Dimension;
+	/** \brief the base type */
+	typedef space<Scalar, Dimension> base_t;
+	/** \brief scalar type inherited from base */
+	typedef typename base_t::scalar_t scalar_t;
+	/** \brief dimension inherited from base */
+	static unsigned const dimension = base_t::dimension;
 	/** \brief template argument as nested type */
 	static unsigned const num_corners = NumCorners;
 
+	/** \brief the domain id */
 	static unsigned const id = domain_id<domain>::value;
 
-	/** \brief scalar type of the location vector */
-    typedef double scalar_t;
 	/** \brief location vector */
-	typedef Eigen::Matrix<scalar_t, dimension, 1> xi_t;
+	typedef typename base_t::location_t xi_t;
+
 	/** \brief type of the corners' array */
 	typedef const xi_t corners_t[num_corners];
 
@@ -88,16 +90,16 @@ struct domain_id
 
 
 /** \brief a 1D line domain \f$-1 \le \xi \le +1\f$*/
-typedef domain<1, 2> line_domain;
+typedef domain<double, 1, 2> line_domain;
 
 /** \brief a 2D triangle domain */
-typedef domain<2, 3> tria_domain;
+typedef domain<double, 2, 3> tria_domain;
 
 /** \brief a 2D quad domain */
-typedef domain<2, 4> quad_domain;
+typedef domain<double, 2, 4> quad_domain;
 
 /** \brief a 3D brick domain */
-typedef domain<3, 8> brick_domain;
+typedef domain<double, 3, 8> brick_domain;
 
 
 
@@ -110,15 +112,15 @@ line_domain::xi_t
 template<>
 line_domain::corners_t
 	const line_domain::m_corners = {
-	-line_domain::xi_t::Ones(),
-	line_domain::xi_t::Ones()
+	line_domain::xi_t::Constant(-1.0),
+	line_domain::xi_t::Constant(1.0)
 	};
 
 
 template<>
 tria_domain::xi_t
 	const tria_domain::m_center =
-	tria_domain::xi_t::Ones()/3.0;
+	tria_domain::xi_t::Constant(1.0/3.0);
 
 
 template<>
@@ -162,8 +164,6 @@ template<>
 brick_domain::xi_t
 	const brick_domain::m_center =
 	brick_domain::xi_t::Zero();
-
-
 
 
 #endif

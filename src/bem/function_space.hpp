@@ -9,10 +9,12 @@
 #include "field.hpp"
 #include "mesh.hpp"
 
+/** \brief traits class of function spaces */
 template <class Derived>
 struct function_space_traits;
 
 
+/** \brief CRTP base class of function spaces */
 template <class Derived>
 class function_space_base
 {
@@ -28,22 +30,27 @@ private:
 	}
 
 public:
+	/** \brief the traits class */
 	typedef function_space_traits<Derived> traits_t;
 
+	/** \brief the field type vector */
 	typedef typename traits_t::field_type_vector_t field_type_vector_t;
 
+	/** \brief return begin iterator of a subvector of fields */
 	template <class field_t>
 	typename traits_t::template iterator<field_t>::type field_begin(void) const
 	{
 		return derived().template field_begin<field_t>();
 	}
 
+	/** \brief return end iterator of a subvector of fields */
 	template <class field_t>
 	typename traits_t::template iterator<field_t>::type field_end(void) const
 	{
 		return derived().template field_end<field_t>();
 	}
 
+	/** \brief return total number of degrees of freedoms */
 	unsigned get_num_dofs(void) const
 	{
 		return derived().get_num_dofs();
@@ -51,6 +58,7 @@ public:
 };
 
 
+/** \brief forward declaration of function space view class */
 template<class MeshT, class FieldOption>
 class function_space_view;
 
@@ -89,15 +97,18 @@ public:
 };
 
 
+/** \brief traits class of a function space view */
 template <class MeshT, class FieldOption>
 struct function_space_traits<function_space_view<MeshT, FieldOption> >
 {
+	/** \brief the field type vector */
 	typedef typename tmp::transform<
 		typename MeshT::elem_type_vector_t,
 		tmp::inserter<tmp::vector<>, tmp::push_back<tmp::_1, tmp::_2> >,
 		field_view<tmp::_1, FieldOption>
 	>::type field_type_vector_t;
 
+	/** \brief the iterator class traversing a field subvector */
 	template <class field_t>
 	struct iterator
 	{
@@ -157,9 +168,12 @@ template<class Mesh, class FieldOption>
 class function_space_view : public function_space_base<function_space_view<Mesh, FieldOption> >
 {
 public:
+	/** \brief the CRTP base class */
 	typedef function_space_base<function_space_view<Mesh, FieldOption> > crtp_base;
+	/** \brief the traits class */
 	typedef typename crtp_base::traits_t traits_t;
 
+	/** \brief the field type vector */
 	typedef typename traits_t::field_type_vector_t field_type_vector_t;
 
 	/** \brief template parameter as nested type */
@@ -218,14 +232,18 @@ protected:
 };
 
 
+/** \brief forward declaration of class function space */
 template <class FieldTypeVector>
 class function_space;
 
+/** \brief Traits class of a function space */
 template <class FieldTypeVector>
 struct function_space_traits<function_space<FieldTypeVector> >
 {
+	/** \brief the field type vector */
 	typedef FieldTypeVector field_type_vector_t;
 
+	/** \brief the iterator type of a field type subvector */
 	template <class field_t>
 	struct iterator
 	{
@@ -234,12 +252,14 @@ struct function_space_traits<function_space<FieldTypeVector> >
 };
 
 
+/** \brief metafunction to extract the element type of a field */
 template <class field_t>
 struct elemize
 {
 	typedef typename field_t::elem_t type;
 };
 
+/** \brief metafunction to return the element type vector of a field type vector */
 template <class FieldTypeVector>
 struct elem_type_vector
 {
@@ -250,17 +270,24 @@ struct elem_type_vector
 	>::type>::type type;
 };
 
+/** \brief class describing a function space
+* \tparam FieldTypeVector compile time vector of fields building the function space
+*/
 template <class FieldTypeVector>
 class function_space :
 	public function_space_base<function_space<FieldTypeVector> >,
 	public mesh<typename elem_type_vector<FieldTypeVector>::type>
 {
 public:
+	/** \brief the CRTP base class */
 	typedef function_space_base<function_space<FieldTypeVector> > crtp_base;
+	/** \brief the traits class */
 	typedef typename crtp_base::traits_t traits_t;
 
+	/** \brief the field type vector */
 	typedef typename traits_t::field_type_vector_t field_type_vector_t;
 
+	/** \brief the underlying mesh type */
 	typedef mesh<typename elem_type_vector<FieldTypeVector>::type> mesh_t;
 	
 	/** \brief combine field_type_vector into a BIG heterogeneous std::vector container */
@@ -273,8 +300,11 @@ public:
 	>::type field_container_t;
 
 protected:
+
+	/** \brief subclass called by call_each to add a field to the function space */
 	template <class field_t>
 	struct field_adder { struct type {
+		/** \brief add a field to the function space */
 		bool operator() (unsigned const input[], function_space &fsp)
 		{
 			typedef typename field_t::elem_t elem_t;
@@ -312,10 +342,12 @@ private:
 
 
 public:
+	/** \brief constructor */
 	function_space() : m_num_dofs(0)
 	{
 	}
 
+	/** \brief constructor from node and field definition matrices */
 	template <class node_matrix_t, class field_matrix_t>
 	function_space(node_matrix_t const &nodes, field_matrix_t const &fields)
 		: m_num_dofs(0)
@@ -338,6 +370,7 @@ public:
 		}
 	}
 
+	/** \brief return begin iterator of a subspace */
 	template <class FieldType>
 	typename traits_t::template iterator<FieldType>::type
 		field_begin(void) const
@@ -345,6 +378,7 @@ public:
 		return m_fields.EigenStdVector<FieldType>::type::begin();
 	}
 
+	/** \brief return end iterator of a subspace */
 	template <class FieldType>
 	typename traits_t::template iterator<FieldType>::type
 		field_end(void) const
@@ -352,6 +386,7 @@ public:
 		return m_fields.EigenStdVector<FieldType>::type::end();
 	}
 
+	/** \brief add a field to the function space */
 	bool add_field(unsigned const input[])
 	{
 		return tmp::call_until<
@@ -362,6 +397,7 @@ public:
 		>(input, *this);
 	}
 
+	/** \brief push a field to the vector of fields */
 	template <class field_t>
 	field_t const &push_field(field_t const &f)
 	{
@@ -378,6 +414,7 @@ public:
 		return this->get_num_elements();
 	}
 
+	/** \brief return number of dofs */
 	unsigned get_num_dofs(void) const
 	{
 		return m_num_dofs;
@@ -385,7 +422,9 @@ public:
 
 
 protected:
-	field_container_t m_fields;	/**< \brief fields (BIG heterogeneous container) */
+	/** \brief fields (BIG heterogeneous container) */
+	field_container_t m_fields;	
+	/** \brief number of degrees of freedoms */
 	unsigned m_num_dofs;
 };
 
