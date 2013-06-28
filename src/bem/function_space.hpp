@@ -316,7 +316,7 @@ protected:
 				for (unsigned i = 0; i < elem_t::num_nodes; ++i)
 				{
 					nodes[i] = input[i+1];
-					coords.row(i) = fsp.points[nodes[i]];
+					coords.col(i) = fsp.points[nodes[i]];
 				}
 				elem_t const &elemref = fsp.push_element(elem_t(coords, fsp.m_num_elements++, nodes));
 
