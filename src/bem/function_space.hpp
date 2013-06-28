@@ -384,12 +384,10 @@ public:
 	}
 
 
-
 protected:
 	field_container_t m_fields;	/**< \brief fields (BIG heterogeneous container) */
 	unsigned m_num_dofs;
 };
-
 
 
 #endif

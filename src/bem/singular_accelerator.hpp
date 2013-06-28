@@ -118,7 +118,6 @@ public:
 * \tparam Kernel the kernel that is integrated
 * \tparam TestField the test field over which integration is performed
 * \tparam TrialField the trial field over which integration is performed
-* \todo templating this class on the kernel is sick.
 */
 template <bool is_collocational, class Kernel, class TestField, class TrialField>
 class singular_accelerator;
@@ -178,7 +177,6 @@ public:
 	/** \brief indicates whether ::FACE_MATCH is possible */
 	static const bool face_match_possible = std::is_same<test_field_t, trial_field_t>::value;
 
-	/** \todo kernel should tell the singularity order */
 	static unsigned const singular_quadrature_order = kernel_traits<kernel_t>::singular_quadrature_order;
 
 	/**

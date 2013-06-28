@@ -1,8 +1,8 @@
 /**
- * \file control.hpp
- * \author Peter fiala fiala@hit.bme.hu, Peter Rucz rucz@hit.bme.hu
- * \brief Implementation of code generating control structures
- */
+* \file control.hpp
+* \author Peter fiala fiala@hit.bme.hu, Peter Rucz rucz@hit.bme.hu
+* \brief Implementation of code generating control structures
+*/
 #ifndef CALL_EACH_HPP
 #define CALL_EACH_HPP
 
@@ -13,173 +13,101 @@
 #include "algorithm.hpp"
 
 /**
- * \brief template metaprogramming functions
- */
+* \brief template metaprogramming functions
+*/
 namespace tmp
 {
 	namespace internal
 	{
-		template <class Begin, class End, class Transform, class Arg1 = void, class Arg2 = void>
+		template <class Begin, class End, class Transform, class...Args>
 		struct call_each_impl
 		{
-			static void eval(Arg1 arg1, Arg2 arg2)
+			static void eval(Args ...args)
 			{
 				typedef typename apply<Transform, typename deref<Begin>::type>::type cur;
 				cur c;
-				c(arg1, arg2);
+				c(args...);
 				call_each_impl<
 					typename next<Begin>::type,
 					End,
 					Transform,
-					Arg1,
-					Arg2
-				>::eval(arg1, arg2);
+					Args...
+				>::eval(args...);
 			}
 		};
 
-		template <class End, class Transform, class Arg1, class Arg2>
-		struct call_each_impl<End, End, Transform, Arg1, Arg2>
+		template <class End, class Transform, class...Args>
+		struct call_each_impl<End, End, Transform, Args...>
 		{
-			static void eval(Arg1, Arg2) { }
-		};
-
-
-		template <class Begin, class End, class Transform, class Arg1>
-		struct call_each_impl<Begin, End, Transform, Arg1, void>
-		{
-			static void eval(Arg1 arg1)
-			{
-				typedef typename apply<Transform, typename deref<Begin>::type>::type cur;
-				cur c;
-				c(arg1);
-				call_each_impl<typename next<Begin>::type, End, Transform, Arg1>::eval(arg1);
-			}
-		};
-
-		template <class End, class Transform, class Arg1>
-		struct call_each_impl<End, End, Transform, Arg1, void>
-		{
-			static void eval(Arg1) { }
-		};
-
-
-		template <class Begin, class End, class Transform>
-		struct call_each_impl<Begin, End, Transform, void, void>
-		{
-			static void eval(void)
-			{
-				typedef typename apply<Transform, typename deref<Begin>::type>::type cur;
-				cur c;
-				c();
-				call_each_impl<typename next<Begin>::type, End, Transform>::eval();
-			}
-		};
-
-		template <class End, class Transform>
-		struct call_each_impl<End, End, Transform, void, void>
-		{
-			static void eval(void) { }
+			static void eval(Args...) { }
 		};
 	}
-
-	/**
-	 * \brief call function object with different types
-	 * \tparam Seq a type sequence
-	 * \tparam Trans a function object
-	 */
-	template <class Seq, class Transform>
-	static void call_each(void)
-	{
-		internal::call_each_impl<
-			typename begin<Seq>::type,
-			typename end<Seq>::type,
-			Transform
-		>::eval();
-	}
-
-	/** \brief one argument version of call_each */
-	template <class Seq, class Transform, class Arg1>
-	static void call_each(Arg1 arg1)
-	{
-		internal::call_each_impl<
-			typename begin<Seq>::type,
-			typename end<Seq>::type,
-			Transform,
-			typename std::add_lvalue_reference<Arg1>::type
-		>::eval(arg1);
-	}
-
 
 	/** \brief two argument version of call_each */
-	template <class Seq, class Transform, class Arg1, class Arg2>
-	static void call_each(Arg1 arg1, Arg2 arg2)
+	template <class Seq, class Transform, class ... Args>
+	static void call_each(Args... args)
 	{
 		internal::call_each_impl<
 			typename begin<Seq>::type,
 			typename end<Seq>::type,
 			Transform,
-			typename std::add_lvalue_reference<Arg1>::type,
-			typename std::add_lvalue_reference<Arg2>::type
-		>::eval(arg1, arg2);
+			Args...
+		>::eval(args...);
 	}
 
 	namespace internal
 	{
-		template <class Begin, class End, class SeqIn, class Transform, class Arg1 = void, class Arg2 = void>
+		template <class Begin, class End, class SeqIn, class Transform, class...Args>
 		struct d_call_each_impl
 		{
 			typedef typename lambda<Transform>::type::template apply<
 				typename deref<Begin>::type, _1
 			> partially_evaluated_transform;
-			static void eval(Arg1 arg1, Arg2 arg2)
+			static void eval(Args...args)
 			{
 				call_each<
 					SeqIn,
 					partially_evaluated_transform,
-					Arg1,
-					Arg2
-				>(arg1, arg2);
+					Args...
+				>(args...);
 				d_call_each_impl<
 					typename next<Begin>::type,
 					End,
 					SeqIn,
 					Transform,
-					Arg1,
-					Arg2
-				>::eval(arg1, arg2);
+					Args...
+				>::eval(args...);
 			}
 		};
 
 
-		template <class End, class SeqIn, class Transform, class Arg1, class Arg2>
-		struct d_call_each_impl<End, End, SeqIn, Transform, Arg1, Arg2>
+		template <class End, class SeqIn, class Transform, class...Args>
+		struct d_call_each_impl<End, End, SeqIn, Transform, Args...>
 		{
-			static void eval(Arg1, Arg2) {}
+			static void eval(Args...) {}
 		};
 	}
 
 
 	/**
-	 * \brief call binary function object for each element of the Descartes product of two type sequences
-	 * \tparam SeqOut outer type sequence
-	 * \tparam SeqIn inner type sequence
-	 * \tparam Transform the binary function object to call
-	 * \tparam Arg1 type of the first argument
-	 * \tparam Arg2 type of the second argument
-	 */
-	template <class SeqOut, class SeqIn, class Transform, class Arg1, class Arg2>
-	static void d_call_each(Arg1 a1, Arg2 a2)
+	* \brief call binary function object for each element of the Descartes product of two type sequences
+	* \tparam SeqOut outer type sequence
+	* \tparam SeqIn inner type sequence
+	* \tparam Transform the binary function object to call
+	* \tparam Arg1 type of the first argument
+	* \tparam Arg2 type of the second argument
+	*/
+	template <class SeqOut, class SeqIn, class Transform, class...Args>
+	static void d_call_each(Args...args)
 	{
 		internal::d_call_each_impl<
-					typename begin<SeqOut>::type,
-					typename end<SeqOut>::type,
-					SeqIn,
-					Transform,
-					typename std::add_lvalue_reference<Arg1>::type,
-					typename std::add_lvalue_reference<Arg2>::type
-				>::eval(a1, a2);
+			typename begin<SeqOut>::type,
+			typename end<SeqOut>::type,
+			SeqIn,
+			Transform,
+			Args...
+		>::eval(args...);
 	}
-
 
 	namespace internal
 	{
@@ -192,11 +120,11 @@ namespace tmp
 				cur c;
 				if (!c(arg1, arg2))
 					return call_until_impl<
-						typename next<Begin>::type,
-						End,
-						Transform,
-						Arg1,
-						Arg2
+					typename next<Begin>::type,
+					End,
+					Transform,
+					Arg1,
+					Arg2
 					>::eval(arg1, arg2);
 				return true;
 			}
@@ -218,10 +146,10 @@ namespace tmp
 				cur c;
 				if (!c(arg1))
 					return call_until_impl<
-						typename next<Begin>::type,
-						End,
-						Transform,
-						Arg1
+					typename next<Begin>::type,
+					End,
+					Transform,
+					Arg1
 					>::eval(arg1);
 				return true;
 			}
@@ -255,10 +183,10 @@ namespace tmp
 	}
 
 	/**
-	 * \brief call function object with different types until it returns true
-	 * \tparam Seq a type sequence
-	 * \tparam Trans a function object
-	 */
+	* \brief call function object with different types until it returns true
+	* \tparam Seq a type sequence
+	* \tparam Trans a function object
+	*/
 	template <class Seq, class Transform>
 	static bool call_until(void)
 	{
@@ -296,6 +224,8 @@ namespace tmp
 		>::eval(arg1, arg2);
 	}
 }
+
+
 
 #endif
 

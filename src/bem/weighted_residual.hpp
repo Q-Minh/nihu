@@ -50,12 +50,14 @@ private:
 		 * \param [out] result reference to the result matrix the result block is inserted to
 		 */
 		template <class result_t>
-		void operator() (weighted_residual const &wr, result_t &result)
+		void operator() (result_t &result,
+			test_space_t const &test_space,
+			trial_space_t const &trial_space)
 		{
-			for (auto test_it = wr.m_test_space.template field_begin<test_field_t>();
-				test_it != wr.m_test_space.template field_end<test_field_t>(); ++test_it)
-				for (auto trial_it = wr.m_trial_space.template field_begin<trial_field_t>();
-					trial_it != wr.m_trial_space.template field_end<trial_field_t>(); ++trial_it)
+			for (auto test_it = test_space.template field_begin<test_field_t>();
+				test_it != test_space.template field_end<test_field_t>(); ++test_it)
+				for (auto trial_it = trial_space.template field_begin<trial_field_t>();
+					trial_it != trial_space.template field_end<trial_field_t>(); ++trial_it)
 					block(result, (*test_it).get_dofs(), (*trial_it).get_dofs())
 						+= double_integral_t::eval(
 							std::integral_constant<bool, isCollocational>(),
@@ -64,14 +66,6 @@ private:
 	};};
 
 public:
-	/** \brief constructor initialises the function space reference members
-	 * \param [in] test_space the test function space over which integration is performed
-	 * \param [in] trial_space the trial function space over which integration is performed
-	 */
-	weighted_residual(test_space_t const &test_space, trial_space_t const &trial_space)
-		: m_test_space(test_space), m_trial_space(trial_space)
-	{
-	}
 
 	/** \brief evaluate weighted residual and return reference to the result matrix
 	 * \details This function evaluates the weighted residual of a kernel over a test and a trial field.
@@ -83,7 +77,7 @@ public:
 	 * \return reference to the result matrix for cascading
 	 */
 	template <class result_t>
-	result_t &eval(result_t &result)
+	static result_t &eval(result_t &result, test_space_t const &test_space, trial_space_t const &trial_space)
 	{
 		/**
 		 * \todo symdcalleach for the galerkin case
@@ -96,16 +90,13 @@ public:
 			typename test_space_t::field_type_vector_t,
 			typename trial_space_t::field_type_vector_t,
 			eval_on<tmp::_1, tmp::_2>,
-			weighted_residual const &,
-			result_t &
-		>(*this, result);
+			result_t &,
+			test_space_t const &,
+			trial_space_t const &
+		>(result, test_space, trial_space);
 
 		return result;
 	}
-
-protected:
-	test_space_t const &m_test_space;	/**< \brief reference to the function space */
-	trial_space_t const &m_trial_space;	/**< \brief reference to the function space */
 };
 
 #endif // ifndef WEIGHTED_RESIDUAL_HPP_INCLUDED

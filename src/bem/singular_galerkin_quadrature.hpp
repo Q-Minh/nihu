@@ -477,10 +477,12 @@ public:
 					-mu(0)+eta_lims[1](0), -mu(1)+eta_lims[0](1),
 					-mu(0)+eta_lims[1](0), -mu(1)+eta_lims[1](1),
 					-mu(0)+eta_lims[0](0), -mu(1)+eta_lims[1](1);
+				// limit into quad domain
+				xi_t const &ximin = quad_domain::get_corner(0);
+				xi_t const &ximax = quad_domain::get_corner(2);
 				for (int i = 0; i < corners.rows(); ++i)
-					for (int j = 0; j < corners.cols(); ++j)
-						/** \todo -1.0 and +1.0 come from the domain corners, this hard coding is sick */
-							corners(i,j) = std::max(std::min(corners(i,j), 1.0), -1.0);
+					for (unsigned j = 0; j < 2; ++j)
+						corners(i,j) = std::max(std::min(corners(i,j), ximax(j)), ximin(j));
 
 				quadrature_t inner_quad = base_quad.template transform<quad_1_shape_set>(corners);
 
