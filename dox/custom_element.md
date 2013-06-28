@@ -3,7 +3,7 @@ Custom element {#custom_element}
 
 [TOC]
 
-Introduction {#intro}
+Introduction {#gaussian_intro}
 ============
 
 The purpose of this tutorial is to demonstrate how a custom element/field type can be introduced into the NiHu toolbox.
@@ -17,7 +17,7 @@ The new field is shown in the figure below.
 
 In the following sections we define the new shape function set, introduce the new field type, and present an example how the new field type is used in a collocational or Galerkin type BEM.
 
-The Gaussian shape set {#shapeset}
+The Gaussian shape set {#gaussian_shapeset}
 ======================
 
 The Gaussian shape set is defined over the quadrilateral domain ::quad_domain located between coordinates \f$(-1,-1)\f$ and \f$(+1,+1)\f$.
@@ -70,7 +70,7 @@ The functions returning the shape function set and its derivatives are defined a
 
 \snippet custom_gaussian_element.hpp Shape lsets
 
-The shape function's nodal locations are stored in the static array m_corners. The corner_begin function returns the address of the array.
+The shape function's nodal locations are stored in the static array `m_corners`. The `corner_begin` function returns the address of the array.
 
 \snippet custom_gaussian_element.hpp Shape corners
 
@@ -78,7 +78,7 @@ That's all, we have defined the shape function set.
 From now on, it can be used for geometrical interpolation or field interpolation purposes.
 
 
-The field {#field}
+The field {#gaussian_field}
 =========
 
 The new field is going to be based on the standard ::quad_1_elem element, extended with our new shape function set.
@@ -93,7 +93,7 @@ However, we can override the field id definition by specialising the template st
 
 Our new field type is ready to use in collocational, Galerkin or general BEM methods.
 
-Example {#example}
+Example {#gaussian_example}
 =======
 
 We present a simple example evaluating a collocational BEM with a function space based on `quad_1_gauss_field` fields.

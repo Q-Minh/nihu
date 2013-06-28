@@ -14,8 +14,9 @@
  * \tparam Kernel the kernel to be integrated
  * \tparam TestSpace the test function space over which integration is performed
  * \tparam TrialSpace the trial function space over which integration is performed
+ * \todo This class should be full static to make the interface clear. The instantiation is only needed because call_each only works with two parameters.
  */
-template <bool isCollocational, class Kernel, class TestSpace, class TrialSpace>
+template <bool isCollocational, class Kernel, class TestSpace, class TrialSpace = TestSpace>
 class weighted_residual
 {
 	// CRTP check
