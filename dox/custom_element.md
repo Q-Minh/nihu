@@ -57,12 +57,13 @@ We mention here that the order of the Jacobian is only needed if the shape funct
 This will not be the case now, but we keep our code consistent with other shape function definitions.
 
 After having the shape set traits defined, we can define the shape function class itself.
-The class must define three static member functions.
+The new shape function class must be derived from the CRTP base ::shape_set_base.
+This base class defines a general interface for all shape sets, including convenient type definitions of the variable vector \f$\xi\f$, shape function vector \f$L_i(\xi)\f$ and its gradient matrix \f$\nabla L_i(\xi)\f$.
+
+The new derived class must define three static member functions.
 - `eval_shape` evaluates the shape functions.
 - `eval_dshape` evaluates the gradient of the shape functions.
 - `corner_begin` returns a pointer to the first corner of the shape set.
-
-The arguments and return types of the functions are defined automatically based on the traits class, and are inherited from the CRTP base class ::shape_set_base.
 
 \snippet custom_gaussian_element.hpp Shape class
 
@@ -76,6 +77,7 @@ The shape function's nodal locations are stored in the static array `m_corners`.
 
 That's all, we have defined the shape function set.
 From now on, it can be used for geometrical interpolation or field interpolation purposes.
+Furthermore, when using this shape function set in the collocational BEM context, the shape function nodes defined above are automatically used to generate weakly singular quadratures around the collocation points.
 
 
 The field {#gaussian_field}
@@ -91,6 +93,8 @@ However, we can override the field id definition by specialising the template st
 
 \snippet custom_gaussian_element.hpp Field id
 
+The defined field id will be used in the function space definition matrix to distinguish between different kind of fields.
+
 Our new field type is ready to use in collocational, Galerkin or general BEM methods.
 
 Example {#gaussian_example}
@@ -101,5 +105,4 @@ The typedefs define the collcational BEM with a unity kernel and a homgeneous fu
 The main function builds a hand-made simple function space and evaluates the weighted residual.
 
 \snippet gaussian_test.cpp main
-
 

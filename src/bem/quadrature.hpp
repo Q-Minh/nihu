@@ -100,41 +100,25 @@ protected:
 template <class Derived>
 struct quadrature_traits;
 
+template <class Derived>
+struct quadr_elem
+{
+	typedef quadrature_elem<
+		typename quadrature_traits<Derived>::domain_t::xi_t,
+		typename quadrature_traits<Derived>::domain_t::scalar_t
+	> type;
+};
+
 /**
 * \brief CRTP base class of all quadratures
 * \tparam Derived the CRTP derived class
-* \todo Why cannot we use the EIGENSTDVECTOR macro with two template arguments here as a base class? We do not understand this sickness.
 */
 template <class Derived>
-class quadrature_base :
-	public std::vector<
-	quadrature_elem<
-	typename quadrature_traits<Derived>::domain_t::xi_t,
-	typename quadrature_traits<Derived>::domain_t::scalar_t
-	>
-	,
-	Eigen::aligned_allocator<
-	quadrature_elem<
-	typename quadrature_traits<Derived>::domain_t::xi_t,
-	typename quadrature_traits<Derived>::domain_t::scalar_t
-	>
-	>
-	>
+class quadrature_base : public EigenStdVector<typename quadr_elem<Derived>::type>::type
 {
 public:
-	typedef std::vector<
-		quadrature_elem<
-		typename quadrature_traits<Derived>::domain_t::xi_t,
-		typename quadrature_traits<Derived>::domain_t::scalar_t
-		>
-		,
-		Eigen::aligned_allocator<
-		quadrature_elem<
-		typename quadrature_traits<Derived>::domain_t::xi_t,
-		typename quadrature_traits<Derived>::domain_t::scalar_t
-		>
-		>
-	> base_t;	/**< \brief the base class type */
+	typedef typename EigenStdVector<typename quadr_elem<Derived>::type>::type base_t;
+
 private:
 	/**
 	* \brief CRTP helper function

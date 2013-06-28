@@ -40,7 +40,7 @@ public:
 	/** \brief type of a shape vector \f$N(\xi)\f$ */
 	typedef typename nset_t::shape_t shape_t;
 	/** \brief type of the shape function container */
-	typedef EIGENSTDVECTOR(shape_t) nset_vector_t;
+	typedef typename EigenStdVector<shape_t>::type nset_vector_t;
 	/** \brief type of the shape function container's iterator */
 	typedef typename nset_vector_t::const_iterator shape_iter_t;
 

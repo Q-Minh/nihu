@@ -2,7 +2,6 @@
  * \file kernel.hpp
  * \brief implementation of various kernels
  * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
- * \todo kernel should tell the singularity order
  */
 #ifndef KERNEL_HPP_INCLUDED
 #define KERNEL_HPP_INCLUDED
@@ -22,14 +21,24 @@ template <class Derived>
 class kernel_base
 {
 public:
+	typedef kernel_traits<Derived> traits_t;
+
 	/** \brief type of the location */
-	typedef typename kernel_traits<Derived>::x_t x_t;
+	typedef typename traits_t::x_t x_t;
 	/** \brief type of the kernel input */
-	typedef typename kernel_traits<Derived>::input_t input_t;
+	typedef typename traits_t::input_t input_t;
 	/** \brief type of the kernel's scalar */
-	typedef typename kernel_traits<Derived>::scalar_t scalar_t;
+	typedef typename traits_t::scalar_t scalar_t;
 	/** \brief type of the kernel's result */
-	typedef typename kernel_traits<Derived>::result_t result_t;
+	typedef typename traits_t::result_t result_t;
+	/** \brief quadrature family tag */
+	typedef typename traits_t::quadrature_family_t quadrature_family_t;
+	/** \brief shows if kernel is symmetric */
+	static bool const is_symmetric = traits_t::is_symmetric;
+	/** \brief the singularity order (r^-order) */
+	static unsigned const singularity_order = traits_t::singularity_order;
+	/** \brief the singular quadrature */
+	static unsigned const singular_quadrature_order = traits_t::singular_quadrature_order;
 
 	/**
 	 * \brief reset number of evaluations to zero
@@ -139,8 +148,8 @@ class unit_kernel;
 template<>
 struct kernel_traits<unit_kernel>
 {
-	/** \brief location type */
-	typedef tria_1_elem::x_t x_t;
+	/** \brief the location type */
+	typedef space_3d::location_t x_t;
 	/** \brief kernel scalar type */
 	typedef double scalar_t;
 	/** \brief kernel input type */
@@ -149,6 +158,12 @@ struct kernel_traits<unit_kernel>
 	typedef double result_t;
 	/** \brief quadrature family tag */
 	typedef gauss_family_tag quadrature_family_t;
+	/** \brief shows if kernel is symmetric */
+	static bool const is_symmetric = true;
+	/** \brief the singularity order (r^-order) */
+	static unsigned const singularity_order = 0;
+	/** \brief the singular quadrature order */
+	static unsigned const singular_quadrature_order = 0;
 };
 
 /**
@@ -180,7 +195,7 @@ protected:
 };
 
 const unit_kernel::kernel_precision unit_kernel::limits[] = {
-	{0.0, 3}
+	{0.0, 0}
 	};
 
 
@@ -234,7 +249,7 @@ template<>
 struct kernel_traits<helmholtz_G_kernel>
 {
 	/** \brief location type */
-	typedef tria_1_elem::x_t x_t;
+	typedef space_3d::location_t x_t;
 	/** \brief kernel scalar type */
 	typedef std::complex<double> scalar_t;
 	/** \brief kernel input type */
@@ -243,6 +258,12 @@ struct kernel_traits<helmholtz_G_kernel>
 	typedef std::complex<double> result_t;
 	/** \brief quadrature family tag */
 	typedef gauss_family_tag quadrature_family_t;
+	/** \brief shows if kernel is symmetric */
+	static bool const is_symmetric = true;
+	/** \brief the singularity order (r^-order) */
+	static unsigned const singularity_order = 1;
+	/** \brief the singular quadrature order */
+	static unsigned const singular_quadrature_order = 7;
 };
 
 /**
@@ -299,7 +320,7 @@ template<>
 struct kernel_traits<helmholtz_H_kernel>
 {
 	/** \brief location type */
-	typedef tria_1_elem::x_t x_t;
+	typedef space_3d::location_t x_t;
 	/** \brief kernel scalar type */
 	typedef std::complex<double> scalar_t;
 	/** \brief kernel input type */
@@ -308,6 +329,12 @@ struct kernel_traits<helmholtz_H_kernel>
 	typedef std::complex<double> result_t;
 	/** \brief quadrature family type */
 	typedef gauss_family_tag quadrature_family_t;
+	/** \brief shows if kernel is symmetric */
+	static bool const is_symmetric = false;
+	/** \brief the singularity order (r^-order) */
+	static unsigned const singularity_order = 2;
+	/** \brief the singular quadrature order */
+	static unsigned const singular_quadrature_order = 7;
 };
 
 /**
@@ -362,7 +389,7 @@ template<>
 struct kernel_traits<helmholtz_HG_kernel>
 {
 	/** \brief location type */
-	typedef tria_1_elem::x_t x_t;
+	typedef space_3d::location_t x_t;
 	/** \brief scalar type */
 	typedef std::complex<double> scalar_t;
 	/** \brief kernel input type */
@@ -371,6 +398,12 @@ struct kernel_traits<helmholtz_HG_kernel>
 	typedef couple<std::complex<double>> result_t;
 	/** \brief quadrature family type */
 	typedef gauss_family_tag quadrature_family_t;
+	/** \brief shows if kernel is symmetric */
+	static bool const is_symmetric = false;
+	/** \brief the singularity order (r^-order) */
+	static unsigned const singularity_order = 2;
+	/** \brief the singular quadrature order */
+	static unsigned const singular_quadrature_order = 7;
 };
 
 /**
