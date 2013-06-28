@@ -6,6 +6,7 @@
 #ifndef ELEMENT_HPP_INCLUDED
 #define ELEMENT_HPP_INCLUDED
 
+#include "space.hpp"
 #include "shapeset.hpp"
 
 /**
@@ -40,7 +41,7 @@ template <class elem_t>
 struct elem_id
 {
 	static unsigned const value =
-		element_traits<elem_t>::x_dim * 10000 +
+		element_traits<elem_t>::space_t::dimension * 10000 +
 		shape_set_id<typename element_traits<elem_t>::lset_t>::value;
 };
 
@@ -55,8 +56,10 @@ public:
 	/** \brief the CRTP derived class */
 	typedef element_traits<Derived> traits_t;
 
+	typedef typename traits_t::space_t space_t;
+
 	/** \brief the dimension of the element's location variable \f$x\f$ */
-	static unsigned const x_dim = traits_t::x_dim;
+	static unsigned const x_dim = space_t::dimension;
 	/** \brief the elements's L-set */
 	typedef typename traits_t::lset_t lset_t;
 
@@ -66,7 +69,7 @@ public:
 	/** \brief the elements's domain */
 	typedef typename lset_t::domain_t domain_t;
 	/** \brief the base domain's scalar variable */
-	typedef typename domain_t::scalar_t scalar_t;
+	typedef typename space_t::scalar_t scalar_t;
 	/** \brief the dimension of the element's domain variable \f$\xi\f$ */
 	static unsigned const xi_dim = domain_t::dimension;
 
@@ -80,7 +83,7 @@ public:
 	typedef typename lset_t::dshape_t dL_t;
 
 	/** \brief type of the element's independent location variable \f$x\f$ */
-	typedef Eigen::Matrix<scalar_t, 1, x_dim> x_t;
+	typedef typename space_t::location_t x_t;
 	/** \brief type of the gradient of the element's independent location variable \f$x'_{\xi}\f$ */
 	typedef Eigen::Matrix<scalar_t, xi_dim, x_dim> dx_t;
 	/** \brief matrix type that stores the element's corner coordinates \f$x_i\f$ */
@@ -231,8 +234,7 @@ class tria_1_elem;
 template <>
 struct element_traits<tria_1_elem>
 {
-	/** \brief dimensionality of the x space */
-	static const unsigned x_dim = 3;
+	typedef space_3d space_t;
 	/** \brief the shape set */
 	typedef tria_1_shape_set lset_t;
 };
@@ -275,7 +277,7 @@ template <>
 struct element_traits<quad_1_elem>
 {
 	/** \brief dimensionality of the x space */
-	static const unsigned x_dim = 3;
+	typedef space_3d space_t;
 	/** \brief the shape set */
 	typedef quad_1_shape_set lset_t;
 };
@@ -318,15 +320,15 @@ protected:
 
 
 // forward declaration
-template <class LSet>
+template <class LSet, class scalar_t>
 class general_surface_element;
 
 /** \brief specialisation of element_traits for the general surface element */
-template <class LSet>
-struct element_traits<general_surface_element<LSet> >
+template <class LSet, class scalar_t>
+struct element_traits<general_surface_element<LSet, scalar_t> >
 {
 	/** \brief dimensionality of the x space */
-	static const unsigned x_dim = LSet::domain_t::dimension + 1;
+	typedef space<scalar_t, LSet::domain_t::dimension + 1> space_t;
 	/** \brief the shape set */
 	typedef LSet lset_t;
 };
@@ -334,12 +336,12 @@ struct element_traits<general_surface_element<LSet> >
 /** \brief class describing a general surface element that computes its normal in the general way
 * \tparam LSet type of the geometry shape set
 */
-template <class LSet>
-class general_surface_element : public element_base<general_surface_element<LSet> >
+template <class LSet, class scalar_t>
+class general_surface_element : public element_base<general_surface_element<LSet, scalar_t> >
 {
 public:
 	/** \brief the base class type */
-	typedef element_base<general_surface_element<LSet> > base_t;
+	typedef element_base<general_surface_element<LSet, scalar_t> > base_t;
 
 	/** \brief type of the coordinate matrix */
 	typedef typename base_t::coords_t coords_t;
@@ -376,9 +378,9 @@ public:
 };
 
 /** \brief quadratic 6-noded triangle element */
-typedef general_surface_element<tria_2_shape_set> tria_2_elem;
+typedef general_surface_element<tria_2_shape_set, tria_1_elem::space_t::scalar_t> tria_2_elem;
 /** \brief quadratic 9-noded quadrilateral element */
-typedef general_surface_element<quad_2_shape_set> quad_2_elem;
+typedef general_surface_element<quad_2_shape_set, quad_1_elem::space_t::scalar_t> quad_2_elem;
 
 #endif
 

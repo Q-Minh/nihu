@@ -229,7 +229,7 @@ struct function_space_traits<function_space<FieldTypeVector> >
 	template <class field_t>
 	struct iterator
 	{
-		typedef typename EIGENSTDVECTOR(field_t)::const_iterator type;
+		typedef typename EigenStdVector<field_t>::type::const_iterator type;
 	};
 };
 
@@ -263,16 +263,12 @@ public:
 
 	typedef mesh<typename elem_type_vector<FieldTypeVector>::type> mesh_t;
 	
-	/** \brief metafunction to convert T into std::vector<T> */
-	template <class T>
-	struct vectorize { typedef EIGENSTDVECTOR(T) type; };
-
 	/** \brief combine field_type_vector into a BIG heterogeneous std::vector container */
 	typedef typename tmp::inherit<
 		typename tmp::transform<
 		field_type_vector_t,
 		tmp::inserter<tmp::vector<>, tmp::push_back<tmp::_1,tmp::_2> >,
-		vectorize<tmp::_1>
+		EigenStdVector<tmp::_1>
 		>::type
 	>::type field_container_t;
 
@@ -346,14 +342,14 @@ public:
 	typename traits_t::template iterator<FieldType>::type
 		field_begin(void) const
 	{
-		return m_fields.EIGENSTDVECTOR(FieldType)::begin();
+		return m_fields.EigenStdVector<FieldType>::type::begin();
 	}
 
 	template <class FieldType>
 	typename traits_t::template iterator<FieldType>::type
 		field_end(void) const
 	{
-		return m_fields.EIGENSTDVECTOR(FieldType)::end();
+		return m_fields.EigenStdVector<FieldType>::type::end();
 	}
 
 	bool add_field(unsigned const input[])
@@ -369,8 +365,8 @@ public:
 	template <class field_t>
 	field_t const &push_field(field_t const &f)
 	{
-		m_fields.EIGENSTDVECTOR(field_t)::push_back(f);
-		return *(m_fields.EIGENSTDVECTOR(field_t)::rbegin());
+		m_fields.EigenStdVector<field_t>::type::push_back(f);
+		return *(m_fields.EigenStdVector<field_t>::type::rbegin());
 	}
 
 	/**

@@ -16,7 +16,7 @@
 template <class ElemType>
 struct mesh_elem_iterator_t
 {
-	typedef typename EIGENSTDVECTOR(ElemType)::const_iterator type;
+	typedef typename EigenStdVector<ElemType>::type::const_iterator type;
 };
 
 
@@ -30,7 +30,7 @@ class field_points
 public:
 	typedef xType x_t; /**< \brief template parameter as nested type */
 	static unsigned const nDim = x_t::SizeAtCompileTime; /**< \brief number of dimensions */
-	typedef typename EIGENSTDVECTOR(x_t)::const_iterator iterator_t;	/**< \brief node iterator type */
+	typedef typename EigenStdVector<x_t>::type::const_iterator iterator_t;	/**< \brief node iterator type */
 
 	/**
 	 * \brief add a point to the field point mesh
@@ -51,7 +51,7 @@ public:
 	}
 
 protected:
-	EIGENSTDVECTOR(x_t) points;	/**< \brief nodal coordinates */
+	typename EigenStdVector<x_t>::type points;	/**< \brief nodal coordinates */
 };
 
 /** \brief metafunction computing the first element's x_t in a vector of elements */
@@ -79,16 +79,12 @@ public:
 
 	static unsigned const nDim = base_t::nDim;	/**< \brief number of dimensions of the mesh */
 
-	/** \brief metafunction to convert T into std::vector<T> */
-	template <class T>
-	struct vectorize { typedef EIGENSTDVECTOR(T) type; };
-
 	/** \brief combine elem_vector into a BIG heterogeneous std::vector container */
 	typedef typename tmp::inherit<
 		typename tmp::transform<
 		elem_type_vector_t,
 		tmp::inserter<tmp::vector<>, tmp::push_back<tmp::_1,tmp::_2> >,
-		vectorize<tmp::_1>
+		EigenStdVector<tmp::_1>
 		>::type
 	>::type elem_container_t;
 
@@ -219,8 +215,8 @@ public:
 	template <class elem_t>
 	elem_t const &push_element(elem_t const &e)
 	{
-		m_elements.EIGENSTDVECTOR(elem_t)::push_back(e);
-		return *(m_elements.EIGENSTDVECTOR(elem_t)::rbegin());
+		m_elements.EigenStdVector<elem_t>::type::push_back(e);
+		return *(m_elements.EigenStdVector<elem_t>::type::rbegin());
 	}
 
 	/**

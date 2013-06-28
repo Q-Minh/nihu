@@ -2,7 +2,6 @@
  * \file kernel.hpp
  * \brief implementation of various kernels
  * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
- * \todo kernel should tell the singularity order
  */
 #ifndef KERNEL_HPP_INCLUDED
 #define KERNEL_HPP_INCLUDED
@@ -149,10 +148,8 @@ class unit_kernel;
 template<>
 struct kernel_traits<unit_kernel>
 {
-	/** \brief location type
-	* \todo this definition is sick
-	*/
-	typedef tria_1_elem::x_t x_t;
+	/** \brief the location type */
+	typedef space_3d::location_t x_t;
 	/** \brief kernel scalar type */
 	typedef double scalar_t;
 	/** \brief kernel input type */
@@ -252,7 +249,7 @@ template<>
 struct kernel_traits<helmholtz_G_kernel>
 {
 	/** \brief location type */
-	typedef tria_1_elem::x_t x_t;
+	typedef space_3d::location_t x_t;
 	/** \brief kernel scalar type */
 	typedef std::complex<double> scalar_t;
 	/** \brief kernel input type */
@@ -323,7 +320,7 @@ template<>
 struct kernel_traits<helmholtz_H_kernel>
 {
 	/** \brief location type */
-	typedef tria_1_elem::x_t x_t;
+	typedef space_3d::location_t x_t;
 	/** \brief kernel scalar type */
 	typedef std::complex<double> scalar_t;
 	/** \brief kernel input type */
@@ -392,7 +389,7 @@ template<>
 struct kernel_traits<helmholtz_HG_kernel>
 {
 	/** \brief location type */
-	typedef tria_1_elem::x_t x_t;
+	typedef space_3d::location_t x_t;
 	/** \brief scalar type */
 	typedef std::complex<double> scalar_t;
 	/** \brief kernel input type */
