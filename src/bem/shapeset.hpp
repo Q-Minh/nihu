@@ -335,7 +335,7 @@ inline typename line_1_shape_set::shape_t
 */
 template<>
 inline typename isoparam_shape_set<line_domain>::dshape_t
-	isoparam_shape_set<line_domain>::eval_dshape(typename isoparam_shape_set<line_domain>::xi_t const &)
+	line_1_shape_set::eval_dshape(typename line_1_shape_set::xi_t const &xi)
 {
 	dshape_t dL;
 	dL <<
@@ -442,7 +442,7 @@ typedef isoparam_shape_set<brick_domain> brick_1_shape_set;
 * \f$L_1(\xi, \eta) = (1-\xi)(1-\eta)(1-\zeta)/8\\
 L_2(\xi, \eta) = (1+\xi)(1-\eta)(1-\zeta)/8\\
 L_3(\xi, \eta) = (1+\xi)(1+\eta)(1-\zeta)/8\\
-L_4(\xi, \eta) = (1-\xi)(1+\eta)(1-\zeta)/8\f$
+L_4(\xi, \eta) = (1-\xi)(1+\eta)(1-\zeta)/8\\
 L_2(\xi, \eta) = (1-\xi)(1-\eta)(1+\zeta)/8\\
 L_2(\xi, \eta) = (1+\xi)(1-\eta)(1+\zeta)/8\\
 L_3(\xi, \eta) = (1+\xi)(1+\eta)(1+\zeta)/8\\

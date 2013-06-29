@@ -55,6 +55,7 @@ struct element_traits;
 template <class elem_t>
 struct elem_id
 {
+	/** \brief the elem id */
 	static unsigned const value =
 		element_traits<elem_t>::space_t::dimension * 10000 +
 		shape_set_id<typename element_traits<elem_t>::lset_t>::value;
@@ -250,6 +251,7 @@ class tria_1_elem;
 template <>
 struct element_traits<tria_1_elem>
 {
+	/** \brief the element space type */
 	typedef space_3d space_t;
 	/** \brief the shape set */
 	typedef tria_1_shape_set lset_t;
@@ -293,7 +295,7 @@ class quad_1_elem;
 template <>
 struct element_traits<quad_1_elem>
 {
-	/** \brief dimensionality of the x space */
+	/** \brief the element space type */
 	typedef space_3d space_t;
 	/** \brief the shape set */
 	typedef quad_1_shape_set lset_t;
@@ -346,7 +348,7 @@ class general_surface_element;
 template <class LSet, class scalar_t>
 struct element_traits<general_surface_element<LSet, scalar_t> >
 {
-	/** \brief dimensionality of the x space */
+	/** \brief the element space type */
 	typedef space<scalar_t, LSet::domain_t::dimension + 1> space_t;
 	/** \brief the shape set */
 	typedef LSet lset_t;

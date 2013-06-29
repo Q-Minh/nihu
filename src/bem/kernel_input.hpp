@@ -15,6 +15,16 @@
 #include "element.hpp"
 #include "quadrature.hpp"
 
+/** \brief metafunction assigning a quadrature element to an element */
+template <class element>
+struct _quadr_elem
+{
+	typedef quadrature_elem<
+		typename element::domain_t::xi_t,
+		typename element::domain_t::scalar_t
+	> type;
+};
+
 /**
  * \brief class representing a kernel input consisting of a location and a jacobian
  * \details A location is constructed from and element and a quadrature point.
@@ -45,10 +55,7 @@ public:
 	template <class elem_t>
 	location(
 		elem_t const &elem,
-		quadrature_elem<
-			typename elem_t::domain_t::xi_t,
-			typename elem_t::domain_t::scalar_t
-		> const &q)
+		typename _quadr_elem<elem_t>::type const &q)
 	{
 		static_assert(std::is_same<x_t, typename elem_t::x_t>::value,
 			"Element and descriptor location types must match");
@@ -105,10 +112,7 @@ public:
 	template <class elem_t>
 	location_with_normal(
 		elem_t const &elem,
-		quadrature_elem<
-			typename elem_t::domain_t::xi_t,
-			typename elem_t::domain_t::scalar_t
-		> const &q)
+		typename _quadr_elem<elem_t>::type const &q)
 	{
 		static_assert(std::is_same<x_t, typename elem_t::x_t>::value,
 			"Element and descriptor location types must match");
