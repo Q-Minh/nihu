@@ -153,7 +153,7 @@ struct kernel_traits<unit_kernel>
 	/** \brief kernel scalar type */
 	typedef double scalar_t;
 	/** \brief kernel input type */
-	typedef location<x_t> input_t;
+	typedef location<space_3d> input_t;
 	/** \brief kernel result type */
 	typedef double result_t;
 	/** \brief quadrature family tag */
@@ -253,7 +253,7 @@ struct kernel_traits<helmholtz_G_kernel>
 	/** \brief kernel scalar type */
 	typedef std::complex<double> scalar_t;
 	/** \brief kernel input type */
-	typedef location<x_t> input_t;
+	typedef location<space_3d> input_t;
 	/** \brief kernel result type */
 	typedef std::complex<double> result_t;
 	/** \brief quadrature family tag */
@@ -324,7 +324,7 @@ struct kernel_traits<helmholtz_H_kernel>
 	/** \brief kernel scalar type */
 	typedef std::complex<double> scalar_t;
 	/** \brief kernel input type */
-	typedef location_with_normal<x_t> input_t;
+	typedef location_with_normal<space_3d> input_t;
 	/** \brief kernel result type */
 	typedef std::complex<double> result_t;
 	/** \brief quadrature family type */
@@ -393,7 +393,7 @@ struct kernel_traits<helmholtz_HG_kernel>
 	/** \brief scalar type */
 	typedef std::complex<double> scalar_t;
 	/** \brief kernel input type */
-	typedef location_with_normal<x_t> input_t;
+	typedef location_with_normal<space_3d> input_t;
 	/** \brief kernel result type */
 	typedef couple<std::complex<double>> result_t;
 	/** \brief quadrature family type */

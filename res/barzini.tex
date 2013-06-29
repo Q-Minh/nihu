@@ -1,0 +1,99 @@
+\documentclass{article}
+
+\usepackage{amsmath}
+\newcommand{\td}{\mathrm{d}}
+
+\title{Barzini and Tattaglia}
+
+\begin{document}
+
+\maketitle
+
+\begin{align}
+I = 
+\int_{-1}^1
+\int_{-1}^1
+\int_{-1}^1
+\int_{-1}^1
+\frac{1}{\sqrt{(y_1-x_1)^2+(y_2-x_2)^2}}
+\td y_2
+\td y_1
+\td x_2
+\td x_1
+\end{align}
+%
+applying the substitution $\mu_1 = y_1 - x_1$ and $\mu_2 = y_2-x_2$
+%
+\begin{align}
+I = \int_{-1}^1
+\int_{-1}^1
+\int_{-1-x_1}^{1-x_1}
+\int_{-1-x_2}^{1-x_2}
+\frac{1}{\sqrt{\mu_1^2+\mu_2^2}}
+\td \mu_2
+\td \mu_1
+\td x_2
+\td x_1
+\end{align}
+%
+interchanging the order of integration and making use of symmetries results in
+%
+\begin{align}
+I &= 4\cdot
+\int_{0}^{2}
+\int_{0}^{2}
+\frac{1}{\sqrt{\mu_1^2+\mu_2^2}}
+\int_{-1}^{1-\mu_2}
+\td x_2
+\int_{-1}^{1-\mu_1}
+\td x_1
+\td \mu_2
+\td \mu_1 \nonumber \\
+&= 4\cdot
+\int_{0}^{2}
+\int_{0}^{2}
+\frac{(2-\mu_1) (2-\mu_2)}{\sqrt{\mu_1^2+\mu_2^2}}
+\td \mu_2
+\td \mu_1
+\end{align}
+%
+again making use of symmetry and reducing the integral to two Duffy triangles
+%
+\begin{align}
+I = 8\cdot
+\int_{0}^{2}
+\int_{0}^{\mu_1}
+\frac{(2-\mu_1) (2-\mu_2)}{\sqrt{\mu_1^2+\mu_2^2}}
+\td \mu_2
+\td \mu_1 
+= 8\cdot
+\int_{0}^{2}
+(2-\mu_1) 
+\int_{0}^{1}
+\frac{(2-\xi\mu_1)}{\sqrt{1+\xi^2}}
+\td \xi
+\td \mu_1
+\end{align}
+%
+now the inner integral is evaluated analytically
+%
+\begin{align}
+I = 8\cdot
+\int_{0}^{2}
+(2-\mu_1) 
+\left(2 \sinh^{-1}(1) - \mu_1\left(\sqrt{2}-1\right)\right)
+\td \mu_1
+\end{align}
+%
+and the outer too
+%
+\begin{align}
+I = 32 \cdot
+\left( \sinh^{-1}(1) - \frac{\left(\sqrt{2}-1\right)}{3} \right)
+=
+32 \cdot
+\left( \ln\left(\sqrt{2}+1\right) - \frac{\left(\sqrt{2}-1\right)}{3} \right)
+\end{align}
+
+\end{document}
+
