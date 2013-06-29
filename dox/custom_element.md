@@ -101,7 +101,7 @@ Example {#gaussian_example}
 =======
 
 We present a simple example evaluating a collocational BEM with a function space based on `quad_1_gauss_field` fields.
-The typedefs define the collcational BEM with a unity kernel and a homgeneous function space consisting of our new fields.
+The typedefs define the collcational BEM with a unity kernel and a homogeneous function space consisting of our new fields.
 The main function builds a hand-made simple function space and evaluates the weighted residual.
 
 \snippet gaussian_test.cpp main

@@ -3,8 +3,8 @@
 * \author Peter fiala fiala@hit.bme.hu, Peter Rucz rucz@hit.bme.hu
 * \brief Implementation of code generating control structures
 */
-#ifndef CALL_EACH_HPP
-#define CALL_EACH_HPP
+#ifndef CONTROL_HPP_INCLUDED
+#define CONTROL_HPP_INCLUDED
 
 #include <type_traits>
 
@@ -12,21 +12,29 @@
 #include "lambda.hpp"
 #include "algorithm.hpp"
 
-/**
-* \brief template metaprogramming functions
-*/
+/** \brief template metaprogramming functions */
 namespace tmp
 {
+	/** \brief implementation namespace */
 	namespace internal
 	{
+		/**
+		* \brief implementation of ::call_each
+		* \tparam Begin the begin iterator of the sequence
+		* \tparam End the end iterator of the sequence
+		* \tparam Transform a metafunction with a callable internal struct called type
+		* \tparam Args function arguments
+		*/
 		template <class Begin, class End, class Transform, class...Args>
 		struct call_each_impl
 		{
 			static void eval(Args ...args)
 			{
+				// instantiate and call actual templated version of Transform
 				typedef typename apply<Transform, typename deref<Begin>::type>::type cur;
 				cur c;
 				c(args...);
+				// envoke call_each for the remaining part of the sequence
 				call_each_impl<
 					typename next<Begin>::type,
 					End,
@@ -36,6 +44,7 @@ namespace tmp
 			}
 		};
 
+		/** \brief specialisation of ::call_each_impl for the terminating case */
 		template <class End, class Transform, class...Args>
 		struct call_each_impl<End, End, Transform, Args...>
 		{
@@ -43,9 +52,14 @@ namespace tmp
 		};
 	}
 
-	/** \brief two argument version of call_each */
-	template <class Seq, class Transform, class ... Args>
-	static void call_each(Args... args)
+	/**
+	* \brief Call Transform<x>::type(Args...) for each element x of the sequence Seq
+	* \tparam Seq the sequence of values x
+	* \tparam Transform a metafunction with a callable internal struct called type
+	* \tparam Args function arguments
+	*/
+	template <class Seq, class Transform, class...Args>
+	static void call_each(Args...args)
 	{
 		internal::call_each_impl<
 			typename begin<Seq>::type,
@@ -57,19 +71,31 @@ namespace tmp
 
 	namespace internal
 	{
+		/**
+		* \brief implementation of d_call_each
+		* \tparam Begin begin iterator of the outer sequence
+		* \tparam End end iterator of the outer sequence
+		* \tparam SeqIn inner type sequence
+		* \tparam Transform binary metafunction with a callable internal struct called type
+		* \tparam Args function arguments
+		*/
 		template <class Begin, class End, class SeqIn, class Transform, class...Args>
 		struct d_call_each_impl
 		{
+			// bind transform to the first argument
 			typedef typename lambda<Transform>::type::template apply<
 				typename deref<Begin>::type, _1
 			> partially_evaluated_transform;
+			
 			static void eval(Args...args)
 			{
+				// call call_each with partially evaluated Transform
 				call_each<
 					SeqIn,
 					partially_evaluated_transform,
 					Args...
 				>(args...);
+				// call d_call_each with the rest of the outer sequence
 				d_call_each_impl<
 					typename next<Begin>::type,
 					End,
@@ -81,6 +107,7 @@ namespace tmp
 		};
 
 
+		/** \brief terminating case of d_call_each_impl */
 		template <class End, class SeqIn, class Transform, class...Args>
 		struct d_call_each_impl<End, End, SeqIn, Transform, Args...>
 		{
@@ -90,12 +117,11 @@ namespace tmp
 
 
 	/**
-	* \brief call binary function object for each element of the Descartes product of two type sequences
+	* \brief Call Transform<x,y>::type(Args...) for each element x,y of the Descartes product of two sequences
 	* \tparam SeqOut outer type sequence
 	* \tparam SeqIn inner type sequence
-	* \tparam Transform the binary function object to call
-	* \tparam Arg1 type of the first argument
-	* \tparam Arg2 type of the second argument
+	* \tparam Transform binary metafunction with a callable internal struct called type
+	* \tparam Args function arguments
 	*/
 	template <class SeqOut, class SeqIn, class Transform, class...Args>
 	static void d_call_each(Args...args)
@@ -111,121 +137,58 @@ namespace tmp
 
 	namespace internal
 	{
-		template <class Begin, class End, class Transform, class Arg1 = void, class Arg2 = void>
+		/**
+		* \brief implementation of ::call_until
+		* \tparam Begin the begin iterator of the sequence
+		* \tparam End the end iterator of the sequence
+		* \tparam Transform a metafunction with a callable internal struct called type
+		* \tparam Args function arguments
+		*/
+		template <class Begin, class End, class Transform, class...Args>
 		struct call_until_impl
 		{
-			static bool eval(Arg1 arg1, Arg2 arg2)
+			static bool eval(Args...args)
 			{
 				typedef typename apply<Transform, typename deref<Begin>::type>::type cur;
 				cur c;
-				if (!c(arg1, arg2))
+				if (!c(args...))
+				{
 					return call_until_impl<
-					typename next<Begin>::type,
-					End,
-					Transform,
-					Arg1,
-					Arg2
-					>::eval(arg1, arg2);
+						typename next<Begin>::type,
+						End,
+						Transform,
+						Args...
+					>::eval(args...);
+				}
 				return true;
 			}
 		};
 
-		template <class End, class Transform, class Arg1, class Arg2>
-		struct call_until_impl<End, End, Transform, Arg1, Arg2>
+		/** \brief terminating case of call_until_impl */
+		template <class End, class Transform, class...Args>
+		struct call_until_impl<End, End, Transform, Args...>
 		{
-			static bool eval(Arg1, Arg2) { return false; }
-		};
-
-
-		template <class Begin, class End, class Transform, class Arg1>
-		struct call_until_impl<Begin, End, Transform, Arg1, void>
-		{
-			static bool eval(Arg1 arg1)
-			{
-				typedef typename apply<Transform, typename deref<Begin>::type>::type cur;
-				cur c;
-				if (!c(arg1))
-					return call_until_impl<
-					typename next<Begin>::type,
-					End,
-					Transform,
-					Arg1
-					>::eval(arg1);
-				return true;
-			}
-		};
-
-		template <class End, class Transform, class Arg1>
-		struct call_until_impl<End, End, Transform, Arg1, void>
-		{
-			static bool eval(Arg1) { return false; }
-		};
-
-
-		template <class Begin, class End, class Transform>
-		struct call_until_impl<Begin, End, Transform, void, void>
-		{
-			static bool eval(void)
-			{
-				typedef typename apply<Transform, typename deref<Begin>::type>::type cur;
-				cur c;
-				if (!c())
-					return call_until_impl<typename next<Begin>::type, End, Transform>::eval();
-				return true;
-			}
-		};
-
-		template <class End, class Transform>
-		struct call_until_impl<End, End, Transform, void, void>
-		{
-			static bool eval(void) { return false; }
+			static bool eval(Args...) { return false; }
 		};
 	}
 
 	/**
-	* \brief call function object with different types until it returns true
-	* \tparam Seq a type sequence
-	* \tparam Trans a function object
+	* \brief Call Transform<x>::type(Args...) for each element x of the sequence Seq until it returns true
+	* \tparam Seq the sequence of values x
+	* \tparam Transform a metafunction with a callable internal struct called type
+	* \tparam Args function arguments
 	*/
-	template <class Seq, class Transform>
-	static bool call_until(void)
-	{
-		return internal::call_until_impl<
-			typename begin<Seq>::type,
-			typename end<Seq>::type,
-			Transform
-		>::eval();
-	}
-
-
-	/** \brief one argument version of call_until */
-	template <class Seq, class Transform, class Arg1>
-	static bool call_until(Arg1 arg1)
+	template <class Seq, class Transform, class...Args>
+	static bool call_until(Args...args)
 	{
 		return internal::call_until_impl<
 			typename begin<Seq>::type,
 			typename end<Seq>::type,
 			Transform,
-			typename std::add_lvalue_reference<Arg1>::type
-		>::eval(arg1);
-	}
-
-
-	/** \brief two argument version of call_until */
-	template <class Seq, class Transform, class Arg1, class Arg2>
-	static bool call_until(Arg1 arg1, Arg2 arg2)
-	{
-		return internal::call_until_impl<
-			typename begin<Seq>::type,
-			typename end<Seq>::type,
-			Transform,
-			typename std::add_lvalue_reference<Arg1>::type,
-			typename std::add_lvalue_reference<Arg2>::type
-		>::eval(arg1, arg2);
+			Args...
+		>::eval(args...);
 	}
 }
 
-
-
-#endif
+#endif // CONTROL_HPP_INCLUDED
 
