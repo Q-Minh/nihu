@@ -6,7 +6,6 @@
 #ifndef ELEMENT_HPP_INCLUDED
 #define ELEMENT_HPP_INCLUDED
 
-#include "space.hpp"
 #include "shapeset.hpp"
 
 /**
