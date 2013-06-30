@@ -20,24 +20,25 @@ struct domain_id;
  * \tparam Dimension the dimensionality of the space
  * \tparam NumCorners the number of corners of the domain
  */
-template <class Scalar, unsigned Dimension, unsigned NumCorners>
-class domain : public space<Scalar, Dimension>
+template <class Space, unsigned NumCorners>
+class domain
 {
 public:
-	/** \brief the base type */
-	typedef space<Scalar, Dimension> base_t;
-	/** \brief scalar type inherited from base */
-	typedef typename base_t::scalar_t scalar_t;
-	/** \brief dimension inherited from base */
-	static unsigned const dimension = base_t::dimension;
+	/** \brief template parameter as nested type */
+	typedef Space space_t;
 	/** \brief template argument as nested type */
 	static unsigned const num_corners = NumCorners;
+	
+	/** \brief scalar type inherited from the space */
+	typedef typename space_t::scalar_t scalar_t;
+	/** \brief dimension inherited from the sapce */
+	static unsigned const dimension = space_t::dimension;
 
 	/** \brief the domain id */
 	static unsigned const id = domain_id<domain>::value;
 
-	/** \brief location vector */
-	typedef typename base_t::location_t xi_t;
+	/** \brief location vector renamed */
+	typedef typename space_t::location_t xi_t;
 
 	/** \brief type of the corners' array */
 	typedef const xi_t corners_t[num_corners];
@@ -90,17 +91,16 @@ struct domain_id
 
 
 /** \brief a 1D line domain \f$-1 \le \xi \le +1\f$*/
-typedef domain<double, 1, 2> line_domain;
+typedef domain<space_1d, 2> line_domain;
 
 /** \brief a 2D triangle domain */
-typedef domain<double, 2, 3> tria_domain;
+typedef domain<space_2d, 3> tria_domain;
 
 /** \brief a 2D quad domain */
-typedef domain<double, 2, 4> quad_domain;
+typedef domain<space_2d, 4> quad_domain;
 
 /** \brief a 3D brick domain */
-typedef domain<double, 3, 8> brick_domain;
-
+typedef domain<space_3d, 8> brick_domain;
 
 
 template<>

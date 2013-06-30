@@ -22,13 +22,19 @@ class kernel_base
 {
 public:
 	typedef kernel_traits<Derived> traits_t;
-
-	/** \brief type of the location */
-	typedef typename traits_t::x_t x_t;
+	
 	/** \brief type of the kernel input */
 	typedef typename traits_t::input_t input_t;
-	/** \brief type of the kernel's scalar */
-	typedef typename traits_t::scalar_t scalar_t;
+
+	/** \brief type of the space */
+	typedef typename input_t::space_t space_t;
+
+	/** \brief type of the location */
+	typedef typename space_t::location_t x_t;
+
+	/** \brief type of the scalar */
+	typedef typename space_t::scalar_t scalar_t;
+
 	/** \brief type of the kernel's result */
 	typedef typename traits_t::result_t result_t;
 	/** \brief quadrature family tag */
@@ -148,10 +154,6 @@ class unit_kernel;
 template<>
 struct kernel_traits<unit_kernel>
 {
-	/** \brief the location type */
-	typedef space_3d::location_t x_t;
-	/** \brief kernel scalar type */
-	typedef double scalar_t;
 	/** \brief kernel input type */
 	typedef location<space_3d> input_t;
 	/** \brief kernel result type */
@@ -248,10 +250,6 @@ class helmholtz_G_kernel;
 template<>
 struct kernel_traits<helmholtz_G_kernel>
 {
-	/** \brief location type */
-	typedef space_3d::location_t x_t;
-	/** \brief kernel scalar type */
-	typedef std::complex<double> scalar_t;
 	/** \brief kernel input type */
 	typedef location<space_3d> input_t;
 	/** \brief kernel result type */
@@ -319,10 +317,6 @@ class helmholtz_H_kernel;
 template<>
 struct kernel_traits<helmholtz_H_kernel>
 {
-	/** \brief location type */
-	typedef space_3d::location_t x_t;
-	/** \brief kernel scalar type */
-	typedef std::complex<double> scalar_t;
 	/** \brief kernel input type */
 	typedef location_with_normal<space_3d> input_t;
 	/** \brief kernel result type */
@@ -388,10 +382,6 @@ class helmholtz_HG_kernel;
 template<>
 struct kernel_traits<helmholtz_HG_kernel>
 {
-	/** \brief location type */
-	typedef space_3d::location_t x_t;
-	/** \brief scalar type */
-	typedef std::complex<double> scalar_t;
 	/** \brief kernel input type */
 	typedef location_with_normal<space_3d> input_t;
 	/** \brief kernel result type */

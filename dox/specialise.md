@@ -1,6 +1,10 @@
 How to specialise an interface class in NiHu {#specialise}
 ============================================
 
+[CRTP]:http://en.wikipedia.org/wiki/Curiously_recurring_template_pattern
+[Static polymorphism]:http://en.wikipedia.org/wiki/Template_metaprogramming#Static_polymorphism
+[Traits classes]:http://www.cantrip.org/traits.html
+
 [TOC]
 
 Introduction {#specialise_intro}
@@ -8,7 +12,7 @@ Introduction {#specialise_intro}
 
 This tutorial explains how to specialise a general interface class in the NiHu toolbox.
 
-All customisable entities in NiHu are implemented using static polymorphism (CRTP) and traits classes.
+All customisable entities in NiHu are implemented using [Static polymorphism], [CRTP] and [Traits Classes].
 The main concept of CRTP with traits classes can be summarised as follows:
 - The customised class is derived from an interface base class.
 - The base class takes the customised class as template argument.

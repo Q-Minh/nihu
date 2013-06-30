@@ -25,9 +25,10 @@ public:
 	typedef Eigen::Matrix<scalar_t, Dimension, 1> location_t;
 };
 
+/** \brief specialisation for a 1D space of double */
+typedef space<double, 1> space_1d;
 /** \brief specialisation for a 2D space of double */
 typedef space<double, 2> space_2d;
-
 /** \brief specialisation for a 3D space of double */
 typedef space<double, 3> space_3d;
 
