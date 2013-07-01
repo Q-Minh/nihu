@@ -121,23 +121,23 @@ The kernel $K(\bm{x},\bm{y})$ of the weighted residual can be evaluated in point
 In order to achieve an easily configurable kernel entity, NiHu defines class Kernel to implement the bivariate function $K(\gamma_1, \gamma_2)$, where the two variables $\gamma_1$ and $\gamma_2$ are instances of different KernelInput classes.
 
 KernelInput classes are templated on the $\bm{x}$-space, and can be constructed using an element and a numerical quadrature base point with a templated constructor.
-The simplest useful KernelInput is a location: $\gamma = \bm{x}$. A more complex often used KernelInput class can be defined by storing the location and the normal: $\gamma = \left\{\bm{x}, \bm{n}(\bm{x}) \right\}$.
+The simplest useful KernelInput is a location: $\gamma = \bm{x}$. A more complex often used KernelInput class stores the location and the normal: $\gamma = \left\{\bm{x}, \bm{n}(\bm{x}) \right\}$.
 
 Class Kernel not only evaluates the kernel on two KernelInputs, but is capable to estimate the kernel's polynomial complexity between two elements.
 This comes in hand when the numerical quadrature order needs to be selected.
 Class Kernel further defines the quadrature family (Gaussian for example) used to integrate the kernel, provides information on the kernels singular behavior, and can evaluate alternative regularised schemes for the case of singular kernels.
 
 
-\subsubsection{Dual kernel evaluation}
+\subsubsection{Parallel kernel evaluation}
 
 In most BEM applications the boundary integral equations are formalised using a set of kernels, consisting of the fundamental solution and its derivatives.
-In these applications parallel evaluation of two or more weighted residuals is advantageous if the different kernels share elements of their kernel inputs.
+In these applications parallel evaluation of two or more weighted residuals is advantageous if the different kernels share their kernel inputs.
 For the case of simple potential problems, even the computational complexity of the Jacobian can be comparable to that of the kernel evaluation, which clearly justifies the necessity of parallel evaluations.
 
-NiHu provides a straightforward and transparent approach for parallel evaluations.
+NiHu provides a straightforward and transparent approach for parallel kernel evaluations.
 Kernels of different types can be encapsulated in Couple classes.
 All the necessary mathematical operations needed to evaluate the weighted residuals are implemented for Couple classes.
-By means of expression templates, the Couple arithmetics compiles optimally to sequential evaluation of single-kernel weighted residuals, but repeated evaluation of kernel inputs, $N$-set vectors or Jacobians is avoided.
+By applying expression templates, Couple arithmetics compiles optimally to sequential evaluation of single-kernel weighted residuals, but repeated evaluation of kernel inputs, $N$-set vectors, Jacobians and other intermediate results are avoided.
 
 \subsection{Numerical integration}
 
