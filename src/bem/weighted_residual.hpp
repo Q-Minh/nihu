@@ -14,7 +14,6 @@
  * \tparam Kernel the kernel to be integrated
  * \tparam TestSpace the test function space over which integration is performed
  * \tparam TrialSpace the trial function space over which integration is performed
- * \todo This class should be full static to make the interface clear. The instantiation is only needed because call_each only works with two parameters.
  */
 template <bool isCollocational, class Kernel, class TestSpace, class TrialSpace = TestSpace>
 class weighted_residual
@@ -52,6 +51,7 @@ private:
 		 */
 		template <class result_t>
 		void operator() (result_t &result,
+			kernel_t &kernel,
 			test_space_t const &test_space,
 			trial_space_t const &trial_space)
 		{
@@ -62,7 +62,7 @@ private:
 					block(result, (*test_it).get_dofs(), (*trial_it).get_dofs())
 						+= double_integral_t::eval(
 							std::integral_constant<bool, isCollocational>(),
-							*test_it, *trial_it);
+							kernel, *test_it, *trial_it);
 		}
 	};};
 
@@ -78,7 +78,7 @@ public:
 	 * \return reference to the result matrix for cascading
 	 */
 	template <class result_t>
-	static result_t &eval(result_t &result, test_space_t const &test_space, trial_space_t const &trial_space)
+	static result_t &eval(result_t &result, kernel_t &kernel, test_space_t const &test_space, trial_space_t const &trial_space)
 	{
 		/**
 		 * \todo symdcalleach for the galerkin case
@@ -92,9 +92,10 @@ public:
 			typename trial_space_t::field_type_vector_t,
 			eval_on<tmp::_1, tmp::_2>,
 			result_t &,
+			kernel_t &,
 			test_space_t const &,
 			trial_space_t const &
-		>(result, test_space, trial_space);
+		>(result, kernel, test_space, trial_space);
 
 		return result;
 	}
