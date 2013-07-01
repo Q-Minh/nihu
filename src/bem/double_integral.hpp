@@ -56,7 +56,8 @@ public:
 	typedef TestField test_field_t;		/**< \brief template parameter as nested type */
 	typedef TrialField trial_field_t;	/**< \brief template parameter as nested type */
 
-	typedef typename kernel_t::input_t kernel_input_t;	/**< \brief input type of kernel */
+	typedef typename kernel_t::test_input_t test_input_t;	/**< \brief input type of kernel */
+	typedef typename kernel_t::trial_input_t trial_input_t;	/**< \brief input type of kernel */
 	typedef typename kernel_t::result_t kernel_result_t;	/**< \brief result type of kernel */
 
 	/** \brief the quadrature family the kernel requires */
@@ -108,6 +109,7 @@ protected:
 	* \return reference to the integration result
 	*/
 	static result_t const &eval_on_accelerator(
+		kernel_t &kernel,
 		test_field_t const &test_field,
 		test_field_type_accelerator_t const &test_acc,
 		trial_field_t const &trial_field,
@@ -115,13 +117,14 @@ protected:
 	{
 		for (auto test_it = test_acc.cbegin(); test_it != test_acc.cend(); ++test_it)
 		{
-			kernel_input_t test_input(test_field.get_elem(), test_it->get_quadrature_elem());
-			auto left = (test_it->get_shape() * test_input.get_jacobian()).eval();
+			typename weighted_kernel_input<test_input_t>::type test_input(test_field.get_elem(), test_it->get_quadrature_elem());
+			auto bound = kernel.bind(test_input);
+			auto left = (test_it->get_shape() * (test_input.get_jacobian() * test_it->get_quadrature_elem().get_w())).eval();
 			for (auto trial_it = trial_acc.cbegin(); trial_it != trial_acc.cend(); ++trial_it)
 			{
-				kernel_input_t trial_input(trial_field.get_elem(), trial_it->get_quadrature_elem());
-				auto right = (trial_it->get_shape().transpose() * trial_input.get_jacobian()).eval();
-				m_result += left * kernel_t::eval(test_input, trial_input) * right;
+				typename weighted_kernel_input<trial_input_t>::type trial_input(trial_field.get_elem(), trial_it->get_quadrature_elem());
+				auto right = (trial_it->get_shape().transpose() * (trial_input.get_jacobian() * trial_it->get_quadrature_elem().get_w())).eval();
+				m_result += left * bound.eval(trial_input) * right;
 			}
 		}
 
@@ -135,6 +138,7 @@ protected:
 	* \return reference to the integration result
 	*/
 	static result_t const &eval_collocational_on_accelerator(
+		kernel_t &kernel,
 		test_field_t const &test_field,
 		trial_field_t const &trial_field,
 		trial_field_type_accelerator_t const &trial_acc)
@@ -142,14 +146,13 @@ protected:
 		int row = 0;
 		for (auto test_it = test_nset_t::corner_begin(); test_it != test_nset_t::corner_end(); ++test_it)
 		{
-			quadrature_elem_t qe(*test_it);	// quadrature weight is scalar_t(), but we don't care
-			/** \todo we should not compute the Jacobian here */
-			kernel_input_t collocational_point(test_field.get_elem(), qe);
+			test_input_t collocational_point(test_field.get_elem(), *test_it);
+			auto bound = kernel.bind(collocational_point);
 			for (auto trial_it = trial_acc.cbegin(); trial_it != trial_acc.cend(); ++trial_it)
 			{
-				kernel_input_t trial_input(trial_field.get_elem(), trial_it->get_quadrature_elem());
-				m_result.row(row) += kernel_t::eval(collocational_point, trial_input) *
-					(trial_input.get_jacobian() * trial_it->get_shape().transpose());
+				typename weighted_kernel_input<trial_input_t>::type trial_input(trial_field.get_elem(), trial_it->get_quadrature_elem().get_xi());
+				m_result.row(row) += bound.eval(trial_input) *
+					(trial_it->get_shape() * (trial_input.get_jacobian() * trial_it->get_quadrature_elem().get_w()));
 			}
 			++row;
 		}
@@ -167,6 +170,7 @@ protected:
 	*/
 	template <class singular_iterator_t>
 	static result_t const &eval_singular_on_accelerator(
+		kernel_t &kernel,
 		test_field_t const &test_field,
 		trial_field_t const &trial_field,
 		singular_iterator_t begin,
@@ -174,16 +178,16 @@ protected:
 	{
 		while (begin != end)
 		{
-			kernel_input_t test_input(test_field.get_elem(), begin.get_test_quadrature_elem());
-			kernel_input_t trial_input(trial_field.get_elem(), begin.get_trial_quadrature_elem());
+			typename weighted_kernel_input<test_input_t>::type test_input(test_field.get_elem(), begin.get_test_quadrature_elem());
+			typename weighted_kernel_input<trial_input_t>::type trial_input(trial_field.get_elem(), begin.get_trial_quadrature_elem());
 
 			/** \todo check if lazy evaluation is still faster */
 			auto left = (test_field_t::nset_t::eval_shape(begin.get_test_quadrature_elem().get_xi())
-				* test_input.get_jacobian()).eval();
+				* (test_input.get_jacobian() * begin.get_test_quadrature_elem()->get_w())).eval();
 			auto right = (trial_field_t::nset_t::eval_shape(begin.get_trial_quadrature_elem().get_xi())
-				* trial_input.get_jacobian()).eval();
+				* (trial_input.get_jacobian() * begin.get_trial_quadrature_elem()->get_w())).eval();
 
-			m_result += left * kernel_t::eval(test_input, trial_input) * right.transpose();
+			m_result += left * kernel.eval(test_input, trial_input) * right.transpose();
 
 			++begin;
 		}
@@ -201,6 +205,7 @@ protected:
 	*/
 	template <class singular_accelerator_t>
 	static result_t const &eval_collocational_singular_on_accelerator(
+		kernel_t &kernel,
 		test_field_t const &test_field,
 		trial_field_t const &trial_field,
 		singular_accelerator_t const &sa)
@@ -208,17 +213,17 @@ protected:
 		for (unsigned idx = 0; idx < test_nset_t::num_nodes; ++idx)
 		{
 			quadrature_elem_t qe(test_nset_t::corner_at(idx));
-			kernel_input_t collocational_point(test_field.get_elem(), qe);
-
+			test_input_t collocational_point(test_field.get_elem(), qe.get_xi());
+			auto bound = kernel.bind(collocational_point);
 			auto const &quad = sa.get_trial_quadrature(idx);
 
 			for (auto quad_it = quad.begin(); quad_it != quad.end(); ++quad_it)
 			{
-				kernel_input_t trial_input(trial_field.get_elem(), *quad_it);
+				typename weighted_kernel_input<trial_input_t>::type trial_input(trial_field.get_elem(), quad_it->get_xi());
 
-				m_result.row(idx) += kernel_t::eval(collocational_point, trial_input) *
-					(trial_input.get_jacobian() *
-					trial_field_t::nset_t::eval_shape(quad_it->get_xi()).transpose());
+				m_result.row(idx) += bound.eval(trial_input) *
+					(trial_input.get_jacobian() * quad_it->get_w() *
+					trial_field_t::nset_t::eval_shape(quad_it->get_xi()));
 			}
 		}
 
@@ -228,6 +233,7 @@ protected:
 
 	static result_t const &eval_general(
 		std::false_type,
+		kernel_t &kernel,
 		test_field_t const &test_field,
 		trial_field_t const &trial_field)
 	{
@@ -235,17 +241,19 @@ protected:
 		auto &trial_ra = trial_regular_store_t::m_regular_pool;
 
 		// select quadrature
-		kernel_input_t test_center(test_field.get_elem(),
+		test_input_t test_center(test_field.get_elem(),
 			test_ra[0]->cbegin()->get_quadrature_elem());
-		kernel_input_t trial_center(trial_field.get_elem(),
+		trial_input_t trial_center(trial_field.get_elem(),
 			trial_ra[0]->cbegin()->get_quadrature_elem());
 
-		unsigned degree = kernel_t::estimate_complexity(test_center, trial_center);
+		/** \todo hard coding of 1.0 is very sick */
+		unsigned degree = kernel.estimate_complexity(test_center, trial_center, 1.0);
 
 		degree += std::max(test_nset_t::polynomial_order, trial_nset_t::polynomial_order)
 			+ std::max(test_lset_t::jacobian_order, trial_lset_t::jacobian_order);
 
 		return eval_on_accelerator(
+			kernel,
 			test_field, *(test_ra[degree]),
 			trial_field, *(trial_ra[degree]));
 	}
@@ -253,6 +261,7 @@ protected:
 
 	static result_t const &eval_general(
 		std::true_type,
+		kernel_t &kernel,
 		test_field_t const &test_field,
 		trial_field_t const &trial_field)
 	{
@@ -262,13 +271,14 @@ protected:
 		// check singularity
 		if (sa.is_singular(test_field, trial_field))
 			return eval_singular_on_accelerator(
-			test_field, trial_field, sa.begin(), sa.end());
-		return eval_general(std::false_type(), test_field, trial_field);
+			kernel, test_field, trial_field, sa.begin(), sa.end());
+		return eval_general(std::false_type(), kernel, test_field, trial_field);
 	}
 
 
 	static result_t const &eval_collocational(
 		std::false_type,
+		kernel_t &kernel,
 		test_field_t const &test_field,
 		trial_field_t const &trial_field)
 	{
@@ -276,20 +286,22 @@ protected:
 		auto &trial_ra = trial_regular_store_t::m_regular_pool;
 
 		quadrature_elem_t qe(test_field_t::elem_t::domain_t::get_center());
-		kernel_input_t test_center(test_field.get_elem(), qe);
-		kernel_input_t trial_center(trial_field.get_elem(),
-			trial_ra[0]->cbegin()->get_quadrature_elem());
+		test_input_t test_center(test_field.get_elem(), qe.get_xi());
+		trial_input_t trial_center(trial_field.get_elem(),
+			trial_ra[0]->cbegin()->get_quadrature_elem().get_xi());
 
-		unsigned degree = kernel_t::estimate_complexity(test_center, trial_center);
+		/** \todo hard coding of 1.0 is very sick */
+		unsigned degree = kernel.estimate_complexity(test_center, trial_center, 1.0);
 		degree += trial_nset_t::polynomial_order + trial_lset_t::jacobian_order;
 
 		return eval_collocational_on_accelerator(
-			test_field, trial_field, *(trial_ra[degree]));
+			kernel, test_field, trial_field, *(trial_ra[degree]));
 	}
 
 
 	static result_t const &eval_collocational(
 		std::true_type,
+		kernel_t &kernel,
 		test_field_t const &test_field,
 		trial_field_t const &trial_field)
 	{
@@ -299,9 +311,9 @@ protected:
 		// check singularity
 		if (sa.is_singular(test_field, trial_field))
 			return eval_collocational_singular_on_accelerator(
-			test_field, trial_field, sa);
+			kernel, test_field, trial_field, sa);
 		else
-			return eval_collocational(std::false_type(), test_field, trial_field);
+			return eval_collocational(std::false_type(), kernel, test_field, trial_field);
 	}
 
 public:
@@ -312,12 +324,13 @@ public:
 	*/
 	static result_t const &eval(
 		std::false_type,
+		kernel_t &kernel,
 		test_field_t const &test_field,
 		trial_field_t const &trial_field)
 	{
 		m_result.setZero();	// clear result
 		return eval_general(std::integral_constant<bool, is_kernel_singular>(),
-			test_field, trial_field);
+			kernel, test_field, trial_field);
 	}
 
 
@@ -328,13 +341,14 @@ public:
 	*/
 	static result_t const &eval(
 		std::true_type,
+		kernel_t &kernel,
 		test_field_t const &test_field,
 		trial_field_t const &trial_field)
 	{
 		m_result.setZero();	// clear result
 
 		return eval_collocational(std::integral_constant<bool, is_kernel_singular>(),
-			test_field, trial_field);
+			kernel, test_field, trial_field);
 	}
 
 protected:
