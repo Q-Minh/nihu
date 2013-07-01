@@ -39,6 +39,7 @@ Carefully reading the code above we can catch all main properties of static poly
 - The base class defines two interface functions, both of them use the type `scalar_t` in their declarations.
 Apparently, the implementation is left for the derived custom class.
 - The base class implements an abstract algorithm in terms of the interface functions.
+- Functionality implemented in the base class is available in all derived classes, similar to dynamic polymorphism.
 
 Now we are going to customise class `entity_base`. The customised class will be called `custom_entity`.
 Customisation is done in three steps.
