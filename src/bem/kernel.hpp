@@ -1,8 +1,10 @@
 /**
  * \file kernel.hpp
+ * \ingroup core
  * \brief implementation of various kernels
  * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
  */
+ 
 #ifndef KERNEL_HPP_INCLUDED
 #define KERNEL_HPP_INCLUDED
 
@@ -142,7 +144,10 @@ public:
 	 * \param [in] reference_size linear estimated size of the trial element
 	 * \return polynomial degree needed for accurate integration
 	 */
-	unsigned estimate_complexity(test_input_t const &x, trial_input_t const &y, scalar_t const &reference_size) const
+	unsigned estimate_complexity(
+		test_input_t const &x,
+		trial_input_t const &y,
+		scalar_t const &reference_size) const
 	{
 		return derived().estimate_complexity(x, y, reference_size);
 	}

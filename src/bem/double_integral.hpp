@@ -117,12 +117,12 @@ protected:
 	{
 		for (auto test_it = test_acc.cbegin(); test_it != test_acc.cend(); ++test_it)
 		{
-			typename weighted_kernel_input<test_input_t>::type test_input(test_field.get_elem(), test_it->get_quadrature_elem());
+			typename weighted_kernel_input<test_input_t>::type test_input(test_field.get_elem(), test_it->get_quadrature_elem().get_xi());
 			auto bound = kernel.bind(test_input);
 			auto left = (test_it->get_shape() * (test_input.get_jacobian() * test_it->get_quadrature_elem().get_w())).eval();
 			for (auto trial_it = trial_acc.cbegin(); trial_it != trial_acc.cend(); ++trial_it)
 			{
-				typename weighted_kernel_input<trial_input_t>::type trial_input(trial_field.get_elem(), trial_it->get_quadrature_elem());
+				typename weighted_kernel_input<trial_input_t>::type trial_input(trial_field.get_elem(), trial_it->get_quadrature_elem().get_xi());
 				auto right = (trial_it->get_shape().transpose() * (trial_input.get_jacobian() * trial_it->get_quadrature_elem().get_w())).eval();
 				m_result += left * bound.eval(trial_input) * right;
 			}
@@ -178,14 +178,14 @@ protected:
 	{
 		while (begin != end)
 		{
-			typename weighted_kernel_input<test_input_t>::type test_input(test_field.get_elem(), begin.get_test_quadrature_elem());
-			typename weighted_kernel_input<trial_input_t>::type trial_input(trial_field.get_elem(), begin.get_trial_quadrature_elem());
+			typename weighted_kernel_input<test_input_t>::type test_input(test_field.get_elem(), begin.get_test_quadrature_elem().get_xi());
+			typename weighted_kernel_input<trial_input_t>::type trial_input(trial_field.get_elem(), begin.get_trial_quadrature_elem().get_xi());
 
 			/** \todo check if lazy evaluation is still faster */
 			auto left = (test_field_t::nset_t::eval_shape(begin.get_test_quadrature_elem().get_xi())
-				* (test_input.get_jacobian() * begin.get_test_quadrature_elem()->get_w())).eval();
+				* (test_input.get_jacobian() * begin.get_test_quadrature_elem().get_w())).eval();
 			auto right = (trial_field_t::nset_t::eval_shape(begin.get_trial_quadrature_elem().get_xi())
-				* (trial_input.get_jacobian() * begin.get_trial_quadrature_elem()->get_w())).eval();
+				* (trial_input.get_jacobian() * begin.get_trial_quadrature_elem().get_w())).eval();
 
 			m_result += left * kernel.eval(test_input, trial_input) * right.transpose();
 
@@ -242,9 +242,9 @@ protected:
 
 		// select quadrature
 		test_input_t test_center(test_field.get_elem(),
-			test_ra[0]->cbegin()->get_quadrature_elem());
+			test_ra[0]->cbegin()->get_quadrature_elem().get_xi());
 		trial_input_t trial_center(trial_field.get_elem(),
-			trial_ra[0]->cbegin()->get_quadrature_elem());
+			trial_ra[0]->cbegin()->get_quadrature_elem().get_xi());
 
 		/** \todo hard coding of 1.0 is very sick */
 		unsigned degree = kernel.estimate_complexity(test_center, trial_center, 1.0);

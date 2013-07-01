@@ -1,3 +1,10 @@
+/**
+ * \file unit_kernel.hpp
+ * \ingroup library
+ * \brief implementation of the unit kernel \f$K(x,y) = 1\f$
+ * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
+ */
+
 #ifndef UNIT_KERNEL_HPP_INCLUDED
 #define UNIT_KERNEL_HPP_INCLUDED
 
@@ -16,7 +23,7 @@ struct kernel_traits<unit_kernel>
 	/** \brief trial input type */
 	typedef location<space_3d> trial_input_t;
 	/** \brief kernel result type */
-	typedef double result_t;
+	typedef space_3d::scalar_t result_t;
 	/** \brief quadrature family tag */
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief shows if kernel is symmetric */
@@ -27,16 +34,11 @@ struct kernel_traits<unit_kernel>
 	static unsigned const singular_quadrature_order = 0;
 };
 
-/**
- * \brief 3D unit kernel
- */
+/** \brief the unit kernel returning K(x,y) = 1 for all inputs */
 class unit_kernel :
 	public kernel_base<unit_kernel>
 {
 public:
-	/** \brief the CRTP base class */
-	typedef kernel_base<unit_kernel> base_t;
-	
 	/**
 	 * \brief evaluate kernel at test and trial positions
 	 * \param [in] x test position
@@ -55,7 +57,10 @@ public:
 	 * \param [in] s linear element size
 	 * \return kernel value K(x,y)
 	 */
-	unsigned estimate_complexity(test_input_t const &x, trial_input_t const &y, scalar_t const &s) const
+	unsigned estimate_complexity(
+		test_input_t const &x,
+		trial_input_t const &y,
+		scalar_t const &s) const
 	{
 		return 0;
 	}
