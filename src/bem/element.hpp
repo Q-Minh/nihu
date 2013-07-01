@@ -80,7 +80,7 @@ public:
 	typedef typename traits_t::lset_t lset_t;
 
 	/** \brief the element id */
-	static unsigned const id = elem_id<Derived>::value;
+	static unsigned const id;
 
 	/** \brief the elements's reference domain */
 	typedef typename lset_t::domain_t domain_t;
@@ -241,6 +241,9 @@ public:
 		return element_overlapping(num_coinc, start_ind1, start_ind2);
 	}
 };
+
+template <class Derived>
+unsigned const element_base<Derived>::id = elem_id<Derived>::value;
 
 
 /** \brief a linear triangle element in 3D space */
