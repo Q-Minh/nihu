@@ -1,6 +1,6 @@
 /**
  * \file kernel_input.hpp
- * \ingroup core
+ * \ingroup kernel
  * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
  * \brief implementation of kernel inputs
  */
@@ -39,7 +39,7 @@ public:
 	template <class elem_t>
 	kernel_input_base(elem_t const &elem, typename elem_t::xi_t const &xi)
 	{
-		/** \check if element and kernel_input spaces are the same */
+		// check if element and kernel_input spaces are the same
 		static_assert(std::is_same<space_t, typename elem_t::space_t>::value,
 			"Element and kernel input spaces must match");
 	}
@@ -103,49 +103,35 @@ private:
 };
 
 
-/** \brief metafunction to assign a weighted kernel input to a kernel input */
+/** \brief metafunction implementation to assign a weighted kernel input to a kernel input */
 template <class KernelInput>
 class weighted_kernel_input_impl :
 	public KernelInput,
 	public jacobian<typename KernelInput::scalar_t>
 {
 public:
-	typedef typename KernelInput::scalar_t scalar_t;
-
+	/** \brief constructor from element and a reference domain variable
+	 * \tparam elem_t the element type
+	 * \param [in] elem the element reference
+	 * \param [in] xi the reference domain variable
+	 */
 	template<class elem_t>
 	weighted_kernel_input_impl(elem_t const &elem, typename elem_t::xi_t const &xi) :
 		KernelInput(elem, xi),
-		jacobian<scalar_t>(elem, xi)
+		jacobian<typename KernelInput::scalar_t>(elem, xi)
 	{
 	}
 };
 
-
-template <bool HasJacobian, class KernelInput>
-struct weighted_kernel_input_selector
-{
-	typedef KernelInput type;
-};
-
-
-template <class KernelInput>
-struct weighted_kernel_input_selector<false, KernelInput>
-{
-	typedef weighted_kernel_input_impl<KernelInput> type;
-};
-
-
 /** \brief metafunction to assign a weighted kernel input to a kernel input */
 template <class KernelInput>
-struct weighted_kernel_input : weighted_kernel_input_selector<
+struct weighted_kernel_input : if_<
 	std::is_base_of<
 		jacobian<typename KernelInput::scalar_t>,
 		KernelInput
-	>::value,
-	KernelInput
+	>::type,
+	KernelInput,
+	weighted_kernel_input_impl<KernelInput>
 > {};
 
-
 #endif // KERNELINPUT_HPP_INCLUDED
-
-

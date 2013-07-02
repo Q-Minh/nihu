@@ -1,5 +1,5 @@
 @ECHO OFF
-SET CFLAGS=-O3 -Wall -std=c++11 -I../../../Eigen
+SET CFLAGS=-O3 -Wall -pedantic -std=c++11 -I../../../Eigen
 @ECHO ON
 g++ %CFLAGS% space_test.cpp -o space_test.exe
 g++ %CFLAGS% domain_test.cpp -o domain_test.exe

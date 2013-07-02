@@ -7,8 +7,6 @@ NiHu Boonen 13 {#mainpage}
 - Short guide over the theory can be read in the [theoryguide] section.
 - Short tour for NiHu programmers can be read [walkthrough] section.
 
-
-
 \defgroup core The software core
 
 \defgroup funcspace Function space representations

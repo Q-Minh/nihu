@@ -1,5 +1,6 @@
 /**
  * \file mesh.hpp
+ * \ingroup funcspace
  * \author Peter fiala fiala@hit.bme.hu, Peter Rucz rucz@hit.bme.hu
  * \brief Declaration of class Mesh
  */

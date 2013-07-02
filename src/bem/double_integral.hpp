@@ -12,7 +12,6 @@
 #include "field_type_accelerator.hpp"
 #include "singular_accelerator.hpp"
 
-
 template <bool isCollocational, class Kernel, class TestField, class TrialField>
 struct accel_store
 {
@@ -35,6 +34,10 @@ struct regular_pool_store
 template <class Field, class Family>
 typename regular_pool_store<Field, Family>::pool_t
 	regular_pool_store<Field, Family>::m_regular_pool;
+
+enum weighted_residual_option_t {_COLLOCATIONAL, _GENERAL};
+typedef std::integral_constant<weighted_residual_option_t, COLLOCATIONAL> COLLOCATIONAL;
+typedef std::integral_constant<weighted_residual_option_t, GENERAL> GENERAL;
 
 /**
 * \brief class evaluating double integrals of the weighted residual approach
@@ -79,6 +82,7 @@ public:
 
 	/** \brief the quadrature family the kernel requires */
 	typedef typename kernel_traits<kernel_t>::quadrature_family_t quadrature_family_t;
+	/** \brief indicates if kernel is singular and singular accelerators need to be instantiated */
 	static bool const is_kernel_singular = kernel_traits<kernel_t>::singularity_order != 0;
 
 	/** \brief the quadrature element */
@@ -119,6 +123,7 @@ public:
 
 protected:
 	/** \brief evaluate regular double integral with selected accelerators
+	* \param [in] kernel the kernel to integrate
 	* \param [in] test_field the test field to integrate on
 	* \param [in] test_acc field type accelerator of the test field
 	* \param [in] trial_field the trial field to integrate on
@@ -149,9 +154,10 @@ protected:
 	}
 
 	/** \brief evaluate regular collocational integral with selected trial field accelerator
+	* \param [in] kernel the kernel to integrate
 	* \param [in] test_field the test field to integrate on
 	* \param [in] trial_field the trial field to integrate on
-	* \param [in] trial_acc the trial accelerator
+	* \param [in] trial_acc the trial field type accelerator
 	* \return reference to the integration result
 	*/
 	static result_t const &eval_collocational_on_accelerator(
@@ -179,6 +185,7 @@ protected:
 
 
 	/** \brief evaluate double singular integral with selected singular accelerator
+	* \param [in] kernel the kernel to integrate
 	* \param [in] test_field the test field to integrate on
 	* \param [in] trial_field the trial field to integrate on
 	* \param [in] begin begin iteartor of the singular quadrature
@@ -213,11 +220,11 @@ protected:
 	}
 
 	/** \brief evaluate collocational singular integral with selected singular accelerator
-	* \tparam singular_iterator_t type of the singular quadrature iterator
+	* \tparam singular_accelerator_t type of the singular quadrature accelerator
+	* \param [in] kernel the kernel to integrate
 	* \param [in] test_field the test field to integrate on
 	* \param [in] trial_field the trial field to integrate on
-	* \param [in] begin the begin interator of the selected quadrature
-	* \param [in] end end iterator of the selected quadrature
+	* \param [in] sa singular accelerator
 	* \return reference to the integration result
 	*/
 	template <class singular_accelerator_t>
@@ -248,6 +255,12 @@ protected:
 	}
 
 
+	/** \brief evaluate double integral of a kernel on specific fields without singularity check
+	* \param [in] kernel the kernel to integrate
+	* \param [in] test_field reference to the test field
+	* \param [in] trial_field reference to the trial field
+	* \return reference to the stored result
+	*/
 	static result_t const &eval_general(
 		std::false_type,
 		kernel_t &kernel,
@@ -273,6 +286,12 @@ protected:
 	}
 
 
+	/** \brief evaluate double integral of a kernel on specific fields with singularity check
+	* \param [in] kernel the kernel to integrate
+	* \param [in] test_field reference to the test field
+	* \param [in] trial_field reference to the trial field
+	* \return reference to the stored result
+	*/
 	static result_t const &eval_general(
 		std::true_type,
 		kernel_t &kernel,
@@ -290,6 +309,12 @@ protected:
 	}
 
 
+	/** \brief evaluate single integral of a kernel on specific fields without singularity check
+	* \param [in] kernel the kernel to integrate
+	* \param [in] test_field reference to the test field
+	* \param [in] trial_field reference to the trial field
+	* \return reference to the stored result
+	*/
 	static result_t const &eval_collocational(
 		std::false_type,
 		kernel_t &kernel,
@@ -312,6 +337,12 @@ protected:
 	}
 
 
+	/** \brief evaluate single integral of a kernel on specific fields with singularity check
+	* \param [in] kernel the kernel to integrate
+	* \param [in] test_field reference to the test field
+	* \param [in] trial_field reference to the trial field
+	* \return reference to the stored result
+	*/
 	static result_t const &eval_collocational(
 		std::true_type,
 		kernel_t &kernel,
@@ -331,6 +362,7 @@ protected:
 
 public:
 	/** \brief evaluate double integral on given fields
+	* \param [in] kernel the kernel to integrate
 	* \param [in] test_field the test field to integrate on
 	* \param [in] trial_field the trial field to integrate on
 	* \return reference to the integration result
@@ -348,6 +380,7 @@ public:
 
 
 	/** \brief evaluate collocational integral on given fields
+	* \param [in] kernel the kernel to integrate
 	* \param [in] test_field the test field to integrate on
 	* \param [in] trial_field the trial field to integrate on
 	* \return reference to the integration result

@@ -1,5 +1,6 @@
 /**
  * \file domain.hpp
+ * \ingroup funcspace
  * \brief declaration of class ::domain and its derived domains
  * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
  */

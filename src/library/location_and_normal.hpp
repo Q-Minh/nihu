@@ -41,8 +41,9 @@ public:
 	typedef typename space_t::location_t x_t;
 
 	/** \brief constructor from element and reference domain vector
+	* \tparam elem_t the element type
 	* \param [in] elem the element to construct from
-	* \param [in] the location in the reference domain
+	* \param [in] xi the location in the reference domain
 	*/
 	template <class elem_t>
 	location(elem_t const &elem, typename elem_t::xi_t const &xi)
@@ -50,13 +51,17 @@ public:
 	{
 	}
 
+	/** \brief return location
+	* \return location
+	*/
 	x_t const &get_x(void) const
 	{
 		return m_x;
 	}
 
 protected:
-	x_t m_x;	/**< \brief the location */
+	/** \brief the location */
+	x_t m_x;
 };
 
 
@@ -71,6 +76,7 @@ class location_with_normal;
 template <class Space>
 struct kernel_input_traits<location_with_normal<Space> >
 {
+	/** \brief the space where the location is defined */
 	typedef Space space_t;
 };
 
@@ -84,10 +90,18 @@ class location_with_normal :
 	public jacobian<typename Space::scalar_t>
 {
 public:
+	/** \brief the base class */
 	typedef kernel_input_base<location_with_normal<Space> > base_t;
+	/** \brief the space type where the location is defined */
 	typedef typename base_t::space_t space_t;
+	/** \brief the location type */
 	typedef typename space_t::location_t x_t;
 
+	/** \brief constructor from element and reference domain coordinate
+	* \tparam elem_t the element type
+	* \param [in] elem the element
+	* \param xi the location in the reference domain
+	*/
 	template <class elem_t>
 	location_with_normal(elem_t const &elem, typename elem_t::xi_t const &xi)
 		: base_t(elem, xi), m_x(elem.get_x(xi))
@@ -97,11 +111,17 @@ public:
 		m_unit_normal /= this->get_jacobian();
 	}
 
+	/** \brief return location
+	* \return location
+	*/
 	x_t const &get_x(void) const
 	{
 		return m_x;
 	}
 
+	/** \brief return unit normal vector
+	* \return unit normal vector
+	*/
 	x_t const &get_unit_normal(void) const
 	{
 		return m_unit_normal;

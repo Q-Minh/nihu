@@ -73,9 +73,13 @@ class helmholtz_G_kernel :
 	public reciprocal_distance_kernel<helmholtz_G_kernel>
 {
 public:
+	/** \brief the crtp base type */
 	typedef kernel_base<helmholtz_G_kernel> base_t;
+	/** \brief type of the test input */
 	typedef typename base_t::test_input_t test_input_t;
+	/** \brief type of the trial input */
 	typedef typename base_t::trial_input_t trial_input_t;
+	/** \brief type of the scalar of the inputs */
 	typedef typename base_t::scalar_t scalar_t;
 
 	/** \brief evaluate kernel between test and trial positions
@@ -121,9 +125,13 @@ class helmholtz_H_kernel :
 	public reciprocal_distance_kernel<helmholtz_H_kernel>
 {
 public:
+	/** \brief the crtp base type */
 	typedef kernel_base<helmholtz_H_kernel> base_t;
+	/** \brief type of the test input */
 	typedef typename base_t::test_input_t test_input_t;
+	/** \brief type of the trial input */
 	typedef typename base_t::trial_input_t trial_input_t;
+	/** \brief type of the scalar of the inputs */
 	typedef typename base_t::scalar_t scalar_t;
 
 	/** \brief evaluate kernel between test and trial positions
@@ -177,9 +185,13 @@ class helmholtz_GH_kernel :
 	public reciprocal_distance_kernel<helmholtz_GH_kernel>
 {
 public:
+	/** \brief the crtp base type */
 	typedef kernel_base<helmholtz_GH_kernel> base_t;
+	/** \brief type of the test input */
 	typedef typename base_t::test_input_t test_input_t;
+	/** \brief type of the trial input */
 	typedef typename base_t::trial_input_t trial_input_t;
+	/** \brief type of the scalar of the inputs */
 	typedef typename base_t::scalar_t scalar_t;
 
 	/** \brief evaluate kernel between test and trial positions

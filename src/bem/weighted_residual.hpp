@@ -46,8 +46,10 @@ private:
 		 * \tparam result_t the type of the result matrix
 		 * \details This function is called by weighted_residual::apply for each homogeneous
 		 * subspace-pair.
-		 * \param [in] wr reference to the weighted_residual object that stores the two function spaces
 		 * \param [out] result reference to the result matrix the result block is inserted to
+		 * \param [in] kernel the kernel to integrate
+		 * \param [in] test_space the test function space
+		 * \param [in] trial_space the trial function space
 		 */
 		template <class result_t>
 		void operator() (result_t &result,
@@ -75,17 +77,21 @@ public:
 	 * For flexibility, it is assumed that result is already set to zero.
 	 * \tparam result_t type of the result matrix
 	 * \param [out] result reference to the result matrix
+	 * \param [in] kernel the kernel to integrate
+	 * \param [in] test_space reference to the test space
+	 * \param [in] trial_space reference to the trial space
 	 * \return reference to the result matrix for cascading
 	 */
 	template <class result_t>
-	static result_t &eval(result_t &result, kernel_t &kernel, test_space_t const &test_space, trial_space_t const &trial_space)
+	static result_t &eval(
+		result_t &result,
+		kernel_t &kernel,
+		test_space_t const &test_space,
+		trial_space_t const &trial_space)
 	{
-		/**
-		 * \todo symdcalleach for the galerkin case
-		 */
-
-		// Integration is performed separately on homogneous subfields, using tmp::d_call_each
-		// d_call_each calls eval_on for each element of the the Descartes product of the test and
+		/** \todo symdcalleach for the galerkin case */
+		// Integration is performed separately on homogneous subspaces, using tmp::d_call_each
+		// ::d_call_each calls ::eval_on for each element of the the Descartes product of the test and
 		// trial field type vectors
 		tmp::d_call_each<
 			typename test_space_t::field_type_vector_t,

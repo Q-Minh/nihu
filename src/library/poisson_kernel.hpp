@@ -43,9 +43,13 @@ class poisson_G_kernel :
 	public reciprocal_distance_kernel<poisson_G_kernel>
 {
 public:
+	/** \brief the crtp base's type */
 	typedef kernel_base<poisson_G_kernel> base_t;
+	/** \brief type of the test input */
 	typedef typename base_t::test_input_t test_input_t;
+	/** \brief type of the trial input */
 	typedef typename base_t::trial_input_t trial_input_t;
+	/** \brief type of the scalar of the inputs */
 	typedef typename base_t::scalar_t scalar_t;
 
 	/** \brief evaluate kernel between test and trial positions
@@ -90,9 +94,13 @@ class poisson_H_kernel :
 	public reciprocal_distance_kernel<poisson_H_kernel>
 {
 public:
+	/** \brief the crtp base's type */
 	typedef kernel_base<poisson_H_kernel> base_t;
+	/** \brief type of the test input */
 	typedef typename base_t::test_input_t test_input_t;
+	/** \brief type of the trial input */
 	typedef typename base_t::trial_input_t trial_input_t;
+	/** \brief type of the scalar of the inputs */
 	typedef typename base_t::scalar_t scalar_t;
 
 	/** \brief evaluate kernel between test and trial positions
@@ -144,9 +152,13 @@ class poisson_GH_kernel :
 	public reciprocal_distance_kernel<poisson_GH_kernel>
 {
 public:
+	/** \brief the crtp base's type */
 	typedef kernel_base<poisson_GH_kernel> base_t;
+	/** \brief type of the test input */
 	typedef typename base_t::test_input_t test_input_t;
+	/** \brief type of the trial input */
 	typedef typename base_t::trial_input_t trial_input_t;
+	/** \brief type of the scalar of the inputs */
 	typedef typename base_t::scalar_t scalar_t;
 
 	/** \brief evaluate kernel between test and trial positions

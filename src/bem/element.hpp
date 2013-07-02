@@ -1,5 +1,6 @@
 /**
 * \file element.hpp
+* \ingroup funcspace
 * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
 * \brief Declaration of element classes and specialisations
 */
@@ -119,7 +120,7 @@ protected:
 	coords_t m_coords;
 	/** \brief the element's center */
 	x_t m_center;
-
+	/** \brief estimated linear size of an element */
 	scalar_t m_linear_size_estimate;
 
 public:
@@ -404,7 +405,7 @@ public:
 		: base_t(coords, id, nodes)
 	{
 		dx_t dx = get_dx(domain_t::get_center());
-		base_t::m_linear_size_estimate = sqrt(dx.col(0).cross(dx.col(1)) * domain_t::get_volume());
+		base_t::m_linear_size_estimate = sqrt(dx.col(0).cross(dx.col(1)).norm() * domain_t::get_volume());
 	}
 
 	/** \brief return normal vector at given location

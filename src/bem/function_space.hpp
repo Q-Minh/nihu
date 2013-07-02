@@ -1,5 +1,6 @@
 /**
 * \file function_space.hpp
+* \ingroup funcspace
 * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
 * \brief declaration of class function_space
 */
