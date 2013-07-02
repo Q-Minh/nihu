@@ -144,7 +144,7 @@ public:
 	 * \param [in] reference_size linear estimated size of the trial element
 	 * \return polynomial degree needed for accurate integration
 	 */
-	unsigned estimate_complexity(
+	unsigned estimate_complexity_interface(
 		test_input_t const &x,
 		trial_input_t const &y,
 		scalar_t const &reference_size) const

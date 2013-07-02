@@ -11,7 +11,10 @@
 #include "../bem/kernel.hpp"
 #include "../bem/gaussian_quadrature.hpp"
 
-/** \brief 3D Poisson kernel \f$1/4\pi r\f$ */
+#include "location_and_normal.hpp"
+#include "reciprocal_distance_kernel.hpp"
+
+// forward declaration
 class poisson_G_kernel;
 
 /** \brief traits of the poisson G kernel */
@@ -36,9 +39,15 @@ struct kernel_traits<poisson_G_kernel>
 
 /** \brief 3D Poisson kernel \f$1/4\pi r\f$ */
 class poisson_G_kernel :
-	public kernel_base<poisson_G_kernel>
+	public kernel_base<poisson_G_kernel>,
+	public reciprocal_distance_kernel<poisson_G_kernel>
 {
 public:
+	typedef kernel_base<poisson_G_kernel> base_t;
+	typedef typename base_t::test_input_t test_input_t;
+	typedef typename base_t::trial_input_t trial_input_t;
+	typedef typename base_t::scalar_t scalar_t;
+
 	/** \brief evaluate kernel between test and trial positions
 	* \param [in] x the test input
 	* \param [in] y the trial input
@@ -49,25 +58,10 @@ public:
 		scalar_t r = (y.get_x() - x.get_x()).norm();
 		return 1.0 / r / (4.0 * M_PI);
 	}
-	
-	/** \brief estimate kernel's polynomial complexity
-	* \param [in] x the test input
-	* \param [in] y the trial input
-	* \param [in] s estimate linear size of one of the elements
-	* \return the kernel value K(x,y)
-	*/
-	unsigned estimate_complexity(
-		test_input_t const &x,
-		trial_input_t const &y,
-		scalar_t s) const
-	{
-		/** \todo hard coding of this 3 is sick */
-		return 3;
-	}
 };
 
 
-/** \brief 3D Poisson kernel \f$-1/4\pi r^2 \cdot dr/dn \f$ */
+// forward declaration
 class poisson_H_kernel;
 
 /** \brief traits of the Poisson H kernel */
@@ -92,9 +86,15 @@ struct kernel_traits<poisson_H_kernel>
 
 /** \brief 3D Poisson kernel \f$ -1/4\pi r^2 \cdot dr/dn \f$ */
 class poisson_H_kernel :
-	public kernel_base<poisson_H_kernel>
+	public kernel_base<poisson_H_kernel>,
+	public reciprocal_distance_kernel<poisson_H_kernel>
 {
 public:
+	typedef kernel_base<poisson_H_kernel> base_t;
+	typedef typename base_t::test_input_t test_input_t;
+	typedef typename base_t::trial_input_t trial_input_t;
+	typedef typename base_t::scalar_t scalar_t;
+
 	/** \brief evaluate kernel between test and trial positions
 	* \param [in] x the test input
 	* \param [in] y the trial input
@@ -112,25 +112,10 @@ public:
 
 		return m_result;
 	}
-
-	/** \brief estimate kernel's polynomial complexity
-	* \param [in] x the test input
-	* \param [in] y the trial input
-	* \param [in] s estimate linear size of one of the elements
-	* \return the kernel value K(x,y)
-	*/
-	unsigned estimate_complexity(
-		test_input_t const &x,
-		trial_input_t const &y,
-		scalar_t s) const
-	{
-		/** \todo hard coding of this 5 is sick */
-		return 5;
-	}
 };
 
 
-/** \brief 3D Poisson kernel \f$ 1/4\pi r \left\{1, -1/r \cdot dr/dn\right\} \f$ */
+// forward declaration
 class poisson_GH_kernel;
 
 /** \brief traits of the double Poisson kernel */
@@ -155,9 +140,15 @@ struct kernel_traits<poisson_GH_kernel>
 
 /** \brief 3D Poisson kernel \f$ 1/4\pi r \left\{1, -1/r \cdot dr/dn\right\} \f$ */
 class poisson_GH_kernel :
-	public kernel_base<poisson_GH_kernel>
+	public kernel_base<poisson_GH_kernel>,
+	public reciprocal_distance_kernel<poisson_GH_kernel>
 {
 public:
+	typedef kernel_base<poisson_GH_kernel> base_t;
+	typedef typename base_t::test_input_t test_input_t;
+	typedef typename base_t::trial_input_t trial_input_t;
+	typedef typename base_t::scalar_t scalar_t;
+
 	/** \brief evaluate kernel between test and trial positions
 	* \param [in] x the test input
 	* \param [in] y the trial input
@@ -174,21 +165,6 @@ public:
 		m_result.second() = m_result.first() * (-rdn / r2);
 
 		return m_result;
-	}
-	
-	/** \brief estimate kernel's polynomial complexity
-	* \param [in] x the test input
-	* \param [in] y the trial input
-	* \param [in] s estimate linear size of one of the elements
-	* \return the kernel value K(x,y)
-	*/
-	unsigned estimate_complexity(
-		test_input_t const &x,
-		trial_input_t const &y,
-		scalar_t s) const
-	{
-		/** \todo hard coding of this 5 is sick */
-		return 5;
 	}
 };
 
