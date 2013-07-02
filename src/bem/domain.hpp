@@ -70,11 +70,22 @@ public:
 		return get_corners()[idx];
 	}
 
+	/**
+	 * \brief return domain volume
+	 * \return domain volume
+	 */
+	static scalar_t const &get_volume(void)
+	{
+		return m_volume;
+	}
+
 protected:
 	/** \brief the center point of the domain */
 	static xi_t const m_center;
 	/** \brief the corner points of the domain */
 	static corners_t const m_corners;
+	/** \brief the domain's volume */
+	static scalar_t const m_volume;
 };
 
 
@@ -116,6 +127,10 @@ line_domain::corners_t
 	line_domain::xi_t::Constant(1.0)
 	};
 
+template <>
+line_domain::scalar_t
+	const line_domain::m_volume = 2.0;
+
 
 template<>
 tria_domain::xi_t
@@ -129,6 +144,10 @@ tria_domain::corners_t const tria_domain::m_corners = {
 	tria_domain::xi_t(1.0,0.0),
 	tria_domain::xi_t(0.0,1.0)
 	};
+
+template <>
+tria_domain::scalar_t
+	const tria_domain::m_volume = 0.5;
 
 
 template<>
@@ -144,6 +163,10 @@ quad_domain::corners_t const quad_domain::m_corners = {
 	quad_domain::xi_t( 1.0, 1.0),
 	quad_domain::xi_t(-1.0, 1.0)
 	};
+
+template <>
+quad_domain::scalar_t
+	const quad_domain::m_volume = 4.0;
 
 
 template<>
@@ -164,6 +187,10 @@ template<>
 brick_domain::xi_t
 	const brick_domain::m_center =
 	brick_domain::xi_t::Zero();
+
+template <>
+brick_domain::scalar_t
+	const brick_domain::m_volume = 8.0;
 
 
 #endif

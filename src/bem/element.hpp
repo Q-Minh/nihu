@@ -120,6 +120,8 @@ protected:
 	/** \brief the element's center */
 	x_t m_center;
 
+	scalar_t m_linear_size_estimate;
+
 public:
 	/**
 	* \brief default constructor for std::vector container
@@ -192,6 +194,15 @@ public:
 	dx_t get_dx(xi_t const &xi) const
 	{
 		return m_coords * lset_t::eval_dshape(xi);
+	}
+
+	/**
+	* \brief return linear size estimate
+	* \return linear size estimate
+	*/
+	scalar_t const &get_linear_size_estimate(void) const
+	{
+		return m_linear_size_estimate;
 	}
 
 	/**
@@ -274,6 +285,7 @@ public:
 	{
 		dx_t dx0(get_dx(xi_t::Zero()));
 		m_normal = dx0.col(0).cross(dx0.col(1));
+		m_linear_size_estimate = sqrt(m_normal.norm()  * domain_t::get_volume());
 	}
 
 	/** \brief return normal vector
@@ -322,6 +334,8 @@ public:
 		m_n0 = dx0.col(0).cross(dx0.col(1));
 		m_n_xi.col(0) = dx0.col(0).cross(dx1.col(0));
 		m_n_xi.col(1) = dx1.col(0).cross(dx0.col(1));
+
+		m_linear_size_estimate = sqrt(m_n0.norm()  * domain_t::get_volume());
 	}
 
 	/** \brief return normal vector
@@ -376,6 +390,8 @@ public:
 	typedef typename base_t::x_t x_t;
 	/** \brief type of the coordinate derivative vector */
 	typedef typename base_t::dx_t dx_t;
+	/** \brief type of the reference domain */
+	typedef typename base_t::domain_t domain_t;
 
 	using base_t::get_dx;
 
@@ -387,6 +403,8 @@ public:
 	general_surface_element(coords_t const &coords, unsigned id = 0, nodes_t const &nodes = nodes_t())
 		: base_t(coords, id, nodes)
 	{
+		dx_t dx = get_dx(domain_t::get_center());
+		base_t::m_linear_size_estimate = sqrt(dx.col(0).cross(dx.col(1)) * domain_t::get_volume());
 	}
 
 	/** \brief return normal vector at given location

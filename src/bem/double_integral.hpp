@@ -3,6 +3,7 @@
 * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
 * \brief declaration of class double_integral and its specialisations
 */
+
 #ifndef DOUBLE_INTEGRAL_HPP_INCLUDED
 #define DOUBLE_INTEGRAL_HPP_INCLUDED
 
@@ -56,9 +57,25 @@ public:
 	typedef TestField test_field_t;		/**< \brief template parameter as nested type */
 	typedef TrialField trial_field_t;	/**< \brief template parameter as nested type */
 
-	typedef typename kernel_t::test_input_t test_input_t;	/**< \brief input type of kernel */
-	typedef typename kernel_t::trial_input_t trial_input_t;	/**< \brief input type of kernel */
-	typedef typename kernel_t::result_t kernel_result_t;	/**< \brief result type of kernel */
+	/** \brief test input type of kernel */
+	typedef typename kernel_t::test_input_t test_input_t;	
+	/** \brief trial input type of kernel */
+	typedef typename kernel_t::trial_input_t trial_input_t;
+	/** \brief weighted test input type of kernel */
+	typedef typename weighted_kernel_input<test_input_t>::type w_test_input_t;
+	/** \brief weighted trial input type of kernel */
+	typedef typename weighted_kernel_input<trial_input_t>::type w_trial_input_t;
+	/** \brief result type of kernel */
+	typedef typename kernel_t::result_t kernel_result_t;
+
+	/** \brief the test elem type */
+	typedef typename test_field_t::elem_t test_elem_t;
+	/** \brief the trial elem type */
+	typedef typename trial_field_t::elem_t trial_elem_t;
+	/** \brief the test domain type */
+	typedef typename test_elem_t::domain_t test_domain_t;
+	/** \brief the trial domain type */
+	typedef typename trial_elem_t::domain_t trial_domain_t;
 
 	/** \brief the quadrature family the kernel requires */
 	typedef typename kernel_traits<kernel_t>::quadrature_family_t quadrature_family_t;
@@ -117,12 +134,12 @@ protected:
 	{
 		for (auto test_it = test_acc.cbegin(); test_it != test_acc.cend(); ++test_it)
 		{
-			typename weighted_kernel_input<test_input_t>::type test_input(test_field.get_elem(), test_it->get_quadrature_elem().get_xi());
+			w_test_input_t test_input(test_field.get_elem(), test_it->get_quadrature_elem().get_xi());
 			auto bound = kernel.bind(test_input);
 			auto left = (test_it->get_shape() * (test_input.get_jacobian() * test_it->get_quadrature_elem().get_w())).eval();
 			for (auto trial_it = trial_acc.cbegin(); trial_it != trial_acc.cend(); ++trial_it)
 			{
-				typename weighted_kernel_input<trial_input_t>::type trial_input(trial_field.get_elem(), trial_it->get_quadrature_elem().get_xi());
+				w_trial_input_t trial_input(trial_field.get_elem(), trial_it->get_quadrature_elem().get_xi());
 				auto right = (trial_it->get_shape().transpose() * (trial_input.get_jacobian() * trial_it->get_quadrature_elem().get_w())).eval();
 				m_result += left * bound.eval(trial_input) * right;
 			}
@@ -150,7 +167,7 @@ protected:
 			auto bound = kernel.bind(collocational_point);
 			for (auto trial_it = trial_acc.cbegin(); trial_it != trial_acc.cend(); ++trial_it)
 			{
-				typename weighted_kernel_input<trial_input_t>::type trial_input(trial_field.get_elem(), trial_it->get_quadrature_elem().get_xi());
+				w_trial_input_t trial_input(trial_field.get_elem(), trial_it->get_quadrature_elem().get_xi());
 				m_result.row(row) += bound.eval(trial_input) *
 					(trial_it->get_shape() * (trial_input.get_jacobian() * trial_it->get_quadrature_elem().get_w()));
 			}
@@ -178,8 +195,8 @@ protected:
 	{
 		while (begin != end)
 		{
-			typename weighted_kernel_input<test_input_t>::type test_input(test_field.get_elem(), begin.get_test_quadrature_elem().get_xi());
-			typename weighted_kernel_input<trial_input_t>::type trial_input(trial_field.get_elem(), begin.get_trial_quadrature_elem().get_xi());
+			w_test_input_t test_input(test_field.get_elem(), begin.get_test_quadrature_elem().get_xi());
+			w_trial_input_t trial_input(trial_field.get_elem(), begin.get_trial_quadrature_elem().get_xi());
 
 			/** \todo check if lazy evaluation is still faster */
 			auto left = (test_field_t::nset_t::eval_shape(begin.get_test_quadrature_elem().get_xi())
@@ -219,7 +236,7 @@ protected:
 
 			for (auto quad_it = quad.begin(); quad_it != quad.end(); ++quad_it)
 			{
-				typename weighted_kernel_input<trial_input_t>::type trial_input(trial_field.get_elem(), quad_it->get_xi());
+				w_trial_input_t trial_input(trial_field.get_elem(), quad_it->get_xi());
 
 				m_result.row(idx) += bound.eval(trial_input) *
 					(trial_input.get_jacobian() * quad_it->get_w() *
@@ -241,13 +258,10 @@ protected:
 		auto &trial_ra = trial_regular_store_t::m_regular_pool;
 
 		// select quadrature
-		test_input_t test_center(test_field.get_elem(),
-			test_ra[0]->cbegin()->get_quadrature_elem().get_xi());
-		trial_input_t trial_center(trial_field.get_elem(),
-			trial_ra[0]->cbegin()->get_quadrature_elem().get_xi());
-
-		/** \todo hard coding of 1.0 is very sick */
-		unsigned degree = kernel.estimate_complexity(test_center, trial_center, 1.0);
+		test_input_t test_center(test_field.get_elem(), test_domain_t::get_center());
+		trial_input_t trial_center(trial_field.get_elem(), trial_domain_t::get_center());
+		/** \todo why only trial size is important? */
+		unsigned degree = kernel.estimate_complexity_interface(test_center, trial_center, trial_field.get_elem().get_linear_size_estimate());
 
 		degree += std::max(test_nset_t::polynomial_order, trial_nset_t::polynomial_order)
 			+ std::max(test_lset_t::jacobian_order, trial_lset_t::jacobian_order);
@@ -287,11 +301,10 @@ protected:
 
 		quadrature_elem_t qe(test_field_t::elem_t::domain_t::get_center());
 		test_input_t test_center(test_field.get_elem(), qe.get_xi());
-		trial_input_t trial_center(trial_field.get_elem(),
-			trial_ra[0]->cbegin()->get_quadrature_elem().get_xi());
+		trial_input_t trial_center(trial_field.get_elem(), trial_domain_t::get_center());
 
-		/** \todo hard coding of 1.0 is very sick */
-		unsigned degree = kernel.estimate_complexity(test_center, trial_center, 1.0);
+		/** \todo why only trial size is important? */
+		unsigned degree = kernel.estimate_complexity_interface(test_center, trial_center, trial_field.get_elem().get_linear_size_estimate());
 		degree += trial_nset_t::polynomial_order + trial_lset_t::jacobian_order;
 
 		return eval_collocational_on_accelerator(

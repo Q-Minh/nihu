@@ -11,6 +11,9 @@
 #include "../bem/kernel.hpp"
 #include "../bem/gaussian_quadrature.hpp"
 
+#include "location_and_normal.hpp"
+#include "reciprocal_distance_kernel.hpp"
+
 /** \brief Common helper base for a kernel with a wave number member
 * \tparam wave_number_type the type of the wave number
 */
@@ -66,9 +69,15 @@ struct kernel_traits<helmholtz_G_kernel>
 /** \brief 3D Helmholtz kernel \f$\exp(-ikr)/4\pi r\f$ */
 class helmholtz_G_kernel :
 	public kernel_base<helmholtz_G_kernel>,
-	public kernel_with_wave_number<std::complex<kernel_base<helmholtz_G_kernel>::scalar_t> >
+	public kernel_with_wave_number<std::complex<kernel_base<helmholtz_G_kernel>::scalar_t> >,
+	public reciprocal_distance_kernel<helmholtz_G_kernel>
 {
 public:
+	typedef kernel_base<helmholtz_G_kernel> base_t;
+	typedef typename base_t::test_input_t test_input_t;
+	typedef typename base_t::trial_input_t trial_input_t;
+	typedef typename base_t::scalar_t scalar_t;
+
 	/** \brief evaluate kernel between test and trial positions
 	* \param [in] x the test input
 	* \param [in] y the trial input
@@ -78,21 +87,6 @@ public:
 	{
 		scalar_t r = (y.get_x() - x.get_x()).norm();
 		return std::exp(-std::complex<scalar_t>(0.0,1.0)*get_wave_number()*r) / r / (4.0 * M_PI);
-	}
-	
-	/** \brief estimate kernel's polynomial complexity
-	* \param [in] x the test input
-	* \param [in] y the trial input
-	* \param [in] s estimate linear size of one of the elements
-	* \return the kernel value K(x,y)
-	*/
-	unsigned estimate_complexity(
-		test_input_t const &x,
-		trial_input_t const &y,
-		scalar_t s) const
-	{
-		/** \todo hard coding of this 3 is sick */
-		return 3;
 	}
 };
 
@@ -123,9 +117,15 @@ struct kernel_traits<helmholtz_H_kernel>
 /** \brief 3D Helmholtz kernel \f$ \exp(-ikr)/4\pi r \left(-(1+ikr)/r\right) \cdot dr/dn \f$ */
 class helmholtz_H_kernel :
 	public kernel_base<helmholtz_H_kernel>,
-	public kernel_with_wave_number<std::complex<kernel_base<helmholtz_G_kernel>::scalar_t> >
+	public kernel_with_wave_number<std::complex<kernel_base<helmholtz_G_kernel>::scalar_t> >,
+	public reciprocal_distance_kernel<helmholtz_H_kernel>
 {
 public:
+	typedef kernel_base<helmholtz_H_kernel> base_t;
+	typedef typename base_t::test_input_t test_input_t;
+	typedef typename base_t::trial_input_t trial_input_t;
+	typedef typename base_t::scalar_t scalar_t;
+
 	/** \brief evaluate kernel between test and trial positions
 	* \param [in] x the test input
 	* \param [in] y the trial input
@@ -143,21 +143,6 @@ public:
 		m_result *= (1.0 + ikr) * (-rdn / r2);
 
 		return m_result;
-	}
-
-	/** \brief estimate kernel's polynomial complexity
-	* \param [in] x the test input
-	* \param [in] y the trial input
-	* \param [in] s estimate linear size of one of the elements
-	* \return the kernel value K(x,y)
-	*/
-	unsigned estimate_complexity(
-		test_input_t const &x,
-		trial_input_t const &y,
-		scalar_t s) const
-	{
-		/** \todo hard coding of this 5 is sick */
-		return 5;
 	}
 };
 
@@ -188,9 +173,15 @@ struct kernel_traits<helmholtz_GH_kernel>
 /** \brief 3D Helmholtz kernel \f$ \exp(-ikr)/4\pi r \left\{1, -(1+ikr)/r \cdot dr/dn\right\} \f$ */
 class helmholtz_GH_kernel :
 	public kernel_base<helmholtz_GH_kernel>,
-	public kernel_with_wave_number<std::complex<kernel_base<helmholtz_G_kernel>::scalar_t> >
+	public kernel_with_wave_number<std::complex<kernel_base<helmholtz_G_kernel>::scalar_t> >,
+	public reciprocal_distance_kernel<helmholtz_GH_kernel>
 {
 public:
+	typedef kernel_base<helmholtz_GH_kernel> base_t;
+	typedef typename base_t::test_input_t test_input_t;
+	typedef typename base_t::trial_input_t trial_input_t;
+	typedef typename base_t::scalar_t scalar_t;
+
 	/** \brief evaluate kernel between test and trial positions
 	* \param [in] x the test input
 	* \param [in] y the trial input
@@ -208,21 +199,6 @@ public:
 		m_result.second() = m_result.first() * (1.0 + ikr) * (-rdn / r2);
 
 		return m_result;
-	}
-	
-	/** \brief estimate kernel's polynomial complexity
-	* \param [in] x the test input
-	* \param [in] y the trial input
-	* \param [in] s estimate linear size of one of the elements
-	* \return the kernel value K(x,y)
-	*/
-	unsigned estimate_complexity(
-		test_input_t const &x,
-		trial_input_t const &y,
-		scalar_t s) const
-	{
-		/** \todo hard coding of this 5 is sick */
-		return 5;
 	}
 };
 
