@@ -102,7 +102,9 @@ public:
  * \return a product proxy
  */
 template <class Left, class RDerived>
-inline couple_product_left<Left, RDerived> operator*(Left const &lhs, couple_base<RDerived> const &rhs)
+inline couple_product_left<Left, RDerived> operator*(
+	Left const &lhs,
+	couple_base<RDerived> const &rhs)
 {
 	return couple_product_left<Left, RDerived>(lhs, rhs.derived());
 }
@@ -197,15 +199,6 @@ public:
 	{
 	}
 
-	/** \brief set both matrices to zero
-	 * \todo this function forges ::couple to Eigen matrices. Sick.
-	 */
-	void setZero(void)
-	{
-		m_first.setZero();
-		m_second.setZero();
-	}
-
  	/** \brief assignment operator
 	 * \param [in] other the other couple to copy
 	 * \return reference to this
@@ -216,6 +209,15 @@ public:
 		m_first = other.first();
 		m_second = other.second();
 		return *this;
+	}
+
+	/** \brief set both matrices to zero
+	 * \todo this function forges ::couple to Eigen matrices. Sick.
+	 */
+	void setZero(void)
+	{
+		m_first.setZero();
+		m_second.setZero();
 	}
 
  	/** \brief return first member

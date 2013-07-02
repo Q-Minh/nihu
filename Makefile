@@ -40,6 +40,9 @@ singulartity_check_test: src/test/singularity_check_test.cpp src/bem/element.hpp
 gaussian_test: examples/gaussian_test.cpp
 	$(CC) $(CFLAGS) examples/gaussian_test.cpp -o gaussian_test
 
+barzini_test: src/test/barzini_test.cpp
+	$(CC) $(CFLAGS) src/test/barzini_test.cpp -o barzini_test
+
 clean:
 	rm *_test
 

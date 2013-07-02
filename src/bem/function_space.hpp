@@ -261,7 +261,7 @@ struct elemize
 
 /** \brief metafunction to return the element type vector of a field type vector */
 template <class FieldTypeVector>
-struct elem_type_vector
+struct field_2_elem_type_vector
 {
 	typedef typename tmp::unique<typename tmp::transform<
 		FieldTypeVector,
@@ -276,7 +276,7 @@ struct elem_type_vector
 template <class FieldTypeVector>
 class function_space :
 	public function_space_base<function_space<FieldTypeVector> >,
-	public mesh<typename elem_type_vector<FieldTypeVector>::type>
+	public mesh<typename field_2_elem_type_vector<FieldTypeVector>::type>
 {
 public:
 	/** \brief the CRTP base class */
@@ -288,7 +288,7 @@ public:
 	typedef typename traits_t::field_type_vector_t field_type_vector_t;
 
 	/** \brief the underlying mesh type */
-	typedef mesh<typename elem_type_vector<FieldTypeVector>::type> mesh_t;
+	typedef mesh<typename field_2_elem_type_vector<FieldTypeVector>::type> mesh_t;
 	
 	/** \brief combine field_type_vector into a BIG heterogeneous std::vector container */
 	typedef typename tmp::inherit<
