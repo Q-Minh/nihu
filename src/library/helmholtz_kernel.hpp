@@ -19,7 +19,7 @@ class kernel_with_wave_number
 {
 public:
 	/** \brief set wave number to a value
-	* \param [in] the new wave number
+	* \param [in] k the new wave number
 	*/
 	void set_wave_number(wave_number_type const &k)
 	{
@@ -180,7 +180,7 @@ struct kernel_traits<helmholtz_GH_kernel>
 	/** \brief indicates if K(x,y) = K(y,x) */
 	static bool const is_symmetric = true;
 	/** \brief kernel singularity order ( r^(-order) ) */
-	static unsigned const singularity_order = 1;
+	static unsigned const singularity_order = 2;
 	/** \brief quadrature order used to generate Duffy singular quadratures */
 	static unsigned const singular_quadrature_order = 7;
 };
