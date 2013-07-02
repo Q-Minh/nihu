@@ -28,11 +28,15 @@ switch length(scale)
             'Invalid scaling size (%dx%d)', size(scale,1), size(scale,2));
 end
 
-% scale
+% translate if base is given
 if nargin > 2
     mesh = translate_mesh(mesh, -base);
 end
+
+% scale
 mesh.Nodes(:,2:4) = mesh.Nodes(:,2:4) * T;
+
+% translate back to base
 if nargin > 2
     mesh = translate_mesh(mesh, base);
 end
