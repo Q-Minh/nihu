@@ -128,7 +128,7 @@ struct get_num_dofs_impl;
 
 /** \brief specialisation of get_num_dofs_impl for the constant case */
 template <class mesh_t>
-struct get_num_dofs_impl<mesh_t, constant_field>
+struct get_num_dofs_impl<mesh_t, field_option::constant>
 {
 	/**
 	* \brief return number of degrees of freedom
@@ -143,7 +143,7 @@ struct get_num_dofs_impl<mesh_t, constant_field>
 
 /** \brief specialisation of get_num_dofs_impl for the isoparametric case */
 template <class mesh_t>
-struct get_num_dofs_impl<mesh_t, isoparametric_field>
+struct get_num_dofs_impl<mesh_t, field_option::isoparametric>
 {
 	/**
 	* \brief return number of degrees of freedom
@@ -231,6 +231,14 @@ protected:
 	/** \brief the stored mesh reference */
 	mesh_t const &m_mesh;
 };
+
+
+template <class Mesh, class Option>
+function_space_view<Mesh, Option>
+create_function_space_view(Mesh const &msh, Option)
+{
+	return function_space_view<Mesh, Option>(msh);
+}
 
 
 /** \brief forward declaration of class function space */

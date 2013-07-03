@@ -12,13 +12,10 @@ NiHu Boonen 13 {#mainpage}
 \defgroup funcspace Function space representations
 \ingroup core
 
-\defgroup kernel Kernel evaluation
-\ingroup core
-
 \defgroup quadrature Numerical integration
 \ingroup core
 
-\defgroup weighres Weighted residuals
+\defgroup intop Integral operator and Weighted residual representations
 \ingroup core
 
 \defgroup tmp Template metaprogramming libraries

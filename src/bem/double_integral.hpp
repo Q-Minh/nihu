@@ -1,6 +1,6 @@
 /**
 * \file double_integral.hpp
-* \ingroup weighres
+* \ingroup intop
 * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
 * \brief declaration of class double_integral and its specialisations
 */

@@ -9,10 +9,13 @@
 
 #include "element.hpp"
 
-/** \brief tag to describe an isoparametric field */
-struct isoparametric_field;
-/** \brief tag to describe a constant field */
-struct constant_field;
+namespace field_option
+{
+	/** \brief tag to describe an isoparametric field */
+	struct isoparametric {};
+	/** \brief tag to describe a constant field */
+	struct constant {};
+}
 
 /** \brief traits class of all fields */
 template <class Derived>
@@ -91,17 +94,17 @@ unsigned const field_base<Derived>::id = field_id<Derived>::value;
 
 /**
  * \brief Field automatically generated from an element using a field generation option
- * \details FieldOption can be ::constant_field or ::isoparametric_field. With this simplification,
+ * \details FieldOption can be field_option::constant or field_option::isoparametric. With this simplification,
  * a field is just a proxy that refers to an element.
  * \tparam ElemType the element type the field is associated with
- * \tparam FieldOption ::constant_field or ::isoparametric_field
+ * \tparam FieldOption field_option::constant or field_option::isoparametric
  */
 template <class ElemType, class FieldOption>
 class field_view;
 
 /** \brief Specialisation of field_traits for the isoparametric field view case */
 template <class ElemType>
-struct field_traits<field_view<ElemType, isoparametric_field> >
+struct field_traits<field_view<ElemType, field_option::isoparametric> >
 {
 	typedef ElemType elem_t;	/**< \brief the element type */
 	typedef typename elem_t::lset_t nset_t;	/**< \brief the dof vector type */
@@ -114,12 +117,12 @@ struct field_traits<field_view<ElemType, isoparametric_field> >
  * \tparam ElemType the element type the field is associated with
  */
 template <class ElemType>
-class field_view<ElemType, isoparametric_field>
-	: public field_base<field_view<ElemType, isoparametric_field> >
+class field_view<ElemType, field_option::isoparametric>
+	: public field_base<field_view<ElemType, field_option::isoparametric> >
 {
 public:
 	/** \brief base's type */
-	typedef field_base<field_view<ElemType, isoparametric_field> > base_t;
+	typedef field_base<field_view<ElemType, field_option::isoparametric> > base_t;
 
 	typedef field_view type;
 
@@ -161,7 +164,7 @@ private:
 
 /** \brief Specialisation of field_traits for the constant field case */
 template <class ElemType>
-struct field_traits<field_view<ElemType, constant_field> >
+struct field_traits<field_view<ElemType, field_option::constant> >
 {
 	typedef ElemType elem_t;	/**< \brief the element type */
 	/** \brief type of N-set */
@@ -176,12 +179,12 @@ struct field_traits<field_view<ElemType, constant_field> >
  * \tparam ElemType the element type the field is associated with
  */
 template <class ElemType>
-class field_view<ElemType, constant_field>
-	: public field_base<field_view<ElemType, constant_field> >
+class field_view<ElemType, field_option::constant>
+	: public field_base<field_view<ElemType, field_option::constant> >
 {
 public:
 	/** \brief base's type */
-	typedef field_base<field_view<ElemType, constant_field> > base_t;
+	typedef field_base<field_view<ElemType, field_option::constant> > base_t;
 
 	typedef field_view type;
 

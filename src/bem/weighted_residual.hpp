@@ -1,6 +1,6 @@
 /**
 * \file weighted_residual.hpp
-* \ingroup weighres
+* \ingroup intop
 * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
 * \brief declaration of class ::weighted_residual
 */
@@ -17,7 +17,7 @@
  * \tparam TestSpace the test function space over which integration is performed
  * \tparam TrialSpace the trial function space over which integration is performed
  */
-template <class Formalism, class Operator, class TestSpace, class TrialSpace = TestSpace>
+template <class Formalism, class Operator, class TestSpace, class TrialSpace>
 class weighted_residual
 {
 public:
@@ -47,6 +47,7 @@ private:
 		/** \brief the trial field type */
 		typedef TrialField trial_field_t;
 
+		/** \brief indicates if the two field types are defined over the same element type */
 		static bool const same_elem_type = std::is_same<
 			typename test_field_t::elem_t,
 			typename trial_field_t::elem_t
@@ -59,8 +60,6 @@ private:
 
 		/** \brief evaluate weighted residual on homogeneous function spaces
 		 * \tparam result_t the type of the result matrix
-		 * \details This function is called by weighted_residual::apply for each homogeneous
-		 * subspace-pair.
 		 * \param [out] result reference to the result matrix the result block is inserted to
 		 * \param [in] kernel the kernel to integrate
 		 * \param [in] test_space the test function space
@@ -85,8 +84,7 @@ private:
 			while (it != end)
 			{
 				if (!is_local ||
-					same_elem_type &&
-					(*it.outer()).get_elem().get_id() == (*it.inner()).get_elem().get_id() )
+					( same_elem_type && (*it.outer()).get_elem().get_id() == (*it.inner()).get_elem().get_id()) )
 				{
 					block(result, (*it.outer()).get_dofs(), (*it.inner()).get_dofs())
 						+= double_integral_t::eval(Formalism(),
@@ -98,17 +96,20 @@ private:
 	};};
 
 public:
-	weighted_residual(operator_t &op, test_space_t const &test_space,
+	/** \brief constructor from operator and spaces
+	* \param [in] op the integral operator
+	* \param test_space the test function space
+	* \param trial_space the trial function space
+	*/
+	weighted_residual(
+		operator_t &op,
+		test_space_t const &test_space,
 		trial_space_t const &trial_space) :
 		m_operator(op), m_test_space(test_space), m_trial_space(trial_space)
 	{
 	}
 
 	/** \brief evaluate weighted residual and return reference to the result matrix
-	 * \details This function evaluates the weighted residual of a kernel over a test and a trial field.
-	 * The two fields have been initialised by the constructor, and are stored in member variables.
-	 * The result is copied into a user specified structure, passed as function argument.
-	 * For flexibility, it is assumed that result is already set to zero.
 	 * \tparam result_t type of the result matrix
 	 * \param [out] result reference to the result matrix
 	 * \return reference to the result matrix for cascading
@@ -116,41 +117,25 @@ public:
 	template <class result_t>
 	result_t &eval(result_t &result)
 	{
-		if (!is_local)
-		{
-			/** \todo symdcalleach for the galerkin case */
-			// Integration is performed separately on homogneous subspaces, using tmp::d_call_each
-			// ::d_call_each calls ::eval_on for each element of the the Descartes product of the test and
-			// trial field type vectors
-			tmp::d_call_each<
-				typename test_space_t::field_type_vector_t,
-				typename trial_space_t::field_type_vector_t,
-				eval_on<tmp::_1, tmp::_2>,
-				result_t &,
-				kernel_t &,
-				test_space_t const &,
-				trial_space_t const &
-			>(result, m_operator.get_kernel(), m_test_space, m_trial_space);
-		}
-		else
-		{
-			/** \todo REALLY ? */
-			tmp::call_each<
-				typename test_space_t::field_type_vector_t,
-				eval_on<tmp::_1>,
-				result_t &,
-				kernel_t &,
-				test_space_t const &,
-				test_space_t const &
-			>(result, m_operator.get_kernel(), m_test_space, m_test_space);
-		}
+		tmp::d_call_each<
+			typename test_space_t::field_type_vector_t,
+			typename trial_space_t::field_type_vector_t,
+			eval_on<tmp::_1, tmp::_2>,
+			result_t &,
+			kernel_t &,
+			test_space_t const &,
+			trial_space_t const &
+		>(result, m_operator.get_kernel(), m_test_space, m_trial_space);
 
 		return result;
 	}
 
 private:
+	/** \brief the integral operator reference */
 	operator_t &m_operator;
+	/** \brief the test space reference */
 	test_space_t const &m_test_space;
+	/** \brief the trial space reference */
 	trial_space_t const &m_trial_space;
 };
 

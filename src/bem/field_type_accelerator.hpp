@@ -1,5 +1,6 @@
 /**
  * \file field_type_accelerator.hpp
+ * \ingroup quadrature
  * \brief declaration of class field_type_accelerator
  * \author Peter Fiala fiala@hit.bme.hu and Peter Rucz rucz@hit.bme.hu
  */
@@ -186,7 +187,7 @@ class field_type_accelerator_pool : public std::vector<field_type_accelerator<Fi
 {
 	// CRTP check
 	static_assert(std::is_base_of<field_base<Field>, Field>::value,
-		"Field must be derived from field_base<Test>");
+		"Field must be derived from field_base<Field>");
 public:
 	/** \brief template argument as nested type */
 	typedef Field field_t;
@@ -217,3 +218,4 @@ public:
 };
 
 #endif // FIELD_TYPE_ACCELERATOR_HPP_INCLUDED
+

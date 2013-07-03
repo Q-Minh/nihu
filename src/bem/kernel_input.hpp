@@ -1,6 +1,6 @@
 /**
  * \file kernel_input.hpp
- * \ingroup kernel
+ * \ingroup intop
  * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
  * \brief implementation of kernel inputs
  */

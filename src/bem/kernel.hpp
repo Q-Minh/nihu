@@ -1,6 +1,6 @@
 /**
  * \file kernel.hpp
- * \ingroup kernel
+ * \ingroup intop
  * \brief implementation of various kernels
  * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
  */
