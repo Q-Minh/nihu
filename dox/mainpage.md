@@ -18,6 +18,9 @@ NiHu Boonen 13 {#mainpage}
 \defgroup quadrature Numerical integration
 \ingroup core
 
+\defgroup weighres Weighted residuals
+\ingroup core
+
 \defgroup tmp Template metaprogramming libraries
 \ingroup core
 

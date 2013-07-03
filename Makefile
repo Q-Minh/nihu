@@ -43,6 +43,9 @@ gaussian_test: examples/gaussian_test.cpp
 barzini_test: src/test/barzini_test.cpp
 	$(CC) $(CFLAGS) src/test/barzini_test.cpp -o barzini_test
 
+barzini_b: src/test/barzini_test_b.cpp
+	$(CC) $(CFLAGS) src/test/barzini_test_b.cpp -o barzini_b
+
 clean:
 	rm *_test
 

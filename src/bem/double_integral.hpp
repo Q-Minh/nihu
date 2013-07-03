@@ -1,5 +1,6 @@
 /**
 * \file double_integral.hpp
+* \ingroup weighres
 * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
 * \brief declaration of class double_integral and its specialisations
 */
@@ -35,9 +36,11 @@ template <class Field, class Family>
 typename regular_pool_store<Field, Family>::pool_t
 	regular_pool_store<Field, Family>::m_regular_pool;
 
-enum weighted_residual_option_t {_COLLOCATIONAL, _GENERAL};
-typedef std::integral_constant<weighted_residual_option_t, COLLOCATIONAL> COLLOCATIONAL;
-typedef std::integral_constant<weighted_residual_option_t, GENERAL> GENERAL;
+namespace formalism
+{
+	struct collocational {};
+	struct general {};
+}
 
 /**
 * \brief class evaluating double integrals of the weighted residual approach
@@ -55,6 +58,10 @@ class double_integral
 		"TestField must be derived from field_base<TestField>");
 	static_assert(std::is_base_of<field_base<TrialField>, TrialField>::value,
 		"TrialField must be derived from field_base<TrialField>");
+
+	typedef std::true_type WITH_SINGULARITY_CHECK;
+	typedef std::false_type WITHOUT_SINGULARITY_CHECK;
+
 public:
 	typedef Kernel kernel_t;		/**< \brief template parameter as nested type */
 	typedef TestField test_field_t;		/**< \brief template parameter as nested type */
@@ -262,7 +269,7 @@ protected:
 	* \return reference to the stored result
 	*/
 	static result_t const &eval_general(
-		std::false_type,
+		WITHOUT_SINGULARITY_CHECK,
 		kernel_t &kernel,
 		test_field_t const &test_field,
 		trial_field_t const &trial_field)
@@ -293,7 +300,7 @@ protected:
 	* \return reference to the stored result
 	*/
 	static result_t const &eval_general(
-		std::true_type,
+		WITH_SINGULARITY_CHECK,
 		kernel_t &kernel,
 		test_field_t const &test_field,
 		trial_field_t const &trial_field)
@@ -305,7 +312,7 @@ protected:
 		if (sa.is_singular(test_field, trial_field))
 			return eval_singular_on_accelerator(
 			kernel, test_field, trial_field, sa.begin(), sa.end());
-		return eval_general(std::false_type(), kernel, test_field, trial_field);
+		return eval_general(WITHOUT_SINGULARITY_CHECK(), kernel, test_field, trial_field);
 	}
 
 
@@ -316,7 +323,7 @@ protected:
 	* \return reference to the stored result
 	*/
 	static result_t const &eval_collocational(
-		std::false_type,
+		WITHOUT_SINGULARITY_CHECK,
 		kernel_t &kernel,
 		test_field_t const &test_field,
 		trial_field_t const &trial_field)
@@ -344,7 +351,7 @@ protected:
 	* \return reference to the stored result
 	*/
 	static result_t const &eval_collocational(
-		std::true_type,
+		WITH_SINGULARITY_CHECK,
 		kernel_t &kernel,
 		test_field_t const &test_field,
 		trial_field_t const &trial_field)
@@ -357,7 +364,7 @@ protected:
 			return eval_collocational_singular_on_accelerator(
 			kernel, test_field, trial_field, sa);
 		else
-			return eval_collocational(std::false_type(), kernel, test_field, trial_field);
+			return eval_collocational(WITHOUT_SINGULARITY_CHECK(), kernel, test_field, trial_field);
 	}
 
 public:
@@ -368,7 +375,7 @@ public:
 	* \return reference to the integration result
 	*/
 	static result_t const &eval(
-		std::false_type,
+		formalism::general,
 		kernel_t &kernel,
 		test_field_t const &test_field,
 		trial_field_t const &trial_field)
@@ -386,7 +393,7 @@ public:
 	* \return reference to the integration result
 	*/
 	static result_t const &eval(
-		std::true_type,
+		formalism::collocational,
 		kernel_t &kernel,
 		test_field_t const &test_field,
 		trial_field_t const &trial_field)

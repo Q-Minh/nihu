@@ -4,7 +4,7 @@
 typedef tmp::vector<quad_1_elem> elem_type_vector_t;
 typedef mesh<elem_type_vector_t> mesh_t;
 typedef function_space_view<mesh_t, isoparametric_field> function_space_t;
-typedef weighted_residual<false, poisson_G_kernel, function_space_t> wr_t;
+typedef weighted_residual<GENERAL_FORMULATION, poisson_G_kernel, function_space_t> wr_t;
 
 // double matrix
 typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> dMatrix;

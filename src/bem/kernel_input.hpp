@@ -125,8 +125,8 @@ public:
 
 /** \brief metafunction to assign a weighted kernel input to a kernel input */
 template <class KernelInput>
-struct weighted_kernel_input : if_<
-	std::is_base_of<
+struct weighted_kernel_input : tmp::if_<
+	typename std::is_base_of<
 		jacobian<typename KernelInput::scalar_t>,
 		KernelInput
 	>::type,
