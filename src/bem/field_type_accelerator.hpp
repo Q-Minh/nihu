@@ -183,7 +183,8 @@ protected:
  * \tparam Field the field type that is accelerated
  */
 template <class Field, class Family>
-class field_type_accelerator_pool : public std::vector<field_type_accelerator<Field, Family> *>
+class field_type_accelerator_pool :
+	public std::vector<field_type_accelerator<Field, Family> *>
 {
 	// CRTP check
 	static_assert(std::is_base_of<field_base<Field>, Field>::value,
@@ -197,9 +198,7 @@ public:
 	/** \brief maximum order of quadratures */
 	static const unsigned MAX_ORDER = 10;
 
-	/**
-	 * \brief allocate memory and initialise accelerators
-	 */
+	/** \brief allocate memory and initialise accelerators */
 	field_type_accelerator_pool(void)
 	{
 		this->reserve(MAX_ORDER);
@@ -207,9 +206,7 @@ public:
 			this->push_back(new field_type_accelerator<field_t, family_t>(order));
 	}
 
-	/**
-	 * \brief free memory allocated for the accelerators
-	 */
+	/** \brief free memory allocated for the accelerators */
 	~field_type_accelerator_pool(void)
 	{
 		for (unsigned order = 0; order < MAX_ORDER; ++order)

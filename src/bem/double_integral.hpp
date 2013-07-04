@@ -13,16 +13,16 @@
 #include "field_type_accelerator.hpp"
 #include "singular_accelerator.hpp"
 
-template <bool isCollocational, class Kernel, class TestField, class TrialField>
+template <class Formalism, class Kernel, class TestField, class TrialField>
 struct accel_store
 {
-	typedef singular_accelerator<isCollocational, Kernel, TestField, TrialField> singular_accelerator_t;
+	typedef singular_accelerator<Formalism, Kernel, TestField, TrialField> singular_accelerator_t;
 	static singular_accelerator_t m_singular_accelerator;
 };
 
-template<bool isCollocational, class Kernel, class Test, class Trial>
-typename accel_store<isCollocational, Kernel, Test, Trial>::singular_accelerator_t
-	accel_store<isCollocational, Kernel, Test, Trial>::m_singular_accelerator;
+template<class Formalism, class Kernel, class Test, class Trial>
+typename accel_store<Formalism, Kernel, Test, Trial>::singular_accelerator_t
+	accel_store<Formalism, Kernel, Test, Trial>::m_singular_accelerator;
 
 
 template <class Field, class Family>
@@ -35,12 +35,6 @@ struct regular_pool_store
 template <class Field, class Family>
 typename regular_pool_store<Field, Family>::pool_t
 	regular_pool_store<Field, Family>::m_regular_pool;
-
-namespace formalism
-{
-	struct collocational {};
-	struct general {};
-}
 
 /**
 * \brief class evaluating double integrals of the weighted residual approach
@@ -305,7 +299,7 @@ protected:
 		test_field_t const &test_field,
 		trial_field_t const &trial_field)
 	{
-		typedef accel_store<false, kernel_t, test_field_t, trial_field_t> acc_store_t;
+		typedef accel_store<formalism::general, kernel_t, test_field_t, trial_field_t> acc_store_t;
 		auto &sa = acc_store_t::m_singular_accelerator;
 
 		// check singularity
@@ -356,7 +350,7 @@ protected:
 		test_field_t const &test_field,
 		trial_field_t const &trial_field)
 	{
-		typedef accel_store<true, kernel_t, test_field_t, trial_field_t> acc_store_t;
+		typedef accel_store<formalism::collocational, kernel_t, test_field_t, trial_field_t> acc_store_t;
 		typename acc_store_t::singular_accelerator_t &sa = acc_store_t::m_singular_accelerator;
 
 		// check singularity

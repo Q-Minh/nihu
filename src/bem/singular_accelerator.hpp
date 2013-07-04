@@ -10,11 +10,11 @@
 #include "singular_galerkin_quadrature.hpp"	// for the galerkin case
 #include "duffy_quadrature.hpp"		// for the collocational case
 #include "field.hpp"
-#include <utility> // pair
 
 /**
 * \brief two iterators that can traverse two parallel containers
 * \tparam Iter type of the iterator
+* \todo should be replaced by matrix_iterator
 */
 template <class Iter1, class Iter2 = Iter1>
 class dual_iterator : private std::pair<Iter1, Iter2>
@@ -119,12 +119,18 @@ public:
 * \tparam TestField the test field over which integration is performed
 * \tparam TrialField the trial field over which integration is performed
 */
-template <bool is_collocational, class Kernel, class TestField, class TrialField>
+template <class Formalism, class Kernel, class TestField, class TrialField>
 class singular_accelerator;
 
 
+/**
+* \brief specialisation of ::singular_accelerator for the general formalism
+* \tparam Kernel the kernel that is integrated
+* \tparam TestField the test field over which integration is performed
+* \tparam TrialField the trial field over which integration is performed
+*/
 template <class Kernel, class TestField, class TrialField>
-class singular_accelerator<false, Kernel, TestField, TrialField>
+class singular_accelerator<formalism::general, Kernel, TestField, TrialField>
 {
 	// CRTP check
 	static_assert(std::is_base_of<kernel_base<Kernel>, Kernel>::value,
@@ -176,7 +182,7 @@ public:
 
 	/** \brief indicates whether ::FACE_MATCH is possible */
 	static const bool face_match_possible = std::is_same<test_field_t, trial_field_t>::value;
-
+	/** \brief the singular quadrature order required by the kernel */
 	static unsigned const singular_quadrature_order = kernel_traits<kernel_t>::singular_quadrature_order;
 
 	/**
@@ -383,7 +389,7 @@ protected:
 * \tparam TrialField the trial field type
 */
 template <class Kernel, class TestField, class TrialField>
-class singular_accelerator<true, Kernel, TestField, TrialField>
+class singular_accelerator<formalism::collocational, Kernel, TestField, TrialField>
 {
 	// CRTP check
 	static_assert(std::is_base_of<kernel_base<Kernel>, Kernel>::value,
@@ -404,7 +410,9 @@ public:
 	typedef typename test_elem_t::domain_t test_domain_t;	/**< \brief test domain type */
 	typedef typename trial_elem_t::domain_t trial_domain_t;	/**< \brief trial domain type */
 
-	typedef typename trial_elem_t::lset_t trial_lset_t;	/**< \brief trial L-set type */
+	/** \brief trial L-set type */
+	typedef typename trial_elem_t::lset_t trial_lset_t;
+	/** \brief test N-set type */
 	typedef typename test_field_t::nset_t test_nset_t;
 
 	/** \brief quadrature family */
@@ -415,7 +423,7 @@ public:
 	>::type trial_quadrature_t;
 	/** \brief quadrature element type (it should be the same for test and trial) */
 	typedef typename trial_quadrature_t::quadrature_elem_t quadrature_elem_t;
-
+	/** \brief the singular quadrature order required by the kernel */
 	static unsigned const singular_quadrature_order = kernel_traits<kernel_t>::singular_quadrature_order;
 
 	/** \brief the duffy quadrature type */

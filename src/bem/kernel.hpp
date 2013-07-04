@@ -34,7 +34,7 @@ public:
 	/** \brief type of the second (trial) kernel input */
 	typedef typename traits_t::trial_input_t trial_input_t;
 
-	/** \compile time check if the two kernel inputs are compatible */
+	/** \brief compile time check if the two kernel inputs are compatible */
 	static_assert(std::is_same<typename test_input_t::space_t, typename trial_input_t::space_t>::value,
 		"The test and trial kernel inputs must define the same coordinate space");
 
@@ -128,7 +128,7 @@ public:
 	/**
 	 * \brief evaluate kernel at a given source and receiver position
 	 * \param [in] x test position
-	 * \param [in] x trial position
+	 * \param [in] y trial position
 	 * \return kernel value K(x,y)
 	 */
 	result_t eval(test_input_t const &x, trial_input_t const &y)
@@ -156,7 +156,6 @@ protected:
 	/** \brief number of kernel evaluations */
 	long long unsigned m_num_evaluations;
 };
-
 
 #endif // KERNEL_HPP_INCLUDED
 

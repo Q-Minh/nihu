@@ -12,6 +12,7 @@
 #include <complex>
 #include <stdexcept>
 #include <numeric>
+#include <utility> // pair
 
 #include <Eigen/Dense>
 #include <Eigen/StdVector>
@@ -21,5 +22,13 @@ struct EigenStdVector
 {
 	typedef std::vector<T, Eigen::aligned_allocator<T> > type;
 };
+
+
+namespace formalism
+{
+	struct collocational {};
+	struct general {};
+}
+
 
 #endif // INCLUDES_H_INCLUDED

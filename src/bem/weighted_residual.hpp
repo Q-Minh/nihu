@@ -10,7 +10,7 @@
 #include "matrix_block.hpp"
 #include "function_space.hpp"
 #include "double_integral.hpp"
-#include "../util/matrix_range.hpp"
+#include "../util/dual_range.hpp"
 
 /** \brief  integrates a kernel over two function spaces
  * \tparam Kernel the kernel to be integrated
@@ -71,7 +71,7 @@ private:
 			test_space_t const &test_space,
 			trial_space_t const &trial_space)
 		{
-			auto range = matrix_range(
+			auto rng = create_dual_range(
 				iteration::plain(),
 				test_space.template field_begin<test_field_t>(),
 				test_space.template field_end<test_field_t>(),
@@ -79,8 +79,8 @@ private:
 				trial_space.template field_end<trial_field_t>()
 			);
 
-			auto it = range.begin();
-			auto end = range.end();
+			auto it = rng.begin();
+			auto end = rng.end();
 			while (it != end)
 			{
 				if (!is_local ||
