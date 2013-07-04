@@ -28,6 +28,7 @@ namespace formalism
 {
 	struct collocational {};
 	struct general {};
+	struct full_dirac {};
 }
 
 

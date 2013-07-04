@@ -161,6 +161,33 @@ protected:
 	* \param [in] trial_acc the trial field type accelerator
 	* \return reference to the integration result
 	*/
+	static result_t const &eval_full_dirac(
+		kernel_t &kernel,
+		test_field_t const &test_field,
+		trial_field_t const &trial_field)
+	{
+		for (unsigned row = 0; row < test_nset_t::num_nodes; ++row)
+		{
+			test_input_t test_input(test_field.get_elem(), test_nset_t::corner_at(row));
+			auto bound = kernel.bind(test_input);
+			for (unsigned col = 0; col < trial_nset_t::num_nodes; ++col)
+			{
+				trial_input_t trial_input(trial_field.get_elem(), trial_nset_t::corner_at(row));
+				m_result(row,col) += bound.eval(trial_input);
+			}
+		}
+
+		return m_result;
+	}
+
+
+	/** \brief evaluate regular collocational integral with selected trial field accelerator
+	* \param [in] kernel the kernel to integrate
+	* \param [in] test_field the test field to integrate on
+	* \param [in] trial_field the trial field to integrate on
+	* \param [in] trial_acc the trial field type accelerator
+	* \return reference to the integration result
+	*/
 	static result_t const &eval_collocational_on_accelerator(
 		kernel_t &kernel,
 		test_field_t const &test_field,
@@ -402,11 +429,28 @@ public:
 			kernel, test_field, trial_field);
 	}
 
+	/** \brief evaluate full Dirac integral on given fields
+	* \param [in] kernel the kernel to integrate
+	* \param [in] test_field the test field to integrate on
+	* \param [in] trial_field the trial field to integrate on
+	* \return reference to the integration result
+	*/
+	static result_t const &eval(
+		formalism::full_dirac,
+		kernel_t &kernel,
+		test_field_t const &test_field,
+		trial_field_t const &trial_field)
+	{
+		m_result.setZero();	// clear result
+		return eval_full_dirac(kernel, test_field, trial_field);
+	}
+
 protected:
 	/** \brief the integral result stored as static variable */
 	static result_t m_result;
 };
 
+/** \brief the statically stored result instance */
 template <class Kernel, class Test, class Trial>
 typename double_integral<Kernel, Test, Trial>::result_t
 	double_integral<Kernel, Test, Trial>::m_result;
