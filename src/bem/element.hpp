@@ -206,6 +206,12 @@ public:
 		return m_linear_size_estimate;
 	}
 
+	void print_debug(void) const
+	{
+		std::cout << "Element type id: " << id << std::endl;
+		std::cout << "Element id: " << m_id << std::endl;
+	}
+
 	/**
 	* \brief check overlapping state with other element
 	* \tparam OtherElem type of the other element
@@ -256,6 +262,52 @@ public:
 
 template <class Derived>
 unsigned const element_base<Derived>::id = elem_id<Derived>::value;
+
+
+/** \brief a linear line element in 2D space */
+class line_1_elem;
+
+/** \brief element properties of a linear 2D line element */
+template <>
+struct element_traits<line_1_elem>
+{
+	/** \brief the element space type */
+	typedef space_2d space_t;
+	/** \brief the shape set */
+	typedef line_1_shape_set lset_t;
+};
+
+/** \brief a linear line element in 2D space */
+class line_1_elem : public element_base<line_1_elem>
+{
+public:
+	/**
+	* \brief constructor
+	* \param [in] id the element id
+	* \param [in] nodes the nodal indices
+	* \param [in] coords the nodal coordinates
+	*/
+	line_1_elem(coords_t const &coords, unsigned id = 0, nodes_t const &nodes = nodes_t())
+		: element_base(coords, id, nodes)
+	{
+		dx_t dx0(get_dx(xi_t::Zero()));
+		m_normal << -dx0(1), dx0(0);
+		m_linear_size_estimate = m_normal.norm()  * domain_t::get_volume();
+	}
+
+	/** \brief return normal vector
+	* \return element normal
+	*/
+	x_t const &get_normal(xi_t const &) const
+	{
+		return m_normal;
+	}
+
+protected:
+	/** \brief the normal vector */
+	x_t m_normal;
+};
+
 
 
 /** \brief a linear triangle element in 3D space */

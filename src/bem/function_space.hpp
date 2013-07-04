@@ -68,15 +68,17 @@ class function_space_view;
 * \tparam ElemType the element types that need to be accessed
 */
 template <class FieldType>
-class field_view_iterator_t : public mesh_elem_iterator_t<typename FieldType::elem_t>::type
+class field_view_iterator_t :
+	public mesh_elem_iterator_t<typename FieldType::elem_t>::type
 {
 	// CRTP check
 	static_assert(std::is_base_of<field_base<FieldType>, FieldType>::value,
 		"FieldType must be derived from field_base<FieldType>");
 public:
-	/** \brief the base iteartor type */
+	/** \brief the base iterator type */
 	typedef typename mesh_elem_iterator_t<typename FieldType::elem_t>::type base_it;
-	typedef FieldType value_t;	/**< \brief the pointed data type */
+	/** \brief the pointed data type */
+	typedef FieldType value_t;
 
 	/**
 	* \brief constructor from base iterator
@@ -88,13 +90,18 @@ public:
 	}
 
 	/**
-	* \brief overloaded dereference operator simply converts dereferenced element into field
+	* \brief dereference operator converts dereferenced element into field
 	* \return the referred field class
 	*/
 	value_t operator *(void) const
 	{
 		return value_t(base_it::operator*());
 	}
+
+private:
+	/** \brief hide arrow operators because fields are generated on the fly */
+	value_t & operator->(void) const;
+	value_t & operator->(void);
 };
 
 
@@ -159,8 +166,8 @@ struct get_num_dofs_impl<mesh_t, field_option::isoparametric>
 
 
 /**
-* \brief FunctionSpace is a mesh extended with a Field generating option
-* \tparam MeshT the underlying Mesh type
+* \brief function_space_view is a mesh extended with a Field generating option
+* \tparam Mesh the underlying Mesh type
 * \tparam FieldOption determines how the field is generated from the mesh
 * \details The class is a proxy that stores a constant reference to the mesh.
 * The class provides an iterator that can traverse the elements and derefers them as fields.

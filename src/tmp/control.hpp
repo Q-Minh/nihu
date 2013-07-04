@@ -1,5 +1,6 @@
 /**
 * \file control.hpp
+* \ingroup tmp
 * \author Peter fiala fiala@hit.bme.hu, Peter Rucz rucz@hit.bme.hu
 * \brief Implementation of code generating control structures
 */

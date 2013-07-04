@@ -1,6 +1,8 @@
 /**
  * \file sequence.hpp
- * \brief implementation of a vector
+ * \ingroup tmp
+ * \author Peter Fiala fiala@hit.bme.hu and Peter Rucz rucz@hit.bme.hu 
+ * \brief implementation of compile time sequences
  */
 #ifndef SEQUENCE_HPP
 #define SEQUENCE_HPP
@@ -93,6 +95,9 @@ namespace tmp
 	template <class Seq>
 	struct pop_back : internal::pop_back_impl<typename Seq::tag> :: template apply<Seq> {};
 
+	/**
+	 * \brief metafunction to dereference an iterator
+	 */
 	template <class Iter>
 	struct deref;
 

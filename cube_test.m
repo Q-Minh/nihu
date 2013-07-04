@@ -1,9 +1,10 @@
 clear;
+clc;
 
 %% geometry
 elemtype = 'quad';
 
-model = create_brick_boundary(2, 22);
+model = create_brick_boundary(2, 10);
 model = translate_mesh(model, [-1 -1 -1]);
 if strcmp(elemtype, 'tria')
     model = quad2tria(model);
@@ -23,12 +24,12 @@ end
 w(gind) = w;
 
 %% system matrices
-k = min(mesh_kmax(model));
+k = 1;
 [nodes, elements]  = extract_Boonen_mesh(model);
 tic;
-[G, H, n_eval] = Boonen13_col_const(nodes, elements, k);
+[G, H, n_eval] = Boonen13_gal_const(nodes, elements, k);
 toc;
-M = diag(ones(size(w)));
+M = diag(w);
 
 %% excitation
 src = [-.2 -.3 0];

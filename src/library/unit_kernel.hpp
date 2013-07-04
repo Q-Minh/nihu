@@ -11,19 +11,22 @@
 #include "../bem/kernel.hpp"
 #include "../bem/gaussian_quadrature.hpp"
 
+#include "empty_input.hpp"
+
 /** \brief the unit kernel returning K(x,y) = 1 for all inputs */
+template <class Space>
 class unit_kernel;
 
 /** \brief traits of the 3D unit kernel */
-template<>
-struct kernel_traits<unit_kernel>
+template<class Space>
+struct kernel_traits<unit_kernel<Space> >
 {
 	/** \brief test input type */
-	typedef location<space_3d> test_input_t;
+	typedef empty_input<Space> test_input_t;
 	/** \brief trial input type */
-	typedef location<space_3d> trial_input_t;
+	typedef empty_input<Space> trial_input_t;
 	/** \brief kernel result type */
-	typedef space_3d::scalar_t result_t;
+	typedef typename Space::scalar_t result_t;
 	/** \brief quadrature family tag */
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief shows if kernel is symmetric */
@@ -35,10 +38,17 @@ struct kernel_traits<unit_kernel>
 };
 
 /** \brief the unit kernel returning K(x,y) = 1 for all inputs */
+template <class Space>
 class unit_kernel :
-	public kernel_base<unit_kernel>
+	public kernel_base<unit_kernel<Space> >
 {
 public:
+	typedef kernel_base<unit_kernel<Space> > base_t;
+	typedef typename base_t::scalar_t scalar_t;
+	typedef typename base_t::result_t result_t;
+	typedef typename base_t::test_input_t test_input_t;
+	typedef typename base_t::trial_input_t trial_input_t;
+
 	/**
 	 * \brief evaluate kernel at test and trial positions
 	 * \param [in] x test position

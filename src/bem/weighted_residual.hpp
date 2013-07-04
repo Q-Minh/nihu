@@ -84,11 +84,10 @@ private:
 			while (it != end)
 			{
 				if (!is_local ||
-					( same_elem_type && (*it.outer()).get_elem().get_id() == (*it.inner()).get_elem().get_id()) )
+					( same_elem_type && (*it.get_first()).get_elem().get_id() == (*it.get_second()).get_elem().get_id()) )
 				{
-					block(result, (*it.outer()).get_dofs(), (*it.inner()).get_dofs())
-						+= double_integral_t::eval(Formalism(),
-							kernel, *it.outer(), *it.inner());
+					block(result, (*it.get_first()).get_dofs(), (*it.get_second()).get_dofs())
+						+= double_integral_t::eval(Formalism(), kernel, *(it.get_first()), *(it.get_second()));
 				}
 				++it;
 			}
@@ -140,8 +139,8 @@ private:
 };
 
 
-template <class Result, class WR>
-void eval_into(Result &res, WR wr)
+template <class Result, class Formalism, class Operator, class TestSpace, class TrialSpace>
+void operator += (Result &res, weighted_residual<Formalism, Operator, TestSpace, TrialSpace> wr)
 {
 	wr.eval(res);
 }

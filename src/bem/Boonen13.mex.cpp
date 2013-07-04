@@ -1,60 +1,52 @@
-#include "weighted_residual.hpp"
+#include "integral_operator.hpp"
 #include "../util/mex_matrix.h"
 #include "../library/helmholtz_kernel.hpp"
-
-// #define GALERKIN_ISO
 
 typedef tmp::vector<tria_1_elem, quad_1_elem> elem_type_vector;
 typedef mesh<elem_type_vector> mesh_t;
 
-typedef helmholtz_GH_kernel kernel_t;
-
-#ifdef COLLOC_CONSTANT
-typedef function_space_view<mesh_t, constant_field> test_space_t;
-typedef test_space_t trial_space_t;
-typedef weighted_residual<true, kernel_t, test_space_t, trial_space_t> wr_t;
+#ifdef COLLOCATIONAL
+    typedef formalism::collocational FORMALISM;
+#else
+    typedef formalism::general FORMALISM;
 #endif
 
-#ifdef GALERKIN_CONSTANT
-typedef function_space_view<mesh_t, constant_field> test_space_t;
-typedef test_space_t trial_space_t;
-typedef weighted_residual<false, kernel_t, test_space_t, trial_space_t> wr_t;
+#ifdef CONSTANT
+    typedef field_option::constant FIELD_OPTION;
+#else
+    typedef field_option::isoparametric FIELD_OPTION;
 #endif
+    
+typedef function_space_view<mesh_t, FIELD_OPTION> func_sp_t;
 
-#ifdef GALERKIN_ISO
-typedef function_space_view<mesh_t, isoparametric_field> test_space_t;
-typedef test_space_t trial_space_t;
-typedef weighted_residual<false, kernel_t, test_space_t, trial_space_t> wr_t;
-#endif
-
-
-void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
+void mexFunction(
+    int nlhs, mxArray *plhs[],
+    int nrhs, const mxArray *prhs[])
 {
     // read mesh from Matlab and build
     mex::real_matrix nodes(prhs[0]);
     mex::real_matrix elements(prhs[1]);
 	mesh_t msh(nodes, elements);
 
-    // initialise kernel
-    kernel_t kernel;
-    double k = mxGetScalar(prhs[2]);
-    kernel.set_wave_number(k);
-    
     // initialise function spaces
-    test_space_t test(msh);
-    trial_space_t trial(msh);
+    auto func_sp = create_function_space_view(msh, field_option::constant());
     
     // allocate space for output matrix
-    mex::complex_matrix G(test.get_num_dofs(), trial.get_num_dofs(), plhs[0]);
-    mex::complex_matrix H(test.get_num_dofs(), trial.get_num_dofs(), plhs[1]);
-    couple<mex::complex_matrix> result(G, H);
+    int n = func_sp.get_num_dofs();
+    mex::complex_matrix G(n, n, plhs[0]);
+    mex::complex_matrix H(n, n, plhs[1]);
+    auto result = create_couple(G, H);
     
-    mex::real_matrix n_kernel_eval(1, 1, plhs[2]);
-
+    // initialise kernel and boundary operator
+    double k = mxGetScalar(prhs[2]);
+    helmholtz_GH_kernel kernel;
+    kernel.set_wave_number(k);
+    auto b_op = create_integral_operator(kernel);
+    
     // evaluate weighted residual into result
-    wr_t::eval(result, kernel, test, trial);
+    result += b_op(func_sp, func_sp, FORMALISM());
     
     // export number of kernel evaluations
-    n_kernel_eval(0,0) = kernel.get_num_evaluations();
+    mex::real_matrix n_kernel_eval(1, 1, plhs[2]);
+    n_kernel_eval(0,0) = b_op.get_kernel().get_num_evaluations();
 }
-

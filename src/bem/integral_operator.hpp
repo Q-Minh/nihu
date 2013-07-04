@@ -80,5 +80,19 @@ integral_operator<Kernel, LocalOption>
 	return integral_operator<Kernel, LocalOption>(kernel);
 }
 
+
+/** \brief factory function of a (default) non_local integral operator
+* \tparam Kernel the kernel type
+* \param [in] kernel the kernel
+* \return the integral operator object
+*/
+template <class Kernel>
+integral_operator<Kernel, operator_option::non_local>
+	create_integral_operator(Kernel const &kernel)
+{
+	return integral_operator<Kernel, operator_option::non_local>(kernel);
+}
+
+
 #endif
 

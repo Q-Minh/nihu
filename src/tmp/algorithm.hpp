@@ -1,5 +1,7 @@
 /**
  * \file algorithm.hpp
+ * \ingroup tmp
+ * \author Peter Fiala fiala@hit.bme.hu and Peter Rucz rucz@hit.bme.hu
  * \brief vectoralgorithms
  */
 
@@ -164,7 +166,7 @@ namespace tmp
 	struct copy : transform<Seq, Ins, _1> {};
 
 	/**
-	 * \brief concatenate two sequences into a tiny sequence
+	 * \brief concatenate two sequences into a new sequence
 	 * \tparam Seq1 first sequence
 	 * \tparam Seq1 second sequence
 	 */

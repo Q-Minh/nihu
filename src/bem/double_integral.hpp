@@ -304,8 +304,11 @@ protected:
 
 		// check singularity
 		if (sa.is_singular(test_field, trial_field))
+		{
 			return eval_singular_on_accelerator(
 			kernel, test_field, trial_field, sa.begin(), sa.end());
+		}
+
 		return eval_general(WITHOUT_SINGULARITY_CHECK(), kernel, test_field, trial_field);
 	}
 
@@ -375,6 +378,7 @@ public:
 		trial_field_t const &trial_field)
 	{
 		m_result.setZero();	// clear result
+
 		return eval_general(std::integral_constant<bool, is_kernel_singular>(),
 			kernel, test_field, trial_field);
 	}

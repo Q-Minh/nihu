@@ -404,5 +404,13 @@ protected:
 	RDerived const &m_right;	/**< \brief right hand side term */
 };
 
+
+/** \brief factory function of a couple class */
+template <class L, class R>
+couple<L, R> create_couple(L const &l, R const &r)
+{
+	return couple<L, R>(l, r);
+}
+
 #endif //  COUPLE_HPP_INCLUDED
 

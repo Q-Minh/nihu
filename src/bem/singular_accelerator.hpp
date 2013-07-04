@@ -11,79 +11,21 @@
 #include "duffy_quadrature.hpp"		// for the collocational case
 #include "field.hpp"
 
-/**
-* \brief two iterators that can traverse two parallel containers
-* \tparam Iter type of the iterator
-* \todo should be replaced by matrix_iterator
-*/
-template <class Iter1, class Iter2 = Iter1>
-class dual_iterator : private std::pair<Iter1, Iter2>
-{
-public:
-	/** \brief the base type for abbreviations */
-	typedef std::pair<Iter1, Iter2> base_t;
-
-	/**
-	* \brief constructor initialising all members
-	* \param [in] prime the outer iterator
-	* \param [in] sec the internal iterator
-	*/
-	dual_iterator(Iter1 prime, Iter2 sec)
-		: base_t(prime, sec)
-	{
-	}
-
-	/**
-	* \brief preincrement operator
-	* \return reference to the incremented iterator
-	*/
-	dual_iterator &operator++(void)
-	{
-		++base_t::first;
-		++base_t::second;
-		return *this;
-	}
-
-	/**
-	* \brief not equal operator
-	* \param [in] other the other iterator
-	* \return true if the iterators are different
-	*/
-	bool operator!=(dual_iterator const &other)
-	{
-		return base_t::first != other.base_t::first || base_t::second != other.base_t::second;
-	}
-
-	/**
-	* \brief return the primary iterator's pointed value
-	* \return the primary iterator's pointed value
-	*/
-	typename Iter1::value_type const &get_prime(void) const
-	{
-		return *base_t::first;
-	}
-
-	/**
-	* \brief return the secondary iterator's pointed value
-	* \return the secondary iterator's pointed value
-	*/
-	typename Iter2::value_type const &get_sec(void) const
-	{
-		return *base_t::second;
-	}
-};
+#include "../util/dual_range.hpp"
 
 
 /**
-* \brief a dual iterator to store a test and a trial quadrature iterator
-* \tparam quadrature_iterator_t the iterator type of the quadratures
+* \brief a dual iterator to point to a test and a trial quadrature element
+* \tparam test_iterator_t the iterator type of the test quadrature
+* \tparam trial_iterator_t the iterator type of the trial quadrature
 */
 template <class test_iterator_t, class trial_iterator_t>
-class singular_quadrature_iterator : public dual_iterator<test_iterator_t, trial_iterator_t>
+class singular_quadrature_iterator :
+	public diagonal_iterator<test_iterator_t, trial_iterator_t>
 {
 public:
 	/** \brief the base type */
-	typedef dual_iterator<test_iterator_t, trial_iterator_t> base_t;
+	typedef diagonal_iterator<test_iterator_t, trial_iterator_t> base_t;
 	/** \brief the value type of both quadratures */
 	typedef typename test_iterator_t::value_type value_type;
 
@@ -101,7 +43,7 @@ public:
 	*/
 	value_type const &get_test_quadrature_elem(void) const
 	{
-		return this->get_prime();
+		return *base_t::get_first();
 	}
 
 	/** \brief return the trial quadrature element
@@ -109,7 +51,7 @@ public:
 	*/
 	value_type const &get_trial_quadrature_elem(void) const
 	{
-		return this->get_sec();
+		return *base_t::get_second();
 	}
 };
 
@@ -231,7 +173,8 @@ public:
 		switch (m_sing_type)
 		{
 		case FACE_MATCH:
-			return iterator(m_face_test_quadrature.begin(),
+			return iterator(
+				m_face_test_quadrature.begin(),
 				m_face_trial_quadrature.begin());
 			break;
 		case EDGE_MATCH:
