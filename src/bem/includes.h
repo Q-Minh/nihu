@@ -31,5 +31,5 @@ namespace formalism
 	struct full_dirac {};
 }
 
-
 #endif // INCLUDES_H_INCLUDED
+

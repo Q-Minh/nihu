@@ -7,6 +7,7 @@
 #ifndef INTEGRAL_OPERATOR_HPP_INCLUDED
 #define INTEGRAL_OPERATOR_HPP_INCLUDED
 
+#include "dirac_wrapper.hpp"
 #include "weighted_residual.hpp"
 
 /** \brief collection of options representing integral operator behavior */
@@ -50,16 +51,45 @@ public:
 	/** \brief evaluate operator on a test and a trial function space
 	* \tparam TestSpace type of the test function space
 	* \tparam TrialSpace type of the trial function space
-	* \tparam Formalism the operator option: ::operator_option::collocational or operator_option::general
 	* \param test_space the test function space
 	* \param trial_space the trial function space
 	*/
-	template <class TestSpace, class TrialSpace, class Formalism>
-	weighted_residual<Formalism, integral_operator, TestSpace, TrialSpace>
-		operator()(TestSpace const &test_space, TrialSpace const &trial_space, Formalism)
+	template <class TestSpace, class TrialSpace>
+	weighted_residual<formalism::general, integral_operator, TestSpace, TrialSpace>
+		operator()(TestSpace const &test_space, TrialSpace const &trial_space)
 	{
-		return weighted_residual<Formalism, integral_operator, TestSpace, TrialSpace>(*this, test_space, trial_space);
+		return weighted_residual<formalism::general, integral_operator, TestSpace, TrialSpace>(
+			*this, test_space, trial_space);
 	}
+
+
+	/** \brief evaluate operator on a test and a trial function space
+	* \tparam TestSpace type of the test function space
+	* \tparam TrialSpace type of the trial function space
+	* \param test_wrapper the Dirac wrapper of the test function space
+	* \param trial_space the trial function space
+	*/
+	template <class TestSpace, class TrialSpace>
+	weighted_residual<formalism::collocational, integral_operator, TestSpace, TrialSpace>
+		operator()(dirac_wrapper<TestSpace> const &test_wrapper, TrialSpace const &trial_space)
+	{
+		return weighted_residual<formalism::collocational, integral_operator, TestSpace, TrialSpace>(
+			*this, test_wrapper.get_function_space(), trial_space);
+	}
+
+
+	/** \brief evaluate operator on a pair of Dirac function spaces
+	* \tparam TestSpace type of the test function space
+	* \param test_wrapper the dirac wrapper of the function space
+	*/
+	template <class TestSpace>
+	weighted_residual<formalism::full_dirac, integral_operator, TestSpace, TestSpace>
+		operator()(dirac_wrapper<TestSpace> const &test_wrapper)
+	{
+		return weighted_residual<formalism::full_dirac, integral_operator, TestSpace, TestSpace>(
+			*this, test_wrapper.get_function_space(), test_wrapper.get_function_space());
+	}
+
 
 private:
 	/** \brief he underlying kernel */
@@ -92,7 +122,6 @@ integral_operator<Kernel, operator_option::non_local>
 {
 	return integral_operator<Kernel, operator_option::non_local>(kernel);
 }
-
 
 #endif
 

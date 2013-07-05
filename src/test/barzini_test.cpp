@@ -34,12 +34,12 @@ int main(void)
 	mesh_t msh(nodes, elements);
 
 	auto f_sp = create_function_space_view(msh, field_option::isoparametric());
+	auto b_op = create_integral_operator(poisson_G_kernel());
 
 	dMatrix A(f_sp.get_num_dofs(), f_sp.get_num_dofs());
 	A.setZero();
-	
-	auto b_op = create_integral_operator(poisson_G_kernel());
-	A += b_op(f_sp, f_sp, formalism::general());
+
+	A += b_op(dirac(f_sp), f_sp);
 
 	std::cout << A << std::endl << std::endl;
 	std::cout << b_op.get_kernel().get_num_evaluations() << std::endl;
