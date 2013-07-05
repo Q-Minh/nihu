@@ -12,13 +12,78 @@
 #include "double_integral.hpp"
 #include "../util/dual_range.hpp"
 
+
+template <class LeftDerived, class RightDerived>
+class wr_sum;
+
+template <class Derived>
+class wr_expression
+{
+public:
+	Derived const &derived(void) const
+	{
+		return static_cast<Derived const &>(*this);
+	}
+
+	Derived &derived(void)
+	{
+		return static_cast<Derived &>(*this);
+	}
+
+	template <class result_t>
+	result_t &eval_into(result_t &result) const
+	{
+		return derived().eval_into(result);
+	}
+	
+	template <class OtherDerived>
+	wr_sum<Derived, OtherDerived>
+	operator+(wr_expression<OtherDerived> const &otherDerived) const
+	{
+		return wr_sum<Derived, OtherDerived>(derived(), otherDerived.derived());
+	}
+};
+
+
+template <class result_t, class Derived>
+void operator+=(result_t &result, wr_expression<Derived> const &wr)
+{
+	wr.derived().eval_into(result);
+}
+
+
+template <class LeftDerived, class RightDerived>
+class wr_sum :
+	public wr_expression<wr_sum<LeftDerived, RightDerived> >
+{
+public:
+	wr_sum(LeftDerived const &left, RightDerived const &right) :
+		ld(left), rd(right)
+	{
+	}
+
+	template <class result_t>
+	result_t &eval_into(result_t &result) const
+	{
+		ld.derived().eval_into(result);
+		rd.derived().eval_into(result);
+		return result;
+	}
+	
+private:
+	LeftDerived const &ld;
+	RightDerived const &rd;
+};
+
+
 /** \brief  integrates a kernel over two function spaces
  * \tparam Kernel the kernel to be integrated
  * \tparam TestSpace the test function space over which integration is performed
  * \tparam TrialSpace the trial function space over which integration is performed
  */
 template <class Formalism, class Operator, class TestSpace, class TrialSpace>
-class weighted_residual
+class weighted_residual :
+	public wr_expression<weighted_residual<Formalism, Operator, TestSpace, TrialSpace> >
 {
 public:
 	/** \brief template parameter as nested type */
@@ -114,7 +179,7 @@ public:
 	 * \return reference to the result matrix for cascading
 	 */
 	template <class result_t>
-	result_t &eval(result_t &result)
+	result_t &eval_into(result_t &result) const
 	{
 		tmp::d_call_each<
 			typename test_space_t::field_type_vector_t,
@@ -137,13 +202,6 @@ private:
 	/** \brief the trial space reference */
 	trial_space_t const &m_trial_space;
 };
-
-
-template <class Result, class Formalism, class Operator, class TestSpace, class TrialSpace>
-void operator += (Result &res, weighted_residual<Formalism, Operator, TestSpace, TrialSpace> wr)
-{
-	wr.eval(res);
-}
 
 
 #endif // ifndef WEIGHTED_RESIDUAL_HPP_INCLUDED

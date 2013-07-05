@@ -14,9 +14,13 @@
 
 #include "element.hpp"
 
+/** \brief metafunction returning the iterator that traverses the homogeneous element vector of specified element type
+ * \tparam ElemType the specified element type
+ */
 template <class ElemType>
 struct mesh_elem_iterator_t
 {
+	/** \brief the iterator that traverses a submesh's element container */
 	typedef typename EigenStdVector<ElemType>::type::const_iterator type;
 };
 

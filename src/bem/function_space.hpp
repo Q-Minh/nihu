@@ -247,6 +247,21 @@ create_function_space_view(Mesh const &msh, Option)
 	return function_space_view<Mesh, Option>(msh);
 }
 
+template <class Mesh>
+function_space_view<Mesh, field_option::isoparametric>
+isoparametric_view(Mesh const &msh)
+{
+	return function_space_view<Mesh, field_option::isoparametric>(msh);
+}
+
+template <class Mesh>
+function_space_view<Mesh, field_option::constant>
+constant_view(Mesh const &msh)
+{
+	return function_space_view<Mesh, field_option::constant>(msh);
+}
+
+
 
 /** \brief forward declaration of class function space */
 template <class FieldTypeVector>

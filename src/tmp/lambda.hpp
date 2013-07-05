@@ -11,41 +11,33 @@
 
 namespace tmp
 {
+	template <unsigned N, class T, class ...Args>
+	struct select_argument : select_argument<N-1, Args...> {};
+
+	template <class T, class ...Args>
+	struct select_argument<1U, T, Args...>
+	{
+		typedef T type;
+	};
+
 	/**
 	 * \brief placeholder that selects N-th argument
 	 * \tparam N argument index
 	 */
-	template <int N>
-	struct arg;
-
-	struct void_;
-
-	template <>
-	struct arg<1>
+	template <unsigned N>
+	struct arg
 	{
-		template <class A1 = void_, class A2 = void_>
-		struct apply
-		{
-			typedef A1 type;
-		};
+		template <class...Args>
+		struct apply : select_argument<N, Args...> {};
 	};
-
-	/** \brief placeholder for the first argument of a metafunction */
+	
 	typedef arg<1> _1;
-
-	template <>
-	struct arg<2>
-	{
-		template <class A1 = void_, class A2 = void_>
-		struct apply
-		{
-			typedef A2 type;
-		};
-	};
-
-	/** \brief placeholder for the second argument of a metafunction */
 	typedef arg<2> _2;
+	typedef arg<3> _3;
+	
 
+	/** \brief used to represent no parameter */
+	struct void_;
 
 	/**
 	 * \brief metafunction returning std::true_type if its argument is a placeholder
@@ -53,7 +45,7 @@ namespace tmp
 	template <class C>
 	struct isPlaceholder : std::false_type {};
 
-	template <int N>
+	template <unsigned N>
 	struct isPlaceholder<arg<N> > : std::true_type {};
 
 
@@ -63,24 +55,33 @@ namespace tmp
 	template <class C>
 	struct isPlaceholderExpression : std::false_type {};
 
-	template <int N>
+	template <unsigned N>
 	struct isPlaceholderExpression<arg<N> > : std::true_type {};
 
-	template <template <class Arg1> class MF, class Arg1>
-	struct isPlaceholderExpression<MF<Arg1> > : isPlaceholderExpression<Arg1> {};
-
-	template <template <class Arg1, class Arg2> class MF, class Arg1, class Arg2>
-	struct isPlaceholderExpression<MF<Arg1, Arg2> > : or_<
-		typename isPlaceholderExpression<Arg1>::type,
-		typename isPlaceholderExpression<Arg2>::type
+	template <class T, class...Args>
+	struct containsPlaceholderExpression;
+	
+	template <class First, class...Args>
+	struct containsPlaceholderExpressionImpl;
+	 
+	template <class...Args>
+	struct containsPlaceholderExpressionImpl<std::true_type, Args...> : std::true_type {};
+	 
+	template <>
+	struct containsPlaceholderExpressionImpl<std::false_type> : std::false_type {};
+	 
+	template <class...Args>
+	struct containsPlaceholderExpressionImpl<std::false_type, Args...> : containsPlaceholderExpression<Args...> {};
+	 
+	template <class T, class...Args>
+	struct containsPlaceholderExpression : containsPlaceholderExpressionImpl<
+		typename isPlaceholderExpression<T>::type,
+		Args...
 	> {};
 
-	template <template <class Arg1, class Arg2, class Arg3> class MF, class Arg1, class Arg2, class Arg3>
-	struct isPlaceholderExpression<MF<Arg1, Arg2, Arg3> > : or_<
-		typename isPlaceholderExpression<Arg1>::type,
-		typename isPlaceholderExpression<Arg2>::type,
-		typename isPlaceholderExpression<Arg3>::type
-	> {};
+	template <template <class...Args> class MF, class...Args>
+	struct isPlaceholderExpression<MF<Args...> > :
+		containsPlaceholderExpression<Args...> {};
 
 
 	namespace internal
@@ -95,13 +96,13 @@ namespace tmp
 			} type;
 		};
 
-		template <int N>
+		template <unsigned N>
 		struct lambda_plExp<arg<N> >
 		{
 			typedef struct
 			{
-				template <class A1 = void_, class A2 = void_>
-				struct apply : arg<N>::template apply<A1, A2> {};
+				template <class...Args>
+				struct apply : arg<N>::template apply<Args...> {};
 			} type;
 		};
 
@@ -110,18 +111,20 @@ namespace tmp
 		{
 			typedef struct
 			{
-				template <class A1 = void_, class A2 = void_>
+				template <class...Args>
 				struct apply
-					: MetaFun<typename lambda_plExp<a1>::type::template apply<A1, A2>::type >
+					: MetaFun<
+						typename lambda_plExp<a1>::type::template apply<Args...>::type
+						>
 				{};
 			} type;
 		};
 
-		template <class BOOL, class a, class A1, class A2>
-		struct cond_eval_arg : lambda_plExp<a>::type::template apply<A1, A2> {};
+		template <class BOOL, class a, class...Args>
+		struct cond_eval_arg : lambda_plExp<a>::type::template apply<Args...> {};
 
-		template <class a, class A1, class A2>
-		struct cond_eval_arg<std::false_type, a, A1, A2>
+		template <class a, class...Args>
+		struct cond_eval_arg<std::false_type, a, Args...>
 		{
 			typedef a type;
 		};
@@ -181,8 +184,8 @@ namespace tmp
 		Exp
 	> {};
 
-	template <class Fun, class Arg1 = void_, class Arg2 = void_>
-	struct apply : lambda<Fun>::type::template apply<Arg1, Arg2> {};
+	template <class Fun, class...Args>
+	struct apply : lambda<Fun>::type::template apply<Args...> {};
 }
 
 #endif

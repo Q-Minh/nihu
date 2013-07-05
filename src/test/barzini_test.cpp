@@ -1,5 +1,6 @@
 #include "../bem/integral_operator.hpp"
 #include "../library/poisson_kernel.hpp"
+#include "../library/unit_kernel.hpp"
 
 typedef tmp::vector<tria_1_elem, quad_1_elem> elem_type_vector_t;
 typedef mesh<elem_type_vector_t> mesh_t;
@@ -33,13 +34,17 @@ int main(void)
 
 	mesh_t msh(nodes, elements);
 
-	auto f_sp = create_function_space_view(msh, field_option::isoparametric());
-	auto b_op = create_integral_operator(poisson_G_kernel());
+	auto trial_sp = constant_view(msh);	// isoparametric
+	auto test_sp = dirac(trial_sp);				// collocational
 
-	dMatrix A(f_sp.get_num_dofs(), f_sp.get_num_dofs());
+	int nDOF = trial_sp.get_num_dofs();
+	dMatrix A(nDOF, nDOF);
 	A.setZero();
 
-	A += b_op(dirac(f_sp), f_sp);
+	auto b_op = nonlocal(poisson_G_kernel());
+	auto id_op = local(unit_kernel<space_3d>());
+
+	A += b_op(test_sp, trial_sp) + id_op(test_sp);
 
 	std::cout << A << std::endl << std::endl;
 	std::cout << b_op.get_kernel().get_num_evaluations() << std::endl;

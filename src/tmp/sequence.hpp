@@ -101,6 +101,7 @@ namespace tmp
 	template <class Iter>
 	struct deref;
 
+	/** \brief a compile time inserter */
 	template <class State, class Operation>
 	struct inserter
 	{

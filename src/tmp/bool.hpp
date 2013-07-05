@@ -22,13 +22,25 @@ namespace tmp
 	template <class A>
 	struct not_ : std::integral_constant<bool, !A::value> {};
 
-	/** \brief Boolean disjunction of up to three Boolean data */
-	template <class A, class B, class C = std::false_type>
-	struct or_ : std::integral_constant<bool, A::value || B::value || C::value> {};
+	/** \brief disjunction of boolean constants */
+	template <class...Args>
+	struct or_ : std::false_type {};
 
-	/** \brief Boolean conjunction of up to three Boolean data */
-	template <class A, class B, class C = std::true_type>
-	struct and_ : std::integral_constant<bool, A::value && B::value && C::value> {};
+	template <class...Args>
+	struct or_<std::false_type, Args...> : or_<Args...> {};
+
+	template <class...Args>
+	struct or_<std::true_type, Args...> : std::true_type {};
+
+	/** \brief conjunction of boolean constants */
+	template <class...Args>
+	struct and_ : std::false_type {};
+
+	template <class...Args>
+	struct and_<std::true_type, Args...> : or_<Args...> {};
+
+	template <class...Args>
+	struct and_<std::false_type, Args...> : std::false_type {};
 
 	/**
 	 * \brief IF control structure
