@@ -34,8 +34,8 @@ int main(void)
 
 	mesh_t msh(nodes, elements);
 
-	auto trial_sp = constant_view(msh);	// isoparametric
-	auto test_sp = dirac(trial_sp);				// collocational
+	auto trial_sp = isoparametric_view(msh);	// isoparametric
+	auto test_sp = trial_sp;				// collocational
 
 	int nDOF = trial_sp.get_num_dofs();
 	dMatrix A(nDOF, nDOF);
@@ -44,9 +44,9 @@ int main(void)
 	auto b_op = nonlocal(poisson_G_kernel());
 	auto id_op = local(unit_kernel<space_3d>());
 
-	A += b_op(test_sp, trial_sp) + id_op(test_sp);
+	A += id_op(test_sp, trial_sp);
 
-	std::cout << A << std::endl << std::endl;
+	std::cout << A << std::endl << std::endl << A.sum() << std::endl;
 	std::cout << b_op.get_kernel().get_num_evaluations() << std::endl;
 	
 	double anal = 32.0 * (std::log(1.0+std::sqrt(2.0))-(std::sqrt(2.0)-1.0)/3.0) / 4.0/M_PI;

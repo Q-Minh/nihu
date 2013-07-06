@@ -78,19 +78,6 @@ public:
 	}
 
 
-	/** \brief evaluate operator on a pair of Dirac function spaces
-	* \tparam TestSpace type of the test function space
-	* \param test_wrapper the dirac wrapper of the function space
-	*/
-	template <class TestSpace>
-	weighted_residual<formalism::full_dirac, integral_operator, TestSpace, TestSpace>
-		operator()(dirac_wrapper<TestSpace> const &test_wrapper)
-	{
-		return weighted_residual<formalism::full_dirac, integral_operator, TestSpace, TestSpace>(
-			*this, test_wrapper.get_function_space(), test_wrapper.get_function_space());
-	}
-
-
 private:
 	/** \brief he underlying kernel */
 	Kernel m_kernel;

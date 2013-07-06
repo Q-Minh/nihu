@@ -12,6 +12,7 @@
 #include "kernel.hpp"
 #include "field_type_accelerator.hpp"
 #include "singular_accelerator.hpp"
+#include "../library/unit_kernel.hpp"
 
 template <class Formalism, class Kernel, class TestField, class TrialField>
 struct accel_store
@@ -429,22 +430,6 @@ public:
 			kernel, test_field, trial_field);
 	}
 
-	/** \brief evaluate full Dirac integral on given fields
-	* \param [in] kernel the kernel to integrate
-	* \param [in] test_field the test field to integrate on
-	* \param [in] trial_field the trial field to integrate on
-	* \return reference to the integration result
-	*/
-	static result_t const &eval(
-		formalism::full_dirac,
-		kernel_t &kernel,
-		test_field_t const &test_field,
-		trial_field_t const &trial_field)
-	{
-		m_result.setZero();	// clear result
-		return eval_full_dirac(kernel, test_field, trial_field);
-	}
-
 protected:
 	/** \brief the integral result stored as static variable */
 	static result_t m_result;
@@ -454,6 +439,157 @@ protected:
 template <class Kernel, class Test, class Trial>
 typename double_integral<Kernel, Test, Trial>::result_t
 	double_integral<Kernel, Test, Trial>::m_result;
+
+
+
+/**
+* \brief specialisation of ::double_integral for the unity kernel
+* \brief Space the space of the unit kernel
+* \tparam Test type of the test field
+* \tparam Trial type of the trial field
+*/
+template <class Space, class TestField, class TrialField>
+class double_integral<unit_kernel<Space>, TestField, TrialField >
+{
+	// CRTP check
+	static_assert(std::is_base_of<field_base<TestField>, TestField>::value,
+		"TestField must be derived from field_base<TestField>");
+	static_assert(std::is_base_of<field_base<TrialField>, TrialField>::value,
+		"TrialField must be derived from field_base<TrialField>");
+
+public:
+	typedef TestField test_field_t;		/**< \brief template parameter as nested type */
+	typedef TrialField trial_field_t;	/**< \brief template parameter as nested type */
+
+	/** \brief the kernel type */
+	typedef unit_kernel<Space> kernel_t;
+
+	/** \brief result type of kernel */
+	typedef typename kernel_t::result_t kernel_result_t;
+
+	/** \brief the elem type */
+	typedef typename test_field_t::elem_t elem_t;
+	/** \brief the test domain type */
+	typedef typename elem_t::domain_t domain_t;
+	/** \brief L-set of the elem */
+	typedef typename elem_t::lset_t lset_t;
+
+	/** \brief the quadrature family the kernel requires */
+	typedef typename kernel_traits<kernel_t>::quadrature_family_t quadrature_family_t;
+
+	/** \brief the quadrature element */
+	typedef typename quadrature_type<quadrature_family_t, domain_t>::type::quadrature_elem_t quadrature_elem_t;
+
+	typedef regular_pool_store<test_field_t, quadrature_family_t> test_regular_store_t;
+	typedef regular_pool_store<trial_field_t, quadrature_family_t> trial_regular_store_t;
+
+	typedef field_type_accelerator<test_field_t, quadrature_family_t> test_field_type_accelerator_t;
+	typedef field_type_accelerator<trial_field_t, quadrature_family_t> trial_field_type_accelerator_t;
+
+
+	/** \brief N-set of the test field */
+	typedef typename test_field_t::nset_t test_nset_t;
+	/** \brief N-set of the trial field */
+	typedef typename trial_field_t::nset_t trial_nset_t;
+
+	/** \brief type of test shape function */
+	typedef typename test_nset_t::shape_t test_shape_t;
+	/** \brief type of trial shape function */
+	typedef typename trial_nset_t::shape_t trial_shape_t;
+
+	/** \brief result type of the weighted residual */
+	typedef typename plain_type<
+		typename product_type<test_shape_t, Eigen::Transpose<trial_shape_t> >::type
+	>::type result_t;
+	
+	static unsigned const degree
+		= test_nset_t::polynomial_order
+		+ trial_nset_t::polynomial_order
+		+ lset_t::jacobian_order;
+
+
+protected:
+	/** \brief evaluate regular double integral with selected accelerators
+	* \param [in] test_field the test field to integrate on
+	* \param [in] test_acc field type accelerator of the test field
+	* \param [in] trial_field the trial field to integrate on
+	* \param [in] trial_acc field type accelerator of the trial field
+	* \return reference to the integration result
+	*/
+	static result_t const &eval_on_accelerator(
+		elem_t const &elem,
+		test_field_type_accelerator_t const &test_acc,
+		trial_field_type_accelerator_t const &trial_acc)
+	{
+		auto trial_it = trial_acc.cbegin();
+		for (auto test_it = test_acc.cbegin(); test_it != test_acc.cend(); ++test_it, ++trial_it)
+		{
+			auto xi = test_it->get_quadrature_elem().get_xi();
+			auto jac = elem.get_normal(xi).norm();
+			auto w = test_it->get_quadrature_elem().get_w();
+			m_result += test_it->get_shape() * (w*jac) * trial_it->get_shape().transpose();
+		}
+
+		return m_result;
+	}
+
+	/** \brief evaluate double integral of a kernel on specific fields without singularity check
+	* \param [in] kernel the kernel to integrate
+	* \param [in] test_field reference to the test field
+	* \param [in] trial_field reference to the trial field
+	* \return reference to the stored result
+	*/
+	static result_t const &eval_general(elem_t const &elem)
+	{
+		auto &test_ra = test_regular_store_t::m_regular_pool;
+		auto &trial_ra = trial_regular_store_t::m_regular_pool;
+
+		return eval_on_accelerator(elem, *(test_ra[degree]), *(trial_ra[degree]));
+	}
+
+
+public:
+	/** \brief evaluate double integral on given fields
+	* \param [in] elem the element to integrate on
+	* \return reference to the integration result
+	*/
+	static result_t const &eval(
+		formalism::general,
+		kernel_t &,
+		test_field_t const &f,
+		trial_field_t const &)
+	{
+		m_result.setZero();	// clear result
+		return eval_general(f.get_elem());
+	}
+
+
+	/** \brief evaluate collocational integral on given fields
+	* \param [in] elem the element to integrate on
+	* \return reference to the integration result
+	*/
+	static result_t const &eval(
+		formalism::collocational,
+		kernel_t &,
+		test_field_t const &,
+		trial_field_t const &)
+	{
+		m_result.setZero();
+		for (unsigned row = 0; row < test_nset_t::num_nodes; ++row)
+			m_result.row(row) += trial_nset_t::eval_shape(test_nset_t::corner_at(row));
+		return m_result;
+	}
+
+protected:
+	/** \brief the integral result stored as static variable */
+	static result_t m_result;
+};
+
+/** \brief the statically stored result instance */
+template <class Space, class Test, class Trial>
+typename double_integral<unit_kernel<Space>, Test, Trial>::result_t
+	double_integral<unit_kernel<Space>, Test, Trial>::m_result;
+
 
 #endif
 

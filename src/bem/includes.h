@@ -28,7 +28,6 @@ namespace formalism
 {
 	struct collocational {};
 	struct general {};
-	struct full_dirac {};
 }
 
 #endif // INCLUDES_H_INCLUDED
