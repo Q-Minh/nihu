@@ -6,12 +6,12 @@ Metaprogramming concepts in NiHu {#metaprogramming}
 Introduction {#intro}
 ============
 
-This document briefly summarises the metaprogramming concepts used in NiHu. 
+This document briefly summarises the metaprogramming concepts used in NiHu. Understanding the code snippets contained in this document requires your being familiar with the usage of variadic templates, introduced in the C++11 standard. If you are not familiar with variadic templates it is advised to read [C++11 techniques in NiHu](cpp11techniques.md) first.
 
 Nomenclature {#nomen}
 ============
 
-In the following some metaprogramming elements are explained.
+In the following some metaprogramming elements are explained. Most of the nomenclature explained herein is very similar to the definitions of boost, so if you are familiar with boost, you might as well skip this section.
 
 Metafunctions {#metafun}
 -------------
@@ -23,21 +23,23 @@ Metafunctions are program elements (classes in C++) that can return computed typ
 Argument selector {#argselector}
 -----------------
 
-The argument selector is a special templated metafunction that can return its nth template parameter.
+The argument selector is a special templated metafunction that can return its nth template parameter. This seems to be a trivial task, however, you should remind yourself that once a template is instantiated there is no way to obtain the actual value of the template parameter from outside the given template. The implementation of the argument selector looks like:
 
 \snippet metaprogramming.hpp ArgumentSelector
+
+In the above code the key role of recursion is clearly followable. The general case of the `select_argument` template class is defined by means of a simple recursion rule, whereas the recursion tail is a partial specialization of the general case.
 
 Metafunction classes {#metafunclass}
 --------------------
 
-Metafunction classes (a.k.a. metafunctors) are classes with a templated inner class that is a metafunction. In NiHu, the nested metafunction is called `apply`.
+Metafunction classes (a.k.a. metafunctors) are classes with a templated inner class that is a metafunction. Just as function classes (a.k.a. functors) have the evaluation operator function that can return a value, metafunction classes have a nested metafunction, that can return a type, as described [above](#metafun). In NiHu, the nested metafunction is always called `apply`.
 
 \snippet metaprogramming.hpp MetaFunctionClass
 
 Placeholders {#placeholder}
 ------------
 
-Placeholders are special metafunction classes that contain an argument selector as the nested class.
+Placeholders are special metafunction classes that contain an [argument selector](#argselector) as the nested class. Placeholders do not have any other specialities what would make them differ from other metafunctors, yet, implemenetation of template metaprogramming control sequences and algorithms involve the extensive usage of placeholders, which makes them worth explaining separately.
 
 \snippet metaprogramming.hpp PlaceHolder
 
@@ -64,9 +66,15 @@ Lambda metafunctions {#lambdametafun}
 
 Is a special metafunction, which takes a lambda expression as a template parameter. The purpose of using lambda metafunctions is to turn placeholder expressions into metafunction classes. Lambda metafunctions contain a nested metafunction class.
 
-The `apply` metafunction {#applymetafun}
-------------------------
+The apply metafunction {#applymetafun}
+----------------------
 
 Is a special metafunction, which invokes the result of a lambda
 
 \snippet metaprogramming.hpp ApplyMetaFunction
+
+Common techniques {#commontechniques}
+=================
+
+Type definition forwarding {#typedeffwd}
+--------------------------
