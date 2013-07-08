@@ -11,9 +11,11 @@
 
 namespace tmp
 {
+	/** \brief select N-th argument of a variadic template */
 	template <unsigned N, class T, class ...Args>
 	struct select_argument : select_argument<N-1, Args...> {};
 
+	/** \brief terminating case of select_argument */
 	template <class T, class ...Args>
 	struct select_argument<1U, T, Args...>
 	{
@@ -129,6 +131,7 @@ namespace tmp
 			typedef a type;
 		};
 
+		/** \todo does not work with dcalleach if changed to variaic A1 A2 style */
 		template <template <class a, class b> class MetaFun, class a1, class a2>
 		struct lambda_plExp<MetaFun<a1, a2> >
 		{
@@ -153,19 +156,19 @@ namespace tmp
 		{
 			typedef struct
 			{
-				template <class A1 = void_, class A2 = void_>
+				template <class ...Args>
 				struct apply : MetaFun<
 					typename cond_eval_arg<
 						typename isPlaceholderExpression<a1>::type,
-						a1, A1, A2
+						a1, Args...
 					>::type,
 					typename cond_eval_arg<
 						typename isPlaceholderExpression<a2>::type,
-						a2, A1, A2
+						a2, Args...
 					>::type,
 					typename cond_eval_arg<
 						typename isPlaceholderExpression<a3>::type,
-						a3, A1, A2
+						a3, Args...
 					>::type
 				> {};
 			} type;
