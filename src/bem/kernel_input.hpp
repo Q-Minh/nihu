@@ -8,6 +8,7 @@
 #ifndef KERNELINPUT_HPP_INCLUDED
 #define KERNELINPUT_HPP_INCLUDED
 
+#include "../tmp/bool.hpp"
 #include "element.hpp"
 #include "quadrature.hpp"
 

@@ -46,6 +46,9 @@ barzini_test: src/test/barzini_test.cpp
 tattaglia_test: src/test/tattaglia_test.cpp
 	$(CC) $(CFLAGS) src/test/tattaglia_test.cpp -o tattaglia_test
 
+single_integral_test: src/test/single_integral_test.cpp
+	$(CC) $(CFLAGS) src/test/single_integral_test.cpp -o single_integral_test
+
 clean:
 	rm *_test
 

@@ -19,7 +19,7 @@ struct function_space_traits;
 template <class Derived>
 class function_space_base
 {
-private:
+public:
 	Derived const &derived(void) const
 	{
 		return static_cast<Derived const &>(*this);
@@ -30,7 +30,6 @@ private:
 		return static_cast<Derived &>(*this);
 	}
 
-public:
 	/** \brief the traits class */
 	typedef function_space_traits<Derived> traits_t;
 

@@ -80,8 +80,8 @@ public:
 		* \param [in] kernel the kernel that is bound
 		* \param [in] x the test input that binds the kernel
 		*/
-		kernel_bind(Derived &kernel, test_input_t const &x)
-			: m_kernel(kernel), m_test_input(x)
+		kernel_bind(kernel_base<Derived> const &kernel, test_input_t const &x)
+			: m_kernel(kernel.derived()), m_test_input(x)
 		{
 		}
 
@@ -96,33 +96,18 @@ public:
 
 	private:
 		/** \brief the kernel that is bound */
-		Derived &m_kernel;
+		Derived const &m_kernel;
 		/** \brief the test input used to bind the kernel */
 		test_input_t const &m_test_input; 
 	};
-
-	/** \brief constructor */
-	kernel_base() :
-		m_num_evaluations(0)
-	{
-	}
 
 	/** \brief bind the kernel at its test input
 	* \param [in] x the test input that binds the kernel
 	* \return the bound kernel function
 	*/
-	kernel_bind bind(test_input_t const &x)
+	kernel_bind bind(test_input_t const &x) const
 	{
-		return kernel_bind(derived(), x);
-	}
-
-	/**
-	 * \brief return number of kernel evaluations
-	 * \return number of kernel evaluations
-	 */
-	long long unsigned get_num_evaluations(void) const
-	{
-		return m_num_evaluations;
+		return kernel_bind(*this, x);
 	}
 
 	/**
@@ -131,9 +116,8 @@ public:
 	 * \param [in] y trial position
 	 * \return kernel value K(x,y)
 	 */
-	result_t eval(test_input_t const &x, trial_input_t const &y)
+	result_t eval(test_input_t const &x, trial_input_t const &y) const
 	{
-		m_num_evaluations++;
 		return derived()(x, y);
 	}
 
@@ -151,10 +135,6 @@ public:
 	{
 		return derived().estimate_complexity(x, y, reference_size);
 	}
-
-protected:
-	/** \brief number of kernel evaluations */
-	long long unsigned m_num_evaluations;
 };
 
 #endif // KERNEL_HPP_INCLUDED

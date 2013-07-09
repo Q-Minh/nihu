@@ -41,10 +41,10 @@ int main(void)
 	dMatrix A(nDOF, nDOF);
 	A.setZero();
 
-	auto b_op = nonlocal(poisson_G_kernel());
-	auto id_op = local(unit_kernel<space_3d>());
+	auto b_op = create_integral_operator(poisson_G_kernel());
+	auto id_op = create_integral_operator(unit_kernel<space_3d>());
 
-	A += id_op(test_sp, trial_sp);
+	A += test_sp * (b_op * trial_sp - .5 * id_op * trial_sp);
 
 	std::cout << A << std::endl << std::endl << A.sum() << std::endl;
 	std::cout << b_op.get_kernel().get_num_evaluations() << std::endl;

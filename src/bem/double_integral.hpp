@@ -8,34 +8,9 @@
 #ifndef DOUBLE_INTEGRAL_HPP_INCLUDED
 #define DOUBLE_INTEGRAL_HPP_INCLUDED
 
+#include "quadrature_pool.hpp"
 #include "../util/plain_type.hpp"
 #include "kernel.hpp"
-#include "field_type_accelerator.hpp"
-#include "singular_accelerator.hpp"
-#include "../library/unit_kernel.hpp"
-
-template <class Formalism, class Kernel, class TestField, class TrialField>
-struct accel_store
-{
-	typedef singular_accelerator<Formalism, Kernel, TestField, TrialField> singular_accelerator_t;
-	static singular_accelerator_t m_singular_accelerator;
-};
-
-template<class Formalism, class Kernel, class Test, class Trial>
-typename accel_store<Formalism, Kernel, Test, Trial>::singular_accelerator_t
-	accel_store<Formalism, Kernel, Test, Trial>::m_singular_accelerator;
-
-
-template <class Field, class Family>
-struct regular_pool_store
-{
-	typedef field_type_accelerator_pool<Field, Family> pool_t;
-	static pool_t m_regular_pool;
-};
-
-template <class Field, class Family>
-typename regular_pool_store<Field, Family>::pool_t
-	regular_pool_store<Field, Family>::m_regular_pool;
 
 /**
 * \brief class evaluating double integrals of the weighted residual approach
@@ -132,8 +107,9 @@ protected:
 	* \param [in] trial_acc field type accelerator of the trial field
 	* \return reference to the integration result
 	*/
-	static result_t const &eval_on_accelerator(
-		kernel_t &kernel,
+	static result_t &eval_on_accelerator(
+		result_t &result,
+		kernel_t const &kernel,
 		test_field_t const &test_field,
 		test_field_type_accelerator_t const &test_acc,
 		trial_field_t const &trial_field,
@@ -148,70 +124,12 @@ protected:
 			{
 				w_trial_input_t trial_input(trial_field.get_elem(), trial_it->get_quadrature_elem().get_xi());
 				auto right = (trial_it->get_shape().transpose() * (trial_input.get_jacobian() * trial_it->get_quadrature_elem().get_w())).eval();
-				m_result += left * bound.eval(trial_input) * right;
+				result += left * bound.eval(trial_input) * right;
 			}
 		}
 
-		return m_result;
+		return result;
 	}
-
-	/** \brief evaluate regular collocational integral with selected trial field accelerator
-	* \param [in] kernel the kernel to integrate
-	* \param [in] test_field the test field to integrate on
-	* \param [in] trial_field the trial field to integrate on
-	* \param [in] trial_acc the trial field type accelerator
-	* \return reference to the integration result
-	*/
-	static result_t const &eval_full_dirac(
-		kernel_t &kernel,
-		test_field_t const &test_field,
-		trial_field_t const &trial_field)
-	{
-		for (unsigned row = 0; row < test_nset_t::num_nodes; ++row)
-		{
-			test_input_t test_input(test_field.get_elem(), test_nset_t::corner_at(row));
-			auto bound = kernel.bind(test_input);
-			for (unsigned col = 0; col < trial_nset_t::num_nodes; ++col)
-			{
-				trial_input_t trial_input(trial_field.get_elem(), trial_nset_t::corner_at(row));
-				m_result(row,col) += bound.eval(trial_input);
-			}
-		}
-
-		return m_result;
-	}
-
-
-	/** \brief evaluate regular collocational integral with selected trial field accelerator
-	* \param [in] kernel the kernel to integrate
-	* \param [in] test_field the test field to integrate on
-	* \param [in] trial_field the trial field to integrate on
-	* \param [in] trial_acc the trial field type accelerator
-	* \return reference to the integration result
-	*/
-	static result_t const &eval_collocational_on_accelerator(
-		kernel_t &kernel,
-		test_field_t const &test_field,
-		trial_field_t const &trial_field,
-		trial_field_type_accelerator_t const &trial_acc)
-	{
-		int row = 0;
-		for (auto test_it = test_nset_t::corner_begin(); test_it != test_nset_t::corner_end(); ++test_it)
-		{
-			test_input_t collocational_point(test_field.get_elem(), *test_it);
-			auto bound = kernel.bind(collocational_point);
-			for (auto trial_it = trial_acc.cbegin(); trial_it != trial_acc.cend(); ++trial_it)
-			{
-				w_trial_input_t trial_input(trial_field.get_elem(), trial_it->get_quadrature_elem().get_xi());
-				m_result.row(row) += bound.eval(trial_input) *
-					(trial_it->get_shape() * (trial_input.get_jacobian() * trial_it->get_quadrature_elem().get_w()));
-			}
-			++row;
-		}
-
-		return m_result;
-	}
-
 
 	/** \brief evaluate double singular integral with selected singular accelerator
 	* \param [in] kernel the kernel to integrate
@@ -222,8 +140,9 @@ protected:
 	* \return reference to the integration result
 	*/
 	template <class singular_iterator_t>
-	static result_t const &eval_singular_on_accelerator(
-		kernel_t &kernel,
+	static result_t &eval_singular_on_accelerator(
+		result_t &result,
+		kernel_t const &kernel,
 		test_field_t const &test_field,
 		trial_field_t const &trial_field,
 		singular_iterator_t begin,
@@ -240,49 +159,13 @@ protected:
 			auto right = (trial_field_t::nset_t::eval_shape(begin.get_trial_quadrature_elem().get_xi())
 				* (trial_input.get_jacobian() * begin.get_trial_quadrature_elem().get_w())).eval();
 
-			m_result += left * kernel.eval(test_input, trial_input) * right.transpose();
+			result += left * kernel.eval(test_input, trial_input) * right.transpose();
 
 			++begin;
 		}
 
-		return m_result;
+		return result;
 	}
-
-	/** \brief evaluate collocational singular integral with selected singular accelerator
-	* \tparam singular_accelerator_t type of the singular quadrature accelerator
-	* \param [in] kernel the kernel to integrate
-	* \param [in] test_field the test field to integrate on
-	* \param [in] trial_field the trial field to integrate on
-	* \param [in] sa singular accelerator
-	* \return reference to the integration result
-	*/
-	template <class singular_accelerator_t>
-	static result_t const &eval_collocational_singular_on_accelerator(
-		kernel_t &kernel,
-		test_field_t const &test_field,
-		trial_field_t const &trial_field,
-		singular_accelerator_t const &sa)
-	{
-		for (unsigned idx = 0; idx < test_nset_t::num_nodes; ++idx)
-		{
-			quadrature_elem_t qe(test_nset_t::corner_at(idx));
-			test_input_t collocational_point(test_field.get_elem(), qe.get_xi());
-			auto bound = kernel.bind(collocational_point);
-			auto const &quad = sa.get_trial_quadrature(idx);
-
-			for (auto quad_it = quad.begin(); quad_it != quad.end(); ++quad_it)
-			{
-				w_trial_input_t trial_input(trial_field.get_elem(), quad_it->get_xi());
-
-				m_result.row(idx) += bound.eval(trial_input) *
-					(trial_input.get_jacobian() * quad_it->get_w() *
-					trial_field_t::nset_t::eval_shape(quad_it->get_xi()));
-			}
-		}
-
-		return m_result;
-	}
-
 
 	/** \brief evaluate double integral of a kernel on specific fields without singularity check
 	* \param [in] kernel the kernel to integrate
@@ -290,9 +173,10 @@ protected:
 	* \param [in] trial_field reference to the trial field
 	* \return reference to the stored result
 	*/
-	static result_t const &eval_general(
+	static result_t &eval_general(
 		WITHOUT_SINGULARITY_CHECK,
-		kernel_t &kernel,
+		result_t &result,
+		kernel_t const &kernel,
 		test_field_t const &test_field,
 		trial_field_t const &trial_field)
 	{
@@ -309,6 +193,7 @@ protected:
 			+ std::max(test_lset_t::jacobian_order, trial_lset_t::jacobian_order);
 
 		return eval_on_accelerator(
+			result,
 			kernel,
 			test_field, *(test_ra[degree]),
 			trial_field, *(trial_ra[degree]));
@@ -321,9 +206,10 @@ protected:
 	* \param [in] trial_field reference to the trial field
 	* \return reference to the stored result
 	*/
-	static result_t const &eval_general(
+	static result_t &eval_general(
 		WITH_SINGULARITY_CHECK,
-		kernel_t &kernel,
+		result_t &result,
+		kernel_t const &kernel,
 		test_field_t const &test_field,
 		trial_field_t const &trial_field)
 	{
@@ -332,64 +218,11 @@ protected:
 
 		// check singularity
 		if (sa.is_singular(test_field, trial_field))
-		{
 			return eval_singular_on_accelerator(
-			kernel, test_field, trial_field, sa.begin(), sa.end());
-		}
+				result, kernel, test_field, trial_field, sa.begin(), sa.end());
 
-		return eval_general(WITHOUT_SINGULARITY_CHECK(), kernel, test_field, trial_field);
-	}
-
-
-	/** \brief evaluate single integral of a kernel on specific fields without singularity check
-	* \param [in] kernel the kernel to integrate
-	* \param [in] test_field reference to the test field
-	* \param [in] trial_field reference to the trial field
-	* \return reference to the stored result
-	*/
-	static result_t const &eval_collocational(
-		WITHOUT_SINGULARITY_CHECK,
-		kernel_t &kernel,
-		test_field_t const &test_field,
-		trial_field_t const &trial_field)
-	{
-		typedef regular_pool_store<trial_field_t, quadrature_family_t> regular_trial_store_t;
-		auto &trial_ra = trial_regular_store_t::m_regular_pool;
-
-		quadrature_elem_t qe(test_field_t::elem_t::domain_t::get_center());
-		test_input_t test_center(test_field.get_elem(), qe.get_xi());
-		trial_input_t trial_center(trial_field.get_elem(), trial_domain_t::get_center());
-
-		/** \todo why only trial size is important? */
-		unsigned degree = kernel.estimate_complexity_interface(test_center, trial_center, trial_field.get_elem().get_linear_size_estimate());
-		degree += trial_nset_t::polynomial_order + trial_lset_t::jacobian_order;
-
-		return eval_collocational_on_accelerator(
-			kernel, test_field, trial_field, *(trial_ra[degree]));
-	}
-
-
-	/** \brief evaluate single integral of a kernel on specific fields with singularity check
-	* \param [in] kernel the kernel to integrate
-	* \param [in] test_field reference to the test field
-	* \param [in] trial_field reference to the trial field
-	* \return reference to the stored result
-	*/
-	static result_t const &eval_collocational(
-		WITH_SINGULARITY_CHECK,
-		kernel_t &kernel,
-		test_field_t const &test_field,
-		trial_field_t const &trial_field)
-	{
-		typedef accel_store<formalism::collocational, kernel_t, test_field_t, trial_field_t> acc_store_t;
-		typename acc_store_t::singular_accelerator_t &sa = acc_store_t::m_singular_accelerator;
-
-		// check singularity
-		if (sa.is_singular(test_field, trial_field))
-			return eval_collocational_singular_on_accelerator(
-			kernel, test_field, trial_field, sa);
-		else
-			return eval_collocational(WITHOUT_SINGULARITY_CHECK(), kernel, test_field, trial_field);
+		return eval_general(WITHOUT_SINGULARITY_CHECK(),
+			result, kernel, test_field, trial_field);
 	}
 
 public:
@@ -399,88 +232,73 @@ public:
 	* \param [in] trial_field the trial field to integrate on
 	* \return reference to the integration result
 	*/
-	static result_t const &eval(
-		formalism::general,
-		kernel_t &kernel,
+	static result_t eval(
+		kernel_t const &kernel,
 		test_field_t const &test_field,
 		trial_field_t const &trial_field)
 	{
-		m_result.setZero();	// clear result
+		result_t result;
+		result.setZero();	// clear result
 
 		return eval_general(std::integral_constant<bool, is_kernel_singular>(),
+			result,
 			kernel, test_field, trial_field);
 	}
-
-
-	/** \brief evaluate collocational integral on given fields
-	* \param [in] kernel the kernel to integrate
-	* \param [in] test_field the test field to integrate on
-	* \param [in] trial_field the trial field to integrate on
-	* \return reference to the integration result
-	*/
-	static result_t const &eval(
-		formalism::collocational,
-		kernel_t &kernel,
-		test_field_t const &test_field,
-		trial_field_t const &trial_field)
-	{
-		m_result.setZero();	// clear result
-
-		return eval_collocational(std::integral_constant<bool, is_kernel_singular>(),
-			kernel, test_field, trial_field);
-	}
-
-protected:
-	/** \brief the integral result stored as static variable */
-	static result_t m_result;
 };
 
-/** \brief the statically stored result instance */
-template <class Kernel, class Test, class Trial>
-typename double_integral<Kernel, Test, Trial>::result_t
-	double_integral<Kernel, Test, Trial>::m_result;
 
 
 
-/**
-* \brief specialisation of ::double_integral for the unity kernel
-* \brief Space the space of the unit kernel
-* \tparam Test type of the test field
-* \tparam Trial type of the trial field
-*/
-template <class Space, class TestField, class TrialField>
-class double_integral<unit_kernel<Space>, TestField, TrialField >
+template <class Kernel, class TestField, class TrialField>
+class double_integral<Kernel, dirac_wrapper<TestField>, TrialField>
 {
 	// CRTP check
+	static_assert(std::is_base_of<kernel_base<Kernel>, Kernel>::value,
+		"Kernel must be derived from kernel_base<Kernel>");
 	static_assert(std::is_base_of<field_base<TestField>, TestField>::value,
 		"TestField must be derived from field_base<TestField>");
 	static_assert(std::is_base_of<field_base<TrialField>, TrialField>::value,
 		"TrialField must be derived from field_base<TrialField>");
 
+	typedef std::true_type WITH_SINGULARITY_CHECK;
+	typedef std::false_type WITHOUT_SINGULARITY_CHECK;
+
 public:
+	typedef Kernel kernel_t;		/**< \brief template parameter as nested type */
 	typedef TestField test_field_t;		/**< \brief template parameter as nested type */
 	typedef TrialField trial_field_t;	/**< \brief template parameter as nested type */
 
-	/** \brief the kernel type */
-	typedef unit_kernel<Space> kernel_t;
-
+	/** \brief test input type of kernel */
+	typedef typename kernel_t::test_input_t test_input_t;	
+	/** \brief trial input type of kernel */
+	typedef typename kernel_t::trial_input_t trial_input_t;
+	/** \brief weighted test input type of kernel */
+	typedef typename weighted_kernel_input<test_input_t>::type w_test_input_t;
+	/** \brief weighted trial input type of kernel */
+	typedef typename weighted_kernel_input<trial_input_t>::type w_trial_input_t;
 	/** \brief result type of kernel */
 	typedef typename kernel_t::result_t kernel_result_t;
 
-	/** \brief the elem type */
-	typedef typename test_field_t::elem_t elem_t;
+	/** \brief the test elem type */
+	typedef typename test_field_t::elem_t test_elem_t;
+	/** \brief the trial elem type */
+	typedef typename trial_field_t::elem_t trial_elem_t;
 	/** \brief the test domain type */
-	typedef typename elem_t::domain_t domain_t;
-	/** \brief L-set of the elem */
-	typedef typename elem_t::lset_t lset_t;
+	typedef typename test_elem_t::domain_t test_domain_t;
+	/** \brief the trial domain type */
+	typedef typename trial_elem_t::domain_t trial_domain_t;
 
 	/** \brief the quadrature family the kernel requires */
 	typedef typename kernel_traits<kernel_t>::quadrature_family_t quadrature_family_t;
+	/** \brief indicates if kernel is singular and singular accelerators need to be instantiated */
+	static bool const is_kernel_singular = kernel_traits<kernel_t>::singularity_order != 0;
 
 	/** \brief the quadrature element */
-	typedef typename quadrature_type<quadrature_family_t, domain_t>::type::quadrature_elem_t quadrature_elem_t;
+	typedef typename quadrature_type<
+		quadrature_family_t,
+		typename trial_field_t::elem_t::domain_t
+	>::type::quadrature_elem_t quadrature_elem_t;
 
-	typedef regular_pool_store<test_field_t, quadrature_family_t> test_regular_store_t;
 	typedef regular_pool_store<trial_field_t, quadrature_family_t> trial_regular_store_t;
 
 	typedef field_type_accelerator<test_field_t, quadrature_family_t> test_field_type_accelerator_t;
@@ -497,99 +315,163 @@ public:
 	/** \brief type of trial shape function */
 	typedef typename trial_nset_t::shape_t trial_shape_t;
 
+	/** \brief L-set of the test field */
+	typedef typename test_field_t::elem_t::lset_t test_lset_t;
+	/** \brief L-set of the trial field */
+	typedef typename trial_field_t::elem_t::lset_t trial_lset_t;
+
 	/** \brief result type of the weighted residual */
 	typedef typename plain_type<
+		typename product_type<
+		kernel_result_t,
 		typename product_type<test_shape_t, Eigen::Transpose<trial_shape_t> >::type
+		>::type
 	>::type result_t;
-	
-	static unsigned const degree
-		= test_nset_t::polynomial_order
-		+ trial_nset_t::polynomial_order
-		+ lset_t::jacobian_order;
-
 
 protected:
-	/** \brief evaluate regular double integral with selected accelerators
+	/** \brief evaluate regular collocational integral with selected trial field accelerator
+	* \param [in] kernel the kernel to integrate
 	* \param [in] test_field the test field to integrate on
-	* \param [in] test_acc field type accelerator of the test field
 	* \param [in] trial_field the trial field to integrate on
-	* \param [in] trial_acc field type accelerator of the trial field
+	* \param [in] trial_acc the trial field type accelerator
 	* \return reference to the integration result
 	*/
-	static result_t const &eval_on_accelerator(
-		elem_t const &elem,
-		test_field_type_accelerator_t const &test_acc,
+	static result_t &eval_collocational_on_accelerator(
+		result_t &result,
+		kernel_t const &kernel,
+		test_field_t const &test_field,
+		trial_field_t const &trial_field,
 		trial_field_type_accelerator_t const &trial_acc)
 	{
-		auto trial_it = trial_acc.cbegin();
-		for (auto test_it = test_acc.cbegin(); test_it != test_acc.cend(); ++test_it, ++trial_it)
+		int row = 0;
+		for (auto test_it = test_nset_t::corner_begin(); test_it != test_nset_t::corner_end(); ++test_it)
 		{
-			auto xi = test_it->get_quadrature_elem().get_xi();
-			auto jac = elem.get_normal(xi).norm();
-			auto w = test_it->get_quadrature_elem().get_w();
-			m_result += test_it->get_shape() * (w*jac) * trial_it->get_shape().transpose();
+			test_input_t collocational_point(test_field.get_elem(), *test_it);
+			auto bound = kernel.bind(collocational_point);
+			for (auto trial_it = trial_acc.cbegin(); trial_it != trial_acc.cend(); ++trial_it)
+			{
+				w_trial_input_t trial_input(trial_field.get_elem(), trial_it->get_quadrature_elem().get_xi());
+				result.row(row) += bound.eval(trial_input) *
+					(trial_it->get_shape() * (trial_input.get_jacobian() * trial_it->get_quadrature_elem().get_w()));
+			}
+			++row;
 		}
 
-		return m_result;
+		return result;
 	}
 
-	/** \brief evaluate double integral of a kernel on specific fields without singularity check
+
+	/** \brief evaluate collocational singular integral with selected singular accelerator
+	* \tparam singular_accelerator_t type of the singular quadrature accelerator
+	* \param [in] kernel the kernel to integrate
+	* \param [in] test_field the test field to integrate on
+	* \param [in] trial_field the trial field to integrate on
+	* \param [in] sa singular accelerator
+	* \return reference to the integration result
+	*/
+	template <class singular_accelerator_t>
+	static result_t &eval_collocational_singular_on_accelerator(
+		result_t &result,
+		kernel_t const &kernel,
+		test_field_t const &test_field,
+		trial_field_t const &trial_field,
+		singular_accelerator_t const &sa)
+	{
+		for (unsigned idx = 0; idx < test_nset_t::num_nodes; ++idx)
+		{
+			quadrature_elem_t qe(test_nset_t::corner_at(idx));
+			test_input_t collocational_point(test_field.get_elem(), qe.get_xi());
+			auto bound = kernel.bind(collocational_point);
+			auto const &quad = sa.get_trial_quadrature(idx);
+
+			for (auto quad_it = quad.begin(); quad_it != quad.end(); ++quad_it)
+			{
+				w_trial_input_t trial_input(trial_field.get_elem(), quad_it->get_xi());
+
+				result.row(idx) += bound.eval(trial_input) *
+					(trial_input.get_jacobian() * quad_it->get_w() *
+					trial_field_t::nset_t::eval_shape(quad_it->get_xi()));
+			}
+		}
+
+		return result;
+	}
+
+
+	/** \brief evaluate single integral of a kernel on specific fields without singularity check
 	* \param [in] kernel the kernel to integrate
 	* \param [in] test_field reference to the test field
 	* \param [in] trial_field reference to the trial field
 	* \return reference to the stored result
 	*/
-	static result_t const &eval_general(elem_t const &elem)
+	static result_t &eval_collocational(
+		WITHOUT_SINGULARITY_CHECK,
+		result_t &result,
+		kernel_t const &kernel,
+		test_field_t const &test_field,
+		trial_field_t const &trial_field)
 	{
-		auto &test_ra = test_regular_store_t::m_regular_pool;
+		typedef regular_pool_store<trial_field_t, quadrature_family_t> regular_trial_store_t;
 		auto &trial_ra = trial_regular_store_t::m_regular_pool;
 
-		return eval_on_accelerator(elem, *(test_ra[degree]), *(trial_ra[degree]));
+		quadrature_elem_t qe(test_field_t::elem_t::domain_t::get_center());
+		test_input_t test_center(test_field.get_elem(), qe.get_xi());
+		trial_input_t trial_center(trial_field.get_elem(), trial_domain_t::get_center());
+
+		/** \todo why only trial size is important? */
+		unsigned degree = kernel.estimate_complexity_interface(test_center, trial_center, trial_field.get_elem().get_linear_size_estimate());
+		degree += trial_nset_t::polynomial_order + trial_lset_t::jacobian_order;
+
+		return eval_collocational_on_accelerator(
+			result,  kernel, test_field, trial_field, *(trial_ra[degree]));
 	}
 
+
+	/** \brief evaluate single integral of a kernel on specific fields with singularity check
+	* \param [in] kernel the kernel to integrate
+	* \param [in] test_field reference to the test field
+	* \param [in] trial_field reference to the trial field
+	* \return reference to the stored result
+	*/
+	static result_t &eval_collocational(
+		WITH_SINGULARITY_CHECK,
+		result_t &result,
+		kernel_t const &kernel,
+		test_field_t const &test_field,
+		trial_field_t const &trial_field)
+	{
+		typedef accel_store<formalism::collocational, kernel_t, test_field_t, trial_field_t> acc_store_t;
+		typename acc_store_t::singular_accelerator_t &sa = acc_store_t::m_singular_accelerator;
+
+		// check singularity
+		if (sa.is_singular(test_field, trial_field))
+			return eval_collocational_singular_on_accelerator(
+			result, kernel, test_field, trial_field, sa);
+		else
+			return eval_collocational(WITHOUT_SINGULARITY_CHECK(),
+			result, kernel, test_field, trial_field);
+	}
 
 public:
-	/** \brief evaluate double integral on given fields
-	* \param [in] elem the element to integrate on
-	* \return reference to the integration result
-	*/
-	static result_t const &eval(
-		formalism::general,
-		kernel_t &,
-		test_field_t const &f,
-		trial_field_t const &)
-	{
-		m_result.setZero();	// clear result
-		return eval_general(f.get_elem());
-	}
-
-
 	/** \brief evaluate collocational integral on given fields
-	* \param [in] elem the element to integrate on
+	* \param [in] kernel the kernel to integrate
+	* \param [in] test_field the test field to integrate on
+	* \param [in] trial_field the trial field to integrate on
 	* \return reference to the integration result
 	*/
-	static result_t const &eval(
-		formalism::collocational,
-		kernel_t &,
-		test_field_t const &,
-		trial_field_t const &)
+	static result_t eval(
+		kernel_t const &kernel,
+		dirac_wrapper<test_field_t> const &test_field,
+		trial_field_t const &trial_field)
 	{
-		m_result.setZero();
-		for (unsigned row = 0; row < test_nset_t::num_nodes; ++row)
-			m_result.row(row) += trial_nset_t::eval_shape(test_nset_t::corner_at(row));
-		return m_result;
+		result_t result;
+		result.setZero();	// clear result
+
+		return eval_collocational(std::integral_constant<bool, is_kernel_singular>(),
+			result,
+			kernel, test_field.get_wrapped(), trial_field);
 	}
-
-protected:
-	/** \brief the integral result stored as static variable */
-	static result_t m_result;
 };
-
-/** \brief the statically stored result instance */
-template <class Space, class Test, class Trial>
-typename double_integral<unit_kernel<Space>, Test, Trial>::result_t
-	double_integral<unit_kernel<Space>, Test, Trial>::m_result;
-
 
 #endif
 

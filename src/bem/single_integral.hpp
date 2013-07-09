@@ -1,0 +1,160 @@
+/**
+* \file single_integral.hpp
+* \ingroup intop
+* \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
+* \brief declaration of class single_integral
+*/
+
+#ifndef SINGLE_INTEGRAL_HPP_INCLUDED
+#define SINGLE_INTEGRAL_HPP_INCLUDED
+
+
+#include "../bem/dirac_wrapper.hpp"
+#include "gaussian_quadrature.hpp"
+#include "quadrature_pool.hpp"
+#include "../util/plain_type.hpp"
+
+/**
+* \brief sigle integral over an element
+* \tparam TestField type of the test field
+* \tparam TrialField type of the trial field
+*/
+template <class TestField, class TrialField>
+class single_integral
+{
+	// CRTP check
+	static_assert(std::is_base_of<field_base<TestField>, TestField>::value,
+		"TestField must be derived from field_base<TestField>");
+	static_assert(std::is_base_of<field_base<TrialField>, TrialField>::value,
+		"TrialField must be derived from field_base<TrialField>");
+
+public:
+	typedef TestField test_field_t;		/**< \brief template parameter as nested type */
+	typedef TrialField trial_field_t;	/**< \brief template parameter as nested type */
+
+	/** \brief the elem type */
+	typedef typename test_field_t::elem_t elem_t;
+	/** \brief the test domain type */
+	typedef typename elem_t::domain_t domain_t;
+	/** \brief L-set of the elem */
+	typedef typename elem_t::lset_t lset_t;
+
+	/** \brief the quadrature family */
+	typedef gauss_family_tag quadrature_family_t;
+
+	/** \brief the quadrature element */
+	typedef typename quadrature_type<quadrature_family_t, domain_t>::type::quadrature_elem_t quadrature_elem_t;
+
+	typedef regular_pool_store<test_field_t, quadrature_family_t> test_regular_store_t;
+	typedef regular_pool_store<trial_field_t, quadrature_family_t> trial_regular_store_t;
+
+	typedef field_type_accelerator<test_field_t, quadrature_family_t> test_field_type_accelerator_t;
+	typedef field_type_accelerator<trial_field_t, quadrature_family_t> trial_field_type_accelerator_t;
+
+
+	/** \brief N-set of the test field */
+	typedef typename test_field_t::nset_t test_nset_t;
+	/** \brief N-set of the trial field */
+	typedef typename trial_field_t::nset_t trial_nset_t;
+
+	/** \brief type of test shape function */
+	typedef typename test_nset_t::shape_t test_shape_t;
+	/** \brief type of trial shape function */
+	typedef typename trial_nset_t::shape_t trial_shape_t;
+
+	/** \brief result type of the weighted residual */
+	typedef typename plain_type<
+		typename product_type<test_shape_t, Eigen::Transpose<trial_shape_t> >::type
+	>::type result_t;
+	
+	static unsigned const degree
+		= test_nset_t::polynomial_order
+		+ trial_nset_t::polynomial_order
+		+ lset_t::jacobian_order;
+
+public:
+	/** \brief evaluate double integral on given fields
+	* \param [in] elem the element to integrate on
+	* \return reference to the integration result
+	*/
+	static result_t eval(test_field_t const &f, trial_field_t const &)
+	{
+		result_t result;
+		result.setZero();
+
+		auto &test_ra = test_regular_store_t::m_regular_pool;
+		auto &trial_ra = trial_regular_store_t::m_regular_pool;
+		auto const &test_acc = *(test_ra[degree]);
+		auto const &trial_acc = *(trial_ra[degree]);
+
+		elem_t const &elem = f.get_elem();
+
+		auto trial_it = trial_acc.cbegin();
+		for (auto test_it = test_acc.cbegin(); test_it != test_acc.cend(); ++test_it, ++trial_it)
+		{
+			auto xi = test_it->get_quadrature_elem().get_xi();
+			auto jac = elem.get_normal(xi).norm();
+			auto w = test_it->get_quadrature_elem().get_w();
+			result += test_it->get_shape() * (w*jac) * trial_it->get_shape().transpose();
+		}
+
+		return result;
+	}
+};
+
+
+/**
+* \brief specialisation for the collocational case
+* \tparam TestField type of the test field
+* \tparam TrialField type of the trial field
+*/
+template <class TestField, class TrialField>
+class single_integral<dirac_wrapper<TestField>, TrialField>
+{
+	// CRTP check
+	static_assert(std::is_base_of<field_base<TestField>, TestField>::value,
+		"TestField must be derived from field_base<TestField>");
+	static_assert(std::is_base_of<field_base<TrialField>, TrialField>::value,
+		"TrialField must be derived from field_base<TrialField>");
+
+public:
+	typedef TestField test_field_t;		/**< \brief template parameter as nested type */
+	typedef TrialField trial_field_t;	/**< \brief template parameter as nested type */
+
+	/** \brief the elem type */
+	typedef typename test_field_t::elem_t elem_t;
+	/** \brief the test domain type */
+	typedef typename elem_t::domain_t domain_t;
+
+	/** \brief N-set of the test field */
+	typedef typename test_field_t::nset_t test_nset_t;
+	/** \brief N-set of the trial field */
+	typedef typename trial_field_t::nset_t trial_nset_t;
+
+	/** \brief type of test shape function */
+	typedef typename test_nset_t::shape_t test_shape_t;
+	/** \brief type of trial shape function */
+	typedef typename trial_nset_t::shape_t trial_shape_t;
+
+	/** \brief result type of the weighted residual */
+	typedef typename plain_type<
+		typename product_type<test_shape_t, Eigen::Transpose<trial_shape_t> >::type
+	>::type result_t;
+	
+public:
+	/** \brief evaluate collocational integral on given fields
+	* \param [in] elem the element to integrate on
+	* \return integration result
+	*/
+	static result_t eval(dirac_wrapper<test_field_t> const &, trial_field_t const &)
+	{
+		result_t result;
+		result.setZero();
+		for (unsigned row = 0; row < test_nset_t::num_nodes; ++row)
+			result.row(row) += trial_nset_t::eval_shape(test_nset_t::corner_at(row));
+		return result;
+	}
+};
+
+#endif // SINGLE_INTEGRAL_HPP
+

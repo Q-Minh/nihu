@@ -25,7 +25,7 @@ public:
 	 * \param [in] func_space constant reference to the function space to wrap
 	 */
 	dirac_wrapper(FuncSpace const &func_space) :
-		m_func_space(func_space)
+		m_wrapped(func_space)
 	{
 	}
 	
@@ -33,14 +33,14 @@ public:
 	 * \brief return stored function space reference
 	 * \return reference to the wrapped function space
 	 */
-	function_space_t const &get_function_space(void) const
+	function_space_t const &get_wrapped(void) const
 	{
-		return m_func_space;
+		return m_wrapped;
 	}
 	
 private:
 	/** \brief the stored function space reference */
-	function_space_t const &m_func_space;
+	function_space_t const &m_wrapped;
 };
 
 /**
