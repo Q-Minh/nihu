@@ -17,6 +17,7 @@
 #include <Eigen/Dense>
 #include <Eigen/StdVector>
 
+/** \brief metafunction converting a type into an std::vector<T> type with Eigen allocator */
 template <class T>
 struct EigenStdVector
 {
@@ -24,6 +25,7 @@ struct EigenStdVector
 };
 
 
+/** \brief 
 namespace formalism
 {
 	struct collocational {};

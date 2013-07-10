@@ -55,6 +55,7 @@ namespace tmp
 		};
 	}
 
+	/** \brief specialisation of metafunction ::deref for the stack iterator */
 	template <class Seq>
 	struct deref<stack_iterator<Seq> >
 	{

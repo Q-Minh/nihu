@@ -1,6 +1,6 @@
 /**
 * \file dirac_wrapper.hpp
-* \ingroup intop
+* \ingroup funcspace
 * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
 * \brief declaration of class ::dirac_wrapper that transforms a ::function_space into a Dirac space
 */
