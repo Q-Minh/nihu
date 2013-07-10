@@ -40,7 +40,7 @@ struct field_id
 template <class Derived>
 class field_base
 {
-private:
+public:
 	/** \brief CRTP helper function */
 	Derived const &derived(void) const
 	{
@@ -53,7 +53,6 @@ private:
 		return static_cast<Derived &>(*this);
 	}
 
-public:
 	/** \brief the traits class */
 	typedef field_traits<Derived> traits_t;
 	/** \brief the element type */
@@ -62,8 +61,6 @@ public:
 	typedef typename traits_t::nset_t nset_t;
 	/** \brief the dofs vector type */
 	typedef typename traits_t::dofs_t dofs_t;
-	/** \brief indicates if field is dirac field or not */
-	static bool const is_dirac = traits_t::is_dirac;
 	/** \brief the number of dofs */
 	static unsigned const num_dofs = nset_t::num_nodes;
 
@@ -99,7 +96,7 @@ template <class Field>
 class dirac_field;
 
 template <class Field>
-class field_traits<dirac_field<Field> >
+struct field_traits<dirac_field<Field> >
 {
 	typedef typename field_traits<Field>::elem_t elem_t;
 	typedef typename field_traits<Field>::nset_t nset_t;
@@ -109,7 +106,9 @@ class field_traits<dirac_field<Field> >
 
 
 template <class Field>
-class dirac_field : public field_base<dirac_field<Field> >
+class dirac_field :
+	public field_base<dirac_field<Field> >,
+	public Field
 {
 public:
 	/** \brief the crtp base */
@@ -120,19 +119,13 @@ public:
 	typedef typename base_t::elem_t elem_t;
 	typedef typename base_t::dofs_t dofs_t;
 
-	/** \brief constructor from a parent field or field-like object */
-	dirac_field(field_base<field_t> const &parent) :
-		m_field(parent.derived())
-	{
-	}
-
 	/**
 	 * \brief return underlying element
 	 * \return the element of the field
 	 */
 	elem_t const &get_elem(void) const
 	{
-		return m_field.get_elem();
+		return field_t::get_elem();
 	}
 
 	/**
@@ -141,11 +134,8 @@ public:
 	 */
 	dofs_t const &get_dofs(void) const
 	{
-		return m_field.get_dofs();
+		return field_t::get_dofs();
 	}
-
-private:
-	field_t const &m_field;
 };
 
 
@@ -175,28 +165,20 @@ struct field_traits<field_view<ElemType, field_option::isoparametric> >
  * \tparam ElemType the element type the field is associated with
  */
 template <class ElemType>
-class field_view<ElemType, field_option::isoparametric>
-	: public field_base<field_view<ElemType, field_option::isoparametric> >
+class field_view<ElemType, field_option::isoparametric> :
+	public field_base<field_view<ElemType, field_option::isoparametric> >,
+	public ElemType
 {
 public:
 	/** \brief base's type */
-	typedef field_base<field_view<ElemType, field_option::isoparametric> > base_t;
+	typedef field_base<field_view<ElemType, field_option::isoparametric> > crtp_base_t;
 
 	typedef field_view type;
 
 	/** \brief the field's elem type */
-	typedef typename base_t::elem_t elem_t;
+	typedef ElemType elem_t;
 	/** \brief the degree of freedom vector type */
-	typedef typename base_t::dofs_t dofs_t;
-
-	/**
-	 * \brief constructor simply passing argument to base constructor
-	 * \param [in] elem constant reference to underlying element
-	 */
-	field_view(element_base<elem_t> const &elem) :
-		m_elem(elem.derived())
-	{
-	}
+	typedef typename crtp_base_t::dofs_t dofs_t;
 
 	/**
 	 * \brief return underlying element
@@ -204,7 +186,7 @@ public:
 	 */
 	elem_t const &get_elem(void) const
 	{
-		return m_elem;
+		return *this;
 	}
 
 	/**
@@ -213,11 +195,8 @@ public:
 	 */
 	dofs_t const &get_dofs(void) const
 	{
-		return m_elem.get_nodes();
+		return elem_t::get_nodes();
 	}
-	
-private:
-	elem_t const &m_elem;
 };
 
 
@@ -239,28 +218,20 @@ struct field_traits<field_view<ElemType, field_option::constant> >
  * \tparam ElemType the element type the field is associated with
  */
 template <class ElemType>
-class field_view<ElemType, field_option::constant>
-	: public field_base<field_view<ElemType, field_option::constant> >
+class field_view<ElemType, field_option::constant> :
+	public field_base<field_view<ElemType, field_option::constant> >,
+	public ElemType
 {
 public:
 	/** \brief base's type */
-	typedef field_base<field_view<ElemType, field_option::constant> > base_t;
+	typedef field_base<field_view<ElemType, field_option::constant> > crtp_base_t;
 
 	typedef field_view type;
 
 	/** \brief the element type */
-	typedef typename base_t::elem_t elem_t;
+	typedef ElemType elem_t;
 	/** \brief the dof vector type */
-	typedef typename base_t::dofs_t dofs_t;
-
-	/**
-	 * \brief constructor passing argument to base constructor
-	 * \param [in] elem constant reference to underlying element
-	 */
-	field_view(element_base<elem_t> const &elem) :
-		m_elem(&elem.derived())
-	{
-	}
+	typedef typename crtp_base_t::dofs_t dofs_t;
 
 	/**
 	 * \brief return underlying element
@@ -268,7 +239,7 @@ public:
 	 */
 	elem_t const &get_elem(void) const
 	{
-		return *m_elem;
+		return *this;
 	}
 
 	/**
@@ -277,16 +248,8 @@ public:
 	 */
 	dofs_t const &get_dofs(void) const
 	{
-		return m_elem->get_id();
+		return elem_t::get_id();
 	}
-
-	void set_elem(element_base<elem_t> const &elem)
-	{
-		m_elem = &elem.derived();
-	}
-	
-private:
-	elem_t const *m_elem;
 };
 
 

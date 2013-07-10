@@ -68,7 +68,8 @@ class function_space_view;
 * \brief internal iterator class provides access to the mesh's elements as fields
 */
 template <class FieldViewType>
-class field_view_iterator_t
+class field_view_iterator_t :
+	public mesh_elem_iterator_t<typename FieldViewType::elem_t>::type
 {
 	// CRTP check
 	static_assert(std::is_base_of<field_base<FieldViewType>, FieldViewType>::value,
@@ -79,25 +80,9 @@ public:
 	/** \brief the pointed data type */
 	typedef FieldViewType value_t;
 
-	/**
-	* \brief constructor from base iterator
-	* \param it element iterator
-	*/
-	field_view_iterator_t(base_it const &it)
-		: m_it(it), m_field_view(*m_it)
+	field_view_iterator_t(base_it const &base) :
+		base_it(base)
 	{
-	}
-
-	bool operator!=(field_view_iterator_t const &other) const
-	{
-		return m_it != other.m_it;
-	}
-
-	field_view_iterator_t const &operator++(void)
-	{
-		++m_it;
-		m_field_view.set_elem(*m_it);
-		return *this;
 	}
 
 	/**
@@ -106,17 +91,13 @@ public:
 	*/
 	value_t const &operator *(void) const
 	{
-		return m_field_view;
+		return static_cast<value_t const &>(*(*this));
 	}
 
 	value_t const *operator->(void) const
 	{
-		return &m_field_view;
+		return &(*(*this));
 	}
-
-private:
-	base_it m_it;
-	FieldViewType m_field_view;
 };
 
 
