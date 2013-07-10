@@ -20,11 +20,13 @@ template <class Derived>
 class function_space_base
 {
 public:
+	/** \brief CRTP helper */
 	Derived const &derived(void) const
 	{
 		return static_cast<Derived const &>(*this);
 	}
 
+	/** \brief CRTP helper */
 	Derived &derived(void)
 	{
 		return static_cast<Derived &>(*this);
@@ -64,43 +66,57 @@ class function_space_view;
 
 /**
 * \brief internal iterator class provides access to the mesh's elements as fields
-* \tparam ElemType the element types that need to be accessed
 */
-template <class FieldType>
-class field_view_iterator_t :
-	public mesh_elem_iterator_t<typename FieldType::elem_t>::type
+template <class FieldViewType>
+class field_view_iterator_t
 {
 	// CRTP check
-	static_assert(std::is_base_of<field_base<FieldType>, FieldType>::value,
+	static_assert(std::is_base_of<field_base<FieldViewType>, FieldViewType>::value,
 		"FieldType must be derived from field_base<FieldType>");
 public:
 	/** \brief the base iterator type */
-	typedef typename mesh_elem_iterator_t<typename FieldType::elem_t>::type base_it;
+	typedef typename mesh_elem_iterator_t<typename FieldViewType::elem_t>::type base_it;
 	/** \brief the pointed data type */
-	typedef FieldType value_t;
+	typedef FieldViewType value_t;
 
 	/**
 	* \brief constructor from base iterator
 	* \param it element iterator
 	*/
 	field_view_iterator_t(base_it const &it)
-		: base_it(it)
+		: m_it(it), m_field_view(*m_it)
 	{
+	}
+
+	bool operator!=(field_view_iterator_t const &other) const
+	{
+		return m_it != other.m_it;
+	}
+
+	field_view_iterator_t const &operator++(void)
+	{
+		++m_it;
+		m_field_view.set_elem(*m_it);
+		return *this;
 	}
 
 	/**
 	* \brief dereference operator converts dereferenced element into field
 	* \return the referred field class
 	*/
-	value_t operator *(void) const
+	value_t const &operator *(void) const
 	{
-		return value_t(base_it::operator*());
+		return m_field_view;
+	}
+
+	value_t const *operator->(void) const
+	{
+		return &m_field_view;
 	}
 
 private:
-	/** \brief hide arrow operators because fields are generated on the fly */
-	value_t & operator->(void) const;
-	value_t & operator->(void);
+	base_it m_it;
+	FieldViewType m_field_view;
 };
 
 
@@ -429,9 +445,9 @@ public:
 
 	/** \brief push a field to the vector of fields */
 	template <class field_t>
-	field_t const &push_field(field_t const &f)
+	field_t const &push_field(field_base<field_t> const &f)
 	{
-		m_fields.EigenStdVector<field_t>::type::push_back(f);
+		m_fields.EigenStdVector<field_t>::type::push_back(f.derived());
 		return *(m_fields.EigenStdVector<field_t>::type::rbegin());
 	}
 

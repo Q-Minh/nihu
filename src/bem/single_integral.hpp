@@ -15,12 +15,12 @@
 #include "../util/plain_type.hpp"
 
 /**
-* \brief sigle integral over an element
+* \brief single integral over an element
 * \tparam TestField type of the test field
 * \tparam TrialField type of the trial field
 */
-template <class TestField, class TrialField>
-class single_integral
+template <bool isTestDirac, class TestField, class TrialField>
+class single_integral_impl
 {
 	// CRTP check
 	static_assert(std::is_base_of<field_base<TestField>, TestField>::value,
@@ -109,7 +109,7 @@ public:
 * \tparam TrialField type of the trial field
 */
 template <class TestField, class TrialField>
-class single_integral<dirac_wrapper<TestField>, TrialField>
+class single_integral_impl<true, TestField, TrialField>
 {
 	// CRTP check
 	static_assert(std::is_base_of<field_base<TestField>, TestField>::value,
@@ -155,6 +155,14 @@ public:
 		return result;
 	}
 };
+
+
+template <class TestField, class TrialField>
+class single_integral :
+	public single_integral_impl<field_traits<TestField>::is_dirac, TestField, TrialField>
+{
+};
+
 
 #endif // SINGLE_INTEGRAL_HPP
 

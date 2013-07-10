@@ -7,7 +7,6 @@
 #ifndef WEIGHTED_RESIDUAL_HPP_INCLUDED
 #define WEIGHTED_RESIDUAL_HPP_INCLUDED
 
-#include "matrix_block.hpp"
 #include "function_space.hpp"
 #include "double_integral.hpp"
 #include "../util/dual_range.hpp"
@@ -17,7 +16,7 @@ template <class LeftDerived, class RightDerived>
 class wr_sum;
 
 template <class Derived>
-class wr_expression
+class wr_base
 {
 public:
 	Derived const &derived(void) const
@@ -31,178 +30,72 @@ public:
 	}
 
 	template <class result_t>
-	result_t &eval_into(result_t &result) const
+	result_t &eval(result_t &result) const
 	{
-		return derived().eval_into(result);
+		return derived().eval(result);
 	}
 	
 	template <class OtherDerived>
 	wr_sum<Derived, OtherDerived>
-	operator+(wr_expression<OtherDerived> const &otherDerived) const
+		operator+(wr_base<OtherDerived> const &otherDerived) const
 	{
-		return wr_sum<Derived, OtherDerived>(derived(), otherDerived.derived());
+		return wr_sum<Derived, OtherDerived>(*this, otherDerived);
 	}
 };
-
-
-template <class result_t, class Derived>
-void operator+=(result_t &result, wr_expression<Derived> const &wr)
-{
-	wr.derived().eval_into(result);
-}
 
 
 template <class LeftDerived, class RightDerived>
 class wr_sum :
-	public wr_expression<wr_sum<LeftDerived, RightDerived> >
+	public wr_base<wr_sum<LeftDerived, RightDerived> >
 {
 public:
-	wr_sum(LeftDerived const &left, RightDerived const &right) :
-		ld(left), rd(right)
+	wr_sum(wr_base<LeftDerived> const &left, wr_base<RightDerived> const &right) :
+		m_lhs(left.derived()), m_rhs(right.derived())
 	{
 	}
 
 	template <class result_t>
-	result_t &eval_into(result_t &result) const
+	result_t &eval(result_t &result) const
 	{
-		ld.derived().eval_into(result);
-		rd.derived().eval_into(result);
+		m_lhs.eval_into(result);
+		m_rhs.eval_into(result);
 		return result;
 	}
 	
 private:
-	LeftDerived const &ld;
-	RightDerived const &rd;
+	LeftDerived const &m_lhs;
+	RightDerived const &m_rhs;
 };
 
 
-/** \brief  integrates a kernel over two function spaces
- * \tparam Kernel the kernel to be integrated
- * \tparam TestSpace the test function space over which integration is performed
- * \tparam TrialSpace the trial function space over which integration is performed
- */
-template <class Formalism, class Operator, class TestSpace, class TrialSpace>
+template <class TestSpace, class Projection>
 class weighted_residual :
-	public wr_expression<weighted_residual<Formalism, Operator, TestSpace, TrialSpace> >
+	public wr_base<weighted_residual<TestSpace, Projection> >
 {
 public:
-	/** \brief template parameter as nested type */
-	typedef Operator operator_t;
-	/** \brief template parameter as nested type */
-	typedef TestSpace test_space_t;
-	/** \brief template parameter as nested type */
-	typedef TrialSpace trial_space_t;
-
-	/** \brief template parameter as nested type */
-	typedef typename operator_t::kernel_t kernel_t;
-	/** \brief indicates if operator is local or not */
-	static bool const is_local = operator_t::is_local;
-
-private:
-
-	/** \brief evaluate weighted residual on homogeneous function spaces
-	 * \details This is a helper functor called by tmp::call_each
-	 * \tparam TestField the test field type over which integration is performed
-	 * \tparam TrialField the trial field type over which integration is performed
-	 */
-	template <class TestField, class TrialField>
-	struct eval_on { struct type {
-		/** \brief the test field type */
-		typedef TestField test_field_t;
-		/** \brief the trial field type */
-		typedef TrialField trial_field_t;
-
-		/** \brief indicates if the two field types are defined over the same element type */
-		static bool const same_elem_type = std::is_same<
-			typename test_field_t::elem_t,
-			typename trial_field_t::elem_t
-		>::value;
-
-		/** \brief the internal integrator type */
-		typedef double_integral<kernel_t, test_field_t, trial_field_t> double_integral_t;
-		/** \brief result type of field integrator */
-		typedef typename double_integral_t::result_t result_t;
-
-		/** \brief evaluate weighted residual on homogeneous function spaces
-		 * \tparam result_t the type of the result matrix
-		 * \param [out] result reference to the result matrix the result block is inserted to
-		 * \param [in] kernel the kernel to integrate
-		 * \param [in] test_space the test function space
-		 * \param [in] trial_space the trial function space
-		 */
-		template <class result_t>
-		void operator() (result_t &result,
-			kernel_t &kernel,
-			test_space_t const &test_space,
-			trial_space_t const &trial_space)
-		{
-			auto rng = create_dual_range(
-				iteration::plain(),
-				test_space.template field_begin<test_field_t>(),
-				test_space.template field_end<test_field_t>(),
-				trial_space.template field_begin<trial_field_t>(),
-				trial_space.template field_end<trial_field_t>()
-			);
-
-			auto it = rng.begin();
-			auto end = rng.end();
-			while (it != end)
-			{
-				if (!is_local ||
-					( same_elem_type && (*it.get_first()).get_elem().get_id() == (*it.get_second()).get_elem().get_id()) )
-				{
-					block(result, (*it.get_first()).get_dofs(), (*it.get_second()).get_dofs())
-						+= double_integral_t::eval(Formalism(), kernel, *(it.get_first()), *(it.get_second()));
-				}
-				++it;
-			}
-		}
-	};};
-
-public:
-	/** \brief constructor from operator and spaces
-	* \param [in] op the integral operator
-	* \param test_space the test function space
-	* \param trial_space the trial function space
-	*/
-	weighted_residual(
-		operator_t &op,
-		test_space_t const &test_space,
-		trial_space_t const &trial_space) :
-		m_operator(op), m_test_space(test_space), m_trial_space(trial_space)
+	weighted_residual(function_space_base<TestSpace> const &test, projection_base<Projection> const &proj) :
+		m_test(test.derived()), m_proj(proj.derived())
 	{
 	}
 
-	/** \brief evaluate weighted residual and return reference to the result matrix
-	 * \tparam result_t type of the result matrix
-	 * \param [out] result reference to the result matrix
-	 * \return reference to the result matrix for cascading
-	 */
 	template <class result_t>
-	result_t &eval_into(result_t &result) const
+	result_t &eval(result_t &result) const
 	{
-		tmp::d_call_each<
-			typename test_space_t::field_type_vector_t,
-			typename trial_space_t::field_type_vector_t,
-			eval_on<tmp::_1, tmp::_2>,
-			result_t &,
-			kernel_t &,
-			test_space_t const &,
-			trial_space_t const &
-		>(result, m_operator.get_kernel(), m_test_space, m_trial_space);
-
+		m_proj.test_on_into(m_test, result);
 		return result;
 	}
 
 private:
-	/** \brief the integral operator reference */
-	operator_t &m_operator;
-	/** \brief the test space reference */
-	test_space_t const &m_test_space;
-	/** \brief the trial space reference */
-	trial_space_t const &m_trial_space;
+	TestSpace const &m_test;
+	Projection const &m_proj;
 };
 
+template <class Test, class Proj>
+weighted_residual<Test, Proj>
+	operator *(function_space_base<Test> const &test, projection_base<Proj> const &proj)
+{
+	return weighted_residual<Test, Proj>(test, proj);
+}
 
 #endif // ifndef WEIGHTED_RESIDUAL_HPP_INCLUDED
 

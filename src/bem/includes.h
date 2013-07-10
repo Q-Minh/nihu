@@ -25,7 +25,6 @@ struct EigenStdVector
 };
 
 
-/** \brief 
 namespace formalism
 {
 	struct collocational {};

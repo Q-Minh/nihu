@@ -8,6 +8,8 @@
 #ifndef PROJECTION_HPP_INCLUDED
 #define PROJECTION_HPP_INCLUDED
 
+#include "assembly.hpp"
+
 // forward declaration
 template <class LDerived, class RDerived>
 class projection_sum;
@@ -131,7 +133,11 @@ public:
 		function_space_base<TestSpace> const &test_space,
 		Result &result) const
 	{
-		std::cout << "Tesztelek, geexci" << std::endl;
+		assembly<TestSpace, TrialSpace>::eval_into(
+			result,
+			m_op,
+			test_space.derived(),
+			m_trial_space);
 	}
 	
 
@@ -141,21 +147,6 @@ private:
 	/** \brief the function space stored by reference */
 	TrialSpace const &m_trial_space;
 };
-
-/** \brief factory operator to create a projection from an integral operator and a trial space
-* \tparam Operator the integral operator type
-* \tparam TrialSpace the trial function space type
-* \param [in] op the integral operator
-* \param [in] trial the trial space reference
-* \return projection proxy class
-*/
-template <class Operator, class TrialSpace>
-projection<Operator, TrialSpace>
-	operator*(integral_operator_base<Operator> const &op,
-	function_space_base<TrialSpace> const &trial)
-{
-	return projection<Operator, TrialSpace>(op, trial);
-}
 
 #endif
 

@@ -131,7 +131,7 @@ namespace tmp
 			typedef a type;
 		};
 
-		/** \todo does not work with dcalleach if changed to variaic A1 A2 style */
+		/** \todo does not work with dcalleach if changed to varizzaic A1 A2 style */
 		template <template <class a, class b> class MetaFun, class a1, class a2>
 		struct lambda_plExp<MetaFun<a1, a2> >
 		{
@@ -156,19 +156,19 @@ namespace tmp
 		{
 			typedef struct
 			{
-				template <class ...Args>
+				template <class A1 = void_, class A2 = void_>
 				struct apply : MetaFun<
 					typename cond_eval_arg<
 						typename isPlaceholderExpression<a1>::type,
-						a1, Args...
+						a1, A1, A2
 					>::type,
 					typename cond_eval_arg<
 						typename isPlaceholderExpression<a2>::type,
-						a2, Args...
+						a2, A1, A2
 					>::type,
 					typename cond_eval_arg<
 						typename isPlaceholderExpression<a3>::type,
-						a3, Args...
+						a3, A1, A2
 					>::type
 				> {};
 			} type;

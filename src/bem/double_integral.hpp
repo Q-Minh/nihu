@@ -12,14 +12,17 @@
 #include "../util/plain_type.hpp"
 #include "kernel.hpp"
 
+
+
+
 /**
 * \brief class evaluating double integrals of the weighted residual approach
 * \tparam Kernel type of the kernel to integrate
 * \tparam Test type of the test field
 * \tparam Trial type of the trial field
 */
-template <class Kernel, class TestField, class TrialField>
-class double_integral
+template <bool isTestDirac, class Kernel, class TestField, class TrialField>
+class double_integral_impl
 {
 	// CRTP check
 	static_assert(std::is_base_of<kernel_base<Kernel>, Kernel>::value,
@@ -250,7 +253,7 @@ public:
 
 
 template <class Kernel, class TestField, class TrialField>
-class double_integral<Kernel, dirac_wrapper<TestField>, TrialField>
+class double_integral_impl<true, Kernel, TestField, TrialField>
 {
 	// CRTP check
 	static_assert(std::is_base_of<kernel_base<Kernel>, Kernel>::value,
@@ -472,6 +475,14 @@ public:
 			kernel, test_field.get_wrapped(), trial_field);
 	}
 };
+
+
+template <class Kernel, class TestField, class TrialField>
+class double_integral :
+	public double_integral_impl<field_traits<TestField>::is_dirac, Kernel, TestField, TrialField>
+{
+};
+
 
 #endif
 
