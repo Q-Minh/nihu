@@ -86,6 +86,7 @@ public:
 	}
 
 private:
+	/** \todo dangerous if projection is created on the fly */
 	TestSpace const &m_test;
 	Projection const &m_proj;
 };

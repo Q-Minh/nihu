@@ -7,6 +7,8 @@
 #ifndef FUNCTION_SPACE_HPP_INCLUDED
 #define FUNCTION_SPACE_HPP_INCLUDED
 
+#include "../util/crtp_base.hpp"
+#include "../util/casted_iterator.hpp"
 #include "field.hpp"
 #include "mesh.hpp"
 
@@ -20,94 +22,32 @@ template <class Derived>
 class function_space_base
 {
 public:
-	/** \brief CRTP helper */
-	Derived const &derived(void) const
-	{
-		return static_cast<Derived const &>(*this);
-	}
-
-	/** \brief CRTP helper */
-	Derived &derived(void)
-	{
-		return static_cast<Derived &>(*this);
-	}
+	NIHU_CRTP_HELPERS
 
 	/** \brief the traits class */
 	typedef function_space_traits<Derived> traits_t;
 
 	/** \brief the field type vector */
 	typedef typename traits_t::field_type_vector_t field_type_vector_t;
-
-	/** \brief return begin iterator of a subvector of fields */
-	template <class field_t>
-	typename traits_t::template iterator<field_t>::type field_begin(void) const
-	{
-		return derived().template field_begin<field_t>();
-	}
-
-	/** \brief return end iterator of a subvector of fields */
-	template <class field_t>
-	typename traits_t::template iterator<field_t>::type field_end(void) const
-	{
-		return derived().template field_end<field_t>();
-	}
-
-	/** \brief return total number of degrees of freedoms */
-	unsigned get_num_dofs(void) const
-	{
-		return derived().get_num_dofs();
-	}
 };
 
 
-/** \brief forward declaration of function space view class */
-template<class MeshT, class FieldOption>
+template <class Derived>
+class function_space_impl;
+
+
+// forward declaration
+template<class Mesh, class FieldOption>
 class function_space_view;
-
-/**
-* \brief internal iterator class provides access to the mesh's elements as fields
-*/
-template <class FieldViewType>
-class field_view_iterator_t :
-	public mesh_elem_iterator_t<typename FieldViewType::elem_t>::type
-{
-	// CRTP check
-	static_assert(std::is_base_of<field_base<FieldViewType>, FieldViewType>::value,
-		"FieldType must be derived from field_base<FieldType>");
-public:
-	/** \brief the base iterator type */
-	typedef typename mesh_elem_iterator_t<typename FieldViewType::elem_t>::type base_it;
-	/** \brief the pointed data type */
-	typedef FieldViewType value_t;
-
-	field_view_iterator_t(base_it const &base) :
-		base_it(base)
-	{
-	}
-
-	/**
-	* \brief dereference operator converts dereferenced element into field
-	* \return the referred field class
-	*/
-	value_t const &operator *(void) const
-	{
-		return static_cast<value_t const &>(*(*this));
-	}
-
-	value_t const *operator->(void) const
-	{
-		return &(*(*this));
-	}
-};
 
 
 /** \brief traits class of a function space view */
-template <class MeshT, class FieldOption>
-struct function_space_traits<function_space_view<MeshT, FieldOption> >
+template <class Mesh, class FieldOption>
+struct function_space_traits<function_space_view<Mesh, FieldOption> >
 {
 	/** \brief the field type vector */
 	typedef typename tmp::transform<
-		typename MeshT::elem_type_vector_t,
+		typename Mesh::elem_type_vector_t,
 		tmp::inserter<tmp::vector<>, tmp::push_back<tmp::_1, tmp::_2> >,
 		field_view<tmp::_1, FieldOption>
 	>::type field_type_vector_t;
@@ -116,46 +56,75 @@ struct function_space_traits<function_space_view<MeshT, FieldOption> >
 	template <class field_t>
 	struct iterator
 	{
-		typedef field_view_iterator_t<field_t> type;
+		typedef casted_iterator<
+			typename mesh_elem_iterator_t<typename field_t::elem_t>::type,
+			field_t
+		> type;
 	};
 };
 
 
 /**
-* \brief helper class to return total number of degrees of freedom of a mesh
-* \tparam mesh_t the mesh type
-* \tparam field_option field generation option
+* \brief function_space_view is a mesh extended with a Field generating option
+* \tparam Mesh the underlying Mesh type
+* \tparam FieldOption determines how the field is generated from the mesh
+* The class provides an iterator that can traverse the elements and derefers them as fields.
 */
-template <class mesh_t, class field_option>
-struct get_num_dofs_impl;
-
-/** \brief specialisation of get_num_dofs_impl for the constant case */
-template <class mesh_t>
-struct get_num_dofs_impl<mesh_t, field_option::constant>
+template<class Mesh, class FieldOption>
+class function_space_impl<function_space_view<Mesh, FieldOption> > :
+	public Mesh
 {
+public:
+	/** \brief the traits class */
+	typedef function_space_traits< function_space_view<Mesh, FieldOption> > traits_t;
+
+	/** \brief template parameter as nested type */
+	typedef Mesh mesh_t;
+	/** \brief template parameter as nested type */
+	typedef FieldOption field_option_t;
+
 	/**
-	* \brief return number of degrees of freedom
-	* \param mesh the mesh
-	* \return total number of degrees of freedom
+	* \brief first field of given element type
+	* \tparam ElemType the element type to access
 	*/
-	static unsigned eval(mesh_t const &mesh)
+	template <class FieldType>
+	typename traits_t::template iterator<FieldType>::type
+		field_begin(void) const
 	{
-		return mesh.get_num_elements();
+		return mesh_t::template begin<typename FieldType::elem_t>();
 	}
-};
 
-/** \brief specialisation of get_num_dofs_impl for the isoparametric case */
-template <class mesh_t>
-struct get_num_dofs_impl<mesh_t, field_option::isoparametric>
-{
+	/**
+	* \brief last field of given element type
+	* \tparam ElemType the element type to access
+	*/
+	template <class FieldType>
+	typename traits_t::template iterator<FieldType>::type
+		field_end(void) const
+	{
+		return mesh_t::template end<typename FieldType::elem_t>();
+	}
+
+private:
+	unsigned get_num_dofs_impl(field_option::constant) const
+	{
+		return mesh_t::get_num_elements();
+	}
+
+	unsigned get_num_dofs_impl(field_option::isoparametric) const
+	{
+		return mesh_t::get_num_points();
+	}
+
+
+public:
 	/**
 	* \brief return number of degrees of freedom
-	* \param mesh the mesh
-	* \return total number of degrees of freedom
+	* \return number of degrees of freedom
 	*/
-	static unsigned eval(mesh_t const &mesh)
+	unsigned get_num_dofs(void) const
 	{
-		return mesh.get_num_points();
+		return get_num_dofs_impl(field_option_t());
 	}
 };
 
@@ -165,96 +134,106 @@ struct get_num_dofs_impl<mesh_t, field_option::isoparametric>
 * \brief function_space_view is a mesh extended with a Field generating option
 * \tparam Mesh the underlying Mesh type
 * \tparam FieldOption determines how the field is generated from the mesh
-* \details The class is a proxy that stores a constant reference to the mesh.
 * The class provides an iterator that can traverse the elements and derefers them as fields.
 */
 template<class Mesh, class FieldOption>
-class function_space_view : public function_space_base<function_space_view<Mesh, FieldOption> >
+class function_space_view :
+	public function_space_base<function_space_view<Mesh, FieldOption> >,
+	public function_space_impl<function_space_view<Mesh, FieldOption> >
 {
-public:
-	/** \brief the CRTP base class */
-	typedef function_space_base<function_space_view<Mesh, FieldOption> > crtp_base;
-	/** \brief the traits class */
-	typedef typename crtp_base::traits_t traits_t;
-
-	/** \brief the field type vector */
-	typedef typename traits_t::field_type_vector_t field_type_vector_t;
-
-	/** \brief template parameter as nested type */
-	typedef Mesh mesh_t;
-	/** \brief template parameter as nested type */
-	typedef FieldOption field_option_t;
-
-	/**
-	* \brief constructor storing a reference from the mesh
-	* \param mesh the mesh object to extend
-	*/
-	function_space_view(mesh_t const &mesh) : m_mesh(mesh)
-	{
-	}
-
-	/**
-	* \brief first field of given element type
-	* \tparam ElemType the element type to access
-	*/
-	template <class FieldType>
-	typename traits_t::template iterator<FieldType>::type field_begin(void) const
-	{
-		// CRTP check
-		static_assert(std::is_base_of<field_base<FieldType>, FieldType>::value,
-			"FieldType must be derived from field_base<FieldType>");
-
-		return m_mesh.template begin<typename FieldType::elem_t>(); // automatic conversion by iterator constructor
-	}
-
-	/**
-	* \brief last field of given element type
-	* \tparam ElemType the element type to access
-	*/
-	template <class FieldType>
-	typename traits_t::template iterator<FieldType>::type field_end(void) const
-	{
-		// CRTP check
-		static_assert(std::is_base_of<field_base<FieldType>, FieldType>::value,
-			"FieldType must be derived from field_base<FieldType>");
-
-		return m_mesh.template end<typename FieldType::elem_t>(); // automatic conversion by iterator constructor
-	}
-
-	/**
-	* \brief return number of degrees of freedom
-	* \return number of degrees of freedom
-	*/
-	unsigned get_num_dofs(void) const
-	{
-		return get_num_dofs_impl<mesh_t, field_option_t>::eval(m_mesh);
-	}
-
-protected:
-	/** \brief the stored mesh reference */
-	mesh_t const &m_mesh;
 };
 
 
 template <class Mesh, class Option>
-function_space_view<Mesh, Option>
-create_function_space_view(Mesh const &msh, Option)
+function_space_view<Mesh, Option> const &
+	create_function_space_view(Mesh const &msh, Option)
 {
-	return function_space_view<Mesh, Option>(msh);
+	return static_cast<function_space_view<Mesh, Option> const &>(msh);
 }
 
 template <class Mesh>
-function_space_view<Mesh, field_option::isoparametric>
-isoparametric_view(Mesh const &msh)
+function_space_view<Mesh, field_option::isoparametric> const &
+	isoparametric_view(Mesh const &msh)
 {
-	return function_space_view<Mesh, field_option::isoparametric>(msh);
+	return create_function_space_view(msh, field_option::isoparametric());
 }
 
 template <class Mesh>
-function_space_view<Mesh, field_option::constant>
-constant_view(Mesh const &msh)
+function_space_view<Mesh, field_option::constant> const &
+	constant_view(Mesh const &msh)
 {
-	return function_space_view<Mesh, field_option::constant>(msh);
+	return create_function_space_view(msh, field_option::constant());
+}
+
+
+
+
+template <class FuncSpace>
+class dirac_space;
+
+template <class FuncSpace>
+struct function_space_traits<dirac_space<FuncSpace> >
+{
+	/** \brief the field type vector */
+	typedef typename tmp::transform<
+		typename function_space_traits<FuncSpace>::field_type_vector_t,
+		tmp::inserter<tmp::vector<>, tmp::push_back<tmp::_1, tmp::_2> >,
+		dirac_field<tmp::_1>
+	>::type field_type_vector_t;
+
+	/** \brief the iterator class traversing a field subvector */
+	template <class dirac_field_t>
+	struct iterator
+	{
+		typedef casted_iterator<
+			typename function_space_traits<FuncSpace>::template iterator<
+				typename dirac_field_t::field_t
+			>::type,
+			dirac_field_t,
+			field_impl<typename dirac_field_t::field_t>
+		> type;
+	};
+};
+
+
+template <class FuncSpace>
+class dirac_space :
+	public function_space_base<dirac_space<FuncSpace> >,
+	public function_space_impl<FuncSpace>
+{
+public:
+	/** \brief the traits class */
+	typedef function_space_traits<dirac_space<FuncSpace> > traits_t;
+	typedef function_space_impl<FuncSpace> impl_t;
+
+	/** \brief the field type vector */
+	typedef typename traits_t::field_type_vector_t field_type_vector_t;
+
+	/** \brief return begin iterator of a subvector of fields */
+	template <class dirac_field_t>
+	typename traits_t::template iterator<dirac_field_t>::type
+		field_begin(void) const
+	{
+		return impl_t::template field_begin<typename dirac_field_t::field_t>();
+	}
+
+	/** \brief return end iterator of a subvector of fields */
+	template <class dirac_field_t>
+	typename traits_t::template iterator<dirac_field_t>::type
+		field_end(void) const
+	{
+		return impl_t::template field_end<typename dirac_field_t::field_t>();
+	}
+};
+
+
+/** \brief factory function to convert a function space into a dirac space */
+template <class FuncSpace>
+dirac_space<FuncSpace> const &
+	dirac(function_space_base<FuncSpace> const &space)
+{
+	return static_cast<dirac_space<FuncSpace> const &>(
+		static_cast<function_space_impl<FuncSpace> const &>(space.derived()));
 }
 
 
@@ -297,19 +276,21 @@ struct field_2_elem_type_vector
 	>::type>::type type;
 };
 
+
+
+
+
+
 /** \brief class describing a function space
 * \tparam FieldTypeVector compile time vector of fields building the function space
 */
 template <class FieldTypeVector>
-class function_space :
-	public function_space_base<function_space<FieldTypeVector> >,
+class function_space_impl<function_space<FieldTypeVector> > :
 	public mesh<typename field_2_elem_type_vector<FieldTypeVector>::type>
 {
 public:
-	/** \brief the CRTP base class */
-	typedef function_space_base<function_space<FieldTypeVector> > crtp_base;
 	/** \brief the traits class */
-	typedef typename crtp_base::traits_t traits_t;
+	typedef typename function_space_traits<function_space<FieldTypeVector> >::traits_t traits_t;
 
 	/** \brief the field type vector */
 	typedef typename traits_t::field_type_vector_t field_type_vector_t;
@@ -332,7 +313,7 @@ protected:
 	template <class field_t>
 	struct field_adder { struct type {
 		/** \brief add a field to the function space */
-		bool operator() (unsigned const input[], function_space &fsp)
+		bool operator() (unsigned const input[], function_space_impl &fsp)
 		{
 			typedef typename field_t::elem_t elem_t;
 			if (input[0] == field_t::id)
@@ -362,21 +343,21 @@ protected:
 
 private:
 	/** \brief disable copying of function spaces as the fields contain references to the elements */
-	function_space(function_space const &other);
+	function_space_impl(function_space_impl const &other);
 
 	/** \brief disable assignment of function spaces as the fields contain references to the elements */
-	function_space const &operator=(function_space const &other);
+	function_space_impl const &operator=(function_space_impl const &other);
 
 
 public:
 	/** \brief constructor */
-	function_space() : m_num_dofs(0)
+	function_space_impl() : m_num_dofs(0)
 	{
 	}
 
 	/** \brief constructor from node and field definition matrices */
 	template <class node_matrix_t, class field_matrix_t>
-	function_space(node_matrix_t const &nodes, field_matrix_t const &fields)
+	function_space_impl(node_matrix_t const &nodes, field_matrix_t const &fields)
 		: m_num_dofs(0)
 	{
 		unsigned const N_MAX_FIELD = 1000;
@@ -420,7 +401,7 @@ public:
 			field_type_vector_t,
 			field_adder<tmp::_1>,
 			unsigned const*,
-			function_space &
+			function_space_impl &
 		>(input, *this);
 	}
 
@@ -453,6 +434,37 @@ protected:
 	field_container_t m_fields;	
 	/** \brief number of degrees of freedoms */
 	unsigned m_num_dofs;
+};
+
+
+
+
+
+
+
+
+/** \brief class describing a function space
+* \tparam FieldTypeVector compile time vector of fields building the function space
+*/
+template <class FieldTypeVector>
+class function_space :
+	public function_space_base<function_space<FieldTypeVector> >,
+	public function_space_impl<function_space<FieldTypeVector> >
+{
+public:
+	typedef function_space_impl<function_space<FieldTypeVector> > impl_t;
+
+	/** \brief constructor */
+	function_space() : impl_t()
+	{
+	}
+
+	/** \brief constructor from node and field definition matrices */
+	template <class node_matrix_t, class field_matrix_t>
+	function_space(node_matrix_t const &nodes, field_matrix_t const &fields)
+		: impl_t(nodes, fields)
+	{
+	}
 };
 
 

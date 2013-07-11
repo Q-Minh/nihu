@@ -8,6 +8,7 @@
 #ifndef PROJECTION_HPP_INCLUDED
 #define PROJECTION_HPP_INCLUDED
 
+#include "../util/crtp_base.hpp"
 #include "assembly.hpp"
 
 // forward declaration
@@ -22,17 +23,7 @@ template <class Derived>
 class projection_base
 {
 public:
-	/** \brief CRTP helper function */
-	Derived const &derived(void) const
-	{
-		return static_cast<Derived const &>(*this);
-	}
-
-	/** \brief CRTP helper function */
-	Derived &derived(void)
-	{
-		return static_cast<Derived &>(*this);
-	}
+	NIHU_CRTP_HELPERS
 
 	/** \brief test a projection with a test function space
 	* \tparam TestSpace type of the test space
@@ -95,9 +86,9 @@ public:
 	}
 	
 private:
-	/** \brief reference to the left hand side projection expression */
+	/** \brief the left hand side projection expression */
 	LDerived const m_lhs;
-	/** \brief reference to the right hand side projection expression */
+	/** \brief the right hand side projection expression */
 	RDerived const m_rhs;
 };
 

@@ -9,7 +9,6 @@
 #define SINGLE_INTEGRAL_HPP_INCLUDED
 
 
-#include "../bem/dirac_wrapper.hpp"
 #include "gaussian_quadrature.hpp"
 #include "quadrature_pool.hpp"
 #include "../util/plain_type.hpp"
@@ -146,7 +145,7 @@ public:
 	* \param [in] elem the element to integrate on
 	* \return integration result
 	*/
-	static result_t eval(dirac_wrapper<test_field_t> const &, trial_field_t const &)
+	static result_t eval(field_base<test_field_t> const &, field_base<trial_field_t> const &)
 	{
 		result_t result;
 		result.setZero();

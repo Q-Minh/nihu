@@ -15,13 +15,13 @@ struct view_tester
 			ElemType e(ElemType::coords_t::Random());
 			std::cout << "coords: " << e.get_coords() << std::endl;
 
-			typedef field_view<ElemType, option> fv_t;
-			std::cout << static_cast<fv_t const &>(e).get_dofs() << std::endl;
-			std::cout << field_traits<fv_t>::is_dirac << std::endl;
+			auto cfv = constant_view(e);
+			std::cout << cfv.get_dofs() << std::endl;
+//			std::cout << "fv_t::is_dirac = " << std::boolalpha << field_traits<decltype(cfv)>::is_dirac << std::endl;
 
-			typedef dirac_field<fv_t> dv_t;
-			std::cout << static_cast<dv_t const &>(e).get_dofs() << std::endl;
-			std::cout << field_traits<dv_t>::is_dirac << std::endl;
+			auto dfv = dirac(cfv);
+			std::cout << dfv.get_dofs() << std::endl;
+//			std::cout << "dv_t::is_dirac = " << std::boolalpha << field_traits<dv_t>::is_dirac << std::endl;
 		}
 	};
 };
