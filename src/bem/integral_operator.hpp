@@ -7,6 +7,8 @@
 #ifndef INTEGRAL_OPERATOR_HPP_INCLUDED
 #define INTEGRAL_OPERATOR_HPP_INCLUDED
 
+#include "../util/crtp_base.hpp"
+#include "function_space.hpp"
 #include "single_integral.hpp"
 #include "double_integral.hpp"
 
@@ -31,17 +33,7 @@ template <class Derived>
 class integral_operator_base
 {
 public:
-	/** \brief CRTP helper function */
-	Derived const &derived() const
-	{
-		return static_cast<Derived const &>(*this);
-	}
-
-	/** \brief CRTP helper function */
-	Derived &derived()
-	{
-		return static_cast<Derived &>(*this);
-	}
+	NIHU_CRTP_HELPERS
 
 	/** \brief the traits class of the derived integral operator */
 	typedef integral_operator_traits<Derived> traits_t;

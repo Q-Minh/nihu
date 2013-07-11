@@ -464,15 +464,15 @@ public:
 	*/
 	static result_t eval(
 		kernel_t const &kernel,
-		dirac_wrapper<test_field_t> const &test_field,
-		trial_field_t const &trial_field)
+		field_base<test_field_t> const &test_field,
+		field_base<trial_field_t> const &trial_field)
 	{
 		result_t result;
 		result.setZero();	// clear result
 
-		return eval_collocational(std::integral_constant<bool, is_kernel_singular>(),
-			result,
-			kernel, test_field.get_wrapped(), trial_field);
+		return eval_collocational(
+			std::integral_constant<bool, is_kernel_singular>(),
+			result, kernel, test_field.derived(), trial_field.derived());
 	}
 };
 

@@ -7,6 +7,7 @@
 #ifndef ELEMENT_HPP_INCLUDED
 #define ELEMENT_HPP_INCLUDED
 
+#include "../util/crtp_base.hpp"
 #include "shapeset.hpp"
 
 /**
@@ -124,17 +125,7 @@ protected:
 	scalar_t m_linear_size_estimate;
 
 public:
-	/** \brief CRTP helper function */
-	Derived const &derived() const
-	{
-		return static_cast<Derived const &>(*this);
-	}
-
-	/** \brief CRTP helper function */
-	Derived &derived()
-	{
-		return static_cast<Derived &>(*this);
-	}
+	NIHU_CRTP_HELPERS
 
 	/**
 	* \brief default constructor for std::vector container

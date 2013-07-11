@@ -41,14 +41,15 @@ int main(void)
 
 	mesh_t msh(nodes, elements);
 
-	auto trial = constant_view(msh);	// isoparametric
-	auto test = constant_view(msh);
+	auto trial = constant_view(msh);	// constant
+	auto test = dirac(trial);			// collocational
 	int nDOF = test.get_num_dofs();
 	dMatrix A(nDOF, nDOF);
 	A.setZero();
 
 	auto op = identity_integral_operator();
-	auto wr = test * op[trial];
+	auto proj = op[trial];
+	auto wr = test * proj;
 	wr.eval(A);
 
 	std::cout << A << std::endl;
