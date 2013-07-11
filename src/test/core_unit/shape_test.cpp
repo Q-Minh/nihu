@@ -1,6 +1,6 @@
 
-#include "../tmp/control.hpp"
-#include "../bem/shapeset.hpp"
+#include "tmp/control.hpp"
+#include "bem/shapeset.hpp"
 
 template <class shape_set>
 struct tester

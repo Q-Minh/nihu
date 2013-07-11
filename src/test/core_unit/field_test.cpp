@@ -1,7 +1,7 @@
 #include <iostream>
-#include "../bem/field.hpp"
-#include "../tmp/sequence.hpp"
-#include "../tmp/control.hpp"
+#include "bem/field.hpp"
+#include "tmp/sequence.hpp"
+#include "tmp/control.hpp"
 
 template <class ElemType, class option>
 struct view_tester
@@ -17,11 +17,15 @@ struct view_tester
 
 			auto cfv = constant_view(e);
 			std::cout << cfv.get_dofs() << std::endl;
-//			std::cout << "fv_t::is_dirac = " << std::boolalpha << field_traits<decltype(cfv)>::is_dirac << std::endl;
+			
+			auto ifv = isoparametric_view(e);
+			std::cout << ifv.get_dofs() << std::endl;
 
-			auto dfv = dirac(cfv);
-			std::cout << dfv.get_dofs() << std::endl;
-//			std::cout << "dv_t::is_dirac = " << std::boolalpha << field_traits<dv_t>::is_dirac << std::endl;
+			auto dcfv = dirac(cfv);
+			std::cout << dcfv.get_dofs() << std::endl;
+			
+			auto difv = dirac(ifv);
+			std::cout << difv.get_dofs() << std::endl;
 		}
 	};
 };

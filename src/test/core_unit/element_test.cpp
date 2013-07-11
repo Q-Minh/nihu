@@ -1,7 +1,7 @@
 #include <iostream>
-#include "../bem/element.hpp"
-#include "../tmp/sequence.hpp"
-#include "../tmp/control.hpp"
+#include "bem/element.hpp"
+#include "tmp/sequence.hpp"
+#include "tmp/control.hpp"
 
 template <class ElemType>
 struct tester
