@@ -1,31 +1,39 @@
-#include "../bem/function_space.hpp"
-
-typedef tmp::vector<tria_1_elem, quad_1_elem> elem_vector;
-
 #include <iostream>
+#include "../bem/field.hpp"
+#include "../tmp/sequence.hpp"
+#include "../tmp/control.hpp"
+
+template <class ElemType, class option>
+struct view_tester
+{
+	struct type
+	{
+		void operator() (void)
+		{
+			std::cout << std::endl << "Elem type id: " << ElemType::id << std::endl;
+
+			ElemType e(ElemType::coords_t::Random());
+			std::cout << "coords: " << e.get_coords() << std::endl;
+
+			typedef field_view<ElemType, option> fv_t;
+			std::cout << static_cast<fv_t const &>(e).get_dofs() << std::endl;
+			std::cout << field_traits<fv_t>::is_dirac << std::endl;
+
+			typedef dirac_field<fv_t> dv_t;
+			std::cout << static_cast<dv_t const &>(e).get_dofs() << std::endl;
+			std::cout << field_traits<dv_t>::is_dirac << std::endl;
+		}
+	};
+};
 
 int main(void)
 {
-	double c[] = {
-		0, 0, 0,
-		1, 0, 0,
-		1, 1, 0,
-		0, 1, 0
-	};
-	unsigned e[] = {
-		4,  0, 1, 2, 3,
-		3,  0, 1, 2, 0,
-		3,  1, 2, 3, 0
-	};
+	typedef tmp::vector<tria_1_elem, quad_1_elem, tria_2_elem, quad_2_elem> elem_vector;
 
-	Mesh<elem_vector> mesh;
-	for (unsigned i = 0; i < 4; ++i)
-		mesh.add_node(c+i*3);
-	for (unsigned i = 0; i < 3; ++i)
-		mesh.add_elem(e+i*5);
-
-	function_space<Mesh<elem_vector>, constant_field> con_func(mesh);
-	function_space<Mesh<elem_vector>, isoparametric_field> iso_func(mesh);
+	tmp::call_each<
+		elem_vector,
+		view_tester<tmp::_1, field_option::constant>
+	>();
 
 	return 0;
 }

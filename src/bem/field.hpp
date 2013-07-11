@@ -40,20 +40,19 @@ struct field_id
 template <class Derived>
 class field_base
 {
-private:
-	/** \brief helper function to return reference to the derived class */
+public:
+	/** \brief CRTP helper function */
 	Derived const &derived(void) const
 	{
 		return static_cast<Derived const &>(*this);
 	}
 
-	/** \brief helper function to return reference to the derived class */
+	/** \brief CRTP helper function */
 	Derived &derived(void)
 	{
 		return static_cast<Derived &>(*this);
 	}
 
-public:
 	/** \brief the traits class */
 	typedef field_traits<Derived> traits_t;
 	/** \brief the element type */
@@ -66,7 +65,7 @@ public:
 	static unsigned const num_dofs = nset_t::num_nodes;
 
 	/** \brief the field identifier */
-	static unsigned const id; // = field_id<Derived>::value;
+	static unsigned const id;
 	
 
 	/**
@@ -88,8 +87,56 @@ public:
 	}
 };
 
+/** \brief definition of the default field identifier */
 template <class Derived>
 unsigned const field_base<Derived>::id = field_id<Derived>::value;
+
+
+template <class Field>
+class dirac_field;
+
+template <class Field>
+struct field_traits<dirac_field<Field> >
+{
+	typedef typename field_traits<Field>::elem_t elem_t;
+	typedef typename field_traits<Field>::nset_t nset_t;
+	typedef typename field_traits<Field>::dofs_t dofs_t;
+	static bool const is_dirac = true;
+};
+
+
+template <class Field>
+class dirac_field :
+	public field_base<dirac_field<Field> >,
+	public Field
+{
+public:
+	/** \brief the crtp base */
+	typedef field_base<dirac_field<Field> > base_t;
+	/** \brief the template field type */
+	typedef Field field_t;
+
+	typedef typename base_t::elem_t elem_t;
+	typedef typename base_t::dofs_t dofs_t;
+
+	/**
+	 * \brief return underlying element
+	 * \return the element of the field
+	 */
+	elem_t const &get_elem(void) const
+	{
+		return field_t::get_elem();
+	}
+
+	/**
+	 * \brief return dofs vector
+	 * \return the vector containing the degrees of freedoms
+	 */
+	dofs_t const &get_dofs(void) const
+	{
+		return field_t::get_dofs();
+	}
+};
 
 
 /**
@@ -109,6 +156,7 @@ struct field_traits<field_view<ElemType, field_option::isoparametric> >
 	typedef ElemType elem_t;	/**< \brief the element type */
 	typedef typename elem_t::lset_t nset_t;	/**< \brief the dof vector type */
 	typedef typename elem_t::nodes_t dofs_t;	/**< \brief the dof vector type */
+	static bool const is_dirac = false;
 };
 
 /**
@@ -117,27 +165,20 @@ struct field_traits<field_view<ElemType, field_option::isoparametric> >
  * \tparam ElemType the element type the field is associated with
  */
 template <class ElemType>
-class field_view<ElemType, field_option::isoparametric>
-	: public field_base<field_view<ElemType, field_option::isoparametric> >
+class field_view<ElemType, field_option::isoparametric> :
+	public field_base<field_view<ElemType, field_option::isoparametric> >,
+	public ElemType
 {
 public:
 	/** \brief base's type */
-	typedef field_base<field_view<ElemType, field_option::isoparametric> > base_t;
+	typedef field_base<field_view<ElemType, field_option::isoparametric> > crtp_base_t;
 
 	typedef field_view type;
 
 	/** \brief the field's elem type */
-	typedef typename base_t::elem_t elem_t;
+	typedef ElemType elem_t;
 	/** \brief the degree of freedom vector type */
-	typedef typename base_t::dofs_t dofs_t;
-
-	/**
-	 * \brief constructor simply passing argument to base constructor
-	 * \param [in] elem constant reference to underlying element
-	 */
-	field_view(elem_t const &elem) : m_elem(elem)
-	{
-	}
+	typedef typename crtp_base_t::dofs_t dofs_t;
 
 	/**
 	 * \brief return underlying element
@@ -145,7 +186,7 @@ public:
 	 */
 	elem_t const &get_elem(void) const
 	{
-		return m_elem;
+		return *this;
 	}
 
 	/**
@@ -154,11 +195,8 @@ public:
 	 */
 	dofs_t const &get_dofs(void) const
 	{
-		return m_elem.get_nodes();
+		return elem_t::get_nodes();
 	}
-	
-private:
-	elem_t const &m_elem;
 };
 
 
@@ -170,6 +208,7 @@ struct field_traits<field_view<ElemType, field_option::constant> >
 	/** \brief type of N-set */
 	typedef constant_shape_set<typename elem_t::domain_t> nset_t; 
 	typedef typename elem_t::id_t dofs_t;	/**< \brief the dof vector type */
+	static bool const is_dirac = false;
 };
 
 /**
@@ -179,27 +218,20 @@ struct field_traits<field_view<ElemType, field_option::constant> >
  * \tparam ElemType the element type the field is associated with
  */
 template <class ElemType>
-class field_view<ElemType, field_option::constant>
-	: public field_base<field_view<ElemType, field_option::constant> >
+class field_view<ElemType, field_option::constant> :
+	public field_base<field_view<ElemType, field_option::constant> >,
+	public ElemType
 {
 public:
 	/** \brief base's type */
-	typedef field_base<field_view<ElemType, field_option::constant> > base_t;
+	typedef field_base<field_view<ElemType, field_option::constant> > crtp_base_t;
 
 	typedef field_view type;
 
 	/** \brief the element type */
-	typedef typename base_t::elem_t elem_t;
+	typedef ElemType elem_t;
 	/** \brief the dof vector type */
-	typedef typename base_t::dofs_t dofs_t;
-
-	/**
-	 * \brief constructor passing argument to base constructor
-	 * \param [in] elem constant reference to underlying element
-	 */
-	field_view(elem_t const &elem) : m_elem(elem)
-	{
-	}
+	typedef typename crtp_base_t::dofs_t dofs_t;
 
 	/**
 	 * \brief return underlying element
@@ -207,7 +239,7 @@ public:
 	 */
 	elem_t const &get_elem(void) const
 	{
-		return m_elem;
+		return *this;
 	}
 
 	/**
@@ -216,11 +248,8 @@ public:
 	 */
 	dofs_t const &get_dofs(void) const
 	{
-		return m_elem.get_id();
+		return elem_t::get_id();
 	}
-	
-private:
-	elem_t const &m_elem;
 };
 
 
@@ -237,6 +266,7 @@ struct field_traits<field<ElemType, NSet> >
 	typedef ElemType elem_t;	/**< \brief the element type */
 	typedef NSet nset_t;
 	typedef Eigen::Matrix<unsigned, 1, nset_t::num_nodes> dofs_t;	/**< \brief the dof vector type */
+	static bool const is_dirac = false;
 };
 
 /**
@@ -257,7 +287,8 @@ public:
 	typedef typename base_t::dofs_t dofs_t;
 
 
-	field(elem_t const &elem, dofs_t const &dofs) : m_elem(elem), m_dofs(dofs)
+	field(element_base<elem_t> const &elem, dofs_t const &dofs) :
+		m_elem(elem.derived()), m_dofs(dofs)
 	{
 	}
 

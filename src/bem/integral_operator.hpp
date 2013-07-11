@@ -11,6 +11,10 @@
 #include "double_integral.hpp"
 
 // forward declaration
+template <class Operator, class TrialSpace>
+class projection;
+
+// forward declaration
 template <class Scalar, class Derived>
 class scaled_integral_operator;
 
@@ -60,7 +64,18 @@ public:
 	typename wr_result_type<Test, Trial>::type
 		eval_on_fields(Test const &test, Trial const &trial) const
 	{
-		return derived().eval_on_fields(test, trial);
+		if ( traits_t::is_local &&
+			( !std::is_same<typename Test::elem_t, typename Trial::elem_t>::value
+			  || test.get_elem().get_id() != trial.get_elem().get_id() ) )
+			return wr_result_type<Test, Trial>::type::Zero();
+		return derived().derived_eval_on_fields(test, trial);
+	}
+
+	template <class Trial>
+	projection<Derived, Trial>
+		operator[](function_space_base<Trial> const & trial) const
+	{
+		return projection<Derived, Trial>(*this, trial);
 	}
 };
 
@@ -95,6 +110,8 @@ struct integral_operator_traits<scaled_integral_operator<Scalar, Derived> >
 			>::type
 		>::type type;
 	};
+
+	static bool const is_local = integral_operator_traits<Derived>::is_local;
 };
 
 /** \brief Proxy class representing an integral operator multiplied by a scalar
@@ -130,7 +147,7 @@ public:
 	*/
 	template <class Test, class Trial>
 	typename base_t::template wr_result_type<Test, Trial>::type
-		eval_on_fields(Test const &test, Trial const &trial) const
+		derived_eval_on_fields(Test const &test, Trial const &trial) const
 	{
 		return m_scalar * m_parent.eval_on_fields(test, trial);
 	}
@@ -155,6 +172,8 @@ struct integral_operator_traits<identity_integral_operator>
 	{
 		typedef typename single_integral<Test, Trial>::result_t type;
 	};
+
+	static bool const is_local = true;
 };
 
 /** \brief The identity integral operator with kernel \f$\delta(x-y)\f$ */
@@ -174,7 +193,7 @@ public:
 	*/
 	template <class Test, class Trial>
 	typename base_t::template wr_result_type<Test, Trial>::type
-		eval_on_fields(Test const &test, Trial const &trial) const
+		derived_eval_on_fields(Test const &test, Trial const &trial) const
 	{
 		return single_integral<Test, Trial>::eval(test, trial);
 	}
@@ -195,6 +214,8 @@ struct integral_operator_traits<integral_operator<Kernel> >
 	{
 		typedef typename double_integral<Kernel, Test, Trial>::result_t type;
 	};
+
+	static bool const is_local = false;
 };
 
 
@@ -238,7 +259,7 @@ public:
 	*/
 	template <class Test, class Trial>
 	typename base_t::template wr_result_type<Test, Trial>::type
-		eval_on_fields(Test const &test, Trial const &trial) const
+		derived_eval_on_fields(Test const &test, Trial const &trial) const
 	{
 		return double_integral<kernel_t, Test, Trial>::eval(
 			m_kernel,

@@ -124,6 +124,18 @@ protected:
 	scalar_t m_linear_size_estimate;
 
 public:
+	/** \brief CRTP helper function */
+	Derived const &derived() const
+	{
+		return static_cast<Derived const &>(*this);
+	}
+
+	/** \brief CRTP helper function */
+	Derived &derived()
+	{
+		return static_cast<Derived &>(*this);
+	}
+
 	/**
 	* \brief default constructor for std::vector container
 	*/
