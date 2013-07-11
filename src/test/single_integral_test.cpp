@@ -43,13 +43,14 @@ int main(void)
 	mesh_t msh(nodes, elements);
 
 	auto trial = constant_view(msh);	// constant
-	auto test = trial;			// collocational
+	auto test = dirac(trial);			// collocational
 	int nDOF = test.get_num_dofs();
 	dMatrix A(nDOF, nDOF);
 	A.setZero();
 
-	auto op = create_integral_operator(poisson_G_kernel());
-	auto proj = op[trial];
+	auto b_op = create_integral_operator(poisson_G_kernel());
+	auto id_op = .5 * identity_integral_operator();
+	auto proj = b_op[trial] + id_op[trial];
 	auto wr = test * proj;
 	wr.eval(A);
 

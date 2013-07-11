@@ -91,6 +91,13 @@ private:
 	Projection const &m_proj;
 };
 
+/** \brief factory operator to create a weighted residual from a test space and a projection
+* \tparam Test the test space type
+* \tparam Proj the projection type
+* \param [in] test the test space reference
+* \param [in] proj the projection reference
+* \return the weighted residual
+*/
 template <class Test, class Proj>
 weighted_residual<Test, Proj>
 	operator *(function_space_base<Test> const &test, projection_base<Proj> const &proj)

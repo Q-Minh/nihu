@@ -670,6 +670,7 @@ WARN_LOGFILE           =
 
 INPUT                  = dox/ \
                          src/bem/ \
+                         src/util/ \
                          src/tmp/ \
                          src/library/
 

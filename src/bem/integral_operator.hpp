@@ -54,7 +54,9 @@ public:
 	*/
 	template <class Test, class Trial>
 	typename wr_result_type<Test, Trial>::type
-		eval_on_fields(Test const &test, Trial const &trial) const
+		eval_on_fields(
+			field_base<Test> const &test,
+			field_base<Trial> const &trial) const
 	{
 		if ( traits_t::is_local &&
 			( !std::is_same<typename Test::elem_t, typename Trial::elem_t>::value
@@ -63,6 +65,11 @@ public:
 		return derived().derived_eval_on_fields(test, trial);
 	}
 
+	/** \brief factory index operator from function space rhs
+	* \tparam Trial the trial function space
+	* \param [in] trial the function space reference
+	* \return projection object
+	*/
 	template <class Trial>
 	projection<Derived, Trial>
 		operator[](function_space_base<Trial> const & trial) const
@@ -139,7 +146,9 @@ public:
 	*/
 	template <class Test, class Trial>
 	typename base_t::template wr_result_type<Test, Trial>::type
-		derived_eval_on_fields(Test const &test, Trial const &trial) const
+		derived_eval_on_fields(
+			field_base<Test> const &test,
+			field_base<Trial> const &trial) const
 	{
 		return m_scalar * m_parent.eval_on_fields(test, trial);
 	}
@@ -185,7 +194,9 @@ public:
 	*/
 	template <class Test, class Trial>
 	typename base_t::template wr_result_type<Test, Trial>::type
-		derived_eval_on_fields(Test const &test, Trial const &trial) const
+		derived_eval_on_fields(
+			field_base<Test> const &test,
+			field_base<Trial> const &trial) const
 	{
 		return single_integral<Test, Trial>::eval(test, trial);
 	}
@@ -251,7 +262,9 @@ public:
 	*/
 	template <class Test, class Trial>
 	typename base_t::template wr_result_type<Test, Trial>::type
-		derived_eval_on_fields(Test const &test, Trial const &trial) const
+		derived_eval_on_fields(
+			field_base<Test> const &test,
+			field_base<Trial> const &trial) const
 	{
 		return double_integral<kernel_t, Test, Trial>::eval(
 			m_kernel,
