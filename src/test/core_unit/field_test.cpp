@@ -39,6 +39,11 @@ int main(void)
 		view_tester<tmp::_1, field_option::constant>
 	>();
 
+	tmp::call_each<
+		elem_vector,
+		view_tester<tmp::_1, field_option::isoparametric>
+	>();
+
 	return 0;
 }
 

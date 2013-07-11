@@ -28,17 +28,11 @@ struct tester
 int main(void)
 {
 	tmp::call_each<
-		tmp::vector<line_0_shape_set, tria_0_shape_set, quad_0_shape_set, brick_0_shape_set>,
-		tester<tmp::_1>
-	>();
-
-	tmp::call_each<
-		tmp::vector<line_1_shape_set, tria_1_shape_set, quad_1_shape_set, brick_1_shape_set>,
-		tester<tmp::_1>
-	>();
-
-	tmp::call_each<
-		tmp::vector<parallelogram_shape_set, tria_2_shape_set, quad_2_shape_set>,
+		tmp::vector<
+			line_0_shape_set, tria_0_shape_set, quad_0_shape_set, brick_0_shape_set,
+			line_1_shape_set, tria_1_shape_set, quad_1_shape_set, brick_1_shape_set,
+			parallelogram_shape_set, tria_2_shape_set, quad_2_shape_set
+		>,
 		tester<tmp::_1>
 	>();
 

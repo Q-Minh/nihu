@@ -1,15 +1,25 @@
 /**
  * \file casted_iterator.hpp
+ * \brief implementation of an iterator returning static casted values
+ * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
  */
 #ifndef CASTED_ITERATOR_HPP_INCLUDED
 #define CASTED_ITERATOR_HPP_INCLUDED
 
-/** \brief iterator class provides access to the mesh's elements as fields */
+/** \brief iterator class provides access to its value_t after static cast
+ * \tparam FromIt the original iterator type
+ * \tparam To the new value type
+ * \Through an intermediate value typ if needed for static cast
+ */
 template <class FromIt, class To, class Through = To>
-class casted_iterator : public FromIt
+class casted_iterator :
+	public FromIt
 {
 public:
-	/** \brief the pointed data type */
+	/** \brief self returning metafunction */
+	typedef casted_iterator type;
+	
+	/** \brief the new value type */
 	typedef To value_t;
 
 	/** \brief (copy) constructor from base iterator
@@ -20,8 +30,8 @@ public:
 	{
 	}
 
-	/** \brief dereference operator converts dereferenced element into field_view
-	* \return the referred field_view class
+	/** \brief dereference operator converts dereferenced element to casted type
+	* \return the referred casted type class
 	*/
 	value_t const &operator *(void) const
 	{
@@ -30,8 +40,8 @@ public:
 				FromIt::operator*()));
 	}
 
-	/** \brief pointer dereference operator
-	* \return pointer to the referred field view instance
+	/** \brief dereference operator converts dereferenced element to casted type
+	* \return the referred casted type pointer
 	*/
 	value_t const *operator->(void) const
 	{
