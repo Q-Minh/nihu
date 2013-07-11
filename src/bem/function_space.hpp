@@ -32,6 +32,7 @@ public:
 };
 
 
+/** \brief implementation class of function spaces */
 template <class Derived>
 class function_space_impl;
 
@@ -129,12 +130,10 @@ public:
 };
 
 
-
 /**
 * \brief function_space_view is a mesh extended with a Field generating option
 * \tparam Mesh the underlying Mesh type
 * \tparam FieldOption determines how the field is generated from the mesh
-* The class provides an iterator that can traverse the elements and derefers them as fields.
 */
 template<class Mesh, class FieldOption>
 class function_space_view :
@@ -144,6 +143,12 @@ class function_space_view :
 };
 
 
+/** \brief factory function to transform a mesh into a function space
+ * \tparam Mesh the mesh type
+ * \tparam Option the field generation option
+ * \param [in] mesh mesh reference
+ * \return function space view of the mesh
+ */
 template <class Mesh, class Option>
 function_space_view<Mesh, Option> const &
 	create_function_space_view(Mesh const &msh, Option)
@@ -151,6 +156,11 @@ function_space_view<Mesh, Option> const &
 	return static_cast<function_space_view<Mesh, Option> const &>(msh);
 }
 
+/** \brief factory function to transform a mesh into an isoparametric function space
+ * \tparam Mesh the mesh type
+ * \param [in] mesh mesh reference
+ * \return isoparametric function space view of the mesh
+ */
 template <class Mesh>
 function_space_view<Mesh, field_option::isoparametric> const &
 	isoparametric_view(Mesh const &msh)
@@ -158,6 +168,11 @@ function_space_view<Mesh, field_option::isoparametric> const &
 	return create_function_space_view(msh, field_option::isoparametric());
 }
 
+/** \brief factory function to transform a mesh into a constant function space
+ * \tparam Mesh the mesh type
+ * \param [in] mesh mesh reference
+ * \return constant function space view of the mesh
+ */
 template <class Mesh>
 function_space_view<Mesh, field_option::constant> const &
 	constant_view(Mesh const &msh)
@@ -166,8 +181,7 @@ function_space_view<Mesh, field_option::constant> const &
 }
 
 
-
-
+// forward declaration
 template <class FuncSpace>
 class dirac_space;
 
@@ -275,10 +289,6 @@ struct field_2_elem_type_vector
 		elemize<tmp::_1>
 	>::type>::type type;
 };
-
-
-
-
 
 
 /** \brief class describing a function space
@@ -428,19 +438,12 @@ public:
 		return m_num_dofs;
 	}
 
-
 protected:
 	/** \brief fields (BIG heterogeneous container) */
 	field_container_t m_fields;	
 	/** \brief number of degrees of freedoms */
 	unsigned m_num_dofs;
 };
-
-
-
-
-
-
 
 
 /** \brief class describing a function space
@@ -455,7 +458,8 @@ public:
 	typedef function_space_impl<function_space<FieldTypeVector> > impl_t;
 
 	/** \brief constructor */
-	function_space() : impl_t()
+	function_space() :
+		impl_t()
 	{
 	}
 
