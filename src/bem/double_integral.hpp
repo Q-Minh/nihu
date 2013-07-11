@@ -12,9 +12,6 @@
 #include "../util/plain_type.hpp"
 #include "kernel.hpp"
 
-
-
-
 /**
 * \brief class evaluating double integrals of the weighted residual approach
 * \tparam Kernel type of the kernel to integrate
@@ -113,9 +110,9 @@ protected:
 	static result_t &eval_on_accelerator(
 		result_t &result,
 		kernel_t const &kernel,
-		test_field_t const &test_field,
+		field_base<test_field_t> const &test_field,
 		test_field_type_accelerator_t const &test_acc,
-		trial_field_t const &trial_field,
+		field_base<trial_field_t> const &trial_field,
 		trial_field_type_accelerator_t const &trial_acc)
 	{
 		for (auto test_it = test_acc.cbegin(); test_it != test_acc.cend(); ++test_it)
@@ -146,8 +143,8 @@ protected:
 	static result_t &eval_singular_on_accelerator(
 		result_t &result,
 		kernel_t const &kernel,
-		test_field_t const &test_field,
-		trial_field_t const &trial_field,
+		field_base<test_field_t> const &test_field,
+		field_base<trial_field_t> const &trial_field,
 		singular_iterator_t begin,
 		singular_iterator_t end)
 	{
@@ -180,8 +177,8 @@ protected:
 		WITHOUT_SINGULARITY_CHECK,
 		result_t &result,
 		kernel_t const &kernel,
-		test_field_t const &test_field,
-		trial_field_t const &trial_field)
+		field_base<test_field_t> const &test_field,
+		field_base<trial_field_t> const &trial_field)
 	{
 		auto &test_ra = test_regular_store_t::m_regular_pool;
 		auto &trial_ra = trial_regular_store_t::m_regular_pool;
@@ -213,8 +210,8 @@ protected:
 		WITH_SINGULARITY_CHECK,
 		result_t &result,
 		kernel_t const &kernel,
-		test_field_t const &test_field,
-		trial_field_t const &trial_field)
+		field_base<test_field_t> const &test_field,
+		field_base<trial_field_t> const &trial_field)
 	{
 		typedef accel_store<formalism::general, kernel_t, test_field_t, trial_field_t> acc_store_t;
 		auto &sa = acc_store_t::m_singular_accelerator;
@@ -237,8 +234,8 @@ public:
 	*/
 	static result_t eval(
 		kernel_t const &kernel,
-		test_field_t const &test_field,
-		trial_field_t const &trial_field)
+		field_base<test_field_t> const &test_field,
+		field_base<trial_field_t> const &trial_field)
 	{
 		result_t result;
 		result.setZero();	// clear result
@@ -342,8 +339,8 @@ protected:
 	static result_t &eval_collocational_on_accelerator(
 		result_t &result,
 		kernel_t const &kernel,
-		test_field_t const &test_field,
-		trial_field_t const &trial_field,
+		field_base<test_field_t> const &test_field,
+		field_base<trial_field_t> const &trial_field,
 		trial_field_type_accelerator_t const &trial_acc)
 	{
 		int row = 0;
@@ -376,8 +373,8 @@ protected:
 	static result_t &eval_collocational_singular_on_accelerator(
 		result_t &result,
 		kernel_t const &kernel,
-		test_field_t const &test_field,
-		trial_field_t const &trial_field,
+		field_base<test_field_t> const &test_field,
+		field_base<trial_field_t> const &trial_field,
 		singular_accelerator_t const &sa)
 	{
 		for (unsigned idx = 0; idx < test_nset_t::num_nodes; ++idx)
@@ -411,8 +408,8 @@ protected:
 		WITHOUT_SINGULARITY_CHECK,
 		result_t &result,
 		kernel_t const &kernel,
-		test_field_t const &test_field,
-		trial_field_t const &trial_field)
+		field_base<test_field_t> const &test_field,
+		field_base<trial_field_t> const &trial_field)
 	{
 		typedef regular_pool_store<trial_field_t, quadrature_family_t> regular_trial_store_t;
 		auto &trial_ra = trial_regular_store_t::m_regular_pool;
@@ -440,8 +437,8 @@ protected:
 		WITH_SINGULARITY_CHECK,
 		result_t &result,
 		kernel_t const &kernel,
-		test_field_t const &test_field,
-		trial_field_t const &trial_field)
+		field_base<test_field_t> const &test_field,
+		field_base<trial_field_t> const &trial_field)
 	{
 		typedef accel_store<formalism::collocational, kernel_t, test_field_t, trial_field_t> acc_store_t;
 		typename acc_store_t::singular_accelerator_t &sa = acc_store_t::m_singular_accelerator;
@@ -464,15 +461,15 @@ public:
 	*/
 	static result_t eval(
 		kernel_t const &kernel,
-		dirac_wrapper<test_field_t> const &test_field,
-		trial_field_t const &trial_field)
+		field_base<test_field_t> const &test_field,
+		field_base<trial_field_t> const &trial_field)
 	{
 		result_t result;
 		result.setZero();	// clear result
 
-		return eval_collocational(std::integral_constant<bool, is_kernel_singular>(),
-			result,
-			kernel, test_field.get_wrapped(), trial_field);
+		return eval_collocational(
+			std::integral_constant<bool, is_kernel_singular>(),
+			result, kernel, test_field.derived(), trial_field.derived());
 	}
 };
 

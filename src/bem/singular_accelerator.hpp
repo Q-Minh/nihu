@@ -133,19 +133,19 @@ public:
 	* \param [in] trial_field the trial_field
 	* \return true if singular integration is needed
 	*/
-	bool is_singular(test_field_t const &test_field, trial_field_t const &trial_field)
+	bool is_singular(field_base<test_field_t> const &test_field, field_base<trial_field_t> const &trial_field)
 	{
 		// check face match for same element types
 		if (face_match_possible)
 		{
-			if (test_field.get_elem().get_id() == trial_field.get_elem().get_id())
+			if (test_field.derived().get_elem().get_id() == trial_field.derived().get_elem().get_id())
 			{
 				m_sing_type = FACE_MATCH;
 				return true;
 			}
 		}
 
-		m_cur_overlap = test_field.get_elem().get_overlapping(trial_field.get_elem());
+		m_cur_overlap = test_field.derived().get_elem().get_overlapping(trial_field.derived().get_elem());
 
 		// check edge match
 		if (m_cur_overlap.get_num() > 1)

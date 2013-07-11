@@ -6,6 +6,7 @@
 #include "../bem/weighted_residual.hpp"
 
 #include "../library/unit_kernel.hpp"
+#include "../library/poisson_kernel.hpp"
 #include "../library/helmholtz_kernel.hpp"
 
 typedef tmp::vector<tria_1_elem, quad_1_elem> elem_type_vector_t;
@@ -41,14 +42,15 @@ int main(void)
 
 	mesh_t msh(nodes, elements);
 
-	auto trial = constant_view(msh);	// isoparametric
-	auto test = constant_view(msh);
+	auto trial = constant_view(msh);	// constant
+	auto test = trial;			// collocational
 	int nDOF = test.get_num_dofs();
 	dMatrix A(nDOF, nDOF);
 	A.setZero();
 
-	auto op = identity_integral_operator();
-	auto wr = test * op[trial];
+	auto op = create_integral_operator(poisson_G_kernel());
+	auto proj = op[trial];
+	auto wr = test * proj;
 	wr.eval(A);
 
 	std::cout << A << std::endl;

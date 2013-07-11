@@ -26,15 +26,19 @@ private:
 		template <class result_t>
 		void operator() (result_t &result,
 			Operator const &op,
-			TestSpace const &test_space,
-			TrialSpace const &trial_space)
+			function_space_base<TestSpace> const &test_space,
+			function_space_base<TrialSpace> const &trial_space)
 		{
-			for (auto test_it = test_space.template field_begin<TestField>();
-					test_it != test_space.template field_end<TestField>(); ++test_it)
-				for (auto trial_it = test_space.template field_begin<TrialField>();
-						trial_it != test_space.template field_end<TrialField>(); ++trial_it)
+			for (auto test_it = test_space.derived().template field_begin<TestField>();
+				test_it != test_space.derived().template field_end<TestField>(); ++test_it)
+			{
+				for (auto trial_it = trial_space.derived().template field_begin<TrialField>();
+					trial_it != trial_space.derived().template field_end<TrialField>(); ++trial_it)
+				{
 					block(result, test_it->get_dofs(), trial_it->get_dofs())
 						+= op.eval_on_fields(*test_it, *trial_it);
+				}
+			}
 		}
 	};};
 
@@ -65,18 +69,18 @@ public:
 	static result_t &eval_into(
 		result_t &result,
 		Operator const &op,
-		TestSpace const &test,
-		TrialSpace const &trial)
+		function_space_base<TestSpace> const &test,
+		function_space_base<TrialSpace> const &trial)
 	{
 		tmp::d_call_each<
-			typename TestSpace::field_type_vector_t,
-			typename TrialSpace::field_type_vector_t,
+			typename function_space_traits<TestSpace>::field_type_vector_t,
+			typename function_space_traits<TrialSpace>::field_type_vector_t,
 			eval_on<Operator, tmp::_1, tmp::_2>,
 			result_t &,
 			Operator const &,
 			TestSpace const &,
 			TrialSpace const &
-		>(result, op, test, trial);
+		>(result, op, test.derived(), trial.derived());
 
 		return result;
 	}
