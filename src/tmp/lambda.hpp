@@ -60,27 +60,41 @@ namespace tmp
 	template <unsigned N>
 	struct isPlaceholderExpression<arg<N> > : std::true_type {};
 
+	// Forward declaration of the general case
 	template <class T, class...Args>
 	struct containsPlaceholderExpression;
 	
+	// General declaration of the inner impl class
+	// Decision is made based on the first argument
+	// (See specialisation below)
 	template <class First, class...Args>
 	struct containsPlaceholderExpressionImpl;
 	 
+	// True branch
+	// First parameter is a placeholder expression
+	// Recursion tail for true_type
 	template <class...Args>
-	struct containsPlaceholderExpressionImpl<std::true_type, Args...> : std::true_type {};
+	struct containsPlaceholderExpressionImpl<std::true_type, Args...> : 
+		std::true_type {};
 	 
+	// Recursion tail for false_type
 	template <>
-	struct containsPlaceholderExpressionImpl<std::false_type> : std::false_type {};
-	 
+	struct containsPlaceholderExpressionImpl<std::false_type> : 
+		std::false_type {};
+	
+	// General case, further recursion
 	template <class...Args>
-	struct containsPlaceholderExpressionImpl<std::false_type, Args...> : containsPlaceholderExpression<Args...> {};
+	struct containsPlaceholderExpressionImpl<std::false_type, Args...> : 
+		containsPlaceholderExpression<Args...> {};
 	 
+	// General case
 	template <class T, class...Args>
 	struct containsPlaceholderExpression : containsPlaceholderExpressionImpl<
 		typename isPlaceholderExpression<T>::type,
 		Args...
 	> {};
 
+	// Specialisation for metafunction
 	template <template <class...Args> class MF, class...Args>
 	struct isPlaceholderExpression<MF<Args...> > :
 		containsPlaceholderExpression<Args...> {};
@@ -88,8 +102,12 @@ namespace tmp
 
 	namespace internal
 	{
+		// The general case
 		template <class Fun>
-		struct lambda_plExp // dummy case
+		struct lambda_plExp; // dummy case
+		
+		// NOTE: this is removed
+		/*
 		{
 			typedef struct {
 				template <class A1 = void_, class A2 = void_>
@@ -97,21 +115,25 @@ namespace tmp
 				struct apply { typedef void_ type; };
 			} type;
 		};
-
+		*/
+		
+		// Specialisation for placeholder
 		template <unsigned N>
 		struct lambda_plExp<arg<N> >
 		{
-			typedef struct
+			struct type
 			{
 				template <class...Args>
 				struct apply : arg<N>::template apply<Args...> {};
-			} type;
+			};
 		};
 
+		// Specialisation for metafunction for 1 parameter
+		/** \todo variadic metafun would be nicer */
 		template <template <class a> class MetaFun, class a1>
 		struct lambda_plExp<MetaFun<a1> >
 		{
-			typedef struct
+			struct type
 			{
 				template <class...Args>
 				struct apply
@@ -119,38 +141,48 @@ namespace tmp
 						typename lambda_plExp<a1>::type::template apply<Args...>::type
 						>
 				{};
-			} type;
+			};
 		};
 
+		// Conditional eveluation of arguments
+		// First argument tells if a is a placeholder expression
+		// General case
 		template <class BOOL, class a, class...Args>
-		struct cond_eval_arg : lambda_plExp<a>::type::template apply<Args...> {};
+		struct cond_eval_arg;
+		
+		// Specialisation for true case (a is a plhexp)
+		template <class a, class...Args>
+		struct cond_eval_arg<std::true_type, a, Args...> :
+			lambda_plExp<a>::type::template apply<Args...> {};
 
+		// Specialisation for false case (a is not a plhexp)
 		template <class a, class...Args>
 		struct cond_eval_arg<std::false_type, a, Args...>
 		{
 			typedef a type;
 		};
 
-		/** \todo does not work with dcalleach if changed to varizzaic A1 A2 style */
+		// Two parameter metafun
 		template <template <class a, class b> class MetaFun, class a1, class a2>
 		struct lambda_plExp<MetaFun<a1, a2> >
 		{
-			typedef struct
+			struct type
 			{
 				template <class A1 = void_, class A2 = void_>
 				struct apply : MetaFun<
 					typename cond_eval_arg<
 						typename isPlaceholderExpression<a1>::type,
-						a1,	A1, A2
+						a1, A1, A2
 					>::type,
 					typename cond_eval_arg<
 						typename isPlaceholderExpression<a2>::type,
 						a2, A1, A2
 					>::type
 				> {};
-			} type;
+			};
 		};
 
+		// Three parameter metafun (not used yet)
 		template <template <class a1, class a2, class a3> class MetaFun, class a1, class a2, class a3>
 		struct lambda_plExp<MetaFun<a1, a2, a3> >
 		{
@@ -175,6 +207,7 @@ namespace tmp
 		};
 	}
 
+
 	/**
 	 * \brief generate metafunction class from placeholder expression
 	 * \tparam Exp placeholder expression or metafunction class
@@ -187,6 +220,11 @@ namespace tmp
 		Exp
 	> {};
 
+	/**
+	 * \brief The apply metafunction shortcut for lambda evaluation
+	 * \tparam Fun metafunction 
+	 * \tparam Args template arguments of Fun
+	 */
 	template <class Fun, class...Args>
 	struct apply : lambda<Fun>::type::template apply<Args...> {};
 }
