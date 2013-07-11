@@ -33,7 +33,10 @@ struct tester
 int main(void)
 {
 	tmp::call_each<
-		tmp::vector<tria_1_elem, quad_1_elem, tria_2_elem, quad_2_elem>,
+		tmp::vector<
+			tria_1_elem, quad_1_elem,
+			tria_2_elem, quad_2_elem
+		>,
 		tester<tmp::_1>
 	>();
 

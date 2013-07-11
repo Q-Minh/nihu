@@ -15,12 +15,12 @@ struct view_tester
 			ElemType e(ElemType::coords_t::Random());
 			std::cout << "coords: " << e.get_coords() << std::endl;
 
-			auto cfv = constant_view(e);
-			std::cout << cfv.get_dofs() << std::endl;
+			auto fv = create_field_view(e, option());
+			std::cout << fv.get_dofs() << std::endl;
 //			std::cout << "fv_t::is_dirac = " << std::boolalpha << field_traits<decltype(cfv)>::is_dirac << std::endl;
 
-			auto dfv = dirac(cfv);
-			std::cout << dfv.get_dofs() << std::endl;
+			auto dv = dirac(fv);
+			std::cout << dv.get_dofs() << std::endl;
 //			std::cout << "dv_t::is_dirac = " << std::boolalpha << field_traits<dv_t>::is_dirac << std::endl;
 		}
 	};
@@ -33,6 +33,11 @@ int main(void)
 	tmp::call_each<
 		elem_vector,
 		view_tester<tmp::_1, field_option::constant>
+	>();
+
+	tmp::call_each<
+		elem_vector,
+		view_tester<tmp::_1, field_option::isoparametric>
 	>();
 
 	return 0;
