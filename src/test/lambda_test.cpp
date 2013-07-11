@@ -8,74 +8,83 @@
 using namespace tmp;
 using namespace std;
 
-template <class A, class B>
-struct Fuso
-{
+template <class A>
+struct MF1 {
 	typedef A type;
 };
 
+template <class A, class B>
+struct MF2 {
+	typedef B type;
+};
+
 template <class A>
-struct Transform1 { struct type
-{
-	void operator() ()
+struct TR1 
+{ 
+	struct type
 	{
-		cout << "doing for input " << A::value << endl;
-	}
-};};
+		void operator() ()
+		{
+			cout << "doing for input " << A::value << endl;
+		}
+	};
+};
 
 
 template <class A, class B>
-struct Transform { struct type
-{
-	void operator() ()
+struct TR2 
+{ 
+	struct type
 	{
-		cout << "doing for inputs " << A::value << " " << B::value << endl;
-	}
-};};
+		void operator() ()
+		{
+			cout << "doing for inputs " << A::value << " " << B::value << endl;
+		}
+	};
+};
 
 int main(void)
 {
-/*
-	// test isPlaceholder
-	static_assert(isPlaceholder<_1>::type::value == true, "isPlaceholder error");
-	static_assert(isPlaceholder<int>::type::value == false, "isPlaceholder error");
+	// Predeclaration of vector types
+	typedef vector<int_<1>, int_<2>, int_<3> > VEC1;
+	typedef vector<int_<-11>, int_<-23>, int_<-38> > VEC2;
+	
+	// One argument test
+	typedef apply<TR1<_1 >, int_<2> >::type MF1_APP;
+	MF1_APP mf1_app;
+	mf1_app();
+	
+	
+	call_each<VEC1, TR1<_1 > >();
+	
+	// Two arguments test
+	typedef apply<TR2<_1, int_<-32> >, int_<2> >::type MF2_APP;
+	MF2_APP mf2_app;
+	mf2_app();
+	
+	
+	call_each<VEC1, TR2<_1, int_<-37> > >();
+	typedef apply<TR2 <_1, _2>, int_<-69>, int_<-879> > ::type MF2_FULL;
+	MF2_FULL mf2_full;
+	mf2_full();
+	
+	typedef internal::lambda_plExp<TR2<_1, _2>>::type test;
+	typedef test::apply<int_<-88>, int_<-99>>::type apply_test;
+	apply_test at;
+	at();
+	
+	
+	typedef vector<int_<3> > VEC3;
+	typedef vector<int_<4> > VEC4;
 
-	// test isPlaceholderExpression
-	static_assert(isPlaceholderExpression<_1>::type::value == true, "isPlaceholderExpression error");
-	static_assert(isPlaceholderExpression<int>::type::value == false, "isPlaceholderExpression error");
-	static_assert(isPlaceholderExpression<Fuso<int, char> >::type::value == false, "isPlaceholderExpression error");
-	static_assert(isPlaceholderExpression<Fuso<_1, char> >::type::value == true, "isPlaceholderExpression error");
-	static_assert(isPlaceholderExpression<Fuso<int, _1> >::type::value == true, "isPlaceholderExpression error");
-	static_assert(isPlaceholderExpression<Fuso<_2, _1> >::type::value == true, "isPlaceholderExpression error");
-
-	// test lambda
-	typedef lambda<Fuso<int_<20>, _1> >::type metaFunctr1;
-	static_assert(metaFunctr1::apply<int_<1> >::type::value == 20, "lambda error");
-	typedef lambda<Fuso<_1, int_<20> > >::type metaFunctr2;
-	static_assert(metaFunctr2::apply<int_<1> >::type::value == 1, "lambda error");
-	typedef lambda<Fuso<_1, _2> >::type metaFunctr3;
-	static_assert(metaFunctr3::apply<int_<28>, int_<2> >::type::value == 28, "lambda error");
-	static_assert(is_same<lambda<int>::type, int>::type::value, "lambda error");
-
-	// test apply
-	static_assert(apply<Fuso<int_<20>, _1>, int_<1> >::type::value == 20, "apply error");
-	static_assert(apply<Fuso<_1, int_<20> >, int_<1> >::type::value == 1, "apply error");
-	static_assert(apply<Fuso<_1, _2>, int_<1>, int_<2> >::type::value == 1, "apply error");
+	d_call_each<VEC1, VEC2, TR2<_1, _2 > >();
+	
+	//typedef apply<test::apply<int_<77> >, int_<-3> > test2;
+	//test2 t2;
+	//t2();
 	
 
-	typedef vector<int_<1>, int_<2>, int_<3> > v1;
-	typedef vector<int_<11>, int_<12>, int_<13> > v2;
-*/
-
-
-/*
-	// test call_each
-	call_each<v1, Transform<_1, int_<0> > >();
-*/
-
-	cout << endl;
-
-
+	
 /*
 	typedef lambda<Transform1<_1 > >::type meta1functor;
 	typedef meta1functor::apply<int_<1> > partial1;
@@ -84,11 +93,11 @@ int main(void)
 	partial1 p1;
 	cout << typeid(p1).name() << endl;
 */
-
+/*
 	typedef lambda<Transform<_1, _2> >::type metafunctor;
 
 	typedef internal::lambda_plExp<metafunctor::apply<int_<1>, _1> >::type l;
-
+*/
 /*
 	typedef l::apply<int_<2> >::type cur;
 	static_assert(isPlaceholderExpression<cur>::type::value == false, "cur is plhexpr");

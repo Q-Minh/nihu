@@ -1,6 +1,13 @@
 CC=g++
 CFLAGS=-Wall -pedantic -O3 -I /usr/local/include/eigen3 -std=c++11
 
+# TMP tests
+placeholderexp_test: src/test/placeholderexp_test.cpp src/tmp/lambda.hpp
+	$(CC) $(CFLAGS) src/test/placeholderexp_test.cpp -o placeholderexp_test
+
+lambda_test: src/test/lambda_test.cpp src/tmp/lambda.hpp
+	$(CC) $(CFLAGS) src/test/lambda_test.cpp -o lambda_test
+
 space_test: src/test/space_test.cpp src/bem/space.hpp
 	$(CC) $(CFLAGS) src/test/space_test.cpp -o space_test
 
