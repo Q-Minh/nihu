@@ -29,6 +29,38 @@ public:
 
 	/** \brief the field type vector */
 	typedef typename traits_t::field_type_vector_t field_type_vector_t;
+
+
+	/**
+	* \brief begin iterator of given element type
+	* \tparam FieldType the field type to access
+	*/
+	template <class FieldType>
+	typename traits_t::template iterator<FieldType>::type
+		field_begin(void) const
+	{
+		return derived().template field_begin<FieldType>();
+	}
+
+	/**
+	* \brief end iterator of given element type
+	* \tparam FieldType the field type to access
+	*/
+	template <class FieldType>
+	typename traits_t::template iterator<FieldType>::type
+		field_end(void) const
+	{
+		return derived().template field_end<FieldType>();
+	}
+	
+	/**
+	* \brief return number of degrees of freedom
+	* \return number of degrees of freedom
+	*/
+	unsigned get_num_dofs(void) const
+	{
+		return derived().get_num_dofs();
+	}
 };
 
 
@@ -140,6 +172,12 @@ class function_space_view :
 	public function_space_base<function_space_view<Mesh, FieldOption> >,
 	public function_space_impl<function_space_view<Mesh, FieldOption> >
 {
+public:
+	typedef function_space_impl<function_space_view<Mesh, FieldOption> > impl_t;
+	
+	using impl_t::field_begin;
+	using impl_t::field_end;
+	using impl_t::get_num_dofs;
 };
 
 
@@ -219,6 +257,8 @@ public:
 	/** \brief the traits class */
 	typedef function_space_traits<dirac_space<FuncSpace> > traits_t;
 	typedef function_space_impl<FuncSpace> impl_t;
+	
+	using impl_t::get_num_dofs;
 
 	/** \brief the field type vector */
 	typedef typename traits_t::field_type_vector_t field_type_vector_t;
@@ -456,6 +496,10 @@ class function_space :
 {
 public:
 	typedef function_space_impl<function_space<FieldTypeVector> > impl_t;
+	
+	using impl_t::field_begin;
+	using impl_t::field_end;
+	using impl_t::get_num_dofs;
 
 	/** \brief constructor */
 	function_space() :
