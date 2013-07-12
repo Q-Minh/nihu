@@ -3,4 +3,5 @@ model = create_sphere_boundary(1, 10);
 tic;
 M = mass_matrix(nodes, element);
 toc;
-sum(M(:))/4/pi
+fprintf('%g\n', sum(M(:))/4/pi);
+clear mex

@@ -26,9 +26,18 @@ endif(DEFINED ENV{MATLAB_ROOT})
 # look for matlabmex pacakge
 find_package (MatlabMex REQUIRED)
 
+# check if matlab mex is found
 if(MATLABMEX_FOUND)
  	message(STATUS "Matlab MEX found, enabling buid of mex files")
  	set(BUILD_MEX 1)
+	# force usage of matlab's mex comipler
+	if(DEFINED ENV{FORCE_MATLAB_MEX})
+		set(FORCE_MATLAB_MEX $ENV{FORCE_MATLAB_MEX})
+		message(STATUS "Forcing Matlab's MEX compiler for mex files")
+	else(DEFINED ENV{FORCE_MATLAB_MEX})
+		set(FORCE_MATLAB_MEX 0)
+		message(STATUS "Will use the default C++ compiler for mex files")
+	endif(DEFINED ENV{FORCE_MATLAB_MEX})
 else(MATLABMEX_FOUND)
 	MESSAGE(STATUS "Matlab MEX not found, disabling build of mex files")
 	set(BUILD_MEX 0)

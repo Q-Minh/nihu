@@ -3,11 +3,13 @@
 #   MATLAB_MEX: location of mex compiler
 #   MATLAB_ROOT: root of MATLAB installation
 #   MATLABMEX_FOUND: 0 if not found, 1 if found
+# 	MATLAB_MEXEXT: matlab mex extension
 
 SET(MATLAB_MEX "")
 SET(MATLABMEX_FOUND 0)
 
 IF(WIN32)
+	SET(MATLAB_MEXEXT .mexw)
 	# This is untested but taken from the older FindMatlab.cmake script as well as
 	# the modifications by Ramon Casero and Tom Doel for Gerardus.
 
@@ -31,6 +33,7 @@ IF(WIN32)
 		${MATLAB_ROOT}/bin
 	)
 ELSE(WIN32)
+	SET(MATLAB_MEXEXT .maci)
 	# Check if this is a Mac.
 	IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 		# This code is untested but taken from the older FindMatlab.cmake script as
@@ -61,6 +64,7 @@ ELSE(WIN32)
 
 	ELSE(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 		# On a Linux system.  The goal is to find MATLAB_ROOT.
+		SET(MATLAB_MEXEXT .mexa)
 		SET(LIBRARY_EXTENSION .so)
 
 		# TODO: REGEXs do not work here somehow
@@ -100,6 +104,14 @@ ENDIF(WIN32)
 IF("${MATLAB_MEX}" STREQUAL "" AND "${MatlabMex_FIND_REQUIRED}")
 	MESSAGE(STATUS "Could not find MATLAB mex compiler; try specifying MATLAB_ROOT.")
 ELSE("${MATLAB_MEX}" STREQUAL "" AND "${MatlabMex_FIND_REQUIRED}")
+	# Check if system is 64 bit
+	if(CMAKE_SIZEOF_VOID_P EQUAL 8) 
+		set(MATLAB_MEXEXT "${MATLAB_MEXEXT}64")
+	# Otherwise 32 bit
+	else(CMAKE_SIZEOF_VOID_P EQUAL 8)
+		set(MATLAB_MEXEXT "${MATLAB_MEXEXT}32")
+	endif(CMAKE_SIZEOF_VOID_P EQUAL 8)
+
 	MESSAGE(STATUS "Found MATLAB mex compiler: ${MATLAB_MEX}")
 	MESSAGE(STATUS "MATLAB root: ${MATLAB_ROOT}")
 	SET(MATLABMEX_FOUND 1)
