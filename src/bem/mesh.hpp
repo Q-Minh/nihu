@@ -151,17 +151,17 @@ public:
 		unsigned const N_MAX_ELEM = 1+9;
 		double c[nDim];
 
-		for (int i = 0; i < nodes.rows(); ++i)
+		for (unsigned i = 0; i < unsigned(nodes.rows()); ++i)
 		{
 			for (unsigned j = 0; j < nDim; ++j)
 				c[j] = nodes(i,j);
 			add_node(c);
 		}
 		unsigned e[N_MAX_ELEM];
-		for (int i = 0; i < elements.rows(); ++i)
+		for (unsigned i = 0; i < unsigned(elements.rows()); ++i)
 		{
-			for (int j = 0; j < elements.cols(); ++j)
-				e[j] = (unsigned)elements(i,j);
+			for (unsigned j = 0; j < unsigned(elements.cols()); ++j)
+				e[j] = unsigned(elements(i,j));
 			add_elem(e);
 		}
 	}

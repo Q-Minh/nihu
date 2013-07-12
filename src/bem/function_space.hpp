@@ -27,8 +27,18 @@ public:
 	/** \brief the traits class */
 	typedef function_space_traits<Derived> traits_t;
 
+	/** \brief the underlying mesh type */
+	typedef typename traits_t::mesh_t mesh_t;
+
 	/** \brief the field type vector */
 	typedef typename traits_t::field_type_vector_t field_type_vector_t;
+
+	/** \brief return reference to the underlying mesh
+	* \return reference to the mesh part */
+	mesh_t const &get_mesh(void) const
+	{
+		return derived().get_mesh();
+	}
 
 	/**
 	* \brief begin iterator of given field type
@@ -77,6 +87,9 @@ class function_space_view;
 template <class Mesh, class FieldOption>
 struct function_space_traits<function_space_view<Mesh, FieldOption> >
 {
+	/** \brief the underlying mesh type */
+	typedef Mesh mesh_t;
+
 	/** \brief the field type vector */
 	typedef typename tmp::transform<
 		typename Mesh::elem_type_vector_t,
@@ -120,6 +133,14 @@ private:
 	}
 
 public:
+	/** \brief return mesh reference
+	* \return reference to the underlying mesh part
+	*/
+	Mesh const &get_mesh(void) const 
+	{
+		return static_cast<Mesh const &> (*this);
+	}
+
 	/**
 	* \brief first field of given element type
 	* \tparam ElemType the element type to access
@@ -167,6 +188,7 @@ public:
 	/** \brief the implementation class */
 	typedef function_space_impl<function_space_view<Mesh, FieldOption> > impl_t;
 	
+	using impl_t::get_mesh;
 	using impl_t::field_begin;
 	using impl_t::field_end;
 	using impl_t::get_num_dofs;
@@ -219,9 +241,15 @@ class dirac_space;
 template <class FuncSpace>
 struct function_space_traits<dirac_space<FuncSpace> >
 {
+	/** \brief the parent traits */
+	typedef function_space_traits<FuncSpace> base_traits;
+
+	/** \brief the mesh type */
+	typedef typename base_traits::mesh_t mesh_t;
+
 	/** \brief the field type vector */
 	typedef typename tmp::transform<
-		typename function_space_traits<FuncSpace>::field_type_vector_t,
+		typename base_traits::field_type_vector_t,
 		tmp::inserter<tmp::vector<>, tmp::push_back<tmp::_1, tmp::_2> >,
 		dirac_field<tmp::_1>
 	>::type field_type_vector_t;
@@ -229,7 +257,7 @@ struct function_space_traits<dirac_space<FuncSpace> >
 	/** \brief the iterator class traversing a field subvector */
 	template <class dirac_field_t>
 	struct iterator : casted_iterator<
-		typename function_space_traits<FuncSpace>::template iterator<
+		typename base_traits::template iterator<
 			typename dirac_field_t::field_t
 		>::type,
 		dirac_field_t,
@@ -252,6 +280,7 @@ public:
 	/** \brief the implementation class */
 	typedef function_space_impl<FuncSpace> impl_t;
 	
+	using impl_t::get_mesh;
 	using impl_t::get_num_dofs;
 
 	/** \brief return begin iterator of a subvector of dirac fields */
@@ -291,22 +320,6 @@ dirac_space<FuncSpace> const &
 template <class FieldTypeVector>
 class function_space;
 
-/** \brief Traits class of a function space */
-template <class FieldTypeVector>
-struct function_space_traits<function_space<FieldTypeVector> >
-{
-	/** \brief the field type vector */
-	typedef FieldTypeVector field_type_vector_t;
-
-	/** \brief the iterator type of a field type subvector */
-	template <class field_t>
-	struct iterator
-	{
-		typedef typename EigenStdVector<field_t>::type::const_iterator type;
-	};
-};
-
-
 /** \brief metafunction to return the element type vector of a field type vector */
 template <class FieldTypeVector>
 struct field_2_elem_type_vector
@@ -329,12 +342,31 @@ struct field_2_elem_type_vector
 };
 
 
+/** \brief Traits class of a function space */
+template <class FieldTypeVector>
+struct function_space_traits<function_space<FieldTypeVector> >
+{
+	/** \brief the underlying mesh type */
+	typedef mesh<typename field_2_elem_type_vector<FieldTypeVector>::type> mesh_t;
+	
+	/** \brief the field type vector */
+	typedef FieldTypeVector field_type_vector_t;
+
+	/** \brief the iterator type of a field type subvector */
+	template <class field_t>
+	struct iterator
+	{
+		typedef typename EigenStdVector<field_t>::type::const_iterator type;
+	};
+};
+
+
 /** \brief class describing a function space
 * \tparam FieldTypeVector compile time vector of fields building the function space
 */
 template <class FieldTypeVector>
 class function_space_impl<function_space<FieldTypeVector> > :
-	public mesh<typename field_2_elem_type_vector<FieldTypeVector>::type>
+	public function_space_traits<function_space<FieldTypeVector> >::mesh_t
 {
 public:
 	/** \brief the traits class */
@@ -344,7 +376,7 @@ public:
 	typedef typename traits_t::field_type_vector_t field_type_vector_t;
 
 	/** \brief the underlying mesh type */
-	typedef mesh<typename field_2_elem_type_vector<FieldTypeVector>::type> mesh_t;
+	typedef typename traits_t::mesh_t mesh_t;
 	
 	/** \brief combine field_type_vector into a BIG heterogeneous std::vector container */
 	typedef typename tmp::inherit<
@@ -415,6 +447,11 @@ public:
 				e[j] = (unsigned)fields(i,j);
 			add_field(e);
 		}
+	}
+
+	mesh_t const &get_mesh(void) const
+	{
+		return static_cast<mesh_t const &>(*this);
 	}
 
 	/** \brief return begin iterator of a subspace */

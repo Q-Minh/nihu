@@ -24,10 +24,6 @@ class double_integral_impl
 	// CRTP check
 	static_assert(std::is_base_of<kernel_base<Kernel>, Kernel>::value,
 		"Kernel must be derived from kernel_base<Kernel>");
-	static_assert(std::is_base_of<field_base<TestField>, TestField>::value,
-		"TestField must be derived from field_base<TestField>");
-	static_assert(std::is_base_of<field_base<TrialField>, TrialField>::value,
-		"TrialField must be derived from field_base<TrialField>");
 
 	typedef std::true_type WITH_SINGULARITY_CHECK;
 	typedef std::false_type WITHOUT_SINGULARITY_CHECK;
@@ -236,17 +232,21 @@ public:
 	* \param [in] trial_field the trial field to integrate on
 	* \return the integration result by value
 	*/
+	template <class OnSameMesh>
 	static result_t eval(
 		kernel_t const &kernel,
 		field_base<test_field_t> const &test_field,
-		field_base<trial_field_t> const &trial_field)
+		field_base<trial_field_t> const &trial_field,
+		OnSameMesh)
 	{
+		static bool const sing_check_needed =
+			is_kernel_singular && std::is_same<OnSameMesh, std::true_type>::value;
+
 		result_t result;
 		result.setZero();	// clear result
 
-		return eval_general(std::integral_constant<bool, is_kernel_singular>(),
-			result,
-			kernel, test_field, trial_field);
+		return eval_general(std::integral_constant<bool, sing_check_needed>(),
+			result, kernel, test_field, trial_field);
 	}
 };
 
@@ -259,10 +259,6 @@ class double_integral_impl<true, Kernel, TestField, TrialField>
 	// CRTP check
 	static_assert(std::is_base_of<kernel_base<Kernel>, Kernel>::value,
 		"Kernel must be derived from kernel_base<Kernel>");
-	static_assert(std::is_base_of<field_base<TestField>, TestField>::value,
-		"TestField must be derived from field_base<TestField>");
-	static_assert(std::is_base_of<field_base<TrialField>, TrialField>::value,
-		"TrialField must be derived from field_base<TrialField>");
 
 	typedef std::true_type WITH_SINGULARITY_CHECK;
 	typedef std::false_type WITHOUT_SINGULARITY_CHECK;
@@ -462,25 +458,30 @@ protected:
 
 public:
 	/** \brief evaluate collocational integral on given fields
+	* \tparam singularity_check_needed indicates if surface system is solved or not
 	* \param [in] kernel the kernel to integrate
 	* \param [in] test_field the test field to integrate on
 	* \param [in] trial_field the trial field to integrate on
 	* \return the integration result by value
 	*/
+	template <class OnSameMesh>
 	static result_t eval(
 		kernel_t const &kernel,
 		field_base<test_field_t> const &test_field,
-		field_base<trial_field_t> const &trial_field)
+		field_base<trial_field_t> const &trial_field,
+		OnSameMesh)
 	{
+		static bool const sing_check_needed =
+			is_kernel_singular && std::is_same<OnSameMesh, std::true_type>::value;
+
 		result_t result;
 		result.setZero();	// clear result
 
 		return eval_collocational(
-			std::integral_constant<bool, is_kernel_singular>(),
-			result, kernel, test_field.derived(), trial_field.derived());
+			std::integral_constant<bool, sing_check_needed>(),
+			result, kernel, test_field, trial_field);
 	}
 };
-
 
 template <class Kernel, class TestField, class TrialField>
 class double_integral :
