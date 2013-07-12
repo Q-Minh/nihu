@@ -1,7 +1,7 @@
 #include <iostream>
-#include "../bem/field.hpp"
-#include "../tmp/sequence.hpp"
-#include "../tmp/control.hpp"
+#include "bem/field.hpp"
+#include "tmp/sequence.hpp"
+#include "tmp/control.hpp"
 
 template <class ElemType, class option>
 struct view_tester
@@ -15,13 +15,17 @@ struct view_tester
 			ElemType e(ElemType::coords_t::Random());
 			std::cout << "coords: " << e.get_coords() << std::endl;
 
-			auto fv = create_field_view(e, option());
-			std::cout << fv.get_dofs() << std::endl;
-//			std::cout << "fv_t::is_dirac = " << std::boolalpha << field_traits<decltype(cfv)>::is_dirac << std::endl;
+			auto cfv = constant_view(e);
+			std::cout << cfv.get_dofs() << std::endl;
+			
+			auto ifv = isoparametric_view(e);
+			std::cout << ifv.get_dofs() << std::endl;
 
-			auto dv = dirac(fv);
-			std::cout << dv.get_dofs() << std::endl;
-//			std::cout << "dv_t::is_dirac = " << std::boolalpha << field_traits<dv_t>::is_dirac << std::endl;
+			auto dcfv = dirac(cfv);
+			std::cout << dcfv.get_dofs() << std::endl;
+			
+			auto difv = dirac(ifv);
+			std::cout << difv.get_dofs() << std::endl;
 		}
 	};
 };

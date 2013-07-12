@@ -1,8 +1,7 @@
-#include "../tmp/control.hpp"
-#include "../bem/space.hpp"
+#include "tmp/control.hpp"
+#include "bem/space.hpp"
 
 #include <iostream>
-
 
 template <class space>
 struct tester

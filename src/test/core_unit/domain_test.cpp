@@ -1,5 +1,5 @@
-#include "../tmp/control.hpp"
-#include "../bem/domain.hpp"
+#include "tmp/control.hpp"
+#include "bem/domain.hpp"
 
 #include <iostream>
 
