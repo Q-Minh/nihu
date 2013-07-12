@@ -1,5 +1,10 @@
 function args = create_brick_args(varargin)
 %CREATE_BRICK_ARGS Process brick mesh arguments. (NiHu / meshing)
+%
+% See also: CREATE_BRICK, CREATE_BRICK_BOUNDARY
+
+% Copyright 2008-2013 P. Fiala, P. Rucz
+% Last modified: 2013.06.25.
 
 switch nargin
     case 1 % Cx (= Cy = Cz) mode
@@ -44,6 +49,9 @@ switch nargin
         N = varargin{2};
         if isscalar(N)
             N = [N N N];
+        elseif length(N) ~= 3
+            error('NiHu:create_brick:argFormat',...
+               'N must be scalar or 3-element vector.');
         end
     case 3 % Cx Cy Cz mode
         Cx = sort(varargin{1});

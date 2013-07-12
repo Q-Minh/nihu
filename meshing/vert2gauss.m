@@ -34,6 +34,8 @@ switch floor(type/10)
         [xx, ww] = gaussquad1(order);
     case 2
         [xx, ww] = gaussquad2(order, size(elem,2));
+    case 3
+        [xx, ww] = gaussquad3(order, size(elem,2));
 end
 ng = length(ww);
 [N, dN] = shapefun(xx, type);
@@ -56,6 +58,9 @@ switch floor(type/10)
         gyy = dN(:,:,2) * y.';
         gyz = dN(:,:,2) * z.';
         gnorm = cross([gxx(:) gxy(:) gxz(:)], [gyx(:) gyy(:) gyz(:)], 2);
+    case 3
+        % TODO compute "normal" to get jac
+        gnorm = zeros(size(gx,1), 3);
 end
 % Jacobian
 j = sqrt(dot(gnorm,gnorm,2));

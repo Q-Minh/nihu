@@ -34,4 +34,12 @@ for t = [12 23 24] % these element types are processed
     end
 end
 
+% Compute center for volume elements
+for t = [34 36 38]
+    sel = Elements(:,2) == t;
+    if any(sel)
+        cent(sel,:) = vert2gauss(1, coords, t, Elements(sel, 4+(1:mod(t,10))));
+        normal(sel,:) = zeros(numel(sel),3);
+    end
+
 end
