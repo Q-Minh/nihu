@@ -1,6 +1,6 @@
 function [xx, ww] = gaussquad2(order, nvert)
 %GAUSSQUAD2 2D Gaussian quadrature integration
-%   [X, W] = GAUSSQUAD2(P, Nvert, Sing) returns Gaussian integration base
+%   [X, W] = GAUSSQUAD2(P, Nvert) returns Gaussian integration base
 %   points and weights for numerical integration over stadard 2D elements.
 % Parameters:
 %   P     : Order of quadrature
@@ -260,9 +260,9 @@ switch nvert
                     0.021641769688645
                     ];
             otherwise
-                [xx ww] = dunavant_rule(order);
+                [xx, ww] = dunavant_rule(order);
                 xx = fliplr(xx.');
-                ww = ww/2;
+                ww = ww(:)/2;
 %             otherwise
 %                 error('NiHu:gaussquad2:argValue',...
 %                     'Quadrature number %d is not supported for triangles', order);
