@@ -43,8 +43,8 @@ int main(void)
 	mesh_t msh(nodes, elements);
 
 	auto trial = constant_view(msh);	// constant
-	auto test = dirac(trial);			// collocational
-	int nDOF = test.get_num_dofs();
+	auto const &test = dirac(trial);
+	int nDOF = trial.get_num_dofs();
 	dMatrix A(nDOF, nDOF);
 	A.setZero();
 

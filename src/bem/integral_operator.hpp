@@ -52,17 +52,18 @@ public:
 	* \param [in] trial the trial field reference
 	* \return the result submatrix
 	*/
-	template <class Test, class Trial>
+	template <class Test, class Trial, class OnSameMesh>
 	typename wr_result_type<Test, Trial>::type
 		eval_on_fields(
 			field_base<Test> const &test,
-			field_base<Trial> const &trial) const
+			field_base<Trial> const &trial,
+			OnSameMesh) const
 	{
 		if ( traits_t::is_local &&
 			( !std::is_same<typename Test::elem_t, typename Trial::elem_t>::value
 			  || test.get_elem().get_id() != trial.get_elem().get_id() ) )
 			return wr_result_type<Test, Trial>::type::Zero();
-		return derived().derived_eval_on_fields(test, trial);
+		return derived().derived_eval_on_fields(test, trial, OnSameMesh());
 	}
 
 	/** \brief factory index operator from function space rhs
@@ -144,13 +145,14 @@ public:
 	* \param [in] trial the trial field
 	* \return the result matrix of the double integral
 	*/
-	template <class Test, class Trial>
+	template <class Test, class Trial, class OnSameMesh>
 	typename base_t::template wr_result_type<Test, Trial>::type
 		derived_eval_on_fields(
 			field_base<Test> const &test,
-			field_base<Trial> const &trial) const
+			field_base<Trial> const &trial,
+			OnSameMesh) const
 	{
-		return m_scalar * m_parent.eval_on_fields(test, trial);
+		return m_scalar * m_parent.eval_on_fields(test, trial, OnSameMesh());
 	}
 
 private:
@@ -192,11 +194,12 @@ public:
 	* \param [in] trial the trial field
 	* \return the result matrix of the double integral
 	*/
-	template <class Test, class Trial>
+	template <class Test, class Trial, class OnSameMesh = std::false_type>
 	typename base_t::template wr_result_type<Test, Trial>::type
 		derived_eval_on_fields(
 			field_base<Test> const &test,
-			field_base<Trial> const &trial) const
+			field_base<Trial> const &trial,
+			OnSameMesh) const
 	{
 		return single_integral<Test, Trial>::eval(test, trial);
 	}
@@ -260,16 +263,15 @@ public:
 	* \param [in] trial the trial field
 	* \return the result matrix of the double integral
 	*/
-	template <class Test, class Trial>
+	template <class Test, class Trial, class OnSameMesh>
 	typename base_t::template wr_result_type<Test, Trial>::type
 		derived_eval_on_fields(
 			field_base<Test> const &test,
-			field_base<Trial> const &trial) const
+			field_base<Trial> const &trial,
+			OnSameMesh) const
 	{
 		return double_integral<kernel_t, Test, Trial>::eval(
-			m_kernel,
-			test,
-			trial);
+			m_kernel, test, trial, OnSameMesh());
 	}
 
 private:

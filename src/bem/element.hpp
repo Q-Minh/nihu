@@ -36,7 +36,8 @@ public:
 	}
 
 	/** \brief constructor */
-	element_overlapping(unsigned num = 0, unsigned ind1 = 0, unsigned ind2 = 0) :
+	element_overlapping(
+		unsigned num = 0, unsigned ind1 = 0, unsigned ind2 = 0) :
 		num(num), ind1(ind1), ind2(ind2)
 	{
 	}
@@ -333,7 +334,6 @@ protected:
 };
 
 
-
 /** \brief a linear triangle element in 3D space */
 class tria_1_elem;
 
@@ -350,7 +350,8 @@ struct element_traits<tria_1_elem>
 };
 
 /** \brief a linear tria element in 3D space */
-class tria_1_elem : public element_base<tria_1_elem>
+class tria_1_elem :
+	public element_base<tria_1_elem>
 {
 public:
 	/**
@@ -434,7 +435,6 @@ protected:
 	/** \brief 1st order tag of the Taylor series of the normal */
 	dx_t m_n_xi;
 };
-
 
 
 // forward declaration

@@ -14,7 +14,7 @@
 * \tparam TestSpace the test function space
 * \tparam TrialSpace the trial function space
 */
-template <class TestSpace, class TrialSpace>
+template <class TestSpace, class TrialSpace, class OnSameMesh>
 class assembly
 {
 private:
@@ -45,7 +45,7 @@ private:
 				for (auto trial_it = trial_space.template field_begin<TrialField>();
 					trial_it != trial_space.template field_end<TrialField>(); ++trial_it)
 					block(result, test_it->get_dofs(), trial_it->get_dofs())
-						+= op.eval_on_fields(*test_it, *trial_it);
+						+= op.eval_on_fields(*test_it, *trial_it, OnSameMesh());
 		}
 	};};
 
