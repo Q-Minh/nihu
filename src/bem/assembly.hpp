@@ -1,3 +1,8 @@
+/**
+ * \file assembly.hpp
+ * \brief assemble WR matrices from field wr submatrices
+ * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
+ */
 #ifndef ASSEMBLY_HPP_INCLUDED
 #define ASSEMBLY_HPP_INCLUDED
 
