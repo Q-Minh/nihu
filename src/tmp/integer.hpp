@@ -17,10 +17,13 @@ namespace tmp
 	template <int N>
 	struct int_
 	{
+		/** \brief self returning metafunction */
 		typedef int_ type;
-
+		/** \brief the stored value */
 		static int const value = N;
+		/** \brief the next value */
 		static int const next = N+1;
+		/** \brief the previous value */
 		static int const prev = N-1;
 	};
 

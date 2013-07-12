@@ -46,11 +46,11 @@ public:
 	/** \brief the crtp base's type */
 	typedef kernel_base<poisson_G_kernel> base_t;
 	/** \brief type of the test input */
-	typedef typename base_t::test_input_t test_input_t;
+	typedef base_t::test_input_t test_input_t;
 	/** \brief type of the trial input */
-	typedef typename base_t::trial_input_t trial_input_t;
+	typedef base_t::trial_input_t trial_input_t;
 	/** \brief type of the scalar of the inputs */
-	typedef typename base_t::scalar_t scalar_t;
+	typedef base_t::scalar_t scalar_t;
 
 	/** \brief evaluate kernel between test and trial positions
 	* \param [in] x the test input
@@ -97,11 +97,11 @@ public:
 	/** \brief the crtp base's type */
 	typedef kernel_base<poisson_H_kernel> base_t;
 	/** \brief type of the test input */
-	typedef typename base_t::test_input_t test_input_t;
+	typedef base_t::test_input_t test_input_t;
 	/** \brief type of the trial input */
-	typedef typename base_t::trial_input_t trial_input_t;
+	typedef base_t::trial_input_t trial_input_t;
 	/** \brief type of the scalar of the inputs */
-	typedef typename base_t::scalar_t scalar_t;
+	typedef base_t::scalar_t scalar_t;
 
 	/** \brief evaluate kernel between test and trial positions
 	* \param [in] x the test input
@@ -155,11 +155,11 @@ public:
 	/** \brief the crtp base's type */
 	typedef kernel_base<poisson_GH_kernel> base_t;
 	/** \brief type of the test input */
-	typedef typename base_t::test_input_t test_input_t;
+	typedef base_t::test_input_t test_input_t;
 	/** \brief type of the trial input */
-	typedef typename base_t::trial_input_t trial_input_t;
+	typedef base_t::trial_input_t trial_input_t;
 	/** \brief type of the scalar of the inputs */
-	typedef typename base_t::scalar_t scalar_t;
+	typedef base_t::scalar_t scalar_t;
 
 	/** \brief evaluate kernel between test and trial positions
 	* \param [in] x the test input

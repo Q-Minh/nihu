@@ -100,6 +100,7 @@ public:
 
 protected:
 	/** \brief evaluate regular double integral with selected accelerators
+	* \param [out] result reference to the integration result matrix
 	* \param [in] kernel the kernel to integrate
 	* \param [in] test_field the test field to integrate on
 	* \param [in] test_acc field type accelerator of the test field
@@ -132,6 +133,7 @@ protected:
 	}
 
 	/** \brief evaluate double singular integral with selected singular accelerator
+	* \param [out] result reference to the integration result matrix
 	* \param [in] kernel the kernel to integrate
 	* \param [in] test_field the test field to integrate on
 	* \param [in] trial_field the trial field to integrate on
@@ -168,6 +170,7 @@ protected:
 	}
 
 	/** \brief evaluate double integral of a kernel on specific fields without singularity check
+	* \param [out] result reference to the integration result matrix
 	* \param [in] kernel the kernel to integrate
 	* \param [in] test_field reference to the test field
 	* \param [in] trial_field reference to the trial field
@@ -201,6 +204,7 @@ protected:
 
 
 	/** \brief evaluate double integral of a kernel on specific fields with singularity check
+	* \param [out] result reference to the integration result matrix
 	* \param [in] kernel the kernel to integrate
 	* \param [in] test_field reference to the test field
 	* \param [in] trial_field reference to the trial field
@@ -230,7 +234,7 @@ public:
 	* \param [in] kernel the kernel to integrate
 	* \param [in] test_field the test field to integrate on
 	* \param [in] trial_field the trial field to integrate on
-	* \return reference to the integration result
+	* \return the integration result by value
 	*/
 	static result_t eval(
 		kernel_t const &kernel,
@@ -330,6 +334,7 @@ public:
 
 protected:
 	/** \brief evaluate regular collocational integral with selected trial field accelerator
+	* \param [out] result reference to the integration result matrix
 	* \param [in] kernel the kernel to integrate
 	* \param [in] test_field the test field to integrate on
 	* \param [in] trial_field the trial field to integrate on
@@ -363,6 +368,7 @@ protected:
 
 	/** \brief evaluate collocational singular integral with selected singular accelerator
 	* \tparam singular_accelerator_t type of the singular quadrature accelerator
+	* \param [out] result reference to the integration result matrix
 	* \param [in] kernel the kernel to integrate
 	* \param [in] test_field the test field to integrate on
 	* \param [in] trial_field the trial field to integrate on
@@ -399,6 +405,7 @@ protected:
 
 
 	/** \brief evaluate single integral of a kernel on specific fields without singularity check
+	* \param [out] result reference to the integration result matrix
 	* \param [in] kernel the kernel to integrate
 	* \param [in] test_field reference to the test field
 	* \param [in] trial_field reference to the trial field
@@ -428,6 +435,7 @@ protected:
 
 
 	/** \brief evaluate single integral of a kernel on specific fields with singularity check
+	* \param [out] result reference to the integration result matrix
 	* \param [in] kernel the kernel to integrate
 	* \param [in] test_field reference to the test field
 	* \param [in] trial_field reference to the trial field
@@ -457,7 +465,7 @@ public:
 	* \param [in] kernel the kernel to integrate
 	* \param [in] test_field the test field to integrate on
 	* \param [in] trial_field the trial field to integrate on
-	* \return reference to the integration result
+	* \return the integration result by value
 	*/
 	static result_t eval(
 		kernel_t const &kernel,

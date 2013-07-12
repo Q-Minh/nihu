@@ -30,14 +30,17 @@ namespace tmp
 	/** \brief an empty stack */
 	typedef internal::stack_impl<none, none> empty_stack;
 
+	/** \brief the stack iterator type used by tmp::begin, tmp::end and tmp::deref */
 	template <class Seq>
-	struct stack_iterator;
-
-	template <class Seq>
-	struct next<stack_iterator<Seq> >
+	struct stack_iterator
 	{
-		typedef stack_iterator<typename Seq::tail> type;
+		/** \brief self-returning matafunction */
+		typedef stack_iterator type;
 	};
+
+	/** \brief increment a stack iterator */
+	template <class Seq>
+	struct next<stack_iterator<Seq> > : stack_iterator<typename Seq::tail> {};
 
 	namespace internal
 	{
@@ -68,20 +71,14 @@ namespace tmp
 		struct begin_impl<stack_tag>
 		{
 			template <class Stack>
-			struct apply
-			{
-				typedef stack_iterator<Stack> type;
-			};
+			struct apply : stack_iterator<Stack> {};
 		};
 
 		template <>
 		struct end_impl<stack_tag>
 		{
 			template <class Stack>
-			struct apply
-			{
-				typedef stack_iterator<empty_stack> type;
-			};
+			struct apply : stack_iterator<empty_stack> {};
 		};
 
 		template <>

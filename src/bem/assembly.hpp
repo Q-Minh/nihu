@@ -8,7 +8,12 @@
 
 #include "../util/matrix_block.hpp"
 #include "integral_operator.hpp"
+#include "function_space.hpp"
 
+/** \brief assemble result matrix from field wr submatrices
+* \tparam TestSpace the test function space
+* \tparam TrialSpace the trial function space
+*/
 template <class TestSpace, class TrialSpace>
 class assembly
 {
@@ -31,7 +36,7 @@ private:
 		 */
 		template <class result_t>
 		void operator() (result_t &result,
-			Operator const &op,
+			integral_operator_base<Operator> const &op,
 			function_space_base<TestSpace> const &test_space,
 			function_space_base<TrialSpace> const &trial_space)
 		{
@@ -52,7 +57,7 @@ private:
 		template <class result_t>
 		void operator() (
 			result_t &,
-			Operator const &,
+			integral_operator_base<Operator> const &,
 			function_space_base<TestSpace> const &,
 			function_space_base<TrialSpace> const &)
 		{
@@ -84,7 +89,7 @@ public:
 	template <class result_t, class Operator>
 	static result_t &eval_into(
 		result_t &result,
-		Operator const &op,
+		integral_operator_base<Operator> const &op,
 		function_space_base<TestSpace> const &test,
 		function_space_base<TrialSpace> const &trial)
 	{
@@ -93,7 +98,7 @@ public:
 			typename function_space_traits<TrialSpace>::field_type_vector_t,
 			eval_on<Operator, tmp::_1, tmp::_2>,
 			result_t &,
-			Operator const &,
+			integral_operator_base<Operator> const &,
 			function_space_base<TestSpace> const &,
 			function_space_base<TrialSpace> const &
 		>(result, op, test, trial);

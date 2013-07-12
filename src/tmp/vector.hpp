@@ -42,21 +42,21 @@ namespace tmp
 
 	/** \brief the vector iterator type used by tmp::begin, tmp::end and tmp::deref */
 	template <class Seq, class Pos>
-	struct vector_iterator;
+	struct vector_iterator
+	{
+		/** \brief self-returning matafunction */
+		typedef vector_iterator type;
+	};
 
 	/** \brief increment a vector iterator */
 	template <class Seq, class Pos>
-	struct next<vector_iterator<Seq, Pos> >
-	{
-		typedef vector_iterator<Seq, typename next<Pos>::type> type;
-	};
+	struct next<vector_iterator<Seq, Pos> > :
+		vector_iterator<Seq, typename next<Pos>::type> {};
 
 	/** \brief decrement a vector iterator */
 	template <class Seq, class Pos>
-	struct prev<vector_iterator<Seq, Pos> >
-	{
-		typedef vector_iterator<Seq, typename prev<Pos>::type> type;
-	};
+	struct prev<vector_iterator<Seq, Pos> > :
+		vector_iterator<Seq, typename prev<Pos>::type> {};
 
 	namespace internal
 	{

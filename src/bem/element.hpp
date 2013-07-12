@@ -8,6 +8,7 @@
 #define ELEMENT_HPP_INCLUDED
 
 #include "../util/crtp_base.hpp"
+#include "../tmp/bool.hpp"
 #include "shapeset.hpp"
 
 /**
@@ -124,6 +125,13 @@ protected:
 	/** \brief estimated linear size of an element */
 	scalar_t m_linear_size_estimate;
 
+	/** \brief the normal return type based on acceleration */
+	typedef typename tmp::if_<
+		std::integral_constant<bool, traits_t::is_normal_stored>,
+		x_t,
+		x_t const &
+	>::type normal_ret_t;
+
 public:
 	NIHU_CRTP_HELPERS
 
@@ -192,12 +200,22 @@ public:
 
 	/**
 	* \brief return element location gradient
-	* \param [in] \xi location \f$\xi\f$ in the base domain
+	* \param [in] xi location \f$\xi\f$ in the base domain
 	* \return location gradient \f$x'_{\xi}\f$ in the element
 	*/
 	dx_t get_dx(xi_t const &xi) const
 	{
 		return m_coords * lset_t::eval_dshape(xi);
+	}
+
+	/**
+	* \brief return element normal
+	* \param [in] xi location in the reference domain
+	* \return the element normal
+	*/
+	normal_ret_t get_normal(xi_t const &xi) const
+	{
+		return derived().get_normal(xi);
 	}
 
 	/**
@@ -209,6 +227,7 @@ public:
 		return m_linear_size_estimate;
 	}
 
+	/** \brief print debug information on an element to standard output */
 	void print_debug(void) const
 	{
 		std::cout << "Element type id: " << id << std::endl;
@@ -278,6 +297,8 @@ struct element_traits<line_1_elem>
 	typedef space_2d space_t;
 	/** \brief the shape set */
 	typedef line_1_shape_set lset_t;
+	/** \brief indicates if the normal is stored or computed */
+	static bool const is_normal_stored = true;
 };
 
 /** \brief a linear line element in 2D space */
@@ -324,6 +345,8 @@ struct element_traits<tria_1_elem>
 	typedef space_3d space_t;
 	/** \brief the shape set */
 	typedef tria_1_shape_set lset_t;
+	/** \brief indicates if the normal is stored or computed */
+	static bool const is_normal_stored = true;
 };
 
 /** \brief a linear tria element in 3D space */
@@ -369,6 +392,8 @@ struct element_traits<quad_1_elem>
 	typedef space_3d space_t;
 	/** \brief the shape set */
 	typedef quad_1_shape_set lset_t;
+	/** \brief indicates if the normal is stored or computed */
+	static bool const is_normal_stored = false;
 };
 
 /** \brief a linear quad element in 3D space */
@@ -424,13 +449,16 @@ struct element_traits<general_surface_element<LSet, scalar_t> >
 	typedef space<scalar_t, LSet::domain_t::dimension + 1> space_t;
 	/** \brief the shape set */
 	typedef LSet lset_t;
+	/** \brief indicates if the normal is stored or computed */
+	static bool const is_normal_stored = true;
 };
 
 /** \brief class describing a general surface element that computes its normal in the general way
 * \tparam LSet type of the geometry shape set
 */
 template <class LSet, class scalar_t>
-class general_surface_element : public element_base<general_surface_element<LSet, scalar_t> >
+class general_surface_element :
+	public element_base<general_surface_element<LSet, scalar_t> >
 {
 public:
 	/** \brief the base class type */
@@ -449,8 +477,6 @@ public:
 	/** \brief type of the reference domain */
 	typedef typename base_t::domain_t domain_t;
 
-	using base_t::get_dx;
-
 	/** \brief constructor
 	* \param [in] coords the coordinate matrix
 	* \param [in] id element id
@@ -459,7 +485,7 @@ public:
 	general_surface_element(coords_t const &coords, unsigned id = 0, nodes_t const &nodes = nodes_t())
 		: base_t(coords, id, nodes)
 	{
-		dx_t dx = get_dx(domain_t::get_center());
+		dx_t dx = base_t::get_dx(domain_t::get_center());
 		base_t::m_linear_size_estimate = sqrt(dx.col(0).cross(dx.col(1)).norm() * domain_t::get_volume());
 	}
 
@@ -469,7 +495,7 @@ public:
 	*/
 	x_t get_normal(xi_t const &xi) const
 	{
-		dx_t dx = get_dx(xi);
+		dx_t dx = base_t::get_dx(xi);
 		return dx.col(0).cross(dx.col(1));
 	}
 };

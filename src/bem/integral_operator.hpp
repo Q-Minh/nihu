@@ -47,7 +47,7 @@ public:
 
 	/** \brief sub-weighted residual on a test and a trial field
 	* \tparam Test the test field type
-	* \tpara Trial the trial field type
+	* \tparam Trial the trial field type
 	* \param [in] test the test field reference
 	* \param [in] trial the trial field reference
 	* \return the result submatrix
@@ -141,7 +141,7 @@ public:
 	* \tparam Test the test field's type
 	* \tparam Trial the trial field's type
 	* \param [in] test the test field
-	* \param [in] triel the trial field
+	* \param [in] trial the trial field
 	* \return the result matrix of the double integral
 	*/
 	template <class Test, class Trial>
@@ -189,7 +189,7 @@ public:
 	* \tparam Test the test field's type
 	* \tparam Trial the trial field's type
 	* \param [in] test the test field
-	* \param [in] triel the trial field
+	* \param [in] trial the trial field
 	* \return the result matrix of the double integral
 	*/
 	template <class Test, class Trial>
@@ -257,7 +257,7 @@ public:
 	* \tparam Test the test field's type
 	* \tparam Trial the trial field's type
 	* \param [in] test the test field
-	* \param [in] triel the trial field
+	* \param [in] trial the trial field
 	* \return the result matrix of the double integral
 	*/
 	template <class Test, class Trial>

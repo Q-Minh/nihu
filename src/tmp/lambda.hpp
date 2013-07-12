@@ -33,8 +33,11 @@ namespace tmp
 		struct apply : select_argument<N, Args...> {};
 	};
 	
+	/** \brief shorthand for selecting the 1st argument */
 	typedef arg<1> _1;
+	/** \brief shorthand for selecting the 2nd argument */
 	typedef arg<2> _2;
+	/** \brief shorthand for selecting the 3rd argument */
 	typedef arg<3> _3;
 	
 

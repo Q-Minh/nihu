@@ -43,10 +43,15 @@ class unit_kernel :
 	public kernel_base<unit_kernel<Space> >
 {
 public:
+	/** \brief the crtp base type */
 	typedef kernel_base<unit_kernel<Space> > base_t;
+	/** \brief the scalar type */
 	typedef typename base_t::scalar_t scalar_t;
+	/** \brief the result type */
 	typedef typename base_t::result_t result_t;
+	/** \brief the test input type */
 	typedef typename base_t::test_input_t test_input_t;
+	/** \brief the trial input type */
 	typedef typename base_t::trial_input_t trial_input_t;
 
 	/**

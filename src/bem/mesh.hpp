@@ -218,9 +218,9 @@ public:
 	 * \param e the element to be added
 	 */
 	template <class elem_t>
-	elem_t const &push_element(elem_t const &e)
+	elem_t const &push_element(element_base<elem_t> const &e)
 	{
-		m_elements.EigenStdVector<elem_t>::type::push_back(e);
+		m_elements.EigenStdVector<elem_t>::type::push_back(e.derived());
 		return *(m_elements.EigenStdVector<elem_t>::type::rbegin());
 	}
 
