@@ -73,6 +73,7 @@ ELSE(WIN32)
 			mex
 			PATHS
 			/opt/MATLAB/R2012b/bin
+			/opt/MATLAB/R2012a/bin
 			${MATLAB_ROOT}/bin
 			/opt/matlab/bin
 			/usr/local/matlab/bin

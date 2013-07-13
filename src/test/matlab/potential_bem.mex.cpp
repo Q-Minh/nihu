@@ -8,6 +8,8 @@ void mexFunction(
 	int nlhs, mxArray *lhs[],
 	int nrhs, mxArray const *rhs[])
 {
+	if (nlhs < 4 || nrhs < 4)
+		return;
 	mex::real_matrix nodes(rhs[0]);
 	mex::real_matrix elements(rhs[1]);
 

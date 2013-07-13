@@ -38,7 +38,7 @@ public:
 	 * \param [in] xi point in the reference domain
 	 */
 	template <class elem_t>
-	kernel_input_base(elem_t const &elem, typename elem_t::xi_t const &xi)
+	kernel_input_base(elem_t const &, typename elem_t::xi_t const &)
 	{
 		// check if element and kernel_input spaces are the same
 		static_assert(std::is_same<space_t, typename elem_t::space_t>::value,
