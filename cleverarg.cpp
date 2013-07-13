@@ -32,10 +32,9 @@ public:
 	typedef ArgA arg_t;
 	
 	// evaluation
-	int const &eval(arg_t const &arg)
+	void eval(arg_t const &arg)
 	{
 		m_value = arg.get_a();
-		return m_value;
 	}
 	
 	// return stored kernel value
@@ -78,12 +77,11 @@ public:
 	// the input type
 	typedef ArgB arg_t;
 
-	// constructor
-	int const &eval(arg_t const &arg)
+	// evaluate using KernelA
+	void eval(arg_t const &arg)
 	{
 		KernelA::eval(arg);
 		m_value = arg.get_b() * KernelA::get_value();
-		return m_value;
 	}
 	
 	// return stored result
@@ -132,7 +130,7 @@ struct smallest_input_wrapper : tmp::if_<
 
 
 
-// metafunction returning a combined kernel from A and B with a constructor and a
+// metafunction returning a combined kernel from A and B with a constructor and a typedef
 template <class A, class B, class InputArg>
 struct combined_kernel
 {
@@ -149,6 +147,7 @@ struct combined_kernel
 		{
 		}
 		
+		// independent sequential evaluations
 		void eval(InputArg const &arg)
 		{
 			A::eval(arg);
@@ -284,7 +283,7 @@ int main(void)
 	KernelB kb;
 	
 	// create the super kernel instance (still in main module)
-	auto kc = create_super_kernel(ka, kb);
+	auto kc = create_super_kernel(kb, ka);
 	
 	// retreive optimal input type from superkernel and instantiate input (in integration module)
 	decltype(kc)::arg_t arg(2);
