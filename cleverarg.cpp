@@ -35,6 +35,7 @@ public:
 	void eval(arg_t const &arg)
 	{
 		m_value = arg.get_a();
+		std::cout << "KernelA evaluated\n";
 	}
 	
 	// return stored kernel value
@@ -82,6 +83,7 @@ public:
 	{
 		KernelA::eval(arg);
 		m_value = arg.get_b() * KernelA::get_value();
+		std::cout << "KernelB evaluated\n";
 	}
 	
 	// return stored result
@@ -174,11 +176,7 @@ struct combined_kernel<A, A, InputArg>
 		{
 		}
 
-		// eval only evaluates A
-		void eval(InputArg const &arg)
-		{
-			A::eval(arg);
-		}
+		using A::eval;
 	};
 };
 
@@ -227,7 +225,7 @@ struct Bsuperior
 };
 
 
-// return smallest common wrapper input for inputs A and B
+// return smallest common wrapper kernel for kernels A and B
 template <class A, class B, class InputArg>
 struct smallest_kernel_wrapper : tmp::if_<
 	typename std::is_base_of<A, B>::type,
@@ -238,12 +236,6 @@ struct smallest_kernel_wrapper : tmp::if_<
 		typename combined_kernel<A, B, InputArg>::type
 	>::type
 > {};
-
-
-// return smallest common wrapper input for inputs A and B
-template <class A, class InputArg>
-struct smallest_kernel_wrapper<A, A, InputArg> :
-	combined_kernel<A, A, InputArg> {};
 
 
 // combine two kernels, provide an optimal kernel input
@@ -275,29 +267,31 @@ typename super_kernel<KA, KB>::type
 }
 
 
+template<class K>
+void test(K k)
+{
+	typename K::arg_t arg(2);
+	k.eval(arg);
+}
+
 
 int main(void)
 {
-	// instantiate two separate kernels (in main module with wave numbers)
 	KernelA ka;
 	KernelB kb;
 	
-	// create the super kernel instance (still in main module)
-	auto kc = create_super_kernel(kb, ka);
+	std::cout << std::endl << "A-B\n";
+	test(create_super_kernel(ka, kb));
 	
-	// retreive optimal input type from superkernel and instantiate input (in integration module)
-	decltype(kc)::arg_t arg(2);
-
-	// evaluate superkernel with the optimal argument
-	kc.eval(arg);
-
-	// get return value of first kernel
-	std::cout << kc.KernelA::get_value() << std::endl;
-	// get return value of second kernel
-	std::cout << kc.KernelB::get_value() << std::endl;
+	std::cout << std::endl << "B-A\n";
+	test(create_super_kernel(kb, ka));
 	
-	// GEEEEXCIIIIII !!!
-
+	std::cout << std::endl << "A-A\n";
+	test(create_super_kernel(ka, ka));
+	
+	std::cout << std::endl << "B-B\n";
+	test(create_super_kernel(kb, kb));
+	
 	return 0;
 }
 
