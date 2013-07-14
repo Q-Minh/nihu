@@ -258,10 +258,10 @@ struct super_kernel
 };
 
 
-// superkernel factory function
+// superkernel factory operator
 template <class KA, class KB>
 typename super_kernel<KA, KB>::type
-	create_super_kernel(KA const &ka, KB const &kb)
+	operator,(KA const &ka, KB const &kb)
 {
 	return typename super_kernel<KA, KB>::type(ka, kb);
 }
@@ -274,23 +274,22 @@ void test(K k)
 	k.eval(arg);
 }
 
-
 int main(void)
 {
 	KernelA ka;
 	KernelB kb;
 	
 	std::cout << std::endl << "A-B\n";
-	test(create_super_kernel(ka, kb));
+	test( (ka, kb) );
 	
 	std::cout << std::endl << "B-A\n";
-	test(create_super_kernel(kb, ka));
+	test( (kb, ka) );
 	
 	std::cout << std::endl << "A-A\n";
-	test(create_super_kernel(ka, ka));
+	test( (ka, ka) );
 	
 	std::cout << std::endl << "B-B\n";
-	test(create_super_kernel(kb, kb));
+	test( (kb, kb) );
 	
 	return 0;
 }
