@@ -64,18 +64,38 @@ Lambda expressions {#lambdaexpression}
 ------------------
 	
 Is a term referring either to 
-	1. a metafunction class 
-	2. or (as a special case) a placeholder expression.
+	1. a [metafunction class](#metafunclass)
+	2. or (as a special case) a [placeholder expression](#placeholderexpression).
+
+The implementation details of lambda expressions are not discussed herein, however, the corresponding code can be found in [lambda.hpp](lambda.hpp).
+
+The reason for using lambda and placeholder expressions is to achieve lazy evaluation of types. By exploiting the power of lambda expressions code like the example below can be written:
+
+\snippet metaprogramming.hpp LambdaExample
+
+Looking at the last line of the code, it can be immediately seen that the types listed in the vector type `vec` are automatically substituted as template parameters of the `MyMF` metafunction. (Note: the placeholder `_1` in the penultimate line implies that the first template parameter of the resulting lambda expression will be substituted as the template parameter of class `MyMF` later.)  Compilation of `MyMF` is performed only when the types in `vec` are already known and the `call_each` function is compiled.
 
 Lambda metafunctions {#lambdametafun}
 --------------------
 
-Are special metafunctions, which take a lambda expression as a template parameter. The purpose of using lambda metafunctions is to turn placeholder expressions into metafunction classes. Lambda metafunctions contain a nested metafunction class.
+Are special metafunctions, which take a lambda expression as a template parameter. The purpose of using lambda metafunctions is to turn placeholder expressions into metafunction classes. Lambda metafunctions contain a nested metafunction class. (This means that the lambda metafunction has a type definition, called `type` with a nested class called `apply`. The latter `apply` class also defines a type called `type`.)
+
+The wrapping mechanism works as follows:
+	1. If the wrapped class is a [placeholder expression](#placeholderexpression) the lambda metafunction uses an internal metafunction class with the appropriate implementation of `apply` for the substitution of argument types into placeholders.
+	2. Otherwise, the resulting type is the wrapped type itself.
+
+The implementation of this functionality is simple using [type definition forwarding](#typedeffwd).
+
+\snippet metaprogramming.hpp LambdaMetaFun
+
+Taking the example from the [previous section](#lambdaexpression) evaluating the lazy type for one specific template parameter can be done like the following:
+
+\snippet metaprogramming.hpp LambdaMetaFunExample
 
 The apply metafunction {#applymetafun}
 ----------------------
 
-Is a special metafunction, which invokes the result of a lambda metafunction. In other words, the `apply` metafunction is a shorthand notation.
+Is a special metafunction, which invokes the result of a lambda metafunction. In other words, the `apply` metafunction is a shorthand notation for the evaluation of the metafunctor wrapped into a lambda metafunction.
 
 \snippet metaprogramming.hpp ApplyMetaFunction
 
@@ -86,3 +106,5 @@ Type definition forwarding {#typedeffwd}
 --------------------------
 
 Type definition forwarding can easily be achieved using inheritance. This is usually applied as a shortcut in order to avoid repetition of typedef lines. One can also make use of the fact that different template specialisations can be derived from different base classes.
+
+\snippet metaprogramming.hpp TypedefForwarding

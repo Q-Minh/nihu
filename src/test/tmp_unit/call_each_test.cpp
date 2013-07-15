@@ -22,9 +22,11 @@ int main(void)
 		std::integral_constant<int, 2>
 	> vec;
 
+	typedef tester<tmp::_1> test_t;
+	
 	tmp::call_each<
 		vec,
-		tester<tmp::_1>,
+		test_t,
 		int const &,
 		char const &
 	>(1, 'a');
