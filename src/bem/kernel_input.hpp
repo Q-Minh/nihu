@@ -136,3 +136,4 @@ struct weighted_kernel_input : tmp::if_<
 > {};
 
 #endif // KERNELINPUT_HPP_INCLUDED
+
