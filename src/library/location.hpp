@@ -19,7 +19,7 @@ struct location
 			wall(elem, xi),
 			m_x(elem.get_x(xi))
 		{
-			std::cout << "m_x\n";
+			std::cout << "location ctor\n";
 		}
 
 		x_t const &get_x(void) const
@@ -34,7 +34,7 @@ struct location
 
 
 template <class Space>
-struct area_elem
+struct normal_jacobian
 {
 	template <class wall>
 	struct brick : public wall
@@ -42,25 +42,33 @@ struct area_elem
 	public:
 		typedef Space space_t;
 		typedef typename space_t::location_t x_t;
+		typedef typename space_t::scalar_t scalar_t;
 
 		template <class elem_t>
 		brick(elem_t const &elem, typename elem_t::xi_t const &xi) :
 			wall(elem, xi),
-			m_dA(elem.get_normal(xi))
+			m_norm(elem.get_normal(xi)),
+			m_jac(m_norm.norm())
 		{
-			std::cout << "m_dA\n";
+			m_norm /= m_jac;
+			std::cout << "normal ctor\n";
 		}
 
-		x_t const &get_dA(void) const
+		x_t const &get_normal(void) const
 		{
-			return m_dA;
+			return m_norm;
+		}
+
+		scalar_t const &get_jacobian(void) const
+		{
+			return m_jac;
 		}
 
 	private:
-		x_t m_dA;
+		x_t m_norm;
+		scalar_t m_jac;
 	};
 };
-
 
 #endif // LOCATION_HPP_INCLUDED
 
