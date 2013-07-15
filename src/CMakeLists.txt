@@ -36,6 +36,7 @@ endif ()
 
 # EIGEN
 include(NiHuEigen)
+include_directories("${EIGEN_INCLUDE_DIRS}")
 
 # MATLAB
 # look for environment variable MATLAB_ROOT
