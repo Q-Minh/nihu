@@ -9,7 +9,13 @@ set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/../cmake)
 # Set the project name
 project (NiHu)
 
+# Set the 3rdparty dir
 set(NIHU_THIRDPARTY_DIR "${CMAKE_SOURCE_DIR}/ThirdParty")
+
+# 
+if (WIN32)
+	set(CMAKE_CXX_COMPILER "g++")
+endif(WIN32)
 
 # COMPILER PROPERTIES
 # Compiler-specific C++11 activation.
