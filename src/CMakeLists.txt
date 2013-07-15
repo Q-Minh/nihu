@@ -9,6 +9,14 @@ set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/../cmake)
 # Set the project name
 project (NiHu)
 
+# Set the 3rdparty dir
+set(NIHU_THIRDPARTY_DIR "${CMAKE_SOURCE_DIR}/ThirdParty")
+
+# 
+if (WIN32)
+	set(CMAKE_CXX_COMPILER "g++")
+endif(WIN32)
+
 # COMPILER PROPERTIES
 # Compiler-specific C++11 activation.
 if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
@@ -27,15 +35,7 @@ endif ()
 
 
 # EIGEN
-# Check for eigen
-find_package (Eigen REQUIRED)
-
-# Check if eigen found
-if(EIGEN_FOUND)
-	include_directories ("${EIGEN_INCLUDE_DIRS}")
-else(EIGEN_FOUND)
-	message(FATAL_ERROR "Eigen3 not found, CMake will exit." )
-endif(EIGEN_FOUND)
+include(NiHuEigen)
 
 # MATLAB
 # look for environment variable MATLAB_ROOT
