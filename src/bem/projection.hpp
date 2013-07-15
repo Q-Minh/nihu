@@ -125,18 +125,11 @@ public:
 		Result &result) const
 	{
 		if (&test_space.get_mesh() == &m_trial_space.get_mesh())
-		{
 			assembly<TestSpace, TrialSpace, std::true_type>::eval_into(
 				result, m_op, test_space, m_trial_space);
-			std::cout << "on same mesh" << std::endl;
-		}
 		else
-		{
 			assembly<TestSpace, TrialSpace, std::false_type>::eval_into(
 				result, m_op, test_space, m_trial_space);
-			std::cout << "on different meshes" << std::endl;
-			std::cout << &test_space << ' ' << &m_trial_space << std::endl;
-		}
 	}
 	
 

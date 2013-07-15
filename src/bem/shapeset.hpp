@@ -335,7 +335,7 @@ inline typename line_1_shape_set::shape_t
 */
 template<>
 inline typename isoparam_shape_set<line_domain>::dshape_t
-	line_1_shape_set::eval_dshape(typename line_1_shape_set::xi_t const &xi)
+	line_1_shape_set::eval_dshape(typename line_1_shape_set::xi_t const &)
 {
 	dshape_t dL;
 	dL <<

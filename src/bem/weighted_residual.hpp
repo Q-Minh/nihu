@@ -76,8 +76,8 @@ public:
 	template <class result_t>
 	result_t &eval(result_t &result) const
 	{
-		m_lhs.eval_into(result);
-		m_rhs.eval_into(result);
+		m_lhs.eval(result);
+		m_rhs.eval(result);
 		return result;
 	}
 	

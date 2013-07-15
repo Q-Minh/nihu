@@ -8,10 +8,9 @@
 #ifndef SINGLE_INTEGRAL_HPP_INCLUDED
 #define SINGLE_INTEGRAL_HPP_INCLUDED
 
-
+#include "../util/plain_type.hpp"
 #include "gaussian_quadrature.hpp"
 #include "quadrature_pool.hpp"
-#include "../util/plain_type.hpp"
 
 /**
 * \brief single integral over an element
@@ -37,15 +36,10 @@ public:
 	/** \brief the quadrature family */
 	typedef gauss_family_tag quadrature_family_t;
 
-	/** \brief the quadrature element */
-	typedef typename quadrature_type<quadrature_family_t, domain_t>::type::quadrature_elem_t quadrature_elem_t;
-
+	/** \brief the stored regular quadratures for the test field */
 	typedef regular_pool_store<test_field_t, quadrature_family_t> test_regular_store_t;
+	/** \brief the stored regular quadratures for the trial field */
 	typedef regular_pool_store<trial_field_t, quadrature_family_t> trial_regular_store_t;
-
-	typedef field_type_accelerator<test_field_t, quadrature_family_t> test_field_type_accelerator_t;
-	typedef field_type_accelerator<trial_field_t, quadrature_family_t> trial_field_type_accelerator_t;
-
 
 	/** \brief N-set of the test field */
 	typedef typename test_field_t::nset_t test_nset_t;
@@ -62,6 +56,7 @@ public:
 		typename product_type<test_shape_t, Eigen::Transpose<trial_shape_t> >::type
 	>::type result_t;
 	
+	/** \brief the polynomial degree of the product of the n-sets and the jacobian */
 	static unsigned const degree
 		= test_nset_t::polynomial_order
 		+ trial_nset_t::polynomial_order
