@@ -12,3 +12,5 @@ N = size(Gs,1);
 qs = ones(N,1);
 ps = Hs \ (Gs * qs);
 pf = Hf * ps - Gf * qs;
+
+clear mex

@@ -10,6 +10,8 @@
 
 #include "quadrature_pool.hpp"
 #include "../util/plain_type.hpp"
+#include "../util/brick.hpp"
+#include "../library/location.hpp"
 #include "kernel.hpp"
 
 /**
@@ -38,9 +40,15 @@ public:
 	/** \brief trial input type of kernel */
 	typedef typename kernel_t::trial_input_t trial_input_t;
 	/** \brief weighted test input type of kernel */
-	typedef typename weighted_kernel_input<test_input_t>::type w_test_input_t;
+	typedef typename merge<
+		test_input_t,
+		typename build<normal_jacobian<typename test_input_t::space_t> >::type
+	>::type w_test_input_t;
 	/** \brief weighted trial input type of kernel */
-	typedef typename weighted_kernel_input<trial_input_t>::type w_trial_input_t;
+	typedef typename merge<
+		trial_input_t,
+		typename build<normal_jacobian<typename trial_input_t::space_t> >::type
+	>::type w_trial_input_t;
 	/** \brief result type of kernel */
 	typedef typename kernel_t::result_t kernel_result_t;
 
@@ -273,9 +281,15 @@ public:
 	/** \brief trial input type of kernel */
 	typedef typename kernel_t::trial_input_t trial_input_t;
 	/** \brief weighted test input type of kernel */
-	typedef typename weighted_kernel_input<test_input_t>::type w_test_input_t;
+	typedef typename merge<
+		test_input_t,
+		typename build<normal_jacobian<typename test_input_t::space_t> >::type
+	>::type w_test_input_t;
 	/** \brief weighted trial input type of kernel */
-	typedef typename weighted_kernel_input<trial_input_t>::type w_trial_input_t;
+	typedef typename merge<
+		trial_input_t,
+		typename build<normal_jacobian<typename trial_input_t::space_t> >::type
+	>::type w_trial_input_t;
 	/** \brief result type of kernel */
 	typedef typename kernel_t::result_t kernel_result_t;
 

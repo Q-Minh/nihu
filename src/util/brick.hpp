@@ -10,19 +10,19 @@
 #include "../tmp/vector.hpp"
 #include "../tmp/algorithm.hpp"
 
+/** \brief terminating type of wall types */
+struct empty_wall
+{
+	/** \brief self-returning type */
+	typedef empty_wall type;
+
+	/** \brief constructor from everything */
+	template <class...Args>
+	empty_wall(Args...args) {}
+};
+
 namespace internal
 {
-	/** \brief terminating type of wall types */
-	struct empty_wall
-	{
-		/** \brief self-returning type */
-		typedef empty_wall type;
-
-		/** \brief constructor from everything */
-		template <class...Args>
-		empty_wall(Args...args) {}
-	};
-
 	/** \brief metafunction to explode a wall into a vector of bricks */
 	template <class wall>
 	struct wall_to_bricks : tmp::push_back<
@@ -52,7 +52,7 @@ namespace internal
  * \tparam wallB the second wall to merge
  * \return a wall consisting of unique bricks in the same order
  */
-template <class wallA, class wallB = internal::empty_wall>
+template <class wallA, class wallB = empty_wall>
 struct merge : internal::bricks_to_wall<
 	typename tmp::unique<
 		typename tmp::concatenate<
@@ -67,32 +67,47 @@ struct merge : internal::bricks_to_wall<
  * \tparam wall a wall
  * \return a wall with the brick on the top
  */
-template <template <class T> class brick, class wall = internal::empty_wall>
-struct build :
+template <template <class T> class brick, class wall = empty_wall>
+struct glue :
 	public brick<wall>
 {
 	/** \brief self-returning metafunction */
-	typedef build type;
+	typedef glue type;
 	/** \brief the supporting wall */
 	typedef wall base_t;
-	/** \brief metafunction to replace top brick to a new wall
+	/** \brief metafunction to reglue the top brick to a new wall
 	 * \tparam newWall the new wall where the top brick is to be placed
 	 * \return the new wall with the brick on top
 	 */
 	template <class newWall>
-	struct wrap :
-		build<brick, newWall> {};
+	struct wrap : glue<brick, newWall> {};
 
 	/** constructor of wrapper class
 	 * \tparam Args arbitrary paramerer types
 	 * \param args the parameters
 	 */
 	template <class...Args>
-	build(Args const &...args) :
+	glue(Args const &...args) :
 		brick<wall>(args...)
 	{
 	}
 };
+
+namespace internal
+{
+	/** \brief helper function to glue a nested template to a wall */
+	template <class elem, class wall>
+	struct glue_nested : glue<elem::template brick, wall> {};
+}
+
+/** \brief helper metafunction to build a wall from a vector of brick containers */
+template <class...Args>
+struct build : tmp::accumulate<
+	tmp::vector<Args...>,
+	empty_wall,
+	internal::glue_nested<tmp::_2, tmp::_1>
+> {};
+
 
 #endif // BRICK_HPP_INCLUDED
 
