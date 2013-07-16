@@ -33,6 +33,8 @@ public:
 	typedef typename traits_t::test_input_t test_input_t;
 	/** \brief type of the second (trial) kernel input */
 	typedef typename traits_t::trial_input_t trial_input_t;
+	/** \brief type of the kernel output (not the result) */
+	typedef typename traits_t::output_t output_t;
 
 	/** \brief compile time check if the two kernel inputs are compatible */
 	static_assert(std::is_same<typename test_input_t::space_t, typename trial_input_t::space_t>::value,
