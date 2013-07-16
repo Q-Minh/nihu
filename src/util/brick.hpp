@@ -83,7 +83,7 @@ struct glue :
 	struct wrap : glue<brick, newWall> {};
 
 	/** constructor of wrapper class
-	 * \tparam Args arbitrary paramerer types
+	 * \tparam Args arbitrary parameter types
 	 * \param args the parameters
 	 */
 	template <class...Args>

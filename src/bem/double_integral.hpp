@@ -11,7 +11,7 @@
 #include "quadrature_pool.hpp"
 #include "../util/plain_type.hpp"
 #include "../util/brick.hpp"
-#include "../library/location.hpp"
+#include "../library/location_normal.hpp"
 #include "kernel.hpp"
 
 /**

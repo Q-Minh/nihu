@@ -11,8 +11,97 @@
 #include "../bem/kernel.hpp"
 #include "../bem/gaussian_quadrature.hpp"
 
-#include "location.hpp"
+#include "location_normal.hpp"
 #include "reciprocal_distance_kernel.hpp"
+
+
+template <class space>
+struct distance_vector_brick
+{
+	template <class wall>
+	class brick : public wall
+	{
+	public:
+		template <class test_input_t, class trial_input_t>
+		brick(test_input_t const &test_input, trial_input_t const &trial_input) :
+			wall(test_input, trial_input),
+			m_distance_vector(trial_input.get_x()-test_input.get_x())
+		{
+		}
+		
+		typename space::location_t const &
+			get_distance_vector(void) const
+		{
+			return m_distance_vector;
+		}
+		
+	private:
+		typename space::location_t m_distance_vector;
+	};
+};
+
+
+template <class scalar>
+struct distance_brick
+{
+	template <class wall>
+	class brick : public wall
+	{
+	public:
+		template <class test_input_t, class trial_input_t>
+		brick(test_input_t const &test_input, trial_input_t const &trial_input) :
+			wall(test_input, trial_input),
+			m_distance(wall::get_distance_vector().norm())
+		{
+		}
+		
+		scalar const & get_distance(void) const
+		{
+			return m_distance;
+		}
+		
+	private:
+		scalar m_distance;
+	};
+};
+
+
+template <class scalar>
+struct poisson_g_brick
+{
+	template <class wall>
+	class brick : public wall
+	{
+	public:
+		template <class test_input_t, class trial_input_t>
+		brick(test_input_t const &test_input, trial_input_t const &trial_input) :
+			wall(test_input, trial_input),
+			m_poisson_g(1.0 / wall::get_distance() / (4.0 * M_PI))
+		{
+		}
+		
+		scalar const & get_poisson_g(void) const
+		{
+			return m_poisson_g;
+		}
+		
+		scalar const & get_result(void) const
+		{
+			return m_poisson_g;
+		}
+		
+	private:
+		scalar m_poisson_g;
+	};
+};
+
+template <class space>
+struct poisson_g_wall : build<
+	distance_vector_brick<space>,
+	distance_brick<typename space::scalar_t>,
+	poisson_g_brick<typename space::scalar_t>
+> {};
+
 
 // forward declaration
 class poisson_G_kernel;
@@ -25,6 +114,8 @@ struct kernel_traits<poisson_G_kernel>
 	typedef build<location<space_3d> >::type test_input_t;
 	/** \brief kernel trial input type */
 	typedef build<location<space_3d> >::type trial_input_t;
+	/** \brief the kernel output type */
+	typedef typename poisson_g_wall<space_3d>::type output_t;
 	/** \brief kernel result type */
 	typedef space_3d::scalar_t result_t;
 	/** \brief the quadrature family the kernel is integrated with */
@@ -57,12 +148,51 @@ public:
 	* \param [in] y the trial input
 	* \return the kernel value K(x,y)
 	*/
+	template <class test_input_t, class trial_input_t>
 	result_t operator()(test_input_t const &x, trial_input_t const &y) const
 	{
-		scalar_t r = (y.get_x() - x.get_x()).norm();
-		return 1.0 / r / (4.0 * M_PI);
+		// instantiate output
+		typedef typename kernel_traits<poisson_G_kernel>::output_t output_t;
+		output_t output(x, y);
+		// select result from output
+		return output.get_result();
 	}
 };
+
+
+template <class scalar>
+struct poisson_h_brick
+{
+	template <class wall>
+	class brick : public wall
+	{
+	public:
+		template <class test_input_t, class trial_input_t>
+		brick(test_input_t const &test_input, trial_input_t const &trial_input) :
+			wall(test_input, trial_input),
+			m_poisson_h(-1.0 * wall::get_poisson_g())
+		{
+			auto r = wall::get_distance();
+			auto rdn = wall::get_distance_vector().dot(trial_input.get_unit_normal()) / r;
+			m_poisson_h *= rdn / r;
+		}
+		
+		scalar const & get_poisson_h(void) const
+		{
+			return m_poisson_h;
+		}
+		
+		scalar const & get_result(void) const
+		{
+			return m_poisson_h;
+		}
+		
+	private:
+		scalar m_poisson_h;
+	};
+};
+
+
 
 
 // forward declaration
@@ -76,6 +206,11 @@ struct kernel_traits<poisson_H_kernel>
 	typedef build<location<space_3d> >::type test_input_t;
 	/** \brief kernel trial input type */
 	typedef build<location<space_3d>, normal_jacobian<space_3d> >::type trial_input_t;
+	/** \brief the kernel output type */
+	typedef typename glue<
+		poisson_h_brick<space_3d::scalar_t>::brick,
+		typename poisson_g_wall<space_3d>::type
+	>::type output_t;
 	/** \brief kernel result type */
 	typedef space_3d::scalar_t result_t;
 	/** \brief the quadrature family the kernel is integrated with */
@@ -110,18 +245,13 @@ public:
 	*/
 	result_t operator()(test_input_t const &x, trial_input_t const &y) const
 	{
-		x_t rvec = y.get_x() - x.get_x();
-		scalar_t r2 = rvec.squaredNorm();
-		scalar_t r = sqrt(r2);
-
-		result_t m_result = 1.0 / r / (4.0 * M_PI);
-		scalar_t rdn = rvec.dot(y.get_unit_normal());
-		m_result *= (-rdn / r2);
-
-		return m_result;
+		// instantiate output
+		typedef typename kernel_traits<poisson_H_kernel>::output_t output_t;
+		output_t output(x, y);
+		// select result from output
+		return output.get_result();
 	}
 };
-
 
 #endif // POISSON_KERNEL_HPP_INCLUDED
 
