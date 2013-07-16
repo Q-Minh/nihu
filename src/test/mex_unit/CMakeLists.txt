@@ -6,7 +6,7 @@ include_directories("${CMAKE_SOURCE_DIR}/util")
 if(WIN32)
 	# Win mode
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMATLAB_MEX_FILE")
-	SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -L${MATLAB_ROOT}/bin/win${NIHU_SYS_BITS} -L${MATLAB_ROOT}/extern/lib/win${NIHU_SYS_BITS}/microsoft -m${NIHU_SYS_BITS} -lmex -lmx -lmat ")
+	SET(CMAKE_SHARED_LINKER_FLAGS "-shared ${CMAKE_SHARED_LINKER_FLAGS} -L\"${MATLAB_ROOT}/bin/win${NIHU_SYS_BITS}\" -L\"${MATLAB_ROOT}/extern/lib/win${NIHU_SYS_BITS}/microsoft\" -m${NIHU_SYS_BITS} -lmex -lmx -lmat")
 else(WIN32)
 	# Unix mode
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -DMATLAB_MEX_FILE")
