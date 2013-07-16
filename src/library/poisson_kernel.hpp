@@ -193,6 +193,11 @@ struct poisson_h_brick
 };
 
 
+template <class space>
+struct poisson_h_wall : glue<
+	poisson_h_brick<typename space::scalar_t>::template brick,
+	typename poisson_g_wall<space>::type
+> {};
 
 
 // forward declaration
@@ -207,10 +212,7 @@ struct kernel_traits<poisson_H_kernel>
 	/** \brief kernel trial input type */
 	typedef build<location<space_3d>, normal_jacobian<space_3d> >::type trial_input_t;
 	/** \brief the kernel output type */
-	typedef typename glue<
-		poisson_h_brick<space_3d::scalar_t>::brick,
-		typename poisson_g_wall<space_3d>::type
-	>::type output_t;
+	typedef typename poisson_h_wall<space_3d>::type output_t;
 	/** \brief kernel result type */
 	typedef space_3d::scalar_t result_t;
 	/** \brief the quadrature family the kernel is integrated with */
