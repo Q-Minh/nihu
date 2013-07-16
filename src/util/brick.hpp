@@ -1,3 +1,8 @@
+/**
+ * \file brick.hpp
+ * \brief definition of brick data classes
+ * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
+ */
 #ifndef BRICK_HPP_INCLUDED
 #define BRICK_HPP_INCLUDED
 
@@ -5,69 +10,89 @@
 #include "../tmp/vector.hpp"
 #include "../tmp/algorithm.hpp"
 
-/** \brief terminating type of brick types */
-struct empty_wall
+namespace internal
 {
-	/** \brief self-returning type */
-	typedef empty_wall type;
+	/** \brief terminating type of wall types */
+	struct empty_wall
+	{
+		/** \brief self-returning type */
+		typedef empty_wall type;
 
-	/** \brief constructor from everything */
-	template <class...Args>
-	empty_wall(Args...args) {};
-};
+		/** \brief constructor from everything */
+		template <class...Args>
+		empty_wall(Args...args) {}
+	};
 
-/** \brief metafunction to explode a wall into a vector of bricks */
-template <class wall>
-struct wall_to_bricks : tmp::push_front<
-	typename wall_to_bricks<typename wall::base_t>::type,
-	typename wall::template wrap<empty_wall>::type
-> {};
+	/** \brief metafunction to explode a wall into a vector of bricks */
+	template <class wall>
+	struct wall_to_bricks : tmp::push_back<
+		typename wall_to_bricks<typename wall::base_t>::type,
+		typename wall::template wrap<empty_wall>::type
+	> {};
 
-/** \brief specialisation of ::wall_to_bricks for the empty wall */
-template <>
-struct wall_to_bricks<empty_wall> : tmp::vector<> {};
+	/** \brief specialisation of ::wall_to_bricks for the empty wall */
+	template <>
+	struct wall_to_bricks<empty_wall> : tmp::vector<> {};
 
-/** \brief metafunction to build a wall from a vector of bricks */
-template <class bricks>
-struct bricks_to_wall
-{
-	typedef typename tmp::deref<typename tmp::begin<bricks>::type>::type::template wrap<
-		typename bricks_to_wall<typename tmp::pop_front<bricks>::type>::type
-	>::type type;
-};
+	/** \brief helper metafunction to put a brick on the top of a wall */
+	template <class brick, class wall>
+	struct put_on : brick::template wrap<wall> {};
 
-/** \brief specialisation of ::wall_to_bricks for the empty brick vector case */
-template <>
-struct bricks_to_wall<tmp::vector<> > : empty_wall {};
+	/** \brief metafunction to build a wall from a vector of bricks */
+	template <class bricks>
+	struct bricks_to_wall : tmp::accumulate<
+		bricks,
+		empty_wall,
+		put_on<tmp::_2, tmp::_1>
+	> {};
+}
 
-
-/** \brief merge walls A and B */
-template <class wallA, class wallB>
-struct merge : bricks_to_wall<
+/** \brief merge walls
+ * \tparam wallA the first wall to merge
+ * \tparam wallB the second wall to merge
+ * \return a wall consisting of unique bricks in the same order
+ */
+template <class wallA, class wallB = internal::empty_wall>
+struct merge : internal::bricks_to_wall<
 	typename tmp::unique<
 		typename tmp::concatenate<
-			typename wall_to_bricks<wallA>::type,
-			typename wall_to_bricks<wallB>::type
+			typename internal::wall_to_bricks<wallA>::type,
+			typename internal::wall_to_bricks<wallB>::type
 		>::type
 	>::type
 > {};
 
-
-template <template <class T> class brick, class wall = empty_wall>
+/** \brief convert a brick template and a wall into a wall
+ * \tparam brick a brick template
+ * \tparam wall a wall
+ * \return a wall with the brick on the top
+ */
+template <template <class T> class brick, class wall = internal::empty_wall>
 struct build :
 	public brick<wall>
 {
+	/** \brief self-returning metafunction */
 	typedef build type;
+	/** \brief the supporting wall */
 	typedef wall base_t;
-	template <class newWall> struct wrap : build<brick, newWall> {};
+	/** \brief metafunction to replace top brick to a new wall
+	 * \tparam newWall the new wall where the top brick is to be placed
+	 * \return the new wall with the brick on top
+	 */
+	template <class newWall>
+	struct wrap :
+		build<brick, newWall> {};
 
+	/** constructor of wrapper class
+	 * \tparam Args arbitrary paramerer types
+	 * \param args the parameters
+	 */
 	template <class...Args>
 	build(Args const &...args) :
 		brick<wall>(args...)
 	{
 	}
 };
-
 
 #endif // BRICK_HPP_INCLUDED
 
