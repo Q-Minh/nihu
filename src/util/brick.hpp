@@ -16,14 +16,16 @@ struct empty_wall
 	/** \brief self-returning type */
 	typedef empty_wall type;
 
-	/** \brief constructor from everything */
+	/** \brief empty constructor from everything */
 	template <class...Args>
-	empty_wall(Args...args) {}
+	empty_wall(Args...args)
+	{
+	}
 };
 
 namespace internal
 {
-	/** \brief metafunction to explode a wall into a vector of bricks */
+	/** \brief explode a wall into a vector of brick(wall)s */
 	template <class wall>
 	struct wall_to_bricks : tmp::push_back<
 		typename wall_to_bricks<typename wall::base_t>::type,

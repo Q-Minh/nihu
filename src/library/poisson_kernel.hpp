@@ -15,13 +15,25 @@
 #include "reciprocal_distance_kernel.hpp"
 
 
+/** \brief a brick representing a distance vector \f${\bf r} = {\bf y} - {\bf x}\f$
+ * \tparam space the coordinate space the distance is defined over
+ */
 template <class space>
 struct distance_vector_brick
 {
+	/** \brief the brick template
+	 * \tparam the wall the brick is placed on
+	 */
 	template <class wall>
 	class brick : public wall
 	{
 	public:
+		/** \brief templated constructor
+		 * \tparam test_input_t the test input type
+		 * \tparam trial_input_t the trial input type
+		 * \param [in] test_input the test input
+		 * \param [in] trial_input the trial input
+		 */
 		template <class test_input_t, class trial_input_t>
 		brick(test_input_t const &test_input, trial_input_t const &trial_input) :
 			wall(test_input, trial_input),
@@ -29,8 +41,10 @@ struct distance_vector_brick
 		{
 		}
 		
-		typename space::location_t const &
-			get_distance_vector(void) const
+		/** \brief return distance vector
+		 * \return distance vector
+		 */
+		typename space::location_t const &get_distance_vector(void) const
 		{
 			return m_distance_vector;
 		}
@@ -41,13 +55,25 @@ struct distance_vector_brick
 };
 
 
+/** \brief a brick representing a scalar distance \f$r = |{\bf r}|\f$
+ * \tparam scalar the scalar of the coordinate space the distance is defined over
+ */
 template <class scalar>
 struct distance_brick
 {
+	/** \brief the brick template
+	 * \tparam the wall the brick is placed on
+	 */
 	template <class wall>
 	class brick : public wall
 	{
 	public:
+		/** \brief templated constructor
+		 * \tparam test_input_t the test input type
+		 * \tparam trial_input_t the trial input type
+		 * \param [in] test_input the test input
+		 * \param [in] trial_input the trial input
+		 */
 		template <class test_input_t, class trial_input_t>
 		brick(test_input_t const &test_input, trial_input_t const &trial_input) :
 			wall(test_input, trial_input),
@@ -55,6 +81,9 @@ struct distance_brick
 		{
 		}
 		
+		/** \brief return distance
+		 * \return scalar distance
+		 */
 		scalar const & get_distance(void) const
 		{
 			return m_distance;
@@ -66,13 +95,25 @@ struct distance_brick
 };
 
 
+/** \brief a brick representing a poisson kernel \f$1/4\pi r\f$
+ * \tparam scalar the scalar of the coordinate space the distance is defined over
+ */
 template <class scalar>
 struct poisson_g_brick
 {
+	/** \brief the brick template
+	 * \tparam the wall the brick is placed on
+	 */
 	template <class wall>
 	class brick : public wall
 	{
 	public:
+		/** \brief templated constructor
+		 * \tparam test_input_t the test input type
+		 * \tparam trial_input_t the trial input type
+		 * \param [in] test_input the test input
+		 * \param [in] trial_input the trial input
+		 */
 		template <class test_input_t, class trial_input_t>
 		brick(test_input_t const &test_input, trial_input_t const &trial_input) :
 			wall(test_input, trial_input),
@@ -80,11 +121,17 @@ struct poisson_g_brick
 		{
 		}
 		
+		/** \brief return poisson g kernel
+		 * \return poisson g kernel
+		 */
 		scalar const & get_poisson_g(void) const
 		{
 			return m_poisson_g;
 		}
 		
+		/** \brief return poisson g kernel
+		 * \return poisson g kernel
+		 */
 		scalar const & get_result(void) const
 		{
 			return m_poisson_g;
@@ -96,6 +143,9 @@ struct poisson_g_brick
 };
 
 
+/** \brief combination of distance_vector_brick, distance_brick and poisson_g_brick into a wall
+ * \tparam space the coordinate space the poisson kernel is defined over
+ */
 template <class space>
 struct poisson_g_wall : build<
 	distance_vector_brick<space>,
@@ -229,13 +279,25 @@ public:
 };
 
 
+/** \brief a brick representing a poisson derivative kernel \f$ -1/4\pi r^2 \cdot dr/dn \f$
+ * \tparam scalar the scalar of the coordinate space the distance is defined over
+ */
 template <class scalar>
 struct poisson_h_brick
 {
+	/** \brief the brick template
+	 * \tparam the wall the brick is placed on
+	 */
 	template <class wall>
 	class brick : public wall
 	{
 	public:
+		/** \brief templated constructor
+		 * \tparam test_input_t the test input type
+		 * \tparam trial_input_t the trial input type
+		 * \param [in] test_input the test input
+		 * \param [in] trial_input the trial input
+		 */
 		template <class test_input_t, class trial_input_t>
 		brick(test_input_t const &test_input, trial_input_t const &trial_input) :
 			wall(test_input, trial_input),
@@ -246,11 +308,17 @@ struct poisson_h_brick
 			m_poisson_h *= rdn / r;
 		}
 		
+		/** \brief return poisson h kernel
+		 * \return poisson h kernel
+		 */
 		scalar const & get_poisson_h(void) const
 		{
 			return m_poisson_h;
 		}
 		
+		/** \brief return poisson h kernel
+		 * \return poisson h kernel
+		 */
 		scalar const & get_result(void) const
 		{
 			return m_poisson_h;
@@ -262,6 +330,9 @@ struct poisson_h_brick
 };
 
 
+/** \brief combination of poisson_g_wall and poisson_h_brick into a wall
+ * \tparam space the coordinate space the poisson kernel is defined over
+ */
 template <class space>
 struct poisson_h_wall : glue<
 	poisson_h_brick<typename space::scalar_t>::template brick,
