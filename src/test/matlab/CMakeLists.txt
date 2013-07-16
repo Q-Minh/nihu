@@ -1,32 +1,16 @@
-# rem setup compiler options
-# set COMPILER=g++
-# set COMPFLAGS=-c -m64 -I%MATLAB%\extern\include -DMATLAB_MEX_FILE -Wall -std=c++11
-# set OPTIMFLAGS=-O3 -DNDEBUG
-# rem set DEBUGFLAGS=-g
-# set NAME_OBJECT=-o
+# Setup additional include directories
+include_directories("${MATLAB_ROOT}/extern/include")
+include_directories("${CMAKE_SOURCE_DIR}/util")
 
-# rem setup linker options
-# set LINKER=g++
-# set LINKFLAGS=-shared -L%MATLAB%\bin\win64 -L%MATLAB%\extern\lib\win64\microsoft -lmex -lmx -leng -lmat -lmwlapack -lmwblas
-# set NAME_OUTPUT=-o "%OUTDIR%%MEX_NAME%%MEX_EXT%" 
-
+# Setup compiler and linker tests
 if(WIN32)
 	# Win mode
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMATLAB_MEX_FILE")
-	SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -L${MATLAB_ROOT}/bin/win64 -L${MATLAB_ROOT}/extern/lib/win64/microsoft -m64 -lmex -lmx -lmat ")
+	SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -L${MATLAB_ROOT}/bin/win${NIHU_SYS_BITS} -L${MATLAB_ROOT}/extern/lib/win${NIHU_SYS_BITS}/microsoft -m${NIHU_SYS_BITS} -lmex -lmx -lmat ")
 else(WIN32)
 	# Unix mode
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -DMATLAB_MEX_FILE")
 endif(WIN32)
-	
-
-include_directories("${MATLAB_ROOT}/extern/include")
-include_directories("${EIGEN_INCLUDE_DIRS}")
-include_directories("${CMAKE_SOURCE_DIR}")
-include_directories("${CMAKE_SOURCE_DIR}/util")
-
-
-
 
 # Set the extension for mex files
 set(CMAKE_SHARED_LIBRARY_SUFFIX "${MATLAB_MEXEXT}")
@@ -43,12 +27,14 @@ foreach (test_source ${MEX_TEST_SOURCES})
 	# Construct the name of main m file
 	set(test_mfile "${CMAKE_CURRENT_SOURCE_DIR}/${test_name}_test.m")
 
-	if(NOT ${FORCE_MATLAB_MEX})
+	if(NOT NIHU_FORCE_MEX_COMPILER)
 		# add the test as a shared library
 		add_library(${test_name} SHARED ${local_source})
 		# remove the "lib" prefix
 		set_target_properties(${test_name} PROPERTIES PREFIX "")
-	else(NOT ${FORCE_MATLAB_MEX})
+	
+	else(NOT NIHU_FORCE_MEX_COMPILER)
+
 		ADD_CUSTOM_TARGET (${test_name} ALL)
 		ADD_CUSTOM_COMMAND(
 			TARGET    ${test_name}
@@ -63,7 +49,7 @@ foreach (test_source ${MEX_TEST_SOURCES})
 				-o "${test_name}"
 			COMMENT "Executing MEX for ${local_source}"
 		)
-	endif(NOT ${FORCE_MATLAB_MEX})
+	endif(NOT NIHU_FORCE_MEX_COMPILER)
 
 	# copy the test m file
 	add_custom_command(
@@ -81,6 +67,10 @@ foreach (test_source ${MEX_TEST_SOURCES})
 	)
 
 	# add the test
-	add_test(${test_name} "run_${test_name}_test")
+	if(WIN32)
+		add_test(${test_name} "run_${test_name}_test.bat")
+	elseif(WIN32)
+		add_test(${test_name} "run_${test_name}_test")
+	endif(WIN32)
 endforeach(test_source)
 

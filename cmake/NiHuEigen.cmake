@@ -1,4 +1,8 @@
-if(WIN32)
+# If Eigen headers are set
+# (This is the default behaviour on windows.)
+if(NIHU_EIGEN_AS_HEADERS)
+	message(STATUS "Eigen3 headers will be installed as a part of NiHu")
+
 	set(EIGEN_URL "http://bitbucket.org/eigen/eigen/get/3.1.2.tar.bz2")
 	# md5 checksum of the downloaded file tar.bz2
 	set(EIGEN_MD5 "e9c081360dde5e7dcb8eba3c8430fde2") #3.1.2
@@ -50,61 +54,55 @@ if(WIN32)
 	# Add the include directory
 	set(EIGEN_INCLUDE_DIRS "${EIGEN_INSTALL_DIR}")
 
-else(WIN32)
+else(NIHU_EIGEN_AS_HEADERS)
 
-# Check for eigen
-find_package (Eigen REQUIRED)
+	# Check for eigen
+	find_package (Eigen REQUIRED)
 
-# Check if eigen found
-if(NOT EIGEN_FOUND)
-	# Try to install eigen
-	message(STATUS "Eigen3 not found, adding as a separate project" )
-	# Eigen 3.1.2 download location
-	# The following are specific for eigen 3.1.2
-	set(EIGEN_URL "http://bitbucket.org/eigen/eigen/get/3.1.2.tar.bz2")
-	# md5 checksum of the downloaded file tar.bz2
-	set(EIGEN_MD5 "e9c081360dde5e7dcb8eba3c8430fde2") #3.1.2
-	# Later, for 3.1.3
-	# set(EIGEN_MD5 "43eee0e9252a77149d6b65e93e73b79d") #3.1.3
+	# Check if eigen found
+	if(NOT EIGEN_FOUND)
+		# Try to install eigen
+		message(STATUS "Eigen3 not installed yet, will be compiled from source" )
+		# Eigen 3.1.2 download location
+		# The following are specific for eigen 3.1.2
+		set(EIGEN_URL "http://bitbucket.org/eigen/eigen/get/3.1.2.tar.bz2")
+		# md5 checksum of the downloaded file tar.bz2
+		set(EIGEN_MD5 "e9c081360dde5e7dcb8eba3c8430fde2") #3.1.2
+		# Later, for 3.1.3
+		# set(EIGEN_MD5 "43eee0e9252a77149d6b65e93e73b79d") #3.1.3
 
-	# Setup source and build directories
-	set(EIGEN_SOURCE_PATH "${NIHU_THIRDPARTY_DIR}/eigen-3.1.2")
- 	set(EIGEN_BUILD_DIR "${CMAKE_BINARY_DIR}/ThirdParty/eigen-3.1.2")
-	set(EIGEN_INCLUDES_DIR "${CMAKE_BINARY_DIR}/include/eigen")
+		# Setup source and build directories
+		set(EIGEN_SOURCE_PATH "${NIHU_THIRDPARTY_DIR}/eigen-3.1.2")
+		set(EIGEN_BUILD_DIR "${CMAKE_BINARY_DIR}/ThirdParty/eigen-3.1.2")
+		set(EIGEN_INCLUDES_DIR "${CMAKE_BINARY_DIR}/include/eigen")
 
-	# Include external project library
-	include(ExternalProject)
+		# Include external project library
+		include(ExternalProject)
+		
+		# Add eigen 3 as an external project
+		ExternalProject_Add(
+			"eigen-3.1.2"
+			# Download step
+			CMAKE_ARGS 
+				"-DCMAKE_INSTALL_PREFIX=${EIGEN_BUILD_DIR}"
+				"-DEIGEN_INCLUDE_INSTALL_DIR=${EIGEN_INCLUDES_DIR}"
+				"${EIGEN_ADD_CMAKE_ARGS}"
+			PREFIX "${CMAKE_BINARY_DIR}/ThirdParty/eigen-3.1.2"
+			DOWNLOAD_DIR "${NIHU_THIRDPARTY_DIR}"
+			URL "${EIGEN_URL}"
+			URL_MD5 "${EIGEN_MD5}"
+			# Configuraation step
+			SOURCE_DIR "${EIGEN_SOURCE_PATH}"
+			BINARY_DIR "${EIGEN_BUILD_DIR}"
+			# Logging
+			LOG_DOWNLOAD 1
+			LOG_CONFIGURE 1
+			LOG_BUILD 1
+			LOG_INSTALL 1
+		)
 
-	# In win32 mode compile eigen with mingw
-	if(WIN32)
-		set(EIGEN_ADD_CMAKE_ARGS "-DEIGEN_LEAVE_TEST_IN_ALL_TARGET=0")
-	endif(WIN32)
-	
-	# Add eigen 3 as an external project
-	ExternalProject_Add(
-		"eigen-3.1.2"
-		# Download step
-		CMAKE_ARGS 
-			"-DCMAKE_INSTALL_PREFIX=${EIGEN_BUILD_DIR}"
-			"-DEIGEN_INCLUDE_INSTALL_DIR=${EIGEN_INCLUDES_DIR}"
-			"${EIGEN_ADD_CMAKE_ARGS}"
-		PREFIX "${CMAKE_BINARY_DIR}/ThirdParty/eigen-3.1.2"
-		DOWNLOAD_DIR "${NIHU_THIRDPARTY_DIR}"
-		URL "${EIGEN_URL}"
-		URL_MD5 "${EIGEN_MD5}"
-		# Configuraation step
-		SOURCE_DIR "${EIGEN_SOURCE_PATH}"
-		BINARY_DIR "${EIGEN_BUILD_DIR}"
-		# Logging
-		LOG_DOWNLOAD 1
-		LOG_CONFIGURE 1
-		LOG_BUILD 1
-		LOG_INSTALL 1
-	)
+		# include the install directory of eigen includes
+		set(EIGEN_INCLUDE_DIRS "${EIGEN_INCLUDES_DIR}")
+	endif(NOT EIGEN_FOUND)
 
-	# include the install directory of eigen includes
-	set(EIGEN_INCLUDE_DIRS "${EIGEN_INCLUDES_DIR}")
-
-endif(EIGEN_FOUND)
-
-endif(WIN32)
+endif(NIHU_EIGEN_AS_HEADERS)

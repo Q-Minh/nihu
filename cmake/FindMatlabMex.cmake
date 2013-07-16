@@ -10,8 +10,8 @@ SET(MATLABMEX_FOUND 0)
 
 IF(WIN32)
 	SET(MATLAB_MEXEXT .mexw)
-	# This is untested but taken from the older FindMatlab.cmake script as well as
-	# the modifications by Ramon Casero and Tom Doel for Gerardus.
+	# Modifications by Ramon Casero and Tom Doel for Gerardus.
+	# Updated by Peter Rucz, 2013.
 
 	# Search for a version of Matlab available, starting from the most modern one
 	# to older versions.
@@ -27,14 +27,11 @@ IF(WIN32)
 			OR ("${MATLAB_ROOT}" STREQUAL "")
 			OR ("${MATLAB_ROOT}" STREQUAL "/registry"))
 	ENDFOREACH(MATVER)
-
-	message(STATUS "Matlab root is ${MATLAB_ROOT}")
 	
 	if(EXISTS "${MATLAB_ROOT}/bin/mex.bat")
 		set(MATLAB_MEX "${MATLAB_ROOT}/bin/mex.bat")
 	endif(EXISTS "${MATLAB_ROOT}/bin/mex.bat")
-	
-	message(STATUS "Matlab mex is ${MATLAB_MEX}")
+
 ELSE(WIN32)
 	SET(MATLAB_MEXEXT .maci)
 	# Check if this is a Mac.

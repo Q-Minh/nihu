@@ -2,6 +2,7 @@
 
 if(WIN32)
 	set(matlab_exec "matlab.exe")
+	set(run_file "${RUN_FILE}.bat")
 else(WIN32)
 	set(matlab_exec "matlab")
 endif(WIN32)
