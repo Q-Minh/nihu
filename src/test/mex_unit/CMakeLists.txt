@@ -1,7 +1,7 @@
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -DMATLAB_MEX_FILE")
 
 include_directories("${MATLAB_ROOT}/extern/include")
-include_directories("${EIGEN_INCLUDE_DIR}")
+include_directories("${EIGEN_INCLUDE_DIRS}")
 include_directories("${CMAKE_SOURCE_DIR}")
 include_directories("${CMAKE_SOURCE_DIR}/util")
 
@@ -59,5 +59,6 @@ foreach (test_source ${MEX_TEST_SOURCES})
 
 	# add the test
 	add_test(${test_name} "run_${test_name}_test")
+		
 endforeach(test_source)
 

@@ -1,3 +1,6 @@
+# Disable thirdparty
+src/ThirdParty/*
+
 *.*~
 *~
 

@@ -28,10 +28,13 @@ IF(WIN32)
 			OR ("${MATLAB_ROOT}" STREQUAL "/registry"))
 	ENDFOREACH(MATVER)
 
-	FIND_PROGRAM(MATLAB_MEX
-		mex
-		${MATLAB_ROOT}/bin
-	)
+	message(STATUS "Matlab root is ${MATLAB_ROOT}")
+	
+	if(EXISTS "${MATLAB_ROOT}/bin/mex.bat")
+		set(MATLAB_MEX "${MATLAB_ROOT}/bin/mex.bat")
+	endif(EXISTS "${MATLAB_ROOT}/bin/mex.bat")
+	
+	message(STATUS "Matlab mex is ${MATLAB_MEX}")
 ELSE(WIN32)
 	SET(MATLAB_MEXEXT .maci)
 	# Check if this is a Mac.
@@ -115,6 +118,7 @@ ELSE("${MATLAB_MEX}" STREQUAL "" AND "${MatlabMex_FIND_REQUIRED}")
 
 	MESSAGE(STATUS "Found MATLAB mex compiler: ${MATLAB_MEX}")
 	MESSAGE(STATUS "MATLAB root: ${MATLAB_ROOT}")
+	MESSAGE(STATUS "MEX file extension is: ${MATLAB_MEXEXT}")
 	SET(MATLABMEX_FOUND 1)
 ENDIF("${MATLAB_MEX}" STREQUAL "" AND "${MatlabMex_FIND_REQUIRED}")
 
