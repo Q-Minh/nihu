@@ -1,13 +1,10 @@
-#SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -O3 -std=c++11" )
-
-enable_testing()
-
 add_subdirectory(tmp_unit)
 add_subdirectory(core_unit)
 add_subdirectory(util_unit)
+add_subdirectory(library_unit)
 
-IF(BUILD_MEX)
+if(NIHU_BUILD_MEX)
 	add_subdirectory(mex_unit)
 	add_subdirectory(matlab)
-ENDIF(BUILD_MEX)
+endif(NIHU_BUILD_MEX)
 

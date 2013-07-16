@@ -3,17 +3,13 @@
 
 int main(void)
 {
-	typedef
-	build<
-		normal_jacobian<space_3d>::brick,
-		build<
-			location<space_3d>::brick
-		>
-	> input_t;
+	typedef build<
+		location<space_3d>,		normal_jacobian<space_3d>
+	>::type input_t;
 	
 	typedef merge<
 		input_t,
-		build<normal_jacobian<space_3d>::brick>
+		build< normal_jacobian<space_3d> >::type
 	>::type input_opt;
 
 	typename quad_1_elem::coords_t c;

@@ -10,8 +10,8 @@ SET(MATLABMEX_FOUND 0)
 
 IF(WIN32)
 	SET(MATLAB_MEXEXT .mexw)
-	# This is untested but taken from the older FindMatlab.cmake script as well as
-	# the modifications by Ramon Casero and Tom Doel for Gerardus.
+	# Modifications by Ramon Casero and Tom Doel for Gerardus.
+	# Updated by Peter Rucz, 2013.
 
 	# Search for a version of Matlab available, starting from the most modern one
 	# to older versions.
@@ -27,11 +27,11 @@ IF(WIN32)
 			OR ("${MATLAB_ROOT}" STREQUAL "")
 			OR ("${MATLAB_ROOT}" STREQUAL "/registry"))
 	ENDFOREACH(MATVER)
+	
+	if(EXISTS "${MATLAB_ROOT}/bin/mex.bat")
+		set(MATLAB_MEX "${MATLAB_ROOT}/bin/mex.bat")
+	endif(EXISTS "${MATLAB_ROOT}/bin/mex.bat")
 
-	FIND_PROGRAM(MATLAB_MEX
-		mex
-		${MATLAB_ROOT}/bin
-	)
 ELSE(WIN32)
 	SET(MATLAB_MEXEXT .maci)
 	# Check if this is a Mac.
@@ -115,6 +115,7 @@ ELSE("${MATLAB_MEX}" STREQUAL "" AND "${MatlabMex_FIND_REQUIRED}")
 
 	MESSAGE(STATUS "Found MATLAB mex compiler: ${MATLAB_MEX}")
 	MESSAGE(STATUS "MATLAB root: ${MATLAB_ROOT}")
+	MESSAGE(STATUS "MEX file extension is: ${MATLAB_MEXEXT}")
 	SET(MATLABMEX_FOUND 1)
 ENDIF("${MATLAB_MEX}" STREQUAL "" AND "${MatlabMex_FIND_REQUIRED}")
 

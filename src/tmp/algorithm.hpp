@@ -82,14 +82,14 @@ namespace tmp
 	> {};
 
 
-	class empty;
-
 	namespace internal
 	{
+		class empty;
+
 		template <class A, class B>
 		struct inheriter
 		{
-			struct type : public A, B {};
+			struct type : public A, public B {};
 		};
 
 		template <class B>
@@ -104,7 +104,7 @@ namespace tmp
 	 * \tparam Seq the sequence the elements of which are transformed
 	 */
 	template <class Seq>
-	struct inherit : accumulate<Seq, empty, internal::inheriter<_1,_2> > {};
+	struct inherit : accumulate<Seq, internal::empty, internal::inheriter<_1,_2> > {};
 
 	namespace internal
 	{

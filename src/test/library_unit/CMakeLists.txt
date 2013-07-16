@@ -11,3 +11,4 @@ foreach (test_source ${TEST_SOURCES})
 	# Add the test
 	add_test(${test_name} ${test_name})
 endforeach(test_source)
+
