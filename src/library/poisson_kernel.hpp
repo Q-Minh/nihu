@@ -34,9 +34,12 @@ struct distance_vector_brick
 		 * \param [in] test_input the test input
 		 * \param [in] trial_input the trial input
 		 */
-		template <class test_input_t, class trial_input_t>
-		brick(test_input_t const &test_input, trial_input_t const &trial_input) :
-			wall(test_input, trial_input),
+		template <class test_input_t, class trial_input_t, class kernel_t>
+		brick(
+			test_input_t const &test_input,
+			trial_input_t const &trial_input,
+			kernel_t const &kernel) :
+			wall(test_input, trial_input, kernel),
 			m_distance_vector(trial_input.get_x()-test_input.get_x())
 		{
 		}
@@ -74,9 +77,12 @@ struct distance_brick
 		 * \param [in] test_input the test input
 		 * \param [in] trial_input the trial input
 		 */
-		template <class test_input_t, class trial_input_t>
-		brick(test_input_t const &test_input, trial_input_t const &trial_input) :
-			wall(test_input, trial_input),
+		template <class test_input_t, class trial_input_t, class kernel_t>
+		brick(
+			test_input_t const &test_input,
+			trial_input_t const &trial_input,
+			kernel_t const &kernel) :
+			wall(test_input, trial_input, kernel),
 			m_distance(wall::get_distance_vector().norm())
 		{
 		}
@@ -108,15 +114,20 @@ struct poisson_g_brick
 	class brick : public wall
 	{
 	public:
+		typedef scalar result_t;
+
 		/** \brief templated constructor
 		 * \tparam test_input_t the test input type
 		 * \tparam trial_input_t the trial input type
 		 * \param [in] test_input the test input
 		 * \param [in] trial_input the trial input
 		 */
-		template <class test_input_t, class trial_input_t>
-		brick(test_input_t const &test_input, trial_input_t const &trial_input) :
-			wall(test_input, trial_input),
+		template <class test_input_t, class trial_input_t, class kernel_t>
+		brick(
+			test_input_t const &test_input,
+			trial_input_t const &trial_input,
+			kernel_t const &kernel) :
+			wall(test_input, trial_input, kernel),
 			m_poisson_g(1.0 / wall::get_distance() / (4.0 * M_PI))
 		{
 		}
@@ -185,38 +196,24 @@ class poisson_G_kernel :
 	public reciprocal_distance_kernel<poisson_G_kernel>
 {
 public:
-	/** \brief the crtp base's type */
-	typedef kernel_base<poisson_G_kernel> base_t;
-	/** \brief type of the test input */
-	typedef base_t::test_input_t test_input_t;
-	/** \brief type of the trial input */
-	typedef base_t::trial_input_t trial_input_t;
-	/** \brief type of the scalar of the inputs */
-	typedef base_t::scalar_t scalar_t;
-
-	/** \brief evaluate kernel between test and trial positions
-	* \param [in] x the test input
-	* \param [in] y the trial input
-	* \return the kernel value K(x,y)
-	*/
-	template <class test_input_t, class trial_input_t>
-	result_t operator()(test_input_t const &x, trial_input_t const &y) const
-	{
-		// instantiate output
-		typename kernel_traits<poisson_G_kernel>::output_t output_t output(x, y);
-		// select result from output
-		return output.get_result();
-	}
+//	using reciprocal_distance_kernel<poisson_G_kernel>::estimate_complexity;
 };
 
 
+/*
 class poisson_G_kernel_immediate;
 
 template<>
-struct kernel_traits<poisson_G_kernel_immediate> :
-	kernel_traits<poisson_G_kernel>
+struct kernel_traits<poisson_G_kernel_immediate>
 {
+	typedef build<location<space_3d> >::type test_input_t;
+	typedef build<location<space_3d> >::type trial_input_t;
 	typedef empty_wall output_t;
+	typedef space_3d::scalar_t result_t;
+	typedef gauss_family_tag quadrature_family_t;
+	static bool const is_symmetric = true;
+	static unsigned const singularity_order = 1;
+	static unsigned const singular_quadrature_order = 7;
 };
 
 class poisson_G_kernel_immediate :
@@ -224,12 +221,18 @@ class poisson_G_kernel_immediate :
 	public reciprocal_distance_kernel<poisson_G_kernel_immediate>
 {
 public:
-	template <class test_input_t, class trial_input_t>
-	result_t operator()(test_input_t const &x, trial_input_t const &y) const
+	typedef kernel_base<poisson_G_kernel> base_t;
+	typedef base_t::test_input_t test_input_t;
+	typedef base_t::trial_input_t trial_input_t;
+	typedef base_t::scalar_t scalar_t;
+
+	template <class tsi_t, class tri_t>
+	result_t operator()(tsi_t const &x, tri_t const &y) const
 	{
 		return 1.0 / (x.get_x() - y.get_x()).norm() / (4.0 * M_PI);
 	}
 };
+*/
 
 
 /** \brief a brick representing a poisson derivative kernel \f$ -1/4\pi r^2 \cdot dr/dn \f$
@@ -245,15 +248,20 @@ struct poisson_h_brick
 	class brick : public wall
 	{
 	public:
+		typedef scalar result_t;
+
 		/** \brief templated constructor
 		 * \tparam test_input_t the test input type
 		 * \tparam trial_input_t the trial input type
 		 * \param [in] test_input the test input
 		 * \param [in] trial_input the trial input
 		 */
-		template <class test_input_t, class trial_input_t>
-		brick(test_input_t const &test_input, trial_input_t const &trial_input) :
-			wall(test_input, trial_input),
+		template <class test_input_t, class trial_input_t, class kernel_t>
+		brick(
+			test_input_t const &test_input,
+			trial_input_t const &trial_input,
+			kernel_t const &kernel) :
+			wall(test_input, trial_input, kernel),
 			m_poisson_h(-1.0 * wall::get_poisson_g())
 		{
 			auto r = wall::get_distance();
@@ -324,28 +332,7 @@ class poisson_H_kernel :
 	public reciprocal_distance_kernel<poisson_H_kernel>
 {
 public:
-	/** \brief the crtp base's type */
-	typedef kernel_base<poisson_H_kernel> base_t;
-	/** \brief type of the test input */
-	typedef base_t::test_input_t test_input_t;
-	/** \brief type of the trial input */
-	typedef base_t::trial_input_t trial_input_t;
-	/** \brief type of the scalar of the inputs */
-	typedef base_t::scalar_t scalar_t;
-
-	/** \brief evaluate kernel between test and trial positions
-	* \param [in] x the test input
-	* \param [in] y the trial input
-	* \return the kernel value K(x,y)
-	*/
-	result_t operator()(test_input_t const &x, trial_input_t const &y) const
-	{
-		// instantiate output
-		typedef typename kernel_traits<poisson_H_kernel>::output_t output_t;
-		output_t output(x, y);
-		// select result from output
-		return output.get_result();
-	}
+	using reciprocal_distance_kernel<poisson_H_kernel>::estimate_complexity;
 };
 
 #endif // POISSON_KERNEL_HPP_INCLUDED

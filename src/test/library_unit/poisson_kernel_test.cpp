@@ -2,10 +2,10 @@
 #include <iostream>
 #include <chrono>
 
-unsigned const N = 1e4;
+unsigned const N = 1e6;
 
 template <class kernel>
-void tester(kernel const &k)
+void tester(kernel_base<kernel> const &k)
 {
 	quad_1_elem::coords_t coords;
 	coords <<
@@ -20,24 +20,31 @@ void tester(kernel const &k)
 	auto start = std::chrono::steady_clock::now();
 	for (unsigned n = 0; n < N; ++n)
 	{
-		typename kernel::test_input_t x(elem, xi1);
-		typename kernel::trial_input_t y(elem, xi2);
+		typename kernel_base<kernel>::test_input_t x(elem, xi1);
+		typename kernel_base<kernel>::trial_input_t y(elem, xi2);
 		k(x,y);
 	}
 	auto stop = std::chrono::steady_clock::now();
 	auto diff = stop - start;
-	std::cout << std::chrono::duration <double, std::micro> (diff).count() << " usec" << std::endl ;
+	std::cout << std::chrono::duration<double, std::micro>(diff).count() << " usec" << std::endl ;
 }
 
 int main(void)
 {
 	std::cout << N << " evaluations: " << std::endl;
+
 	std::cout << "poisson G kernel with wall output:      | ";
 	tester(poisson_G_kernel());
-	std::cout << "poisson G kernel with immediate output: | ";
-	tester(poisson_G_kernel_immediate());
+
+//	std::cout << "poisson G kernel with immediate output: | ";
+//	tester(poisson_G_kernel_immediate());
+
 	std::cout << "poisson H kernel with wall output:      | ";
 	tester(poisson_H_kernel());
+
+	std::cout << "couple G H kernel with wall output:     | ";
+	tester(create_couple_kernel(poisson_H_kernel(), poisson_G_kernel()));
+
 	return 0;
 }
 

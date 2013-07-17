@@ -8,7 +8,9 @@
 #ifndef KERNEL_HPP_INCLUDED
 #define KERNEL_HPP_INCLUDED
 
+#include "../util/crtp_base.hpp"
 #include "kernel_input.hpp"
+#include "../util/brick.hpp"
 #include "couple.hpp"
 
 /**
@@ -35,6 +37,8 @@ public:
 	typedef typename traits_t::trial_input_t trial_input_t;
 	/** \brief type of the kernel output (not the result) */
 	typedef typename traits_t::output_t output_t;
+	/** \brief type of the kernel's result */
+	typedef typename traits_t::result_t result_t;
 
 	/** \brief compile time check if the two kernel inputs are compatible */
 	static_assert(std::is_same<typename test_input_t::space_t, typename trial_input_t::space_t>::value,
@@ -46,9 +50,6 @@ public:
 	typedef typename space_t::location_t x_t;
 	/** \brief type of the scalar coordinate in the kernel's domain */
 	typedef typename space_t::scalar_t scalar_t;
-
-	/** \brief type of the kernel's result */
-	typedef typename traits_t::result_t result_t;
 	
 	/** \brief the quadrature family the kernel is integrated with */
 	typedef typename traits_t::quadrature_family_t quadrature_family_t;
@@ -61,17 +62,7 @@ public:
 	static unsigned const singular_quadrature_order = traits_t::singular_quadrature_order;
 
 private:
-	/** \brief CRTP helper function */
-	Derived const &derived(void) const
-	{
-		return static_cast<Derived const &>(*this);
-	}
-
-	/** \brief CRTP helper function */
-	Derived &derived(void)
-	{
-		return static_cast<Derived &>(*this);
-	}
+	NIHU_CRTP_HELPERS
 
 public:
 	/** \brief the kernel bound at the test kernel input */
@@ -91,9 +82,9 @@ public:
 		* \param [in] y the trial input
 		* \return the kernel result value
 		*/
-		result_t eval(trial_input_t const &y) const
+		result_t operator()(trial_input_t const &y) const
 		{
-			return m_kernel.eval(m_test_input, y);
+			return m_kernel(m_test_input, y);
 		}
 
 	private:
@@ -118,9 +109,12 @@ public:
 	 * \param [in] y trial position
 	 * \return kernel value K(x,y)
 	 */
-	result_t eval(test_input_t const &x, trial_input_t const &y) const
+	result_t operator()(test_input_t const &x, trial_input_t const &y) const
 	{
-		return derived()(x, y);
+		// instantiate output
+		output_t output(x, y, *this);
+		// select result from output
+		return output.get_result();
 	}
 
 	/**
@@ -138,6 +132,97 @@ public:
 		return derived().estimate_complexity(x, y, reference_size);
 	}
 };
+
+
+template <class out1, class out2>
+class couple_output :
+	merge<out1, out2>::type
+{
+public:
+	typedef typename merge<out1, out2>::type base_t;
+	typedef couple<typename out1::result_t, typename out2::result_t> result_t;
+
+	template <class test_input_t, class trial_input_t, class kernel_t>
+	couple_output(
+		test_input_t const &test_input,
+		trial_input_t const &trial_input,
+		kernel_t const &kernel) :
+		base_t(test_input, trial_input, kernel)
+	{
+	}
+
+	result_t get_result(void) const
+	{
+		return create_couple(
+			static_cast<typename find_in_wall<out1, base_t>::type const &>(*this).get_result(),
+			static_cast<typename find_in_wall<out2, base_t>::type const &>(*this).get_result()
+		);
+	}
+};
+
+
+
+template <class Kernel1, class Kerel2>
+class couple_kernel;
+
+template <class Kernel1, class Kernel2>
+struct kernel_traits<couple_kernel<Kernel1, Kernel2> >
+{
+	/** \brief type of the first (test) kernel input */
+	typedef typename merge<
+		typename kernel_traits<Kernel1>::test_input_t,
+		typename kernel_traits<Kernel2>::test_input_t
+	>::type test_input_t;
+	/** \brief type of the second (trial) kernel input */
+	typedef typename merge<
+		typename kernel_traits<Kernel1>::trial_input_t,
+		typename kernel_traits<Kernel2>::trial_input_t
+	>::type trial_input_t;
+	/** \brief type of the kernel output (not the result) */
+	typedef couple_output<
+		typename kernel_traits<Kernel1>::output_t,
+		typename kernel_traits<Kernel2>::output_t
+	> output_t;
+	/** \brief type of the kernel's result */
+	typedef typename output_t::result_t result_t;
+	/** \brief the quadrature family the kernel is integrated with
+	\todo static assert here or something more clever
+	*/
+	typedef typename kernel_traits<Kernel1>::quadrature_family_t quadrature_family_t;
+	/** \brief true if K(x,y) = K(y,x) */
+	static bool const is_symmetric =
+		kernel_traits<Kernel1>::is_symmetric &&
+		kernel_traits<Kernel2>::is_symmetric ;
+	/** \brief the singularity order ( r^(-order) ) */
+	static unsigned const singularity_order = std::max(
+		kernel_traits<Kernel1>::singularity_order,
+		kernel_traits<Kernel1>::singularity_order);
+	/** \brief the quadrature order used for the generation of Duffy type singular quadratures */
+	static unsigned const singular_quadrature_order = std::max(
+		kernel_traits<Kernel1>::singular_quadrature_order,
+		kernel_traits<Kernel1>::singular_quadrature_order);
+};
+
+
+template <class Kernel1, class Kernel2>
+class couple_kernel :
+	public kernel_base<couple_kernel<Kernel1, Kernel2> >
+{
+public:
+	couple_kernel(
+		kernel_base<Kernel1> const &k1,
+		kernel_base<Kernel2> const &k2)
+	{
+	}
+};
+
+
+template <class Kernel1, class Kernel2>
+couple_kernel<Kernel1, Kernel2>
+	create_couple_kernel(kernel_base<Kernel1> const &k1, kernel_base<Kernel2> const &k2)
+{
+	return couple_kernel<Kernel1, Kernel2>(k1, k2);
+}
 
 #endif // KERNEL_HPP_INCLUDED
 

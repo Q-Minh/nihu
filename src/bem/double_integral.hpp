@@ -36,9 +36,9 @@ public:
 	typedef TrialField trial_field_t;	/**< \brief template parameter as nested type */
 
 	/** \brief test input type of kernel */
-	typedef typename kernel_t::test_input_t test_input_t;	
+	typedef typename kernel_traits<kernel_t>::test_input_t test_input_t;	
 	/** \brief trial input type of kernel */
-	typedef typename kernel_t::trial_input_t trial_input_t;
+	typedef typename kernel_traits<kernel_t>::trial_input_t trial_input_t;
 	/** \brief weighted test input type of kernel */
 	typedef typename merge<
 		test_input_t,
@@ -50,7 +50,7 @@ public:
 		typename build<normal_jacobian<typename trial_input_t::space_t> >::type
 	>::type w_trial_input_t;
 	/** \brief result type of kernel */
-	typedef typename kernel_t::result_t kernel_result_t;
+	typedef typename kernel_traits<kernel_t>::result_t kernel_result_t;
 
 	/** \brief the test elem type */
 	typedef typename test_field_t::elem_t test_elem_t;
@@ -114,7 +114,7 @@ protected:
 	*/
 	static result_t &eval_on_accelerator(
 		result_t &result,
-		kernel_t const &kernel,
+		kernel_base<kernel_t> const &kernel,
 		field_base<test_field_t> const &test_field,
 		test_field_type_accelerator_t const &test_acc,
 		field_base<trial_field_t> const &trial_field,
@@ -129,7 +129,7 @@ protected:
 			{
 				w_trial_input_t trial_input(trial_field.get_elem(), trial_it->get_quadrature_elem().get_xi());
 				auto right = (trial_it->get_shape().transpose() * (trial_input.get_jacobian() * trial_it->get_quadrature_elem().get_w())).eval();
-				result += left * bound.eval(trial_input) * right;
+				result += left * bound(trial_input) * right;
 			}
 		}
 
@@ -148,7 +148,7 @@ protected:
 	template <class singular_iterator_t>
 	static result_t &eval_singular_on_accelerator(
 		result_t &result,
-		kernel_t const &kernel,
+		kernel_base<kernel_t> const &kernel,
 		field_base<test_field_t> const &test_field,
 		field_base<trial_field_t> const &trial_field,
 		singular_iterator_t begin,
@@ -165,7 +165,7 @@ protected:
 			auto right = (trial_field_t::nset_t::eval_shape(begin.get_trial_quadrature_elem().get_xi())
 				* (trial_input.get_jacobian() * begin.get_trial_quadrature_elem().get_w())).eval();
 
-			result += left * kernel.eval(test_input, trial_input) * right.transpose();
+			result += left * kernel(test_input, trial_input) * right.transpose();
 
 			++begin;
 		}
@@ -183,7 +183,7 @@ protected:
 	static result_t &eval_general(
 		WITHOUT_SINGULARITY_CHECK,
 		result_t &result,
-		kernel_t const &kernel,
+		kernel_base<kernel_t> const &kernel,
 		field_base<test_field_t> const &test_field,
 		field_base<trial_field_t> const &trial_field)
 	{
@@ -217,7 +217,7 @@ protected:
 	static result_t &eval_general(
 		WITH_SINGULARITY_CHECK,
 		result_t &result,
-		kernel_t const &kernel,
+		kernel_base<kernel_t> const &kernel,
 		field_base<test_field_t> const &test_field,
 		field_base<trial_field_t> const &trial_field)
 	{
@@ -242,7 +242,7 @@ public:
 	*/
 	template <class OnSameMesh>
 	static result_t eval(
-		kernel_t const &kernel,
+		kernel_base<kernel_t> const &kernel,
 		field_base<test_field_t> const &test_field,
 		field_base<trial_field_t> const &trial_field,
 		OnSameMesh)
@@ -277,9 +277,9 @@ public:
 	typedef TrialField trial_field_t;	/**< \brief template parameter as nested type */
 
 	/** \brief test input type of kernel */
-	typedef typename kernel_t::test_input_t test_input_t;	
+	typedef typename kernel_traits<kernel_t>::test_input_t test_input_t;	
 	/** \brief trial input type of kernel */
-	typedef typename kernel_t::trial_input_t trial_input_t;
+	typedef typename kernel_traits<kernel_t>::trial_input_t trial_input_t;
 	/** \brief weighted test input type of kernel */
 	typedef typename merge<
 		test_input_t,
@@ -291,7 +291,7 @@ public:
 		typename build<normal_jacobian<typename trial_input_t::space_t> >::type
 	>::type w_trial_input_t;
 	/** \brief result type of kernel */
-	typedef typename kernel_t::result_t kernel_result_t;
+	typedef typename kernel_traits<kernel_t>::result_t kernel_result_t;
 
 	/** \brief the test elem type */
 	typedef typename test_field_t::elem_t test_elem_t;
@@ -353,7 +353,7 @@ protected:
 	*/
 	static result_t &eval_collocational_on_accelerator(
 		result_t &result,
-		kernel_t const &kernel,
+		kernel_base<kernel_t> const &kernel,
 		field_base<test_field_t> const &test_field,
 		field_base<trial_field_t> const &trial_field,
 		trial_field_type_accelerator_t const &trial_acc)
@@ -366,7 +366,7 @@ protected:
 			for (auto trial_it = trial_acc.cbegin(); trial_it != trial_acc.cend(); ++trial_it)
 			{
 				w_trial_input_t trial_input(trial_field.get_elem(), trial_it->get_quadrature_elem().get_xi());
-				result.row(row) += bound.eval(trial_input) *
+				result.row(row) += bound(trial_input) *
 					(trial_it->get_shape() * (trial_input.get_jacobian() * trial_it->get_quadrature_elem().get_w()));
 			}
 			++row;
@@ -388,7 +388,7 @@ protected:
 	template <class singular_accelerator_t>
 	static result_t &eval_collocational_singular_on_accelerator(
 		result_t &result,
-		kernel_t const &kernel,
+		kernel_base<kernel_t> const &kernel,
 		field_base<test_field_t> const &test_field,
 		field_base<trial_field_t> const &trial_field,
 		singular_accelerator_t const &sa)
@@ -404,7 +404,7 @@ protected:
 			{
 				w_trial_input_t trial_input(trial_field.get_elem(), quad_it->get_xi());
 
-				result.row(idx) += bound.eval(trial_input) *
+				result.row(idx) += bound(trial_input) *
 					(trial_input.get_jacobian() * quad_it->get_w() *
 					trial_field_t::nset_t::eval_shape(quad_it->get_xi()));
 			}
@@ -424,7 +424,7 @@ protected:
 	static result_t &eval_collocational(
 		WITHOUT_SINGULARITY_CHECK,
 		result_t &result,
-		kernel_t const &kernel,
+		kernel_base<kernel_t> const &kernel,
 		field_base<test_field_t> const &test_field,
 		field_base<trial_field_t> const &trial_field)
 	{
@@ -454,7 +454,7 @@ protected:
 	static result_t &eval_collocational(
 		WITH_SINGULARITY_CHECK,
 		result_t &result,
-		kernel_t const &kernel,
+		kernel_base<kernel_t> const &kernel,
 		field_base<test_field_t> const &test_field,
 		field_base<trial_field_t> const &trial_field)
 	{
@@ -480,7 +480,7 @@ public:
 	*/
 	template <class OnSameMesh>
 	static result_t eval(
-		kernel_t const &kernel,
+		kernel_base<kernel_t> const &kernel,
 		field_base<test_field_t> const &test_field,
 		field_base<trial_field_t> const &trial_field,
 		OnSameMesh)

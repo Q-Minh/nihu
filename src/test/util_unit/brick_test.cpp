@@ -2,19 +2,6 @@
 #include <iostream>
 #include <type_traits>
 
-template <class subWall, class Wall, bool enable = std::is_same<
-	typename subWall::template wrap<empty_wall>::type,
-	typename Wall::template wrap<empty_wall>::type
->::value>
-struct find_in_wall : find_in_wall<subWall, typename Wall::base_t> {};
-
-template <class subWall, class Wall>
-struct find_in_wall<subWall, Wall, true>
-{
-	typedef Wall type;
-};
-
-
 template <int N>
 struct n
 {

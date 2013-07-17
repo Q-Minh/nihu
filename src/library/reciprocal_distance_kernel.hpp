@@ -32,7 +32,7 @@ public:
 	unsigned estimate_complexity(
 		test_input_t const &x,
 		trial_input_t const &y,
-		scalar_t s) const
+		scalar_t const &s) const
 	{
 		return estimate_complexity_impl(
 			std::integral_constant<unsigned, traits_t::singularity_order>(),
