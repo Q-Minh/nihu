@@ -194,7 +194,7 @@ protected:
 		test_input_t test_center(test_field.get_elem(), test_domain_t::get_center());
 		trial_input_t trial_center(trial_field.get_elem(), trial_domain_t::get_center());
 		/** \todo why only trial size is important? */
-		unsigned degree = kernel.estimate_complexity_interface(test_center, trial_center, trial_field.get_elem().get_linear_size_estimate());
+		unsigned degree = kernel.estimate_complexity(test_center, trial_center, trial_field.get_elem().get_linear_size_estimate());
 
 		degree += std::max(test_nset_t::polynomial_order, trial_nset_t::polynomial_order)
 			+ std::max(test_lset_t::jacobian_order, trial_lset_t::jacobian_order);
@@ -436,7 +436,7 @@ protected:
 		trial_input_t trial_center(trial_field.get_elem(), trial_domain_t::get_center());
 
 		/** \todo why only trial size is important? */
-		unsigned degree = kernel.estimate_complexity_interface(test_center, trial_center, trial_field.get_elem().get_linear_size_estimate());
+		unsigned degree = kernel.estimate_complexity(test_center, trial_center, trial_field.get_elem().get_linear_size_estimate());
 		degree += trial_nset_t::polynomial_order + trial_lset_t::jacobian_order;
 
 		return eval_collocational_on_accelerator(
