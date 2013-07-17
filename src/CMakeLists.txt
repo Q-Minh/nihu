@@ -9,6 +9,9 @@ set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/../cmake)
 # Set the project name
 project (NiHu)
 
+set (NiHu_VERSION_MAJOR 1)
+set (NiHu_VERSION_MINOR 0)
+
 # Set the 3rdparty dir
 set(NIHU_THIRDPARTY_DIR "${CMAKE_SOURCE_DIR}/ThirdParty")
 
@@ -83,11 +86,12 @@ include_directories("${EIGEN_INCLUDE_DIRS}")
 ### Test section
 
 enable_testing()
+add_subdirectory(test)
 
 # add tests if not disabled
-if(NOT NIHU_DISABLE_TESTS)
-	add_subdirectory(test)
-else(NOT NIHU_DISABLE_TESTS)
-	add_subdirectory(test EXCLUDE_FROM_ALL)
-endif(NOT NIHU_DISABLE_TESTS)
+# if(NOT NIHU_DISABLE_TESTS)
+# 	add_subdirectory(test)
+# else(NOT NIHU_DISABLE_TESTS)
+# 	add_subdirectory(test EXCLUDE_FROM_ALL)
+# endif(NOT NIHU_DISABLE_TESTS)
 
