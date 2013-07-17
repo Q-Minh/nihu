@@ -143,7 +143,7 @@ struct poisson_g_brick
 };
 
 
-/** \brief combination of distance_vector_brick, distance_brick and poisson_g_brick into a wall
+/** \brief combination of ::distance_vector_brick, ::distance_brick and ::poisson_g_brick into a wall
  * \tparam space the coordinate space the poisson kernel is defined over
  */
 template <class space>
@@ -203,62 +203,20 @@ public:
 	result_t operator()(test_input_t const &x, trial_input_t const &y) const
 	{
 		// instantiate output
-		typedef typename kernel_traits<poisson_G_kernel>::output_t output_t;
-		output_t output(x, y);
+		typename kernel_traits<poisson_G_kernel>::output_t output_t output(x, y);
 		// select result from output
 		return output.get_result();
 	}
 };
 
 
-template <class scalar>
-struct poisson_g_brick_immediate
-{
-	template <class wall>
-	class brick : public wall
-	{
-	public:
-		template <class test_input_t, class trial_input_t>
-		brick(test_input_t const &test_input, trial_input_t const &trial_input) :
-			wall(test_input, trial_input)
-		{
-		}
-		
-		scalar const & get_poisson_g(void) const
-		{
-			return m_poisson_g;
-		}
-		
-		scalar const & get_result(void) const
-		{
-			return m_poisson_g;
-		}
-		
-	private:
-		scalar m_poisson_g;
-	};
-};
-
-
-template <class space>
-struct poisson_g_wall_immediate : build<
-	poisson_g_brick_immediate<typename space::scalar_t>
-> {};
-
-
 class poisson_G_kernel_immediate;
 
 template<>
-struct kernel_traits<poisson_G_kernel_immediate>
+struct kernel_traits<poisson_G_kernel_immediate> :
+	kernel_traits<poisson_G_kernel>
 {
-	typedef build<location<space_3d> >::type test_input_t;
-	typedef build<location<space_3d> >::type trial_input_t;
-	typedef typename poisson_g_wall_immediate<space_3d>::type output_t;
-	typedef space_3d::scalar_t result_t;
-	typedef gauss_family_tag quadrature_family_t;
-	static bool const is_symmetric = true;
-	static unsigned const singularity_order = 1;
-	static unsigned const singular_quadrature_order = 7;
+	typedef empty_wall output_t;
 };
 
 class poisson_G_kernel_immediate :
@@ -266,11 +224,6 @@ class poisson_G_kernel_immediate :
 	public reciprocal_distance_kernel<poisson_G_kernel_immediate>
 {
 public:
-	typedef kernel_base<poisson_G_kernel> base_t;
-	typedef base_t::test_input_t test_input_t;
-	typedef base_t::trial_input_t trial_input_t;
-	typedef base_t::scalar_t scalar_t;
-
 	template <class test_input_t, class trial_input_t>
 	result_t operator()(test_input_t const &x, trial_input_t const &y) const
 	{
