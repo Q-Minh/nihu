@@ -196,7 +196,7 @@ class poisson_G_kernel :
 	public reciprocal_distance_kernel<poisson_G_kernel>
 {
 public:
-//	using reciprocal_distance_kernel<poisson_G_kernel>::estimate_complexity;
+	using reciprocal_distance_kernel<poisson_G_kernel>::estimate_complexity;
 };
 
 

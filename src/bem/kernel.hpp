@@ -28,6 +28,8 @@ template <class Derived>
 class kernel_base
 {
 public:
+	NIHU_CRTP_HELPERS
+
 	/** \brief the traits class */
 	typedef kernel_traits<Derived> traits_t;
 	
@@ -61,10 +63,6 @@ public:
 	/** \brief the quadrature order used for the generation of Duffy type singular quadratures */
 	static unsigned const singular_quadrature_order = traits_t::singular_quadrature_order;
 
-private:
-	NIHU_CRTP_HELPERS
-
-public:
 	/** \brief the kernel bound at the test kernel input */
 	class kernel_bind
 	{
@@ -124,7 +122,7 @@ public:
 	 * \param [in] reference_size linear estimated size of the trial element
 	 * \return polynomial degree needed for accurate integration
 	 */
-	unsigned estimate_complexity_interface(
+	unsigned estimate_complexity(
 		test_input_t const &x,
 		trial_input_t const &y,
 		scalar_t const &reference_size) const
@@ -161,6 +159,11 @@ public:
 };
 
 
+template <unsigned x, unsigned y>
+struct max_
+{
+	static unsigned const value = x > y ? x : y;
+};
 
 template <class Kernel1, class Kerel2>
 class couple_kernel;
@@ -194,13 +197,13 @@ struct kernel_traits<couple_kernel<Kernel1, Kernel2> >
 		kernel_traits<Kernel1>::is_symmetric &&
 		kernel_traits<Kernel2>::is_symmetric ;
 	/** \brief the singularity order ( r^(-order) ) */
-	static unsigned const singularity_order = std::max(
+	static unsigned const singularity_order = max_<
 		kernel_traits<Kernel1>::singularity_order,
-		kernel_traits<Kernel1>::singularity_order);
+		kernel_traits<Kernel1>::singularity_order>::value;
 	/** \brief the quadrature order used for the generation of Duffy type singular quadratures */
-	static unsigned const singular_quadrature_order = std::max(
+	static unsigned const singular_quadrature_order = max_<
 		kernel_traits<Kernel1>::singular_quadrature_order,
-		kernel_traits<Kernel1>::singular_quadrature_order);
+		kernel_traits<Kernel1>::singular_quadrature_order>::value;
 };
 
 
@@ -209,11 +212,40 @@ class couple_kernel :
 	public kernel_base<couple_kernel<Kernel1, Kernel2> >
 {
 public:
+	/** \brief the traits class */
+	typedef kernel_base<couple_kernel<Kernel1, Kernel2> > base_t;
+	
+	/** \brief type of the first (test) kernel input */
+	typedef typename base_t::test_input_t test_input_t;
+	/** \brief type of the second (trial) kernel input */
+	typedef typename base_t::trial_input_t trial_input_t;
+	/** \brief type of the second (trial) kernel input */
+	typedef typename base_t::scalar_t scalar_t;
+
 	couple_kernel(
 		kernel_base<Kernel1> const &k1,
-		kernel_base<Kernel2> const &k2)
+		kernel_base<Kernel2> const &k2) :
+		m_k1(k1.derived())
 	{
 	}
+
+	/**
+	 * \brief determine kernel's polynomial complexity
+	 * \param [in] x test position
+	 * \param [in] y trial position
+	 * \param [in] reference_size linear estimated size of the trial element
+	 * \return polynomial degree needed for accurate integration
+	 */
+	unsigned estimate_complexity(
+		test_input_t const &x,
+		trial_input_t const &y,
+		scalar_t const &reference_size) const
+	{
+		return m_k1.estimate_complexity(x, y, reference_size);
+	}
+
+private:
+	Kernel1 m_k1;
 };
 
 

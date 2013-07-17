@@ -7,6 +7,7 @@
 #ifndef COUPLE_HPP_INCLUDED
 #define COUPLE_HPP_INCLUDED
 
+#include "../util/crtp_base.hpp"
 #include "../util/product_type.hpp"
 
 // forward declaration
@@ -30,23 +31,7 @@ template <class Derived>
 class couple_base
 {
 private:
-	/**
-	 * \brief helper function to return reference to CRTP derived class
-	 * \return constant reference to derived class
-	 */
-	Derived const &derived(void) const
-	{
-		return static_cast<Derived const&>(*this);
-	}
-
-	/**
-	 * \brief helper function to return reference to CRTP derived class
-	 * \return reference to derived class
-	 */
-	Derived &derived(void)
-	{
-		return static_cast<Derived &>(*this);
-	}
+	NIHU_CRTP_HELPERS
 
 public:
 	/** \brief the traits type */
@@ -214,10 +199,17 @@ public:
 	/** \brief set both matrices to zero
 	 * \todo this function forges ::couple to Eigen matrices. Sick.
 	 */
-	void setZero(void)
+	couple const &setZero(void)
 	{
 		m_first.setZero();
 		m_second.setZero();
+		return *this;
+	}
+
+	static couple Zero(void)
+	{
+		couple res;
+		return res.setZero();
 	}
 
  	/** \brief return first member

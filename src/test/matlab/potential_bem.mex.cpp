@@ -10,6 +10,7 @@ void mexFunction(
 {
 	if (nlhs < 4 || nrhs < 4)
 		return;
+
 	mex::real_matrix nodes(rhs[0]);
 	mex::real_matrix elements(rhs[1]);
 
@@ -27,18 +28,18 @@ void mexFunction(
 
 	mex::real_matrix Gs(N, N, lhs[0]);
 	mex::real_matrix Hs(N, N, lhs[1]);
+	auto couplesurf = create_couple(Gs, Hs);
 
 	mex::real_matrix Gf(M, N, lhs[2]);
 	mex::real_matrix Hf(M, N, lhs[3]);
+	auto couplefield = create_couple(Gf, Hf);
 
 	auto I = identity_integral_operator();
-	auto G = create_integral_operator(poisson_G_kernel());
-	auto H = create_integral_operator(poisson_H_kernel());
+	auto GH = create_integral_operator(create_couple_kernel(poisson_G_kernel(), poisson_H_kernel()));
 
-	( surf_sp * G[surf_sp] ).eval(Gs);
-	( surf_sp * (H[surf_sp] + (-.5*I)[surf_sp]) ).eval(Hs);
+	( surf_sp * GH[surf_sp] ).eval( couplesurf );
+	( surf_sp * (-.5*I)[surf_sp] ).eval(Hs);
 
-	( field_sp * G[surf_sp] ).eval(Gf);
-	( field_sp * H[surf_sp] ).eval(Hf);
+	( field_sp * GH[surf_sp] ).eval( couplefield );
 }
 
