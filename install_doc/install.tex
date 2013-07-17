@@ -119,6 +119,19 @@ cmake <source_dir> -G "MinGW Makefiles"
 
 \subsection{Extra options}
 
+When using \texttt{cmake} extra options for compiling \texttt{NiHu} can be passed by using the \texttt{-D}.
+
+Syntax:
+
+\texttt{-D\itshape{<variable>}=\itshape{value}}
+
+Examples:
+
+\begin{verbatim}
+cmake ../src -DNIHU_EXAMPLE_VAR=1
+cmake ../src -DNIHU_EXAMPLE_PATH="/home/user"
+\end{verbatim}
+
 \subsubsection{Matlab options}
 
 \begin{description}
@@ -130,6 +143,9 @@ cmake <source_dir> -G "MinGW Makefiles"
 
 \begin{description}
 	\item [\texttt{NIHU\_EIGEN\_AS\_HEADERS}] When set to non-zero, the installation process will not look for an existing Eigen installation, but will use the Eigen headers from source. This is the default option on Windows systems.
+
+	\item [\texttt{NIHU\_EIGEN\_HEADERS\_DIR}] later
+	\item [\texttt{NIHU\_EIGEN\_INSTALL\_DIR}] later
 \end{description}
 
 \subsubsection{Testing options}
