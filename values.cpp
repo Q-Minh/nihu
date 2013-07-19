@@ -21,26 +21,11 @@ private:
 	T m_t;
 };
 
-// converts to T from T&&, otherwise unchanged. This is the store type of the couple
-template <class T>
-struct remove_rvalue_reference
-{
-	typedef T type;
-};
-
-template <class T>
-struct remove_rvalue_reference<T&&>
-{
-	typedef T type;
-};
-
-
 // Gecijó factory. El sem hiszem.
 template <class T>
-storer<typename remove_rvalue_reference<T&&>::type>
-	factory(T &&t)
+storer<T> factory(T &&t)
 {
-	return storer<typename remove_rvalue_reference<T&&>::type>(forward<T>(t));
+	return storer<T>(forward<T>(t));
 }
 
 
@@ -48,10 +33,11 @@ storer<typename remove_rvalue_reference<T&&>::type>
 
 struct C
 {
-	C(C const &other) { cout << "copy\n"; }
-	C(C &&other) { cout << "move\n"; }
-	C() { cout << "ctor\n"; }
-	~C() { cout << "dtor\n"; }
+	C() : state(true) { cout << "ctor\n"; }
+	C(C const &other) : state(other.state) { cout << "copy\n"; }
+	C(C &&other) : state(other.state) { other.state = false; cout << "move\n"; }
+	~C() { cout << "dtor: " << state << '\n'; }
+	bool state;
 };
 
 C func(void)
@@ -61,11 +47,12 @@ C func(void)
 
 int main(void)
 {
-	C a;
-	C const ca = a;
-	C &ra = a;
-	C const &cra = a;
-	
+	C a;				// instance (ctor)
+	C const ca = a;		// instance (copy ctor)
+	C &ra = a;			// reference
+	C const &cra = a;	// const reference
+	C && rra = func();	// rvalue reference to temporary (ctor)
+
 	cout << "\n\n";
 	
 	factory(ca); cout << "\n";
@@ -73,6 +60,7 @@ int main(void)
 	
 	factory(C()); cout << "\n";
 	factory(func()); cout << "\n";
+	factory(forward<C>(rra)); cout << "\n";
 	
 	factory(a); cout << "\n";
 	factory(ra); cout << "\n";
