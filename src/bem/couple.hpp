@@ -175,27 +175,6 @@ public:
 	{
 	}
 
- 	/** \brief copy constructor
-	 * \param [in] other the other couple to copy
-	 */
-	template <class OtherDerived>
-	couple(couple_base<OtherDerived> const &other)
-		: m_first(other.first()), m_second(other.second())
-	{
-	}
-
- 	/** \brief assignment operator
-	 * \param [in] other the other couple to copy
-	 * \return reference to this
-	 */
-	template <class OtherDerived>
-	couple &operator=(couple_base<OtherDerived> const &other)
-	{
-		m_first = other.first();
-		m_second = other.second();
-		return *this;
-	}
-
 	/** \brief set both matrices to zero
 	 * \todo this function forges ::couple to Eigen matrices. Sick.
 	 */
