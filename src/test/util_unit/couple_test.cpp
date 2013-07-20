@@ -5,6 +5,11 @@
 int main(void)
 {
 	{
+		couple<int, char> a(1, 'b');
+		std::cout << a << std::endl;
+	}
+	
+	{
 		auto c = create_couple(1, 2);	// by value
 		std::cout << c << '\n';
 		c.get_first() += 1;
@@ -43,8 +48,7 @@ int main(void)
 	{
 		auto const c = create_couple(1, 2);
 		auto  mat = Eigen::Matrix<int, 3, 1>::Ones();
-		std::cout << (c * mat).get_first() << std::endl;
+		std::cout << mat * c * (3 * mat.transpose()) << std::endl;
 	}
-
 }
 
