@@ -138,6 +138,8 @@ class couple :
 	public couple_base<couple<First, Second> >
 {
 public:
+	/** \brief self-returning metafunction */
+	typedef couple type;
 	typedef First first_t;
 	typedef Second second_t;
 	
