@@ -8,7 +8,7 @@
 #define PLAIN_TYPE_HPP_INCLUDED
 
 #include <type_traits>
-#include "../bem/couple.hpp"
+#include "couple.hpp"
 #include "Eigen/Dense"
 
 template <class T>

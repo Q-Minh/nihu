@@ -7,7 +7,7 @@
 #ifndef MATRIX_BLOCK_HPP_INCLUDED
 #define MATRIX_BLOCK_HPP_INCLUDED
 
-#include "../bem/couple.hpp"
+#include "couple.hpp"
 
 /**
  * \brief proxy class to represent a block of a matrix

@@ -11,7 +11,7 @@
 #include "../util/crtp_base.hpp"
 #include "kernel_input.hpp"
 #include "../util/brick.hpp"
-#include "couple.hpp"
+#include "../util/couple.hpp"
 
 /**
 * \brief traits class of a kernel
