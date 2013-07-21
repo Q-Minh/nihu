@@ -8,12 +8,6 @@
 #define COUPLE_HPP_INCLUDED
 
 #include "../util/crtp_base.hpp"
-#include "../util/product_type.hpp"
-
-// forward declaration
-/** \brief traits class of a couple expression */
-template <class Derived>
-struct couple_traits;
 
 // forward declaration
 template <class LDerived, class Right>
@@ -34,22 +28,13 @@ private:
 	NIHU_CRTP_HELPERS
 
 public:
-	/** \brief the traits type */
-	typedef couple_traits<Derived> traits_t;
-	/** \brief value type of the first member */
-	typedef typename traits_t::first_value_t first_value_t;
-	/** \brief value type of the second member */
-	typedef typename traits_t::second_value_t second_value_t;
-	/** \brief expression type of the first member */
-	typedef typename traits_t::first_expr_t first_expr_t;
-	/** \brief expression type of the second member */
-	typedef typename traits_t::second_expr_t second_expr_t;
-
 	/**
 	 * \brief interface function to return first member expression
 	 * \return first member expression
 	 */
-	first_expr_t first(void) const
+	template <class Dummy = void>
+	auto first(void) const
+		-> decltype(static_cast<typename ignore<Derived, Dummy>::type const*>(nullptr)->first())
 	{
 		return derived().first();
 	}
@@ -58,11 +43,21 @@ public:
 	 * \brief interface function to return second member expression
 	 * \return second member expression
 	 */
-	second_expr_t second(void) const
+	template <class Dummy = void>
+	auto second(void) const
+		-> decltype(static_cast<typename ignore<Derived, Dummy>::type const*>(nullptr)->second())
 	{
 		return derived().second();
 	}
+	
 
+	template <class Dummy = void>
+	auto eval(void) const
+		-> decltype(static_cast<typename ignore<Derived, Dummy>::type const*>(nullptr)->eval())
+	{
+		return derived().eval();
+	}
+	
 	/**
 	 * \brief multiply a couple expression from the right with an arbitrary type
 	 * \param [in] rhs the right hand side value
@@ -133,45 +128,25 @@ protected:
 };
 
 
-// forward declaration
-template <class First, class Second>
-class couple;
-
-/** \brief specialisation of ::couple_traits for a ::couple
- * \tparam First the first type of the couple
- * \tparam Second the second type of the couple
- */
-template <class First, class Second>
-struct couple_traits<couple<First, Second> >
-{
-	typedef First first_value_t;	/**< \brief value type of the first member */
-	typedef Second second_value_t;	/**< \brief value type of the second member */
-	typedef First const &first_expr_t;	/**< \brief expression type of the first member */
-	typedef Second const &second_expr_t;	/**< \brief expression type of the second member */
-};
-
 /**
  * \brief class to store two objects of different type
  * \tparam First the type of the first object
  * \tparam Second the type of the second object
  */
 template <class First, class Second = First>
-class couple : public couple_base<couple<First, Second> >
+class couple :
+	public couple_base<couple<First, Second> >
 {
 public:
-	typedef couple_base<couple<First, Second> > base_t;	/**< \brief base type */
-	typedef typename base_t::first_value_t first_value_t;	/**< \brief first member's value type */
-	typedef typename base_t::second_value_t second_value_t;	/**< \brief second member's value type */
-	typedef typename base_t::first_expr_t first_expr_t;	/**< \brief first member's expression type */
-	typedef typename base_t::second_expr_t second_expr_t;	/**< \brief second member's expression type */
-
+	typedef First first_t;
+	typedef Second second_t;
+	
  	/** \brief constructor initialising both members
 	 * \param [in] f the first member
 	 * \param [in] s the second member
 	 */
-	couple(first_value_t const &f = first_value_t(),
-		   second_value_t const &s = second_value_t())
-		: m_first(f), m_second(s)
+	couple(First const &f = First(), Second const &s = Second()) :
+		m_first(f), m_second(s)
 	{
 	}
 
@@ -194,7 +169,7 @@ public:
  	/** \brief return first member
 	 * \return first member expression
 	 */
-	first_expr_t first(void) const
+	First const &first(void) const
 	{
 		return m_first;
 	}
@@ -202,7 +177,7 @@ public:
  	/** \brief return first member
 	 * \return reference to first value
 	 */
-	first_value_t &first(void)
+	First &first(void)
 	{
 		return m_first;
 	}
@@ -210,7 +185,7 @@ public:
  	/** \brief return second member
 	 * \return second member expression
 	 */
-	second_expr_t const &second(void) const
+	Second const &second(void) const
 	{
 		return m_second;
 	}
@@ -218,7 +193,7 @@ public:
  	/** \brief return second member
 	 * \return reference to second value
 	 */
-	second_value_t &second(void)
+	Second &second(void)
 	{
 		return m_second;
 	}
@@ -241,28 +216,10 @@ public:
 	}
 
 protected:
-	first_value_t m_first;	/**< \brief the first stored object */
-	second_value_t m_second;	/**< \brief the second stored object */
+	First m_first;	/**< \brief the first stored object */
+	Second m_second;	/**< \brief the second stored object */
 };
 
-
-/**
- * \brief specialisation of ::couple_traits for ::couple_product_right
- * \tparam LDerived the left hand side couple type
- * \tparam R the type of the right hand side
- */
-template <class LDerived, class R>
-struct couple_traits<couple_product_right<LDerived, R> >
-{
-	/** \brief the value type of the first member */
-	typedef typename product_type<typename LDerived::first_value_t, R>::type first_value_t;
-	/** \brief the value type of the second member */
-	typedef typename product_type<typename LDerived::second_value_t, R>::type second_value_t;
-	/** \brief the expression type of the first member */
-	typedef first_value_t first_expr_t;
-	/** \brief the expression type of the second member */
-	typedef second_value_t second_expr_t;
-};
 
 /**
  * \brief class to represent a product expression of a couple and an arbitrary type
@@ -272,11 +229,14 @@ struct couple_traits<couple_product_right<LDerived, R> >
 template <class LDerived, class Right>
 class couple_product_right : public couple_base<couple_product_right<LDerived, Right> >
 {
-public:
-	typedef couple_base<couple_product_right<LDerived, Right> > base_t;	/**< \brief base type */
-	typedef typename base_t::first_expr_t first_expr_t;	/**< \brief first expression type */
-	typedef typename base_t::second_expr_t second_expr_t;	/**< \brief second expression type */
+protected:
+	LDerived const &m_left;	/**< \brief left hand side term */
+	Right const &m_right;	/**< \brief right hand side term */
 
+public:
+	typedef decltype(m_left.first() * m_right) first_t;
+	typedef decltype(m_left.second() * m_right) second_t;
+	
 	/**
 	 * \brief constructor from two term references
 	 * \param left reference to left hand side term
@@ -291,7 +251,8 @@ public:
 	 * \brief return first object of the product
 	 * \return first object
 	 */
-	first_expr_t first(void) const
+	auto first(void) const
+		-> decltype(m_left.first() * m_right)
 	{
 		return m_left.first() * m_right;
 	}
@@ -300,34 +261,13 @@ public:
 	 * \brief return second object of the product
 	 * \return second object
 	 */
-	second_expr_t second(void) const
+	auto second(void) const
+		-> decltype(m_left.second() * m_right)
 	{
 		return m_left.second() * m_right;
 	}
-
-protected:
-	LDerived const &m_left;	/**< \brief left hand side term */
-	Right const &m_right;	/**< \brief right hand side term */
 };
 
-
-/**
- * \brief specialisation of ::couple_traits for ::couple_product_left
- * \tparam L the type of the left hand side
- * \tparam RDerived the right hand side couple type
- */
-template <class L, class RDerived>
-struct couple_traits<couple_product_left<L, RDerived> >
-{
-	/** \brief the value type of the first member */
-	typedef typename product_type<L, typename RDerived::first_value_t>::type first_value_t;
-	/** \brief the value type of the second member */
-	typedef typename product_type<L, typename RDerived::second_value_t>::type second_value_t;
-	/** \brief the expression type of the first member */
-	typedef first_value_t first_expr_t;
-	/** \brief the expression type of the second member */
-	typedef second_value_t second_expr_t;
-};
 
 /**
  * \brief class to represent a product proxy of an arbitrary type and a couple
@@ -337,10 +277,12 @@ struct couple_traits<couple_product_left<L, RDerived> >
 template <class Left, class RDerived>
 class couple_product_left : public couple_base<couple_product_left<Left, RDerived> >
 {
+protected:
+	Left const &m_left;			/**< \brief left hand side term */
+	RDerived const &m_right;	/**< \brief right hand side term */
+
 public:
 	typedef couple_base<couple_product_left<Left, RDerived> > base_t;	/**< \brief base type */
-	typedef typename base_t::first_expr_t first_expr_t;	/**< \brief first expression type */
-	typedef typename base_t::second_expr_t second_expr_t;	/**< \brief second expression type */
 
 	/**
 	 * \brief constructor from two term references
@@ -356,7 +298,7 @@ public:
 	 * \brief return first object of the product
 	 * \return first object
 	 */
-	first_expr_t first(void) const
+	auto first(void) const -> decltype(m_left * m_right.first())
 	{
 		return m_left * m_right.first();
 	}
@@ -365,14 +307,10 @@ public:
 	 * \brief return second object of the product
 	 * \return second object
 	 */
-	second_expr_t second(void) const
+	auto second(void) const -> decltype(m_left * m_right.second())
 	{
 		return m_left * m_right.second();
 	}
-
-protected:
-	Left const &m_left;			/**< \brief left hand side term */
-	RDerived const &m_right;	/**< \brief right hand side term */
 };
 
 

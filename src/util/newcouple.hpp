@@ -190,7 +190,6 @@ template <class T, class S>
 }
 
 
-/*
 template <class A, class B>
 typename std::enable_if<
 	is_couple<A>::value && !is_couple<B>::value,
@@ -199,13 +198,6 @@ typename std::enable_if<
 	operator*(A &&a, B &&b)
 {
 	return couple_product_right<A, B>(std::forward<A>(a), std::forward<B>(b));
-}
-*/
-
-template <class A, class B>
-auto operator*(A &&a, B &&b) -> decltype(create_couple(a.get_first() * b, a.get_second() * b))
-{
-	return create_couple(a.get_first() * b, a.get_second() * b);
 }
 
 

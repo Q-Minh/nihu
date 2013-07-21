@@ -12,5 +12,13 @@
 	Derived const &derived() const { return static_cast<Derived const &>(*this); } \
 	Derived &derived() { return static_cast<Derived &>(*this); }
 
+
+template <class T, class...Ignore>
+struct ignore
+{
+	typedef T type;
+};
+
+
 #endif
 

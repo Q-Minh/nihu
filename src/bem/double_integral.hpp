@@ -337,8 +337,15 @@ public:
 	/** \brief result type of the weighted residual */
 	typedef typename plain_type<
 		typename product_type<
-		kernel_result_t,
-		typename product_type<test_shape_t, Eigen::Transpose<trial_shape_t> >::type
+			typename plain_type<kernel_result_t>::type,
+			typename plain_type<
+				typename product_type<
+					test_shape_t,
+					typename plain_type<
+						Eigen::Transpose<trial_shape_t>
+					>::type
+				>::type
+			>::type
 		>::type
 	>::type result_t;
 
@@ -428,7 +435,6 @@ protected:
 		field_base<test_field_t> const &test_field,
 		field_base<trial_field_t> const &trial_field)
 	{
-		typedef regular_pool_store<trial_field_t, quadrature_family_t> regular_trial_store_t;
 		auto &trial_ra = trial_regular_store_t::m_regular_pool;
 
 		quadrature_elem_t qe(test_field_t::elem_t::domain_t::get_center());
