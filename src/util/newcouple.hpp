@@ -1,10 +1,9 @@
 #ifndef NEWCOUPLE_HPP_INCLUDED
 #define NEWCOUPLE_HPP_INCLUDED
 
-#include "enable_if.hpp"
-#include "type_info.hpp"
 #include <type_traits>
-#include <utility> // pair
+#include "type_info.hpp"
+#include <utility>
 #include <iostream>
 
 template <class T, class S = T>
@@ -12,8 +11,6 @@ class couple :
 	private std::pair<T, S>
 {
 public:
-	typedef std::true_type is_couple;
-
 	typedef std::pair<T, S> base_t;
 
 	couple(T &&left, S &&right) :
@@ -26,7 +23,12 @@ public:
 		std::cout << ">\n";
 	}
 
-	T &get_first()
+	T &get_first_ref()
+	{
+		return base_t::first;
+	}
+
+	T get_first()
 	{
 		return base_t::first;
 	}
@@ -36,7 +38,12 @@ public:
 		return base_t::first;
 	}
 
-	S &get_second()
+	S &get_second_ref()
+	{
+		return base_t::second;
+	}
+
+	S get_second()
 	{
 		return base_t::second;
 	}
@@ -145,21 +152,11 @@ template <class A>
 struct is_couple : is_couple_impl<typename std::decay<A>::type> {};
 
 
-template <class A, class B>
-typename enable_if<
-	couple_product_right<A, B>,
-	is_couple<A>::value && !is_couple<B>::value
->::type
-	operator*(A &&a, B &&b)
-{
-	return couple_product_right<A, B>(std::forward<A>(a), std::forward<B>(b));
-}
-
 
 template <class A, class B>
-typename enable_if<
-	couple_product_left<A, B>,
-	!is_couple<A>::value && is_couple<B>::value
+typename std::enable_if<
+	!is_couple<A>::value && is_couple<B>::value,
+	couple_product_left<A, B>
 >::type
 	operator*(A &&a, B &&b)
 {
@@ -168,9 +165,9 @@ typename enable_if<
 
 
 template <class A, class B>
-typename enable_if<
-	couple_product<A, B>,
-	is_couple<A>::value && is_couple<B>::value
+typename std::enable_if<
+	is_couple<A>::value && is_couple<B>::value,
+	couple_product<A, B>
 >::type
 	operator*(A &&a, B &&b)
 {
@@ -179,7 +176,7 @@ typename enable_if<
 
 
 template <class C>
-typename enable_if<std::ostream &, is_couple<C>::value>::type
+typename std::enable_if<is_couple<C>::value, std::ostream &>::type
 	operator<<(std::ostream &os, C const &c)
 {
 	return os << c.get_first() << ", " << c.get_second();
@@ -191,6 +188,26 @@ template <class T, class S>
 {
 	return couple<T, S>(std::forward<T>(left), std::forward<S>(right));
 }
+
+
+/*
+template <class A, class B>
+typename std::enable_if<
+	is_couple<A>::value && !is_couple<B>::value,
+	couple_product_right<A, B>
+>::type
+	operator*(A &&a, B &&b)
+{
+	return couple_product_right<A, B>(std::forward<A>(a), std::forward<B>(b));
+}
+*/
+
+template <class A, class B>
+auto operator*(A &&a, B &&b) -> decltype(create_couple(a.get_first() * b, a.get_second() * b))
+{
+	return create_couple(a.get_first() * b, a.get_second() * b);
+}
+
 
 #endif // NEWCOUPLE_HPP_INCLUDED
 

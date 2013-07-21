@@ -12,7 +12,7 @@ int main(void)
 	{
 		auto c = create_couple(1, 2);	// by value
 		std::cout << c << '\n';
-		c.get_first() += 1;
+		c.get_first_ref() += 1;
 		std::cout << c << '\n';
 	}
 
@@ -20,7 +20,7 @@ int main(void)
 		int a = 1, b = 2;
 		auto c = create_couple(a, b);	// by reference
 		std::cout << c << '\n';
-		c.get_first() += 1;
+		c.get_first_ref() += 1;
 		std::cout << c << '\n';
 		std::cout << a << '\n';
 	}
@@ -40,15 +40,18 @@ int main(void)
 	}
 
 	{
-		auto  mat = Eigen::Matrix<int, 3, 1>::Ones();
-		std::cout << (create_couple(1, 2) * mat).get_first() << std::endl;
+		std::cout << (create_couple(1, 2) * 2).get_first() << std::endl;
 	}
 
 
 	{
-		auto const c = create_couple(1, 2);
-		auto  mat = Eigen::Matrix<int, 3, 1>::Ones();
-		std::cout << mat * c * (3 * mat.transpose()) << std::endl;
+		int a = 2;
+		std::cout << a * create_couple(1, 2) * a << std::endl;
+	}
+
+	{
+		Eigen::Matrix<int, 3, 1> mat(Eigen::Matrix<int, 3, 1>::Ones());
+		std::cout << create_couple(1, 2) * mat << std::endl;
 	}
 }
 
