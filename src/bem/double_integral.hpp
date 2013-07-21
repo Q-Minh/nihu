@@ -8,10 +8,11 @@
 #ifndef DOUBLE_INTEGRAL_HPP_INCLUDED
 #define DOUBLE_INTEGRAL_HPP_INCLUDED
 
-#include "quadrature_pool.hpp"
+#include "../util/product_type.hpp"
 #include "../util/plain_type.hpp"
 #include "../util/brick.hpp"
 #include "../library/location_normal.hpp"
+#include "quadrature_pool.hpp"
 #include "kernel.hpp"
 
 /**
@@ -337,14 +338,10 @@ public:
 	/** \brief result type of the weighted residual */
 	typedef typename plain_type<
 		typename product_type<
-			typename plain_type<kernel_result_t>::type,
-			typename plain_type<
-				typename product_type<
-					test_shape_t,
-					typename plain_type<
-						Eigen::Transpose<trial_shape_t>
-					>::type
-				>::type
+			kernel_result_t,
+			typename product_type<
+				test_shape_t,
+				Eigen::Transpose<trial_shape_t>
 			>::type
 		>::type
 	>::type result_t;
