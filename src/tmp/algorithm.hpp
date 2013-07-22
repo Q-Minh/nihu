@@ -191,8 +191,8 @@ namespace tmp
 	namespace internal
 	{
 		template <class Beg, class End, class Elem>
-		struct find_impl : if_<
-			typename std::is_same<typename deref<Beg>::type, Elem>::type,
+		struct find_impl : std::conditional<
+			std::is_same<typename deref<Beg>::type, Elem>::type::value,
 			Beg,
 			typename find_impl<typename next<Beg>::type, End, Elem>::type
 		> {};

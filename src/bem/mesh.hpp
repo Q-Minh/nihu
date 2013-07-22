@@ -149,17 +149,17 @@ public:
 	mesh(node_t const &nodes, elem_t const &elements) : m_num_elements(0)
 	{
 		unsigned const N_MAX_ELEM = 1+9;
-		double c[nDim];
 
 		for (unsigned i = 0; i < unsigned(nodes.rows()); ++i)
 		{
+			double c[nDim];
 			for (unsigned j = 0; j < nDim; ++j)
 				c[j] = nodes(i,j);
 			add_node(c);
 		}
-		unsigned e[N_MAX_ELEM];
 		for (unsigned i = 0; i < unsigned(elements.rows()); ++i)
 		{
+			unsigned e[N_MAX_ELEM] = {0};
 			for (unsigned j = 0; j < unsigned(elements.cols()); ++j)
 				e[j] = unsigned(elements(i,j));
 			add_elem(e);
@@ -237,6 +237,33 @@ protected:
 	elem_container_t m_elements;	/**< \brief element geometries (BIG heterogeneous container) */
 	unsigned m_num_elements;	/**< \brief total number of elements in the mesh */
 };
+
+
+struct _quad_1_tag {};
+
+template <class tag>
+struct tag2element;
+
+template <>
+struct tag2element<_quad_1_tag>
+{
+	typedef quad_1_elem type;
+};
+
+template <class...tag_args>
+struct tag_var_to_elem_vector : tmp::transform<
+	tmp::vector<tag_args...>,
+	tmp::inserter<tmp::vector<>, tmp::push_back<tmp::_1, tmp::_2> >,
+	tag2element<tmp::_1>
+> {};
+
+
+template <class nodes_t, class elements_t, class...Args>
+mesh<typename tag_var_to_elem_vector<Args...>::type >
+	create_mesh(nodes_t const &nodes, elements_t const &elements, Args...args)
+{
+	return mesh<typename tag_var_to_elem_vector<Args...>::type >(nodes, elements);
+}
 
 #endif
 

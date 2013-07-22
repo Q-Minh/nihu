@@ -272,7 +272,7 @@ struct poisson_h_brick
 		/** \brief return poisson h kernel
 		 * \return poisson h kernel
 		 */
-		scalar const & get_poisson_h(void) const
+		scalar const &get_poisson_h(void) const
 		{
 			return m_poisson_h;
 		}
@@ -282,7 +282,7 @@ struct poisson_h_brick
 		 */
 		scalar const & get_result(void) const
 		{
-			return m_poisson_h;
+			return get_poisson_h();
 		}
 		
 	private:
@@ -334,6 +334,10 @@ class poisson_H_kernel :
 public:
 	using reciprocal_distance_kernel<poisson_H_kernel>::estimate_complexity;
 };
+
+
+typedef poisson_G_kernel poisson_SLP_kernel;
+typedef poisson_H_kernel poisson_DLP_kernel; 
 
 #endif // POISSON_KERNEL_HPP_INCLUDED
 

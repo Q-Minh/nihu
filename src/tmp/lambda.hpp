@@ -7,7 +7,7 @@
 #ifndef LAMBDA_HPP_INCLUDED
 #define LAMBDA_HPP_INCLUDED
 
-#include "bool.hpp"
+#include <type_traits>
 
 namespace tmp
 {
@@ -217,8 +217,8 @@ namespace tmp
 	 * \return metafunction class encapsulating the placeholder expression or the input class itself
 	 */
 	template <class Exp>
-	struct lambda : if_<
-		typename isPlaceholderExpression<Exp>::type,
+	struct lambda : std::conditional<
+		isPlaceholderExpression<Exp>::type::value,
 		typename internal::lambda_plExp<Exp>::type,
 		Exp
 	> {};

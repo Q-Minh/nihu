@@ -49,15 +49,7 @@ namespace tmp
 	 * \tparam F the type returned when Choice is false_type
 	 */
 	template <class Cond, class T, class F>
-	struct if_;
-
-	/** \brief specialisation of if_ for the true choice case */
-	template <class T, class F>
-	struct if_<std::true_type, T, F> { typedef T type; };
-
-	/** \brief specialisation of if_ for the false choice case */
-	template <class T, class F>
-	struct if_<std::false_type, T, F> { typedef F type; };
+	struct if_ : std::conditional<Cond::value, T, F> {};
 }
 
 #endif

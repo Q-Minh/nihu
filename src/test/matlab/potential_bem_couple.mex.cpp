@@ -25,8 +25,7 @@ void mexFunction(
 
 	// generating integral operators
 
-	auto L = create_integral_operator(poisson_SLP_kernel());
-	auto M = create_integral_operator(poisson_DLP_kernel());
+	auto LM = create_integral_operator(create_couple_kernel(poisson_SLP_kernel(), poisson_DLP_kernel()));
 	auto I = -.5 * identity_integral_operator();
 
 	// surface system matrices
@@ -35,8 +34,7 @@ void mexFunction(
 	mex::real_matrix Ls(n, n, lhs[0]);
 	mex::real_matrix Ms(n, n, lhs[1]);
 
-	( surf_sp * L[surf_sp] ).eval(Ls);
-	( surf_sp * M[surf_sp] ).eval(Ms);
+	( surf_sp * LM[surf_sp] ).eval( create_couple(Ls, Ms) );
 	( surf_sp * I[surf_sp] ).eval(Ms);
 
 	// field point system matrices
@@ -45,7 +43,6 @@ void mexFunction(
 	mex::real_matrix Lf(m, n, lhs[2]);
 	mex::real_matrix Mf(m, n, lhs[3]);
 
-	( field_sp * L[surf_sp] ).eval(Lf);
-	( field_sp * M[surf_sp] ).eval(Mf);
+	( field_sp * LM[surf_sp] ).eval( create_couple(Lf, Mf) );
 }
 

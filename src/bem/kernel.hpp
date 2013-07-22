@@ -151,7 +151,7 @@ public:
 
 	result_t get_result(void) const
 	{
-		return create_couple(
+		return result_t(
 			static_cast<typename find_in_wall<out1, base_t>::type const &>(*this).get_result(),
 			static_cast<typename find_in_wall<out2, base_t>::type const &>(*this).get_result()
 		);

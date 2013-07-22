@@ -1,6 +1,6 @@
 /**
  * \file couple.hpp
- * \brief declaration of class ::couple and couple expressions
+ * \brief declaration of couple expressions
  * \author Peter Fiala fiala@hit.bme.hu, Peter Rucz rucz@hit.bme.hu
  */
 
@@ -33,8 +33,7 @@ public:
 	 * \return first member expression
 	 */
 	template <class Dummy = void>
-	auto first(void) const
-		-> decltype(static_cast<typename ignore<Derived, Dummy>::type const*>(nullptr)->first())
+	auto first(void) const -> decltype(const_crtp_ptr<Derived, Dummy>()->first())
 	{
 		return derived().first();
 	}
@@ -44,22 +43,14 @@ public:
 	 * \return second member expression
 	 */
 	template <class Dummy = void>
-	auto second(void) const
-		-> decltype(static_cast<typename ignore<Derived, Dummy>::type const*>(nullptr)->second())
+	auto second(void) const -> decltype(const_crtp_ptr<Derived, Dummy>()->second())
 	{
 		return derived().second();
 	}
-	
 
-	template <class Dummy = void>
-	auto eval(void) const
-		-> decltype(static_cast<typename ignore<Derived, Dummy>::type const*>(nullptr)->eval())
-	{
-		return derived().eval();
-	}
-	
 	/**
 	 * \brief multiply a couple expression from the right with an arbitrary type
+	 * \tparam Right the right hand side type
 	 * \param [in] rhs the right hand side value
 	 * \return a product proxy
 	 */
@@ -69,6 +60,12 @@ public:
 		return couple_product_right<Derived, Right>(derived(), rhs);
 	}
 
+	/**
+	 * \brief multiply a couple expression from the left with an arbitrary type
+	 * \tparam Left the left hand side type
+	 * \tparam Right the right hand side type
+	 * \return a product proxy
+	 */
 	template <class Left, class RDerived>
 	friend couple_product_left<Left, RDerived> operator*(
 		Left const &,
@@ -77,6 +74,8 @@ public:
 
 /**
  * \brief multiply a couple expression from the left with an arbitrary type
+ * \tparam Left the left hand side type
+ * \tparam Right the right hand side type
  * \param [in] lhs the left hand side factor
  * \param [in] rhs the right hand side factor
  * \return a product proxy
@@ -135,11 +134,13 @@ protected:
  */
 template <class First, class Second = First>
 class couple :
-	public couple_base<couple<First, Second> >
+	public couple_base<couple<First, Second> >,
+	public std::pair<First, Second>
 {
 public:
 	/** \brief self-returning metafunction */
 	typedef couple type;
+	typedef std::pair<First, Second> base_t;
 	typedef First first_t;
 	typedef Second second_t;
 	
@@ -148,7 +149,17 @@ public:
 	 * \param [in] s the second member
 	 */
 	couple(First const &f = First(), Second const &s = Second()) :
-		m_first(f), m_second(s)
+		base_t(f, s)
+	{
+	}
+
+ 	/** \brief constructor initialising both members
+	 * \param [in] f the first member
+	 * \param [in] s the second member
+	 */
+	template <class F, class S>
+	couple(F &&f, S &&s) :
+		base_t(std::forward<F>(f), std::forward<S>(s))
 	{
 	}
 
@@ -157,8 +168,8 @@ public:
 	 */
 	couple const &setZero(void)
 	{
-		m_first.setZero();
-		m_second.setZero();
+		base_t::first.setZero();
+		base_t::second.setZero();
 		return *this;
 	}
 
@@ -173,7 +184,7 @@ public:
 	 */
 	First const &first(void) const
 	{
-		return m_first;
+		return base_t::first;
 	}
 
  	/** \brief return first member
@@ -181,7 +192,7 @@ public:
 	 */
 	First &first(void)
 	{
-		return m_first;
+		return base_t::first;
 	}
 
  	/** \brief return second member
@@ -189,7 +200,7 @@ public:
 	 */
 	Second const &second(void) const
 	{
-		return m_second;
+		return base_t::second;
 	}
 
  	/** \brief return second member
@@ -197,7 +208,7 @@ public:
 	 */
 	Second &second(void)
 	{
-		return m_second;
+		return base_t::second;
 	}
 
  	/** \brief increment with an other couple
@@ -207,8 +218,8 @@ public:
 	template <class OtherDerived>
 	couple &operator+=(couple_base<OtherDerived> const &other)
 	{
-		m_first += other.first();
-		m_second += other.second();
+		base_t::first += other.first();
+		base_t::second += other.second();
 		return *this;
 	}
 	
@@ -216,10 +227,6 @@ public:
 	{
 		return couple_row<couple>(*this, idx);
 	}
-
-protected:
-	First m_first;	/**< \brief the first stored object */
-	Second m_second;	/**< \brief the second stored object */
 };
 
 
@@ -318,9 +325,9 @@ public:
 
 /** \brief factory function of a couple class */
 template <class L, class R>
-couple<L, R> create_couple(L const &l, R const &r)
+couple<L, R> create_couple(L &&l, R &&r)
 {
-	return couple<L, R>(l, r);
+	return couple<L, R>(std::forward<L>(l), std::forward<R>(r));
 }
 
 #endif //  COUPLE_HPP_INCLUDED

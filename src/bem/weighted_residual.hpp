@@ -109,7 +109,7 @@ public:
 	* \return reference to the result
 	*/
 	template <class result_t>
-	result_t &eval(result_t &result) const
+	result_t &eval(result_t &&result) const
 	{
 		m_proj.test_on_into(m_test, result);
 		return result;
