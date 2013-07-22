@@ -125,11 +125,11 @@ protected:
 		{
 			w_test_input_t test_input(test_field.get_elem(), test_it->get_quadrature_elem().get_xi());
 			auto bound = kernel.bind(test_input);
-			auto left = (test_it->get_shape() * (test_input.get_jacobian() * test_it->get_quadrature_elem().get_w())).eval();
+			auto left = test_it->get_shape() * (test_input.get_jacobian() * test_it->get_quadrature_elem().get_w());
 			for (auto trial_it = trial_acc.cbegin(); trial_it != trial_acc.cend(); ++trial_it)
 			{
 				w_trial_input_t trial_input(trial_field.get_elem(), trial_it->get_quadrature_elem().get_xi());
-				auto right = (trial_it->get_shape().transpose() * (trial_input.get_jacobian() * trial_it->get_quadrature_elem().get_w())).eval();
+				auto right = trial_it->get_shape().transpose() * (trial_input.get_jacobian() * trial_it->get_quadrature_elem().get_w());
 				result += left * bound(trial_input) * right;
 			}
 		}
@@ -160,11 +160,10 @@ protected:
 			w_test_input_t test_input(test_field.get_elem(), begin.get_test_quadrature_elem().get_xi());
 			w_trial_input_t trial_input(trial_field.get_elem(), begin.get_trial_quadrature_elem().get_xi());
 
-			/** \todo check if lazy evaluation is still faster */
-			auto left = (test_field_t::nset_t::eval_shape(begin.get_test_quadrature_elem().get_xi())
-				* (test_input.get_jacobian() * begin.get_test_quadrature_elem().get_w())).eval();
-			auto right = (trial_field_t::nset_t::eval_shape(begin.get_trial_quadrature_elem().get_xi())
-				* (trial_input.get_jacobian() * begin.get_trial_quadrature_elem().get_w())).eval();
+			auto left = test_field_t::nset_t::eval_shape(begin.get_test_quadrature_elem().get_xi())
+				* (test_input.get_jacobian() * begin.get_test_quadrature_elem().get_w());
+			auto right = trial_field_t::nset_t::eval_shape(begin.get_trial_quadrature_elem().get_xi())
+				* (trial_input.get_jacobian() * begin.get_trial_quadrature_elem().get_w());
 
 			result += left * kernel(test_input, trial_input) * right.transpose();
 
