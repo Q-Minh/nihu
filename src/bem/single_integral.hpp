@@ -56,7 +56,9 @@ public:
 	typedef typename plain_type<
 		typename product_type<
 			test_shape_t,
-			Eigen::Transpose<trial_shape_t>
+			typename plain_type<
+				Eigen::Transpose<trial_shape_t>
+			>::type
 		>::type
 	>::type result_t;
 	
@@ -117,7 +119,9 @@ public:
 	typedef typename plain_type<
 		typename product_type<
 			typename  test_nset_t::shape_t,
-			Eigen::Transpose<typename trial_nset_t::shape_t>
+			typename plain_type<
+				Eigen::Transpose<typename trial_nset_t::shape_t>
+			>::type
 		>::type
 	>::type result_t;
 	

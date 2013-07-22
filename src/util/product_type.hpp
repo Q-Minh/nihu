@@ -7,11 +7,13 @@
 #ifndef PRODUCT_TYPE_HPP_INCLUDED
 #define PRODUCT_TYPE_HPP_INCLUDED
 
+#include "plain_type.hpp"
+
 /** \brief metafunction returning the product type of two classes
  * \tparam Lhs the left hand side expression type
  * \tparam Rhs the right hand side expression type
  */
-template<class Lhs, class Rhs>
+template<class Lhs, class Rhs, bool isEigen = is_eigen<Lhs>::value || is_eigen<Rhs>::value>
 struct product_type
 {
 	/** \brief the return type computed by decltype */
@@ -21,6 +23,16 @@ struct product_type
 		(*static_cast<typename std::decay<Rhs>::type *>(nullptr))
 	) type;
 };
+
+
+template<class Lhs, class Rhs>
+struct product_type<Lhs, Rhs, true>
+{
+	/** \brief the return type computed by Eigen */
+	typedef typename Eigen::ProductReturnType<Lhs, Rhs>::Type type;
+};
+
+
 
 #endif // PRODUCT_TYPE_HPP_INCLUDED
 

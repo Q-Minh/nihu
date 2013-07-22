@@ -16,7 +16,7 @@ void mexFunction(
 	mex::real_matrix surf_nodes(rhs[0]);
 	mex::real_matrix surf_elements(rhs[1]);
 	auto surf_mesh = create_mesh(surf_nodes, surf_elements, _quad_1_tag());
-	auto const &surf_sp = isoparametric_view(surf_mesh);
+	auto const &surf_sp = constant_view(surf_mesh);
 
 	mex::real_matrix field_nodes(rhs[2]);
 	mex::real_matrix field_elements(rhs[3]);
@@ -35,9 +35,9 @@ void mexFunction(
 	mex::real_matrix Ls(n, n, lhs[0]);
 	mex::real_matrix Ms(n, n, lhs[1]);
 
-	( surf_sp * L[surf_sp] ).eval(Ls);
-	( surf_sp * M[surf_sp] ).eval(Ms);
-	( surf_sp * I[surf_sp] ).eval(Ms);
+	( dirac(surf_sp) * L[surf_sp] ).eval(Ls);
+	( dirac(surf_sp) * M[surf_sp] ).eval(Ms);
+	( dirac(surf_sp) * I[surf_sp] ).eval(Ms);
 
 	// field point system matrices
 	

@@ -40,12 +40,20 @@ struct plain_type : std::decay<T> {};
  * \tparam T the expression class to convert to plain type
  * \details plain_type is the result type of function eval()
  */
+/*
 template <class T>
 struct plain_type<T, true, false> : std::decay<
 	decltype(static_cast<
 		typename std::decay<T>::type *
 	>(nullptr)->eval())
 >{};
+*/
+
+template <class T>
+struct plain_type<T, true, false>
+{
+	typedef typename T::PlainObject type;
+};
 
 /** \brief specialisation of ::plain_type for the case of a couple expression
  * \tparam T the couple expression class to convert to plain type
