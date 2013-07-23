@@ -20,6 +20,9 @@ struct is_eigen : std::is_base_of<
 	typename std::decay<T>::type
 > {};
 
+template <class m1, class m2, int t>
+struct is_eigen<Eigen::GeneralProduct<m1, m2, t> > : std::true_type {};
+
 /** \brief metafunction determining if its argument is a couple expression or not
  * \tparam T the class to investigate
  */
@@ -40,20 +43,20 @@ struct plain_type : std::decay<T> {};
  * \tparam T the expression class to convert to plain type
  * \details plain_type is the result type of function eval()
  */
-/*
 template <class T>
 struct plain_type<T, true, false> : std::decay<
 	decltype(static_cast<
 		typename std::decay<T>::type *
 	>(nullptr)->eval())
 >{};
-*/
 
+/*
 template <class T>
 struct plain_type<T, true, false>
 {
 	typedef typename T::PlainObject type;
 };
+*/
 
 /** \brief specialisation of ::plain_type for the case of a couple expression
  * \tparam T the couple expression class to convert to plain type

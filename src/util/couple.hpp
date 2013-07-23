@@ -8,6 +8,7 @@
 #define COUPLE_HPP_INCLUDED
 
 #include "../util/crtp_base.hpp"
+#include <utility>
 
 // forward declaration
 template <class LDerived, class Right>
