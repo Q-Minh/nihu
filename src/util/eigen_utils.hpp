@@ -1,5 +1,5 @@
 /**
- * \file includes.h
+ * \file eigen_utils.hpp
  * \brief Collection of include files needed by Boonen13
  */
 
@@ -7,13 +7,6 @@
 #define INCLUDES_H_INCLUDED
 
 #include <type_traits>
-
-#include <iostream>
-#include <complex>
-#include <stdexcept>
-#include <numeric>
-#include <utility> // pair
-
 #include <Eigen/Dense>
 #include <Eigen/StdVector>
 
@@ -24,12 +17,17 @@ struct EigenStdVector
 	typedef std::vector<T, Eigen::aligned_allocator<T> > type;
 };
 
+/** \brief metafunction determining if its argument is an Eigen expression or not
+ * \tparam T the class to investigate
+ */
+template <class T>
+struct is_eigen : std::is_base_of<
+	Eigen::EigenBase<typename std::decay<T>::type>,
+	typename std::decay<T>::type
+> {};
 
-namespace formalism
-{
-	struct collocational {};
-	struct general {};
-}
+template <class m1, class m2, int t>
+struct is_eigen<Eigen::GeneralProduct<m1, m2, t> > : std::true_type {};
 
 #endif // INCLUDES_H_INCLUDED
 

@@ -7,6 +7,7 @@
 #ifndef ELEMENT_HPP_INCLUDED
 #define ELEMENT_HPP_INCLUDED
 
+#include <iostream>
 #include "../util/crtp_base.hpp"
 #include "../tmp/bool.hpp"
 #include "shapeset.hpp"

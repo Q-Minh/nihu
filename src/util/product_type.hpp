@@ -7,7 +7,7 @@
 #ifndef PRODUCT_TYPE_HPP_INCLUDED
 #define PRODUCT_TYPE_HPP_INCLUDED
 
-#include "plain_type.hpp"
+#include "eigen_utils.hpp"
 
 /** \brief metafunction returning the product type of two classes
  * \tparam Lhs the left hand side expression type
@@ -25,6 +25,10 @@ struct product_type
 };
 
 
+/** \brief specialisation of ::product_type for the case of two eigen expressions
+ * \tparam Lhs the left hand side eigen expression type
+ * \tparam Rhs the right hand side eigen expression type
+ */
 template<class Lhs, class Rhs>
 struct product_type<Lhs, Rhs, true>
 {

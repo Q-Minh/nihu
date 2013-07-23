@@ -7,6 +7,7 @@
 #ifndef SHAPESET_HPP_INCLUDED
 #define SHAPESET_HPP_INCLUDED
 
+#include <iostream>
 #include "domain.hpp"
 
 /** \brief Traits for shapesets */

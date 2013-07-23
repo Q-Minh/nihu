@@ -13,6 +13,7 @@
 #include "../tmp/control.hpp"
 
 #include "element.hpp"
+#include "../util/eigen_utils.hpp"
 
 /** \brief metafunction returning the iterator that traverses the homogeneous element vector of specified element type
  * \tparam ElemType the specified element type

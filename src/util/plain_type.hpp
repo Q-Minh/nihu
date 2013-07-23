@@ -9,19 +9,7 @@
 
 #include <type_traits>
 #include "couple.hpp"
-#include "Eigen/Dense"
-
-/** \brief metafunction determining if its argument is an Eigen expression or not
- * \tparam T the class to investigate
- */
-template <class T>
-struct is_eigen : std::is_base_of<
-	Eigen::EigenBase<typename std::decay<T>::type>,
-	typename std::decay<T>::type
-> {};
-
-template <class m1, class m2, int t>
-struct is_eigen<Eigen::GeneralProduct<m1, m2, t> > : std::true_type {};
+#include "eigen_utils.hpp"
 
 /** \brief plain object type of a class
  * \tparam T the class to convert to plain type
@@ -30,19 +18,10 @@ struct is_eigen<Eigen::GeneralProduct<m1, m2, t> > : std::true_type {};
 template <class T, bool isEigen = is_eigen<T>::value, bool isCouple = is_couple<T>::value>
 struct plain_type : std::decay<T> {};
 
-/** \brief specialisation of ::plain_type for the case of an eigen expression
- * \tparam T the expression class to convert to plain type
- * \details plain_type is the result type of function eval()
- */
-/*
-template <class T>
-struct plain_type<T, true, false> : std::decay<
-	decltype(static_cast<
-		typename std::decay<T>::type *
-	>(nullptr)->eval())
->{};
-*/
 
+/** \brief specialisation of ::plain_type for the case of eigen expressions
+ * \tparam T the expression class to convert to plain type
+ */
 template <class T>
 struct plain_type<T, true, false>
 {
@@ -54,12 +33,8 @@ struct plain_type<T, true, false>
  */
 template <class T>
 struct plain_type<T, false, true> : couple<
-	typename plain_type<
-		typename T::first_t
-	>::type,
-	typename plain_type<
-		typename T::second_t
-	>::type
+	typename plain_type< typename T::first_t >::type,
+	typename plain_type< typename T::second_t >::type
 > {};
 
 #endif // PLAIN_TYPE_HPP_INCLUDED
