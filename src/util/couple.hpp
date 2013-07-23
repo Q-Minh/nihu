@@ -331,5 +331,15 @@ couple<L, R> create_couple(L &&l, R &&r)
 	return couple<L, R>(std::forward<L>(l), std::forward<R>(r));
 }
 
+/** \brief metafunction determining if its argument is a couple expression or not
+ * \tparam T the class to investigate
+ */
+template <class T>
+struct is_couple : std::is_base_of<
+	couple_base<typename std::decay<T>::type>,
+	typename std::decay<T>::type
+> {};
+
+
 #endif //  COUPLE_HPP_INCLUDED
 

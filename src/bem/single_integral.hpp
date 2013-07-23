@@ -119,9 +119,7 @@ public:
 	typedef typename plain_type<
 		typename product_type<
 			typename  test_nset_t::shape_t,
-			typename plain_type<
-				Eigen::Transpose<typename trial_nset_t::shape_t>
-			>::type
+			Eigen::Transpose<typename trial_nset_t::shape_t >
 		>::type
 	>::type result_t;
 	

@@ -13,7 +13,7 @@
  * \tparam Lhs the left hand side expression type
  * \tparam Rhs the right hand side expression type
  */
-template<class Lhs, class Rhs>
+template<class Lhs, class Rhs, bool isBothEigen = is_eigen<Lhs>::value && is_eigen<Rhs>::value>
 struct product_type
 {
 	/** \brief the return type computed by decltype */
@@ -25,15 +25,11 @@ struct product_type
 };
 
 
-/*
 template<class Lhs, class Rhs>
 struct product_type<Lhs, Rhs, true>
 {
 	typedef typename Eigen::ProductReturnType<Lhs, Rhs>::Type type;
 };
-*/
-
-
 
 #endif // PRODUCT_TYPE_HPP_INCLUDED
 

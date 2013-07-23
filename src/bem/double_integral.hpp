@@ -98,8 +98,11 @@ public:
 	/** \brief result type of the weighted residual */
 	typedef typename plain_type<
 		typename product_type<
-		kernel_result_t,
-		typename product_type<test_shape_t, typename plain_type<Eigen::Transpose<trial_shape_t> >::type >::type
+			kernel_result_t,
+			typename product_type<
+				test_shape_t,
+				Eigen::Transpose<trial_shape_t>
+			>::type
 		>::type
 	>::type result_t;
 
@@ -340,9 +343,7 @@ public:
 			kernel_result_t,
 			typename product_type<
 				test_shape_t,
-				typename plain_type<
-					Eigen::Transpose<trial_shape_t>
-				>::type
+				Eigen::Transpose<trial_shape_t>
 			>::type
 		>::type
 	>::type result_t;

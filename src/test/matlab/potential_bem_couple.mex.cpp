@@ -34,8 +34,8 @@ void mexFunction(
 	mex::real_matrix Ls(n, n, lhs[0]);
 	mex::real_matrix Ms(n, n, lhs[1]);
 
-	( dirac(surf_sp) * LM[surf_sp] ).eval( create_couple(Ls, Ms) );
-	( dirac(surf_sp) * I[surf_sp] ).eval(Ms);
+	( surf_sp * LM[surf_sp] ).eval( create_couple(Ls, Ms) );
+	( surf_sp * I[surf_sp] ).eval(Ms);
 
 	// field point system matrices
 	
