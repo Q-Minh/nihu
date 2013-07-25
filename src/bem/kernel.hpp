@@ -132,13 +132,13 @@ public:
 };
 
 
-template <class out1, class out2>
+template <class...outputs>
 class couple_output :
-	merge<out1, out2>::type
+	public merge<outputs...>::type
 {
 public:
-	typedef typename merge<out1, out2>::type base_t;
-	typedef couple<typename out1::result_t, typename out2::result_t> result_t;
+	typedef typename merge<outputs...>::type base_t;
+	typedef couple<typename outputs::result_t...> result_t;
 
 	template <class test_input_t, class trial_input_t, class kernel_t>
 	couple_output(
@@ -152,8 +152,7 @@ public:
 	result_t get_result(void) const
 	{
 		return result_t(
-			static_cast<typename find_in_wall<out1, base_t>::type const &>(*this).get_result(),
-			static_cast<typename find_in_wall<out2, base_t>::type const &>(*this).get_result()
+			static_cast<typename find_in_wall<outputs, base_t>::type const &>(*this).get_result()...
 		);
 	}
 };
@@ -171,42 +170,32 @@ class couple_kernel;
 template <class...Kernels>
 struct kernel_traits<couple_kernel<Kernels...> >
 {
-	typedef typename std::tuple_element<0, std::tuple<Kernels...> >::type Kernel1;
-	typedef typename std::tuple_element<1, std::tuple<Kernels...> >::type Kernel2;
-
 	/** \brief type of the first (test) kernel input */
-	typedef typename merge<
-		typename kernel_traits<Kernel1>::test_input_t,
-		typename kernel_traits<Kernel2>::test_input_t
-	>::type test_input_t;
+	typedef typename merge<typename kernel_traits<Kernels>::test_input_t...>::type test_input_t;
 	/** \brief type of the second (trial) kernel input */
-	typedef typename merge<
-		typename kernel_traits<Kernel1>::trial_input_t,
-		typename kernel_traits<Kernel2>::trial_input_t
-	>::type trial_input_t;
+	typedef typename merge<typename kernel_traits<Kernels>::trial_input_t...>::type trial_input_t;
 	/** \brief type of the kernel output (not the result) */
-	typedef couple_output<
-		typename kernel_traits<Kernel1>::output_t,
-		typename kernel_traits<Kernel2>::output_t
-	> output_t;
+	typedef couple_output<typename kernel_traits<Kernels>::output_t...> output_t;
 	/** \brief type of the kernel's result */
 	typedef typename output_t::result_t result_t;
 	/** \brief the quadrature family the kernel is integrated with
 	\todo static assert here or something more clever
 	*/
-	typedef typename kernel_traits<Kernel1>::quadrature_family_t quadrature_family_t;
+	typedef typename kernel_traits<
+		typename std::tuple_element<0, std::tuple<Kernels...> >::type
+	>::quadrature_family_t quadrature_family_t;
 	/** \brief true if K(x,y) = K(y,x) */
-	static bool const is_symmetric =
-		kernel_traits<Kernel1>::is_symmetric &&
-		kernel_traits<Kernel2>::is_symmetric ;
+	static bool const is_symmetric = tmp::and_<
+		std::integral_constant<bool, kernel_traits<Kernels>::is_symmetric>...
+	>::value;
 	/** \brief the singularity order ( r^(-order) ) */
 	static unsigned const singularity_order = max_<
-		kernel_traits<Kernel1>::singularity_order,
-		kernel_traits<Kernel1>::singularity_order>::value;
+		kernel_traits<Kernels>::singularity_order...
+	>::value;
 	/** \brief the quadrature order used for the generation of Duffy type singular quadratures */
 	static unsigned const singular_quadrature_order = max_<
-		kernel_traits<Kernel1>::singular_quadrature_order,
-		kernel_traits<Kernel1>::singular_quadrature_order>::value;
+		kernel_traits<Kernels>::singular_quadrature_order...
+	>::value;
 };
 
 
