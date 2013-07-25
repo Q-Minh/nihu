@@ -165,12 +165,15 @@ struct max_
 	static unsigned const value = x > y ? x : y;
 };
 
-template <class Kernel1, class Kerel2>
+template <class...Kernels>
 class couple_kernel;
 
-template <class Kernel1, class Kernel2>
-struct kernel_traits<couple_kernel<Kernel1, Kernel2> >
+template <class...Kernels>
+struct kernel_traits<couple_kernel<Kernels...> >
 {
+	typedef typename std::tuple_element<0, std::tuple<Kernels...> >::type Kernel1;
+	typedef typename std::tuple_element<1, std::tuple<Kernels...> >::type Kernel2;
+
 	/** \brief type of the first (test) kernel input */
 	typedef typename merge<
 		typename kernel_traits<Kernel1>::test_input_t,
@@ -207,13 +210,13 @@ struct kernel_traits<couple_kernel<Kernel1, Kernel2> >
 };
 
 
-template <class Kernel1, class Kernel2>
+template <class...Kernels>
 class couple_kernel :
-	public kernel_base<couple_kernel<Kernel1, Kernel2> >
+	public kernel_base<couple_kernel<Kernels...> >
 {
 public:
 	/** \brief the traits class */
-	typedef kernel_base<couple_kernel<Kernel1, Kernel2> > base_t;
+	typedef kernel_base<couple_kernel<Kernels...> > base_t;
 	
 	/** \brief type of the first (test) kernel input */
 	typedef typename base_t::test_input_t test_input_t;
@@ -222,10 +225,8 @@ public:
 	/** \brief type of the second (trial) kernel input */
 	typedef typename base_t::scalar_t scalar_t;
 
-	couple_kernel(
-		kernel_base<Kernel1> const &k1,
-		kernel_base<Kernel2> const &k2) :
-		m_k1(k1.derived())
+	couple_kernel(kernel_base<Kernels> const &...kernels) :
+		m_kernels(kernels.derived()...)
 	{
 	}
 
@@ -241,19 +242,19 @@ public:
 		trial_input_t const &y,
 		scalar_t const &reference_size) const
 	{
-		return m_k1.estimate_complexity(x, y, reference_size);
+		return std::get<0>(m_kernels).estimate_complexity(x, y, reference_size);
 	}
 
 private:
-	Kernel1 m_k1;
+	std::tuple<Kernels...> m_kernels;
 };
 
 
-template <class Kernel1, class Kernel2>
-couple_kernel<Kernel1, Kernel2>
-	create_couple_kernel(kernel_base<Kernel1> const &k1, kernel_base<Kernel2> const &k2)
+template <class...Args>
+couple_kernel<Args...>
+	create_couple_kernel(kernel_base<Args> const &...args)
 {
-	return couple_kernel<Kernel1, Kernel2>(k1, k2);
+	return couple_kernel<Args...>(args...);
 }
 
 #endif // KERNEL_HPP_INCLUDED

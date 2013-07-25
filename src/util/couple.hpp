@@ -8,7 +8,7 @@
 #define COUPLE_HPP_INCLUDED
 
 #include "../util/crtp_base.hpp"
-#include <utility>
+#include <tuple>
 
 // forward declaration
 template <class LDerived, class Right>
@@ -30,27 +30,18 @@ private:
 
 public:
 	/**
-	 * \brief interface function to return first member expression
-	 * \return first member expression
+	 * \brief interface function to return member expression
+	 * \return member expression
 	 */
-	template <class Dummy = void>
-	auto first(void) const -> decltype(const_crtp_ptr<Derived, Dummy>()->first())
+	template <int idx>
+	auto get(void) const
+		-> decltype(const_crtp_ptr<Derived, std::integral_constant<int,idx> >()->template get<idx>())
 	{
-		return derived().first();
+		return derived().template get<idx>();
 	}
 
 	/**
-	 * \brief interface function to return second member expression
-	 * \return second member expression
-	 */
-	template <class Dummy = void>
-	auto second(void) const -> decltype(const_crtp_ptr<Derived, Dummy>()->second())
-	{
-		return derived().second();
-	}
-
-	/**
-	 * \brief multiply a couple expression from the right with an arbitrary type
+	 * \brief multiply a couple expression from the right by an arbitrary type
 	 * \tparam Right the right hand side type
 	 * \param [in] rhs the right hand side value
 	 * \return a product proxy
@@ -62,7 +53,7 @@ public:
 	}
 
 	/**
-	 * \brief multiply a couple expression from the left with an arbitrary type
+	 * \brief multiply a couple expression from the left by an arbitrary type
 	 * \tparam Left the left hand side type
 	 * \tparam Right the right hand side type
 	 * \return a product proxy
@@ -74,7 +65,7 @@ public:
 };
 
 /**
- * \brief multiply a couple expression from the left with an arbitrary type
+ * \brief multiply a couple expression from the left by an arbitrary type
  * \tparam Left the left hand side type
  * \tparam Right the right hand side type
  * \param [in] lhs the left hand side factor
@@ -115,8 +106,8 @@ public:
 	template <class otherDerived>
 	couple_row const &operator += (couple_base<otherDerived> const &other)
 	{
-		m_parent.first().row(m_idx) += other.first();
-		m_parent.second().row(m_idx) += other.second();
+		m_parent.template get<0>().row(m_idx) += other.template get<0>();
+		m_parent.template get<1>().row(m_idx) += other.template get<1>();
 		return *this;
 	}
 	
@@ -129,48 +120,58 @@ protected:
 
 
 /**
- * \brief class to store two objects of different type
- * \tparam First the type of the first object
- * \tparam Second the type of the second object
+ * \brief class to store a couple
+ * \tparam Args the type of the object
  */
-template <class First, class Second = First>
+template <class...Args>
 class couple :
-	public couple_base<couple<First, Second> >,
-	public std::pair<First, Second>
+	public couple_base<couple<Args...> >,
+	public std::tuple<Args...>
 {
 public:
 	/** \brief self-returning metafunction */
 	typedef couple type;
-	typedef std::pair<First, Second> base_t;
-	typedef First first_t;
-	typedef Second second_t;
+	typedef std::tuple<Args...> base_t;
+	static size_t const couple_size = std::tuple_size<base_t>::value;
 	
- 	/** \brief constructor initialising both members
-	 * \param [in] f the first member
-	 * \param [in] s the second member
+ 	/** \brief constructor initialising all members
+	 * \param [in] args the arguments
 	 */
-	couple(First const &f = First(), Second const &s = Second()) :
-		base_t(f, s)
+	couple(Args const &...args) :
+		base_t(args...)
 	{
 	}
 
- 	/** \brief constructor initialising both members
-	 * \param [in] f the first member
-	 * \param [in] s the second member
+ 	/** \brief constructor initialising all members
+	 * \tparam OtherArgs the argument types
+	 * \param [in] otherArgs the arguments
 	 */
-	template <class F, class S>
-	couple(F &&f, S &&s) :
-		base_t(std::forward<F>(f), std::forward<S>(s))
+	template <class...OtherArgs>
+	couple(OtherArgs&&...otherArgs) :
+		base_t(std::forward<OtherArgs>(otherArgs)...)
 	{
 	}
 
+private:
+	template <int idx>
+	void setZeroImpl(std::integral_constant<int, idx>)
+	{
+		std::get<idx>(*this).setZero();
+		setZeroImpl(std::integral_constant<int, idx+1>());
+	}
+
+	void setZeroImpl(
+		std::integral_constant<int, couple_size>)
+	{
+	}
+
+public:
 	/** \brief set both matrices to zero
 	 * \todo this function forges ::couple to Eigen matrices. Sick.
 	 */
 	couple const &setZero(void)
 	{
-		base_t::first.setZero();
-		base_t::second.setZero();
+		setZeroImpl(std::integral_constant<int, 0>());
 		return *this;
 	}
 
@@ -183,35 +184,45 @@ public:
  	/** \brief return first member
 	 * \return first member expression
 	 */
-	First const &first(void) const
+	template <int idx>
+	typename std::tuple_element<idx, std::tuple<Args...> >::type const &
+		get(void) const
 	{
-		return base_t::first;
+		return std::get<idx>(*this);
 	}
 
  	/** \brief return first member
 	 * \return reference to first value
 	 */
-	First &first(void)
+	template <int idx>
+	typename std::tuple_element<idx, std::tuple<Args...> >::type &
+		get(void)
 	{
-		return base_t::first;
+		return std::get<idx>(*this);
 	}
 
- 	/** \brief return second member
-	 * \return second member expression
-	 */
-	Second const &second(void) const
-	{
-		return base_t::second;
-	}
+private:
 
- 	/** \brief return second member
-	 * \return reference to second value
-	 */
-	Second &second(void)
+	template <class C, class OtherDerived, int idx>
+	struct add_impl
 	{
-		return base_t::second;
-	}
+		static void eval(C &c, couple_base<OtherDerived> const &other)
+		{
+			std::get<idx-1>(c) += other.template get<idx-1>();
+			add_impl<C, OtherDerived, idx-1>::eval(c, other);
+		}
+	};
 
+	template <class C, class OtherDerived>
+	struct add_impl<C, OtherDerived, 0>
+	{
+		static void eval(C &, couple_base<OtherDerived> const &)
+		{
+		}
+	};
+
+
+public:
  	/** \brief increment with an other couple
 	 * \param [in] other the other couple to increment with
 	 * \return reference to this
@@ -219,8 +230,7 @@ public:
 	template <class OtherDerived>
 	couple &operator+=(couple_base<OtherDerived> const &other)
 	{
-		base_t::first += other.first();
-		base_t::second += other.second();
+		add_impl<couple, OtherDerived, couple_size>::eval(*this, other);
 		return *this;
 	}
 	
@@ -232,20 +242,24 @@ public:
 
 
 /**
- * \brief class to represent a product expression of a couple and an arbitrary type
+ * \brief class to represent a product of a couple and an arbitrary type
  * \tparam LDerived the couple type
  * \tparam Right the type of the right hand side
  */
 template <class LDerived, class Right>
-class couple_product_right : public couple_base<couple_product_right<LDerived, Right> >
+class couple_product_right :
+	public couple_base<couple_product_right<LDerived, Right> >
 {
 protected:
 	LDerived const &m_left;	/**< \brief left hand side term */
 	Right const &m_right;	/**< \brief right hand side term */
 
 public:
-	typedef decltype(m_left.first() * m_right) first_t;
-	typedef decltype(m_left.second() * m_right) second_t;
+	template <int idx>
+	struct couple_type
+	{
+		typedef decltype(m_left.template get<idx>() * m_right) type;
+	};
 	
 	/**
 	 * \brief constructor from two term references
@@ -261,20 +275,11 @@ public:
 	 * \brief return first object of the product
 	 * \return first object
 	 */
-	auto first(void) const
-		-> decltype(m_left.first() * m_right)
+	template <int idx>
+	auto get(void) const
+		-> decltype(m_left.template get<idx>() * m_right)
 	{
-		return m_left.first() * m_right;
-	}
-
-	/**
-	 * \brief return second object of the product
-	 * \return second object
-	 */
-	auto second(void) const
-		-> decltype(m_left.second() * m_right)
-	{
-		return m_left.second() * m_right;
+		return m_left.template get<idx>() * m_right;
 	}
 };
 
@@ -285,14 +290,14 @@ public:
  * \tparam RDerived the right hand side couple type
  */
 template <class Left, class RDerived>
-class couple_product_left : public couple_base<couple_product_left<Left, RDerived> >
+class couple_product_left :
+	public couple_base<couple_product_left<Left, RDerived> >
 {
 protected:
 	Left const &m_left;			/**< \brief left hand side term */
 	RDerived const &m_right;	/**< \brief right hand side term */
 
 public:
-	typedef couple_base<couple_product_left<Left, RDerived> > base_t;	/**< \brief base type */
 
 	/**
 	 * \brief constructor from two term references
@@ -308,18 +313,10 @@ public:
 	 * \brief return first object of the product
 	 * \return first object
 	 */
-	auto first(void) const -> decltype(m_left * m_right.first())
+	template <int idx>
+	auto get(void) const -> decltype(m_left * m_right.template get<idx>())
 	{
-		return m_left * m_right.first();
-	}
-
-	/**
-	 * \brief return second object of the product
-	 * \return second object
-	 */
-	auto second(void) const -> decltype(m_left * m_right.second())
-	{
-		return m_left * m_right.second();
+		return m_left * m_right.template get<idx>();
 	}
 };
 

@@ -30,11 +30,16 @@ struct plain_type<T, true, false>
 
 /** \brief specialisation of ::plain_type for the case of a couple expression
  * \tparam T the couple expression class to convert to plain type
+ * \todo should work recursively and for couple expressions, not only for couples
  */
 template <class T>
 struct plain_type<T, false, true> : couple<
-	typename plain_type< typename T::first_t >::type,
-	typename plain_type< typename T::second_t >::type
+	typename plain_type<
+		typename T::template couple_type<0>::type
+	>::type,
+	typename plain_type<
+		typename T::template couple_type<1>::type
+	>::type
 > {};
 
 #endif // PLAIN_TYPE_HPP_INCLUDED
