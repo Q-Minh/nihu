@@ -7,8 +7,12 @@
 #ifndef COUPLE_HPP_INCLUDED
 #define COUPLE_HPP_INCLUDED
 
-#include "../util/crtp_base.hpp"
+#include "crtp_base.hpp"
+#include "product_type.hpp"
 #include <tuple>
+
+template <class C>
+struct couple_traits;
 
 /**
  * \brief base class of all couple expressions
@@ -25,7 +29,7 @@ public:
 	 * \brief interface function to return member expression
 	 * \return member expression
 	 */
-	template <int idx>
+	template <size_t idx>
 	auto get(void) const
 		-> decltype(const_crtp_ptr<Derived, std::integral_constant<int,idx> >()->template get<idx>())
 	{
@@ -72,6 +76,18 @@ protected:
 };
 
 
+
+template <class...Args>
+class couple;
+
+template <class...Args>
+struct couple_traits<couple<Args...> >
+{
+	typedef std::tuple<Args...> tuple_t;
+	static size_t const tuple_size = std::tuple_size<tuple_t>::value;
+};
+
+
 /**
  * \brief class to store a couple
  * \tparam Args the type of the object
@@ -79,13 +95,15 @@ protected:
 template <class...Args>
 class couple :
 	public couple_base<couple<Args...> >,
-	public std::tuple<Args...>
+	public couple_traits<couple<Args...> >::tuple_t
 {
 public:
 	/** \brief self-returning metafunction */
 	typedef couple type;
-	typedef std::tuple<Args...> base_t;
-	static size_t const couple_size = std::tuple_size<base_t>::value;
+	typedef typename couple_traits<couple<Args...> >::tuple_t base_t;
+
+	typedef couple_traits<type> traits_t;
+	static size_t const tuple_size = couple_traits<type>::tuple_size;
 	
  	/** \brief constructor initialising all members
 	 * \param [in] args the arguments
@@ -106,15 +124,15 @@ public:
 	}
 
 private:
-	template <int idx>
-	void setZeroImpl(std::integral_constant<int, idx>)
+	template <size_t idx>
+	void setZeroImpl(std::integral_constant<size_t, idx>)
 	{
 		std::get<idx>(*this).setZero();
-		setZeroImpl(std::integral_constant<int, idx+1>());
+		setZeroImpl(std::integral_constant<size_t, idx+1>());
 	}
 
 	void setZeroImpl(
-		std::integral_constant<int, couple_size>)
+		std::integral_constant<size_t, tuple_size>)
 	{
 	}
 
@@ -124,7 +142,7 @@ public:
 	 */
 	couple const &setZero(void)
 	{
-		setZeroImpl(std::integral_constant<int, 0>());
+		setZeroImpl(std::integral_constant<size_t, 0>());
 		return *this;
 	}
 
@@ -134,20 +152,20 @@ public:
 		return res.setZero();
 	}
 
- 	/** \brief return first member
-	 * \return first member expression
+ 	/** \brief return couple element
+	 * \return couple element
 	 */
-	template <int idx>
+	template <size_t idx>
 	typename std::tuple_element<idx, std::tuple<Args...> >::type const &
 		get(void) const
 	{
 		return std::get<idx>(*this);
 	}
 
- 	/** \brief return first member
-	 * \return reference to first value
+ 	/** \brief return reference to couple element
+	 * \return reference to couple element
 	 */
-	template <int idx>
+	template <size_t idx>
 	typename std::tuple_element<idx, std::tuple<Args...> >::type &
 		get(void)
 	{
@@ -156,7 +174,7 @@ public:
 
 private:
 
-	template <class C, class OtherDerived, int idx>
+	template <class C, class OtherDerived, size_t idx>
 	struct add_impl
 	{
 		static void eval(C &c, couple_base<OtherDerived> const &other)
@@ -183,7 +201,7 @@ public:
 	template <class OtherDerived>
 	couple &operator+=(couple_base<OtherDerived> const &other)
 	{
-		add_impl<couple, OtherDerived, couple_size>::eval(*this, other);
+		add_impl<couple, OtherDerived, tuple_size>::eval(*this, other);
 		return *this;
 	}
 	
@@ -192,6 +210,44 @@ public:
 		return couple_row<couple>(*this, idx);
 	}
 };
+
+/** \brief factory function of a couple class */
+template <class...Args>
+couple<Args...> create_couple(Args &&...args)
+{
+	return couple<Args...>(std::forward<Args>(args)...);
+}
+
+
+
+
+
+
+
+
+template <class LDerived, class Right>
+class couple_product_right;
+
+
+template <class LDerived, class Right>
+struct couple_traits<couple_product_right<LDerived, Right> >
+{
+	template <class C, class T>
+	struct tuple_product;
+
+	template <class...Args, class T>
+	struct tuple_product<std::tuple<Args...>, T> : std::tuple<
+		product_type<Args, T>...
+	> {};
+
+	typedef typename tuple_product<
+		typename couple_traits<typename std::decay<LDerived>::type>::tuple_t,
+		typename std::decay<Right>::type
+	>::type tuple_t;
+
+	static size_t const tuple_size = std::tuple_size<tuple_t>::value;
+};
+
 
 
 /**
@@ -204,16 +260,13 @@ class couple_product_right :
 	public couple_base<couple_product_right<LDerived, Right> >
 {
 protected:
+	static constexpr couple_product_right const *This =
+		static_cast<couple_product_right const *>(nullptr);
+
 	LDerived m_left;	/**< \brief left hand side term */
-	Right m_right;	/**< \brief right hand side term */
+	Right m_right;		/**< \brief right hand side term */
 
 public:
-	template <int idx>
-	struct couple_type
-	{
-		typedef decltype(m_left.template get<idx>() * m_right) type;
-	};
-	
 	/**
 	 * \brief constructor from two term references
 	 * \param left reference to left hand side term
@@ -225,16 +278,52 @@ public:
 	{
 	}
 
+	LDerived const &get_left(void) const
+	{
+		return m_left;
+	}
+
+	Right const &get_right(void) const
+	{
+		return m_right;
+	}
+
 	/**
-	 * \brief return first object of the product
-	 * \return first object
+	 * \brief return element of the couple product
+	 * \return element of the couple product
 	 */
-	template <int idx>
+	template <size_t idx>
 	auto get(void) const
-		-> decltype(m_left.template get<idx>() * m_right)
+		-> decltype(This->get_left().template get<idx>() * This->get_right())
 	{
 		return m_left.template get<idx>() * m_right;
 	}
+};
+
+
+
+
+template <class Left, class RDerived>
+class couple_product_left;
+
+
+template <class Left, class RDerived>
+struct couple_traits<couple_product_left<Left, RDerived> >
+{
+	template <class T, class C>
+	struct tuple_product;
+
+	template <class T, class...Args>
+	struct tuple_product<T, std::tuple<Args...> > : std::tuple<
+		product_type<T, Args>...
+	> {};
+
+	typedef typename tuple_product<
+		Left,
+		typename couple_traits<typename std::decay<RDerived>::type>::tuple_t
+	>::type tuple_t;
+
+	static size_t const tuple_size = std::tuple_size<tuple_t>::value;
 };
 
 
@@ -248,11 +337,13 @@ class couple_product_left :
 	public couple_base<couple_product_left<Left, RDerived> >
 {
 protected:
-	Left m_left;			/**< \brief left hand side term */
+	static constexpr couple_product_left const *This =
+		static_cast<couple_product_left const *>(nullptr);
+
+	Left m_left;		/**< \brief left hand side term */
 	RDerived m_right;	/**< \brief right hand side term */
 
 public:
-
 	/**
 	 * \brief constructor from two term references
 	 * \param left reference to left hand side term
@@ -264,24 +355,28 @@ public:
 	{
 	}
 
-	/**
-	 * \brief return first object of the product
-	 * \return first object
-	 */
-	template <int idx>
-	auto get(void) const -> decltype(m_left * m_right.template get<idx>())
+	Left const &get_left(void) const
 	{
-		return m_left * m_right.template get<idx>();
+		return m_left;
+	}
+
+	RDerived const &get_right(void) const
+	{
+		return m_right;
+	}
+
+	/**
+	 * \brief return elemnt of the couple product
+	 * \return element of the couple product
+	 */
+	template <size_t idx>
+	auto get(void) const
+		-> decltype(This->get_left() * This->get_right().template get<idx>())
+	{
+		return get_left() * get_right().template get<idx>();
 	}
 };
 
-
-/** \brief factory function of a couple class */
-template <class L, class R>
-couple<L, R> create_couple(L &&l, R &&r)
-{
-	return couple<L, R>(std::forward<L>(l), std::forward<R>(r));
-}
 
 /** \brief metafunction determining if argument is a couple expression
  * \tparam T the class to investigate

@@ -32,6 +32,7 @@ struct plain_type<T, true, false>
 	typedef typename std::decay<T>::type::PlainObject type;
 };
 
+
 /** \brief specialisation of ::plain_type for the case of a couple expression
  * \tparam T the couple expression class to convert to plain type
  * \todo should work recursively and for couple expressions, not only for couples
@@ -39,10 +40,10 @@ struct plain_type<T, true, false>
 template <class T>
 struct plain_type<T, false, true> : couple<
 	typename plain_type<
-		typename T::template couple_type<0>::type
+		decltype( static_cast<typename std::decay<T>::type const *>(nullptr)->template get<0>() )
 	>::type,
 	typename plain_type<
-		typename T::template couple_type<1>::type
+		decltype( static_cast<typename std::decay<T>::type const *>(nullptr)->template get<1>() )
 	>::type
 > {};
 

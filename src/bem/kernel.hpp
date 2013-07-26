@@ -158,10 +158,18 @@ public:
 };
 
 
-template <unsigned x, unsigned y>
+template <class Val, class...Args>
 struct max_
 {
-	static unsigned const value = x > y ? x : y;
+	static unsigned const rest = max_<Args...>::value;
+	static unsigned const x = Val::value;
+	static unsigned const value = x > rest ? x : rest;
+};
+
+template <class Val>
+struct max_<Val>
+{
+	static unsigned const value = Val::value;
 };
 
 template <class...Kernels>
@@ -190,11 +198,11 @@ struct kernel_traits<couple_kernel<Kernels...> >
 	>::value;
 	/** \brief the singularity order ( r^(-order) ) */
 	static unsigned const singularity_order = max_<
-		kernel_traits<Kernels>::singularity_order...
+		std::integral_constant<unsigned, kernel_traits<Kernels>::singularity_order>...
 	>::value;
 	/** \brief the quadrature order used for the generation of Duffy type singular quadratures */
 	static unsigned const singular_quadrature_order = max_<
-		kernel_traits<Kernels>::singular_quadrature_order...
+		std::integral_constant<unsigned, kernel_traits<Kernels>::singular_quadrature_order>...
 	>::value;
 };
 

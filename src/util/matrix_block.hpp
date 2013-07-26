@@ -79,7 +79,7 @@ public:
 	template <class...Args>
 	void operator +=(couple<Args...> const &rhs) const
 	{
-		increase_couple<couple<Args...>, couple<Args...>::couple_size>::eval(rhs, *this);
+		increase_couple<couple<Args...>, couple_traits<couple<Args...> >::tuple_size>::eval(rhs, *this);
 	}
 
 protected:
