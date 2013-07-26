@@ -10,14 +10,6 @@
 #include "../util/crtp_base.hpp"
 #include <tuple>
 
-// forward declaration
-template <class LDerived, class Right>
-class couple_product_right;
-
-// forward declaration
-template <class Left, class RDerived>
-class couple_product_left;
-
 /**
  * \brief base class of all couple expressions
  * \tparam Derived CRTP derived class
@@ -39,46 +31,7 @@ public:
 	{
 		return derived().template get<idx>();
 	}
-
-	/**
-	 * \brief multiply a couple expression from the right by an arbitrary type
-	 * \tparam Right the right hand side type
-	 * \param [in] rhs the right hand side value
-	 * \return a product proxy
-	 */
-	template <class Right>
-	couple_product_right<Derived, Right> operator*(Right const &rhs) const
-	{
-		return couple_product_right<Derived, Right>(derived(), rhs);
-	}
-
-	/**
-	 * \brief multiply a couple expression from the left by an arbitrary type
-	 * \tparam Left the left hand side type
-	 * \tparam Right the right hand side type
-	 * \return a product proxy
-	 */
-	template <class Left, class RDerived>
-	friend couple_product_left<Left, RDerived> operator*(
-		Left const &,
-		couple_base<RDerived> const &);
 };
-
-/**
- * \brief multiply a couple expression from the left by an arbitrary type
- * \tparam Left the left hand side type
- * \tparam Right the right hand side type
- * \param [in] lhs the left hand side factor
- * \param [in] rhs the right hand side factor
- * \return a product proxy
- */
-template <class Left, class RDerived>
-inline couple_product_left<Left, RDerived> operator*(
-	Left const &lhs,
-	couple_base<RDerived> const &rhs)
-{
-	return couple_product_left<Left, RDerived>(lhs, rhs.derived());
-}
 
 
 /** \brief a row of a couple of matrices
@@ -251,8 +204,8 @@ class couple_product_right :
 	public couple_base<couple_product_right<LDerived, Right> >
 {
 protected:
-	LDerived const &m_left;	/**< \brief left hand side term */
-	Right const &m_right;	/**< \brief right hand side term */
+	LDerived m_left;	/**< \brief left hand side term */
+	Right m_right;	/**< \brief right hand side term */
 
 public:
 	template <int idx>
@@ -266,8 +219,9 @@ public:
 	 * \param left reference to left hand side term
 	 * \param right reference to left hand side term
 	 */
-	couple_product_right(LDerived const &left, Right const &right)
-		: m_left(left), m_right(right)
+	couple_product_right(LDerived &&left, Right &&right) :
+		m_left(std::forward<LDerived>(left)),
+		m_right(std::forward<Right>(right))
 	{
 	}
 
@@ -294,8 +248,8 @@ class couple_product_left :
 	public couple_base<couple_product_left<Left, RDerived> >
 {
 protected:
-	Left const &m_left;			/**< \brief left hand side term */
-	RDerived const &m_right;	/**< \brief right hand side term */
+	Left m_left;			/**< \brief left hand side term */
+	RDerived m_right;	/**< \brief right hand side term */
 
 public:
 
@@ -304,8 +258,9 @@ public:
 	 * \param left reference to left hand side term
 	 * \param right reference to left hand side term
 	 */
-	couple_product_left(Left const &left, RDerived const &right)
-		: m_left(left), m_right(right)
+	couple_product_left(Left &&left, RDerived &&right) :
+		m_left(std::forward<Left>(left)),
+		m_right(std::forward<RDerived>(right))
 	{
 	}
 
@@ -328,7 +283,7 @@ couple<L, R> create_couple(L &&l, R &&r)
 	return couple<L, R>(std::forward<L>(l), std::forward<R>(r));
 }
 
-/** \brief metafunction determining if its argument is a couple expression or not
+/** \brief metafunction determining if argument is a couple expression
  * \tparam T the class to investigate
  */
 template <class T>
@@ -337,6 +292,46 @@ struct is_couple : std::is_base_of<
 	typename std::decay<T>::type
 > {};
 
+
+/**
+ * \brief multiply a couple expression from the right by an arbitrary type
+ * \tparam LDerived the left hand side derived type
+ * \tparam Right the right hand side type
+ * \param [in] lhs the left hand side value
+ * \param [in] rhs the right hand side value
+ * \return a product proxy
+ */
+template <class LDerived, class Right>
+inline typename std::enable_if<
+		is_couple<LDerived>::value,
+		couple_product_right<LDerived, Right>
+	>::type
+	operator*(LDerived &&lhs, Right &&rhs)
+{
+	return couple_product_right<LDerived, Right>(
+		std::forward<LDerived>(lhs),
+		std::forward<Right>(rhs));
+}
+
+/**
+ * \brief multiply a couple expression from the left by an arbitrary type
+ * \tparam Left the left hand side type
+ * \tparam Right the right hand side type
+ * \param [in] lhs the left hand side factor
+ * \param [in] rhs the right hand side factor
+ * \return a product proxy
+ */
+template <class Left, class RDerived>
+inline typename std::enable_if<
+		is_couple<RDerived>::value,
+		couple_product_left<Left, RDerived>
+	>::type
+	operator*(Left &&lhs, RDerived &&rhs)
+{
+	return couple_product_left<Left, RDerived>(
+		std::forward<Left>(lhs),
+		std::forward<RDerived>(rhs));
+}
 
 #endif //  COUPLE_HPP_INCLUDED
 

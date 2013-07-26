@@ -15,7 +15,11 @@
  * \tparam T the class to convert to plain type
  * \details this is the general case where the class is not an expression
  */
-template <class T, bool isEigen = is_eigen<T>::value, bool isCouple = is_couple<T>::value>
+template <
+	class T,
+	bool isEigen = is_eigen<T>::value,
+	bool isCouple = is_couple<T>::value
+>
 struct plain_type : std::decay<T> {};
 
 
@@ -25,7 +29,7 @@ struct plain_type : std::decay<T> {};
 template <class T>
 struct plain_type<T, true, false>
 {
-	typedef typename T::PlainObject type;
+	typedef typename std::decay<T>::type::PlainObject type;
 };
 
 /** \brief specialisation of ::plain_type for the case of a couple expression

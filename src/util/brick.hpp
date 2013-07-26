@@ -16,7 +16,7 @@ struct empty_wall
 	/** \brief self-returning type */
 	typedef empty_wall type;
 
-	/** \brief empty constructor from everything */
+	/** \brief empty constructor from anything */
 	template <class...Args>
 	empty_wall(Args...args)
 	{
@@ -49,20 +49,40 @@ namespace internal
 	> {};
 }
 
-/** \brief merge walls
- * \tparam wallA the first wall to merge
- * \tparam wallB the second wall to merge
- * \return a wall consisting of unique bricks in the same order
- */
-template <class wallA, class wallB = empty_wall>
-struct merge : internal::bricks_to_wall<
-	typename tmp::unique<
-		typename tmp::concatenate<
-			typename internal::wall_to_bricks<wallA>::type,
-			typename internal::wall_to_bricks<wallB>::type
+namespace internal
+{
+	/** \brief merge two walls
+	 * \tparam wallA the first wall to merge
+	 * \tparam wallB the second wall to merge
+	 * \return a wall consisting of unique bricks in the same order
+	 */
+	template <class wallA, class wallB = empty_wall>
+	struct merge_impl : internal::bricks_to_wall<
+		typename tmp::unique<
+			typename tmp::concatenate<
+				typename internal::wall_to_bricks<wallA>::type,
+				typename internal::wall_to_bricks<wallB>::type
+			>::type
 		>::type
-	>::type
+	> {};
+}
+
+/** \brief merge walls
+ * \tparam walls the walls to merge
+ * \return a wall consisting of unique bricks in all of the walls
+ */
+template <class wall, class...walls>
+struct merge : internal::merge_impl<
+	wall,
+	typename merge<walls...>::type
 > {};
+
+/** \brief terminating case of merge
+ * \tparam wall the single wall to merge
+ * \return the single wall itself
+ */
+template <class wall>
+struct merge<wall> : wall {};
 
 /** \brief convert a brick template and a wall into a wall
  * \tparam brick a brick template
@@ -122,9 +142,6 @@ struct find_in_wall<subWall, Wall, true>
 {
 	typedef Wall type;
 };
-
-
-
 
 
 #endif // BRICK_HPP_INCLUDED
