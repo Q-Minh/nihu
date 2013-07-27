@@ -95,15 +95,15 @@ struct couple_traits<couple<Args...> >
 template <class...Args>
 class couple :
 	public couple_base<couple<Args...> >,
-	public couple_traits<couple<Args...> >::tuple_t
+	public std::tuple<Args...>
 {
 public:
 	/** \brief self-returning metafunction */
 	typedef couple type;
-	typedef typename couple_traits<couple<Args...> >::tuple_t base_t;
+	typedef std::tuple<Args...> base_t;
 
 	typedef couple_traits<type> traits_t;
-	static size_t const tuple_size = couple_traits<type>::tuple_size;
+	static size_t const tuple_size = traits_t::tuple_size;
 	
  	/** \brief constructor initialising all members
 	 * \param [in] args the arguments
@@ -156,7 +156,7 @@ public:
 	 * \return couple element
 	 */
 	template <size_t idx>
-	typename std::tuple_element<idx, std::tuple<Args...> >::type const &
+	typename std::tuple_element<idx, base_t>::type const &
 		get(void) const
 	{
 		return std::get<idx>(*this);
@@ -223,8 +223,6 @@ couple<Args...> create_couple(Args &&...args)
 
 
 
-
-
 template <class LDerived, class Right>
 class couple_product_right;
 
@@ -232,20 +230,26 @@ class couple_product_right;
 template <class LDerived, class Right>
 struct couple_traits<couple_product_right<LDerived, Right> >
 {
-	template <class C, class T>
-	struct tuple_product;
+	template <class Elem>
+	struct prod_t
+	{
+		typedef typename product_type<Elem, Right>::type type;
+	};
+	
+	template <class C>
+	struct tuple2args;
+	
+	template <class...Args>
+	struct tuple2args<std::tuple<Args...> >
+	{
+		typedef std::tuple<typename prod_t<Args>::type...> type;
+	};
 
-	template <class...Args, class T>
-	struct tuple_product<std::tuple<Args...>, T> : std::tuple<
-		product_type<Args, T>...
-	> {};
-
-	typedef typename tuple_product<
-		typename couple_traits<typename std::decay<LDerived>::type>::tuple_t,
-		typename std::decay<Right>::type
+	typedef typename tuple2args<
+		typename couple_traits<typename std::decay<LDerived>::type>::tuple_t
 	>::type tuple_t;
-
-	static size_t const tuple_size = std::tuple_size<tuple_t>::value;
+	
+	static size_t const tuple_size = couple_traits<typename std::decay<LDerived>::type>::tuple_size;
 };
 
 
@@ -260,8 +264,6 @@ class couple_product_right :
 	public couple_base<couple_product_right<LDerived, Right> >
 {
 protected:
-	static constexpr couple_product_right const *This =
-		static_cast<couple_product_right const *>(nullptr);
 
 	LDerived m_left;	/**< \brief left hand side term */
 	Right m_right;		/**< \brief right hand side term */
@@ -278,23 +280,13 @@ public:
 	{
 	}
 
-	LDerived const &get_left(void) const
-	{
-		return m_left;
-	}
-
-	Right const &get_right(void) const
-	{
-		return m_right;
-	}
-
 	/**
 	 * \brief return element of the couple product
 	 * \return element of the couple product
 	 */
 	template <size_t idx>
 	auto get(void) const
-		-> decltype(This->get_left().template get<idx>() * This->get_right())
+		-> decltype( m_left.template get<idx>() * m_right )
 	{
 		return m_left.template get<idx>() * m_right;
 	}
@@ -310,20 +302,23 @@ class couple_product_left;
 template <class Left, class RDerived>
 struct couple_traits<couple_product_left<Left, RDerived> >
 {
-	template <class T, class C>
-	struct tuple_product;
+	template <class Elem>
+	struct prod_t : product_type<Left, Elem> {};
+	
+	template <class C>
+	struct tuple2args;
+	
+	template <class...Args>
+	struct tuple2args<std::tuple<Args...> > 
+	{
+		typedef std::tuple<prod_t<Args>...> type;
+	};
 
-	template <class T, class...Args>
-	struct tuple_product<T, std::tuple<Args...> > : std::tuple<
-		product_type<T, Args>...
-	> {};
-
-	typedef typename tuple_product<
-		Left,
+	typedef typename tuple2args<
 		typename couple_traits<typename std::decay<RDerived>::type>::tuple_t
 	>::type tuple_t;
-
-	static size_t const tuple_size = std::tuple_size<tuple_t>::value;
+	
+	static size_t const tuple_size = couple_traits<typename std::decay<RDerived>::type>::tuple_size;
 };
 
 
@@ -337,9 +332,6 @@ class couple_product_left :
 	public couple_base<couple_product_left<Left, RDerived> >
 {
 protected:
-	static constexpr couple_product_left const *This =
-		static_cast<couple_product_left const *>(nullptr);
-
 	Left m_left;		/**< \brief left hand side term */
 	RDerived m_right;	/**< \brief right hand side term */
 
@@ -355,25 +347,15 @@ public:
 	{
 	}
 
-	Left const &get_left(void) const
-	{
-		return m_left;
-	}
-
-	RDerived const &get_right(void) const
-	{
-		return m_right;
-	}
-
 	/**
 	 * \brief return elemnt of the couple product
 	 * \return element of the couple product
 	 */
 	template <size_t idx>
 	auto get(void) const
-		-> decltype(This->get_left() * This->get_right().template get<idx>())
+		-> decltype( m_left * m_right.template get<idx>() )
 	{
-		return get_left() * get_right().template get<idx>();
+		return m_left * m_right.template get<idx>();
 	}
 };
 

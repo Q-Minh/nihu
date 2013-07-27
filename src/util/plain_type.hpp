@@ -17,8 +17,8 @@
  */
 template <
 	class T,
-	bool isEigen = is_eigen<T>::value,
-	bool isCouple = is_couple<T>::value
+	bool isEigen = is_eigen<typename std::decay<T>::type>::value,
+	bool isCouple = is_couple<typename std::decay<T>::type>::value
 >
 struct plain_type : std::decay<T> {};
 
@@ -33,10 +33,23 @@ struct plain_type<T, true, false>
 };
 
 
+template <class T>
+struct tuple_plain;
+
+template <class...Args>
+struct tuple_plain<std::tuple<Args...> > : couple<
+	typename plain_type<Args>::type...
+> {};
+
 /** \brief specialisation of ::plain_type for the case of a couple expression
  * \tparam T the couple expression class to convert to plain type
  * \todo should work recursively and for couple expressions, not only for couples
  */
+template <class T>
+struct plain_type<T, false, true> : tuple_plain<
+	typename couple_traits<T>::tuple_t
+> {};
+/*
 template <class T>
 struct plain_type<T, false, true> : couple<
 	typename plain_type<
@@ -46,6 +59,7 @@ struct plain_type<T, false, true> : couple<
 		decltype( static_cast<typename std::decay<T>::type const *>(nullptr)->template get<1>() )
 	>::type
 > {};
+*/
 
 #endif // PLAIN_TYPE_HPP_INCLUDED
 

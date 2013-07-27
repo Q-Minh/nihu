@@ -40,6 +40,7 @@ void mexFunction(
 
 	( surf_sp * LM[surf_sp] ).eval( create_couple(Ls, Ms, Ms2) );
 	( surf_sp *  I[surf_sp] ).eval( Ms );
+	( surf_sp *  I[surf_sp] ).eval( Ms2 );
 
 	// field point system matrices
 	
