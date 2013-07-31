@@ -61,7 +61,7 @@ public:
 	{
 		return derived().template field_end<FieldType>();
 	}
-	
+
 	/**
 	* \brief return number of degrees of freedom
 	* \return number of degrees of freedom
@@ -136,7 +136,7 @@ public:
 	/** \brief return mesh reference
 	* \return reference to the underlying mesh part
 	*/
-	Mesh const &get_mesh(void) const 
+	Mesh const &get_mesh(void) const
 	{
 		return static_cast<Mesh const &> (*this);
 	}
@@ -187,7 +187,7 @@ class function_space_view :
 public:
 	/** \brief the implementation class */
 	typedef function_space_impl<function_space_view<Mesh, FieldOption> > impl_t;
-	
+
 	using impl_t::get_mesh;
 	using impl_t::field_begin;
 	using impl_t::field_end;
@@ -279,7 +279,7 @@ public:
 	typedef function_space_traits<dirac_space<FuncSpace> > traits_t;
 	/** \brief the implementation class */
 	typedef function_space_impl<FuncSpace> impl_t;
-	
+
 	using impl_t::get_mesh;
 	using impl_t::get_num_dofs;
 
@@ -348,7 +348,7 @@ struct function_space_traits<function_space<FieldTypeVector> >
 {
 	/** \brief the underlying mesh type */
 	typedef mesh<typename field_2_elem_type_vector<FieldTypeVector>::type> mesh_t;
-	
+
 	/** \brief the field type vector */
 	typedef FieldTypeVector field_type_vector_t;
 
@@ -377,7 +377,7 @@ public:
 
 	/** \brief the underlying mesh type */
 	typedef typename traits_t::mesh_t mesh_t;
-	
+
 	/** \brief combine field_type_vector into a BIG heterogeneous std::vector container */
 	typedef typename tmp::inherit<
 		typename tmp::transform<
@@ -506,7 +506,7 @@ public:
 
 protected:
 	/** \brief fields (BIG heterogeneous container) */
-	field_container_t m_fields;	
+	field_container_t m_fields;
 	/** \brief number of degrees of freedoms */
 	unsigned m_num_dofs;
 };
@@ -523,7 +523,7 @@ class function_space :
 public:
 	/** \brief the implementation type */
 	typedef function_space_impl<function_space<FieldTypeVector> > impl_t;
-	
+
 	using impl_t::field_begin;
 	using impl_t::field_end;
 	using impl_t::get_num_dofs;
@@ -541,6 +541,15 @@ public:
 	{
 	}
 };
+
+/** \brief metafunction determining if argument is function space expression
+ * \tparam FuncSpace the function space to test
+ */
+template <class FuncSpace>
+struct is_function_space : std::is_base_of<
+	function_space_base<typename std::decay<FuncSpace>::type>,
+	typename std::decay<FuncSpace>::type
+> {};
 
 
 #endif // FUNCTION_SPACE_HPP_INCLUDED

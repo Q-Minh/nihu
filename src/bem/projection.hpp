@@ -11,10 +11,6 @@
 #include "../util/crtp_base.hpp"
 #include "assembly.hpp"
 
-// forward declaration
-template <class LDerived, class RDerived>
-class projection_sum;
-
 /** \brief CRTP base class of all projection expressions
 * \tparam Derived CRTP derived class
 * \details a projection is an integral operator multiplied by a function space.
@@ -38,18 +34,17 @@ public:
 	{
 		derived().test_on_into(test_space, result);
 	}
-
-	/** \brief add a projection to an other (factory operator)
-	* \tparam RDerived the right hand side projection type
-	* \param [in] rhs the right hand side projection
-	* \return the projection sum proxy */
-	template <class RDerived>
-	projection_sum<Derived, RDerived>
-		operator+(projection_base<RDerived> const &rhs) const
-	{
-		return projection_sum<Derived, RDerived>(*this, rhs);
-	}
 };
+
+
+/** \brief metafunction determining if argument is projection expression
+ * \tparam Proj the function space to test
+ */
+template <class Proj>
+struct is_projection : std::is_base_of<
+	projection_base<typename std::decay<Proj>::type>,
+	typename std::decay<Proj>::type
+>{};
 
 
 /** \brief proxy class representing a sum of two projections
@@ -65,8 +60,8 @@ public:
 	* \param [in] left the left hand side projection expression
 	* \param [in] right the right hand side projection expression
 	*/
-	projection_sum(projection_base<LDerived> const &left, projection_base<RDerived> const &right) :
-		m_lhs(left.derived()), m_rhs(right.derived())
+	projection_sum(LDerived &&left, RDerived &&right) :
+		m_lhs(std::forward<LDerived>(left)), m_rhs(std::forward<RDerived>(right))
 	{
 	}
 
@@ -84,13 +79,28 @@ public:
 		m_lhs.test_on_into(test_space, result);
 		m_rhs.test_on_into(test_space, result);
 	}
-	
+
 private:
 	/** \brief the left hand side projection expression */
-	LDerived const m_lhs;
+	LDerived m_lhs;
 	/** \brief the right hand side projection expression */
-	RDerived const m_rhs;
+	RDerived m_rhs;
 };
+
+
+/** \brief factory operator for the sum of two projections */
+template <class Left, class Right>
+projection_sum<
+	typename std::enable_if<is_projection<Left>::value, Left>::type,
+	typename std::enable_if<is_projection<Right>::value, Right>::type
+>
+	operator+(Left &&left, Right &&right)
+{
+	return projection_sum<Left, Right>(
+		std::forward<Left>(left),
+		std::forward<Right>(right));
+}
+
 
 
 
@@ -131,7 +141,7 @@ public:
 			assembly<TestSpace, TrialSpace, std::false_type>::eval_into(
 				result, m_op, test_space, m_trial_space);
 	}
-	
+
 
 private:
 	/** \brief the operator stored by value */

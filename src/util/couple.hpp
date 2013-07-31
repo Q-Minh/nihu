@@ -54,7 +54,30 @@ public:
 		: m_parent(parent), m_idx(idx)
 	{
 	}
-	
+
+private:
+	template <class otherDerived, size_t idx>
+	struct increase
+	{
+		static void eval(
+			couple_row const & This,
+			couple_base<otherDerived> const &other)
+		{
+			This.m_parent.template get<idx-1>().row(This.m_idx)
+				+= other.template get<idx-1>();
+			increase<otherDerived, idx-1>::eval(This, other);
+		}
+	};
+
+	template <class otherDerived>
+	struct increase<otherDerived, 0>
+	{
+		static void eval(couple_row const &, couple_base<otherDerived> const &)
+		{
+		}
+	};
+
+public:
 	/**
 	* \brief incremenet a row by an other couple
 	* \tparam otherDerived the other couple expression type
@@ -63,11 +86,10 @@ public:
 	template <class otherDerived>
 	couple_row const &operator += (couple_base<otherDerived> const &other)
 	{
-		m_parent.template get<0>().row(m_idx) += other.template get<0>();
-		m_parent.template get<1>().row(m_idx) += other.template get<1>();
+		increase<otherDerived, couple::tuple_size>::eval(*this, other);
 		return *this;
 	}
-	
+
 protected:
 	/** \brief reference to the parent couple */
 	couple &m_parent;
@@ -84,7 +106,7 @@ template <class...Args>
 struct couple_traits<couple<Args...> >
 {
 	typedef std::tuple<Args...> tuple_t;
-	static size_t const tuple_size = std::tuple_size<tuple_t>::value;
+	enum { tuple_size = std::tuple_size<tuple_t>::value };
 };
 
 
@@ -103,8 +125,8 @@ public:
 	typedef std::tuple<Args...> base_t;
 
 	typedef couple_traits<type> traits_t;
-	static size_t const tuple_size = traits_t::tuple_size;
-	
+	enum { tuple_size = traits_t::tuple_size };
+
  	/** \brief constructor initialising all members
 	 * \param [in] args the arguments
 	 */
@@ -204,7 +226,7 @@ public:
 		add_impl<couple, OtherDerived, tuple_size>::eval(*this, other);
 		return *this;
 	}
-	
+
 	couple_row<couple> row(unsigned idx)
 	{
 		return couple_row<couple>(*this, idx);
@@ -235,10 +257,10 @@ struct couple_traits<couple_product_right<LDerived, Right> >
 	{
 		typedef typename product_type<Elem, Right>::type type;
 	};
-	
+
 	template <class C>
 	struct tuple2args;
-	
+
 	template <class...Args>
 	struct tuple2args<std::tuple<Args...> >
 	{
@@ -248,8 +270,10 @@ struct couple_traits<couple_product_right<LDerived, Right> >
 	typedef typename tuple2args<
 		typename couple_traits<typename std::decay<LDerived>::type>::tuple_t
 	>::type tuple_t;
-	
-	static size_t const tuple_size = couple_traits<typename std::decay<LDerived>::type>::tuple_size;
+
+	enum {
+		tuple_size = couple_traits<typename std::decay<LDerived>::type>::tuple_size
+	};
 };
 
 
@@ -304,12 +328,12 @@ struct couple_traits<couple_product_left<Left, RDerived> >
 {
 	template <class Elem>
 	struct prod_t : product_type<Left, Elem> {};
-	
+
 	template <class C>
 	struct tuple2args;
-	
+
 	template <class...Args>
-	struct tuple2args<std::tuple<Args...> > 
+	struct tuple2args<std::tuple<Args...> >
 	{
 		typedef std::tuple<prod_t<Args>...> type;
 	};
@@ -317,8 +341,10 @@ struct couple_traits<couple_product_left<Left, RDerived> >
 	typedef typename tuple2args<
 		typename couple_traits<typename std::decay<RDerived>::type>::tuple_t
 	>::type tuple_t;
-	
-	static size_t const tuple_size = couple_traits<typename std::decay<RDerived>::type>::tuple_size;
+
+	enum {
+		tuple_size = couple_traits<typename std::decay<RDerived>::type>::tuple_size
+	};
 };
 
 

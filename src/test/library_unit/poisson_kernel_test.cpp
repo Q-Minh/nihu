@@ -36,9 +36,6 @@ int main(void)
 	std::cout << "poisson G kernel with wall output:      | ";
 	tester(poisson_G_kernel());
 
-//	std::cout << "poisson G kernel with immediate output: | ";
-//	tester(poisson_G_kernel_immediate());
-
 	std::cout << "poisson H kernel with wall output:      | ";
 	tester(poisson_H_kernel());
 

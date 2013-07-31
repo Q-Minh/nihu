@@ -37,7 +37,7 @@ public:
 	typedef TrialField trial_field_t;	/**< \brief template parameter as nested type */
 
 	/** \brief test input type of kernel */
-	typedef typename kernel_traits<kernel_t>::test_input_t test_input_t;	
+	typedef typename kernel_traits<kernel_t>::test_input_t test_input_t;
 	/** \brief trial input type of kernel */
 	typedef typename kernel_traits<kernel_t>::trial_input_t trial_input_t;
 	/** \brief weighted test input type of kernel */
@@ -199,8 +199,8 @@ protected:
 		/** \todo why only trial size is important? */
 		unsigned degree = kernel.estimate_complexity(test_center, trial_center, trial_field.get_elem().get_linear_size_estimate());
 
-		degree += std::max(test_nset_t::polynomial_order, trial_nset_t::polynomial_order)
-			+ std::max(test_lset_t::jacobian_order, trial_lset_t::jacobian_order);
+		degree += std::max(shape_set_traits<test_nset_t>::polynomial_order, shape_set_traits<trial_nset_t>::polynomial_order)
+			+ std::max(shape_set_traits<test_lset_t>::jacobian_order, shape_set_traits<trial_lset_t>::jacobian_order);
 
 		return eval_on_accelerator(
 			result,
@@ -280,7 +280,7 @@ public:
 	typedef TrialField trial_field_t;	/**< \brief template parameter as nested type */
 
 	/** \brief test input type of kernel */
-	typedef typename kernel_traits<kernel_t>::test_input_t test_input_t;	
+	typedef typename kernel_traits<kernel_t>::test_input_t test_input_t;
 	/** \brief trial input type of kernel */
 	typedef typename kernel_traits<kernel_t>::trial_input_t trial_input_t;
 	/** \brief weighted test input type of kernel */
