@@ -36,6 +36,10 @@ public:
 };
 
 
+/** \brief a weighted residual \f$\left<u,\mathcal{K}v\right>\f$
+ * \tparam TestSpace the test function space
+ * \tparam Projection the projection
+ */
 template <class TestSpace, class Projection>
 class weighted_residual :
 	public wr_base<weighted_residual<TestSpace, Projection> >
@@ -74,6 +78,9 @@ private:
 };
 
 
+/** \brief metafunction determining if artument is weighted_residual expression
+ * \tparam Wr the expression to examine
+ */
 template <class Wr>
 struct is_weighted_residual : std::is_base_of<
 	wr_base<typename std::decay<Wr>::type>,
@@ -159,6 +166,13 @@ weighted_residual<
 
 
 
+/** \brief operator to evaluate a weighted residual into a result matrix
+ * \tparam WR the weighted residual
+ * \tparam Res the result matrix
+ * \param [in] wr the weighted residual instance
+ * \param [in, out] res the result matrix instance
+ * \return (reference to) the result matrix
+ */
 template <class WR, class Res>
 typename std::enable_if<is_weighted_residual<WR>::value, Res>::type
 operator << (Res &&res, WR &&wr)
