@@ -240,6 +240,16 @@ couple<Args...> create_couple(Args &&...args)
 	return couple<Args...>(std::forward<Args>(args)...);
 }
 
+template <class A, class B>
+couple<
+	typename std::enable_if<is_eigen<A>::value, A>::type,
+	typename std::enable_if<is_eigen<B>::value, B>::type
+>
+operator,(A &&a, B &&b)
+{
+	return couple<A, B>(std::forward<A>(a), std::forward<B>(b));
+}
+
 
 
 

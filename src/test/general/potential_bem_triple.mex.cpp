@@ -6,11 +6,18 @@ typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> dMatrix;
 
 int main(void)
 {
+	// generating integral operators
+
+	auto LM = create_integral_operator(
+		create_couple_kernel(
+			poisson_SLP_kernel(),
+			poisson_DLP_kernel())
+		);
+	auto I = -.5 * identity_integral_operator();
+
 	// generating function spaces
 	dMatrix surf_nodes(4,3);
 	uMatrix surf_elements(1,5);
-	dMatrix field_nodes(4,3);
-	uMatrix field_elements(1,5);
 
 	surf_nodes <<
 		0.0, 0.0, 0.0,
@@ -18,6 +25,22 @@ int main(void)
 		1.0, 1.0, 0.0,
 		0.0, 1.0, 0.0;
 	surf_elements << quad_1_elem::id, 0, 1, 2, 3;
+
+	auto surf_mesh = create_mesh(surf_nodes, surf_elements, _quad_1_tag());
+	auto const &surf_sp = constant_view(surf_mesh);
+
+	// surface system matrices
+
+	auto n = surf_sp.get_num_dofs();
+	dMatrix Ls(n,n), Ms(n,n);
+
+	(Ls, Ms) << ( surf_sp * LM[surf_sp] );
+	Ms << ( surf_sp *  I[surf_sp] );
+
+	// field point system matrices
+
+	dMatrix field_nodes(4,3);
+	uMatrix field_elements(1,5);
 
 	field_nodes <<
 		0.0, 0.0, 1.0,
@@ -27,38 +50,14 @@ int main(void)
 	field_elements << quad_1_elem::id, 0, 1, 2, 3;
 
 
-	auto surf_mesh = create_mesh(surf_nodes, surf_elements, _quad_1_tag());
-	auto const &surf_sp = constant_view(surf_mesh);
-
 	auto field_mesh = create_mesh(field_nodes, field_elements, _quad_1_tag());
 	auto const &field_sp = dirac(constant_view(field_mesh));
-
-	// generating integral operators
-
-	auto LM = create_integral_operator(
-		create_couple_kernel(
-			poisson_SLP_kernel(),
-			poisson_DLP_kernel(),
-			poisson_DLP_kernel())
-		);
-	auto I = -.5 * identity_integral_operator();
-
-	// surface system matrices
-
-	auto n = surf_sp.get_num_dofs();
-	dMatrix Ls(n,n), Ms(n,n), Ms2(n,n);
-
-	create_couple(Ls, Ms, Ms2) << ( surf_sp * LM[surf_sp] );
-	Ms << ( surf_sp *  I[surf_sp] );
-	Ms2 << ( surf_sp *  I[surf_sp] );
-
-	// field point system matrices
 
 	auto m = field_sp.get_num_dofs();
 	dMatrix Lf(m,n), Mf(m,n), Mf2(m,n);
 
-	create_couple(Lf, Mf, Mf2) << ( field_sp * LM[surf_sp] );
+	(Lf, Mf) << ( field_sp * LM[surf_sp] );
 
-	std::cout << Mf << '\n' << Mf2;
+	std::cout << Mf;
 }
 
