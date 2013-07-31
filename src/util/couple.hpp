@@ -159,16 +159,14 @@ private:
 	}
 
 public:
-	/** \brief set both matrices to zero
-	 * \todo this function forges ::couple to Eigen matrices. Sick.
-	 */
+	/** \brief set both matrices to zero */
 	couple const &setZero(void)
 	{
 		setZeroImpl(std::integral_constant<size_t, 0>());
 		return *this;
 	}
 
-	static couple Zero(void)
+	constexpr static couple Zero(void)
 	{
 		couple res;
 		return res.setZero();
@@ -252,11 +250,8 @@ operator,(A &&a, B &&b)
 
 
 
-
-
 template <class LDerived, class Right>
 class couple_product_right;
-
 
 template <class LDerived, class Right>
 struct couple_traits<couple_product_right<LDerived, Right> >
@@ -414,10 +409,10 @@ struct is_couple : std::is_base_of<
  * \return a product proxy
  */
 template <class LDerived, class Right>
-inline typename std::enable_if<
-		is_couple<LDerived>::value,
-		couple_product_right<LDerived, Right>
-	>::type
+inline couple_product_right<
+	typename std::enable_if<is_couple<LDerived>::value, LDerived>::type,
+	Right
+>
 	operator*(LDerived &&lhs, Right &&rhs)
 {
 	return couple_product_right<LDerived, Right>(
@@ -434,10 +429,10 @@ inline typename std::enable_if<
  * \return a product proxy
  */
 template <class Left, class RDerived>
-inline typename std::enable_if<
-		is_couple<RDerived>::value,
-		couple_product_left<Left, RDerived>
-	>::type
+inline couple_product_left<
+	Left,
+	typename std::enable_if<is_couple<RDerived>::value, RDerived>::type
+>
 	operator*(Left &&lhs, RDerived &&rhs)
 {
 	return couple_product_left<Left, RDerived>(

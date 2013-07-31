@@ -160,11 +160,11 @@ weighted_residual<
 
 
 template <class WR, class Res>
-typename std::enable_if<is_weighted_residual<WR>::value, Res &&>::type
+typename std::enable_if<is_weighted_residual<WR>::value, Res>::type
 operator << (Res &&res, WR &&wr)
 {
 	wr.eval(std::forward<Res>(res));
-	return std::forward<Res>(res);
+	return res;
 }
 
 #endif // ifndef WEIGHTED_RESIDUAL_HPP_INCLUDED
