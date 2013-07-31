@@ -1,6 +1,6 @@
 /* $Make: mex CXXFLAGS="\$CXXFLAGS -std=c++11 -O3" mass_matrix.mex.cpp -I../../ -I../../../../eigen -output mass_matrix $ */
 
-#include "mex_matrix.h"
+#include "util/mex_matrix.h"
 #include "bem/weighted_residual.hpp"
 
 void mexFunction(
@@ -18,6 +18,6 @@ void mexFunction(
 	mex::real_matrix result(ndof, ndof, lhs[0]);
 	auto I = identity_integral_operator();
 
-	( f_sp * I[f_sp] ).eval(result);
+	result << ( f_sp * I[f_sp] );
 }
 

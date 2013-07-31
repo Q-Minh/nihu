@@ -10,6 +10,9 @@
 #define MEX_MATRIX_H_INCLUDED
 
 #include <cstddef>
+#include <complex>
+#include <mex.h>
+#include <matrix.h>
 
 /**
  * \brief Matlab mex interface classes

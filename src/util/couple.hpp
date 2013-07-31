@@ -244,7 +244,6 @@ couple<Args...> create_couple(Args &&...args)
 
 
 
-
 template <class LDerived, class Right>
 class couple_product_right;
 

@@ -9,6 +9,8 @@
 #define PROJECTION_HPP_INCLUDED
 
 #include "../util/crtp_base.hpp"
+#include "function_space.hpp"
+#include "integral_operator.hpp"
 #include "assembly.hpp"
 
 /** \brief CRTP base class of all projection expressions
@@ -61,7 +63,8 @@ public:
 	* \param [in] right the right hand side projection expression
 	*/
 	projection_sum(LDerived &&left, RDerived &&right) :
-		m_lhs(std::forward<LDerived>(left)), m_rhs(std::forward<RDerived>(right))
+		m_lhs(std::forward<LDerived>(left)),
+		m_rhs(std::forward<RDerived>(right))
 	{
 	}
 
@@ -102,9 +105,7 @@ projection_sum<
 }
 
 
-
-
-/** \brief proxy class representing the product of an integral operator and a function space
+/** \brief integral operator applied on a function space
 * \tparam Operator the integral operator
 * \tparam TrialSpace the right hand side function space
 */
@@ -117,9 +118,9 @@ public:
 	* \param [in] op the operator
 	* \param [in] trial the trial function space
 	*/
-	projection(integral_operator_base<Operator> const &op,
-		function_space_base<TrialSpace> const &trial) :
-		m_op(op.derived()), m_trial_space(trial.derived())
+	projection(integral_operator_base<Operator> const &op, TrialSpace && trial) :
+		m_op(op.derived()),
+		m_trial_space(std::forward<TrialSpace>(trial))
 	{
 	}
 
@@ -135,10 +136,10 @@ public:
 		Result &result) const
 	{
 		if (&test_space.get_mesh() == &m_trial_space.get_mesh())
-			assembly<TestSpace, TrialSpace, std::true_type>::eval_into(
+			assembly<TestSpace, typename std::decay<TrialSpace>::type, std::true_type>::eval_into(
 				result, m_op, test_space, m_trial_space);
 		else
-			assembly<TestSpace, TrialSpace, std::false_type>::eval_into(
+			assembly<TestSpace, typename std::decay<TrialSpace>::type, std::false_type>::eval_into(
 				result, m_op, test_space, m_trial_space);
 	}
 
@@ -147,7 +148,7 @@ private:
 	/** \brief the operator stored by value */
 	Operator m_op;
 	/** \brief the function space stored by reference */
-	TrialSpace const &m_trial_space;
+	TrialSpace m_trial_space;
 };
 
 #endif

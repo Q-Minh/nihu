@@ -43,7 +43,6 @@ struct tuple_plain<std::tuple<Args...> > : couple<
 
 /** \brief specialisation of ::plain_type for the case of a couple expression
  * \tparam T the couple expression class to convert to plain type
- * \todo should work recursively and for couple expressions, not only for couples
  */
 template <class T>
 struct plain_type<T, false, true> : tuple_plain<

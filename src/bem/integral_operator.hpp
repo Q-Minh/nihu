@@ -18,13 +18,8 @@ namespace formalism
 #include "single_integral.hpp"
 #include "double_integral.hpp"
 
-// forward declaration
 template <class Operator, class TrialSpace>
 class projection;
-
-// forward declaration
-template <class Scalar, class Derived>
-class scaled_integral_operator;
 
 /* \brief traits class for an integral operator
 * \tparam Derived the CRTP derived class
@@ -73,37 +68,37 @@ public:
 	}
 
 	/** \brief factory index operator from function space rhs
-	* \tparam Trial the trial function space
+	* \tparam FuncSpace the trial function space
 	* \param [in] trial the function space reference
 	* \return projection object
 	*/
-	template <class Trial>
-	projection<Derived, Trial>
-		operator[](function_space_base<Trial> const & trial) const
+	template <class FuncSpace>
+	projection<
+		Derived,
+		typename std::enable_if<is_function_space<FuncSpace>::value, FuncSpace>::type
+	>
+		operator[](FuncSpace &&funcspace)
 	{
-		return projection<Derived, Trial>(*this, trial);
+		return projection<Derived, FuncSpace>(
+			derived(),
+			std::forward<FuncSpace>(funcspace));
 	}
 };
 
+template <class IntOp>
+struct is_integral_operator : std::is_base_of<
+	integral_operator_base<typename std::decay<IntOp>::type>,
+	typename std::decay<IntOp>::type
+>{};
 
-/** \brief factory operator to create a scaled integral operator
-* \tparam Scalar the scalar type to multply with
-* \tparam Derived the integral operator
-* \param [in] scalar the scalar to multiply with
-* \param [in] rhs the right hand side integral operator
-* \return a scaled integral operator proxy object
-*/
-template <class Scalar, class Derived>
-scaled_integral_operator<Scalar, Derived>
-	operator*(Scalar const &scalar, integral_operator_base<Derived> const &rhs)
-{
-	return scaled_integral_operator<Scalar, Derived>(scalar, rhs.derived());
-}
+
+template <class Scalar, class IntOp>
+class scaled_integral_operator;
 
 
 /** \brief traits class of class ::scaled_integral_operator */
-template <class Scalar, class Derived>
-struct integral_operator_traits<scaled_integral_operator<Scalar, Derived> >
+template <class Scalar, class IntOp>
+struct integral_operator_traits<scaled_integral_operator<Scalar, IntOp> >
 {
 	/** \brief metafunction returning the result type of a double integral */
 	template <class Test, class Trial>
@@ -112,25 +107,26 @@ struct integral_operator_traits<scaled_integral_operator<Scalar, Derived> >
 		typedef typename plain_type<
 			typename product_type<
 			Scalar,
-			typename integral_operator_traits<Derived>::template wr_result_type<Test, Trial>::type
+			typename integral_operator_traits<IntOp>::template wr_result_type<Test, Trial>::type
 			>::type
 		>::type type;
 	};
 
-	static bool const is_local = integral_operator_traits<Derived>::is_local;
+	static bool const is_local = integral_operator_traits<IntOp>::is_local;
 };
+
 
 /** \brief Proxy class representing an integral operator multiplied by a scalar
 * \tparam Scalar the scalar type
-* \tparam Derived the integral operator's type
+* \tparam IntOp the integral operator's type
 */
-template <class Scalar, class Derived>
+template <class Scalar, class IntOp>
 class scaled_integral_operator :
-	public integral_operator_base<scaled_integral_operator<Scalar, Derived> >
+	public integral_operator_base<scaled_integral_operator<Scalar, IntOp> >
 {
 public:
 	/** \brief the CRTP base class */
-	typedef integral_operator_base<scaled_integral_operator<Scalar, Derived> > base_t;
+	typedef integral_operator_base<scaled_integral_operator<Scalar, IntOp> > base_t;
 
 
 	/** \brief constructor from a scalar and an integral operator instance
@@ -138,9 +134,10 @@ public:
 	* \param parent the integral operator to multiply with the scalar
 	*/
 	scaled_integral_operator(
-		Scalar const &scalar,
-		integral_operator_base<Derived> const &parent) :
-		m_scalar(scalar), m_parent(parent.derived())
+		Scalar &&scalar,
+		IntOp &&parent) :
+		m_scalar(std::forward<Scalar>(scalar)),
+		m_parent(std::forward<IntOp>(parent))
 	{
 	}
 
@@ -163,10 +160,30 @@ public:
 
 private:
 	/** \brief the scalar miltiplier */
-	Scalar const m_scalar;
+	Scalar m_scalar;
 	/** \brief the parent operator */
-	Derived const m_parent;
+	IntOp m_parent;
 };
+
+
+/** \brief factory operator to create a scaled integral operator
+* \tparam Scalar the scalar type to multply with
+* \tparam IntOp the integral operator
+* \param [in] scalar the scalar to multiply with
+* \param [in] rhs the right hand side integral operator
+* \return a scaled integral operator proxy object
+*/
+template <class Scalar, class IntOp>
+scaled_integral_operator<
+	Scalar,
+	typename std::enable_if<is_integral_operator<IntOp>::value, IntOp>::type
+>
+	operator*(Scalar &&scalar, IntOp &&intop)
+{
+	return scaled_integral_operator<Scalar, IntOp>(
+		std::forward<Scalar>(scalar),
+		std::forward<IntOp>(intop));
+}
 
 
 // forward declaration
