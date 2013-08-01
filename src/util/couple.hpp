@@ -246,10 +246,7 @@ template <class LDerived, class Right>
 struct couple_traits<couple_product_right<LDerived, Right> >
 {
 	template <class Elem>
-	struct prod_t
-	{
-		typedef typename product_type<Elem, Right>::type type;
-	};
+	struct prod_t : product_type<Elem, Right> {};
 
 	template <class C>
 	struct tuple2args;

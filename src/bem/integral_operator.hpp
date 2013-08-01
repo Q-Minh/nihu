@@ -41,10 +41,7 @@ public:
 
 	/** \brief metafunction obtained from the traits class */
 	template <class Test, class Trial>
-	struct wr_result_type
-	{
-		typedef typename traits_t::template wr_result_type<Test, Trial>::type type;
-	};
+	struct wr_result_type : traits_t::template wr_result_type<Test, Trial> {};
 
 	/** \brief sub-weighted residual on a test and a trial field
 	* \tparam Test the test field type
@@ -69,8 +66,8 @@ public:
 
 	/** \brief factory index operator from function space rhs
 	* \tparam FuncSpace the trial function space
-	* \param [in] trial the function space reference
-	* \return projection object
+	* \param [in] funcspace the function space reference
+	* \return projection proxy object
 	*/
 	template <class FuncSpace>
 	projection<
@@ -102,15 +99,12 @@ struct integral_operator_traits<scaled_integral_operator<Scalar, IntOp> >
 {
 	/** \brief metafunction returning the result type of a double integral */
 	template <class Test, class Trial>
-	struct wr_result_type
-	{
-		typedef typename plain_type<
-			typename product_type<
-			Scalar,
-			typename integral_operator_traits<IntOp>::template wr_result_type<Test, Trial>::type
-			>::type
-		>::type type;
-	};
+	struct wr_result_type : plain_type<
+		typename product_type<
+		Scalar,
+		typename integral_operator_traits<IntOp>::template wr_result_type<Test, Trial>::type
+		>::type
+	> {};
 
 	static bool const is_local = integral_operator_traits<IntOp>::is_local;
 };
@@ -170,7 +164,7 @@ private:
 * \tparam Scalar the scalar type to multply with
 * \tparam IntOp the integral operator
 * \param [in] scalar the scalar to multiply with
-* \param [in] rhs the right hand side integral operator
+* \param [in] intop the right hand side integral operator
 * \return a scaled integral operator proxy object
 */
 template <class Scalar, class IntOp>

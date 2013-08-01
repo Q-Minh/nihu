@@ -94,7 +94,9 @@ namespace tmp
 	template <class State, class Operation>
 	struct inserter
 	{
+		/** \brief the actual state of the underlying sequence */
 		typedef State state;
+		/** \brief the operation performed by insertion */
 		typedef Operation operation;
 	};
 }

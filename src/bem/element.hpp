@@ -13,8 +13,8 @@
 #include "shapeset.hpp"
 
 /**
-* \brief class describing the overlapping state of two element
-*/
+ * \brief class describing the overlapping state of two elements
+ */
 class element_overlapping
 {
 public:
@@ -67,6 +67,11 @@ struct elem_id
 	};
 };
 
+/** \brief metafunction assigning an element to an element tag */
+template <class tag>
+struct tag2element;
+
+
 /**
 * \brief The geometrical element representation
 * \tparam Derived CRTP derived class
@@ -75,6 +80,9 @@ template <class Derived>
 class element_base
 {
 public:
+	/** \brief self-returning metafunction */
+	typedef Derived type;
+	
 	/** \brief the CRTP derived class */
 	typedef element_traits<Derived> traits_t;
 
@@ -397,11 +405,11 @@ struct element_traits<quad_1_elem>
 	/** \brief the shape set */
 	typedef quad_1_shape_set lset_t;
 	/** \brief indicates if the normal is stored or computed */
-	enum
-	{
-		is_normal_stored = false
-	};
+	enum { is_normal_stored = false };
 };
+
+/** \brief tag of a quadrilateral element */
+struct _quad_1_tag {};
 
 /** \brief a linear quad element in 3D space */
 class quad_1_elem : public element_base<quad_1_elem>
@@ -442,6 +450,10 @@ protected:
 	dx_t m_n_xi;
 };
 
+
+/** \brief element assigned to the _quad_1_tag */
+template <>
+struct tag2element<_quad_1_tag> : quad_1_elem {};
 
 // forward declaration
 template <class LSet, class scalar_t>

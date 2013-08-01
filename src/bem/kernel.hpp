@@ -9,7 +9,6 @@
 #define KERNEL_HPP_INCLUDED
 
 #include "../util/crtp_base.hpp"
-#include "kernel_input.hpp"
 #include "../util/brick.hpp"
 #include "../util/couple.hpp"
 
@@ -132,6 +131,9 @@ public:
 };
 
 
+/** \brief a set of kernel outputs gathered in a couple
+ * \tparam outputs the output classes
+ */
 template <class...outputs>
 class couple_output :
 	public merge<outputs...>::type
@@ -158,6 +160,7 @@ public:
 };
 
 
+/** \brief compute maximum value of integral constants */
 template <class Val, class...Args>
 struct max_
 {
@@ -166,15 +169,18 @@ struct max_
 	static unsigned const value = x > rest ? x : rest;
 };
 
+/** \brief specialisation of ::max_ for the one parameter case */
 template <class Val>
 struct max_<Val>
 {
 	static unsigned const value = Val::value;
 };
 
+// forward declaration
 template <class...Kernels>
 class couple_kernel;
 
+/** \brief specialisation of ::kernel_traits for the ::couple_kernel class */
 template <class...Kernels>
 struct kernel_traits<couple_kernel<Kernels...> >
 {
@@ -207,6 +213,9 @@ struct kernel_traits<couple_kernel<Kernels...> >
 };
 
 
+/** \brief a kernel consistin of a set of kernels
+ * \tparam Kernels the type list of kernels
+ */
 template <class...Kernels>
 class couple_kernel :
 	public kernel_base<couple_kernel<Kernels...> >
@@ -222,6 +231,9 @@ public:
 	/** \brief type of the second (trial) kernel input */
 	typedef typename base_t::scalar_t scalar_t;
 
+	/** \brief constructor from list of constant references
+	 * \param [in] kernels references to kernel instances
+	 */
 	couple_kernel(kernel_base<Kernels> const &...kernels) :
 		m_kernels(kernels.derived()...)
 	{
@@ -233,6 +245,7 @@ public:
 	 * \param [in] y trial position
 	 * \param [in] reference_size linear estimated size of the trial element
 	 * \return polynomial degree needed for accurate integration
+	 * \todo find a more sophisticated :) solution
 	 */
 	unsigned estimate_complexity(
 		test_input_t const &x,
@@ -247,6 +260,11 @@ private:
 };
 
 
+/** \brief factory function to create a couple kernel instance
+ * \tparam Args type list of kernels
+ * \param [in] args the kernel instances
+ * \return a couple kernel instance
+ */
 template <class...Args>
 couple_kernel<Args...>
 	create_couple_kernel(kernel_base<Args> const &...args)

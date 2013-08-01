@@ -74,7 +74,8 @@ struct first_elements_x_type
  * \tparam ElemTypeVector compile time vector of the contained element types
  */
 template <class ElemTypeVector>
-class mesh : public field_points<typename first_elements_x_type<ElemTypeVector>::type>
+class mesh :
+	public field_points<typename first_elements_x_type<ElemTypeVector>::type>
 {
 public:
 	/** \brief define template parameter as nested type */
@@ -83,14 +84,15 @@ public:
 	/** \brief type of base class */
 	typedef field_points<typename first_elements_x_type<ElemTypeVector>::type> base_t;
 
-	static unsigned const nDim = base_t::nDim;	/**< \brief number of dimensions of the mesh */
+	/** \brief number of dimensions of the mesh */
+	static unsigned const nDim = base_t::nDim;
 
 	/** \brief combine elem_vector into a BIG heterogeneous std::vector container */
 	typedef typename tmp::inherit<
 		typename tmp::transform<
-		elem_type_vector_t,
-		tmp::inserter<tmp::vector<>, tmp::push_back<tmp::_1,tmp::_2> >,
-		EigenStdVector<tmp::_1>
+			elem_type_vector_t,
+			tmp::inserter<tmp::vector<>, tmp::push_back<tmp::_1,tmp::_2> >,
+			EigenStdVector<tmp::_1>
 		>::type
 	>::type elem_container_t;
 
@@ -101,10 +103,7 @@ public:
 	typedef typename x_t::Scalar scalar_t;
 
 	template <class ElemType>
-	struct elem_iterator_t
-	{
-		typedef typename mesh_elem_iterator_t<ElemType>::type type;
-	};
+	struct elem_iterator_t : mesh_elem_iterator_t<ElemType> {};
 
 
 protected:
@@ -240,17 +239,7 @@ protected:
 };
 
 
-struct _quad_1_tag {};
-
-template <class tag>
-struct tag2element;
-
-template <>
-struct tag2element<_quad_1_tag>
-{
-	typedef quad_1_elem type;
-};
-
+/** \brief metafunction assigning an elem type vector to a variadic argument list of tags */
 template <class...tag_args>
 struct tag_var_to_elem_vector : tmp::transform<
 	tmp::vector<tag_args...>,
@@ -259,6 +248,15 @@ struct tag_var_to_elem_vector : tmp::transform<
 > {};
 
 
+/** \brief factory function to create a mesh
+ * \tparam nodes_t type of the node definition matrix
+ * \tparam elements_t type of the element definition matrix
+ * \tparam Args element types of the mesh
+ * \param [in] nodes the node definition matrix instance
+ * \param [in] elements the element definition matrix instance
+ * \param [in] args the elem type vector dummy type instances
+ * \return a mesh consisting of given element types
+ */
 template <class nodes_t, class elements_t, class...Args>
 mesh<typename tag_var_to_elem_vector<Args...>::type >
 	create_mesh(nodes_t const &nodes, elements_t const &elements, Args...args)

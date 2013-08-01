@@ -31,8 +31,10 @@ struct distance_vector_brick
 		/** \brief templated constructor
 		 * \tparam test_input_t the test input type
 		 * \tparam trial_input_t the trial input type
+		 * \tparam kernel_t the kernel type
 		 * \param [in] test_input the test input
 		 * \param [in] trial_input the trial input
+		 * \param [in] kernel the kernel instance
 		 */
 		template <class test_input_t, class trial_input_t, class kernel_t>
 		brick(
@@ -74,8 +76,10 @@ struct distance_brick
 		/** \brief templated constructor
 		 * \tparam test_input_t the test input type
 		 * \tparam trial_input_t the trial input type
+		 * \tparam kernel_t the kernel type
 		 * \param [in] test_input the test input
 		 * \param [in] trial_input the trial input
+		 * \param [in] kernel the kernel instance
 		 */
 		template <class test_input_t, class trial_input_t, class kernel_t>
 		brick(
@@ -119,8 +123,10 @@ struct poisson_g_brick
 		/** \brief templated constructor
 		 * \tparam test_input_t the test input type
 		 * \tparam trial_input_t the trial input type
+		 * \tparam kernel_t the kernel type
 		 * \param [in] test_input the test input
 		 * \param [in] trial_input the trial input
+		 * \param [in] kernel the kernel instance
 		 */
 		template <class test_input_t, class trial_input_t, class kernel_t>
 		brick(
@@ -253,8 +259,10 @@ struct poisson_h_brick
 		/** \brief templated constructor
 		 * \tparam test_input_t the test input type
 		 * \tparam trial_input_t the trial input type
+		 * \tparam kernel_t the kernel type
 		 * \param [in] test_input the test input
 		 * \param [in] trial_input the trial input
+		 * \param [in] kernel the kernel instance
 		 */
 		template <class test_input_t, class trial_input_t, class kernel_t>
 		brick(

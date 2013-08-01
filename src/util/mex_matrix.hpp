@@ -72,15 +72,18 @@ protected:
 };
 
 
+/** \brief metafunction assigning a Matlab class ID to a C type */
 template <class T>
 struct classID;
 
+/** \brief specialisation of classID to double */
 template <>
 struct classID<double>
 {
 	static mxClassID const value = mxDOUBLE_CLASS;
 };
 
+/** \brief specialisation of classID to float */
 template <>
 struct classID<float>
 {
@@ -155,6 +158,7 @@ template <class Parent>
 class index_proxy
 {
 public:
+	/** \brief the scalar type of the parent class */
 	typedef typename Parent::scalar_t scalar_t;
 
 	/** \brief constructor
