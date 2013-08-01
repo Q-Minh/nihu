@@ -37,7 +37,7 @@ namespace tmp
 	struct and_ : std::false_type {};
 
 	template <class...Args>
-	struct and_<std::true_type, Args...> : or_<Args...> {};
+	struct and_<std::true_type, Args...> : and_<Args...> {};
 
 	template <class...Args>
 	struct and_<std::false_type, Args...> : std::false_type {};
