@@ -1,4 +1,4 @@
-#include "util/mex_matrix.h"
+#include "util/mex_matrix.hpp"
 #include "bem/weighted_residual.hpp"
 #include "library/poisson_kernel.hpp"
 

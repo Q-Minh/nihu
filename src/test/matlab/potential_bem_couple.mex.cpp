@@ -1,6 +1,4 @@
-/* $Make: mex CXXFLAGS="\$CXXFLAGS -std=c++11 -O3" potential_bem.mex.cpp -I../../ -I/usr/local/include/eigen3 -output potential_bem $ */
-
-#include "util/mex_matrix.h"
+#include "util/mex_matrix.hpp"
 #include "bem/weighted_residual.hpp"
 #include "library/poisson_kernel.hpp"
 

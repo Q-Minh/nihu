@@ -1,6 +1,6 @@
 /* $Make: mex CXXFLAGS="\$CXXFLAGS -std=c++11 -O3" mass_matrix.mex.cpp -I../../ -I../../../../eigen -output mass_matrix $ */
 
-#include "util/mex_matrix.h"
+#include "util/mex_matrix.hpp"
 #include "bem/weighted_residual.hpp"
 
 void mexFunction(
