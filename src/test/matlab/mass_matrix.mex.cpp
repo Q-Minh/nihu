@@ -9,13 +9,13 @@ void mexFunction(
 {
 	if (nlhs < 2 || nrhs < 1)
 		return;
-	mex::real_matrix nodes(rhs[0]);
-	mex::real_matrix elements(rhs[1]);
+	mex::real_matrix<double> nodes(rhs[0]);
+	mex::real_matrix<double> elements(rhs[1]);
 
 	mesh<tmp::vector<quad_1_elem> > msh(nodes, elements);
 	auto f_sp = isoparametric_view(msh);
 	unsigned ndof = f_sp.get_num_dofs();
-	mex::real_matrix result(ndof, ndof, lhs[0]);
+	mex::real_matrix<double> result(ndof, ndof, lhs[0]);
 	auto I = identity_integral_operator();
 
 	result << ( f_sp * I[f_sp] );

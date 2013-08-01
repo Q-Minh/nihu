@@ -23,157 +23,234 @@ namespace mex {
 
 /**
  * \brief base class of a Matlab mex matrix
- * \details This class provides a common interface to mex matrices.
- * The class stores and can return the matrix size.
- * This class is only used by the dervied classes, and cannot be instantiated.
  */
 class matrix_base
 {
 protected:
 	/** \brief output matrix constructor
-	 * \details This constructor is used when we create a new matrix in C++ to pass it back to Matlab
+	 * \details used when a new matrix is created in C++ and passed to Matlab
 	 * \param [in] rows number of rows
 	 * \param [in] cols number of columns
 	 */
-	matrix_base(size_t rows, size_t cols);
+	matrix_base(size_t rows, size_t cols)
+		: m_rows(rows), m_cols(cols)
+	{
+	}
 
 	/** \brief input matrix constructor
-	 * \details This constructor is used when we receive an input matrix from the Matlab interface
+	 * \details used when an input matrix is received from Matlab
 	 * \param [in] input the Matlab pointer to the matrix
 	 */
-	matrix_base(mxArray const *input);
+	matrix_base(mxArray const *input)
+	{
+		m_rows = mxGetM(input);
+		m_cols = mxGetN(input);
+	}
 
 public:
 	/** \brief return number of rows
 	 * \return the number of rows
 	 */
-	size_t rows(void) const;
+	size_t rows(void) const
+	{
+		return m_rows;
+	}
 
 	/** \brief return number of columns
 	 * \return the number of columns
 	 */
-	size_t cols(void) const;
+	size_t cols(void) const
+	{
+		return m_cols;
+	}
 
 protected:
-	size_t m_rows;		/**< \brief number of rows */
-	size_t m_cols;		/**< \brief number of columns */
+	/** \brief number of rows */
+	size_t m_rows;
+	/** \brief number of columns */
+	size_t m_cols;
 };
 
 
 
 /** \brief container class of a real matrix stored in Matlab format */
-class real_matrix : public matrix_base
+template <class T>
+class real_matrix :
+	public matrix_base
 {
 public:
+	typedef T scalar_t;
+
 	/** \brief output matrix (allocating) constructor
-	 * \details This constructor is used when we create a new matrix in C++ to pass it back to Matlab
+	 * \details used when a matrix created in C++ is passed to Matlab
 	 * \param [in] rows number of rows
 	 * \param [in] cols number of columns
 	 * \param [out] output pointer to the result matrix  is copied here
 	 */
-	real_matrix(size_t rows, size_t cols, mxArray *&output);
+	real_matrix(size_t rows, size_t cols, mxArray *&output)
+		: matrix_base(rows, cols)
+	{
+		output = mxCreateDoubleMatrix(m_rows, m_cols, mxREAL);
+		m_real = mxGetPr(output);
+	}
 
 	/** \brief input matrix constructor
-	 * \details This constructor is used when we construct a Matlab-allocated matrix
+	 * \details used a Matlab-allocated matrix is read in C++
 	 * \param [in] input pointer to the native Matlab matrix format
 	 */
-	real_matrix(mxArray const *input);
+	real_matrix(mxArray const *input)
+		: matrix_base(input)
+	{
+		m_real = mxGetPr(input);
+	}
 
 	/** \brief return matrix element
 	 * \param [in] row row index
 	 * \param [in] col column index
 	 * \return matrix element
 	 */
-	double operator() (size_t row, size_t col) const;
+	scalar_t operator() (size_t row, size_t col) const
+	{
+		return m_real[row + m_rows * col];
+	}
 
 	/** \brief return reference to matrix element
 	 * \param [in] row row index
 	 * \param [in] col column index
 	 * \return reference to matrix element
 	 */
-	double &operator() (size_t row, size_t col);
+	scalar_t &operator() (size_t row, size_t col)
+	{
+		return m_real[row + m_rows * col];
+	}
 
 protected:
-	double *m_real;		/**< \brief array of real data */
+	/** \brief array of real data */
+	scalar_t *m_real;
 };
 
 
-class index_proxy;
-
-/** \brief container class of a complex matrix stored in Matlab format */
-class complex_matrix : public matrix_base
+/** \brief index proxy class of a complex matrix */
+template <class Parent>
+class index_proxy
 {
 public:
-	friend class index_proxy;
+	typedef typename Parent::scalar_t scalar_t;
+
+	/** \brief constructor
+	 * \param matrix the parent container class
+	 * \param row the row index
+	 * \param col the column index
+	 */
+	index_proxy(Parent &matrix, size_t row, size_t col)
+		: m_parent(matrix), m_row(row), m_col(col)
+	{
+	}
+
+	/** \brief return reference to the real part
+	 * \return reference to the real part of the complex element
+	 */
+	scalar_t &real(void) const
+	{
+		return m_parent.m_real[m_row + m_parent.rows()*m_col];
+	}
+
+	/** \brief return reference to the imaginary part
+	 * \return reference to the imaginary part of the complex element
+	 */
+	scalar_t &imag(void) const
+	{
+		return m_parent.m_imag[m_row + m_parent.rows()*m_col];
+	}
+
+	/** \brief increment operator
+	 * \param data the data to add to the container
+	 */
+	template <class complex_rhs_t>
+	void operator +=(complex_rhs_t const &data) const
+	{
+		real() += data.real();
+		imag() += data.imag();
+	}
+
+private:
+	Parent &m_parent; /**< \brief reference to the parent */
+	size_t const m_row; /**< \brief the row index */
+	size_t const m_col; /**< \brief the column index */
+};
+
+
+/** \brief container class of a complex matrix stored in Matlab format */
+template <class T>
+class complex_matrix :
+	public matrix_base
+{
+public:
+	typedef T scalar_t;
 
 	/** \brief output matrix (allocating) constructor
 	 * \param [in] rows number of rows
 	 * \param [in] cols number of columns
 	 * \param [out] output pointer to the result matrix  is copied here
 	 */
-	complex_matrix(size_t rows, size_t cols, mxArray *&output);
+	complex_matrix(size_t rows, size_t cols, mxArray *&output)
+		: matrix_base(rows, cols)
+	{
+		output = mxCreateDoubleMatrix(m_rows, m_cols, mxCOMPLEX);
+		m_real = mxGetPr(output);
+		m_imag = mxGetPi(output);
+	}
 
 	/** \brief input matrix constructor
 	 * \param [in] input pointer to the native Matlab matrix format
 	 */
-	complex_matrix(mxArray const *input);
+	complex_matrix(mxArray const *input)
+		: matrix_base(input)
+	{
+		// get real and imaginary data pointers from the Matlab matrix
+		m_real = mxGetPr(input);
+		m_imag = mxGetPi(input);
+	}
 
 	/** \brief index operator that returns a complex number
 	 * \param row row index
 	 * \param col column index
 	 * \return complex number
 	 */
-	std::complex<double> operator() (size_t row, size_t col) const;
+	std::complex<scalar_t> operator() (size_t row, size_t col) const
+	{
+		return std::complex<scalar_t>(m_real[row+m_rows*col],
+									m_imag[row+m_rows*col]);
+	}
 
 	/** \brief index operator that returns a proxy
 	 * \param row row index
 	 * \param col column index
 	 * \return proxy object storing the parent container and the indices
 	 */
-	index_proxy operator() (size_t row, size_t col);
+	index_proxy<complex_matrix> operator() (size_t row, size_t col)
+	{
+		return index_proxy<complex_matrix>(*this, row, col);
+	}
 
 protected:
-	double *m_real;		/**< \brief array of real data */
-	double *m_imag;		/**< \brief array of imaginary data */
+	/** \brief array of real data */
+	scalar_t *m_real;
+	/** \brief array of imaginary data */
+	scalar_t *m_imag;
 };
 
-
-/** \brief index proxy class of a complex matrix */
-class index_proxy
-{
-public:
-	/** \brief constructor
-	 * \param matrix the parent container class
-	 * \param row the row index
-	 * \param col the column index
-	 */
-	index_proxy(complex_matrix &matrix, size_t row, size_t col);
-
-	/** \brief return reference to the real part
-	 * \return reference to the real part of the complex element
-	 */
-	double &real(void) const;
-
-	/** \brief return reference to the imaginary part
-	 * \return reference to the imaginary part of the complex element
-	 */
-	double &imag(void) const;
-
-	/** \brief increment operator
-	 * \param data the data to add to the container
-	 */
-	template <class complex_rhs_t>
-	void operator +=(complex_rhs_t const &data) const;
-
-private:
-	complex_matrix &m_parent; /**< \brief reference to the parent */
-	size_t const m_row; /**< \brief the row index */
-	size_t const m_col; /**< \brief the column index */
-};
 
 } // namespace mex
 
-#include "mex_matrix_impl.h"
+
+#include "../bem/result_matrix.hpp"
+
+template <class T>
+struct is_result_matrix_impl<mex::real_matrix<T> > : std::true_type {};
+
+template <class T>
+struct is_result_matrix_impl<mex::complex_matrix<T> > : std::true_type {};
 
 #endif // MEX_MATRIX_H_INCLUDED
 
