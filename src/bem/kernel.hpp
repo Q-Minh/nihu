@@ -160,7 +160,9 @@ public:
 };
 
 
-/** \brief compute maximum value of integral constants */
+/** \brief compute maximum value of integral constants
+ * \todo this metafunction should be placed in a more general tmp module
+ */
 template <class Val, class...Args>
 struct max_
 {

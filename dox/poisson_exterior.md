@@ -102,8 +102,8 @@ Although the matrices are simply determined by a set of field points, at least f
 
 \snippet potential_bem.mex.cpp field point mesh
 
-The boundary matrices {#surface_system}
----------------------
+The field point matrices {#field_system}
+------------------------
 
 The field point matrices are no longer square. Their dimensions are defined by the number of degrees of freedoms in the field point and surface function spaces.
 

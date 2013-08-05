@@ -1,0 +1,16 @@
+\documentclass[a4paper,10pt,twocolumn]{article}
+
+\usepackage{amsmath}
+\newcommand{\td}{\mathrm{d}}
+\newcommand{\te}{\mathrm{e}}
+
+\begin{document}
+
+\begin{align}
+\int_0^1 f(x) \ln(x) \td x
+& = \int_{\infty}^0 f(\te^{-t}) \ln(\te^{-t}) \te^{-t} (-\td t) \nonumber \\
+& = \int_{0}^{\infty} -t f(\te^{-t}) \te^{-t} \td t
+\end{align}
+
+\end{document}
+
