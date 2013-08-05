@@ -9,24 +9,23 @@
 #define UNIT_KERNEL_HPP_INCLUDED
 
 #include "../bem/kernel.hpp"
+#include "../util/brick.hpp"
 #include "../bem/gaussian_quadrature.hpp"
 
-#include "empty_input.hpp"
-
 /** \brief the unit kernel returning K(x,y) = 1 for all inputs */
-template <class Space>
+template <class Scalar>
 class unit_kernel;
 
-/** \brief traits of the 3D unit kernel */
-template<class Space>
-struct kernel_traits<unit_kernel<Space> >
+/** \brief traits of the unit kernel */
+template<class Scalar>
+struct kernel_traits<unit_kernel<Scalar> >
 {
 	/** \brief test input type */
-	typedef empty_input<Space> test_input_t;
+	typedef empty_wall test_input_t;
 	/** \brief trial input type */
-	typedef empty_input<Space> trial_input_t;
+	typedef empty_wall trial_input_t;
 	/** \brief kernel result type */
-	typedef typename Space::scalar_t result_t;
+	typedef Scalar result_t;
 	/** \brief quadrature family tag */
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief shows if kernel is symmetric */
@@ -38,13 +37,13 @@ struct kernel_traits<unit_kernel<Space> >
 };
 
 /** \brief the unit kernel returning K(x,y) = 1 for all inputs */
-template <class Space>
+template <class Scalar>
 class unit_kernel :
-	public kernel_base<unit_kernel<Space> >
+	public kernel_base<unit_kernel<Scalar> >
 {
 public:
 	/** \brief the crtp base type */
-	typedef kernel_base<unit_kernel<Space> > base_t;
+	typedef kernel_base<unit_kernel<Scalar> > base_t;
 	/** \brief the scalar type */
 	typedef typename base_t::scalar_t scalar_t;
 	/** \brief the result type */
@@ -60,9 +59,10 @@ public:
 	 * \param [in] y trial position
 	 * \return kernel value K(x,y)
 	 */
-	result_t operator()(test_input_t const &x, trial_input_t const &y) const
+	constexpr result_t operator()(
+		test_input_t const &, trial_input_t const &) const
 	{
-		return 1.0;
+		return result_t(1.0);
 	}
 	
 	/**
@@ -72,10 +72,8 @@ public:
 	 * \param [in] s linear element size
 	 * \return kernel value K(x,y)
 	 */
-	unsigned estimate_complexity(
-		test_input_t const &x,
-		trial_input_t const &y,
-		scalar_t const &s) const
+	constexpr unsigned estimate_complexity(
+		test_input_t const &, trial_input_t const &, scalar_t const &) const
 	{
 		return 0;
 	}

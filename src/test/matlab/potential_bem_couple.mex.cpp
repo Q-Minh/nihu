@@ -27,8 +27,8 @@ void mexFunction(
 
 	auto LM = create_integral_operator(
 		create_couple_kernel(
-			poisson_SLP_kernel(),
-			poisson_DLP_kernel()));
+			poisson_3d_SLP_kernel(),
+			poisson_3d_DLP_kernel()));
 	auto I = -.5 * identity_integral_operator();
 
 	// surface system matrices

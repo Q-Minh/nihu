@@ -82,7 +82,7 @@ class element_base
 public:
 	/** \brief self-returning metafunction */
 	typedef Derived type;
-	
+
 	/** \brief the CRTP derived class */
 	typedef element_traits<Derived> traits_t;
 
@@ -292,6 +292,10 @@ public:
 	}
 };
 
+
+/** \brief tag of a linear line */
+struct _line_1_tag {};
+
 /** \brief a linear line element in 2D space */
 class line_1_elem;
 
@@ -340,6 +344,12 @@ protected:
 	/** \brief the normal vector */
 	x_t m_normal;
 };
+
+/** \brief element assigned to the _line_1_tag */
+template <>
+struct tag2element<_line_1_tag> : line_1_elem {};
+
+
 
 
 /** \brief a linear triangle element in 3D space */
@@ -450,10 +460,10 @@ protected:
 	dx_t m_n_xi;
 };
 
-
 /** \brief element assigned to the _quad_1_tag */
 template <>
 struct tag2element<_quad_1_tag> : quad_1_elem {};
+
 
 // forward declaration
 template <class LSet, class scalar_t>

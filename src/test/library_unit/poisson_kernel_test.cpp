@@ -34,13 +34,13 @@ int main(void)
 	std::cout << N << " evaluations: " << std::endl;
 
 	std::cout << "poisson G kernel with wall output:      | ";
-	tester(poisson_G_kernel());
+	tester(poisson_3d_SLP_kernel());
 
 	std::cout << "poisson H kernel with wall output:      | ";
-	tester(poisson_H_kernel());
+	tester(poisson_3d_DLP_kernel());
 
 	std::cout << "couple G H kernel with wall output:     | ";
-	tester(create_couple_kernel(poisson_H_kernel(), poisson_G_kernel()));
+	tester(create_couple_kernel(poisson_3d_DLP_kernel(), poisson_3d_SLP_kernel()));
 
 	return 0;
 }

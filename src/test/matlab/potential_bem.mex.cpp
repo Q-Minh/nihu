@@ -18,8 +18,8 @@ void mexFunction(int nlhs, mxArray *lhs[],
 	auto field_mesh = create_mesh(field_nodes, field_elements, _quad_1_tag());
 	auto const &field_sp = dirac(constant_view(field_mesh));
 
-	auto L = create_integral_operator(poisson_SLP_kernel());
-	auto M = create_integral_operator(poisson_DLP_kernel());
+	auto L = create_integral_operator(poisson_3d_SLP_kernel());
+	auto M = create_integral_operator(poisson_3d_DLP_kernel());
 	auto I = -.5 * identity_integral_operator();
 
 	auto n = surf_sp.get_num_dofs();

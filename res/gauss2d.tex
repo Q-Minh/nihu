@@ -12,5 +12,32 @@
 & = \int_{0}^{\infty} -t f(\te^{-t}) \te^{-t} \td t
 \end{align}
 
+
+\section{Analytical singular integrals of the Poisson kernel}
+
+\subsection{2D case}
+
+\begin{equation}
+G(r) = -\frac{\ln |r|}{2\pi}
+\end{equation}
+
+\subsubsection{Collocation over constant line}
+
+\begin{equation}
+\int_{-d_1}^{d_2} G(r) \td r
+=
+\frac{d - d_1 \ln |d_1| - d_2 \ln |d_2|}{2\pi}
+\end{equation}
+
+
+\subsubsection{Galerkin over constant line}
+
+\begin{equation}
+\int_{0}^{d} \int_{0}^{d} G(x-y) \td y \td x
+=
+d^2\frac{3-2\ln d}{4\pi}
+\end{equation}
+
+
 \end{document}
 

@@ -8,8 +8,6 @@
 #ifndef EMPTY_INPUT_HPP_INCLUDED
 #define EMPTY_INPUT_HPP_INCLUDED
 
-#include "../bem/kernel_input.hpp"
-
 // forward declaration
 template <class space_t>
 class empty_input;

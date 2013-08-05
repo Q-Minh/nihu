@@ -8,6 +8,7 @@
 #ifndef POISSON_KERNEL_HPP_INCLUDED
 #define POISSON_KERNEL_HPP_INCLUDED
 
+#include <cmath> // log
 #include "../bem/kernel.hpp"
 #include "../bem/gaussian_quadrature.hpp"
 
@@ -105,11 +106,66 @@ struct distance_brick
 };
 
 
-/** \brief a brick representing a poisson kernel \f$1/4\pi r\f$
+/** \brief a brick representing a 3D Poisson kernel \f$1/4\pi r\f$
  * \tparam scalar the scalar of the coordinate space the distance is defined over
  */
 template <class scalar>
-struct poisson_g_brick
+struct poisson_2d_g_brick
+{
+	/** \brief the brick template
+	 * \tparam the wall the brick is placed on
+	 */
+	template <class wall>
+	class brick : public wall
+	{
+	public:
+		typedef scalar result_t;
+
+		/** \brief templated constructor
+		 * \tparam test_input_t the test input type
+		 * \tparam trial_input_t the trial input type
+		 * \tparam kernel_t the kernel type
+		 * \param [in] test_input the test input
+		 * \param [in] trial_input the trial input
+		 * \param [in] kernel the kernel instance
+		 */
+		template <class test_input_t, class trial_input_t, class kernel_t>
+		brick(
+			test_input_t const &test_input,
+			trial_input_t const &trial_input,
+			kernel_t const &kernel) :
+			wall(test_input, trial_input, kernel),
+			m_poisson_g(-log(wall::get_distance()) / (2.0 * M_PI))
+		{
+		}
+		
+		/** \brief return Poisson g kernel
+		 * \return Poisson g kernel
+		 */
+		scalar const & get_poisson_g(void) const
+		{
+			return m_poisson_g;
+		}
+		
+		/** \brief return Poisson g kernel
+		 * \return Poisson g kernel
+		 */
+		scalar const & get_result(void) const
+		{
+			return m_poisson_g;
+		}
+		
+	private:
+		scalar m_poisson_g;
+	};
+};
+
+
+/** \brief a brick representing a 3D Poisson kernel \f$1/4\pi r\f$
+ * \tparam scalar the scalar of the coordinate space the distance is defined over
+ */
+template <class scalar>
+struct poisson_3d_g_brick
 {
 	/** \brief the brick template
 	 * \tparam the wall the brick is placed on
@@ -138,16 +194,16 @@ struct poisson_g_brick
 		{
 		}
 		
-		/** \brief return poisson g kernel
-		 * \return poisson g kernel
+		/** \brief return Poisson g kernel
+		 * \return Poisson g kernel
 		 */
 		scalar const & get_poisson_g(void) const
 		{
 			return m_poisson_g;
 		}
 		
-		/** \brief return poisson g kernel
-		 * \return poisson g kernel
+		/** \brief return Poisson g kernel
+		 * \return Poisson g kernel
 		 */
 		scalar const & get_result(void) const
 		{
@@ -161,31 +217,45 @@ struct poisson_g_brick
 
 
 /** \brief combination of ::distance_vector_brick, ::distance_brick and ::poisson_g_brick into a wall
- * \tparam space the coordinate space the poisson kernel is defined over
+ * \tparam space the coordinate space the Poisson kernel is defined over
  */
-template <class space>
-struct poisson_g_wall : build<
-	distance_vector_brick<space>,
-	distance_brick<typename space::scalar_t>,
-	poisson_g_brick<typename space::scalar_t>
+template <class scalar>
+struct poisson_2d_g_wall : build<
+	distance_vector_brick<space<scalar, 2> >,
+	distance_brick<scalar>,
+	poisson_2d_g_brick<scalar>
+> {};
+
+
+/** \brief combination of ::distance_vector_brick, ::distance_brick and ::poisson_g_brick into a wall
+ * \tparam space the coordinate space the Poisson kernel is defined over
+ */
+template <class scalar>
+struct poisson_3d_g_wall : build<
+	distance_vector_brick<space<scalar, 3> >,
+	distance_brick<scalar>,
+	poisson_3d_g_brick<scalar>
 > {};
 
 
 // forward declaration
-class poisson_G_kernel;
+class poisson_2d_G_kernel;
 
-/** \brief traits of the poisson G kernel */
+// forward declaration
+class poisson_3d_G_kernel;
+
+/** \brief traits of the Poisson 2D G kernel */
 template<>
-struct kernel_traits<poisson_G_kernel>
+struct kernel_traits<poisson_2d_G_kernel>
 {
 	/** \brief kernel test input type */
-	typedef build<location<space_3d> >::type test_input_t;
+	typedef build<location<space_2d> >::type test_input_t;
 	/** \brief kernel trial input type */
-	typedef build<location<space_3d> >::type trial_input_t;
+	typedef build<location<space_2d> >::type trial_input_t;
 	/** \brief the kernel output type */
-	typedef poisson_g_wall<space_3d>::type output_t;
+	typedef poisson_2d_g_wall<double>::type output_t;
 	/** \brief kernel result type */
-	typedef space_3d::scalar_t result_t;
+	typedef double result_t;
 	/** \brief the quadrature family the kernel is integrated with */
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
@@ -196,56 +266,53 @@ struct kernel_traits<poisson_G_kernel>
 	static unsigned const singular_quadrature_order = 7;
 };
 
-/** \brief 3D Poisson kernel \f$1/4\pi r\f$ */
-class poisson_G_kernel :
-	public kernel_base<poisson_G_kernel>,
-	public reciprocal_distance_kernel<poisson_G_kernel>
-{
-public:
-	using reciprocal_distance_kernel<poisson_G_kernel>::estimate_complexity;
-};
-
-
-/*
-class poisson_G_kernel_immediate;
-
+/** \brief traits of the Poisson G kernel */
 template<>
-struct kernel_traits<poisson_G_kernel_immediate>
+struct kernel_traits<poisson_3d_G_kernel>
 {
+	/** \brief kernel test input type */
 	typedef build<location<space_3d> >::type test_input_t;
+	/** \brief kernel trial input type */
 	typedef build<location<space_3d> >::type trial_input_t;
-	typedef empty_wall output_t;
-	typedef space_3d::scalar_t result_t;
+	/** \brief the kernel output type */
+	typedef poisson_3d_g_wall<double>::type output_t;
+	/** \brief kernel result type */
+	typedef double result_t;
+	/** \brief the quadrature family the kernel is integrated with */
 	typedef gauss_family_tag quadrature_family_t;
+	/** \brief indicates if K(x,y) = K(y,x) */
 	static bool const is_symmetric = true;
+	/** \brief kernel singularity order ( r^(-order) ) */
 	static unsigned const singularity_order = 1;
+	/** \brief quadrature order used to generate Duffy singular quadratures */
 	static unsigned const singular_quadrature_order = 7;
 };
 
-class poisson_G_kernel_immediate :
-	public kernel_base<poisson_G_kernel_immediate>,
-	public reciprocal_distance_kernel<poisson_G_kernel_immediate>
+/** \brief 3D Poisson kernel \f$-\ln r/2\pi \f$ */
+class poisson_2d_G_kernel :
+	public kernel_base<poisson_2d_G_kernel>,
+	public reciprocal_distance_kernel<poisson_2d_G_kernel>
 {
 public:
-	typedef kernel_base<poisson_G_kernel> base_t;
-	typedef base_t::test_input_t test_input_t;
-	typedef base_t::trial_input_t trial_input_t;
-	typedef base_t::scalar_t scalar_t;
-
-	template <class tsi_t, class tri_t>
-	result_t operator()(tsi_t const &x, tri_t const &y) const
-	{
-		return 1.0 / (x.get_x() - y.get_x()).norm() / (4.0 * M_PI);
-	}
+	using reciprocal_distance_kernel<poisson_2d_G_kernel>::estimate_complexity;
 };
-*/
 
 
-/** \brief a brick representing a poisson derivative kernel \f$ -1/4\pi r^2 \cdot dr/dn \f$
+/** \brief 3D Poisson kernel \f$1/4\pi r\f$ */
+class poisson_3d_G_kernel :
+	public kernel_base<poisson_3d_G_kernel>,
+	public reciprocal_distance_kernel<poisson_3d_G_kernel>
+{
+public:
+	using reciprocal_distance_kernel<poisson_3d_G_kernel>::estimate_complexity;
+};
+
+
+/** \brief a brick representing a Poisson derivative kernel \f$ -1/4\pi r^2 \cdot dr/dn \f$
  * \tparam scalar the scalar of the coordinate space the distance is defined over
  */
 template <class scalar>
-struct poisson_h_brick
+struct poisson_3d_h_brick
 {
 	/** \brief the brick template
 	 * \tparam the wall the brick is placed on
@@ -277,16 +344,16 @@ struct poisson_h_brick
 			m_poisson_h *= rdn / r;
 		}
 		
-		/** \brief return poisson h kernel
-		 * \return poisson h kernel
+		/** \brief return Poisson h kernel
+		 * \return Poisson h kernel
 		 */
 		scalar const &get_poisson_h(void) const
 		{
 			return m_poisson_h;
 		}
 		
-		/** \brief return poisson h kernel
-		 * \return poisson h kernel
+		/** \brief return Poisson h kernel
+		 * \return Poisson h kernel
 		 */
 		scalar const & get_result(void) const
 		{
@@ -302,28 +369,28 @@ struct poisson_h_brick
 /** \brief combination of poisson_g_wall and poisson_h_brick into a wall
  * \tparam space the coordinate space the poisson kernel is defined over
  */
-template <class space>
-struct poisson_h_wall : glue<
-	poisson_h_brick<typename space::scalar_t>::template brick,
-	typename poisson_g_wall<space>::type
+template <class scalar>
+struct poisson_3d_h_wall : glue<
+	poisson_3d_h_brick<scalar>::template brick,
+	typename poisson_3d_g_wall<scalar>::type
 > {};
 
 
 // forward declaration
-class poisson_H_kernel;
+class poisson_3d_H_kernel;
 
 /** \brief traits of the Poisson H kernel */
 template<>
-struct kernel_traits<poisson_H_kernel>
+struct kernel_traits<poisson_3d_H_kernel>
 {
 	/** \brief kernel test input type */
 	typedef build<location<space_3d> >::type test_input_t;
 	/** \brief kernel trial input type */
 	typedef build<location<space_3d>, normal_jacobian<space_3d> >::type trial_input_t;
 	/** \brief the kernel output type */
-	typedef poisson_h_wall<space_3d>::type output_t;
+	typedef poisson_3d_h_wall<double>::type output_t;
 	/** \brief kernel result type */
-	typedef space_3d::scalar_t result_t;
+	typedef double result_t;
 	/** \brief the quadrature family the kernel is integrated with */
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
@@ -335,17 +402,18 @@ struct kernel_traits<poisson_H_kernel>
 };
 
 /** \brief 3D Poisson kernel \f$ -1/4\pi r^2 \cdot dr/dn \f$ */
-class poisson_H_kernel :
-	public kernel_base<poisson_H_kernel>,
-	public reciprocal_distance_kernel<poisson_H_kernel>
+class poisson_3d_H_kernel :
+	public kernel_base<poisson_3d_H_kernel>,
+	public reciprocal_distance_kernel<poisson_3d_H_kernel>
 {
 public:
-	using reciprocal_distance_kernel<poisson_H_kernel>::estimate_complexity;
+	using reciprocal_distance_kernel<poisson_3d_H_kernel>::estimate_complexity;
 };
 
 
-typedef poisson_G_kernel poisson_SLP_kernel;
-typedef poisson_H_kernel poisson_DLP_kernel; 
+typedef poisson_3d_G_kernel poisson_3d_SLP_kernel;
+typedef poisson_2d_G_kernel poisson_2d_SLP_kernel;
+typedef poisson_3d_H_kernel poisson_3d_DLP_kernel; 
 
 #endif // POISSON_KERNEL_HPP_INCLUDED
 
