@@ -8,7 +8,7 @@
 #ifndef POISSON_KERNEL_HPP_INCLUDED
 #define POISSON_KERNEL_HPP_INCLUDED
 
-#include <cmath> // log
+#include <cmath>
 #include "../bem/kernel.hpp"
 #include "../bem/gaussian_quadrature.hpp"
 
@@ -135,7 +135,7 @@ struct poisson_2d_g_brick
 			trial_input_t const &trial_input,
 			kernel_t const &kernel) :
 			wall(test_input, trial_input, kernel),
-			m_poisson_g(-log(wall::get_distance()) / (2.0 * M_PI))
+			m_poisson_g(-std::log(wall::get_distance()) / (2.0 * M_PI))
 		{
 		}
 
@@ -411,9 +411,75 @@ public:
 };
 
 
-typedef poisson_3d_G_kernel poisson_3d_SLP_kernel;
 typedef poisson_2d_G_kernel poisson_2d_SLP_kernel;
+// typedef poisson_2d_H_kernel poisson_2d_DLP_kernel;
+
+typedef poisson_3d_G_kernel poisson_3d_SLP_kernel;
 typedef poisson_3d_H_kernel poisson_3d_DLP_kernel;
+
+
+/** \brief analytical expression of the collocational singular integral over a constant line
+ * \tparam TestField the test field type
+ * \tparam TrialField the trial field type
+ */
+template <class TestField, class TrialField>
+class collocational_singular_integral_shortcut<
+	poisson_2d_SLP_kernel, TestField, TrialField,
+	typename std::enable_if<
+		std::is_same<
+			typename TrialField::nset_t,
+			line_0_shape_set
+		>::value
+	>::type
+>
+{
+public:
+	template <class result_t>
+	static result_t &eval(
+		result_t &result,
+		poisson_3d_SLP_kernel const &,
+		TestField const &test_field,
+		TrialField const &trial_field)
+	{
+		auto const &c = test_field.get_elem().get_center();
+		auto const &C = trial_field.get_elem().get_coords();
+		double d1 = (c - C.col(0)).norm();
+		double d2 = (c - C.col(1)).norm();
+		double d = (C.col(1) - C.col(0)).norm();
+		result(0,0) = (d - d1*std::log(d1) - d2*std::log(d2)) / (2*M_PI);
+		return result;
+	}
+};
+
+
+/** \brief analytical expression of the collocational singular integral over a constant line
+ * \tparam TestField the test field type
+ * \tparam TrialField the trial field type
+ */
+/*
+template <class TestField, class TrialField>
+class collocational_singular_integral_shortcut<
+	poisson_2d_DLP_kernel, TestField, TrialField,
+	typename std::enable_if<
+		std::is_same<
+			typename TrialField::nset_t,
+			line_0_shape_set
+		>::value
+	>::type
+>
+{
+public:
+	template <class result_t>
+	constexpr static result_t &eval(
+		result_t &result,
+		poisson_2d_DLP_kernel const &,
+		TestField const &test_field,
+		TrialField const &trial_field)
+	{
+		return result;
+	}
+};
+*/
 
 
 /** \brief analytical expression of the collocational singular integral over a constant triangle
