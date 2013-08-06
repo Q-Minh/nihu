@@ -11,7 +11,7 @@ void mexFunction(int nlhs, mxArray *lhs[],
 		throw("Too few input or output arguments");
 
 	dMatrix surf_nodes(rhs[0]), surf_elements(rhs[1]);
-	auto surf_mesh = create_mesh(surf_nodes, surf_elements, _quad_1_tag());
+	auto surf_mesh = create_mesh(surf_nodes, surf_elements, _quad_1_tag(), _tria_1_tag());
 	auto const &surf_sp = constant_view(surf_mesh);
 
 	dMatrix field_nodes(rhs[2]), field_elements(rhs[3]);

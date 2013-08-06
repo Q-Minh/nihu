@@ -124,6 +124,33 @@ public:
 	{
 	}
 
+
+private:
+	template <class TestSpace, class Result>
+	void test_on_into(
+		std::true_type,
+		function_space_base<TestSpace> const &test_space,
+		Result &result) const
+	{
+		if (&test_space.get_mesh() == &m_trial_space.get_mesh())
+			assembly<TestSpace, typename std::decay<TrialSpace>::type, std::true_type>::eval_into(
+				result, m_op, test_space, m_trial_space);
+		else
+			assembly<TestSpace, typename std::decay<TrialSpace>::type, std::false_type>::eval_into(
+				result, m_op, test_space, m_trial_space);
+	}
+
+	template <class TestSpace, class Result>
+	void test_on_into(
+		std::false_type,
+		function_space_base<TestSpace> const &test_space,
+		Result &result) const
+	{
+		assembly<TestSpace, typename std::decay<TrialSpace>::type, std::false_type>::eval_into(
+			result, m_op, test_space, m_trial_space);
+	}
+
+public:
 	/** \brief test a projection with a test function space
 	* \tparam TestSpace type of the test space
 	* \tparam Result type of the result matrix
@@ -135,12 +162,12 @@ public:
 		function_space_base<TestSpace> const &test_space,
 		Result &result) const
 	{
-		if (&test_space.get_mesh() == &m_trial_space.get_mesh())
-			assembly<TestSpace, typename std::decay<TrialSpace>::type, std::true_type>::eval_into(
-				result, m_op, test_space, m_trial_space);
-		else
-			assembly<TestSpace, typename std::decay<TrialSpace>::type, std::false_type>::eval_into(
-				result, m_op, test_space, m_trial_space);
+		test_on_into(
+			typename std::is_same<
+				typename std::decay<TrialSpace>::type::mesh_t,
+				typename std::decay<TestSpace>::type::mesh_t
+			>::type(),
+			test_space, result);
 	}
 
 

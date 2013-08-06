@@ -46,7 +46,7 @@ struct distance_vector_brick
 			m_distance_vector(trial_input.get_x()-test_input.get_x())
 		{
 		}
-		
+
 		/** \brief return distance vector
 		 * \return distance vector
 		 */
@@ -54,7 +54,7 @@ struct distance_vector_brick
 		{
 			return m_distance_vector;
 		}
-		
+
 	private:
 		typename space::location_t m_distance_vector;
 	};
@@ -91,7 +91,7 @@ struct distance_brick
 			m_distance(wall::get_distance_vector().norm())
 		{
 		}
-		
+
 		/** \brief return distance
 		 * \return scalar distance
 		 */
@@ -99,7 +99,7 @@ struct distance_brick
 		{
 			return m_distance;
 		}
-		
+
 	private:
 		scalar m_distance;
 	};
@@ -138,7 +138,7 @@ struct poisson_2d_g_brick
 			m_poisson_g(-log(wall::get_distance()) / (2.0 * M_PI))
 		{
 		}
-		
+
 		/** \brief return Poisson g kernel
 		 * \return Poisson g kernel
 		 */
@@ -146,7 +146,7 @@ struct poisson_2d_g_brick
 		{
 			return m_poisson_g;
 		}
-		
+
 		/** \brief return Poisson g kernel
 		 * \return Poisson g kernel
 		 */
@@ -154,7 +154,7 @@ struct poisson_2d_g_brick
 		{
 			return m_poisson_g;
 		}
-		
+
 	private:
 		scalar m_poisson_g;
 	};
@@ -193,7 +193,7 @@ struct poisson_3d_g_brick
 			m_poisson_g(1.0 / wall::get_distance() / (4.0 * M_PI))
 		{
 		}
-		
+
 		/** \brief return Poisson g kernel
 		 * \return Poisson g kernel
 		 */
@@ -201,7 +201,7 @@ struct poisson_3d_g_brick
 		{
 			return m_poisson_g;
 		}
-		
+
 		/** \brief return Poisson g kernel
 		 * \return Poisson g kernel
 		 */
@@ -209,7 +209,7 @@ struct poisson_3d_g_brick
 		{
 			return m_poisson_g;
 		}
-		
+
 	private:
 		scalar m_poisson_g;
 	};
@@ -343,7 +343,7 @@ struct poisson_3d_h_brick
 			auto rdn = wall::get_distance_vector().dot(trial_input.get_unit_normal()) / r;
 			m_poisson_h *= rdn / r;
 		}
-		
+
 		/** \brief return Poisson h kernel
 		 * \return Poisson h kernel
 		 */
@@ -351,7 +351,7 @@ struct poisson_3d_h_brick
 		{
 			return m_poisson_h;
 		}
-		
+
 		/** \brief return Poisson h kernel
 		 * \return Poisson h kernel
 		 */
@@ -359,7 +359,7 @@ struct poisson_3d_h_brick
 		{
 			return get_poisson_h();
 		}
-		
+
 	private:
 		scalar m_poisson_h;
 	};
@@ -413,8 +413,88 @@ public:
 
 typedef poisson_3d_G_kernel poisson_3d_SLP_kernel;
 typedef poisson_2d_G_kernel poisson_2d_SLP_kernel;
-typedef poisson_3d_H_kernel poisson_3d_DLP_kernel; 
+typedef poisson_3d_H_kernel poisson_3d_DLP_kernel;
+
+
+/** \brief analytical expression of the collocational singular integral over a constant triangle
+ * \tparam TestField the test field type
+ * \tparam TrialField the trial field type
+ */
+template <class TestField, class TrialField>
+class collocational_singular_integral_shortcut<
+	poisson_3d_SLP_kernel, TestField, TrialField,
+	typename std::enable_if<
+		std::is_same<
+			typename TrialField::nset_t,
+			tria_0_shape_set
+		>::value
+	>::type
+>
+{
+public:
+	template <class result_t>
+	static result_t &eval(
+		result_t &result,
+		poisson_3d_SLP_kernel const &,
+		TestField const &test_field,
+		TrialField const &trial_field)
+	{
+		auto const &C_old = trial_field.get_elem().get_coords();
+		auto const &x0 = test_field.get_elem().get_center();
+		static unsigned N = tria_1_elem::num_nodes;
+
+		double r[N];	// radius lengths
+		typename tria_1_elem::coords_t R, C;
+		for (unsigned i = 0; i < N; ++i)
+		{
+			R.col(i) = C_old.col(i) - x0;
+			r[i] = R.col(i).norm();
+			R.col(i) /= r[i];
+			C.col(i) = C_old.col(i) - C_old.col((i+1) % N);
+			C.col(i) /= C.col(i).norm();
+		}
+
+		for (unsigned i = 0; i < N; ++i)
+		{
+			double theta = std::acos(R.col(i).dot(R.col((i+1) % N)));
+			double alpha = std::acos(R.col(i).dot(C.col(i)));
+			result(0,0) += r[i] * std::sin(alpha) * std::log(std::tan((alpha+theta)/2.0)/tan(alpha/2.0));
+		}
+
+		result(0,0) /= (4.0 * M_PI);
+
+		return result;
+	}
+};
+
+
+/** \brief analytical expression of the collocational singular integral over a constant triangle
+ * \tparam TestField the test field type
+ * \tparam TrialField the trial field type
+ */
+template <class TestField, class TrialField>
+class collocational_singular_integral_shortcut<
+	poisson_3d_DLP_kernel, TestField, TrialField,
+	typename std::enable_if<
+		std::is_same<
+			typename TrialField::nset_t,
+			tria_0_shape_set
+		>::value
+	>::type
+>
+{
+public:
+	template <class result_t>
+	constexpr static result_t &eval(
+		result_t &result,
+		poisson_3d_DLP_kernel const &,
+		TestField const &,
+		TrialField const &)
+	{
+		return result;
+	}
+};
+
 
 #endif // POISSON_KERNEL_HPP_INCLUDED
-
 

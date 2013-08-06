@@ -355,6 +355,9 @@ struct tag2element<_line_1_tag> : line_1_elem {};
 /** \brief a linear triangle element in 3D space */
 class tria_1_elem;
 
+/** \brief tag of a quadrilateral element */
+struct _tria_1_tag {};
+
 /** \brief element properties of a linear 3D tria element */
 template <>
 struct element_traits<tria_1_elem>
@@ -401,6 +404,11 @@ protected:
 	/** \brief the normal vector */
 	x_t m_normal;
 };
+
+/** \brief element assigned to the _tria_1_tag */
+template <>
+struct tag2element<_tria_1_tag> : tria_1_elem {};
+
 
 
 /** \brief a linear quad element in 3D space */

@@ -499,11 +499,11 @@ struct shape_set_traits<parallelogram_shape_set>
 	/** \brief the domain type */
 	typedef quad_domain domain_t;
 	/** \brief number of nodes */
-	static unsigned const num_nodes = 3;
-	/** \brief highest power of local variables in the shape function */
-	static unsigned const polynomial_order = 1;
-	/** \brief highest power of local variables in the jacobian */
-	static unsigned const jacobian_order = 0;
+	enum {
+		num_nodes = 3,
+		polynomial_order = 1,
+		jacobian_order = 0
+	};
 };
 
 /**
@@ -565,11 +565,11 @@ struct shape_set_traits<tria_2_shape_set>
 	/** \brief the domain type */
 	typedef tria_domain domain_t;
 	/** \brief number of nodes */
-	static unsigned const num_nodes = 6;
-	/** \brief highest power of local variables in the shape function */
-	static unsigned const polynomial_order = 2;
-	/** \brief highest power of local variables in the jacobian */
-	static unsigned const jacobian_order = 2;
+	enum {
+		num_nodes = 6,
+		polynomial_order = 2,
+		jacobian_order = 2
+	};
 };
 
 /**
@@ -650,11 +650,11 @@ template<>
 struct shape_set_traits<quad_2_shape_set>
 {
 	typedef quad_domain domain_t;	/**< \brief the domain type */
-	static unsigned const num_nodes = 9;	/**< \brief number of nodes */
-	/** \brief highest power of local variables in the shape function */
-	static unsigned const polynomial_order = 2;
-	/** \brief highest power of local variables in the Jacobian */
-	static unsigned const jacobian_order = 3;
+	enum {
+		num_nodes = 9,
+		polynomial_order = 2,
+		jacobian_order = 3
+	};
 };
 
 /**

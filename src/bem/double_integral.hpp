@@ -15,6 +15,13 @@
 #include "quadrature_pool.hpp"
 #include "kernel.hpp"
 
+template <class Kernel, class TestField, class TrialField, class Enable = void>
+class collocational_singular_integral_shortcut;
+
+template <class Kernel, class TestField, class TrialField, class Enable = void>
+class general_singular_integral_shortcut;
+
+
 /**
 * \brief class evaluating double integrals of the weighted residual approach
 * \tparam Kernel type of the kernel to integrate
@@ -140,6 +147,7 @@ protected:
 		return result;
 	}
 
+public:
 	/** \brief evaluate double singular integral with selected singular accelerator
 	* \param [out] result reference to the integration result matrix
 	* \param [in] kernel the kernel to integrate
@@ -176,6 +184,7 @@ protected:
 		return result;
 	}
 
+protected:
 	/** \brief evaluate double integral of a kernel on specific fields without singularity check
 	* \param [out] result reference to the integration result matrix
 	* \param [in] kernel the kernel to integrate
@@ -183,7 +192,7 @@ protected:
 	* \param [in] trial_field reference to the trial field
 	* \return reference to the stored result
 	*/
-	static result_t &eval_general(
+	static result_t &eval(
 		WITHOUT_SINGULARITY_CHECK,
 		result_t &result,
 		kernel_base<kernel_t> const &kernel,
@@ -199,8 +208,8 @@ protected:
 		/** \todo why only trial size is important? */
 		unsigned degree = kernel.estimate_complexity(test_center, trial_center, trial_field.get_elem().get_linear_size_estimate());
 
-		degree += std::max(shape_set_traits<test_nset_t>::polynomial_order, shape_set_traits<trial_nset_t>::polynomial_order)
-			+ std::max(shape_set_traits<test_lset_t>::jacobian_order, shape_set_traits<trial_lset_t>::jacobian_order);
+		degree += std::max<unsigned>(shape_set_traits<test_nset_t>::polynomial_order, shape_set_traits<trial_nset_t>::polynomial_order)
+			+ std::max<unsigned>(shape_set_traits<test_lset_t>::jacobian_order, shape_set_traits<trial_lset_t>::jacobian_order);
 
 		return eval_on_accelerator(
 			result,
@@ -217,7 +226,7 @@ protected:
 	* \param [in] trial_field reference to the trial field
 	* \return reference to the stored result
 	*/
-	static result_t &eval_general(
+	static result_t &eval(
 		WITH_SINGULARITY_CHECK,
 		result_t &result,
 		kernel_base<kernel_t> const &kernel,
@@ -229,10 +238,10 @@ protected:
 
 		// check singularity
 		if (sa.is_singular(test_field, trial_field))
-			return eval_singular_on_accelerator(
-				result, kernel, test_field, trial_field, sa.begin(), sa.end());
+			return general_singular_integral_shortcut<kernel_t, test_field_t, trial_field_t>::eval(
+				result, kernel, test_field, trial_field);
 
-		return eval_general(WITHOUT_SINGULARITY_CHECK(),
+		return eval(WITHOUT_SINGULARITY_CHECK(),
 			result, kernel, test_field, trial_field);
 	}
 
@@ -256,7 +265,7 @@ public:
 		result_t result;
 		result.setZero();	// clear result
 
-		return eval_general(std::integral_constant<bool, sing_check_needed>(),
+		return eval(std::integral_constant<bool, sing_check_needed>(),
 			result, kernel, test_field, trial_field);
 	}
 };
@@ -357,7 +366,7 @@ protected:
 	* \param [in] trial_acc the trial field type accelerator
 	* \return reference to the integration result
 	*/
-	static result_t &eval_collocational_on_accelerator(
+	static result_t &eval_on_accelerator(
 		result_t &result,
 		kernel_base<kernel_t> const &kernel,
 		field_base<test_field_t> const &test_field,
@@ -381,7 +390,7 @@ protected:
 		return result;
 	}
 
-
+public:
 	/** \brief evaluate collocational singular integral with selected singular accelerator
 	* \tparam singular_accelerator_t type of the singular quadrature accelerator
 	* \param [out] result reference to the integration result matrix
@@ -392,7 +401,7 @@ protected:
 	* \return reference to the integration result
 	*/
 	template <class singular_accelerator_t>
-	static result_t &eval_collocational_singular_on_accelerator(
+	static result_t &eval_singular_on_accelerator(
 		result_t &result,
 		kernel_base<kernel_t> const &kernel,
 		field_base<test_field_t> const &test_field,
@@ -419,7 +428,7 @@ protected:
 		return result;
 	}
 
-
+protected:
 	/** \brief evaluate single integral of a kernel on specific fields without singularity check
 	* \param [out] result reference to the integration result matrix
 	* \param [in] kernel the kernel to integrate
@@ -427,7 +436,7 @@ protected:
 	* \param [in] trial_field reference to the trial field
 	* \return reference to the stored result
 	*/
-	static result_t &eval_collocational(
+	static result_t &eval(
 		WITHOUT_SINGULARITY_CHECK,
 		result_t &result,
 		kernel_base<kernel_t> const &kernel,
@@ -444,7 +453,7 @@ protected:
 		unsigned degree = kernel.estimate_complexity(test_center, trial_center, trial_field.get_elem().get_linear_size_estimate());
 		degree += trial_nset_t::polynomial_order + trial_lset_t::jacobian_order;
 
-		return eval_collocational_on_accelerator(
+		return eval_on_accelerator(
 			result,  kernel, test_field, trial_field, *(trial_ra[degree]));
 	}
 
@@ -456,7 +465,7 @@ protected:
 	* \param [in] trial_field reference to the trial field
 	* \return reference to the stored result
 	*/
-	static result_t &eval_collocational(
+	static result_t &eval(
 		WITH_SINGULARITY_CHECK,
 		result_t &result,
 		kernel_base<kernel_t> const &kernel,
@@ -468,11 +477,11 @@ protected:
 
 		// check singularity
 		if (sa.is_singular(test_field, trial_field))
-			return eval_collocational_singular_on_accelerator(
-			result, kernel, test_field, trial_field, sa);
+			return collocational_singular_integral_shortcut<kernel_t, test_field_t, trial_field_t>::eval(
+				result, kernel.derived(), test_field.derived(), trial_field.derived());
 		else
-			return eval_collocational(WITHOUT_SINGULARITY_CHECK(),
-			result, kernel, test_field, trial_field);
+			return eval(WITHOUT_SINGULARITY_CHECK(),
+				result, kernel, test_field, trial_field);
 	}
 
 public:
@@ -496,7 +505,7 @@ public:
 		result_t result;
 		result.setZero();	// clear result
 
-		return eval_collocational(
+		return eval(
 			std::integral_constant<bool, sing_check_needed>(),
 			result, kernel, test_field, trial_field);
 	}
@@ -506,6 +515,45 @@ template <class Kernel, class TestField, class TrialField>
 class double_integral :
 	public double_integral_impl<field_traits<TestField>::is_dirac, Kernel, TestField, TrialField>
 {
+};
+
+template <class Kernel, class TestField, class TrialField, class Enable>
+class general_singular_integral_shortcut
+{
+public:
+	template <class result_t>
+	static result_t &eval(
+		result_t &result,
+		kernel_base<Kernel> const &kernel,
+		field_base<TestField> const &test_field,
+		field_base<TrialField> const &trial_field)
+	{
+		typedef accel_store<formalism::general, Kernel, TestField, TrialField> acc_store_t;
+		auto &sa = acc_store_t::m_singular_accelerator;
+
+		return double_integral<Kernel, TestField, TrialField>::eval_singular_on_accelerator(
+			result, kernel, test_field, trial_field, sa.begin(), sa.end());
+	}
+};
+
+
+template <class Kernel, class TestField, class TrialField, class Enable>
+class collocational_singular_integral_shortcut
+{
+public:
+	template <class result_t>
+	static result_t &eval(
+		result_t &result,
+		kernel_base<Kernel> const &kernel,
+		field_base<TestField> const &test_field,
+		field_base<TrialField> const &trial_field)
+	{
+		typedef accel_store<formalism::collocational, Kernel, TestField, TrialField> acc_store_t;
+		auto &sa = acc_store_t::m_singular_accelerator;
+
+		return double_integral<Kernel, TestField, TrialField>::eval_singular_on_accelerator(
+			result, kernel, test_field, trial_field, sa);
+	}
 };
 
 
