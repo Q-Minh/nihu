@@ -426,10 +426,7 @@ template <class TestField, class TrialField>
 class collocational_singular_integral_shortcut<
 	poisson_2d_SLP_kernel, TestField, TrialField,
 	typename std::enable_if<
-		std::is_same<
-			typename TrialField::nset_t,
-			line_0_shape_set
-		>::value
+		std::is_same<typename TrialField::nset_t, line_0_shape_set>::value
 	>::type
 >
 {
@@ -490,10 +487,7 @@ template <class TestField, class TrialField>
 class collocational_singular_integral_shortcut<
 	poisson_3d_SLP_kernel, TestField, TrialField,
 	typename std::enable_if<
-		std::is_same<
-			typename TrialField::nset_t,
-			tria_0_shape_set
-		>::value
+		std::is_same<typename TrialField::nset_t, tria_0_shape_set>::value
 	>::type
 >
 {
@@ -542,10 +536,7 @@ template <class TestField, class TrialField>
 class collocational_singular_integral_shortcut<
 	poisson_3d_DLP_kernel, TestField, TrialField,
 	typename std::enable_if<
-		std::is_same<
-			typename TrialField::nset_t,
-			tria_0_shape_set
-		>::value
+		std::is_same<typename TrialField::nset_t, tria_0_shape_set>::value
 	>::type
 >
 {
