@@ -1,5 +1,6 @@
 #include "bem/weighted_residual.hpp"
 #include "library/helmholtz_kernel.hpp"
+#include "library/helmholtz_singular_integrals.hpp"
 
 typedef Eigen::Matrix<unsigned, Eigen::Dynamic, Eigen::Dynamic> uMatrix;
 typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> dMatrix;
@@ -8,7 +9,7 @@ typedef Eigen::Matrix<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic> cMat
 int main(void)
 {
 	// generating integral operators
-	auto L = create_integral_operator(helmholtz_3d_DLP_kernel(1.0));
+	auto L = create_integral_operator(helmholtz_3d_SLP_kernel(1.0));
 
 	// generating function spaces
 	dMatrix surf_nodes(3,3);

@@ -5,15 +5,9 @@
 \newcommand{\te}{\mathrm{e}}
 \newcommand{\ti}{\mathrm{i}}
 \newcommand{\sinc}{\mathrm{sinc}}
+\usepackage{tikz}
 
 \begin{document}
-
-\begin{align}
-\int_0^1 f(x) \ln(x) \td x
-& = \int_{\infty}^0 f(\te^{-t}) \ln(\te^{-t}) \te^{-t} (-\td t) \nonumber \\
-& = \int_{0}^{\infty} -t f(\te^{-t}) \te^{-t} \td t
-\end{align}
-
 
 \section{Analytical singular integrals of the Poisson kernel}
 
@@ -28,7 +22,7 @@ G(r) = -\frac{\ln |r|}{2\pi}
 \begin{equation}
 \int_{-d_1}^{d_2} G(r) \td r
 =
-\frac{d - d_1 \ln |d_1| - d_2 \ln |d_2|}{2\pi}
+\frac{d_1 + d_2 - d_1 \ln |d_1| - d_2 \ln |d_2|}{2\pi}
 \end{equation}
 
 
@@ -49,12 +43,39 @@ G(r) = \frac{1}{4\pi r}
 
 \subsubsection{Collocation over constant triangle}
 
-$\bf x_0$ denotes the collocational point
-
 \begin{equation}
 \int_0^{2\pi} \int_0^{R(\theta)} \frac{r \td r \td \theta}{4\pi r}
 =
 \frac{1}{4\pi}\int_0^{2\pi} R(\theta) \td \theta
+\end{equation}
+%
+The angular integral is split up into three integrals, each over one triangular domain.
+One triangle is displayed below, $\bf x_0$ denotes the collocational point:
+
+\begin{tikzpicture}[scale=2]
+\path [draw] (0,0) node [anchor = north east] {${\bf x}_0$} -- node [anchor = north] {$R$} (2,0) -- (.7, 1) -- cycle;
+\path [draw] (0,0) -- node [anchor = east] {$R(\theta)$} (1.8,.8);
+\path (.25,-.05) node [anchor = south west] {$\theta$};
+\path (1.8,0) node [anchor = south east] {$\alpha$};
+\end{tikzpicture}
+
+From the law of sines, $R(\theta)$ is expressed as
+%
+\begin{equation}
+R(\theta) = \frac{R \sin(\alpha)}{\sin(\theta+\alpha)}
+\end{equation}
+%
+using the identitiy
+%
+\begin{equation}
+\int \sin^{-1}(x) \td x = \log \tan (x/2)
+\end{equation}
+%
+the integral can be expressed (by summing for the tree triangles) as follows:
+%
+\begin{equation}
+I = \frac{1}{4\pi} \sum_{i = 1}^3
+R_i \sin\alpha_i \left[ \log \left( \frac{\tan\left(\frac{\phi_i+\alpha_i}{2}\right)}{\tan\left(\frac{\alpha_i}{2}\right)}\right)\right]
 \end{equation}
 
 
@@ -66,11 +87,16 @@ $\bf x_0$ denotes the collocational point
 G(r) = \frac{\te^{-\ti k r}}{4\pi r}
 \end{equation}
 
-Regularisation by subtracting and adding the static part
+\subsubsection{Collocation over constant triangle}
 
+The singular integral over a triangle is regularised by subtracting and adding the static ($k = 0$) part
+%
 \begin{equation}
 G(r) = \frac{1}{4\pi r} -\ti k \te^{-\ti k r/2} \frac{\sinc(k r/2)}{4\pi}
 \end{equation}
+%
+The static part is integrated analytically.
+The dynamic part is regular and can be integrated using a low order Gaussian quadrature over the triangle.
 
 
 
