@@ -418,12 +418,15 @@ typedef poisson_3d_G_kernel poisson_3d_SLP_kernel;
 typedef poisson_3d_H_kernel poisson_3d_DLP_kernel;
 
 
+#include "../bem/integral_operator.hpp"
+
 /** \brief analytical expression of the collocational singular integral over a constant line
  * \tparam TestField the test field type
  * \tparam TrialField the trial field type
  */
 template <class TestField, class TrialField>
-class collocational_singular_integral_shortcut<
+class singular_integral_shortcut<
+	formalism::collocational,
 	poisson_2d_SLP_kernel, TestField, TrialField,
 	typename std::enable_if<
 		std::is_same<
@@ -458,7 +461,8 @@ public:
  */
 /*
 template <class TestField, class TrialField>
-class collocational_singular_integral_shortcut<
+class singular_integral_shortcut<
+	formalism::collocational,
 	poisson_2d_DLP_kernel, TestField, TrialField,
 	typename std::enable_if<
 		std::is_same<
@@ -487,7 +491,8 @@ public:
  * \tparam TrialField the trial field type
  */
 template <class TestField, class TrialField>
-class collocational_singular_integral_shortcut<
+class singular_integral_shortcut<
+	formalism::collocational,
 	poisson_3d_SLP_kernel, TestField, TrialField,
 	typename std::enable_if<
 		std::is_same<
@@ -507,7 +512,7 @@ public:
 	{
 		auto const &C_old = trial_field.get_elem().get_coords();
 		auto const &x0 = test_field.get_elem().get_center();
-		static unsigned N = tria_1_elem::num_nodes;
+		unsigned const N = tria_1_elem::num_nodes;
 
 		double r[N];	// radius lengths
 		typename tria_1_elem::coords_t R, C;
@@ -539,7 +544,8 @@ public:
  * \tparam TrialField the trial field type
  */
 template <class TestField, class TrialField>
-class collocational_singular_integral_shortcut<
+class singular_integral_shortcut<
+	formalism::collocational,
 	poisson_3d_DLP_kernel, TestField, TrialField,
 	typename std::enable_if<
 		std::is_same<

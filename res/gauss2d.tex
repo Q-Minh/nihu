@@ -3,6 +3,8 @@
 \usepackage{amsmath}
 \newcommand{\td}{\mathrm{d}}
 \newcommand{\te}{\mathrm{e}}
+\newcommand{\ti}{\mathrm{i}}
+\newcommand{\sinc}{\mathrm{sinc}}
 
 \begin{document}
 
@@ -55,6 +57,20 @@ $\bf x_0$ denotes the collocational point
 \frac{1}{4\pi}\int_0^{2\pi} R(\theta) \td \theta
 \end{equation}
 
+
+\section{Analytical singular integrals of the Helmholtz kernel}
+
+\subsection{3D case}
+
+\begin{equation}
+G(r) = \frac{\te^{-\ti k r}}{4\pi r}
+\end{equation}
+
+Regularisation by subtracting and adding the static part
+
+\begin{equation}
+G(r) = \frac{1}{4\pi r} -\ti k \te^{-\ti k r/2} \frac{\sinc(k r/2)}{4\pi}
+\end{equation}
 
 
 
