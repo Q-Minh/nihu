@@ -507,7 +507,7 @@ public:
 	{
 		auto const &C_old = trial_field.get_elem().get_coords();
 		auto const &x0 = test_field.get_elem().get_center();
-		static unsigned N = tria_1_elem::num_nodes;
+		unsigned const N = tria_1_elem::num_nodes;
 
 		double r[N];	// radius lengths
 		typename tria_1_elem::coords_t R, C;
