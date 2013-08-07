@@ -91,7 +91,7 @@ struct classID<float>
 };
 
 
-/** 
+/**
  * brief container class of a real matrix stored in Matlab format
  * \tparam the real type (float double etc)
  */
@@ -197,6 +197,11 @@ public:
 		imag() += data.imag();
 	}
 
+	void operator +=(scalar_t const &data)
+	{
+		real() += data;
+	}
+
 private:
 	/** \brief reference to the parent */
 	Parent &m_parent;
@@ -213,6 +218,7 @@ class complex_matrix :
 	public matrix_base
 {
 public:
+	friend class index_proxy<complex_matrix<T> >;
 	/** \brief the real scalar type */
 	typedef T scalar_t;
 

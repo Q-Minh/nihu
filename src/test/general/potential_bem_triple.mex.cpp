@@ -1,14 +1,14 @@
 #include "bem/weighted_residual.hpp"
-#include "library/poisson_kernel.hpp"
+#include "library/helmholtz_kernel.hpp"
 
 typedef Eigen::Matrix<unsigned, Eigen::Dynamic, Eigen::Dynamic> uMatrix;
 typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> dMatrix;
+typedef Eigen::Matrix<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic> cMatrix;
 
 int main(void)
 {
 	// generating integral operators
-
-	auto L = create_integral_operator(poisson_3d_SLP_kernel());
+	auto L = create_integral_operator(helmholtz_3d_DLP_kernel(1.0));
 
 	// generating function spaces
 	dMatrix surf_nodes(3,3);
@@ -26,7 +26,7 @@ int main(void)
 	// surface system matrices
 
 	auto n = surf_sp.get_num_dofs();
-	dMatrix Ls(n,n);
+	cMatrix Ls(n,n);
 
 	Ls << ( dirac(surf_sp) * L[surf_sp] );
 

@@ -1,59 +1,151 @@
 /**
  * \file helmholtz_kernel.hpp
  * \ingroup library
- * \brief implementation of kernels of the Helmholtz equation \f$\nabla^2 p + k^2 p = 0\f$
+ * \brief implementation of kernels of the Helmholtz equation \f$ \nabla^2 p + k^2 p = 0 \f$
  * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
  */
 
 #ifndef HELMHOLTZ_KERNEL_HPP_INCLUDED
 #define HELMHOLTZ_KERNEL_HPP_INCLUDED
 
+#include <cmath>
+#include <complex>
+
 #include "../bem/kernel.hpp"
 #include "../bem/gaussian_quadrature.hpp"
 
-#include "location_and_normal.hpp"
+#include "location_normal.hpp"
 #include "reciprocal_distance_kernel.hpp"
 
-/** \brief Common helper base for a kernel with a wave number member
-* \tparam wave_number_type the type of the wave number
-*/
-template <class wave_number_type>
-class kernel_with_wave_number
-{
-public:
-	/** \brief set wave number to a value
-	* \param [in] k the new wave number
-	*/
-	void set_wave_number(wave_number_type const &k)
-	{
-		m_k = k;
-	}
-	
-	/** \brief get the wave number
-	* \return the new wave number
-	*/
-	wave_number_type const &get_wave_number(void) const
-	{
-		return m_k;
-	}
+#include "basic_bricks.hpp"
 
-private:
-	/** \brief the stored wave number */
-	wave_number_type m_k;
+
+/** \brief a brick representing the expression \f$ i k r \f$
+ * \tparam scalar scalar type of the coordinate space the distance is defined over
+ */
+template <class scalar>
+struct ikr_brick
+{
+	/** \brief the brick template
+	 * \tparam the wall the brick is placed on
+	 */
+	template <class wall>
+	class brick : public wall
+	{
+	public:
+		typedef std::complex<scalar> result_t;
+
+		/** \brief templated constructor
+		 * \tparam test_input_t the test input type
+		 * \tparam trial_input_t the trial input type
+		 * \tparam kernel_t the kernel type
+		 * \param [in] test_input the test input
+		 * \param [in] trial_input the trial input
+		 * \param [in] kernel the kernel instance
+		 */
+		template <class test_input_t, class trial_input_t, class kernel_t>
+		brick(
+			test_input_t const &test_input,
+			trial_input_t const &trial_input,
+			kernel_t const &kernel) :
+			wall(test_input, trial_input, kernel),
+			m_ikr(std::complex<scalar>(0.0,1.0) * kernel.derived().get_wave_number() * wall::get_distance())
+		{
+		}
+
+		/** \brief return ikr
+		 * \return ikr
+		 */
+		std::complex<scalar> const & get_ikr(void) const
+		{
+			return m_ikr;
+		}
+
+	private:
+		std::complex<scalar> m_ikr;
+	};
 };
 
 
-/** \brief 3D Helmholtz kernel \f$\exp(-ikr)/4\pi r\f$ */
-class helmholtz_G_kernel;
+/** \brief a brick representing a 3D Helmholtz kernel \f$ 1/4\pi r \f$
+ * \tparam scalar the scalar of the coordinate space the distance is defined over
+ */
+template <class scalar>
+struct helmholtz_3d_g_brick
+{
+	/** \brief the brick template
+	 * \tparam the wall the brick is placed on
+	 */
+	template <class wall>
+	class brick : public wall
+	{
+	public:
+		typedef std::complex<scalar> result_t;
+
+		/** \brief templated constructor
+		 * \tparam test_input_t the test input type
+		 * \tparam trial_input_t the trial input type
+		 * \tparam kernel_t the kernel type
+		 * \param [in] test_input the test input
+		 * \param [in] trial_input the trial input
+		 * \param [in] kernel the kernel instance
+		 */
+		template <class test_input_t, class trial_input_t, class kernel_t>
+		brick(
+			test_input_t const &test_input,
+			trial_input_t const &trial_input,
+			kernel_t const &kernel) :
+			wall(test_input, trial_input, kernel),
+			m_helmholtz_g(std::exp(-1.0 * wall::get_ikr()) / wall::get_distance() / (4.0 * M_PI))
+		{
+		}
+
+		/** \brief return helmholtz g kernel
+		 * \return helmholtz g kernel
+		 */
+		std::complex<scalar> const & get_helmholtz_g(void) const
+		{
+			return m_helmholtz_g;
+		}
+
+		/** \brief return Helmholtz g kernel
+		 * \return Helmholtz g kernel
+		 */
+		std::complex<scalar> const & get_result(void) const
+		{
+			return m_helmholtz_g;
+		}
+
+	private:
+		std::complex<scalar> m_helmholtz_g;
+	};
+};
+
+
+/** \brief combination of ::distance_vector_brick, ::distance_brick, ::ikr_brick and ::helmholtz_2d_g_brick into a wall
+ * \tparam space the coordinate space the Helmholtz kernel is defined over
+ */
+template <class scalar>
+struct helmholtz_3d_g_wall : build<
+	distance_vector_brick<space<scalar, 3> >,
+	distance_brick<scalar>,
+	ikr_brick<scalar>,
+	helmholtz_3d_g_brick<scalar>
+> {};
+
+/** \brief 3D Helmholtz kernel \f$ \exp(-ikr)/4\pi r \f$ */
+class helmholtz_3d_G_kernel;
 
 /** \brief traits of the helmholtz G kernel */
 template<>
-struct kernel_traits<helmholtz_G_kernel>
+struct kernel_traits<helmholtz_3d_G_kernel>
 {
 	/** \brief kernel test input type */
-	typedef location<space_3d> test_input_t;
+	typedef build<location<space_3d> >::type test_input_t;
 	/** \brief kernel trial input type */
-	typedef location<space_3d> trial_input_t;
+	typedef build<location<space_3d> >::type trial_input_t;
+	/** \brief the kernel output type */
+	typedef helmholtz_3d_g_wall<space_3d::scalar_t>::type output_t;
 	/** \brief kernel result type */
 	typedef std::complex<space_3d::scalar_t> result_t;
 	/** \brief the quadrature family the kernel is integrated with */
@@ -66,153 +158,149 @@ struct kernel_traits<helmholtz_G_kernel>
 	static unsigned const singular_quadrature_order = 7;
 };
 
-/** \brief 3D Helmholtz kernel \f$\exp(-ikr)/4\pi r\f$ */
-class helmholtz_G_kernel :
-	public kernel_base<helmholtz_G_kernel>,
-	public kernel_with_wave_number<std::complex<kernel_base<helmholtz_G_kernel>::scalar_t> >,
-	public reciprocal_distance_kernel<helmholtz_G_kernel>
+
+/** \brief 3D Helmholtz G kernel \f$ 1/4\pi r\f$ */
+class helmholtz_3d_G_kernel :
+	public kernel_base<helmholtz_3d_G_kernel>,
+	public reciprocal_distance_kernel<helmholtz_3d_G_kernel>
 {
 public:
-	/** \brief the crtp base type */
-	typedef kernel_base<helmholtz_G_kernel> base_t;
-	/** \brief type of the test input */
-	typedef base_t::test_input_t test_input_t;
-	/** \brief type of the trial input */
-	typedef base_t::trial_input_t trial_input_t;
-	/** \brief type of the scalar of the inputs */
-	typedef base_t::scalar_t scalar_t;
+	using reciprocal_distance_kernel<helmholtz_3d_G_kernel>::estimate_complexity;
 
-	/** \brief evaluate kernel between test and trial positions
-	* \param [in] x the test input
-	* \param [in] y the trial input
-	* \return the kernel value K(x,y)
-	*/
-	result_t operator()(test_input_t const &x, trial_input_t const &y) const
+	helmholtz_3d_G_kernel(std::complex<double> wave_number) :
+		m_wave_number(wave_number)
 	{
-		scalar_t r = (y.get_x() - x.get_x()).norm();
-		return std::exp(-std::complex<scalar_t>(0.0,1.0)*get_wave_number()*r) / r / (4.0 * M_PI);
 	}
+
+	std::complex<double> const &get_wave_number(void) const
+	{
+		return m_wave_number;
+	}
+
+private:
+	std::complex<double> m_wave_number;
+};
+
+typedef helmholtz_3d_G_kernel helmholtz_3d_SLP_kernel;
+
+
+
+/** \brief a brick representing a 3D Helmholtz H kernel \f$ \exp(-ikr)/4\pi r \left(-(1+ikr)/r\right) \cdot dr/dn \f$
+ * \tparam scalar the scalar of the coordinate space the distance is defined over
+ */
+template <class scalar>
+struct helmholtz_3d_h_brick
+{
+	/** \brief the brick template
+	 * \tparam the wall the brick is placed on
+	 */
+	template <class wall>
+	class brick : public wall
+	{
+	public:
+		typedef std::complex<scalar> result_t;
+
+		/** \brief templated constructor
+		 * \tparam test_input_t the test input type
+		 * \tparam trial_input_t the trial input type
+		 * \tparam kernel_t the kernel type
+		 * \param [in] test_input the test input
+		 * \param [in] trial_input the trial input
+		 * \param [in] kernel the kernel instance
+		 */
+		template <class test_input_t, class trial_input_t, class kernel_t>
+		brick(
+			test_input_t const &test_input,
+			trial_input_t const &trial_input,
+			kernel_t const &kernel) :
+			wall(test_input, trial_input, kernel),
+			m_helmholtz_h(-(1.0+wall::get_ikr()) * wall::get_helmholtz_g() / wall::get_distance() * wall::get_rdny())
+		{
+		}
+
+		/** \brief return helmholtz g kernel
+		 * \return helmholtz g kernel
+		 */
+		std::complex<scalar> const & get_helmholtz_h(void) const
+		{
+			return m_helmholtz_h;
+		}
+
+		/** \brief return Helmholtz h kernel
+		 * \return Helmholtz h kernel
+		 */
+		std::complex<scalar> const & get_result(void) const
+		{
+			return m_helmholtz_h;
+		}
+
+	private:
+		std::complex<scalar> m_helmholtz_h;
+	};
 };
 
 
-/** \brief 3D Helmholtz kernel \f$ \exp(-ikr)/4\pi r \left(-(1+ikr)/r\right) \cdot dr/dn \f$ */
-class helmholtz_H_kernel;
+template <class scalar>
+struct helmholtz_3d_h_wall : build<
+	distance_vector_brick<space<scalar, 3> >,
+	distance_brick<scalar>,
+	ikr_brick<scalar>,
+	helmholtz_3d_g_brick<scalar>,
+	rdny_brick<scalar>,
+	helmholtz_3d_h_brick<scalar>
+> {};
 
-/** \brief traits of the Helmholtz H kernel */
+
+/** \brief 3D Helmholtz kernel \f$ \exp(-ikr)/4\pi r \left(-(1+ikr)/r\right) \cdot dr/dn \f$ */
+class helmholtz_3d_H_kernel;
+
+/** \brief traits of the helmholtz H kernel */
 template<>
-struct kernel_traits<helmholtz_H_kernel>
+struct kernel_traits<helmholtz_3d_H_kernel>
 {
 	/** \brief kernel test input type */
-	typedef location<space_3d> test_input_t;
+	typedef build<location<space_3d> >::type test_input_t;
 	/** \brief kernel trial input type */
-	typedef location_with_normal<space_3d> trial_input_t;
+	typedef build<location<space_3d>, normal_jacobian<space_3d> >::type trial_input_t;
+	/** \brief the kernel output type */
+	typedef helmholtz_3d_h_wall<space_3d::scalar_t>::type output_t;
 	/** \brief kernel result type */
 	typedef std::complex<space_3d::scalar_t> result_t;
 	/** \brief the quadrature family the kernel is integrated with */
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
-	static bool const is_symmetric = true;
+	static bool const is_symmetric = false;
 	/** \brief kernel singularity order ( r^(-order) ) */
 	static unsigned const singularity_order = 2;
 	/** \brief quadrature order used to generate Duffy singular quadratures */
 	static unsigned const singular_quadrature_order = 7;
 };
 
-/** \brief 3D Helmholtz kernel \f$ \exp(-ikr)/4\pi r \left(-(1+ikr)/r\right) \cdot dr/dn \f$ */
-class helmholtz_H_kernel :
-	public kernel_base<helmholtz_H_kernel>,
-	public kernel_with_wave_number<std::complex<kernel_base<helmholtz_G_kernel>::scalar_t> >,
-	public reciprocal_distance_kernel<helmholtz_H_kernel>
+
+/** \brief 3D Helmholtz G kernel \f$ 1/4\pi r\f$ */
+class helmholtz_3d_H_kernel :
+	public kernel_base<helmholtz_3d_H_kernel>,
+	public reciprocal_distance_kernel<helmholtz_3d_H_kernel>
 {
 public:
-	/** \brief the crtp base type */
-	typedef kernel_base<helmholtz_H_kernel> base_t;
-	/** \brief type of the test input */
-	typedef base_t::test_input_t test_input_t;
-	/** \brief type of the trial input */
-	typedef base_t::trial_input_t trial_input_t;
-	/** \brief type of the scalar of the inputs */
-	typedef base_t::scalar_t scalar_t;
+	using reciprocal_distance_kernel<helmholtz_3d_H_kernel>::estimate_complexity;
 
-	/** \brief evaluate kernel between test and trial positions
-	* \param [in] x the test input
-	* \param [in] y the trial input
-	* \return the kernel value K(x,y)
-	*/
-	result_t operator()(test_input_t const &x, trial_input_t const &y) const
+	helmholtz_3d_H_kernel(std::complex<double> wave_number) :
+		m_wave_number(wave_number)
 	{
-		x_t rvec = y.get_x() - x.get_x();
-		scalar_t r2 = rvec.squaredNorm();
-		scalar_t r = sqrt(r2);
-		std::complex<scalar_t> ikr(std::complex<scalar_t>(0.,1.)*get_wave_number()*r);
-
-		result_t m_result = std::exp(-ikr) / r / (4.0 * M_PI);
-		scalar_t rdn = rvec.dot(y.get_unit_normal());
-		m_result *= (1.0 + ikr) * (-rdn / r2);
-
-		return m_result;
 	}
-};
 
-
-/** \brief 3D Helmholtz kernel \f$ \exp(-ikr)/4\pi r \left\{1, -(1+ikr)/r \cdot dr/dn\right\} \f$ */
-class helmholtz_GH_kernel;
-
-/** \brief traits of the double helmholtz kernel */
-template<>
-struct kernel_traits<helmholtz_GH_kernel>
-{
-	/** \brief kernel test input type */
-	typedef location<space_3d> test_input_t;
-	/** \brief kernel trial input type */
-	typedef location_with_normal<space_3d> trial_input_t;
-	/** \brief kernel result type */
-	typedef couple<std::complex<space_3d::scalar_t> > result_t;
-	/** \brief the quadrature family the kernel is integrated with */
-	typedef gauss_family_tag quadrature_family_t;
-	/** \brief indicates if K(x,y) = K(y,x) */
-	static bool const is_symmetric = true;
-	/** \brief kernel singularity order ( r^(-order) ) */
-	static unsigned const singularity_order = 2;
-	/** \brief quadrature order used to generate Duffy singular quadratures */
-	static unsigned const singular_quadrature_order = 7;
-};
-
-/** \brief 3D Helmholtz kernel \f$ \exp(-ikr)/4\pi r \left\{1, -(1+ikr)/r \cdot dr/dn\right\} \f$ */
-class helmholtz_GH_kernel :
-	public kernel_base<helmholtz_GH_kernel>,
-	public kernel_with_wave_number<std::complex<kernel_base<helmholtz_G_kernel>::scalar_t> >,
-	public reciprocal_distance_kernel<helmholtz_GH_kernel>
-{
-public:
-	/** \brief the crtp base type */
-	typedef kernel_base<helmholtz_GH_kernel> base_t;
-	/** \brief type of the test input */
-	typedef base_t::test_input_t test_input_t;
-	/** \brief type of the trial input */
-	typedef base_t::trial_input_t trial_input_t;
-	/** \brief type of the scalar of the inputs */
-	typedef base_t::scalar_t scalar_t;
-
-	/** \brief evaluate kernel between test and trial positions
-	* \param [in] x the test input
-	* \param [in] y the trial input
-	* \return the kernel value K(x,y)
-	*/
-	result_t operator()(test_input_t const &x, trial_input_t const &y) const
+	std::complex<double> const &get_wave_number(void) const
 	{
-		x_t rvec = y.get_x() - x.get_x();
-		scalar_t r2 = rvec.squaredNorm();
-		scalar_t r = sqrt(r2);
-		std::complex<scalar_t> ikr(std::complex<scalar_t>(0.,1.)*get_wave_number()*r);
-
-		result_t m_result(std::exp(-ikr) / r / (4.0 * M_PI));
-		scalar_t rdn = rvec.dot(y.get_unit_normal());
-		m_result.second() = m_result.first() * (1.0 + ikr) * (-rdn / r2);
-
-		return m_result;
+		return m_wave_number;
 	}
+
+private:
+	std::complex<double> m_wave_number;
 };
+
+typedef helmholtz_3d_H_kernel helmholtz_3d_DLP_kernel;
+
 
 #endif // HELMHOLTZ_KERNEL_HPP_INCLUDED
 

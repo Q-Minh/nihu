@@ -1,7 +1,7 @@
 /**
  * \file poisson_kernel.hpp
  * \ingroup library
- * \brief implementation of kernels of the Poisson equation \f$\nabla^2 p = 0\f$
+ * \brief implementation of kernels of the Poisson equation \f$ \nabla^2 p = 0 \f$
  * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
  */
 
@@ -15,99 +15,10 @@
 #include "location_normal.hpp"
 #include "reciprocal_distance_kernel.hpp"
 
+#include "basic_bricks.hpp"
 
-/** \brief a brick representing a distance vector \f${\bf r} = {\bf y} - {\bf x}\f$
- * \tparam space the coordinate space the distance is defined over
- */
-template <class space>
-struct distance_vector_brick
-{
-	/** \brief the brick template
-	 * \tparam the wall the brick is placed on
-	 */
-	template <class wall>
-	class brick : public wall
-	{
-	public:
-		/** \brief templated constructor
-		 * \tparam test_input_t the test input type
-		 * \tparam trial_input_t the trial input type
-		 * \tparam kernel_t the kernel type
-		 * \param [in] test_input the test input
-		 * \param [in] trial_input the trial input
-		 * \param [in] kernel the kernel instance
-		 */
-		template <class test_input_t, class trial_input_t, class kernel_t>
-		brick(
-			test_input_t const &test_input,
-			trial_input_t const &trial_input,
-			kernel_t const &kernel) :
-			wall(test_input, trial_input, kernel),
-			m_distance_vector(trial_input.get_x()-test_input.get_x())
-		{
-		}
-
-		/** \brief return distance vector
-		 * \return distance vector
-		 */
-		typename space::location_t const &get_distance_vector(void) const
-		{
-			return m_distance_vector;
-		}
-
-	private:
-		typename space::location_t m_distance_vector;
-	};
-};
-
-
-/** \brief a brick representing a scalar distance \f$r = |{\bf r}|\f$
- * \tparam scalar the scalar of the coordinate space the distance is defined over
- */
-template <class scalar>
-struct distance_brick
-{
-	/** \brief the brick template
-	 * \tparam the wall the brick is placed on
-	 */
-	template <class wall>
-	class brick : public wall
-	{
-	public:
-		/** \brief templated constructor
-		 * \tparam test_input_t the test input type
-		 * \tparam trial_input_t the trial input type
-		 * \tparam kernel_t the kernel type
-		 * \param [in] test_input the test input
-		 * \param [in] trial_input the trial input
-		 * \param [in] kernel the kernel instance
-		 */
-		template <class test_input_t, class trial_input_t, class kernel_t>
-		brick(
-			test_input_t const &test_input,
-			trial_input_t const &trial_input,
-			kernel_t const &kernel) :
-			wall(test_input, trial_input, kernel),
-			m_distance(wall::get_distance_vector().norm())
-		{
-		}
-
-		/** \brief return distance
-		 * \return scalar distance
-		 */
-		scalar const & get_distance(void) const
-		{
-			return m_distance;
-		}
-
-	private:
-		scalar m_distance;
-	};
-};
-
-
-/** \brief a brick representing a 3D Poisson kernel \f$1/4\pi r\f$
- * \tparam scalar the scalar of the coordinate space the distance is defined over
+/** \brief a brick representing a 2D Poisson kernel \f$ -\log r /2\pi \f$
+ * \tparam scalar scalar type of the coordinate space the distance is defined over
  */
 template <class scalar>
 struct poisson_2d_g_brick
@@ -161,7 +72,7 @@ struct poisson_2d_g_brick
 };
 
 
-/** \brief a brick representing a 3D Poisson kernel \f$1/4\pi r\f$
+/** \brief a brick representing a 3D Poisson kernel \f$ 1/4\pi r \f$
  * \tparam scalar the scalar of the coordinate space the distance is defined over
  */
 template <class scalar>
@@ -216,7 +127,7 @@ struct poisson_3d_g_brick
 };
 
 
-/** \brief combination of ::distance_vector_brick, ::distance_brick and ::poisson_g_brick into a wall
+/** \brief combination of ::distance_vector_brick, ::distance_brick and ::poisson_2d_g_brick into a wall
  * \tparam space the coordinate space the Poisson kernel is defined over
  */
 template <class scalar>
@@ -227,7 +138,7 @@ struct poisson_2d_g_wall : build<
 > {};
 
 
-/** \brief combination of ::distance_vector_brick, ::distance_brick and ::poisson_g_brick into a wall
+/** \brief combination of ::distance_vector_brick, ::distance_brick and ::poisson_3d_g_brick into a wall
  * \tparam space the coordinate space the Poisson kernel is defined over
  */
 template <class scalar>
@@ -266,7 +177,7 @@ struct kernel_traits<poisson_2d_G_kernel>
 	static unsigned const singular_quadrature_order = 7;
 };
 
-/** \brief traits of the Poisson G kernel */
+/** \brief traits of the Poisson 3D G kernel */
 template<>
 struct kernel_traits<poisson_3d_G_kernel>
 {
@@ -288,7 +199,7 @@ struct kernel_traits<poisson_3d_G_kernel>
 	static unsigned const singular_quadrature_order = 7;
 };
 
-/** \brief 3D Poisson kernel \f$-\ln r/2\pi \f$ */
+/** \brief 2D Poisson kernel \f$ -\ln r/2\pi \f$ */
 class poisson_2d_G_kernel :
 	public kernel_base<poisson_2d_G_kernel>,
 	public reciprocal_distance_kernel<poisson_2d_G_kernel>
@@ -298,7 +209,7 @@ public:
 };
 
 
-/** \brief 3D Poisson kernel \f$1/4\pi r\f$ */
+/** \brief 3D Poisson kernel \f$ 1/4\pi r\f$ */
 class poisson_3d_G_kernel :
 	public kernel_base<poisson_3d_G_kernel>,
 	public reciprocal_distance_kernel<poisson_3d_G_kernel>
@@ -337,11 +248,8 @@ struct poisson_3d_h_brick
 			trial_input_t const &trial_input,
 			kernel_t const &kernel) :
 			wall(test_input, trial_input, kernel),
-			m_poisson_h(-1.0 * wall::get_poisson_g())
+			m_poisson_h(-1.0 * wall::get_poisson_g() * wall::get_rdny() / wall::get_distance())
 		{
-			auto r = wall::get_distance();
-			auto rdn = wall::get_distance_vector().dot(trial_input.get_unit_normal()) / r;
-			m_poisson_h *= rdn / r;
 		}
 
 		/** \brief return Poisson h kernel
@@ -370,9 +278,12 @@ struct poisson_3d_h_brick
  * \tparam space the coordinate space the poisson kernel is defined over
  */
 template <class scalar>
-struct poisson_3d_h_wall : glue<
-	poisson_3d_h_brick<scalar>::template brick,
-	typename poisson_3d_g_wall<scalar>::type
+struct poisson_3d_h_wall : build<
+	distance_vector_brick<space<scalar, 3> >,
+	distance_brick<scalar>,
+	poisson_3d_g_brick<scalar>,
+	rdny_brick<scalar>,
+	poisson_3d_h_brick<scalar>
 > {};
 
 
@@ -394,7 +305,7 @@ struct kernel_traits<poisson_3d_H_kernel>
 	/** \brief the quadrature family the kernel is integrated with */
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
-	static bool const is_symmetric = true;
+	static bool const is_symmetric = false;
 	/** \brief kernel singularity order ( r^(-order) ) */
 	static unsigned const singularity_order = 2;
 	/** \brief quadrature order used to generate Duffy singular quadratures */
@@ -523,6 +434,7 @@ public:
 		{
 			double theta = std::acos(R.col(i).dot(R.col((i+1) % N)));
 			double alpha = std::acos(R.col(i).dot(C.col(i)));
+			std::cout << "theta: " << theta << '\n' << "alpha: " << alpha << '\n';
 			result(0,0) += r[i] * std::sin(alpha) * std::log(std::tan((alpha+theta)/2.0)/tan(alpha/2.0));
 		}
 
