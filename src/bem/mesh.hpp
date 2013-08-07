@@ -247,14 +247,12 @@ struct tag_var_to_elem_vector : tmp::transform<
 	tag2element<tmp::_1>
 > {};
 
-
 /** \brief factory function to create a mesh
  * \tparam nodes_t type of the node definition matrix
  * \tparam elements_t type of the element definition matrix
  * \tparam Args element types of the mesh
  * \param [in] nodes the node definition matrix instance
  * \param [in] elements the element definition matrix instance
- * \param [in] args the elem type vector dummy type instances
  * \return a mesh consisting of given element types
  */
 template <class nodes_t, class elements_t, class...Args>

@@ -1,6 +1,6 @@
 /** \file helmholtz_singular_integrals.hpp
- * \brief (semi)analytical expressions for the singular integrals of Helmholtz kernels
- * \details semianalytical expression for the helmholtz kernels over plane triangles
+ * \brief (Semi)analytical expressions for the singular integrals of Helmholtz kernels
+ * \details Semianalytical expression for the helmholtz kernels over plane triangles
  * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
  */
 #ifndef HELMHOLTZ_SINGULAR_INTEGRALS_HPP_INCLUDED
@@ -9,33 +9,31 @@
 #include "../bem/integral_operator.hpp"
 #include "helmholtz_kernel.hpp"
 
-/** \brief collocational singular integral of the SLP kernel over a constant triangle
+#include "../util/math_functions.hpp"
+
+/** \brief Collocational singular integral of the SLP kernel over a constant triangle
  * \tparam TestField the test field type
  * \tparam TrialField the trial field type
  */
 template <class TestField, class TrialField>
 class singular_integral_shortcut<
-	formalism::collocational,
-	helmholtz_3d_SLP_kernel, TestField, TrialField,
+	formalism::collocational, helmholtz_3d_SLP_kernel, TestField, TrialField,
 	typename std::enable_if<
 		std::is_same<typename TrialField::nset_t, tria_0_shape_set>::value
 	>::type
 >
 {
 private:
+	/** \brief Compute the regular dynamic part of the singular kernel
+	 * \tparam T the scalar type
+	 * \param [in] r the scalar distance
+	 * \param [in] k the wave number
+	 * \return the dynamic part of the singular kernel
+	 */
 	template <class T>
-	static T sinc(T const &x)
+	static std::complex<T> dynamic_part(T const &r, std::complex<T> const &k)
 	{
-		if (std::abs(x) > 1e-3)
-			return std::sin(x) / x;
-		else
-			return 1.0 - x*x/6.0 * (1.0 - x*x/20.0);
-	}
-
-	template <class T>
-	static std::complex<T> accompaining_kernel(T const &r, std::complex<T> const &k)
-	{
-		std::complex<T> const I(0.0, 1.0);
+		std::complex<T> const I(0.0, 1.0);	// imaginary unit
 		return -I*k * std::exp(-I*k*r/2.0) * sinc(k*r/2.0);
 	}
 
@@ -53,6 +51,7 @@ public:
 		auto const &C_old = tr_elem.get_coords();
 		auto const &x0 = test_field.get_elem().get_center();
 
+		// integrate static part analytically
 		double r[N];	// radius lengths
 		typename tria_1_elem::coords_t R, C;
 		for (unsigned i = 0; i < N; ++i)
@@ -71,13 +70,14 @@ public:
 			result(0,0) += r[i] * std::sin(alpha) * std::log(std::tan((alpha+theta)/2.0)/tan(alpha/2.0));
 		}
 
-		// integrate accompaining kernel
+		// integrate dynamic_part
 		std::complex<double> I_acc = 0.0;
 		for (auto it = m_quadrature.begin(); it != m_quadrature.end(); ++it)
-			I_acc += accompaining_kernel(
+			I_acc += dynamic_part(
 				(tr_elem.get_x(it->get_xi()) - x0).norm(),
 				kernel.get_wave_number()
 			) * it->get_w();
+		// multiply by jacobian
 		I_acc *= tr_elem.get_normal(gauss_tria::xi_t()).norm();
 
 		result(0,0) += I_acc;
@@ -88,20 +88,22 @@ public:
 	}
 
 private:
+	/** \brief Regular quadrature used to integrate the dynamic part */
 	static gauss_tria const m_quadrature;
 };
 
+/** \brief Static regular quadrature instance */
 template <class TestField, class TrialField>
 gauss_tria const
-singular_integral_shortcut<formalism::collocational, helmholtz_3d_SLP_kernel,
-	TestField, TrialField,
+singular_integral_shortcut<
+	formalism::collocational, helmholtz_3d_SLP_kernel, TestField, TrialField,
 	typename std::enable_if<
 		std::is_same<typename TrialField::nset_t, tria_0_shape_set>::value
 	>::type
 >::m_quadrature(7);
 
 
-/** \brief collocational singular integral of the DLP kernel over a constant triangle
+/** \brief Collocational singular integral of the DLP kernel over a constant triangle
  * \tparam TestField the test field type
  * \tparam TrialField the trial field type
  */

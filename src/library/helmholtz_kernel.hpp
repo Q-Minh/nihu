@@ -122,7 +122,7 @@ struct helmholtz_3d_g_brick
 };
 
 
-/** \brief combination of ::distance_vector_brick, ::distance_brick, ::ikr_brick and ::helmholtz_2d_g_brick into a wall
+/** \brief combination of ::distance_vector_brick, ::distance_brick, ::ikr_brick and ::helmholtz_3d_g_brick into a wall
  * \tparam space the coordinate space the Helmholtz kernel is defined over
  */
 template <class scalar>
