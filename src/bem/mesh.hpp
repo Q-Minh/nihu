@@ -259,7 +259,7 @@ struct tag_var_to_elem_vector : tmp::transform<
  */
 template <class nodes_t, class elements_t, class...Args>
 mesh<typename tag_var_to_elem_vector<Args...>::type >
-	create_mesh(nodes_t const &nodes, elements_t const &elements, Args...args)
+	create_mesh(nodes_t const &nodes, elements_t const &elements, Args...)
 {
 	return mesh<typename tag_var_to_elem_vector<Args...>::type >(nodes, elements);
 }

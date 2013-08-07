@@ -15,12 +15,9 @@
 #include "quadrature_pool.hpp"
 #include "kernel.hpp"
 
-template <class Kernel, class TestField, class TrialField, class Enable = void>
-class collocational_singular_integral_shortcut;
-
-template <class Kernel, class TestField, class TrialField, class Enable = void>
-class general_singular_integral_shortcut;
-
+// forward declaration
+template <class Formalism, class Kernel, class TestField, class TrialField, class Enable = void>
+class singular_integral_shortcut;
 
 /**
 * \brief class evaluating double integrals of the weighted residual approach
@@ -238,7 +235,7 @@ protected:
 
 		// check singularity
 		if (sa.is_singular(test_field, trial_field))
-			return general_singular_integral_shortcut<kernel_t, test_field_t, trial_field_t>::eval(
+			return singular_integral_shortcut<formalism::general, kernel_t, test_field_t, trial_field_t>::eval(
 				result, kernel, test_field, trial_field);
 
 		return eval(WITHOUT_SINGULARITY_CHECK(),
@@ -454,7 +451,7 @@ protected:
 		degree += trial_nset_t::polynomial_order + trial_lset_t::jacobian_order;
 
 		return eval_on_accelerator(
-			result,  kernel, test_field, trial_field, *(trial_ra[degree]));
+			result, kernel, test_field, trial_field, *(trial_ra[degree]));
 	}
 
 
@@ -477,7 +474,7 @@ protected:
 
 		// check singularity
 		if (sa.is_singular(test_field, trial_field))
-			return collocational_singular_integral_shortcut<kernel_t, test_field_t, trial_field_t>::eval(
+			return singular_integral_shortcut<formalism::collocational, kernel_t, test_field_t, trial_field_t>::eval(
 				result, kernel.derived(), test_field.derived(), trial_field.derived());
 		else
 			return eval(WITHOUT_SINGULARITY_CHECK(),
@@ -511,18 +508,28 @@ public:
 	}
 };
 
+
 template <class Kernel, class TestField, class TrialField>
 class double_integral :
 	public double_integral_impl<field_traits<TestField>::is_dirac, Kernel, TestField, TrialField>
 {
 };
 
-template <class Kernel, class TestField, class TrialField, class Enable>
-class general_singular_integral_shortcut
+
+/** \brief a shortcut for the user to define customised singular integral methods
+ * \tparam Formalism collocational or general
+ * \tparam Kernel the kernel class
+ * \tparam TestField the test field type
+ * \tparam TrialField the trial field type
+ * \tparam Enable additional argument for std::enable_if
+ */
+template <class Formalism, class Kernel, class TestField, class TrialField, class Enable>
+class singular_integral_shortcut
 {
-public:
+private:
 	template <class result_t>
-	static result_t &eval(
+	static result_t &eval_impl(
+		formalism::general,
 		result_t &result,
 		kernel_base<Kernel> const &kernel,
 		field_base<TestField> const &test_field,
@@ -534,15 +541,10 @@ public:
 		return double_integral<Kernel, TestField, TrialField>::eval_singular_on_accelerator(
 			result, kernel, test_field, trial_field, sa.begin(), sa.end());
 	}
-};
 
-
-template <class Kernel, class TestField, class TrialField, class Enable>
-class collocational_singular_integral_shortcut
-{
-public:
 	template <class result_t>
-	static result_t &eval(
+	static result_t &eval_impl(
+		formalism::collocational,
 		result_t &result,
 		kernel_base<Kernel> const &kernel,
 		field_base<TestField> const &test_field,
@@ -554,8 +556,28 @@ public:
 		return double_integral<Kernel, TestField, TrialField>::eval_singular_on_accelerator(
 			result, kernel, test_field, trial_field, sa);
 	}
-};
 
+
+public:
+	/** \brief evaluate singular integral
+	 * \tparam result_t the result type
+	 * \param [out] result the integral result
+	 * \param [in] kernel the kernel instance
+	 * \param [in] test_field the test field instance
+	 * \param [in] trial_field the trial field instance
+	 * \return reference to the integral result
+	 */
+	template <class result_t>
+	static result_t &eval(
+		result_t &result,
+		kernel_base<Kernel> const &kernel,
+		field_base<TestField> const &test_field,
+		field_base<TrialField> const &trial_field)
+	{
+		return eval_impl(
+			Formalism(), result, kernel, test_field, trial_field);
+	}
+};
 
 #endif
 
