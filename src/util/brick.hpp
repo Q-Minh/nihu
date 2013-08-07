@@ -18,7 +18,7 @@ struct empty_wall
 
 	/** \brief empty constructor from anything */
 	template <class...Args>
-	empty_wall(Args...args)
+	empty_wall(Args...)
 	{
 	}
 };
