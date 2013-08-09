@@ -583,8 +583,8 @@ struct poisson_3d_ht_brick
 };
 
 
-/** \brief combination of poisson_g_wall and poisson_h_brick into a wall
- * \tparam space the coordinate space the poisson kernel is defined over
+/** \brief combination of ::distance_vector_brick, ::distance_brick, ::rdnx_brick, poisson_3d_g_brick and poisson_3d_ht_brick into a wall
+ * \tparam scalar the scalar type of the poisson ht kernel result
  */
 template <class scalar>
 struct poisson_3d_ht_wall : build<
@@ -621,7 +621,7 @@ struct kernel_traits<poisson_3d_Ht_kernel>
 	static unsigned const singular_quadrature_order = 7;
 };
 
-/** \brief 3D Poisson kernel \f$ -1/4\pi r^2 \cdot dr/dn \f$ */
+/** \brief 3D Poisson derivative kernel \f$ -1/4\pi r^2 \cdot r'_{n_x} \f$ */
 class poisson_3d_Ht_kernel :
 	public kernel_base<poisson_3d_Ht_kernel>,
 	public reciprocal_distance_kernel<poisson_3d_Ht_kernel>
@@ -631,13 +631,123 @@ public:
 };
 
 
+/** \brief a brick representing a Poisson double derivative kernel \f$ 1/4\pi r^3 \cdot \left( n_x n_y + 3 r'_{n_x} r'_{n_y} \right) \f$
+ * \tparam scalar the scalar of the coordinate space the distance is defined over
+ */
+template <class scalar>
+struct poisson_3d_hyper_brick
+{
+	/** \brief the brick template
+	 * \tparam the wall the brick is placed on
+	 */
+	template <class wall>
+	class brick : public wall
+	{
+	public:
+		typedef scalar result_t;
+
+		/** \brief templated constructor
+		 * \tparam test_input_t the test input type
+		 * \tparam trial_input_t the trial input type
+		 * \tparam kernel_t the kernel type
+		 * \param [in] test_input the test input
+		 * \param [in] trial_input the trial input
+		 * \param [in] kernel the kernel instance
+		 */
+		template <class test_input_t, class trial_input_t, class kernel_t>
+		brick(
+			test_input_t const &test_input,
+			trial_input_t const &trial_input,
+			kernel_t const &kernel) :
+			wall(test_input, trial_input, kernel),
+			m_poisson_hyper(
+				wall::get_poisson_g() / wall::get_distance() / wall::get_distance() * (
+					test_input.get_unit_normal().dot(trial_input.get_unit_normal()) +
+					3.0 * wall::get_rdnx() * wall::get_rdny()
+				))
+		{
+		}
+
+		/** \brief return Poisson ht kernel
+		 * \return Poisson ht kernel
+		 */
+		scalar const &get_poisson_hyper(void) const
+		{
+			return m_poisson_hyper;
+		}
+
+		/** \brief return Poisson ht kernel
+		 * \return Poisson ht kernel
+		 */
+		scalar const & get_result(void) const
+		{
+			return get_poisson_hyper();
+		}
+
+	private:
+		scalar m_poisson_hyper;
+	};
+};
+
+
+/** \brief combination of ::distance_vector_brick, ::distance_brick, ::rdnx_brick, poisson_3d_g_brick and poisson_3d_ht_brick into a wall
+ * \tparam scalar the scalar type of the poisson ht kernel result
+ */
+template <class scalar>
+struct poisson_3d_hyper_wall : build<
+	distance_vector_brick<space<scalar, 3> >,
+	distance_brick<scalar>,
+	rdnx_brick<scalar>,
+	rdny_brick<scalar>,
+	poisson_3d_g_brick<scalar>,
+	poisson_3d_hyper_brick<scalar>
+> {};
+
+
+// forward declaration
+class poisson_3d_Hyper_kernel;
+
+/** \brief traits of the Poisson H kernel */
+template<>
+struct kernel_traits<poisson_3d_Hyper_kernel>
+{
+	/** \brief kernel test input type */
+	typedef build<location<space_3d>, normal_jacobian<space_3d> >::type test_input_t;
+	/** \brief kernel trial input type */
+	typedef build<location<space_3d>, normal_jacobian<space_3d> >::type trial_input_t;
+	/** \brief the kernel output type */
+	typedef poisson_3d_hyper_wall<space_3d::scalar_t>::type output_t;
+	/** \brief kernel result type */
+	typedef space_3d::scalar_t result_t;
+	/** \brief the quadrature family the kernel is integrated with */
+	typedef gauss_family_tag quadrature_family_t;
+	/** \brief indicates if K(x,y) = K(y,x) */
+	static bool const is_symmetric = true;
+	/** \brief kernel singularity order ( r^(-order) ) */
+	static unsigned const singularity_order = 3;
+	/** \brief quadrature order used to generate Duffy singular quadratures */
+	static unsigned const singular_quadrature_order = 7;
+};
+
+/** \brief 3D Poisson derivative kernel \f$ 1/4\pi r^3 \cdot \left( n_x n_y + 3 r'_{n_x} r'_{n_y} \right) \f$ */
+class poisson_3d_Hyper_kernel :
+	public kernel_base<poisson_3d_Hyper_kernel>,
+	public reciprocal_distance_kernel<poisson_3d_Hyper_kernel>
+{
+public:
+	using reciprocal_distance_kernel<poisson_3d_Hyper_kernel>::estimate_complexity;
+};
+
+
 typedef poisson_2d_G_kernel poisson_2d_SLP_kernel;
 typedef poisson_2d_H_kernel poisson_2d_DLP_kernel;
 typedef poisson_2d_Ht_kernel poisson_2d_DLPt_kernel;
+// typedef poisson_2d_Hyper_kernel poisson_2d_HSPt_kernel;
 
 typedef poisson_3d_G_kernel poisson_3d_SLP_kernel;
 typedef poisson_3d_H_kernel poisson_3d_DLP_kernel;
 typedef poisson_3d_Ht_kernel poisson_3d_DLPt_kernel;
+typedef poisson_3d_Hyper_kernel poisson_3d_HSP_kernel;
 
 #endif // POISSON_KERNEL_HPP_INCLUDED
 

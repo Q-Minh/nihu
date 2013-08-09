@@ -55,6 +55,14 @@ private:
 		/** \todo find a better approach */
 		return rel_dist < 2.0 ? 5 : ( rel_dist < 5.0 ? 3 : 0);
 	}
+
+	unsigned estimate_complexity_impl(
+		std::integral_constant<unsigned, 3>,
+		scalar_t const &rel_dist) const
+	{
+		/** \todo This is a blind copy, find a better approach! */
+		return rel_dist < 2.0 ? 5 : ( rel_dist < 5.0 ? 3 : 0);
+	}
 };
 
 #endif // RECIPROCAL_DISTANCE_KERNEL
