@@ -18,6 +18,8 @@ class singular_integral_shortcut<
 	formalism::collocational,
 	poisson_2d_SLP_kernel, TestField, TrialField,
 	typename std::enable_if<
+		std::is_same<typename TrialField::lset_t, line_1_shape_set>::value
+		&&
 		std::is_same<typename TrialField::nset_t, line_0_shape_set>::value
 	>::type
 >
@@ -41,35 +43,39 @@ public:
 };
 
 
-/** \brief collocational singular integral of the DLP kernel over a constant line
+/** \brief Singular integral of the DLP and DLPt kernels over a plane surface
+ * \tparam Formalism the integration formalism (collocational or general)
+ * \tparam Kernel the kernel type the test field type
  * \tparam TestField the test field type
  * \tparam TrialField the trial field type
  */
-/*
-template <class TestField, class TrialField>
+template <class Formalism, class Kernel, class TestField, class TrialField>
 class singular_integral_shortcut<
-	formalism::collocational,
-	poisson_2d_DLP_kernel, TestField, TrialField,
+	Formalism, Kernel, TestField, TrialField,
 	typename std::enable_if<
-		std::is_same<
-			typename TrialField::nset_t,
-			line_0_shape_set
-		>::value
+		(
+			std::is_same<Kernel, poisson_2d_DLP_kernel>::value
+			||
+			std::is_same<Kernel, poisson_2d_DLPt_kernel>::value
+		)
+		&&
+		std::is_same<typename TrialField::lset_t, line_1_shape_set>::value
 	>::type
 >
 {
 public:
+	/** \brief evaluate the kernel (zero)
+	 * \tparam result_t the result's type
+	 * \param [in] result the result reference
+	 * \return the result reference
+	 */
 	template <class result_t>
 	constexpr static result_t &eval(
-		result_t &result,
-		poisson_2d_DLP_kernel const &,
-		TestField const &test_field,
-		TrialField const &trial_field)
+		result_t &result, Kernel const &, TestField const &, TrialField const &)
 	{
 		return result;
 	}
 };
-*/
 
 
 /** \brief collocational singular integral of the SLP kernel over a constant triangle
@@ -81,6 +87,8 @@ class singular_integral_shortcut<
 	formalism::collocational,
 	poisson_3d_SLP_kernel, TestField, TrialField,
 	typename std::enable_if<
+		std::is_same<typename TrialField::lset_t, tria_1_shape_set>::value
+		&&
 		std::is_same<typename TrialField::nset_t, tria_0_shape_set>::value
 	>::type
 >
@@ -122,26 +130,35 @@ public:
 };
 
 
-/** \brief collocational singular integral of the DLP kernel over a constant triangle
+/** \brief Singular integral of the DLP and DLPt kernels over a plane surface
+ * \tparam Formalism the integration formalism (collocational or general)
+ * \tparam Kernel the kernel type
  * \tparam TestField the test field type
  * \tparam TrialField the trial field type
  */
-template <class TestField, class TrialField>
+template <class Formalism, class Kernel, class TestField, class TrialField>
 class singular_integral_shortcut<
-	formalism::collocational,
-	poisson_3d_DLP_kernel, TestField, TrialField,
+	Formalism, Kernel, TestField, TrialField,
 	typename std::enable_if<
-		std::is_same<typename TrialField::nset_t, tria_0_shape_set>::value
+		(
+			std::is_same<Kernel, poisson_3d_DLP_kernel>::value
+			||
+			std::is_same<Kernel, poisson_3d_DLPt_kernel>::value
+		)
+		&&
+		std::is_same<typename TrialField::lset_t, tria_1_shape_set>::value
 	>::type
 >
 {
 public:
+	/** \brief evaluate the kernel (zero)
+	 * \tparam result_t the result's type
+	 * \param [in] result the result reference
+	 * \return the result reference
+	 */
 	template <class result_t>
-	constexpr static result_t &eval(
-		result_t &result,
-		poisson_3d_DLP_kernel const &,
-		TestField const &,
-		TrialField const &)
+	static constexpr result_t &eval(
+		result_t &result, Kernel const &, TestField const &, TrialField const &)
 	{
 		return result;
 	}

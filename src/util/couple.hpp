@@ -27,6 +27,7 @@ private:
 public:
 	/**
 	 * \brief interface function to return member expression
+	 * \tparam idx the expression index
 	 * \return member expression
 	 */
 	template <size_t idx>
@@ -50,12 +51,13 @@ public:
 	* \param parent the couple expression whos row is expressed
 	* \param idx the row index
 	*/
-	couple_row(couple &parent, unsigned idx)
-		: m_parent(parent), m_idx(idx)
+	couple_row(couple &parent, unsigned row_idx)
+		: m_parent(parent), m_idx(row_idx)
 	{
 	}
 
 private:
+	/** \brief recursive implementation of  operator += */
 	template <class otherDerived, size_t idx>
 	struct increase
 	{
@@ -69,6 +71,7 @@ private:
 		}
 	};
 
+	/** \brief terminating case of increase */
 	template <class otherDerived>
 	struct increase<otherDerived, 0>
 	{
@@ -79,14 +82,14 @@ private:
 
 public:
 	/**
-	* \brief incremenet a row by an other couple
+	* \brief incremenet a row by a couple expression
 	* \tparam otherDerived the other couple expression type
 	* \param other constant reference to the other couple
 	*/
 	template <class otherDerived>
 	couple_row const &operator += (couple_base<otherDerived> const &other)
 	{
-		increase<otherDerived, couple::tuple_size>::eval(*this, other);
+		increase<otherDerived, couple_traits<couple>::tuple_size>::eval(*this, other);
 		return *this;
 	}
 
@@ -99,13 +102,17 @@ protected:
 
 
 
+// forward decalration
 template <class...Args>
 class couple;
 
+/** \brief traits of couples */
 template <class...Args>
 struct couple_traits<couple<Args...> >
 {
+	/** \brief the underlying tuple type */
 	typedef std::tuple<Args...> tuple_t;
+	/** \brief the tuple size */
 	enum { tuple_size = std::tuple_size<tuple_t>::value };
 };
 
@@ -125,7 +132,6 @@ public:
 	typedef std::tuple<Args...> base_t;
 
 	typedef couple_traits<type> traits_t;
-	enum { tuple_size = traits_t::tuple_size };
 
  	/** \brief constructor initialising all members
 	 * \param [in] args the arguments
@@ -146,26 +152,29 @@ public:
 	}
 
 private:
+	/** \brief recursive implementation of setZero */
 	template <size_t idx>
 	void setZeroImpl(std::integral_constant<size_t, idx>)
 	{
-		std::get<idx>(*this).setZero();
-		setZeroImpl(std::integral_constant<size_t, idx+1>());
+		std::get<idx-1>(*this).setZero();
+		setZeroImpl(std::integral_constant<size_t, idx-1>());
 	}
 
+	/** \brief terminating case of setZero */
 	void setZeroImpl(
-		std::integral_constant<size_t, tuple_size>)
+		std::integral_constant<size_t, 0>)
 	{
 	}
 
 public:
-	/** \brief set both matrices to zero */
+	/** \brief set all member matrices zero */
 	couple const &setZero(void)
 	{
-		setZeroImpl(std::integral_constant<size_t, 0>());
+		setZeroImpl(std::integral_constant<size_t, traits_t::tuple_size>());
 		return *this;
 	}
 
+	/** \brief return a zero couple */
 	constexpr static couple Zero(void)
 	{
 		couple res;
@@ -193,7 +202,7 @@ public:
 	}
 
 private:
-
+	/** \brief recursive implementation of operator += */
 	template <class C, class OtherDerived, size_t idx>
 	struct add_impl
 	{
@@ -204,6 +213,7 @@ private:
 		}
 	};
 
+	/** \brief terminating case of operator += */
 	template <class C, class OtherDerived>
 	struct add_impl<C, OtherDerived, 0>
 	{
@@ -221,10 +231,11 @@ public:
 	template <class OtherDerived>
 	couple &operator+=(couple_base<OtherDerived> const &other)
 	{
-		add_impl<couple, OtherDerived, tuple_size>::eval(*this, other);
+		add_impl<couple, OtherDerived, traits_t::tuple_size>::eval(*this, other);
 		return *this;
 	}
 
+	/** \brif return row proxy */
 	couple_row<couple> row(unsigned idx)
 	{
 		return couple_row<couple>(*this, idx);
@@ -239,29 +250,36 @@ couple<Args...> create_couple(Args &&...args)
 }
 
 
+// forward declaration
 template <class LDerived, class Right>
 class couple_product_right;
 
+/** \brief traits class of a couple multipled from the right */
 template <class LDerived, class Right>
 struct couple_traits<couple_product_right<LDerived, Right> >
 {
+	/** \brief a helper metafunction */
 	template <class Elem>
 	struct prod_t : product_type<Elem, Right> {};
 
+	/** \brief convert a tuple to a variadic argument pack */
 	template <class C>
 	struct tuple2args;
 
+	/** \brief convert a tuple to a variadic argument pack */
 	template <class...Args>
 	struct tuple2args<std::tuple<Args...> >
 	{
 		typedef std::tuple<typename prod_t<Args>::type...> type;
 	};
 
+	/** \brief the tuple type of the product */
 	typedef typename tuple2args<
 		typename couple_traits<typename std::decay<LDerived>::type>::tuple_t
 	>::type tuple_t;
 
 	enum {
+		/** \brief the tuple size of the product */
 		tuple_size = couple_traits<typename std::decay<LDerived>::type>::tuple_size
 	};
 };
@@ -278,9 +296,10 @@ class couple_product_right :
 	public couple_base<couple_product_right<LDerived, Right> >
 {
 protected:
-
-	LDerived m_left;	/**< \brief left hand side term */
-	Right m_right;		/**< \brief right hand side term */
+	/** \brief left hand side term */
+	LDerived m_left;
+	/** \brief right hand side term */
+	Right m_right;
 
 public:
 	/**
@@ -307,32 +326,41 @@ public:
 };
 
 
-
-
+// forward declaration
 template <class Left, class RDerived>
 class couple_product_left;
 
 
+/**
+ * \brief traits of a product of an arbitrary type and a couple
+ * \tparam Left the type of the left hand side
+ * \tparam RDerived the right hand side couple type
+ */
 template <class Left, class RDerived>
 struct couple_traits<couple_product_left<Left, RDerived> >
 {
+	/** \brief helper function */
 	template <class Elem>
 	struct prod_t : product_type<Left, Elem> {};
 
+	/** \brief general declaration */
 	template <class C>
 	struct tuple2args;
 
+	/** \brief specialisation for tuples */
 	template <class...Args>
 	struct tuple2args<std::tuple<Args...> >
 	{
 		typedef std::tuple<prod_t<Args>...> type;
 	};
 
+	/** \brief the underlying tuple type of the product */
 	typedef typename tuple2args<
 		typename couple_traits<typename std::decay<RDerived>::type>::tuple_t
 	>::type tuple_t;
 
 	enum {
+		/** \brief the size of the tuple product */
 		tuple_size = couple_traits<typename std::decay<RDerived>::type>::tuple_size
 	};
 };
@@ -348,8 +376,10 @@ class couple_product_left :
 	public couple_base<couple_product_left<Left, RDerived> >
 {
 protected:
-	Left m_left;		/**< \brief left hand side term */
-	RDerived m_right;	/**< \brief right hand side term */
+	/** \brief left hand side term */
+	Left m_left;
+	/** \brief right hand side term */
+	RDerived m_right;
 
 public:
 	/**
