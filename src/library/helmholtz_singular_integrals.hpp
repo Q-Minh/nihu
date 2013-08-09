@@ -19,6 +19,8 @@ template <class TestField, class TrialField>
 class singular_integral_shortcut<
 	formalism::collocational, helmholtz_3d_SLP_kernel, TestField, TrialField,
 	typename std::enable_if<
+		std::is_same<typename TrialField::lset_t, tria_1_shape_set>::value
+		&&
 		std::is_same<typename TrialField::nset_t, tria_0_shape_set>::value
 	>::type
 >
@@ -98,12 +100,14 @@ gauss_tria const
 singular_integral_shortcut<
 	formalism::collocational, helmholtz_3d_SLP_kernel, TestField, TrialField,
 	typename std::enable_if<
+		std::is_same<typename TrialField::lset_t, tria_1_shape_set>::value
+		&&
 		std::is_same<typename TrialField::nset_t, tria_0_shape_set>::value
 	>::type
 >::m_quadrature(7);
 
 
-/** \brief Collocational singular integral of the DLP kernel over a constant triangle
+/** \brief Collocational singular integral of the DLP kernel over a plane surface
  * \tparam TestField the test field type
  * \tparam TrialField the trial field type
  */
@@ -112,11 +116,16 @@ class singular_integral_shortcut<
 	formalism::collocational,
 	helmholtz_3d_DLP_kernel, TestField, TrialField,
 	typename std::enable_if<
-		std::is_same<typename TrialField::nset_t, tria_0_shape_set>::value
+		std::is_same<typename TrialField::lset_t, tria_1_shape_set>::value
 	>::type
 >
 {
 public:
+	/** \brief evaluate the kernel (zero)
+	 * \tparam result_t the result's type
+	 * \param [in] result the result reference
+	 * \return the result reference
+	 */
 	template <class result_t>
 	constexpr static result_t &eval(
 		result_t &result,
