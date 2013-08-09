@@ -1,6 +1,6 @@
 /**
  * \file couple.hpp
- * \brief declaration of couple expressions
+ * \brief Couple expressions
  * \author Peter Fiala fiala@hit.bme.hu, Peter Rucz rucz@hit.bme.hu
  */
 
@@ -11,6 +11,7 @@
 #include "product_type.hpp"
 #include <tuple>
 
+/** \brief traits class of couple expressions */
 template <class C>
 struct couple_traits;
 
@@ -27,6 +28,7 @@ private:
 public:
 	/**
 	 * \brief interface function to return member expression
+	 * \tparam idx the member index
 	 * \return member expression
 	 */
 	template <size_t idx>
@@ -47,15 +49,16 @@ class couple_row
 {
 public:
 	/** \brief constructor
-	* \param parent the couple expression whos row is expressed
-	* \param idx the row index
+	* \param [in] parent the couple expression whos row is expressed
+	* \param [in] row_idx the row index
 	*/
-	couple_row(couple &parent, unsigned idx)
-		: m_parent(parent), m_idx(idx)
+	couple_row(couple &parent, unsigned row_idx)
+		: m_parent(parent), m_idx(row_idx)
 	{
 	}
 
 private:
+	/** \brief recursive implementation of operator += */
 	template <class otherDerived, size_t idx>
 	struct increase
 	{
@@ -69,6 +72,7 @@ private:
 		}
 	};
 
+	/** \brief terminating case of increase */
 	template <class otherDerived>
 	struct increase<otherDerived, 0>
 	{
@@ -86,7 +90,7 @@ public:
 	template <class otherDerived>
 	couple_row const &operator += (couple_base<otherDerived> const &other)
 	{
-		increase<otherDerived, couple::tuple_size>::eval(*this, other);
+		increase<otherDerived, couple_traits<couple>::tuple_size>::eval(*this, other);
 		return *this;
 	}
 
@@ -98,21 +102,24 @@ protected:
 };
 
 
-
+// forward declaration
 template <class...Args>
 class couple;
 
+/** \brief traits of a couple */
 template <class...Args>
 struct couple_traits<couple<Args...> >
 {
+	/** \brief the underlying tuple class */
 	typedef std::tuple<Args...> tuple_t;
+	/** \brief the tuple size */
 	enum { tuple_size = std::tuple_size<tuple_t>::value };
 };
 
 
 /**
  * \brief class to store a couple
- * \tparam Args the type of the object
+ * \tparam Args the type vector of the object
  */
 template <class...Args>
 class couple :
@@ -122,10 +129,11 @@ class couple :
 public:
 	/** \brief self-returning metafunction */
 	typedef couple type;
+	/** \brief the tuple base */
 	typedef std::tuple<Args...> base_t;
 
+	/** \brief the traits class */
 	typedef couple_traits<type> traits_t;
-	enum { tuple_size = traits_t::tuple_size };
 
  	/** \brief constructor initialising all members
 	 * \param [in] args the arguments
@@ -154,7 +162,7 @@ private:
 	}
 
 	void setZeroImpl(
-		std::integral_constant<size_t, tuple_size>)
+		std::integral_constant<size_t, traits_t::tuple_size>)
 	{
 	}
 
@@ -364,7 +372,7 @@ public:
 	}
 
 	/**
-	 * \brief return elemnt of the couple product
+	 * \brief return element of the couple product
 	 * \return element of the couple product
 	 */
 	template <size_t idx>
