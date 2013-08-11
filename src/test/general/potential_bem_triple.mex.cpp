@@ -1,6 +1,6 @@
 #include "bem/weighted_residual.hpp"
-#include "library/poisson_kernel.hpp"
-#include "library/poisson_singular_integrals.hpp"
+#include "library/helmholtz_kernel.hpp"
+#include "library/helmholtz_singular_integrals.hpp"
 
 typedef Eigen::Matrix<unsigned, Eigen::Dynamic, Eigen::Dynamic> uMatrix;
 typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> dMatrix;
@@ -8,11 +8,12 @@ typedef Eigen::Matrix<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic> cMat
 
 int main(void)
 {
+	std::complex<double> k(1.0, 0.0);
 	// generating integral operators
-	auto L = create_integral_operator(poisson_3d_SLP_kernel());
-	auto M = create_integral_operator(poisson_3d_DLP_kernel());
-	auto Mt = create_integral_operator(poisson_3d_DLPt_kernel());
-	auto N = create_integral_operator(poisson_3d_HSP_kernel());
+	auto L = create_integral_operator(helmholtz_3d_SLP_kernel(k));
+	auto M = create_integral_operator(helmholtz_3d_DLP_kernel(k));
+	auto Mt = create_integral_operator(helmholtz_3d_DLPt_kernel(k));
+//	auto N = create_integral_operator(poisson_3d_HSP_kernel());
 
 	// generating function spaces
 	dMatrix surf_nodes(3,3);
@@ -30,19 +31,19 @@ int main(void)
 	// surface system matrices
 
 	auto n = surf_sp.get_num_dofs();
-	dMatrix Ls(n,n); Ls.setZero();
-	dMatrix Ms(n,n); Ms.setZero();
-	dMatrix Mts(n,n); Mts.setZero();
-	dMatrix Ns(n,n); Ns.setZero();
+	cMatrix Ls(n,n); Ls.setZero();
+	cMatrix Ms(n,n); Ms.setZero();
+	cMatrix Mts(n,n); Mts.setZero();
+//	dMatrix Ns(n,n); Ns.setZero();
 
 	Ls << ( dirac(surf_sp) * L[surf_sp] );
 	Ms << ( dirac(surf_sp) * M[surf_sp] );
 	Mts << ( dirac(surf_sp) * Mt[surf_sp] );
-	Ns << ( dirac(surf_sp) * N[surf_sp] );
+//	Ns << ( dirac(surf_sp) * N[surf_sp] );
 
 	std::cout << Ls << std::endl;
 	std::cout << Ms << std::endl;
 	std::cout << Mts << std::endl;
-	std::cout << Ns << std::endl;
+//	std::cout << Ns << std::endl;
 }
 

@@ -21,8 +21,9 @@ class singular_integral_shortcut<
 	formalism::collocational,
 	Kernel, TestField, TrialField,
 	typename std::enable_if<
-		std::is_same<Kernel, helmholtz_3d_DLP_kernel>::value &&
-		std::is_same<typename TrialField::lset_t, tria_1_shape_set>::value
+		( std::is_same<Kernel, helmholtz_3d_DLP_kernel>::value ||
+		  std::is_same<Kernel, helmholtz_3d_DLPt_kernel>::value
+		) && std::is_same<typename TrialField::lset_t, tria_1_shape_set>::value
 	>::type
 >
 {
@@ -33,7 +34,7 @@ public:
 	 * \return the result reference
 	 */
 	template <class result_t>
-	constexpr static result_t &eval(
+	static constexpr result_t &eval(
 		result_t &result, Kernel const &, TestField const &, TrialField const &)
 	{
 		return result;
@@ -128,8 +129,7 @@ gauss_tria const
 singular_integral_shortcut<
 	formalism::collocational, helmholtz_3d_SLP_kernel, TestField, TrialField,
 	typename std::enable_if<
-		std::is_same<typename TrialField::lset_t, tria_1_shape_set>::value
-		&&
+		std::is_same<typename TrialField::lset_t, tria_1_shape_set>::value &&
 		std::is_same<typename TrialField::nset_t, tria_0_shape_set>::value
 	>::type
 >::m_quadrature(7);
