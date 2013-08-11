@@ -409,9 +409,128 @@ public:
 };
 
 
+
+
+
+
+/** \brief a brick representing a 3D Helmholtz H kernel \f$ \exp(-ikr)/4\pi r \left(-(1+ikr)/r\right) \cdot dr/dn \f$
+ * \tparam scalar the scalar of the coordinate space the distance is defined over
+ */
+template <class scalar>
+struct helmholtz_3d_hyper_brick
+{
+	/** \brief the brick template
+	 * \tparam the wall the brick is placed on
+	 */
+	template <class wall>
+	class brick : public wall
+	{
+	public:
+		typedef std::complex<scalar> result_t;
+
+		/** \brief templated constructor
+		 * \tparam test_input_t the test input type
+		 * \tparam trial_input_t the trial input type
+		 * \tparam kernel_t the kernel type
+		 * \param [in] test_input the test input
+		 * \param [in] trial_input the trial input
+		 * \param [in] kernel the kernel instance
+		 */
+		template <class test_input_t, class trial_input_t, class kernel_t>
+		brick(
+			test_input_t const &test_input,
+			trial_input_t const &trial_input,
+			kernel_t const &kernel) :
+			wall(test_input, trial_input, kernel),
+			m_helmholtz_hyper(
+				wall::get_helmholtz_g()/wall::get_distance()/wall::get_distance() * (
+					(1.0 + wall::get_ikr())*test_input.get_unit_normal().dot(trial_input.get_unit_normal()) +
+					(3.0 + 3.0*wall::get_ikr() + wall::get_ikr()*wall::get_ikr())*wall::get_rdny()*wall::get_rdnx()
+				)
+			)
+		{
+		}
+
+		/** \brief return helmholtz hypersingular kernel
+		 * \return helmholtz hypersingular kernel
+		 */
+		std::complex<scalar> const & get_helmholtz_hyper(void) const
+		{
+			return m_helmholtz_hyper;
+		}
+
+		/** \brief return Helmholtz hypersingular kernel
+		 * \return Helmholtz hypersingular kernel
+		 */
+		std::complex<scalar> const & get_result(void) const
+		{
+			return m_helmholtz_hyper;
+		}
+
+	private:
+		std::complex<scalar> m_helmholtz_hyper;
+	};
+};
+
+
+template <class scalar>
+struct helmholtz_3d_hyper_wall : build<
+	distance_vector_brick<space<scalar, 3> >,
+	distance_brick<scalar>,
+	ikr_brick<scalar>,
+	helmholtz_3d_g_brick<scalar>,
+	rdnx_brick<scalar>,
+	rdny_brick<scalar>,
+	helmholtz_3d_hyper_brick<scalar>
+> {};
+
+
+// forward declaration
+class helmholtz_3d_Hyper_kernel;
+
+/** \brief traits of the helmholtz Hyper kernel */
+template<>
+struct kernel_traits<helmholtz_3d_Hyper_kernel>
+{
+	/** \brief kernel test input type */
+	typedef build<location<space_3d>, normal_jacobian<space_3d> >::type test_input_t;
+	/** \brief kernel trial input type */
+	typedef build<location<space_3d>, normal_jacobian<space_3d> >::type trial_input_t;
+	/** \brief the kernel output type */
+	typedef helmholtz_3d_hyper_wall<space_3d::scalar_t>::type output_t;
+	/** \brief kernel result type */
+	typedef std::complex<space_3d::scalar_t> result_t;
+	/** \brief the quadrature family the kernel is integrated with */
+	typedef gauss_family_tag quadrature_family_t;
+	/** \brief indicates if K(x,y) = K(y,x) */
+	static bool const is_symmetric = true;
+	/** \brief kernel singularity order ( r^(-order) ) */
+	static unsigned const singularity_order = 3;
+	/** \brief quadrature order used to generate Duffy singular quadratures */
+	static unsigned const singular_quadrature_order = 7;
+};
+
+
+/** \brief 3D Helmholtz Hyper kernel \f$ \dots \f$ */
+class helmholtz_3d_Hyper_kernel :
+	public kernel_base<helmholtz_3d_Hyper_kernel>,
+	public reciprocal_distance_kernel<helmholtz_3d_Hyper_kernel>,
+	public kernel_with_wave_number<std::complex<space_3d::scalar_t> >
+{
+public:
+	using reciprocal_distance_kernel<helmholtz_3d_Hyper_kernel>::estimate_complexity;
+
+	helmholtz_3d_Hyper_kernel(std::complex<double> wave_number) :
+		kernel_with_wave_number(wave_number)
+	{
+	}
+};
+
+
 typedef helmholtz_3d_G_kernel helmholtz_3d_SLP_kernel;
 typedef helmholtz_3d_H_kernel helmholtz_3d_DLP_kernel;
 typedef helmholtz_3d_Ht_kernel helmholtz_3d_DLPt_kernel;
+typedef helmholtz_3d_Hyper_kernel helmholtz_3d_HSP_kernel;
 
 
 #endif // HELMHOLTZ_KERNEL_HPP_INCLUDED
