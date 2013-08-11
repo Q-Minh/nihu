@@ -163,7 +163,7 @@ struct rdnx_brick
 			trial_input_t const &trial_input,
 			kernel_t const &kernel) :
 			wall(test_input, trial_input, kernel),
-			m_rdnx(-1.0 * wall::get_distance_vector().dot(test_input.get_unit_normal()) / wall::get_distance())
+			m_rdnx(-wall::get_distance_vector().dot(test_input.get_unit_normal()) / wall::get_distance())
 		{
 		}
 
