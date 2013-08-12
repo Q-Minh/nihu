@@ -55,8 +55,6 @@ public:
 
 	/**
 	 * \brief evaluate kernel at test and trial positions
-	 * \param [in] x test position
-	 * \param [in] y trial position
 	 * \return kernel value K(x,y)
 	 */
 	constexpr result_t operator()(
@@ -64,12 +62,9 @@ public:
 	{
 		return result_t(1.0);
 	}
-	
+
 	/**
-	 * \brief evaluate kernel complexity at
-	 * \param [in] x test position
-	 * \param [in] y trial position
-	 * \param [in] s linear element size
+	 * \brief evaluate kernel complexity
 	 * \return kernel value K(x,y)
 	 */
 	constexpr unsigned estimate_complexity(

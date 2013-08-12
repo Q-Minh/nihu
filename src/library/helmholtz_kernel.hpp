@@ -19,21 +19,30 @@
 
 #include "basic_bricks.hpp"
 
+/** \brief base class for a kernel that contains a wave number data
+ * \tparam wave_number_type the wave number type (real or complex)
+ */
 template <class wave_number_type>
 class kernel_with_wave_number
 {
 public:
+	/** \brief constructor
+	 * \param [in] wn the wave number
+	 */
 	kernel_with_wave_number(wave_number_type const &wn) :
 		m_wave_number(wn)
 	{
 	}
 
-	wave_number_type const & get_wave_number(void) const
+	/** \brief return wave number
+	 * \return wave number */
+	wave_number_type const &get_wave_number(void) const
 	{
 		return m_wave_number;
 	}
 
 private:
+	/** \brief the stored wave number data */
 	wave_number_type m_wave_number;
 };
 
@@ -51,6 +60,7 @@ struct ikr_brick
 	class brick : public wall
 	{
 	public:
+		/** \brief the result type */
 		typedef std::complex<scalar> result_t;
 
 		/** \brief templated constructor
@@ -74,18 +84,18 @@ struct ikr_brick
 		/** \brief return ikr
 		 * \return ikr
 		 */
-		std::complex<scalar> const & get_ikr(void) const
+		result_t const &get_ikr(void) const
 		{
 			return m_ikr;
 		}
 
 	private:
-		std::complex<scalar> m_ikr;
+		result_t m_ikr;
 	};
 };
 
 
-/** \brief a brick representing a 3D Helmholtz kernel \f$ 1/4\pi r \f$
+/** \brief a brick representing a 3D Helmholtz kernel \f$ exp(-ikr) / 4\pi r \f$
  * \tparam scalar the scalar of the coordinate space the distance is defined over
  */
 template <class scalar>
@@ -98,6 +108,7 @@ struct helmholtz_3d_g_brick
 	class brick : public wall
 	{
 	public:
+		/** \brief the result type */
 		typedef std::complex<scalar> result_t;
 
 		/** \brief templated constructor
@@ -114,14 +125,14 @@ struct helmholtz_3d_g_brick
 			trial_input_t const &trial_input,
 			kernel_t const &kernel) :
 			wall(test_input, trial_input, kernel),
-			m_helmholtz_g(std::exp(-1.0 * wall::get_ikr()) / wall::get_distance() / (4.0 * M_PI))
+			m_helmholtz_g(std::exp(-wall::get_ikr()) / wall::get_distance() / (4.0 * M_PI))
 		{
 		}
 
 		/** \brief return helmholtz g kernel
 		 * \return helmholtz g kernel
 		 */
-		std::complex<scalar> const & get_helmholtz_g(void) const
+		result_t const &get_helmholtz_g(void) const
 		{
 			return m_helmholtz_g;
 		}
@@ -129,13 +140,13 @@ struct helmholtz_3d_g_brick
 		/** \brief return Helmholtz g kernel
 		 * \return Helmholtz g kernel
 		 */
-		std::complex<scalar> const & get_result(void) const
+		result_t const &get_result(void) const
 		{
 			return m_helmholtz_g;
 		}
 
 	private:
-		std::complex<scalar> m_helmholtz_g;
+		result_t m_helmholtz_g;
 	};
 };
 
@@ -152,11 +163,12 @@ struct helmholtz_3d_g_wall : build<
 > {};
 
 // forward declaration
-class helmholtz_3d_G_kernel;
+template <class wave_number_t>
+class helmholtz_3d_SLP_kernel;
 
 /** \brief traits of the helmholtz G kernel */
-template<>
-struct kernel_traits<helmholtz_3d_G_kernel>
+template <class wave_number_t>
+struct kernel_traits<helmholtz_3d_SLP_kernel<wave_number_t> >
 {
 	/** \brief kernel test input type */
 	typedef build<location<space_3d> >::type test_input_t;
@@ -165,7 +177,7 @@ struct kernel_traits<helmholtz_3d_G_kernel>
 	/** \brief the kernel output type */
 	typedef helmholtz_3d_g_wall<space_3d::scalar_t>::type output_t;
 	/** \brief kernel result type */
-	typedef std::complex<space_3d::scalar_t> result_t;
+	typedef typename output_t::result_t result_t;
 	/** \brief the quadrature family the kernel is integrated with */
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
@@ -178,16 +190,20 @@ struct kernel_traits<helmholtz_3d_G_kernel>
 
 
 /** \brief 3D Helmholtz G kernel \f$ 1/4\pi r\f$ */
-class helmholtz_3d_G_kernel :
-	public kernel_base<helmholtz_3d_G_kernel>,
-	public reciprocal_distance_kernel<helmholtz_3d_G_kernel>,
-	public kernel_with_wave_number<std::complex<space_3d::scalar_t> >
+template <class wave_number_t>
+class helmholtz_3d_SLP_kernel :
+	public kernel_base<helmholtz_3d_SLP_kernel<wave_number_t> >,
+	public reciprocal_distance_kernel<helmholtz_3d_SLP_kernel<wave_number_t> >,
+	public kernel_with_wave_number<wave_number_t>
 {
 public:
-	using reciprocal_distance_kernel<helmholtz_3d_G_kernel>::estimate_complexity;
+	using reciprocal_distance_kernel<helmholtz_3d_SLP_kernel>::estimate_complexity;
 
-	helmholtz_3d_G_kernel(std::complex<double> wave_number) :
-		kernel_with_wave_number(wave_number)
+	/** \brief constructor
+	 * \param [in] wave_number the wave number
+	 */
+	helmholtz_3d_SLP_kernel(wave_number_t const &wave_number) :
+		kernel_with_wave_number<wave_number_t>(wave_number)
 	{
 	}
 };
@@ -206,6 +222,7 @@ struct helmholtz_3d_h_brick
 	class brick : public wall
 	{
 	public:
+		/** \brief the result type */
 		typedef std::complex<scalar> result_t;
 
 		/** \brief templated constructor
@@ -229,7 +246,7 @@ struct helmholtz_3d_h_brick
 		/** \brief return helmholtz g kernel
 		 * \return helmholtz g kernel
 		 */
-		std::complex<scalar> const & get_helmholtz_h(void) const
+		result_t const &get_helmholtz_h(void) const
 		{
 			return m_helmholtz_h;
 		}
@@ -237,13 +254,13 @@ struct helmholtz_3d_h_brick
 		/** \brief return Helmholtz h kernel
 		 * \return Helmholtz h kernel
 		 */
-		std::complex<scalar> const & get_result(void) const
+		result_t const &get_result(void) const
 		{
 			return m_helmholtz_h;
 		}
 
 	private:
-		std::complex<scalar> m_helmholtz_h;
+		result_t m_helmholtz_h;
 	};
 };
 
@@ -260,11 +277,12 @@ struct helmholtz_3d_h_wall : build<
 
 
 // forward declaration
-class helmholtz_3d_H_kernel;
+template <class wave_number_t>
+class helmholtz_3d_DLP_kernel;
 
 /** \brief traits of the helmholtz H kernel */
-template<>
-struct kernel_traits<helmholtz_3d_H_kernel>
+template <class wave_number_t>
+struct kernel_traits<helmholtz_3d_DLP_kernel<wave_number_t> >
 {
 	/** \brief kernel test input type */
 	typedef build<location<space_3d> >::type test_input_t;
@@ -273,7 +291,7 @@ struct kernel_traits<helmholtz_3d_H_kernel>
 	/** \brief the kernel output type */
 	typedef helmholtz_3d_h_wall<space_3d::scalar_t>::type output_t;
 	/** \brief kernel result type */
-	typedef std::complex<space_3d::scalar_t> result_t;
+	typedef typename output_t::result_t result_t;
 	/** \brief the quadrature family the kernel is integrated with */
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
@@ -286,16 +304,20 @@ struct kernel_traits<helmholtz_3d_H_kernel>
 
 
 /** \brief 3D Helmholtz H kernel \f$ \exp(-ikr)/4\pi r \left(-(1+ikr)/r\right) \cdot r'_{n_y} \f$ */
-class helmholtz_3d_H_kernel :
-	public kernel_base<helmholtz_3d_H_kernel>,
-	public reciprocal_distance_kernel<helmholtz_3d_H_kernel>,
-	public kernel_with_wave_number<std::complex<space_3d::scalar_t> >
+template <class wave_number_t>
+class helmholtz_3d_DLP_kernel :
+	public kernel_base<helmholtz_3d_DLP_kernel<wave_number_t> >,
+	public reciprocal_distance_kernel<helmholtz_3d_DLP_kernel<wave_number_t> >,
+	public kernel_with_wave_number<wave_number_t>
 {
 public:
-	using reciprocal_distance_kernel<helmholtz_3d_H_kernel>::estimate_complexity;
+	using reciprocal_distance_kernel<helmholtz_3d_DLP_kernel>::estimate_complexity;
 
-	helmholtz_3d_H_kernel(std::complex<double> wave_number) :
-		kernel_with_wave_number(wave_number)
+	/** \brief constructor
+	 * \param [in] wave_number the wave number
+	 */
+	helmholtz_3d_DLP_kernel(wave_number_t const &wave_number) :
+		kernel_with_wave_number<wave_number_t>(wave_number)
 	{
 	}
 };
@@ -314,6 +336,7 @@ struct helmholtz_3d_ht_brick
 	class brick : public wall
 	{
 	public:
+		/** \brief the result type */
 		typedef std::complex<scalar> result_t;
 
 		/** \brief templated constructor
@@ -337,7 +360,7 @@ struct helmholtz_3d_ht_brick
 		/** \brief return helmholtz g kernel
 		 * \return helmholtz g kernel
 		 */
-		std::complex<scalar> const & get_helmholtz_h(void) const
+		result_t const &get_helmholtz_h(void) const
 		{
 			return m_helmholtz_ht;
 		}
@@ -345,7 +368,7 @@ struct helmholtz_3d_ht_brick
 		/** \brief return Helmholtz h kernel
 		 * \return Helmholtz h kernel
 		 */
-		std::complex<scalar> const & get_result(void) const
+		result_t const &get_result(void) const
 		{
 			return m_helmholtz_ht;
 		}
@@ -368,11 +391,12 @@ struct helmholtz_3d_ht_wall : build<
 
 
 /** \brief 3D Helmholtz kernel \f$ \exp(-ikr)/4\pi r \left(-(1+ikr)/r\right) \cdot r'_{n_x} \f$ */
-class helmholtz_3d_Ht_kernel;
+template <class wave_number_t>
+class helmholtz_3d_DLPt_kernel;
 
 /** \brief traits of the helmholtz H kernel */
-template<>
-struct kernel_traits<helmholtz_3d_Ht_kernel>
+template <class wave_number_t>
+struct kernel_traits<helmholtz_3d_DLPt_kernel<wave_number_t> >
 {
 	/** \brief kernel test input type */
 	typedef build<location<space_3d>, normal_jacobian<space_3d> >::type test_input_t;
@@ -381,7 +405,7 @@ struct kernel_traits<helmholtz_3d_Ht_kernel>
 	/** \brief the kernel output type */
 	typedef helmholtz_3d_ht_wall<space_3d::scalar_t>::type output_t;
 	/** \brief kernel result type */
-	typedef std::complex<space_3d::scalar_t> result_t;
+	typedef typename output_t::result_t result_t;
 	/** \brief the quadrature family the kernel is integrated with */
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
@@ -394,16 +418,20 @@ struct kernel_traits<helmholtz_3d_Ht_kernel>
 
 
 /** \brief 3D Helmholtz Ht kernel \f$ \exp(-ikr)/4\pi r \left(-(1+ikr)/r\right) \cdot r'_{n_x} \f$ */
-class helmholtz_3d_Ht_kernel :
-	public kernel_base<helmholtz_3d_Ht_kernel>,
-	public reciprocal_distance_kernel<helmholtz_3d_Ht_kernel>,
-	public kernel_with_wave_number<std::complex<space_3d::scalar_t> >
+template <class wave_number_t>
+class helmholtz_3d_DLPt_kernel :
+	public kernel_base<helmholtz_3d_DLPt_kernel<wave_number_t> >,
+	public reciprocal_distance_kernel<helmholtz_3d_DLPt_kernel<wave_number_t> >,
+	public kernel_with_wave_number<wave_number_t>
 {
 public:
-	using reciprocal_distance_kernel<helmholtz_3d_Ht_kernel>::estimate_complexity;
+	using reciprocal_distance_kernel<helmholtz_3d_DLPt_kernel>::estimate_complexity;
 
-	helmholtz_3d_Ht_kernel(std::complex<double> wave_number) :
-		kernel_with_wave_number(wave_number)
+	/** \brief constructor
+	 * \param [in] wave_number the wave number
+	 */
+	helmholtz_3d_DLPt_kernel(wave_number_t const &wave_number) :
+		kernel_with_wave_number<wave_number_t>(wave_number)
 	{
 	}
 };
@@ -426,6 +454,7 @@ struct helmholtz_3d_hyper_brick
 	class brick : public wall
 	{
 	public:
+		/** \brief the result type */
 		typedef std::complex<scalar> result_t;
 
 		/** \brief templated constructor
@@ -454,7 +483,7 @@ struct helmholtz_3d_hyper_brick
 		/** \brief return helmholtz hypersingular kernel
 		 * \return helmholtz hypersingular kernel
 		 */
-		std::complex<scalar> const & get_helmholtz_hyper(void) const
+		result_t const &get_helmholtz_hyper(void) const
 		{
 			return m_helmholtz_hyper;
 		}
@@ -462,13 +491,13 @@ struct helmholtz_3d_hyper_brick
 		/** \brief return Helmholtz hypersingular kernel
 		 * \return Helmholtz hypersingular kernel
 		 */
-		std::complex<scalar> const & get_result(void) const
+		result_t const &get_result(void) const
 		{
 			return m_helmholtz_hyper;
 		}
 
 	private:
-		std::complex<scalar> m_helmholtz_hyper;
+		result_t m_helmholtz_hyper;
 	};
 };
 
@@ -486,11 +515,12 @@ struct helmholtz_3d_hyper_wall : build<
 
 
 // forward declaration
-class helmholtz_3d_Hyper_kernel;
+template <class wave_number_t>
+class helmholtz_3d_HSP_kernel;
 
 /** \brief traits of the helmholtz Hyper kernel */
-template<>
-struct kernel_traits<helmholtz_3d_Hyper_kernel>
+template <class wave_number_t>
+struct kernel_traits<helmholtz_3d_HSP_kernel<wave_number_t> >
 {
 	/** \brief kernel test input type */
 	typedef build<location<space_3d>, normal_jacobian<space_3d> >::type test_input_t;
@@ -499,7 +529,7 @@ struct kernel_traits<helmholtz_3d_Hyper_kernel>
 	/** \brief the kernel output type */
 	typedef helmholtz_3d_hyper_wall<space_3d::scalar_t>::type output_t;
 	/** \brief kernel result type */
-	typedef std::complex<space_3d::scalar_t> result_t;
+	typedef typename output_t::result_t result_t;
 	/** \brief the quadrature family the kernel is integrated with */
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
@@ -512,25 +542,23 @@ struct kernel_traits<helmholtz_3d_Hyper_kernel>
 
 
 /** \brief 3D Helmholtz Hyper kernel \f$ \dots \f$ */
-class helmholtz_3d_Hyper_kernel :
-	public kernel_base<helmholtz_3d_Hyper_kernel>,
-	public reciprocal_distance_kernel<helmholtz_3d_Hyper_kernel>,
-	public kernel_with_wave_number<std::complex<space_3d::scalar_t> >
+template <class wave_number_t>
+class helmholtz_3d_HSP_kernel :
+	public kernel_base<helmholtz_3d_HSP_kernel<wave_number_t> >,
+	public reciprocal_distance_kernel<helmholtz_3d_HSP_kernel<wave_number_t> >,
+	public kernel_with_wave_number<wave_number_t>
 {
 public:
-	using reciprocal_distance_kernel<helmholtz_3d_Hyper_kernel>::estimate_complexity;
+	using reciprocal_distance_kernel<helmholtz_3d_HSP_kernel>::estimate_complexity;
 
-	helmholtz_3d_Hyper_kernel(std::complex<double> wave_number) :
-		kernel_with_wave_number(wave_number)
+	/** \brief constructor
+	 * \param [in] wave_number the wave number
+	 */
+	helmholtz_3d_HSP_kernel(wave_number_t const &wave_number) :
+		kernel_with_wave_number<wave_number_t>(wave_number)
 	{
 	}
 };
-
-
-typedef helmholtz_3d_G_kernel helmholtz_3d_SLP_kernel;
-typedef helmholtz_3d_H_kernel helmholtz_3d_DLP_kernel;
-typedef helmholtz_3d_Ht_kernel helmholtz_3d_DLPt_kernel;
-typedef helmholtz_3d_Hyper_kernel helmholtz_3d_HSP_kernel;
 
 
 #endif // HELMHOLTZ_KERNEL_HPP_INCLUDED

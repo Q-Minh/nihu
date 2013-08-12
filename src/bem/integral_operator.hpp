@@ -102,11 +102,16 @@ struct integral_operator_traits<scaled_integral_operator<Scalar, IntOp> >
 	struct wr_result_type : plain_type<
 		typename product_type<
 		Scalar,
-		typename integral_operator_traits<IntOp>::template wr_result_type<Test, Trial>::type
+		typename integral_operator_traits<
+			typename std::decay<IntOp>::type
+		>::template wr_result_type<Test, Trial>::type
 		>::type
 	> {};
 
-	static bool const is_local = integral_operator_traits<IntOp>::is_local;
+	/** \brief indicates if the operator is to be evaluated only on the same element */
+	static bool const is_local = integral_operator_traits<
+		typename std::decay<IntOp>::type
+	>::is_local;
 };
 
 
@@ -193,6 +198,7 @@ struct integral_operator_traits<identity_integral_operator>
 		typedef typename single_integral<Test, Trial>::result_t type;
 	};
 
+	/** \brief indicates if the operator is to be evaluated only on the same element */
 	static bool const is_local = true;
 };
 
@@ -238,6 +244,7 @@ struct integral_operator_traits<integral_operator<Kernel> >
 		typedef typename double_integral<Kernel, Test, Trial>::result_t type;
 	};
 
+	/** \brief indicates if the operator is to be evaluated only on the same element */
 	static bool const is_local = false;
 };
 
@@ -255,20 +262,20 @@ public:
 	typedef integral_operator_base<integral_operator<Kernel> > base_t;
 
 	/** \brief template argument as nested type */
-	typedef Kernel kernel_t;
+	typedef typename std::decay<Kernel>::type kernel_t;
 
 	/** \brief constructor from kernel reference
 	* \param [in] kernel reference to the kernel
 	*/
-	integral_operator(Kernel const &kernel) :
-		m_kernel(kernel)
+	integral_operator(Kernel &&kernel) :
+		m_kernel(std::forward<Kernel>(kernel))
 	{
 	}
 
-	/** \brief return kernel reference
+	/** \brief return kernel (reference)
 	* \return reference to the kernel
 	*/
-	Kernel &get_kernel(void) const
+	Kernel get_kernel(void) const
 	{
 		return m_kernel;
 	}
@@ -304,9 +311,26 @@ private:
 */
 template <class Kernel>
 integral_operator<Kernel>
-	create_integral_operator(Kernel const &kernel)
+	create_integral_operator(Kernel &&kernel)
 {
-	return integral_operator<Kernel>(kernel);
+	return integral_operator<Kernel>(std::forward<Kernel>(kernel));
+}
+
+
+/** \brief factory function of an integral operator with couple kernels
+* \tparam K1 the kernel type
+* \tparam Kernels the remaining kernels' type
+* \param [in] k1 the first kernel
+* \param [in] kernels the remaining kernels
+* \return the integral operator object
+*/
+template <class K1, class...Kernels>
+integral_operator<couple_kernel<K1, Kernels...> >
+	create_integral_operator(K1 &&k1, Kernels &&...kernels)
+{
+	return integral_operator<couple_kernel<K1, Kernels...> >(
+		create_couple_kernel(std::forward<K1>(k1), std::forward<Kernels>(kernels)...)
+	);
 }
 
 

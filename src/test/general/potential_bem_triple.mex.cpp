@@ -8,12 +8,12 @@ typedef Eigen::Matrix<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic> cMat
 
 int main(void)
 {
-	std::complex<double> k(1.0, 0.0);
+	double k(1.0);
 	// generating integral operators
-	auto L = create_integral_operator(helmholtz_3d_SLP_kernel(k));
-	auto M = create_integral_operator(helmholtz_3d_DLP_kernel(k));
-	auto Mt = create_integral_operator(helmholtz_3d_DLPt_kernel(k));
-	auto N = create_integral_operator(helmholtz_3d_HSP_kernel(k));
+	auto L = create_integral_operator(helmholtz_3d_SLP_kernel<double>(k));
+	auto M = create_integral_operator(helmholtz_3d_DLP_kernel<double>(k));
+	auto Mt = create_integral_operator(helmholtz_3d_DLPt_kernel<double>(k));
+	auto N = create_integral_operator(helmholtz_3d_HSP_kernel<double>(k));
 
 	// generating function spaces
 	dMatrix surf_nodes(3,3);

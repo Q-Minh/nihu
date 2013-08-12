@@ -45,7 +45,7 @@ private:
 		scalar_t const &rel_dist) const
 	{
 		/** \todo find a better approach */
-		return rel_dist < 2.0 ? 7 : ( rel_dist < 5.0 ? 3 : 0);
+		return rel_dist < 2.0 ? 5 : ( rel_dist < 5.0 ? 3 : 0);
 	}
 
 	unsigned estimate_complexity_impl(
@@ -53,7 +53,7 @@ private:
 		scalar_t const &rel_dist) const
 	{
 		/** \todo find a better approach */
-		return rel_dist < 2.0 ? 5 : ( rel_dist < 5.0 ? 3 : 0);
+		return rel_dist < 2.0 ? 7 : ( rel_dist < 5.0 ? 3 : 0);
 	}
 
 	unsigned estimate_complexity_impl(
@@ -61,7 +61,7 @@ private:
 		scalar_t const &rel_dist) const
 	{
 		/** \todo This is a blind copy, find a better approach! */
-		return rel_dist < 2.0 ? 5 : ( rel_dist < 5.0 ? 3 : 0);
+		return rel_dist < 2.0 ? 9 : ( rel_dist < 7.0 ? 5 : 0);
 	}
 };
 

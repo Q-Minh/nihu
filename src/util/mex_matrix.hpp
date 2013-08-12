@@ -171,6 +171,11 @@ public:
 	{
 	}
 
+	operator std::complex<scalar_t>()
+	{
+		return std::complex<scalar_t>(real(), imag());
+	}
+
 	/** \brief return reference to the real part
 	 * \return reference to the real part of the complex element
 	 */

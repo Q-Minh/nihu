@@ -1,7 +1,7 @@
 /**
  * \file math_functions.hpp
  * \brief general mathematical functions
- * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit/bme/hu
+ * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
  */
 #ifndef MATH_FUNCTIONS_HPP_INCLUDED
 #define MATH_FUNCTIONS_HPP_INCLUDED

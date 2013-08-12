@@ -16,13 +16,13 @@
  * \tparam TestField the test field type
  * \tparam TrialField the trial field type
  */
-template <class Kernel, class TestField, class TrialField>
+template <class WaveNumber, template< class WaveNumber> class Kernel, class TestField, class TrialField>
 class singular_integral_shortcut<
 	formalism::collocational,
-	Kernel, TestField, TrialField,
+	Kernel<WaveNumber>, TestField, TrialField,
 	typename std::enable_if<
-		( std::is_same<Kernel, helmholtz_3d_DLP_kernel>::value ||
-		  std::is_same<Kernel, helmholtz_3d_DLPt_kernel>::value
+		( std::is_same<Kernel<WaveNumber>, helmholtz_3d_DLP_kernel<WaveNumber> >::value ||
+		  std::is_same<Kernel<WaveNumber>, helmholtz_3d_DLPt_kernel<WaveNumber> >::value
 		) && std::is_same<typename TrialField::lset_t, tria_1_shape_set>::value
 	>::type
 >
@@ -35,7 +35,7 @@ public:
 	 */
 	template <class result_t>
 	static constexpr result_t &eval(
-		result_t &result, Kernel const &, TestField const &, TrialField const &)
+		result_t &result, Kernel<WaveNumber> const &, TestField const &, TrialField const &)
 	{
 		return result;
 	}
@@ -75,9 +75,9 @@ void planar_triangle_helper(
  * \tparam TestField the test field type
  * \tparam TrialField the trial field type
  */
-template <class TestField, class TrialField>
+template <class WaveNumber, class TestField, class TrialField>
 class singular_integral_shortcut<
-	formalism::collocational, helmholtz_3d_SLP_kernel, TestField, TrialField,
+	formalism::collocational, helmholtz_3d_SLP_kernel<WaveNumber>, TestField, TrialField,
 	typename std::enable_if<
 		std::is_same<typename TrialField::lset_t, tria_1_shape_set>::value &&
 		std::is_same<typename TrialField::nset_t, tria_0_shape_set>::value
@@ -92,7 +92,7 @@ private:
 	 * \return the dynamic part of the singular kernel
 	 */
 	template <class T>
-	static std::complex<T> dynamic_part(T const &r, std::complex<T> const &k)
+	static std::complex<T> dynamic_part(T const &r, WaveNumber const &k)
 	{
 		std::complex<T> const I(0.0, 1.0);	// imaginary unit
 		return -I*k * std::exp(-I*k*r/2.0) * sinc(k*r/2.0);
@@ -102,7 +102,7 @@ public:
 	template <class result_t>
 	static result_t &eval(
 		result_t &result,
-		helmholtz_3d_SLP_kernel const &kernel,
+		helmholtz_3d_SLP_kernel<WaveNumber> const &kernel,
 		TestField const &,
 		TrialField const &trial_field)
 	{
@@ -139,10 +139,10 @@ private:
 };
 
 /** \brief Static regular quadrature instance */
-template <class TestField, class TrialField>
+template <class WaveNumber, class TestField, class TrialField>
 gauss_tria const
 singular_integral_shortcut<
-	formalism::collocational, helmholtz_3d_SLP_kernel, TestField, TrialField,
+	formalism::collocational, helmholtz_3d_SLP_kernel<WaveNumber>, TestField, TrialField,
 	typename std::enable_if<
 		std::is_same<typename TrialField::lset_t, tria_1_shape_set>::value &&
 		std::is_same<typename TrialField::nset_t, tria_0_shape_set>::value
@@ -154,9 +154,9 @@ singular_integral_shortcut<
  * \tparam TestField the test field type
  * \tparam TrialField the trial field type
  */
-template <class TestField, class TrialField>
+template <class WaveNumber, class TestField, class TrialField>
 class singular_integral_shortcut<
-	formalism::collocational, helmholtz_3d_HSP_kernel, TestField, TrialField,
+	formalism::collocational, helmholtz_3d_HSP_kernel<WaveNumber>, TestField, TrialField,
 	typename std::enable_if<
 		std::is_same<typename TrialField::lset_t, tria_1_shape_set>::value &&
 		std::is_same<typename TrialField::nset_t, tria_0_shape_set>::value
@@ -171,7 +171,7 @@ private:
 	 * \return the dynamic part of the singular kernel
 	 */
 	template <class T>
-	static std::complex<T> dynamic_part(T const &r, std::complex<T> const &k)
+	static std::complex<T> dynamic_part(T const &r, WaveNumber const &k)
 	{
 		std::complex<T> const I(0.0, 1.0);	// imaginary unit
 		std::complex<T> const ikr(I*k*r);
@@ -184,7 +184,7 @@ public:
 	template <class result_t>
 	static result_t &eval(
 		result_t &result,
-		helmholtz_3d_HSP_kernel const &kernel,
+		helmholtz_3d_HSP_kernel<WaveNumber> const &kernel,
 		TestField const &,
 		TrialField const &trial_field)
 	{
@@ -212,7 +212,7 @@ public:
 		I_acc *= tr_elem.get_normal(gauss_tria::xi_t()).norm();
 
 		// assemble result from static and dynamic parts
-		std::complex<double> k2p2 = kernel.get_wave_number()*kernel.get_wave_number()/2.0;
+		auto k2p2 = kernel.get_wave_number()*kernel.get_wave_number()/2.0;
 		result(0,0) += (IGG + k2p2 * IG + I_acc) / (4.0 * M_PI);
 
 		return result;
@@ -224,10 +224,10 @@ private:
 };
 
 /** \brief Static regular quadrature instance */
-template <class TestField, class TrialField>
+template <class WaveNumber, class TestField, class TrialField>
 gauss_tria const
 singular_integral_shortcut<
-	formalism::collocational, helmholtz_3d_HSP_kernel, TestField, TrialField,
+	formalism::collocational, helmholtz_3d_HSP_kernel<WaveNumber>, TestField, TrialField,
 	typename std::enable_if<
 		std::is_same<typename TrialField::lset_t, tria_1_shape_set>::value &&
 		std::is_same<typename TrialField::nset_t, tria_0_shape_set>::value

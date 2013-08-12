@@ -26,10 +26,9 @@ void mexFunction(
 	// generating integral operators
 
 	auto LM = create_integral_operator(
-		create_couple_kernel(
 			poisson_3d_SLP_kernel(),
-			poisson_3d_DLP_kernel()));
-	auto I = -.5 * identity_integral_operator();
+			poisson_3d_DLP_kernel());
+	auto I = identity_integral_operator();
 
 	// surface system matrices
 
@@ -38,7 +37,7 @@ void mexFunction(
 	dMatrix Ms(n, n, lhs[1]);
 
 	(Ls, Ms) << ( surf_sp * LM[surf_sp] );
-	Ms << ( surf_sp *  I[surf_sp] );
+	Ms << ( surf_sp * (-.5*I)[surf_sp] );
 
 	// field point system matrices
 

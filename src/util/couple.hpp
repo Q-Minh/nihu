@@ -236,7 +236,7 @@ public:
 		return *this;
 	}
 
-	/** \brif return row proxy */
+	/** \brief return row proxy */
 	couple_row<couple> row(unsigned idx)
 	{
 		return couple_row<couple>(*this, idx);

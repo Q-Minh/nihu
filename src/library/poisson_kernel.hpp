@@ -30,6 +30,7 @@ struct poisson_2d_g_brick
 	class brick : public wall
 	{
 	public:
+		/** \brief the result type */
 		typedef scalar result_t;
 
 		/** \brief templated constructor
@@ -84,11 +85,11 @@ struct poisson_2d_g_wall : build<
 
 
 // forward declaration
-class poisson_2d_G_kernel;
+class poisson_2d_SLP_kernel;
 
 /** \brief traits of the Poisson 2D G kernel */
 template<>
-struct kernel_traits<poisson_2d_G_kernel>
+struct kernel_traits<poisson_2d_SLP_kernel>
 {
 	/** \brief kernel test input type */
 	typedef build<location<space_2d> >::type test_input_t;
@@ -109,12 +110,12 @@ struct kernel_traits<poisson_2d_G_kernel>
 };
 
 /** \brief 2D Poisson kernel \f$ -\ln r/2\pi \f$ */
-class poisson_2d_G_kernel :
-	public kernel_base<poisson_2d_G_kernel>,
-	public reciprocal_distance_kernel<poisson_2d_G_kernel>
+class poisson_2d_SLP_kernel :
+	public kernel_base<poisson_2d_SLP_kernel>,
+	public reciprocal_distance_kernel<poisson_2d_SLP_kernel>
 {
 public:
-	using reciprocal_distance_kernel<poisson_2d_G_kernel>::estimate_complexity;
+	using reciprocal_distance_kernel<poisson_2d_SLP_kernel>::estimate_complexity;
 };
 
 
@@ -132,6 +133,7 @@ struct poisson_2d_h_brick
 	class brick : public wall
 	{
 	public:
+		/** \brief the result type */
 		typedef scalar result_t;
 
 		/** \brief templated constructor
@@ -148,7 +150,7 @@ struct poisson_2d_h_brick
 			trial_input_t const &trial_input,
 			kernel_t const &kernel) :
 			wall(test_input, trial_input, kernel),
-			m_poisson_h(-1.0/wall::get_distance() / (2.0 * M_PI) * wall::get_rdny())
+			m_poisson_h(-wall::get_rdny()/wall::get_distance() / (2.0 * M_PI))
 		{
 		}
 
@@ -187,11 +189,11 @@ struct poisson_2d_h_wall : build<
 
 
 // forward declaration
-class poisson_2d_H_kernel;
+class poisson_2d_DLP_kernel;
 
 /** \brief traits of the Poisson 2D H kernel */
 template<>
-struct kernel_traits<poisson_2d_H_kernel>
+struct kernel_traits<poisson_2d_DLP_kernel>
 {
 	/** \brief kernel test input type */
 	typedef build<location<space_2d> >::type test_input_t;
@@ -212,12 +214,12 @@ struct kernel_traits<poisson_2d_H_kernel>
 };
 
 /** \brief 2D Poisson kernel \f$ -1/2\pi r \cdot r'_{n_y} \f$ */
-class poisson_2d_H_kernel :
-	public kernel_base<poisson_2d_H_kernel>,
-	public reciprocal_distance_kernel<poisson_2d_H_kernel>
+class poisson_2d_DLP_kernel :
+	public kernel_base<poisson_2d_DLP_kernel>,
+	public reciprocal_distance_kernel<poisson_2d_DLP_kernel>
 {
 public:
-	using reciprocal_distance_kernel<poisson_2d_H_kernel>::estimate_complexity;
+	using reciprocal_distance_kernel<poisson_2d_DLP_kernel>::estimate_complexity;
 };
 
 
@@ -234,6 +236,7 @@ struct poisson_2d_ht_brick
 	class brick : public wall
 	{
 	public:
+		/** \brief the result type */
 		typedef scalar result_t;
 
 		/** \brief templated constructor
@@ -250,7 +253,7 @@ struct poisson_2d_ht_brick
 			trial_input_t const &trial_input,
 			kernel_t const &kernel) :
 			wall(test_input, trial_input, kernel),
-			m_poisson_ht(-1.0/wall::get_distance() / (2.0 * M_PI) * wall::get_rdnx())
+			m_poisson_ht(-wall::get_rdnx()/wall::get_distance() / (2.0 * M_PI))
 		{
 		}
 
@@ -289,11 +292,11 @@ struct poisson_2d_ht_wall : build<
 
 
 // forward declaration
-class poisson_2d_Ht_kernel;
+class poisson_2d_DLPt_kernel;
 
 /** \brief traits of the Poisson 2D Ht kernel */
 template<>
-struct kernel_traits<poisson_2d_Ht_kernel>
+struct kernel_traits<poisson_2d_DLPt_kernel>
 {
 	/** \brief kernel trial input type */
 	typedef build<location<space_2d>, normal_jacobian<space_2d> >::type test_input_t;
@@ -314,12 +317,12 @@ struct kernel_traits<poisson_2d_Ht_kernel>
 };
 
 /** \brief 2D Poisson kernel \f$ -1/2\pi r \cdot r'_{n_x} \f$ */
-class poisson_2d_Ht_kernel :
-	public kernel_base<poisson_2d_Ht_kernel>,
-	public reciprocal_distance_kernel<poisson_2d_Ht_kernel>
+class poisson_2d_DLPt_kernel :
+	public kernel_base<poisson_2d_DLPt_kernel>,
+	public reciprocal_distance_kernel<poisson_2d_DLPt_kernel>
 {
 public:
-	using reciprocal_distance_kernel<poisson_2d_Ht_kernel>::estimate_complexity;
+	using reciprocal_distance_kernel<poisson_2d_DLPt_kernel>::estimate_complexity;
 };
 
 
@@ -337,6 +340,7 @@ struct poisson_3d_g_brick
 	class brick : public wall
 	{
 	public:
+		/** \brief the result type */
 		typedef scalar result_t;
 
 		/** \brief templated constructor
@@ -391,11 +395,11 @@ struct poisson_3d_g_wall : build<
 
 
 // forward declaration
-class poisson_3d_G_kernel;
+class poisson_3d_SLP_kernel;
 
 /** \brief traits of the Poisson 3D G kernel */
 template<>
-struct kernel_traits<poisson_3d_G_kernel>
+struct kernel_traits<poisson_3d_SLP_kernel>
 {
 	/** \brief kernel test input type */
 	typedef build<location<space_3d> >::type test_input_t;
@@ -416,12 +420,12 @@ struct kernel_traits<poisson_3d_G_kernel>
 };
 
 /** \brief 3D Poisson kernel \f$ 1/4\pi r\f$ */
-class poisson_3d_G_kernel :
-	public kernel_base<poisson_3d_G_kernel>,
-	public reciprocal_distance_kernel<poisson_3d_G_kernel>
+class poisson_3d_SLP_kernel :
+	public kernel_base<poisson_3d_SLP_kernel>,
+	public reciprocal_distance_kernel<poisson_3d_SLP_kernel>
 {
 public:
-	using reciprocal_distance_kernel<poisson_3d_G_kernel>::estimate_complexity;
+	using reciprocal_distance_kernel<poisson_3d_SLP_kernel>::estimate_complexity;
 };
 
 
@@ -438,6 +442,7 @@ struct poisson_3d_h_brick
 	class brick : public wall
 	{
 	public:
+		/** \brief the result type */
 		typedef scalar result_t;
 
 		/** \brief templated constructor
@@ -454,7 +459,7 @@ struct poisson_3d_h_brick
 			trial_input_t const &trial_input,
 			kernel_t const &kernel) :
 			wall(test_input, trial_input, kernel),
-			m_poisson_h(-1.0 * wall::get_poisson_g() * wall::get_rdny() / wall::get_distance())
+			m_poisson_h(-wall::get_poisson_g() * wall::get_rdny() / wall::get_distance())
 		{
 		}
 
@@ -494,11 +499,11 @@ struct poisson_3d_h_wall : build<
 
 
 // forward declaration
-class poisson_3d_H_kernel;
+class poisson_3d_DLP_kernel;
 
 /** \brief traits of the Poisson H kernel */
 template<>
-struct kernel_traits<poisson_3d_H_kernel>
+struct kernel_traits<poisson_3d_DLP_kernel>
 {
 	/** \brief kernel test input type */
 	typedef build<location<space_3d> >::type test_input_t;
@@ -519,12 +524,12 @@ struct kernel_traits<poisson_3d_H_kernel>
 };
 
 /** \brief 3D Poisson kernel \f$ -1/4\pi r^2 \cdot dr/dn \f$ */
-class poisson_3d_H_kernel :
-	public kernel_base<poisson_3d_H_kernel>,
-	public reciprocal_distance_kernel<poisson_3d_H_kernel>
+class poisson_3d_DLP_kernel :
+	public kernel_base<poisson_3d_DLP_kernel>,
+	public reciprocal_distance_kernel<poisson_3d_DLP_kernel>
 {
 public:
-	using reciprocal_distance_kernel<poisson_3d_H_kernel>::estimate_complexity;
+	using reciprocal_distance_kernel<poisson_3d_DLP_kernel>::estimate_complexity;
 };
 
 
@@ -541,6 +546,7 @@ struct poisson_3d_ht_brick
 	class brick : public wall
 	{
 	public:
+		/** \brief the result type */
 		typedef scalar result_t;
 
 		/** \brief templated constructor
@@ -557,7 +563,7 @@ struct poisson_3d_ht_brick
 			trial_input_t const &trial_input,
 			kernel_t const &kernel) :
 			wall(test_input, trial_input, kernel),
-			m_poisson_ht(-1.0 * wall::get_poisson_g() * wall::get_rdnx() / wall::get_distance())
+			m_poisson_ht(-wall::get_poisson_g() * wall::get_rdnx() / wall::get_distance())
 		{
 		}
 
@@ -597,11 +603,11 @@ struct poisson_3d_ht_wall : build<
 
 
 // forward declaration
-class poisson_3d_Ht_kernel;
+class poisson_3d_DLPt_kernel;
 
 /** \brief traits of the Poisson H kernel */
 template<>
-struct kernel_traits<poisson_3d_Ht_kernel>
+struct kernel_traits<poisson_3d_DLPt_kernel>
 {
 	/** \brief kernel test input type */
 	typedef build<location<space_3d>, normal_jacobian<space_3d> >::type test_input_t;
@@ -622,12 +628,12 @@ struct kernel_traits<poisson_3d_Ht_kernel>
 };
 
 /** \brief 3D Poisson derivative kernel \f$ -1/4\pi r^2 \cdot r'_{n_x} \f$ */
-class poisson_3d_Ht_kernel :
-	public kernel_base<poisson_3d_Ht_kernel>,
-	public reciprocal_distance_kernel<poisson_3d_Ht_kernel>
+class poisson_3d_DLPt_kernel :
+	public kernel_base<poisson_3d_DLPt_kernel>,
+	public reciprocal_distance_kernel<poisson_3d_DLPt_kernel>
 {
 public:
-	using reciprocal_distance_kernel<poisson_3d_Ht_kernel>::estimate_complexity;
+	using reciprocal_distance_kernel<poisson_3d_DLPt_kernel>::estimate_complexity;
 };
 
 
@@ -644,6 +650,7 @@ struct poisson_3d_hyper_brick
 	class brick : public wall
 	{
 	public:
+		/** \brief the result type */
 		typedef scalar result_t;
 
 		/** \brief templated constructor
@@ -705,11 +712,11 @@ struct poisson_3d_hyper_wall : build<
 
 
 // forward declaration
-class poisson_3d_Hyper_kernel;
+class poisson_3d_HSP_kernel;
 
 /** \brief traits of the Poisson H kernel */
 template<>
-struct kernel_traits<poisson_3d_Hyper_kernel>
+struct kernel_traits<poisson_3d_HSP_kernel>
 {
 	/** \brief kernel test input type */
 	typedef build<location<space_3d>, normal_jacobian<space_3d> >::type test_input_t;
@@ -730,24 +737,13 @@ struct kernel_traits<poisson_3d_Hyper_kernel>
 };
 
 /** \brief 3D Poisson derivative kernel \f$ 1/4\pi r^3 \cdot \left( n_x n_y + 3 r'_{n_x} r'_{n_y} \right) \f$ */
-class poisson_3d_Hyper_kernel :
-	public kernel_base<poisson_3d_Hyper_kernel>,
-	public reciprocal_distance_kernel<poisson_3d_Hyper_kernel>
+class poisson_3d_HSP_kernel :
+	public kernel_base<poisson_3d_HSP_kernel>,
+	public reciprocal_distance_kernel<poisson_3d_HSP_kernel>
 {
 public:
-	using reciprocal_distance_kernel<poisson_3d_Hyper_kernel>::estimate_complexity;
+	using reciprocal_distance_kernel<poisson_3d_HSP_kernel>::estimate_complexity;
 };
-
-
-typedef poisson_2d_G_kernel poisson_2d_SLP_kernel;
-typedef poisson_2d_H_kernel poisson_2d_DLP_kernel;
-typedef poisson_2d_Ht_kernel poisson_2d_DLPt_kernel;
-// typedef poisson_2d_Hyper_kernel poisson_2d_HSPt_kernel;
-
-typedef poisson_3d_G_kernel poisson_3d_SLP_kernel;
-typedef poisson_3d_H_kernel poisson_3d_DLP_kernel;
-typedef poisson_3d_Ht_kernel poisson_3d_DLPt_kernel;
-typedef poisson_3d_Hyper_kernel poisson_3d_HSP_kernel;
 
 #endif // POISSON_KERNEL_HPP_INCLUDED
 
