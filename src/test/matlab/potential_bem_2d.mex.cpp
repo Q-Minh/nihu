@@ -5,7 +5,6 @@
 
 typedef mex::real_matrix<double> dMatrix;
 
-
 void mexFunction(int nlhs, mxArray *lhs[],
 	int nrhs, mxArray const *rhs[])
 {
@@ -20,7 +19,6 @@ void mexFunction(int nlhs, mxArray *lhs[],
 	dMatrix field_nodes(rhs[2]), field_elements(rhs[3]);
 	auto field_mesh = create_mesh(field_nodes, field_elements, _line_1_tag());
 	auto const &field_sp = dirac(constant_view(field_mesh));
-
 
 	auto L = create_integral_operator(poisson_2d_SLP_kernel());
 	auto M = create_integral_operator(poisson_2d_DLP_kernel());
