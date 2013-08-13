@@ -8,6 +8,7 @@
 
 #include "../bem/integral_operator.hpp"
 #include "poisson_kernel.hpp"
+#include "plane_triangle_helper.hpp"
 
 /** \brief Collocational singular integrals of the DLP and DLPt kernels over a plane elements
  * \tparam Formalism the integration formalism (collocational or general)
@@ -78,36 +79,6 @@ public:
 };
 
 
-/** helper function to compute angles and radius in a plane triangle */
-template <class scalar_t>
-void planar_triangle_helper(
-	tria_1_elem const &elem,
-	scalar_t r[],
-	scalar_t theta[],
-	scalar_t alpha [])
-{
-	auto const &C_old = elem.get_coords();
-	auto const &x0 = elem.get_center();
-	unsigned const N = tria_1_elem::num_nodes;
-
-	typename tria_1_elem::coords_t R, C;
-	for (unsigned i = 0; i < N; ++i)
-	{
-		R.col(i) = C_old.col(i) - x0;
-		r[i] = R.col(i).norm();
-		R.col(i) /= r[i];
-		C.col(i) = C_old.col(i) - C_old.col((i+1) % N);
-		C.col(i) /= C.col(i).norm();
-	}
-
-	for (unsigned i = 0; i < N; ++i)
-	{
-		theta[i] = std::acos(R.col(i).dot(R.col((i+1) % N)));
-		alpha[i] = std::acos(R.col(i).dot(C.col(i)));
-	}
-}
-
-
 /** \brief collocational singular integral of the SLP kernel over a constant triangle
  * \tparam TestField the test field type
  * \tparam TrialField the trial field type
@@ -134,7 +105,7 @@ public:
 		planar_triangle_helper(trial_field.get_elem(), r, theta, alpha);
 
 		for (unsigned i = 0; i < N; ++i)
-			result(0,0) += r[i] * std::sin(alpha[i]) * std::log(std::tan((alpha[i]+theta[i])/2.0)/tan(alpha[i]/2.0));
+			result(0,0) += r[i] * std::sin(alpha[i]) * std::log(std::tan((alpha[i]+theta[i])/2.0)/std::tan(alpha[i]/2.0));
 
 		result(0,0) /= (4.0 * M_PI);
 

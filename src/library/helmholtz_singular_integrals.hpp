@@ -1,6 +1,6 @@
 /** \file helmholtz_singular_integrals.hpp
  * \brief (Semi)analytical expressions for the singular integrals of Helmholtz kernels
- * \details Semianalytical expression for the helmholtz kernels over plane triangles
+ * \details Semianalytical expression for the Helmholtz kernels over plane triangles
  * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
  */
 #ifndef HELMHOLTZ_SINGULAR_INTEGRALS_HPP_INCLUDED
@@ -10,8 +10,9 @@
 #include "helmholtz_kernel.hpp"
 
 #include "../util/math_functions.hpp"
+#include "plane_triangle_helper.hpp"
 
-/** \brief Trivial collocational singular integrals of various kernels over plane surfaces
+/** \brief Trivial collocational integrals of various kernels over plane surfaces
  * \tparam Kernel the kernel type
  * \tparam TestField the test field type
  * \tparam TrialField the trial field type
@@ -40,36 +41,6 @@ public:
 		return result;
 	}
 };
-
-/** helper function to compute angles and radius in a plane triangle */
-template <class scalar_t>
-void planar_triangle_helper(
-	tria_1_elem const &elem,
-	scalar_t r[],
-	scalar_t theta[],
-	scalar_t alpha [])
-{
-	auto const &C_old = elem.get_coords();
-	auto const &x0 = elem.get_center();
-	unsigned const N = tria_1_elem::num_nodes;
-
-	typename tria_1_elem::coords_t R, C;
-	for (unsigned i = 0; i < N; ++i)
-	{
-		R.col(i) = C_old.col(i) - x0;
-		r[i] = R.col(i).norm();
-		R.col(i) /= r[i];
-		C.col(i) = C_old.col(i) - C_old.col((i+1) % N);
-		C.col(i) /= C.col(i).norm();
-	}
-
-	for (unsigned i = 0; i < N; ++i)
-	{
-		theta[i] = std::acos(R.col(i).dot(R.col((i+1) % N)));
-		alpha[i] = std::acos(R.col(i).dot(C.col(i)));
-	}
-}
-
 
 /** \brief Collocational singular integral of the SLP kernel over a constant triangle
  * \tparam TestField the test field type
@@ -111,7 +82,11 @@ public:
 		planar_triangle_helper(trial_field.get_elem(), r, theta, alpha);
 
 		for (unsigned i = 0; i < N; ++i)
-			result(0,0) += r[i] * std::sin(alpha[i]) * std::log(std::tan((alpha[i]+theta[i])/2.0)/tan(alpha[i]/2.0));
+			result(0,0) += r[i] * std::sin(alpha[i]) *
+				std::log(
+					std::tan((alpha[i]+theta[i])/2.0)/
+					std::tan(alpha[i]/2.0)
+				);
 
 
 		// integrate dynamic_part
@@ -123,7 +98,7 @@ public:
 				(tr_elem.get_x(it->get_xi()) - x0).norm(),
 				kernel.get_wave_number()
 			) * it->get_w();
-		// multiply by jacobian
+		// multiply by Jacobian
 		I_acc *= tr_elem.get_normal(gauss_tria::xi_t()).norm();
 
 		result(0,0) += I_acc;
