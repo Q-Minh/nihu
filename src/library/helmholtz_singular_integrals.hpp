@@ -113,7 +113,9 @@ private:
 	static gauss_tria const m_quadrature;
 };
 
-/** \brief Static regular quadrature instance */
+/** \brief Static regular quadrature instance
+ * \todo replace with a store pattern templated on N only
+ */
 template <class WaveNumber, class TestField, class TrialField>
 gauss_tria const
 singular_integral_shortcut<
@@ -198,7 +200,9 @@ private:
 	static gauss_tria const m_quadrature;
 };
 
-/** \brief Static regular quadrature instance */
+/** \brief Static regular quadrature instance
+ * \todo replace with a store pattern templated on N only
+ */
 template <class WaveNumber, class TestField, class TrialField>
 gauss_tria const
 singular_integral_shortcut<

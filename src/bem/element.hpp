@@ -12,45 +12,6 @@
 #include "../tmp/bool.hpp"
 #include "shapeset.hpp"
 
-/**
- * \brief class describing the overlapping state of two elements
- */
-class element_overlapping
-{
-public:
-	/** \brief return number of coincident nodes */
-	unsigned get_num(void) const
-	{
-		return num;
-	}
-
-	/** \brief return index of first coincident node in element 1 */
-	unsigned get_ind1(void) const
-	{
-		return ind1;
-	}
-
-	/** \brief return index of first coincident node in element 2 */
-	unsigned get_ind2(void) const
-	{
-		return ind2;
-	}
-
-	/** \brief constructor */
-	element_overlapping(
-		unsigned num = 0, unsigned ind1 = 0, unsigned ind2 = 0) :
-		num(num), ind1(ind1), ind2(ind2)
-	{
-	}
-
-private:
-	/** \brief number of coincident nodes */
-	unsigned num;
-	/** \brief start node indices */
-	unsigned ind1, ind2;
-};
-
-
 /** \brief Traits class describing element properties */
 template <class Derived>
 struct element_traits;

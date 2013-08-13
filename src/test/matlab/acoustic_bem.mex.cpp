@@ -9,7 +9,7 @@ typedef mex::complex_matrix<double> cMatrix;
 void mexFunction(int nlhs, mxArray *lhs[],
 	int nrhs, mxArray const *rhs[])
 {
-	if (nlhs < 8 || nrhs < 4)
+	if (nlhs < 8 || nrhs < 5)
 		throw("Too few input or output arguments");
 
 	dMatrix surf_nodes(rhs[0]), surf_elements(rhs[1]);
@@ -21,7 +21,7 @@ void mexFunction(int nlhs, mxArray *lhs[],
 	auto field_mesh = create_mesh(field_nodes, field_elements, _quad_1_tag());
 	auto const &field_sp = dirac(constant_view(field_mesh));
 
-	double k = 1.0;
+	double k = *mxGetPr(rhs[4]);
 	auto L = create_integral_operator(helmholtz_3d_SLP_kernel<double>(k));
 	auto M = create_integral_operator(helmholtz_3d_DLP_kernel<double>(k));
 	auto Mt = create_integral_operator(helmholtz_3d_DLPt_kernel<double>(k));

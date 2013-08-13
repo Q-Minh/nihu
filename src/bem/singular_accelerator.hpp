@@ -128,51 +128,12 @@ public:
 	static unsigned const singular_quadrature_order = kernel_traits<kernel_t>::singular_quadrature_order;
 
 	/**
-	* \brief determine if singular integration is needed and store singularity type
-	* \param [in] test_field the test field
-	* \param [in] trial_field the trial_field
-	* \return true if singular integration is needed
-	*/
-	bool is_singular(
-		field_base<test_field_t> const &test_field,
-		field_base<trial_field_t> const &trial_field)
-	{
-		// check face match for same element types
-		if (face_match_possible)
-		{
-			if (test_field.get_elem().get_id() == trial_field.get_elem().get_id())
-			{
-				m_sing_type = FACE_MATCH;
-				return true;
-			}
-		}
-
-		m_cur_overlap = test_field.get_elem().get_overlapping(trial_field.get_elem());
-
-		// check edge match
-		if (m_cur_overlap.get_num() > 1)
-		{
-			m_sing_type = EDGE_MATCH;
-			return true;
-		}
-		// check corner match
-		if (m_cur_overlap.get_num() == 1)
-		{
-			m_sing_type = CORNER_MATCH;
-			return true;
-		}
-
-		m_sing_type = REGULAR;
-		return false;
-	}
-
-	/**
 	* \brief return begin iterator of the singular quadrature
 	* \return begin iterator of the singular quadrature
 	*/
-	iterator begin(void) const
+	iterator begin(element_match const &elem_match) const
 	{
-		switch (m_sing_type)
+		switch (elem_match.get_singularity_type())
 		{
 		case FACE_MATCH:
 			return iterator(
@@ -181,13 +142,13 @@ public:
 			break;
 		case EDGE_MATCH:
 			return iterator(
-				m_edge_test_quadrature[m_cur_overlap.get_ind1()].begin(),
-				m_edge_trial_quadrature[m_cur_overlap.get_ind2()].begin());
+				m_edge_test_quadrature[elem_match.get_overlap().get_ind1()].begin(),
+				m_edge_trial_quadrature[elem_match.get_overlap().get_ind2()].begin());
 			break;
 		case CORNER_MATCH:
 			return iterator(
-				m_corner_test_quadrature[m_cur_overlap.get_ind1()].begin(),
-				m_corner_trial_quadrature[m_cur_overlap.get_ind2()].begin());
+				m_corner_test_quadrature[elem_match.get_overlap().get_ind1()].begin(),
+				m_corner_trial_quadrature[elem_match.get_overlap().get_ind2()].begin());
 			break;
 		case REGULAR:
 			throw("Cannot return singular quadrature for regular type");
@@ -201,9 +162,9 @@ public:
 	* \brief return end iterator of the singular quadrature
 	* \return end iterator of the singular quadrature
 	*/
-	iterator end() const
+	iterator end(element_match const &elem_match) const
 	{
-		switch (m_sing_type)
+		switch (elem_match.get_singularity_type())
 		{
 		case FACE_MATCH:
 			return iterator(
@@ -212,13 +173,13 @@ public:
 			break;
 		case EDGE_MATCH:
 			return iterator(
-				m_edge_test_quadrature[m_cur_overlap.get_ind1()].end(),
-				m_edge_trial_quadrature[m_cur_overlap.get_ind2()].end());
+				m_edge_test_quadrature[elem_match.get_overlap().get_ind1()].end(),
+				m_edge_trial_quadrature[elem_match.get_overlap().get_ind2()].end());
 			break;
 		case CORNER_MATCH:
 			return iterator(
-				m_corner_test_quadrature[m_cur_overlap.get_ind1()].end(),
-				m_corner_trial_quadrature[m_cur_overlap.get_ind2()].end());
+				m_corner_test_quadrature[elem_match.get_overlap().get_ind1()].end(),
+				m_corner_trial_quadrature[elem_match.get_overlap().get_ind2()].end());
 			break;
 		case REGULAR:
 			throw("Cannot return singular quadrature for regular type");
@@ -288,7 +249,7 @@ public:
 			// rotate
 			m_corner_trial_quadrature[i] =
 				trial_corner_q.template transform<isoparam_shape_set<trial_domain_t> >(trial_corners);
-				
+
 			// when dealing with the EDGE_MATCH case, we need to take into consideration that the test and
 			// trial elements contain the singular edge in opposite nodal order. Therefore, if the
 			// test element's singular edge is 0-1, then the trial element's singular edge should be 1-0
@@ -306,9 +267,6 @@ public:
 	}
 
 protected:
-	singularity_type m_sing_type;	/**< \brief the current singulartity type */
-	element_overlapping m_cur_overlap;	/**< \brief the current overlapping state */
-
 	/**\brief singular quadrature on the test elem for FACE_MATCH case */
 	test_quadrature_t m_face_test_quadrature;
 	/**\brief singular quadrature on the trial elem for FACE_MATCH case */
@@ -363,7 +321,7 @@ public:
 	/** \brief quadrature family */
 	typedef typename kernel_traits<kernel_t>::quadrature_family_t quadrature_family_t;
 	/** \brief the trial quadrature type */
-	typedef typename quadrature_type<	
+	typedef typename quadrature_type<
 		quadrature_family_t, trial_domain_t
 	>::type trial_quadrature_t;
 	/** \brief quadrature element type (it should be the same for test and trial) */
@@ -380,24 +338,6 @@ public:
 
 	/** \brief indicates whether FACE_MATCH is possible */
 	static const bool face_match_possible = std::is_same<test_elem_t, trial_elem_t>::value;
-
-	/**
-	* \brief determine if singular integration is needed and store singularity type
-	* \param [in] test_field the test field
-	* \param [in] trial_field the trial_field
-	* \return true if singular integration is needed
-	*/
-	bool is_singular(
-		field_base<test_field_t> const &test_field,
-		field_base<trial_field_t> const &trial_field)
-	{
-		if (face_match_possible && test_field.get_elem().get_id() == trial_field.get_elem().get_id())
-		{
-			m_sing_type = FACE_MATCH;
-			return true;
-		}
-		return false;
-	}
 
 	/**
 	* \brief return begin iterator of the singular quadrature
@@ -422,9 +362,8 @@ public:
 	}
 
 protected:
-	singularity_type m_sing_type;	/**< \brief the actual singularity type */
 	/** \brief pointer to the trial singular quadrature */
-	trial_quadrature_t m_face_trial_quadratures[test_nset_t::num_nodes];	
+	trial_quadrature_t m_face_trial_quadratures[test_nset_t::num_nodes];
 };
 
 #endif // SINGULAR_ACCELERATOR_HPP_INCLUDED
