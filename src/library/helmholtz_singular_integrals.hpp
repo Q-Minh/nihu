@@ -7,8 +7,8 @@
 #define HELMHOLTZ_SINGULAR_INTEGRALS_HPP_INCLUDED
 
 #include "../bem/integral_operator.hpp"
-#include "helmholtz_kernel.hpp"
 
+#include "helmholtz_kernel.hpp"
 #include "../util/math_functions.hpp"
 #include "plane_triangle_helper.hpp"
 
@@ -42,6 +42,17 @@ public:
 	}
 };
 
+
+template <unsigned order>
+struct tria_quad_store
+{
+	static gauss_tria const quadrature;
+};
+
+template <unsigned order>
+gauss_tria const tria_quad_store<order>::quadrature(order);
+
+
 /** \brief Collocational singular integral of the SLP kernel over a constant triangle
  * \tparam TestField the test field type
  * \tparam TrialField the trial field type
@@ -56,6 +67,11 @@ class singular_integral_shortcut<
 >
 {
 private:
+	enum {
+		quadrature_order = 7
+	};
+	typedef tria_quad_store<quadrature_order> quadr_t;
+
 	/** \brief Compute the regular dynamic part of the singular kernel
 	 * \tparam T the scalar type
 	 * \param [in] r the scalar distance
@@ -93,7 +109,7 @@ public:
 		auto const &tr_elem = trial_field.get_elem();
 		auto const &x0 = tr_elem.get_center();
 		std::complex<double> I_acc = 0.0;
-		for (auto it = m_quadrature.begin(); it != m_quadrature.end(); ++it)
+		for (auto it = quadr_t::quadrature.begin(); it != quadr_t::quadrature.end(); ++it)
 			I_acc += dynamic_part(
 				(tr_elem.get_x(it->get_xi()) - x0).norm(),
 				kernel.get_wave_number()
@@ -107,24 +123,7 @@ public:
 
 		return result;
 	}
-
-private:
-	/** \brief Regular quadrature used to integrate the dynamic part */
-	static gauss_tria const m_quadrature;
 };
-
-/** \brief Static regular quadrature instance
- * \todo replace with a store pattern templated on N only
- */
-template <class WaveNumber, class TestField, class TrialField>
-gauss_tria const
-singular_integral_shortcut<
-	formalism::collocational, helmholtz_3d_SLP_kernel<WaveNumber>, TestField, TrialField,
-	typename std::enable_if<
-		std::is_same<typename TrialField::lset_t, tria_1_shape_set>::value &&
-		std::is_same<typename TrialField::nset_t, tria_0_shape_set>::value
-	>::type
->::m_quadrature(7);
 
 
 /** \brief Collocational singular integral of the HSP kernel over a constant triangle
@@ -141,6 +140,11 @@ class singular_integral_shortcut<
 >
 {
 private:
+	enum {
+		quadrature_order = 7
+	};
+	typedef tria_quad_store<quadrature_order> quadr_t;
+
 	/** \brief Compute the regular dynamic part of the singular kernel
 	 * \tparam T the scalar type
 	 * \param [in] r the scalar distance
@@ -180,7 +184,7 @@ public:
 		auto const &tr_elem = trial_field.get_elem();
 		auto const &x0 = tr_elem.get_center();
 		std::complex<double> I_acc = 0.0;
-		for (auto it = m_quadrature.begin(); it != m_quadrature.end(); ++it)
+		for (auto it = quadr_t::quadrature.begin(); it != quadr_t::quadrature.end(); ++it)
 			I_acc += dynamic_part(
 				(tr_elem.get_x(it->get_xi()) - x0).norm(),
 				kernel.get_wave_number()
@@ -194,23 +198,6 @@ public:
 
 		return result;
 	}
-
-private:
-	/** \brief Regular quadrature used to integrate the dynamic part */
-	static gauss_tria const m_quadrature;
 };
-
-/** \brief Static regular quadrature instance
- * \todo replace with a store pattern templated on N only
- */
-template <class WaveNumber, class TestField, class TrialField>
-gauss_tria const
-singular_integral_shortcut<
-	formalism::collocational, helmholtz_3d_HSP_kernel<WaveNumber>, TestField, TrialField,
-	typename std::enable_if<
-		std::is_same<typename TrialField::lset_t, tria_1_shape_set>::value &&
-		std::is_same<typename TrialField::nset_t, tria_0_shape_set>::value
-	>::type
->::m_quadrature(7);
 
 #endif // HELMHOLTZ_SINGULAR_INTEGRALS_HPP_INCLUDED
