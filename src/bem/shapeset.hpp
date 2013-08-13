@@ -7,6 +7,7 @@
 #ifndef SHAPESET_HPP_INCLUDED
 #define SHAPESET_HPP_INCLUDED
 
+#include <iostream>
 #include "domain.hpp"
 
 /** \brief Traits for shapesets */
@@ -20,9 +21,10 @@ template <class shape_set>
 struct shape_set_id
 {
 	/** \brief default shape set id computation */
-	static unsigned const value = 
+	enum { value =
 		domain_id<typename shape_set_traits<shape_set>::domain_t>::value * 100 +
-		shape_set_traits<shape_set>::num_nodes;
+		shape_set_traits<shape_set>::num_nodes
+	};
 };
 
 /**
@@ -37,16 +39,14 @@ public:
 	typedef shape_set_traits<Derived> traits_t;
 
 	/** \brief Domain */
-	typedef typename traits_t::domain_t domain_t;			
-	/** \brief Number of nodes */
-	static unsigned const num_nodes = traits_t::num_nodes;
-	/** \brief highest power of a local variable in the shape_set */
-	static unsigned const polynomial_order = traits_t::polynomial_order;
-	/** \brief highest power of a local variable in the jacobian of the shape set transformation */
-	static unsigned const jacobian_order = traits_t::jacobian_order;
+	typedef typename traits_t::domain_t domain_t;
 
-	/** \brief the shape set id */
-	static unsigned const id = shape_set_id<Derived>::value;
+	enum {
+		num_nodes = traits_t::num_nodes,
+		polynomial_order = traits_t::polynomial_order,
+		jacobian_order = traits_t::jacobian_order,
+		id = shape_set_id<Derived>::value
+	};
 
 	/** \brief scalar type inherited from the domain */
 	typedef typename domain_t::scalar_t scalar_t;
@@ -86,13 +86,13 @@ template <class Domain>
 struct shape_set_traits<constant_shape_set<Domain> >
 {
 	/** \brief the domain type */
-	typedef Domain domain_t;	
-	/** \brief number of nodes */	
-	static unsigned const num_nodes = 1;
-	/** \brief highest power of local variables in the shape function */
-	static unsigned const polynomial_order = 0;
-	/** \brief highest power of local variables in the Jacobian */
-	static unsigned const jacobian_order = 0;
+	typedef Domain domain_t;
+	/** \brief number of nodes */
+	enum {
+		num_nodes = 1,
+		polynomial_order = 0,
+		jacobian_order = 0
+	};
 };
 
 /**
@@ -214,10 +214,11 @@ struct isoparam_shape_set_traits_base
 {
 	/** \brief the domain type */
 	typedef Domain domain_t;
-	/** \brief number of nodes */
-	static unsigned const num_nodes = domain_t::num_corners;
-	/** \brief highest power of local variables in the shape functions */
-	static unsigned const polynomial_order = 1;
+
+	enum {
+		num_nodes = domain_t::num_corners,
+		polynomial_order = 1
+	};
 };
 
 
@@ -231,7 +232,7 @@ struct shape_set_traits<isoparam_shape_set<line_domain> >
 	: isoparam_shape_set_traits_base<line_domain>
 {
 	/** \brief highest power of local variables in the jacobian */
-	static unsigned const jacobian_order = 0;
+	enum { jacobian_order = 0 };
 };
 
 /** \brief Traits of the isoparametric triangle shape set */
@@ -240,7 +241,7 @@ struct shape_set_traits<isoparam_shape_set<tria_domain> >
 	: isoparam_shape_set_traits_base<tria_domain>
 {
 	/** \brief highest power of local variables in the jacobian */
-	static unsigned const jacobian_order = 0;
+	enum { jacobian_order = 0 };
 };
 
 /** \brief Traits of the isoparametric quadrangle shape set */
@@ -249,7 +250,7 @@ struct shape_set_traits<isoparam_shape_set<quad_domain> >
 	: isoparam_shape_set_traits_base<quad_domain>
 {
 	/** \brief highest power of local variables in the jacobian */
-	static unsigned const jacobian_order = 1;
+	enum { jacobian_order = 1 };
 };
 
 /** \brief Traits of the isoparametric brick shape set */
@@ -258,7 +259,7 @@ struct shape_set_traits<isoparam_shape_set<brick_domain> >
 	: isoparam_shape_set_traits_base<brick_domain>
 {
 	/** \brief highest power of local variables in the jacobian */
-	static unsigned const jacobian_order = 1;
+	enum { jacobian_order = 1 };
 };
 
 /**
@@ -476,13 +477,13 @@ inline typename brick_1_shape_set::dshape_t
 {
 	dshape_t dL;
 	dL <<
-		(-1.0)*(1.0-xi[1])*(1.0-xi[2])/8.0, (1.0-xi[0])*(-1.0)*(1.0-xi[2])/8.0, (1.0-xi[0])*(1.0-xi[1])*(-1.0)/8.0, 
-		(+1.0)*(1.0-xi[1])*(1.0-xi[2])/8.0, (1.0+xi[0])*(-1.0)*(1.0-xi[2])/8.0, (1.0+xi[0])*(1.0-xi[1])*(-1.0)/8.0, 
-		(+1.0)*(1.0+xi[1])*(1.0-xi[2])/8.0, (1.0+xi[0])*(+1.0)*(1.0-xi[2])/8.0, (1.0+xi[0])*(1.0+xi[1])*(-1.0)/8.0, 
-		(-1.0)*(1.0+xi[1])*(1.0-xi[2])/8.0, (1.0-xi[0])*(+1.0)*(1.0-xi[2])/8.0, (1.0-xi[0])*(1.0+xi[1])*(-1.0)/8.0, 
-		(-1.0)*(1.0-xi[1])*(1.0+xi[2])/8.0, (1.0-xi[0])*(-1.0)*(1.0+xi[2])/8.0, (1.0-xi[0])*(1.0-xi[1])*(+1.0)/8.0, 
-		(+1.0)*(1.0-xi[1])*(1.0+xi[2])/8.0, (1.0+xi[0])*(-1.0)*(1.0+xi[2])/8.0, (1.0+xi[0])*(1.0-xi[1])*(+1.0)/8.0, 
-		(+1.0)*(1.0+xi[1])*(1.0+xi[2])/8.0, (1.0+xi[0])*(+1.0)*(1.0+xi[2])/8.0, (1.0+xi[0])*(1.0+xi[1])*(+1.0)/8.0, 
+		(-1.0)*(1.0-xi[1])*(1.0-xi[2])/8.0, (1.0-xi[0])*(-1.0)*(1.0-xi[2])/8.0, (1.0-xi[0])*(1.0-xi[1])*(-1.0)/8.0,
+		(+1.0)*(1.0-xi[1])*(1.0-xi[2])/8.0, (1.0+xi[0])*(-1.0)*(1.0-xi[2])/8.0, (1.0+xi[0])*(1.0-xi[1])*(-1.0)/8.0,
+		(+1.0)*(1.0+xi[1])*(1.0-xi[2])/8.0, (1.0+xi[0])*(+1.0)*(1.0-xi[2])/8.0, (1.0+xi[0])*(1.0+xi[1])*(-1.0)/8.0,
+		(-1.0)*(1.0+xi[1])*(1.0-xi[2])/8.0, (1.0-xi[0])*(+1.0)*(1.0-xi[2])/8.0, (1.0-xi[0])*(1.0+xi[1])*(-1.0)/8.0,
+		(-1.0)*(1.0-xi[1])*(1.0+xi[2])/8.0, (1.0-xi[0])*(-1.0)*(1.0+xi[2])/8.0, (1.0-xi[0])*(1.0-xi[1])*(+1.0)/8.0,
+		(+1.0)*(1.0-xi[1])*(1.0+xi[2])/8.0, (1.0+xi[0])*(-1.0)*(1.0+xi[2])/8.0, (1.0+xi[0])*(1.0-xi[1])*(+1.0)/8.0,
+		(+1.0)*(1.0+xi[1])*(1.0+xi[2])/8.0, (1.0+xi[0])*(+1.0)*(1.0+xi[2])/8.0, (1.0+xi[0])*(1.0+xi[1])*(+1.0)/8.0,
 		(-1.0)*(1.0+xi[1])*(1.0+xi[2])/8.0, (1.0-xi[0])*(+1.0)*(1.0+xi[2])/8.0, (1.0-xi[0])*(1.0+xi[1])*(+1.0)/8.0;
 	return dL;
 }
@@ -496,13 +497,13 @@ template<>
 struct shape_set_traits<parallelogram_shape_set>
 {
 	/** \brief the domain type */
-	typedef quad_domain domain_t;	
+	typedef quad_domain domain_t;
 	/** \brief number of nodes */
-	static unsigned const num_nodes = 3;
-	/** \brief highest power of local variables in the shape function */
-	static unsigned const polynomial_order = 1;
-	/** \brief highest power of local variables in the jacobian */
-	static unsigned const jacobian_order = 0;
+	enum {
+		num_nodes = 3,
+		polynomial_order = 1,
+		jacobian_order = 0
+	};
 };
 
 /**
@@ -564,11 +565,11 @@ struct shape_set_traits<tria_2_shape_set>
 	/** \brief the domain type */
 	typedef tria_domain domain_t;
 	/** \brief number of nodes */
-	static unsigned const num_nodes = 6;
-	/** \brief highest power of local variables in the shape function */
-	static unsigned const polynomial_order = 2;
-	/** \brief highest power of local variables in the jacobian */
-	static unsigned const jacobian_order = 2;
+	enum {
+		num_nodes = 6,
+		polynomial_order = 2,
+		jacobian_order = 2
+	};
 };
 
 /**
@@ -649,11 +650,11 @@ template<>
 struct shape_set_traits<quad_2_shape_set>
 {
 	typedef quad_domain domain_t;	/**< \brief the domain type */
-	static unsigned const num_nodes = 9;	/**< \brief number of nodes */
-	/** \brief highest power of local variables in the shape function */
-	static unsigned const polynomial_order = 2;
-	/** \brief highest power of local variables in the Jacobian */
-	static unsigned const jacobian_order = 3;
+	enum {
+		num_nodes = 9,
+		polynomial_order = 2,
+		jacobian_order = 3
+	};
 };
 
 /**

@@ -7,7 +7,7 @@
 #ifndef SPACE_HPP_INCLUDED
 #define SPACE_HPP_INCLUDED
 
-#include "includes.h"
+#include <Eigen/Dense>
 
 /** \brief class representing a space with a scalar vaiable and a dimension
  * \tparam Scalar the scalar variable

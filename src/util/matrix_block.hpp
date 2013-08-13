@@ -7,7 +7,7 @@
 #ifndef MATRIX_BLOCK_HPP_INCLUDED
 #define MATRIX_BLOCK_HPP_INCLUDED
 
-#include "../bem/couple.hpp"
+#include "couple.hpp"
 
 /**
  * \brief proxy class to represent a block of a matrix
@@ -44,6 +44,30 @@ public:
 				m_matrix(m_rows(i), m_cols(j)) += rhs(i, j);
 	}
 
+private:
+	template <class C, int idx>
+	struct increase_couple
+	{
+		static void eval(C const &rhs, matrix_block const &mb)
+		{
+			for (int i = 0; i < mb.m_rows.size(); ++i)
+				for (int j = 0; j < mb.m_cols.size(); ++j)
+					mb.m_matrix.template get<idx-1>()(mb.m_rows(i), mb.m_cols(j))
+						+= rhs.template get<idx-1>()(i, j);
+
+			increase_couple<C, idx-1>::eval(rhs, mb);
+		}
+	};
+	
+	template <class C>
+	struct increase_couple<C, 0>
+	{
+		static void eval(C const &, matrix_block const &)
+		{
+		}
+	};
+	
+public:
 	/**
 	 * \brief increment the block with a subcouple
 	 * \tparam MA the first submatrix type in the couple
@@ -52,17 +76,10 @@ public:
 	 * block of couples
 	 * \param [in] rhs the submatrix to add to the block
 	 */
-	template <class MA, class MB>
-	void operator +=(couple<MA, MB> const &rhs) const
+	template <class...Args>
+	void operator +=(couple<Args...> const &rhs) const
 	{
-		for (int i = 0; i < m_rows.size(); ++i)
-		{
-			for (int j = 0; j < m_cols.size(); ++j)
-			{
-				m_matrix.first()(m_rows(i), m_cols(j)) += rhs.first()(i, j);
-				m_matrix.second()(m_rows(i), m_cols(j)) += rhs.second()(i, j);
-			}
-		}
+		increase_couple<couple<Args...>, couple_traits<couple<Args...> >::tuple_size>::eval(rhs, *this);
 	}
 
 protected:

@@ -1,10 +1,10 @@
 #include "util/mex_matrix.hpp"
 #include "bem/weighted_residual.hpp"
-#include "library/poisson_kernel.hpp"
-#include "library/poisson_singular_integrals.hpp"
+#include "library/helmholtz_kernel.hpp"
+#include "library/helmholtz_singular_integrals.hpp"
 
 typedef mex::real_matrix<double> dMatrix;
-
+typedef mex::complex_matrix<double> cMatrix;
 
 void mexFunction(int nlhs, mxArray *lhs[],
 	int nrhs, mxArray const *rhs[])
@@ -21,15 +21,15 @@ void mexFunction(int nlhs, mxArray *lhs[],
 	auto field_mesh = create_mesh(field_nodes, field_elements, _quad_1_tag());
 	auto const &field_sp = dirac(constant_view(field_mesh));
 
-
-	auto L = create_integral_operator(poisson_3d_SLP_kernel());
-	auto M = create_integral_operator(poisson_3d_DLP_kernel());
-	auto Mt = create_integral_operator(poisson_3d_DLPt_kernel());
-	auto N = create_integral_operator(poisson_3d_HSP_kernel());
+	double k = 1.0;
+	auto L = create_integral_operator(helmholtz_3d_SLP_kernel<double>(k));
+	auto M = create_integral_operator(helmholtz_3d_DLP_kernel<double>(k));
+	auto Mt = create_integral_operator(helmholtz_3d_DLPt_kernel<double>(k));
+	auto N = create_integral_operator(helmholtz_3d_HSP_kernel<double>(k));
 	auto I = identity_integral_operator();
 
 	auto n = trial_sp.get_num_dofs();
-	dMatrix Ls(n, n, lhs[0]), Ms(n, n, lhs[1]), Mts(n, n, lhs[2]), Ns(n, n, lhs[3]);
+	cMatrix Ls(n, n, lhs[0]), Ms(n, n, lhs[1]), Mts(n, n, lhs[2]), Ns(n, n, lhs[3]);
 
 	Ls << ( test_sp * L[trial_sp] );
 	Ms << ( test_sp * M[trial_sp] ) + ( test_sp * (-.5*I)[trial_sp] );
@@ -37,14 +37,11 @@ void mexFunction(int nlhs, mxArray *lhs[],
 	Ns << ( test_sp * N[trial_sp] );
 
 	auto m = field_sp.get_num_dofs();
-	dMatrix Lf(m, n, lhs[4]), Mf(m, n, lhs[5]), Mtf(m, n, lhs[6]), Nf(m, n, lhs[7]);
+	cMatrix Lf(m, n, lhs[4]), Mf(m, n, lhs[5]), Mtf(m, n, lhs[6]), Nf(m, n, lhs[7]);
 
-	auto FieldOp = create_integral_operator(
-			poisson_3d_SLP_kernel(),
-			poisson_3d_DLP_kernel(),
-			poisson_3d_DLPt_kernel(),
-			poisson_3d_HSP_kernel()
-		);
-	create_couple(Lf, Mf, Mtf, Nf) << (field_sp * FieldOp [trial_sp]);
+	Lf  << ( field_sp * L [trial_sp] );
+	Mf  << ( field_sp * M [trial_sp] );
+	Mtf << ( field_sp * Mt[trial_sp] );
+	Nf  << ( field_sp * N [trial_sp] );
 }
 

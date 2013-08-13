@@ -9,9 +9,8 @@
 #define KERNEL_HPP_INCLUDED
 
 #include "../util/crtp_base.hpp"
-#include "kernel_input.hpp"
 #include "../util/brick.hpp"
-#include "couple.hpp"
+#include "../util/couple.hpp"
 
 /**
 * \brief traits class of a kernel
@@ -132,13 +131,16 @@ public:
 };
 
 
-template <class out1, class out2>
+/** \brief a set of kernel outputs gathered in a couple
+ * \tparam outputs the output classes
+ */
+template <class...outputs>
 class couple_output :
-	merge<out1, out2>::type
+	public merge<outputs...>::type
 {
 public:
-	typedef typename merge<out1, out2>::type base_t;
-	typedef couple<typename out1::result_t, typename out2::result_t> result_t;
+	typedef typename merge<outputs...>::type base_t;
+	typedef couple<typename outputs::result_t...> result_t;
 
 	template <class test_input_t, class trial_input_t, class kernel_t>
 	couple_output(
@@ -151,69 +153,78 @@ public:
 
 	result_t get_result(void) const
 	{
-		return create_couple(
-			static_cast<typename find_in_wall<out1, base_t>::type const &>(*this).get_result(),
-			static_cast<typename find_in_wall<out2, base_t>::type const &>(*this).get_result()
+		return result_t(
+			static_cast<typename find_in_wall<outputs, base_t>::type const &>(*this).get_result()...
 		);
 	}
 };
 
 
-template <unsigned x, unsigned y>
+/** \brief compute maximum value of integral constants
+ * \todo this metafunction should be placed in a more general tmp module
+ */
+template <class Val, class...Args>
 struct max_
 {
-	static unsigned const value = x > y ? x : y;
+	static unsigned const rest = max_<Args...>::value;
+	static unsigned const x = Val::value;
+	static unsigned const value = x > rest ? x : rest;
 };
 
-template <class Kernel1, class Kerel2>
+/** \brief specialisation of ::max_ for the one parameter case */
+template <class Val>
+struct max_<Val>
+{
+	static unsigned const value = Val::value;
+};
+
+// forward declaration
+template <class...Kernels>
 class couple_kernel;
 
-template <class Kernel1, class Kernel2>
-struct kernel_traits<couple_kernel<Kernel1, Kernel2> >
+/** \brief specialisation of ::kernel_traits for the ::couple_kernel class */
+template <class...Kernels>
+struct kernel_traits<couple_kernel<Kernels...> >
 {
 	/** \brief type of the first (test) kernel input */
-	typedef typename merge<
-		typename kernel_traits<Kernel1>::test_input_t,
-		typename kernel_traits<Kernel2>::test_input_t
-	>::type test_input_t;
+	typedef typename merge<typename kernel_traits<Kernels>::test_input_t...>::type test_input_t;
 	/** \brief type of the second (trial) kernel input */
-	typedef typename merge<
-		typename kernel_traits<Kernel1>::trial_input_t,
-		typename kernel_traits<Kernel2>::trial_input_t
-	>::type trial_input_t;
+	typedef typename merge<typename kernel_traits<Kernels>::trial_input_t...>::type trial_input_t;
 	/** \brief type of the kernel output (not the result) */
-	typedef couple_output<
-		typename kernel_traits<Kernel1>::output_t,
-		typename kernel_traits<Kernel2>::output_t
-	> output_t;
+	typedef couple_output<typename kernel_traits<Kernels>::output_t...> output_t;
 	/** \brief type of the kernel's result */
 	typedef typename output_t::result_t result_t;
 	/** \brief the quadrature family the kernel is integrated with
 	\todo static assert here or something more clever
 	*/
-	typedef typename kernel_traits<Kernel1>::quadrature_family_t quadrature_family_t;
+	typedef typename kernel_traits<
+		typename std::tuple_element<0, std::tuple<Kernels...> >::type
+	>::quadrature_family_t quadrature_family_t;
 	/** \brief true if K(x,y) = K(y,x) */
-	static bool const is_symmetric =
-		kernel_traits<Kernel1>::is_symmetric &&
-		kernel_traits<Kernel2>::is_symmetric ;
+	static bool const is_symmetric = tmp::and_<
+		std::integral_constant<bool, kernel_traits<Kernels>::is_symmetric>...
+	>::value;
 	/** \brief the singularity order ( r^(-order) ) */
 	static unsigned const singularity_order = max_<
-		kernel_traits<Kernel1>::singularity_order,
-		kernel_traits<Kernel1>::singularity_order>::value;
+		std::integral_constant<unsigned, kernel_traits<Kernels>::singularity_order>...
+	>::value;
 	/** \brief the quadrature order used for the generation of Duffy type singular quadratures */
 	static unsigned const singular_quadrature_order = max_<
-		kernel_traits<Kernel1>::singular_quadrature_order,
-		kernel_traits<Kernel1>::singular_quadrature_order>::value;
+		std::integral_constant<unsigned, kernel_traits<Kernels>::singular_quadrature_order>...
+	>::value;
 };
 
 
-template <class Kernel1, class Kernel2>
+/** \brief a kernel consistin of a set of kernels
+ * \tparam Kernels the type list of kernels
+ */
+template <class...Kernels>
 class couple_kernel :
-	public kernel_base<couple_kernel<Kernel1, Kernel2> >
+	public kernel_base<couple_kernel<Kernels...> >
 {
 public:
 	/** \brief the traits class */
-	typedef kernel_base<couple_kernel<Kernel1, Kernel2> > base_t;
+	typedef kernel_base<couple_kernel<Kernels...> > base_t;
 	
 	/** \brief type of the first (test) kernel input */
 	typedef typename base_t::test_input_t test_input_t;
@@ -222,10 +233,11 @@ public:
 	/** \brief type of the second (trial) kernel input */
 	typedef typename base_t::scalar_t scalar_t;
 
-	couple_kernel(
-		kernel_base<Kernel1> const &k1,
-		kernel_base<Kernel2> const &k2) :
-		m_k1(k1.derived())
+	/** \brief constructor from list of constant references
+	 * \param [in] kernels references to kernel instances
+	 */
+	couple_kernel(kernel_base<Kernels> const &...kernels) :
+		m_kernels(kernels.derived()...)
 	{
 	}
 
@@ -235,25 +247,31 @@ public:
 	 * \param [in] y trial position
 	 * \param [in] reference_size linear estimated size of the trial element
 	 * \return polynomial degree needed for accurate integration
+	 * \todo find a more sophisticated :) solution
 	 */
 	unsigned estimate_complexity(
 		test_input_t const &x,
 		trial_input_t const &y,
 		scalar_t const &reference_size) const
 	{
-		return m_k1.estimate_complexity(x, y, reference_size);
+		return std::get<0>(m_kernels).estimate_complexity(x, y, reference_size);
 	}
 
 private:
-	Kernel1 m_k1;
+	std::tuple<Kernels...> m_kernels;
 };
 
 
-template <class Kernel1, class Kernel2>
-couple_kernel<Kernel1, Kernel2>
-	create_couple_kernel(kernel_base<Kernel1> const &k1, kernel_base<Kernel2> const &k2)
+/** \brief factory function to create a couple kernel instance
+ * \tparam Args type list of kernels
+ * \param [in] args the kernel instances
+ * \return a couple kernel instance
+ */
+template <class...Args>
+couple_kernel<Args...>
+	create_couple_kernel(kernel_base<Args> const &...args)
 {
-	return couple_kernel<Kernel1, Kernel2>(k1, k2);
+	return couple_kernel<Args...>(args...);
 }
 
 #endif // KERNEL_HPP_INCLUDED

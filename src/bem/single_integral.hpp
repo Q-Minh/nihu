@@ -9,6 +9,7 @@
 #define SINGLE_INTEGRAL_HPP_INCLUDED
 
 #include "../util/plain_type.hpp"
+#include "../util/product_type.hpp"
 #include "gaussian_quadrature.hpp"
 #include "quadrature_pool.hpp"
 
@@ -53,7 +54,12 @@ public:
 
 	/** \brief result type of the weighted residual */
 	typedef typename plain_type<
-		typename product_type<test_shape_t, Eigen::Transpose<trial_shape_t> >::type
+		typename product_type<
+			test_shape_t,
+			typename plain_type<
+				Eigen::Transpose<trial_shape_t>
+			>::type
+		>::type
 	>::type result_t;
 	
 	/** \brief the polynomial degree of the product of the n-sets and the jacobian */
@@ -113,7 +119,7 @@ public:
 	typedef typename plain_type<
 		typename product_type<
 			typename  test_nset_t::shape_t,
-			Eigen::Transpose<typename trial_nset_t::shape_t>
+			Eigen::Transpose<typename trial_nset_t::shape_t >
 		>::type
 	>::type result_t;
 	

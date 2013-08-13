@@ -2,7 +2,7 @@
  * \file bool.hpp
  * \ingroup tmp
  * \brief implementation of Boolean functions
- * \details The boolean type is alredy contained in <type_traits> as std::integral_constant<bool, x>.
+ * \details The boolean type is alredy contained in type_traits as std::integral_constant<bool, x>.
  * This file implements some Boolean functions and the compile time if_ control structure
  * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
  */
@@ -37,7 +37,7 @@ namespace tmp
 	struct and_ : std::false_type {};
 
 	template <class...Args>
-	struct and_<std::true_type, Args...> : or_<Args...> {};
+	struct and_<std::true_type, Args...> : and_<Args...> {};
 
 	template <class...Args>
 	struct and_<std::false_type, Args...> : std::false_type {};
@@ -49,15 +49,7 @@ namespace tmp
 	 * \tparam F the type returned when Choice is false_type
 	 */
 	template <class Cond, class T, class F>
-	struct if_;
-
-	/** \brief specialisation of if_ for the true choice case */
-	template <class T, class F>
-	struct if_<std::true_type, T, F> { typedef T type; };
-
-	/** \brief specialisation of if_ for the false choice case */
-	template <class T, class F>
-	struct if_<std::false_type, T, F> { typedef F type; };
+	struct if_ : std::conditional<Cond::value, T, F> {};
 }
 
 #endif

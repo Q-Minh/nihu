@@ -124,6 +124,9 @@ class dirac_field :
 	public field_impl<Field>
 {
 public:
+	/** \brief self-returning metafunction */
+	typedef dirac_field type;
+	
 	/** \brief the implementation class type */
 	typedef field_impl<Field> impl_t;
 
@@ -247,6 +250,9 @@ class field_view :
 	public field_impl<field_view<ElemType, Option> >
 {
 public:
+	/** \brief self-returning metafunction */
+	typedef field_view type;
+	
 	/** \brief the element type shorthand */
 	typedef typename field_base<field_view<ElemType, Option> >::elem_t elem_t;
 	
@@ -340,6 +346,8 @@ class field :
 	public field_impl<field<ElemType, NSet> >
 {
 public:
+	/** \brief self-returning metafunction */
+	typedef field type;
 	/** \brief the CRTP base type */
 	typedef field_base<field<ElemType, NSet> > base_t;
 	/** \brief the implementation class type */

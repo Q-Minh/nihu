@@ -7,13 +7,14 @@
 #ifndef ELEMENT_HPP_INCLUDED
 #define ELEMENT_HPP_INCLUDED
 
+#include <iostream>
 #include "../util/crtp_base.hpp"
 #include "../tmp/bool.hpp"
 #include "shapeset.hpp"
 
 /**
-* \brief class describing the overlapping state of two element
-*/
+ * \brief class describing the overlapping state of two elements
+ */
 class element_overlapping
 {
 public:
@@ -22,13 +23,13 @@ public:
 	{
 		return num;
 	}
-	
+
 	/** \brief return index of first coincident node in element 1 */
 	unsigned get_ind1(void) const
 	{
 		return ind1;
 	}
-	
+
 	/** \brief return index of first coincident node in element 2 */
 	unsigned get_ind2(void) const
 	{
@@ -59,10 +60,17 @@ template <class elem_t>
 struct elem_id
 {
 	/** \brief the elem id */
-	static unsigned const value =
+	enum {
+		value =
 		element_traits<elem_t>::space_t::dimension * 10000 +
-		shape_set_id<typename element_traits<elem_t>::lset_t>::value;
+		shape_set_id<typename element_traits<elem_t>::lset_t>::value
+	};
 };
+
+/** \brief metafunction assigning an element to an element tag */
+template <class tag>
+struct tag2element;
+
 
 /**
 * \brief The geometrical element representation
@@ -72,35 +80,37 @@ template <class Derived>
 class element_base
 {
 public:
+	/** \brief self-returning metafunction */
+	typedef Derived type;
+
 	/** \brief the CRTP derived class */
 	typedef element_traits<Derived> traits_t;
 
 	/** \brief the element space type */
 	typedef typename traits_t::space_t space_t;
-	/** \brief the dimension of the element's location variable \f$x\f$ */
-	static unsigned const x_dim = space_t::dimension;
 
 	/** \brief the elements's L-set */
 	typedef typename traits_t::lset_t lset_t;
-
-	/** \brief the element id */
-	static unsigned const id;
 
 	/** \brief the elements's reference domain */
 	typedef typename lset_t::domain_t domain_t;
 	/** \brief the base domain's scalar variable */
 	typedef typename space_t::scalar_t scalar_t;
-	/** \brief the dimension of the element's domain variable \f$\xi\f$ */
-	static unsigned const xi_dim = domain_t::dimension;
 
-	/** \brief number of shape functions in the L-set */
-	static unsigned const num_nodes = lset_t::num_nodes;
 	/** \brief type of the shape functions' independent variable \f$\xi\f$ */
 	typedef typename lset_t::xi_t xi_t;
 	/** \brief type of an \f$L(\xi)\f$ vector */
 	typedef typename lset_t::shape_t L_t;
 	/** \brief type of an \f$\nabla L(\xi)\f$ gradient matrix */
 	typedef typename lset_t::dshape_t dL_t;
+
+	enum {
+		xi_dim = domain_t::dimension,
+		x_dim = space_t::dimension,
+		/** \brief the element id */
+		id = elem_id<Derived>::value,
+		num_nodes = lset_t::num_nodes
+	};
 
 	/** \brief type of the element's independent location variable \f$x\f$ */
 	typedef typename space_t::location_t x_t;
@@ -112,7 +122,6 @@ public:
 	typedef Eigen::Matrix<scalar_t, x_dim, num_nodes> coords_t;
 	/** \brief type that stores the element's id */
 	typedef Eigen::Matrix<unsigned, 1, 1> id_t;
-
 
 protected:
 	/** \brief the element's identifier */
@@ -283,9 +292,9 @@ public:
 	}
 };
 
-template <class Derived>
-unsigned const element_base<Derived>::id = elem_id<Derived>::value;
 
+/** \brief tag of a linear line */
+struct _line_1_tag {};
 
 /** \brief a linear line element in 2D space */
 class line_1_elem;
@@ -299,7 +308,10 @@ struct element_traits<line_1_elem>
 	/** \brief the shape set */
 	typedef line_1_shape_set lset_t;
 	/** \brief indicates if the normal is stored or computed */
-	static bool const is_normal_stored = true;
+	enum
+	{
+		is_normal_stored = true
+	};
 };
 
 /** \brief a linear line element in 2D space */
@@ -333,9 +345,18 @@ protected:
 	x_t m_normal;
 };
 
+/** \brief element assigned to the _line_1_tag */
+template <>
+struct tag2element<_line_1_tag> : line_1_elem {};
+
+
+
 
 /** \brief a linear triangle element in 3D space */
 class tria_1_elem;
+
+/** \brief tag of a quadrilateral element */
+struct _tria_1_tag {};
 
 /** \brief element properties of a linear 3D tria element */
 template <>
@@ -346,7 +367,10 @@ struct element_traits<tria_1_elem>
 	/** \brief the shape set */
 	typedef tria_1_shape_set lset_t;
 	/** \brief indicates if the normal is stored or computed */
-	static bool const is_normal_stored = true;
+	enum
+	{
+		is_normal_stored = true
+	};
 };
 
 /** \brief a linear tria element in 3D space */
@@ -381,6 +405,11 @@ protected:
 	x_t m_normal;
 };
 
+/** \brief element assigned to the _tria_1_tag */
+template <>
+struct tag2element<_tria_1_tag> : tria_1_elem {};
+
+
 
 /** \brief a linear quad element in 3D space */
 class quad_1_elem;
@@ -394,8 +423,11 @@ struct element_traits<quad_1_elem>
 	/** \brief the shape set */
 	typedef quad_1_shape_set lset_t;
 	/** \brief indicates if the normal is stored or computed */
-	static bool const is_normal_stored = false;
+	enum { is_normal_stored = false };
 };
+
+/** \brief tag of a quadrilateral element */
+struct _quad_1_tag {};
 
 /** \brief a linear quad element in 3D space */
 class quad_1_elem : public element_base<quad_1_elem>
@@ -436,6 +468,10 @@ protected:
 	dx_t m_n_xi;
 };
 
+/** \brief element assigned to the _quad_1_tag */
+template <>
+struct tag2element<_quad_1_tag> : quad_1_elem {};
+
 
 // forward declaration
 template <class LSet, class scalar_t>
@@ -450,7 +486,10 @@ struct element_traits<general_surface_element<LSet, scalar_t> >
 	/** \brief the shape set */
 	typedef LSet lset_t;
 	/** \brief indicates if the normal is stored or computed */
-	static bool const is_normal_stored = true;
+	enum
+	{
+		is_normal_stored = true
+	};
 };
 
 /** \brief class describing a general surface element that computes its normal in the general way

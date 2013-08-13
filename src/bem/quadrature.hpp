@@ -6,6 +6,7 @@
 #ifndef QUADRATURE_HPP_INCLUDED
 #define QUADRATURE_HPP_INCLUDED
 
+#include "../util/eigen_utils.hpp"
 #include "shapeset.hpp"
 
 /**

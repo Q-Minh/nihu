@@ -9,7 +9,7 @@
 /** \brief iterator class provides access to its value_t after static cast
  * \tparam FromIt the original iterator type
  * \tparam To the new value type
- * \Through an intermediate value typ if needed for static cast
+ * \tparam Through an intermediate value type if needed for static cast
  */
 template <class FromIt, class To, class Through = To>
 class casted_iterator :

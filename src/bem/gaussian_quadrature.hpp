@@ -10,6 +10,8 @@
 
 #include "quadrature.hpp"
 
+#include <stdexcept>
+
 /**
  * \brief return 1D N-point Guassian quadrature
  * \tparam scalar_t the scalar type

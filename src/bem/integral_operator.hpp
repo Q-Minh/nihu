@@ -7,18 +7,19 @@
 #ifndef INTEGRAL_OPERATOR_HPP_INCLUDED
 #define INTEGRAL_OPERATOR_HPP_INCLUDED
 
+namespace formalism
+{
+	struct general {};
+	struct collocational {};
+}
+
 #include "../util/crtp_base.hpp"
 #include "function_space.hpp"
 #include "single_integral.hpp"
 #include "double_integral.hpp"
 
-// forward declaration
 template <class Operator, class TrialSpace>
 class projection;
-
-// forward declaration
-template <class Scalar, class Derived>
-class scaled_integral_operator;
 
 /* \brief traits class for an integral operator
 * \tparam Derived the CRTP derived class
@@ -40,10 +41,7 @@ public:
 
 	/** \brief metafunction obtained from the traits class */
 	template <class Test, class Trial>
-	struct wr_result_type
-	{
-		typedef typename traits_t::template wr_result_type<Test, Trial>::type type;
-	};
+	struct wr_result_type : traits_t::template wr_result_type<Test, Trial> {};
 
 	/** \brief sub-weighted residual on a test and a trial field
 	* \tparam Test the test field type
@@ -67,64 +65,67 @@ public:
 	}
 
 	/** \brief factory index operator from function space rhs
-	* \tparam Trial the trial function space
-	* \param [in] trial the function space reference
-	* \return projection object
+	* \tparam FuncSpace the trial function space
+	* \param [in] funcspace the function space reference
+	* \return projection proxy object
 	*/
-	template <class Trial>
-	projection<Derived, Trial>
-		operator[](function_space_base<Trial> const & trial) const
+	template <class FuncSpace>
+	projection<
+		Derived,
+		typename std::enable_if<is_function_space<FuncSpace>::value, FuncSpace>::type
+	>
+		operator[](FuncSpace &&funcspace)
 	{
-		return projection<Derived, Trial>(*this, trial);
+		return projection<Derived, FuncSpace>(
+			derived(),
+			std::forward<FuncSpace>(funcspace));
 	}
 };
 
+template <class IntOp>
+struct is_integral_operator : std::is_base_of<
+	integral_operator_base<typename std::decay<IntOp>::type>,
+	typename std::decay<IntOp>::type
+>{};
 
-/** \brief factory operator to create a scaled integral operator
-* \tparam Scalar the scalar type to multply with
-* \tparam Derived the integral operator
-* \param [in] scalar the scalar to multiply with
-* \param [in] rhs the right hand side integral operator
-* \return a scaled integral operator proxy object
-*/
-template <class Scalar, class Derived>
-scaled_integral_operator<Scalar, Derived>
-	operator*(Scalar const &scalar, integral_operator_base<Derived> const &rhs)
-{
-	return scaled_integral_operator<Scalar, Derived>(scalar, rhs.derived());
-}
+
+template <class Scalar, class IntOp>
+class scaled_integral_operator;
 
 
 /** \brief traits class of class ::scaled_integral_operator */
-template <class Scalar, class Derived>
-struct integral_operator_traits<scaled_integral_operator<Scalar, Derived> >
+template <class Scalar, class IntOp>
+struct integral_operator_traits<scaled_integral_operator<Scalar, IntOp> >
 {
 	/** \brief metafunction returning the result type of a double integral */
 	template <class Test, class Trial>
-	struct wr_result_type
-	{
-		typedef typename plain_type<
-			typename product_type<
-			Scalar,
-			typename integral_operator_traits<Derived>::template wr_result_type<Test, Trial>::type
-			>::type
-		>::type type;
-	};
+	struct wr_result_type : plain_type<
+		typename product_type<
+		Scalar,
+		typename integral_operator_traits<
+			typename std::decay<IntOp>::type
+		>::template wr_result_type<Test, Trial>::type
+		>::type
+	> {};
 
-	static bool const is_local = integral_operator_traits<Derived>::is_local;
+	/** \brief indicates if the operator is to be evaluated only on the same element */
+	static bool const is_local = integral_operator_traits<
+		typename std::decay<IntOp>::type
+	>::is_local;
 };
+
 
 /** \brief Proxy class representing an integral operator multiplied by a scalar
 * \tparam Scalar the scalar type
-* \tparam Derived the integral operator's type
+* \tparam IntOp the integral operator's type
 */
-template <class Scalar, class Derived>
+template <class Scalar, class IntOp>
 class scaled_integral_operator :
-	public integral_operator_base<scaled_integral_operator<Scalar, Derived> >
+	public integral_operator_base<scaled_integral_operator<Scalar, IntOp> >
 {
 public:
 	/** \brief the CRTP base class */
-	typedef integral_operator_base<scaled_integral_operator<Scalar, Derived> > base_t;
+	typedef integral_operator_base<scaled_integral_operator<Scalar, IntOp> > base_t;
 
 
 	/** \brief constructor from a scalar and an integral operator instance
@@ -132,9 +133,10 @@ public:
 	* \param parent the integral operator to multiply with the scalar
 	*/
 	scaled_integral_operator(
-		Scalar const &scalar,
-		integral_operator_base<Derived> const &parent) :
-		m_scalar(scalar), m_parent(parent.derived())
+		Scalar &&scalar,
+		IntOp &&parent) :
+		m_scalar(std::forward<Scalar>(scalar)),
+		m_parent(std::forward<IntOp>(parent))
 	{
 	}
 
@@ -157,10 +159,30 @@ public:
 
 private:
 	/** \brief the scalar miltiplier */
-	Scalar const m_scalar;
+	Scalar m_scalar;
 	/** \brief the parent operator */
-	Derived const m_parent;
+	IntOp m_parent;
 };
+
+
+/** \brief factory operator to create a scaled integral operator
+* \tparam Scalar the scalar type to multply with
+* \tparam IntOp the integral operator
+* \param [in] scalar the scalar to multiply with
+* \param [in] intop the right hand side integral operator
+* \return a scaled integral operator proxy object
+*/
+template <class Scalar, class IntOp>
+scaled_integral_operator<
+	Scalar,
+	typename std::enable_if<is_integral_operator<IntOp>::value, IntOp>::type
+>
+	operator*(Scalar &&scalar, IntOp &&intop)
+{
+	return scaled_integral_operator<Scalar, IntOp>(
+		std::forward<Scalar>(scalar),
+		std::forward<IntOp>(intop));
+}
 
 
 // forward declaration
@@ -176,6 +198,7 @@ struct integral_operator_traits<identity_integral_operator>
 		typedef typename single_integral<Test, Trial>::result_t type;
 	};
 
+	/** \brief indicates if the operator is to be evaluated only on the same element */
 	static bool const is_local = true;
 };
 
@@ -221,6 +244,7 @@ struct integral_operator_traits<integral_operator<Kernel> >
 		typedef typename double_integral<Kernel, Test, Trial>::result_t type;
 	};
 
+	/** \brief indicates if the operator is to be evaluated only on the same element */
 	static bool const is_local = false;
 };
 
@@ -238,20 +262,20 @@ public:
 	typedef integral_operator_base<integral_operator<Kernel> > base_t;
 
 	/** \brief template argument as nested type */
-	typedef Kernel kernel_t;
+	typedef typename std::decay<Kernel>::type kernel_t;
 
 	/** \brief constructor from kernel reference
 	* \param [in] kernel reference to the kernel
 	*/
-	integral_operator(Kernel const &kernel) :
-		m_kernel(kernel)
+	integral_operator(Kernel &&kernel) :
+		m_kernel(std::forward<Kernel>(kernel))
 	{
 	}
 
-	/** \brief return kernel reference
+	/** \brief return kernel (reference)
 	* \return reference to the kernel
 	*/
-	Kernel &get_kernel(void) const
+	Kernel get_kernel(void) const
 	{
 		return m_kernel;
 	}
@@ -287,9 +311,26 @@ private:
 */
 template <class Kernel>
 integral_operator<Kernel>
-	create_integral_operator(Kernel const &kernel)
+	create_integral_operator(Kernel &&kernel)
 {
-	return integral_operator<Kernel>(kernel);
+	return integral_operator<Kernel>(std::forward<Kernel>(kernel));
+}
+
+
+/** \brief factory function of an integral operator with couple kernels
+* \tparam K1 the kernel type
+* \tparam Kernels the remaining kernels' type
+* \param [in] k1 the first kernel
+* \param [in] kernels the remaining kernels
+* \return the integral operator object
+*/
+template <class K1, class...Kernels>
+integral_operator<couple_kernel<K1, Kernels...> >
+	create_integral_operator(K1 &&k1, Kernels &&...kernels)
+{
+	return integral_operator<couple_kernel<K1, Kernels...> >(
+		create_couple_kernel(std::forward<K1>(k1), std::forward<Kernels>(kernels)...)
+	);
 }
 
 
