@@ -82,12 +82,17 @@ class singular_accelerator<formalism::general, Kernel, TestField, TrialField>
 	static_assert(std::is_base_of<field_base<TrialField>, TrialField>::value,
 		"The trial field must be derived from field_base<TrialField>");
 public:
-	typedef Kernel kernel_t;	/**< \brief template argument as nested type */
-	typedef TestField test_field_t;	/**< \brief template argument as nested type */
-	typedef TrialField trial_field_t;	/**< \brief template argument as nested type */
+	/** \brief template argument as nested type */
+	typedef Kernel kernel_t;
+	/** \brief template argument as nested type */
+	typedef TestField test_field_t;
+	/** \brief template argument as nested type */
+	typedef TrialField trial_field_t;
 
-	typedef typename test_field_t::elem_t::domain_t test_domain_t;		/**< \brief test domain */
-	typedef typename trial_field_t::elem_t::domain_t trial_domain_t;	/**< \brief trial domain */
+	/** \brief test domain */
+	typedef typename test_field_t::elem_t::domain_t test_domain_t;
+	/** \brief trial domain */
+	typedef typename trial_field_t::elem_t::domain_t trial_domain_t;
 
 	/** \brief number of test domain corners */
 	static unsigned const n_test_corners = test_domain_t::num_corners;
@@ -307,11 +312,15 @@ public:
 	/** \brief template argument as nested type */
 	typedef TrialField trial_field_t;
 
-	typedef typename test_field_t::elem_t test_elem_t;	/**< \brief the test elem type */
-	typedef typename trial_field_t::elem_t trial_elem_t;	/**< \brief trial elem type */
+	/** \brief the test elem type */
+	typedef typename test_field_t::elem_t test_elem_t;
+	/** \brief trial elem type */
+	typedef typename trial_field_t::elem_t trial_elem_t;
 
-	typedef typename test_elem_t::domain_t test_domain_t;	/**< \brief test domain type */
-	typedef typename trial_elem_t::domain_t trial_domain_t;	/**< \brief trial domain type */
+	/** \brief test domain type */
+	typedef typename test_elem_t::domain_t test_domain_t;
+	/** \brief trial domain type */
+	typedef typename trial_elem_t::domain_t trial_domain_t;
 
 	/** \brief trial L-set type */
 	typedef typename trial_elem_t::lset_t trial_lset_t;
