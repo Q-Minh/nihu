@@ -43,12 +43,15 @@ public:
 };
 
 
+/** \brief store-wrapper of a statically stored quadrature */
 template <unsigned order>
 struct tria_quad_store
 {
+	/** \brief the stored static quadrature member */
 	static gauss_tria const quadrature;
 };
 
+/** \brief definition of the statically stored quadrature member */
 template <unsigned order>
 gauss_tria const tria_quad_store<order>::quadrature(order);
 
@@ -150,6 +153,7 @@ private:
 	 * \param [in] r the scalar distance
 	 * \param [in] k the wave number
 	 * \return the dynamic part of the singular kernel
+	 * \todo replace Taylor series by exact expression for large arguments
 	 */
 	template <class T>
 	static std::complex<T> dynamic_part(T const &r, WaveNumber const &k)
@@ -176,8 +180,8 @@ public:
 		double IG = 0.0, IGG = 0.0;
 		for (unsigned i = 0; i < N; ++i)
 		{
-			IG += r[i] * std::sin(alpha[i]) * std::log(std::tan((alpha[i]+theta[i])/2.0)/tan(alpha[i]/2.0));
-			IGG += (std::cos(alpha[i]+theta[i]) - std::cos(alpha[i])) / (r[i] * std::sin(alpha[i]));
+			IG0 += r[i] * std::sin(alpha[i]) * std::log(std::tan((alpha[i]+theta[i])/2.0)/tan(alpha[i]/2.0));
+			IddG0 += (std::cos(alpha[i]+theta[i]) - std::cos(alpha[i])) / (r[i] * std::sin(alpha[i]));
 		}
 
 		// integrate dynamic_part
@@ -194,7 +198,7 @@ public:
 
 		// assemble result from static and dynamic parts
 		auto k2p2 = kernel.get_wave_number()*kernel.get_wave_number()/2.0;
-		result(0,0) += (IGG + k2p2 * IG + I_acc) / (4.0 * M_PI);
+		result(0,0) += (IddG0 + k2p2 * IG0 + I_acc) / (4.0 * M_PI);
 
 		return result;
 	}
