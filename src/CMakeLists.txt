@@ -17,7 +17,6 @@ set(NIHU_THIRDPARTY_DIR "${CMAKE_SOURCE_DIR}/ThirdParty")
 
 # Find the number of system bits
 include(Sysbits)
-
 get_system_bits(NIHU_SYS_BITS)
 
 message(STATUS "${NIHU_SYS_BITS}-bit system detected")
@@ -43,9 +42,16 @@ endif ()
 
 # Eigen as headers is default in windows mode
 if(WIN32)
-	set(NIHU_EIGEN_AS_HEADERS 1)
+	# Disable eigen project install on windows
+	set(NIHU_EIGEN_AS_PROJECT 0)
+else(WIN32)
+	# Turn of eigen as project as default on other operating systems
+	if(NOT DEFINED NIHU_EIGEN_AS_PROJECT)
+		set(NIHU_EIGEN_AS_PROJECT 0)
+	endif(NOT DEFINED NIHU_EIGEN_AS_PROJECT)
 endif(WIN32)
 
+# Perform eigen installation
 include(NiHuEigen)
 
 ### MATLAB Section
@@ -58,7 +64,7 @@ elseif(DEFINED NIHU_MATLAB_ROOT)
 endif(DEFINED ENV{MATLAB_ROOT})
 
 # look for matlabmex pacakge
-find_package (MatlabMex REQUIRED)
+find_package (MatlabMex)
 
 # check if matlab mex is found
 if(MATLABMEX_FOUND)
