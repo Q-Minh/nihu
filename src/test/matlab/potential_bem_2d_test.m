@@ -1,16 +1,22 @@
 clear;
 
-surface = create_circle(1, 5);
-surface = drop_unused_nodes(get_boundary(surface));
-field = create_circle(3, 4);
-field = drop_unused_nodes(get_boundary(field));
+surface = create_circle_boundary(.7, 100);
+surface = flip_elements(surface);
+field = create_circle_boundary(.3, 100);
 
-x0 = [.2 .3 .2];
+x0 = [2 .3 0];
 
 [c, n] = centnorm(surface);
-[ps_anal, qs_anal] = incident('point', x0, c, n, 0);
+rvec = bsxfun(@minus, c, x0);
+r = sqrt(dot(rvec, rvec, 2));
+ps_anal = -log(abs(r))/2/pi;
+qs_anal = -1./r./r .* dot(rvec, n, 2);
 [cf, nf] = centnorm(field);
-[pf_anal, qf_anal] = incident('point', x0, cf, nf, 0);
+rvec = bsxfun(@minus, cf, x0);
+r = sqrt(dot(rvec, rvec, 2));
+pf_anal = -log(abs(r))/2/pi;
+qf_anal = -1./r./r .* dot(rvec, nf, 2);
+
 
 [nods, els] = extract_Boonen_mesh(surface);
 [nodf, elf] = extract_Boonen_mesh(field);

@@ -21,4 +21,22 @@ static T sinc(T const &x)
 		return 1.0 - x*x/6.0 * (1.0 - x*x/20.0);
 }
 
+template <class T>
+static T besselj0_small(T const &z)
+{
+	T res = 1.0, q(z*z/4.0);
+	for (unsigned n = 10; n > 0; --n)
+		res = 1.0 - q/(n*n)*res;
+	return res;
+}
+
+template <class T>
+static T besselj1_small(T const &z)
+{
+	T res = 1.0, q(z*z/4.0);
+	for (unsigned n = 10; n > 0; --n)
+		res = 1.0 - q/(n*(n+1))*res;
+	return res * z/2.0;
+}
+
 #endif // MATH_FUNCTIONS_HPP_INCLUDED
