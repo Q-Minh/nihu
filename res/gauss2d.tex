@@ -25,6 +25,49 @@ G(r) = -\frac{\ln |r|}{2\pi}
 \frac{d_1 + d_2 - d_1 \ln |d_1| - d_2 \ln |d_2|}{2\pi}
 \end{equation}
 
+\begin{multline}
+\frac{\partial}{\partial n_x}
+\int_{-d_1}^{d_2} 
+\frac{\partial}{\partial n_y}
+\frac{-\ln |r|}{2\pi}
+\td y \\
+=
+\frac{\partial}{\partial z}
+\int_{-d_1}^{d_2} 
+\frac{-1}{2\pi r} \frac{(y, -z) \cdot (0,1)}{r}
+\td y \\
+=
+\frac{1}{2\pi} \frac{\partial}{\partial z}
+\int_{-d_1}^{d_2} 
+\frac{z}{\left(y^2+z^2\right)}
+\td y \\
+=
+\frac{1}{2\pi} \frac{\partial}{\partial z}
+\left[
+\tan^{-1}\left(d_2/z\right)
+-
+\tan^{-1}\left(-d_1/z\right)
+\right]
+\\
+=
+\frac{1}{2\pi} \frac{\partial}{\partial z}
+\left[
+\tan^{-1}\left(d_2/z\right) + \tan^{-1}\left(d_1/z\right)
+\right]
+\\
+=
+\frac{1}{2\pi} 
+\left[
+\frac{-d_2}{d_2^2+z^2} + \frac{-d_1}{d_1^2+z^2}
+\right]
+\\
+\to
+\frac{-1}{2\pi} 
+\left[
+\frac{1}{d_2} + \frac{1}{d_1}
+\right]
+\end{multline}
+
 
 \subsubsection{Galerkin over constant line}
 
@@ -71,12 +114,76 @@ using the identitiy
 \int \sin^{-1}(x) \td x = \log \tan (x/2)
 \end{equation}
 %
-the integral can be expressed (by summing for the tree triangles) as follows:
+the integral can be expressed (by summing for the three triangles) as follows:
 %
 \begin{equation}
 I = \frac{1}{4\pi} \sum_{i = 1}^3
 R_i \sin\alpha_i \left[ \log \left( \frac{\tan\left(\frac{\phi_i+\alpha_i}{2}\right)}{\tan\left(\frac{\alpha_i}{2}\right)}\right)\right]
 \end{equation}
+
+
+\begin{multline}
+\frac{\partial}{\partial n_x}
+\int
+\frac{\partial}{\partial n_y}
+G(r)
+\td y
+\\
+=
+\frac{\partial}{\partial z}
+\int
+\frac{-1}{4\pi \left(r^2_{2D} + z^2\right)}
+\frac{({\bf r}_{2D},-z)\cdot({\bf 0},1)}{\sqrt{r^2_{2D} + z^2}}
+\td {\bf y}
+\\
+=
+\frac{1}{4\pi}
+\frac{\partial}{\partial z}
+\int
+\frac{z}{\left(r^2_{2D} + z^2\right)^{3/2}}
+\td {\bf y}
+\\
+=
+\frac{1}{4\pi}
+\frac{\partial}{\partial z}
+\int_{0}^{2\pi}
+\int_{0}^{R(\theta)}
+\frac{r_{2D} z}{\left(r^2_{2D} + z^2\right)^{3/2}}
+\td r_{2D}
+\td \theta
+\\
+=
+\frac{-1}{4\pi}
+\frac{\partial}{\partial z}
+\int_{0}^{2\pi}
+\left(
+\frac{z}{\sqrt{R(\theta)^2 + z^2}}
+-
+1
+\right)
+\td \theta
+\\
+=
+\frac{-1}{4\pi}
+\int_{0}^{2\pi}
+\frac{\partial}{\partial z}
+\frac{z}{\sqrt{R(\theta)^2 + z^2}}
+\td \theta
+\\
+=
+\frac{-1}{4\pi}
+\int_{0}^{2\pi}
+\left(
+\frac{\sqrt{R(\theta)^2 + z^2} - \frac{z}{2\sqrt{R(\theta)^2 + z^2}}}{R(\theta)^2 + z^2}
+\right)
+\td \theta
+\\
+\to
+\frac{-1}{4\pi}
+\int_{0}^{2\pi}
+\frac{1}{R(\theta)}
+\td \theta
+\end{multline}
 
 
 \section{Analytical singular integrals of the Helmholtz kernel}

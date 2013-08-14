@@ -6,7 +6,7 @@ field = create_sphere_boundary(3, 4);
 
 x0 = [0 0 0];
 
-k = 1;
+k = min(mesh_kmax(surface));
 
 [cs, ns] = centnorm(surface);
 [ps_anal, qs_anal] = incident('point', x0, cs, ns, k);
@@ -17,7 +17,7 @@ k = 1;
 [nodf, elf] = extract_Boonen_mesh(field);
 
 tic;
-[Gs, Hs, Hts, Ks, Gf, Hf, Htf, Kf] = acoustic_bem(nods, els, nodf, elf);
+[Gs, Hs, Hts, Ks, Gf, Hf, Htf, Kf] = acoustic_bem(nods, els, nodf, elf, k);
 toc;
 
 ps = Hs \ (Gs * qs_anal);
