@@ -13,8 +13,8 @@ function varargout = model_mk(model, opt)
 % 2009 - 2011
 
 % Argument check
-error(nargchk(1,2,nargin,'struct'));
-error(nargoutchk(1,6,nargout, 'struct'));
+narginchk(1,2);
+nargoutchk(1,6);
 
 % Process arguments
 if nargin < 2

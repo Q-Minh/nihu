@@ -2,6 +2,7 @@ function [nodes, elements] = extract_Boonen_mesh(model)
 %EXTRACT_BOONEN_MESH Extract Boonen13 bem mesh from a NiHu mesh structure
 
 %% Search for QUAD or TRIA elements and allocate space for bem model
+ind12 = find(model.Elements(:,2) == 12); % line elements
 ind3 = find(model.Elements(:,2) == 23); % tri elements
 ind4 = find(model.Elements(:,2) == 24); % quad elements
 ind23 = find(model.Elements(:,2) == 232); % quad elements
@@ -10,6 +11,10 @@ elem = drop_IDs(model);
 elements = zeros(size(model.Elements,1),9+1);
 
 %% build new element matrix
+if ~isempty(ind12)
+    elements(ind12,1) = 21202;
+    elements(ind12,2:3) = elem(ind12,4+(1:2))-1; % C-style indexing
+end
 if ~isempty(ind3)
     elements(ind3,1) = 32303;
     elements(ind3,2:4) = elem(ind3,4+(1:3))-1; % C-style indexing

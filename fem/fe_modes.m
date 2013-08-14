@@ -19,18 +19,18 @@ function [Phi, Om] = fe_modes(M, K, nModes, Opts)
 
 %% Default value for modal analysis options
 if nargin < 4
-    Opts.issym = 1;
-    Opts.isreal = 1;
-    Opts.maxit = 300;
-    Opts.disp = 0;
-    Opts.cholB = 0;
+    Opts = struct(...
+        'issym', true,...
+        'isreal', true,...
+        'disp', 0,...
+        'cholB', true);
 end
 
 %% Eigenfunction computation
-[Phi, Lam] = eigs(K, M, nModes, 'SM', Opts);
+[Phi, Lam] = eigs(K, chol(M), nModes, 'SM', Opts);
 
 %% Postprocessing (sorting eigenfrequencies)
 Lam = diag(Lam);
-[Om, ind] = sort(real(sqrt(Lam)));
+[Om, ind] = sort(sqrt(Lam));
 Phi = Phi(:,ind);
 end
