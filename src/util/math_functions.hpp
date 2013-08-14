@@ -21,4 +21,30 @@ static T sinc(T const &x)
 		return 1.0 - x*x/6.0 * (1.0 - x*x/20.0);
 }
 
+
+namespace bessel
+{
+	template <class T>
+	T J0_small(T const &z)
+	{
+		return T();
+	}
+
+	template <class T>
+	T J0_large(T const &z)
+	{
+		return T();
+	}
+
+	template <class T>
+	T J0(T const &z)
+	{
+		if (abs(z) < 5.0)
+			return J0_small(z);
+		else
+			return J0_large(z);
+	}
+}
+
+
 #endif // MATH_FUNCTIONS_HPP_INCLUDED

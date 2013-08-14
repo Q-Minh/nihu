@@ -41,7 +41,7 @@ public:
 	}
 };
 
-/** helper function to compute angles and radius in a plane triangle */
+/** helper function to compute angles and radii in a plane triangle */
 template <class scalar_t>
 void planar_triangle_helper(
 	tria_1_elem const &elem,
