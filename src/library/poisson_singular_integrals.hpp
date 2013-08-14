@@ -72,8 +72,7 @@ public:
 		auto const &C = trial_field.get_elem().get_coords();
 		double d1 = (c - C.col(0)).norm();
 		double d2 = (c - C.col(1)).norm();
-		double d = (C.col(1) - C.col(0)).norm();
-		result(0,0) = (d - d1*std::log(d1) - d2*std::log(d2)) / (2*M_PI);
+		result(0,0) = (d1 - d1*std::log(d1) + d2 - d2*std::log(d2)) / (2*M_PI);
 		return result;
 	}
 };

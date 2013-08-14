@@ -9,15 +9,7 @@
 #define SINGULAR_GALERKIN_QUADRATURE_HPP_INCLUDED
 
 #include "quadrature.hpp"
-
-/** \brief singularity types */
-enum singularity_type {
-	REGULAR,		/**< \brief no singularity */
-	FACE_MATCH,	/**< \brief two elements are identical */
-	EDGE_MATCH,	/**< \brief two elements share common edge */
-	CORNER_MATCH	/**< \brief two elements share common corner */
-};
-
+#include "element_match.hpp"
 
 /**
 * \brief class computing singular Galerkin type quadratures for different domains
@@ -602,7 +594,7 @@ private:
 			{0, 1, 2},	// EDGE_MATCH
 			{0, 2, 3}	// CORNER_MATCH
 		};
-		
+
 		// for transformation pusposes
 		Eigen::Matrix<tria_domain::scalar_t, 3, 2> corners;
 

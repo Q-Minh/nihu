@@ -14,6 +14,7 @@
 #include "../library/location_normal.hpp"
 #include "quadrature_pool.hpp"
 #include "kernel.hpp"
+#include "element_match.hpp"
 
 // forward declaration
 template <class Formalism, class Kernel, class TestField, class TrialField, class Enable = void>
@@ -230,13 +231,13 @@ protected:
 		field_base<test_field_t> const &test_field,
 		field_base<trial_field_t> const &trial_field)
 	{
-		typedef accel_store<formalism::general, kernel_t, test_field_t, trial_field_t> acc_store_t;
-		auto &sa = acc_store_t::m_singular_accelerator;
-
-		// check singularity
-		if (sa.is_singular(test_field, trial_field))
+		auto match = element_match_eval(test_field, trial_field);
+		if (match.get_singularity_type() != REGULAR)
+		{
+			/** \todo pass singularity type */
 			return singular_integral_shortcut<formalism::general, kernel_t, test_field_t, trial_field_t>::eval(
 				result, kernel, test_field, trial_field);
+		}
 
 		return eval(WITHOUT_SINGULARITY_CHECK(),
 			result, kernel, test_field, trial_field);
@@ -469,13 +470,13 @@ protected:
 		field_base<test_field_t> const &test_field,
 		field_base<trial_field_t> const &trial_field)
 	{
-		typedef accel_store<formalism::collocational, kernel_t, test_field_t, trial_field_t> acc_store_t;
-		typename acc_store_t::singular_accelerator_t &sa = acc_store_t::m_singular_accelerator;
-
-		// check singularity
-		if (sa.is_singular(test_field, trial_field))
+		auto match = element_match_eval(test_field, trial_field);
+		if (match.get_singularity_type() != REGULAR)
+		{
+			/** \todo pass match to shortcut */
 			return singular_integral_shortcut<formalism::collocational, kernel_t, test_field_t, trial_field_t>::eval(
 				result, kernel.derived(), test_field.derived(), trial_field.derived());
+		}
 		else
 			return eval(WITHOUT_SINGULARITY_CHECK(),
 				result, kernel, test_field, trial_field);
@@ -536,7 +537,7 @@ private:
 		field_base<TrialField> const &trial_field)
 	{
 		typedef accel_store<formalism::general, Kernel, TestField, TrialField> acc_store_t;
-		auto &sa = acc_store_t::m_singular_accelerator;
+		auto const &sa = acc_store_t::m_singular_accelerator;
 
 		return double_integral<Kernel, TestField, TrialField>::eval_singular_on_accelerator(
 			result, kernel, test_field, trial_field, sa.begin(), sa.end());
@@ -551,7 +552,7 @@ private:
 		field_base<TrialField> const &trial_field)
 	{
 		typedef accel_store<formalism::collocational, Kernel, TestField, TrialField> acc_store_t;
-		auto &sa = acc_store_t::m_singular_accelerator;
+		auto const &sa = acc_store_t::m_singular_accelerator;
 
 		return double_integral<Kernel, TestField, TrialField>::eval_singular_on_accelerator(
 			result, kernel, test_field, trial_field, sa);
