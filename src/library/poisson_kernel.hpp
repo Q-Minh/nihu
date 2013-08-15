@@ -96,9 +96,9 @@ struct kernel_traits<poisson_2d_SLP_kernel>
 	/** \brief kernel trial input type */
 	typedef build<location<space_2d> >::type trial_input_t;
 	/** \brief the kernel output type */
-	typedef poisson_2d_g_wall<double>::type output_t;
+	typedef poisson_2d_g_wall<space_2d::scalar_t>::type output_t;
 	/** \brief kernel result type */
-	typedef double result_t;
+	typedef typename output_t::result_t result_t;
 	/** \brief the quadrature family the kernel is integrated with */
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
@@ -327,6 +327,115 @@ public:
 
 
 
+/** \brief a brick representing a 2D Poisson hypersingular kernel \f$ \dots \f$
+ * \tparam scalar scalar type of the coordinate space the distance is defined over
+ */
+template <class scalar>
+struct poisson_2d_hyper_brick
+{
+	/** \brief the brick template
+	 * \tparam the wall the brick is placed on
+	 */
+	template <class wall>
+	class brick : public wall
+	{
+	public:
+		/** \brief the result type */
+		typedef scalar result_t;
+
+		/** \brief templated constructor
+		 * \tparam test_input_t the test input type
+		 * \tparam trial_input_t the trial input type
+		 * \tparam kernel_t the kernel type
+		 * \param [in] test_input the test input
+		 * \param [in] trial_input the trial input
+		 * \param [in] kernel the kernel instance
+		 */
+		template <class test_input_t, class trial_input_t, class kernel_t>
+		brick(
+			test_input_t const &test_input,
+			trial_input_t const &trial_input,
+			kernel_t const &kernel) :
+			wall(test_input, trial_input, kernel),
+			m_poisson_hyper(
+				1.0/(2.0 * M_PI)/wall::get_distance()/wall::get_distance() * (
+					test_input.get_unit_normal().dot(trial_input.get_unit_normal()) +
+					2.0 * wall::get_rdny()*wall::get_rdnx()))
+		{
+		}
+
+		/** \brief return Poisson hypersingular kernel
+		 * \return Poisson hypersingular kernel
+		 */
+		result_t const & get_poisson_hyper(void) const
+		{
+			return m_poisson_hyper;
+		}
+
+		/** \brief return Poisson hypersingular kernel
+		 * \return Poisson hypersingular kernel
+		 */
+		result_t const & get_result(void) const
+		{
+			return m_poisson_hyper;
+		}
+
+	private:
+		result_t m_poisson_hyper;
+	};
+};
+
+
+/** \brief combination of several bricks into a poisson_2d_hyper wall
+ * \tparam space the coordinate space the Poisson kernel is defined over
+ */
+template <class scalar>
+struct poisson_2d_hyper_wall : build<
+	distance_vector_brick<space<scalar, 2> >,
+	distance_brick<scalar>,
+	rdny_brick<scalar>,
+	rdnx_brick<scalar>,
+	poisson_2d_hyper_brick<scalar>
+> {};
+
+
+// forward declaration
+class poisson_2d_HSP_kernel;
+
+/** \brief traits of the Poisson 2D Hypersingular kernel */
+template<>
+struct kernel_traits<poisson_2d_HSP_kernel>
+{
+	/** \brief kernel test input type */
+	typedef build<location<space_2d>, normal_jacobian<space_2d> >::type test_input_t;
+	/** \brief kernel trial input type */
+	typedef build<location<space_2d>, normal_jacobian<space_2d>  >::type trial_input_t;
+	/** \brief the kernel output type */
+	typedef poisson_2d_hyper_wall<space_2d::scalar_t>::type output_t;
+	/** \brief kernel result type */
+	typedef typename output_t::result_t result_t;
+	/** \brief the quadrature family the kernel is integrated with */
+	typedef gauss_family_tag quadrature_family_t;
+	/** \brief indicates if K(x,y) = K(y,x) */
+	static bool const is_symmetric = true;
+	/** \brief kernel singularity order ( r^(-order) ) */
+	static unsigned const singularity_order = 2;
+	/** \brief quadrature order used to generate Duffy singular quadratures */
+	static unsigned const singular_quadrature_order = 7;
+};
+
+/** \brief 2D Poisson kernel \f$ \dots \f$ */
+class poisson_2d_HSP_kernel :
+	public kernel_base<poisson_2d_HSP_kernel>,
+	public reciprocal_distance_kernel<poisson_2d_HSP_kernel>
+{
+public:
+	using reciprocal_distance_kernel<poisson_2d_HSP_kernel>::estimate_complexity;
+};
+
+
+
+
 /** \brief a brick representing a 3D Poisson kernel \f$ 1/4\pi r \f$
  * \tparam scalar the scalar of the coordinate space the distance is defined over
  */
@@ -406,9 +515,9 @@ struct kernel_traits<poisson_3d_SLP_kernel>
 	/** \brief kernel trial input type */
 	typedef build<location<space_3d> >::type trial_input_t;
 	/** \brief the kernel output type */
-	typedef poisson_3d_g_wall<double>::type output_t;
+	typedef poisson_3d_g_wall<space_3d::scalar_t>::type output_t;
 	/** \brief kernel result type */
-	typedef double result_t;
+	typedef typename output_t::result_t result_t;
 	/** \brief the quadrature family the kernel is integrated with */
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
@@ -510,9 +619,9 @@ struct kernel_traits<poisson_3d_DLP_kernel>
 	/** \brief kernel trial input type */
 	typedef build<location<space_3d>, normal_jacobian<space_3d> >::type trial_input_t;
 	/** \brief the kernel output type */
-	typedef poisson_3d_h_wall<double>::type output_t;
+	typedef poisson_3d_h_wall<space_3d::scalar_t>::type output_t;
 	/** \brief kernel result type */
-	typedef double result_t;
+	typedef typename output_t::result_t result_t;
 	/** \brief the quadrature family the kernel is integrated with */
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */

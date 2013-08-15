@@ -42,7 +42,6 @@ public:
 	}
 };
 
-
 /** \brief store-wrapper of a statically stored quadrature */
 template <unsigned order>
 struct tria_quad_store
@@ -153,16 +152,18 @@ private:
 	 * \param [in] r the scalar distance
 	 * \param [in] k the wave number
 	 * \return the dynamic part of the singular kernel
-	 * \todo replace Taylor series by exact expression for large arguments
 	 */
 	template <class T>
 	static std::complex<T> dynamic_part(T const &r, WaveNumber const &k)
 	{
 		std::complex<T> const I(0.0, 1.0);	// imaginary unit
 		std::complex<T> const ikr(I*k*r);
-		return -I*k*k*k * (
-			1.0/3.0 - ikr*(1.0/8.0 - ikr*(1.0/30.0 - ikr*(1.0/144.0 - ikr*(1.0/840.0 - ikr/5760.0))))
-		);
+		if (std::abs(r) > 1e-3)
+			return (std::exp(-ikr)*(1.0+ikr)-1.0+ikr*ikr/2.0)/r/r/r;
+		else
+			return -I*k*k*k * (
+				1.0/3.0 - ikr*(1.0/8.0 - ikr*(1.0/30.0 - ikr*(1.0/144.0 - ikr*(1.0/840.0 - ikr/5760.0))))
+			);
 	}
 
 public:
@@ -177,7 +178,7 @@ public:
 		double r[N], theta[N], alpha[N];
 		planar_triangle_helper(trial_field.get_elem(), r, theta, alpha);
 
-		double IG = 0.0, IGG = 0.0;
+		double IG0 = 0.0, IddG0 = 0.0;
 		for (unsigned i = 0; i < N; ++i)
 		{
 			IG0 += r[i] * std::sin(alpha[i]) * std::log(std::tan((alpha[i]+theta[i])/2.0)/tan(alpha[i]/2.0));

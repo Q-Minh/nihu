@@ -70,9 +70,40 @@ public:
 	{
 		auto const &c = test_field.get_elem().get_center();
 		auto const &C = trial_field.get_elem().get_coords();
-		double d1 = (c - C.col(0)).norm();
-		double d2 = (c - C.col(1)).norm();
-		result(0,0) = (d1 - d1*std::log(d1) + d2 - d2*std::log(d2)) / (2*M_PI);
+		auto d1 = (c - C.col(0)).norm();
+		auto d2 = (c - C.col(1)).norm();
+		result(0,0) = (d1 * (1.0 - std::log(d1)) + d2 * (1.0 - std::log(d2))) / (2*M_PI);
+		return result;
+	}
+};
+
+
+/** \brief collocational singular integral of the 2D HSP kernel over a constant line
+ * \tparam TestField the test field type
+ * \tparam TrialField the trial field type
+ */
+template <class TestField, class TrialField>
+class singular_integral_shortcut<
+	formalism::collocational, poisson_2d_HSP_kernel, TestField, TrialField,
+	typename std::enable_if<
+		std::is_same<typename TrialField::lset_t, line_1_shape_set>::value &&
+		std::is_same<typename TrialField::nset_t, line_0_shape_set>::value
+	>::type
+>
+{
+public:
+	template <class result_t>
+	static result_t &eval(
+		result_t &result,
+		poisson_2d_HSP_kernel const &,
+		TestField const &test_field,
+		TrialField const &trial_field)
+	{
+		auto const &c = test_field.get_elem().get_center();
+		auto const &C = trial_field.get_elem().get_coords();
+		auto d1 = (c - C.col(0)).norm();
+		auto d2 = (c - C.col(1)).norm();
+		result(0,0) = -(1.0/d1 + 1.0/d2) / (2.0*M_PI);
 		return result;
 	}
 };

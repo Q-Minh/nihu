@@ -192,6 +192,16 @@ public:
 		return m_parent.m_imag[m_row + m_parent.rows()*m_col];
 	}
 
+	/** \brief assignment operator
+	 * \param data the data to assign to the container
+	 */
+	template <class complex_rhs_t>
+	void operator =(complex_rhs_t const &data) const
+	{
+		real() = data.real();
+		imag() = data.imag();
+	}
+
 	/** \brief increment operator
 	 * \param data the data to add to the container
 	 */
@@ -202,9 +212,21 @@ public:
 		imag() += data.imag();
 	}
 
+	/** \brief increment operator
+	 * \param data the data to add to the container
+	 */
 	void operator +=(scalar_t const &data)
 	{
 		real() += data;
+	}
+
+	/** \brief assignment operator
+	 * \param data the data to assign to the container
+	 */
+	void operator =(scalar_t const &data)
+	{
+		real() += data;
+		imag() = 0.0;
 	}
 
 private:

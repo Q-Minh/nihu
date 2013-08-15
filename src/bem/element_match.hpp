@@ -59,13 +59,17 @@ element_match element_match_eval(
 	field_base<test_field_t> const &test_field,
 	field_base<trial_field_t> const &trial_field)
 {
-	bool const face_match_possible = std::is_same<test_field_t, trial_field_t>::value;
+	bool const face_match_possible = std::is_same<
+		typename test_field_t::elem_t,
+		typename trial_field_t::elem_t
+	>::value;
 
 	if (face_match_possible)
 		if (test_field.get_elem().get_id() == trial_field.get_elem().get_id())
 			return element_match(FACE_MATCH);
 
 	/** \todo disable these cases for the collocational formalism */
+/*
 	element_overlapping overlap(test_field.get_elem().get_overlapping(trial_field.get_elem()));
 
 	// check edge match
@@ -75,7 +79,7 @@ element_match element_match_eval(
 	// check corner match
 	if (overlap.get_num() == 1)
 		return element_match(CORNER_MATCH, overlap);
-
+*/
 	return element_match(REGULAR);
 }
 

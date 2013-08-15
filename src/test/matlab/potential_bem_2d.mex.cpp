@@ -8,7 +8,7 @@ typedef mex::real_matrix<double> dMatrix;
 void mexFunction(int nlhs, mxArray *lhs[],
 	int nrhs, mxArray const *rhs[])
 {
-	if (nlhs < 4 || nrhs < 4)
+	if (nlhs < 6 || nrhs < 4)
 		throw("Too few input or output arguments");
 
 	dMatrix surf_nodes(rhs[0]), surf_elements(rhs[1]);
@@ -22,16 +22,20 @@ void mexFunction(int nlhs, mxArray *lhs[],
 
 	auto L = create_integral_operator(poisson_2d_SLP_kernel());
 	auto M = create_integral_operator(poisson_2d_DLP_kernel());
+	auto Mt = create_integral_operator(poisson_2d_DLPt_kernel());
+	auto N = create_integral_operator(poisson_2d_HSP_kernel());
 	auto I = identity_integral_operator();
 
 	auto n = trial_sp.get_num_dofs();
-	dMatrix Ls(n, n, lhs[0]), Ms(n, n, lhs[1]);
+	dMatrix Ls(n, n, lhs[0]), Ms(n, n, lhs[1]), Mts(n, n, lhs[2]), Ns(n, n, lhs[3]);
 
 	Ls << ( test_sp * L[trial_sp] );
 	Ms << ( test_sp * M[trial_sp] ) + ( test_sp * (-.5*I)[trial_sp] );
+	Mts << ( test_sp * Mt[trial_sp] ) + ( test_sp * (.5*I)[trial_sp] );
+	Ns << ( test_sp * N[trial_sp] );
 
 	auto m = field_sp.get_num_dofs();
-	dMatrix Lf(m, n, lhs[2]), Mf(m, n, lhs[3]);
+	dMatrix Lf(m, n, lhs[4]), Mf(m, n, lhs[5]);
 
 	Lf << (field_sp * L[trial_sp]);
 	Mf << (field_sp * M[trial_sp]);
