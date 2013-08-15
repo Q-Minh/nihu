@@ -17,7 +17,7 @@ k = min(mesh_kmax(surface));
 [nodf, elf] = extract_Boonen_mesh(field);
 
 tic;
-[Gs, Hs, Hts, Ks, Gf, Hf, Htf, Kf] = acoustic_bem(nods, els, nodf, elf, k);
+[Gs, Hs, Hts, Ks, Gf, Hf, Htf, Kf, dur_sep] = acoustic_bem(nods, els, nodf, elf, k);
 toc;
 
 ps = Hs \ (Gs * qs_anal);

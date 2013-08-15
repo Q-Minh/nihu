@@ -15,18 +15,18 @@ x0 = [.2 .3 .2];
 [nodf, elf] = extract_Boonen_mesh(field);
 
 tic;
-[Gs, Hs, Hts, Ks, Gf, Hf, Htf, Kf] = potential_bem(nods, els, nodf, elf);
+[Gs, Hs, Gf, Hf, Htf, Kf] = potential_bem(nods, els, nodf, elf);
 toc;
 
+% surface potential
 ps = Hs \ (Gs * qs_anal);
 err_ps = log10(abs(ps./ps_anal-1));
 
-ps2 = Ks \ (Hts * qs_anal);
-err_ps2 = log10(abs(ps2./ps_anal-1));
-
+% radiated potential
 pf = Hf * ps - Gf * qs_anal;
 err_pf = log10(abs(pf./pf_anal-1));
 
+% radiated velocity
 qf = Kf * ps - Htf * qs_anal;
 err_qf = log10(abs(qf./qf_anal-1));
 
