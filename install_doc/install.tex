@@ -142,7 +142,7 @@ cmake ../src -DNIHU_EXAMPLE_PATH="/home/user"
 \subsubsection{Eigen options}
 
 \begin{description}
-	\item [\texttt{NIHU\_EIGEN\_AS\_HEADERS}] When set to non-zero, the installation process will not look for an existing Eigen installation, but will use the Eigen headers from source. This is the default option on Windows systems.
+	\item [\texttt{NIHU\_EIGEN\_AS\_PROJECT}] When set to non-zero, the installation process will install \texttt{Eigen} as an additional \texttt{cmake} project. This option only works on Unix system, due to the limitations of Eigen's cmake project.
 
 	\item [\texttt{NIHU\_EIGEN\_HEADERS\_DIR}] later
 	\item [\texttt{NIHU\_EIGEN\_INSTALL\_DIR}] later
@@ -152,6 +152,7 @@ cmake ../src -DNIHU_EXAMPLE_PATH="/home/user"
 
 \begin{description}
 	\item [\texttt{NIHU\_DISABLE\_TESTS}] When set to non-zero tests are excluded from the \texttt{make all} process. In this case tests can be compiled using separate make commands.
+	\item [\texttt{NIHU\_ENABLE\_RUN\_MATLAB\_TESTS}] When set to non-zero tests run from \texttt{Matlab} are included into all tests. Otherwise \texttt{Matlab} tests have to be run separately.
 \end{description}
 
 \end{document}
