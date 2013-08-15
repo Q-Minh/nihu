@@ -1,18 +1,15 @@
-#include "util/mex_matrix.hpp"
+#include "util/eigen_utils.hpp"
 #include "util/math_functions.hpp"
+#include <iostream>
 
-typedef mex::complex_matrix<double> cMatrix;
-
-void mexFunction(
-	int nlhs, mxArray *lhs[],
-	int nrhs, mxArray const *rhs[])
+int main(void)
 {
-	if (nlhs != 1 || nrhs != 1)
-		throw ("bad number of input or output arguments");
+	for (int i = 0; i < 10; ++i)
+	{
+		auto z = std::complex<double>(0.0,1.0)*(1.0*i);
+		auto H0 = bessel::H<0>(z);
+		auto H1 = bessel::H<1>(z);
 
-	cMatrix z(rhs[0]);
-	cMatrix H0(z.rows(), z.cols(), lhs[0]);
-	for (unsigned i = 0; i < z.rows(); ++i)
-		for (unsigned j = 0; j < z.cols(); ++j)
-			H0(i,j) = bessel::H<0>(std::complex<double>(z(i,j)));
+		std::cout << z << '\t' << H0 << '\t' << H1 << std::endl;
+	}
 }

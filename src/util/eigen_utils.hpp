@@ -3,8 +3,8 @@
  * \brief Collection of include files needed by Boonen13
  */
 
-#ifndef INCLUDES_H_INCLUDED
-#define INCLUDES_H_INCLUDED
+#ifndef EIGEN_UTILS_HPP_INCLUDED
+#define EIGEN_UTILS_HPP_INCLUDED
 
 #include <type_traits>
 #include <Eigen/Dense>
@@ -29,5 +29,5 @@ struct is_eigen : std::is_base_of<
 template <class m1, class m2, int t>
 struct is_eigen<Eigen::GeneralProduct<m1, m2, t> > : std::true_type {};
 
-#endif // INCLUDES_H_INCLUDED
+#endif // EIGEN_UTILS_HPP_INCLUDED
 
