@@ -1,3 +1,9 @@
+/**
+ * \file defines_type.hpp
+ * \brief metafunction determining typedefs
+ * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
+ */
+
 #ifndef DEFINES_TYPE_HPP_INCLUDED
 #define DEFINES_TYPE_HPP_INCLUDED
 

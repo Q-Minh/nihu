@@ -31,36 +31,25 @@ namespace bessel
 	/** \brief Euler's constant */
 	double const gamma(0.57721566490153286060);
 
-	/** \brief small argument expansion of J_nu(z)
+	/** \brief small argument expansion of J_nu(z) for nu = 0, 1
 	 * \tparam nu the Bessel function's order
 	 * \param z the argument
 	 * \return J_nu(z)
 	 */
 	template <int nu>
-	std::complex<double> J_small(std::complex<double> const &z);
-
-	template <>
 	std::complex<double> J_small<0>(std::complex<double> const &z)
 	{
+		static_assert(nu == 0 || nu == 1, "unimplemented Bessel J order");
+
 		// upper limit for 1e-8 error
 		int N = 3+2.0*std::abs(z);
 
 		std::complex<double> res(1.0), q(z*z/4.0);
 		for (int n = N; n > 0; --n)
-			res = 1.0 - q*(1.0/(n*n))*res;
+			res = 1.0 - q*(1.0/(n*(n+nu)))*res;
+		if (nu == 1)
+			res *= z/2.0;
 		return res;
-	}
-
-	template <>
-	std::complex<double> J_small<1>(std::complex<double> const &z)
-	{
-		// upper limit for 1e-8 error
-		int N = 3+2.0*std::abs(z);
-
-		std::complex<double> res(1.0), q(z*z/4.0);
-		for (int n = N; n > 0; --n)
-			res = 1.0 - q*(1.0/(n*(n+1)))*res;
-		return res * z/2.0;
 	}
 
 	/** \brief small argument expansion of Y_nu(z)
