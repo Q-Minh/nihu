@@ -4,7 +4,7 @@
  * \brief implementation of various kernels
  * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
  */
- 
+
 #ifndef KERNEL_HPP_INCLUDED
 #define KERNEL_HPP_INCLUDED
 
@@ -31,7 +31,7 @@ public:
 
 	/** \brief the traits class */
 	typedef kernel_traits<Derived> traits_t;
-	
+
 	/** \brief type of the first (test) kernel input */
 	typedef typename traits_t::test_input_t test_input_t;
 	/** \brief type of the second (trial) kernel input */
@@ -51,10 +51,10 @@ public:
 	typedef typename space_t::location_t x_t;
 	/** \brief type of the scalar coordinate in the kernel's domain */
 	typedef typename space_t::scalar_t scalar_t;
-	
+
 	/** \brief the quadrature family the kernel is integrated with */
 	typedef typename traits_t::quadrature_family_t quadrature_family_t;
-	
+
 	/** \brief true if K(x,y) = K(y,x) */
 	static bool const is_symmetric = traits_t::is_symmetric;
 	/** \brief the singularity order ( r^(-order) ) */
@@ -88,7 +88,7 @@ public:
 		/** \brief the kernel that is bound */
 		Derived const &m_kernel;
 		/** \brief the test input used to bind the kernel */
-		test_input_t const &m_test_input; 
+		test_input_t const &m_test_input;
 	};
 
 	/** \brief bind the kernel at its test input
@@ -215,7 +215,7 @@ struct kernel_traits<couple_kernel<Kernels...> >
 };
 
 
-/** \brief a kernel consistin of a set of kernels
+/** \brief a kernel consisting of a set of kernels
  * \tparam Kernels the type list of kernels
  */
 template <class...Kernels>
@@ -225,7 +225,7 @@ class couple_kernel :
 public:
 	/** \brief the traits class */
 	typedef kernel_base<couple_kernel<Kernels...> > base_t;
-	
+
 	/** \brief type of the first (test) kernel input */
 	typedef typename base_t::test_input_t test_input_t;
 	/** \brief type of the second (trial) kernel input */
