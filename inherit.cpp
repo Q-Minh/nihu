@@ -77,7 +77,10 @@ struct merge_impl<C1, collect<Args2...>, false>
 
 
 template <class C1, class...Args2>
-struct merge<C1, collect<Args2...> > : merge_impl<C1, collect<Args2...> > {};
+struct merge<C1, collect<Args2...> > :
+	merge_impl<C1, collect<Args2...> >
+{
+};
 
 
 template <class A1, class...Args2>
@@ -92,7 +95,6 @@ struct merge<collect<A1>, collect<Args2...> >
 		return merge<A1, d2_type>::eval(d1, d2);
 	}
 };
-
 
 
 template <class A1, class...Args1, class...Args2>
@@ -111,7 +113,6 @@ struct merge<collect<A1, Args1...>, collect<Args2...> >
 		);
 	}
 };
-
 
 
 int main(void)
