@@ -44,7 +44,7 @@ int main(void)
 	std::cout << static_cast<find_in_wall<t1, t1t2t3>::type const &>(_t1t2t3).get_result() << std::endl;
 	std::cout << static_cast<find_in_wall<t2, t1t2t3>::type const &>(_t1t2t3).get_result() << std::endl;
 	std::cout << static_cast<find_in_wall<build<n<2> >::type, t1t2t3>::type const &>(_t1t2t3).get_result() << std::endl;
-	
+
 	return 0;
 }
 
