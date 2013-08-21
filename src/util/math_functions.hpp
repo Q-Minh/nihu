@@ -37,7 +37,7 @@ namespace bessel
 	 * \return J_nu(z)
 	 */
 	template <int nu>
-	std::complex<double> J_small<0>(std::complex<double> const &z)
+	std::complex<double> J_small(std::complex<double> const &z)
 	{
 		static_assert(nu == 0 || nu == 1, "unimplemented Bessel J order");
 
