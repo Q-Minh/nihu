@@ -668,11 +668,11 @@ WARN_LOGFILE           =
 # directories like "/usr/src/myproject". Separate the files or directories
 # with spaces.
 
-INPUT                  = dox/ \
-                         src/bem/ \
-                         src/util/ \
-                         src/tmp/ \
-                         src/library/
+INPUT                  = "${CMAKE_SOURCE_DIR}/../dox/" \
+                         "${CMAKE_SOURCE_DIR}/bem/" \
+                         "${CMAKE_SOURCE_DIR}/util/" \
+                         "${CMAKE_SOURCE_DIR}/tmp/" \
+                         "${CMAKE_SOURCE_DIR}/library/"
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding, which is
@@ -894,7 +894,7 @@ GENERATE_HTML          = YES
 # If a relative path is entered the value of OUTPUT_DIRECTORY will be
 # put in front of it. If left blank `html' will be used as the default path.
 
-HTML_OUTPUT            = html
+HTML_OUTPUT            = "${CMAKE_BINARY_DIR}/doc/html"
 
 # The HTML_FILE_EXTENSION tag can be used to specify the file extension for
 # each generated HTML page (for example: .htm,.php,.asp). If it is left blank
@@ -1228,7 +1228,7 @@ MATHJAX_FORMAT         = HTML-CSS
 # However, it is strongly recommended to install a local
 # copy of MathJax from http://www.mathjax.org before deployment.
 
-MATHJAX_RELPATH        = ../../../MathJax
+MATHJAX_RELPATH        = ${NIHU_MATHJAX_RELPATH}
 
 # The MATHJAX_EXTENSIONS tag can be used to specify one or MathJax extension
 # names that should be enabled during MathJax rendering.

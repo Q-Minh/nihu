@@ -1,0 +1,71 @@
+diff -ur ./eigen-3.1.2/Eigen/src/Core/products/SelfadjointMatrixVector.h ./eigen-3.1.2-patch/Eigen/src/Core/products/SelfadjointMatrixVector.h
+--- ./eigen-3.1.2/Eigen/src/Core/products/SelfadjointMatrixVector.h	2012-11-05 22:22:49.000000000 +0100
++++ ./eigen-3.1.2-patch/Eigen/src/Core/products/SelfadjointMatrixVector.h	2013-08-21 12:01:20.079470000 +0200
+@@ -35,7 +35,9 @@
+   Scalar alpha)
+ {
+   typedef typename packet_traits<Scalar>::type Packet;
+-  typedef typename NumTraits<Scalar>::Real RealScalar;
++  /** \note typedef removed by NiHu patch
++   * typedef typename NumTraits<Scalar>::Real RealScalar;
++   */
+   const Index PacketSize = sizeof(Packet)/sizeof(Scalar);
+ 
+   enum {
+diff -ur ./eigen-3.1.2/Eigen/src/Core/util/Memory.h ./eigen-3.1.2-patch/Eigen/src/Core/util/Memory.h
+--- ./eigen-3.1.2/Eigen/src/Core/util/Memory.h	2012-11-05 22:22:49.000000000 +0100
++++ ./eigen-3.1.2-patch/Eigen/src/Core/util/Memory.h	2013-08-21 11:59:33.488321000 +0200
+@@ -446,7 +446,9 @@
+ template<typename Scalar, typename Index>
+ static inline Index first_aligned(const Scalar* array, Index size)
+ {
+-  typedef typename packet_traits<Scalar>::type Packet;
++  /** \note typedef removed by NiHu patch
++   * typedef typename packet_traits<Scalar>::type Packet;
++   */
+   enum { PacketSize = packet_traits<Scalar>::size,
+          PacketAlignedMask = PacketSize-1
+   };
+diff -ur ./eigen-3.1.2/Eigen/src/Eigenvalues/ComplexSchur.h ./eigen-3.1.2-patch/Eigen/src/Eigenvalues/ComplexSchur.h
+--- ./eigen-3.1.2/Eigen/src/Eigenvalues/ComplexSchur.h	2012-11-05 22:22:49.000000000 +0100
++++ ./eigen-3.1.2-patch/Eigen/src/Eigenvalues/ComplexSchur.h	2013-08-21 12:05:58.214896000 +0200
+@@ -309,8 +309,9 @@
+   static void run(ComplexSchur<MatrixType>& _this, const MatrixType& matrix, bool computeU)
+   {
+     typedef typename ComplexSchur<MatrixType>::ComplexScalar ComplexScalar;
+-    typedef typename ComplexSchur<MatrixType>::ComplexMatrixType ComplexMatrixType;
+-
++	/** \note typedef removed by NiHu patch
++     * typedef typename ComplexSchur<MatrixType>::ComplexMatrixType ComplexMatrixType;
++	 */
+     // Note: m_hess is over RealScalar; m_matT and m_matU is over ComplexScalar
+     _this.m_hess.compute(matrix);
+     _this.m_matT = _this.m_hess.matrixH().template cast<ComplexScalar>();
+diff -ur ./eigen-3.1.2/Eigen/src/Eigenvalues/Tridiagonalization.h ./eigen-3.1.2-patch/Eigen/src/Eigenvalues/Tridiagonalization.h
+--- ./eigen-3.1.2/Eigen/src/Eigenvalues/Tridiagonalization.h	2012-11-05 22:22:49.000000000 +0100
++++ ./eigen-3.1.2-patch/Eigen/src/Eigenvalues/Tridiagonalization.h	2013-08-21 12:03:50.414707000 +0200
+@@ -425,7 +425,9 @@
+ template<typename MatrixType, typename DiagonalType, typename SubDiagonalType>
+ void tridiagonalization_inplace(MatrixType& mat, DiagonalType& diag, SubDiagonalType& subdiag, bool extractQ)
+ {
+-  typedef typename MatrixType::Index Index;
++  /** \note typedef removed by NiHu patch
++   * typedef typename MatrixType::Index Index;
++   */
+   //Index n = mat.rows();
+   eigen_assert(mat.cols()==mat.rows() && diag.size()==mat.rows() && subdiag.size()==mat.rows()-1);
+   tridiagonalization_inplace_selector<MatrixType>::run(mat, diag, subdiag, extractQ);
+diff -ur ./eigen-3.1.2/Eigen/src/QR/HouseholderQR.h ./eigen-3.1.2-patch/Eigen/src/QR/HouseholderQR.h
+--- ./eigen-3.1.2/Eigen/src/QR/HouseholderQR.h	2012-11-05 22:22:49.000000000 +0100
++++ ./eigen-3.1.2-patch/Eigen/src/QR/HouseholderQR.h	2013-08-21 12:02:27.515356000 +0200
+@@ -232,7 +232,9 @@
+ {
+   typedef typename MatrixQR::Index Index;
+   typedef typename MatrixQR::Scalar Scalar;
+-  typedef typename MatrixQR::RealScalar RealScalar;
++  /** \note typedef removed by NiHu patch
++   * typedef typename MatrixQR::RealScalar RealScalar;
++   */
+   typedef Block<MatrixQR,Dynamic,Dynamic> BlockType;
+ 
+   Index rows = mat.rows();

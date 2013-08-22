@@ -5,7 +5,7 @@
 find_package (Eigen)
 
 # Check if eigen found
-if(NOT EIGEN_FOUND)
+if(NOT EIGEN_FOUND OR NIHU_EIGEN_INSTALL)
 	
 	# Eigen download path
 	set(EIGEN_URL "http://bitbucket.org/eigen/eigen/get/3.1.2.tar.bz2")
@@ -50,6 +50,13 @@ if(NOT EIGEN_FOUND)
 		execute_process(
 			COMMAND ${CMAKE_COMMAND} -E rename "${NIHU_THIRDPARTY_DIR}/${EIGEN_TEMP_DIR}" "${EIGEN_SOURCE_DIR}"
 			OUTPUT_QUIET)
+
+		# Apply eigen patch
+		if(NOT NIHU_EIGEN_DISABLE_PATCH)
+			message(STATUS "Applying Eigen patch")
+			execute_process(COMMAND "patch" "--directory=${EIGEN_SOURCE_DIR}" "--strip=2" "--input=${NIHU_THIRDPARTY_DIR}/patches/eigen-3.1.2.patch")
+		endif(NOT NIHU_EIGEN_DISABLE_PATCH)
+
 			
 		# Install the header files
 		message(STATUS "Installing Eigen3 headers into ${EIGEN_INSTALL_DIR}")
@@ -104,4 +111,4 @@ if(NOT EIGEN_FOUND)
 		set(EIGEN_INCLUDE_DIRS "${EIGEN_INCLUDES_DIR}")
 	endif(NOT NIHU_EIGEN_AS_PROJECT)
 
-endif(NOT EIGEN_FOUND)
+endif(NOT EIGEN_FOUND OR NIHU_EIGEN_INSTALL)
