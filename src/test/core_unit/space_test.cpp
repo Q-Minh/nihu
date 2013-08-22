@@ -1,5 +1,6 @@
 #include "tmp/control.hpp"
 #include "bem/space.hpp"
+#include "tmp/vector.hpp"
 
 #include <iostream>
 

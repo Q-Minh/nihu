@@ -2,6 +2,7 @@
 #include "bem/field.hpp"
 #include "tmp/sequence.hpp"
 #include "tmp/control.hpp"
+#include "tmp/vector.hpp"
 
 template <class ElemType, class option>
 struct view_tester

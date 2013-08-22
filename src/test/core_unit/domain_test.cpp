@@ -1,4 +1,5 @@
 #include "tmp/control.hpp"
+#include "tmp/vector.hpp"
 #include "bem/domain.hpp"
 
 #include <iostream>

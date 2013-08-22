@@ -2,6 +2,7 @@
 #include "bem/element.hpp"
 #include "tmp/sequence.hpp"
 #include "tmp/control.hpp"
+#include "tmp/vector.hpp"
 
 template <class ElemType>
 struct tester

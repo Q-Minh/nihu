@@ -11,6 +11,7 @@
 #include "../tmp/sequence.hpp"
 #include "../tmp/algorithm.hpp"
 #include "../tmp/control.hpp"
+#include "tmp/vector.hpp"
 
 #include "element.hpp"
 #include "../util/eigen_utils.hpp"

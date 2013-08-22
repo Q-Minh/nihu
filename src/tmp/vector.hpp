@@ -7,6 +7,7 @@
 #ifndef VECTOR_HPP_INCLUDED
 #define VECTOR_HPP_INCLUDED
 
+#include "integer.hpp"
 #include "sequence.hpp"
 #include <tuple>
 
@@ -29,6 +30,12 @@ namespace tmp
 		/** \brief the underlying std::tuple container */
 		typedef std::tuple<Args...> impl;
 	};
+
+	namespace internal
+	{
+		template <>
+		struct empty_impl<vector_tag> : vector<> {};
+	}
 
 	namespace internal
 	{

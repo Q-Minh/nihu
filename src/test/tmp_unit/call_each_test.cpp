@@ -1,5 +1,6 @@
 #include "tmp/algorithm.hpp"
 #include "tmp/control.hpp"
+#include "tmp/vector.hpp"
 #include <type_traits>
 #include <iostream>
 
