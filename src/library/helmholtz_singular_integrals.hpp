@@ -114,7 +114,7 @@ public:
 		for (auto it = quadr_t::quadrature.begin(); it != quadr_t::quadrature.end(); ++it)
 			I_acc += dynamic_part(
 				(tr_elem.get_x(it->get_xi()) - x0).norm(),
-				kernel.get_wave_number()
+				kernel.get_data().get_wave_number()
 			) * it->get_w();
 		// multiply by Jacobian
 		I_acc *= tr_elem.get_normal(gauss_tria::xi_t()).norm();
@@ -192,13 +192,13 @@ public:
 		for (auto it = quadr_t::quadrature.begin(); it != quadr_t::quadrature.end(); ++it)
 			I_acc += dynamic_part(
 				(tr_elem.get_x(it->get_xi()) - x0).norm(),
-				kernel.get_wave_number()
+				kernel.get_data().get_wave_number()
 			) * it->get_w();
 		// multiply by Jacobian
 		I_acc *= tr_elem.get_normal(gauss_tria::xi_t()).norm();
 
 		// assemble result from static and dynamic parts
-		auto k2p2 = kernel.get_wave_number()*kernel.get_wave_number()/2.0;
+		auto k2p2 = kernel.get_data().get_wave_number()*kernel.get_data().get_wave_number()/2.0;
 		result(0,0) += (IddG0 + k2p2 * IG0 + I_acc) / (4.0 * M_PI);
 
 		return result;

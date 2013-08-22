@@ -18,34 +18,29 @@
 #include "reciprocal_distance_kernel.hpp"
 
 #include "basic_bricks.hpp"
+#include "../util/collection.hpp"
 
-/** \brief base class for a kernel that contains a wave number data
- * \tparam wave_number_type the wave number type (real or complex)
+
+/**
+ * \brief kernel data that stores the wave number
  */
 template <class wave_number_type>
-class kernel_with_wave_number
+class wave_number_data
 {
 public:
-	/** \brief constructor
-	 * \param [in] wn the wave number
-	 */
-	kernel_with_wave_number(wave_number_type const &wn) :
+	wave_number_data(wave_number_type const &wn = wave_number_type()) :
 		m_wave_number(wn)
 	{
 	}
 
-	/** \brief return wave number
-	 * \return wave number */
 	wave_number_type const &get_wave_number(void) const
 	{
 		return m_wave_number;
 	}
 
 private:
-	/** \brief the stored wave number data */
 	wave_number_type m_wave_number;
 };
-
 
 /** \brief a brick representing the expression \f$ i k r \f$
  * \tparam scalar scalar type of the coordinate space the distance is defined over
@@ -66,18 +61,18 @@ struct ikr_brick
 		/** \brief templated constructor
 		 * \tparam test_input_t the test input type
 		 * \tparam trial_input_t the trial input type
-		 * \tparam kernel_t the kernel type
+		 * \tparam kernel_data_t the kernel type
 		 * \param [in] test_input the test input
 		 * \param [in] trial_input the trial input
 		 * \param [in] kernel the kernel instance
 		 */
-		template <class test_input_t, class trial_input_t, class kernel_t>
+		template <class test_input_t, class trial_input_t, class kernel_data_t>
 		brick(
 			test_input_t const &test_input,
 			trial_input_t const &trial_input,
-			kernel_t const &kernel) :
-			wall(test_input, trial_input, kernel),
-			m_ikr(std::complex<scalar>(0.0,1.0) * kernel.derived().get_wave_number() * wall::get_distance())
+			kernel_data_t const &kernel_data) :
+			wall(test_input, trial_input, kernel_data),
+			m_ikr(std::complex<scalar>(0.0,1.0) * kernel_data.get_wave_number() * wall::get_distance())
 		{
 		}
 
@@ -114,17 +109,17 @@ struct helmholtz_3d_g_brick
 		/** \brief templated constructor
 		 * \tparam test_input_t the test input type
 		 * \tparam trial_input_t the trial input type
-		 * \tparam kernel_t the kernel type
+		 * \tparam kernel_data_t the kernel type
 		 * \param [in] test_input the test input
 		 * \param [in] trial_input the trial input
 		 * \param [in] kernel the kernel instance
 		 */
-		template <class test_input_t, class trial_input_t, class kernel_t>
+		template <class test_input_t, class trial_input_t, class kernel_data_t>
 		brick(
 			test_input_t const &test_input,
 			trial_input_t const &trial_input,
-			kernel_t const &kernel) :
-			wall(test_input, trial_input, kernel),
+			kernel_data_t const &kernel_data) :
+			wall(test_input, trial_input, kernel_data),
 			m_helmholtz_g(std::exp(-wall::get_ikr()) / wall::get_distance() / (4.0 * M_PI))
 		{
 		}
@@ -174,6 +169,8 @@ struct kernel_traits<helmholtz_3d_SLP_kernel<wave_number_t> >
 	typedef build<location<space_3d> >::type test_input_t;
 	/** \brief kernel trial input type */
 	typedef build<location<space_3d> >::type trial_input_t;
+	/** \brief kernel data type */
+	typedef collect<wave_number_data<wave_number_t> > data_t;
 	/** \brief the kernel output type */
 	typedef helmholtz_3d_g_wall<space_3d::scalar_t>::type output_t;
 	/** \brief kernel result type */
@@ -193,8 +190,7 @@ struct kernel_traits<helmholtz_3d_SLP_kernel<wave_number_t> >
 template <class wave_number_t>
 class helmholtz_3d_SLP_kernel :
 	public kernel_base<helmholtz_3d_SLP_kernel<wave_number_t> >,
-	public reciprocal_distance_kernel<helmholtz_3d_SLP_kernel<wave_number_t> >,
-	public kernel_with_wave_number<wave_number_t>
+	public reciprocal_distance_kernel<helmholtz_3d_SLP_kernel<wave_number_t> >
 {
 public:
 	using reciprocal_distance_kernel<helmholtz_3d_SLP_kernel>::estimate_complexity;
@@ -203,7 +199,7 @@ public:
 	 * \param [in] wave_number the wave number
 	 */
 	helmholtz_3d_SLP_kernel(wave_number_t const &wave_number) :
-		kernel_with_wave_number<wave_number_t>(wave_number)
+		kernel_base<helmholtz_3d_SLP_kernel<wave_number_t> >(wave_number_data<wave_number_t>(wave_number))
 	{
 	}
 };
@@ -228,17 +224,17 @@ struct helmholtz_3d_h_brick
 		/** \brief templated constructor
 		 * \tparam test_input_t the test input type
 		 * \tparam trial_input_t the trial input type
-		 * \tparam kernel_t the kernel type
+		 * \tparam kernel_data_t the kernel type
 		 * \param [in] test_input the test input
 		 * \param [in] trial_input the trial input
 		 * \param [in] kernel the kernel instance
 		 */
-		template <class test_input_t, class trial_input_t, class kernel_t>
+		template <class test_input_t, class trial_input_t, class kernel_data_t>
 		brick(
 			test_input_t const &test_input,
 			trial_input_t const &trial_input,
-			kernel_t const &kernel) :
-			wall(test_input, trial_input, kernel),
+			kernel_data_t const &kernel_data) :
+			wall(test_input, trial_input, kernel_data),
 			m_helmholtz_h(-(1.0+wall::get_ikr()) * wall::get_helmholtz_g() / wall::get_distance() * wall::get_rdny())
 		{
 		}
@@ -288,6 +284,8 @@ struct kernel_traits<helmholtz_3d_DLP_kernel<wave_number_t> >
 	typedef build<location<space_3d> >::type test_input_t;
 	/** \brief kernel trial input type */
 	typedef build<location<space_3d>, normal_jacobian<space_3d> >::type trial_input_t;
+	/** \brief kernel data type */
+	typedef collect<wave_number_data<wave_number_t> > data_t;
 	/** \brief the kernel output type */
 	typedef helmholtz_3d_h_wall<space_3d::scalar_t>::type output_t;
 	/** \brief kernel result type */
@@ -307,8 +305,7 @@ struct kernel_traits<helmholtz_3d_DLP_kernel<wave_number_t> >
 template <class wave_number_t>
 class helmholtz_3d_DLP_kernel :
 	public kernel_base<helmholtz_3d_DLP_kernel<wave_number_t> >,
-	public reciprocal_distance_kernel<helmholtz_3d_DLP_kernel<wave_number_t> >,
-	public kernel_with_wave_number<wave_number_t>
+	public reciprocal_distance_kernel<helmholtz_3d_DLP_kernel<wave_number_t> >
 {
 public:
 	using reciprocal_distance_kernel<helmholtz_3d_DLP_kernel>::estimate_complexity;
@@ -317,7 +314,7 @@ public:
 	 * \param [in] wave_number the wave number
 	 */
 	helmholtz_3d_DLP_kernel(wave_number_t const &wave_number) :
-		kernel_with_wave_number<wave_number_t>(wave_number)
+		kernel_base<helmholtz_3d_DLP_kernel<wave_number_t> >(wave_number_data<wave_number_t>(wave_number))
 	{
 	}
 };
@@ -342,17 +339,17 @@ struct helmholtz_3d_ht_brick
 		/** \brief templated constructor
 		 * \tparam test_input_t the test input type
 		 * \tparam trial_input_t the trial input type
-		 * \tparam kernel_t the kernel type
+		 * \tparam kernel_data_t the kernel type
 		 * \param [in] test_input the test input
 		 * \param [in] trial_input the trial input
 		 * \param [in] kernel the kernel instance
 		 */
-		template <class test_input_t, class trial_input_t, class kernel_t>
+		template <class test_input_t, class trial_input_t, class kernel_data_t>
 		brick(
 			test_input_t const &test_input,
 			trial_input_t const &trial_input,
-			kernel_t const &kernel) :
-			wall(test_input, trial_input, kernel),
+			kernel_data_t const &kernel_data) :
+			wall(test_input, trial_input, kernel_data),
 			m_helmholtz_ht(-(1.0+wall::get_ikr()) * wall::get_helmholtz_g() / wall::get_distance() * wall::get_rdnx())
 		{
 		}
@@ -402,6 +399,8 @@ struct kernel_traits<helmholtz_3d_DLPt_kernel<wave_number_t> >
 	typedef build<location<space_3d>, normal_jacobian<space_3d> >::type test_input_t;
 	/** \brief kernel trial input type */
 	typedef build<location<space_3d> >::type trial_input_t;
+	/** \brief kernel data type */
+	typedef collect<wave_number_data<wave_number_t> > data_t;
 	/** \brief the kernel output type */
 	typedef helmholtz_3d_ht_wall<space_3d::scalar_t>::type output_t;
 	/** \brief kernel result type */
@@ -421,8 +420,7 @@ struct kernel_traits<helmholtz_3d_DLPt_kernel<wave_number_t> >
 template <class wave_number_t>
 class helmholtz_3d_DLPt_kernel :
 	public kernel_base<helmholtz_3d_DLPt_kernel<wave_number_t> >,
-	public reciprocal_distance_kernel<helmholtz_3d_DLPt_kernel<wave_number_t> >,
-	public kernel_with_wave_number<wave_number_t>
+	public reciprocal_distance_kernel<helmholtz_3d_DLPt_kernel<wave_number_t> >
 {
 public:
 	using reciprocal_distance_kernel<helmholtz_3d_DLPt_kernel>::estimate_complexity;
@@ -431,12 +429,10 @@ public:
 	 * \param [in] wave_number the wave number
 	 */
 	helmholtz_3d_DLPt_kernel(wave_number_t const &wave_number) :
-		kernel_with_wave_number<wave_number_t>(wave_number)
+		kernel_base<helmholtz_3d_DLPt_kernel<wave_number_t> >(wave_number_data<wave_number_t>(wave_number))
 	{
 	}
 };
-
-
 
 
 
@@ -460,17 +456,17 @@ struct helmholtz_3d_hyper_brick
 		/** \brief templated constructor
 		 * \tparam test_input_t the test input type
 		 * \tparam trial_input_t the trial input type
-		 * \tparam kernel_t the kernel type
+		 * \tparam kernel_data_t the kernel type
 		 * \param [in] test_input the test input
 		 * \param [in] trial_input the trial input
 		 * \param [in] kernel the kernel instance
 		 */
-		template <class test_input_t, class trial_input_t, class kernel_t>
+		template <class test_input_t, class trial_input_t, class kernel_data_t>
 		brick(
 			test_input_t const &test_input,
 			trial_input_t const &trial_input,
-			kernel_t const &kernel) :
-			wall(test_input, trial_input, kernel),
+			kernel_data_t const &kernel_data) :
+			wall(test_input, trial_input, kernel_data),
 			m_helmholtz_hyper(
 				wall::get_helmholtz_g()/wall::get_distance()/wall::get_distance() * (
 					(1.0 + wall::get_ikr())*test_input.get_unit_normal().dot(trial_input.get_unit_normal()) +
@@ -526,6 +522,8 @@ struct kernel_traits<helmholtz_3d_HSP_kernel<wave_number_t> >
 	typedef build<location<space_3d>, normal_jacobian<space_3d> >::type test_input_t;
 	/** \brief kernel trial input type */
 	typedef build<location<space_3d>, normal_jacobian<space_3d> >::type trial_input_t;
+	/** \brief kernel data type */
+	typedef collect<wave_number_data<wave_number_t> > data_t;
 	/** \brief the kernel output type */
 	typedef helmholtz_3d_hyper_wall<space_3d::scalar_t>::type output_t;
 	/** \brief kernel result type */
@@ -545,8 +543,7 @@ struct kernel_traits<helmholtz_3d_HSP_kernel<wave_number_t> >
 template <class wave_number_t>
 class helmholtz_3d_HSP_kernel :
 	public kernel_base<helmholtz_3d_HSP_kernel<wave_number_t> >,
-	public reciprocal_distance_kernel<helmholtz_3d_HSP_kernel<wave_number_t> >,
-	public kernel_with_wave_number<wave_number_t>
+	public reciprocal_distance_kernel<helmholtz_3d_HSP_kernel<wave_number_t> >
 {
 public:
 	using reciprocal_distance_kernel<helmholtz_3d_HSP_kernel>::estimate_complexity;
@@ -555,7 +552,7 @@ public:
 	 * \param [in] wave_number the wave number
 	 */
 	helmholtz_3d_HSP_kernel(wave_number_t const &wave_number) :
-		kernel_with_wave_number<wave_number_t>(wave_number)
+		kernel_base<helmholtz_3d_HSP_kernel<wave_number_t> >(wave_number_data<wave_number_t>(wave_number))
 	{
 	}
 };

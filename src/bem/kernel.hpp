@@ -36,6 +36,8 @@ public:
 	typedef typename traits_t::test_input_t test_input_t;
 	/** \brief type of the second (trial) kernel input */
 	typedef typename traits_t::trial_input_t trial_input_t;
+	/** \brief the kernel data type */
+	typedef typename traits_t::data_t data_t;
 	/** \brief type of the kernel output (not the result) */
 	typedef typename traits_t::output_t output_t;
 	/** \brief type of the kernel's result */
@@ -61,6 +63,12 @@ public:
 	static unsigned const singularity_order = traits_t::singularity_order;
 	/** \brief the quadrature order used for the generation of Duffy type singular quadratures */
 	static unsigned const singular_quadrature_order = traits_t::singular_quadrature_order;
+
+	/** \brief constructor initialising the kernel data */
+	kernel_base(data_t const &data = data_t()) :
+		m_data(data)
+	{
+	}
 
 	/** \brief the kernel bound at the test kernel input */
 	class kernel_bind
@@ -109,7 +117,7 @@ public:
 	result_t operator()(test_input_t const &x, trial_input_t const &y) const
 	{
 		// instantiate output
-		output_t output(x, y, *this);
+		output_t output(x, y, m_data);
 		// select result from output
 		return output.get_result();
 	}
@@ -128,6 +136,15 @@ public:
 	{
 		return derived().estimate_complexity(x, y, reference_size);
 	}
+
+	data_t const &get_data(void) const
+	{
+		return m_data;
+	}
+
+private:
+	/** \brief the kernel data */
+	data_t m_data;
 };
 
 
