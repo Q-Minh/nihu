@@ -10,7 +10,10 @@
 
 #include "../util/crtp_base.hpp"
 #include "../util/brick.hpp"
+#include "../util/collection.hpp"
 #include "../util/couple.hpp"
+
+class empty_data {};
 
 /**
 * \brief traits class of a kernel
@@ -207,6 +210,8 @@ struct kernel_traits<couple_kernel<Kernels...> >
 	typedef typename merge<typename kernel_traits<Kernels>::test_input_t...>::type test_input_t;
 	/** \brief type of the second (trial) kernel input */
 	typedef typename merge<typename kernel_traits<Kernels>::trial_input_t...>::type trial_input_t;
+	/** \brief the data type */
+	typedef typename merger<typename Kernels::data_t...>::ret_type data_t;
 	/** \brief type of the kernel output (not the result) */
 	typedef couple_output<typename kernel_traits<Kernels>::output_t...> output_t;
 	/** \brief type of the kernel's result */
@@ -254,6 +259,7 @@ public:
 	 * \param [in] kernels references to kernel instances
 	 */
 	couple_kernel(kernel_base<Kernels> const &...kernels) :
+		base_t(merge_data(kernels.get_data()...)),
 		m_kernels(kernels.derived()...)
 	{
 	}

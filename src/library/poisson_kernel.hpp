@@ -16,6 +16,7 @@
 #include "reciprocal_distance_kernel.hpp"
 
 #include "basic_bricks.hpp"
+#include "../util/collection.hpp"
 
 /** \brief a brick representing a 2D Poisson kernel \f$ -\log r /2\pi \f$
  * \tparam scalar scalar type of the coordinate space the distance is defined over
@@ -36,17 +37,17 @@ struct poisson_2d_g_brick
 		/** \brief templated constructor
 		 * \tparam test_input_t the test input type
 		 * \tparam trial_input_t the trial input type
-		 * \tparam kernel_t the kernel type
+		 * \tparam kernel_data_t the kernel type
 		 * \param [in] test_input the test input
 		 * \param [in] trial_input the trial input
-		 * \param [in] kernel the kernel instance
+		 * \param [in] kernel_data the kernel data instance
 		 */
-		template <class test_input_t, class trial_input_t, class kernel_t>
+		template <class test_input_t, class trial_input_t, class kernel_data_t>
 		brick(
 			test_input_t const &test_input,
 			trial_input_t const &trial_input,
-			kernel_t const &kernel) :
-			wall(test_input, trial_input, kernel),
+			kernel_data_t const &kernel_data) :
+			wall(test_input, trial_input, kernel_data),
 			m_poisson_g(-std::log(wall::get_distance()) / (2.0 * M_PI))
 		{
 		}
@@ -95,6 +96,8 @@ struct kernel_traits<poisson_2d_SLP_kernel>
 	typedef build<location<space_2d> >::type test_input_t;
 	/** \brief kernel trial input type */
 	typedef build<location<space_2d> >::type trial_input_t;
+	/** \brief the data type */
+	typedef collect<empty_data> data_t;
 	/** \brief the kernel output type */
 	typedef poisson_2d_g_wall<space_2d::scalar_t>::type output_t;
 	/** \brief kernel result type */
@@ -139,17 +142,17 @@ struct poisson_2d_h_brick
 		/** \brief templated constructor
 		 * \tparam test_input_t the test input type
 		 * \tparam trial_input_t the trial input type
-		 * \tparam kernel_t the kernel type
+		 * \tparam kernel_data_t the kernel type
 		 * \param [in] test_input the test input
 		 * \param [in] trial_input the trial input
-		 * \param [in] kernel the kernel instance
+		 * \param [in] kernel_data the kernel data instance
 		 */
-		template <class test_input_t, class trial_input_t, class kernel_t>
+		template <class test_input_t, class trial_input_t, class kernel_data_t>
 		brick(
 			test_input_t const &test_input,
 			trial_input_t const &trial_input,
-			kernel_t const &kernel) :
-			wall(test_input, trial_input, kernel),
+			kernel_data_t const &kernel_data) :
+			wall(test_input, trial_input, kernel_data),
 			m_poisson_h(-wall::get_rdny()/wall::get_distance() / (2.0 * M_PI))
 		{
 		}
@@ -199,6 +202,8 @@ struct kernel_traits<poisson_2d_DLP_kernel>
 	typedef build<location<space_2d> >::type test_input_t;
 	/** \brief kernel trial input type */
 	typedef build<location<space_2d>, normal_jacobian<space_2d> >::type trial_input_t;
+	/** \brief the data type */
+	typedef collect<empty_data> data_t;
 	/** \brief the kernel output type */
 	typedef poisson_2d_h_wall<space_2d::scalar_t>::type output_t;
 	/** \brief kernel result type */
@@ -242,17 +247,17 @@ struct poisson_2d_ht_brick
 		/** \brief templated constructor
 		 * \tparam test_input_t the test input type
 		 * \tparam trial_input_t the trial input type
-		 * \tparam kernel_t the kernel type
+		 * \tparam kernel_data_t the kernel type
 		 * \param [in] test_input the test input
 		 * \param [in] trial_input the trial input
-		 * \param [in] kernel the kernel instance
+		 * \param [in] kernel_data the kernel data instance
 		 */
-		template <class test_input_t, class trial_input_t, class kernel_t>
+		template <class test_input_t, class trial_input_t, class kernel_data_t>
 		brick(
 			test_input_t const &test_input,
 			trial_input_t const &trial_input,
-			kernel_t const &kernel) :
-			wall(test_input, trial_input, kernel),
+			kernel_data_t const &kernel_data) :
+			wall(test_input, trial_input, kernel_data),
 			m_poisson_ht(-wall::get_rdnx()/wall::get_distance() / (2.0 * M_PI))
 		{
 		}
@@ -302,6 +307,8 @@ struct kernel_traits<poisson_2d_DLPt_kernel>
 	typedef build<location<space_2d>, normal_jacobian<space_2d> >::type test_input_t;
 	/** \brief kernel test input type */
 	typedef build<location<space_2d> >::type trial_input_t;
+	/** \brief the data type */
+	typedef collect<empty_data> data_t;
 	/** \brief the kernel output type */
 	typedef poisson_2d_ht_wall<space_2d::scalar_t>::type output_t;
 	/** \brief kernel result type */
@@ -346,17 +353,17 @@ struct poisson_2d_hyper_brick
 		/** \brief templated constructor
 		 * \tparam test_input_t the test input type
 		 * \tparam trial_input_t the trial input type
-		 * \tparam kernel_t the kernel type
+		 * \tparam kernel_data_t the kernel type
 		 * \param [in] test_input the test input
 		 * \param [in] trial_input the trial input
-		 * \param [in] kernel the kernel instance
+		 * \param [in] kernel_data the kernel data instance
 		 */
-		template <class test_input_t, class trial_input_t, class kernel_t>
+		template <class test_input_t, class trial_input_t, class kernel_data_t>
 		brick(
 			test_input_t const &test_input,
 			trial_input_t const &trial_input,
-			kernel_t const &kernel) :
-			wall(test_input, trial_input, kernel),
+			kernel_data_t const &kernel_data) :
+			wall(test_input, trial_input, kernel_data),
 			m_poisson_hyper(
 				1.0/(2.0 * M_PI)/wall::get_distance()/wall::get_distance() * (
 					test_input.get_unit_normal().dot(trial_input.get_unit_normal()) +
@@ -410,6 +417,8 @@ struct kernel_traits<poisson_2d_HSP_kernel>
 	typedef build<location<space_2d>, normal_jacobian<space_2d> >::type test_input_t;
 	/** \brief kernel trial input type */
 	typedef build<location<space_2d>, normal_jacobian<space_2d>  >::type trial_input_t;
+	/** \brief the data type */
+	typedef collect<empty_data> data_t;
 	/** \brief the kernel output type */
 	typedef poisson_2d_hyper_wall<space_2d::scalar_t>::type output_t;
 	/** \brief kernel result type */
@@ -455,17 +464,17 @@ struct poisson_3d_g_brick
 		/** \brief templated constructor
 		 * \tparam test_input_t the test input type
 		 * \tparam trial_input_t the trial input type
-		 * \tparam kernel_t the kernel type
+		 * \tparam kernel_data_t the kernel type
 		 * \param [in] test_input the test input
 		 * \param [in] trial_input the trial input
-		 * \param [in] kernel the kernel instance
+		 * \param [in] kernel_data the kernel data instance
 		 */
-		template <class test_input_t, class trial_input_t, class kernel_t>
+		template <class test_input_t, class trial_input_t, class kernel_data_t>
 		brick(
 			test_input_t const &test_input,
 			trial_input_t const &trial_input,
-			kernel_t const &kernel) :
-			wall(test_input, trial_input, kernel),
+			kernel_data_t const &kernel_data) :
+			wall(test_input, trial_input, kernel_data),
 			m_poisson_g(1.0 / wall::get_distance() / (4.0 * M_PI))
 		{
 		}
@@ -514,6 +523,8 @@ struct kernel_traits<poisson_3d_SLP_kernel>
 	typedef build<location<space_3d> >::type test_input_t;
 	/** \brief kernel trial input type */
 	typedef build<location<space_3d> >::type trial_input_t;
+	/** \brief the data type */
+	typedef collect<empty_data> data_t;
 	/** \brief the kernel output type */
 	typedef poisson_3d_g_wall<space_3d::scalar_t>::type output_t;
 	/** \brief kernel result type */
@@ -557,17 +568,17 @@ struct poisson_3d_h_brick
 		/** \brief templated constructor
 		 * \tparam test_input_t the test input type
 		 * \tparam trial_input_t the trial input type
-		 * \tparam kernel_t the kernel type
+		 * \tparam kernel_data_t the kernel type
 		 * \param [in] test_input the test input
 		 * \param [in] trial_input the trial input
-		 * \param [in] kernel the kernel instance
+		 * \param [in] kernel_data the kernel data instance
 		 */
-		template <class test_input_t, class trial_input_t, class kernel_t>
+		template <class test_input_t, class trial_input_t, class kernel_data_t>
 		brick(
 			test_input_t const &test_input,
 			trial_input_t const &trial_input,
-			kernel_t const &kernel) :
-			wall(test_input, trial_input, kernel),
+			kernel_data_t const &kernel_data) :
+			wall(test_input, trial_input, kernel_data),
 			m_poisson_h(-wall::get_poisson_g() * wall::get_rdny() / wall::get_distance())
 		{
 		}
@@ -618,6 +629,8 @@ struct kernel_traits<poisson_3d_DLP_kernel>
 	typedef build<location<space_3d> >::type test_input_t;
 	/** \brief kernel trial input type */
 	typedef build<location<space_3d>, normal_jacobian<space_3d> >::type trial_input_t;
+	/** \brief the data type */
+	typedef collect<empty_data> data_t;
 	/** \brief the kernel output type */
 	typedef poisson_3d_h_wall<space_3d::scalar_t>::type output_t;
 	/** \brief kernel result type */
@@ -661,17 +674,17 @@ struct poisson_3d_ht_brick
 		/** \brief templated constructor
 		 * \tparam test_input_t the test input type
 		 * \tparam trial_input_t the trial input type
-		 * \tparam kernel_t the kernel type
+		 * \tparam kernel_data_t the kernel type
 		 * \param [in] test_input the test input
 		 * \param [in] trial_input the trial input
-		 * \param [in] kernel the kernel instance
+		 * \param [in] kernel_data the kernel data instance
 		 */
-		template <class test_input_t, class trial_input_t, class kernel_t>
+		template <class test_input_t, class trial_input_t, class kernel_data_t>
 		brick(
 			test_input_t const &test_input,
 			trial_input_t const &trial_input,
-			kernel_t const &kernel) :
-			wall(test_input, trial_input, kernel),
+			kernel_data_t const &kernel_data) :
+			wall(test_input, trial_input, kernel_data),
 			m_poisson_ht(-wall::get_poisson_g() * wall::get_rdnx() / wall::get_distance())
 		{
 		}
@@ -722,6 +735,8 @@ struct kernel_traits<poisson_3d_DLPt_kernel>
 	typedef build<location<space_3d>, normal_jacobian<space_3d> >::type test_input_t;
 	/** \brief kernel trial input type */
 	typedef build<location<space_3d> >::type trial_input_t;
+	/** \brief the data type */
+	typedef collect<empty_data> data_t;
 	/** \brief the kernel output type */
 	typedef poisson_3d_ht_wall<space_3d::scalar_t>::type output_t;
 	/** \brief kernel result type */
@@ -765,17 +780,17 @@ struct poisson_3d_hyper_brick
 		/** \brief templated constructor
 		 * \tparam test_input_t the test input type
 		 * \tparam trial_input_t the trial input type
-		 * \tparam kernel_t the kernel type
+		 * \tparam kernel_data_t the kernel type
 		 * \param [in] test_input the test input
 		 * \param [in] trial_input the trial input
-		 * \param [in] kernel the kernel instance
+		 * \param [in] kernel_data the kernel data instance
 		 */
-		template <class test_input_t, class trial_input_t, class kernel_t>
+		template <class test_input_t, class trial_input_t, class kernel_data_t>
 		brick(
 			test_input_t const &test_input,
 			trial_input_t const &trial_input,
-			kernel_t const &kernel) :
-			wall(test_input, trial_input, kernel),
+			kernel_data_t const &kernel_data) :
+			wall(test_input, trial_input, kernel_data),
 			m_poisson_hyper(
 				wall::get_poisson_g() / wall::get_distance() / wall::get_distance() * (
 					test_input.get_unit_normal().dot(trial_input.get_unit_normal()) +
@@ -831,6 +846,8 @@ struct kernel_traits<poisson_3d_HSP_kernel>
 	typedef build<location<space_3d>, normal_jacobian<space_3d> >::type test_input_t;
 	/** \brief kernel trial input type */
 	typedef build<location<space_3d>, normal_jacobian<space_3d> >::type trial_input_t;
+	/** \brief the data type */
+	typedef collect<empty_data> data_t;
 	/** \brief the kernel output type */
 	typedef poisson_3d_hyper_wall<space_3d::scalar_t>::type output_t;
 	/** \brief kernel result type */

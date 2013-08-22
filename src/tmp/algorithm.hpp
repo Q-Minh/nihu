@@ -243,6 +243,63 @@ namespace tmp
 		vector<>,
 		if_<is_member<_1,_2>, _1, push_back<_1,_2> >
 	> {};
+
+	namespace internal
+	{
+		template <class first, class second, class condition>
+		struct swap_if
+		{
+			typedef first first_t;
+			typedef second second_t;
+		};
+
+		template <class first, class second>
+		struct swap_if<first, second, std::true_type>
+		{
+			typedef second first_t;
+			typedef first second_t;
+		};
+
+		template <
+			class Seq, class Method,
+			class siz = typename less<int_<1>, typename size<Seq>::type>::type
+		>
+		struct bubble_cycle
+		{
+			typedef typename deref<typename begin<Seq>::type>::type first_t;
+			typedef typename deref<
+				typename begin<typename pop_front<Seq>::type>::type
+			>::type second_t;
+			typedef typename pop_front<typename pop_front<Seq>::type>::type trunc;
+			typedef typename apply<Method, first_t, second_t>::type cond;
+			typedef typename swap_if<first_t, second_t, cond>::first_t new_first;
+			typedef typename swap_if<first_t, second_t, cond>::second_t new_second;
+			typedef typename push_front<
+				typename push_front<trunc, new_second>::type,
+				new_first
+			>::type processed;
+			typedef typename push_front<
+				typename bubble_cycle<
+					typename pop_front<processed>::type,
+					Method
+				>::type,
+				new_first
+			>::type type;
+		};
+
+		template <class Seq, class Method>
+		struct bubble_cycle<Seq, Method, std::false_type> : Seq {};
+	}
+
+	template <class Seq, class Method, class cnt = typename size<Seq>::type>
+	struct bubble_sort : bubble_sort<
+		typename internal::bubble_cycle<Seq, Method>::type,
+		Method,
+		typename prev<cnt>::type
+	> {};
+
+	template <class Seq, class Method>
+	struct bubble_sort<Seq, Method, int_<0> > : Seq {};
 }
 
 #endif

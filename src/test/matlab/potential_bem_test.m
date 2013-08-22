@@ -15,7 +15,7 @@ x0 = [.2 .3 .2];
 [nodf, elf] = extract_Boonen_mesh(field);
 
 tic;
-[Gs, Hs, Gf, Hf, Htf, Kf] = potential_bem(nods, els, nodf, elf);
+[Gs, Hs, Gf, Hf, Htf, Kf, dur_separate, dur_couple] = potential_bem(nods, els, nodf, elf);
 toc;
 
 % surface potential

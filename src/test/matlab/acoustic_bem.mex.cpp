@@ -11,7 +11,7 @@ typedef mex::complex_matrix<double> cMatrix;
 void mexFunction(int nlhs, mxArray *lhs[],
 	int nrhs, mxArray const *rhs[])
 {
-	if (nlhs < 9 || nrhs < 5)
+	if (nlhs < 10 || nrhs < 5)
 		throw("Too few input or output arguments");
 
 	// create integral operators
@@ -61,5 +61,19 @@ void mexFunction(int nlhs, mxArray *lhs[],
 	auto stop = std::chrono::steady_clock::now();	// stop timer
 	dMatrix dur_separate(1, 1, lhs[8]);
 	dur_separate(0,0) = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count();
+
+	// evaluate radiation matrices again with couple kernel evaluation
+
+	auto CoupleOp = create_integral_operator(
+		helmholtz_3d_SLP_kernel<double>(k),
+		helmholtz_3d_DLP_kernel<double>(k),
+		helmholtz_3d_DLPt_kernel<double>(k),
+		helmholtz_3d_HSP_kernel<double>(k)
+	);
+	start = std::chrono::steady_clock::now();	// start timer
+	create_couple(Lf, Mf, Mtf, Nf)  << ( field_sp * CoupleOp [trial_sp] );
+	stop = std::chrono::steady_clock::now();	// stop timer
+	dMatrix dur_couple(1, 1, lhs[9]);
+	dur_couple(0,0) = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count();
 }
 

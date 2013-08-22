@@ -58,7 +58,7 @@ namespace tmp
 	struct mul<int_<N>, int_<M> > : int_<N*M> {};
 
 	/**
-	 * \brief metafunction returning difference of two integers
+	 * \brief metafunction returning true if first is less than second
 	 */
 	template <int N, int M>
 	struct less<int_<N>, int_<M> > : std::integral_constant<bool, N < M> {};

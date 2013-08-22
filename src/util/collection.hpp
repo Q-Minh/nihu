@@ -3,6 +3,9 @@
  * \brief Collect a set of classes into a container
  */
 
+#ifndef COLLECTION_HPP_INCLUDED
+#define COLLECTION_HPP_INCLUDED
+
 #include <type_traits> // is_base_of
 
 /**
@@ -25,15 +28,6 @@ public:
 	}
 };
 
-/**
- * \brief merge two collections by preserving unique member types only
- * \tparam C1 the first collection
- * \tparam C2 the second collection
- */
-template <class C1, class C2>
-struct merger;
-
-
 namespace internal
 {
 	/** \brief merge a plain class into a collection if it is already contained */
@@ -44,6 +38,7 @@ namespace internal
 
 		static ret_type eval(C1 const &c1, D2 const &d2)
 		{
+//			assert(c1 == static_cast<C1 const &>(d2));
 			return d2;
 		}
 	};
@@ -64,6 +59,24 @@ namespace internal
 } // end of namespace internal
 
 
+
+/**
+ * \brief merge collections by preserving unique member types only
+ * \tparam C1 the first collection
+ * \tparam C2 the second collection
+ * \tparam C3 possible other collections
+ */
+template <class C1, class C2, class...C3>
+struct merger : merger<C1, typename merger<C2, C3...>::ret_type>
+{
+	static typename merger<C1, typename merger<C2, C3...>::ret_type>::ret_type
+	eval(C1 const &c1, C2 const &c2, C3 const &...c3)
+	{
+		return merger<C1, typename merger<C2, C3...>::ret_type>::eval(c1,
+			merger<C2, C3...>::eval(c2, c3...)
+		);
+	}
+};
 
 /**
  * \brief merge a plain class into a collection
@@ -125,12 +138,14 @@ struct merger<collect<A1, Args1...>, collect<Args2...> >
  * \param [in] c1 the first collection
  * \param [in] c2 the second collection
  * \return the merged collection
+ * \todo make sure that only collections are handled (enable_if)
  */
-template <class...Args1, class...Args2>
-typename merger<collect<Args1...>, collect<Args2...> >::ret_type
-	merge_data(collect<Args1...> const &c1, collect<Args2...> const &c2)
+template <class ...Collections>
+typename merger<Collections...>::ret_type
+	merge_data(Collections const &...collections)
 {
-	return merger<collect<Args1...>, collect<Args2>...>::eval(c1, c2);
+	return merger<Collections...>::eval(collections...);
 }
 
 
+#endif // COLLECTION_HPP_INCLUDED
