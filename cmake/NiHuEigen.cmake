@@ -52,10 +52,10 @@ if(NOT EIGEN_FOUND OR NIHU_EIGEN_INSTALL)
 			OUTPUT_QUIET)
 
 		# Apply eigen patch
-		if(NOT DEFINED NIHU_DISABLE_EIGEN_PATCH)
+		if(NOT NIHU_EIGEN_DISABLE_PATCH)
 			message(STATUS "Applying Eigen patch")
 			execute_process(COMMAND "patch" "--directory=${EIGEN_SOURCE_DIR}" "--strip=2" "--input=${NIHU_THIRDPARTY_DIR}/patches/eigen-3.1.2.patch")
-		endif(NOT DEFINED NIHU_DISABLE_EIGEN_PATCH)
+		endif(NOT NIHU_EIGEN_DISABLE_PATCH)
 
 			
 		# Install the header files

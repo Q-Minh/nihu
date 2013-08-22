@@ -101,3 +101,26 @@ add_subdirectory(test)
 # 	add_subdirectory(test EXCLUDE_FROM_ALL)
 # endif(NOT NIHU_DISABLE_TESTS)
 
+### Documentation section
+
+find_package(Doxygen)
+
+if(DOXYGEN_FOUND)
+	file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/doc ${CMAKE_BINARY_DIR}/doc/html)
+	
+	if(DEFINED NIHU_MATHJAX_PATH)
+		file(RELATIVE_PATH NIHU_MATHJAX_RELPATH "${CMAKE_BINARY_DIR}/doc/html" "${NIHU_MATHJAX_PATH}")
+		message(STATUS "MathJax relative path: ${NIHU_MATHJAX_RELPATH}")
+	else(DEFINED NIHU_MATHJAX_PATH)
+		#message(STATUS "Downloading MathJax from http://cdn.mathjax.org/mathjax/latest/MathJax.js")
+		#file(DOWNLOAD "http://cdn.mathjax.org/mathjax/latest/MathJax.js" "${CMAKE_BINARY_DIR}/doc/MathJax/MathJax.js")
+	endif(DEFINED NIHU_MATHJAX_PATH)
+
+	configure_file(${CMAKE_SOURCE_DIR}/../Doxyfile.in 
+		${CMAKE_BINARY_DIR}/Doxyfile)
+
+	add_custom_target(doc
+		${DOXYGEN_EXECUTABLE} ${CMAKE_BINARY_DIR}/Doxyfile
+		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/..
+		COMMENT "Generating API documentation with Doxygen" VERBATIM)
+endif(DOXYGEN_FOUND)
