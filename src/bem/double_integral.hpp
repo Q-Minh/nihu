@@ -201,7 +201,11 @@ protected:
 		auto &test_ra = test_regular_store_t::m_regular_pool;
 		auto &trial_ra = trial_regular_store_t::m_regular_pool;
 
-		unsigned degree = complexity_estimator<test_field_t, trial_field_t, void>::eval(
+		unsigned degree = complexity_estimator<
+			test_field_t,
+			trial_field_t,
+			typename kernel_traits<kernel_t>::complexity_estimator_t
+		>::eval(
 			test_field, trial_field
 		);
 
@@ -447,9 +451,11 @@ protected:
 	{
 		auto &trial_ra = trial_regular_store_t::m_regular_pool;
 
-		unsigned degree = complexity_estimator<test_field_t, trial_field_t, void>::eval(
-			test_field, trial_field
-		);
+		unsigned degree = complexity_estimator<
+			test_field_t,
+			trial_field_t,
+			typename kernel_traits<kernel_t>::complexity_estimator_t
+		>::eval(test_field, trial_field);
 
 /*
 		quadrature_elem_t qe(test_field_t::elem_t::domain_t::get_center());

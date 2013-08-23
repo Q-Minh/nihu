@@ -1,6 +1,19 @@
 #ifndef COMPLEXITY_ESTIMATOR_HPP_INCLUDED
 #define COMPLEXITY_ESTIMATOR_HPP_INCLUDED
 
+class interval_estimator
+{
+public:
+	template <class test_field_t, class trial_field_t>
+	static unsigned eval(
+		field_base<test_field_t> const &test_field,
+		field_base<trial_field_t> const &trial_field
+	)
+	{
+		return 2;
+	}
+};
+
 template <class TestField, class TrialField, class KernelEstimator>
 class complexity_estimator
 {
@@ -27,7 +40,8 @@ public:
 		field_base<trial_field_t> const &trial_field
 	)
 	{
-		return total_field_complexity;
+		return total_field_complexity +
+			KernelEstimator::eval(test_field, trial_field);
 	}
 };
 

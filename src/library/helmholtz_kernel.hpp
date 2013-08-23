@@ -183,6 +183,8 @@ struct kernel_traits<helmholtz_3d_SLP_kernel<wave_number_t> >
 	static unsigned const singularity_order = 1;
 	/** \brief quadrature order used to generate Duffy singular quadratures */
 	static unsigned const singular_quadrature_order = 7;
+	/** \brief the kernel complexity estimator class */
+	typedef interval_estimator complexity_estimator_t;
 };
 
 
@@ -298,6 +300,8 @@ struct kernel_traits<helmholtz_3d_DLP_kernel<wave_number_t> >
 	static unsigned const singularity_order = 2;
 	/** \brief quadrature order used to generate Duffy singular quadratures */
 	static unsigned const singular_quadrature_order = 7;
+	/** \brief the kernel complexity estimator class */
+	typedef interval_estimator complexity_estimator_t;
 };
 
 
@@ -413,6 +417,8 @@ struct kernel_traits<helmholtz_3d_DLPt_kernel<wave_number_t> >
 	static unsigned const singularity_order = 2;
 	/** \brief quadrature order used to generate Duffy singular quadratures */
 	static unsigned const singular_quadrature_order = 7;
+	/** \brief the kernel complexity estimator class */
+	typedef interval_estimator complexity_estimator_t;
 };
 
 
@@ -536,6 +542,8 @@ struct kernel_traits<helmholtz_3d_HSP_kernel<wave_number_t> >
 	static unsigned const singularity_order = 3;
 	/** \brief quadrature order used to generate Duffy singular quadratures */
 	static unsigned const singular_quadrature_order = 7;
+	/** \brief the kernel complexity estimator class */
+	typedef interval_estimator complexity_estimator_t;
 };
 
 

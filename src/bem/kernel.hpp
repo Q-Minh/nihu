@@ -8,6 +8,7 @@
 #ifndef KERNEL_HPP_INCLUDED
 #define KERNEL_HPP_INCLUDED
 
+#include "complexity_estimator.hpp"
 #include "../util/crtp_base.hpp"
 #include "../util/brick.hpp"
 #include "../util/collection.hpp"
@@ -216,6 +217,8 @@ struct kernel_traits<couple_kernel<Kernels...> >
 	static unsigned const singular_quadrature_order = tmp::max_<
 		std::integral_constant<unsigned, kernel_traits<Kernels>::singular_quadrature_order>...
 	>::value;
+	/** \brief the kernel complexity estimator class */
+	typedef interval_estimator complexity_estimator_t;
 };
 
 
