@@ -218,7 +218,9 @@ struct kernel_traits<couple_kernel<Kernels...> >
 		std::integral_constant<unsigned, kernel_traits<Kernels>::singular_quadrature_order>...
 	>::value;
 	/** \brief the kernel complexity estimator class */
-	typedef interval_estimator complexity_estimator_t;
+	typedef typename merge_kernel_complexity_estimators<
+		typename kernel_traits<Kernels>::complexity_estimator_t...
+	>::type complexity_estimator_t;
 };
 
 
