@@ -92,7 +92,10 @@ public:
 	typedef typename tmp::inherit<
 		typename tmp::transform<
 			elem_type_vector_t,
-			tmp::inserter<tmp::vector<>, tmp::push_back<tmp::_1,tmp::_2> >,
+			tmp::inserter<
+				typename tmp::empty<elem_type_vector_t>::type,
+				tmp::push_back<tmp::_1,tmp::_2>
+			>,
 			EigenStdVector<tmp::_1>
 		>::type
 	>::type elem_container_t;

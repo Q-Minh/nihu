@@ -3,10 +3,14 @@
 #include <iostream>
 
 typedef tmp::vector<
-	break_point<std::ratio<0,1>, tmp::int_<6> >,
-	break_point<std::ratio<2,1>, tmp::int_<3> >,
-	break_point<std::ratio<5,2>, tmp::int_<1> >
-> func_t;
+	break_point<std::ratio<2>, tmp::int_<6> >,
+	break_point<ratio_infinite, tmp::int_<1> >
+> inter1_t;
+
+typedef tmp::vector<
+	break_point<std::ratio<3>, tmp::int_<6> >,
+	break_point<ratio_infinite, tmp::int_<2> >
+> inter2_t;
 
 template <class BP>
 struct print_break_point
@@ -15,13 +19,25 @@ struct print_break_point
 	{
 		void operator()(void)
 		{
-			std::cout << BP::x_value() << '-' << BP::y::value << std::endl;
+			std::cout << BP::x_value() << " - " << BP::y::value << std::endl;
 		}
 	};
 };
 
 int main(void)
 {
-	tmp::call_each<func_t, print_break_point<tmp::_1> >();
+	std::cout << "first interval: " << std::endl;
+	tmp::call_each<inter1_t, print_break_point<tmp::_1> >();
+	std::cout << "second interval: " << std::endl;
+	tmp::call_each<inter2_t, print_break_point<tmp::_1> >();
+
+	std::cout << "merged interval: " << std::endl;
+	typedef merge_intervals<inter1_t, inter2_t>::type merged;
+	tmp::call_each<merged, print_break_point<tmp::_1> >();
+
+	std::cout << "some tests: " << std::endl;
+	std::cout << .2 << ' ' << eval_interval<merged>(.2) << std::endl;
+	std::cout << 2.2 << ' ' << eval_interval<merged>(2.2) << std::endl;
+	std::cout << 4.2 << ' ' << eval_interval<merged>(4.2) << std::endl;
 	return 0;
 }

@@ -180,24 +180,6 @@ public:
 };
 
 
-/** \brief compute maximum value of integral constants
- * \todo this metafunction should be placed in a more general tmp module
- */
-template <class Val, class...Args>
-struct max_
-{
-	static unsigned const rest = max_<Args...>::value;
-	static unsigned const x = Val::value;
-	static unsigned const value = x > rest ? x : rest;
-};
-
-/** \brief specialisation of ::max_ for the one parameter case */
-template <class Val>
-struct max_<Val>
-{
-	static unsigned const value = Val::value;
-};
-
 // forward declaration
 template <class...Kernels>
 class couple_kernel;
@@ -227,11 +209,11 @@ struct kernel_traits<couple_kernel<Kernels...> >
 		std::integral_constant<bool, kernel_traits<Kernels>::is_symmetric>...
 	>::value;
 	/** \brief the singularity order ( r^(-order) ) */
-	static unsigned const singularity_order = max_<
+	static unsigned const singularity_order = tmp::max_<
 		std::integral_constant<unsigned, kernel_traits<Kernels>::singularity_order>...
 	>::value;
 	/** \brief the quadrature order used for the generation of Duffy type singular quadratures */
-	static unsigned const singular_quadrature_order = max_<
+	static unsigned const singular_quadrature_order = tmp::max_<
 		std::integral_constant<unsigned, kernel_traits<Kernels>::singular_quadrature_order>...
 	>::value;
 };

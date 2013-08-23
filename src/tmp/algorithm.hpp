@@ -21,11 +21,11 @@ namespace tmp
 	namespace internal
 	{
 		/**
-		 * \brief accumulate_impl elements in a range using a user-specified metafunctor
+		 * \brief accumulate elements in a range using a user-specified metafunctor
 		 * \tparam Beg begin iterator
 		 * \tparam End end iterator
 		 * \tparam Init initial value of accumulation
-		 * \tparam Fun accumulating functor, the default is plus
+		 * \tparam Fun accumulating functor
 		 */
 		template <class Beg, class End, class Init, class Fun >
 		struct accumulate_impl : accumulate_impl<
@@ -104,7 +104,11 @@ namespace tmp
 	 * \tparam Seq the sequence the elements of which are transformed
 	 */
 	template <class Seq>
-	struct inherit : accumulate<Seq, internal::empty, internal::inheriter<_1,_2> > {};
+	struct inherit : accumulate<
+		Seq,
+		internal::empty,
+		internal::inheriter<_1,_2>
+	> {};
 
 	namespace internal
 	{
@@ -141,6 +145,43 @@ namespace tmp
 		{
 			typedef typename Ins::state type;
 		};
+
+		/**
+		 * \brief conditionally transform elements in a range
+		 * \tparam Beg begin iterator
+		 * \tparam End end iterator
+		 * \tparam Ins inserter used to fill output container
+		 * \tparam Cond condition evaluated for each element
+		 * \tparam Trans transformation functor
+		 */
+		template <class Beg, class End, class Ins, class Cond, class Trans>
+		struct transform_if_ptr_impl : transform_if_ptr_impl<
+			typename next<Beg>::type,
+			End,
+			inserter<
+				typename std::conditional<
+					apply<Cond, Beg>::type::value,
+					typename apply<
+						typename Ins::operation,
+						typename Ins::state,
+						typename apply<Trans, Beg>::type
+					>::type,
+					typename Ins::state
+				>::type,
+				typename Ins::operation
+			>,
+			Cond,
+			Trans
+		> {};
+
+		/**
+		 * \brief terminating case of transform_impl where the end iterator has been reached
+		 */
+		template <class End, class Ins, class Cond, class Trans>
+		struct transform_if_ptr_impl<End, End, Ins, Cond, Trans>
+		{
+			typedef typename Ins::state type;
+		};
 	}
 
 	/**
@@ -158,12 +199,36 @@ namespace tmp
 	> {};
 
 	/**
+	 * \brief conditionally transform elements in a sequence
+	 * \tparam Seq the sequence the elements of which are transformed
+	 * \tparam Ins inserter used to fill output container
+	 * \tparam Cond condition
+	 * \tparam Trans transformation functor
+	 */
+	template <class Seq, class Ins, class Cond, class Trans>
+	struct transform_if_ptr : internal::transform_if_ptr_impl<
+		typename begin<Seq>::type,
+		typename end<Seq>::type,
+		Ins,
+		Cond,
+		Trans
+	> {};
+
+	/**
 	 * \brief copy elements from a container into an other
 	 * \tparam Seq sequence
 	 * \tparam Ins inserter used to fill output container
 	 */
 	template <class Seq, class Ins>
 	struct copy : transform<Seq, Ins, _1> {};
+
+	/**
+	 * \brief copy elements from a container into an other
+	 * \tparam Seq sequence
+	 * \tparam Ins inserter used to fill output container
+	 */
+	template <class Seq, class Ins, class Cond>
+	struct copy_if : transform_if_ptr<Seq, Ins, Cond, tmp::deref<_1> > {};
 
 	/**
 	 * \brief concatenate two sequences into a new sequence
@@ -209,7 +274,7 @@ namespace tmp
 	 * \details return an iterator for the first match. The end iterator is returned if the element is not found.
 	 * \tparam Seq the sequence
 	 * \tparam Elem the element
-	 * \return itrerator to the first occurrence of Elem in Seq or the end iterator if Elem is not found
+	 * \return iterator to the first occurrence of Elem in Seq or the end iterator if Elem is not found
 	 */
 	template <class Seq, class Elem>
 	struct find : internal::find_impl<

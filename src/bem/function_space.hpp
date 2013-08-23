@@ -90,10 +90,15 @@ struct function_space_traits<function_space_view<Mesh, FieldOption> >
 	/** \brief the underlying mesh type */
 	typedef Mesh mesh_t;
 
+	typedef typename mesh_t::elem_type_vector_t etv_t;
+
 	/** \brief the field type vector */
 	typedef typename tmp::transform<
-		typename Mesh::elem_type_vector_t,
-		tmp::inserter<tmp::vector<>, tmp::push_back<tmp::_1, tmp::_2> >,
+		etv_t,
+		tmp::inserter<
+			typename tmp::empty<etv_t>::type,
+			tmp::push_back<tmp::_1, tmp::_2>
+		>,
 		field_view<tmp::_1, FieldOption>
 	>::type field_type_vector_t;
 
@@ -250,7 +255,12 @@ struct function_space_traits<dirac_space<FuncSpace> >
 	/** \brief the field type vector */
 	typedef typename tmp::transform<
 		typename base_traits::field_type_vector_t,
-		tmp::inserter<tmp::vector<>, tmp::push_back<tmp::_1, tmp::_2> >,
+		tmp::inserter<
+			typename tmp::empty<
+				typename base_traits::field_type_vector_t
+			>::type,
+			tmp::push_back<tmp::_1, tmp::_2>
+		>,
 		dirac_field<tmp::_1>
 	>::type field_type_vector_t;
 
@@ -335,7 +345,10 @@ struct field_2_elem_type_vector
 	typedef typename tmp::unique<
 		typename tmp::transform<
 			FieldTypeVector,
-			tmp::inserter<tmp::vector<>, tmp::push_back<tmp::_1, tmp::_2> >,
+			tmp::inserter<
+				typename tmp::empty<FieldTypeVector>::type,
+				tmp::push_back<tmp::_1, tmp::_2>
+			>,
 			elemize<tmp::_1>
 		>::type
 	>::type type;
@@ -382,7 +395,10 @@ public:
 	typedef typename tmp::inherit<
 		typename tmp::transform<
 			field_type_vector_t,
-			tmp::inserter<tmp::vector<>, tmp::push_back<tmp::_1,tmp::_2> >,
+			tmp::inserter<
+				typename tmp::empty<field_type_vector_t>::type,
+				tmp::push_back<tmp::_1,tmp::_2>
+			>,
 			EigenStdVector<tmp::_1>
 		>::type
 	>::type field_container_t;

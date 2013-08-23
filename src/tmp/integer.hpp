@@ -62,6 +62,26 @@ namespace tmp
 	 */
 	template <int N, int M>
 	struct less<int_<N>, int_<M> > : std::integral_constant<bool, N < M> {};
+
+
+	/** \brief compute maximum value of integral constants
+	 * \todo this metafunction should be generalised for arbitrary types
+	 */
+	template <class Val, class...Args>
+	struct max_
+	{
+		static unsigned const rest = max_<Args...>::value;
+		static unsigned const x = Val::value;
+		static unsigned const value = x > rest ? x : rest;
+	};
+
+	/** \brief specialisation of ::max_ for the one parameter case */
+	template <class Val>
+	struct max_<Val>
+	{
+		static unsigned const value = Val::value;
+	};
+
 }
 
 #endif
