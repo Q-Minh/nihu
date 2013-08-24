@@ -126,21 +126,6 @@ public:
 		return output.get_result();
 	}
 
-	/**
-	 * \brief determine kernel's polynomial complexity
-	 * \param [in] x test position
-	 * \param [in] y trial position
-	 * \param [in] reference_size linear estimated size of the trial element
-	 * \return polynomial degree needed for accurate integration
-	 */
-	unsigned estimate_complexity(
-		test_input_t const &x,
-		trial_input_t const &y,
-		scalar_t const &reference_size) const
-	{
-		return derived().estimate_complexity(x, y, reference_size);
-	}
-
 	data_t const &get_data(void) const
 	{
 		return m_data;

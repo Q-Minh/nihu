@@ -112,7 +112,6 @@ struct merge_intervals
 	>::type type;
 };
 
-
 template <class interval>
 int eval_interval(double r)
 {

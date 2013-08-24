@@ -4,18 +4,6 @@
 #include "field.hpp"
 #include "../tmp/integer.hpp"
 
-class interval_estimator
-{
-public:
-	template <class test_field_t, class trial_field_t>
-	static unsigned eval(
-		field_base<test_field_t> const &test_field,
-		field_base<trial_field_t> const &trial_field
-	)
-	{
-		return 2;
-	}
-};
 
 template <class TestField, class TrialField, class KernelEstimator>
 class complexity_estimator
@@ -49,8 +37,28 @@ public:
 };
 
 
-template <class Estim1, class...Estimators>
-struct merge_kernel_complexity_estimators
+/**
+ * \brief merge at least two complexity estimators
+ * \tparam Estim1 the first estimator
+ * \tparam Estims the further complexity estimators
+ */
+template <class Estim1, class...Estims>
+struct merge_kernel_complexity_estimators :
+	merge_kernel_complexity_estimators<
+		Estim1,
+		typename merge_kernel_complexity_estimators<Estims...>::type
+	>
+{
+};
+
+
+/**
+ * \brief merge two complexity estimators (the general case)
+ * \tparam Estim1 the first estimator
+ * \tparam Estim2 the second estimator
+ */
+template <class Estim1, class Estim2>
+struct merge_kernel_complexity_estimators<Estim1, Estim2>
 {
 	struct type
 	{
@@ -62,27 +70,8 @@ struct merge_kernel_complexity_estimators
 		{
 			return std::max(
 				Estim1::eval(test_field, trial_field),
-				merge_kernel_complexity_estimators<Estimators...>::type::eval(
-					test_field,
-					trial_field
-				)
+				Estim2::eval(test_field, trial_field)
 			);
-		}	// end of function
-	};	// end of struct type
-};
-
-template <class Estim1>
-struct merge_kernel_complexity_estimators<Estim1>
-{
-	struct type
-	{
-		template <class test_field_t, class trial_field_t>
-		static unsigned eval(
-			field_base<test_field_t> const &test_field,
-			field_base<trial_field_t> const &trial_field
-		)
-		{
-			return Estim1::eval(test_field, trial_field);
 		}
 	};
 };
