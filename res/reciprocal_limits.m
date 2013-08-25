@@ -1,40 +1,63 @@
 clear;
 clc;
 
+%% computation parameters
+N = 13;                 % maximal polynomial order
+kvec = 1 : .1 : 25;     % relative distance vector
+n_max = 3;              % maximal inverse order
+
+%% declare symbolic Green's function
 x = sym('x', 'real');
 D = sym('D', 'positive');
 k = sym('k', 'positive');
 n = sym('n', 'positive');
 evalin(symengine,'assume(n,Type::Integer)');
-
 g = (k*D+x)^(-n);
-N = 13;
-kvec = 1 : .1 : 25;
 
+%% Taylor expansion
+disp('Computing Taylor expansion');
 Taylor = sym('Taylor', [1, N+1]);
 for i = 0 : N
     Taylor(i+1) = subs(diff(g, x, i), x, 0)/factorial(i);
 end
 
+%% Integrate the expansion and the analytical function
+disp('Integrating');
 I = int(Taylor .* x.^(0:N), x, -D/2, D/2);
 Ianal = int(g, x, -D/2, D/2);
 
-Error = zeros(length(kvec),N+1,3);
-for nval = 1 : 3
+%% Compute relative error
+fprintf(1, 'Computing relative errors\n');
+Error = zeros(length(kvec),N+1,n_max);
+nb = 0;
+for nval = 1 : n_max
     In = subs(I,n,nval);
     Inanal = subs(Ianal, n, nval);
     for iK = 1 : length(kvec)
-        disp(kvec(iK));
-        Error(iK,:,nval) = double(subs(In,k,kvec(iK))/subs(Inanal, k, kvec(iK)));
+        fprintf(1, repmat('\b', 1, nb));
+        nb = fprintf(1, '%d - %g', nval, kvec(iK));
+        Error(iK,:,nval) = double(...
+            subs(In,k,kvec(iK))/subs(Inanal, k, kvec(iK)));
     end
 end
 
-o2 = zeros(length(kvec), 3);
-o3 = zeros(length(kvec), 3);
-for nval = 1 : 3
+%% Compute polynomial orders for given accuracy
+disp('Computing polynomial orders');
+o2 = zeros(length(kvec), n_max);
+o3 = zeros(length(kvec), n_max);
+for nval = 1 : n_max
     o2(:,nval) = squeeze(sum(abs(cumsum(Error(:,:,nval), 2)-1) > 1e-2,2));
     o3(:,nval) = squeeze(sum(abs(cumsum(Error(:,:,nval), 2)-1) > 1e-3,2));
 end
 
+%% display results
 figure; plot(kvec, o2);
+title('accuracy: 1e-2');
+xlabel('relative distance [-]');
+ylabel('required polynomial order');
+legend('1/r', '1/r^2', '1/r^3');
 figure; plot(kvec, o3);
+title('accuracy: 1e-3');
+legend('1/r', '1/r^2', '1/r^3');
+xlabel('relative distance [-]');
+ylabel('required polynomial order');
