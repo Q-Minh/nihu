@@ -202,20 +202,9 @@ protected:
 		auto &trial_ra = trial_regular_store_t::m_regular_pool;
 
 		unsigned degree = complexity_estimator<
-			test_field_t,
-			trial_field_t,
+			test_field_t, trial_field_t,
 			typename kernel_traits<kernel_t>::complexity_estimator_t
-		>::eval(
-			test_field, trial_field
-		);
-
-/*
-		test_input_t test_center(test_field.get_elem(), test_domain_t::get_center());
-		trial_input_t trial_center(trial_field.get_elem(), trial_domain_t::get_center());
-		unsigned degree = kernel.estimate_complexity(test_center, trial_center, trial_field.get_elem().get_linear_size_estimate());
-		degree += std::max<unsigned>(shape_set_traits<test_nset_t>::polynomial_order, shape_set_traits<trial_nset_t>::polynomial_order)
-			+ std::max<unsigned>(shape_set_traits<test_lset_t>::jacobian_order, shape_set_traits<trial_lset_t>::jacobian_order);
-*/
+		>::eval(test_field, trial_field);
 
 		return eval_on_accelerator(
 			result,
@@ -452,18 +441,9 @@ protected:
 		auto &trial_ra = trial_regular_store_t::m_regular_pool;
 
 		unsigned degree = complexity_estimator<
-			test_field_t,
-			trial_field_t,
+			test_field_t, trial_field_t,
 			typename kernel_traits<kernel_t>::complexity_estimator_t
 		>::eval(test_field, trial_field);
-
-/*
-		quadrature_elem_t qe(test_field_t::elem_t::domain_t::get_center());
-		test_input_t test_center(test_field.get_elem(), qe.get_xi());
-		trial_input_t trial_center(trial_field.get_elem(), trial_domain_t::get_center());
-		unsigned degree = kernel.estimate_complexity(test_center, trial_center, trial_field.get_elem().get_linear_size_estimate());
-		degree += trial_nset_t::polynomial_order + trial_lset_t::jacobian_order;
-*/
 
 		return eval_on_accelerator(
 			result, kernel, test_field, trial_field, *(trial_ra[degree]));

@@ -21,7 +21,7 @@ for iK = 1 : length(kvec)
     [pf_anal(:,iK), qf_anal(:,iK)] = incident('point', x0, cf, nf, k);
     
     tic;
-    [Gs, Hs, Hts, Ks, Gf, Hf, Htf, Kf, dur_sep] = acoustic_bem(nods, els, nodf, elf, k);
+    [Gs, Hs, Hts, Ks, Gf, Hf, Htf, Kf, dur_sep, dur_coup] = acoustic_bem(nods, els, nodf, elf, k);
     toc;
     
     ps(:,iK) = Hs \ (Gs * qs_anal(:,iK));

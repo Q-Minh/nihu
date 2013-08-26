@@ -1,18 +1,32 @@
 #ifndef COMPLEXITY_ESTIMATOR_HPP_INCLUDED
 #define COMPLEXITY_ESTIMATOR_HPP_INCLUDED
 
-class interval_estimator
+template <class Estim1, class...Estims>
+struct merge_complexity_estimators :
+	merge_complexity_estimators<
+		Estim1,
+		typename merge_complexity_estimators<Estims...>::type
+> {};
+
+
+template <class Estim1, class Estim2>
+struct merge_complexity_estimators<Estim1, Estim2>
 {
-public:
-	template <class test_field_t, class trial_field_t>
-	static unsigned eval(
-		field_base<test_field_t> const &test_field,
-		field_base<trial_field_t> const &trial_field
-	)
+	struct type
 	{
-		return 2;
-	}
+		template <class TestField, class TrialField>
+		static unsigned eval(
+			field_base<TestField> const &test_field,
+			field_base<TrialField> const &trial_field
+		)
+		{
+			return std::max(
+				Estim1::eval(test_field, trial_field),
+				Estim2::eval(test_field, trial_field));
+		}
+	};
 };
+
 
 template <class TestField, class TrialField, class KernelEstimator>
 class complexity_estimator

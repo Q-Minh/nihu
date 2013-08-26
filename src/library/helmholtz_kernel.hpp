@@ -15,11 +15,14 @@
 #include "../bem/gaussian_quadrature.hpp"
 
 #include "location_normal.hpp"
-#include "reciprocal_distance_kernel.hpp"
+#include "reciprocal_kernel_intervals.hpp"
 
 #include "basic_bricks.hpp"
 #include "../util/collection.hpp"
 
+#include "../bem/interval_estimator.hpp"
+
+static const unsigned accuracy = 3;
 
 /**
  * \brief kernel data that stores the wave number
@@ -184,19 +187,18 @@ struct kernel_traits<helmholtz_3d_SLP_kernel<wave_number_t> >
 	/** \brief quadrature order used to generate Duffy singular quadratures */
 	static unsigned const singular_quadrature_order = 7;
 	/** \brief the kernel complexity estimator class */
-	typedef interval_estimator complexity_estimator_t;
+	typedef interval_estimator<
+		typename reciprocal_distance_kernel_interval<singularity_order, accuracy>::type
+	> complexity_estimator_t;
 };
 
 
 /** \brief 3D Helmholtz G kernel \f$ 1/4\pi r\f$ */
 template <class wave_number_t>
 class helmholtz_3d_SLP_kernel :
-	public kernel_base<helmholtz_3d_SLP_kernel<wave_number_t> >,
-	public reciprocal_distance_kernel<helmholtz_3d_SLP_kernel<wave_number_t> >
+	public kernel_base<helmholtz_3d_SLP_kernel<wave_number_t> >
 {
 public:
-	using reciprocal_distance_kernel<helmholtz_3d_SLP_kernel>::estimate_complexity;
-
 	/** \brief constructor
 	 * \param [in] wave_number the wave number
 	 */
@@ -301,19 +303,18 @@ struct kernel_traits<helmholtz_3d_DLP_kernel<wave_number_t> >
 	/** \brief quadrature order used to generate Duffy singular quadratures */
 	static unsigned const singular_quadrature_order = 7;
 	/** \brief the kernel complexity estimator class */
-	typedef interval_estimator complexity_estimator_t;
+	typedef interval_estimator<
+		typename reciprocal_distance_kernel_interval<singularity_order, accuracy>::type
+	> complexity_estimator_t;
 };
 
 
 /** \brief 3D Helmholtz H kernel \f$ \exp(-ikr)/4\pi r \left(-(1+ikr)/r\right) \cdot r'_{n_y} \f$ */
 template <class wave_number_t>
 class helmholtz_3d_DLP_kernel :
-	public kernel_base<helmholtz_3d_DLP_kernel<wave_number_t> >,
-	public reciprocal_distance_kernel<helmholtz_3d_DLP_kernel<wave_number_t> >
+	public kernel_base<helmholtz_3d_DLP_kernel<wave_number_t> >
 {
 public:
-	using reciprocal_distance_kernel<helmholtz_3d_DLP_kernel>::estimate_complexity;
-
 	/** \brief constructor
 	 * \param [in] wave_number the wave number
 	 */
@@ -418,19 +419,18 @@ struct kernel_traits<helmholtz_3d_DLPt_kernel<wave_number_t> >
 	/** \brief quadrature order used to generate Duffy singular quadratures */
 	static unsigned const singular_quadrature_order = 7;
 	/** \brief the kernel complexity estimator class */
-	typedef interval_estimator complexity_estimator_t;
+	typedef interval_estimator<
+		typename reciprocal_distance_kernel_interval<singularity_order, accuracy>::type
+	> complexity_estimator_t;
 };
 
 
 /** \brief 3D Helmholtz Ht kernel \f$ \exp(-ikr)/4\pi r \left(-(1+ikr)/r\right) \cdot r'_{n_x} \f$ */
 template <class wave_number_t>
 class helmholtz_3d_DLPt_kernel :
-	public kernel_base<helmholtz_3d_DLPt_kernel<wave_number_t> >,
-	public reciprocal_distance_kernel<helmholtz_3d_DLPt_kernel<wave_number_t> >
+	public kernel_base<helmholtz_3d_DLPt_kernel<wave_number_t> >
 {
 public:
-	using reciprocal_distance_kernel<helmholtz_3d_DLPt_kernel>::estimate_complexity;
-
 	/** \brief constructor
 	 * \param [in] wave_number the wave number
 	 */
@@ -543,19 +543,18 @@ struct kernel_traits<helmholtz_3d_HSP_kernel<wave_number_t> >
 	/** \brief quadrature order used to generate Duffy singular quadratures */
 	static unsigned const singular_quadrature_order = 7;
 	/** \brief the kernel complexity estimator class */
-	typedef interval_estimator complexity_estimator_t;
+	typedef interval_estimator<
+		typename reciprocal_distance_kernel_interval<singularity_order, accuracy>::type
+	> complexity_estimator_t;
 };
 
 
 /** \brief 3D Helmholtz Hyper kernel \f$ \dots \f$ */
 template <class wave_number_t>
 class helmholtz_3d_HSP_kernel :
-	public kernel_base<helmholtz_3d_HSP_kernel<wave_number_t> >,
-	public reciprocal_distance_kernel<helmholtz_3d_HSP_kernel<wave_number_t> >
+	public kernel_base<helmholtz_3d_HSP_kernel<wave_number_t> >
 {
 public:
-	using reciprocal_distance_kernel<helmholtz_3d_HSP_kernel>::estimate_complexity;
-
 	/** \brief constructor
 	 * \param [in] wave_number the wave number
 	 */

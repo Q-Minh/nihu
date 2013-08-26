@@ -196,20 +196,20 @@ public:
 	typedef Family family_t;
 
 	/** \brief maximum order of quadratures */
-	static const unsigned MAX_ORDER = 10;
+	static const unsigned MAX_ORDER = 9;
 
 	/** \brief allocate memory and initialise accelerators */
 	field_type_accelerator_pool(void)
 	{
-		this->reserve(MAX_ORDER);
-		for (unsigned order = 0; order < MAX_ORDER; ++order)
+		this->reserve(MAX_ORDER+1);
+		for (unsigned order = 0; order <= MAX_ORDER; ++order)
 			this->push_back(new field_type_accelerator<field_t, family_t>(order));
 	}
 
 	/** \brief free memory allocated for the accelerators */
 	~field_type_accelerator_pool(void)
 	{
-		for (unsigned order = 0; order < MAX_ORDER; ++order)
+		for (unsigned order = 0; order <= MAX_ORDER; ++order)
 			delete (*this)[order];
 	}
 };
