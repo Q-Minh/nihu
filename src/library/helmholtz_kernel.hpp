@@ -15,13 +15,17 @@
 #include "../bem/gaussian_quadrature.hpp"
 
 #include "location_normal.hpp"
-#include "reciprocal_kernel_intervals.hpp"
 
 #include "basic_bricks.hpp"
 #include "../util/collection.hpp"
 
+#include "reciprocal_kernel_intervals.hpp"
 #include "../bem/interval_estimator.hpp"
 
+/**
+ * \brief prescribed integration accuracy
+ * \todo this should be placed in a global file
+ */
 static const unsigned accuracy = 3;
 
 /**

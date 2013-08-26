@@ -1,6 +1,9 @@
 #ifndef COMPLEXITY_ESTIMATOR_HPP_INCLUDED
 #define COMPLEXITY_ESTIMATOR_HPP_INCLUDED
 
+#include "../tmp/integer.hpp"
+#include "field.hpp"
+
 template <class Estim1, class...Estims>
 struct merge_complexity_estimators :
 	merge_complexity_estimators<
