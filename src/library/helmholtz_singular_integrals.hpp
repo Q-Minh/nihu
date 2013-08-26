@@ -47,12 +47,12 @@ template <unsigned order>
 struct tria_quad_store
 {
 	/** \brief the stored static quadrature member */
-	static gauss_tria const quadrature;
+	static gaussian_quadrature<tria_domain> const quadrature;
 };
 
 /** \brief definition of the statically stored quadrature member */
 template <unsigned order>
-gauss_tria const tria_quad_store<order>::quadrature(order);
+gaussian_quadrature<tria_domain> const tria_quad_store<order>::quadrature(order);
 
 
 /** \brief Collocational singular integral of the SLP kernel over a constant triangle
@@ -117,7 +117,7 @@ public:
 				kernel.get_data().get_wave_number()
 			) * it->get_w();
 		// multiply by Jacobian
-		I_acc *= tr_elem.get_normal(gauss_tria::xi_t()).norm();
+		I_acc *= tr_elem.get_normal(tria_domain::xi_t()).norm();
 
 		result(0,0) += I_acc;
 
@@ -195,7 +195,7 @@ public:
 				kernel.get_data().get_wave_number()
 			) * it->get_w();
 		// multiply by Jacobian
-		I_acc *= tr_elem.get_normal(gauss_tria::xi_t()).norm();
+		I_acc *= tr_elem.get_normal(tria_domain::xi_t()).norm();
 
 		// assemble result from static and dynamic parts
 		auto k2p2 = kernel.get_data().get_wave_number()*kernel.get_data().get_wave_number()/2.0;
