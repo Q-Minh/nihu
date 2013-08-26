@@ -13,7 +13,6 @@
 #include "../bem/gaussian_quadrature.hpp"
 
 #include "location_normal.hpp"
-#include "reciprocal_kernel_intervals.hpp"
 
 #include "basic_bricks.hpp"
 #include "../util/collection.hpp"

@@ -21,11 +21,11 @@
 */
 template <class test_iterator_t, class trial_iterator_t>
 class singular_quadrature_iterator :
-	public diagonal_iterator<test_iterator_t, trial_iterator_t>
+	public dual_iterator<iteration::diagonal, test_iterator_t, trial_iterator_t>
 {
 public:
 	/** \brief the base type */
-	typedef diagonal_iterator<test_iterator_t, trial_iterator_t> base_t;
+	typedef dual_iterator<iteration::diagonal, test_iterator_t, trial_iterator_t> base_t;
 	/** \brief the value type of both quadratures */
 	typedef typename test_iterator_t::value_type value_type;
 

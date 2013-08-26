@@ -2,7 +2,6 @@
  * \file gaussian_quadrature.hpp
  * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
  * \brief implementation of Gaussian quadratures
- * \todo Just for fun, an alternative of the Gaussian family should be trapezoid family or something similar.
  */
 
 #ifndef GAUSSIAN_QUADRATURE_HPP_INCLUDED

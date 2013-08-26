@@ -17,13 +17,13 @@ int main(void)
 	iterate(create_dual_range(iteration::diagonal(), a, a+4, b, b+4));
 
 	std::cout << "matrix iteration" << std::endl;
-	iterate(create_dual_range(iteration::plain(), a, a+4, b, b+4));
+	iterate(create_dual_range(iteration::diadic(), a, a+4, b, b+4));
 
 	std::cout << "matrix iteration with empty inner" << std::endl;
-	iterate(create_dual_range(iteration::plain(), a, a+4, b, b));
+	iterate(create_dual_range(iteration::diadic(), a, a+4, b, b));
 
 	std::cout << "matrix iteration with empty outer" << std::endl;
-	iterate(create_dual_range(iteration::plain(), a, a, b, b+4));
+	iterate(create_dual_range(iteration::diadic(), a, a, b, b+4));
 	
 	return 0;
 }
