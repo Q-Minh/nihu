@@ -41,6 +41,9 @@ namespace tmp
 
 	template <class...Args>
 	struct and_<std::false_type, Args...> : std::false_type {};
+	
+	template <>
+	struct and_<std::true_type> : std::true_type {};
 
 	/**
 	 * \brief IF control structure

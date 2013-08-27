@@ -19,14 +19,14 @@
 #include "basic_bricks.hpp"
 #include "../util/collection.hpp"
 
-#include "interval_estimator.hpp"
+#include "reciprocal_kernel_intervals.hpp"
+#include "../bem/interval_estimator.hpp"
 
-typedef tmp::vector<
-	break_point<std::ratio<2,1>, tmp::int_<7> >,
-	break_point<std::ratio<5,1>, tmp::int_<4> >,
-	break_point<ratio_infinite, tmp::int_<1> >
-> Interval;
-
+/**
+ * \brief prescribed integration accuracy
+ * \todo this should be placed in a global file
+ */
+static const unsigned accuracy = 3;
 
 /**
  * \brief kernel data that stores the wave number
@@ -191,7 +191,9 @@ struct kernel_traits<helmholtz_3d_SLP_kernel<wave_number_t> >
 	/** \brief quadrature order used to generate Duffy singular quadratures */
 	static unsigned const singular_quadrature_order = 7;
 	/** \brief the kernel complexity estimator class */
-	typedef interval_estimator<Interval> complexity_estimator_t;
+	typedef interval_estimator<
+		typename reciprocal_distance_kernel_interval<singularity_order, accuracy>::type
+	> complexity_estimator_t;
 };
 
 
@@ -305,7 +307,9 @@ struct kernel_traits<helmholtz_3d_DLP_kernel<wave_number_t> >
 	/** \brief quadrature order used to generate Duffy singular quadratures */
 	static unsigned const singular_quadrature_order = 7;
 	/** \brief the kernel complexity estimator class */
-	typedef interval_estimator<Interval> complexity_estimator_t;
+	typedef interval_estimator<
+		typename reciprocal_distance_kernel_interval<singularity_order, accuracy>::type
+	> complexity_estimator_t;
 };
 
 
@@ -419,7 +423,9 @@ struct kernel_traits<helmholtz_3d_DLPt_kernel<wave_number_t> >
 	/** \brief quadrature order used to generate Duffy singular quadratures */
 	static unsigned const singular_quadrature_order = 7;
 	/** \brief the kernel complexity estimator class */
-	typedef interval_estimator<Interval> complexity_estimator_t;
+	typedef interval_estimator<
+		typename reciprocal_distance_kernel_interval<singularity_order, accuracy>::type
+	> complexity_estimator_t;
 };
 
 
@@ -541,7 +547,9 @@ struct kernel_traits<helmholtz_3d_HSP_kernel<wave_number_t> >
 	/** \brief quadrature order used to generate Duffy singular quadratures */
 	static unsigned const singular_quadrature_order = 7;
 	/** \brief the kernel complexity estimator class */
-	typedef interval_estimator<Interval> complexity_estimator_t;
+	typedef interval_estimator<
+		typename reciprocal_distance_kernel_interval<singularity_order, accuracy>::type
+	> complexity_estimator_t;
 };
 
 

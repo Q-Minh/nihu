@@ -18,7 +18,7 @@ class casted_iterator :
 public:
 	/** \brief self returning metafunction */
 	typedef casted_iterator type;
-	
+
 	/** \brief the new value type */
 	typedef To value_t;
 

@@ -11,7 +11,7 @@
 #include "../util/plain_type.hpp"
 #include "../util/product_type.hpp"
 #include "gaussian_quadrature.hpp"
-#include "quadrature_pool.hpp"
+#include "field_type_accelerator.hpp"
 
 /**
 * \brief single integral over an element
@@ -37,10 +37,10 @@ public:
 	/** \brief the quadrature family */
 	typedef gauss_family_tag quadrature_family_t;
 
-	/** \brief the stored regular quadratures for the test field */
+/*
 	typedef regular_pool_store<test_field_t, quadrature_family_t> test_regular_store_t;
-	/** \brief the stored regular quadratures for the trial field */
 	typedef regular_pool_store<trial_field_t, quadrature_family_t> trial_regular_store_t;
+*/
 
 	/** \brief N-set of the test field */
 	typedef typename test_field_t::nset_t test_nset_t;
@@ -61,7 +61,7 @@ public:
 			>::type
 		>::type
 	>::type result_t;
-	
+
 	/** \brief the polynomial degree of the product of the n-sets and the jacobian */
 	static unsigned const degree
 		= test_nset_t::polynomial_order
@@ -80,20 +80,35 @@ public:
 		result_t result;
 		result.setZero();
 
-		auto &test_ra = test_regular_store_t::m_regular_pool;
-		auto &trial_ra = trial_regular_store_t::m_regular_pool;
-		auto const &test_acc = *(test_ra[degree]);
-		auto const &trial_acc = *(trial_ra[degree]);
+		typedef store<field_type_accelerator_pool<
+			trial_field_t,
+			quadrature_family_t,
+			acceleration::hard,
+			10>
+		> trial_store_t;
 
-		elem_t const &elem = field.get_elem();
+		typedef store<field_type_accelerator_pool<
+			test_field_t,
+			quadrature_family_t,
+			acceleration::hard,
+			10>
+		> test_store_t;
 
-		auto trial_it = trial_acc.cbegin();
-		for (auto test_it = test_acc.cbegin(); test_it != test_acc.cend(); ++test_it, ++trial_it)
+		typedef dual_field_type_accelerator<
+			test_field_t,
+			trial_field_t,
+			iteration::diagonal,
+			quadrature_family_t,
+			acceleration::hard
+		> accel_t;
+
+		accel_t acc(
+			test_store_t::m_data[degree], trial_store_t::m_data[degree]);
+
+		for (auto it = acc.begin(); it != acc.end(); ++it)
 		{
-			auto xi = test_it->get_quadrature_elem().get_xi();
-			auto jac = elem.get_normal(xi).norm();
-			auto w = test_it->get_quadrature_elem().get_w();
-			result += test_it->get_shape() * (w*jac) * trial_it->get_shape().transpose();
+			auto jac = field.get_elem().get_normal(it->get_first()->get_xi()).norm();
+			result += it->get_first()->get_N() * (it->get_first()->get_w()*jac) * it->get_second()->get_N().transpose();
 		}
 
 		return result;
@@ -122,7 +137,7 @@ public:
 			Eigen::Transpose<typename trial_nset_t::shape_t >
 		>::type
 	>::type result_t;
-	
+
 public:
 	/** \brief evaluate collocational integral on a given field
 	* \return integration result by value

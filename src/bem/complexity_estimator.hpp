@@ -1,8 +1,8 @@
 #ifndef COMPLEXITY_ESTIMATOR_HPP_INCLUDED
 #define COMPLEXITY_ESTIMATOR_HPP_INCLUDED
 
-#include "field.hpp"
 #include "../tmp/integer.hpp"
+#include "field.hpp"
 
 
 template <class TestField, class TrialField, class KernelEstimator>
@@ -77,3 +77,4 @@ struct merge_kernel_complexity_estimators<Estim1, Estim2>
 };
 
 #endif
+

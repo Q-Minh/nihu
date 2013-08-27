@@ -4,39 +4,47 @@
 
 typedef Eigen::Matrix<unsigned, Eigen::Dynamic, Eigen::Dynamic> uMatrix;
 typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> dMatrix;
-typedef Eigen::Matrix<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic> cMatrix;
 
 int main(void)
 {
 	// generating integral operators
-	auto L = create_integral_operator(poisson_2d_SLP_kernel());
-	auto M = create_integral_operator(poisson_2d_DLP_kernel());
+	auto L = create_integral_operator(poisson_3d_SLP_kernel());
 
 	// generating function spaces
-	dMatrix surf_nodes(3,2);
-	uMatrix surf_elements(2,3);
+	dMatrix surf_nodes(3,3);
+	uMatrix surf_elements(1,4);
 
 	surf_nodes <<
-		0.0, 0.0,
-		1.0, 0.0,
-		2.0, 0.0;
+		0.0, 0.0, 0.0,
+		1.0, 0.0, 0.0,
+		1.0, 1.0, 0.0;
 	surf_elements <<
-		line_1_elem::id, 0, 1,
-		line_1_elem::id, 1, 2;
+		tria_1_elem::id, 0, 1, 2;
 
-	auto surf_mesh = create_mesh(surf_nodes, surf_elements, _line_1_tag());
+	auto surf_mesh = create_mesh(surf_nodes, surf_elements, _tria_1_tag());
 	auto const &surf_sp = constant_view(surf_mesh);
 
-	// surface system matrices
+	dMatrix field_nodes(3,3);
+	uMatrix field_elements(1,4);
+
+	field_nodes <<
+		0.0, 0.0, 1.0,
+		1.0, 0.0, 1.0,
+		1.0, 1.0, 1.0;
+	field_elements <<
+		tria_1_elem::id, 0, 1, 2;
+
+	auto field_mesh = create_mesh(field_nodes, field_elements, _tria_1_tag());
+	auto const &field_sp = constant_view(field_mesh);
+
+	// field point system matrices
 
 	auto n = surf_sp.get_num_dofs();
-	dMatrix Ls(n,n); Ls.setZero();
-	dMatrix Ms(n,n); Ms.setZero();
+	auto m = field_sp.get_num_dofs();
+	dMatrix Lf(m,n); Lf.setZero();
 
-	Ls << ( dirac(surf_sp) * L[surf_sp] );
-	Ms << ( dirac(surf_sp) * M[surf_sp] );
+	Lf << ( dirac(field_sp) * L[surf_sp] );
 
-	std::cout << Ls << std::endl;
-	std::cout << Ms << std::endl;
+	std::cout << Lf << std::endl;
 }
 

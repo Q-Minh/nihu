@@ -7,6 +7,7 @@
 #define QUADRATURE_HPP_INCLUDED
 
 #include "../util/eigen_utils.hpp"
+#include "../util/crtp_base.hpp"
 #include "shapeset.hpp"
 
 /**
@@ -57,7 +58,7 @@ public:
 	{
 		m_w = w;
 	}
-	
+
 	/**
 	* \brief multiply a quadrature element by a scalar
 	* \param c the scalar multiplier
@@ -116,30 +117,14 @@ struct quadr_elem
 * \tparam Derived the CRTP derived class
 */
 template <class Derived>
-class quadrature_base : public EigenStdVector<typename quadr_elem<Derived>::type>::type
+class quadrature_base :
+	public EigenStdVector<typename quadr_elem<Derived>::type>::type
 {
 public:
 	/** \brief the base vector class of the quadrature */
 	typedef typename EigenStdVector<typename quadr_elem<Derived>::type>::type base_t;
 
-private:
-	/**
-	* \brief CRTP helper function
-	* \return static cast to Derived const &
-	*/
-	Derived const &derived(void) const
-	{
-		return static_cast<Derived const &>(*this);
-	}
-
-	/**
-	* \brief CRTP helper function
-	* \return static cast to Derived &
-	*/
-	Derived &derived(void)
-	{
-		return static_cast<Derived &>(*this);
-	}
+	NIHU_CRTP_HELPERS
 
 public:
 	typedef quadrature_traits<Derived> traits_t;	/**< \brief traits type */
@@ -184,7 +169,7 @@ public:
 
 		return os;
 	}
-	
+
 	/**
 	* \brief multiply the quadrature by a scalar
 	* \param [in] c the scalar multiplier

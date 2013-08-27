@@ -11,10 +11,14 @@
 namespace iteration
 {
 	/** \brief inner and outer iterators (Descartes) */
-	struct plain {};
+	struct diadic {};
 	/** \brief parallel */
 	struct diagonal {};
 }
+
+
+template <class IterationMode, class It1, class It2>
+class dual_iterator;
 
 
 /** \brief two iterators traversing in parallel mode
@@ -22,20 +26,20 @@ namespace iteration
 * \tparam It2 the second iterator type
 */
 template <class It1, class It2>
-class diagonal_iterator :
+class dual_iterator<iteration::diagonal, It1, It2> :
 	public std::pair<It1, It2>
 {
 	typedef std::pair<It1, It2> base_t;
-	
+
 public:
 	/** \brief self-returning metafunction */
-	typedef diagonal_iterator type;
+	typedef dual_iterator type;
 
 	/** \brief constructor
 	* \param [in] it1 the first iterator
 	* \param [in] it2 the second iterator
 	*/
-	diagonal_iterator(It1 it1, It2 it2) :
+	dual_iterator(It1 it1, It2 it2) :
 		base_t(it1, it2)
 	{
 	}
@@ -43,7 +47,7 @@ public:
 	/** \brief increment operator
 	* \return reference to the incremented dual iterator
 	*/
-	diagonal_iterator const &operator++()
+	dual_iterator const &operator++()
 	{
 		++base_t::first;
 		++base_t::second;
@@ -53,7 +57,7 @@ public:
 	/** \brief compare two iterators
 	* \return true if the iterators are different
 	*/
-	bool operator!=(diagonal_iterator const &other) const
+	bool operator!=(dual_iterator<iteration::diagonal, It1, It2> const &other) const
 	{
 		return base_t::first != other.get_first() ||
 			base_t::second != other.get_second();
@@ -82,15 +86,15 @@ public:
 * \tparam It2 the second iterator type
 */
 template <class It1, class It2>
-class matrix_iterator :
-	public diagonal_iterator<It1, It2>
+class dual_iterator<iteration::diadic, It1, It2> :
+	public dual_iterator<iteration::diagonal, It1, It2>
 {
 public:
 	/** \brief the base type */
-	typedef diagonal_iterator<It1, It2> base_t;
+	typedef dual_iterator<iteration::diagonal, It1, It2> base_t;
 
 	/** \brief self-returning metafunction */
-	typedef matrix_iterator type;
+	typedef dual_iterator type;
 
 	/** \brief constructor
 	* \param [in] it1 the first iterator
@@ -98,7 +102,7 @@ public:
 	* \param [in] begin2 begin of the second iterator
 	* \param [in] end2 end of the second iterator
 	*/
-	matrix_iterator(It1 it1, It2 it2, It2 begin2, It2 end2) :
+	dual_iterator(It1 it1, It2 it2, It2 begin2, It2 end2) :
 		base_t(it1, it2), m_begin(begin2), m_end(end2)
 	{
 	}
@@ -106,7 +110,7 @@ public:
 	/** \brief increment operator
 	* \return reference to the incremented dual iterator
 	*/
-	matrix_iterator const &operator++()
+	dual_iterator const &operator++()
 	{
 		++base_t::second;
 		if (base_t::second == m_end)
@@ -125,27 +129,13 @@ private:
 };
 
 
-/** \brief metafunction assigning a dual iterator to an iteration mode */
-template <class Mode, class OutIt, class InIt>
-struct iterator_select;
-
-/** \brief specialisation of ::iterator_select for the plain case */
-template <class OutIt, class InIt>
-struct iterator_select<iteration::plain, OutIt, InIt> :
-	public matrix_iterator<OutIt, InIt> {};
-
-/** \brief specialisation of ::iterator_select for the diagonal case */
-template <class OutIt, class InIt>
-struct iterator_select<iteration::diagonal, OutIt, InIt> :
-	public diagonal_iterator<OutIt, InIt> {};
-
 /** \brief a combination of two ranges */
 template <class IterationMode, class OutIt, class InIt>
 class dual_range
 {
 public:
 	/** \brief the range's iteartor type */
-	typedef typename iterator_select<IterationMode, OutIt, InIt>::type iterator;
+	typedef dual_iterator<IterationMode, OutIt, InIt> iterator;
 
 	/** \brief constructor
 	* \param [in] obegin outer begin
@@ -171,11 +161,11 @@ public:
 	}
 
 private:
-	/** \brief begin iterator of the plain range */
-	iterator begin_impl(iteration::plain) const
+	/** \brief begin iterator of the diadic range */
+	iterator begin_impl(iteration::diadic) const
 	{
-		if (m_obegin == m_oend || m_ibegin == m_iend)
-			return end_impl(iteration::plain());
+		if (!(m_obegin != m_oend && m_ibegin != m_iend))
+			return end_impl(iteration::diadic());
 		return iterator(m_obegin, m_ibegin, m_ibegin, m_iend);
 	}
 
@@ -185,8 +175,8 @@ private:
 		return iterator(m_obegin, m_ibegin);
 	}
 
-	/** \brief end iterator of the plain range */
-	iterator end_impl(iteration::plain) const
+	/** \brief end iterator of the diadic range */
+	iterator end_impl(iteration::diadic) const
 	{
 		return iterator(m_oend, m_ibegin, m_ibegin, m_iend);
 	}

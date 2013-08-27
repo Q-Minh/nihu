@@ -17,6 +17,8 @@
 #include "complexity_estimator.hpp"
 #include "element_match.hpp"
 
+static const unsigned MAX_ORDER = 8;
+
 // forward declaration
 template <class Formalism, class Kernel, class TestField, class TrialField, class Enable = void>
 class singular_integral_shortcut;
@@ -79,12 +81,13 @@ public:
 		typename trial_field_t::elem_t::domain_t
 	>::type::quadrature_elem_t quadrature_elem_t;
 
+/*
 	typedef regular_pool_store<test_field_t, quadrature_family_t> test_regular_store_t;
 	typedef regular_pool_store<trial_field_t, quadrature_family_t> trial_regular_store_t;
 
 	typedef field_type_accelerator<test_field_t, quadrature_family_t> test_field_type_accelerator_t;
 	typedef field_type_accelerator<trial_field_t, quadrature_family_t> trial_field_type_accelerator_t;
-
+*/
 
 	/** \brief N-set of the test field */
 	typedef typename test_field_t::nset_t test_nset_t;
@@ -122,25 +125,29 @@ protected:
 	* \param [in] trial_acc field type accelerator of the trial field
 	* \return reference to the integration result
 	*/
+	template <class dual_iterator_t>
 	static result_t &eval_on_accelerator(
 		result_t &result,
 		kernel_base<kernel_t> const &kernel,
 		field_base<test_field_t> const &test_field,
-		test_field_type_accelerator_t const &test_acc,
 		field_base<trial_field_t> const &trial_field,
-		trial_field_type_accelerator_t const &trial_acc)
+		dual_iterator_t it,
+		dual_iterator_t end
+		)
 	{
-		for (auto test_it = test_acc.cbegin(); test_it != test_acc.cend(); ++test_it)
+		while (it != end)
 		{
-			w_test_input_t test_input(test_field.get_elem(), test_it->get_quadrature_elem().get_xi());
-			auto bound = kernel.bind(test_input);
-			auto left = test_it->get_shape() * (test_input.get_jacobian() * test_it->get_quadrature_elem().get_w());
-			for (auto trial_it = trial_acc.cbegin(); trial_it != trial_acc.cend(); ++trial_it)
-			{
-				w_trial_input_t trial_input(trial_field.get_elem(), trial_it->get_quadrature_elem().get_xi());
-				auto right = trial_it->get_shape().transpose() * (trial_input.get_jacobian() * trial_it->get_quadrature_elem().get_w());
-				result += left * bound(trial_input) * right;
-			}
+			w_test_input_t test_input(test_field.get_elem(), it.get_first()->get_xi());
+			w_trial_input_t trial_input(trial_field.get_elem(), it.get_second()->get_xi());
+
+			auto left = test_field_t::nset_t::eval_shape(it.get_first()->get_xi())
+				* (test_input.get_jacobian() * it.get_first()->get_w());
+			auto right = trial_field_t::nset_t::eval_shape(it.get_second()->get_xi())
+				* (trial_input.get_jacobian() * it.get_second()->get_w());
+
+			result += left * kernel(test_input, trial_input) * right.transpose();
+
+			++it;
 		}
 
 		return result;
@@ -156,28 +163,26 @@ public:
 	* \param [in] end end iterator of the singular quadrature
 	* \return reference to the integration result
 	*/
-	template <class singular_iterator_t>
+	template <class dual_iterator_t>
 	static result_t &eval_singular_on_accelerator(
 		result_t &result,
 		kernel_base<kernel_t> const &kernel,
 		field_base<test_field_t> const &test_field,
 		field_base<trial_field_t> const &trial_field,
-		singular_iterator_t begin,
-		singular_iterator_t end)
+		dual_iterator_t it,
+		dual_iterator_t end)
 	{
-		while (begin != end)
+		for (; it != end; ++it)
 		{
-			w_test_input_t test_input(test_field.get_elem(), begin.get_test_quadrature_elem().get_xi());
-			w_trial_input_t trial_input(trial_field.get_elem(), begin.get_trial_quadrature_elem().get_xi());
+			w_test_input_t test_input(test_field.get_elem(), it.get_first()->get_xi());
+			w_trial_input_t trial_input(trial_field.get_elem(), it.get_second()->get_xi());
 
-			auto left = test_field_t::nset_t::eval_shape(begin.get_test_quadrature_elem().get_xi())
-				* (test_input.get_jacobian() * begin.get_test_quadrature_elem().get_w());
-			auto right = trial_field_t::nset_t::eval_shape(begin.get_trial_quadrature_elem().get_xi())
-				* (trial_input.get_jacobian() * begin.get_trial_quadrature_elem().get_w());
+			auto left = test_field_t::nset_t::eval_shape(it.get_first()->get_xi())
+				* (test_input.get_jacobian() * it.get_first()->get_w());
+			auto right = trial_field_t::nset_t::eval_shape(it.get_second()->get_xi())
+				* (trial_input.get_jacobian() * it.get_second()->get_w());
 
 			result += left * kernel(test_input, trial_input) * right.transpose();
-
-			++begin;
 		}
 
 		return result;
@@ -198,30 +203,37 @@ protected:
 		field_base<test_field_t> const &test_field,
 		field_base<trial_field_t> const &trial_field)
 	{
-		auto &test_ra = test_regular_store_t::m_regular_pool;
-		auto &trial_ra = trial_regular_store_t::m_regular_pool;
-
 		unsigned degree = complexity_estimator<
+			test_field_t, trial_field_t,
+			typename kernel_traits<kernel_t>::complexity_estimator_t
+		>::eval(test_field, trial_field);
+
+		typedef store<field_type_accelerator_pool<
+			test_field_t,
+			quadrature_family_t,
+			acceleration::hard,
+			MAX_ORDER>
+		> test_store_t;
+
+		typedef store<field_type_accelerator_pool<
+			trial_field_t,
+			quadrature_family_t,
+			acceleration::hard,
+			MAX_ORDER>
+		> trial_store_t;
+
+		typedef dual_field_type_accelerator<
 			test_field_t,
 			trial_field_t,
-			typename kernel_traits<kernel_t>::complexity_estimator_t
-		>::eval(
-			test_field, trial_field
-		);
+			iteration::diadic,
+			quadrature_family_t,
+			acceleration::hard
+		> accel_t;
 
-/*
-		test_input_t test_center(test_field.get_elem(), test_domain_t::get_center());
-		trial_input_t trial_center(trial_field.get_elem(), trial_domain_t::get_center());
-		unsigned degree = kernel.estimate_complexity(test_center, trial_center, trial_field.get_elem().get_linear_size_estimate());
-		degree += std::max<unsigned>(shape_set_traits<test_nset_t>::polynomial_order, shape_set_traits<trial_nset_t>::polynomial_order)
-			+ std::max<unsigned>(shape_set_traits<test_lset_t>::jacobian_order, shape_set_traits<trial_lset_t>::jacobian_order);
-*/
+		accel_t acc(test_store_t::m_data[degree], trial_store_t::m_data[degree]);
 
 		return eval_on_accelerator(
-			result,
-			kernel,
-			test_field, *(test_ra[degree]),
-			trial_field, *(trial_ra[degree]));
+			result, kernel, test_field, trial_field, acc.begin(), acc.end());
 	}
 
 
@@ -331,10 +343,12 @@ public:
 		typename trial_field_t::elem_t::domain_t
 	>::type::quadrature_elem_t quadrature_elem_t;
 
+/*
 	typedef regular_pool_store<trial_field_t, quadrature_family_t> trial_regular_store_t;
 
 	typedef field_type_accelerator<test_field_t, quadrature_family_t> test_field_type_accelerator_t;
 	typedef field_type_accelerator<trial_field_t, quadrature_family_t> trial_field_type_accelerator_t;
+*/
 
 
 	/** \brief N-set of the test field */
@@ -372,25 +386,26 @@ protected:
 	* \param [in] trial_acc the trial field type accelerator
 	* \return reference to the integration result
 	*/
+	template <class dual_iterator_t>
 	static result_t &eval_on_accelerator(
 		result_t &result,
 		kernel_base<kernel_t> const &kernel,
 		field_base<test_field_t> const &test_field,
 		field_base<trial_field_t> const &trial_field,
-		trial_field_type_accelerator_t const &trial_acc)
+		dual_iterator_t it,
+		dual_iterator_t end)
 	{
-		int row = 0;
-		for (auto test_it = test_nset_t::corner_begin(); test_it != test_nset_t::corner_end(); ++test_it)
+		for (; it != end; ++it)
 		{
-			test_input_t collocational_point(test_field.get_elem(), *test_it);
-			auto bound = kernel.bind(collocational_point);
-			for (auto trial_it = trial_acc.cbegin(); trial_it != trial_acc.cend(); ++trial_it)
-			{
-				w_trial_input_t trial_input(trial_field.get_elem(), trial_it->get_quadrature_elem().get_xi());
-				result.row(row) += bound(trial_input) *
-					(trial_it->get_shape() * (trial_input.get_jacobian() * trial_it->get_quadrature_elem().get_w()));
-			}
-			++row;
+			w_test_input_t test_input(test_field.get_elem(), it.get_first()->get_xi());
+			w_trial_input_t trial_input(trial_field.get_elem(), it.get_second()->get_xi());
+
+			auto left = test_field_t::nset_t::eval_shape(it.get_first()->get_xi())
+				* (test_input.get_jacobian() * it.get_first()->get_w());
+			auto right = trial_field_t::nset_t::eval_shape(it.get_second()->get_xi())
+				* (trial_input.get_jacobian() * it.get_second()->get_w());
+
+			result += left * kernel(test_input, trial_input) * right.transpose();
 		}
 
 		return result;
@@ -449,24 +464,37 @@ protected:
 		field_base<test_field_t> const &test_field,
 		field_base<trial_field_t> const &trial_field)
 	{
-		auto &trial_ra = trial_regular_store_t::m_regular_pool;
-
 		unsigned degree = complexity_estimator<
-			test_field_t,
-			trial_field_t,
+			test_field_t, trial_field_t,
 			typename kernel_traits<kernel_t>::complexity_estimator_t
 		>::eval(test_field, trial_field);
 
-/*
-		quadrature_elem_t qe(test_field_t::elem_t::domain_t::get_center());
-		test_input_t test_center(test_field.get_elem(), qe.get_xi());
-		trial_input_t trial_center(trial_field.get_elem(), trial_domain_t::get_center());
-		unsigned degree = kernel.estimate_complexity(test_center, trial_center, trial_field.get_elem().get_linear_size_estimate());
-		degree += trial_nset_t::polynomial_order + trial_lset_t::jacobian_order;
-*/
+		typedef store<field_type_accelerator_pool<
+			test_field_t,
+			quadrature_family_t,
+			acceleration::hard,
+			MAX_ORDER>
+		> test_store_t;
+
+		typedef store<field_type_accelerator_pool<
+			trial_field_t,
+			quadrature_family_t,
+			acceleration::hard,
+			MAX_ORDER>
+		> trial_store_t;
+
+		typedef dual_field_type_accelerator<
+			test_field_t,
+			trial_field_t,
+			iteration::diadic,
+			quadrature_family_t,
+			acceleration::hard
+		> accel_t;
+
+		accel_t acc(test_store_t::m_data[degree], trial_store_t::m_data[degree]);
 
 		return eval_on_accelerator(
-			result, kernel, test_field, trial_field, *(trial_ra[degree]));
+			result, kernel, test_field, trial_field, acc.begin(), acc.end());
 	}
 
 

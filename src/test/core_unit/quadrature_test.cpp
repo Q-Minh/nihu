@@ -1,6 +1,7 @@
-#include "../bem/gaussian_quadrature.hpp"
-#include "../bem/duffy_quadrature.hpp"
-#include "../tmp/control.hpp"
+#include "bem/gaussian_quadrature.hpp"
+#include "bem/duffy_quadrature.hpp"
+#include "tmp/control.hpp"
+#include "tmp/vector.hpp"
 
 template <class Family, class Domain>
 struct tester
@@ -9,7 +10,9 @@ struct tester
 	{
 		void operator() (void)
 		{
+			// instantiate a quadrature
 			typename quadrature_type<Family, Domain>::type q(5);
+			// print points and weights
 			std::cout << q << std::endl;
 		}
 	};
@@ -18,7 +21,7 @@ struct tester
 
 void test_transform(void)
 {
-	gauss_quad q(4);
+	gaussian_quadrature<quad_domain> q(4);
 	Eigen::Matrix<double, 4, 2> coords;
 	coords <<
 		0.0, 0.0,
@@ -56,7 +59,7 @@ int main(void)
 	std::cout << "Testing quadrature transforms" << std::endl << std::endl;
 	test_transform();
 
-	std::cout << "Testing duffy quadratures" << std::endl << std::endl;
+	std::cout << "Testing Duffy quadratures" << std::endl << std::endl;
 	tmp::call_each<
 		tmp::vector<tria_1_shape_set, quad_1_shape_set>,
 		duffy_test<gauss_family_tag, tmp::_1>

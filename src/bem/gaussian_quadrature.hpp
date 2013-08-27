@@ -2,7 +2,6 @@
  * \file gaussian_quadrature.hpp
  * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
  * \brief implementation of Gaussian quadratures
- * \todo Just for fun, an alternative of the Gaussian family should be trapezoid family or something similar.
  */
 
 #ifndef GAUSSIAN_QUADRATURE_HPP_INCLUDED
@@ -63,34 +62,45 @@ Eigen::Matrix<scalar_t, Eigen::Dynamic, 2> gauss_impl(unsigned N)
 	return V;
 }
 
-/**
- * \brief Gaussian quadrature over a line domain
- */
-class gauss_line;
+// forward declaration
+template <class Domain>
+class gaussian_quadrature;
+
 
 /**
- * \brief traits of Gaussian line quadrature
+ * \brief traits of a Gaussian quadrature
+ * \tparam Domain the quadrature domain
  */
-template <>
-struct quadrature_traits<gauss_line>
+template <class Domain>
+struct quadrature_traits<gaussian_quadrature<Domain> >
 {
-	typedef line_domain domain_t;	/**< \brief type of the domain */
+	/** \brief type of the domain */
+	typedef Domain domain_t;
 };
 
 /**
  * \brief Gaussian quadrature over a line domain
  */
-class gauss_line : public quadrature_base<gauss_line>
+template <>
+class gaussian_quadrature<line_domain> :
+	public quadrature_base<gaussian_quadrature<line_domain> >
 {
 public:
-	typedef quadrature_base<gauss_line> base_t;	/**< \brief the base class */
-	typedef base_t::xi_t xi_t;	/**< \brief the location type */
-	typedef base_t::scalar_t scalar_t;	/**< \brief the scalar type*/
+	/** \brief the base class */
+	typedef quadrature_base<gaussian_quadrature<line_domain> > base_t;
+	/** \brief the location type */
+	typedef base_t::xi_t xi_t;
+	/** \brief the scalar type*/
+	typedef base_t::scalar_t scalar_t;
+
+	/** \brief self-returning */
+	typedef gaussian_quadrature type;
 
 	/**
 	 * \brief default constructor creating an empty quadrature
 	 */
-	gauss_line() : base_t(0)
+	gaussian_quadrature() :
+		base_t(0)
 	{
 	}
 
@@ -98,7 +108,8 @@ public:
 	 * \brief constructor for a given polynomial degree
 	 * \param [in] degree polynomial degree of the quadrature
 	 */
-	gauss_line(unsigned degree) : base_t(degree/2+1)
+	gaussian_quadrature(unsigned degree) :
+		base_t(degree/2+1)
 	{
 		unsigned N = degree/2+1;
 		// compute 1D Gaussian locations and weights
@@ -112,39 +123,34 @@ public:
 			push_back(quadrature_elem_t(xi, V(i,1)));
 		}
 	}
-}; // class gauss_line
-
-
-/**
- * \brief Gaussian quadrature over a quad domain
- */
-class gauss_quad;
-
-/**
- * \brief traits of gaussian quad quadrature
- */
-template <>
-struct quadrature_traits<gauss_quad>
-{
-	typedef quad_domain domain_t;	/**< \brief type of the domain */
 };
 
 
 /**
  * \brief Gaussian quadrature over a quad domain
  */
-class gauss_quad : public quadrature_base<gauss_quad>
+template <>
+class gaussian_quadrature<quad_domain> :
+	public quadrature_base<gaussian_quadrature<quad_domain> >
 {
 public:
-	typedef quadrature_base<gauss_quad> base_t;	/**< \brief the base class */
-	typedef base_t::domain_t domain_t;	/**< \brief the domain type */
-	typedef base_t::xi_t xi_t;	/**< \brief the location type */
-	typedef base_t::scalar_t scalar_t;	/**< \brief the scalar type */
+	/** \brief the base class */
+	typedef quadrature_base<gaussian_quadrature<quad_domain> > base_t;
+	/** \brief the domain type */
+	typedef base_t::domain_t domain_t;
+	/** \brief the location type */
+	typedef base_t::xi_t xi_t;
+	/** \brief the scalar type */
+	typedef base_t::scalar_t scalar_t;
+
+	/** \brief self-returning */
+	typedef gaussian_quadrature type;
 
 	/**
 	 * \brief default constructor creating an empty quadrature
 	 */
-	gauss_quad() : base_t(0)
+	gaussian_quadrature() :
+		base_t(0)
 	{
 	}
 
@@ -152,7 +158,8 @@ public:
 	 * \brief constructor for a given polynomial order
 	 * \param degree polynomial order
 	 */
-	gauss_quad(unsigned degree) : base_t((degree/2+1) * (degree/2+1))
+	gaussian_quadrature(unsigned degree) :
+		base_t((degree/2+1) * (degree/2+1))
 	{
 		unsigned N = degree/2+1;
 		auto V = gauss_impl<scalar_t>(N);
@@ -171,20 +178,6 @@ public:
 }; // end of class gauss_quad
 
 
-// forward declaration
-class gauss_tria;
-
-
-/**
- * \brief traits of gaussian tria quadrature
- */
-template <>
-struct quadrature_traits<gauss_tria>
-{
-	typedef tria_domain domain_t;	/**< \brief type of the domain */
-};
-
-
 /**
  * \brief number of quadrature points for different dunavat orders
  */
@@ -193,29 +186,40 @@ static unsigned const dunavant_num[] = {1, 1, 3, 4, 6, 7, 12, 13, 16, 19};
 /**
  * \brief specialisation of gauss_quadrature for a triangle domain
  */
-class gauss_tria : public quadrature_base<gauss_tria>
+template <>
+class gaussian_quadrature<tria_domain> :
+	public quadrature_base<gaussian_quadrature<tria_domain> >
 {
 public:
-	typedef quadrature_base<gauss_tria> base_t;	/**< \brief base class */
-	typedef base_t::quadrature_elem_t quadrature_elem_t;	/**< \brief the quadrature elem */
-	typedef base_t::xi_t xi_t; /**< \brief the quadrature location type */
+	/** \brief base class */
+	typedef quadrature_base<gaussian_quadrature<tria_domain> > base_t;
+	/** \brief the quadrature elem */
+	typedef base_t::quadrature_elem_t quadrature_elem_t;
+	/** \brief the quadrature location type */
+	typedef base_t::xi_t xi_t;
+
+	/** \brief self-returning */
+	typedef gaussian_quadrature type;
 
 
 	/**
 	 * \brief default constructor creating an empty quadrature
 	 */
-	gauss_tria() : base_t(0) {}
+	gaussian_quadrature() :
+		base_t(0)
+	{
+	}
 
 	/**
 	 * \brief constructor for a given polynomial order
 	 * \param degree polynomial order
 	 */
-	gauss_tria(unsigned degree) : base_t(dunavant_num[degree])
+	gaussian_quadrature(unsigned degree) :
+		base_t(dunavant_num[degree])
 	{
 		switch(degree)
 		{
-		case 0:
-		case 1:
+		case 0: case 1:
 			push_back(quadrature_elem_t(xi_t(1./3., 1./3.0), 1./2.0));
 			break;
 		case 2:
@@ -321,34 +325,16 @@ public:
 	}
 };
 
-
-// Quadrature families
-
 /**
  * \brief tag for the family of Gaussian quadratures
  */
 struct gauss_family_tag;
 
 /** \brief specialisation of quadrature_type to Gaussian family on line */
-template<>
-struct quadrature_type<gauss_family_tag, line_domain>
+template<class Domain>
+struct quadrature_type<gauss_family_tag, Domain> :
+	gaussian_quadrature<Domain>
 {
-	typedef gauss_line type; /**< \brief metafunction return type */
 };
-
-/** \brief specialisation of quadrature_type to Gaussian family on triangle */
-template<>
-struct quadrature_type<gauss_family_tag, tria_domain>
-{
-	typedef gauss_tria type; /**< \brief metafunction return type */
-};
-
-/** \brief specialisation of quadrature_type to Gaussian family on quad */
-template<>
-struct quadrature_type<gauss_family_tag, quad_domain>
-{
-	typedef gauss_quad type; /**< \brief metafunction return type */
-};
-
 
 #endif // GAUSSIAN_QUADRATURE_HPP_INCLUDED

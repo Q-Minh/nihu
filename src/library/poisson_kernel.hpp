@@ -13,10 +13,20 @@
 #include "../bem/gaussian_quadrature.hpp"
 
 #include "location_normal.hpp"
-#include "reciprocal_distance_kernel.hpp"
 
 #include "basic_bricks.hpp"
 #include "../util/collection.hpp"
+
+#include "reciprocal_kernel_intervals.hpp"
+#include "../bem/interval_estimator.hpp"
+
+
+/**
+ * \brief prescribed integration accuracy
+ * \todo this should be placed in a global file
+ */
+static const unsigned accuracy = 3;
+
 
 /** \brief a brick representing a 2D Poisson kernel \f$ -\log r /2\pi \f$
  * \tparam scalar scalar type of the coordinate space the distance is defined over
@@ -110,15 +120,16 @@ struct kernel_traits<poisson_2d_SLP_kernel>
 	static unsigned const singularity_order = 1;
 	/** \brief quadrature order used to generate Duffy singular quadratures */
 	static unsigned const singular_quadrature_order = 7;
+	/** \brief the kernel complexity estimator class */
+	typedef interval_estimator<
+		typename reciprocal_distance_kernel_interval<singularity_order, accuracy>::type
+	> complexity_estimator_t;
 };
 
 /** \brief 2D Poisson kernel \f$ -\ln r/2\pi \f$ */
 class poisson_2d_SLP_kernel :
-	public kernel_base<poisson_2d_SLP_kernel>,
-	public reciprocal_distance_kernel<poisson_2d_SLP_kernel>
+	public kernel_base<poisson_2d_SLP_kernel>
 {
-public:
-	using reciprocal_distance_kernel<poisson_2d_SLP_kernel>::estimate_complexity;
 };
 
 
@@ -216,15 +227,16 @@ struct kernel_traits<poisson_2d_DLP_kernel>
 	static unsigned const singularity_order = 1;
 	/** \brief quadrature order used to generate Duffy singular quadratures */
 	static unsigned const singular_quadrature_order = 7;
+	/** \brief the kernel complexity estimator class */
+	typedef interval_estimator<
+		typename reciprocal_distance_kernel_interval<singularity_order, accuracy>::type
+	> complexity_estimator_t;
 };
 
 /** \brief 2D Poisson kernel \f$ -1/2\pi r \cdot r'_{n_y} \f$ */
 class poisson_2d_DLP_kernel :
-	public kernel_base<poisson_2d_DLP_kernel>,
-	public reciprocal_distance_kernel<poisson_2d_DLP_kernel>
+	public kernel_base<poisson_2d_DLP_kernel>
 {
-public:
-	using reciprocal_distance_kernel<poisson_2d_DLP_kernel>::estimate_complexity;
 };
 
 
@@ -321,15 +333,16 @@ struct kernel_traits<poisson_2d_DLPt_kernel>
 	static unsigned const singularity_order = 1;
 	/** \brief quadrature order used to generate Duffy singular quadratures */
 	static unsigned const singular_quadrature_order = 7;
+	/** \brief the kernel complexity estimator class */
+	typedef interval_estimator<
+		typename reciprocal_distance_kernel_interval<singularity_order, accuracy>::type
+	> complexity_estimator_t;
 };
 
 /** \brief 2D Poisson kernel \f$ -1/2\pi r \cdot r'_{n_x} \f$ */
 class poisson_2d_DLPt_kernel :
-	public kernel_base<poisson_2d_DLPt_kernel>,
-	public reciprocal_distance_kernel<poisson_2d_DLPt_kernel>
+	public kernel_base<poisson_2d_DLPt_kernel>
 {
-public:
-	using reciprocal_distance_kernel<poisson_2d_DLPt_kernel>::estimate_complexity;
 };
 
 
@@ -431,15 +444,16 @@ struct kernel_traits<poisson_2d_HSP_kernel>
 	static unsigned const singularity_order = 2;
 	/** \brief quadrature order used to generate Duffy singular quadratures */
 	static unsigned const singular_quadrature_order = 7;
+	/** \brief the kernel complexity estimator class */
+	typedef interval_estimator<
+		typename reciprocal_distance_kernel_interval<singularity_order, accuracy>::type
+	> complexity_estimator_t;
 };
 
 /** \brief 2D Poisson kernel \f$ \dots \f$ */
 class poisson_2d_HSP_kernel :
-	public kernel_base<poisson_2d_HSP_kernel>,
-	public reciprocal_distance_kernel<poisson_2d_HSP_kernel>
+	public kernel_base<poisson_2d_HSP_kernel>
 {
-public:
-	using reciprocal_distance_kernel<poisson_2d_HSP_kernel>::estimate_complexity;
 };
 
 
@@ -537,15 +551,16 @@ struct kernel_traits<poisson_3d_SLP_kernel>
 	static unsigned const singularity_order = 1;
 	/** \brief quadrature order used to generate Duffy singular quadratures */
 	static unsigned const singular_quadrature_order = 7;
+	/** \brief the kernel complexity estimator class */
+	typedef interval_estimator<
+		typename reciprocal_distance_kernel_interval<singularity_order, accuracy>::type
+	> complexity_estimator_t;
 };
 
 /** \brief 3D Poisson kernel \f$ 1/4\pi r\f$ */
 class poisson_3d_SLP_kernel :
-	public kernel_base<poisson_3d_SLP_kernel>,
-	public reciprocal_distance_kernel<poisson_3d_SLP_kernel>
+	public kernel_base<poisson_3d_SLP_kernel>
 {
-public:
-	using reciprocal_distance_kernel<poisson_3d_SLP_kernel>::estimate_complexity;
 };
 
 
@@ -643,15 +658,16 @@ struct kernel_traits<poisson_3d_DLP_kernel>
 	static unsigned const singularity_order = 2;
 	/** \brief quadrature order used to generate Duffy singular quadratures */
 	static unsigned const singular_quadrature_order = 7;
+	/** \brief the kernel complexity estimator class */
+	typedef interval_estimator<
+		typename reciprocal_distance_kernel_interval<singularity_order, accuracy>::type
+	> complexity_estimator_t;
 };
 
 /** \brief 3D Poisson kernel \f$ -1/4\pi r^2 \cdot dr/dn \f$ */
 class poisson_3d_DLP_kernel :
-	public kernel_base<poisson_3d_DLP_kernel>,
-	public reciprocal_distance_kernel<poisson_3d_DLP_kernel>
+	public kernel_base<poisson_3d_DLP_kernel>
 {
-public:
-	using reciprocal_distance_kernel<poisson_3d_DLP_kernel>::estimate_complexity;
 };
 
 
@@ -749,15 +765,16 @@ struct kernel_traits<poisson_3d_DLPt_kernel>
 	static unsigned const singularity_order = 2;
 	/** \brief quadrature order used to generate Duffy singular quadratures */
 	static unsigned const singular_quadrature_order = 7;
+	/** \brief the kernel complexity estimator class */
+	typedef interval_estimator<
+		typename reciprocal_distance_kernel_interval<singularity_order, accuracy>::type
+	> complexity_estimator_t;
 };
 
 /** \brief 3D Poisson derivative kernel \f$ -1/4\pi r^2 \cdot r'_{n_x} \f$ */
 class poisson_3d_DLPt_kernel :
-	public kernel_base<poisson_3d_DLPt_kernel>,
-	public reciprocal_distance_kernel<poisson_3d_DLPt_kernel>
+	public kernel_base<poisson_3d_DLPt_kernel>
 {
-public:
-	using reciprocal_distance_kernel<poisson_3d_DLPt_kernel>::estimate_complexity;
 };
 
 
@@ -860,15 +877,16 @@ struct kernel_traits<poisson_3d_HSP_kernel>
 	static unsigned const singularity_order = 3;
 	/** \brief quadrature order used to generate Duffy singular quadratures */
 	static unsigned const singular_quadrature_order = 7;
+	/** \brief the kernel complexity estimator class */
+	typedef interval_estimator<
+		typename reciprocal_distance_kernel_interval<singularity_order, accuracy>::type
+	> complexity_estimator_t;
 };
 
 /** \brief 3D Poisson derivative kernel \f$ 1/4\pi r^3 \cdot \left( n_x n_y + 3 r'_{n_x} r'_{n_y} \right) \f$ */
 class poisson_3d_HSP_kernel :
-	public kernel_base<poisson_3d_HSP_kernel>,
-	public reciprocal_distance_kernel<poisson_3d_HSP_kernel>
+	public kernel_base<poisson_3d_HSP_kernel>
 {
-public:
-	using reciprocal_distance_kernel<poisson_3d_HSP_kernel>::estimate_complexity;
 };
 
 #endif // POISSON_KERNEL_HPP_INCLUDED

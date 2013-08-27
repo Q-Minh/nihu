@@ -21,9 +21,17 @@ int main(void)
 {
 	std::cout << std::boolalpha;
 
-	std::cout << defines_default_version<test<void> >::value << ' '
-		<< defines_special_version<test<void> >::value << std::endl;
+	std::cout << "Testing DEFAULT_VERSION" << std::endl;
+	std::cout << "=======================" << std::endl;
+	std::cout << "defines_default_version : " << defines_default_version<test<void> >::value << std::endl;
+	std::cout << "defines_special_version : " << defines_special_version<test<void> >::value << std::endl;
+	std::cout << std::endl;
 
-	std::cout << defines_default_version<test<bool> >::value << ' '
-		<< defines_special_version<test<bool> >::value << std::endl;
+	std::cout << "Testing SPECIAL_VERSION" << std::endl;
+	std::cout << "=======================" << std::endl;
+	std::cout << "defines_default_version : "  << defines_default_version<test<bool> >::value << std::endl;
+	std::cout << "defines_special_version : " << defines_special_version<test<bool> >::value << std::endl;
+	std::cout << std::endl;
+	
+	return 0;
 }

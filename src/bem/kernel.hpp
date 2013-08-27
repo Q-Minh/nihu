@@ -220,40 +220,13 @@ public:
 	/** \brief the traits class */
 	typedef kernel_base<couple_kernel<Kernels...> > base_t;
 
-	/** \brief type of the first (test) kernel input */
-	typedef typename base_t::test_input_t test_input_t;
-	/** \brief type of the second (trial) kernel input */
-	typedef typename base_t::trial_input_t trial_input_t;
-	/** \brief type of the second (trial) kernel input */
-	typedef typename base_t::scalar_t scalar_t;
-
 	/** \brief constructor from list of constant references
 	 * \param [in] kernels references to kernel instances
 	 */
 	couple_kernel(kernel_base<Kernels> const &...kernels) :
-		base_t(merge_data(kernels.get_data()...)),
-		m_kernels(kernels.derived()...)
+		base_t(merge_data(kernels.get_data()...))
 	{
 	}
-
-	/**
-	 * \brief determine kernel's polynomial complexity
-	 * \param [in] x test position
-	 * \param [in] y trial position
-	 * \param [in] reference_size linear estimated size of the trial element
-	 * \return polynomial degree needed for accurate integration
-	 * \todo find a more sophisticated :) solution
-	 */
-	unsigned estimate_complexity(
-		test_input_t const &x,
-		trial_input_t const &y,
-		scalar_t const &reference_size) const
-	{
-		return std::get<0>(m_kernels).estimate_complexity(x, y, reference_size);
-	}
-
-private:
-	std::tuple<Kernels...> m_kernels;
 };
 
 
