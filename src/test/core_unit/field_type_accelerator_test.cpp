@@ -77,20 +77,34 @@ struct dirac_tester
 };
 
 
+template <class TestField, class TrialField>
+struct test_dual_regular
+{
+	typedef regular_dual_field_type_accelerator<TestField, TrialField, gauss_family_tag, acceleration::soft, 10> dual_accel_t;
+
+	struct type
+	{
+		void operator()(void)
+		{
+			dual_accel_t dual_acc(4);
+			for (auto it = dual_acc.begin(); it != dual_acc.end(); ++it)
+			{
+				std::cout << it.get_first()->get_w() * it.get_second()->get_w() << std::endl;
+			}
+		}
+	};
+};
+
+
+
 
 
 int main(void)
 {
-	std::cout << "Testing field type accelerators" << std::endl << std::endl;
-	tmp::call_each<
-		tmp::vector<field_view<quad_1_elem, field_option::isoparametric> >,
-		tester<gauss_family_tag, tmp::_1>
-	>();
-
-	std::cout << "Testing dirac field type accelerators" << std::endl << std::endl;
-	tmp::call_each<
-		tmp::vector<dirac_field<field_view<quad_1_elem, field_option::isoparametric> > >,
-		dirac_tester<gauss_family_tag, tmp::_1>
+	tmp::d_call_each<
+		tmp::vector<field_view<quad_1_elem, field_option::constant> >,
+		tmp::vector<field_view<quad_1_elem, field_option::constant> >,
+		test_dual_regular<tmp::_1, tmp::_2>
 	>();
 
 	return 0;

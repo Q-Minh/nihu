@@ -12,7 +12,8 @@
 #include "quadrature.hpp"
 #include "../util/casted_iterator.hpp"
 #include "../util/dual_range.hpp"
-
+#include "../util/store_pattern.hpp"
+#include "../util/pool_pattern.hpp"
 
 /** \brief collection of acceleration-types */
 namespace acceleration
@@ -22,6 +23,7 @@ namespace acceleration
 	/** \brief view-acceleration */
 	struct soft{};
 }
+
 
 template<class Field, class Family, class Acceleration>
 class field_type_accelerator_elem;
@@ -43,6 +45,7 @@ public:
 		return Field::nset_t::eval_shape(base_t::get_xi());
 	}
 };
+
 
 template <class Field, class Family>
 class field_type_accelerator_elem<Field, Family, acceleration::hard> :
@@ -129,14 +132,14 @@ public:
 	typedef casted_iterator<
 		typename base_t::const_iterator,
 		accelerator_elem_t
-	> iterator;
+	> const_iterator;
 
-	iterator begin(void) const
+	const_iterator begin(void) const
 	{
 		return base_t::begin();
 	}
 
-	iterator end(void) const
+	const_iterator end(void) const
 	{
 		return base_t::end();
 	}
@@ -222,81 +225,83 @@ public:
 	typedef casted_iterator<
 		dirac_field_type_accelerator_iterator,
 		accelerator_elem_t
-	> iterator;
+	> const_iterator;
 
-	constexpr iterator begin(void) const
+	constexpr static const_iterator begin(void)
 	{
 		return dirac_field_type_accelerator_iterator(index_t(0));
 	}
 
-	constexpr iterator end(void) const
+	constexpr static const_iterator end(void)
 	{
 		return dirac_field_type_accelerator_iterator(index_t(Field::num_nodes));
 	}
 };
 
 
+template <class Field, class Family, class Acceleration, unsigned MaxOrder>
+class field_type_accelerator_pool :
+	public pool<field_type_accelerator<Field, Family, acceleration::hard>, MaxOrder>
+{
+};
+
+
+template <class Field, class Family, unsigned MaxOrder>
+class field_type_accelerator_pool<Field, Family, acceleration::soft, MaxOrder> :
+	public pool<typename quadrature_type<Family, typename Field::domain_t>::type, MaxOrder>
+{
+public:
+	typedef pool<typename quadrature_type<Family, typename Field::domain_t>::type, MaxOrder> base_t;
+	typedef field_type_accelerator<Field, Family, acceleration::soft> accelerator_t;
+
+	accelerator_t const &operator[](unsigned idx) const
+	{
+		return static_cast<accelerator_t const &>(base_t::operator[](idx));
+	}
+};
+
 
 template <class TestField, class TrialField, class IterationMode, class Family, class Acceleration>
 class dual_field_type_accelerator :
 	public dual_range<
 		IterationMode,
-		typename field_type_accelerator<TestField, Family, Acceleration>::iterator,
-		typename field_type_accelerator<TrialField, Family, Acceleration>::iterator
+		typename field_type_accelerator<TestField, Family, Acceleration>::const_iterator,
+		typename field_type_accelerator<TrialField, Family, Acceleration>::const_iterator
 	>
 {
 public:
-	typedef typename field_type_accelerator<TestField, Family, Acceleration>::iterator test_iter_t;
-	typedef typename field_type_accelerator<TrialField, Family, Acceleration>::iterator trial_iter_t;
+	typedef field_type_accelerator<TestField, Family, Acceleration> test_accel_t;
+	typedef typename test_accel_t::const_iterator test_iter_t;
+	typedef field_type_accelerator<TrialField, Family, Acceleration> trial_accel_t;
+	typedef typename trial_accel_t::const_iterator trial_iter_t;
 	typedef dual_range<IterationMode, test_iter_t, trial_iter_t> base_t;
 
 	dual_field_type_accelerator(
-		test_iter_t const &test_accelerator,
-		trial_iter_t const &trial_accelerator
+		test_accel_t const &test_accelerator,
+		trial_accel_t const &trial_accelerator
 	) : base_t(
 		test_accelerator.begin(), test_accelerator.end(),
-		trial_accelerator.begin(), trial_accelerator.end()
-	)
+		trial_accelerator.begin(), trial_accelerator.end())
 	{
 	}
 };
 
 
-/**
- * \brief container class to store accelerators with different quadrature orders
- * \tparam Field the field type that is accelerated
- */
-template <class Field, class Family, class Acceleration>
-class field_type_accelerator_pool :
-	public std::vector<field_type_accelerator<Field, Family, Acceleration> *>
+template <class TestField, class TrialField, class Family, class Acceleration, unsigned MaxOrder>
+class regular_dual_field_type_accelerator :
+	public dual_field_type_accelerator<TestField, TrialField, iteration::diadic, Family, Acceleration>
 {
-	// CRTP check
-	static_assert(std::is_base_of<field_base<Field>, Field>::value,
-		"Field must be derived from field_base<Field>");
 public:
-	/** \brief template argument as nested type */
-	typedef Field field_t;
-	/** \brief template argument as nested type */
-	typedef Family family_t;
+	typedef dual_field_type_accelerator<TestField, TrialField, iteration::diadic, Family, Acceleration> base_t;
+	typedef store<field_type_accelerator_pool<TrialField, Family, Acceleration, MaxOrder> > trial_store_t;
+	typedef store<field_type_accelerator_pool<TestField, Family, Acceleration, MaxOrder> > test_store_t;
 
-	/** \brief maximum order of quadratures */
-	static const unsigned MAX_ORDER = 9;
-
-	/** \brief allocate memory and initialise accelerators */
-	field_type_accelerator_pool(void)
+	regular_dual_field_type_accelerator(unsigned test_order) :
+		base_t(test_store_t::m_data[test_order], trial_store_t::m_data[test_order])
 	{
-		this->reserve(MAX_ORDER+1);
-		for (unsigned order = 0; order <= MAX_ORDER; ++order)
-			this->push_back(new field_type_accelerator<field_t, family_t, acceleration::hard>(order));
-	}
-
-	/** \brief free memory allocated for the accelerators */
-	~field_type_accelerator_pool(void)
-	{
-		for (unsigned order = 0; order <= MAX_ORDER; ++order)
-			delete (*this)[order];
 	}
 };
+
 
 #endif // FIELD_TYPE_ACCELERATOR_HPP_INCLUDED
 
