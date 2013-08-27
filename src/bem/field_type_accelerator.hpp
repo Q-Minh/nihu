@@ -188,7 +188,7 @@ public:
 		return *this;
 	}
 
-	bool operator !=(dirac_field_type_accelerator_iterator const &other)
+	bool operator !=(dirac_field_type_accelerator_iterator const &other) const
 	{
 		return m_idx.m_idx != other.m_idx.m_idx;
 	}
@@ -218,7 +218,7 @@ public:
 		typename Field::nset_t
 	> accelerator_elem_t;
 
-	field_type_accelerator(void)
+	field_type_accelerator(unsigned)
 	{
 	}
 
@@ -282,22 +282,6 @@ public:
 	) : base_t(
 		test_accelerator.begin(), test_accelerator.end(),
 		trial_accelerator.begin(), trial_accelerator.end())
-	{
-	}
-};
-
-
-template <class TestField, class TrialField, class Family, class Acceleration, unsigned MaxOrder>
-class regular_dual_field_type_accelerator :
-	public dual_field_type_accelerator<TestField, TrialField, iteration::diadic, Family, Acceleration>
-{
-public:
-	typedef dual_field_type_accelerator<TestField, TrialField, iteration::diadic, Family, Acceleration> base_t;
-	typedef store<field_type_accelerator_pool<TrialField, Family, Acceleration, MaxOrder> > trial_store_t;
-	typedef store<field_type_accelerator_pool<TestField, Family, Acceleration, MaxOrder> > test_store_t;
-
-	regular_dual_field_type_accelerator(unsigned test_order) :
-		base_t(test_store_t::m_data[test_order], trial_store_t::m_data[test_order])
 	{
 	}
 };

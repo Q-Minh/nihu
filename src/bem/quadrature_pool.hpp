@@ -2,7 +2,6 @@
 #define QUADRATURE_POOL_HPP_INCLUDED
 
 #include "kernel.hpp"
-#include "field_type_accelerator.hpp"
 #include "singular_accelerator.hpp"
 
 template <class Formalism, class Kernel, class TestField, class TrialField>
@@ -18,6 +17,7 @@ typename accel_store<Formalism, Kernel, Test, Trial>::singular_accelerator_t
 
 
 
+/*
 template <class Field, class Family>
 struct regular_pool_store
 {
@@ -28,6 +28,7 @@ struct regular_pool_store
 template <class Field, class Family>
 typename regular_pool_store<Field, Family>::pool_t
 	regular_pool_store<Field, Family>::m_regular_pool;
+*/
 
 
 #endif // QUADRATURE_POOL_HPP_INCLUDED

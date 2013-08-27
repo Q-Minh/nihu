@@ -164,7 +164,7 @@ private:
 	/** \brief begin iterator of the diadic range */
 	iterator begin_impl(iteration::diadic) const
 	{
-		if (m_obegin == m_oend || m_ibegin == m_iend)
+		if (!(m_obegin != m_oend && m_ibegin != m_iend))
 			return end_impl(iteration::diadic());
 		return iterator(m_obegin, m_ibegin, m_ibegin, m_iend);
 	}
