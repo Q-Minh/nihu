@@ -18,16 +18,25 @@ struct tester
 				std::cout << domain::get_corner(i).transpose() << std::endl;
 			std::cout << "domain center: " << std::endl;
 			std::cout << domain::get_center().transpose() << std::endl;
+			std::cout << std::endl;
 		}
 	};
 };
 
 int main(void)
 {
+	std::cout << "Domains" << std::endl;
+	std::cout << "=======" << std::endl;
+	std::cout << "<line, tria, quad, brick>" << std::endl;
+	std::cout << std::endl;
+	
+	std::cout << "Testing domain informations" << std::endl;
+	std::cout << "===========================" << std::endl;
 	tmp::call_each<
 		tmp::vector<line_domain, tria_domain, quad_domain, brick_domain>,
 		tester<tmp::_1>
 	>();
+	std::cout << std::endl;
 	
 	return 0;
 }
