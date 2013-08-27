@@ -24,12 +24,14 @@ struct tester
 
 		void operator() (void)
 		{
+			field_type_accelerator<Field, Family, acceleration::hard> ha(5);
+
 			// instantiate a quadrature
 			typename quadrature_type<Family, domain_t>::type q(5);
 
 			std::cout << "soft accelerator:\n";
 
-			auto a_soft = static_cast<soft_accel_t const &>(q[0]);
+			auto const &a_soft = static_cast<soft_accel_t const &>(q[0]);
 			std::cout << a_soft.get_xi().transpose() << '\t' <<
 				a_soft.get_w() << '\t' <<
 				a_soft.get_N().transpose() << '\n';
@@ -45,7 +47,9 @@ struct tester
 			for (auto it = acc_hard.begin(); it != acc_hard.end(); ++it)
 				std::cout << it->get_w() << std::endl;
 
-			auto acc_soft = static_cast<field_type_accelerator<Field, Family, acceleration::soft> >(q);
+			std::cout << std::endl;
+
+			auto const &acc_soft = static_cast<field_type_accelerator<Field, Family, acceleration::soft> const &>(q);
 			for (auto it = acc_soft.begin(); it != acc_soft.end(); ++it)
 				std::cout << it->get_w() << std::endl;
 		}
@@ -53,12 +57,40 @@ struct tester
 };
 
 
+
+template <class Family, class Field>
+struct dirac_tester
+{
+	struct type
+	{
+		void operator() (void)
+		{
+			field_type_accelerator<Field, Family, acceleration::hard> dirac_acc;
+
+			for (auto it = dirac_acc.begin(); it != dirac_acc.end(); ++it)
+				std::cout << it->get_w() << '\t' <<
+					it->get_N().transpose() << std::endl;
+
+			std::cout << std::endl;
+		}
+	};
+};
+
+
+
+
 int main(void)
 {
-	std::cout << "Testing regular quadratures" << std::endl << std::endl;
+	std::cout << "Testing field type accelerators" << std::endl << std::endl;
 	tmp::call_each<
 		tmp::vector<field_view<quad_1_elem, field_option::isoparametric> >,
 		tester<gauss_family_tag, tmp::_1>
+	>();
+
+	std::cout << "Testing dirac field type accelerators" << std::endl << std::endl;
+	tmp::call_each<
+		tmp::vector<dirac_field<field_view<quad_1_elem, field_option::isoparametric> > >,
+		dirac_tester<gauss_family_tag, tmp::_1>
 	>();
 
 	return 0;
