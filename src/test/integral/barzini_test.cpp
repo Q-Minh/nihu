@@ -1,6 +1,6 @@
-#include "../bem/integral_operator.hpp"
-#include "../library/poisson_kernel.hpp"
-#include "../library/unit_kernel.hpp"
+#include "bem/integral_operator.hpp"
+#include "library/poisson_kernel.hpp"
+#include "library/unit_kernel.hpp"
 
 typedef tmp::vector<tria_1_elem, quad_1_elem> elem_type_vector_t;
 typedef mesh<elem_type_vector_t> mesh_t;
