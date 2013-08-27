@@ -193,6 +193,11 @@ public:
 		return m_idx.m_idx != other.m_idx.m_idx;
 	}
 
+	bool operator ==(dirac_field_type_accelerator_iterator const &other) const
+	{
+		return !(*this == other);
+	}
+
 	index_t const &operator*(void) const
 	{
 		return m_idx;
@@ -261,30 +266,42 @@ public:
 };
 
 
-template <class TestField, class TrialField, class IterationMode, class Family, class Acceleration>
+template <class TestAccelerator, class TrialAccelerator, class IterationMode>
 class dual_field_type_accelerator :
 	public dual_range<
 		IterationMode,
-		typename field_type_accelerator<TestField, Family, Acceleration>::const_iterator,
-		typename field_type_accelerator<TrialField, Family, Acceleration>::const_iterator
+		typename TestAccelerator::const_iterator,
+		typename TrialAccelerator::const_iterator
 	>
 {
 public:
-	typedef field_type_accelerator<TestField, Family, Acceleration> test_accel_t;
-	typedef typename test_accel_t::const_iterator test_iter_t;
-	typedef field_type_accelerator<TrialField, Family, Acceleration> trial_accel_t;
-	typedef typename trial_accel_t::const_iterator trial_iter_t;
-	typedef dual_range<IterationMode, test_iter_t, trial_iter_t> base_t;
+	typedef dual_range<
+		IterationMode,
+		typename TestAccelerator::const_iterator,
+		typename TrialAccelerator::const_iterator
+	> base_t;
 
 	dual_field_type_accelerator(
-		test_accel_t const &test_accelerator,
-		trial_accel_t const &trial_accelerator
+		TestAccelerator const &test_accelerator,
+		TrialAccelerator const &trial_accelerator
 	) : base_t(
 		test_accelerator.begin(), test_accelerator.end(),
 		trial_accelerator.begin(), trial_accelerator.end())
 	{
 	}
 };
+
+template <class TestAccelerator, class TrialAccelerator, class IterationMode>
+dual_field_type_accelerator<TestAccelerator, TrialAccelerator, IterationMode>
+	create_dual_field_type_accelerator(
+		TestAccelerator const &test_acc,
+		TrialAccelerator const &trial_acc,
+		IterationMode
+	)
+{
+	return dual_field_type_accelerator<TestAccelerator, TrialAccelerator, IterationMode>(
+		test_acc, trial_acc);
+}
 
 
 #endif // FIELD_TYPE_ACCELERATOR_HPP_INCLUDED

@@ -81,14 +81,6 @@ public:
 		typename trial_field_t::elem_t::domain_t
 	>::type::quadrature_elem_t quadrature_elem_t;
 
-/*
-	typedef regular_pool_store<test_field_t, quadrature_family_t> test_regular_store_t;
-	typedef regular_pool_store<trial_field_t, quadrature_family_t> trial_regular_store_t;
-
-	typedef field_type_accelerator<test_field_t, quadrature_family_t> test_field_type_accelerator_t;
-	typedef field_type_accelerator<trial_field_t, quadrature_family_t> trial_field_type_accelerator_t;
-*/
-
 	/** \brief N-set of the test field */
 	typedef typename test_field_t::nset_t test_nset_t;
 	/** \brief N-set of the trial field */
@@ -135,7 +127,7 @@ protected:
 		dual_iterator_t end
 		)
 	{
-		while (it != end)
+		for (; it != end; ++it)
 		{
 			w_test_input_t test_input(test_field.get_elem(), it.get_first()->get_xi());
 			w_trial_input_t trial_input(trial_field.get_elem(), it.get_second()->get_xi());
@@ -146,8 +138,6 @@ protected:
 				* (trial_input.get_jacobian() * it.get_second()->get_w());
 
 			result += left * kernel(test_input, trial_input) * right.transpose();
-
-			++it;
 		}
 
 		return result;
@@ -163,26 +153,28 @@ public:
 	* \param [in] end end iterator of the singular quadrature
 	* \return reference to the integration result
 	*/
-	template <class dual_iterator_t>
+	template <class singular_iterator_t>
 	static result_t &eval_singular_on_accelerator(
 		result_t &result,
 		kernel_base<kernel_t> const &kernel,
 		field_base<test_field_t> const &test_field,
 		field_base<trial_field_t> const &trial_field,
-		dual_iterator_t it,
-		dual_iterator_t end)
+		singular_iterator_t begin,
+		singular_iterator_t end)
 	{
-		for (; it != end; ++it)
+		while (begin != end)
 		{
-			w_test_input_t test_input(test_field.get_elem(), it.get_first()->get_xi());
-			w_trial_input_t trial_input(trial_field.get_elem(), it.get_second()->get_xi());
+			w_test_input_t test_input(test_field.get_elem(), begin.get_test_quadrature_elem().get_xi());
+			w_trial_input_t trial_input(trial_field.get_elem(), begin.get_trial_quadrature_elem().get_xi());
 
-			auto left = test_field_t::nset_t::eval_shape(it.get_first()->get_xi())
-				* (test_input.get_jacobian() * it.get_first()->get_w());
-			auto right = trial_field_t::nset_t::eval_shape(it.get_second()->get_xi())
-				* (trial_input.get_jacobian() * it.get_second()->get_w());
+			auto left = test_field_t::nset_t::eval_shape(begin.get_test_quadrature_elem().get_xi())
+				* (test_input.get_jacobian() * begin.get_test_quadrature_elem().get_w());
+			auto right = trial_field_t::nset_t::eval_shape(begin.get_trial_quadrature_elem().get_xi())
+				* (trial_input.get_jacobian() * begin.get_trial_quadrature_elem().get_w());
 
 			result += left * kernel(test_input, trial_input) * right.transpose();
+
+			++begin;
 		}
 
 		return result;
@@ -209,28 +201,15 @@ protected:
 		>::eval(test_field, trial_field);
 
 		typedef store<field_type_accelerator_pool<
-			test_field_t,
-			quadrature_family_t,
-			acceleration::hard,
-			MAX_ORDER>
-		> test_store_t;
+			test_field_t, quadrature_family_t, acceleration::hard, MAX_ORDER
+		> > test_store_t;
 
 		typedef store<field_type_accelerator_pool<
-			trial_field_t,
-			quadrature_family_t,
-			acceleration::hard,
-			MAX_ORDER>
-		> trial_store_t;
+			trial_field_t, quadrature_family_t, acceleration::hard, MAX_ORDER
+		> > trial_store_t;
 
-		typedef dual_field_type_accelerator<
-			test_field_t,
-			trial_field_t,
-			iteration::diadic,
-			quadrature_family_t,
-			acceleration::hard
-		> accel_t;
-
-		accel_t acc(test_store_t::m_data[degree], trial_store_t::m_data[degree]);
+		auto acc = create_dual_field_type_accelerator(
+			test_store_t::m_data[degree], trial_store_t::m_data[degree], iteration::diadic());
 
 		return eval_on_accelerator(
 			result, kernel, test_field, trial_field, acc.begin(), acc.end());
@@ -342,14 +321,6 @@ public:
 		quadrature_family_t,
 		typename trial_field_t::elem_t::domain_t
 	>::type::quadrature_elem_t quadrature_elem_t;
-
-/*
-	typedef regular_pool_store<trial_field_t, quadrature_family_t> trial_regular_store_t;
-
-	typedef field_type_accelerator<test_field_t, quadrature_family_t> test_field_type_accelerator_t;
-	typedef field_type_accelerator<trial_field_t, quadrature_family_t> trial_field_type_accelerator_t;
-*/
-
 
 	/** \brief N-set of the test field */
 	typedef typename test_field_t::nset_t test_nset_t;
@@ -470,28 +441,15 @@ protected:
 		>::eval(test_field, trial_field);
 
 		typedef store<field_type_accelerator_pool<
-			test_field_t,
-			quadrature_family_t,
-			acceleration::hard,
-			MAX_ORDER>
-		> test_store_t;
+			test_field_t, quadrature_family_t, acceleration::hard, MAX_ORDER
+		> > test_store_t;
 
 		typedef store<field_type_accelerator_pool<
-			trial_field_t,
-			quadrature_family_t,
-			acceleration::hard,
-			MAX_ORDER>
-		> trial_store_t;
+			trial_field_t, quadrature_family_t, acceleration::hard, MAX_ORDER
+		> > trial_store_t;
 
-		typedef dual_field_type_accelerator<
-			test_field_t,
-			trial_field_t,
-			iteration::diadic,
-			quadrature_family_t,
-			acceleration::hard
-		> accel_t;
-
-		accel_t acc(test_store_t::m_data[degree], trial_store_t::m_data[degree]);
+		auto acc = create_dual_field_type_accelerator(
+			test_store_t::m_data[degree], trial_store_t::m_data[degree], iteration::diadic());
 
 		return eval_on_accelerator(
 			result, kernel, test_field, trial_field, acc.begin(), acc.end());

@@ -27,37 +27,23 @@ public:
 	/** \brief template parameter as nested type */
 	typedef TrialField trial_field_t;
 
-	/** \brief the elem type */
-	typedef typename test_field_t::elem_t elem_t;
-	/** \brief the test domain type */
-	typedef typename elem_t::domain_t domain_t;
 	/** \brief L-set of the elem */
-	typedef typename elem_t::lset_t lset_t;
+	typedef typename test_field_t::elem_t::lset_t lset_t;
 
 	/** \brief the quadrature family */
 	typedef gauss_family_tag quadrature_family_t;
-
-/*
-	typedef regular_pool_store<test_field_t, quadrature_family_t> test_regular_store_t;
-	typedef regular_pool_store<trial_field_t, quadrature_family_t> trial_regular_store_t;
-*/
 
 	/** \brief N-set of the test field */
 	typedef typename test_field_t::nset_t test_nset_t;
 	/** \brief N-set of the trial field */
 	typedef typename trial_field_t::nset_t trial_nset_t;
 
-	/** \brief type of test shape function */
-	typedef typename test_nset_t::shape_t test_shape_t;
-	/** \brief type of trial shape function */
-	typedef typename trial_nset_t::shape_t trial_shape_t;
-
 	/** \brief result type of the weighted residual */
 	typedef typename plain_type<
 		typename product_type<
-			test_shape_t,
+			typename test_nset_t::shape_t,
 			typename plain_type<
-				Eigen::Transpose<trial_shape_t>
+				Eigen::Transpose<typename trial_nset_t::shape_t>
 			>::type
 		>::type
 	>::type result_t;
@@ -81,34 +67,24 @@ public:
 		result.setZero();
 
 		typedef store<field_type_accelerator_pool<
-			trial_field_t,
-			quadrature_family_t,
-			acceleration::hard,
-			10>
-		> trial_store_t;
+				test_field_t, quadrature_family_t, acceleration::hard, 10
+		> > test_store_t;
 
 		typedef store<field_type_accelerator_pool<
-			test_field_t,
-			quadrature_family_t,
-			acceleration::hard,
-			10>
-		> test_store_t;
+				trial_field_t, quadrature_family_t, acceleration::hard, 10
+		> > trial_store_t;
 
-		typedef dual_field_type_accelerator<
-			test_field_t,
-			trial_field_t,
-			iteration::diagonal,
-			quadrature_family_t,
-			acceleration::hard
-		> accel_t;
-
-		accel_t acc(
-			test_store_t::m_data[degree], trial_store_t::m_data[degree]);
+		auto acc = create_dual_field_type_accelerator(
+			test_store_t::m_data[degree],
+			trial_store_t::m_data[degree],
+			iteration::diagonal());
 
 		for (auto it = acc.begin(); it != acc.end(); ++it)
 		{
-			auto jac = field.get_elem().get_normal(it->get_first()->get_xi()).norm();
-			result += it->get_first()->get_N() * (it->get_first()->get_w()*jac) * it->get_second()->get_N().transpose();
+			auto jac = field.get_elem().get_normal(it.get_first()->get_xi()).norm();
+			result += it.get_first()->get_N() *
+				(it.get_first()->get_w()*jac) *
+				it.get_second()->get_N().transpose();
 		}
 
 		return result;

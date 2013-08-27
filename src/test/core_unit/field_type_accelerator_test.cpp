@@ -80,13 +80,22 @@ struct dirac_tester
 template <class TestField, class TrialField>
 struct test_dual_regular
 {
-	typedef regular_dual_field_type_accelerator<TestField, TrialField, gauss_family_tag, acceleration::soft, 10> dual_accel_t;
+	static unsigned const MAX_ORDER = 10;
+
+	typedef store<field_type_accelerator_pool<
+		TestField, gauss_family_tag, acceleration::soft, MAX_ORDER
+	> > test_store_t;
+
+	typedef store<field_type_accelerator_pool<
+		TrialField, gauss_family_tag, acceleration::soft, MAX_ORDER
+	> > trial_store_t;
 
 	struct type
 	{
 		void operator()(void)
 		{
-			dual_accel_t dual_acc(4);
+			auto dual_acc = create_dual_field_type_accelerator(
+				test_store_t::m_data[4], trial_store_t::m_data[4], iteration::diadic());
 			for (auto it = dual_acc.begin(); it != dual_acc.end(); ++it)
 			{
 				std::cout << it.get_first()->get_w() * it.get_second()->get_w() << std::endl;

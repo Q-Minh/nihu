@@ -24,10 +24,12 @@ public:
 };
 
 template <class Interval1, class Interval2>
-struct merge_complexity_estimators<interval_estimator<Interval1>, interval_estimator<Interval2> > :
-	interval_estimator<
-		typename merge_intervals<Interval1, Interval2>::type
-	> {};
+struct merge_kernel_complexity_estimators<
+	interval_estimator<Interval1>,
+	interval_estimator<Interval2>
+> : interval_estimator<
+	typename merge_intervals<Interval1, Interval2>::type
+> {};
 
 
 #endif // INTERVAL_ESTIMATOR_HPP_INCLUDED
