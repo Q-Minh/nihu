@@ -10,171 +10,130 @@
 
 #include "field.hpp"
 #include "quadrature.hpp"
+#include "../util/casted_iterator.hpp"
 
-/**
- * \brief class to store quadrature points and shape functions for a field type
- * \details field_type_accelerator is used to precompute and store quadrature points and
- * shape function values for a specified quadrature order. The class provides an iterator that
- * can traverse through the stored values
- * \tparam Field the field type that is accelerated
- * \tparam Family the quadrature family
- */
-template <class Field, class Family>
-class field_type_accelerator
+
+/** \brief collection of acceleration-types */
+namespace acceleration
 {
-	// CRTP check
-	static_assert(std::is_base_of<field_base<Field>, Field>::value,
-		"Field must be derived from field_base<Test>");
+	/** \brief real acceleration */
+	struct hard {};
+	/** \brief view-acceleration */
+	struct soft{};
+}
+
+template<class Field, class Family, class Acceleration>
+class field_type_accelerator_elem;
+
+template <class Field, class Family>
+class field_type_accelerator_elem<Field, Family, acceleration::soft> :
+	public quadrature_elem<
+		typename Field::domain_t::xi_t,
+		typename Field::domain_t::scalar_t
+	>
+{
 public:
-	/** \brief template argument as nested type */
-	typedef Field field_t;
+	typedef quadrature_elem<
+		typename Field::domain_t::xi_t, typename Field::domain_t::scalar_t
+	> base_t;
 
-	/** \brief the quadrature vector type */
-	typedef typename quadrature_type<Family, typename field_t::elem_t::domain_t>::type quadrature_t;
-	/** \brief the type of one quadrature point */
-	typedef typename quadrature_t::quadrature_elem_t quadrature_elem_t;
-	/** \brief the quadrature iterator type */
-	typedef typename quadrature_t::const_iterator quad_iter_t;
-
-	/** \brief the shape function class's type */
-	typedef typename field_t::nset_t nset_t;
-	/** \brief type of a shape vector \f$N(\xi)\f$ */
-	typedef typename nset_t::shape_t shape_t;
-	/** \brief type of the shape function container */
-	typedef typename EigenStdVector<shape_t>::type nset_vector_t;
-	/** \brief type of the shape function container's iterator */
-	typedef typename nset_vector_t::const_iterator shape_iter_t;
-
-	// forward declaration so that const_iterator can be friend of iter_tuple
-	class const_iterator;
-
-	/**
-	 * \brief a pair of iterators pointing to the separate container members
-	 */
-	class iter_tuple
+	typename Field::nset_t::shape_t get_N(void) const
 	{
-		friend class const_iterator;
-	public:
-		/** \brief constructor from two iterators */
-		iter_tuple(quad_iter_t const &qe, shape_iter_t const &sh)
-			: m_quad_it(qe), m_shape_it(sh)
-		{
-		}
+		return Field::nset_t::eval_shape(base_t::get_xi());
+	}
+};
 
-		/** \brief return the pointed quadrature element
-		 * \return the pointed quadrature element
-		 */
-		quadrature_elem_t const &get_quadrature_elem(void) const
-		{
-			return *m_quad_it;
-		}
+template <class Field, class Family>
+class field_type_accelerator_elem<Field, Family, acceleration::hard> :
+	public quadrature_elem<
+		typename Field::domain_t::xi_t,
+		typename Field::domain_t::scalar_t
+	>
+{
+public:
+	typedef quadrature_elem<
+		typename Field::domain_t::xi_t,
+		typename Field::domain_t::scalar_t
+	> base_t;
 
-		/** \brief return the pointed shape function
-		 * \return the pointed shape function
-		 */
-		shape_t const &get_shape(void) const
-		{
-			return *m_shape_it;
-		}
-
-	private:
-		quad_iter_t m_quad_it;	/**< \brief the quadrature iterator member */
-		shape_iter_t m_shape_it;	/**< \brief the shape function iterator member */
-	};
-
-	/**
-	 * \brief nested iterator class to provide access to the stored values
-	 * \details instances of the class can be dereferenced by conventional iterator semantics
-	 * to access the stored quadrature points and shape function values
-	 */
-	class const_iterator
+	field_type_accelerator_elem(base_t const &base) :
+		base_t(base),
+		m_nset(Field::nset_t::eval_shape(base_t::get_xi()))
 	{
-	public:
-		/** \brief constructor from an iterator tuple
-		 * \param [in] itpl the iterator tuple to be stored
-		 */
-		const_iterator (iter_tuple const &itpl) : m_tuple(itpl)
-		{
-		}
-
-		/** \brief preincrement operator
-		 * \details the operator simply increments both stored iterators
-		 * \return reference to the iterator itself
-		 */
-		const_iterator &operator++()
-		{
-			++m_tuple.m_quad_it;
-			++m_tuple.m_shape_it;
-			return *this;
-		}
-
-		/** \brief inequality operator
-		 * \param [in] other the other iterator to compare against
-		 * \details as the two nested iterators are always incremented together, only match of
-		 * the first one is checked.
-		 */
-		bool operator!=(const_iterator const &other)
-		{
-			return m_tuple.m_quad_it != other.m_tuple.m_quad_it;
-		}
-
-		/** \brief dereference operator
-		 * \return an iter_tuple that can access both pointed elements
-		 */
-		iter_tuple const &operator*() const
-		{
-			return m_tuple;
-		}
-
-		/** \brief dereference operator
-		 * \return address of the stored iter_tuple that can access both pointed elements
-		 */
-		iter_tuple const *operator->() const
-		{
-			return &m_tuple;
-		}
-
-	private:
-		iter_tuple m_tuple;	/**< \brief a pair of iterators stored as member */
-	};
-
-	/**
-	 * \brief constructor for a given quadrature order
-	 * \param [in] order the quadrature order
-	 * \details the constructor computes the quadrature points
-	 * and the shape functions in the quadrature points
-	 */
-	field_type_accelerator(unsigned order) : m_quadrature(order)
-	{
-		m_nset_vector.reserve(m_quadrature.size());
-		for (quad_iter_t quad_it = m_quadrature.cbegin(); quad_it != m_quadrature.cend(); ++quad_it)
-			m_nset_vector.push_back(nset_t::eval_shape(quad_it->get_xi()));
 	}
 
-	/**
-	 * \brief return begin iterator
-	 * \return begin iterator of the accelerator container
-	 * \details by dereferencing the begin iterator, one can access a quadrature point
-	 * and a shape function as
-	 * it->get_shape() or it->get_quadrature_elem
-	 */
-	const_iterator cbegin(void) const
+	typename Field::nset_t::shape_t const &get_N(void) const
 	{
-		return const_iterator(iter_tuple(m_quadrature.cbegin(), m_nset_vector.cbegin()));
-	}
-
-	/**
-	 * \brief return end iterator
-	 * \return end iterator of the accelerator container
-	 */
-	const_iterator cend(void) const
-	{
-		return const_iterator(iter_tuple(m_quadrature.cend(), m_nset_vector.cend()));
+		return m_nset;
 	}
 
 protected:
-	quadrature_t m_quadrature;	/**< \brief the stored quadrature points */
-	nset_vector_t m_nset_vector;	/**< \brief the stored shape functions */
+	typename Field::nset_t::shape_t m_nset;
+};
+
+template <class Field, class Family, class Acceleration>
+class field_type_accelerator;
+
+
+template <class Field, class Family>
+class field_type_accelerator<Field, Family, acceleration::hard> :
+	public EigenStdVector<
+		field_type_accelerator_elem<Field, Family, acceleration::hard>
+	>::type
+{
+public:
+	typedef field_type_accelerator_elem<
+		Field, Family, acceleration::hard
+	> accelerator_elem_t;
+	typedef typename EigenStdVector<accelerator_elem_t>::type base_t;
+
+	typedef typename quadrature_type<
+		Family, typename Field::domain_t
+	>::type quadrature_t;
+
+	field_type_accelerator(quadrature_t const &quadrature)
+	{
+		this->reserve(quadrature.size());
+		for (unsigned i = 0; i < quadrature.size(); ++i)
+			this->push_back(accelerator_elem_t(quadrature[i]));
+	}
+};
+
+
+template <class Field, class Family>
+class field_type_accelerator<Field, Family, acceleration::soft> :
+	public quadrature_type<
+		Family, typename Field::domain_t
+	>::type
+{
+public:
+	typedef typename quadrature_type<
+		Family, typename Field::domain_t
+	>::type base_t;
+
+	typedef field_type_accelerator_elem<
+		Field, Family, acceleration::soft
+	> accelerator_elem_t;
+
+	field_type_accelerator(base_t const &quadrature) :
+		base_t(quadrature)
+	{
+	}
+
+	typedef casted_iterator<
+		typename base_t::const_iterator,
+		accelerator_elem_t
+	> iterator;
+
+	iterator begin(void) const
+	{
+		return base_t::begin();
+	}
+
+	iterator end(void) const
+	{
+		return base_t::end();
+	}
 };
 
 
@@ -182,9 +141,9 @@ protected:
  * \brief container class to store accelerators with different quadrature orders
  * \tparam Field the field type that is accelerated
  */
-template <class Field, class Family>
+template <class Field, class Family, class Acceleration>
 class field_type_accelerator_pool :
-	public std::vector<field_type_accelerator<Field, Family> *>
+	public std::vector<field_type_accelerator<Field, Family, Acceleration> *>
 {
 	// CRTP check
 	static_assert(std::is_base_of<field_base<Field>, Field>::value,
@@ -203,7 +162,7 @@ public:
 	{
 		this->reserve(MAX_ORDER+1);
 		for (unsigned order = 0; order <= MAX_ORDER; ++order)
-			this->push_back(new field_type_accelerator<field_t, family_t>(order));
+			this->push_back(new field_type_accelerator<field_t, family_t, acceleration::hard>(order));
 	}
 
 	/** \brief free memory allocated for the accelerators */
