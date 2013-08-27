@@ -10,10 +10,13 @@ int main(void)
 	typedef tmp::push_front<myStack_1, tmp::int_<2> >::type myStack_2;
 	typedef tmp::pop_front<myStack_2>::type myStack_3;
 	
-	std::cout << "Size of empty stack: " << tmp::size<myStack_0>::type::value << std::endl;
-	std::cout << "Size after 1 push: " << tmp::size<myStack_1>::type::value << std::endl;
-	std::cout << "Size after 2 pushes: " << tmp::size<myStack_2>::type::value << std::endl;
-	std::cout << "Size after 1 pop: " << tmp::size<myStack_3>::type::value << std::endl;
+	std::cout << "Testing stack and operations" << std::endl;
+	std::cout << "============================" << std::endl;
+	std::cout << "size(<>)                  = " << tmp::size<myStack_0>::type::value << std::endl;
+	std::cout << "size(push(<>))            = " << tmp::size<myStack_1>::type::value << std::endl;
+	std::cout << "size(push(push(<>)))      = " << tmp::size<myStack_2>::type::value << std::endl;
+	std::cout << "size(pop(push(push(<>)))) = " << tmp::size<myStack_3>::type::value << std::endl;
+	std::cout << std::endl;
 	
 	return 0;
 }
