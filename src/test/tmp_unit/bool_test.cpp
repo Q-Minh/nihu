@@ -28,8 +28,16 @@ int main(void)
 	std::cout << "===================" << std::endl;
 	std::cout << "true  & true  = " << tmp::and_<_t, _t>::type::value << std::endl;
 	std::cout << "true  & false = " << tmp::and_<_t, _f>::type::value << std::endl;
-	std::cout << "falee  & true = " << tmp::and_<_f, _t>::type::value << std::endl;
+	std::cout << "false & true  = " << tmp::and_<_f, _t>::type::value << std::endl;
 	std::cout << "false & false = " << tmp::and_<_f, _f>::type::value << std::endl;
+	std::cout << std::endl;
+	
+	std::cout << std::noboolalpha;
+	
+	std::cout << "Testing IF" << std::endl;
+	std::cout << "==========" << std::endl;
+	std::cout << "if_(true , 0, 1) = " << tmp::if_<_t, _f, _t >::type::value << std::endl;
+	std::cout << "if_(false, 0, 1) = " << tmp::if_<_f, _f, _t >::type::value << std::endl;
 	std::cout << std::endl;
 	
 	return 0;

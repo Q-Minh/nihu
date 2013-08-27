@@ -60,9 +60,19 @@ namespace tmp
 	/**
 	 * \brief metafunction returning true if first is less than second
 	 */
+	template <class N, class M> struct less;
+	 
 	template <int N, int M>
 	struct less<int_<N>, int_<M> > : std::integral_constant<bool, N < M> {};
 
+	/**
+	 * \brief metafunction returning true if first is greater than second
+	 */
+	template <class N, class M> struct greater;
+	 
+	template <int N, int M>
+	struct greater<int_<N>, int_<M> > : std::integral_constant<bool, !(N <= M)> {};
+ 
 
 	/** \brief compute maximum value of integral constants
 	 * \todo this metafunction should be generalised for arbitrary types
@@ -70,16 +80,32 @@ namespace tmp
 	template <class Val, class...Args>
 	struct max_
 	{
-		static unsigned const rest = max_<Args...>::value;
-		static unsigned const x = Val::value;
-		static unsigned const value = x > rest ? x : rest;
+		static int const rest = max_<Args...>::value;
+		static int const x = Val::value;
+		static int const value = x > rest ? x : rest;
 	};
 
 	/** \brief specialisation of ::max_ for the one parameter case */
 	template <class Val>
 	struct max_<Val>
 	{
-		static unsigned const value = Val::value;
+		static int const value = Val::value;
+	};
+
+	/** \brief compute minimum value of integral constants
+	*/
+	template <class Val, class...Args>
+	struct min_
+	{
+		static int const rest = min_<Args...>::value;
+		static int const x = Val::value;
+		static int const value = x < rest ? x : rest;
+	};
+	
+	template <class Val>
+	struct min_<Val>
+	{
+		static int const value = Val::value;
 	};
 
 }
