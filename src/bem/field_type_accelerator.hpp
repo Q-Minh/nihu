@@ -11,6 +11,7 @@
 #include "field.hpp"
 #include "quadrature.hpp"
 #include "../util/casted_iterator.hpp"
+#include "../util/dual_range.hpp"
 
 
 /** \brief collection of acceleration-types */
@@ -71,12 +72,15 @@ protected:
 	typename Field::nset_t::shape_t m_nset;
 };
 
-template <class Field, class Family, class Acceleration>
+template <class Field, class Family, class Acceleration, class Enable = void>
 class field_type_accelerator;
 
 
 template <class Field, class Family>
-class field_type_accelerator<Field, Family, acceleration::hard> :
+class field_type_accelerator<
+	Field, Family, acceleration::hard,
+	typename std::enable_if<!field_traits<Field>::is_dirac>::type
+	> :
 	public EigenStdVector<
 		field_type_accelerator_elem<Field, Family, acceleration::hard>
 	>::type
@@ -97,11 +101,18 @@ public:
 		for (unsigned i = 0; i < quadrature.size(); ++i)
 			this->push_back(accelerator_elem_t(quadrature[i]));
 	}
+
+	field_type_accelerator(unsigned order) :
+		field_type_accelerator(quadrature_t(order))
+	{
+	}
 };
 
 
 template <class Field, class Family>
-class field_type_accelerator<Field, Family, acceleration::soft> :
+class field_type_accelerator<Field, Family, acceleration::soft,
+	typename std::enable_if<!field_traits<Field>::is_dirac>::type
+	> :
 	public quadrature_type<
 		Family, typename Field::domain_t
 	>::type
@@ -114,11 +125,6 @@ public:
 	typedef field_type_accelerator_elem<
 		Field, Family, acceleration::soft
 	> accelerator_elem_t;
-
-	field_type_accelerator(base_t const &quadrature) :
-		base_t(quadrature)
-	{
-	}
 
 	typedef casted_iterator<
 		typename base_t::const_iterator,
@@ -133,6 +139,125 @@ public:
 	iterator end(void) const
 	{
 		return base_t::end();
+	}
+};
+
+
+struct index_t
+{
+	index_t(unsigned idx) :	m_idx(idx) {}
+	unsigned m_idx;
+};
+
+
+template <class NSet>
+class dirac_field_type_accelerator_elem :
+	public index_t
+{
+public:
+	constexpr typename NSet::scalar_t get_w(void) const
+	{
+		return 1.0;
+	}
+
+	constexpr typename NSet::shape_t get_N(void) const
+	{
+		return NSet::shape_t::Unit(index_t::m_idx);
+	}
+
+	constexpr typename NSet::xi_t get_xi(void) const
+	{
+		return NSet::corner_at(index_t::m_idx);
+	}
+};
+
+class dirac_field_type_accelerator_iterator
+{
+public:
+	dirac_field_type_accelerator_iterator(index_t const &idx) :
+		m_idx(idx)
+	{
+	}
+
+	dirac_field_type_accelerator_iterator &operator++(void)
+	{
+		++m_idx.m_idx;
+		return *this;
+	}
+
+	bool operator !=(dirac_field_type_accelerator_iterator const &other)
+	{
+		return m_idx.m_idx != other.m_idx.m_idx;
+	}
+
+	index_t const &operator*(void) const
+	{
+		return m_idx;
+	}
+
+	index_t const *operator->(void) const
+	{
+		return &m_idx;
+	}
+
+private:
+	index_t m_idx;
+};
+
+
+template <class Field, class Family, class Acceleration>
+class field_type_accelerator<Field, Family, Acceleration,
+	typename std::enable_if<field_traits<Field>::is_dirac>::type
+	>
+{
+public:
+	typedef dirac_field_type_accelerator_elem<
+		typename Field::nset_t
+	> accelerator_elem_t;
+
+	field_type_accelerator(void)
+	{
+	}
+
+	typedef casted_iterator<
+		dirac_field_type_accelerator_iterator,
+		accelerator_elem_t
+	> iterator;
+
+	constexpr iterator begin(void) const
+	{
+		return dirac_field_type_accelerator_iterator(index_t(0));
+	}
+
+	constexpr iterator end(void) const
+	{
+		return dirac_field_type_accelerator_iterator(index_t(Field::num_nodes));
+	}
+};
+
+
+
+template <class TestField, class TrialField, class IterationMode, class Family, class Acceleration>
+class dual_field_type_accelerator :
+	public dual_range<
+		IterationMode,
+		typename field_type_accelerator<TestField, Family, Acceleration>::iterator,
+		typename field_type_accelerator<TrialField, Family, Acceleration>::iterator
+	>
+{
+public:
+	typedef typename field_type_accelerator<TestField, Family, Acceleration>::iterator test_iter_t;
+	typedef typename field_type_accelerator<TrialField, Family, Acceleration>::iterator trial_iter_t;
+	typedef dual_range<IterationMode, test_iter_t, trial_iter_t> base_t;
+
+	dual_field_type_accelerator(
+		test_iter_t const &test_accelerator,
+		trial_iter_t const &trial_accelerator
+	) : base_t(
+		test_accelerator.begin(), test_accelerator.end(),
+		trial_accelerator.begin(), trial_accelerator.end()
+	)
+	{
 	}
 };
 
