@@ -103,11 +103,14 @@ public:
 		this->reserve(quadrature.size());
 		for (unsigned i = 0; i < quadrature.size(); ++i)
 			this->push_back(accelerator_elem_t(quadrature[i]));
+
 	}
 
 	field_type_accelerator(unsigned order) :
 		field_type_accelerator(quadrature_t(order))
 	{
+		std::cout << "instantiating field_type_accelerator for field id " << Field::id
+			<< " and for order" << order << std::endl;
 	}
 };
 

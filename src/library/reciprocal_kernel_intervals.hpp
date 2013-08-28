@@ -3,11 +3,9 @@
 
 #include "../bem/interval.hpp"
 
-template <unsigned Order, unsigned Error>
-struct reciprocal_distance_kernel_interval
-{
-	// static_assert(false, "reciprocal_distance_kernel_interval is undefined for the selected order and error");
-};
+template <unsigned Order, unsigned Accuracy>
+struct reciprocal_distance_kernel_interval;
+
 
 template <>
 struct reciprocal_distance_kernel_interval<1, 2>
@@ -85,8 +83,6 @@ struct reciprocal_distance_kernel_interval<3, 3>
 		break_point<ratio_infinite, tmp::int_<0> >
 	> type;
 };
-
-
 
 
 #endif // RECIPROCAL_KERNEL_INTERVALS_HPP_INCLUDED

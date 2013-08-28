@@ -140,6 +140,8 @@ public:
 	*/
 	quadrature_base(unsigned N = 0)
 	{
+		std::cout << "Constructing quadrature for domain id " << domain_t::id
+			<< " and size " << N << std::endl;
 		base_t::reserve(N);
 	}
 

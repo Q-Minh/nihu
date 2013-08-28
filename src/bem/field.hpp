@@ -63,9 +63,10 @@ public:
 	/** \brief the number of dofs */
 	static unsigned const num_dofs = nset_t::num_nodes;
 
-	/** \brief the field identifier */
-	static unsigned const id;
-	
+	enum {
+		id = field_id<Derived>::value
+	};
+
 	/**
 	 * \brief return underlying element
 	 * \return the element of the field
@@ -74,7 +75,7 @@ public:
 	{
 		return derived().get_elem();
 	}
-	
+
 	/**
 	 * \brief return DOF vector
 	 * \return DOF vector
@@ -84,10 +85,6 @@ public:
 		return derived().get_dofs();
 	}
 };
-
-/** \brief definition of the default field identifier */
-template <class Derived>
-unsigned const field_base<Derived>::id = field_id<Derived>::value;
 
 
 /** \brief imlementation class of a general field */
@@ -126,7 +123,7 @@ class dirac_field :
 public:
 	/** \brief self-returning metafunction */
 	typedef dirac_field type;
-	
+
 	/** \brief the implementation class type */
 	typedef field_impl<Field> impl_t;
 
@@ -134,7 +131,7 @@ public:
 	typedef typename field_traits<dirac_field<Field> >::elem_t elem_t;
 	/** \brief store the original field type for the iterator */
 	typedef Field field_t;
-	
+
 	using impl_t::get_elem;
 	using impl_t::get_dofs;
 };
@@ -250,18 +247,23 @@ class field_view :
 	public field_impl<field_view<ElemType, Option> >
 {
 public:
-	/** \brief self-returning metafunction */
-	typedef field_view type;
-	
-	/** \brief the element type shorthand */
-	typedef typename field_base<field_view<ElemType, Option> >::elem_t elem_t;
-	
+	/** \brief the crtp base type */
+	typedef field_base<field_view<ElemType, Option> > crtp_base_t;
 	/** \brief the implementation class type */
 	typedef field_impl<field_view<ElemType, Option> > impl_t;
-	
+
+	/** \brief self-returning metafunction */
+	typedef field_view type;
+
+	/** \brief the element type shorthand */
+	typedef typename crtp_base_t::elem_t elem_t;
+
+	enum {
+		id = crtp_base_t::id
+	};
+
 	using impl_t::get_elem;
 	using impl_t::get_dofs;
-	
 };
 
 
@@ -292,7 +294,7 @@ struct field_traits<field<ElemType, NSet> >
 
 */
 template <class ElemType, class NSet>
-class field_impl<field<ElemType, NSet> > 
+class field_impl<field<ElemType, NSet> >
 {
 public:
 	/** \brief the element type */
@@ -341,7 +343,7 @@ protected:
 * \tparam NSet the shape function set
 */
 template <class ElemType, class NSet>
-class field : 
+class field :
 	public field_base<field<ElemType, NSet> >,
 	public field_impl<field<ElemType, NSet> >
 {
@@ -357,7 +359,7 @@ public:
 	typedef typename base_t::elem_t elem_t;
 	/** \brief the dofs vector type */
 	typedef typename base_t::dofs_t dofs_t;
-	
+
 	using impl_t::get_elem;
 	using impl_t::get_dofs;
 
@@ -374,7 +376,7 @@ public:
 /**
  * \brief field view factory
  */
-template <class Elem, class Option> 
+template <class Elem, class Option>
 field_view<Elem, Option> const &
  create_field_view(element_base<Elem> const & e, Option)
 {
@@ -403,10 +405,10 @@ field_view<Elem, field_option::isoparametric> const &
 }
 
 /**
- * \brief dirac field view factory 
+ * \brief dirac field view factory
  */
 template <class Field>
-dirac_field<Field> const & 
+dirac_field<Field> const &
 	dirac(field_base<Field> const & f)
 {
 	return static_cast<dirac_field<Field> const &>(

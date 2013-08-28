@@ -9,23 +9,14 @@
 #define POISSON_KERNEL_HPP_INCLUDED
 
 #include <cmath>
+#include "../bem/global_definitions.hpp"
 #include "../bem/kernel.hpp"
 #include "../bem/gaussian_quadrature.hpp"
-
-#include "location_normal.hpp"
-
-#include "basic_bricks.hpp"
-#include "../util/collection.hpp"
-
-#include "reciprocal_kernel_intervals.hpp"
 #include "../bem/interval_estimator.hpp"
-
-
-/**
- * \brief prescribed integration accuracy
- * \todo this should be placed in a global file
- */
-static const unsigned accuracy = 3;
+#include "../util/collection.hpp"
+#include "location_normal.hpp"
+#include "basic_bricks.hpp"
+#include "reciprocal_kernel_intervals.hpp"
 
 
 /** \brief a brick representing a 2D Poisson kernel \f$ -\log r /2\pi \f$
@@ -122,7 +113,7 @@ struct kernel_traits<poisson_2d_SLP_kernel>
 	static unsigned const singular_quadrature_order = 7;
 	/** \brief the kernel complexity estimator class */
 	typedef interval_estimator<
-		typename reciprocal_distance_kernel_interval<singularity_order, accuracy>::type
+		typename reciprocal_distance_kernel_interval<singularity_order, GLOBAL_ACCURACY>::type
 	> complexity_estimator_t;
 };
 
@@ -229,7 +220,7 @@ struct kernel_traits<poisson_2d_DLP_kernel>
 	static unsigned const singular_quadrature_order = 7;
 	/** \brief the kernel complexity estimator class */
 	typedef interval_estimator<
-		typename reciprocal_distance_kernel_interval<singularity_order, accuracy>::type
+		typename reciprocal_distance_kernel_interval<singularity_order, GLOBAL_ACCURACY>::type
 	> complexity_estimator_t;
 };
 
@@ -335,7 +326,7 @@ struct kernel_traits<poisson_2d_DLPt_kernel>
 	static unsigned const singular_quadrature_order = 7;
 	/** \brief the kernel complexity estimator class */
 	typedef interval_estimator<
-		typename reciprocal_distance_kernel_interval<singularity_order, accuracy>::type
+		typename reciprocal_distance_kernel_interval<singularity_order, GLOBAL_ACCURACY>::type
 	> complexity_estimator_t;
 };
 
@@ -446,7 +437,7 @@ struct kernel_traits<poisson_2d_HSP_kernel>
 	static unsigned const singular_quadrature_order = 7;
 	/** \brief the kernel complexity estimator class */
 	typedef interval_estimator<
-		typename reciprocal_distance_kernel_interval<singularity_order, accuracy>::type
+		typename reciprocal_distance_kernel_interval<singularity_order, GLOBAL_ACCURACY>::type
 	> complexity_estimator_t;
 };
 
@@ -553,7 +544,7 @@ struct kernel_traits<poisson_3d_SLP_kernel>
 	static unsigned const singular_quadrature_order = 7;
 	/** \brief the kernel complexity estimator class */
 	typedef interval_estimator<
-		typename reciprocal_distance_kernel_interval<singularity_order, accuracy>::type
+		typename reciprocal_distance_kernel_interval<singularity_order, GLOBAL_ACCURACY>::type
 	> complexity_estimator_t;
 };
 
@@ -660,7 +651,7 @@ struct kernel_traits<poisson_3d_DLP_kernel>
 	static unsigned const singular_quadrature_order = 7;
 	/** \brief the kernel complexity estimator class */
 	typedef interval_estimator<
-		typename reciprocal_distance_kernel_interval<singularity_order, accuracy>::type
+		typename reciprocal_distance_kernel_interval<singularity_order, GLOBAL_ACCURACY>::type
 	> complexity_estimator_t;
 };
 
@@ -767,7 +758,7 @@ struct kernel_traits<poisson_3d_DLPt_kernel>
 	static unsigned const singular_quadrature_order = 7;
 	/** \brief the kernel complexity estimator class */
 	typedef interval_estimator<
-		typename reciprocal_distance_kernel_interval<singularity_order, accuracy>::type
+		typename reciprocal_distance_kernel_interval<singularity_order, GLOBAL_ACCURACY>::type
 	> complexity_estimator_t;
 };
 
@@ -879,7 +870,7 @@ struct kernel_traits<poisson_3d_HSP_kernel>
 	static unsigned const singular_quadrature_order = 7;
 	/** \brief the kernel complexity estimator class */
 	typedef interval_estimator<
-		typename reciprocal_distance_kernel_interval<singularity_order, accuracy>::type
+		typename reciprocal_distance_kernel_interval<singularity_order, GLOBAL_ACCURACY>::type
 	> complexity_estimator_t;
 };
 
