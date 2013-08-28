@@ -1,6 +1,8 @@
 How to specialise an interface class in NiHu {#specialise}
 ============================================
 
+\page specialise
+
 [CRTP]:http://en.wikipedia.org/wiki/Curiously_recurring_template_pattern
 [Static polymorphism]:http://en.wikipedia.org/wiki/Template_metaprogramming#Static_polymorphism
 [Traits classes]:http://www.cantrip.org/traits.html

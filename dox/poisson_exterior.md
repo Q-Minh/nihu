@@ -1,6 +1,7 @@
-An exterior Poisson problem {#poisson_extrior_tutorial}
+An exterior Poisson problem {#poisson_exterior}
 ===========================
 
+\page poisson_exterior
 
 [Matlab MEX]:http://www.mathworks.com/help/matlab/matlab_external/c-c-source-mex-files.html
 
