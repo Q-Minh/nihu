@@ -12,10 +12,11 @@
 #include "../util/plain_type.hpp"
 #include "../util/brick.hpp"
 #include "../library/location_normal.hpp"
-#include "quadrature_pool.hpp"
 #include "kernel.hpp"
 #include "complexity_estimator.hpp"
 #include "element_match.hpp"
+#include "field_type_accelerator.hpp"
+#include "singular_accelerator.hpp"
 
 static const unsigned MAX_ORDER = 8;
 
@@ -536,8 +537,10 @@ private:
 		field_base<TestField> const &test_field,
 		field_base<TrialField> const &trial_field)
 	{
-		typedef accel_store<formalism::general, Kernel, TestField, TrialField> acc_store_t;
-		auto const &sa = acc_store_t::m_singular_accelerator;
+		typedef store<
+			singular_accelerator<formalism::general, Kernel, TestField, TrialField>
+		> store_t;
+		auto const &sa = store_t::m_data;
 
 		return double_integral<Kernel, TestField, TrialField>::eval_singular_on_accelerator(
 			result, kernel, test_field, trial_field, sa.begin(), sa.end());
@@ -551,8 +554,10 @@ private:
 		field_base<TestField> const &test_field,
 		field_base<TrialField> const &trial_field)
 	{
-		typedef accel_store<formalism::collocational, Kernel, TestField, TrialField> acc_store_t;
-		auto const &sa = acc_store_t::m_singular_accelerator;
+		typedef store<
+			singular_accelerator<formalism::collocational, Kernel, TestField, TrialField>
+		> store_t;
+		auto const &sa = store_t::m_data;
 
 		return double_integral<Kernel, TestField, TrialField>::eval_singular_on_accelerator(
 			result, kernel, test_field, trial_field, sa);

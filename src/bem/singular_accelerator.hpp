@@ -13,7 +13,6 @@
 
 #include "../util/dual_range.hpp"
 
-
 /**
 * \brief a dual iterator to point to a test and a trial quadrature element
 * \tparam test_iterator_t the iterator type of the test quadrature
