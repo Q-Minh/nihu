@@ -12,15 +12,14 @@
 #include "../util/math_functions.hpp"
 #include "plane_triangle_helper.hpp"
 
-/** \brief Trivial collocational integrals of various kernels over plane surfaces
+/** \brief Trivial integrals of various kernels over plane surfaces
  * \tparam Kernel the kernel type
  * \tparam TestField the test field type
  * \tparam TrialField the trial field type
  */
 template <class WaveNumber, template< class WaveNumber> class Kernel, class TestField, class TrialField>
 class singular_integral_shortcut<
-	formalism::collocational,
-	Kernel<WaveNumber>, TestField, TrialField,
+	Kernel<WaveNumber>, TestField, TrialField, singularity::face_match_type,
 	typename std::enable_if<
 		( std::is_same<Kernel<WaveNumber>, helmholtz_3d_DLP_kernel<WaveNumber> >::value ||
 		  std::is_same<Kernel<WaveNumber>, helmholtz_3d_DLPt_kernel<WaveNumber> >::value
@@ -65,8 +64,9 @@ gaussian_quadrature<tria_domain> const tria_quad_store<order>::quadrature(order)
  */
 template <class WaveNumber, class TestField, class TrialField>
 class singular_integral_shortcut<
-	formalism::collocational, helmholtz_3d_SLP_kernel<WaveNumber>, TestField, TrialField,
+	helmholtz_3d_SLP_kernel<WaveNumber>, TestField, TrialField, singularity::face_match_type,
 	typename std::enable_if<
+		std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
 		std::is_same<typename TrialField::lset_t, tria_1_shape_set>::value &&
 		std::is_same<typename TrialField::nset_t, tria_0_shape_set>::value
 	>::type
@@ -139,8 +139,9 @@ public:
  */
 template <class WaveNumber, class TestField, class TrialField>
 class singular_integral_shortcut<
-	formalism::collocational, helmholtz_3d_HSP_kernel<WaveNumber>, TestField, TrialField,
+	helmholtz_3d_HSP_kernel<WaveNumber>, TestField, TrialField, singularity::face_match_type,
 	typename std::enable_if<
+		std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
 		std::is_same<typename TrialField::lset_t, tria_1_shape_set>::value &&
 		std::is_same<typename TrialField::nset_t, tria_0_shape_set>::value
 	>::type
