@@ -7,6 +7,8 @@ Installation {#install}
 [cmake]:http://cmake.org
 [gcc]:http://gcc.gnu.org
 [Ubuntu]:http://www.ubuntu.com
+[doxygen]:http://www.stack.nl/~dimitri/doxygen
+[TDM-GCC]:http://tdm-gcc.tdragon.net
 
 [TOC]
 
@@ -55,7 +57,7 @@ You can install `gcc-4.7` if you have administrative rights on your computer in 
 1. 	Add the test toolchain repository for `apt`
 	
 		sudo add-apt-repository ppa:ubuntu-toolchain-r/test
-	
+
 2. 	Update the list of available packages
 	
 		sudo apt-get update
@@ -69,7 +71,7 @@ You can install `gcc-4.7` if you have administrative rights on your computer in 
 
 		sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.6 60 --slave /usr/bin/g++ g++ /usr/bin/g++-4.6 
 		sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.7 40 --slave /usr/bin/g++ g++ /usr/bin/g++-4.7 
-
+	
 5.	Configure the system to use the newly installed compiler
 
 		sudo update-alternatives --config gcc
@@ -80,12 +82,74 @@ You can install `gcc-4.7` if you have administrative rights on your computer in 
 
 		gcc -v
 
+Alternatively, or if you do not have administrative rights you can install [gcc] from source.
+
 ### Installing [cmake]
 
+If you have administrative rights, you can easily install the newest version of [cmake] by the command
+
+	sudo apt-get install cmake
+
+### Configuration
+
+For the installation you must first make a configuration step.
+This is done by creating a directory for the build.
+The build directory must not be the same as the source directory, however it can be a new subdirectory inside the main source directory.
+In order to configure the installation you must run `cmake` inside the build directory.
+The command `cmake` takes the path of the source directory as an argument.
+The following example demonstrates the configuration inside the directory `nihu/build_dir`.
+(Note: the source directory is located in the package at `nihu/src`.)
+
+	cd nihu
+	mkdir build_dir
+	cd build_dir
+	cmake ../src
+
+For an advanced configuration, you can specify various options for the `cmake` command from the command line.
+See [installation options](#install_cmake_options) for further details.
+
+### Compiling the sources
+
+All sources are compiled by calling the `make` command in the build directory.
+
+	make
+
+If you have [doxygen] installed, you can also compile the documentation by the command
+
+	make doc
 
 Installation on Windows systems {#install_win}
 -------------------------------
 
-This is how to.
+### Installing gcc on windows
+
+It is recommended that you compile NiHu on a Windows operating system also by using gcc.
+A Windows version of `gcc-4.7` is available through the [TDM-GCC] project, you can download and install the binaries at their [download](http://tdm-gcc.tdragon.net/download) site.
+
+### Installing cmake on windows
+
+[cmake] is also available for windows, the executable can be downloaded [here](http://www.cmake.org/files/v2.8/cmake-2.8.11.2-win32-x86.exe).
+
+### Configuration
+
+For the proper configuration you must specify the option `-G "MinGW Makefiles"` for the `cmake` command.
+
+	cd nihu
+	md build_dir
+	cd build_dir
+	cmake ..\src -G "MinGW Makefiles"
+
+### Compiling the sources
+
+All sources are compiled by calling the `make` command in the build directory.
+
+	mingw32-make.exe
+
+
+Installation options for cmake {#install_cmake_options}
+==============================
+
+Eigen options {#install_eigen_options}
+-------------
 
 
