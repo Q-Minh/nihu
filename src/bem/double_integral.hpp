@@ -17,11 +17,12 @@
 #include "element_match.hpp"
 #include "field_type_accelerator.hpp"
 #include "singular_accelerator.hpp"
+#include "formalism.hpp"
 
 static const unsigned MAX_ORDER = 8;
 
 // forward declaration
-template <class Formalism, class Kernel, class TestField, class TrialField, class Enable = void>
+template <class Kernel, class TestField, class TrialField, class Singularity, class Enable = void>
 class singular_integral_shortcut;
 
 /**
@@ -30,13 +31,9 @@ class singular_integral_shortcut;
 * \tparam Test type of the test field
 * \tparam Trial type of the trial field
 */
-template <bool isTestDirac, class Kernel, class TestField, class TrialField>
-class double_integral_impl
+template <class Kernel, class TestField, class TrialField, class Formalism = typename get_formalism<TestField, TrialField>::type>
+class double_integral
 {
-	// CRTP check
-	static_assert(std::is_base_of<kernel_base<Kernel>, Kernel>::value,
-		"Kernel must be derived from kernel_base<Kernel>");
-
 	typedef std::true_type WITH_SINGULARITY_CHECK;
 	typedef std::false_type WITHOUT_SINGULARITY_CHECK;
 
@@ -232,15 +229,24 @@ protected:
 		field_base<trial_field_t> const &trial_field)
 	{
 		auto match = element_match_eval(test_field, trial_field);
-		if (match.get_singularity_type() != REGULAR)
+		switch (match.get_singularity_type())
 		{
-			/** \todo pass singularity type */
-			return singular_integral_shortcut<formalism::general, kernel_t, test_field_t, trial_field_t>::eval(
-				result, kernel, test_field, trial_field);
+		case REGULAR:
+			break;
+		case FACE_MATCH:
+			return singular_integral_shortcut<
+				kernel_t, test_field_t, trial_field_t, singularity::face_match_type
+				>::eval(result, kernel, test_field, trial_field, match);
+		case CORNER_MATCH:
+			return singular_integral_shortcut<
+				kernel_t, test_field_t, trial_field_t, singularity::corner_match_type
+				>::eval(result, kernel, test_field, trial_field, match);
+		case EDGE_MATCH:
+			return singular_integral_shortcut<
+				kernel_t, test_field_t, trial_field_t, singularity::edge_match_type
+				>::eval(result, kernel, test_field, trial_field, match);
 		}
-
-		return eval(WITHOUT_SINGULARITY_CHECK(),
-			result, kernel, test_field, trial_field);
+		return eval(WITHOUT_SINGULARITY_CHECK(), result, kernel, test_field, trial_field);
 	}
 
 public:
@@ -272,12 +278,8 @@ public:
 
 
 template <class Kernel, class TestField, class TrialField>
-class double_integral_impl<true, Kernel, TestField, TrialField>
+class double_integral<Kernel, TestField, TrialField, formalism::collocational>
 {
-	// CRTP check
-	static_assert(std::is_base_of<kernel_base<Kernel>, Kernel>::value,
-		"Kernel must be derived from kernel_base<Kernel>");
-
 	typedef std::true_type WITH_SINGULARITY_CHECK;
 	typedef std::false_type WITHOUT_SINGULARITY_CHECK;
 
@@ -472,15 +474,24 @@ protected:
 		field_base<trial_field_t> const &trial_field)
 	{
 		auto match = element_match_eval(test_field, trial_field);
-		if (match.get_singularity_type() != REGULAR)
+		switch (match.get_singularity_type())
 		{
-			/** \todo pass match to shortcut */
-			return singular_integral_shortcut<formalism::collocational, kernel_t, test_field_t, trial_field_t>::eval(
-				result, kernel.derived(), test_field.derived(), trial_field.derived());
+		case REGULAR:
+			break;
+		case FACE_MATCH:
+			return singular_integral_shortcut<
+				kernel_t, test_field_t, trial_field_t, singularity::face_match_type
+				>::eval(result, kernel, test_field, trial_field, match);
+		case CORNER_MATCH:
+			return singular_integral_shortcut<
+				kernel_t, test_field_t, trial_field_t, singularity::corner_match_type
+				>::eval(result, kernel, test_field, trial_field, match);
+		case EDGE_MATCH:
+			return singular_integral_shortcut<
+				kernel_t, test_field_t, trial_field_t, singularity::edge_match_type
+				>::eval(result, kernel, test_field, trial_field, match);
 		}
-		else
-			return eval(WITHOUT_SINGULARITY_CHECK(),
-				result, kernel, test_field, trial_field);
+		return eval(WITHOUT_SINGULARITY_CHECK(), result, kernel, test_field, trial_field);
 	}
 
 public:
@@ -511,13 +522,6 @@ public:
 };
 
 
-template <class Kernel, class TestField, class TrialField>
-class double_integral :
-	public double_integral_impl<field_traits<TestField>::is_dirac, Kernel, TestField, TrialField>
-{
-};
-
-
 /** \brief a shortcut for the user to define customised singular integral methods
  * \tparam Formalism collocational or general
  * \tparam Kernel the kernel class
@@ -525,9 +529,14 @@ class double_integral :
  * \tparam TrialField the trial field type
  * \tparam Enable additional argument for std::enable_if
  */
-template <class Formalism, class Kernel, class TestField, class TrialField, class Enable>
+template <class Kernel, class TestField, class TrialField, class Singularity, class Enable>
 class singular_integral_shortcut
 {
+	typedef typename get_formalism<TestField, TrialField>::type formalism_t;
+	typedef store<
+		singular_accelerator<formalism_t, Kernel, TestField, TrialField>
+	> store_t;
+
 private:
 	template <class result_t>
 	static result_t &eval_impl(
@@ -535,15 +544,11 @@ private:
 		result_t &result,
 		kernel_base<Kernel> const &kernel,
 		field_base<TestField> const &test_field,
-		field_base<TrialField> const &trial_field)
+		field_base<TrialField> const &trial_field,
+		element_match const &match)
 	{
-		typedef store<
-			singular_accelerator<formalism::general, Kernel, TestField, TrialField>
-		> store_t;
-		auto const &sa = store_t::m_data;
-
 		return double_integral<Kernel, TestField, TrialField>::eval_singular_on_accelerator(
-			result, kernel, test_field, trial_field, sa.begin(), sa.end());
+			result, kernel, test_field, trial_field, store_t::m_data.begin(match), store_t::m_data.end(match));
 	}
 
 	template <class result_t>
@@ -552,15 +557,11 @@ private:
 		result_t &result,
 		kernel_base<Kernel> const &kernel,
 		field_base<TestField> const &test_field,
-		field_base<TrialField> const &trial_field)
+		field_base<TrialField> const &trial_field,
+		element_match const &)
 	{
-		typedef store<
-			singular_accelerator<formalism::collocational, Kernel, TestField, TrialField>
-		> store_t;
-		auto const &sa = store_t::m_data;
-
 		return double_integral<Kernel, TestField, TrialField>::eval_singular_on_accelerator(
-			result, kernel, test_field, trial_field, sa);
+			result, kernel, test_field, trial_field, store_t::m_data);
 	}
 
 
@@ -578,10 +579,11 @@ public:
 		result_t &result,
 		kernel_base<Kernel> const &kernel,
 		field_base<TestField> const &test_field,
-		field_base<TrialField> const &trial_field)
+		field_base<TrialField> const &trial_field,
+		element_match const &match)
 	{
 		return eval_impl(
-			Formalism(), result, kernel, test_field, trial_field);
+			formalism_t(), result, kernel, test_field, trial_field, match);
 	}
 };
 

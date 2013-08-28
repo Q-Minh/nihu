@@ -12,6 +12,7 @@
 #include "field.hpp"
 
 #include "../util/dual_range.hpp"
+#include "formalism.hpp"
 
 /**
 * \brief a dual iterator to point to a test and a trial quadrature element
@@ -132,9 +133,9 @@ public:
 	static unsigned const singular_quadrature_order = kernel_traits<kernel_t>::singular_quadrature_order;
 
 	/**
-	* \brief return begin iterator of the singular quadrature
-	* \return begin iterator of the singular quadrature
-	*/
+	 * \brief return begin iterator of the singular quadrature
+	 * \return begin iterator of the singular quadrature
+	 */
 	iterator begin(element_match const &elem_match) const
 	{
 		switch (elem_match.get_singularity_type())

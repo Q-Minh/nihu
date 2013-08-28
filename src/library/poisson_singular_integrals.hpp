@@ -10,7 +10,7 @@
 #include "poisson_kernel.hpp"
 #include "plane_triangle_helper.hpp"
 
-/** \brief Collocational singular integrals of the DLP and DLPt kernels over a plane elements
+/** \brief Singular integrals of the DLP and DLPt kernels over a plane elements
  * \tparam Formalism the integration formalism (collocational or general)
  * \tparam Kernel the kernel type the test field type
  * \tparam TestField the test field type
@@ -18,7 +18,7 @@
  */
 template <class Kernel, class TestField, class TrialField>
 class singular_integral_shortcut<
-	formalism::collocational, Kernel, TestField, TrialField,
+	Kernel, TestField, TrialField, singularity::face_match_type,
 	typename std::enable_if<
 		(
 		( std::is_same<Kernel, poisson_2d_DLP_kernel>::value ||
@@ -40,7 +40,11 @@ public:
 	 */
 	template <class result_t>
 	constexpr static result_t &eval(
-		result_t &result, Kernel const &, TestField const &, TrialField const &)
+		result_t &result,
+		kernel_base<Kernel> const &,
+		field_base<TestField> const &,
+		field_base<TrialField> const &,
+		element_match const &)
 	{
 		return result;
 	}
@@ -53,8 +57,9 @@ public:
  */
 template <class TestField, class TrialField>
 class singular_integral_shortcut<
-	formalism::collocational, poisson_2d_SLP_kernel, TestField, TrialField,
+	poisson_2d_SLP_kernel, TestField, TrialField, singularity::face_match_type,
 	typename std::enable_if<
+		std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
 		std::is_same<typename TrialField::lset_t, line_1_shape_set>::value &&
 		std::is_same<typename TrialField::nset_t, line_0_shape_set>::value
 	>::type
@@ -64,9 +69,10 @@ public:
 	template <class result_t>
 	static result_t &eval(
 		result_t &result,
-		poisson_2d_SLP_kernel const &,
-		TestField const &test_field,
-		TrialField const &trial_field)
+		kernel_base<poisson_2d_SLP_kernel> const &,
+		field_base<TestField> const &test_field,
+		field_base<TrialField> const &trial_field,
+		element_match const &)
 	{
 		auto const &c = test_field.get_elem().get_center();
 		auto const &C = trial_field.get_elem().get_coords();
@@ -84,8 +90,9 @@ public:
  */
 template <class TestField, class TrialField>
 class singular_integral_shortcut<
-	formalism::collocational, poisson_2d_HSP_kernel, TestField, TrialField,
+	poisson_2d_HSP_kernel, TestField, TrialField, singularity::face_match_type,
 	typename std::enable_if<
+		std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
 		std::is_same<typename TrialField::lset_t, line_1_shape_set>::value &&
 		std::is_same<typename TrialField::nset_t, line_0_shape_set>::value
 	>::type
@@ -95,9 +102,10 @@ public:
 	template <class result_t>
 	static result_t &eval(
 		result_t &result,
-		poisson_2d_HSP_kernel const &,
-		TestField const &test_field,
-		TrialField const &trial_field)
+		kernel_base<poisson_2d_HSP_kernel> const &,
+		field_base<TestField> const &test_field,
+		field_base<TrialField> const &trial_field,
+		element_match const &)
 	{
 		auto const &c = test_field.get_elem().get_center();
 		auto const &C = trial_field.get_elem().get_coords();
@@ -115,8 +123,9 @@ public:
  */
 template <class TestField, class TrialField>
 class singular_integral_shortcut<
-	formalism::collocational, poisson_3d_SLP_kernel, TestField, TrialField,
+	poisson_3d_SLP_kernel, TestField, TrialField, singularity::face_match_type,
 	typename std::enable_if<
+		std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
 		std::is_same<typename TrialField::lset_t, tria_1_shape_set>::value &&
 		std::is_same<typename TrialField::nset_t, tria_0_shape_set>::value
 	>::type
@@ -126,9 +135,10 @@ public:
 	template <class result_t>
 	static result_t &eval(
 		result_t &result,
-		poisson_3d_SLP_kernel const &,
-		TestField const &,
-		TrialField const &trial_field)
+		kernel_base<poisson_3d_SLP_kernel> const &,
+		field_base<TestField> const &,
+		field_base<TrialField> const &trial_field,
+		element_match const &)
 	{
 		unsigned const N = tria_1_elem::num_nodes;
 		double r[N], theta[N], alpha[N];
@@ -150,8 +160,9 @@ public:
  */
 template <class TestField, class TrialField>
 class singular_integral_shortcut<
-	formalism::collocational, poisson_3d_HSP_kernel, TestField, TrialField,
+	poisson_3d_HSP_kernel, TestField, TrialField, singularity::face_match_type,
 	typename std::enable_if<
+		std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
 		std::is_same<typename TrialField::lset_t, tria_1_shape_set>::value &&
 		std::is_same<typename TrialField::nset_t, tria_0_shape_set>::value
 	>::type
@@ -161,9 +172,10 @@ public:
 	template <class result_t>
 	static result_t &eval(
 		result_t &result,
-		poisson_3d_HSP_kernel const &,
-		TestField const &,
-		TrialField const &trial_field)
+		kernel_base<poisson_3d_HSP_kernel> const &,
+		field_base<TestField> const &,
+		field_base<TrialField> const &trial_field,
+		element_match const &)
 	{
 		unsigned const N = tria_1_elem::num_nodes;
 

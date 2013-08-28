@@ -7,12 +7,6 @@
 #ifndef INTEGRAL_OPERATOR_HPP_INCLUDED
 #define INTEGRAL_OPERATOR_HPP_INCLUDED
 
-namespace formalism
-{
-	struct general {};
-	struct collocational {};
-}
-
 #include "../util/crtp_base.hpp"
 #include "function_space.hpp"
 #include "single_integral.hpp"
@@ -21,15 +15,15 @@ namespace formalism
 template <class Operator, class TrialSpace>
 class projection;
 
-/* \brief traits class for an integral operator
-* \tparam Derived the CRTP derived class
-*/
+/** \brief traits class for an integral operator
+ * \tparam Derived the CRTP derived class
+ */
 template <class Derived>
 struct integral_operator_traits;
 
-/* \brief CRTP base of integral operator expressions
-* \tparam Derived the CRTP derived class
-*/
+/** \brief CRTP base of integral operator expressions
+ * \tparam Derived the CRTP derived class
+ */
 template <class Derived>
 class integral_operator_base
 {

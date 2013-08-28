@@ -11,6 +11,13 @@ enum singularity_type {
 	CORNER_MATCH	/**< \brief two elements share common corner */
 };
 
+namespace singularity
+{
+	typedef std::integral_constant<unsigned, REGULAR> regular_type;
+	typedef std::integral_constant<unsigned, REGULAR> face_match_type;
+	typedef std::integral_constant<unsigned, REGULAR> edge_match_type;
+	typedef std::integral_constant<unsigned, REGULAR> corner_match_type;
+}
 
 /** \brief class describing the adjacency (match) state of two elements */
 class element_match
