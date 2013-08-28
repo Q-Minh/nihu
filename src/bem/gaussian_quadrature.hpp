@@ -210,6 +210,8 @@ public:
 	{
 	}
 
+
+
 	/**
 	 * \brief constructor for a given polynomial order
 	 * \param degree polynomial order

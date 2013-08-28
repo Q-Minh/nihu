@@ -23,12 +23,6 @@
 #include "../bem/interval_estimator.hpp"
 
 /**
- * \brief prescribed integration accuracy
- * \todo this should be placed in a global file
- */
-static const unsigned accuracy = 3;
-
-/**
  * \brief kernel data that stores the wave number
  */
 template <class wave_number_type>
@@ -192,7 +186,7 @@ struct kernel_traits<helmholtz_3d_SLP_kernel<wave_number_t> >
 	static unsigned const singular_quadrature_order = 7;
 	/** \brief the kernel complexity estimator class */
 	typedef interval_estimator<
-		typename reciprocal_distance_kernel_interval<singularity_order, accuracy>::type
+		typename reciprocal_distance_kernel_interval<singularity_order, GLOBAL_ACCURACY>::type
 	> complexity_estimator_t;
 };
 
@@ -308,7 +302,7 @@ struct kernel_traits<helmholtz_3d_DLP_kernel<wave_number_t> >
 	static unsigned const singular_quadrature_order = 7;
 	/** \brief the kernel complexity estimator class */
 	typedef interval_estimator<
-		typename reciprocal_distance_kernel_interval<singularity_order, accuracy>::type
+		typename reciprocal_distance_kernel_interval<singularity_order, GLOBAL_ACCURACY>::type
 	> complexity_estimator_t;
 };
 
@@ -424,7 +418,7 @@ struct kernel_traits<helmholtz_3d_DLPt_kernel<wave_number_t> >
 	static unsigned const singular_quadrature_order = 7;
 	/** \brief the kernel complexity estimator class */
 	typedef interval_estimator<
-		typename reciprocal_distance_kernel_interval<singularity_order, accuracy>::type
+		typename reciprocal_distance_kernel_interval<singularity_order, GLOBAL_ACCURACY>::type
 	> complexity_estimator_t;
 };
 
@@ -548,7 +542,7 @@ struct kernel_traits<helmholtz_3d_HSP_kernel<wave_number_t> >
 	static unsigned const singular_quadrature_order = 7;
 	/** \brief the kernel complexity estimator class */
 	typedef interval_estimator<
-		typename reciprocal_distance_kernel_interval<singularity_order, accuracy>::type
+		typename reciprocal_distance_kernel_interval<singularity_order, GLOBAL_ACCURACY>::type
 	> complexity_estimator_t;
 };
 

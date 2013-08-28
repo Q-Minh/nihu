@@ -8,6 +8,7 @@
 #ifndef SINGLE_INTEGRAL_HPP_INCLUDED
 #define SINGLE_INTEGRAL_HPP_INCLUDED
 
+#include "global_definitions.hpp"
 #include "../util/plain_type.hpp"
 #include "../util/product_type.hpp"
 #include "gaussian_quadrature.hpp"
@@ -74,11 +75,11 @@ public:
 		result.setZero();
 
 		typedef store<field_type_accelerator_pool<
-				test_field_t, quadrature_family_t, acceleration::hard, 10
+				test_field_t, quadrature_family_t, acceleration::hard, GLOBAL_MAX_ORDER
 		> > test_store_t;
 
 		typedef store<field_type_accelerator_pool<
-				trial_field_t, quadrature_family_t, acceleration::hard, 10
+				trial_field_t, quadrature_family_t, acceleration::hard, GLOBAL_MAX_ORDER
 		> > trial_store_t;
 
 		auto acc = create_dual_field_type_accelerator(

@@ -8,6 +8,7 @@
 #ifndef DOUBLE_INTEGRAL_HPP_INCLUDED
 #define DOUBLE_INTEGRAL_HPP_INCLUDED
 
+#include "global_definitions.hpp"
 #include "../util/product_type.hpp"
 #include "../util/plain_type.hpp"
 #include "../util/brick.hpp"
@@ -19,8 +20,6 @@
 #include "singular_accelerator.hpp"
 #include "formalism.hpp"
 
-static const unsigned MAX_ORDER = 8;
-
 // forward declaration
 template <class Kernel, class TestField, class TrialField, class Singularity, class Enable = void>
 class singular_integral_shortcut;
@@ -31,21 +30,17 @@ class singular_integral_shortcut;
 * \tparam Test type of the test field
 * \tparam Trial type of the trial field
 */
-template <class Kernel, class TestField, class TrialField, class Formalism = typename get_formalism<TestField, TrialField>::type>
+template <class Kernel, class TestField, class TrialField, class = typename get_formalism<TestField, TrialField>::type>
 class double_integral
 {
 	typedef std::true_type WITH_SINGULARITY_CHECK;
 	typedef std::false_type WITHOUT_SINGULARITY_CHECK;
 
 public:
-	typedef Kernel kernel_t;		/**< \brief template parameter as nested type */
-	typedef TestField test_field_t;		/**< \brief template parameter as nested type */
-	typedef TrialField trial_field_t;	/**< \brief template parameter as nested type */
-
 	/** \brief test input type of kernel */
-	typedef typename kernel_traits<kernel_t>::test_input_t test_input_t;
+	typedef typename kernel_traits<Kernel>::test_input_t test_input_t;
 	/** \brief trial input type of kernel */
-	typedef typename kernel_traits<kernel_t>::trial_input_t trial_input_t;
+	typedef typename kernel_traits<Kernel>::trial_input_t trial_input_t;
 	/** \brief weighted test input type of kernel */
 	typedef typename merge<
 		test_input_t,
@@ -56,51 +51,19 @@ public:
 		trial_input_t,
 		typename build<normal_jacobian<typename trial_input_t::space_t> >::type
 	>::type w_trial_input_t;
-	/** \brief result type of kernel */
-	typedef typename kernel_traits<kernel_t>::result_t kernel_result_t;
-
-	/** \brief the test elem type */
-	typedef typename test_field_t::elem_t test_elem_t;
-	/** \brief the trial elem type */
-	typedef typename trial_field_t::elem_t trial_elem_t;
-	/** \brief the test domain type */
-	typedef typename test_elem_t::domain_t test_domain_t;
-	/** \brief the trial domain type */
-	typedef typename trial_elem_t::domain_t trial_domain_t;
 
 	/** \brief the quadrature family the kernel requires */
-	typedef typename kernel_traits<kernel_t>::quadrature_family_t quadrature_family_t;
+	typedef typename kernel_traits<Kernel>::quadrature_family_t quadrature_family_t;
 	/** \brief indicates if kernel is singular and singular accelerators need to be instantiated */
-	static bool const is_kernel_singular = kernel_traits<kernel_t>::singularity_order != 0;
-
-	/** \brief the quadrature element */
-	typedef typename quadrature_type<
-		quadrature_family_t,
-		typename trial_field_t::elem_t::domain_t
-	>::type::quadrature_elem_t quadrature_elem_t;
-
-	/** \brief N-set of the test field */
-	typedef typename test_field_t::nset_t test_nset_t;
-	/** \brief N-set of the trial field */
-	typedef typename trial_field_t::nset_t trial_nset_t;
-
-	/** \brief type of test shape function */
-	typedef typename test_nset_t::shape_t test_shape_t;
-	/** \brief type of trial shape function */
-	typedef typename trial_nset_t::shape_t trial_shape_t;
-
-	/** \brief L-set of the test field */
-	typedef typename test_field_t::elem_t::lset_t test_lset_t;
-	/** \brief L-set of the trial field */
-	typedef typename trial_field_t::elem_t::lset_t trial_lset_t;
+	static bool const is_kernel_singular = kernel_traits<Kernel>::singularity_order != 0;
 
 	/** \brief result type of the weighted residual */
 	typedef typename plain_type<
 		typename product_type<
-			kernel_result_t,
+			typename kernel_traits<Kernel>::result_t,
 			typename product_type<
-				test_shape_t,
-				Eigen::Transpose<trial_shape_t>
+				typename TestField::nset_t::shape_t,
+				Eigen::Transpose<typename TrialField::nset_t::shape_t>
 			>::type
 		>::type
 	>::type result_t;
@@ -118,9 +81,9 @@ protected:
 	template <class dual_iterator_t>
 	static result_t &eval_on_accelerator(
 		result_t &result,
-		kernel_base<kernel_t> const &kernel,
-		field_base<test_field_t> const &test_field,
-		field_base<trial_field_t> const &trial_field,
+		kernel_base<Kernel> const &kernel,
+		field_base<TestField> const &test_field,
+		field_base<TrialField> const &trial_field,
 		dual_iterator_t it,
 		dual_iterator_t end
 		)
@@ -130,9 +93,9 @@ protected:
 			w_test_input_t test_input(test_field.get_elem(), it.get_first()->get_xi());
 			w_trial_input_t trial_input(trial_field.get_elem(), it.get_second()->get_xi());
 
-			auto left = test_field_t::nset_t::eval_shape(it.get_first()->get_xi())
+			auto left = TestField::nset_t::eval_shape(it.get_first()->get_xi())
 				* (test_input.get_jacobian() * it.get_first()->get_w());
-			auto right = trial_field_t::nset_t::eval_shape(it.get_second()->get_xi())
+			auto right = TrialField::nset_t::eval_shape(it.get_second()->get_xi())
 				* (trial_input.get_jacobian() * it.get_second()->get_w());
 
 			result += left * kernel(test_input, trial_input) * right.transpose();
@@ -154,9 +117,9 @@ public:
 	template <class singular_iterator_t>
 	static result_t &eval_singular_on_accelerator(
 		result_t &result,
-		kernel_base<kernel_t> const &kernel,
-		field_base<test_field_t> const &test_field,
-		field_base<trial_field_t> const &trial_field,
+		kernel_base<Kernel> const &kernel,
+		field_base<TestField> const &test_field,
+		field_base<TrialField> const &trial_field,
 		singular_iterator_t begin,
 		singular_iterator_t end)
 	{
@@ -165,9 +128,9 @@ public:
 			w_test_input_t test_input(test_field.get_elem(), begin.get_test_quadrature_elem().get_xi());
 			w_trial_input_t trial_input(trial_field.get_elem(), begin.get_trial_quadrature_elem().get_xi());
 
-			auto left = test_field_t::nset_t::eval_shape(begin.get_test_quadrature_elem().get_xi())
+			auto left = TestField::nset_t::eval_shape(begin.get_test_quadrature_elem().get_xi())
 				* (test_input.get_jacobian() * begin.get_test_quadrature_elem().get_w());
-			auto right = trial_field_t::nset_t::eval_shape(begin.get_trial_quadrature_elem().get_xi())
+			auto right = TrialField::nset_t::eval_shape(begin.get_trial_quadrature_elem().get_xi())
 				* (trial_input.get_jacobian() * begin.get_trial_quadrature_elem().get_w());
 
 			result += left * kernel(test_input, trial_input) * right.transpose();
@@ -189,21 +152,21 @@ protected:
 	static result_t &eval(
 		WITHOUT_SINGULARITY_CHECK,
 		result_t &result,
-		kernel_base<kernel_t> const &kernel,
-		field_base<test_field_t> const &test_field,
-		field_base<trial_field_t> const &trial_field)
+		kernel_base<Kernel> const &kernel,
+		field_base<TestField> const &test_field,
+		field_base<TrialField> const &trial_field)
 	{
 		unsigned degree = complexity_estimator<
-			test_field_t, trial_field_t,
-			typename kernel_traits<kernel_t>::complexity_estimator_t
+			TestField, TrialField,
+			typename kernel_traits<Kernel>::complexity_estimator_t
 		>::eval(test_field, trial_field);
 
 		typedef store<field_type_accelerator_pool<
-			test_field_t, quadrature_family_t, acceleration::hard, MAX_ORDER
+			TestField, quadrature_family_t, acceleration::hard, GLOBAL_MAX_ORDER
 		> > test_store_t;
 
 		typedef store<field_type_accelerator_pool<
-			trial_field_t, quadrature_family_t, acceleration::hard, MAX_ORDER
+			TrialField, quadrature_family_t, acceleration::hard, GLOBAL_MAX_ORDER
 		> > trial_store_t;
 
 		auto acc = create_dual_field_type_accelerator(
@@ -224,9 +187,9 @@ protected:
 	static result_t &eval(
 		WITH_SINGULARITY_CHECK,
 		result_t &result,
-		kernel_base<kernel_t> const &kernel,
-		field_base<test_field_t> const &test_field,
-		field_base<trial_field_t> const &trial_field)
+		kernel_base<Kernel> const &kernel,
+		field_base<TestField> const &test_field,
+		field_base<TrialField> const &trial_field)
 	{
 		auto match = element_match_eval(test_field, trial_field);
 		switch (match.get_singularity_type())
@@ -235,15 +198,15 @@ protected:
 			break;
 		case FACE_MATCH:
 			return singular_integral_shortcut<
-				kernel_t, test_field_t, trial_field_t, singularity::face_match_type
+				Kernel, TestField, TrialField, singularity::face_match_type
 				>::eval(result, kernel, test_field, trial_field, match);
 		case CORNER_MATCH:
 			return singular_integral_shortcut<
-				kernel_t, test_field_t, trial_field_t, singularity::corner_match_type
+				Kernel, TestField, TrialField, singularity::corner_match_type
 				>::eval(result, kernel, test_field, trial_field, match);
 		case EDGE_MATCH:
 			return singular_integral_shortcut<
-				kernel_t, test_field_t, trial_field_t, singularity::edge_match_type
+				Kernel, TestField, TrialField, singularity::edge_match_type
 				>::eval(result, kernel, test_field, trial_field, match);
 		}
 		return eval(WITHOUT_SINGULARITY_CHECK(), result, kernel, test_field, trial_field);
@@ -258,9 +221,9 @@ public:
 	*/
 	template <class OnSameMesh>
 	static result_t eval(
-		kernel_base<kernel_t> const &kernel,
-		field_base<test_field_t> const &test_field,
-		field_base<trial_field_t> const &trial_field,
+		kernel_base<Kernel> const &kernel,
+		field_base<TestField> const &test_field,
+		field_base<TrialField> const &trial_field,
 		OnSameMesh)
 	{
 		static bool const sing_check_needed =
@@ -284,69 +247,36 @@ class double_integral<Kernel, TestField, TrialField, formalism::collocational>
 	typedef std::false_type WITHOUT_SINGULARITY_CHECK;
 
 public:
-	typedef Kernel kernel_t;		/**< \brief template parameter as nested type */
-	typedef TestField test_field_t;		/**< \brief template parameter as nested type */
-	typedef TrialField trial_field_t;	/**< \brief template parameter as nested type */
-
 	/** \brief test input type of kernel */
-	typedef typename kernel_traits<kernel_t>::test_input_t test_input_t;
+	typedef typename kernel_traits<Kernel>::test_input_t test_input_t;
 	/** \brief trial input type of kernel */
-	typedef typename kernel_traits<kernel_t>::trial_input_t trial_input_t;
-	/** \brief weighted test input type of kernel */
-	typedef typename merge<
-		test_input_t,
-		typename build<normal_jacobian<typename test_input_t::space_t> >::type
-	>::type w_test_input_t;
-	/** \brief weighted trial input type of kernel */
+	typedef typename kernel_traits<Kernel>::trial_input_t trial_input_t;
+
+	/** \brief weighted test input type */
+	typedef test_input_t w_test_input_t;
+	/** \brief weighted trial input type */
 	typedef typename merge<
 		trial_input_t,
 		typename build<normal_jacobian<typename trial_input_t::space_t> >::type
 	>::type w_trial_input_t;
-	/** \brief result type of kernel */
-	typedef typename kernel_traits<kernel_t>::result_t kernel_result_t;
-
-	/** \brief the test elem type */
-	typedef typename test_field_t::elem_t test_elem_t;
-	/** \brief the trial elem type */
-	typedef typename trial_field_t::elem_t trial_elem_t;
-	/** \brief the test domain type */
-	typedef typename test_elem_t::domain_t test_domain_t;
-	/** \brief the trial domain type */
-	typedef typename trial_elem_t::domain_t trial_domain_t;
 
 	/** \brief the quadrature family the kernel requires */
-	typedef typename kernel_traits<kernel_t>::quadrature_family_t quadrature_family_t;
+	typedef typename kernel_traits<Kernel>::quadrature_family_t quadrature_family_t;
 	/** \brief indicates if kernel is singular and singular accelerators need to be instantiated */
-	static bool const is_kernel_singular = kernel_traits<kernel_t>::singularity_order != 0;
-
-	/** \brief the quadrature element */
-	typedef typename quadrature_type<
-		quadrature_family_t,
-		typename trial_field_t::elem_t::domain_t
-	>::type::quadrature_elem_t quadrature_elem_t;
+	static bool const is_kernel_singular = kernel_traits<Kernel>::singularity_order != 0;
 
 	/** \brief N-set of the test field */
-	typedef typename test_field_t::nset_t test_nset_t;
+	typedef typename TestField::nset_t test_nset_t;
 	/** \brief N-set of the trial field */
-	typedef typename trial_field_t::nset_t trial_nset_t;
-
-	/** \brief type of test shape function */
-	typedef typename test_nset_t::shape_t test_shape_t;
-	/** \brief type of trial shape function */
-	typedef typename trial_nset_t::shape_t trial_shape_t;
-
-	/** \brief L-set of the test field */
-	typedef typename test_field_t::elem_t::lset_t test_lset_t;
-	/** \brief L-set of the trial field */
-	typedef typename trial_field_t::elem_t::lset_t trial_lset_t;
+	typedef typename TrialField::nset_t trial_nset_t;
 
 	/** \brief result type of the weighted residual */
 	typedef typename plain_type<
 		typename product_type<
-			kernel_result_t,
+			typename kernel_traits<Kernel>::result_t,
 			typename product_type<
-				test_shape_t,
-				Eigen::Transpose<trial_shape_t>
+				typename test_nset_t::shape_t,
+				Eigen::Transpose<typename trial_nset_t::shape_t>
 			>::type
 		>::type
 	>::type result_t;
@@ -363,9 +293,9 @@ protected:
 	template <class dual_iterator_t>
 	static result_t &eval_on_accelerator(
 		result_t &result,
-		kernel_base<kernel_t> const &kernel,
-		field_base<test_field_t> const &test_field,
-		field_base<trial_field_t> const &trial_field,
+		kernel_base<Kernel> const &kernel,
+		field_base<TestField> const &test_field,
+		field_base<TrialField> const &trial_field,
 		dual_iterator_t it,
 		dual_iterator_t end)
 	{
@@ -374,9 +304,9 @@ protected:
 			w_test_input_t test_input(test_field.get_elem(), it.get_first()->get_xi());
 			w_trial_input_t trial_input(trial_field.get_elem(), it.get_second()->get_xi());
 
-			auto left = test_field_t::nset_t::eval_shape(it.get_first()->get_xi())
-				* (test_input.get_jacobian() * it.get_first()->get_w());
-			auto right = trial_field_t::nset_t::eval_shape(it.get_second()->get_xi())
+			auto left = it.get_first()->get_N()
+				* (it.get_first()->get_w());
+			auto right = it.get_second()->get_N()
 				* (trial_input.get_jacobian() * it.get_second()->get_w());
 
 			result += left * kernel(test_input, trial_input) * right.transpose();
@@ -398,15 +328,14 @@ public:
 	template <class singular_accelerator_t>
 	static result_t &eval_singular_on_accelerator(
 		result_t &result,
-		kernel_base<kernel_t> const &kernel,
-		field_base<test_field_t> const &test_field,
-		field_base<trial_field_t> const &trial_field,
+		kernel_base<Kernel> const &kernel,
+		field_base<TestField> const &test_field,
+		field_base<TrialField> const &trial_field,
 		singular_accelerator_t const &sa)
 	{
 		for (unsigned idx = 0; idx < test_nset_t::num_nodes; ++idx)
 		{
-			quadrature_elem_t qe(test_nset_t::corner_at(idx));
-			test_input_t collocational_point(test_field.get_elem(), qe.get_xi());
+			test_input_t collocational_point(test_field.get_elem(), test_nset_t::corner_at(idx));
 			auto bound = kernel.bind(collocational_point);
 			auto const &quad = sa.get_trial_quadrature(idx);
 
@@ -416,7 +345,7 @@ public:
 
 				result.row(idx) += bound(trial_input) *
 					(trial_input.get_jacobian() * quad_it->get_w() *
-					trial_field_t::nset_t::eval_shape(quad_it->get_xi()));
+					TrialField::nset_t::eval_shape(quad_it->get_xi()));
 			}
 		}
 
@@ -434,21 +363,21 @@ protected:
 	static result_t &eval(
 		WITHOUT_SINGULARITY_CHECK,
 		result_t &result,
-		kernel_base<kernel_t> const &kernel,
-		field_base<test_field_t> const &test_field,
-		field_base<trial_field_t> const &trial_field)
+		kernel_base<Kernel> const &kernel,
+		field_base<TestField> const &test_field,
+		field_base<TrialField> const &trial_field)
 	{
 		unsigned degree = complexity_estimator<
-			test_field_t, trial_field_t,
-			typename kernel_traits<kernel_t>::complexity_estimator_t
+			TestField, TrialField,
+			typename kernel_traits<Kernel>::complexity_estimator_t
 		>::eval(test_field, trial_field);
 
 		typedef store<field_type_accelerator_pool<
-			test_field_t, quadrature_family_t, acceleration::hard, MAX_ORDER
+			TestField, quadrature_family_t, acceleration::hard, GLOBAL_MAX_ORDER
 		> > test_store_t;
 
 		typedef store<field_type_accelerator_pool<
-			trial_field_t, quadrature_family_t, acceleration::hard, MAX_ORDER
+			TrialField, quadrature_family_t, acceleration::hard, GLOBAL_MAX_ORDER
 		> > trial_store_t;
 
 		auto acc = create_dual_field_type_accelerator(
@@ -469,9 +398,9 @@ protected:
 	static result_t &eval(
 		WITH_SINGULARITY_CHECK,
 		result_t &result,
-		kernel_base<kernel_t> const &kernel,
-		field_base<test_field_t> const &test_field,
-		field_base<trial_field_t> const &trial_field)
+		kernel_base<Kernel> const &kernel,
+		field_base<TestField> const &test_field,
+		field_base<TrialField> const &trial_field)
 	{
 		auto match = element_match_eval(test_field, trial_field);
 		switch (match.get_singularity_type())
@@ -480,15 +409,15 @@ protected:
 			break;
 		case FACE_MATCH:
 			return singular_integral_shortcut<
-				kernel_t, test_field_t, trial_field_t, singularity::face_match_type
+				Kernel, TestField, TrialField, singularity::face_match_type
 				>::eval(result, kernel, test_field, trial_field, match);
 		case CORNER_MATCH:
 			return singular_integral_shortcut<
-				kernel_t, test_field_t, trial_field_t, singularity::corner_match_type
+				Kernel, TestField, TrialField, singularity::corner_match_type
 				>::eval(result, kernel, test_field, trial_field, match);
 		case EDGE_MATCH:
 			return singular_integral_shortcut<
-				kernel_t, test_field_t, trial_field_t, singularity::edge_match_type
+				Kernel, TestField, TrialField, singularity::edge_match_type
 				>::eval(result, kernel, test_field, trial_field, match);
 		}
 		return eval(WITHOUT_SINGULARITY_CHECK(), result, kernel, test_field, trial_field);
@@ -504,9 +433,9 @@ public:
 	*/
 	template <class OnSameMesh>
 	static result_t eval(
-		kernel_base<kernel_t> const &kernel,
-		field_base<test_field_t> const &test_field,
-		field_base<trial_field_t> const &trial_field,
+		kernel_base<Kernel> const &kernel,
+		field_base<TestField> const &test_field,
+		field_base<TrialField> const &trial_field,
 		OnSameMesh)
 	{
 		static bool const sing_check_needed =
@@ -523,10 +452,10 @@ public:
 
 
 /** \brief a shortcut for the user to define customised singular integral methods
- * \tparam Formalism collocational or general
  * \tparam Kernel the kernel class
  * \tparam TestField the test field type
  * \tparam TrialField the trial field type
+ * \tparam Singularity the singularity type
  * \tparam Enable additional argument for std::enable_if
  */
 template <class Kernel, class TestField, class TrialField, class Singularity, class Enable>
@@ -537,7 +466,6 @@ class singular_integral_shortcut
 		singular_accelerator<formalism_t, Kernel, TestField, TrialField>
 	> store_t;
 
-private:
 	template <class result_t>
 	static result_t &eval_impl(
 		formalism::general,
@@ -582,8 +510,7 @@ public:
 		field_base<TrialField> const &trial_field,
 		element_match const &match)
 	{
-		return eval_impl(
-			formalism_t(), result, kernel, test_field, trial_field, match);
+		return eval_impl(formalism_t(), result, kernel, test_field, trial_field, match);
 	}
 };
 

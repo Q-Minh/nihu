@@ -567,6 +567,5 @@ struct is_function_space : std::is_base_of<
 	typename std::decay<FuncSpace>::type
 > {};
 
-
 #endif // FUNCTION_SPACE_HPP_INCLUDED
 
