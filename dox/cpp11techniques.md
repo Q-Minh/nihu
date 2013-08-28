@@ -1,6 +1,8 @@
 C++11 techniques in NiHu {#cpp11}
 ========================
 
+\page cpp11
+
 [TOC]
 
 Introduction {#cpp11_intro}

@@ -1,6 +1,8 @@
 Polymorphism in NiHu {#polymorphism}
 ====================
 
+\page polymorphism
+
 [TOC]
 
 [metafunction]:http://www.boost.org/doc/libs/1_53_0/libs/mpl/doc/refmanual/metafunction.html

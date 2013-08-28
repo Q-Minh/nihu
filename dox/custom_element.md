@@ -1,6 +1,8 @@
 Custom element {#custom_element}
 ==============
 
+\page custom_element
+
 [TOC]
 
 Introduction {#gaussian_intro}

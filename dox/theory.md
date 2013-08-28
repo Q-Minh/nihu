@@ -1,6 +1,8 @@
 Theory {#theory}
 ======
 
+\page theory
+
 [TOC]
 
 Weighted Residuals in a Nuthshell {#weightedresidual}

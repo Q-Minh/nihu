@@ -1,6 +1,8 @@
 Metaprogramming concepts in NiHu {#metaprogramming}
 ================================
 
+\page metaprogramming
+
 [TOC]
 
 Introduction {#intro}

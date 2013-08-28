@@ -1,8 +1,9 @@
-#include <iostream>
 #include "bem/element.hpp"
 #include "tmp/sequence.hpp"
 #include "tmp/control.hpp"
 #include "tmp/vector.hpp"
+
+#include <iostream>
 
 template <class ElemType>
 struct tester
@@ -11,22 +12,24 @@ struct tester
 	{
 		void operator() (void)
 		{
-			std::cout << std::endl << "Elem type id: " << ElemType::id << std::endl;
+			std::cout << std::endl;
+			std::cout << "Elem type ID: " << ElemType::id << std::endl;
+			std::cout << "===================" << std::endl;
 
 			typename ElemType::xi_t xi = ElemType::domain_t::get_center();
-			std::cout << "xi: " << xi.transpose() << std::endl;
+			std::cout << "xi center: " << xi.transpose() << std::endl;
 
 			ElemType e(ElemType::coords_t::Random());
-			std::cout << "coords: " << e.get_coords() << std::endl;
-
+			
 			typename ElemType::x_t c = e.get_center();
-			std::cout << "center: " << c << std::endl;
-
+			std::cout << "x  center: " << c.transpose() << std::endl;
+			std::cout << "nodal coords: " << std::endl << e.get_coords() << std::endl;
+			
 			typename ElemType::x_t x = e.get_x(xi);
-			std::cout << "x(xi): " << x << std::endl;
+			std::cout << "x(xi): " << x.transpose() << std::endl;
 
 			typename ElemType::x_t n = e.get_normal(xi);
-			std::cout << "n(xi): " << n << std::endl;
+			std::cout << "n(xi): " << n.transpose() << std::endl;
 		}
 	};
 };
