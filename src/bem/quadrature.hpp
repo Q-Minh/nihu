@@ -19,8 +19,10 @@ template <class XiType, class ScalarType>
 class quadrature_elem
 {
 public:
-	typedef XiType xi_t;			/**< \brief template argument as tested type */
-	typedef ScalarType scalar_t;	/**< \brief template argument as nested type */
+	/** \brief template argument as tested type */
+	typedef XiType xi_t;
+	/** \brief template argument as nested type */
+	typedef ScalarType scalar_t;
 
 	/**
 	* \brief constructor initialising all members
@@ -93,8 +95,10 @@ public:
 	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 protected:
-	xi_t m_xi;		/**< \brief base point */
-	scalar_t m_w;	/**< \brief weight */
+	/** \brief base point */
+	xi_t m_xi;
+	/** \brief weight */
+	scalar_t m_w;
 };
 
 
@@ -127,10 +131,14 @@ public:
 	NIHU_CRTP_HELPERS
 
 public:
-	typedef quadrature_traits<Derived> traits_t;	/**< \brief traits type */
-	typedef typename traits_t::domain_t domain_t;	/**< \brief domain type */
-	typedef typename domain_t::xi_t xi_t; 			/**< \brief local coordinate type */
-	typedef typename domain_t::scalar_t scalar_t;	/**< \brief local scalar type */
+	/** \brief traits type */
+	typedef quadrature_traits<Derived> traits_t;
+	/** \brief domain type */
+	typedef typename traits_t::domain_t domain_t;
+	/** \brief local coordinate type */
+	typedef typename domain_t::xi_t xi_t;
+	/** \brief local scalar type */
+	typedef typename domain_t::scalar_t scalar_t;
 	/** \brief quadrature elem type */
 	typedef quadrature_elem<xi_t, scalar_t> quadrature_elem_t;
 
@@ -140,8 +148,6 @@ public:
 	*/
 	quadrature_base(unsigned N = 0)
 	{
-		std::cout << "Constructing quadrature for domain id " << domain_t::id
-			<< " and size " << N << std::endl;
 		base_t::reserve(N);
 	}
 

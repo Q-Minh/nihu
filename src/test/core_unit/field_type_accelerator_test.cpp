@@ -15,19 +15,19 @@ struct tester
 		> qe_t;
 
 		typedef field_type_accelerator_elem<
-			Field, Family, acceleration::soft
+			Field, gauss_family_tag, acceleration::soft
 		> soft_accel_t;
 
 		typedef field_type_accelerator_elem<
-			Field, Family, acceleration::hard
+			Field, gauss_family_tag, acceleration::hard
 		> hard_accel_t;
 
 		void operator() (void)
 		{
-			field_type_accelerator<Field, Family, acceleration::hard> ha(5);
+			field_type_accelerator<Field, gauss_family_tag, acceleration::hard> ha(5);
 
 			// instantiate a quadrature
-			typename quadrature_type<Family, domain_t>::type q(5);
+			typename quadrature_type<gauss_family_tag, domain_t>::type q(5);
 
 			std::cout << "soft accelerator:\n";
 
@@ -43,13 +43,13 @@ struct tester
 				a_hard.get_w() << '\t' <<
 				a_hard.get_N().transpose() << '\n';
 
-			field_type_accelerator<Field, Family, acceleration::hard> acc_hard(q);
+			field_type_accelerator<Field, gauss_family_tag, acceleration::hard> acc_hard(q);
 			for (auto it = acc_hard.begin(); it != acc_hard.end(); ++it)
 				std::cout << it->get_w() << std::endl;
 
 			std::cout << std::endl;
 
-			auto const &acc_soft = static_cast<field_type_accelerator<Field, Family, acceleration::soft> const &>(q);
+			auto const &acc_soft = static_cast<field_type_accelerator<Field, gauss_family_tag, acceleration::soft> const &>(q);
 			for (auto it = acc_soft.begin(); it != acc_soft.end(); ++it)
 				std::cout << it->get_w() << std::endl;
 		}
@@ -58,18 +58,20 @@ struct tester
 
 
 
-template <class Family, class Field>
-struct dirac_tester
+template <class Field>
+struct test_dirac
 {
+	typedef dirac_field<Field> dfield_t;
 	struct type
 	{
 		void operator() (void)
 		{
-			field_type_accelerator<Field, Family, acceleration::hard> dirac_acc;
+			// test field type accelerator
+			field_type_accelerator<dfield_t, gauss_family_tag, acceleration::soft> dirac_acc(0);
 
 			for (auto it = dirac_acc.begin(); it != dirac_acc.end(); ++it)
-				std::cout << it->get_w() << '\t' <<
-					it->get_N().transpose() << std::endl;
+				std::cout << it->get_w() << '\t'
+					<< it->get_N().transpose() << std::endl;
 
 			std::cout << std::endl;
 		}
@@ -105,15 +107,19 @@ struct test_dual_regular
 };
 
 
-
-
-
 int main(void)
 {
+/*
 	tmp::d_call_each<
 		tmp::vector<field_view<quad_1_elem, field_option::constant> >,
 		tmp::vector<field_view<quad_1_elem, field_option::constant> >,
 		test_dual_regular<tmp::_1, tmp::_2>
+	>();
+*/
+
+	tmp::call_each<
+		tmp::vector<field_view<quad_1_elem, field_option::constant> >,
+		test_dirac<tmp::_1>
 	>();
 
 	return 0;

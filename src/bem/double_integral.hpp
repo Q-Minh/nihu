@@ -93,10 +93,10 @@ protected:
 			w_test_input_t test_input(test_field.get_elem(), it.get_first()->get_xi());
 			w_trial_input_t trial_input(trial_field.get_elem(), it.get_second()->get_xi());
 
-			auto left = TestField::nset_t::eval_shape(it.get_first()->get_xi())
-				* (test_input.get_jacobian() * it.get_first()->get_w());
-			auto right = TrialField::nset_t::eval_shape(it.get_second()->get_xi())
-				* (trial_input.get_jacobian() * it.get_second()->get_w());
+			auto left = (TestField::nset_t::eval_shape(it.get_first()->get_xi())
+				* (test_input.get_jacobian() * it.get_first()->get_w())).eval();
+			auto right = (TrialField::nset_t::eval_shape(it.get_second()->get_xi())
+				* (trial_input.get_jacobian() * it.get_second()->get_w())).eval();
 
 			result += left * kernel(test_input, trial_input) * right.transpose();
 		}
@@ -128,10 +128,10 @@ public:
 			w_test_input_t test_input(test_field.get_elem(), begin.get_test_quadrature_elem().get_xi());
 			w_trial_input_t trial_input(trial_field.get_elem(), begin.get_trial_quadrature_elem().get_xi());
 
-			auto left = TestField::nset_t::eval_shape(begin.get_test_quadrature_elem().get_xi())
-				* (test_input.get_jacobian() * begin.get_test_quadrature_elem().get_w());
-			auto right = TrialField::nset_t::eval_shape(begin.get_trial_quadrature_elem().get_xi())
-				* (trial_input.get_jacobian() * begin.get_trial_quadrature_elem().get_w());
+			auto left = (TestField::nset_t::eval_shape(begin.get_test_quadrature_elem().get_xi())
+				* (test_input.get_jacobian() * begin.get_test_quadrature_elem().get_w())).eval();
+			auto right = (TrialField::nset_t::eval_shape(begin.get_trial_quadrature_elem().get_xi())
+				* (trial_input.get_jacobian() * begin.get_trial_quadrature_elem().get_w())).eval();
 
 			result += left * kernel(test_input, trial_input) * right.transpose();
 
@@ -304,10 +304,8 @@ protected:
 			w_test_input_t test_input(test_field.get_elem(), it.get_first()->get_xi());
 			w_trial_input_t trial_input(trial_field.get_elem(), it.get_second()->get_xi());
 
-			auto left = it.get_first()->get_N()
-				* (it.get_first()->get_w());
-			auto right = it.get_second()->get_N()
-				* (trial_input.get_jacobian() * it.get_second()->get_w());
+			auto left = (it.get_first()->get_N() * (it.get_first()->get_w())).eval();
+			auto right = (it.get_second()->get_N() * (trial_input.get_jacobian() * it.get_second()->get_w())).eval();
 
 			result += left * kernel(test_input, trial_input) * right.transpose();
 		}
