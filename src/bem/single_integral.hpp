@@ -12,6 +12,7 @@
 #include "../util/product_type.hpp"
 #include "gaussian_quadrature.hpp"
 #include "field_type_accelerator.hpp"
+#include "formalism.hpp"
 
 template <class TestField, class TrialField>
 struct single_integral_traits
@@ -31,7 +32,7 @@ struct single_integral_traits
 * \tparam TestField type of the test field
 * \tparam TrialField type of the trial field
 */
-template <bool isTestDirac, class TestField, class TrialField>
+template <class TestField, class TrialField, class Formalism = typename get_formalism<TestField, TrialField>::type>
 class single_integral_impl
 {
 public:
@@ -104,7 +105,7 @@ public:
 * \tparam TrialField type of the trial field
 */
 template <class TestField, class TrialField>
-class single_integral_impl<true, TestField, TrialField>
+class single_integral_impl<TestField, TrialField, formalism::collocational>
 {
 public:
 	/** \brief N-set of the test field */
@@ -160,7 +161,7 @@ class single_integral<TestField, TrialField,
 			typename TrialField::elem_t
 		>::type::value
 	>::type
-> :	public single_integral_impl<field_traits<TestField>::is_dirac, TestField, TrialField> {};
+> :	public single_integral_impl<TestField, TrialField> {};
 
 #endif // SINGLE_INTEGRAL_HPP
 

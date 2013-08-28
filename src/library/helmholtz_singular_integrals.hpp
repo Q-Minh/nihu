@@ -36,7 +36,11 @@ public:
 	 */
 	template <class result_t>
 	static constexpr result_t &eval(
-		result_t &result, Kernel<WaveNumber> const &, TestField const &, TrialField const &)
+		result_t &result,
+		kernel_base<Kernel<WaveNumber> > const &,
+		field_base<TestField> const &,
+		field_base<TrialField> const &,
+		element_match const &)
 	{
 		return result;
 	}
@@ -91,9 +95,10 @@ public:
 	template <class result_t>
 	static result_t &eval(
 		result_t &result,
-		helmholtz_3d_SLP_kernel<WaveNumber> const &kernel,
-		TestField const &,
-		TrialField const &trial_field)
+		kernel_base<helmholtz_3d_SLP_kernel<WaveNumber> > const &kernel,
+		field_base<TestField> const &,
+		field_base<TrialField> const &trial_field,
+		element_match const &)
 	{
 		unsigned const N = tria_1_elem::num_nodes;
 		double r[N], theta[N], alpha[N];
@@ -170,9 +175,10 @@ public:
 	template <class result_t>
 	static result_t &eval(
 		result_t &result,
-		helmholtz_3d_HSP_kernel<WaveNumber> const &kernel,
-		TestField const &,
-		TrialField const &trial_field)
+		kernel_base<helmholtz_3d_HSP_kernel<WaveNumber> > const &kernel,
+		field_base<TestField> const &,
+		field_base<TrialField> const &trial_field,
+		element_match const &)
 	{
 		unsigned const N = tria_1_elem::num_nodes;
 		double r[N], theta[N], alpha[N];
