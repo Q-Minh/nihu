@@ -11,18 +11,12 @@ typedef mex::complex_matrix<double> cMatrix;
 void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 //! [Mex function]
 {
-//! [Surface mesh]
-	auto surf_nodes = dMatrix(rhs[0]);
-	auto surf_elem = dMatrix(rhs[1]);
+//! [Meshes]
+	dMatrix surf_nodes(rhs[0]), surf_elem(rhs[1]) field_nodes(rhs[2]), field_elem(rhs[3]);
 	auto surface = create_mesh(surf_nodes, surf_elem, _quad_1_tag());
-//! [Surface mesh]
-
-//! [Field point mesh]
-	auto field_nodes = dMatrix(rhs[2]);
-	auto field_elem = dMatrix(rhs[3]);
 	auto field = create_mesh(field_nodes, field_elem, _quad_1_tag());
-//! [Field point mesh]
-	
+//! [Meshes]
+
 //! [Function spaces]
 	auto const &trial = isoparametric_view(surface);
 	auto const &surf_test = dirac(constant_view(surface));
