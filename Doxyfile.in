@@ -668,10 +668,12 @@ WARN_LOGFILE           =
 # directories like "/usr/src/myproject". Separate the files or directories
 # with spaces.
 
-# "${CMAKE_SOURCE_DIR}/../dox/tutorials.md" \
+
 
 INPUT                  = "${CMAKE_SOURCE_DIR}/../dox/mainpage.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/installation.md" \
+                         "${CMAKE_SOURCE_DIR}/../dox/tutorials.md" \
+                         "${CMAKE_SOURCE_DIR}/../dox/tut_laplace_double_integral.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/theory.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/techniques.md" \
                          "${CMAKE_SOURCE_DIR}/bem/" \
