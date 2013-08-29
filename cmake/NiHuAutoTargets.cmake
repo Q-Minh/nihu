@@ -12,7 +12,7 @@ foreach (cpp_source ${CPP_SOURCES})
 	string(REPLACE ".mex" "" target_mex_name ${target_name})
 
 	# Add the executable / or mex file
-	if(${target_mex_name} MATCHES ${target_name})
+	if("${target_mex_name}" STREQUAL "${target_name}")
 		add_executable(${target_name} ${local_source})
 		# Add installation
 		install(TARGETS ${target_name} DESTINATION ${current_dir})
