@@ -5,38 +5,39 @@ typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> dMatrix;
 typedef Eigen::Matrix<unsigned, Eigen::Dynamic, Eigen::Dynamic> uMatrix;
 
 template <class func_space>
-void tester(function_space_base<func_space> const &func_sp)
+void tester(func_space const &func_sp)
 {
 	int nDOF = func_sp.get_num_dofs();
 	dMatrix A(nDOF, nDOF);
 	A.setZero();
 
 	auto L = create_integral_operator(poisson_3d_SLP_kernel());
-	A << ( func_sp.derived() * L[func_sp.derived()] );
+	A << ( func_sp * L[func_sp] );
 
-	std::cout << A << std::endl << std::endl
-		<< "sum of elements: " << A.sum() << std::endl;
+	std::cout << "WR matrix:\n" << A << std::endl;
+	std::cout << "sum of elements: " << A.sum() << std::endl;
 
-	double anal = 32.0 * (std::log(1.0+std::sqrt(2.0))-(std::sqrt(2.0)-1.0)/3.0) / 4.0/M_PI;
-	std::cout << "log10 error = " << log10(std::abs(A.sum() / anal - 1.0)) << std::endl;
+	double anal = 32. * (std::log(1.+std::sqrt(2.))-(std::sqrt(2.)-1.)/3.) / 4./M_PI;
+	std::cout << "log10 error = " << log10(std::abs(A.sum() / anal - 1.)) << std::endl;
 }
 
 
-int main(void)
+auto build_mesh(void) ->
+	decltype(create_mesh(dMatrix(), uMatrix(), _quad_1_tag(), _tria_1_tag()))
 {
 	dMatrix nodes(9,3);
 	nodes <<
-		-1.0, -1.0, 0.0,
-		 0.0, -1.0, 0.0,
-		 1.0, -1.0, 0.0,
-
-		-1.0,  0.0, 0.0,
-		 0.0,  0.0, 0.0,
-		 1.0,  0.0, 0.0,
-
-		-1.0,  1.0, 0.0,
-		 0.0,  1.0, 0.0,
-		 1.0,  1.0, 0.0;
+		-1., -1., 0.,
+		 0., -1., 0.,
+		 1., -1., 0.,
+		//--------------
+		-1.,  0., 0.,
+		 0.,  0., 0.,
+		 1.,  0., 0.,
+		//--------------
+		-1.,  1., 0.,
+		 0.,  1., 0.,
+		 1.,  1., 0.;
 
 	uMatrix elements(5, 1+4);
 	elements <<
@@ -46,13 +47,19 @@ int main(void)
 		tria_1_elem::id, 4, 5, 8, 0,
 		tria_1_elem::id, 4, 8, 7, 0;
 
-	auto msh = create_mesh(nodes, elements, _quad_1_tag(), _tria_1_tag());
+	return create_mesh(nodes, elements, _quad_1_tag(), _tria_1_tag());
+}
+
+
+int main(void)
+{
+	auto msh = build_mesh();
 
 	std::cout << "Testing with constant field" << std::endl;
-	tester(isoparametric_view(msh));
+	tester(constant_view(msh));
 
 	std::cout << "Testing with isoparametric field" << std::endl;
-	tester(constant_view(msh));
+	tester(isoparametric_view(msh));
 
 	return 0;
 }

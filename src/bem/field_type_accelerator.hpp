@@ -103,14 +103,11 @@ public:
 		this->reserve(quadrature.size());
 		for (unsigned i = 0; i < quadrature.size(); ++i)
 			this->push_back(accelerator_elem_t(quadrature[i]));
-
 	}
 
 	field_type_accelerator(unsigned order) :
 		field_type_accelerator(quadrature_t(order))
 	{
-		std::cout << "instantiating field_type_accelerator for field id " << Field::id
-			<< " and for order" << order << std::endl;
 	}
 };
 
@@ -119,18 +116,12 @@ template <class Field, class Family>
 class field_type_accelerator<Field, Family, acceleration::soft,
 	typename std::enable_if<!field_traits<Field>::is_dirac>::type
 	> :
-	public quadrature_type<
-		Family, typename Field::domain_t
-	>::type
+	public quadrature_type<Family, typename Field::domain_t>::type
 {
 public:
-	typedef typename quadrature_type<
-		Family, typename Field::domain_t
-	>::type base_t;
+	typedef typename quadrature_type<Family, typename Field::domain_t>::type base_t;
 
-	typedef field_type_accelerator_elem<
-		Field, Family, acceleration::soft
-	> accelerator_elem_t;
+	typedef field_type_accelerator_elem<Field, Family, acceleration::soft> accelerator_elem_t;
 
 	typedef casted_iterator<
 		typename base_t::const_iterator,
@@ -139,12 +130,12 @@ public:
 
 	const_iterator begin(void) const
 	{
-		return base_t::begin();
+		return base_t::cbegin();
 	}
 
 	const_iterator end(void) const
 	{
-		return base_t::end();
+		return base_t::cend();
 	}
 };
 
@@ -198,7 +189,7 @@ public:
 
 	bool operator ==(dirac_field_type_accelerator_iterator const &other) const
 	{
-		return !(*this == other);
+		return !(*this != other);
 	}
 
 	index_t const &operator*(void) const
@@ -242,7 +233,7 @@ public:
 
 	constexpr static const_iterator end(void)
 	{
-		return dirac_field_type_accelerator_iterator(index_t(Field::num_nodes));
+		return dirac_field_type_accelerator_iterator(index_t(Field::num_dofs));
 	}
 };
 
