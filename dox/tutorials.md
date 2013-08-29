@@ -1,5 +1,5 @@
 Tutorials {#tutorials}
-=====================
+=========
 
 \page tutorials
 
@@ -7,5 +7,4 @@ Tutorials {#tutorials}
 
 \subpage tut_laplace_double_integral
 
-
-This page introduces the programming techniques and concepts used throughout NiHu.
+This is the page of tutorials of NiHu.

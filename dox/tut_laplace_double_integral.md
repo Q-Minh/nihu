@@ -1,4 +1,4 @@
-Double integral of the Laplace kernel {#tut_laplace_double_intregral}
+Double integral of the Laplace kernel {#tut_laplace_double_integral}
 =====================================
 
 \page tut_laplace_double_integral
