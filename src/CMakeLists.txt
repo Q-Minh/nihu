@@ -81,6 +81,17 @@ if(MATLABMEX_FOUND)
 	else(NIHU_FORCE_MEX_COMPILER)
 		message(STATUS "Will use the ${CMAKE_CXX_COMPILER_ID} compiler (${CMAKE_CXX_COMPILER}) for mex files")
 	endif(NIHU_FORCE_MEX_COMPILER)
+	# set the flags
+	if(WIN32)
+		SET(MEX_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMATLAB_MEX_FILE")
+		SET(MEX_SHARED_LINKER_FLAGS "-shared ${CMAKE_SHARED_LINKER_FLAGS} -L\"${MATLAB_ROOT}/bin/win${NIHU_SYS_BITS}\" -L\"${MATLAB_ROOT}/extern/lib/win${NIHU_SYS_BITS}/microsoft\" -m${NIHU_SYS_BITS} -lmex -lmx -lmat")
+	else(WIN32)
+		set(MEX_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -DMATLAB_MEX_FILE")
+	endif(WIN32)
+	# Set the extension for mex files
+	set(MEX_SHARED_LIBRARY_SUFFIX "${MATLAB_MEXEXT}")
+	# Add the include directory
+	include_directories("${MATLAB_ROOT}/extern/include")
 # if matlab mex is not found
 else(MATLABMEX_FOUND)
 	message(STATUS "Matlab MEX not found, disabling build of mex files")
