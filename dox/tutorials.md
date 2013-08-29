@@ -7,4 +7,6 @@ Tutorials {#tutorials}
 
 \subpage tut_laplace_double_integral
 
+\subpage tut_laplace_single_integral
+
 This is the page of tutorials of NiHu.

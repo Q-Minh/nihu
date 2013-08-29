@@ -10,24 +10,28 @@ Introduction {#tut_laplace_intro}
 
 This tutorial explains how to use NiHu to compute a double integral of the form
 
-\f$ I = \int_{S} \int_{S} K(x,y) dS_y dS_x \f$
+\f$ I = \int_{S} \int_{S} K({\bf x},{\bf y}) dS_y dS_x \f$
 
 where \f$ S \f$ is a square surface
 
-\f$ S = \left\{ (\xi,\eta) : -1 \le \xi \le 1, -1 \le \eta \le 1 \right\} \f$
+\f$ S = \left\{{\bf x} = (\xi,\eta,0) : -1 \le \xi \le 1, -1 \le \eta \le 1 \right\} \f$
 
 and the integrand kernel \f$ K \f$ is the fundamental solution of the Laplace equation in 3D
 
-\f$ K(x,y) = \frac{1}{4\pi r}, \quad r = |x-y| \f$
+\f$ K({\bf x},{\bf y}) = 1 / 4\pi r, \quad r = |{\bf x}-{\bf y}| \f$
+
+The analytical value of the integral is
+
+\f$ I = \frac{32}{4\pi} \left[ \log \left( 1+\sqrt{2} \right) - \frac{\sqrt{2}-1}{3} \right] \f$
 
 
-The C++ code {#tut_laplace_Cpp_code}
+The C++ code {#tut_laplace_double_Cpp_code}
 ============
 
-Libraries and typedefs {#tut_laplace_includes}
+Libraries and typedefs {#tut_laplace_double_includes}
 ----------------------
 
-We need to include three modules:
+We need to include two modules:
 - bem/weighted_residual.hpp is the main module of the NiHu C++ core
 - library/laplace_kernel.hpp defines our kernel.
 
@@ -38,7 +42,7 @@ We are going to work with dynamically resizable Eigen matrices. We define two co
 \snippet laplace_double_integral.cpp Typedefs
 
 
-Mesh generation {#tut_laplace_mesh_generation}
+Mesh generation {#tut_laplace_double_mesh_generation}
 ---------------
 
 Our problem domain \f$ S \f$ is represented by a mesh consisting of linear triangular and quadrilateral elements.
@@ -53,6 +57,13 @@ Our problem domain \f$ S \f$ is represented by a mesh consisting of linear trian
 	   |   |   |
 	-1 +---+---+
 	  -1   0  +1
+
+Note that the integral is singular on each element pair of our mesh, and all singularity types
+- ::FACE_MATCH
+- ::EDGE_MATCH
+- ::CORNER_MATCH
+
+are included
 
 We define a function `build_mesh` to build the mesh from scratch.
 
@@ -73,7 +84,7 @@ For this reason, the function takes additional type parameters (::_tria_1_tag ()
 The compiler can deduce the function's return type from the return expression, using the `auto - decltype` syntax (C++11 feature).
 In the `decltype` expression, the matrices are replaced by their defaults.
 
-The main function {#tut_laplace_main_function}
+The main function {#tut_laplace_double_main_function}
 -----------------
 
 As NiHu works in a more general context, we reformulate our original problem by extending our integration domain \f$ S \f$ by a weighting function
@@ -102,8 +113,10 @@ The function uses two formalisms:
 - ::constant_view means that the function space consists of piecewise constant functions
 - ::isoparametric_view (in our special case) means that the function space consists of piecewise linear weighting functions (for more general information, see \todo LINK HERE)
 
+The terminology `_view` indicates that these function spaces contain no additional data, only indicate that the mesh is considered to contain constant or isoparametric elements.
 
-The testing function {#tut_laplace_test_function}
+
+The testing function {#tut_laplace_double_test_function}
 --------------------
 
 As the different function spaces are of different types, the tester function is written as a function template that can receive any function space type as parameter.
@@ -116,3 +129,13 @@ As a next step, the integral operator \f$ \mathcal{K} \f$ is instantiated from t
 
 The tester function prints the matrix, its element sum, and compares the sum to the analytical integral.
 
+Summary {#tut_laplace_double_summary}
+=======
+
+This introductory tutorial explained how to use NiHu to evaluate singular double integrals.
+It was shown
+- how heterogoneous meshes are created from scratch
+- how light weight function space views are created from meshes
+- how integral operators and weighted residuals are defined and evaluated using an abstract syntax
+
+The complete source of the tutorial is found here: tutorial/laplace_double_integral.cpp
