@@ -1,19 +1,5 @@
 # Setup additional include directories
-include_directories("${MATLAB_ROOT}/extern/include")
 include_directories("${CMAKE_SOURCE_DIR}/util")
-
-# Setup compiler and linker tests
-if(WIN32)
-	# Win mode
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMATLAB_MEX_FILE")
-	SET(CMAKE_SHARED_LINKER_FLAGS "-shared ${CMAKE_SHARED_LINKER_FLAGS} -L\"${MATLAB_ROOT}/bin/win${NIHU_SYS_BITS}\" -L\"${MATLAB_ROOT}/extern/lib/win${NIHU_SYS_BITS}/microsoft\" -m${NIHU_SYS_BITS} -lmex -lmx -lmat")
-else(WIN32)
-	# Unix mode
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -DMATLAB_MEX_FILE")
-endif(WIN32)
-
-# Set the extension for mex files
-set(CMAKE_SHARED_LIBRARY_SUFFIX "${MATLAB_MEXEXT}")
 
 # Find all mex test sources
 file(GLOB MEX_TEST_SOURCES *.mex.cpp)
@@ -31,7 +17,12 @@ foreach (test_source ${MEX_TEST_SOURCES})
 		# add the test as a shared library
 		add_library(${test_name} SHARED ${local_source})
 		# remove the "lib" prefix
-		set_target_properties(${test_name} PROPERTIES PREFIX "")
+		set_target_properties(${test_name} PROPERTIES 
+			PREFIX "" 
+			SUFFIX ${MATLAB_MEXEXT}
+			COMPILE_FLAGS ${MEX_CXX_FLAGS}
+			LINK_FLAGS ${MEX_SHARED_LINKER_FLAGS}
+		)
 	
 	else(NOT NIHU_FORCE_MEX_COMPILER)
 

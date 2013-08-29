@@ -1,3 +1,8 @@
+/**
+ * \file element_match.hpp
+ * \brief determine element singularities
+ */
+
 #ifndef ELEMENT_MATCH_HPP_INCLUDED
 #define ELEMENT_MATCH_HPP_INCLUDED
 
@@ -5,17 +10,26 @@
 
 /** \brief singularity types */
 enum singularity_type {
-	REGULAR,		/**< \brief no singularity */
-	FACE_MATCH,	/**< \brief two elements are identical */
-	EDGE_MATCH,	/**< \brief two elements share common edge */
-	CORNER_MATCH	/**< \brief two elements share common corner */
+	/** \brief no singularity */
+	REGULAR,
+	/** \brief two elements are identical */
+	FACE_MATCH,
+	/** \brief two elements share a common edge */
+	EDGE_MATCH,
+	/** \brief two elements share a common corner */
+	CORNER_MATCH
 };
 
+/** \brief singularity types */
 namespace singularity
 {
+	/** \brief no singularity */
 	typedef std::integral_constant<unsigned, REGULAR> regular_type;
+	/** \brief two elements are identical */
 	typedef std::integral_constant<unsigned, REGULAR> face_match_type;
+	/** \brief two elements share a common edge */
 	typedef std::integral_constant<unsigned, REGULAR> edge_match_type;
+	/** \brief two elements share a common corner */
 	typedef std::integral_constant<unsigned, REGULAR> corner_match_type;
 }
 

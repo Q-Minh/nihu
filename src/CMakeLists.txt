@@ -81,11 +81,29 @@ if(MATLABMEX_FOUND)
 	else(NIHU_FORCE_MEX_COMPILER)
 		message(STATUS "Will use the ${CMAKE_CXX_COMPILER_ID} compiler (${CMAKE_CXX_COMPILER}) for mex files")
 	endif(NIHU_FORCE_MEX_COMPILER)
+	# set the flags
+	if(WIN32)
+		SET(MEX_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMATLAB_MEX_FILE")
+		SET(MEX_SHARED_LINKER_FLAGS "-shared ${CMAKE_SHARED_LINKER_FLAGS} -L\"${MATLAB_ROOT}/bin/win${NIHU_SYS_BITS}\" -L\"${MATLAB_ROOT}/extern/lib/win${NIHU_SYS_BITS}/microsoft\" -m${NIHU_SYS_BITS} -lmex -lmx -lmat")
+	else(WIN32)
+		set(MEX_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -DMATLAB_MEX_FILE")
+	endif(WIN32)
+	# Set the extension for mex files
+	set(MEX_SHARED_LIBRARY_SUFFIX "${MATLAB_MEXEXT}")
+	# Add the include directory
+	include_directories("${MATLAB_ROOT}/extern/include")
 # if matlab mex is not found
 else(MATLABMEX_FOUND)
 	message(STATUS "Matlab MEX not found, disabling build of mex files")
 	set(NIHU_BUILD_MEX 0)
 endif(MATLABMEX_FOUND)
+
+### Setup directories for installation
+if(NOT DEFINED NIHU_INSTALL_DIR)
+	set(NIHU_INSTALL_DIR ${CMAKE_BINARY_DIR})
+endif(NOT DEFINED NIHU_INSTALL_DIR)
+
+set(CMAKE_INSTALL_PREFIX ${NIHU_INSTALL_DIR})
 
 # setup compiler flags
 set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall -Wunused -pedantic -O3 -std=c++11")
@@ -94,38 +112,94 @@ set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall -Wunused -pedantic -O3 -std=c++11
 include_directories("${CMAKE_SOURCE_DIR}")
 include_directories("${EIGEN_INCLUDE_DIRS}")
 
+### Subdirectories
+add_subdirectory(tutorial)
+
 ### Test section
-
-enable_testing()
-add_subdirectory(test)
-
-# add tests if not disabled
-# if(NOT NIHU_DISABLE_TESTS)
-# 	add_subdirectory(test)
-# else(NOT NIHU_DISABLE_TESTS)
-# 	add_subdirectory(test EXCLUDE_FROM_ALL)
-# endif(NOT NIHU_DISABLE_TESTS)
+if(NIHU_ENABLE_TESTING)
+	if(NIHU_ENABLE_TEST_INSTALL)
+		if(${NIHU_INSTALL_DIR} MATCHES ${CMAKE_BINARY_DIR})
+			set(NIHU_ENABLE_TEST_INSTALL 0)
+			message(STATUS "Installation of tests disabled (build dir is same as install dir)")
+		endif()
+	endif(NIHU_ENABLE_TEST_INSTALL)
+	enable_testing()
+	if(NOT NIHU_DISABLE_TEST_BUILD)
+		add_subdirectory(test)
+	else(NOT NIHU_DISABLE_TEST_BUILD)
+		add_subdirectory(test EXCLUDE_FROM_ALL)
+	endif(NOT NIHU_DISABLE_TEST_BUILD)
+endif(NIHU_ENABLE_TESTING)
 
 ### Documentation section
 
 find_package(Doxygen)
 
 if(DOXYGEN_FOUND)
-	file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/doc ${CMAKE_BINARY_DIR}/doc/html)
+	# Check documentation path
+	if(DEFINED NIHU_HTML_DOC_PATH)
+	else(DEFINED NIHU_HTML_DOC_PATH)
+		set(NIHU_HTML_DOC_PATH "${CMAKE_BINARY_DIR}/doc/html")
+		file(MAKE_DIRECTORY ${NIHU_HTML_DOC_PATH})
+	endif(DEFINED NIHU_HTML_DOC_PATH)
+	message(STATUS "html documentation path: ${NIHU_HTML_DOC_PATH}")
 	
-	if(DEFINED NIHU_MATHJAX_PATH)
-		file(RELATIVE_PATH NIHU_MATHJAX_RELPATH "${CMAKE_BINARY_DIR}/doc/html" "${NIHU_MATHJAX_PATH}")
-		message(STATUS "MathJax relative path: ${NIHU_MATHJAX_RELPATH}")
-	else(DEFINED NIHU_MATHJAX_PATH)
-		#message(STATUS "Downloading MathJax from http://cdn.mathjax.org/mathjax/latest/MathJax.js")
-		#file(DOWNLOAD "http://cdn.mathjax.org/mathjax/latest/MathJax.js" "${CMAKE_BINARY_DIR}/doc/MathJax/MathJax.js")
-	endif(DEFINED NIHU_MATHJAX_PATH)
+	if(NOT NIHU_MATHJAX_DISABLE)
+		message(STATUS "Enabling MathJax in Doxygen documentation")
+		set(NIHU_MATHJAX_USE "YES")
+		if(DEFINED NIHU_MATHJAX_PATH)
+			file(RELATIVE_PATH NIHU_MATHJAX_RELPATH "${NIHU_HTML_DOC_PATH}" "${NIHU_MATHJAX_PATH}")
+			message(STATUS "MathJax relative path: ${NIHU_MATHJAX_RELPATH}")
+		else(DEFINED NIHU_MATHJAX_PATH)
+			set(NIHU_MATHJAX_RELPATH "http://cdn.mathjax.org/mathjax/latest")
+			message(STATUS "Will use CDN for MathJax: ${NIHU_MATHJAX_RELPATH}")
+		endif(DEFINED NIHU_MATHJAX_PATH)
+	elseif(NOT NIHU_MATHJAX_DISABLE)
+		message(STATUS "Disabling MathJax in Doxygen documentation")
+		set(NIHU_MATHJAX_USE "NO")
+		set(NIHU_MATHJAX_RELPATH "")
+	endif(NOT NIHU_MATHJAX_DISABLE)
 
+	# Configuration of doxyfiles
 	configure_file(${CMAKE_SOURCE_DIR}/../Doxyfile.in 
 		${CMAKE_BINARY_DIR}/Doxyfile)
 
+	# doc target - runs doxygen and creates doxyerror
 	add_custom_target(doc
-		${DOXYGEN_EXECUTABLE} ${CMAKE_BINARY_DIR}/Doxyfile
+		${DOXYGEN_EXECUTABLE} ${CMAKE_BINARY_DIR}/Doxyfile 2> ${CMAKE_BINARY_DIR}/DoxyError.full
 		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/..
-		COMMENT "Generating API documentation with Doxygen" VERBATIM)
+		COMMENT "Generating API documentation with Doxygen")
+
+	# filter the result of doxyerror
+	if(UNIX)
+		add_custom_command(
+			TARGET doc
+			POST_BUILD
+			COMMAND grep -v "\"Detected potential recursive class relation\"" ${CMAKE_BINARY_DIR}/DoxyError.full 
+			| grep -v "\"Member type (typedef)\"" 
+			| grep -v "\"no uniquely matching class member\""
+			| grep . >${CMAKE_BINARY_DIR}/DoxyError
+			DEPENDS "${CMAKE_MODULE_PATH}/WriteMatlabTestRunner.cmake"
+			COMMENT "Filtering Doxygen errors and warnings"
+		)
+	endif(UNIX)
+
+	# documentation installation
+	if(NIHU_ENABLE_DOC_INSTALL)
+		if(NOT (${NIHU_INSTALL_PATH} MATCHES ${CMAKE_BINARY_DIR}))
+			message(STATUS "Documentation will be installed into ${CMAKE_INSTALL_PREFIX}/doc")
+			install(DIRECTORY ${NIHU_HTML_DOC_PATH} DESTINATION doc)
+		endif()
+	endif(NIHU_ENABLE_DOC_INSTALL)
+
 endif(DOXYGEN_FOUND)
+
+### Installation section
+
+# Select all hpp files for installation
+set(NIHU_HPP_DIRECTORIES
+	"bem"; "library"; "tmp"; "util")
+
+foreach(HPP_DIRECTORY ${NIHU_HPP_DIRECTORIES})
+	install(DIRECTORY ${HPP_DIRECTORY} DESTINATION include FILES_MATCHING PATTERN "*.hpp")
+endforeach(HPP_DIRECTORY)

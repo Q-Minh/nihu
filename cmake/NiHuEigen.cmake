@@ -58,16 +58,21 @@ if(NOT EIGEN_FOUND OR NIHU_EIGEN_INSTALL)
 		endif(NOT NIHU_EIGEN_DISABLE_PATCH)
 
 			
-		# Install the header files
-		message(STATUS "Installing Eigen3 headers into ${EIGEN_INSTALL_DIR}")
+		# Copy the header files
+		message(STATUS "Copying Eigen3 headers into ${EIGEN_INSTALL_DIR}")
 		execute_process(
 			COMMAND ${CMAKE_COMMAND} -E make_directory "${EIGEN_INSTALL_DIR}"
 			OUTPUT_QUIET)
 		file(COPY "${EIGEN_SOURCE_DIR}/Eigen" DESTINATION "${EIGEN_INSTALL_DIR}/")
 		
 		# Install the header files
-		message(STATUS "Eigen3 headers successfully installed")
+		message(STATUS "Eigen3 headers successfully copied")
 		
+		# Add the install rule for Eigen
+		if(NOT (${NIHU_INSTALL_DIR} MATCHES ${CMAKE_BINARY_DIR}))
+			install(DIRECTORY "${EIGEN_SOURCE_DIR}/Eigen" DESTINATION include)
+		endif()
+
 		# Add the include directory
 		set(EIGEN_INCLUDE_DIRS "${EIGEN_INSTALL_DIR}")
 

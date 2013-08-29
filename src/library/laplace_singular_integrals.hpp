@@ -1,13 +1,13 @@
-/** \file poisson_singular_integrals.hpp
- * \brief Analytical expressions for the singular integrals of Poisson kernels
- * \details analytical expression for the Poisson kernels over plane triangles
+/** \file laplace_singular_integrals.hpp
+ * \brief Analytical expressions for the singular integrals of laplace kernels
+ * \details analytical expression for the laplace kernels over plane triangles
  * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
  */
-#ifndef POISSON_SINGULAR_INTEGRALS_HPP_INCLUDED
-#define POISSON_SINGULAR_INTEGRALS_HPP_INCLUDED
+#ifndef LAPLACE_SINGULAR_INTEGRALS_HPP_INCLUDED
+#define LAPLACE_SINGULAR_INTEGRALS_HPP_INCLUDED
 
 #include "../bem/integral_operator.hpp"
-#include "poisson_kernel.hpp"
+#include "laplace_kernel.hpp"
 #include "plane_triangle_helper.hpp"
 
 /** \brief Singular integrals of the DLP and DLPt kernels over a plane elements
@@ -21,12 +21,12 @@ class singular_integral_shortcut<
 	Kernel, TestField, TrialField, singularity::face_match_type,
 	typename std::enable_if<
 		(
-		( std::is_same<Kernel, poisson_2d_DLP_kernel>::value ||
-		  std::is_same<Kernel, poisson_2d_DLPt_kernel>::value
+		( std::is_same<Kernel, laplace_2d_DLP_kernel>::value ||
+		  std::is_same<Kernel, laplace_2d_DLPt_kernel>::value
 		) && std::is_same<typename TrialField::lset_t, line_1_shape_set>::value
 		) || (
-		( std::is_same<Kernel, poisson_3d_DLP_kernel>::value ||
-		  std::is_same<Kernel, poisson_3d_DLPt_kernel>::value
+		( std::is_same<Kernel, laplace_3d_DLP_kernel>::value ||
+		  std::is_same<Kernel, laplace_3d_DLPt_kernel>::value
 		) && std::is_same<typename TrialField::lset_t, tria_1_shape_set>::value
 		)
 	>::type
@@ -57,7 +57,7 @@ public:
  */
 template <class TestField, class TrialField>
 class singular_integral_shortcut<
-	poisson_2d_SLP_kernel, TestField, TrialField, singularity::face_match_type,
+	laplace_2d_SLP_kernel, TestField, TrialField, singularity::face_match_type,
 	typename std::enable_if<
 		std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
 		std::is_same<typename TrialField::lset_t, line_1_shape_set>::value &&
@@ -69,7 +69,7 @@ public:
 	template <class result_t>
 	static result_t &eval(
 		result_t &result,
-		kernel_base<poisson_2d_SLP_kernel> const &,
+		kernel_base<laplace_2d_SLP_kernel> const &,
 		field_base<TestField> const &test_field,
 		field_base<TrialField> const &trial_field,
 		element_match const &)
@@ -90,7 +90,7 @@ public:
  */
 template <class TestField, class TrialField>
 class singular_integral_shortcut<
-	poisson_2d_HSP_kernel, TestField, TrialField, singularity::face_match_type,
+	laplace_2d_HSP_kernel, TestField, TrialField, singularity::face_match_type,
 	typename std::enable_if<
 		std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
 		std::is_same<typename TrialField::lset_t, line_1_shape_set>::value &&
@@ -102,7 +102,7 @@ public:
 	template <class result_t>
 	static result_t &eval(
 		result_t &result,
-		kernel_base<poisson_2d_HSP_kernel> const &,
+		kernel_base<laplace_2d_HSP_kernel> const &,
 		field_base<TestField> const &test_field,
 		field_base<TrialField> const &trial_field,
 		element_match const &)
@@ -123,7 +123,7 @@ public:
  */
 template <class TestField, class TrialField>
 class singular_integral_shortcut<
-	poisson_3d_SLP_kernel, TestField, TrialField, singularity::face_match_type,
+	laplace_3d_SLP_kernel, TestField, TrialField, singularity::face_match_type,
 	typename std::enable_if<
 		std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
 		std::is_same<typename TrialField::lset_t, tria_1_shape_set>::value &&
@@ -135,7 +135,7 @@ public:
 	template <class result_t>
 	static result_t &eval(
 		result_t &result,
-		kernel_base<poisson_3d_SLP_kernel> const &,
+		kernel_base<laplace_3d_SLP_kernel> const &,
 		field_base<TestField> const &,
 		field_base<TrialField> const &trial_field,
 		element_match const &)
@@ -160,7 +160,7 @@ public:
  */
 template <class TestField, class TrialField>
 class singular_integral_shortcut<
-	poisson_3d_HSP_kernel, TestField, TrialField, singularity::face_match_type,
+	laplace_3d_HSP_kernel, TestField, TrialField, singularity::face_match_type,
 	typename std::enable_if<
 		std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
 		std::is_same<typename TrialField::lset_t, tria_1_shape_set>::value &&
@@ -172,7 +172,7 @@ public:
 	template <class result_t>
 	static result_t &eval(
 		result_t &result,
-		kernel_base<poisson_3d_HSP_kernel> const &,
+		kernel_base<laplace_3d_HSP_kernel> const &,
 		field_base<TestField> const &,
 		field_base<TrialField> const &trial_field,
 		element_match const &)
@@ -191,4 +191,4 @@ public:
 	}
 };
 
-#endif // POISSON_SINGULAR_INTEGRALS_HPP_INCLUDED
+#endif // LAPLACE_SINGULAR_INTEGRALS_HPP_INCLUDED

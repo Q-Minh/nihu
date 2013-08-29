@@ -314,13 +314,19 @@ public:
 	{
 	}
 
+// this is a patch for the GCC4.7 decltype bug
+static constexpr couple_product_right const *This = static_cast<couple_product_right const *>(nullptr);
+LDerived const &get_left(void) const { return m_left; }
+Right const &get_right(void) const { return m_right; }
+
 	/**
 	 * \brief return element of the couple product
 	 * \return element of the couple product
 	 */
 	template <size_t idx>
 	auto get(void) const
-		-> decltype( m_left.template get<idx>() * m_right )
+		// -> decltype( m_left.template get<idx>() * m_right ) from GCC4.8
+		-> decltype( This->get_left().template get<idx>() * This->get_right() )
 	{
 		return m_left.template get<idx>() * m_right;
 	}
@@ -394,13 +400,19 @@ public:
 	{
 	}
 
+// this is a patch for the GCC4.7 decltype bug
+static constexpr couple_product_left const *This = static_cast<couple_product_left const *>(nullptr);
+Left const &get_left(void) const { return m_left; }
+RDerived const &get_right(void) const { return m_right; }
+
 	/**
 	 * \brief return element of the couple product
 	 * \return element of the couple product
 	 */
 	template <size_t idx>
 	auto get(void) const
-		-> decltype( m_left * m_right.template get<idx>() )
+		// -> decltype ( m_left * m_right.template get<idx>() ) from GCC4.8
+		-> decltype( This->get_left() * This->get_right().template get<idx>() )
 	{
 		return m_left * m_right.template get<idx>();
 	}
