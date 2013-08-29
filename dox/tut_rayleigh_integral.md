@@ -33,17 +33,41 @@ The C++ code {#tut_rayleigh_Cpp_code}
 Included modules and typedefs {#tut_rayleigh_include}
 -----------------------------
 
+We need three modules from the NiHu library
+- bem/weighted_residual.hpp is the main module of NiHu
+- library/helmholtz_kernel.hpp defines the fundamental solution of the Helmholtz equation
+- util/mex_matrix.hpp includes the Matlab interface functions
+
+We further define two convenient typedefs for Matlab matrices.
+These matrices are allocated in Matlab's memory, but are used by NiHu just as if they were C++ Eigen matrices.
+
 \snippet rayleigh_integral_3d.mex.cpp Header
 
 The MEX function
 ----------------
 
+Our executable code will be called from Matlab using the syntax
+
+	[Z_f, Z_s] = rayleigh_integral_3d(surf_nodes, surf_elements, field_nodes, field_elements, wave_number);
+	
+The input and output arguments are catched by the C++ function `mexFunction`
+
 \snippet rayleigh_integral_3d.mex.cpp Mex function
+
+whose parameters are
+- `nlhs` the number of left hand side (output) parameters (two in our case)
+- `lhs` array of pointers pointing to the Matlab memory, where the output arguments (`Z_f` and `Z_s`) are allocated
+- `nrhs` the number of right hand side input parameters (five in our case)
+- `rhs` array of pointers pointing to the Matlab memory, where the five input arguments are allocated
 
 Mesh generation {#tut_rayleigh_mesh_generation}
 ---------------
 
+We generate two NiHu meshes.
+The first mesh is the surface of the radiator, and it is generated using the first two input matrices `surf_nodes`, `surf_elements`:
+
 \snippet rayleigh_integral_3d.mex.cpp Surface mesh
+
 
 \snippet rayleigh_integral_3d.mex.cpp Field point mesh
 
