@@ -106,6 +106,12 @@ add_subdirectory(tutorial)
 
 ### Test section
 if(NIHU_ENABLE_TESTING)
+	if(NIHU_ENABLE_TEST_INSTALL)
+		if(${NIHU_INSTALL_DIR} MATCHES ${CMAKE_BINARY_DIR})
+			set(NIHU_ENABLE_TEST_INSTALL 0)
+			message(STATUS "Installation of tests disabled (build dir is same as install dir)")
+		endif()
+	endif(NIHU_ENABLE_TEST_INSTALL)
 	enable_testing()
 	if(NOT NIHU_DISABLE_TEST_BUILD)
 		add_subdirectory(test)

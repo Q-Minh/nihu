@@ -177,7 +177,8 @@ Testing options {#install_testing_options}
 ---------------
 
 - **NIHU_ENABLE_TESTING** When set to non-zero building of all tests are enabled.
-- **NIHU_DISABLE_TEST_BUILD** When set to non-zero tests are excluded from the `make all` command. In this case tests can be compiled using separate `make` commands. This option is relevant only is `NIHU_ENABLE_TESTING` is set to non-zero.
+- **NIHU_ENABLE_TEST_INSTALL** When set to non-zero the test executables are included in the installation. This option is only relevant if `NIHU_ENABLE_TESTING` is set to non-zero.
+- **NIHU_DISABLE_TEST_BUILD** When set to non-zero tests are excluded from the `make all` command. In this case tests can be compiled using separate `make` commands. This option is only relevant if `NIHU_ENABLE_TESTING` is set to non-zero.
 - **NIHU_ENABLE_RUN_MATLAB_TESTS** When set to non-zero tests run from Matlab are included into all tests. Otherwise Matlab tests have to be run separately. (Note: this option is not recommended, since not all Matlab versions support command line mode, which is required for the tests in order to function properly.)
 
 Documentation options {#install_doc_options}
