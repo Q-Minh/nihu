@@ -111,17 +111,32 @@ add_subdirectory(test)
 find_package(Doxygen)
 
 if(DOXYGEN_FOUND)
-	file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/doc ${CMAKE_BINARY_DIR}/doc/html)
+	# Check documentation path
+	if(DEFINED NIHU_HTML_DOC_PATH)
+	elseif(DEFINED NIHU_HTML_DOC_PATH)
+		set(NIHU_HTML_DOC_PATH ${CMAKE_BINARY_DIR}/doc/html)
+		file(MAKE_DIRECTORY ${NIHU_HTML_DOC_PATH})
+	endif(DEFINED NIHU_HTML_DOC_PATH)
+	message(STATUS "Html documentation path: ${NIHU_HTML_DOC_PATH}")
 	
-	if(DEFINED NIHU_MATHJAX_PATH)
-		file(RELATIVE_PATH NIHU_MATHJAX_RELPATH "${CMAKE_BINARY_DIR}/doc/html" "${NIHU_MATHJAX_PATH}")
-		message(STATUS "MathJax relative path: ${NIHU_MATHJAX_RELPATH}")
-	else(DEFINED NIHU_MATHJAX_PATH)
-		#message(STATUS "Downloading MathJax from http://cdn.mathjax.org/mathjax/latest/MathJax.js")
-		#file(DOWNLOAD "http://cdn.mathjax.org/mathjax/latest/MathJax.js" "${CMAKE_BINARY_DIR}/doc/MathJax/MathJax.js")
-	endif(DEFINED NIHU_MATHJAX_PATH)
+	if(NOT NIHU_MATHJAX_DISABLE)
+		message(STATUS "Enabling MathJax in Doxygen documentation")
+		set(NIHU_MATHJAX_USE "YES")
+		if(DEFINED NIHU_MATHJAX_PATH)
+			file(RELATIVE_PATH NIHU_MATHJAX_RELPATH "${NIHU_HTML_DOC_PATH}" "${NIHU_MATHJAX_PATH}")
+			message(STATUS "MathJax relative path: ${NIHU_MATHJAX_RELPATH}")
+		else(DEFINED NIHU_MATHJAX_PATH)
+			set(NIHU_MATHJAX_RELPATH "http://cdn.mathjax.org/mathjax/latest")
+			message(STATUS "Will use CDN for MathJax: ${NIHU_MATHJAX_RELPATH}")
+		endif(DEFINED NIHU_MATHJAX_PATH)
+	elseif(NOT NIHU_MATHJAX_DISABLE)
+		message(STATUS "Disabling MathJax in Doxygen documentation")
+		set(NIHU_MATHJAX_USE "NO")
+		set(NIHU_MATHJAX_RELPATH "")
+	endif(NOT NIHU_MATHJAX_DISABLE)
+		
 
-	# Configuration of doxyfile
+	# Configuration of doxyfiles
 	configure_file(${CMAKE_SOURCE_DIR}/../Doxyfile.in 
 		${CMAKE_BINARY_DIR}/Doxyfile)
 
@@ -132,12 +147,26 @@ if(DOXYGEN_FOUND)
 		COMMENT "Generating API documentation with Doxygen")
 
 	# filter the result of doxyerror
-	add_custom_command(
-		TARGET doc
-		POST_BUILD
-		COMMAND grep -v "\"Detected potential recursive class relation\"" ${CMAKE_BINARY_DIR}/DoxyError.full 
-		| grep -v "\"Member type (typedef)\"" 
-		| grep . >${CMAKE_BINARY_DIR}/DoxyError
-		DEPENDS "${CMAKE_MODULE_PATH}/WriteMatlabTestRunner.cmake"
-	)
+	if(UNIX)
+		add_custom_command(
+			TARGET doc
+			POST_BUILD
+			COMMAND grep -v "\"Detected potential recursive class relation\"" ${CMAKE_BINARY_DIR}/DoxyError.full 
+			| grep -v "\"Member type (typedef)\"" 
+			| grep -v "\"no uniquely matching class member\""
+			| grep . >${CMAKE_BINARY_DIR}/DoxyError
+			DEPENDS "${CMAKE_MODULE_PATH}/WriteMatlabTestRunner.cmake"
+			COMMENT "Filtering Doxygen errors and warnings"
+		)
+	endif(UNIX)
 endif(DOXYGEN_FOUND)
+
+### Installation section
+set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR})
+
+set(NIHU_HPP_DIRECTORIES
+	"library"; "tmp"; "util")
+
+foreach(HPP_DIRECTORY ${NIHU_HPP_DIRECTORIES})
+	install(DIRECTORY ${HPP_DIRECTORY} DESTINATION include)
+endforeach(HPP_DIRECTORY)
