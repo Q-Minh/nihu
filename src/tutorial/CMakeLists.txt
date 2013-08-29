@@ -1,2 +1,2 @@
 # Apply automatic target generation
-include(NiHuAutoCppTargets)
+include(NiHuAutoTargets)

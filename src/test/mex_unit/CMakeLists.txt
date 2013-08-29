@@ -1,2 +1,2 @@
 # Automatic matlab test generation
-include(NiHuAutoMatlabTests)
+include(NiHuAutoTests)

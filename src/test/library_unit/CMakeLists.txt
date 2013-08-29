@@ -1,2 +1,2 @@
 # Apply automatic test generation
-include(NiHuAutoCppTests)
+include(NiHuAutoTests)
