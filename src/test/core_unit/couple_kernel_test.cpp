@@ -1,14 +1,14 @@
 #include <iostream>
 #include "bem/kernel.hpp"
-#include "library/poisson_kernel.hpp"
+#include "library/laplace_kernel.hpp"
 
 int main(void)
 {
 	// create a set of kernels
 	auto K = create_couple_kernel(
-		poisson_3d_SLP_kernel(),
-		poisson_3d_DLP_kernel(),
-		poisson_3d_SLP_kernel()
+		laplace_3d_SLP_kernel(),
+		laplace_3d_DLP_kernel(),
+		laplace_3d_SLP_kernel()
 	);
 
 	// create an element

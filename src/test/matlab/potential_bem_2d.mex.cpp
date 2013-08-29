@@ -1,7 +1,7 @@
 #include "util/mex_matrix.hpp"
 #include "bem/weighted_residual.hpp"
-#include "library/poisson_kernel.hpp"
-#include "library/poisson_singular_integrals.hpp"
+#include "library/laplace_kernel.hpp"
+#include "library/laplace_singular_integrals.hpp"
 
 typedef mex::real_matrix<double> dMatrix;
 
@@ -20,10 +20,10 @@ void mexFunction(int nlhs, mxArray *lhs[],
 	auto field_mesh = create_mesh(field_nodes, field_elements, _line_1_tag());
 	auto const &field_sp = dirac(constant_view(field_mesh));
 
-	auto L = create_integral_operator(poisson_2d_SLP_kernel());
-	auto M = create_integral_operator(poisson_2d_DLP_kernel());
-	auto Mt = create_integral_operator(poisson_2d_DLPt_kernel());
-	auto N = create_integral_operator(poisson_2d_HSP_kernel());
+	auto L = create_integral_operator(laplace_2d_SLP_kernel());
+	auto M = create_integral_operator(laplace_2d_DLP_kernel());
+	auto Mt = create_integral_operator(laplace_2d_DLPt_kernel());
+	auto N = create_integral_operator(laplace_2d_HSP_kernel());
 	auto I = identity_integral_operator();
 
 	auto n = trial_sp.get_num_dofs();

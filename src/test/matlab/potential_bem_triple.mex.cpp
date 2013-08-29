@@ -1,6 +1,6 @@
 #include "util/mex_matrix.hpp"
 #include "bem/weighted_residual.hpp"
-#include "library/poisson_kernel.hpp"
+#include "library/laplace_kernel.hpp"
 
 typedef mex::real_matrix<double> dMatrix;
 
@@ -26,9 +26,9 @@ void mexFunction(
 	// generating integral operators
 
 	auto LM = create_integral_operator(
-			poisson_3d_SLP_kernel(),
-			poisson_3d_DLP_kernel(),
-			poisson_3d_DLP_kernel()
+			laplace_3d_SLP_kernel(),
+			laplace_3d_DLP_kernel(),
+			laplace_3d_DLP_kernel()
 		);
 	auto I = identity_integral_operator();
 
