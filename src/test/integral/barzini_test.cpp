@@ -12,7 +12,7 @@ void tester(func_space const &func_sp)
 	A.setZero();
 
 	auto L = create_integral_operator(poisson_3d_SLP_kernel());
-	A << ( func_sp * L[func_sp] );
+	A << ( dirac(func_sp) * L[func_sp] );
 
 	std::cout << "WR matrix:\n" << A << std::endl;
 	std::cout << "sum of elements: " << A.sum() << std::endl;
@@ -58,8 +58,10 @@ int main(void)
 	std::cout << "Testing with constant field" << std::endl;
 	tester(constant_view(msh));
 
+	/*
 	std::cout << "Testing with isoparametric field" << std::endl;
 	tester(isoparametric_view(msh));
+	*/
 
 	return 0;
 }

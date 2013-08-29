@@ -325,6 +325,7 @@ Right const &get_right(void) const { return m_right; }
 	 */
 	template <size_t idx>
 	auto get(void) const
+		// -> decltype( m_left.template get<idx>() * m_right ) from GCC4.8
 		-> decltype( This->get_left().template get<idx>() * This->get_right() )
 	{
 		return m_left.template get<idx>() * m_right;
@@ -410,6 +411,7 @@ RDerived const &get_right(void) const { return m_right; }
 	 */
 	template <size_t idx>
 	auto get(void) const
+		// -> decltype ( m_left * m_right.template get<idx>() ) from GCC4.8
 		-> decltype( This->get_left() * This->get_right().template get<idx>() )
 	{
 		return m_left * m_right.template get<idx>();
