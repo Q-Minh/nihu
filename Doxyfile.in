@@ -668,7 +668,12 @@ WARN_LOGFILE           =
 # directories like "/usr/src/myproject". Separate the files or directories
 # with spaces.
 
-INPUT                  = "${CMAKE_SOURCE_DIR}/../dox/" \
+# "${CMAKE_SOURCE_DIR}/../dox/tutorials.md" \
+
+INPUT                  = "${CMAKE_SOURCE_DIR}/../dox/mainpage.md" \
+                         "${CMAKE_SOURCE_DIR}/../dox/installation.md" \
+                         "${CMAKE_SOURCE_DIR}/../dox/theory.md" \
+                         "${CMAKE_SOURCE_DIR}/../dox/techniques.md" \
                          "${CMAKE_SOURCE_DIR}/bem/" \
                          "${CMAKE_SOURCE_DIR}/util/" \
                          "${CMAKE_SOURCE_DIR}/tmp/" \
@@ -694,13 +699,13 @@ FILE_PATTERNS          = *.cpp \
                          *.hpp \
                          *.h \
                          *.dox \
-                         *.md
+                         *.md 
 
 # The RECURSIVE tag can be used to turn specify whether or not subdirectories
 # should be searched for input files as well. Possible values are YES and NO.
 # If left blank NO is used.
 
-RECURSIVE              = YES
+RECURSIVE              = NO
 
 # The EXCLUDE tag can be used to specify files and/or directories that should be
 # excluded from the INPUT source files. This way you can easily exclude a
@@ -723,7 +728,8 @@ EXCLUDE_SYMLINKS       = NO
 # for example use the pattern */test/*
 
 EXCLUDE_PATTERNS       = *_test.cpp \
-                         *.m
+                         *.m \
+                         dox/*
 
 # The EXCLUDE_SYMBOLS tag can be used to specify one or more symbol names
 # (namespaces, classes, functions, etc.) that should be excluded from the
@@ -894,7 +900,7 @@ GENERATE_HTML          = YES
 # If a relative path is entered the value of OUTPUT_DIRECTORY will be
 # put in front of it. If left blank `html' will be used as the default path.
 
-HTML_OUTPUT            = "${CMAKE_BINARY_DIR}/doc/html"
+HTML_OUTPUT            = "${NIHU_HTML_DOC_PATH}"
 
 # The HTML_FILE_EXTENSION tag can be used to specify the file extension for
 # each generated HTML page (for example: .htm,.php,.asp). If it is left blank
@@ -1209,7 +1215,7 @@ FORMULA_TRANSPARENT    = YES
 # output. When enabled you may also need to install MathJax separately and
 # configure the path to it using the MATHJAX_RELPATH option.
 
-USE_MATHJAX            = YES
+USE_MATHJAX            = ${NIHU_MATHJAX_USE}
 
 # When MathJax is enabled you can set the default output format to be used for
 # thA MathJax output. Supported types are HTML-CSS, NativeMML (i.e. MathML) and
