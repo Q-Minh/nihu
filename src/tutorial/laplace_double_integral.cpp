@@ -29,7 +29,7 @@ void tester(func_space const &w)
 
 	// Compare to analytical solution
 	double anal = 32. * (std::log(1.+std::sqrt(2.))-(std::sqrt(2.)-1.)/3.) / 4./M_PI;
-	std::cout << "log10 error = " << log10(std::abs(A.sum() / anal - 1.)) << std::endl;
+	std::cout << "log10 error = " << std::log10(std::abs(A.sum() / anal - 1.)) << std::endl;
 }
 //! [Test]
 

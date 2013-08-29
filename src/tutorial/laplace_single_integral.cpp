@@ -4,7 +4,6 @@
 typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> dMatrix;
 typedef Eigen::Matrix<unsigned, Eigen::Dynamic, Eigen::Dynamic> uMatrix;
 
-
 int main(void)
 {
 //! [Mesh]
@@ -32,7 +31,7 @@ int main(void)
 	std::cout << "WR matrix: " << A << std::endl;
 
 	double anal = std::log(1.+std::sqrt(2.)) / M_PI;
-	std::cout << "log10 error = " << log10(std::abs(A.sum() / anal - 1.)) << std::endl;
+	std::cout << "log10 error = " << std::log10(std::abs(A.sum() / anal - 1.)) << std::endl;
 //! [Results]
 
 	return 0;
