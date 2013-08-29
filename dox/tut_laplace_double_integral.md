@@ -29,7 +29,7 @@ Libraries and typedefs {#tut_laplace_includes}
 
 We need to include three modules:
 - bem/weighted_residual.hpp is the main module of the NiHu C++ core
-- library/poisson_kernel.hpp defines our kernel.
+- library/laplace_kernel.hpp defines our kernel.
 
 \snippet laplace_double_integral.cpp Includes
 
@@ -54,7 +54,7 @@ Our problem domain \f$ S \f$ is represented by a mesh consisting of linear trian
 	-1 +---+---+
 	  -1   0  +1
 
-We define a simple function `build_mesh` to build the mesh from scratch.
+We define a function `build_mesh` to build the mesh from scratch.
 
 \snippet laplace_double_integral.cpp Mesh generation
 
@@ -72,13 +72,6 @@ For this reason, the function takes additional type parameters (::_tria_1_tag ()
 
 The compiler can deduce the function's return type from the return expression, using the `auto - decltype` syntax (C++11 feature).
 In the `decltype` expression, the matrices are replaced by their defaults.
-
-(for experienced template metaprogrammers: the function's return type is
-
-	mesh<tmp::vector<quad_1_elem, tria_1_elem > >
-
-but this does not need to be known by the library users)
-
 
 The main function {#tut_laplace_main_function}
 -----------------
