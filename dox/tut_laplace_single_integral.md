@@ -45,7 +45,7 @@ Function space and weighted integral {#tut_laplace_single_function_space}
 The single integral is generalised as a double weighted integral where one of the weighting functions is a Dirac delta function and the other is constant:
 
 \f$ I = \int_{S} K({\bf x}_0,{\bf y}) dS_y =
-\int_{S} \delta({\bf x}_0) \int_{S} K({\bf x},{\bf y}) 1({\bf x}) dS_y dS_y \f$
+\int_{S} \delta({\bf x}_0) \int_{S} K({\bf x},{\bf y}) 1({\bf x}) dS_y dS_x \f$
 
 \snippet laplace_single_integral.cpp Function spaces
 
