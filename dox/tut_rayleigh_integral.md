@@ -13,7 +13,7 @@ In this tutorial, we learn how to connect NiHu with Matlab.
 The problem geometry and parameters will be imported from, and
 the results will be passed back to Matlab using NiHu's Matlab interface.
 
-The Rayleigh integral
+The Rayleigh integral {#tut_rayleigh_integral}
 ---------------------
 
 The Rayleigh integral is used to compute the acoustic pressure \f$ p({\bf x}) \f$ radiated from a vibrating planar radiator surface \f$ S \f$ embedded into an infinite rigid plane.
@@ -25,6 +25,21 @@ The radiated pressure is evaluated as
 where \f$ G \f$ denotes the fundamental solution of the Helmholtz equation in 3D:
 
 \f$ G({\bf x}, {\bf y}) = \exp(-ikr)/4\pi r, \quad r = |{\bf y} - {\bf x}|\f$
+
+Discretisation {#tut_rayleigh_discretisation}
+--------------
+
+The velocity field is discretised using a trial function space \f$ w_j({\bf y}) \f$ defined over the radiator surface \f$ S \f$:
+
+\f$ v({\bf y}) = \sum_j w_j({\bf y}) v_j \f$
+
+The radiated pressure (the Rayleigh integral) is evaluated in a set of field points \f$ {\bf x}_i \f$. This is equivalent with premultiplying the integral with Dirac delta functions and integrating with respect to the variable \f$ {\bf x} \f$
+
+\f$ p({\bf x}_i) = \int_F \delta({\bf x}_i) \int_S G({\bf x}, {\bf y}) \sum_j w_j({\bf y}) dS_y dS_x v_j \f$
+
+or with operator notation
+
+\f$ p({\bf x}_i) = \sum_j Z^f_{ij} v_j = \sum_j \left< \delta_i, \mathcal{G}w_j \right> v_j \f$
 
 
 The C++ code {#tut_rayleigh_Cpp_code}
