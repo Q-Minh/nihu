@@ -54,11 +54,11 @@ It is advised that you use the GNU Compiler Collection [gcc], which supports the
 
 You can install `gcc-4.7` if you have administrative rights on your computer in the following steps.
 
-1. 	Add the test toolchain repository for `apt`
+1.  Add the test toolchain repository for `apt`
 	
 		sudo add-apt-repository ppa:ubuntu-toolchain-r/test
 
-2. 	Update the list of available packages
+2.  Update the list of available packages
 	
 		sudo apt-get update
 	
