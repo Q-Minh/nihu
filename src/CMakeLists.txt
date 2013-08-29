@@ -121,11 +121,23 @@ if(DOXYGEN_FOUND)
 		#file(DOWNLOAD "http://cdn.mathjax.org/mathjax/latest/MathJax.js" "${CMAKE_BINARY_DIR}/doc/MathJax/MathJax.js")
 	endif(DEFINED NIHU_MATHJAX_PATH)
 
+	# Configuration of doxyfile
 	configure_file(${CMAKE_SOURCE_DIR}/../Doxyfile.in 
 		${CMAKE_BINARY_DIR}/Doxyfile)
 
+	# doc target - runs doxygen and creates doxyerror
 	add_custom_target(doc
-		${DOXYGEN_EXECUTABLE} ${CMAKE_BINARY_DIR}/Doxyfile
+		${DOXYGEN_EXECUTABLE} ${CMAKE_BINARY_DIR}/Doxyfile 2> ${CMAKE_BINARY_DIR}/DoxyError.full
 		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/..
-		COMMENT "Generating API documentation with Doxygen" VERBATIM)
+		COMMENT "Generating API documentation with Doxygen")
+
+	# filter the result of doxyerror
+	add_custom_command(
+		TARGET doc
+		POST_BUILD
+		COMMAND grep -v "\"Detected potential recursive class relation\"" ${CMAKE_BINARY_DIR}/DoxyError.full 
+		| grep -v "\"Member type (typedef)\"" 
+		| grep . >${CMAKE_BINARY_DIR}/DoxyError
+		DEPENDS "${CMAKE_MODULE_PATH}/WriteMatlabTestRunner.cmake"
+	)
 endif(DOXYGEN_FOUND)
