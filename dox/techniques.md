@@ -5,7 +5,7 @@ Programming techniques used in NiHu {#techniques}
 
 [TOC]
 
-\subpage cpp11 
+\subpage cpp11
 \subpage metaprogramming
 \subpage polymorphism
 
