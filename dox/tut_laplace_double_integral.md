@@ -24,9 +24,6 @@ and the integrand kernel \f$ K \f$ is the fundamental solution of the Laplace eq
 The C++ code {#tut_laplace_Cpp_code}
 ============
 
-Now we are going to build the C++ code that imports the Matlab-borne mesh,
-generates the system matrices and passes them back to Matlab.
-
 Libraries and typedefs {#tut_laplace_includes}
 ----------------------
 
@@ -125,3 +122,4 @@ The function first allocates the result matrix. The matrix size is determined by
 As a next step, the integral operator \f$ \mathcal{K} \f$ is instantiated from the Laplace kernel, and the double integral is evaluated.
 
 The tester function prints the matrix, its element sum, and compares the sum to the analytical integral.
+
