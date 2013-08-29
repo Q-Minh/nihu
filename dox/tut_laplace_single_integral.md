@@ -5,7 +5,7 @@ Single integral of the Laplace kernel {#tut_laplace_single_integral}
 
 [TOC]
 
-Introduction {#tut_laplace_intro}
+Introduction {#tut_laplace_single_intro}
 ============
 
 This tutorial explains how to use NiHu to compute a single integral of the form

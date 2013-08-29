@@ -25,14 +25,19 @@ void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 	
 //! [Function spaces]
 	auto const &trial = isoparametric_view(surface);
-	auto const &test = dirac(constant_view(field));
+	auto const &surf_test = dirac(constant_view(surface));
+	auto const &field_test = dirac(constant_view(field));
 //! [Function spaces]
 
 //! [Kernel and weighted residual]
 	double wave_number = *mxGetPr(rhs[4]);
 	auto K = create_integral_operator(helmholtz_3d_SLP_kernel<double>(wave_number));
-	cMatrix Z(test.get_num_dofs(), trial.get_num_dofs(), lhs[0]);
-	Z << (test * K[trial]);
+
+	cMatrix Zf(field_test.get_num_dofs(), trial.get_num_dofs(), lhs[0]);
+	Zf << (field_test * K[trial]);
+
+	cMatrix Zs(surf_test.get_num_dofs(), trial.get_num_dofs(), lhs[1]);
+	Zs << (surf_test * K[trial]);
 //! [Kernel and weighted residual]
 }
 

@@ -5,7 +5,7 @@ Double integral of the Laplace kernel {#tut_laplace_double_integral}
 
 [TOC]
 
-Introduction {#tut_laplace_intro}
+Introduction {#tut_laplace_double_intro}
 ============
 
 This tutorial explains how to use NiHu to compute a double integral of the form
