@@ -87,6 +87,13 @@ else(MATLABMEX_FOUND)
 	set(NIHU_BUILD_MEX 0)
 endif(MATLABMEX_FOUND)
 
+### Setup directories for installation
+if(NOT DEFINED NIHU_INSTALL_DIR)
+	set(NIHU_INSTALL_DIR ${CMAKE_BINARY_DIR})
+endif(NOT DEFINED NIHU_INSTALL_DIR)
+
+set(CMAKE_INSTALL_PREFIX ${NIHU_INSTALL_DIR})
+
 # setup compiler flags
 set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall -Wunused -pedantic -O3 -std=c++11")
 
@@ -94,17 +101,18 @@ set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall -Wunused -pedantic -O3 -std=c++11
 include_directories("${CMAKE_SOURCE_DIR}")
 include_directories("${EIGEN_INCLUDE_DIRS}")
 
+### Subdirectories
+add_subdirectory(tutorial)
+
 ### Test section
-
-enable_testing()
-add_subdirectory(test)
-
-# add tests if not disabled
-# if(NOT NIHU_DISABLE_TESTS)
-# 	add_subdirectory(test)
-# else(NOT NIHU_DISABLE_TESTS)
-# 	add_subdirectory(test EXCLUDE_FROM_ALL)
-# endif(NOT NIHU_DISABLE_TESTS)
+if(NIHU_ENABLE_TESTING)
+	enable_testing()
+	if(NOT NIHU_DISABLE_TEST_BUILD)
+		add_subdirectory(test)
+	else(NOT NIHU_DISABLE_TEST_BUILD)
+		add_subdirectory(test EXCLUDE_FROM_ALL)
+	endif(NOT NIHU_DISABLE_TEST_BUILD)
+endif(NIHU_ENABLE_TESTING)
 
 ### Documentation section
 
@@ -134,7 +142,6 @@ if(DOXYGEN_FOUND)
 		set(NIHU_MATHJAX_USE "NO")
 		set(NIHU_MATHJAX_RELPATH "")
 	endif(NOT NIHU_MATHJAX_DISABLE)
-		
 
 	# Configuration of doxyfiles
 	configure_file(${CMAKE_SOURCE_DIR}/../Doxyfile.in 
@@ -159,14 +166,23 @@ if(DOXYGEN_FOUND)
 			COMMENT "Filtering Doxygen errors and warnings"
 		)
 	endif(UNIX)
+
+	# documentation installation
+	if(NIHU_ENABLE_DOC_INSTALL)
+		if(NOT (${NIHU_INSTALL_PATH} MATCHES ${CMAKE_BINARY_DIR}))
+			message(STATUS "Documentation will be installed into ${CMAKE_INSTALL_PREFIX}/doc")
+			install(DIRECTORY ${NIHU_HTML_DOC_PATH} DESTINATION doc)
+		endif()
+	endif(NIHU_ENABLE_DOC_INSTALL)
+
 endif(DOXYGEN_FOUND)
 
 ### Installation section
-set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR})
 
+# Select all hpp files for installation
 set(NIHU_HPP_DIRECTORIES
-	"library"; "tmp"; "util")
+	"bem"; "library"; "tmp"; "util")
 
 foreach(HPP_DIRECTORY ${NIHU_HPP_DIRECTORIES})
-	install(DIRECTORY ${HPP_DIRECTORY} DESTINATION include)
+	install(DIRECTORY ${HPP_DIRECTORY} DESTINATION include FILES_MATCHING PATTERN "*.hpp")
 endforeach(HPP_DIRECTORY)
