@@ -1,12 +1,12 @@
 /**
- * \file poisson_kernel.hpp
+ * \file laplace_kernel.hpp
  * \ingroup library
- * \brief implementation of kernels of the Poisson equation \f$ \nabla^2 p = 0 \f$
+ * \brief implementation of kernels of the laplace equation \f$ \nabla^2 p = 0 \f$
  * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
  */
 
-#ifndef POISSON_KERNEL_HPP_INCLUDED
-#define POISSON_KERNEL_HPP_INCLUDED
+#ifndef LAPLACE_KERNEL_HPP_INCLUDED
+#define LAPLACE_KERNEL_HPP_INCLUDED
 
 #include <cmath>
 #include "../bem/global_definitions.hpp"
@@ -19,11 +19,11 @@
 #include "reciprocal_kernel_intervals.hpp"
 
 
-/** \brief a brick representing a 2D Poisson kernel \f$ -\log r /2\pi \f$
+/** \brief a brick representing a 2D laplace kernel \f$ -\log r /2\pi \f$
  * \tparam scalar scalar type of the coordinate space the distance is defined over
  */
 template <class scalar>
-struct poisson_2d_g_brick
+struct laplace_2d_g_brick
 {
 	/** \brief the brick template
 	 * \tparam the wall the brick is placed on
@@ -49,49 +49,49 @@ struct poisson_2d_g_brick
 			trial_input_t const &trial_input,
 			kernel_data_t const &kernel_data) :
 			wall(test_input, trial_input, kernel_data),
-			m_poisson_g(-std::log(wall::get_distance()) / (2.0 * M_PI))
+			m_laplace_g(-std::log(wall::get_distance()) / (2.0 * M_PI))
 		{
 		}
 
-		/** \brief return Poisson g kernel
-		 * \return Poisson g kernel
+		/** \brief return laplace g kernel
+		 * \return laplace g kernel
 		 */
-		scalar const & get_poisson_g(void) const
+		scalar const & get_laplace_g(void) const
 		{
-			return m_poisson_g;
+			return m_laplace_g;
 		}
 
-		/** \brief return Poisson g kernel
-		 * \return Poisson g kernel
+		/** \brief return laplace g kernel
+		 * \return laplace g kernel
 		 */
 		scalar const & get_result(void) const
 		{
-			return m_poisson_g;
+			return m_laplace_g;
 		}
 
 	private:
-		scalar m_poisson_g;
+		scalar m_laplace_g;
 	};
 };
 
 
-/** \brief combination of ::distance_vector_brick, ::distance_brick and ::poisson_2d_g_brick into a wall
- * \tparam space the coordinate space the Poisson kernel is defined over
+/** \brief combination of ::distance_vector_brick, ::distance_brick and ::laplace_2d_g_brick into a wall
+ * \tparam space the coordinate space the laplace kernel is defined over
  */
 template <class scalar>
-struct poisson_2d_g_wall : build<
+struct laplace_2d_g_wall : build<
 	distance_vector_brick<space<scalar, 2> >,
 	distance_brick<scalar>,
-	poisson_2d_g_brick<scalar>
+	laplace_2d_g_brick<scalar>
 > {};
 
 
 // forward declaration
-class poisson_2d_SLP_kernel;
+class laplace_2d_SLP_kernel;
 
-/** \brief traits of the Poisson 2D G kernel */
+/** \brief traits of the laplace 2D G kernel */
 template<>
-struct kernel_traits<poisson_2d_SLP_kernel>
+struct kernel_traits<laplace_2d_SLP_kernel>
 {
 	/** \brief kernel test input type */
 	typedef build<location<space_2d> >::type test_input_t;
@@ -100,7 +100,7 @@ struct kernel_traits<poisson_2d_SLP_kernel>
 	/** \brief the data type */
 	typedef collect<empty_data> data_t;
 	/** \brief the kernel output type */
-	typedef poisson_2d_g_wall<space_2d::scalar_t>::type output_t;
+	typedef laplace_2d_g_wall<space_2d::scalar_t>::type output_t;
 	/** \brief kernel result type */
 	typedef typename output_t::result_t result_t;
 	/** \brief the quadrature family the kernel is integrated with */
@@ -117,19 +117,19 @@ struct kernel_traits<poisson_2d_SLP_kernel>
 	> complexity_estimator_t;
 };
 
-/** \brief 2D Poisson kernel \f$ -\ln r/2\pi \f$ */
-class poisson_2d_SLP_kernel :
-	public kernel_base<poisson_2d_SLP_kernel>
+/** \brief 2D laplace kernel \f$ -\ln r/2\pi \f$ */
+class laplace_2d_SLP_kernel :
+	public kernel_base<laplace_2d_SLP_kernel>
 {
 };
 
 
 
-/** \brief a brick representing a 2D Poisson derivative kernel \f$ -1/2\pi r \cdot r'_{n_y}\f$
+/** \brief a brick representing a 2D laplace derivative kernel \f$ -1/2\pi r \cdot r'_{n_y}\f$
  * \tparam scalar scalar type of the coordinate space the distance is defined over
  */
 template <class scalar>
-struct poisson_2d_h_brick
+struct laplace_2d_h_brick
 {
 	/** \brief the brick template
 	 * \tparam the wall the brick is placed on
@@ -155,50 +155,50 @@ struct poisson_2d_h_brick
 			trial_input_t const &trial_input,
 			kernel_data_t const &kernel_data) :
 			wall(test_input, trial_input, kernel_data),
-			m_poisson_h(-wall::get_rdny()/wall::get_distance() / (2.0 * M_PI))
+			m_laplace_h(-wall::get_rdny()/wall::get_distance() / (2.0 * M_PI))
 		{
 		}
 
-		/** \brief return Poisson h kernel
-		 * \return Poisson h kernel
+		/** \brief return laplace h kernel
+		 * \return laplace h kernel
 		 */
-		scalar const & get_poisson_h(void) const
+		scalar const & get_laplace_h(void) const
 		{
-			return m_poisson_h;
+			return m_laplace_h;
 		}
 
-		/** \brief return Poisson h kernel
-		 * \return Poisson h kernel
+		/** \brief return laplace h kernel
+		 * \return laplace h kernel
 		 */
 		scalar const & get_result(void) const
 		{
-			return m_poisson_h;
+			return m_laplace_h;
 		}
 
 	private:
-		scalar m_poisson_h;
+		scalar m_laplace_h;
 	};
 };
 
 
-/** \brief combination of ::distance_vector_brick, ::distance_brick, ::rdny_brick and ::poisson_2d_h_brick into a wall
- * \tparam space the coordinate space the Poisson kernel is defined over
+/** \brief combination of ::distance_vector_brick, ::distance_brick, ::rdny_brick and ::laplace_2d_h_brick into a wall
+ * \tparam space the coordinate space the laplace kernel is defined over
  */
 template <class scalar>
-struct poisson_2d_h_wall : build<
+struct laplace_2d_h_wall : build<
 	distance_vector_brick<space<scalar, 2> >,
 	distance_brick<scalar>,
 	rdny_brick<scalar>,
-	poisson_2d_h_brick<scalar>
+	laplace_2d_h_brick<scalar>
 > {};
 
 
 // forward declaration
-class poisson_2d_DLP_kernel;
+class laplace_2d_DLP_kernel;
 
-/** \brief traits of the Poisson 2D H kernel */
+/** \brief traits of the laplace 2D H kernel */
 template<>
-struct kernel_traits<poisson_2d_DLP_kernel>
+struct kernel_traits<laplace_2d_DLP_kernel>
 {
 	/** \brief kernel test input type */
 	typedef build<location<space_2d> >::type test_input_t;
@@ -207,7 +207,7 @@ struct kernel_traits<poisson_2d_DLP_kernel>
 	/** \brief the data type */
 	typedef collect<empty_data> data_t;
 	/** \brief the kernel output type */
-	typedef poisson_2d_h_wall<space_2d::scalar_t>::type output_t;
+	typedef laplace_2d_h_wall<space_2d::scalar_t>::type output_t;
 	/** \brief kernel result type */
 	typedef space_2d::scalar_t result_t;
 	/** \brief the quadrature family the kernel is integrated with */
@@ -224,18 +224,18 @@ struct kernel_traits<poisson_2d_DLP_kernel>
 	> complexity_estimator_t;
 };
 
-/** \brief 2D Poisson kernel \f$ -1/2\pi r \cdot r'_{n_y} \f$ */
-class poisson_2d_DLP_kernel :
-	public kernel_base<poisson_2d_DLP_kernel>
+/** \brief 2D laplace kernel \f$ -1/2\pi r \cdot r'_{n_y} \f$ */
+class laplace_2d_DLP_kernel :
+	public kernel_base<laplace_2d_DLP_kernel>
 {
 };
 
 
-/** \brief a brick representing a 2D Poisson derivative kernel \f$ -1/2\pi r \cdot r'_{n_x}\f$
+/** \brief a brick representing a 2D laplace derivative kernel \f$ -1/2\pi r \cdot r'_{n_x}\f$
  * \tparam scalar scalar type of the coordinate space the distance is defined over
  */
 template <class scalar>
-struct poisson_2d_ht_brick
+struct laplace_2d_ht_brick
 {
 	/** \brief the brick template
 	 * \tparam the wall the brick is placed on
@@ -261,50 +261,50 @@ struct poisson_2d_ht_brick
 			trial_input_t const &trial_input,
 			kernel_data_t const &kernel_data) :
 			wall(test_input, trial_input, kernel_data),
-			m_poisson_ht(-wall::get_rdnx()/wall::get_distance() / (2.0 * M_PI))
+			m_laplace_ht(-wall::get_rdnx()/wall::get_distance() / (2.0 * M_PI))
 		{
 		}
 
-		/** \brief return Poisson h kernel
-		 * \return Poisson ht kernel
+		/** \brief return laplace h kernel
+		 * \return laplace ht kernel
 		 */
-		scalar const & get_poisson_ht(void) const
+		scalar const & get_laplace_ht(void) const
 		{
-			return m_poisson_ht;
+			return m_laplace_ht;
 		}
 
-		/** \brief return Poisson ht kernel
-		 * \return Poisson ht kernel
+		/** \brief return laplace ht kernel
+		 * \return laplace ht kernel
 		 */
 		scalar const & get_result(void) const
 		{
-			return m_poisson_ht;
+			return m_laplace_ht;
 		}
 
 	private:
-		scalar m_poisson_ht;
+		scalar m_laplace_ht;
 	};
 };
 
 
-/** \brief combination of ::distance_vector_brick, ::distance_brick, ::rdnx_brick and ::poisson_2d_ht_brick into a wall
- * \tparam space the coordinate space the Poisson kernel is defined over
+/** \brief combination of ::distance_vector_brick, ::distance_brick, ::rdnx_brick and ::laplace_2d_ht_brick into a wall
+ * \tparam space the coordinate space the laplace kernel is defined over
  */
 template <class scalar>
-struct poisson_2d_ht_wall : build<
+struct laplace_2d_ht_wall : build<
 	distance_vector_brick<space<scalar, 2> >,
 	distance_brick<scalar>,
 	rdnx_brick<scalar>,
-	poisson_2d_ht_brick<scalar>
+	laplace_2d_ht_brick<scalar>
 > {};
 
 
 // forward declaration
-class poisson_2d_DLPt_kernel;
+class laplace_2d_DLPt_kernel;
 
-/** \brief traits of the Poisson 2D Ht kernel */
+/** \brief traits of the laplace 2D Ht kernel */
 template<>
-struct kernel_traits<poisson_2d_DLPt_kernel>
+struct kernel_traits<laplace_2d_DLPt_kernel>
 {
 	/** \brief kernel trial input type */
 	typedef build<location<space_2d>, normal_jacobian<space_2d> >::type test_input_t;
@@ -313,7 +313,7 @@ struct kernel_traits<poisson_2d_DLPt_kernel>
 	/** \brief the data type */
 	typedef collect<empty_data> data_t;
 	/** \brief the kernel output type */
-	typedef poisson_2d_ht_wall<space_2d::scalar_t>::type output_t;
+	typedef laplace_2d_ht_wall<space_2d::scalar_t>::type output_t;
 	/** \brief kernel result type */
 	typedef space_2d::scalar_t result_t;
 	/** \brief the quadrature family the kernel is integrated with */
@@ -330,19 +330,19 @@ struct kernel_traits<poisson_2d_DLPt_kernel>
 	> complexity_estimator_t;
 };
 
-/** \brief 2D Poisson kernel \f$ -1/2\pi r \cdot r'_{n_x} \f$ */
-class poisson_2d_DLPt_kernel :
-	public kernel_base<poisson_2d_DLPt_kernel>
+/** \brief 2D laplace kernel \f$ -1/2\pi r \cdot r'_{n_x} \f$ */
+class laplace_2d_DLPt_kernel :
+	public kernel_base<laplace_2d_DLPt_kernel>
 {
 };
 
 
 
-/** \brief a brick representing a 2D Poisson hypersingular kernel \f$ \dots \f$
+/** \brief a brick representing a 2D laplace hypersingular kernel \f$ \dots \f$
  * \tparam scalar scalar type of the coordinate space the distance is defined over
  */
 template <class scalar>
-struct poisson_2d_hyper_brick
+struct laplace_2d_hyper_brick
 {
 	/** \brief the brick template
 	 * \tparam the wall the brick is placed on
@@ -368,54 +368,54 @@ struct poisson_2d_hyper_brick
 			trial_input_t const &trial_input,
 			kernel_data_t const &kernel_data) :
 			wall(test_input, trial_input, kernel_data),
-			m_poisson_hyper(
+			m_laplace_hyper(
 				1.0/(2.0 * M_PI)/wall::get_distance()/wall::get_distance() * (
 					test_input.get_unit_normal().dot(trial_input.get_unit_normal()) +
 					2.0 * wall::get_rdny()*wall::get_rdnx()))
 		{
 		}
 
-		/** \brief return Poisson hypersingular kernel
-		 * \return Poisson hypersingular kernel
+		/** \brief return laplace hypersingular kernel
+		 * \return laplace hypersingular kernel
 		 */
-		result_t const & get_poisson_hyper(void) const
+		result_t const & get_laplace_hyper(void) const
 		{
-			return m_poisson_hyper;
+			return m_laplace_hyper;
 		}
 
-		/** \brief return Poisson hypersingular kernel
-		 * \return Poisson hypersingular kernel
+		/** \brief return laplace hypersingular kernel
+		 * \return laplace hypersingular kernel
 		 */
 		result_t const & get_result(void) const
 		{
-			return m_poisson_hyper;
+			return m_laplace_hyper;
 		}
 
 	private:
-		result_t m_poisson_hyper;
+		result_t m_laplace_hyper;
 	};
 };
 
 
-/** \brief combination of several bricks into a poisson_2d_hyper wall
- * \tparam space the coordinate space the Poisson kernel is defined over
+/** \brief combination of several bricks into a laplace_2d_hyper wall
+ * \tparam space the coordinate space the laplace kernel is defined over
  */
 template <class scalar>
-struct poisson_2d_hyper_wall : build<
+struct laplace_2d_hyper_wall : build<
 	distance_vector_brick<space<scalar, 2> >,
 	distance_brick<scalar>,
 	rdny_brick<scalar>,
 	rdnx_brick<scalar>,
-	poisson_2d_hyper_brick<scalar>
+	laplace_2d_hyper_brick<scalar>
 > {};
 
 
 // forward declaration
-class poisson_2d_HSP_kernel;
+class laplace_2d_HSP_kernel;
 
-/** \brief traits of the Poisson 2D Hypersingular kernel */
+/** \brief traits of the laplace 2D Hypersingular kernel */
 template<>
-struct kernel_traits<poisson_2d_HSP_kernel>
+struct kernel_traits<laplace_2d_HSP_kernel>
 {
 	/** \brief kernel test input type */
 	typedef build<location<space_2d>, normal_jacobian<space_2d> >::type test_input_t;
@@ -424,7 +424,7 @@ struct kernel_traits<poisson_2d_HSP_kernel>
 	/** \brief the data type */
 	typedef collect<empty_data> data_t;
 	/** \brief the kernel output type */
-	typedef poisson_2d_hyper_wall<space_2d::scalar_t>::type output_t;
+	typedef laplace_2d_hyper_wall<space_2d::scalar_t>::type output_t;
 	/** \brief kernel result type */
 	typedef typename output_t::result_t result_t;
 	/** \brief the quadrature family the kernel is integrated with */
@@ -441,20 +441,20 @@ struct kernel_traits<poisson_2d_HSP_kernel>
 	> complexity_estimator_t;
 };
 
-/** \brief 2D Poisson kernel \f$ \dots \f$ */
-class poisson_2d_HSP_kernel :
-	public kernel_base<poisson_2d_HSP_kernel>
+/** \brief 2D laplace kernel \f$ \dots \f$ */
+class laplace_2d_HSP_kernel :
+	public kernel_base<laplace_2d_HSP_kernel>
 {
 };
 
 
 
 
-/** \brief a brick representing a 3D Poisson kernel \f$ 1/4\pi r \f$
+/** \brief a brick representing a 3D laplace kernel \f$ 1/4\pi r \f$
  * \tparam scalar the scalar of the coordinate space the distance is defined over
  */
 template <class scalar>
-struct poisson_3d_g_brick
+struct laplace_3d_g_brick
 {
 	/** \brief the brick template
 	 * \tparam the wall the brick is placed on
@@ -480,49 +480,49 @@ struct poisson_3d_g_brick
 			trial_input_t const &trial_input,
 			kernel_data_t const &kernel_data) :
 			wall(test_input, trial_input, kernel_data),
-			m_poisson_g(1.0 / wall::get_distance() / (4.0 * M_PI))
+			m_laplace_g(1.0 / wall::get_distance() / (4.0 * M_PI))
 		{
 		}
 
-		/** \brief return Poisson g kernel
-		 * \return Poisson g kernel
+		/** \brief return laplace g kernel
+		 * \return laplace g kernel
 		 */
-		scalar const & get_poisson_g(void) const
+		scalar const & get_laplace_g(void) const
 		{
-			return m_poisson_g;
+			return m_laplace_g;
 		}
 
-		/** \brief return Poisson g kernel
-		 * \return Poisson g kernel
+		/** \brief return laplace g kernel
+		 * \return laplace g kernel
 		 */
 		scalar const & get_result(void) const
 		{
-			return m_poisson_g;
+			return m_laplace_g;
 		}
 
 	private:
-		scalar m_poisson_g;
+		scalar m_laplace_g;
 	};
 };
 
 
-/** \brief combination of ::distance_vector_brick, ::distance_brick and ::poisson_3d_g_brick into a wall
- * \tparam space the coordinate space the Poisson kernel is defined over
+/** \brief combination of ::distance_vector_brick, ::distance_brick and ::laplace_3d_g_brick into a wall
+ * \tparam space the coordinate space the laplace kernel is defined over
  */
 template <class scalar>
-struct poisson_3d_g_wall : build<
+struct laplace_3d_g_wall : build<
 	distance_vector_brick<space<scalar, 3> >,
 	distance_brick<scalar>,
-	poisson_3d_g_brick<scalar>
+	laplace_3d_g_brick<scalar>
 > {};
 
 
 // forward declaration
-class poisson_3d_SLP_kernel;
+class laplace_3d_SLP_kernel;
 
-/** \brief traits of the Poisson 3D G kernel */
+/** \brief traits of the laplace 3D G kernel */
 template<>
-struct kernel_traits<poisson_3d_SLP_kernel>
+struct kernel_traits<laplace_3d_SLP_kernel>
 {
 	/** \brief kernel test input type */
 	typedef build<location<space_3d> >::type test_input_t;
@@ -531,7 +531,7 @@ struct kernel_traits<poisson_3d_SLP_kernel>
 	/** \brief the data type */
 	typedef collect<empty_data> data_t;
 	/** \brief the kernel output type */
-	typedef poisson_3d_g_wall<space_3d::scalar_t>::type output_t;
+	typedef laplace_3d_g_wall<space_3d::scalar_t>::type output_t;
 	/** \brief kernel result type */
 	typedef typename output_t::result_t result_t;
 	/** \brief the quadrature family the kernel is integrated with */
@@ -548,18 +548,18 @@ struct kernel_traits<poisson_3d_SLP_kernel>
 	> complexity_estimator_t;
 };
 
-/** \brief 3D Poisson kernel \f$ 1/4\pi r\f$ */
-class poisson_3d_SLP_kernel :
-	public kernel_base<poisson_3d_SLP_kernel>
+/** \brief 3D laplace kernel \f$ 1/4\pi r\f$ */
+class laplace_3d_SLP_kernel :
+	public kernel_base<laplace_3d_SLP_kernel>
 {
 };
 
 
-/** \brief a brick representing a Poisson derivative kernel \f$ -1/4\pi r^2 \cdot r'_{n_y} \f$
+/** \brief a brick representing a laplace derivative kernel \f$ -1/4\pi r^2 \cdot r'_{n_y} \f$
  * \tparam scalar the scalar of the coordinate space the distance is defined over
  */
 template <class scalar>
-struct poisson_3d_h_brick
+struct laplace_3d_h_brick
 {
 	/** \brief the brick template
 	 * \tparam the wall the brick is placed on
@@ -585,51 +585,51 @@ struct poisson_3d_h_brick
 			trial_input_t const &trial_input,
 			kernel_data_t const &kernel_data) :
 			wall(test_input, trial_input, kernel_data),
-			m_poisson_h(-wall::get_poisson_g() * wall::get_rdny() / wall::get_distance())
+			m_laplace_h(-wall::get_laplace_g() * wall::get_rdny() / wall::get_distance())
 		{
 		}
 
-		/** \brief return Poisson h kernel
-		 * \return Poisson h kernel
+		/** \brief return laplace h kernel
+		 * \return laplace h kernel
 		 */
-		scalar const &get_poisson_h(void) const
+		scalar const &get_laplace_h(void) const
 		{
-			return m_poisson_h;
+			return m_laplace_h;
 		}
 
-		/** \brief return Poisson h kernel
-		 * \return Poisson h kernel
+		/** \brief return laplace h kernel
+		 * \return laplace h kernel
 		 */
 		scalar const & get_result(void) const
 		{
-			return get_poisson_h();
+			return get_laplace_h();
 		}
 
 	private:
-		scalar m_poisson_h;
+		scalar m_laplace_h;
 	};
 };
 
 
-/** \brief combination of poisson_g_wall and poisson_h_brick into a wall
- * \tparam space the coordinate space the poisson kernel is defined over
+/** \brief combination of laplace_g_wall and laplace_h_brick into a wall
+ * \tparam space the coordinate space the laplace kernel is defined over
  */
 template <class scalar>
-struct poisson_3d_h_wall : build<
+struct laplace_3d_h_wall : build<
 	distance_vector_brick<space<scalar, 3> >,
 	distance_brick<scalar>,
 	rdny_brick<scalar>,
-	poisson_3d_g_brick<scalar>,
-	poisson_3d_h_brick<scalar>
+	laplace_3d_g_brick<scalar>,
+	laplace_3d_h_brick<scalar>
 > {};
 
 
 // forward declaration
-class poisson_3d_DLP_kernel;
+class laplace_3d_DLP_kernel;
 
-/** \brief traits of the Poisson H kernel */
+/** \brief traits of the laplace H kernel */
 template<>
-struct kernel_traits<poisson_3d_DLP_kernel>
+struct kernel_traits<laplace_3d_DLP_kernel>
 {
 	/** \brief kernel test input type */
 	typedef build<location<space_3d> >::type test_input_t;
@@ -638,7 +638,7 @@ struct kernel_traits<poisson_3d_DLP_kernel>
 	/** \brief the data type */
 	typedef collect<empty_data> data_t;
 	/** \brief the kernel output type */
-	typedef poisson_3d_h_wall<space_3d::scalar_t>::type output_t;
+	typedef laplace_3d_h_wall<space_3d::scalar_t>::type output_t;
 	/** \brief kernel result type */
 	typedef typename output_t::result_t result_t;
 	/** \brief the quadrature family the kernel is integrated with */
@@ -655,18 +655,18 @@ struct kernel_traits<poisson_3d_DLP_kernel>
 	> complexity_estimator_t;
 };
 
-/** \brief 3D Poisson kernel \f$ -1/4\pi r^2 \cdot dr/dn \f$ */
-class poisson_3d_DLP_kernel :
-	public kernel_base<poisson_3d_DLP_kernel>
+/** \brief 3D laplace kernel \f$ -1/4\pi r^2 \cdot dr/dn \f$ */
+class laplace_3d_DLP_kernel :
+	public kernel_base<laplace_3d_DLP_kernel>
 {
 };
 
 
-/** \brief a brick representing a Poisson derivative kernel \f$ -1/4\pi r^2 \cdot r'_{n_x} \f$
+/** \brief a brick representing a laplace derivative kernel \f$ -1/4\pi r^2 \cdot r'_{n_x} \f$
  * \tparam scalar the scalar of the coordinate space the distance is defined over
  */
 template <class scalar>
-struct poisson_3d_ht_brick
+struct laplace_3d_ht_brick
 {
 	/** \brief the brick template
 	 * \tparam the wall the brick is placed on
@@ -692,51 +692,51 @@ struct poisson_3d_ht_brick
 			trial_input_t const &trial_input,
 			kernel_data_t const &kernel_data) :
 			wall(test_input, trial_input, kernel_data),
-			m_poisson_ht(-wall::get_poisson_g() * wall::get_rdnx() / wall::get_distance())
+			m_laplace_ht(-wall::get_laplace_g() * wall::get_rdnx() / wall::get_distance())
 		{
 		}
 
-		/** \brief return Poisson ht kernel
-		 * \return Poisson ht kernel
+		/** \brief return laplace ht kernel
+		 * \return laplace ht kernel
 		 */
-		scalar const &get_poisson_ht(void) const
+		scalar const &get_laplace_ht(void) const
 		{
-			return m_poisson_ht;
+			return m_laplace_ht;
 		}
 
-		/** \brief return Poisson ht kernel
-		 * \return Poisson ht kernel
+		/** \brief return laplace ht kernel
+		 * \return laplace ht kernel
 		 */
 		scalar const & get_result(void) const
 		{
-			return get_poisson_ht();
+			return get_laplace_ht();
 		}
 
 	private:
-		scalar m_poisson_ht;
+		scalar m_laplace_ht;
 	};
 };
 
 
-/** \brief combination of ::distance_vector_brick, ::distance_brick, ::rdnx_brick, poisson_3d_g_brick and poisson_3d_ht_brick into a wall
- * \tparam scalar the scalar type of the poisson ht kernel result
+/** \brief combination of ::distance_vector_brick, ::distance_brick, ::rdnx_brick, laplace_3d_g_brick and laplace_3d_ht_brick into a wall
+ * \tparam scalar the scalar type of the laplace ht kernel result
  */
 template <class scalar>
-struct poisson_3d_ht_wall : build<
+struct laplace_3d_ht_wall : build<
 	distance_vector_brick<space<scalar, 3> >,
 	distance_brick<scalar>,
 	rdnx_brick<scalar>,
-	poisson_3d_g_brick<scalar>,
-	poisson_3d_ht_brick<scalar>
+	laplace_3d_g_brick<scalar>,
+	laplace_3d_ht_brick<scalar>
 > {};
 
 
 // forward declaration
-class poisson_3d_DLPt_kernel;
+class laplace_3d_DLPt_kernel;
 
-/** \brief traits of the Poisson H kernel */
+/** \brief traits of the laplace H kernel */
 template<>
-struct kernel_traits<poisson_3d_DLPt_kernel>
+struct kernel_traits<laplace_3d_DLPt_kernel>
 {
 	/** \brief kernel test input type */
 	typedef build<location<space_3d>, normal_jacobian<space_3d> >::type test_input_t;
@@ -745,7 +745,7 @@ struct kernel_traits<poisson_3d_DLPt_kernel>
 	/** \brief the data type */
 	typedef collect<empty_data> data_t;
 	/** \brief the kernel output type */
-	typedef poisson_3d_ht_wall<space_3d::scalar_t>::type output_t;
+	typedef laplace_3d_ht_wall<space_3d::scalar_t>::type output_t;
 	/** \brief kernel result type */
 	typedef space_3d::scalar_t result_t;
 	/** \brief the quadrature family the kernel is integrated with */
@@ -762,18 +762,18 @@ struct kernel_traits<poisson_3d_DLPt_kernel>
 	> complexity_estimator_t;
 };
 
-/** \brief 3D Poisson derivative kernel \f$ -1/4\pi r^2 \cdot r'_{n_x} \f$ */
-class poisson_3d_DLPt_kernel :
-	public kernel_base<poisson_3d_DLPt_kernel>
+/** \brief 3D laplace derivative kernel \f$ -1/4\pi r^2 \cdot r'_{n_x} \f$ */
+class laplace_3d_DLPt_kernel :
+	public kernel_base<laplace_3d_DLPt_kernel>
 {
 };
 
 
-/** \brief a brick representing a Poisson double derivative kernel \f$ 1/4\pi r^3 \cdot \left( n_x n_y + 3 r'_{n_x} r'_{n_y} \right) \f$
+/** \brief a brick representing a laplace double derivative kernel \f$ 1/4\pi r^3 \cdot \left( n_x n_y + 3 r'_{n_x} r'_{n_y} \right) \f$
  * \tparam scalar the scalar of the coordinate space the distance is defined over
  */
 template <class scalar>
-struct poisson_3d_hyper_brick
+struct laplace_3d_hyper_brick
 {
 	/** \brief the brick template
 	 * \tparam the wall the brick is placed on
@@ -799,56 +799,56 @@ struct poisson_3d_hyper_brick
 			trial_input_t const &trial_input,
 			kernel_data_t const &kernel_data) :
 			wall(test_input, trial_input, kernel_data),
-			m_poisson_hyper(
-				wall::get_poisson_g() / wall::get_distance() / wall::get_distance() * (
+			m_laplace_hyper(
+				wall::get_laplace_g() / wall::get_distance() / wall::get_distance() * (
 					test_input.get_unit_normal().dot(trial_input.get_unit_normal()) +
 					3.0 * wall::get_rdnx() * wall::get_rdny()
 				))
 		{
 		}
 
-		/** \brief return Poisson ht kernel
-		 * \return Poisson ht kernel
+		/** \brief return laplace ht kernel
+		 * \return laplace ht kernel
 		 */
-		scalar const &get_poisson_hyper(void) const
+		scalar const &get_laplace_hyper(void) const
 		{
-			return m_poisson_hyper;
+			return m_laplace_hyper;
 		}
 
-		/** \brief return Poisson ht kernel
-		 * \return Poisson ht kernel
+		/** \brief return laplace ht kernel
+		 * \return laplace ht kernel
 		 */
 		scalar const & get_result(void) const
 		{
-			return get_poisson_hyper();
+			return get_laplace_hyper();
 		}
 
 	private:
-		scalar m_poisson_hyper;
+		scalar m_laplace_hyper;
 	};
 };
 
 
-/** \brief combination of ::distance_vector_brick, ::distance_brick, ::rdnx_brick, poisson_3d_g_brick and poisson_3d_ht_brick into a wall
- * \tparam scalar the scalar type of the poisson ht kernel result
+/** \brief combination of ::distance_vector_brick, ::distance_brick, ::rdnx_brick, laplace_3d_g_brick and laplace_3d_ht_brick into a wall
+ * \tparam scalar the scalar type of the laplace ht kernel result
  */
 template <class scalar>
-struct poisson_3d_hyper_wall : build<
+struct laplace_3d_hyper_wall : build<
 	distance_vector_brick<space<scalar, 3> >,
 	distance_brick<scalar>,
 	rdnx_brick<scalar>,
 	rdny_brick<scalar>,
-	poisson_3d_g_brick<scalar>,
-	poisson_3d_hyper_brick<scalar>
+	laplace_3d_g_brick<scalar>,
+	laplace_3d_hyper_brick<scalar>
 > {};
 
 
 // forward declaration
-class poisson_3d_HSP_kernel;
+class laplace_3d_HSP_kernel;
 
-/** \brief traits of the Poisson H kernel */
+/** \brief traits of the laplace H kernel */
 template<>
-struct kernel_traits<poisson_3d_HSP_kernel>
+struct kernel_traits<laplace_3d_HSP_kernel>
 {
 	/** \brief kernel test input type */
 	typedef build<location<space_3d>, normal_jacobian<space_3d> >::type test_input_t;
@@ -857,7 +857,7 @@ struct kernel_traits<poisson_3d_HSP_kernel>
 	/** \brief the data type */
 	typedef collect<empty_data> data_t;
 	/** \brief the kernel output type */
-	typedef poisson_3d_hyper_wall<space_3d::scalar_t>::type output_t;
+	typedef laplace_3d_hyper_wall<space_3d::scalar_t>::type output_t;
 	/** \brief kernel result type */
 	typedef space_3d::scalar_t result_t;
 	/** \brief the quadrature family the kernel is integrated with */
@@ -874,11 +874,11 @@ struct kernel_traits<poisson_3d_HSP_kernel>
 	> complexity_estimator_t;
 };
 
-/** \brief 3D Poisson derivative kernel \f$ 1/4\pi r^3 \cdot \left( n_x n_y + 3 r'_{n_x} r'_{n_y} \right) \f$ */
-class poisson_3d_HSP_kernel :
-	public kernel_base<poisson_3d_HSP_kernel>
+/** \brief 3D laplace derivative kernel \f$ 1/4\pi r^3 \cdot \left( n_x n_y + 3 r'_{n_x} r'_{n_y} \right) \f$ */
+class laplace_3d_HSP_kernel :
+	public kernel_base<laplace_3d_HSP_kernel>
 {
 };
 
-#endif // POISSON_KERNEL_HPP_INCLUDED
+#endif // LAPLACE_KERNEL_HPP_INCLUDED
 

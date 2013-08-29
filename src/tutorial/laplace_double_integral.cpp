@@ -1,6 +1,6 @@
 //! [Includes]
 #include "bem/weighted_residual.hpp"
-#include "library/poisson_kernel.hpp"
+#include "library/laplace_kernel.hpp"
 //! [Includes]
 
 //! [Typedefs]
@@ -20,7 +20,7 @@ void tester(func_space const &w)
 	A.setZero();
 
 	// create integral operator from kernel and perform weighted double integral
-	auto K = create_integral_operator(poisson_3d_SLP_kernel());
+	auto K = create_integral_operator(laplace_3d_SLP_kernel());
 	A << ( w * K[w] );
 
 	// Display matrix elements and their sum

@@ -1,4 +1,4 @@
-#include "library/poisson_kernel.hpp"
+#include "library/laplace_kernel.hpp"
 #include <iostream>
 #include <chrono>
 
@@ -33,14 +33,14 @@ int main(void)
 {
 	std::cout << N << " evaluations: " << std::endl;
 
-	std::cout << "poisson G kernel with wall output:      | ";
-	tester(poisson_3d_SLP_kernel());
+	std::cout << "laplace G kernel with wall output:      | ";
+	tester(laplace_3d_SLP_kernel());
 
-	std::cout << "poisson H kernel with wall output:      | ";
-	tester(poisson_3d_DLP_kernel());
+	std::cout << "laplace H kernel with wall output:      | ";
+	tester(laplace_3d_DLP_kernel());
 
 	std::cout << "couple G H kernel with wall output:     | ";
-	tester(create_couple_kernel(poisson_3d_DLP_kernel(), poisson_3d_SLP_kernel()));
+	tester(create_couple_kernel(laplace_3d_DLP_kernel(), laplace_3d_SLP_kernel()));
 
 	return 0;
 }

@@ -1,7 +1,7 @@
 #include "util/mex_matrix.hpp"
 #include "bem/weighted_residual.hpp"
-#include "library/poisson_kernel.hpp"
-#include "library/poisson_singular_integrals.hpp"
+#include "library/laplace_kernel.hpp"
+#include "library/laplace_singular_integrals.hpp"
 
 #include <chrono>
 
@@ -16,10 +16,10 @@ void mexFunction(int nlhs, mxArray *lhs[],
 
 	// create used integral operators
 
-	auto L = create_integral_operator(poisson_3d_SLP_kernel());
-	auto M = create_integral_operator(poisson_3d_DLP_kernel());
-	auto Mt = create_integral_operator(poisson_3d_DLPt_kernel());
-	auto N = create_integral_operator(poisson_3d_HSP_kernel());
+	auto L = create_integral_operator(laplace_3d_SLP_kernel());
+	auto M = create_integral_operator(laplace_3d_DLP_kernel());
+	auto Mt = create_integral_operator(laplace_3d_DLPt_kernel());
+	auto N = create_integral_operator(laplace_3d_HSP_kernel());
 	auto I = identity_integral_operator();
 
 	// create surface mesh and test and trial function spaces
@@ -58,10 +58,10 @@ void mexFunction(int nlhs, mxArray *lhs[],
 	// evaluate radiation matrices again with couple kernel evaluation
 
 	auto CoupleOp = create_integral_operator(
-		poisson_3d_SLP_kernel(),
-		poisson_3d_DLP_kernel(),
-		poisson_3d_DLPt_kernel(),
-		poisson_3d_HSP_kernel()
+		laplace_3d_SLP_kernel(),
+		laplace_3d_DLP_kernel(),
+		laplace_3d_DLPt_kernel(),
+		laplace_3d_HSP_kernel()
 	);
 	start = std::chrono::steady_clock::now();	// start timer
 	create_couple(Lf, Mf, Mtf, Nf)  << ( field_sp * CoupleOp [trial_sp] );
