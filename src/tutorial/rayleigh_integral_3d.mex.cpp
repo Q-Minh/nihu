@@ -23,15 +23,19 @@ void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 	auto const &dirac_f = dirac(constant_view(field));
 //! [Function spaces]
 
-//! [Kernel and weighted residual]
+//! [Kernel]
 	double wave_number = *mxGetPr(rhs[4]);
 	auto G = create_integral_operator(helmholtz_3d_SLP_kernel<double>(wave_number));
+//! [Kernel]
 
+//! [Matrices]
 	cMatrix Z_rad(dirac_s.get_num_dofs(), w.get_num_dofs(), lhs[1]);
 	cMatrix Z_trans(dirac_f.get_num_dofs(), w.get_num_dofs(), lhs[0]);
+//! [Matrices]
 
+//! [Weighted residual]
 	Z_rad << (dirac_s * G[w]);
 	Z_trans << (dirac_f * G[w]);
-//! [Kernel and weighted residual]
+//! [Weighted residual]
 }
 

@@ -8,7 +8,8 @@ Rayleigh integral {#tut_rayleigh_integral}
 Introduction {#tut_rayleigh_intro}
 ============
 
-This tutorial explains how to use NiHu to evaluate the Rayleigh integral that describes acoustic radiation from an infinite vibrating plane.
+This tutorial explains how to use NiHu to evaluate the Rayleigh integral.
+The Rayleigh integral describes acoustic radiation from an infinite vibrating plane.
 
 In this tutorial, we learn how to connect NiHu with Matlab.
 The problem geometry and parameters will be imported from, and the results will be passed back to Matlab using NiHu's Matlab interface.
@@ -38,15 +39,15 @@ The velocity field on the surface \f$ S \f$ is discretised by introducing a tria
 \f$ v({\bf y}) = \sum_j w_j({\bf y}) v_j \f$
 
 The radiated pressure (the Rayleigh integral) is evaluated in a set of field points \f$ {\bf x}_i \f$.
-For later convenience, we consider the field points as nodes of a domain, the so called field point domain \f$ F \f$.
-Evaluating the pressure in the field points is equivalent with premultiplying the Rayleigh integral with Dirac delta functions and integrating with respect to the variable \f$ {\bf x} \f$ over the field point domain:
+For later convenience, we consider the field points as locations in a domain, the so called field point domain \f$ F \f$.
+Evaluating the pressure in the field points is equivalent with premultiplying the Rayleigh integral with Dirac delta functions located at the field points \f$ {\bf x}_i \f$ and integrating with respect to the variable \f$ {\bf x} \f$ over the field point domain:
 
-\f$ p({\bf x}_i) = \sum_j \int_F \delta({\bf x}_i) \int_S G({\bf x}, {\bf y}) w_j({\bf y}) dS_y dS_x v_j
+\f$ p({\bf x}_i) = \sum_j \int_F \delta({\bf x}_i) \int_S G({\bf x}, {\bf y}) w_j({\bf y}) dS_y dF_x v_j
  = \sum_j Z_{ij} v_j \f$
  
 where \f$ Z_{ij} \f$ denotes the transfer impedance matrix. With our convenient operator notation, the transfer impedance matrix is expressed as
 
-\f$ Z_{ij} = \left< \delta_i, \mathcal{G}w_j \right> \f$
+\f$ Z_{ij} = \left< \delta_i, \left(\mathcal{G}w_j\right)_S \right>_F \f$
 
 
 Program structure {#tut_rayleigh_structure}
@@ -71,7 +72,7 @@ We need three modules from the NiHu library
 - util/mex_matrix.hpp includes the Matlab interface functions
 
 We further define two convenient typedefs for Matlab matrices ::mex::real_matrix and ::mex::complex_matrix.
-These matrices are allocated in Matlab's memory, but are used by NiHu just as if they were C++ Eigen matrices.
+These matrices are allocated in Matlab's memory, in Matlab format, but are used by NiHu just as if they were C++ Eigen matrices.
 
 \snippet rayleigh_integral_3d.mex.cpp Header
 
@@ -106,7 +107,7 @@ It is assumed that the meshes consists of ::quad_1_elem elements only.
 Function space generation {#tut_rayleigh_function_space}
 -------------------------
 
-- We use an isoparametric function space view of the radiator surface mesh to discretise the velocity field. This means that the velocity nodes are located in the elements' corners.
+- We use an isoparametric function space view of the radiator surface mesh to discretise the velocity field. This means that the velocity nodes are located in the elements' corners, and the velocity is interpolated using linear functions within an element.
 - The radiation impedance is evaluated in the element centers of the radiating surface mesh. For this reason, we create a Dirac-view of a piecewise constant function space generated from the radiating surface mesh.
 - The transfer impedance is evaluated in the element centers of the field point mesh. For this reason, we create a Dirac-view of a piecewise constant function space generated from the field point mesh.
 
@@ -115,20 +116,27 @@ Function space generation {#tut_rayleigh_function_space}
 Kernel and weighted residual {#tut_rayleigh_kernel}
 ----------------------------
 
-Finally, we instantiate the integral operator \f$ \mathcal{G} \f$ using the Helmholtz kernel and evaluate the weighted double integrals:
+We instantiate the integral operator \f$ \mathcal{G} \f$ using the Helmholtz kernel as follows:
 
-\snippet rayleigh_integral_3d.mex.cpp Kernel and weighted residual
+\snippet rayleigh_integral_3d.mex.cpp Kernel
 
-The real wave number is imported from Matlab with the standard Matlab interface function `mxGetPr` that returns a pointer to the real data.
-The Helmholtz kernel is instantiated using the class ::helmholtz_3d_SLP_kernel templated to the wave number's type (`double`).
+- The real wave number is imported from Matlab with the standard Matlab interface function `mxGetPr` that returns a pointer to the real data.
+- The Helmholtz kernel is instantiated using the class ::helmholtz_3d_SLP_kernel templated to the wave number's type (`double`).
 The abbreviation SLP refers to the single layer potential.
 
-The three-argument constructor of class ::mex::complex_matrix (`cMatrix`) allocates a Matlab output matrix of given dimensions in Matlab memory.
+We allocate memory for the output complex matrices:
 
-The weighted double integrals are again evaluated using the operator notations.
+\snippet rayleigh_integral_3d.mex.cpp Matrices
+
+- The three-argument constructor (rows, columns, output pointer) of class ::mex::complex_matrix (`cMatrix`) allocates a Matlab output matrix of given dimensions in Matlab memory.
+
+The weighted double integrals are again evaluated using the operator notations:
+
+\snippet rayleigh_integral_3d.mex.cpp Weighted residual
+
 The two last lines of code are syntactically identical, but there is a great difference.
-The transfer impedance matrix is defined between two separate meshes, while the radiation impedance matrix is defined on one mesh.
-This means that the transfer impedance is computed by evaluating regular integrals only, while the radiation impedance matrix involves singular integrals.
+- The transfer impedance matrix is defined between two separate meshes, and is therefore computed by evaluating regular integrals only
+- The radiation impedance matrix is defined on one mesh, and its computation involves singular integration.
 
 The complete source of the tutorial is found here: tutorial/rayleigh_integral_3d.mex.cpp
 
