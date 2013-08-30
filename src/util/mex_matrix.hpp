@@ -94,7 +94,7 @@ struct classID<float>
 
 
 /**
- * brief container class of a real matrix stored in Matlab format
+ * brief Container class of a real matrix stored in Matlab format
  * \tparam the real type (float double etc)
  */
 template <class T>
@@ -241,7 +241,7 @@ private:
 };
 
 
-/** \brief container class of a complex matrix stored in Matlab format */
+/** \brief Container class of a complex matrix stored in Matlab format */
 template <class T>
 class complex_matrix :
 	public matrix_base

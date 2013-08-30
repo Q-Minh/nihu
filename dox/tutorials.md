@@ -5,6 +5,10 @@ Tutorials {#tutorials}
 
 [TOC]
 
+\subpage tut_mesh_building
+
+\subpage tut_function_spaces
+
 \subpage tut_laplace_double_integral
 
 \subpage tut_laplace_single_integral

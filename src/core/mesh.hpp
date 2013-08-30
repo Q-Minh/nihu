@@ -143,9 +143,9 @@ public:
 	}
 
 	/**
-	 * \brief build the mesh from MATLAB matrices
-	 * \tparam type of nodes matrix
-	 * \tparam type of elements matrix
+	 * \brief build the mesh from mesh description matrices
+	 * \tparam node_t type of nodes matrix
+	 * \tparam elem_t type of elements matrix
 	 * \param [in] nodes matrix of nodal coordinates
 	 * \param [in] elements matrix of element node indices
 	 */
