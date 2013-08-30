@@ -142,5 +142,23 @@ The two last lines of code are syntactically identical, but there is a great dif
 - The transfer impedance matrix is defined between two separate meshes, and is therefore computed by evaluating regular integrals only
 - The radiation impedance matrix is defined on one mesh, so its evaluation involves singular integration.
 
-The complete source of the tutorial is found here: tutorial/rayleigh_integral_3d.mex.cpp
+The complete source of the C++ code is found here: tutorial/rayleigh_integral_3d.mex.cpp
+
+The Matlab code {#tut_rayleigh_Matlab_code}
+===============
+
+The compiled executable can be called from Matlab, as demonstrated in the example below:
+
+\include rayleigh_integral_3d_test.m
+
+The generated plot looks like
+
+\image html tut_rayleigh_integral.png
+
+Summary {#tut_rayleigh_summary}
+=======
+
+In this tutorial we learned
+- How to integrate NiHu into Matlab
+
 

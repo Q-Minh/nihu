@@ -18,7 +18,7 @@ void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 //! [Meshes]
 
 //! [Function spaces]
-	auto const &w = isoparametric_view(surface);
+	auto const &w = isoparametric_view(surf_mesh);
 	auto const &dirac_f = dirac(constant_view(field_mesh));
 	auto const &dirac_s = dirac(constant_view(surf_mesh));
 //! [Function spaces]
