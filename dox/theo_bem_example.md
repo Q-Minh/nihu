@@ -63,7 +63,7 @@ residual method: The boundary integral equation is assumed to hold in a weak sen
 
 \f$ 
 \displaystyle
-\left< v, \mathcal{M}p - \mathcal{L}q - \frac{1}{2}p \right>_S = 0
+\left< v, \left(\mathcal{M}p\right)_S - \left(\mathcal{L}q\right)_S - \frac{1}{2}p \right>_S = 0
 \f$ 
 
 where  \f$ \left<\cdot,\cdot\right>_S \f$ denotes the inner product defined as
@@ -95,9 +95,9 @@ The discretised weak form of the boundary integral equation simplifies to a line
 
 \f$ 
 \displaystyle
-\sum_j \left<t_i, \mathcal{M}d^{\mathcal{M}}_j\right>_S p_j
+\sum_j \left< t_i, \left(\mathcal{M}d^{\mathcal{M}}_j\right)_S \right>_S p_j
 -
-\sum_l \left<t_i, \mathcal{L}d^{\mathcal{L}}_l\right>_S q_l
+\sum_l \left< t_i, \left(\mathcal{L}d^{\mathcal{L}}_l\right)_S \right>_S q_l
 =
 \frac{1}{2}
 \left<t_i, d^{\mathcal{M}}_i\right>_S p_i
@@ -131,9 +131,9 @@ After the solution has been performed by means of direct or iterative techniques
 
 \f$ 
 \displaystyle
-\sum_j \left<\delta_{{\bf x}_i}, \mathcal{M}d^{\mathcal{M}}_j\right>_F p_j
+\sum_j \left< \delta_{{\bf x}_i}, \left(\mathcal{M}d^{\mathcal{M}}_j\right)_S \right>_F p_j
 -
-\sum_k \left<\delta_{{\bf x}_i}, \mathcal{L}d^{\mathcal{L}}_l\right>_F q_l
+\sum_k \left< \delta_{{\bf x}_i}, \left(\mathcal{L}d^{\mathcal{L}}_l\right)_S \right>_F q_l
 =
 p({\bf x}_i)
 \f$ 

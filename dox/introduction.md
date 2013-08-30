@@ -3,6 +3,10 @@ Introduction {#introduction}
 
 \page introduction
 
+[BEMex]: \ref theo_bem_example
+
+
+
 [TOC]
 
 What is NiHu? {#introduction_whatis}
@@ -24,7 +28,7 @@ where
 \f$ S \f$ denotes a boundary surface,
 \f$ t_i \f$ and \f$ d_j \f$ denote base functions of discretised function spaces, and
 \f$ \mathcal{K} \f$ denotes an integral operator defined by its kernel function \f$ K \f$.
-Such integrals frequently arise when numerical solution of boundary value problems is formalised using the finite or boundary element methods.
+Such integrals frequently arise when numerical solution of boundary value problems is formalised using the finite or boundary element methods (see for example \ref theo_bem_example).
 
 Unified programming interface {#introduction_unified}
 =============================
@@ -40,13 +44,7 @@ BEM executables for generally defined element types and kernels.
 The main C++ core of NiHu can be considered as a skeleton that defines different BEM problems in a general way, by reflecting the abstract mathematics behind boundary elements in the C++ code.
 The C++ code snippet below demonstrates the capabilities of NiHu's application layer:
 
-	auto mesh = create_mesh(nodes, elements, _quad_1_tag(), tria_1_tag());
-	auto func_sp = constant_view(mesh);
-	auto L = create_integral_operator(laplace_3d_SLP_kernel());
-	auto M = create_integral_operator(laplace_3d_DLP_kernel());
-	auto I = identity_integral_operator();
-	L << ( dirac(func_sp) * L[func_sp] );
-	M << ( dirac(func_sp) * M[func_sp] ) + ( dirac(func_sp) * (-.5*I)[func_sp] );
+\include intro_example.cpp
 
 The 7-line code snippet defines a collocational 3D BEM for the Laplace equation, implemented with constant triangular and quadrilateral elements, and computes the discretised system matrices.
 

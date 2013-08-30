@@ -10,7 +10,10 @@ Introduction {#tut_laplace_double_intro}
 
 This tutorial explains how to use NiHu to compute a double integral of the form
 
-\f$ I = \int_{S} \int_{S} K({\bf x},{\bf y}) dS_y dS_x \f$
+\f$
+\displaystyle
+I = \int_{S} \int_{S} K({\bf x},{\bf y}) dS_y dS_x
+\f$
 
 where \f$ S \f$ is a square surface
 
@@ -22,7 +25,10 @@ and the integrand kernel \f$ K \f$ is the fundamental solution of the Laplace eq
 
 The analytical value of the integral is
 
-\f$ I = \frac{32}{4\pi} \left[ \log \left( 1+\sqrt{2} \right) - \frac{\sqrt{2}-1}{3} \right] \f$
+\f$
+\displaystyle
+I = \frac{32}{4\pi} \left[ \log \left( 1+\sqrt{2} \right) - \frac{\sqrt{2}-1}{3} \right]
+\f$
 
 
 The C++ code {#tut_laplace_double_Cpp_code}
@@ -89,19 +95,19 @@ The main function {#tut_laplace_double_main_function}
 
 As NiHu works in a more general context, we reformulate our original problem by extending our integration domain \f$ S \f$ by a weighting function
 
-\f$ 1(x) = \sum_{i} W_i(x) \f$,
+\f$ \displaystyle 1(x) = \sum_{i} W_i(x) \f$,
 
 and performing the double integral with the weighting functions.
 
-\f$ I = \int_{S} \sum_i W_i(x) \int_{S} K(x,y) \sum_j W_j(y) dS_y dS_x = \sum_{i} \sum_{j} I_{ij}\f$
+\f$ \displaystyle I = \int_{S} \sum_i W_i(x) \int_{S} K(x,y) \sum_j W_j(y) dS_y dS_x = \sum_{i} \sum_{j} I_{ij}\f$
 
 where
 
-\f$ I_{ij} = \int_{S} W_i(x) \int_{S} K(x,y) W_j(y) dS_y dS_x \f$
+\f$ \displaystyle I_{ij} = \int_{S} W_i(x) \int_{S} K(x,y) W_j(y) dS_y dS_x \f$
 
 or with operator notation
 
-\f$ I_{ij} = \left< w_i, \mathcal{K} w_j \right> \f$
+\f$ \displaystyle I_{ij} = \left< w_i, \left(\mathcal{K} w_j\right)_S \right>_S \f$
 
 where the set \f$ w_i \f$ denote a function space, and \f$ \mathcal{K} \f$ denotes an integral operator based on the Laplace kernel.
 
