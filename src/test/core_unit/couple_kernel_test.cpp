@@ -1,5 +1,5 @@
 #include <iostream>
-#include "bem/kernel.hpp"
+#include "core/kernel.hpp"
 #include "library/laplace_kernel.hpp"
 
 int main(void)

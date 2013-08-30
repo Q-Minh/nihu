@@ -9,10 +9,10 @@
 #define LAPLACE_KERNEL_HPP_INCLUDED
 
 #include <cmath>
-#include "../bem/global_definitions.hpp"
-#include "../bem/kernel.hpp"
-#include "../bem/gaussian_quadrature.hpp"
-#include "../bem/interval_estimator.hpp"
+#include "../core/global_definitions.hpp"
+#include "../core/kernel.hpp"
+#include "../core/gaussian_quadrature.hpp"
+#include "../core/interval_estimator.hpp"
 #include "../util/collection.hpp"
 #include "location_normal.hpp"
 #include "basic_bricks.hpp"

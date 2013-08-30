@@ -1,5 +1,5 @@
 //! [Includes]
-#include "bem/weighted_residual.hpp"
+#include "core/weighted_residual.hpp"
 #include "library/laplace_kernel.hpp"
 //! [Includes]
 

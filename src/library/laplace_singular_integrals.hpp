@@ -6,7 +6,7 @@
 #ifndef LAPLACE_SINGULAR_INTEGRALS_HPP_INCLUDED
 #define LAPLACE_SINGULAR_INTEGRALS_HPP_INCLUDED
 
-#include "../bem/integral_operator.hpp"
+#include "../core/integral_operator.hpp"
 #include "laplace_kernel.hpp"
 #include "plane_triangle_helper.hpp"
 

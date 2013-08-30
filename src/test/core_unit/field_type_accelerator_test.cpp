@@ -1,5 +1,5 @@
-#include "bem/field_type_accelerator.hpp"
-#include "bem/gaussian_quadrature.hpp"
+#include "core/field_type_accelerator.hpp"
+#include "core/gaussian_quadrature.hpp"
 #include "tmp/control.hpp"
 #include "tmp/vector.hpp"
 

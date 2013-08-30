@@ -1,5 +1,5 @@
+#include "core/weighted_residual.hpp"
 #include "util/mex_matrix.hpp"
-#include "bem/weighted_residual.hpp"
 #include "library/helmholtz_kernel.hpp"
 #include "library/helmholtz_singular_integrals.hpp"
 

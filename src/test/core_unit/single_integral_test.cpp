@@ -1,5 +1,5 @@
 #include "util/eigen_utils.hpp"
-#include "bem/weighted_residual.hpp"
+#include "core/weighted_residual.hpp"
 
 typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> dMatrix;
 typedef Eigen::Matrix<unsigned, Eigen::Dynamic, Eigen::Dynamic> uMatrix;

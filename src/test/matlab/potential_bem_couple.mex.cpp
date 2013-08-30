@@ -1,5 +1,5 @@
 #include "util/mex_matrix.hpp"
-#include "bem/weighted_residual.hpp"
+#include "core/weighted_residual.hpp"
 #include "library/laplace_kernel.hpp"
 
 typedef mex::real_matrix<double> dMatrix;

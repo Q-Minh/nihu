@@ -1,7 +1,0 @@
-#ifndef GLOBAL_DEFINITIONS_HPP_INCLUDED
-#define GLOBAL_DEFINITIONS_HPP_INCLUDED
-
-unsigned const GLOBAL_MAX_ORDER = 8;
-unsigned const GLOBAL_ACCURACY = 2;
-
-#endif

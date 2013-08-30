@@ -66,14 +66,14 @@ namespace internal
  * \tparam C2 the second collection
  * \tparam C3 possible other collections
  */
-template <class C1, class C2, class...C3>
-struct merger : merger<C1, typename merger<C2, C3...>::ret_type>
+template <class C1, class...C2>
+struct merger : merger<C1, typename merger<C2...>::ret_type>
 {
-	static typename merger<C1, typename merger<C2, C3...>::ret_type>::ret_type
-	eval(C1 const &c1, C2 const &c2, C3 const &...c3)
+	static typename merger<C1, typename merger<C2...>::ret_type>::ret_type
+	eval(C1 const &c1, C2 const &...c2)
 	{
-		return merger<C1, typename merger<C2, C3...>::ret_type>::eval(c1,
-			merger<C2, C3...>::eval(c2, c3...)
+		return merger<C1, typename merger<C2...>::ret_type>::eval(c1,
+			merger<C2...>::eval(c2...)
 		);
 	}
 };
