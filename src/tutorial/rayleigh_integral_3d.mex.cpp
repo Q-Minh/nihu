@@ -13,14 +13,14 @@ void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 {
 //! [Meshes]
 	dMatrix surf_nodes(rhs[0]), surf_elem(rhs[1]), field_nodes(rhs[2]), field_elem(rhs[3]);
-	auto surface = create_mesh(surf_nodes, surf_elem, _quad_1_tag());
-	auto field = create_mesh(field_nodes, field_elem, _quad_1_tag());
+	auto surf_mesh = create_mesh(surf_nodes, surf_elem, _quad_1_tag());
+	auto field_mesh = create_mesh(field_nodes, field_elem, _quad_1_tag());
 //! [Meshes]
 
 //! [Function spaces]
 	auto const &w = isoparametric_view(surface);
-	auto const &dirac_s = dirac(constant_view(surface));
-	auto const &dirac_f = dirac(constant_view(field));
+	auto const &dirac_f = dirac(constant_view(field_mesh));
+	auto const &dirac_s = dirac(constant_view(surf_mesh));
 //! [Function spaces]
 
 //! [Kernel]
@@ -29,13 +29,13 @@ void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 //! [Kernel]
 
 //! [Matrices]
-	cMatrix Z_rad(dirac_s.get_num_dofs(), w.get_num_dofs(), lhs[1]);
 	cMatrix Z_trans(dirac_f.get_num_dofs(), w.get_num_dofs(), lhs[0]);
+	cMatrix Z_rad(dirac_s.get_num_dofs(), w.get_num_dofs(), lhs[1]);
 //! [Matrices]
 
 //! [Weighted residual]
-	Z_rad << (dirac_s * G[w]);
 	Z_trans << (dirac_f * G[w]);
+	Z_rad << (dirac_s * G[w]);
 //! [Weighted residual]
 }
 
