@@ -34,18 +34,18 @@ Discretisation {#tut_rayleigh_discretisation}
 --------------
 
 The radiating surface \f$ S \f$ is split up into elements.
-The velocity field on the surface \f$ S \f$ is discretised by introducing a trial function space \f$ w_j({\bf y}), {\bf y} \in S \f$ consisting of piecewise constant or isoparametric functions:
+The velocity field on the surface \f$ S \f$ is discretised by introducing a discrete function space \f$ w_j({\bf y}), {\bf y} \in S \f$ consisting of piecewise constant or isoparametric functions:
 
 \f$ v({\bf y}) = \sum_j w_j({\bf y}) v_j \f$
 
 The radiated pressure (the Rayleigh integral) is evaluated in a set of field points \f$ {\bf x}_i \f$.
-For later convenience, we consider the field points as locations in a domain, the so called field point domain \f$ F \f$.
-Evaluating the pressure in the field points is equivalent with premultiplying the Rayleigh integral with Dirac delta functions located at the field points \f$ {\bf x}_i \f$ and integrating with respect to the variable \f$ {\bf x} \f$ over the field point domain:
+For later convenience, we consider the field points as locations in a so called field point domain \f$ F \f$.
+Evaluating the pressure in the field points is equivalent to premultiplying the Rayleigh integral with Dirac delta functions located at the field points \f$ {\bf x}_i \f$ and integrating with respect to the variable \f$ {\bf x} \f$ over the field point domain:
 
-\f$ p({\bf x}_i) = \sum_j \int_F \delta({\bf x}_i) \int_S G({\bf x}, {\bf y}) w_j({\bf y}) dS_y dF_x v_j
+\f$ p({\bf x}_i) = \sum_j \int_F \delta({\bf x}_i) \int_S G({\bf x}, {\bf y}) w_j({\bf y}) dS_y dF_x \, v_j
  = \sum_j Z_{ij} v_j \f$
  
-where \f$ Z_{ij} \f$ denotes the transfer impedance matrix. With our convenient operator notation, the transfer impedance matrix is expressed as
+where \f$ Z_{ij} \f$ denotes the transfer impedance matrix. With operator notation, the transfer impedance matrix is expressed as
 
 \f$ Z_{ij} = \left< \delta_i, \left(\mathcal{G}w_j\right)_S \right>_F \f$
 
@@ -71,7 +71,7 @@ We need three modules from the NiHu library
 - library/helmholtz_kernel.hpp defines the fundamental solution of the Helmholtz equation
 - util/mex_matrix.hpp includes the Matlab interface functions
 
-We further define two convenient typedefs for Matlab matrices ::mex::real_matrix and ::mex::complex_matrix.
+We further define two `typedef`s for Matlab matrices ::mex::real_matrix and ::mex::complex_matrix.
 These matrices are allocated in Matlab's memory, in Matlab format, but are used by NiHu just as if they were C++ Eigen matrices.
 
 \snippet rayleigh_integral_3d.mex.cpp Header
@@ -96,22 +96,26 @@ whose parameters are
 Mesh generation {#tut_rayleigh_mesh_generation}
 ---------------
 
-The Matlab mesh description matrices are simply imported into C++ by the library class ::mex::real_matrix (`dMatrix`).
-The class' constructor refers to the Matlab input pointer.
-
-The radiator surface mesh and the field point mesh is generated from the imported matrices by the library function ::create_mesh.
-It is assumed that the meshes consists of ::quad_1_elem elements only.
+The radiator surface mesh and the field point mesh is instantiated in C++ as follows:
 
 \snippet rayleigh_integral_3d.mex.cpp Meshes
+
+- The Matlab mesh description matrices are simply imported into C++ by the library class ::mex::real_matrix (`dMatrix`).
+The class' constructor refers to the Matlab input pointer.
+The resulting `dMatrix` objects are light-weight interfaces (_views_) providing convenient indexing capabilities to the Matlab data.
+- The radiator surface mesh and the field point mesh is generated from the imported matrices by the library function ::create_mesh.
+It is assumed that the meshes consist of ::quad_1_elem elements only.
 
 Function space generation {#tut_rayleigh_function_space}
 -------------------------
 
-- We use an isoparametric function space view of the radiator surface mesh to discretise the velocity field. This means that the velocity nodes are located in the elements' corners, and the velocity is interpolated using linear functions within an element.
-- The radiation impedance is evaluated in the element centers of the radiating surface mesh. For this reason, we create a Dirac-view of a piecewise constant function space generated from the radiating surface mesh.
-- The transfer impedance is evaluated in the element centers of the field point mesh. For this reason, we create a Dirac-view of a piecewise constant function space generated from the field point mesh.
+The function spaces are generated from the two meshes as follows:
 
 \snippet rayleigh_integral_3d.mex.cpp Function spaces
+
+- We use an isoparametric function space view of the radiator surface mesh to discretise the velocity field. This means that the velocity nodes are located in the elements' corners, and the velocity is interpolated using linear functions within an element.
+- The transfer impedance is evaluated in the element centers of the field point mesh. For this reason, we create a Dirac-view of a piecewise constant function space generated from the field point mesh.
+- The radiation impedance is evaluated in the element centers of the radiating surface mesh. For this reason, we create a Dirac-view of a piecewise constant function space generated from the radiating surface mesh.
 
 Kernel and weighted residual {#tut_rayleigh_kernel}
 ----------------------------
@@ -136,7 +140,7 @@ The weighted double integrals are again evaluated using the operator notations:
 
 The two last lines of code are syntactically identical, but there is a great difference.
 - The transfer impedance matrix is defined between two separate meshes, and is therefore computed by evaluating regular integrals only
-- The radiation impedance matrix is defined on one mesh, and its computation involves singular integration.
+- The radiation impedance matrix is defined on one mesh, so its evaluation involves singular integration.
 
 The complete source of the tutorial is found here: tutorial/rayleigh_integral_3d.mex.cpp
 
