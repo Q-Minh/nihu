@@ -34,7 +34,7 @@ Prerequisites {#install_prereq}
 
 In order to complie NiHu, the following prerequisites are needed:
 
-- A c++ compiler and linker that supports features of the C++11 standard. You will find further information on the compiler selection in the [next section](#install_process). Note: NiHu builds were tested using gcc versions 4.7 and 4.8.
+- A c++ compiler and linker that supports some features of the C++11 standard. You will find further information on the compiler selection in the [next section](#install_process). Note: NiHu builds were tested using gcc versions 4.7 and 4.8.
 - NiHu relies on the template matrix library [eigen]. If you do not have Eigen installed on your computer, the installation process will download and install the necessary header files for the compilation of NiHu. Note: current version of NiHu was tested using Eigen version 3.1.2.
 
 In order to use the Matlab interface and compile mex files the following prerequisites are needed.
