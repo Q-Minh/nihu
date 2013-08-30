@@ -1,6 +1,6 @@
 #include "tmp/control.hpp"
 #include "tmp/vector.hpp"
-#include "bem/space.hpp"
+#include "core/space.hpp"
 
 #include <iostream>
 

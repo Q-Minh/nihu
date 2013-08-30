@@ -11,8 +11,8 @@
 #include <cmath>
 #include <complex>
 
-#include "../bem/kernel.hpp"
-#include "../bem/gaussian_quadrature.hpp"
+#include "../core/kernel.hpp"
+#include "../core/gaussian_quadrature.hpp"
 
 #include "location_normal.hpp"
 
@@ -20,7 +20,7 @@
 #include "../util/collection.hpp"
 
 #include "reciprocal_kernel_intervals.hpp"
-#include "../bem/interval_estimator.hpp"
+#include "../core/interval_estimator.hpp"
 
 /**
  * \brief kernel data that stores the wave number

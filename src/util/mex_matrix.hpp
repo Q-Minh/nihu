@@ -16,6 +16,8 @@
 #include <mex.h>
 #include <matrix.h>
 
+#include "../core/result_matrix.hpp"
+
 /**
  * \brief Matlab mex interface classes
  * \details The mex namespace contains classes and functions that provide an easy-to-use
@@ -305,8 +307,6 @@ protected:
 
 } // namespace mex
 
-
-#include "../bem/result_matrix.hpp"
 
 /** \brief declaring mex::real_matrix as a result matrix type */
 template <class T>

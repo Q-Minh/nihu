@@ -3,7 +3,7 @@
 #define LOCATION_HPP_INCLUDED
 
 #include "../util/brick.hpp"
-#include "../bem/element.hpp"
+#include "../core/element.hpp"
 
 /** \brief a class representing a simple location brick
  * \tparam Space the coordinate space

@@ -1,4 +1,4 @@
-#include "bem/weighted_residual.hpp"
+#include "core/weighted_residual.hpp"
 #include "library/laplace_kernel.hpp"
 
 typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> dMatrix;

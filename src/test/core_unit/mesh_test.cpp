@@ -1,4 +1,4 @@
-#include "bem/mesh.hpp"
+#include "core/mesh.hpp"
 
 #include <iostream>
 

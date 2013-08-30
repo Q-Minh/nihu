@@ -6,7 +6,7 @@
 #ifndef HELMHOLTZ_SINGULAR_INTEGRALS_HPP_INCLUDED
 #define HELMHOLTZ_SINGULAR_INTEGRALS_HPP_INCLUDED
 
-#include "../bem/integral_operator.hpp"
+#include "../core/integral_operator.hpp"
 
 #include "helmholtz_kernel.hpp"
 #include "../util/math_functions.hpp"
