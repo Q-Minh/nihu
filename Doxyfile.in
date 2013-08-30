@@ -671,6 +671,7 @@ WARN_LOGFILE           =
 
 
 INPUT                  = "${CMAKE_SOURCE_DIR}/../dox/mainpage.md" \
+                         "${CMAKE_SOURCE_DIR}/../dox/introduction.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/installation.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/tutorials.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/tut_laplace_double_integral.md" \
@@ -678,11 +679,12 @@ INPUT                  = "${CMAKE_SOURCE_DIR}/../dox/mainpage.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/tut_rayleigh_integral.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/tut_helmholtz_galerkin_bem.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/theory.md" \
+                         "${CMAKE_SOURCE_DIR}/../dox/theo_bem_example.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/techniques.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/tech_cpp11.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/tech_meta.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/tech_poly.md" \
-                         "${CMAKE_SOURCE_DIR}/bem/" \
+                         "${CMAKE_SOURCE_DIR}/core/" \
                          "${CMAKE_SOURCE_DIR}/util/" \
                          "${CMAKE_SOURCE_DIR}/tmp/" \
                          "${CMAKE_SOURCE_DIR}/library/" \

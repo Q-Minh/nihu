@@ -548,7 +548,7 @@ struct kernel_traits<laplace_3d_SLP_kernel>
 	> complexity_estimator_t;
 };
 
-/** \brief 3D laplace kernel \f$ 1/4\pi r\f$ */
+/** \brief Single layer potential kernel of the laplace equation in 3D \f$ 1/4\pi r\f$ */
 class laplace_3d_SLP_kernel :
 	public kernel_base<laplace_3d_SLP_kernel>
 {
@@ -655,14 +655,14 @@ struct kernel_traits<laplace_3d_DLP_kernel>
 	> complexity_estimator_t;
 };
 
-/** \brief 3D laplace kernel \f$ -1/4\pi r^2 \cdot dr/dn \f$ */
+/** \brief Double layer potential kernel of the Laplace equation in 3D \f$ -1/4\pi r^2 \cdot dr/dn \f$ */
 class laplace_3d_DLP_kernel :
 	public kernel_base<laplace_3d_DLP_kernel>
 {
 };
 
 
-/** \brief a brick representing a laplace derivative kernel \f$ -1/4\pi r^2 \cdot r'_{n_x} \f$
+/** \brief a brick representing a Laplace derivative kernel \f$ -1/4\pi r^2 \cdot r'_{n_x} \f$
  * \tparam scalar the scalar of the coordinate space the distance is defined over
  */
 template <class scalar>
