@@ -40,7 +40,7 @@ In order to complie NiHu, the following prerequisites are needed:
 In order to use the Matlab interface and compile mex files the following prerequisites are needed.
 
 - [Matlab] must be installed. Matlab versions 7.x and 8.x are supported by NiHu.
-- As a part of your Matlab installetion you should also have the mex header files required to build C / C++ programs callable from Matlab.
+- As a part of your Matlab installation you should also have the mex header files required to build C / C++ programs callable from Matlab.
 
 The installation process {#install_process}
 ========================
