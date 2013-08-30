@@ -11,33 +11,31 @@ typedef mex::complex_matrix<double> cMatrix;
 void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 //! [Mex function]
 {
-//! [Surface mesh]
-	auto surf_nodes = dMatrix(rhs[0]);
-	auto surf_elem = dMatrix(rhs[1]);
+//! [Meshes]
+	dMatrix surf_nodes(rhs[0]), surf_elem(rhs[1]), field_nodes(rhs[2]), field_elem(rhs[3]);
 	auto surface = create_mesh(surf_nodes, surf_elem, _quad_1_tag());
-//! [Surface mesh]
-
-//! [Field point mesh]
-	auto field_nodes = dMatrix(rhs[2]);
-	auto field_elem = dMatrix(rhs[3]);
 	auto field = create_mesh(field_nodes, field_elem, _quad_1_tag());
-//! [Field point mesh]
-	
+//! [Meshes]
+
 //! [Function spaces]
-	auto const &trial = isoparametric_view(surface);
-	auto const &surf_test = dirac(constant_view(surface));
-	auto const &field_test = dirac(constant_view(field));
+	auto const &w = isoparametric_view(surface);
+	auto const &dirac_s = dirac(constant_view(surface));
+	auto const &dirac_f = dirac(constant_view(field));
 //! [Function spaces]
 
-//! [Kernel and weighted residual]
+//! [Kernel]
 	double wave_number = *mxGetPr(rhs[4]);
-	auto K = create_integral_operator(helmholtz_3d_SLP_kernel<double>(wave_number));
+	auto G = create_integral_operator(helmholtz_3d_SLP_kernel<double>(wave_number));
+//! [Kernel]
 
-	cMatrix Zf(field_test.get_num_dofs(), trial.get_num_dofs(), lhs[0]);
-	Zf << (field_test * K[trial]);
+//! [Matrices]
+	cMatrix Z_rad(dirac_s.get_num_dofs(), w.get_num_dofs(), lhs[1]);
+	cMatrix Z_trans(dirac_f.get_num_dofs(), w.get_num_dofs(), lhs[0]);
+//! [Matrices]
 
-	cMatrix Zs(surf_test.get_num_dofs(), trial.get_num_dofs(), lhs[1]);
-	Zs << (surf_test * K[trial]);
-//! [Kernel and weighted residual]
+//! [Weighted residual]
+	Z_rad << (dirac_s * G[w]);
+	Z_trans << (dirac_f * G[w]);
+//! [Weighted residual]
 }
 
