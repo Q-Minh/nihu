@@ -676,6 +676,7 @@ INPUT                  = "${CMAKE_SOURCE_DIR}/../dox/mainpage.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/tut_laplace_double_integral.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/tut_laplace_single_integral.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/tut_rayleigh_integral.md" \
+                         "${CMAKE_SOURCE_DIR}/../dox/tut_helmholtz_galerkin_bem.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/theory.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/techniques.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/tech_cpp11.md" \
