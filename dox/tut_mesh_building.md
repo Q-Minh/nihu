@@ -17,7 +17,7 @@ meshes or to import different mesh formats. NiHu provides a single mesh building
 interface, the ::create_mesh function that reads two mesh description matrices:
 one for the vertex locations and one for the element nodal connectivities.
 
-For versatile mesh generation and mesh importing functionalities, refer to the Matlab frontend.
+\note For versatile mesh generation and mesh importing functionalities, refer to the Matlab frontend.
 
 The create_mesh function {#tut_mesh_create_mesh}
 ========================
@@ -33,7 +33,7 @@ As NiHu uses the linear algebra library [Eigen] for matrix manipulations, we use
 
 \snippet mesh_building.mex.cpp Typedefs
 
-- `dMatrix` denotes a dynamically resizable matrix with real (`double`) coefficients,
+- `dMatrix` denotes a dynamically resizeable matrix with real (`double`) coefficients,
 - `uMatrix` denotes the same with `unsigned` coefficients.
 
 We instantiate the two matrices by allocating their coefficients, and initialising them using [Eigen]'s comma initialiser syntax:
@@ -44,16 +44,6 @@ We instantiate the two matrices by allocating their coefficients, and initialisi
 - The rows or matrix `elements` contain an element id followed by as many element nodal indices as needed by the element type. Unused coefficients are left zero.
 
 Apparently, we are building a heterogeneous mesh consisting of linear quadrangles (::quad_1_elem) and triangles (::tria_1_elem).
-Our mesh looks like shown below:
-
-	3   4   5
-	+---+---+
-	+   |2 /|
-	+ 0 | / |
-	+   |/ 1|
-	+---+---+
-	0   1   2
-
 The mesh is finally built by calling the ::create_mesh function
 
 \snippet mesh_building.mex.cpp Creation
@@ -86,5 +76,5 @@ This feature, together with the ::mex::real_matrix class, makes easy Matlab [MEX
 
 \snippet mesh_building.mex.cpp Matlab example
 
-For more information on the Matlab [MEX] interface and on the arguments of the [mexFunction], refer to the Matlab [MEX] site.
+\note For more information on the Matlab [MEX] interface and on the arguments of the [mexFunction], refer to the Matlab [MEX] site.
 

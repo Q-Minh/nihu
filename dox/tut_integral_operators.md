@@ -8,7 +8,7 @@ Integral operators and weighted residuals {#tut_integral_operators}
 Introduction {#tut_intop_intro}
 ============
 
-This tutorial explains how to implement weighted double integral matrices of the form
+This tutorial explains how NiHu implements weighted double integral matrices of the form
 
 \f$
 \displaystyle
@@ -17,17 +17,15 @@ W_{ij} =
 \int_{F} t_i({\bf x}) \int_{S} K({\bf x}, {\bf y}) d_j({\bf y}) \mathrm{d}S_y \mathrm{d}S_x
 \f$
 
-in the NiHu library.
-
 Integral operators  {#tut_intop_intop}
 ==================
 
-Integral operators are defined by their kernel function. NiHu creates integral operators using the function ::create_integral_operator, called with a kernel function instance. The above lines, for example
+Integral operators are defined by their kernel function. NiHu creates integral operators using the function ::create_integral_operator, called with a kernel function instance. The lines below, for example
 ~~~~~~~~~~~
 #include "library/laplace_kernel"
 auto K = create_integral_operator(laplace_3d_DLP_kernel());
 ~~~~~~~~~~~
-instantiates the double layer potential kernel of the Laplace equation in 3D from the library, and transform the kernel to an integral operator.
+instantiate the double layer potential kernel of the Laplace equation in 3D from the library, and transform the kernel to an integral operator.
 
 A special integral operator is the identity operator with the kernel function \f$ I({\bf x}, {\bf y}) = \delta({\bf y}-{\bf x})\f$. This is instantiated without argument, as
 ~~~~~~~~~~~
@@ -37,10 +35,10 @@ auto I = identity_integral_operator();
 Integral operations {#tut_intop_intoperation}
 ===================
 
-Projection {#tut_intop_projection}
-----------
+Integral transform {#tut_intop_transform}
+------------------
 
-The most important operation with an integral operator is letting it act on a function \f$ d({\bf y}) \f$ as:
+The most important operation with an integral operator is letting it act on a function (or function space) \f$ d({\bf y}) \f$ as:
 
 \f$
 \displaystyle
@@ -64,7 +62,7 @@ The inner product
 W = \left< t, p \right> _F= \int_{F} t({\bf x}) p({\bf x}) \mathrm{d} F_x
 \f$
 
-is implemented as a multiplication between a function space and the projection:
+is implemented as a multiplication between a function space and an integral transform:
 ~~~~~~~~~~~
 aut const &t = constant_view(other_mesh);
 auto W = t * K[d]; 		// or	W = t * p;
@@ -75,12 +73,13 @@ Finally, the result of the weighted double integral can be evaluated into a matr
 ~~~~~~~~~~~
 myMatrix << ( t * K[d] );	// or	myMatrix << W;
 ~~~~~~~~~~~
-or simply
+\note Although we deeply believe in the _do-not-memorize-precedence-use-parentheses-instead_ theorem, we mention here that the form
 ~~~~~~~~~~~
-myMatrix << t * K[d];	// * is stronger than <<   :)
+myMatrix << t * K[d];
 ~~~~~~~~~~~
+is also valid, as `<<` is weaker than `*`.	
 
-The inner product multiplication only works between a function space and a projection.
+The inner product multiplication only works between a function space and an integral transform.
 If we need to compose the inner product of two function spaces (defined on the same mesh, of course),
 then the identity operator needs to be applied:
 ~~~~~~~~~~~
