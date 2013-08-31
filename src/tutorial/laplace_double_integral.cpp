@@ -34,9 +34,9 @@ void tester(func_space const &w)
 //! [Test]
 
 
-//! [Main]
 int main(void)
 {
+//! [Mesh]
 	// nodal coordinates in 3D, 9 nodes
 	dMatrix nodes(4,3);
 	nodes <<
@@ -51,7 +51,9 @@ int main(void)
 
 	// create the mesh
 	auto msh = create_mesh(nodes, elements, _quad_1_tag());
+//! [Mesh]
 
+//! [Operators]
 	// create a piecewise constant function space and call the tester
 	std::cout << "Testing with constant field" << std::endl;
 	tester(constant_view(msh));
@@ -59,8 +61,8 @@ int main(void)
 	// create a piecewise linear function space and call the tester
 	std::cout << "Testing with isoparametric field" << std::endl;
 	tester(isoparametric_view(msh));
+//! [Operators]
 
 	return 0;
 }
-//! [Main]
 
