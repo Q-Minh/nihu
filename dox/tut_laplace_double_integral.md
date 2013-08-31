@@ -43,7 +43,7 @@ We need to include two modules:
 
 \snippet laplace_double_integral.cpp Includes
 
-We are going to work with dynamically resizable Eigen matrices. We define two convenient typedefs for double and unsigned matrices.
+We are going to work with dynamically resizeable Eigen matrices. We define two convenient typedefs for double and unsigned matrices.
 
 \snippet laplace_double_integral.cpp Typedefs
 
@@ -51,27 +51,7 @@ We are going to work with dynamically resizable Eigen matrices. We define two co
 Mesh generation {#tut_laplace_double_mesh_generation}
 ---------------
 
-Our problem domain \f$ S \f$ is represented by a mesh consisting of linear triangular and quadrilateral elements.
-
-	+1 +---+---+
-	   |   |4 /|
-	   | 2 | / |
-	   |   |/ 3|
-	 0 +---+---+
-	   |   |   |
-	   | 0 | 1 |
-	   |   |   |
-	-1 +---+---+
-	  -1   0  +1
-
-Note that the integral is singular on each element pair of our mesh, and all singularity types
-- ::FACE_MATCH
-- ::EDGE_MATCH
-- ::CORNER_MATCH
-
-are included
-
-We define a function `build_mesh` to build the mesh from scratch.
+Our problem domain \f$ S \f$ is represented by a mesh consisting of a single square element.
 
 \snippet laplace_double_integral.cpp Mesh generation
 
