@@ -37,7 +37,7 @@ void tester(func_space const &w)
 int main(void)
 {
 //! [Mesh]
-	// nodal coordinates in 3D, 9 nodes
+	// nodal coordinates in 3D, 3 nodes
 	dMatrix nodes(4,3);
 	nodes <<
 		-1.0, -1.0, 0.0,

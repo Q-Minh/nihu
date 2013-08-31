@@ -8,7 +8,7 @@ Introduction {#introduction}
 What is NiHu? {#introduction_whatis}
 =============
 
-NiHu is an open source C++-Matlab toolbox used to solve boundary value problems of partial differential equations by means of the boundary element method (BEM).
+NiHu is an open source C++-Matlab toolbox used for solving boundary value problems of partial differential equations by means of the boundary element method (BEM).
 Specifically, the toolbox provides a general framework to numerically evaluate weighted residual integrals of the form
 
 \f$
@@ -44,8 +44,8 @@ auto func_sp = constant_view(msh);
 auto L = create_integral_operator(laplace_3d_SLP_kernel());
 auto M = create_integral_operator(laplace_3d_DLP_kernel());
 auto I = identity_integral_operator();
-L_matrix << ( dirac(func_sp) * L[func_sp] );
-M_matrix << ( dirac(func_sp) * M[func_sp] ) + ( dirac(func_sp) * (-.5*I)[func_sp] );
+L_matrix << dirac(func_sp) * L[func_sp];
+M_matrix << dirac(func_sp) * M[func_sp] + dirac(func_sp) * (-.5*I)[func_sp];
 ~~~~~~~~~
 The 7-line code snippet defines a collocational 3D BEM for the Laplace equation, implemented with constant triangular and quadrilateral elements, and computes the system matrices of the discretised boundary integrals.
 
@@ -79,4 +79,3 @@ The introduced concept allows a beneficial application of the toolbox in
 - education, where general mathematical aspects need to be emphasized,
 - in research, where the developer can focus on small scale details, while having his implementation working as a part of a general system.
 - In engineering practice, as the implementation is capable of solving problems of industrial size.
-

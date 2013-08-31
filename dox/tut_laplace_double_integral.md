@@ -45,7 +45,6 @@ We need to include two modules:
 
 \snippet laplace_double_integral.cpp Includes
 
-<<<<<<< HEAD
 We are going to work with dynamically resizeable Eigen matrices. We define two convenient typedefs for double and unsigned matrices.
 
 \snippet laplace_double_integral.cpp Typedefs
@@ -68,10 +67,9 @@ I_{ij} = \left< w_i, \left(\mathcal{K} w_j\right)_S \right>_S
 
 where the set \f$ w_i \f$ denote a piecewise constant or isoparametric function space, and \f$ \mathcal{K} \f$ denotes the integral operator based on the Laplace kernel.
 
-The function space is generated from the mesh in the main function, in order to test both field generation options:
+Two function spaces are generated from the mesh, in order to test both field generation options:
 
 \snippet laplace_double_integral.cpp Operators
-
 
 
 The testing function {#tut_laplace_double_test_function}
