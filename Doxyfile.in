@@ -674,6 +674,9 @@ INPUT                  = "${CMAKE_SOURCE_DIR}/../dox/mainpage.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/introduction.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/installation.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/tutorials.md" \
+                         "${CMAKE_SOURCE_DIR}/../dox/tut_mesh_building.md" \
+                         "${CMAKE_SOURCE_DIR}/../dox/tut_function_spaces.md" \
+                         "${CMAKE_SOURCE_DIR}/../dox/tut_integral_operators.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/tut_laplace_double_integral.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/tut_laplace_single_integral.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/tut_rayleigh_integral.md" \
