@@ -1,7 +1,7 @@
 #ifndef RECIPROCAL_KERNEL_INTERVALS_HPP_INCLUDED
 #define RECIPROCAL_KERNEL_INTERVALS_HPP_INCLUDED
 
-#include "../bem/interval.hpp"
+#include "../core/interval.hpp"
 
 template <unsigned Order, unsigned Accuracy>
 struct reciprocal_distance_kernel_interval;

@@ -196,7 +196,7 @@ struct integral_operator_traits<identity_integral_operator>
 	static bool const is_local = true;
 };
 
-/** \brief The identity integral operator with kernel \f$\delta(x-y)\f$ */
+/** \brief The identity integral operator \f$ K(x,y) = \delta(x-y) \f$ */
 class identity_integral_operator :
 	public integral_operator_base<identity_integral_operator>
 {

@@ -1,5 +1,5 @@
 //! [Includes]
-#include "bem/weighted_residual.hpp"
+#include "core/weighted_residual.hpp"
 #include "library/laplace_kernel.hpp"
 //! [Includes]
 
@@ -72,15 +72,15 @@ auto build_mesh(void) ->
 int main(void)
 {
 	// call the mesh generating function
-	auto mesh = build_mesh();
+	auto msh = build_mesh();
 
 	// create a pieceweise constant function space and call the tester
 	std::cout << "Testing with constant field" << std::endl;
-	tester(constant_view(mesh));
+	tester(constant_view(msh));
 
 	// create a pieceweise linear function space and call the tester
 	std::cout << "Testing with isoparametric field" << std::endl;
-	tester(isoparametric_view(mesh));
+	tester(isoparametric_view(msh));
 
 	return 0;
 }

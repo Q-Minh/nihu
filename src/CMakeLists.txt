@@ -198,7 +198,7 @@ endif(DOXYGEN_FOUND)
 
 # Select all hpp files for installation
 set(NIHU_HPP_DIRECTORIES
-	"bem"; "library"; "tmp"; "util")
+	"core"; "library"; "tmp"; "util")
 
 foreach(HPP_DIRECTORY ${NIHU_HPP_DIRECTORIES})
 	install(DIRECTORY ${HPP_DIRECTORY} DESTINATION include FILES_MATCHING PATTERN "*.hpp")

@@ -16,7 +16,7 @@ foreach (cpp_source ${CPP_SOURCES})
 		add_executable(${target_name} ${local_source})
 		# Add installation
 		install(TARGETS ${target_name} DESTINATION ${current_dir})
-	else()
+	elseif(NIHU_BUILD_MEX)
 		# Do not use the mex compiler
 		if(NOT NIHU_FORCE_MEX_COMPILER)
 			# add the test as a shared library
@@ -48,8 +48,22 @@ foreach (cpp_source ${CPP_SOURCES})
 
 		# Add installation
 		install(TARGETS ${target_mex_name} DESTINATION ${current_dir})
-	endif()
-
 	
+		# Check if a corresponding .m file is present
+		set(target_mfile "${target_mex_name}_test.m")
+
+		# if there is a tester file
+		if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${target_mfile}")
+			# Copy the target m file to the build directory
+			ADD_CUSTOM_COMMAND(
+				TARGET ${target_mex_name}
+				POST_BUILD
+				COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/${target_mfile}" "${CMAKE_CURRENT_BINARY_DIR}/"
+				COMMENT "Copying .m file ${target_mfile} for target ${target_mex_name}${MATLAB_MEXEXT}"
+			)
+			# Copy the target .m file to the installation directory
+			install(FILES ${target_mfile} DESTINATION ${current_dir})
+		endif(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${target_mfile}")
+	endif()
 	
 endforeach(cpp_source)

@@ -1,19 +1,19 @@
-C++11 techniques in NiHu {#cpp11}
+C++11 techniques in NiHu {#tech_cpp11}
 ========================
 
-\page cpp11
+\page tech_cpp11
 
 [TOC]
 
-Introduction {#cpp11_intro}
+Introduction {#tech_cpp11_intro}
 ============
 
 This document presents the C++11 techniques used in NiHu.
 
-Variadic templates {#cpp11_variadic}
+Variadic templates {#tech_cpp11_variadic}
 ==================
 
-The auto keyword {#cpp11_auto}
+The auto keyword {#tech_cpp11_auto}
 ================
 
 C++11 allows to use the `auto` keyword for the definition of variables with explicit initialisation, where the compiler can deduce the type name from the initialisation expression:
@@ -38,9 +38,9 @@ and initialising our new variable with the factory function's return value:
 
 note that the compiler deduced the template parameter of the factory function from its argument, and the return type defined the type of the explicit initialiser of the variable definition. The result is a simple Matlab-like readable expression that compiles to the same as the old-fashioned explicit constructor call.
 
-The type_traits library {#cpp11_type_traits}
+The type_traits library {#tech_cpp11_type_traits}
 =======================
 
-lambda expressions {#cpp11_lambda}
+lambda expressions {#tech_cpp11_lambda}
 ==================
 

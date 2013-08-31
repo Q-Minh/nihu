@@ -90,8 +90,8 @@ public:
 	static result_t &eval_into(
 		result_t &result,
 		integral_operator_base<Operator> const &op,
-		function_space_base<TestSpace> const &test,
-		function_space_base<TrialSpace> const &trial)
+		function_space_base<TestSpace> const &test_space,
+		function_space_base<TrialSpace> const &trial_space)
 	{
 		tmp::d_call_each<
 			typename function_space_traits<TestSpace>::field_type_vector_t,
@@ -101,7 +101,7 @@ public:
 			integral_operator_base<Operator> const &,
 			function_space_base<TestSpace> const &,
 			function_space_base<TrialSpace> const &
-		>(result, op, test, trial);
+		>(result, op, test_space, trial_space);
 
 		return result;
 	}

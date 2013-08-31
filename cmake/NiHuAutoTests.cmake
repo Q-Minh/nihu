@@ -23,7 +23,7 @@ foreach (test_source ${MEX_TEST_SOURCES})
 			install(TARGETS ${test_name} DESTINATION ${current_dir})
 		endif(NIHU_ENABLE_TEST_INSTALL)
 	# MATLAB Tests
-	else()
+	elseif(NIHU_BUILD_MEX)
 		# Find corresponding test file
 		set(test_mfile "${CMAKE_CURRENT_SOURCE_DIR}/${test_mex_name}_test.m")
 
@@ -59,7 +59,8 @@ foreach (test_source ${MEX_TEST_SOURCES})
 		add_custom_command(
 			TARGET ${test_mex_name} 
 			POST_BUILD
-			COMMAND ${CMAKE_COMMAND} -E copy ${test_mfile} "./"
+			COMMAND ${CMAKE_COMMAND} -E copy ${test_mfile} "${CMAKE_CURRENT_BINARY_DIR}/"
+			COMMENT "Copying test .m file ${test_mfile} for target ${test_mex_name}${MATLAB_MEXEXT}"
 		)
 
 		# create the script that executes matlab
@@ -68,6 +69,7 @@ foreach (test_source ${MEX_TEST_SOURCES})
 			POST_BUILD
 			COMMAND ${CMAKE_COMMAND} -Dmat_root="${MATLAB_ROOT}" -Drun_file="run_${test_name}_test" -Dm_test_file="${test_name}_test.m" -P "${CMAKE_MODULE_PATH}/WriteMatlabTestRunner.cmake"
 			DEPENDS "${CMAKE_MODULE_PATH}/WriteMatlabTestRunner.cmake"
+			COMMENT "Creating run script for test .m file ${test_mfile}"
 		)
 
 		if(NIHU_ENABLE_RUN_MATLAB_TESTS)

@@ -1,5 +1,5 @@
 //! [Header]
-#include "bem/weighted_residual.hpp"
+#include "core/weighted_residual.hpp"
 #include "library/helmholtz_kernel.hpp"
 #include "util/mex_matrix.hpp"
 
@@ -11,33 +11,31 @@ typedef mex::complex_matrix<double> cMatrix;
 void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 //! [Mex function]
 {
-//! [Surface mesh]
-	auto surf_nodes = dMatrix(rhs[0]);
-	auto surf_elem = dMatrix(rhs[1]);
-	auto surface = create_mesh(surf_nodes, surf_elem, _quad_1_tag());
-//! [Surface mesh]
+//! [Meshes]
+	dMatrix surf_nodes(rhs[0]), surf_elem(rhs[1]), field_nodes(rhs[2]), field_elem(rhs[3]);
+	auto surf_mesh = create_mesh(surf_nodes, surf_elem, _quad_1_tag());
+	auto field_mesh = create_mesh(field_nodes, field_elem, _quad_1_tag());
+//! [Meshes]
 
-//! [Field point mesh]
-	auto field_nodes = dMatrix(rhs[2]);
-	auto field_elem = dMatrix(rhs[3]);
-	auto field = create_mesh(field_nodes, field_elem, _quad_1_tag());
-//! [Field point mesh]
-	
 //! [Function spaces]
-	auto const &trial = isoparametric_view(surface);
-	auto const &surf_test = dirac(constant_view(surface));
-	auto const &field_test = dirac(constant_view(field));
+	auto const &w = isoparametric_view(surf_mesh);
+	auto const &dirac_f = dirac(constant_view(field_mesh));
+	auto const &dirac_s = dirac(constant_view(surf_mesh));
 //! [Function spaces]
 
-//! [Kernel and weighted residual]
+//! [Kernel]
 	double wave_number = *mxGetPr(rhs[4]);
-	auto K = create_integral_operator(helmholtz_3d_SLP_kernel<double>(wave_number));
+	auto G = create_integral_operator(helmholtz_3d_SLP_kernel<double>(wave_number));
+//! [Kernel]
 
-	cMatrix Zf(field_test.get_num_dofs(), trial.get_num_dofs(), lhs[0]);
-	Zf << (field_test * K[trial]);
+//! [Matrices]
+	cMatrix Z_trans(dirac_f.get_num_dofs(), w.get_num_dofs(), lhs[0]);
+	cMatrix Z_rad(dirac_s.get_num_dofs(), w.get_num_dofs(), lhs[1]);
+//! [Matrices]
 
-	cMatrix Zs(surf_test.get_num_dofs(), trial.get_num_dofs(), lhs[1]);
-	Zs << (surf_test * K[trial]);
-//! [Kernel and weighted residual]
+//! [Weighted residual]
+	Z_trans << (dirac_f * G[w]);
+	Z_rad << (dirac_s * G[w]);
+//! [Weighted residual]
 }
 

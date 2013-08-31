@@ -1,7 +1,7 @@
-Polymorphism in NiHu {#polymorphism}
+Polymorphism in NiHu {#tech_poly}
 ====================
 
-\page polymorphism
+\page tech_poly
 
 [TOC]
 
@@ -11,7 +11,7 @@ This page explains a bit about how NiHu works.
 The topic discussed here is not about Boundary Elements but programming.
 We explain how static polymorphism and c++ template metaprogramming is applied to efficiently incorporate inhomogeneous meshes into the NiHu toolbox.
 
-Polymorphism in NiHu {#nihupoly}
+Polymorphism in NiHu {#tech_poly_nihupoly}
 ====================
 
 Evaluating the Weighted Residual approach means integrating a kernel \f$K(x_0,x)\f$ over a set of elements \f$E\f$ extended with some shape functions \f$N(x)\f$:
@@ -20,7 +20,7 @@ R = \int_{E}K(x_0,x) N(x) dx
 \f]
 Obviously, when programming a BEM, we want to write our integration routine generally, so that our code remains capable to handle as many different element and kernel types as possible.
 
-Dynamic polymorphism {#dynpoly}
+Dynamic polymorphism {#tech_poly_dynpoly}
 --------------------
 
 A straightforward C++ solution to this problem is *dynamic polymorphism* implemented with virtual functions, abstract base classes and heterogeneous collections.
@@ -34,7 +34,7 @@ However, dynamic polymorphism has some important drawbacks too:
 
 These drawbacks can add up to a significant decrease of overall performance.
 
-Static polymorphism {#statpoly}
+Static polymorphism {#tech_poly_statpoly}
 --------------------
 
 _Static polymorphism_, on the contrary, means that we still implement our problem generally, but keep in mind that only one single specific instance of the general problem will be compiled and run at once.
@@ -103,7 +103,7 @@ What if we need to evaluate double integrals (Galerkin BEM) with arbitrary test 
 We have to repeat our simple traversing code segment \f$5^2\times3=75\f$ times!
 This is the point where template metaprogramming becomes inevitable.
 
-Template Metaprogramming {#tmp}
+Template Metaprogramming {#tech_poly_tmp}
 ------------------------
 
 Metaprogramming is writing programs that write programs.

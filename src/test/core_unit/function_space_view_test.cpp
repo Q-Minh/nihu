@@ -1,5 +1,5 @@
 #include "tmp/vector.hpp"
-#include "bem/function_space.hpp"
+#include "core/function_space.hpp"
 
 typedef tmp::vector<tria_1_elem, quad_1_elem> elem_type_vector_t;
 typedef mesh<elem_type_vector_t> mesh_t;

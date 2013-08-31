@@ -1,5 +1,5 @@
-#include "bem/gaussian_quadrature.hpp"
-#include "bem/duffy_quadrature.hpp"
+#include "core/gaussian_quadrature.hpp"
+#include "core/duffy_quadrature.hpp"
 #include "tmp/control.hpp"
 #include "tmp/vector.hpp"
 

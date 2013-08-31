@@ -8,9 +8,9 @@
 #ifndef UNIT_KERNEL_HPP_INCLUDED
 #define UNIT_KERNEL_HPP_INCLUDED
 
-#include "../bem/kernel.hpp"
+#include "../core/kernel.hpp"
 #include "../util/brick.hpp"
-#include "../bem/gaussian_quadrature.hpp"
+#include "../core/gaussian_quadrature.hpp"
 
 /** \brief the unit kernel returning K(x,y) = 1 for all inputs */
 template <class Scalar>

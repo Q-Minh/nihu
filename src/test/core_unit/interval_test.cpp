@@ -1,4 +1,4 @@
-#include "bem/interval.hpp"
+#include "core/interval.hpp"
 #include "tmp/control.hpp"
 #include <iostream>
 

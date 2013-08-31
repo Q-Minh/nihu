@@ -1,5 +1,5 @@
 #include "tmp/control.hpp"
-#include "bem/shapeset.hpp"
+#include "core/shapeset.hpp"
 #include "tmp/vector.hpp"
 
 template <class shape_set>

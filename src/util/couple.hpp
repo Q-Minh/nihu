@@ -176,7 +176,7 @@ public:
 	}
 
 	/** \brief return a zero couple */
-	constexpr static couple Zero(void)
+	static couple Zero(void)
 	{
 		couple res;
 		return res.setZero();

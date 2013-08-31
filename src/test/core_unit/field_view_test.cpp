@@ -1,5 +1,5 @@
 #include <iostream>
-#include "bem/field.hpp"
+#include "core/field.hpp"
 #include "tmp/sequence.hpp"
 #include "tmp/control.hpp"
 #include "tmp/vector.hpp"

@@ -157,10 +157,10 @@ public:
 	*/
 	scalar_t sum_of_weights(void) const
 	{
-		return std::accumulate (base_t::begin(), base_t::end(),
-			scalar_t(), [] (
-			scalar_t x, quadrature_elem_t const &qe
-			) { return x + qe.get_w(); });
+		scalar_t res();
+		for (auto it = base_t::begin(); it != base_t::end(); ++it)
+			res += it->get_w();
+		return res;
 	}
 
 	/**
@@ -171,10 +171,8 @@ public:
 	std::ostream & print(std::ostream & os) const
 	{
 		os << base_t::size() << std::endl;
-		std::for_each(base_t::begin(), base_t::end(), [&os] (quadrature_elem_t const &e) {
-			os << e.get_xi().transpose() << "\t\t" << e.get_w() << std::endl;
-		});
-
+		for (auto it = base_t::begin(); it != base_t::end(); ++it)
+			os << it->get_xi().transpose() << "\t\t" << it->get_w() << std::endl;
 		return os;
 	}
 

@@ -293,7 +293,7 @@ public:
 };
 
 
-/** \brief tag of a linear line */
+/** \brief tag of a 2-noded linear line element */
 struct _line_1_tag {};
 
 /** \brief a linear line element in 2D space */
@@ -355,7 +355,7 @@ struct tag2element<_line_1_tag> : line_1_elem {};
 /** \brief a linear triangle element in 3D space */
 class tria_1_elem;
 
-/** \brief tag of a quadrilateral element */
+/** \brief tag of a 3-noded linear triangle element */
 struct _tria_1_tag {};
 
 /** \brief element properties of a linear 3D tria element */
@@ -426,7 +426,7 @@ struct element_traits<quad_1_elem>
 	enum { is_normal_stored = false };
 };
 
-/** \brief tag of a quadrilateral element */
+/** \brief tag of a 4-noded linear quadrilateral element */
 struct _quad_1_tag {};
 
 /** \brief a linear quad element in 3D space */
