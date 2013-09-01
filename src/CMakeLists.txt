@@ -45,17 +45,6 @@ endif(WIN32)
 
 ### EIGEN section
 
-# Eigen as headers is default in windows mode
-if(WIN32)
-	# Disable eigen project install on windows
-	set(NIHU_EIGEN_AS_PROJECT 0)
-else(WIN32)
-	# Turn of eigen as project as default on other operating systems
-	if(NOT DEFINED NIHU_EIGEN_AS_PROJECT)
-		set(NIHU_EIGEN_AS_PROJECT 0)
-	endif(NOT DEFINED NIHU_EIGEN_AS_PROJECT)
-endif(WIN32)
-
 # Perform eigen installation
 include(NiHuEigen)
 
@@ -64,8 +53,8 @@ include(NiHuEigen)
 # look for environment variable MATLAB_ROOT
 if (DEFINED ENV{MATLAB_ROOT})
 	set(MATLAB_ROOT "$ENV{MATLAB_ROOT}")
-elseif(DEFINED NIHU_MATLAB_ROOT)
-	set(MATLAB_ROOT "${NIHU_MATLAB_ROOT}")
+elseif(DEFINED NIHU_MATLAB_PATH)
+	set(MATLAB_ROOT "${NIHU_MATLAB_PATH}")
 endif(DEFINED ENV{MATLAB_ROOT})
 
 # look for matlabmex pacakge
@@ -76,11 +65,11 @@ if(MATLABMEX_FOUND)
  	message(STATUS "Matlab MEX found, enabling build of mex files")
  	set(NIHU_BUILD_MEX 1)
 	# force usage of matlab's mex comipler
-	if(NIHU_FORCE_MEX_COMPILER)
+	if(NIHU_MATLAB_FORCE_MEX_COMPILER)
 		message(STATUS "Forcing Matlab's MEX compiler (${MATLAB_MEX}) for mex files")
-	else(NIHU_FORCE_MEX_COMPILER)
+	else(NIHU_MATLAB_FORCE_MEX_COMPILER)
 		message(STATUS "Will use the ${CMAKE_CXX_COMPILER_ID} compiler (${CMAKE_CXX_COMPILER}) for mex files")
-	endif(NIHU_FORCE_MEX_COMPILER)
+	endif(NIHU_MATLAB_FORCE_MEX_COMPILER)
 	# set the flags
 	if(WIN32)
 		SET(MEX_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMATLAB_MEX_FILE")
@@ -137,18 +126,18 @@ find_package(Doxygen)
 
 if(DOXYGEN_FOUND)
 	# Check documentation path
-	if(DEFINED NIHU_HTML_DOC_PATH)
-	else(DEFINED NIHU_HTML_DOC_PATH)
-		set(NIHU_HTML_DOC_PATH "${CMAKE_BINARY_DIR}/doc/html")
-		file(MAKE_DIRECTORY ${NIHU_HTML_DOC_PATH})
-	endif(DEFINED NIHU_HTML_DOC_PATH)
-	message(STATUS "html documentation path: ${NIHU_HTML_DOC_PATH}")
+	if(DEFINED NIHU_HTML_DOC_DIR)
+	else(DEFINED NIHU_HTML_DOC_DIR)
+		set(NIHU_HTML_DOC_DIR "${CMAKE_BINARY_DIR}/doc/html")
+		file(MAKE_DIRECTORY ${NIHU_HTML_DOC_DIR})
+	endif(DEFINED NIHU_HTML_DOC_DIR)
+	message(STATUS "html documentation path: ${NIHU_HTML_DOC_DIR}")
 	
 	if(NOT NIHU_MATHJAX_DISABLE)
 		message(STATUS "Enabling MathJax in Doxygen documentation")
 		set(NIHU_MATHJAX_USE "YES")
 		if(DEFINED NIHU_MATHJAX_PATH)
-			file(RELATIVE_PATH NIHU_MATHJAX_RELPATH "${NIHU_HTML_DOC_PATH}" "${NIHU_MATHJAX_PATH}")
+			file(RELATIVE_PATH NIHU_MATHJAX_RELPATH "${NIHU_HTML_DOC_DIR}" "${NIHU_MATHJAX_PATH}")
 			message(STATUS "MathJax relative path: ${NIHU_MATHJAX_RELPATH}")
 		else(DEFINED NIHU_MATHJAX_PATH)
 			set(NIHU_MATHJAX_RELPATH "http://cdn.mathjax.org/mathjax/latest")
@@ -188,7 +177,7 @@ if(DOXYGEN_FOUND)
 	if(NIHU_ENABLE_DOC_INSTALL)
 		if(NOT (${NIHU_INSTALL_PATH} MATCHES ${CMAKE_BINARY_DIR}))
 			message(STATUS "Documentation will be installed into ${CMAKE_INSTALL_PREFIX}/doc")
-			install(DIRECTORY ${NIHU_HTML_DOC_PATH} DESTINATION doc)
+			install(DIRECTORY ${NIHU_HTML_DOC_DIR} DESTINATION doc)
 		endif()
 	endif(NIHU_ENABLE_DOC_INSTALL)
 

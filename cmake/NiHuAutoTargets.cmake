@@ -18,7 +18,7 @@ foreach (cpp_source ${CPP_SOURCES})
 		install(TARGETS ${target_name} DESTINATION ${current_dir})
 	elseif(NIHU_BUILD_MEX)
 		# Do not use the mex compiler
-		if(NOT NIHU_FORCE_MEX_COMPILER)
+		if(NOT NIHU_MATLAB_FORCE_MEX_COMPILER)
 			# add the test as a shared library
 			add_library(${target_mex_name} SHARED ${local_source})
 			# remove the "lib" prefix
@@ -29,7 +29,7 @@ foreach (cpp_source ${CPP_SOURCES})
 				LINK_FLAGS "${MEX_SHARED_LINKER_FLAGS}"
 			)
 		# Use the mex compiler
-		else(NOT NIHU_FORCE_MEX_COMPILER)
+		else(NOT NIHU_MATLAB_FORCE_MEX_COMPILER)
 			ADD_CUSTOM_TARGET (${target_mex_name} ALL)
 			ADD_CUSTOM_COMMAND(
 				TARGET    ${target_mex_name}
@@ -39,12 +39,11 @@ foreach (cpp_source ${CPP_SOURCES})
 					-I"${MATLAB_ROOT}/extern/include" 
 					-I"${EIGEN_INCLUDE_DIR}"
 					-I"${CMAKE_SOURCE_DIR}" 
-					-I"${CMAKE_SOURCE_DIR}/util" 
 					"${CMAKE_CURRENT_SOURCE_DIR}/${local_source}"
 					-o "${test_name}"
 				COMMENT "Executing MEX for ${local_source}"
 			)
-		endif(NOT NIHU_FORCE_MEX_COMPILER)
+		endif(NOT NIHU_MATLAB_FORCE_MEX_COMPILER)
 
 		# Add installation
 		install(TARGETS ${target_mex_name} DESTINATION ${current_dir})

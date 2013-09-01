@@ -27,7 +27,7 @@ foreach (test_source ${MEX_TEST_SOURCES})
 		# Find corresponding test file
 		set(test_mfile "${CMAKE_CURRENT_SOURCE_DIR}/${test_mex_name}_test.m")
 
-		if(NOT NIHU_FORCE_MEX_COMPILER)
+		if(NOT NIHU_MATLAB_FORCE_MEX_COMPILER)
 			# add the test as a shared library
 			add_library(${test_mex_name} SHARED ${local_source})
 			# remove the "lib" prefix
@@ -38,7 +38,7 @@ foreach (test_source ${MEX_TEST_SOURCES})
 				LINK_FLAGS "${MEX_SHARED_LINKER_FLAGS}"
 			)
 		
-		else(NOT NIHU_FORCE_MEX_COMPILER)
+		else(NOT NIHU_MATLAB_FORCE_MEX_COMPILER)
 			ADD_CUSTOM_TARGET (${test_mex_name} ALL)
 			ADD_CUSTOM_COMMAND(
 				TARGET    ${test_mex_name}
@@ -53,7 +53,7 @@ foreach (test_source ${MEX_TEST_SOURCES})
 					-o "${test_name}"
 				COMMENT "Executing MEX for ${local_source}"
 			)
-		endif(NOT NIHU_FORCE_MEX_COMPILER)
+		endif(NOT NIHU_MATLAB_FORCE_MEX_COMPILER)
 
 		# copy the test m file
 		add_custom_command(
