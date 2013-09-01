@@ -125,8 +125,8 @@ struct helmholtz_3d_g_brick
 		{
 		}
 
-		/** \brief return helmholtz g kernel
-		 * \return helmholtz g kernel
+		/** \brief return Helmholtz g kernel
+		 * \return Helmholtz g kernel
 		 */
 		result_t const &get_helmholtz_g(void) const
 		{
@@ -162,7 +162,7 @@ struct helmholtz_3d_g_wall : build<
 template <class wave_number_t>
 class helmholtz_3d_SLP_kernel;
 
-/** \brief traits of the helmholtz G kernel */
+/** \brief traits of the Helmholtz G kernel */
 template <class wave_number_t>
 struct kernel_traits<helmholtz_3d_SLP_kernel<wave_number_t> >
 {
@@ -191,7 +191,7 @@ struct kernel_traits<helmholtz_3d_SLP_kernel<wave_number_t> >
 };
 
 
-/** \brief 3D Helmholtz G kernel \f$ 1/4\pi r\f$ */
+/** \brief Single layer potential kernel of the Helmholtz equation in 3D \f$ \exp(-ikr)/4\pi r\f$ */
 template <class wave_number_t>
 class helmholtz_3d_SLP_kernel :
 	public kernel_base<helmholtz_3d_SLP_kernel<wave_number_t> >
@@ -278,7 +278,7 @@ struct helmholtz_3d_h_wall : build<
 template <class wave_number_t>
 class helmholtz_3d_DLP_kernel;
 
-/** \brief traits of the helmholtz H kernel */
+/** \brief traits of the Helmholtz H kernel */
 template <class wave_number_t>
 struct kernel_traits<helmholtz_3d_DLP_kernel<wave_number_t> >
 {
@@ -307,7 +307,7 @@ struct kernel_traits<helmholtz_3d_DLP_kernel<wave_number_t> >
 };
 
 
-/** \brief 3D Helmholtz H kernel \f$ \exp(-ikr)/4\pi r \left(-(1+ikr)/r\right) \cdot r'_{n_y} \f$ */
+/** \brief Double layer potential kernel of the Helmholtz equation in 3D \f$ \exp(-ikr)/4\pi r \left(-(1+ikr)/r\right) \cdot r'_{n_y} \f$ */
 template <class wave_number_t>
 class helmholtz_3d_DLP_kernel :
 	public kernel_base<helmholtz_3d_DLP_kernel<wave_number_t> >
@@ -357,10 +357,10 @@ struct helmholtz_3d_ht_brick
 		{
 		}
 
-		/** \brief return helmholtz g kernel
-		 * \return helmholtz g kernel
+		/** \brief return Helmholtz Ht kernel
+		 * \return Helmholtz Ht kernel
 		 */
-		result_t const &get_helmholtz_h(void) const
+		result_t const &get_helmholtz_ht(void) const
 		{
 			return m_helmholtz_ht;
 		}
@@ -390,11 +390,11 @@ struct helmholtz_3d_ht_wall : build<
 > {};
 
 
-/** \brief 3D Helmholtz kernel \f$ \exp(-ikr)/4\pi r \left(-(1+ikr)/r\right) \cdot r'_{n_x} \f$ */
+/** \brief Transposed Double layer potential kernel of the Helmholtz equation in 3D \f$ \exp(-ikr)/4\pi r \left(-(1+ikr)/r\right) \cdot r'_{n_x} \f$ */
 template <class wave_number_t>
 class helmholtz_3d_DLPt_kernel;
 
-/** \brief traits of the helmholtz H kernel */
+/** \brief traits of the Helmholtz Ht kernel */
 template <class wave_number_t>
 struct kernel_traits<helmholtz_3d_DLPt_kernel<wave_number_t> >
 {
@@ -437,8 +437,6 @@ public:
 	{
 	}
 };
-
-
 
 
 /** \brief a brick representing a 3D Helmholtz H kernel \f$ \exp(-ikr)/4\pi r \left(-(1+ikr)/r\right) \cdot dr/dn \f$
@@ -518,7 +516,7 @@ struct helmholtz_3d_hyper_wall : build<
 template <class wave_number_t>
 class helmholtz_3d_HSP_kernel;
 
-/** \brief traits of the helmholtz Hyper kernel */
+/** \brief traits of the Helmholtz Hyper kernel */
 template <class wave_number_t>
 struct kernel_traits<helmholtz_3d_HSP_kernel<wave_number_t> >
 {
@@ -547,7 +545,7 @@ struct kernel_traits<helmholtz_3d_HSP_kernel<wave_number_t> >
 };
 
 
-/** \brief 3D Helmholtz Hyper kernel \f$ \dots \f$ */
+/** \brief Hypersingular kernel of the Helmholtz equation in 3D */
 template <class wave_number_t>
 class helmholtz_3d_HSP_kernel :
 	public kernel_base<helmholtz_3d_HSP_kernel<wave_number_t> >
