@@ -9,6 +9,7 @@ Installation {#install}
 [gcc]:http://gcc.gnu.org
 [git]:http://git-scm.com
 [Matlab]:http://www.mathworks.com/products/matlab
+[Mex]:http://www.mathworks.com/help/matlab/create-mex-files.html
 [TDM-GCC]:http://tdm-gcc.tdragon.net
 [Ubuntu]:http://www.ubuntu.com
 
@@ -36,10 +37,12 @@ Prerequisites {#install_prereq}
 
 In order to complie NiHu, the following prerequisites are needed:
 
-- A c++ compiler and linker that supports some features of the C++11 standard. You will find further information on the compiler selection in the [next section](#install_process). Note: NiHu builds were tested using the gcc compiler versions 4.7 and 4.8.
-- NiHu relies on the template matrix library [eigen]. If you do not have Eigen installed on your computer, the installation process will download and install the necessary header files for the compilation of NiHu. Note: current version of NiHu was tested using Eigen 3.1.2.
+- A c++ compiler and linker that supports some features of the C++11 standard. You will find further information on the compiler selection in the [next section](#install_process).
+\note NiHu builds were tested using the gcc compiler versions 4.7 and 4.8.
+- NiHu relies on the template matrix library [Eigen]. If you do not have Eigen installed on your computer, the installation process will download and install the necessary header files for the compilation of NiHu.
+\note current version of NiHu was tested using Eigen 3.1.2.
 
-In order to use the Matlab interface and compile mex files the following prerequisites are needed.
+In order to use the Matlab interface and compile [mex] files the following prerequisites are needed.
 
 - [Matlab] must be installed. Matlab versions 7.x and 8.x are supported by NiHu.
 - As a part of your Matlab installation you should also have the mex header files required to build C / C++ programs callable from Matlab.
@@ -317,7 +320,8 @@ If your source file is named `example.cpp` you can compile it and create the exe
 
 	g++ example.cpp -std=c++11 -I/path/to/nihu_install_dir/include -o example
 	
-By using the above pattern you only have to add one directory to the include path definitions of the compiler, as demonstrated above. You should always use the `-std=c++11` option when compiling C++ sources using NiHu.
+By using the above pattern you only have to add one directory to the include path definitions of the compiler, as demonstrated above.
+\note You should always use the `-std=c++11` option when compiling C++ sources using NiHu.
 	
 Using the Matlab interface {#install_matlab_interface}
 --------------------------
