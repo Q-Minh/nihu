@@ -50,6 +50,12 @@ In order to use the Matlab interface and compile [mex] files the following prere
 The installation process {#install_process}
 ========================
 
+It is worth mentioning that since NiHu is a template library, you do not need to compile any sources in order to use NiHu's C++ core.
+You can simply include the header files found in the directory `nihu/src` in order to compile your own C++ codes using the features implemented in NiHu (see [below](#install_compile_cpp)).
+However, the installation process lets you to compile tutorials, tests and mex files for NiHu's Matlab interface.
+Furthermore if you complete the installation, you can make sure, that you have all necessery prerequisites that are needed to use NiHu.
+Therefore, it is highly recommended to complete the installation before using the NiHu toolbox.
+
 NiHu is installed using the free cross-platform make tool [cmake] on all supported platforms.
 
 The installation is done in three steps as usual.
@@ -285,7 +291,7 @@ After the installation process is successfully completed you should be ready to 
 Running tests {#install_run_tests}
 -------------
 
-If you have built the NiHu test execuatables, you can run them by executing the command `ctest` inside the build directory. (For enabling building of tests and other testing related options please see Section [Testing options](#install_testing_options).)
+If you have built the NiHu test executables (by setting the option `-DNIHU_ENABLE_TESTING=1` for the `cmake` command), you can run them by executing the command `ctest` inside the build directory. (For other testing related options please refer to [Testing options](#install_testing_options).)
 
 	cd build_dir
 	ctest
