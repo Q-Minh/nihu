@@ -192,3 +192,11 @@ set(NIHU_HPP_DIRECTORIES
 foreach(HPP_DIRECTORY ${NIHU_HPP_DIRECTORIES})
 	install(DIRECTORY ${HPP_DIRECTORY} DESTINATION include FILES_MATCHING PATTERN "*.hpp")
 endforeach(HPP_DIRECTORY)
+
+# Matlab installation section
+set(NIHU_MATLAB_DIRECTORIES
+	"analytic"; "bem"; "compatibility"; "meshing")
+
+foreach(MATLAB_DIRECTORY ${NIHU_MATLAB_DIRECTORIES})
+	install(DIRECTORY "matlab/${MATLAB_DIRECTORY}" DESTINATION matlab FILES_MATCHING PATTERN "*.m")
+endforeach(MATLAB_DIRECTORY)
