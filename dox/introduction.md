@@ -24,17 +24,17 @@ where
 \f$ S \f$ denotes a boundary surface,
 \f$ t_i \f$ and \f$ d_j \f$ denote base functions of discretised function spaces, and
 \f$ \mathcal{K} \f$ denotes an integral operator defined by its kernel function \f$ K \f$.
-Such integrals frequently arise when numerical solution of boundary value problems is formalised using the finite or boundary element methods (see for example \ref theo_bem_example).
+Such integrals frequently arise when the numerical solution of boundary value problems is formalised using the finite or boundary element methods (see for example \ref theo_bem_example).
 
 Unified programming interface {#introduction_unified}
 =============================
 
-The main motivation to develop NiHu is to provide a unified open source software framework for BEM problems of different kinds.
+The main motivation of developing NiHu is to provide a unified open source software framework for BEM problems of different kinds.
 Our implementation is capable to generate BEM executables
 - with Direct and Indirect BEM formalism
 - with Galerkin, Collocational and General solution methods
 - in 2D and 3D
-- with generally defined element types
+- with element types defined in a general manner
 
 The main C++ core of NiHu can be considered as a skeleton that defines different BEM problems in a general way, by reflecting mathematics behind boundary elements in the C++ code.
 The C++ code snippet below demonstrates the capabilities of NiHu's application layer:
@@ -57,10 +57,10 @@ Developers may customise
 - Element types
 - Kernels
 - Quadratures
-- Singular integration techniques specific to kernels, formalisms element types
+- Singular integration techniques specific to kernels, formalisms and element types
 - and more...
 
-to adapt NiHu to their specific problems.
+in order to adapt NiHu to their specific problems.
 
 Matlab layer {#introduction_matlab}
 ============
@@ -68,6 +68,7 @@ Matlab layer {#introduction_matlab}
 The Matlab shell layer provides extensive pre- and post processing features like
 - Parametric mesh generation for academic benchmarks
 - Standard mesh format import and export
+- Direct and iterative solutions of the resulting matrix equations
 - Easy plot generation
 
 and makes integration with other software tools straightforward.
@@ -76,6 +77,6 @@ Summary {#introduction_summary}
 =======
 
 The introduced concept allows a beneficial application of the toolbox in
-- education, where general mathematical aspects need to be emphasized,
-- in research, where the developer can focus on small scale details, while having his implementation working as a part of a general system.
-- In engineering practice, as the implementation is capable of solving problems of industrial size.
+- **education**, where general mathematical aspects need to be emphasized,
+- **research**, where the developer can focus on small scale details, while having his implementation working as a part of a general system;
+- and **engineering practice**, as the implementation is capable of solving problems of industrial size.

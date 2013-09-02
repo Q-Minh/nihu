@@ -48,9 +48,8 @@ The mesh is finally built by calling the ::create_mesh function
 
 \snippet mesh_building.mex.cpp Creation
 
-The additional arguments ::_quad_1_tag () and ::_tria_1_tag () are additional type information
-used to tell the compiler which element types are used in the mesh.
-From this information, the compiler builds a specific mesh type that stores the specified element types separately, in optimised way.
+The additional arguments ::_quad_1_tag () and ::_tria_1_tag () are additional type information telling the compiler which element types are used in the mesh.
+From this information, the compiler builds a specific mesh type that stores the specified element types separately, in an optimised way.
 
 \note The function's return type is hidden from the library user by the `auto` keyword. In fact, it is
 ~~~~~~~~~~~~
@@ -76,5 +75,5 @@ This feature, together with the ::mex::real_matrix class, makes easy Matlab [MEX
 
 \snippet mesh_building.mex.cpp Matlab example
 
-\note For more information on the Matlab [MEX] interface and on the arguments of the [mexFunction], refer to the Matlab [MEX] site.
+\note For more information on the Matlab MEX interface and on the arguments of the [mexFunction], refer to the Matlab [MEX] site.
 

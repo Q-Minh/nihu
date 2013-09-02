@@ -3,13 +3,15 @@ Function Spaces {#tut_function_spaces}
 
 \page tut_function_spaces
 
+[mesh definitions]:\ref tut_mesh_building
+
 [TOC]
 
 Introduction {#tut_funspace_intro}
 ============
 
-Discretised function spaces are meshes extended with shape functions that describe the interpolation of some physical quantity over the mesh's elements. NiHu provides two methods for building function spaces:
-- The first method is to define the function space element-by-element, in a similar manner as mesh definition.
+Discretised function spaces are meshes extended with shape functions that describe the interpolation scheme of a certain physical quantity over the  elements of the mesh. NiHu provides two methods for building function spaces:
+- The first method is to define the function space element-by-element, similar to [mesh definitions].
 This method is rarely used, only in academic cases.
 - The second method is automatic homogeneous function space view generation from an existing mesh, using a function space generation option.
 
@@ -38,7 +40,8 @@ so its nodal locations coincide with the geometrical nodes.
 \note
 Function space view's are light weight (zero weight) objects, they only provide additional type information.
 Therefore, it is important to store function space views in references.
-This ensures that the mesh is not copied into a new object. The function space refers to the same mesh that behaves like, or _is viewed as_ a piecewise constant function space.
+This ensures that the mesh is not copied into a new object.
+The function space refers to the same mesh that behaves like, or _is viewed as_ a piecewise constant function space.
 
 
 ### Alternative syntax
@@ -63,7 +66,8 @@ auto const &dirac_fsp = dirac(original_fsp);
 ~~~~~~~~~~
 
 A Dirac function space behaves as a set of Dirac delta basis functions
-located at the original function space's nodes. For example:
+located at the original function space's nodes.
+For example
 
 ~~~~~~~~~~
 auto const &dirac_center = dirac(constant_view(my_mesh));
@@ -88,7 +92,7 @@ the second `auto` resolves to
 ~~~~~~~~~~
 dirac_view<function_space_view<mesh<tmp::vector<tria_1_elem, quad_1_elem> >, field_option::constant> >
 ~~~~~~~~~~
-
+which is cumbersome to read and interpret.
 
 Defining heterogeneous custom function spaces {#tut_funspace_custom}
 =============================================

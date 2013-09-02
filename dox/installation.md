@@ -42,7 +42,7 @@ In order to complie NiHu, the following prerequisites are needed:
 - NiHu relies on the template matrix library [Eigen]. If you do not have Eigen installed on your computer, the installation process will download and install the necessary header files for the compilation of NiHu.
 \note current version of NiHu was tested using Eigen 3.1.2.
 
-In order to use the Matlab interface and compile [mex] files the following prerequisites are needed.
+In order to use the Matlab interface and compile [mex] files the following prerequisites are needed:
 
 - [Matlab] must be installed. Matlab versions 7.x and 8.x are supported by NiHu.
 - As a part of your Matlab installation you should also have the mex header files required to build C / C++ programs callable from Matlab.
@@ -50,10 +50,10 @@ In order to use the Matlab interface and compile [mex] files the following prere
 The installation process {#install_process}
 ========================
 
-It is worth mentioning that since NiHu is a template library, you do not need to compile any sources in order to use NiHu's C++ core.
+It is worth mentioning that since NiHu is a template library, you do not need to compile any sources to use NiHu's C++ core.
 You can simply include the header files found in the directory `nihu/src` in order to compile your own C++ codes using the features implemented in NiHu (see [below](#install_compile_cpp)).
-However, the installation process lets you to compile tutorials, tests and mex files for NiHu's Matlab interface.
-Furthermore if you complete the installation, you can make sure, that you have all necessery prerequisites that are needed to use NiHu.
+However, the installation process lets you to compile tutorials, tests and `mex` files for NiHu's Matlab interface.
+Furthermore if you complete the installation, you can make sure that you have all necessary prerequisites that are needed to use NiHu.
 Therefore, it is highly recommended to complete the installation before using the NiHu toolbox.
 
 NiHu is installed using the free cross-platform make tool [cmake] on all supported platforms.
@@ -113,7 +113,7 @@ You can install `gcc-4.7` if you have administrative rights on your computer in 
 
 		gcc -v
 
-Alternatively, or if you do not have administrative rights you can install [gcc] from source.
+Alternatively, or if you do not have administrative rights, you can install [gcc] from source.
 You can also use gcc version 4.8 for building NiHu from source.
 
 ### Installing cmake
@@ -122,9 +122,11 @@ If you have administrative rights, you can easily install the newest version of 
 
 	sudo apt-get install cmake
 
+Naturally, you can also install [cmake] from source, if you want to.
+
 ### Configuration
 
-The configuration step is performed calling the command `cmake` inside the build directory.
+The configuration step is performed by calling the command `cmake` inside the build directory.
 The command takes one command line argument, with the path to the directory of the C++ source files, which is `nihu/src` in our case.
 The installation directory is defined by the option `-DNIHU_INSTALL_DIR="/path/to/install/dir"`.
 The configuration is performed using the following commands.

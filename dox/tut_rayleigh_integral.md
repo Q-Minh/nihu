@@ -8,7 +8,7 @@ Rayleigh integral {#tut_rayleigh_integral}
 Introduction {#tut_rayleigh_intro}
 ============
 
-This tutorial explains how to use NiHu to evaluate the Rayleigh integral.
+This tutorial explains how to use NiHu for evaluating the Rayleigh integral.
 The Rayleigh integral describes acoustic radiation from an infinite vibrating plane.
 
 In this tutorial, we learn how to connect NiHu with Matlab.
@@ -28,12 +28,12 @@ The radiated pressure is evaluated as
 \displaystyle
 p({\bf x})
 = \int_S G({\bf x}, {\bf y}) v({\bf y}) dS_y
-= \left(\mathcal{G}v\right)_S({\bf x})
+= \left(\mathcal{G}v\right)_S({\bf x}) ,
 \f$
 
-where \f$ G \f$ denotes the fundamental solution of the Helmholtz equation in 3D:
+where \f$ G \f$ denotes the fundamental solution of the Helmholtz equation in 3D
 
-\f$ G({\bf x}, {\bf y}) = \exp(-ikr)/4\pi r, \quad r = |{\bf y} - {\bf x}|\f$
+\f$ G({\bf x}, {\bf y}) = \exp(-\mathrm{i}kr)/4\pi r, \quad r = |{\bf y} - {\bf x}| . \f$
 
 Discretisation {#tut_rayleigh_discretisation}
 --------------
@@ -51,7 +51,7 @@ Evaluating the pressure in the field points is equivalent to pre-multiplying the
 p({\bf x}_i)
 = \sum_j \left(\mathcal{G}w_j \right)_S({\bf x}_i) \cdot v_j
 = \sum_j \left< \delta_{{\bf x}_i}, \left(\mathcal{G}w_j \right)_S \right>_F \cdot v_j
-= \sum_j Z_{ij} v_j
+= \sum_j Z_{ij} v_j ,
 \f$
  
 where \f$ Z_{ij} \f$ denotes the transfer impedance matrix.
@@ -64,7 +64,7 @@ Our program is organised as follows:
 - The two meshes (the radiating surface and the field point mesh) will be generated in Matlab.
 - The mesh description matrices (nodes and elements for both meshes) and the wave number \f$ k \f$ will be passed to the C++ program from Matlab.
 - The C++ program generates the function spaces and evaluates the transfer impedance matrix. The program also computes the radiating surface's radiation impedance matrix that relates the normal velocity to the sound pressure on the surface.
-- The transfer and radiation impedance matrices are passed back to Matlab
+- The transfer and radiation impedance matrices are passed back to Matlab.
 
 
 The C++ code {#tut_rayleigh_Cpp_code}
@@ -109,7 +109,7 @@ The radiator surface mesh and the field point mesh is instantiated in C++ as fol
 
 - The Matlab mesh description matrices are simply imported into C++ by the library class ::mex::real_matrix (`dMatrix`).
 The class' constructor refers to the Matlab input pointer.
-The resulting `dMatrix` objects are light-weight interfaces (_views_) providing convenient indexing capabilities to the Matlab data.
+The resulting `dMatrix` objects are light-weight interfaces (_views_) providing convenient indexing capabilities for the Matlab data.
 
 Function space generation {#tut_rayleigh_function_space}
 -------------------------
@@ -144,8 +144,8 @@ The weighted double integrals are evaluated using the operator notations:
 \snippet rayleigh_integral_3d.mex.cpp Weighted residual
 
 The two last lines of code are syntactically identical, but there is a great difference.
-- The transfer impedance matrix is defined between two separate meshes, and is therefore computed by evaluating regular integrals only
-- The radiation impedance matrix is defined on one mesh, so its evaluation involves singular integration.
+- The transfer impedance matrix is defined between two separate meshes, and is therefore computed by evaluating _regular integrals only_
+- The radiation impedance matrix is defined on one mesh, so its evaluation involves _singular integration_.
 
 The complete source of the C++ code is found here: tutorial/rayleigh_integral_3d.mex.cpp
 

@@ -12,7 +12,7 @@ This tutorial explains how to use NiHu to compute a single singular integral of 
 
 \f$
 \displaystyle
-I = \int_{S} K({\bf x}_0,{\bf y}) dS_y
+I = \int_{S} K({\bf x}_0,{\bf y}) dS_y,
 \f$
 
 where \f$ S \f$ is a square surface
@@ -27,14 +27,14 @@ and the integrand kernel \f$ K \f$ is the fundamental solution of the Laplace eq
 
 \f$
 \displaystyle
-K({\bf x},{\bf y}) = 1 / 4\pi r, \quad r = |{\bf x}-{\bf y}|
+K({\bf x},{\bf y}) = 1 / 4\pi r, \quad r = |{\bf x}-{\bf y}| .
 \f$
 
 The analytical result of the singular integral is
 
 \f$
 \displaystyle
-I = \log \left(1+\sqrt{2}\right) / \pi
+I = \log \left(1+\sqrt{2}\right) / \pi .
 \f$
 
 

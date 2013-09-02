@@ -15,14 +15,16 @@ This tutorial explains how NiHu implements weighted double integral matrices of 
 W_{ij} =
 \left<t,\left(\mathcal{K}d\right)_S\right>_F =
 \int_{F} t_i({\bf x}) \int_{S} K({\bf x}, {\bf y}) d_j({\bf y}) \mathrm{d}S_y \mathrm{d}S_x
-\f$
+\f$.
 
 Integral operators  {#tut_intop_intop}
 ==================
 
-Integral operators are defined by their kernel function. NiHu creates integral operators using the function ::create_integral_operator, called with a kernel function instance. The lines below, for example
+Integral operators are defined by their kernel functions.
+NiHu creates integral operators using the function ::create_integral_operator, called with a kernel function instance.
+The lines below, for example
 ~~~~~~~~~~~
-#include "library/laplace_kernel"
+#include "library/laplace_kernel.hpp"
 auto K = create_integral_operator(laplace_3d_DLP_kernel());
 ~~~~~~~~~~~
 instantiate the double layer potential kernel of the Laplace equation in 3D from the library, and transform the kernel to an integral operator.
@@ -64,7 +66,7 @@ W = \left< t, p \right> _F= \int_{F} t({\bf x}) p({\bf x}) \mathrm{d} F_x
 
 is implemented as a multiplication between a function space and an integral transform:
 ~~~~~~~~~~~
-aut const &t = constant_view(other_mesh);
+auto const &t = constant_view(other_mesh);
 auto W = t * K[d]; 		// or	W = t * p;
 ~~~~~~~~~~~
 where the integration domain \f$ F \f$ is contained by the function space `t`;
@@ -73,7 +75,7 @@ Finally, the result of the weighted double integral can be evaluated into a matr
 ~~~~~~~~~~~
 myMatrix << ( t * K[d] );	// or	myMatrix << W;
 ~~~~~~~~~~~
-\note Although we deeply believe in the _do-not-memorize-precedence-use-parentheses-instead_ theorem, we mention here that the form
+\note Although we deeply believe in the _do-not-memorise-precedence-use-parentheses-instead_ theorem, we mention here that the form
 ~~~~~~~~~~~
 myMatrix << t * K[d];
 ~~~~~~~~~~~

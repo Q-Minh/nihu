@@ -14,7 +14,7 @@ This tutorial explains how to use NiHu to compute a singular double integral of 
 
 \f$
 \displaystyle
-I = \int_{S} \int_{S} K({\bf x},{\bf y}) dS_y dS_x
+I = \int_{S} \int_{S} K({\bf x},{\bf y}) dS_y dS_x,
 \f$
 
 where \f$ S \f$ is a square surface
@@ -23,14 +23,15 @@ where \f$ S \f$ is a square surface
 
 and the integrand kernel \f$ K \f$ is the fundamental solution of the Laplace equation in 3D
 
-\f$ K({\bf x},{\bf y}) = 1 / 4\pi r, \quad r = |{\bf x}-{\bf y}| \f$
+\f$ K({\bf x},{\bf y}) = 1 / 4\pi r, \quad r = |{\bf x}-{\bf y}| \f$.
 
-The integrand contains an \f$ O(1/r) \f$ singularity when \f$ {\bf x} = {\bf y} \f$. The analytical result is
+The integrand contains an \f$ O(1/r) \f$ singularity when \f$ {\bf x} = {\bf y} \f$.
+The analytical result is
 
 \f$
 \displaystyle
 I = \frac{32}{4\pi} \left[ \log \left( 1+\sqrt{2} \right) - \frac{\sqrt{2}-1}{3} \right]
-\f$
+\f$.
 
 
 The C++ code {#tut_laplace_double_Cpp_code}
@@ -53,7 +54,7 @@ We are going to work with dynamically resizeable Eigen matrices. We define two c
 The main function {#tut_laplace_double_main_function}
 -----------------
 
-Our problem domain \f$ S \f$ is represented by a mesh consisting of a single square element. For more information on mesh building, refer to the tutorial \ref tut_mesh_building
+Our problem domain \f$ S \f$ is represented by a mesh consisting of a single square element. For more information on mesh building, refer to the tutorial \ref tut_mesh_building.
 
 \snippet laplace_double_integral.cpp Mesh
 
@@ -61,8 +62,12 @@ We reformulate our original problem in the form
 
 \f$
 \displaystyle
-I = \sum_{i,j} I_{ij}, \quad \text{where} \quad
-I_{ij} = \left< w_i, \left(\mathcal{K} w_j\right)_S \right>_S
+I = \sum_{i,j} I_{ij}, \quad 
+\f$
+where
+\f$ 
+\quad
+I_{ij} = \left< w_i, \left(\mathcal{K} w_j\right)_S \right>_S,
 \f$
 
 where the set \f$ w_i \f$ denote a piecewise constant or isoparametric function space, and \f$ \mathcal{K} \f$ denotes the integral operator based on the Laplace kernel.
