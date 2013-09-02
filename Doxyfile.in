@@ -681,6 +681,7 @@ INPUT                  = "${CMAKE_SOURCE_DIR}/../dox/mainpage.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/tut_laplace_single_integral.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/tut_rayleigh_integral.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/tut_helmholtz_galerkin_bem.md" \
+                         "${CMAKE_SOURCE_DIR}/../dox/tut_helmholtz_bem_fictitious.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/theory.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/theo_bem_example.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/techniques.md" \
@@ -714,7 +715,7 @@ FILE_PATTERNS          = *.cpp \
                          *.h \
                          *.dox \
                          *.md \
-						 *.m
+						 *_test.m
 
 # The RECURSIVE tag can be used to turn specify whether or not subdirectories
 # should be searched for input files as well. Possible values are YES and NO.
@@ -743,7 +744,6 @@ EXCLUDE_SYMLINKS       = NO
 # for example use the pattern */test/*
 
 EXCLUDE_PATTERNS       = *_test.cpp \
-                         *.m \
                          dox/*
 
 # The EXCLUDE_SYMBOLS tag can be used to specify one or more symbol names
