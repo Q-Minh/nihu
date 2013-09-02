@@ -21,4 +21,6 @@ Tutorials {#tutorials}
 
 \subpage tut_helmholtz_bem_3d_fict
 
+\subpage tut_custom_singular_integrals
+
 This is the page of tutorials of NiHu.

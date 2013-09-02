@@ -1,7 +1,7 @@
-Fictitious eigenfrequencies with a collocational Helmholtz BEM {#tut_helmholtz_bem_3d_fict}
-==============================================================
+Customising singular integrals {#tut_custom_singular_integrals}
+==============================
 
-\page tut_helmholtz_bem_3d_fict
+\page tut_custom_singular_integrals
 
 [BEM example]:\ref theo_bem_example
 [operator notation]:\ref bem_example_op
@@ -11,24 +11,24 @@ Fictitious eigenfrequencies with a collocational Helmholtz BEM {#tut_helmholtz_b
 [dirac view]:\ref tut_funcspace_dirac_view
 [TOC]
 
-Introduction {#tut_helmholtz_bem_3d_fict_intro}
+Introduction {#tut_custom_singular_integrals_intro}
 ============
 
-This tutorial demonstrates the usage of NiHu for solving an exterior acoustic radiation problem in 3D by means of a collocational type boundary element method (BEM).
-It is well known that the standard BEM formulation, when applied to an exterior radiation problem, does not have a unique solution at the eigenfrequencies of the dual interior problem.
-This tutorial presents how two mitigation methods
-- The CHIEF method
-- and the Burton Miller formalism
-are applied to handle the problem.
+This tutorial explains how to customise the evaluation of a singular integral in NiHu. Our examples of demonstration are the collocational singular integrals of the 3D Helmholtz kernels on planar triangle elements.
 
-If you are familiar with the CHIEF and Burton Miller formalisms, you should be able to implement the C++ code based on the previous tutorial \ref tut_helmholtz_galerkin_bem.
-However, it is worth reading this tutorial, because it will demonstrate how singular integrals can be specialised for specific formalisms, element types and kernels.
-
-Theory {#tut_helmholtz_bem_3d_fict_theory}
+Theory {#tut_custom_singular_integrals_theory}
 ======
 
-The eigenfrequency problem {#tut_helmholtz_bem_3d_fict_integrals}
---------------------------
+The singular integrals and the method of static subtraction {#tut_custom_singular_integrals_subtraction}
+-----------------------------------------------------------
+
+The collocational singular integral of the single layert potential kernel on a constant triangular element reads as
+
+\f$
+I = \int_S \frac{1}{4\pi |{\bf y} - {\bf x_0}|}\mathrm{d}S_{\bf y}
+\f$
+
+where \f$ {\bf x}_0 \f$ is the singular collocation point in the center of the element.
 
 The Helmholtz boundary integral equation
 
@@ -41,7 +41,7 @@ It can be shown that the interior mode shapes \f$ p^*_k({\bf y}) \f$ and its nor
 
 The two discussed solution methods mitigate the problem by extending the integral equation by other equations that are not satisfied by the modal solution.
 
-The CHIEF method  {#tut_helmholtz_bem_3d_fict_chief}
+The CHIEF method  {#tut_custom_singular_integrals_chief}
 ----------------
 
 The CHIEF method (the name comes from Combined Helmholtz Integral Equation Formalism) utilises that the mode shapes \f$ p^*_k({\bf y}) \f$ do not satisfy the Helmholtz integral with source point \f$ {\bf x} \f$ inside the interior volume, if the source point coincides with a nodal location of the mode shape.
@@ -84,7 +84,7 @@ are the conventional system matrices (\f$ w_j \f$ denotes the weighting shape fu
 are the additional matrices originating from the discretised CHIEF equations.
 
 
-The Burton and miller Formalism  {#tut_helmholtz_bem_3d_fict_bm}
+The Burton and miller Formalism  {#tut_custom_singular_integrals_bm}
 -------------------------------
 
 The Burton and Miller method searches for the solution of the original boundary integral equation and its normal derivative with respect to the normal at \f$ {\bf x} \f$:
@@ -129,14 +129,14 @@ However, we should take into consideration that the hypersingular operator's ker
 This topic is discussed in details in the tutorial \ref tut_custom_singular_integrals
 
 
-Program structure {#tut_helmholtz_bem_3d_fict_structure}
+Program structure {#tut_custom_singular_integrals_structure}
 =================
 
 We are going to implement a Matlab-C++ NiHu application, where
 - the C++ executable is responsible for assembling the system matrices from the boundary surface mesh and the CHIEF points,
 - the Matlab part defines the meshes, calls the C++ executable, solves the systems of equations, and compares the solutions by quantifying their error
 
-The C++ code {#tut_helmholtz_bem_3d_fict_cpp}
+The C++ code {#tut_custom_singular_integrals_cpp}
 ============
 
 The C++ code is going to be called from Matlab as
@@ -148,7 +148,7 @@ With this choice, the applied discretisation formalism is identical to that of a
 
 \note The computed system matrices `M` and `Mtrans` will contain the discretised identity operator too, as required by the conventional and Burton-Miller formalisms.
 
-Header and mesh creation {#tut_helmholtz_bem_3d_fict_header}
+Header and mesh creation {#tut_custom_singular_integrals_header}
 ------------------------
 
 The header of our C++ source file includes the necessary header files and defines some basic types for convenience.
@@ -163,7 +163,7 @@ Two meshes will be created:
 
 \snippet helmholtz_bem_3d_fict.mex.cpp Mesh
 
-Definition of function spaces {#tut_helmholtz_bem_3d_fict_spaces}
+Definition of function spaces {#tut_custom_singular_integrals_spaces}
 -----------------------------
 
 Next, we create the discretised function spaces of our mesh.
@@ -179,7 +179,7 @@ The six system matrices are preallocated by means of the following lines of code
 
 \snippet helmholtz_bem_3d_fict.mex.cpp Matrices
 
-Integral operators and their evaluation {#tut_helmholtz_bem_3d_fict_intop}
+Integral operators and their evaluation {#tut_custom_singular_integrals_intop}
 ---------------------------------------
 
 In the next steps, the five integral operators \f$ \mathcal{L} \f$, \f$ \mathcal{M} \f$, \f$ \mathcal{M}^\mathrm{T} \f$, \f$ \mathcal{N} \f$ and \f$ \mathcal{I} \f$ are defined.
@@ -194,7 +194,7 @@ Note that as a collocational formalism is applied, the Dirac-view of the test fu
 
 \note It should be realised that the evaluation of matrices `M_surf` and `Mt_surf` contain the evaluation of two integral operators, \f$ \mathcal{M} \f$ and \f$ \mathcal{I} \f$, or \f$ \mathcal{M}^{\mathrm{T}} \f$ and \f$ \mathcal{I} \f$ and stores the summed results.
 
-The Matlab code {#tut_helmholtz_bem_3d_fict_matlab}
+The Matlab code {#tut_custom_singular_integrals_matlab}
 =============== 
 
 The example creates a sphere surface of radius \f$ R = 1\,\mathrm{m} \f$ centred at the origin, consisting of triangular elements only.
@@ -209,7 +209,7 @@ The compiled mex file can be called from Matlab, as demonstrated in the example 
 
 The generated plot looks like
 
-\image html tut_helmholtz_bem_3d_fict.png
+\image html tut_custom_singular_integrals.png
 
 And the resulting errors read as
 
