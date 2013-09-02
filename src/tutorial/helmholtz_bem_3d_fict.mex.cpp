@@ -20,16 +20,16 @@ void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 	
 //! [Function spaces]
 	auto const &surf_sp = constant_view(surf_mesh);
-	auto const &chief_sp = constant_view(chief_mesh);
+	auto const &chief_sp = dirac(constant_view(chief_mesh));
 //! [Function spaces]
 
 //! [Matrices]
 	int n = surf_sp.get_num_dofs();
 	int m = chief_sp.get_num_dofs();
 	cMatrix
-		Ls(n, n, lhs[0]), Ms(n, n, lhs[1]),
-		Ls_chief(m, n, lhs[2]), Ms_chief(m, n, lhs[3]),
-		Mts(n, n, lhs[4]), Ns(n, n, lhs[5]);
+		L_surf(n, n, lhs[0]), M_surf(n, n, lhs[1]),
+		L_chief(m, n, lhs[2]), M_chief(m, n, lhs[3]),
+		Mt_surf(n, n, lhs[4]), N_surf(n, n, lhs[5]);
 //! [Matrices]
 	
 //! [Integral operators]
@@ -42,15 +42,15 @@ void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 //! [Integral operators]
 
 //! [System matrices]
-	// plain
-	Ls << dirac(surf_sp) * L[surf_sp];
-	Ms << dirac(surf_sp) * M[surf_sp]  +  dirac(surf_sp) * (-.5*I)[surf_sp];
-	// CHIEF
-	Ls_chief << dirac(chief_sp) * L[surf_sp];
-	Ms_chief << dirac(chief_sp) * M[surf_sp];
-	// Burton-Miller
-	Mts  << dirac(surf_sp) * Mt[surf_sp] +  dirac(surf_sp) * (.5*I)[surf_sp];
-	Ns  << dirac(surf_sp) * N[surf_sp];
+	// conventional equations
+	L_surf << dirac(surf_sp) * L[surf_sp];
+	M_surf << dirac(surf_sp) * M[surf_sp]  +  dirac(surf_sp) * (-.5*I)[surf_sp];
+	// CHIEF equations
+	L_chief << chief_sp * L[surf_sp];
+	M_chief << chief_sp * M[surf_sp];
+	// Burton-Miller equations
+	Mt_surf  << dirac(surf_sp) * Mt[surf_sp] +  dirac(surf_sp) * (.5*I)[surf_sp];
+	N_surf  << dirac(surf_sp) * N[surf_sp];
 //! [System matrices]
 }
 

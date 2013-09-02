@@ -19,6 +19,6 @@ Tutorials {#tutorials}
 
 \subpage tut_helmholtz_galerkin_bem
 
-\subpage tut_helmholtz_colloc_bem_fict
+\subpage tut_helmholtz_bem_3d_fict
 
 This is the page of tutorials of NiHu.
