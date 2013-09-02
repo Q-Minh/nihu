@@ -85,22 +85,22 @@ element_match element_match_eval(
 		typename trial_field_t::elem_t
 	>::value;
 
-	if (face_match_possible)
+	if (face_match_possible) // compile time if
 		if (test_field.get_elem().get_id() == trial_field.get_elem().get_id())
 			return element_match(FACE_MATCH);
 
-	/** \todo disable these cases for the collocational formalism */
-/*
-	element_overlapping overlap(test_field.get_elem().get_overlapping(trial_field.get_elem()));
+	// compile time if, only for the general approach
+	if (std::is_same<typename get_formalism<test_field_t, trial_field_t>::type, formalism::general>::value)
+	{
+		element_overlapping overlap(test_field.get_elem().get_overlapping(trial_field.get_elem()));
 
-	// check edge match
-	if (overlap.get_num() > 1)
-		return element_match(EDGE_MATCH, overlap);
+		if (overlap.get_num() > 1)
+			return element_match(EDGE_MATCH, overlap);
 
-	// check corner match
-	if (overlap.get_num() == 1)
-		return element_match(CORNER_MATCH, overlap);
-*/
+		if (overlap.get_num() == 1)
+			return element_match(CORNER_MATCH, overlap);
+	}
+
 	return element_match(REGULAR);
 }
 

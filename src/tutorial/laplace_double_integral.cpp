@@ -34,6 +34,38 @@ void tester(func_space const &w)
 //! [Test]
 
 
+void remesh(dMatrix &nodes, uMatrix &elements)
+{
+	nodes.resize(6, 3);
+	nodes <<
+		-1.0, -1.0, 0.0,
+		  .5, -1.0, 0.0,
+		 1.0, -1.0, 0.0,
+		-1.0,  1.0, 0.0,
+		  .5,  1.0, 0.0,
+		 1.0,  1.0, 0.0;
+
+	elements.resize(2, 5);
+	elements <<
+		quad_1_elem::id, 0, 1, 4, 3,
+		quad_1_elem::id, 1, 2, 5, 4;
+}
+
+void remesh_tria(dMatrix &nodes, uMatrix &elements)
+{
+	nodes.resize(4, 3);
+	nodes <<
+		-1.0, -1.0, 0.0,
+		 1.0, -1.0, 0.0,
+		-1.0,  1.0, 0.0,
+		 1.0,  1.0, 0.0;
+
+	elements.resize(2, 4);
+	elements <<
+		tria_1_elem::id, 0, 1, 2,
+		tria_1_elem::id, 1, 3, 2;
+}
+
 int main(void)
 {
 //! [Mesh]
@@ -49,8 +81,10 @@ int main(void)
 	uMatrix elements(1, 1+4);
 	elements << quad_1_elem::id, 0, 1, 3, 2;
 
+	remesh(nodes, elements);
+
 	// create the mesh
-	auto msh = create_mesh(nodes, elements, _quad_1_tag());
+	auto msh = create_mesh(nodes, elements, _tria_1_tag(), _quad_1_tag());
 //! [Mesh]
 
 //! [Operators]

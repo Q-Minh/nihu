@@ -5,6 +5,6 @@
 
 typedef acceleration::hard GLOBAL_ACCELERATION;
 unsigned const GLOBAL_MAX_ORDER = 9;
-unsigned const GLOBAL_ACCURACY = 3;
+unsigned const GLOBAL_ACCURACY = 2;
 
 #endif

@@ -14,82 +14,92 @@ Fictitious eigenfrequencies with a collocational Helmholtz BEM {#tut_helmholtz_c
 Introduction {#tut_helmholtz_colloc_bem_fict_intro}
 ============
 
-This tutorial demonstrates the usage of NiHu for solving the Helmholtz equation in 3D by means of a Galerkin type boundary element method (BEM).
-In this tutorial the Helmholtz equation will be applied for the solution of an acoustic wave propagation problem.
-In this tutorial we will use NiHu's Matlab interface for the mesh definition and the solution of the resulting matrix equations.
-This tutorial is based on the theory and notations introduced previously in the theoretical introduction [BEM example].
+This tutorial demonstrates the usage of NiHu for solving an exterior acoustic radiation problem in 3D by means of a collocational type boundary element method (BEM).
+It is well known that the standard BEM formaulation, when applied to an exterior radiation problem, does not have a unique solution at the eigenfrequencies of the dual interior problem. This tutorial presents how two mitigation methods
+- The CHIEF method
+- and the Burton Miller formalism
+are applied to handle the problem.
+
+If you are familiar with the CHIEF and Burton Miller formalisms, you should be able to implement the C++ code based on the previous tutorial \ref tut_helmholtz_galerkin_bem. However, it is worth reading this tutorial, because it will demonstrate how singular integrals can be specialised for specific formalis, element types and kernels.
 
 Theory {#tut_helmholtz_colloc_bem_fict_theory}
 ======
 
-In this example the Helmholtz integrals are utilised in order to solve an external radiation problem.
-Our radiating surface is a closed surface in the three-dimensional space \f$ S \subset \mathbb{R}^3 \f$.
-Neumann boundary conditions are specified on the entire surface, given as \f$ q(\mathbf{x}) = \bar{q}(\mathbf{x}) \f$ if \f$ \mathbf{x} \in S \f$.
-We need to determine the radiated acoustic field \f$ p(\mathbf{x}) \f$ on the surface \f$ S \f$ and in an other set of points \f$ F \subset \mathbb{R}^3 \setminus S \f$ referred to as field points.
+The eigenfrequency problem {#tut_helmholtz_colloc_bem_fict_integrals}
+--------------------------
 
-The Helmholtz integrals {#tut_helmholtz_colloc_bem_fict_integrals}
------------------------
+The boundary integral equation
 
-The sound pressure radiated by the closed vibrating surface \f$ S \f$ is obtained by means of the Helmholtz integrals
+\f$ \displaystyle
+\frac{1}{2} p({\bf x}) = \left(\mathcal{M}p\right)_S({\bf x}) - \left(\mathcal{L}q\right)_S({\bf x}), \quad \bf{x} \in S
+\f$
 
-\f$ \displaystyle \frac{1}{2} p({\bf x}) = \int_S H({\bf x}, {\bf y}) p({\bf y}) dS_y - \int_S G({\bf x}, {\bf y}) q({\bf y}) dS_y \qquad \f$ if \f$ \quad x \in S \f$
+when applied to exterior radiation or scattering problems, does not have a unique solution at the eigenfrequencies of the dual interior problem.
+It can be shown that the interior mode shapes \f$ p^*_k({\bf y}) \f$ and its normal derivative \f$ q^*_k({\bf y}) = \partial p^*_k({\bf y}) / \partial n_{\bf y} \f$ satisfy the boundary integral equation, although, obviously, they have no phyiscal relation to the exterior problem.
 
-\f$ \phantom{\displaystyle \frac{1}{2}} p({\bf x}) = \displaystyle \int_S H({\bf x}, {\bf y}) p({\bf y}) dS_y - \int_S G({\bf x}, {\bf y}) q({\bf y}) dS_y \qquad \f$ if \f$ \quad x \in F , \f$
+The two discussed solution methods mitigate the problem by extending the integral equation by other equations that are not satisfied by the modal ''solution''.
 
-where \f$ G({\bf x}, {\bf y}) \f$ and \f$ H({\bf x}, {\bf y}) \f$ denote the fundamental solution of the inhomogeneous Helmholtz equation and its normal derivative with respect to the source point.
-The kernel functions are given as
+The CHIEF method  {#tut_helmholtz_colloc_bem_fict_chief}
+----------------
 
-\f$ G({\bf x}, {\bf y}) = \displaystyle \frac{\mathrm{e}^{-\mathrm{i}kr}}{4\pi r} \quad \f$
-and 
-\f$ \quad H({\bf x}) = \displaystyle \frac{\partial G(\mathbf{x}, \mathbf{y})}{\partial n_y} = -G({\bf x}, {\bf y}) \left(\displaystyle \frac{1 + \mathrm{i} k r}{r} \frac{{\bf r} \cdot {\bf n}_y }{r} \right) , \f$
+The CHIEF method (the name comes from Combined Helmholtz Integral Equation Formalism) utilises that the mode shapes do not satisfy the Helmholtz integral if the source point \f$ {\bf x} \f$ is inside the interior volume, and does not coincide with a nodal location of the mode shape. Therefore, the boundary integral equation is extended by a set of additional equations as follows:
 
-with the distance vector \f$ \bf r \f$ and the distance \f$ r \f$ defined as
-\f$ \mathbf{r} = \mathbf{y} - \mathbf{x} \f$ 
-and
-\f$ r = \left| \mathbf{r} \right| . \f$
-The normal vector \f$ \mathbf{n}_y \f$ is pointing outward from the surface \f$ S \f$ at the point \f$ \mathbf{y} \f$.
+\f$
+\displaystyle
+\frac{1}{2} p({\bf x}) = \left(\mathcal{M}p\right)_S({\bf x}) - \left(\mathcal{L}q\right)_S({\bf x}), \quad {\bf x} \in S, \\
+\displaystyle
+0 = \left(\mathcal{M}p\right)_S({\bf x}_l) - \left(\mathcal{L}q\right)_S({\bf x}), \quad {\bf x}_l \in V^{\text{interior}}, l = 1 \dots K
+\f$
 
-Galerkin BEM formalism {#tut_helmholtz_colloc_bem_fict_formalism}
-----------------------
+Theoretically, one additional equation would be enough to exclude the fictitious solution. However, as it is difficult to estimate where the nodal locations of the interior problem are, the method is usually applied by selecting a number of randomly chosen interior points \f$ {\bf x}_l \f$.
 
-In order to solve the Helmholtz integral equations numerically, the radiating surface \f$ S \f$ is divided into a number of non-overlapping elements.
-The sound pressure function \f$ p(\mathbf{x}) \f$ and its normal derivative \f$ q(\mathbf{x}) \f$ are approximated by means of weighting functions \f$ w(\mathbf{x}) \f$, also called trial functions, such that
+After discretisation, the following overdetermined linear system of equations is to be solved:
 
-\f$ p(\mathbf{x}) \approx \displaystyle \sum_{j=1}^n w_j (\mathbf{x}) p_j \qquad \f$
-and
-\f$ \qquad q(\mathbf{x}) \approx \displaystyle \sum_{j=1}^n w_j (\mathbf{x}) q_j , \f$
+\f$ \displaystyle
+\left[ \begin{matrix} {\bf M} - {\bf I}/2 \\ {\bf M}' \end{matrix} \right]
+{\bf p}
+=
+\left[ \begin{matrix} {\bf L} \\ {\bf L}' \end{matrix} \right]
+{\bf q}
+\f$
 
-with \f$ p_j \f$ and \f$ q_j \f$ denoting the corresponding weights and \f$ n \f$ representing the total number of weighting functions, also known as the number of degrees of freedom.
 
-As a next step, the weak form of the Helmholtz integral equation is obtained by multiplying the equations with a set of test functions \f$ t_j(\mathbf{x}) \f$ and integrating the result over the complete surface \f$ S \f$ with respect to the variable \f$ \mathbf{x} \f$.
-In the Galerkin formulation, the test function are equivalent to the weighting functions, i.e. \f$ t_j(\mathbf{x}) \equiv w_j(\mathbf{x}) \f$.
-Hence, the Galerkin formalism is a special case of weighted residuals with the weighting functions being equivalent to the trial functions.
+The Burton and miller Formalism  {#tut_helmholtz_colloc_bem_fict_bm}
+-------------------------------
 
-Applying the [operator notation] introduced for [weighted residuals] , the double integral for the surface is expressed in the form
+The Burton and Miller method searches for the solution of the original boundary integral equation and its normal derivative with respect to the normal at \f$ {\bf x} \f$:
 
-\f$ \left< w_i , \left(\left[ \mathcal{M} - \frac{1}{2} \mathcal{I} \right] w_j \right)_S \right>_S p^{(s)}_j = \left< w_i, \left(\mathcal{L} w_j \right)_S \right>_S q^{(s)}_j . \f$
+\f$
+\displaystyle
+\frac{1}{2} p({\bf x}) = \left(\mathcal{M}p\right)_S({\bf x}) - \left(\mathcal{L}q\right)_S({\bf x}), \quad {\bf x} \in S, \\
+\displaystyle
+\frac{1}{2} q({\bf x}) = \left(\mathcal{N}p\right)_S({\bf x}) - \left(\mathcal{M}^{\mathrm{T}}q\right)_S({\bf x}), \quad {\bf x} \in S
+\f$
 
-The upper inidices \f$ \cdot^{(s)} \f$ and \f$ \cdot^{(f)} \f$ symbolise the variables on the surface \f$ S \f$ and the field \f$ F \f$ meshes, respectively.
-For the calculation of the acoustic field of the radiated surface a Dirac-delta test function is applied herein, which gives
+where
 
-\f$ p^{(f)}_i = \left< \delta_i , \left( \mathcal{M} w_j \right)_S \right>_F p^{(s)}_j - \left< \delta_i, \left(\mathcal{L} w_j \right)_S \right>_F q^{(s)}_j . \f$
+\f$
+\displaystyle
+\left(\mathcal{M}^{\mathrm{T}}q\right)_S({\bf x}) = \frac{\partial}{\partial n_{\bf x}}\int_S G({\bf x}, {\bf y}) q({\bf y})\mathrm{d}S_{\bf y}
+\f$
 
-The equations can be rewritten by utilizing matrix notations 
+is the transpose of \f$ \left(\mathcal{M}q\right)({\bf x})\f$, as differentiation is performed with respect to the other variable, and
 
-\f$ M^{(s)}_{ij} = \left< w_i , \left(\left[ \mathcal{M} - \frac{1}{2} \mathcal{I} \right] w_j \right)_S \right>_S \f$,
-\f$ \qquad L^{(s)}_{ij} = \left< w_i, \left(\mathcal{L} w_j \right)_S \right>_S \f$,
+\f$ \displaystyle
+\left(\mathcal{N}p\right)_S({\bf x}) = \frac{\partial}{\partial n_{\bf x}}\int_S \frac{\partial}{\partial n_{\bf y}} G({\bf x}, {\bf y}) p({\bf y})\mathrm{d}S_{\bf y}
+\f$
 
-\f$ M^{(f)}_{ij} = \left< \delta_i , \left( \mathcal{M}  w_j \right)_S \right>_F \qquad \f$
-and
-\f$ \qquad L^{(f)}_{ij} = \left< \delta_i , \left( \mathcal{L}  w_j \right)_S \right>_F \f$
+is the hypersingular operator.
 
-in the forms
+The differentiated equation suffers from the problem of fictitious eigenfrequencies too. However, as the eigenfrequencies and mode shapes of the original and differentiated equations never coincide, the simultaneous solution is unique. This solution is found by solving the superposition of the two equations using an appropriate coupling constant \f$ \alpha \f$
 
-\f$ \mathbf{M}^{(s)} \mathbf{p}^{(s)} = \mathbf{L}^{(s)} \mathbf{q}^{(s)} \qquad \f$ and
+\f$
+\displaystyle
+\left(\left[\mathcal{M} - \frac{1}{2}\mathcal{I} + \alpha \mathcal{N} \right]p\right)_S({\bf x})
+=
+\left(\left[\mathcal{L} + \alpha \mathcal{M}^{\mathrm{T}} + \alpha \frac{1}{2} \mathcal{I}\right] q\right)_S({\bf x})
+\f$
 
-\f$ \phantom{\mathbf{M}^{(s)}} \mathbf{p}^{(f)} = \mathbf{M}^{(f)} \mathbf{p}^{(s)} - \mathbf{L}^{(f)} \mathbf{q}^{(s)} .\f$
-
-The vectors \f$ \mathbf{p} \f$ and \f$ \mathbf{q} \f$ denote the column vectors of the weights for the degrees of freedom of the pressure and its normal derivative, respectively.
 
 In the sequel, the above Matrix equations are determined and solved using NiHu in the following steps
 1. Assembling the system matrices 
