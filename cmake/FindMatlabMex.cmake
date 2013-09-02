@@ -67,38 +67,59 @@ ELSE(WIN32)
 		SET(MATLAB_MEXEXT .mexa)
 		SET(LIBRARY_EXTENSION .so)
 
-		# TODO: REGEXs do not work here somehow
-		FIND_PROGRAM(MATLAB_MEX_POSSIBLE_LINK
+		execute_process(COMMAND "/usr/bin/locate" "-e" "--regex" "[Mm][Aa][Tt][Ll][Aa][Bb].*/bin/mex$"
+			RESULT_VARIABLE locate_matlab_result
+			OUTPUT_VARIABLE locate_matlab_output
+		)
+
+		# If locating is successful and paths are found
+		if(NOT ${locate_matlab_result} AND NOT "${locate_matlab_output}" STREQUAL "")
+			# Convert result into list
+			string(REPLACE "\n" ";" locate_matlab_list ${locate_matlab_output})
+			# Revert the order of the list
+			list(REVERSE locate_matlab_list)
+			list(GET locate_matlab_list 1 locate_matlab_path)
+		
+			# Get the path of matlab mex executable
+			get_filename_component(MATLAB_MEX "${locate_matlab_path}" REALPATH)
+			get_filename_component(MATLAB_BIN_ROOT "${MATLAB_MEX}" PATH)
+			# Strip ./bin/.
+			GET_FILENAME_COMPONENT(MATLAB_ROOT "${MATLAB_BIN_ROOT}" PATH)
+		
+		# If locating was not successful
+		else(NOT ${locate_matlab_result} AND NOT "${locate_matlab_output}" STREQUAL "")
+		
+			FIND_PROGRAM(MATLAB_MEX_POSSIBLE_LINK
 			NAMES
 			mex
 			PATHS
+			${MATLAB_ROOT}/bin
+			/opt/MATLAB/R2013a/bin
 			/opt/MATLAB/R2012b/bin
 			/opt/MATLAB/R2012a/bin
-			${MATLAB_ROOT}/bin
 			/opt/matlab/bin
+			/usr/local/MATLAB/R2013a/bin
+			/usr/local/MATLAB/R2012b/bin
+			/usr/local/MATLAB/R2012a/bin
 			/usr/local/matlab/bin
+			$ENV{HOME}/MATLAB/R2013a/bin
+			$ENV{HOME}/MATLAB/R2012b/bin
+			$ENV{HOME}/MATLAB/R2012a/bin
 			$ENV{HOME}/matlab/bin
-			# Now all the versions
-			/opt/MATLAB/[rR]20[0-9][0-9][abAB]/bin
-			/usr/local/matlab/[rR]20[0-9][0-9][abAB]/bin
-			/opt/matlab-[rR]20[0-9][0-9][abAB]/bin
-			/opt/matlab_[rR]20[0-9][0-9][abAB]/bin
-			/usr/local/matlab-[rR]20[0-9][0-9][abAB]/bin
-			/usr/local/matlab_[rR]20[0-9][0-9][abAB]/bin
-			$ENV{HOME}/matlab/[rR]20[0-9][0-9][abAB]/bin
-			$ENV{HOME}/matlab-[rR]20[0-9][0-9][abAB]/bin
-			$ENV{HOME}/matlab_[rR]20[0-9][0-9][abAB]/bin
 			NO_DEFAULT_PATH
-		)
-
-		# Check if the mex link is found
-		IF(NOT ("${MATLAB_MEX_POSSIBLE_LINK}" STREQUAL "MATLAB_MEX_POSSIBLE_LINK-NOTFOUND"))
-			GET_FILENAME_COMPONENT(MATLAB_MEX "${MATLAB_MEX_POSSIBLE_LINK}" REALPATH)
-			GET_FILENAME_COMPONENT(MATLAB_BIN_ROOT "${MATLAB_MEX}" PATH)
-			# Strip ./bin/.
-			GET_FILENAME_COMPONENT(MATLAB_ROOT "${MATLAB_BIN_ROOT}" PATH)
-		ELSE()
-		ENDIF()
+			)
+			
+			# Check if the mex link is found
+			if(NOT "${MATLAB_MEX_POSSIBLE_LINK}" STREQUAL "MATLAB_MEX_POSSIBLE_LINK-NOTFOUND" AND NOT "${MATLAB_MEX_POSSIBLE_LINK}" STREQUAL "")
+				get_filename_component(MATLAB_MEX "${MATLAB_MEX_POSSIBLE_LINK}" REALPATH)
+				get_filename_component(MATLAB_BIN_ROOT "${MATLAB_MEX}" PATH)
+				# Strip ./bin/.
+				GET_FILENAME_COMPONENT(MATLAB_ROOT "${MATLAB_BIN_ROOT}" PATH)
+			else()
+				set(MATLAB_ROOT "")
+				set(MATLAB_MEX "")
+			endif()
+		endif(NOT ${locate_matlab_result} AND NOT "${locate_matlab_output}" STREQUAL "")
 	ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 ENDIF(WIN32)
 
