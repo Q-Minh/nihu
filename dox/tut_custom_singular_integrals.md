@@ -64,7 +64,54 @@ The dynamic part is clearly regular and can be integrated with a low order regul
 
 \f$
 \displaystyle
-L_0 = \frac{1}{4\pi}\sum_{i=1}^{3} R_i \sin \alpha_i \left[ \log\left(\frac{\tan{\frac{\phi_1+\alpha_i}{2}}}{\tan{\frac{\alpha_i}{2}}}\right) \right]
+L_0 = \frac{1}{4\pi}\sum_{i=1}^{3} R_i \sin \alpha_i \left[ \log\left(\frac{\tan{\frac{\phi_i+\alpha_i}{2}}}{\tan{\frac{\alpha_i}{2}}}\right) \right]
 \f$
+
+where $R_i$ denotes the distance from the singular point to the \f$ i \f$-th corner of the triangle, and the angles \f$ \phi_i \f$ and \f$ \alpha_i \f$ are explained in the figure below:
+
+The C++ code {#tut_custom_singular_integrals_cpp}
+============
+
+First we define a helper function `triangle_helper` that computes the radii \f$ R_i \f$ and the angles \f$ \alpha_i \f$ and \f$ \theta_i \f$ for a triangle element. This function will be used for the evaluation of both singular integrals:
+~~~~~~~~~~~
+void triangle_helper(
+	tria_1_elem const &elem,
+	double r[],			// output radii
+	double theta[],		// output angles
+	double alpha [])	// output angles
+{
+	auto const &C_old = elem.get_coords();		// element vertices in columns
+	auto const &x0 = elem.get_center();			// collocational point x0
+
+	typename tria_1_elem::coords_t R, C;
+	for (unsigned i = 0; i < 3; ++i)
+	{
+		R.col(i) = C_old.col(i) - x0;	// vector from x0 to corner
+		r[i] = R.col(i).norm();			// distance
+		R.col(i) /= r[i];				// normalise vector
+		C.col(i) = C_old.col(i) - C_old.col((i+1) % 3);	// side vector
+		C.col(i) /= C.col(i).norm();					// normalised
+	}
+
+	for (unsigned i = 0; i < 3; ++i)
+	{
+		theta[i] = std::acos(R.col(i).dot(R.col((i+1) % 3)));	// angle output
+		alpha[i] = std::acos(R.col(i).dot(C.col(i)));			// angle output
+	}
+}
+~~~~~~~~~~~
+
+The singular integral of the single layer potential kernel for the constant triangle element is customised by specialising the class template ::singular_integral_shortcut for the specified singular integral type.
+
+The class template is declared as
+~~~~~~~~~~~~
+template <class Kernel, class TestField, class TrialField, class Singulartiy, class Enable>
+class singular_integral_shortcut;
+~~~~~~~~~~~~
+Where the parameters are
+- the kernel type (::helmholtz_3d_SLP_kernel in our case)
+- the test and trial field types (both constant triangles, the test field is a Dirac-view)
+- the singularity type (::singularity::face_match_type in our case)
+- an additional parameter to make complex type selection easy using std::enable_if
 
 
