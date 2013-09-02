@@ -61,7 +61,7 @@ namespace tmp
 	 * \brief metafunction returning true if first is less than second
 	 */
 	template <class N, class M> struct less;
-	 
+
 	template <int N, int M>
 	struct less<int_<N>, int_<M> > : std::integral_constant<bool, N < M> {};
 
@@ -69,45 +69,42 @@ namespace tmp
 	 * \brief metafunction returning true if first is greater than second
 	 */
 	template <class N, class M> struct greater;
-	 
+
 	template <int N, int M>
 	struct greater<int_<N>, int_<M> > : std::integral_constant<bool, !(N <= M)> {};
- 
+
 
 	/** \brief compute maximum value of integral constants
-	 * \todo this metafunction should be generalised for arbitrary types
+	 * \todo should be generalised for general type
 	 */
 	template <class Val, class...Args>
-	struct max_
-	{
-		static int const rest = max_<Args...>::value;
-		static int const x = Val::value;
-		static int const value = x > rest ? x : rest;
-	};
+	struct max_ : max_<Val, typename max_<Args...>::type> {};
 
-	/** \brief specialisation of ::max_ for the one parameter case */
-	template <class Val>
-	struct max_<Val>
+	/** \brief specialisation of max_ for the two parameter case */
+	template <class Val1, class Val2>
+	struct max_<Val1, Val2>
 	{
-		static int const value = Val::value;
+		/** \brief the maximum value */
+		static int const value = Val1::value > Val2::value ? Val1::value : Val2::value;
+		/** \brief the maximum type */
+		typedef int_<value> type;
 	};
 
 	/** \brief compute minimum value of integral constants
-	*/
+	 * \todo should be generalised for general type
+	 */
 	template <class Val, class...Args>
-	struct min_
-	{
-		static int const rest = min_<Args...>::value;
-		static int const x = Val::value;
-		static int const value = x < rest ? x : rest;
-	};
-	
-	template <class Val>
-	struct min_<Val>
-	{
-		static int const value = Val::value;
-	};
+	struct min_ : min_<Val, typename min_<Args...>::type> {};
 
+	/** \brief specialisation of min_ for the two parameter case */
+	template <class Val1, class Val2>
+	struct min_<Val1, Val2>
+	{
+		/** \brief the minimum value */
+		static int const value = Val1::value < Val2::value ? Val1::value : Val2::value;
+		/** \brief the minimum type */
+		typedef int_<value> type;
+	};
 }
 
 #endif

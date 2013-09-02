@@ -15,6 +15,10 @@
 #include "field_type_accelerator.hpp"
 #include "formalism.hpp"
 
+/** \brief traits class of ::single_integral
+ * \tparam TestField the test field type
+ * \tparam TrialField the trial field type
+ */
 template <class TestField, class TrialField>
 struct single_integral_traits
 {
@@ -75,11 +79,11 @@ public:
 		result.setZero();
 
 		typedef store<field_type_accelerator_pool<
-				test_field_t, quadrature_family_t, acceleration::hard, GLOBAL_MAX_ORDER
+				test_field_t, quadrature_family_t, GLOBAL_ACCELERATION, GLOBAL_MAX_ORDER
 		> > test_store_t;
 
 		typedef store<field_type_accelerator_pool<
-				trial_field_t, quadrature_family_t, acceleration::hard, GLOBAL_MAX_ORDER
+				trial_field_t, quadrature_family_t, GLOBAL_ACCELERATION, GLOBAL_MAX_ORDER
 		> > trial_store_t;
 
 		auto acc = create_dual_field_type_accelerator(

@@ -27,8 +27,8 @@ class singular_integral_shortcut;
 /**
 * \brief class evaluating double integrals of the weighted residual approach
 * \tparam Kernel type of the kernel to integrate
-* \tparam Test type of the test field
-* \tparam Trial type of the trial field
+* \tparam TestField type of the test field
+* \tparam TrialField type of the trial field
 */
 template <class Kernel, class TestField, class TrialField, class = typename get_formalism<TestField, TrialField>::type>
 class double_integral
@@ -162,11 +162,11 @@ protected:
 		>::eval(test_field, trial_field);
 
 		typedef store<field_type_accelerator_pool<
-			TestField, quadrature_family_t, acceleration::hard, GLOBAL_MAX_ORDER
+			TestField, quadrature_family_t, GLOBAL_ACCELERATION, GLOBAL_MAX_ORDER
 		> > test_store_t;
 
 		typedef store<field_type_accelerator_pool<
-			TrialField, quadrature_family_t, acceleration::hard, GLOBAL_MAX_ORDER
+			TrialField, quadrature_family_t, GLOBAL_ACCELERATION, GLOBAL_MAX_ORDER
 		> > trial_store_t;
 
 		auto acc = create_dual_field_type_accelerator(
@@ -240,6 +240,12 @@ public:
 
 
 
+/**
+* \brief specialisation of ::double_integral for the collocational formalism
+* \tparam Kernel type of the kernel to integrate
+* \tparam TestField type of the test field
+* \tparam TrialField type of the trial field
+*/
 template <class Kernel, class TestField, class TrialField>
 class double_integral<Kernel, TestField, TrialField, formalism::collocational>
 {
@@ -371,11 +377,11 @@ protected:
 		>::eval(test_field, trial_field);
 
 		typedef store<field_type_accelerator_pool<
-			TestField, quadrature_family_t, acceleration::hard, GLOBAL_MAX_ORDER
+			TestField, quadrature_family_t, GLOBAL_ACCELERATION, GLOBAL_MAX_ORDER
 		> > test_store_t;
 
 		typedef store<field_type_accelerator_pool<
-			TrialField, quadrature_family_t, acceleration::hard, GLOBAL_MAX_ORDER
+			TrialField, quadrature_family_t, GLOBAL_ACCELERATION, GLOBAL_MAX_ORDER
 		> > trial_store_t;
 
 		auto acc = create_dual_field_type_accelerator(

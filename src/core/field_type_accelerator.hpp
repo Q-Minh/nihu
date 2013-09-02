@@ -1,13 +1,14 @@
 /**
  * \file field_type_accelerator.hpp
  * \ingroup quadrature
- * \brief declaration of class field_type_accelerator
+ * \brief Acceleration of field types by storing shape functions for each quadrature point
  * \author Peter Fiala fiala@hit.bme.hu and Peter Rucz rucz@hit.bme.hu
  */
 
 #ifndef FIELD_TYPE_ACCELERATOR_HPP_INCLUDED
 #define FIELD_TYPE_ACCELERATOR_HPP_INCLUDED
 
+#include "field_type_acceleration_option.hpp"
 #include "field.hpp"
 #include "quadrature.hpp"
 #include "../util/casted_iterator.hpp"
@@ -15,19 +16,16 @@
 #include "../util/store_pattern.hpp"
 #include "../util/pool_pattern.hpp"
 
-/** \brief collection of acceleration-types */
-namespace acceleration
-{
-	/** \brief real acceleration */
-	struct hard {};
-	/** \brief view-acceleration */
-	struct soft{};
-}
 
-
+/** \brief Stores a quadrature point and a shape function vector
+ * \tparam Field the field type to accelerate
+ * \tparam Family the quadrature family
+ * \tparam Acceleration hard or soft
+ */
 template<class Field, class Family, class Acceleration>
 class field_type_accelerator_elem;
 
+/** \brief specialisation of ::field_type_accelerator_elem for the soft case */
 template <class Field, class Family>
 class field_type_accelerator_elem<Field, Family, acceleration::soft> :
 	public quadrature_elem<
@@ -40,6 +38,9 @@ public:
 		typename Field::domain_t::xi_t, typename Field::domain_t::scalar_t
 	> base_t;
 
+	/** \brief return shape function
+	 * \return the shape function vector
+	 */
 	typename Field::nset_t::shape_t get_N(void) const
 	{
 		return Field::nset_t::eval_shape(base_t::get_xi());
@@ -47,6 +48,7 @@ public:
 };
 
 
+/** \brief specialisation of ::field_type_accelerator_elem for the hard case */
 template <class Field, class Family>
 class field_type_accelerator_elem<Field, Family, acceleration::hard> :
 	public quadrature_elem<
@@ -60,12 +62,18 @@ public:
 		typename Field::domain_t::scalar_t
 	> base_t;
 
+	/** \brief constructor computing the shape function
+	 * \param [in] base the quadrature element reference
+	 */
 	field_type_accelerator_elem(base_t const &base) :
 		base_t(base),
 		m_nset(Field::nset_t::eval_shape(base_t::get_xi()))
 	{
 	}
 
+	/** \brief return shape function
+	 * \return the shape function vector
+	 */
 	typename Field::nset_t::shape_t const &get_N(void) const
 	{
 		return m_nset;
@@ -75,9 +83,10 @@ protected:
 	typename Field::nset_t::shape_t m_nset;
 };
 
+
+
 template <class Field, class Family, class Acceleration, class Enable = void>
 class field_type_accelerator;
-
 
 template <class Field, class Family>
 class field_type_accelerator<
@@ -147,21 +156,33 @@ struct index_t
 };
 
 
+/** \brief accelerator elem for a Dirac field
+ * \tparam NSet the shape functin set type
+ */
 template <class NSet>
 class dirac_field_type_accelerator_elem :
 	public index_t
 {
 public:
+	/** \brief return quadrature weight
+	 * \return quadrature weight (constant 1.0)
+	 */
 	constexpr typename NSet::scalar_t get_w(void) const
 	{
 		return 1.0;
 	}
 
+	/** \brief return shape set vector
+	 * \return constant shape set vector
+	 */
 	constexpr typename NSet::shape_t get_N(void) const
 	{
 		return NSet::shape_t::Unit(index_t::m_idx);
 	}
 
+	/** \brief return quadrature point location
+	 * \return constant quadrature point location
+	 */
 	constexpr typename NSet::xi_t get_xi(void) const
 	{
 		return NSet::corner_at(index_t::m_idx);
@@ -207,6 +228,11 @@ private:
 };
 
 
+/** \brief specialisation of ::field_type_accelerator for the Dirac field type
+ * \tparam Field the field type
+ * \tparam Family the quadrature family
+ * \tparam Acceleration the acceleration option
+ */
 template <class Field, class Family, class Acceleration>
 class field_type_accelerator<Field, Family, Acceleration,
 	typename std::enable_if<field_traits<Field>::is_dirac>::type
