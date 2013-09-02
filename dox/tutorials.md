@@ -19,4 +19,6 @@ Tutorials {#tutorials}
 
 \subpage tut_helmholtz_galerkin_bem
 
+\subpage tut_helmholtz_bem_fictitious
+
 This is the page of tutorials of NiHu.

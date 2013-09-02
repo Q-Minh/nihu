@@ -124,7 +124,7 @@ ELSE(WIN32)
 ENDIF(WIN32)
 
 IF("${MATLAB_MEX}" STREQUAL "" AND "${MatlabMex_FIND_REQUIRED}")
-	MESSAGE(STATUS "Could not find MATLAB mex compiler; try specifying MATLAB_ROOT.")
+	MESSAGE(STATUS "Could not find MATLAB mex compiler; try specifying NIHU_MATLAB_PATH.")
 ELSE("${MATLAB_MEX}" STREQUAL "" AND "${MatlabMex_FIND_REQUIRED}")
 	# Check if system is 64 bit
 	if(CMAKE_SIZEOF_VOID_P EQUAL 8) 
