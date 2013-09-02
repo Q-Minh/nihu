@@ -1,12 +1,22 @@
+/**
+ * \file reciprocal_kernel_intervals.hpp
+ * \brief quadrature intervals for the 1/r^(order) type kernels
+ */
+
 #ifndef RECIPROCAL_KERNEL_INTERVALS_HPP_INCLUDED
 #define RECIPROCAL_KERNEL_INTERVALS_HPP_INCLUDED
 
 #include "../core/interval.hpp"
 
+/** \brief define intervals for reciprocal order and accuracy
+ * \tparam Order the reciprocal order
+ * \tparam Accuracy -log10(eps) as an integer
+ */
 template <unsigned Order, unsigned Accuracy>
 struct reciprocal_distance_kernel_interval;
 
 
+/** \brief specialisation of ::reciprocal_distance_kernel_interval for 1/r and 1% error */
 template <>
 struct reciprocal_distance_kernel_interval<1, 2>
 {
@@ -18,6 +28,7 @@ struct reciprocal_distance_kernel_interval<1, 2>
 };
 
 
+/** \brief specialisation of ::reciprocal_distance_kernel_interval for 1/r^2 and 1% error */
 template <>
 struct reciprocal_distance_kernel_interval<2, 2>
 {
@@ -30,6 +41,7 @@ struct reciprocal_distance_kernel_interval<2, 2>
 };
 
 
+/** \brief specialisation of ::reciprocal_distance_kernel_interval for 1/r^3 and 1% error */
 template <>
 struct reciprocal_distance_kernel_interval<3, 2>
 {
@@ -45,6 +57,7 @@ struct reciprocal_distance_kernel_interval<3, 2>
 
 
 
+/** \brief specialisation of ::reciprocal_distance_kernel_interval for 1/r and .1% error */
 template <>
 struct reciprocal_distance_kernel_interval<1, 3>
 {
@@ -57,6 +70,7 @@ struct reciprocal_distance_kernel_interval<1, 3>
 };
 
 
+/** \brief specialisation of ::reciprocal_distance_kernel_interval for 1/r^2 and .1% error */
 template <>
 struct reciprocal_distance_kernel_interval<2, 3>
 {
@@ -70,6 +84,7 @@ struct reciprocal_distance_kernel_interval<2, 3>
 };
 
 
+/** \brief specialisation of ::reciprocal_distance_kernel_interval for 1/r^3 and .1% error */
 template <>
 struct reciprocal_distance_kernel_interval<3, 3>
 {
