@@ -14,11 +14,10 @@ Introduction {#tut_mesh_intro}
 
 The C++ NiHu core does not contain versatile mesh building methods for creating parametric
 meshes or to import different mesh formats. NiHu provides a single mesh building
-interface, the ::create_mesh function that reads two mesh description matrices,
-`nodes` and `elements`, where `nodes` contains the vertex locations and
-`elements` contains the connectivity information.
+interface, the ::create_mesh function that reads two mesh description matrices:
+one for the vertex locations and one for the element nodal connectivities.
 
-For versatile mesh generation and mesh importing functionalities, refer to the Matlab frontend.
+\note For versatile mesh generation and mesh importing functionalities, refer to the Matlab frontend.
 
 The create_mesh function {#tut_mesh_create_mesh}
 ========================
@@ -34,30 +33,30 @@ As NiHu uses the linear algebra library [Eigen] for matrix manipulations, we use
 
 \snippet mesh_building.mex.cpp Typedefs
 
-- `dMatrix` denotes a dynamically resizable matrix with real (`double`) coefficients,
+- `dMatrix` denotes a dynamically resizeable matrix with real (`double`) coefficients,
 - `uMatrix` denotes the same with `unsigned` coefficients.
 
 We instantiate the two matrices by allocating their coefficients, and initialising them using [Eigen]'s comma initialiser syntax:
 
 \snippet mesh_building.mex.cpp Matrices
 
-- The rows of matrix `nodes` contains 3D locations.
-- The rows or matrix `elements` contain an element id followed by element nodal indices.
+- The rows of matrix `nodes` contain 3D locations.
+- The rows or matrix `elements` contain an element id followed by as many element nodal indices as needed by the element type. Unused coefficients are left zero.
 
 Apparently, we are building a heterogeneous mesh consisting of linear quadrangles (::quad_1_elem) and triangles (::tria_1_elem).
-
 The mesh is finally built by calling the ::create_mesh function
 
 \snippet mesh_building.mex.cpp Creation
 
-The additional arguments ::_quad_1_tag () and ::_tria_1_tag () are used to tell the C++ compiler the element types stored in the mesh.
-From this information, the compiler creates its specific mesh type that handles the two element types separately, in optimised way.
-The function's return type is hidden from the library user by the `auto` keyword. In fact, it is
+The additional arguments ::_quad_1_tag () and ::_tria_1_tag () are additional type information
+used to tell the compiler which element types are used in the mesh.
+From this information, the compiler builds a specific mesh type that stores the specified element types separately, in optimised way.
 
-	mesh<tmp::vector<quad_1_elem, tria_1_elem> >
-
+\note The function's return type is hidden from the library user by the `auto` keyword. In fact, it is
+~~~~~~~~~~~~
+mesh<tmp::vector<quad_1_elem, tria_1_elem> >
+~~~~~~~~~~~~
 but this information is not needed to use the library.
-
 
 Building a 2D mesh {#tut_mesh_line}
 ------------------
@@ -71,11 +70,11 @@ Working with other matrix formats {#tut_mesh_othermatrix}
 ---------------------------------
 
 The ::create_mesh function is a template that can be called with any indexable matrix types.
-The only requirement against the matrix types is that they should be indexable with `(row,col)`-type indexing, where `row` and `col` are integers.
+The only requirement against the matrix types is that they should be indexable with integers, using a `(row,col)`-type syntax.
 
 This feature, together with the ::mex::real_matrix class, makes easy Matlab [MEX] integration possible.
 
 \snippet mesh_building.mex.cpp Matlab example
 
-For more information on the Matlab [MEX] interface and on the arguments of the [mexFunction], refer to the Matlab [MEX] site.
+\note For more information on the Matlab [MEX] interface and on the arguments of the [mexFunction], refer to the Matlab [MEX] site.
 

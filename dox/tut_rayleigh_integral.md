@@ -24,7 +24,12 @@ The Rayleigh integral computes the acoustic pressure \f$ p({\bf x}) \f$ radiated
 The vibrating surface is characterised by its normal velocity function \f$ v({\bf y}) \f$.
 The radiated pressure is evaluated as
 
-\f$ p({\bf x}) = \int_S G({\bf x}, {\bf y}) v({\bf y}) dS_y \f$
+\f$
+\displaystyle
+p({\bf x})
+= \int_S G({\bf x}, {\bf y}) v({\bf y}) dS_y
+= \left(\mathcal{G}v\right)_S({\bf x})
+\f$
 
 where \f$ G \f$ denotes the fundamental solution of the Helmholtz equation in 3D:
 
@@ -33,21 +38,23 @@ where \f$ G \f$ denotes the fundamental solution of the Helmholtz equation in 3D
 Discretisation {#tut_rayleigh_discretisation}
 --------------
 
-The radiating surface \f$ S \f$ is split up into elements.
-The velocity field on the surface \f$ S \f$ is discretised by introducing a discrete function space \f$ w_j({\bf y}), {\bf y} \in S \f$ consisting of piecewise constant or isoparametric functions:
+The velocity field on the surface \f$ S \f$ is discretised using piecewise constant or isoparametric interpolation functions:
 
 \f$ v({\bf y}) = \sum_j w_j({\bf y}) v_j \f$
 
 The radiated pressure (the Rayleigh integral) is evaluated in a set of field points \f$ {\bf x}_i \f$.
 For later convenience, we consider the field points as locations in a so called field point domain \f$ F \f$.
-Evaluating the pressure in the field points is equivalent to premultiplying the Rayleigh integral with Dirac delta functions located at the field points \f$ {\bf x}_i \f$ and integrating with respect to the variable \f$ {\bf x} \f$ over the field point domain:
+Evaluating the pressure in the field points is equivalent to pre-multiplying the Rayleigh integral with Dirac delta functions located at the field points \f$ {\bf x}_i \f$ and integrating with respect to the variable \f$ {\bf x} \f$ over the field point domain:
 
-\f$ p({\bf x}_i) = \sum_j \int_F \delta({\bf x}_i) \int_S G({\bf x}, {\bf y}) w_j({\bf y}) dS_y dF_x \, v_j
- = \sum_j Z_{ij} v_j \f$
+\f$
+\displaystyle
+p({\bf x}_i)
+= \sum_j \left(\mathcal{G}w_j \right)_S({\bf x}_i) \cdot v_j
+= \sum_j \left< \delta_{{\bf x}_i}, \left(\mathcal{G}w_j \right)_S \right>_F \cdot v_j
+= \sum_j Z_{ij} v_j
+\f$
  
-where \f$ Z_{ij} \f$ denotes the transfer impedance matrix. With operator notation, the transfer impedance matrix is expressed as
-
-\f$ Z_{ij} = \left< \delta_i, \left(\mathcal{G}w_j\right)_S \right>_F \f$
+where \f$ Z_{ij} \f$ denotes the transfer impedance matrix.
 
 
 Program structure {#tut_rayleigh_structure}
@@ -67,7 +74,7 @@ Included modules and typedefs {#tut_rayleigh_include}
 -----------------------------
 
 We need three modules from the NiHu library
-- bem/weighted_residual.hpp is the main module of NiHu
+- core/weighted_residual.hpp is the main module of NiHu
 - library/helmholtz_kernel.hpp defines the fundamental solution of the Helmholtz equation
 - util/mex_matrix.hpp includes the Matlab interface functions
 
@@ -103,8 +110,6 @@ The radiator surface mesh and the field point mesh is instantiated in C++ as fol
 - The Matlab mesh description matrices are simply imported into C++ by the library class ::mex::real_matrix (`dMatrix`).
 The class' constructor refers to the Matlab input pointer.
 The resulting `dMatrix` objects are light-weight interfaces (_views_) providing convenient indexing capabilities to the Matlab data.
-- The radiator surface mesh and the field point mesh is generated from the imported matrices by the library function ::create_mesh.
-It is assumed that the meshes consist of ::quad_1_elem elements only.
 
 Function space generation {#tut_rayleigh_function_space}
 -------------------------
@@ -134,7 +139,7 @@ We allocate memory for the output complex matrices:
 
 - The three-argument constructor (rows, columns, output pointer) of class ::mex::complex_matrix (`cMatrix`) allocates a Matlab output matrix of given dimensions in Matlab memory.
 
-The weighted double integrals are again evaluated using the operator notations:
+The weighted double integrals are evaluated using the operator notations:
 
 \snippet rayleigh_integral_3d.mex.cpp Weighted residual
 
@@ -154,11 +159,4 @@ The compiled executable can be called from Matlab, as demonstrated in the exampl
 The generated plot looks like
 
 \image html tut_rayleigh_integral.png
-
-Summary {#tut_rayleigh_summary}
-=======
-
-In this tutorial we learned
-- How to integrate NiHu into Matlab
-
 

@@ -9,6 +9,8 @@ Tutorials {#tutorials}
 
 \subpage tut_function_spaces
 
+\subpage tut_integral_operators
+
 \subpage tut_laplace_double_integral
 
 \subpage tut_laplace_single_integral
