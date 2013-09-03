@@ -3,12 +3,8 @@ Customising singular integrals {#tut_custom_singular_integrals}
 
 \page tut_custom_singular_integrals
 
-[BEM example]:\ref theo_bem_example
-[operator notation]:\ref bem_example_op
-[weighted residuals]:\ref bem_example_res
-[Rayleigh integral tutorial]:\ref tut_rayleigh_integral
-[function space views]:\ref tut_funcspace_const_iso_view
-[dirac view]:\ref tut_funcspace_dirac_view
+[std::enable_if]:http://en.cppreference.com/w/cpp/types/enable_if
+
 [TOC]
 
 Introduction {#tut_custom_singular_integrals_intro}
@@ -31,8 +27,8 @@ L = \int_S \frac{\exp(-i k r)}{4\pi r}\mathrm{d}S_{\bf y}, \quad r = |{\bf y} - 
 
 where \f$ {\bf x}_0 \f$ is the singular collocation point in the center of the element.
 
-The method of static subtraction {#tut_custom_singular_integrals_subtraction}
---------------------------------
+The method of static part subtraction {#tut_custom_singular_integrals_subtraction}
+-------------------------------------
 
 The integral \f$ L \f$ can be regularised by subtracting and adding its static \f$ k = 0 \f$ part:
 
@@ -72,7 +68,7 @@ Where the parameters are
 - the kernel type (::helmholtz_3d_SLP_kernel template in our case)
 - the test and trial field types (both constant triangles, the test field is a Dirac-view)
 - the singularity type (::singularity::face_match_type in our case)
-- an additional parameter to make complex type selection easy using std::enable_if
+- an additional parameter to make complex type selection easy using the C++11 feature [std::enable_if]
 
 Our specialisation is parametrised as follows
 ~~~~~~~~~~~~
@@ -102,12 +98,12 @@ public:
 	//...
 };
 ~~~~~~~~~~~~
-The test and trial field types are left as template arguments of the specialisation, but they are used in the arguments of std::enable_if to select the appropriate specialisation case. The specialisation is enabled if
+The test and trial field types are left as template arguments of the specialisation, but they are used in the arguments of [std::enable_if] to select the appropriate specialisation case. The specialisation is enabled if
 - the formalism (deduced from the test and trial fields by the metafunction ::get_formalism) is ::formalism::collocational
 - the geometrical interpolation function (L-set) of the trial field is ::tria_1_shape_set
 - the field interpolation function (N-set) of the trial field is ::tria_0_shape_set
 
-\note the test field does not need to be taken into account, as the ::singularity::face_match_type singulartiy indicates that the test and trial element types are identical.
+\note the test field does not need to be taken into account, as the ::singularity::face_match_type singulartiy implies that the test and trial element types are identical.
 
 As shown above, the class specialisation defines a static public member function called `eval` that evaluates the singular integral into a result matrix received by reference.
 
