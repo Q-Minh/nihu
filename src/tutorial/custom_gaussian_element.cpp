@@ -38,10 +38,10 @@ inline quad_1_gauss_shape_set::shape_t
 	scalar_t xi = _xi[0], eta = _xi[1];
 	shape_t L;
 	L <<
-		(1.0 - sqrt(3.0)*xi) * (1.0 - sqrt(3.0)*eta) / 4.0,
-		(1.0 + sqrt(3.0)*xi) * (1.0 - sqrt(3.0)*eta) / 4.0,
-		(1.0 - sqrt(3.0)*xi) * (1.0 + sqrt(3.0)*eta) / 4.0,
-		(1.0 + sqrt(3.0)*xi) * (1.0 + sqrt(3.0)*eta) / 4.0;
+		(1.0 - std::sqrt(3.0)*xi) * (1.0 - std::sqrt(3.0)*eta) / 4.0,
+		(1.0 + std::sqrt(3.0)*xi) * (1.0 - std::sqrt(3.0)*eta) / 4.0,
+		(1.0 - std::sqrt(3.0)*xi) * (1.0 + std::sqrt(3.0)*eta) / 4.0,
+		(1.0 + std::sqrt(3.0)*xi) * (1.0 + std::sqrt(3.0)*eta) / 4.0;
 	return L;
 }
 
@@ -53,10 +53,10 @@ inline quad_1_gauss_shape_set::dshape_t
 
 	dshape_t dL;
 	dL <<
-		-sqrt(3.0) * (1.0 - sqrt(3.0)*eta) / 4.0, (1.0 - sqrt(3.0)*xi) * -sqrt(3.0) / 4.0,
-		+sqrt(3.0) * (1.0 - sqrt(3.0)*eta) / 4.0, (1.0 + sqrt(3.0)*xi) * -sqrt(3.0) / 4.0,
-		-sqrt(3.0) * (1.0 + sqrt(3.0)*eta) / 4.0, (1.0 - sqrt(3.0)*xi) * +sqrt(3.0) / 4.0,
-		+sqrt(3.0) * (1.0 + sqrt(3.0)*eta) / 4.0, (1.0 + sqrt(3.0)*xi) * +sqrt(3.0) / 4.0;
+		-std::sqrt(3.0) * (1.0 - std::sqrt(3.0)*eta) / 4.0, (1.0 - std::sqrt(3.0)*xi) * -std::sqrt(3.0) / 4.0,
+		+std::sqrt(3.0) * (1.0 - std::sqrt(3.0)*eta) / 4.0, (1.0 + std::sqrt(3.0)*xi) * -std::sqrt(3.0) / 4.0,
+		-std::sqrt(3.0) * (1.0 + std::sqrt(3.0)*eta) / 4.0, (1.0 - std::sqrt(3.0)*xi) * +std::sqrt(3.0) / 4.0,
+		+std::sqrt(3.0) * (1.0 + std::sqrt(3.0)*eta) / 4.0, (1.0 + std::sqrt(3.0)*xi) * +std::sqrt(3.0) / 4.0;
 	return dL;
 }
 //! [Shape lsets]
@@ -70,10 +70,10 @@ inline quad_1_gauss_shape_set::xi_t const *
 
 quad_1_gauss_shape_set::xi_t
 	const quad_1_gauss_shape_set::m_corners[quad_1_gauss_shape_set::num_nodes] = {
-		quad_1_gauss_shape_set::xi_t(-sqrt(3.0)/3.0, -sqrt(3.0)/3.0),
-		quad_1_gauss_shape_set::xi_t(+sqrt(3.0)/3.0, -sqrt(3.0)/3.0),
-		quad_1_gauss_shape_set::xi_t(-sqrt(3.0)/3.0, +sqrt(3.0)/3.0),
-		quad_1_gauss_shape_set::xi_t(+sqrt(3.0)/3.0, +sqrt(3.0)/3.0)
+		quad_1_gauss_shape_set::xi_t(-std::sqrt(3.0)/3.0, -std::sqrt(3.0)/3.0),
+		quad_1_gauss_shape_set::xi_t(+std::sqrt(3.0)/3.0, -std::sqrt(3.0)/3.0),
+		quad_1_gauss_shape_set::xi_t(-std::sqrt(3.0)/3.0, +std::sqrt(3.0)/3.0),
+		quad_1_gauss_shape_set::xi_t(+std::sqrt(3.0)/3.0, +std::sqrt(3.0)/3.0)
 };
 //! [Shape corners]
 
@@ -90,9 +90,16 @@ struct field_id<quad_1_gauss_field>
 };
 //! [Field id]
 
+//! [Field tag]
+struct gauss_field_tag {};
+
+template <>
+struct tag2field<gauss_field_tag> :
+	quad_1_gauss_field {};
+//! [Field tag]
+
 
 //! [main]
-
 // double matrix
 typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> dMatrix;
 // unsigned matrix
@@ -122,7 +129,8 @@ int main(void)
 		quad_1_gauss_field::id, 3, 4, 7, 6,  8, 9, 10, 11,
 		quad_1_gauss_field::id, 4, 5, 8, 7,  12, 13, 14, 15;
 
-	function_space<tmp::vector<quad_1_gauss_field> > fsp(nodes, fields);
+	// create function space using the factory function
+	auto fsp = create_function_space(nodes, fields, gauss_field_tag());
 
 	// we allocate and clear the result matrix
 	dMatrix A(fsp.get_num_dofs(), fsp.get_num_dofs());

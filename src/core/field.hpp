@@ -23,6 +23,13 @@ namespace field_option
 	struct constant {};
 }
 
+/** \brief assign a field to a tag
+ * \tparam field_tag the tag
+ */
+template <class field_tag>
+struct tag2field;
+
+
 /** \brief traits class of all fields */
 template <class Derived>
 struct field_traits;

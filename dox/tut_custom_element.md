@@ -1,5 +1,5 @@
-Custom element {#tut_custom_element}
-==============
+Defining a custom field {#tut_custom_element}
+=======================
 
 \page tut_custom_element
 
@@ -97,14 +97,18 @@ However, we can override the field id definition by specialising the template st
 
 The defined field id will be used in the function space definition matrix to distinguish between different kind of fields.
 
+In order to be able to use our field with the function ::create_function_space, we need to define an instantiable dummy tag type.
+Furthermore, the metafunction ::tag2field should assign our new field type to the defined tag type.
+
+\snippet custom_gaussian_element.cpp Field tag
+
 Our new field type is ready to use in collocational, Galerkin or general BEM methods.
 
 Example {#tut_custom_element_example}
 =======
 
-We present a simple example evaluating a collocational BEM with a function space based on `quad_1_gauss_field` fields.
-The typedefs define the collcational BEM with a unity kernel and a homogeneous function space consisting of our new fields.
-The main function builds a hand-made simple function space and evaluates the weighted residual.
+We present a simple example, the same as in tutorial \ref tut_laplace_double_integral, that evaluates a double singular integral of the Laplacian kernel on a square domain.
+The square domain will be meshed with our new fields.
 
 \snippet custom_gaussian_element.cpp main
 

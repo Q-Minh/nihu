@@ -562,6 +562,21 @@ public:
 	}
 };
 
+/** \brief factory function to create a function space from fields
+ * \tparam nodes_t the nodes matrix type
+ * \tparam fields_t the fields matrix type
+ * \tparam fields_t the field types
+ * \param [in] nodes the nodes matrix
+ * \param [in] fields the field description matrix
+ * \param [in] fields the field tag instances
+ */
+template <class nodes_t, class elements_t, class...fields_t>
+function_space<tmp::vector<typename tag2field<fields_t>::type...> >
+	create_function_space(nodes_t const &nodes, elements_t const &elements, fields_t const &...fields)
+{
+	return function_space<tmp::vector<typename tag2field<fields_t>::type...> >(nodes, elements);
+}
+
 /** \brief metafunction determining if argument is function space expression
  * \tparam FuncSpace the function space to test
  */
