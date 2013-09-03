@@ -100,9 +100,10 @@ public:
 		field_base<TrialField> const &trial_field,
 		element_match const &)
 	{
+		auto const &tr_elem = trial_field.get_elem();
 		unsigned const N = tria_1_elem::num_nodes;
 		double r[N], theta[N], alpha[N];
-		planar_triangle_helper(trial_field.get_elem(), r, theta, alpha);
+		planar_triangle_helper(tr_elem(), r, theta, alpha);
 
 		for (unsigned i = 0; i < N; ++i)
 			result(0,0) += r[i] * std::sin(alpha[i]) *
@@ -111,20 +112,18 @@ public:
 					std::tan(alpha[i]/2.0)
 				);
 
-
 		// integrate dynamic_part
-		auto const &tr_elem = trial_field.get_elem();
 		auto const &x0 = tr_elem.get_center();
-		std::complex<double> I_acc = 0.0;
+		std::complex<double> I_dyn = 0.0;
 		for (auto it = quadr_t::quadrature.begin(); it != quadr_t::quadrature.end(); ++it)
-			I_acc += dynamic_part(
+			I_dyn += dynamic_part(
 				(tr_elem.get_x(it->get_xi()) - x0).norm(),
 				kernel.get_data().get_wave_number()
 			) * it->get_w();
 		// multiply by Jacobian
-		I_acc *= tr_elem.get_normal(tria_domain::xi_t()).norm();
+		I_dyn *= tr_elem.get_normal(tria_domain::xi_t()).norm();
 
-		result(0,0) += I_acc;
+		result(0,0) += I_dyn;
 
 		result(0,0) /= (4.0 * M_PI);
 
