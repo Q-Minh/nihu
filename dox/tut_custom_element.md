@@ -1,11 +1,11 @@
-Custom element {#custom_element}
+Custom element {#tut_custom_element}
 ==============
 
-\page custom_element
+\page tut_custom_element
 
 [TOC]
 
-Introduction {#gaussian_intro}
+Introduction {#tut_custom_element_intro}
 ============
 
 The purpose of this tutorial is to demonstrate how a custom element/field type can be introduced into the NiHu toolbox.
@@ -19,7 +19,7 @@ The new field is shown in the figure below.
 
 In the following sections we define the new shape function set, introduce the new field type, and present an example how the new field type is used in a collocational or Galerkin type BEM.
 
-The Gaussian shape set {#gaussian_shapeset}
+The Gaussian shape set {#tut_custom_element_shapeset}
 ======================
 
 The Gaussian shape set is defined over the quadrilateral domain ::quad_domain located between coordinates \f$(-1,-1)\f$ and \f$(+1,+1)\f$.
@@ -44,11 +44,11 @@ and their derivatives with respect to both variables are
 
 The new shape function set will be termed `quad_1_gauss_shape_set`, and is introduced with a forward declaration:
 
-\snippet custom_gaussian_element.hpp Forward declaration
+\snippet custom_gaussian_element.cpp Forward declaration
 
 Before defining the shape functions, we first define some basic properties of the shape function set by specialising the traits class template ::shape_set_traits to the new shape set as follows:
 
-\snippet custom_gaussian_element.hpp Shape traits
+\snippet custom_gaussian_element.cpp Shape traits
 
 - We have defined the shape set's domain as the ::quad_domain.
 - The number of shape set nodes is 4.
@@ -67,44 +67,44 @@ The new derived class must define three static member functions.
 - `eval_dshape` evaluates the gradient of the shape functions.
 - `corner_begin` returns a pointer to the first corner of the shape set.
 
-\snippet custom_gaussian_element.hpp Shape class
+\snippet custom_gaussian_element.cpp Shape class
 
 The functions returning the shape function set and its derivatives are defined as
 
-\snippet custom_gaussian_element.hpp Shape lsets
+\snippet custom_gaussian_element.cpp Shape lsets
 
 The shape function's nodal locations are stored in the static array `m_corners`. The `corner_begin` function returns the address of the array.
 
-\snippet custom_gaussian_element.hpp Shape corners
+\snippet custom_gaussian_element.cpp Shape corners
 
 That's all, we have defined the shape function set.
 From now on, it can be used for geometrical interpolation or field interpolation purposes.
 Furthermore, when using this shape function set in the collocational BEM context, the shape function nodes defined above are automatically used to generate weakly singular quadratures around the collocation points.
 
 
-The field {#gaussian_field}
+The field {#tut_custom_element_field}
 =========
 
 The new field is going to be based on the standard ::quad_1_elem element, extended with our new shape function set.
 The field will be termed `quad_1_gauss_field`, and is defined using a simple type definition:
 
-\snippet custom_gaussian_element.hpp Field typedef
+\snippet custom_gaussian_element.cpp Field typedef
 
 Each field type is automatically assigned an integer identifier.
 However, we can override the field id definition by specialising the template structure (metafunction) ::field_id to our new field type
 
-\snippet custom_gaussian_element.hpp Field id
+\snippet custom_gaussian_element.cpp Field id
 
 The defined field id will be used in the function space definition matrix to distinguish between different kind of fields.
 
 Our new field type is ready to use in collocational, Galerkin or general BEM methods.
 
-Example {#gaussian_example}
+Example {#tut_custom_element_example}
 =======
 
 We present a simple example evaluating a collocational BEM with a function space based on `quad_1_gauss_field` fields.
 The typedefs define the collcational BEM with a unity kernel and a homogeneous function space consisting of our new fields.
 The main function builds a hand-made simple function space and evaluates the weighted residual.
 
-\snippet gaussian_test.cpp main
+\snippet custom_gaussian_element.cpp main
 

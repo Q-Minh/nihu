@@ -10,7 +10,8 @@ Customising singular integrals {#tut_custom_singular_integrals}
 Introduction {#tut_custom_singular_integrals_intro}
 ============
 
-This tutorial explains how to customise the evaluation of a singular integral in NiHu. Our example of demonstration is the collocational singular integral of the 3D Helmholtz single layer potential kernel on a constant triangle element.
+This tutorial explains how to customise the evaluation of a singular integral in NiHu.
+Our example of demonstration is the collocational singular integral of the 3D Helmholtz single layer potential kernel on a constant triangle element.
 
 Theory {#tut_custom_singular_integrals_theory}
 ======
@@ -42,7 +43,8 @@ L_0 + L_k =
 \frac{ik}{4\pi} \int_S \exp(-ikr/2) \mathrm{sinc}({kr/2}) \mathrm{d}S_{\bf y}
 \f$
 
-The dynamic part is clearly regular and can be integrated with a low order regular quadrature. The static singular part can be evaluated analytically:
+The dynamic part is clearly regular and can be integrated with a low order regular quadrature.
+The static singular part can be evaluated analytically:
 
 \f$
 \displaystyle
@@ -50,6 +52,8 @@ L_0 = \frac{1}{4\pi}\sum_{i=1}^{3} R_i \sin \alpha_i \left[ \log\left(\frac{\tan
 \f$
 
 where \f$ R_i \f$ denotes the distance from the singular point to the \f$ i \f$-th corner of the triangle, and the angles \f$ \phi_i \f$ and \f$ \alpha_i \f$ are explained in the figure below:
+
+![Definition of the radii and angles for the singular integral of the static kernel](triangle_helper.svg)
 
 The C++ code {#tut_custom_singular_integrals_cpp}
 ============
@@ -98,7 +102,8 @@ public:
 	//...
 };
 ~~~~~~~~~~~~
-The test and trial field types are left as template arguments of the specialisation, but they are used in the arguments of [std::enable_if] to select the appropriate specialisation case. The specialisation is enabled if
+The test and trial field types are left as template arguments of the specialisation, but they are used in the arguments of [std::enable_if] to select the appropriate specialisation case.
+The specialisation is enabled if
 - the formalism (deduced from the test and trial fields by the metafunction ::get_formalism) is ::formalism::collocational
 - the geometrical interpolation function (L-set) of the trial field is ::tria_1_shape_set
 - the field interpolation function (N-set) of the trial field is ::tria_0_shape_set

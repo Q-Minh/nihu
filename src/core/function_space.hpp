@@ -383,7 +383,7 @@ class function_space_impl<function_space<FieldTypeVector> > :
 {
 public:
 	/** \brief the traits class */
-	typedef typename function_space_traits<function_space<FieldTypeVector> >::traits_t traits_t;
+	typedef function_space_traits<function_space<FieldTypeVector> > traits_t;
 
 	/** \brief the field type vector */
 	typedef typename traits_t::field_type_vector_t field_type_vector_t;
@@ -540,9 +540,13 @@ public:
 	/** \brief the implementation type */
 	typedef function_space_impl<function_space<FieldTypeVector> > impl_t;
 
+	/** \brief mesh type redefined to avoid ambigous lookup */
+	typedef typename impl_t::mesh_t mesh_t;
+
 	using impl_t::field_begin;
 	using impl_t::field_end;
 	using impl_t::get_num_dofs;
+	using impl_t::get_mesh;
 
 	/** \brief constructor */
 	function_space() :

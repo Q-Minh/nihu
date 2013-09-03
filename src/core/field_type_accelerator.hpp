@@ -29,13 +29,13 @@ class field_type_accelerator_elem;
 template <class Field, class Family>
 class field_type_accelerator_elem<Field, Family, acceleration::soft> :
 	public quadrature_elem<
-		typename Field::domain_t::xi_t,
-		typename Field::domain_t::scalar_t
+		typename Field::elem_t::domain_t::xi_t,
+		typename Field::elem_t::domain_t::scalar_t
 	>
 {
 public:
 	typedef quadrature_elem<
-		typename Field::domain_t::xi_t, typename Field::domain_t::scalar_t
+		typename Field::elem_t::domain_t::xi_t, typename Field::domain_t::scalar_t
 	> base_t;
 
 	/** \brief return shape function
@@ -52,14 +52,14 @@ public:
 template <class Field, class Family>
 class field_type_accelerator_elem<Field, Family, acceleration::hard> :
 	public quadrature_elem<
-		typename Field::domain_t::xi_t,
-		typename Field::domain_t::scalar_t
+		typename Field::elem_t::domain_t::xi_t,
+		typename Field::elem_t::domain_t::scalar_t
 	>
 {
 public:
 	typedef quadrature_elem<
-		typename Field::domain_t::xi_t,
-		typename Field::domain_t::scalar_t
+		typename Field::elem_t::domain_t::xi_t,
+		typename Field::elem_t::domain_t::scalar_t
 	> base_t;
 
 	/** \brief constructor computing the shape function
@@ -104,7 +104,7 @@ public:
 	typedef typename EigenStdVector<accelerator_elem_t>::type base_t;
 
 	typedef typename quadrature_type<
-		Family, typename Field::domain_t
+		Family, typename Field::elem_t::domain_t
 	>::type quadrature_t;
 
 	field_type_accelerator(quadrature_t const &quadrature)
@@ -125,10 +125,10 @@ template <class Field, class Family>
 class field_type_accelerator<Field, Family, acceleration::soft,
 	typename std::enable_if<!field_traits<Field>::is_dirac>::type
 	> :
-	public quadrature_type<Family, typename Field::domain_t>::type
+	public quadrature_type<Family, typename Field::elem_t::domain_t>::type
 {
 public:
-	typedef typename quadrature_type<Family, typename Field::domain_t>::type base_t;
+	typedef typename quadrature_type<Family, typename Field::elem_t::domain_t>::type base_t;
 
 	typedef field_type_accelerator_elem<Field, Family, acceleration::soft> accelerator_elem_t;
 
@@ -273,10 +273,10 @@ class field_type_accelerator_pool :
 
 template <class Field, class Family, unsigned MaxOrder>
 class field_type_accelerator_pool<Field, Family, acceleration::soft, MaxOrder> :
-	public pool<typename quadrature_type<Family, typename Field::domain_t>::type, MaxOrder>
+	public pool<typename quadrature_type<Family, typename Field::elem_t::domain_t>::type, MaxOrder>
 {
 public:
-	typedef pool<typename quadrature_type<Family, typename Field::domain_t>::type, MaxOrder> base_t;
+	typedef pool<typename quadrature_type<Family, typename Field::elem_t::domain_t>::type, MaxOrder> base_t;
 	typedef field_type_accelerator<Field, Family, acceleration::soft> accelerator_t;
 
 	accelerator_t const &operator[](unsigned idx) const

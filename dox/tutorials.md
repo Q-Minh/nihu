@@ -28,9 +28,15 @@ These examples build C++ executables that are called from the Matlab frontend
 2. \subpage tut_helmholtz_galerkin_bem
 3. \subpage tut_helmholtz_bem_3d_fict
 
+Advanced topics
+---------------
+
+1. \subpage tut_couple_radiation
+
 Customising your own NiHu
 -------------------------
 
-\subpage tut_custom_singular_integrals
+1. \subpage tut_custom_element : Introduce a new element/field type
+2. \subpage tut_custom_singular_integrals : Specialise the singular integral for constant triangle
 
 

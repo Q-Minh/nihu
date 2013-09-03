@@ -15,10 +15,10 @@ public:
 	enum {
 		test_field_complexity =
 			shape_set_traits<typename test_field_t::nset_t>::polynomial_order +
-			shape_set_traits<typename test_field_t::lset_t>::jacobian_order,
+			shape_set_traits<typename test_field_t::elem_t::lset_t>::jacobian_order,
 		trial_field_complexity =
 			shape_set_traits<typename trial_field_t::nset_t>::polynomial_order +
-			shape_set_traits<typename trial_field_t::lset_t>::jacobian_order
+			shape_set_traits<typename trial_field_t::elem_t::lset_t>::jacobian_order
 	};
 
 	static unsigned const total_field_complexity = tmp::max_<
