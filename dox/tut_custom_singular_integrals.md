@@ -144,7 +144,7 @@ Using this helper function, the static part of the integral is computed in the m
 {
 	auto const &elem = trial_field.get_elem();		// the element reference
 	double r[3], theta[3], alpha[3];
-	planar_triangle_helper(elem, r, theta, alpha);	// compute R, theta, alpha
+	triangle_helper(elem, r, theta, alpha);	// compute R, theta, alpha
 
 	for (unsigned i = 0; i < 3; ++i)				// evaluate analytical formula
 		result(0,0) += r[i] * sin(alpha[i]) * log(tan((alpha[i]+theta[i])/2.) / tan(alpha[i]/2.));

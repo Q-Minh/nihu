@@ -84,7 +84,7 @@ are the conventional system matrices (\f$ w_j \f$ denotes the weighting shape fu
 are the additional matrices originating from the discretised CHIEF equations.
 
 
-The Burton and miller Formalism  {#tut_helmholtz_bem_3d_fict_bm}
+The Burton and Miller Formalism  {#tut_helmholtz_bem_3d_fict_bm}
 -------------------------------
 
 The Burton and Miller method searches for the solution of the original boundary integral equation and its normal derivative with respect to the normal at \f$ {\bf x} \f$:

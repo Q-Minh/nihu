@@ -5,22 +5,32 @@ Tutorials {#tutorials}
 
 [TOC]
 
-\subpage tut_mesh_building
+Basic usage
+-----------
 
-\subpage tut_function_spaces
+Three steps to build the first NiHu C++ executable
 
-\subpage tut_integral_operators
+1. \subpage tut_mesh_building
+2. \subpage tut_function_spaces
+3. \subpage tut_integral_operators
 
-\subpage tut_laplace_double_integral
+Two complete examples using the C++ core only
 
-\subpage tut_laplace_single_integral
+1. \subpage tut_laplace_double_integral : A Galerkin-type singular integral
+2. \subpage tut_laplace_single_integral : A Collocational-type singular integral
 
-\subpage tut_rayleigh_integral
+Acoustic application examples
+-----------------------------
 
-\subpage tut_helmholtz_galerkin_bem
+These examples build C++ executables that are called from the Matlab frontend
 
-\subpage tut_helmholtz_bem_3d_fict
+1. \subpage tut_rayleigh_integral : Acoustic radiation from a plane surface
+2. \subpage tut_helmholtz_galerkin_bem
+3. \subpage tut_helmholtz_bem_3d_fict
+
+Customising your own NiHu
+-------------------------
 
 \subpage tut_custom_singular_integrals
 
-This is the page of tutorials of NiHu.
+
