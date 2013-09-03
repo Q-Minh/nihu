@@ -7,10 +7,9 @@
 #define HELMHOLTZ_SINGULAR_INTEGRALS_HPP_INCLUDED
 
 #include "../core/integral_operator.hpp"
-
 #include "helmholtz_kernel.hpp"
-#include "../util/math_functions.hpp"
 #include "plane_triangle_helper.hpp"
+#include "../util/math_functions.hpp"
 
 /** \brief Trivial integrals of various kernels over plane surfaces
  * \tparam Kernel the kernel type
@@ -73,9 +72,7 @@ class singular_integral_shortcut<
 >
 {
 private:
-	enum {
-		quadrature_order = 7
-	};
+	enum { quadrature_order = 7 };
 	typedef tria_quad_store<quadrature_order> quadr_t;
 
 	/** \brief Compute the regular dynamic part of the singular kernel
@@ -103,7 +100,7 @@ public:
 		auto const &tr_elem = trial_field.get_elem();
 		unsigned const N = tria_1_elem::num_nodes;
 		double r[N], theta[N], alpha[N];
-		planar_triangle_helper(tr_elem(), r, theta, alpha);
+		planar_triangle_helper(tr_elem, r, theta, alpha);
 
 		for (unsigned i = 0; i < N; ++i)
 			result(0,0) += r[i] * std::sin(alpha[i]) *
@@ -147,9 +144,7 @@ class singular_integral_shortcut<
 >
 {
 private:
-	enum {
-		quadrature_order = 7
-	};
+	enum { quadrature_order = 7 };
 	typedef tria_quad_store<quadrature_order> quadr_t;
 
 	/** \brief Compute the regular dynamic part of the singular kernel

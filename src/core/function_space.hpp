@@ -383,7 +383,7 @@ class function_space_impl<function_space<FieldTypeVector> > :
 {
 public:
 	/** \brief the traits class */
-	typedef typename function_space_traits<function_space<FieldTypeVector> >::traits_t traits_t;
+	typedef function_space_traits<function_space<FieldTypeVector> > traits_t;
 
 	/** \brief the field type vector */
 	typedef typename traits_t::field_type_vector_t field_type_vector_t;
@@ -540,9 +540,13 @@ public:
 	/** \brief the implementation type */
 	typedef function_space_impl<function_space<FieldTypeVector> > impl_t;
 
+	/** \brief mesh type redefined to avoid ambigous lookup */
+	typedef typename impl_t::mesh_t mesh_t;
+
 	using impl_t::field_begin;
 	using impl_t::field_end;
 	using impl_t::get_num_dofs;
+	using impl_t::get_mesh;
 
 	/** \brief constructor */
 	function_space() :
@@ -557,6 +561,21 @@ public:
 	{
 	}
 };
+
+/** \brief factory function to create a function space from fields
+ * \tparam nodes_t the nodes matrix type
+ * \tparam fields_t the fields matrix type
+ * \tparam fields_t the field types
+ * \param [in] nodes the nodes matrix
+ * \param [in] fields the field description matrix
+ * \param [in] fields the field tag instances
+ */
+template <class nodes_t, class elements_t, class...fields_t>
+function_space<tmp::vector<typename tag2field<fields_t>::type...> >
+	create_function_space(nodes_t const &nodes, elements_t const &elements, fields_t const &...fields)
+{
+	return function_space<tmp::vector<typename tag2field<fields_t>::type...> >(nodes, elements);
+}
 
 /** \brief metafunction determining if argument is function space expression
  * \tparam FuncSpace the function space to test

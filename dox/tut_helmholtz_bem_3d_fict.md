@@ -84,7 +84,7 @@ are the conventional system matrices (\f$ w_j \f$ denotes the weighting shape fu
 are the additional matrices originating from the discretised CHIEF equations.
 
 
-The Burton and miller Formalism  {#tut_helmholtz_bem_3d_fict_bm}
+The Burton and Miller Formalism  {#tut_helmholtz_bem_3d_fict_bm}
 -------------------------------
 
 The Burton and Miller method searches for the solution of the original boundary integral equation and its normal derivative with respect to the normal at \f$ {\bf x} \f$:
@@ -103,7 +103,7 @@ where
 \left(\mathcal{M}^{\mathrm{T}}q\right)_S({\bf x}) = \frac{\partial}{\partial n_{\bf x}}\int_S G({\bf x}, {\bf y}) q({\bf y})\mathrm{d}S_{\bf y}
 \f$
 
-is the transpose of \f$ \left(\mathcal{M}q\right)({\bf x})\f$, as differentiation is performed with respect to the other variable, and
+is the transpose of \f$ \left(\mathcal{M}q\right)({\bf x})\f$, as differentiation is performed with respect to the variable \f$ {\bf x} \f$, and
 
 \f$ \displaystyle
 \left(\mathcal{N}p\right)_S({\bf x}) = \frac{\partial}{\partial n_{\bf x}}\int_S \frac{\partial}{\partial n_{\bf y}} G({\bf x}, {\bf y}) p({\bf y})\mathrm{d}S_{\bf y}
@@ -124,7 +124,6 @@ This solution is found by solving the superposition of the two equations using a
 \f$
 
 The collocational discretisation of the above equation is straightforward.
-
 However, we should take into consideration that the hypersingular operator's kernel has an \f$ O(1/r^3) \f$ type singularity, and needs special treatment.
 This topic is discussed in details in the tutorial \ref tut_custom_singular_integrals
 
@@ -174,7 +173,7 @@ For the definition of the CHIEF mesh, we immediately apply the dirac view.
 
 The number of degrees of freedom on the radiating surface \f$ S \f$ and in the field mesh \f$ F \f$ are denoted by \f$ n \f$ and \f$ m \f$, respectively.
 After the function spaces are built, the number of DOFs are known, and the memory for the system matrices can be preallocated.
-The surface system matrices \f$ \mathbf{L} \f$, \f$ \mathbf{M} \f$, , \f$ \mathbf{M}_\mathrm{transpose} \f$ and \f$ \mathbf{N} \f$ are of size \f$ n \times n \f$, whereas the matrices describing the CHIEF equations \f$ \mathbf{M}' \f$ and \f$ \mathbf{L}' \f$ are of size \f$ m \times n \f$.
+The surface system matrices \f$ \mathbf{L} \f$, \f$ \mathbf{M} \f$, \f$ \mathbf{M}_\mathrm{transpose} \f$ and \f$ \mathbf{N} \f$ are of size \f$ n \times n \f$, whereas the matrices describing the CHIEF equations \f$ \mathbf{M}' \f$ and \f$ \mathbf{L}' \f$ are of size \f$ m \times n \f$.
 The six system matrices are preallocated by means of the following lines of code.
 
 \snippet helmholtz_bem_3d_fict.mex.cpp Matrices

@@ -10,7 +10,8 @@ Customising singular integrals {#tut_custom_singular_integrals}
 Introduction {#tut_custom_singular_integrals_intro}
 ============
 
-This tutorial explains how to customise the evaluation of a singular integral in NiHu. Our example of demonstration is the collocational singular integral of the 3D Helmholtz single layer potential kernel on a constant triangle element.
+This tutorial explains how to customise the evaluation of a singular integral in NiHu.
+Our example of demonstration is the collocational singular integral of the 3D Helmholtz single layer potential kernel on a constant triangle element.
 
 Theory {#tut_custom_singular_integrals_theory}
 ======
@@ -42,7 +43,8 @@ L_0 + L_k =
 \frac{ik}{4\pi} \int_S \exp(-ikr/2) \mathrm{sinc}({kr/2}) \mathrm{d}S_{\bf y}
 \f$
 
-The dynamic part is clearly regular and can be integrated with a low order regular quadrature. The static singular part can be evaluated analytically:
+The dynamic part is clearly regular and can be integrated with a low order regular quadrature.
+The static singular part can be evaluated analytically:
 
 \f$
 \displaystyle
@@ -50,6 +52,8 @@ L_0 = \frac{1}{4\pi}\sum_{i=1}^{3} R_i \sin \alpha_i \left[ \log\left(\frac{\tan
 \f$
 
 where \f$ R_i \f$ denotes the distance from the singular point to the \f$ i \f$-th corner of the triangle, and the angles \f$ \phi_i \f$ and \f$ \alpha_i \f$ are explained in the figure below:
+
+![Definition of the radii and angles for the singular integral of the static kernel](triangle_helper.svg)
 
 The C++ code {#tut_custom_singular_integrals_cpp}
 ============
@@ -65,10 +69,10 @@ template <class Kernel, class TestField, class TrialField, class Singulartiy, cl
 class singular_integral_shortcut;
 ~~~~~~~~~~~~
 Where the parameters are
-- the kernel type (::helmholtz_3d_SLP_kernel template in our case)
-- the test and trial field types (both constant triangles, the test field is a Dirac-view)
-- the singularity type (::singularity::face_match_type in our case)
-- an additional parameter to make complex type selection easy using the C++11 feature [std::enable_if]
+- **Kernel** the kernel type (::helmholtz_3d_SLP_kernel template in our case)
+- **TestField, TrialField** the test and trial field types (both constant triangles, the test field is a Dirac-view because of the collocational approach)
+- **Singularity** the singularity type (::singularity::face_match_type in our case)
+- **Enable** an additional parameter to make complex type selection easy using the C++11 feature [std::enable_if]
 
 Our specialisation is parametrised as follows
 ~~~~~~~~~~~~
@@ -87,7 +91,7 @@ public:
 	template <class result_t>	// the result matrix type
 	static result_t &eval(
 		result_t &result,		// result matrix reference
-		kernel_base<helmholtz_3d_SLP_kernel<WaveNumber> > const &kernel,	// kernel instance (CRTP)
+		kernel_base<helmholtz_3d_SLP_kernel<double> > const &kernel,	// kernel instance (CRTP)
 		field_base<TestField> const &,				// unused
 		field_base<TrialField> const &trial_field,	// the trial field instance
 		element_match const &)						// match data (unused for face_match)
@@ -98,14 +102,15 @@ public:
 	//...
 };
 ~~~~~~~~~~~~
-The test and trial field types are left as template arguments of the specialisation, but they are used in the arguments of [std::enable_if] to select the appropriate specialisation case. The specialisation is enabled if
+The test and trial field types are left as template arguments of the specialisation, but they are used in the arguments of [std::enable_if] to select the appropriate specialisation case.
+The specialisation is enabled if
 - the formalism (deduced from the test and trial fields by the metafunction ::get_formalism) is ::formalism::collocational
 - the geometrical interpolation function (L-set) of the trial field is ::tria_1_shape_set
 - the field interpolation function (N-set) of the trial field is ::tria_0_shape_set
 
 \note the test field does not need to be taken into account, as the ::singularity::face_match_type singulartiy implies that the test and trial element types are identical.
 
-As shown above, the class specialisation defines a static public member function called `eval` that evaluates the singular integral into a result matrix received by reference.
+As shown above, the class specialisation defines a static public member function called `eval` that evaluates the singular integral into a result matrix received by reference as function argument.
 
 Integrating the static part {#tut_custom_singular_integrals_static}
 ---------------------------
@@ -133,8 +138,8 @@ void triangle_helper(
 
 	for (unsigned i = 0; i < 3; ++i)
 	{
-		theta[i] = std::acos(R.col(i).dot(R.col((i+1) % 3)));	// angle output
-		alpha[i] = std::acos(R.col(i).dot(C.col(i)));			// angle output
+		theta[i] = acos(R.col(i).dot(R.col((i+1) % 3)));	// angle output
+		alpha[i] = acos(R.col(i).dot(C.col(i)));			// angle output
 	}
 }
 ~~~~~~~~~~~
@@ -142,9 +147,9 @@ void triangle_helper(
 Using this helper function, the static part of the integral is computed in the member `eval` as follows:
 ~~~~~~~~~~~~~~~~
 {
-	auto const &tr_elem = trial_field.get_elem();		// the element reference
+	auto const &elem = trial_field.get_elem();		// the element reference
 	double r[3], theta[3], alpha[3];
-	planar_triangle_helper(tr_elem, r, theta, alpha);	// compute R, theta, alpha
+	triangle_helper(elem, r, theta, alpha);	// compute R, theta, alpha
 
 	for (unsigned i = 0; i < 3; ++i)				// evaluate analytical formula
 		result(0,0) += r[i] * sin(alpha[i]) * log(tan((alpha[i]+theta[i])/2.) / tan(alpha[i]/2.));
@@ -168,20 +173,23 @@ The following static member quadrature is suitable:
 ~~~~~~~~~~~~~~
 static gaussian_quadrature<tria_domain> const reg_quadrature(7) // 7-th order
 ~~~~~~~~~~~~~~
-
+Class ::gaussian_quadrature<tria_domain> defines a Gaussian quadarture for a triangle domain.
+The contructor takes the integration order as parameter.
+The generated quadrature is able to integrate 7-th order polynomials on a triangle without error.
+The quadrature is implemented as a container of quadrature points, and provides an iterator that traverses the quadrature points.
 Using this quadrature, the dynamic part is integrated as
 ~~~~~~~~~~
 std::complex<double> I_dyn = 0.0;
-auto const &x0 = tr_elem.get_center();					// element center
-auto k = kernel.get_data().get_wave_number();			// wave number
+auto const &x0 = elem.get_center();					// element center
+double k = kernel.get_data().get_wave_number();		// wave number
 // traverse quadrature points
 for (auto it = reg_quadrature.begin(); it != reg_quadrature.end(); ++it)
 {
-	auto r = (tr_elem.get_x(it->get_xi()) - x0).norm();	// distance from source
+	double r = (elem.get_x(it->get_xi()) - x0).norm();	// distance from source
 	I_dyn += dynamic_integrand(r, k) * it->get_w();		// integration
 }
 // multiply by Jacobian
-I_dyn *= tr_elem.get_normal(tria_domain::xi_t()).norm();
+I_dyn *= elem.get_normal(tria_domain::xi_t()).norm();
 ~~~~~~~~~~
 
 where the function `dynamic_integrand` is implemented as
@@ -189,9 +197,9 @@ where the function `dynamic_integrand` is implemented as
 static std::complex<double> dynamic_integrand(double const &r, double const &k)
 {
 	std::complex<double> const I(0.0, 1.0);	// imaginary unit
-	return -I*k * exp(-I*k*r/2.) * sinc(k*r/2.0);
+	return -I*k * exp(-I*k*r/2.) * sinc(k*r/2.);
 }
 ~~~~~~~~~~
 
-The final specialisation can be seen in file library/helmholtz_singular_integrals.hpp
+The final specialisation can be found in file library/helmholtz_singular_integrals.hpp
 
