@@ -103,7 +103,7 @@ public:
 		auto const &tr_elem = trial_field.get_elem();
 		unsigned const N = tria_1_elem::num_nodes;
 		double r[N], theta[N], alpha[N];
-		planar_triangle_helper(tr_elem(), r, theta, alpha);
+		planar_triangle_helper(tr_elem, r, theta, alpha);
 
 		for (unsigned i = 0; i < N; ++i)
 			result(0,0) += r[i] * std::sin(alpha[i]) *
