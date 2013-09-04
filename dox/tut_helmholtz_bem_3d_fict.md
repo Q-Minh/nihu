@@ -16,13 +16,14 @@ Introduction {#tut_helmholtz_bem_3d_fict_intro}
 
 This tutorial demonstrates the usage of NiHu for solving an exterior acoustic radiation problem in 3D by means of a collocational type boundary element method (BEM).
 It is well known that the standard BEM formulation, when applied to an exterior radiation problem, does not have a unique solution at the eigenfrequencies of the dual interior problem.
-This tutorial presents how two mitigation methods
-- The CHIEF method
+This tutorial presents how two mitigation methods,
+- the CHIEF method
 - and the Burton Miller formalism
+
 are applied to handle the problem.
 
 If you are familiar with the CHIEF and Burton Miller formalisms, you should be able to implement the C++ code based on the previous tutorial \ref tut_helmholtz_galerkin_bem.
-However, it is worth reading this tutorial, because it will demonstrate how singular integrals can be specialised for specific formalisms, element types and kernels.
+However, it is worth reading this tutorial, because it will demonstrate how the complete solution is assembled in NiHu for both approaches.
 
 Theory {#tut_helmholtz_bem_3d_fict_theory}
 ======
@@ -37,25 +38,25 @@ The Helmholtz boundary integral equation
 \f$
 
 when applied to exterior radiation or scattering problems, does not have a unique solution at the eigenfrequencies of the dual interior problem.
-It can be shown that the interior mode shapes \f$ p^*_k({\bf y}) \f$ and its normal derivative \f$ q^*_k({\bf y}) = \partial p^*_k({\bf y}) / \partial n_{\bf y} \f$ satisfy the boundary integral equation, although, obviously, they have no phyiscal relation to the exterior problem.
+It can be shown that the interior mode shapes \f$ p^*_k({\bf y}) \f$ and their normal derivatives \f$ q^*_k({\bf y}) = \partial p^*_k({\bf y}) / \partial n_{\bf y} \f$ satisfy the boundary integral equation, although, obviously, they have no phyiscal relation to the exterior problem.
 
 The two discussed solution methods mitigate the problem by extending the integral equation by other equations that are not satisfied by the modal solution.
 
 The CHIEF method  {#tut_helmholtz_bem_3d_fict_chief}
 ----------------
 
-The CHIEF method (the name comes from Combined Helmholtz Integral Equation Formalism) utilises that the mode shapes \f$ p^*_k({\bf y}) \f$ do not satisfy the Helmholtz integral with source point \f$ {\bf x} \f$ inside the interior volume, if the source point coincides with a nodal location of the mode shape.
+The CHIEF method (the name comes from Combined Helmholtz Integral Equation Formalism) utilises the fact that the mode shapes \f$ p^*_k({\bf y}) \f$ do not satisfy the Helmholtz integral with source point \f$ {\bf x} \f$ inside the interior volume, if the source point coincides with a nodal location of the mode shape.
 Therefore, the boundary integral equation is extended by a set of additional equations as follows:
 
 \f$
 \displaystyle
 \frac{1}{2} p({\bf x}) = \left(\mathcal{M}p\right)_S({\bf x}) - \left(\mathcal{L}q\right)_S({\bf x}), \quad {\bf x} \in S, \\
 \displaystyle
-0 = \left(\mathcal{M}p\right)_S(\tilde{\bf x}_l) - \left(\mathcal{L}q\right)_S(\tilde{\bf x}_l), \quad \tilde{\bf x}_l \in V^{\text{interior}}, \quad l = 1 \dots K
+\phantom{\frac{p({\bf x})}{2}} 0 = \left(\mathcal{M}p\right)_S(\tilde{\bf x}_l) - \left(\mathcal{L}q\right)_S(\tilde{\bf x}_l), \quad \tilde{\bf x}_l \in V^{\text{interior}}, \quad l = 1 \dots K
 \f$
 
 Theoretically, one additional equation would be enough to exclude the fictitious solution.
-However, as it is difficult to estimate where the nodal locations of the interior problem are, the method is usually applied by selecting a number of randomly chosen interior points \f$ {\bf x}_l \f$.
+However, as it is difficult to estimate where the nodal locations of the interior problem are, the method is usually applied by selecting a number of randomly chosen interior points \f$ \tilde{\bf x}_l \f$.
 
 After discretisation, the following overdetermined linear system of equations is to be solved:
 
@@ -74,7 +75,7 @@ where
 \displaystyle  M_{ij} = \left< \delta_{{\bf x}_i}, \left(\mathcal{M} w_j\right)_S \right>_S \\
 \f$
 
-are the conventional system matrices (\f$ w_j \f$ denotes the weighting shape function on the surface) of a collocational BEM, and
+are the conventional system matrices (\f$w_j\f$ denotes the weighting shape function on the surface) of a collocational BEM, and
 
 \f$
 \displaystyle  L'_{lj} = \left< \delta_{\tilde{\bf x}_l}, \left(\mathcal{L} w_j\right)_S \right>_S, \quad
@@ -103,13 +104,13 @@ where
 \left(\mathcal{M}^{\mathrm{T}}q\right)_S({\bf x}) = \frac{\partial}{\partial n_{\bf x}}\int_S G({\bf x}, {\bf y}) q({\bf y})\mathrm{d}S_{\bf y}
 \f$
 
-is the transpose of \f$ \left(\mathcal{M}q\right)({\bf x})\f$, as differentiation is performed with respect to the variable \f$ {\bf x} \f$, and
+is the transpose of \f$ \left(\mathcal{M}q\right)({\bf x})\f$, as differentiation is performed with respect to the variable \f$ {\bf x} \f$, and the arising 
 
 \f$ \displaystyle
 \left(\mathcal{N}p\right)_S({\bf x}) = \frac{\partial}{\partial n_{\bf x}}\int_S \frac{\partial}{\partial n_{\bf y}} G({\bf x}, {\bf y}) p({\bf y})\mathrm{d}S_{\bf y}
 \f$
 
-is the hypersingular operator.
+is operator becomes hypersingular.
 
 The differentiated equation suffers from the problem of fictitious eigenfrequencies too.
 However, as the eigenfrequencies and mode shapes of the original and differentiated equations never coincide, the simultaneous solution is unique.
@@ -125,7 +126,7 @@ This solution is found by solving the superposition of the two equations using a
 
 The collocational discretisation of the above equation is straightforward.
 However, we should take into consideration that the hypersingular operator's kernel has an \f$ O(1/r^3) \f$ type singularity, and needs special treatment.
-This topic is discussed in details in the tutorial \ref tut_custom_singular_integrals
+This topic is discussed in details in the tutorial \ref tut_custom_singular_integrals.
 
 
 Program structure {#tut_helmholtz_bem_3d_fict_structure}
@@ -133,14 +134,15 @@ Program structure {#tut_helmholtz_bem_3d_fict_structure}
 
 We are going to implement a Matlab-C++ NiHu application, where
 - the C++ executable is responsible for assembling the system matrices from the boundary surface mesh and the CHIEF points,
-- the Matlab part defines the meshes, calls the C++ executable, solves the systems of equations, and compares the solutions by quantifying their error
+- the Matlab part defines the meshes, calls the C++ executable, solves the systems of equations, and compares the solutions by quantifying their errors.
 
 The C++ code {#tut_helmholtz_bem_3d_fict_cpp}
 ============
 
 The C++ code is going to be called from Matlab as
 
-	[L, M, Lchief, Mchief, Mtrans, N] = helmholtz_bem_3d_fict(surf_nodes, surf_elements, chief_nodes, chief_elements, wave_number);
+	[L, M, Lchief, Mchief, Mtrans, N] = helmholtz_bem_3d_fict(
+	    surf_nodes, surf_elements, chief_nodes, chief_elements, wave_number);
 	
 \note The CHIEF points are defined as element centres of a NiHu mesh for convenience.
 With this choice, the applied discretisation formalism is identical to that of a radiation integral in tutorial \ref tut_rayleigh_integral.
