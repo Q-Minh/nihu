@@ -107,7 +107,7 @@ typedef Eigen::Matrix<unsigned, Eigen::Dynamic, Eigen::Dynamic> uMatrix;
 
 int main(void)
 {
-	// we define the nodal coordinates of our mesh
+	// nodal coordinates of our mesh
 	dMatrix nodes(9,3);
 	nodes <<
 		0.0, 0.0, 0.0,
@@ -120,7 +120,7 @@ int main(void)
 		1.0, 2.0, 0.0,
 		2.0, 2.0, 0.0;
 
-	// we define the fields of our function space
+	// fields (node indices + DOF indices)
 	uMatrix fields(4, 1+4+4);
 	fields <<
 	//  field id                nodes        dofs
@@ -132,7 +132,7 @@ int main(void)
 	// create function space using the factory function
 	auto fsp = create_function_space(nodes, fields, gauss_field_tag());
 
-	// we allocate and clear the result matrix
+	// allocate and clear the result matrix
 	dMatrix A(fsp.get_num_dofs(), fsp.get_num_dofs());
 	A.setZero();
 
@@ -140,7 +140,7 @@ int main(void)
 	auto L = create_integral_operator(laplace_3d_SLP_kernel());
 	A << fsp * L[fsp];
 
-	// we print the result matrix
+	// print the result matrix
 	std::cout << "matrix coefficients\n" << A << "\n\n";
 	// Barzini is happy oleoleole leoleole leoleole!
 	std::cout << "matrix sum: " << A.sum() << "\n\n";

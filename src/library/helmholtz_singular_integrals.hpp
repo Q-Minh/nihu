@@ -16,7 +16,7 @@
  * \tparam TestField the test field type
  * \tparam TrialField the trial field type
  */
-template <class WaveNumber, template< class WaveNumber> class Kernel, class TestField, class TrialField>
+template <template< class WaveNumber> class Kernel, class WaveNumber, class TestField, class TrialField>
 class singular_integral_shortcut<
 	Kernel<WaveNumber>, TestField, TrialField, singularity::face_match_type,
 	typename std::enable_if<

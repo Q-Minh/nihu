@@ -664,7 +664,7 @@ public:
 	{
 		// call quad-tria version with swapped arguments
 		singular_galerkin_quadrature<quadrature_family_t, quad_domain, tria_domain>::
-			generate<match_type>(trial_quadrature, test_quadrature, singular_quadrature_order);
+			template generate<match_type>(trial_quadrature, test_quadrature, singular_quadrature_order);
 	}
 };
 

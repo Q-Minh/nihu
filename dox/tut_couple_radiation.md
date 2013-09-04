@@ -9,13 +9,13 @@ Introduction {#tut_couple_radiation_intro}
 ============
 
 In most BEM applications two or four integral operators need to be discretised to form the system of equations.
-For the case of an acoustic BEM, the single and double layer potential kernels of the Helmholtz equation need to be discretised simultaneously to obtain the sytem matrices.
+For the case of a direct acoustic BEM, the single and double layer potential kernels of the Helmholtz equation need to be discretised simultaneously to obtain the sytem matrices.
 If the Burton-Miller method (see e.g. \ref tut_helmholtz_bem_3d_fict) is applied, then four integral operators need to be discretised using the same test and trial function spaces.
 
 In most cases, the parallel evaluation of the different kernels is much cheaper than sequential evaluations, because
 - the kernel inputs (locations, normal vectors) need to be computed only once
-- the kernels can be computed from each other: for example, if \f$ G \f$ denotes the 3D acoustic Green's function, then \f$ G' = -G/r \cdot (1+\mathrm{i}kr) \f$
-- the weighting shape functions and the Jacobian need to be computed only once.
+- the kernels can be computed from each other: for example, if \f$ G = \exp(ikr)/4\pi r \f$ denotes the 3D acoustic Green's function, then \f$ G' = -G/r \cdot (1+\mathrm{i}kr) \f$
+- the weighting shape functions, quadrature weights and the Jacobian need to be computed only once during integration.
 
 Couple kernels, operators and matrices  {#tut_couple_radiation_couples}
 ======================================
@@ -36,8 +36,8 @@ Without going into details with respect to the implementation, we introduce an a
 Application  {#tut_couple_radiation_application}
 ===========
 
-We compute the pressure and velocity fields radiated from a closed surface \f$ S \f$.
-We assume that both the surface pressure and velocity fields are known on the boundary suraface \f$ S \f$, and we are interested in the radiated pressure and velocioty fields on a field point surface \f$ F \f$.
+We compute the pressure and velocity fields radiated from a closed surface \f$ S \f$ to a field point domain \f$ F \f$.
+We assume that both the surface pressure \f$ p({\bf y}) \f$ and velocity fields \f$ q({\bf y}) \f$ are known on the boundary suraface \f$ S \f$, and we are interested in the radiated pressure \f$ p({\bf x}) \f$ and velocioty fields \f$ q({\bf x}) \f$ on a field point surface \f$ F \f$.
 
 The pressure field is described as
 
@@ -50,16 +50,18 @@ The velocity field is computed by means of differentiation:
 
 \f$
 \displaystyle
-q({\bf x}_i) = \left(\mathcal{M}^{\mathrm{T}}q\right)_S({\bf x}_i) - \left(\mathcal{N}p\right)_S({\bf x}_i) \quad {\bf x_i} \in F.
+q({\bf x}_i) = \left(\mathcal{M}^{\mathrm{T}}q\right)_S({\bf x}_i) - \left(\mathcal{N}p\right)_S({\bf x}_i) \quad {\bf x}_i \in F.
 \f$
 
 Program structure  {#tut_couple_radiation_structure}
 =================
 
 The C++ application is going to compute the discretised operators two times.
-1. First with the sequential evaluation
-2. And then with couple kernel evaluations
-
+1. First with the sequential evaluation: \f$ \left< \delta_{{\bf x}_i}, \left(\mathcal{L}w_j \right)_S \right>\f$,
+\f$ \left< \delta_{{\bf x}_i}, \left(\mathcal{M}w_j \right)_S \right>\f$,
+\f$ \left< \delta_{{\bf x}_i}, \left(\mathcal{M}^{\mathrm{T}}w_j \right)_S \right>\f$,
+\f$ \left< \delta_{{\bf x}_i}, \left(\mathcal{N}w_j \right)_S \right>\f$
+2. And then with couple kernel evaluations: \f$ \left< \delta_{{\bf x}_i}, \left(\left\{\mathcal{L},\mathcal{M},\mathcal{M}^{\mathrm{T}},\mathcal{N}\right\}w_j \right)_S \right>\f$,
 
 The C++ code  {#tut_couple_radiation_cpp}
 ============
@@ -106,8 +108,8 @@ Possible printed results are
 	N log10error:	-Inf
 	time gain:	0.4496
 
-Reults and discussion  {#tut_couple_radiation_results}
-=====================
+Results and discussion  {#tut_couple_radiation_results}
+======================
 
 The results are interpreted as follows:
 - The couple kernel evaluation accelerates the radiation integrals by a factor of approximately two.
