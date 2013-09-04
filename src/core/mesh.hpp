@@ -243,14 +243,6 @@ protected:
 };
 
 
-/** \brief metafunction assigning an elem type vector to a variadic argument list of tags */
-template <class...tag_args>
-struct tag_var_to_elem_vector : tmp::transform<
-	tmp::vector<tag_args...>,
-	tmp::inserter<tmp::vector<>, tmp::push_back<tmp::_1, tmp::_2> >,
-	tag2element<tmp::_1>
-> {};
-
 /** \brief factory function to create a mesh from nodes and elements matrices
  * \tparam nodes_t type of the node definition matrix
  * \tparam elements_t type of the element definition matrix
@@ -260,10 +252,10 @@ struct tag_var_to_elem_vector : tmp::transform<
  * \return a mesh consisting of given element types
  */
 template <class nodes_t, class elements_t, class...Args>
-mesh<typename tag_var_to_elem_vector<Args...>::type >
+mesh<tmp::vector<typename tag2element<Args>::type...> >
 	create_mesh(nodes_t const &nodes, elements_t const &elements, Args...)
 {
-	return mesh<typename tag_var_to_elem_vector<Args...>::type >(nodes, elements);
+	return mesh<tmp::vector<typename tag2element<Args>::type...> >(nodes, elements);
 }
 
 #endif
