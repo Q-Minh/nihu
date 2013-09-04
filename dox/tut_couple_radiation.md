@@ -10,15 +10,20 @@ Introduction {#tut_couple_radiation_intro}
 
 In most BEM applications two or four integral operators need to be discretised to form the system of equations.
 For the case of an acoustic BEM, the single and double layer potential kernels of the Helmholtz equation need to be discretised simultaneously to obtain the sytem matrices.
-If the Burton-Miller method is applied, then four integral operators need to be discretised using the same test and trial function spaces.
+If the Burton-Miller method (see e.g. \ref tut_helmholtz_bem_3d_fict) is applied, then four integral operators need to be discretised using the same test and trial function spaces.
 
 In most cases, the parallel evaluation of the different kernels is much cheaper than sequential evaluations, because
 - the kernel inputs (locations, normal vectors) need to be computed only once
-- the kernels can be computed from each other: for example, if \f$ G \f$ denotes the 3D acoustic Green's function, then \f$ G' = -G/r \cdot (1+ikr) \f$
+- the kernels can be computed from each other: for example, if \f$ G \f$ denotes the 3D acoustic Green's function, then \f$ G' = -G/r \cdot (1+\mathrm{i}kr) \f$
 - the weighting shape functions and the Jacobian need to be computed only once.
 
 Couple kernels, operators and matrices  {#tut_couple_radiation_couples}
 ======================================
+
+The expression _couple_, which is extensively used in the following (and in the nomenclature of the source code) refers to a compile-time collection of classes derived from the same base classes, using static polymorphism (see \ref tech_poly).
+Without the need of going into details, it is enough for our understanding that certain types can be collected into couples and the couple container also provides some functionality applyable on the whole container.
+For example indexing a couple of matrices of the same type will result in a couple of the indexed elements, whereas the couple of a number of kernel functions can be evaluated resulting in a couple object consisting of the results of each kernel evaluated with the same arguments.
+In the following couple objects will be traited as transparent layers over the contained data objects.
 
 NiHu provides a transparent mechanism to automatically optimise parallel kernel evaluations.
 
@@ -38,14 +43,14 @@ The pressure field is described as
 
 \f$
 \displaystyle
-p({\bf x}_i) = \left(\mathcal{L}q\right)_S({\bf x}_i) - \left(\mathcal{M}p\right)_S({\bf x}_i), \quad {\bf x}_i \in F \\
+p({\bf x}_i) = \left(\mathcal{L}q\right)_S({\bf x}_i) - \left(\mathcal{M}p\right)_S({\bf x}_i), \quad {\bf x}_i \in F.
 \f$
 
-And the velocity field is computed by means of differentiation:
+The velocity field is computed by means of differentiation:
 
 \f$
 \displaystyle
-q({\bf x}_i) = \left(\mathcal{M}^{\mathrm{T}}q\right)_S({\bf x}_i) - \left(\mathcal{N}p\right)_S({\bf x}_i) \quad {\bf x_i} \in F
+q({\bf x}_i) = \left(\mathcal{M}^{\mathrm{T}}q\right)_S({\bf x}_i) - \left(\mathcal{N}p\right)_S({\bf x}_i) \quad {\bf x_i} \in F.
 \f$
 
 Program structure  {#tut_couple_radiation_structure}
@@ -105,7 +110,7 @@ Reults and discussion  {#tut_couple_radiation_results}
 =====================
 
 The results are interpreted as follows:
-- The couple kernel evaluation accelerates the radiation integrals by a factor of two.
+- The couple kernel evaluation accelerates the radiation integrals by a factor of approximately two.
 - The N matrices are identical, the other matrices are slightly different.
 This is because parallel kernel evaluations means that the four kernels need to be evaluated in the same integration points.
 The number of integration points is defined by the (worst case) hypersingular kernel, so the other integrals are computed with unnecessarily large accuracy.
