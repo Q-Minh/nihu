@@ -51,10 +51,6 @@ public:
 			field_base<Trial> const &trial,
 			OnSameMesh) const
 	{
-		if ( traits_t::is_local &&
-			( !std::is_same<typename Test::elem_t, typename Trial::elem_t>::value
-			  || test.get_elem().get_id() != trial.get_elem().get_id() ) )
-			return wr_result_type<Test, Trial>::type::Zero();
 		return derived().derived_eval_on_fields(test, trial, OnSameMesh());
 	}
 
