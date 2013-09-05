@@ -127,7 +127,7 @@ public:
 
 private:
 	template <class TestSpace, class Result>
-	void test_on_into(
+	void test_on_into_impl(
 		std::true_type,
 		function_space_base<TestSpace> const &test_space,
 		Result &result) const
@@ -141,7 +141,7 @@ private:
 	}
 
 	template <class TestSpace, class Result>
-	void test_on_into(
+	void test_on_into_impl(
 		std::false_type,
 		function_space_base<TestSpace> const &test_space,
 		Result &result) const
@@ -162,7 +162,7 @@ public:
 		function_space_base<TestSpace> const &test_space,
 		Result &result) const
 	{
-		test_on_into(
+		test_on_into_impl(
 			typename std::is_same<
 				typename std::decay<TrialSpace>::type::mesh_t,
 				typename std::decay<TestSpace>::type::mesh_t
