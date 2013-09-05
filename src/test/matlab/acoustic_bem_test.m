@@ -41,3 +41,4 @@ err_f_oldSchool = abs(pf_oldSchool ./ pf_ana - 1);
 fprintf(1, 'log10 mean eps | surface, field\n');
 fprintf(1, 'Boonen:          %.2f\t%.2f\n', log10(mean(err_s_Boonen)), log10(mean(err_f_Boonen)));
 fprintf(1, 'oldSchool:       %.2f\t%.2f\n', log10(mean(err_s_oldSchool)), log10(mean(err_f_oldSchool)));
+fprintf(1, 'time gain:\t%.2f\n', t_Booni/(t_old_field+t_old_rad));

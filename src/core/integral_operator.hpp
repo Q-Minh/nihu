@@ -13,7 +13,7 @@
 #include "double_integral.hpp"
 
 template <class Operator, class TrialSpace>
-class projection;
+class integral_transform;
 
 /** \brief traits class for an integral operator
  * \tparam Derived the CRTP derived class
@@ -58,19 +58,19 @@ public:
 		return derived().derived_eval_on_fields(test, trial, OnSameMesh());
 	}
 
-	/** \brief factory index operator from function space rhs
+	/** \brief apply the integral operator on a function space and create an ::integral_transform
 	* \tparam FuncSpace the trial function space
 	* \param [in] funcspace the function space reference
-	* \return projection proxy object
+	* \return integral_transform proxy object
 	*/
 	template <class FuncSpace>
-	projection<
+	integral_transform<
 		Derived,
 		typename std::enable_if<is_function_space<FuncSpace>::value, FuncSpace>::type
 	>
 		operator[](FuncSpace &&funcspace)
 	{
-		return projection<Derived, FuncSpace>(
+		return integral_transform<Derived, FuncSpace>(
 			derived(),
 			std::forward<FuncSpace>(funcspace));
 	}
