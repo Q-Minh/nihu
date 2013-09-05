@@ -44,7 +44,8 @@ As a result, all the specialisations with any number of arguments such as
 
 \snippet cpp11techniques.hpp VariadicSpec3
 
-will work, and give a correct result.
+will work, and give a correct result, which is calculated at compile time.
+It should be noted that in our example `vari_or<false>` takes the value from the class `vari_or<>` (with zero template parameters), and naturally this requires that `vari_or<>` is a valid and complete class, which 
 
 The auto keyword {#tech_cpp11_auto}
 ================

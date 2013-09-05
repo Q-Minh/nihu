@@ -38,5 +38,5 @@ plot_mesh(field, log10(pf_err)); view(2);  shading flat;
 c1 = colorbar('SouthOutside');
 xlabel(c1, 'Log10 error');
 
-% %// display error information
+%// display error information
 fprintf('Field   log10 error: %f \n', log10(mean(pf_err)));
