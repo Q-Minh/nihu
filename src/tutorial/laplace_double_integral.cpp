@@ -49,8 +49,6 @@ int main(void)
 	uMatrix elements(1, 1+4);
 	elements << quad_1_elem::id, 0, 1, 3, 2;
 
-	remesh(nodes, elements);
-
 	// create the mesh
 	auto msh = create_mesh(nodes, elements, _tria_1_tag(), _quad_1_tag());
 //! [Mesh]

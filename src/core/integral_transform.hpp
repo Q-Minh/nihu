@@ -1,7 +1,7 @@
 /**
-* \file projection.hpp
+* \file integral_transform.hpp
 * \ingroup intop
-* \brief declaration of projection classes
+* \brief declaration of integral_transform classes
 * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
 */
 
@@ -13,17 +13,17 @@
 #include "integral_operator.hpp"
 #include "assembly.hpp"
 
-/** \brief CRTP base class of all projection expressions
+/** \brief CRTP base class of all integral_transform expressions
 * \tparam Derived CRTP derived class
-* \details a projection is an integral operator multiplied by a function space.
+* \details a integral_transform is an integral operator multiplied by a function space.
 */
 template <class Derived>
-class projection_base
+class integral_transform_base
 {
 public:
 	NIHU_CRTP_HELPERS
 
-	/** \brief test a projection with a test function space
+	/** \brief test a integral_transform with a test function space
 	* \tparam TestSpace type of the test space
 	* \tparam Result type of the result matrix
 	* \param [in] test_space the test space to test with
@@ -39,36 +39,36 @@ public:
 };
 
 
-/** \brief metafunction determining if argument is projection expression
+/** \brief metafunction determining if argument is integral_transform expression
  * \tparam Proj the function space to test
  */
 template <class Proj>
-struct is_projection : std::is_base_of<
-	projection_base<typename std::decay<Proj>::type>,
+struct is_integral_transform : std::is_base_of<
+	integral_transform_base<typename std::decay<Proj>::type>,
 	typename std::decay<Proj>::type
 >{};
 
 
-/** \brief proxy class representing a sum of two projections
-* \tparam LDerived left hand side projection expression
-* \tparam RDerived right hand side projection expression
+/** \brief proxy class representing a sum of two integral_transforms
+* \tparam LDerived left hand side integral_transform expression
+* \tparam RDerived right hand side integral_transform expression
 */
 template <class LDerived, class RDerived>
-class projection_sum :
-	public projection_base<projection_sum<LDerived, RDerived> >
+class integral_transform_sum :
+	public integral_transform_base<integral_transform_sum<LDerived, RDerived> >
 {
 public:
-	/** \brief constructor from two projection expressions
-	* \param [in] left the left hand side projection expression
-	* \param [in] right the right hand side projection expression
+	/** \brief constructor from two integral_transform expressions
+	* \param [in] left the left hand side integral_transform expression
+	* \param [in] right the right hand side integral_transform expression
 	*/
-	projection_sum(LDerived &&left, RDerived &&right) :
+	integral_transform_sum(LDerived &&left, RDerived &&right) :
 		m_lhs(std::forward<LDerived>(left)),
 		m_rhs(std::forward<RDerived>(right))
 	{
 	}
 
-	/** \brief test a projection with a test function space
+	/** \brief test a integral_transform with a test function space
 	* \tparam TestSpace type of the test space
 	* \tparam Result type of the result matrix
 	* \param [in] test_space the test space to test with
@@ -84,41 +84,41 @@ public:
 	}
 
 private:
-	/** \brief the left hand side projection expression */
+	/** \brief the left hand side integral_transform expression */
 	LDerived m_lhs;
-	/** \brief the right hand side projection expression */
+	/** \brief the right hand side integral_transform expression */
 	RDerived m_rhs;
 };
 
 
-/** \brief factory operator for the sum of two projections */
+/** \brief factory operator for the sum of two integral_transforms */
 template <class Left, class Right>
-projection_sum<
-	typename std::enable_if<is_projection<Left>::value, Left>::type,
-	typename std::enable_if<is_projection<Right>::value, Right>::type
+integral_transform_sum<
+	typename std::enable_if<is_integral_transform<Left>::value, Left>::type,
+	typename std::enable_if<is_integral_transform<Right>::value, Right>::type
 >
 	operator+(Left &&left, Right &&right)
 {
-	return projection_sum<Left, Right>(
+	return integral_transform_sum<Left, Right>(
 		std::forward<Left>(left),
 		std::forward<Right>(right));
 }
 
 
-/** \brief integral operator applied on a function space
+/** \brief Proxy class of an ::integral_operator applied on a ::function_space
 * \tparam Operator the integral operator
 * \tparam TrialSpace the right hand side function space
 */
 template <class Operator, class TrialSpace>
-class projection
-	: public projection_base<projection<Operator, TrialSpace> >
+class integral_transform
+	: public integral_transform_base<integral_transform<Operator, TrialSpace> >
 {
 public:
 	/** \brief constructor from an operator and a function space
 	* \param [in] op the operator
 	* \param [in] trial the trial function space
 	*/
-	projection(integral_operator_base<Operator> const &op, TrialSpace && trial) :
+	integral_transform(integral_operator_base<Operator> const &op, TrialSpace && trial) :
 		m_op(op.derived()),
 		m_trial_space(std::forward<TrialSpace>(trial))
 	{
@@ -127,7 +127,7 @@ public:
 
 private:
 	template <class TestSpace, class Result>
-	void test_on_into(
+	void test_on_into_impl(
 		std::true_type,
 		function_space_base<TestSpace> const &test_space,
 		Result &result) const
@@ -141,7 +141,7 @@ private:
 	}
 
 	template <class TestSpace, class Result>
-	void test_on_into(
+	void test_on_into_impl(
 		std::false_type,
 		function_space_base<TestSpace> const &test_space,
 		Result &result) const
@@ -151,7 +151,7 @@ private:
 	}
 
 public:
-	/** \brief test a projection with a test function space
+	/** \brief test a integral_transform with a test function space
 	* \tparam TestSpace type of the test space
 	* \tparam Result type of the result matrix
 	* \param [in] test_space the test space to test with
@@ -162,7 +162,7 @@ public:
 		function_space_base<TestSpace> const &test_space,
 		Result &result) const
 	{
-		test_on_into(
+		test_on_into_impl(
 			typename std::is_same<
 				typename std::decay<TrialSpace>::type::mesh_t,
 				typename std::decay<TestSpace>::type::mesh_t

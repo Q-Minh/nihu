@@ -13,7 +13,7 @@
 #include "../util/crtp_base.hpp"
 #include "result_matrix.hpp"
 #include "function_space.hpp"
-#include "projection.hpp"
+#include "integral_transform.hpp"
 
 
 /** \brief base class of all weighted residual expressions
@@ -38,18 +38,18 @@ public:
 };
 
 
-/** \brief a weighted residual \f$\left<u,\mathcal{K}v\right>\f$
+/** \brief A weighted residual proxy storing a function_space and an integral_transform
  * \tparam TestSpace the test function space
- * \tparam Projection the projection
+ * \tparam Projection the itnegral_transform
  */
 template <class TestSpace, class Projection>
 class weighted_residual :
 	public wr_base<weighted_residual<TestSpace, Projection> >
 {
 public:
-	/** \brief constructor from test reference and projection reference
+	/** \brief constructor from test reference and integral_transform reference
 	* \param [in] test reference to the test space
-	* \param [in] proj reference to the projection
+	* \param [in] proj reference to the integral_transform
 	*/
 	weighted_residual(
 		TestSpace &&test,
@@ -74,8 +74,7 @@ public:
 private:
 	/** \brief the stored test function space reference */
 	TestSpace m_test;
-	/** \brief the stored projection reference */
-	/** \todo dangerous if projection is created on the fly */
+	/** \brief the stored integral_transform reference */
 	Projection m_proj;
 };
 
@@ -147,17 +146,17 @@ wr_sum<
 
 
 
-/** \brief factory operator to create a wr from a test space and a projection
+/** \brief factory operator to create a wr from a test space and an integral_transform
 * \tparam Test the test space type
-* \tparam Proj the projection type
+* \tparam Proj the integral_transform type
 * \param [in] test the test space reference
-* \param [in] proj the projection reference
+* \param [in] proj the integral_transform reference
 * \return the weighted residual
 */
 template <class Test, class Proj>
 weighted_residual<
 	typename std::enable_if<is_function_space<Test>::value, Test>::type,
-	typename std::enable_if<is_projection<Proj>::value, Proj>::type
+	typename std::enable_if<is_integral_transform<Proj>::value, Proj>::type
 >
 	operator *(Test &&test, Proj &&proj)
 {

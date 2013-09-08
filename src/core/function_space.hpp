@@ -326,7 +326,7 @@ dirac_space<FuncSpace> const &
 
 
 
-/** \brief forward declaration of class function space */
+// forward declaration
 template <class FieldTypeVector>
 class function_space;
 
