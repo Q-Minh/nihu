@@ -4,6 +4,8 @@
  * \author Peter Fiala fiala@hit.bme.hu, Peter Rucz rucz@hit.bme.hu
  */
 
+#define GCC_VERSION (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
+
 #ifndef COUPLE_HPP_INCLUDED
 #define COUPLE_HPP_INCLUDED
 
@@ -314,22 +316,29 @@ public:
 	{
 	}
 
-// this is a patch for the GCC4.7 decltype bug
+#if !defined(__clang__) && (GCC_VERSION < 408000)
 static constexpr couple_product_right const *This = static_cast<couple_product_right const *>(nullptr);
 LDerived const &get_left(void) const { return m_left; }
 Right const &get_right(void) const { return m_right; }
 
+	template <size_t idx>
+	auto get(void) const
+		-> decltype( This->get_left().template get<idx>() * This->get_right() )
+	{
+		return m_left.template get<idx>() * m_right;
+	}
+#else
 	/**
 	 * \brief return element of the couple product
 	 * \return element of the couple product
 	 */
 	template <size_t idx>
 	auto get(void) const
-		// -> decltype( m_left.template get<idx>() * m_right ) from GCC4.8
-		-> decltype( This->get_left().template get<idx>() * This->get_right() )
+		-> decltype( m_left.template get<idx>() * m_right )
 	{
 		return m_left.template get<idx>() * m_right;
 	}
+#endif
 };
 
 
@@ -400,23 +409,29 @@ public:
 	{
 	}
 
-// this is a patch for the GCC4.7 decltype bug
-static constexpr couple_product_left const *This = static_cast<couple_product_left const *>(nullptr);
-Left const &get_left(void) const { return m_left; }
-RDerived const &get_right(void) const { return m_right; }
-
-	/**
-	 * \brief return element of the couple product
-	 * \return element of the couple product
-	 */
-	template <size_t idx>
-	auto get(void) const
-		// -> decltype ( m_left * m_right.template get<idx>() ) from GCC4.8
+#if !defined(__clang__) && (GCC_VERSION < 408000)
+	static constexpr couple_product_left const *This = static_cast<couple_product_left const *>(nullptr);
+	Left const &get_left(void) const { return m_left; }
+	RDerived const &get_right(void) const { return m_right; }
+	template <size_t idx> auto get(void) const
 		-> decltype( This->get_left() * This->get_right().template get<idx>() )
 	{
 		return m_left * m_right.template get<idx>();
 	}
+#else
+	/**
+	 * \brief return element of the couple product
+	 * \return element of the couple product
+	 */
+	template <size_t idx> auto get(void) const
+		-> decltype ( m_left * m_right.template get<idx>() ) /* from GCC4.8 */
+		//-> decltype( This->get_left() * This->get_right().template get<idx>() )
+	{
+		return m_left * m_right.template get<idx>();
+	}
+#endif
 };
+
 
 
 /** \brief metafunction determining if argument is a couple expression

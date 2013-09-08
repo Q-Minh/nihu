@@ -61,9 +61,11 @@ public:
 	typedef typename plain_type<
 		typename product_type<
 			typename kernel_traits<Kernel>::result_t,
-			typename product_type<
-				typename TestField::nset_t::shape_t,
-				Eigen::Transpose<typename TrialField::nset_t::shape_t>
+			typename plain_type<
+				typename product_type<
+					typename TestField::nset_t::shape_t,
+					Eigen::Transpose<typename TrialField::nset_t::shape_t>
+				>::type
 			>::type
 		>::type
 	>::type result_t;
@@ -280,9 +282,11 @@ public:
 	typedef typename plain_type<
 		typename product_type<
 			typename kernel_traits<Kernel>::result_t,
-			typename product_type<
-				typename test_nset_t::shape_t,
-				Eigen::Transpose<typename trial_nset_t::shape_t>
+			typename plain_type<	// this plain type is needed by clang
+				typename product_type<
+					typename test_nset_t::shape_t,
+					Eigen::Transpose<typename trial_nset_t::shape_t>
+				>::type
 			>::type
 		>::type
 	>::type result_t;

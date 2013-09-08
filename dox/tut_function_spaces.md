@@ -97,4 +97,6 @@ which is cumbersome to read and interpret.
 Defining heterogeneous custom function spaces {#tut_funspace_custom}
 =============================================
 
-
+Heterogeneous function spaces are a collection of different element types with different field interpolation shape functions.
+NiHu provides a way (function ::create_function_space) to manually define heterogeneous function spaces in a similar manner as defining a mesh.
+Although this option is rarely needed, we refer to the tutorial \ref tut_custom_element for further information.

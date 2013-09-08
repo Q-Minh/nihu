@@ -268,6 +268,14 @@ template <class Field, class Family, class Acceleration, unsigned MaxOrder>
 class field_type_accelerator_pool :
 	public pool<field_type_accelerator<Field, Family, acceleration::hard>, MaxOrder>
 {
+public:
+	typedef pool<field_type_accelerator<Field, Family, acceleration::hard>, MaxOrder> base_t;
+
+	/** \brief this user-specified default constructor is needed by clang */
+	field_type_accelerator_pool() :
+		base_t()
+	{
+	}
 };
 
 
@@ -278,6 +286,12 @@ class field_type_accelerator_pool<Field, Family, acceleration::soft, MaxOrder> :
 public:
 	typedef pool<typename quadrature_type<Family, typename Field::elem_t::domain_t>::type, MaxOrder> base_t;
 	typedef field_type_accelerator<Field, Family, acceleration::soft> accelerator_t;
+
+	/** \brief this user-specified default constructor is needed by clang */
+	field_type_accelerator_pool() :
+		base_t()
+	{
+	}
 
 	accelerator_t const &operator[](unsigned idx) const
 	{

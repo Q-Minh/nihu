@@ -23,7 +23,7 @@ The collocational singular integral of the single layer potential kernel on a co
 
 \f$
 \displaystyle
-L = \int_S \frac{\exp(-i k r)}{4\pi r}\mathrm{d}S_{\bf y}, \quad r = |{\bf y} - {\bf x}_0|
+L = \int_S \frac{\exp(-\mathrm{i} k r)}{4\pi r}\mathrm{d}S_{\bf y}, \quad r = |{\bf y} - {\bf x}_0|
 \f$
 
 where \f$ {\bf x}_0 \f$ is the singular collocation point in the center of the element.
@@ -38,9 +38,9 @@ The integral \f$ L \f$ can be regularised by subtracting and adding its static \
 L =
 L_0 + L_k =
 \int_S \frac{1}{4\pi r}\mathrm{d}S_{\bf y} +
-\int_S \frac{\exp(-ikr)-1}{4\pi r}\mathrm{d}S_{\bf y} =
+\int_S \frac{\exp(-\mathrm{i}kr)-1}{4\pi r}\mathrm{d}S_{\bf y} =
 \int_S \frac{1}{4\pi r}\mathrm{d}S_{\bf y} -
-\frac{ik}{4\pi} \int_S \exp(-ikr/2) \mathrm{sinc}({kr/2}) \mathrm{d}S_{\bf y}
+\frac{\mathrm{i}k}{4\pi} \int_S \exp(-\mathrm{i}kr/2) \mathrm{sinc}({kr/2}) \mathrm{d}S_{\bf y}
 \f$
 
 The dynamic part is clearly regular and can be integrated with a low order regular quadrature.

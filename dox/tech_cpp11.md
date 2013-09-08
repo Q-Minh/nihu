@@ -13,6 +13,40 @@ This document presents the C++11 techniques used in NiHu.
 Variadic templates {#tech_cpp11_variadic}
 ==================
 
+A new feature of C++11 enables the usage of template classes with variable number of template arguments, a.k.a. _variadic templates_.
+Variadic templates are created using the ellipses (`...`) syntax as demonstrated in the example below.
+The example also shows function parametrisation and calling using a variadic list of arguments.
+
+\snippet cpp11techniques.hpp VariadicTemplateClass
+
+To interpret a code that utilises the variadic syntax you can always think of the ellipses as an extraction of the underlying operation that is the operation applied on the elements of the variadic expression, separated by commas.
+For example the expression 
+
+\snippet cpp11techniques.hpp VariadicExample
+
+with `Args = bool, char` is interpreted as
+
+\snippet cpp11techniques.hpp VariadicInterpretation
+
+It is also worth mentoning that the expression `template <class...Args>` also covers the empty `Args` case, which means no template parameters in case of the above example class.
+
+What makes variadic templates extremely useful is, of course, specialisation.
+The basic example defines the disjunction of boolean template parameters as
+
+\snippet cpp11techniques.hpp VariadicSpec1
+	
+As it is seen, the default value is `false`, which will be utilised in the specialisation.
+The powerfulness of variadic templates are demonstrated by the specialised classes:
+
+\snippet cpp11techniques.hpp VariadicSpec2
+
+As a result, all the specialisations with any number of arguments such as
+
+\snippet cpp11techniques.hpp VariadicSpec3
+
+will work, and give a correct result, which is calculated at compile time.
+It should be noted that in our example `vari_or<false>` takes the value from the class `vari_or<>` (with zero template parameters), and naturally this requires that `vari_or<>` is a valid and complete class, which 
+
 The auto keyword {#tech_cpp11_auto}
 ================
 
