@@ -6,6 +6,7 @@ Mesh building {#tut_mesh_building}
 [Eigen]:http://eigen.tuxfamily.org/index.php?title=Main_Page
 [mexFunction]:http://www.mathworks.com/help/matlab/apiref/mexfunction.html
 [MEX]:http://www.mathworks.com/help/matlab/create-mex-files.html
+[Matlab frontend]:\ref install_matlab_interface
 
 [TOC]
 
@@ -17,7 +18,7 @@ meshes or to import different mesh formats. NiHu provides a single mesh building
 interface, the ::create_mesh function that reads two mesh description matrices:
 one for the vertex locations and one for the element nodal connectivities.
 
-\note For versatile mesh generation and mesh importing functionalities, refer to the Matlab frontend.
+\note For versatile mesh generation and mesh importing functionalities, refer to the [Matlab frontend].
 
 The create_mesh function {#tut_mesh_create_mesh}
 ========================

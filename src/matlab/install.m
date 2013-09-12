@@ -14,3 +14,7 @@ for i = 1 : length(dirs)
 end
 % save the path if you have admin rights
 savepath;
+
+% run the demos
+rehash toolbox
+demo toolbox NiHu
