@@ -56,7 +56,7 @@ public:
 };
 
 
-/** \brief a weighted residual \f$\left<u,\mathcal{K}v\right>\f$
+/** \brief A weighted residual proxy storing a function_space and an integral_transform
  * \tparam TestSpace the test function space
  * \tparam Projection the itnegral_transform
  */
@@ -93,7 +93,6 @@ private:
 	/** \brief the stored test function space reference */
 	TestSpace m_test;
 	/** \brief the stored integral_transform reference */
-	/** \todo dangerous if prointegral_transformjection is created on the fly */
 	Projection m_proj;
 };
 

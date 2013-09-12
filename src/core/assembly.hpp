@@ -42,7 +42,10 @@ private:
 	 * \tparam TestField the test field type over which integration is performed
 	 * \tparam TrialField the trial field type over which integration is performed
 	 */
-	template <bool is_empty, class Operator, class TestField, class TrialField>
+	template <class Operator, class TestField, class TrialField, bool isTrivial =
+		integral_operator_traits<Operator>::is_local &&
+		!std::is_same<typename TestField::elem_t, typename TrialField::elem_t>::value
+		>
 	struct eval_on_impl
 	{ struct type {
 		/** \brief evaluate weighted residual on homogeneous function spaces
@@ -58,19 +61,39 @@ private:
 			function_space_base<TestSpace> const &test_space,
 			function_space_base<TrialSpace> const &trial_space)
 		{
-			for (auto test_it = test_space.template field_begin<TestField>();
-				test_it != test_space.template field_end<TestField>(); ++test_it)
-				for (auto trial_it = trial_space.template field_begin<TrialField>();
-					trial_it != trial_space.template field_end<TrialField>(); ++trial_it)
-					block(result, test_it->get_dofs(), trial_it->get_dofs())
-						+= op.eval_on_fields(*test_it, *trial_it, OnSameMesh());
+			if (!integral_operator_traits<Operator>::is_local)
+			{
+				for (auto test_it = test_space.template field_begin<TestField>();
+					test_it != test_space.template field_end<TestField>(); ++test_it)
+					for (auto trial_it = trial_space.template field_begin<TrialField>();
+						trial_it != trial_space.template field_end<TrialField>(); ++trial_it)
+						block(result, test_it->get_dofs(), trial_it->get_dofs())
+							+= op.eval_on_fields(*test_it, *trial_it, OnSameMesh());
+			}
+			else	// local operator
+			{
+				// we can be sure that the element types are the same and element id's are monotonic
+				auto test_it = test_space.template field_begin<TestField>();
+				auto test_end = test_space.template field_end<TestField>();
+				auto trial_it = trial_space.template field_begin<TrialField>();
+				auto trial_end = trial_space.template field_end<TrialField>();
+
+				for (; test_it != test_end; ++test_it)
+				{
+					auto test_id = test_it->get_elem().get_id();
+					for (; trial_it != trial_end && trial_it->get_elem().get_id() < test_id; ++trial_it);
+					if (trial_it->get_elem().get_id() == test_id)
+						block(result, test_it->get_dofs(), trial_it->get_dofs())
+							+= op.eval_on_fields(*test_it, *trial_it, OnSameMesh());
+				}
+			}
 		}
 	};};
 
 
-	/** \brief trivial specialisation of ::eval_on_impl for the empty case */
+	/** \brief trivial specialisation of ::eval_on_impl for the trivial case */
 	template <class Operator, class TestField, class TrialField>
-	struct eval_on_impl<true, Operator, TestField, TrialField>
+	struct eval_on_impl<Operator, TestField, TrialField, true>
 	{ struct type {
 		template <class result_t>
 		void operator() (
@@ -89,10 +112,9 @@ private:
 	 * \tparam TrialField the trial field type over which integration is performed
 	 */
 	template <class Operator, class TestField, class TrialField>
-	struct eval_on : eval_on_impl<
-		integral_operator_traits<Operator>::is_local && !std::is_same<typename TestField::elem_t, typename TrialField::elem_t>::value,
-		Operator, TestField, TrialField
-	> {};
+	struct eval_on : eval_on_impl<Operator, TestField, TrialField>
+	{
+	};
 
 
 public:
@@ -111,6 +133,9 @@ public:
 		function_space_base<TestSpace> const &test_space,
 		function_space_base<TrialSpace> const &trial_space)
 	{
+		if(!OnSameMesh::value && integral_operator_traits<Operator>::is_local)
+			return result;
+
 		tmp::d_call_each<
 			typename function_space_traits<TestSpace>::field_type_vector_t,
 			typename function_space_traits<TrialSpace>::field_type_vector_t,

@@ -89,6 +89,8 @@ struct elem_id
 template <class tag>
 struct tag2element;
 
+/** \brief type that stores the element's id */
+typedef Eigen::Matrix<unsigned, 1, 1> elem_id_t;
 
 /**
 * \brief The geometrical element representation
@@ -139,7 +141,7 @@ public:
 	/** \brief matrix type that stores the element's corner coordinates \f$x_i\f$ */
 	typedef Eigen::Matrix<scalar_t, x_dim, num_nodes> coords_t;
 	/** \brief type that stores the element's id */
-	typedef Eigen::Matrix<unsigned, 1, 1> id_t;
+	typedef elem_id_t id_t;
 
 protected:
 	/** \brief the element's identifier */
@@ -309,6 +311,11 @@ public:
 		return element_overlapping(num_coinc, start_ind1, start_ind2);
 	}
 };
+
+bool operator<(elem_id_t const &lhs, elem_id_t const &rhs)
+{
+	return lhs(0,0) < rhs(0,0);
+}
 
 
 /** \brief tag of a 2-noded linear line element */
