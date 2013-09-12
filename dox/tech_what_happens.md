@@ -14,7 +14,7 @@ This page explains what happens when NiHu evaluates a weighted double integral
 \displaystyle W_{ij} = \left< w_i, \left(\mathcal{K} d_j\right)_S \right>_F
 \f$
 
-or, as coded in a NiHu equaivalent form
+or, as coded in a NiHu equivalent form
 ~~~~~~~~~~~
 W << w * K[d];
 ~~~~~~~~~~~
@@ -26,7 +26,7 @@ where
 Operators and proxy objects {#tech_what_happens_operators}
 ---------------------------
 
-When evaluating the examplified expression, the integral transform (`[]` "index") operator ::integral_operator::operator[] is evaluated first with the test function space as argument. This function simply returns a temporary ::integral_transform instance. An ::integral_transform is a proxy class that simply stores references to the ::integral_operator `K` and the function_space `d`. The proxy class provides new functionalities: For example an ::integral_transform can be tested by a test ::function_space, as shown below.
+When evaluating the exemplified expression, the integral transform (`[]` "index") operator ::integral_operator::operator[] is evaluated first with the test function space as argument. This function simply returns a temporary ::integral_transform instance. An ::integral_transform is a proxy class that simply stores references to the ::integral_operator `K` and the function_space `d`. The proxy class provides new functionalities: For example an ::integral_transform can be tested by a test ::function_space, as shown below.
 
 The next step is the evaluation of the testing operator (`*` "multiplication") with a left hand side ::function_space `w` and a right hand side ::integral_transform (temporary). This testing operation returns a new proxy object of type ::weighted_residual that stores references to the left hand side ::function_space and the temporary ::integral_transform. The additional functionality provided by the ::weighted_residual class is that it can be evaluated into a matrix.
 
@@ -68,3 +68,7 @@ W_{ij} = \left< w_i, \left(\mathcal{K}d_j\right)_{S_i}\right>_{F_j}
 \f$
 
 where \f$ S_i \f$ and \f$ F_j \f$ denote the subelements of the two (homogeneous sub)domains.
+
+
+_to be continued_
+

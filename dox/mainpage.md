@@ -22,7 +22,7 @@ NiHu 1.0 {#mainpage}
 Contact information {#main_contact}
 ===================
 
-NiHu is developed by the coworkers of the [Laboratory of Acoustics and Studio Technologies](http://last.hit.bme.hu/) at the [Depertment of Networked Systems and Services](http://www.hit.bme.hu/) of the [Budapest University of Technology and Economics](http://www.bme.hu/).
+NiHu is developed by the coworkers of the [Laboratory of Acoustics and Studio Technologies](http://last.hit.bme.hu/) at the [Department of Networked Systems and Services](http://www.hit.bme.hu/) of the [Budapest University of Technology and Economics](http://www.bme.hu/).
 
 Members of the development team are:
 
@@ -44,6 +44,12 @@ NiHu is distributed under the GNU General Public License [GPL].
 \defgroup quadrature Numerical integration
 \ingroup core
 
+\defgroup kernel Kernel evaluations
+\ingroup core
+
+\defgroup assembly Assembling the system matrices
+\ingroup core
+
 \defgroup intop Integral operator and Weighted residual representations
 \ingroup core
 
@@ -55,5 +61,5 @@ NiHu is distributed under the GNU General Public License [GPL].
 \defgroup matlab Matlab interface
 \ingroup interface
 
-\defgroup library Libaries for specific fields of application
+\defgroup library Libraries for specific fields of application
 

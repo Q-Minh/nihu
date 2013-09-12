@@ -19,6 +19,7 @@
 /**
  * \file integer.hpp
  * \brief integer type representation and basic integer arithmetics
+ * \todo should be generalised based on std::integral_constant
  */
 
 #ifndef INTEGER_HPP

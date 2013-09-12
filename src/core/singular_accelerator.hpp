@@ -17,10 +17,11 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
-* \file singular_accelerator.hpp
-* \brief implementation of class ::singular_accelerator
-* \author Peter Fiala and Peter Rucz
-*/
+ * \file singular_accelerator.hpp
+ * \ingroup quadrature
+ * \brief implementation of class ::singular_accelerator
+ * \author Peter Fiala and Peter Rucz
+ */
 
 #ifndef SINGULAR_ACCELERATOR_HPP_INCLUDED
 #define SINGULAR_ACCELERATOR_HPP_INCLUDED

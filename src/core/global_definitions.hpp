@@ -16,12 +16,19 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * \file global_definitions.hpp
+ * \brief global constants governing some accuracy parameters
+ * \ingroup core
+ */
+
 #ifndef GLOBAL_DEFINITIONS_HPP_INCLUDED
 #define GLOBAL_DEFINITIONS_HPP_INCLUDED
 
 #include "field_type_acceleration_option.hpp"
 
 typedef acceleration::hard GLOBAL_ACCELERATION;
+/** \todo increase Dunavant order to avoid overindexing */
 unsigned const GLOBAL_MAX_ORDER = 9;
 unsigned const GLOBAL_ACCURACY = 3;
 

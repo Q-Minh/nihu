@@ -19,6 +19,8 @@
 #ifndef POOL_PATTERN_HPP
 #define POOL_PATTERN_HPP
 
+#include <stdexcept>
+
 template <class C, unsigned MaxOrder>
 class pool
 {
@@ -37,6 +39,8 @@ public:
 
 	C const &operator[](unsigned idx) const
 	{
+		if (idx >= MaxOrder)
+			throw std::out_of_range("Pool overindexing");
 		return *m_p_data[idx];
 	}
 

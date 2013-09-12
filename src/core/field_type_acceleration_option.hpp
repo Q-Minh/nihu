@@ -18,6 +18,7 @@
 
 /**
  * \file field_type_acceleration_option.hpp
+ * \ingroup quadrature
  * \brief definition of field type acceleration options
  */
 

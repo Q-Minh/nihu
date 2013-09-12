@@ -18,6 +18,7 @@
 
 /**
  * \file formalism.hpp
+ * \ingroup assembly
  * \brief return weak form formalism from the test and trial field types
  */
 #ifndef FORMALISM_HPP

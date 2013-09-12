@@ -17,10 +17,11 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
-* \file quadrature.hpp
-* \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
-* \brief implementation of class ::quadrature_elem, ::quadrature_base
-*/
+ * \file quadrature.hpp
+ * \ingroup quadrature
+ * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
+ * \brief implementation of class ::quadrature_elem, ::quadrature_base
+ */
 #ifndef QUADRATURE_HPP_INCLUDED
 #define QUADRATURE_HPP_INCLUDED
 
