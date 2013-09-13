@@ -172,8 +172,8 @@ The generated plot looks like
 
 And the resulting errors read as
 
-	Surface log10 error: -1.780843 
-	Field   log10 error: -1.964462 
+	Surface log10 error: -2.079379 
+	Field   log10 error: -2.448697 
 
 The full codes of this tutorial are available here:
 - C++ code: tutorial/helmholtz_bem_3d.mex.cpp
