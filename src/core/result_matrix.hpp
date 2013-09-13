@@ -16,6 +16,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * \file result_matrix.hpp
+ * \brief Encapsulates different result matrix types
+ * \ingroup assembly
+ */
+
 #ifndef RESULT_MATRIX_HPP_INCLUDED
 #define RESULT_MATRIX_HPP_INCLUDED
 
@@ -44,9 +50,5 @@ operator,(A &&a, B &&b)
 {
 	return couple<A, B>(std::forward<A>(a), std::forward<B>(b));
 }
-
-
-
-
 
 #endif // RESULT_MATRIX_HPP_INCLUDED

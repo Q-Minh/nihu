@@ -18,6 +18,7 @@
 
 /**
  * \file assembly.hpp
+ * \ingroup assembly
  * \brief assemble WR matrices from field wr submatrices
  * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
  */

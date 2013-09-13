@@ -18,6 +18,7 @@
 
 /**
  * \file element_match.hpp
+ * \ingroup quadrature
  * \brief determine element singularities
  */
 

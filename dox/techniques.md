@@ -5,10 +5,25 @@ Programming techniques used in NiHu {#techniques}
 
 [TOC]
 
-\subpage tech_cpp11
-\subpage tech_meta
-\subpage tech_poly
-
-
+Introduction {#tech_intro}
+============
 
 This page introduces the programming techniques and concepts used throughout NiHu.
+
+Basic techniques {#tech_basic}
+================
+
+- \subpage tech_cpp11
+- \subpage tech_meta
+- \subpage tech_poly
+
+About the generic BEM algorithm {#tech_generic_bem}
+===============================
+
+- \subpage tech_what_happens explains what happens in NiHu when a weighted residual matrix
+~~~~~~~~
+W << w * L[w];
+~~~~~~~~
+is evaluated.
+
+

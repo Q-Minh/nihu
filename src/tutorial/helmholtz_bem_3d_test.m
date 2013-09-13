@@ -10,8 +10,8 @@ radiator = merge_coincident_nodes(join_meshes(rad_left, quad2tria(rad_right)));
 field = revolve_mesh(create_line([1.125, 0, 0; 3.625, 0, 0], 40), pi/100, 50, [0 0 1]);
 
 %// extract the mesh description matrices
-[r_nodes, r_elem] = extract_Boonen_mesh(radiator);
-[f_nodes, f_elem] = extract_Boonen_mesh(field);
+[r_nodes, r_elem] = extract_core_mesh(radiator);
+[f_nodes, f_elem] = extract_core_mesh(field);
 
 %// call C++ code at wave number k = 4
 k = 4;

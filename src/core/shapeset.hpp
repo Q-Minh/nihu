@@ -17,10 +17,11 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
-* \file shapeset.hpp
-* \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
-* \brief Definition of various shape function sets
-*/
+ * \file shapeset.hpp
+ * \ingroup funcspace
+ * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
+ * \brief Definition of various shape function sets
+ */
 
 #ifndef SHAPESET_HPP_INCLUDED
 #define SHAPESET_HPP_INCLUDED
@@ -624,7 +625,6 @@ public:
 	{
 		scalar_t xi = _xi[0], eta = _xi[1];
 		dshape_t dL;
-		/** \todo these derivatives were computed by Matlab's simple(). Find an optimal evaluation for better performance. */
 		dL <<
 			4*eta+4*xi-3, 4*eta+4*xi-3,
 			4-8*xi-4*eta, -4*xi,
@@ -714,7 +714,6 @@ public:
 	{
 		scalar_t xi = _xi[0], eta = _xi[1], xi2 = xi*xi, eta2 = eta*eta;
 		dshape_t dL;
-		/** \todo these derivatives were computed by Matlab's simple(). Find an optimal evaluation for better performance. */
 		dL <<
             eta*(2.0*xi-1.0)*(eta-1.0)/4.0, xi*(2.0*eta-1.0)*(xi-1.0)/4.0,
             -xi*eta*(eta-1.0),              -(xi2-1.0)*(2.0*eta-1.0)/2.0,

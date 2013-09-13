@@ -40,7 +40,7 @@ for iElem = 1 : nElem
     ind = start(iElem)+1:start(iElem+1);
     I(ind) = i(:);
     J(ind) = j(:);
-    progbar(1, nElem, iElem);
+%     progbar(1, nElem, iElem);
 end
 % Generate the sparse matrices from the arrays
 S = sparse(I, J, ones(size(I)), nNodes, nNodes);

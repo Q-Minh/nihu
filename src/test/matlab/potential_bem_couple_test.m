@@ -3,8 +3,8 @@ clear;
 surface = create_sphere_boundary(1, 5);
 field = create_sphere_boundary(3, 4);
 
-[ns, es] = extract_Boonen_mesh(surface);
-[nf, ef] = extract_Boonen_mesh(field);
+[ns, es] = extract_core_mesh(surface);
+[nf, ef] = extract_core_mesh(field);
 
 tic;
 [Gs, Hs, Gf, Hf] = potential_bem_couple(ns, es, nf, ef);

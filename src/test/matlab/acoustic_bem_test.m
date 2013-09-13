@@ -3,8 +3,8 @@ radiator = quad2tria(create_sphere_boundary(1, 5));
 field_mesh = create_sphere_boundary(2, 5);
 fp = centnorm(field_mesh);
 
-[r_nodes, r_elements] = extract_Boonen_mesh(radiator);
-[f_nodes, f_elements] = extract_Boonen_mesh(field_mesh);
+[r_nodes, r_elements] = extract_core_mesh(radiator);
+[f_nodes, f_elements] = extract_core_mesh(field_mesh);
 
 [r_nodes_old, r_elements_old] = extract_bem_mesh(radiator);
 [f_nodes_old, f_elements_old] = extract_bem_mesh(field_mesh);

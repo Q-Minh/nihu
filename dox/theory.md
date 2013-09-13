@@ -5,7 +5,10 @@ Theory {#theory}
 
 [TOC]
 
-\subpage theo_bem_example
+Introduction {#theory_intro}
+============
 
-This is the page of theory of NiHu.
+The following pages explain some theoretical basics related to Boundary Elements.
+
+- \subpage theo_bem_example presents a brief introduction into operator notations, discretised function spaces and BEM formalisms.
 

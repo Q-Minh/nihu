@@ -18,6 +18,7 @@
 
 /**
  * \file gaussian_quadrature.hpp
+ * \ingroup quadrature
  * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
  * \brief implementation of Gaussian quadratures
  */

@@ -18,6 +18,7 @@
 
 /**
  * \file duffy_quadrature.hpp
+ * \ingroup quadrature
  * \brief Duffy-type singular quadrature transformations
  * \author Peter Fiala fiala@hit.bme.hu and Peter Rucz rucz@hit.bme.hu
  */

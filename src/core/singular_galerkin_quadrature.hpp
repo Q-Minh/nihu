@@ -17,12 +17,13 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
-* \file singular_galerkin_quadrature.hpp
-* \brief implementation of singular Galerkin quadratures
-* \author Peter Fiala fiala@hit.bme.hu, Peter Rucz rucz@hit.bme.hu
-* \details This file implements class ::singular_galerkin_quadrature that generates
-* quadratures integrating weakly singular (1/r) kernels in the Galerkin BEM context.
-*/
+ * \file singular_galerkin_quadrature.hpp
+ * \ingroup quadrature
+ * \brief implementation of singular Galerkin quadratures
+ * \author Peter Fiala fiala@hit.bme.hu, Peter Rucz rucz@hit.bme.hu
+ * \details This file implements class ::singular_galerkin_quadrature that generates
+ * quadratures integrating weakly singular (1/r) kernels in the Galerkin BEM context.
+ */
 #ifndef SINGULAR_GALERKIN_QUADRATURE_HPP_INCLUDED
 #define SINGULAR_GALERKIN_QUADRATURE_HPP_INCLUDED
 

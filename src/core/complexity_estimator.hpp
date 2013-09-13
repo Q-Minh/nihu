@@ -16,6 +16,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * \file complexity_estimator.hpp
+ * \ingroup kernel
+ * \brief Estimate kernel complexity between two elements
+ */
 #ifndef COMPLEXITY_ESTIMATOR_HPP_INCLUDED
 #define COMPLEXITY_ESTIMATOR_HPP_INCLUDED
 

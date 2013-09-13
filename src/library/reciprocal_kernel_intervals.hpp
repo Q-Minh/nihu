@@ -24,7 +24,7 @@
 #ifndef RECIPROCAL_KERNEL_INTERVALS_HPP_INCLUDED
 #define RECIPROCAL_KERNEL_INTERVALS_HPP_INCLUDED
 
-#include "../core/interval.hpp"
+#include "../tmp/interval.hpp"
 
 /** \brief define intervals for reciprocal order and accuracy
  * \tparam Order the reciprocal order

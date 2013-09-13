@@ -16,11 +16,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * \file interval_estimator
+ * \brief A specialisation of complexity_estimator for the interval case
+ * \ingroup kernel
+ */
 #ifndef INTERVAL_ESTIMATOR_HPP_INCLUDED
 #define INTERVAL_ESTIMATOR_HPP_INCLUDED
 
 #include "complexity_estimator.hpp"
-#include "interval.hpp"
+#include "../tmp/interval.hpp"
 
 template <class Interval>
 class interval_estimator

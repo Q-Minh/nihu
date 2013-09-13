@@ -18,8 +18,8 @@ pf_anal = -log(abs(r))/2/pi;
 qf_anal = -1./r./r .* dot(rvec, nf, 2);
 
 
-[nods, els] = extract_Boonen_mesh(surface);
-[nodf, elf] = extract_Boonen_mesh(field);
+[nods, els] = extract_core_mesh(surface);
+[nodf, elf] = extract_core_mesh(field);
 
 tic;
 [Gs, Hs, Gf, Hf] = potential_bem_2d(nods, els, nodf, elf);

@@ -20,7 +20,7 @@
  * \file bool.hpp
  * \ingroup tmp
  * \brief implementation of Boolean functions
- * \details The boolean type is alredy contained in type_traits as std::integral_constant<bool, x>.
+ * \details The boolean type is already contained in type_traits as std::integral_constant<bool, x>.
  * This file implements some Boolean functions and the compile time if_ control structure
  * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
  */

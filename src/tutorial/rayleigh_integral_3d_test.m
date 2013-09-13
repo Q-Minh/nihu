@@ -4,8 +4,8 @@ radiator = create_circle(1, 15);
 field = create_slab([-2 0 .1; 2 0 .1; 2 0 4.1; -2 0 4.1], [40 40]);
 
 %// extract the mesh description matrices
-[r_nodes, r_elem] = extract_Boonen_mesh(radiator);
-[f_nodes, f_elem] = extract_Boonen_mesh(field);
+[r_nodes, r_elem] = extract_core_mesh(radiator);
+[f_nodes, f_elem] = extract_core_mesh(field);
 
 %// call C++ code at wave number k = 10
 [Z_trans, Z_rad] = rayleigh_integral_3d(r_nodes, r_elem, f_nodes, f_elem, 10);
