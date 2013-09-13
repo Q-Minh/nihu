@@ -1,8 +1,27 @@
+// This file is a part of NiHu, a C++ BEM template library.
+// 
+// Copyright (C) 2012-2013  Peter Fiala <fiala@hit.bme.hu>
+// Copyright (C) 2012-2013  Peter Rucz <rucz@hit.bme.hu>
+// 
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
-* \file shapeset.hpp
-* \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
-* \brief Definition of various shape function sets
-*/
+ * \file shapeset.hpp
+ * \ingroup funcspace
+ * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
+ * \brief Definition of various shape function sets
+ */
 
 #ifndef SHAPESET_HPP_INCLUDED
 #define SHAPESET_HPP_INCLUDED
@@ -606,7 +625,6 @@ public:
 	{
 		scalar_t xi = _xi[0], eta = _xi[1];
 		dshape_t dL;
-		/** \todo these derivatives were computed by Matlab's simple(). Find an optimal evaluation for better performance. */
 		dL <<
 			4*eta+4*xi-3, 4*eta+4*xi-3,
 			4-8*xi-4*eta, -4*xi,
@@ -696,7 +714,6 @@ public:
 	{
 		scalar_t xi = _xi[0], eta = _xi[1], xi2 = xi*xi, eta2 = eta*eta;
 		dshape_t dL;
-		/** \todo these derivatives were computed by Matlab's simple(). Find an optimal evaluation for better performance. */
 		dL <<
             eta*(2.0*xi-1.0)*(eta-1.0)/4.0, xi*(2.0*eta-1.0)*(xi-1.0)/4.0,
             -xi*eta*(eta-1.0),              -(xi2-1.0)*(2.0*eta-1.0)/2.0,

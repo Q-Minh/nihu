@@ -4,8 +4,8 @@ radiator = quad2tria(create_sphere_boundary(1, 6));
 chief_points = create_brick_boundary(.4, 5);
 
 %// extract the mesh description matrices
-[r_nodes, r_elem] = extract_Boonen_mesh(radiator);
-[c_nodes, c_elem] = extract_Boonen_mesh(chief_points);
+[r_nodes, r_elem] = extract_core_mesh(radiator);
+[c_nodes, c_elem] = extract_core_mesh(chief_points);
 
 %// call C++ code at wave number k \approx pi
 k = pi + 1.2e-2;

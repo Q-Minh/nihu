@@ -1,8 +1,8 @@
 surf = create_sphere_boundary(1, 6);	%// radiating surface
 field = create_sphere_boundary(1.2, 6);	%// field point mesh
 
-[surf_nodes, surf_elem] = extract_Boonen_mesh(surf);
-[field_nodes, field_elem] = extract_Boonen_mesh(field);
+[surf_nodes, surf_elem] = extract_core_mesh(surf);
+[field_nodes, field_elem] = extract_core_mesh(field);
 
 k = 5;	%// wave number 
 

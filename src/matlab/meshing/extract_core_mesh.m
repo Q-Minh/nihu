@@ -1,5 +1,5 @@
-function [nodes, elements] = extract_Boonen_mesh(model)
-%EXTRACT_BOONEN_MESH Extract Boonen13 bem mesh from a NiHu mesh structure
+function [nodes, elements] = extract_core_mesh(model)
+%EXTRACT_CORE_MESH Extract C++ core bem mesh from a NiHu mesh structure
 
 %% Search for QUAD or TRIA elements and allocate space for bem model
 ind12 = find(model.Elements(:,2) == 12); % line elements

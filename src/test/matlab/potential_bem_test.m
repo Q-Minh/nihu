@@ -11,8 +11,8 @@ x0 = [.2 .3 .2];
 [cf, nf] = centnorm(field);
 [pf_anal, qf_anal] = incident('point', x0, cf, nf, 0);
 
-[nods, els] = extract_Boonen_mesh(surface);
-[nodf, elf] = extract_Boonen_mesh(field);
+[nods, els] = extract_core_mesh(surface);
+[nodf, elf] = extract_core_mesh(field);
 
 tic;
 [Gs, Hs, Gf, Hf, Htf, Kf, dur_separate, dur_couple] = potential_bem(nods, els, nodf, elf);
