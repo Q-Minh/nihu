@@ -198,8 +198,14 @@ endforeach(HPP_DIRECTORY)
 
 # Matlab installation section
 set(NIHU_MATLAB_DIRECTORIES
-	"analytic"; "bem"; "compatibility"; "meshing")
+	"analytic"; "compatibility"; "meshing")
 
 foreach(MATLAB_DIRECTORY ${NIHU_MATLAB_DIRECTORIES})
 	install(DIRECTORY "matlab/${MATLAB_DIRECTORY}" DESTINATION matlab FILES_MATCHING PATTERN "*.m")
 endforeach(MATLAB_DIRECTORY)
+
+# Installation rule for matlab demos
+install(DIRECTORY "matlab/nihudemos" DESTINATION matlab)
+
+# Create installation rule for matlab install script
+install(FILES "matlab/install.m" DESTINATION matlab)
