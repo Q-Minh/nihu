@@ -15,6 +15,7 @@ IF(WIN32)
 
 	# Search for a version of Matlab available, starting from the most modern one
 	# to older versions.
+	if((NOT DEFINED MATLAB_ROOT) OR ("${MATLAB_ROOT}" STREQUAL ""))
 	FOREACH(MATVER "8.2" "8.1" "8.0" "7.14" "7.13" "7.12" "7.11" "7.10" "7.9" "7.8" "7.7" "7.6" "7.5" "7.4")
 		IF((NOT DEFINED MATLAB_ROOT)
 			OR ("${MATLAB_ROOT}" STREQUAL "")
@@ -27,7 +28,8 @@ IF(WIN32)
 			OR ("${MATLAB_ROOT}" STREQUAL "")
 			OR ("${MATLAB_ROOT}" STREQUAL "/registry"))
 	ENDFOREACH(MATVER)
-	
+	endif()
+
 	if(EXISTS "${MATLAB_ROOT}/bin/mex.bat")
 		set(MATLAB_MEX "${MATLAB_ROOT}/bin/mex.bat")
 	endif(EXISTS "${MATLAB_ROOT}/bin/mex.bat")
@@ -66,6 +68,8 @@ ELSE(WIN32)
 		# On a Linux system.  The goal is to find MATLAB_ROOT.
 		SET(MATLAB_MEXEXT .mexa)
 		SET(LIBRARY_EXTENSION .so)
+
+		if((NOT DEFINED MATLAB_ROOT) OR ("${MATLAB_ROOT}" STREQUAL ""))
 
 		execute_process(COMMAND "/usr/bin/locate" "-e" "--regex" "[Mm][Aa][Tt][Ll][Aa][Bb].*/bin/mex$"
 			RESULT_VARIABLE locate_matlab_result
@@ -108,7 +112,6 @@ ELSE(WIN32)
 			$ENV{HOME}/matlab/bin
 			NO_DEFAULT_PATH
 			)
-			
 			# Check if the mex link is found
 			if(NOT "${MATLAB_MEX_POSSIBLE_LINK}" STREQUAL "MATLAB_MEX_POSSIBLE_LINK-NOTFOUND" AND NOT "${MATLAB_MEX_POSSIBLE_LINK}" STREQUAL "")
 				get_filename_component(MATLAB_MEX "${MATLAB_MEX_POSSIBLE_LINK}" REALPATH)
@@ -120,6 +123,14 @@ ELSE(WIN32)
 				set(MATLAB_MEX "")
 			endif()
 		endif(NOT ${locate_matlab_result} AND NOT "${locate_matlab_output}" STREQUAL "")
+		else()
+			if(EXISTS  "${MATLAB_ROOT}/bin/mex")
+				set(MATLAB_MEX "${MATLAB_ROOT}/bin/mex")
+			else(EXISTS  "${MATLAB_ROOT}/bin/mex")
+				set(MATLAB_ROOT "")
+				set(MATLAB_MEX "")
+			endif(EXISTS  "${MATLAB_ROOT}/bin/mex")
+		endif()
 	ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 ENDIF(WIN32)
 
