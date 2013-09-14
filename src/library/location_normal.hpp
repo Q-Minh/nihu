@@ -34,6 +34,10 @@
 template <class Space>
 struct location
 {
+	/**
+	 * \brief the brick template class
+	 * \tparam wall the wall type to glue the brick on
+	 */
 	template <class wall>
 	class brick : public wall
 	{
@@ -75,6 +79,10 @@ struct location
 template <class Space>
 struct normal_jacobian
 {
+	/**
+	 * \brief the brick template class
+	 * \tparam wall the wall type to glue the brick on
+	 */
 	template <class wall>
 	struct brick : public wall
 	{

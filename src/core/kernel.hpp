@@ -143,6 +143,9 @@ public:
 		return output.get_result();
 	}
 
+	/** \brief return kernel data
+	 * \return kernel data
+	 */
 	data_t const &get_data(void) const
 	{
 		return m_data;

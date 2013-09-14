@@ -241,10 +241,13 @@ public:
 template <class Kernel>
 class integral_operator;
 
-
+/** \brief traits of an integral operator
+ * \tparam Kernel the kernel type
+ */
 template <class Kernel>
 struct integral_operator_traits<integral_operator<Kernel> >
 {
+	/** \brief metafunction returning the weighted residual return type */
 	template <class Test, class Trial>
 	struct wr_result_type
 	{

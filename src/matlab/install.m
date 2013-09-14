@@ -13,7 +13,7 @@ for i = 1 : length(dirs)
     addpath(fullfile(path, dirs{i}));
 end
 % save the path if you have admin rights
-savepath;
+savepath();
 
 % run the demos
 rehash toolbox

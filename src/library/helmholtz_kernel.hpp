@@ -37,7 +37,7 @@
 #include "../util/collection.hpp"
 
 #include "reciprocal_kernel_intervals.hpp"
-#include "../core/interval_estimator.hpp"
+#include "interval_estimator.hpp"
 
 /**
  * \brief kernel data that stores the wave number
