@@ -129,8 +129,9 @@ struct merger<collect<A1>, collect<Args2...> >
 
 /**
  * \brief merge a general collection into an other collection
- * \tparam A1 the one-element collection is collect<A1>
- * \tparam Args the collection to extend is collect<Args...>
+ * \tparam A1 the first element of the first collection
+ * \tparam Args1 remaining elements of the first collection
+ * \tparam Args2 elements of the second collection
  */
 template <class A1, class...Args1, class...Args2>
 struct merger<collect<A1, Args1...>, collect<Args2...> >
@@ -150,11 +151,9 @@ struct merger<collect<A1, Args1...>, collect<Args2...> >
 };
 
 
-/** \brief factory function to merge two collections
- * \tparam Args1 the first collection members
- * \tparam Args2 the second collection members
- * \param [in] c1 the first collection
- * \param [in] c2 the second collection
+/** \brief merge more collections
+ * \tparam Collections the variadic type list of collections
+ * \param [in] collections the variadic list of collections to merge
  * \return the merged collection
  * \todo make sure that only collections are handled (enable_if)
  */

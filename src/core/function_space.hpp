@@ -582,10 +582,10 @@ public:
 
 /** \brief factory function to create a function space from fields
  * \tparam nodes_t the nodes matrix type
- * \tparam fields_t the fields matrix type
- * \tparam fields_t the field types
+ * \tparam elements_t the elements matrix type
+ * \tparam fields_t the field matrix type
  * \param [in] nodes the nodes matrix
- * \param [in] fields the field description matrix
+ * \param [in] elements the field description matrix
  * \param [in] fields the field tag instances
  */
 template <class nodes_t, class elements_t, class...fields_t>

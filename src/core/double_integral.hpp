@@ -95,7 +95,8 @@ protected:
 	* \param [in] test_field the test field to integrate on
 	* \param [in] test_acc field type accelerator of the test field
 	* \param [in] trial_field the trial field to integrate on
-	* \param [in] trial_acc field type accelerator of the trial field
+	* \param [in] it begin iterator of the accelerator
+	* \param [in] end end iterator of the accelerator
 	* \return reference to the integration result
 	*/
 	template <class dual_iterator_t>
@@ -315,7 +316,8 @@ protected:
 	* \param [in] kernel the kernel to integrate
 	* \param [in] test_field the test field to integrate on
 	* \param [in] trial_field the trial field to integrate on
-	* \param [in] trial_acc the trial field type accelerator
+	* \param [in] it the begin iterator of the accelerator
+	* \param [in] end the end iterator of the accelerator
 	* \return reference to the integration result
 	*/
 	template <class dual_iterator_t>
@@ -526,6 +528,7 @@ public:
 	 * \param [in] kernel the kernel instance
 	 * \param [in] test_field the test field instance
 	 * \param [in] trial_field the trial field instance
+	 * \param [in] match the element match information
 	 * \return reference to the integral result
 	 */
 	template <class result_t>

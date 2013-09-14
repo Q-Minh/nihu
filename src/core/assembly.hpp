@@ -124,8 +124,8 @@ public:
 	* \tparam Operator the operator type
 	* \param [out] result the result matrix reference
 	* \param [in] op reference to the integral operator
-	* \param [in] test reference to the test function space
-	* \param [in] trial reference to the trial function space
+	* \param [in] test_space reference to the test function space
+	* \param [in] trial_space reference to the trial function space
 	*/
 	template <class result_t, class Operator>
 	static result_t &eval_into(
