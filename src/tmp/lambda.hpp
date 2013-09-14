@@ -1,25 +1,24 @@
 // This file is a part of NiHu, a C++ BEM template library.
-// 
+//
 // Copyright (C) 2012-2013  Peter Fiala <fiala@hit.bme.hu>
 // Copyright (C) 2012-2013  Peter Rucz <rucz@hit.bme.hu>
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * \file lambda.hpp
  * \brief implementation of placeholders and lambda functions
- * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
  */
 
 #ifndef LAMBDA_HPP_INCLUDED
@@ -50,14 +49,14 @@ namespace tmp
 		template <class...Args>
 		struct apply : select_argument<N, Args...> {};
 	};
-	
+
 	/** \brief shorthand for selecting the 1st argument */
 	typedef arg<1> _1;
 	/** \brief shorthand for selecting the 2nd argument */
 	typedef arg<2> _2;
 	/** \brief shorthand for selecting the 3rd argument */
 	typedef arg<3> _3;
-	
+
 
 	/** \brief used to represent no parameter */
 	struct void_;
@@ -84,30 +83,30 @@ namespace tmp
 	// Forward declaration of the general case
 	template <class T, class...Args>
 	struct containsPlaceholderExpression;
-	
+
 	// General declaration of the inner impl class
 	// Decision is made based on the first argument
 	// (See specialisation below)
 	template <class First, class...Args>
 	struct containsPlaceholderExpressionImpl;
-	 
+
 	// True branch
 	// First parameter is a placeholder expression
 	// Recursion tail for true_type
 	template <class...Args>
-	struct containsPlaceholderExpressionImpl<std::true_type, Args...> : 
+	struct containsPlaceholderExpressionImpl<std::true_type, Args...> :
 		std::true_type {};
-	 
+
 	// Recursion tail for false_type
 	template <>
-	struct containsPlaceholderExpressionImpl<std::false_type> : 
+	struct containsPlaceholderExpressionImpl<std::false_type> :
 		std::false_type {};
-	
+
 	// General case, further recursion
 	template <class...Args>
-	struct containsPlaceholderExpressionImpl<std::false_type, Args...> : 
+	struct containsPlaceholderExpressionImpl<std::false_type, Args...> :
 		containsPlaceholderExpression<Args...> {};
-	 
+
 	// General case
 	template <class T, class...Args>
 	struct containsPlaceholderExpression : containsPlaceholderExpressionImpl<
@@ -126,7 +125,7 @@ namespace tmp
 		// The general case
 		template <class Fun>
 		struct lambda_plExp; // dummy case
-		
+
 		// NOTE: this is removed
 		/*
 		{
@@ -137,7 +136,7 @@ namespace tmp
 			} type;
 		};
 		*/
-		
+
 		// Specialisation for placeholder
 		template <unsigned N>
 		struct lambda_plExp<arg<N> >
@@ -170,7 +169,7 @@ namespace tmp
 		// General case
 		template <class BOOL, class a, class...Args>
 		struct cond_eval_arg;
-		
+
 		// Specialisation for true case (a is a plhexp)
 		template <class a, class...Args>
 		struct cond_eval_arg<std::true_type, a, Args...> :
@@ -243,7 +242,7 @@ namespace tmp
 
 	/**
 	 * \brief The apply metafunction shortcut for lambda evaluation
-	 * \tparam Fun metafunction 
+	 * \tparam Fun metafunction
 	 * \tparam Args template arguments of Fun
 	 */
 	template <class Fun, class...Args>

@@ -24,7 +24,6 @@
  * and to create Matlab matrices in C++. The interface handles real and complex
  * matrices in a convenient manner, hiding mex implementation details from the
  * C++ programmer.
- * \author Peter Fiala fiala@hit.bme.hu, Peter Rucz rucz@hit.bme.hu
  */
 #ifndef MEX_MATRIX_HPP_INCLUDED
 #define MEX_MATRIX_HPP_INCLUDED
