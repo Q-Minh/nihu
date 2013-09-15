@@ -24,7 +24,7 @@ where
 - and `W` is a matrix object
 
 Operators and proxy objects {#tech_what_happens_operators}
----------------------------
+===========================
 
 When evaluating the exemplified expression, the integral transform (`[]` "index") operator ::integral_operator::operator[] is evaluated first with the test function space as argument. This function simply returns a temporary ::integral_transform instance. An ::integral_transform is a proxy class that simply stores references to the ::integral_operator `K` and the function_space `d`. The proxy class provides new functionalities: For example an ::integral_transform can be tested by a test ::function_space, as shown below.
 
@@ -40,7 +40,7 @@ After this decision has been made, the appropriate instance of class template ::
 Let's take a break and summarise what happened up till now. We evaluated some operators, created proxy objects that were used to finally call ::assembly::eval_into parametrised with the two function spaces `w` and `d`, the operator `K` and the result matrix `W`. The only runtime information processed was the comparison of two pointers (if the two mesh types are the same) in order to determine if we need to perform singular integrals or not. All remaining function calls and proxy instantiations are "optimised out" by the optimising compiler.
 
 Evaluation on homogeneous subspaces {#tech_what_happens_dcall_each}
------------------------------------
+===================================
 
 Function ::assembly::eval_into splits the test and trial function spaces to homogeneous subspaces and matrix assembly is performed consecutively for each homogeneous subspace pair. For example: if the test function space consists of constant tria and constant quad fields and the trial function space consists of constant and isoparametric quads, then matrix assembly is performed separately for each row of the table below
 
