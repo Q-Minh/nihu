@@ -1,18 +1,18 @@
 // This file is a part of NiHu, a C++ BEM template library.
-// 
+//
 // Copyright (C) 2012-2013  Peter Fiala <fiala@hit.bme.hu>
 // Copyright (C) 2012-2013  Peter Rucz <rucz@hit.bme.hu>
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -20,7 +20,6 @@
  * \file helmholtz_kernel.hpp
  * \ingroup library
  * \brief implementation of kernels of the Helmholtz equation \f$ \nabla^2 p + k^2 p = 0 \f$
- * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
  */
 
 #ifndef HELMHOLTZ_KERNEL_HPP_INCLUDED
@@ -38,7 +37,7 @@
 #include "../util/collection.hpp"
 
 #include "reciprocal_kernel_intervals.hpp"
-#include "../core/interval_estimator.hpp"
+#include "interval_estimator.hpp"
 
 /**
  * \brief kernel data that stores the wave number
@@ -80,10 +79,10 @@ struct ikr_brick
 		/** \brief templated constructor
 		 * \tparam test_input_t the test input type
 		 * \tparam trial_input_t the trial input type
-		 * \tparam kernel_data_t the kernel type
+		 * \tparam kernel_data_t the kernel data type
 		 * \param [in] test_input the test input
 		 * \param [in] trial_input the trial input
-		 * \param [in] kernel the kernel instance
+		 * \param [in] kernel_data the kernel data instance
 		 */
 		template <class test_input_t, class trial_input_t, class kernel_data_t>
 		brick(
@@ -128,10 +127,10 @@ struct helmholtz_3d_g_brick
 		/** \brief templated constructor
 		 * \tparam test_input_t the test input type
 		 * \tparam trial_input_t the trial input type
-		 * \tparam kernel_data_t the kernel type
+		 * \tparam kernel_data_t the kernel data type
 		 * \param [in] test_input the test input
 		 * \param [in] trial_input the trial input
-		 * \param [in] kernel the kernel instance
+		 * \param [in] kernel_data the kernel data instance
 		 */
 		template <class test_input_t, class trial_input_t, class kernel_data_t>
 		brick(
@@ -244,10 +243,10 @@ struct helmholtz_3d_h_brick
 		/** \brief templated constructor
 		 * \tparam test_input_t the test input type
 		 * \tparam trial_input_t the trial input type
-		 * \tparam kernel_data_t the kernel type
+		 * \tparam kernel_data_t the kernel data type
 		 * \param [in] test_input the test input
 		 * \param [in] trial_input the trial input
-		 * \param [in] kernel the kernel instance
+		 * \param [in] kernel_data the kernel data instance
 		 */
 		template <class test_input_t, class trial_input_t, class kernel_data_t>
 		brick(
@@ -360,10 +359,10 @@ struct helmholtz_3d_ht_brick
 		/** \brief templated constructor
 		 * \tparam test_input_t the test input type
 		 * \tparam trial_input_t the trial input type
-		 * \tparam kernel_data_t the kernel type
+		 * \tparam kernel_data_t the kernel data type
 		 * \param [in] test_input the test input
 		 * \param [in] trial_input the trial input
-		 * \param [in] kernel the kernel instance
+		 * \param [in] kernel_data the kernel data instance
 		 */
 		template <class test_input_t, class trial_input_t, class kernel_data_t>
 		brick(
@@ -476,10 +475,10 @@ struct helmholtz_3d_hyper_brick
 		/** \brief templated constructor
 		 * \tparam test_input_t the test input type
 		 * \tparam trial_input_t the trial input type
-		 * \tparam kernel_data_t the kernel type
+		 * \tparam kernel_data_t the kernel data type
 		 * \param [in] test_input the test input
 		 * \param [in] trial_input the trial input
-		 * \param [in] kernel the kernel instance
+		 * \param [in] kernel_data the kernel data instance
 		 */
 		template <class test_input_t, class trial_input_t, class kernel_data_t>
 		brick(

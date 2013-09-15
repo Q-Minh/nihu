@@ -1,25 +1,24 @@
 // This file is a part of NiHu, a C++ BEM template library.
-// 
+//
 // Copyright (C) 2012-2013  Peter Fiala <fiala@hit.bme.hu>
 // Copyright (C) 2012-2013  Peter Rucz <rucz@hit.bme.hu>
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
 * \file double_integral.hpp
 * \ingroup intop
-* \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
 * \brief declaration of class double_integral and its specialisations
 */
 
@@ -95,7 +94,8 @@ protected:
 	* \param [in] test_field the test field to integrate on
 	* \param [in] test_acc field type accelerator of the test field
 	* \param [in] trial_field the trial field to integrate on
-	* \param [in] trial_acc field type accelerator of the trial field
+	* \param [in] it begin iterator of the accelerator
+	* \param [in] end end iterator of the accelerator
 	* \return reference to the integration result
 	*/
 	template <class dual_iterator_t>
@@ -315,7 +315,8 @@ protected:
 	* \param [in] kernel the kernel to integrate
 	* \param [in] test_field the test field to integrate on
 	* \param [in] trial_field the trial field to integrate on
-	* \param [in] trial_acc the trial field type accelerator
+	* \param [in] it the begin iterator of the accelerator
+	* \param [in] end the end iterator of the accelerator
 	* \return reference to the integration result
 	*/
 	template <class dual_iterator_t>
@@ -526,6 +527,7 @@ public:
 	 * \param [in] kernel the kernel instance
 	 * \param [in] test_field the test field instance
 	 * \param [in] trial_field the trial field instance
+	 * \param [in] match the element match information
 	 * \return reference to the integral result
 	 */
 	template <class result_t>
