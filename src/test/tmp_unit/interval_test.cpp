@@ -21,14 +21,14 @@
 #include <iostream>
 
 typedef tmp::vector<
-	break_point<std::ratio<2>, tmp::int_<8> >,
-	break_point<ratio_infinite, tmp::int_<1> >
+	break_point<std::ratio<2>, tmp::integer<int, 8> >,
+	break_point<ratio_infinite, tmp::integer<int, 1> >
 > inter1_t;
 
 typedef tmp::vector<
-	break_point<std::ratio<3>, tmp::int_<6> >,
-	break_point<std::ratio<5>, tmp::int_<4> >,
-	break_point<ratio_infinite, tmp::int_<2> >
+	break_point<std::ratio<3>, tmp::integer<int, 6> >,
+	break_point<std::ratio<5>, tmp::integer<int, 4> >,
+	break_point<ratio_infinite, tmp::integer<int, 2> >
 > inter2_t;
 
 typedef merge_intervals<inter1_t, inter2_t>::type merged_t;

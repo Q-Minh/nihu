@@ -88,7 +88,7 @@ namespace tmp
 		struct size_impl<vector_tag>
 		{
 			template <class Seq>
-			struct apply : int_<std::tuple_size<typename Seq::impl>::value> {};
+			struct apply : integer<int, std::tuple_size<typename Seq::impl>::value> {};
 		};
 	}
 
@@ -104,7 +104,7 @@ namespace tmp
 			template <class Vect>
 			struct apply
 			{
-				typedef vector_iterator<Vect, int_<0> > type;
+				typedef vector_iterator<Vect, integer<int, 0> > type;
 			};
 		};
 

@@ -350,7 +350,7 @@ namespace tmp
 
 		template <
 			class Seq, class Compare,
-			class siz = typename less<int_<1>, typename size<Seq>::type>::type
+			class siz = typename less<integer<int, 1>, typename size<Seq>::type>::type
 		>
 		struct bubble_cycle
 		{
@@ -394,7 +394,7 @@ namespace tmp
 
 	/** \brief terminating case of bubble_sort for short vectors */
 	template <class Seq, class Compare>
-	struct bubble_sort<Seq, Compare, int_<0> > : Seq {};
+	struct bubble_sort<Seq, Compare, integer<int, 0> > : Seq {};
 }
 
 #endif // ALGORITHM_HPP_INCLUDED
