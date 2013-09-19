@@ -90,7 +90,6 @@ namespace tmp
 
 
 	/** \brief compute maximum value of integral constants
-	 * \todo should be generalised for general type
 	 */
 	template <class Val, class...Args>
 	struct max_ : max_<Val, typename max_<Args...>::type> {};
@@ -106,7 +105,6 @@ namespace tmp
 	};
 
 	/** \brief compute minimum value of integral constants
-	 * \todo should be generalised for general type
 	 */
 	template <class Val, class...Args>
 	struct min_ : min_<Val, typename min_<Args...>::type> {};
