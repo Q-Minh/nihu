@@ -1,18 +1,18 @@
 // This file is a part of NiHu, a C++ BEM template library.
-// 
+//
 // Copyright (C) 2012-2013  Peter Fiala <fiala@hit.bme.hu>
 // Copyright (C) 2012-2013  Peter Rucz <rucz@hit.bme.hu>
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -22,7 +22,6 @@
  * \brief implementation of Boolean functions
  * \details The boolean type is already contained in type_traits as std::integral_constant<bool, x>.
  * This file implements some Boolean functions and the compile time if_ control structure
- * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
  */
 
 #ifndef BOOL_HPP_INCLUDED
@@ -59,7 +58,7 @@ namespace tmp
 
 	template <class...Args>
 	struct and_<std::false_type, Args...> : std::false_type {};
-	
+
 	template <>
 	struct and_<std::true_type> : std::true_type {};
 

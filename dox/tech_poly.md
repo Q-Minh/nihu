@@ -154,7 +154,7 @@ mesh_t mesh;
 ~~~~~~
 
 This is the technique how NiHu stores inhomogeneous meshes.
-For more information check out the class documentattion of class ::Mesh and its inhomogeneous container member ::Mesh::m_elements.
+For more information check out the class documentation of class ::mesh and its inhomogeneous container member ::mesh::m_elements.
 
 ### call_each {#calleach}
 
