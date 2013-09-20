@@ -424,6 +424,14 @@ public:
 		return m_normal;
 	}
 
+	/** \brief return normal vector
+	* \return element normal
+	*/
+	x_t const &get_normal(void) const
+	{
+		return m_normal;
+	}
+
 protected:
 	/** \brief the normal vector */
 	x_t m_normal;
