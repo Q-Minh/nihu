@@ -63,15 +63,21 @@ public:
 			auto a = C.col(i);
 			auto b = C.col((i+1)%N);
 			auto c = C.col((i+2)%N);
-			auto d = c-b;
-			auto unit_d = d / d.norm();
-			auto x = (a-b).dot(unit_d)*unit_d + b;	// section point
-			gamma[i] = (x-a).norm();				// distance from section
+			auto d = c-b;				// opposite side vector
+			auto unit_d = d / d.norm();	// unit vector
+			auto x = (a-b).dot(unit_d)*unit_d + b;	// projection
+			gamma[i] = (x-a).norm();				// distance from projection
 			sminus[i] = (x-b).dot(unit_d);			// signed distance
 			splus[i] = (x-c).dot(unit_d);			// signed distance
 		}
 	}
 
+	/** \brief evaluate singular integral
+	 * \tparam result_t the result matrix type
+	 * \param result the result matrix reference
+	 * \param trial_field the trial field instance
+	 * \return reference to the result matrix
+	 */
 	template <class result_t>
 	static result_t &eval(
 		result_t &result,
@@ -83,11 +89,14 @@ public:
 		unsigned const N = tria_1_elem::num_nodes;
 		auto const &elem = trial_field.get_elem();
 
+		// compute geometrical helper values
 		double gamma[N], splus[N], sminus[N];
 		gamma_splus_sminus(elem, gamma, splus, sminus);
 
+		// element area
 		auto S = elem.get_normal().norm()/2.0;
 
+		// the famous integral expression from Lenoir-Salles
 		for (unsigned i = 0; i < N; ++i)
 			result(0,0) -= gamma[i] * (
 				std::asinh(splus[i]/gamma[i]) - std::asinh(sminus[i]/gamma[i])
