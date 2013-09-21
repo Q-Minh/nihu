@@ -19,6 +19,7 @@
 //! [Includes]
 #include "core/weighted_residual.hpp"
 #include "library/laplace_kernel.hpp"
+#include "library/lenoir_salles_2012.hpp"
 //! [Includes]
 
 //! [Typedefs]
@@ -28,10 +29,36 @@ typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> dMatrix;
 typedef Eigen::Matrix<unsigned, Eigen::Dynamic, Eigen::Dynamic> uMatrix;
 //! [Typedefs]
 
-//! [Test]
-template <class func_space>
-void tester(func_space const &w)
+int main(void)
 {
+	// nodal coordinates in 3D, 3 nodes
+	dMatrix nodes(9,3);
+	nodes <<
+		-1.0, -1.0, 0.0,
+		 0.0, -1.0, 0.0,
+		 1.0, -1.0, 0.0,
+		-1.0,  0.0, 0.0,
+		 0.0,  0.0, 0.0,
+		 1.0,  0.0, 0.0,
+		-1.0,  1.0, 0.0,
+		 0.0,  1.0, 0.0,
+		 1.0,  1.0, 0.0;
+
+	// element nodal indices
+	uMatrix elements(5, 1+4);
+	elements <<
+		quad_1_elem::id, 0, 1, 4, 3,
+		quad_1_elem::id, 1, 2, 5, 4,
+		quad_1_elem::id, 3, 4, 7, 6,
+		tria_1_elem::id, 4, 5, 8, 0,
+		tria_1_elem::id, 4, 8, 7, 0;
+
+	// create the mesh
+	auto msh = create_mesh(nodes, elements, _tria_1_tag(), _quad_1_tag());
+
+	// create a piecewise constant function space
+	auto const &w = constant_view(msh);
+
 	// compute number of DOF and allocate result matrix
 	int nDOF = w.get_num_dofs();
 	dMatrix I(nDOF, nDOF);
@@ -48,38 +75,6 @@ void tester(func_space const &w)
 	// Compare to analytical solution
 	double anal = 32.0 * (std::log(1.0+std::sqrt(2.0))-(std::sqrt(2.0)-1.0)/3.0) / 4.0/M_PI;
 	std::cout << "log10 error = " << std::log10(std::abs(I.sum() / anal - 1.0)) << std::endl;
-}
-//! [Test]
-
-
-int main(void)
-{
-//! [Mesh]
-	// nodal coordinates in 3D, 3 nodes
-	dMatrix nodes(4,3);
-	nodes <<
-		-1.0, -1.0, 0.0,
-		 1.0, -1.0, 0.0,
-		-1.0,  1.0, 0.0,
-		 1.0,  1.0, 0.0;
-
-	// element nodal indices
-	uMatrix elements(1, 1+4);
-	elements << quad_1_elem::id, 0, 1, 3, 2;
-
-	// create the mesh
-	auto msh = create_mesh(nodes, elements, _tria_1_tag(), _quad_1_tag());
-//! [Mesh]
-
-//! [Operators]
-	// create a piecewise constant function space and call the tester
-	std::cout << "Testing with constant field" << std::endl;
-	tester(constant_view(msh));
-
-	// create a piecewise linear function space and call the tester
-	std::cout << "Testing with isoparametric field" << std::endl;
-	tester(isoparametric_view(msh));
-//! [Operators]
 
 	return 0;
 }

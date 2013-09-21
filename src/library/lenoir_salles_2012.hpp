@@ -17,7 +17,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /** \file lenoir_salles_2012.hpp
- * \brief Analytical expressions for the singular integrals of laplace kernels
+ * \brief Explicite singular Galerkin integrals of laplace kernels over plane triangles
  * \ingroup library
  */
 #ifndef LENOIR_SALLES_2012_HPP_INCLUDED
@@ -25,7 +25,6 @@
 
 #include "../core/integral_operator.hpp"
 #include "laplace_kernel.hpp"
-#include "plane_triangle_helper.hpp"
 
 /** \brief Galerkin singular integral of the SLP kernel over a constant triangle
  * \tparam TestField the test field type
@@ -43,6 +42,12 @@ class singular_integral_shortcut<
 >
 {
 public:
+	/** \brief helper function to compute geometrical parameters of a triangle
+	 * \tparam scalar_t the scalar type of the parameters
+	 * \param [in] gamma distance of a corner from the opposite side vector
+	 * \param [in] splus signed distance of other corner from the projection point
+	 * \param [in] sminus signed distance of other corner from the projection point
+	 */
 	template <class scalar_t>
 	static void gamma_splus_sminus(
 		tria_1_elem const &elem,
@@ -60,13 +65,10 @@ public:
 			auto c = C.col((i+2)%N);
 			auto d = c-b;
 			auto unit_d = d / d.norm();
-			auto x = (a-b).dot(unit_d)*unit_d + b;
-			gamma[i] = (x-a).norm();
-			sminus[i] = (x-b).dot(unit_d);
-			splus[i] = (x-c).dot(unit_d);
-			std::cout << "gamma: " << gamma[i] << std::endl;
-			std::cout << "sp: " << sminus[i] << std::endl;
-			std::cout << "sm: " << splus[i] << std::endl;
+			auto x = (a-b).dot(unit_d)*unit_d + b;	// section point
+			gamma[i] = (x-a).norm();				// distance from section
+			sminus[i] = (x-b).dot(unit_d);			// signed distance
+			splus[i] = (x-c).dot(unit_d);			// signed distance
 		}
 	}
 
@@ -79,15 +81,17 @@ public:
 		element_match const &)
 	{
 		unsigned const N = tria_1_elem::num_nodes;
+		auto const &elem = trial_field.get_elem();
 
 		double gamma[N], splus[N], sminus[N];
-		gamma_splus_sminus(trial_field.get_elem(), gamma, splus, sminus);
+		gamma_splus_sminus(elem, gamma, splus, sminus);
 
-		auto S = trial_field.get_elem().get_normal().norm()/2.0;
-		std::cout << S << std::endl;
+		auto S = elem.get_normal().norm()/2.0;
 
 		for (unsigned i = 0; i < N; ++i)
-			result(0,0) += -gamma[i] * (std::asinh(splus[i]/gamma[i]) - std::asinh(sminus[i]/gamma[i]));
+			result(0,0) -= gamma[i] * (
+				std::asinh(splus[i]/gamma[i]) - std::asinh(sminus[i]/gamma[i])
+			);
 
 		result(0,0) *= 2.0/3.0 * S / (4.0*M_PI);
 
