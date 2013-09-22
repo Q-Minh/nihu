@@ -38,6 +38,13 @@ public:
 	/** \brief self returning */
 	typedef interval_estimator type;
 
+	/** \brief evaluate estimation
+	 * \tparam test_field_t the test field type
+	 * \tparam trial_field_t the trial field type
+	 * \param [in] test_field the test field instance
+	 * \param [in] trial_field the trial field instance
+	 * \return the estimated complexity
+	 */
 	template <class test_field_t, class trial_field_t>
 	static unsigned eval(
 		field_base<test_field_t> const &test_field,
@@ -51,6 +58,10 @@ public:
 	}
 };
 
+/** \brief merge two interval estimators
+ * \tparam Interval1 the first interval to merge
+ * \tparam Interval2 the second interval to merge
+ */
 template <class Interval1, class Interval2>
 struct merge_kernel_complexity_estimators<
 	interval_estimator<Interval1>,

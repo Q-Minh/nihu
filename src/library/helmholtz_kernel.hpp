@@ -41,16 +41,23 @@
 
 /**
  * \brief kernel data that stores the wave number
+ * \tparam wave_number_type the wave number type
  */
 template <class wave_number_type>
 class wave_number_data
 {
 public:
+	/** \brief constructor setting the wave number
+	 * \param [in] wn the wave number to set
+	 */
 	wave_number_data(wave_number_type const &wn = wave_number_type()) :
 		m_wave_number(wn)
 	{
 	}
 
+	/** \brief return wave number
+	 * \return wave number
+	 */
 	wave_number_type const &get_wave_number(void) const
 	{
 		return m_wave_number;

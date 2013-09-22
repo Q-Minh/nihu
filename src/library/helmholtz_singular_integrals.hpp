@@ -106,6 +106,13 @@ private:
 	}
 
 public:
+	/** \brief evaluate singular integral
+	 * \tparam result_t the result matrix type
+	 * \param [in, out] result reference to the result
+	 * \param [in] kernel the kernel instance
+	 * \param [in] trial_field the test and trial fields
+	 * \return reference to the result matrix
+	 */
 	template <class result_t>
 	static result_t &eval(
 		result_t &result,
@@ -184,6 +191,13 @@ private:
 	}
 
 public:
+	/** \brief evaluate singular integral
+	 * \tparam result_t the result matrix type
+	 * \param [in, out] result reference to the result
+	 * \param [in] kernel the kernel instance
+	 * \param [in] trial_field the test and trial fields
+	 * \return reference to the result matrix
+	 */
 	template <class result_t>
 	static result_t &eval(
 		result_t &result,

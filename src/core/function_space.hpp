@@ -107,6 +107,7 @@ struct function_space_traits<function_space_view<Mesh, FieldOption> >
 	/** \brief the underlying mesh type */
 	typedef Mesh mesh_t;
 
+	/** \brief the mesh eleme type vector type */
 	typedef typename mesh_t::elem_type_vector_t etv_t;
 
 	/** \brief the field type vector */
@@ -482,6 +483,9 @@ public:
 		}
 	}
 
+	/** \brief return underlying mesh reference
+	 * \return the mesh
+	 */
 	mesh_t const &get_mesh(void) const
 	{
 		return static_cast<mesh_t const &>(*this);

@@ -44,9 +44,10 @@ class singular_integral_shortcut<
 public:
 	/** \brief helper function to compute geometrical parameters of a triangle
 	 * \tparam scalar_t the scalar type of the parameters
-	 * \param [in] gamma distance of a corner from the opposite side vector
-	 * \param [in] splus signed distance of other corner from the projection point
-	 * \param [in] sminus signed distance of other corner from the projection point
+	 * \param [in] elem the triangle element
+	 * \param [out] gamma distance of a corner from the opposite side vector
+	 * \param [out] splus signed distance of other corner from the projection point
+	 * \param [out] sminus signed distance of other corner from the projection point
 	 */
 	template <class scalar_t>
 	static void gamma_splus_sminus(

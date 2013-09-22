@@ -311,6 +311,11 @@ public:
 	}
 };
 
+/** \brief compare two element id's by value
+ * \param [in] lhs the left hand side of comparison
+ * \param [in] rhs the right hand side of comparison
+ * \return true if lhs < rhs
+ */
 bool operator<(elem_id_t const &lhs, elem_id_t const &rhs)
 {
 	return lhs(0,0) < rhs(0,0);
