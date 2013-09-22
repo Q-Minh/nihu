@@ -165,9 +165,19 @@ class couple_output :
 	public merge<outputs...>::type
 {
 public:
+	/** \brief the base type */
 	typedef typename merge<outputs...>::type base_t;
+	/** \brief the merged output type */
 	typedef couple<typename outputs::result_t...> result_t;
 
+	/** \brief constructor
+	 * \tparam test_input_t the test input type
+	 * \tparam trial_input_t the trial input type
+	 * \tparam kernel_t the kernel type
+	 * \param [in] test_input the test input
+	 * \param [in] trial_input the trial input
+	 * qparam [in] kernel the kernel instance
+	 */
 	template <class test_input_t, class trial_input_t, class kernel_t>
 	couple_output(
 		test_input_t const &test_input,
@@ -177,6 +187,9 @@ public:
 	{
 	}
 
+	/** \brief return result
+	 * \return couple result
+	 */
 	result_t get_result(void) const
 	{
 		return result_t(

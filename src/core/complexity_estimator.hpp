@@ -28,22 +28,32 @@
 #include "field.hpp"
 
 
+/** \brief clas to estimate kernel complexity between two fields
+ * \tparam TestField the test field
+ * \tparam TrialField the trial field
+ * \tparam KernelEstimator the kernel's complexity estimator
+ */
 template <class TestField, class TrialField, class KernelEstimator>
 class complexity_estimator
 {
 public:
+	/** \brief the test field type */
 	typedef TestField test_field_t;
+	/** \brief the trial field type */
 	typedef TrialField trial_field_t;
 
 	enum {
+		/** \brief the test field complexity */
 		test_field_complexity =
 			shape_set_traits<typename test_field_t::nset_t>::polynomial_order +
 			shape_set_traits<typename test_field_t::elem_t::lset_t>::jacobian_order,
+		/** \brief the trial field complexity */
 		trial_field_complexity =
 			shape_set_traits<typename trial_field_t::nset_t>::polynomial_order +
 			shape_set_traits<typename trial_field_t::elem_t::lset_t>::jacobian_order
 	};
 
+	/** \brie the total field complexity */
 	static unsigned const total_field_complexity = tmp::max_<
 		std::integral_constant<unsigned, test_field_complexity>,
 		std::integral_constant<unsigned, trial_field_complexity>
@@ -59,8 +69,7 @@ public:
 		field_base<trial_field_t> const &trial_field
 	)
 	{
-		return total_field_complexity +
-			KernelEstimator::eval(test_field, trial_field);
+		return total_field_complexity + KernelEstimator::eval(test_field, trial_field);
 	}
 };
 

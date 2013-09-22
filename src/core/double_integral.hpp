@@ -92,7 +92,6 @@ protected:
 	* \param [out] result reference to the integration result matrix
 	* \param [in] kernel the kernel to integrate
 	* \param [in] test_field the test field to integrate on
-	* \param [in] test_acc field type accelerator of the test field
 	* \param [in] trial_field the trial field to integrate on
 	* \param [in] it begin iterator of the accelerator
 	* \param [in] end end iterator of the accelerator
