@@ -5,7 +5,7 @@ function export_bulk_mesh(model, fname)
 %
 % See also: IMPORT_BULK_MESH
 
-%   Copyright 2008-2010 P. Fiala
+%   Copyright 2008-2013 P. Fiala
 %   Budapest University of Technology and Economics
 %   Dept. of Telecommunications
 
