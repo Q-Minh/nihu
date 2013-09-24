@@ -17,7 +17,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /** \file lenoir_salles_2012.hpp
- * \brief Explicite singular Galerkin integrals of laplace kernels over plane triangles
+ * \brief Explicite singular Galerkin integrals of Laplace kernels over plane triangles
  * \ingroup library
  */
 #ifndef LENOIR_SALLES_2012_HPP_INCLUDED
@@ -26,7 +26,7 @@
 #include "../core/integral_operator.hpp"
 #include "laplace_kernel.hpp"
 
-/** \brief Galerkin singular integral of the SLP kernel over a constant triangle
+/** \brief Galerkin singular integral of the Laplace SLP kernel over a constant triangle
  * \tparam TestField the test field type
  * \tparam TrialField the trial field type
  */
