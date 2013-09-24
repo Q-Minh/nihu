@@ -27,9 +27,14 @@
 
 #include "field_type_acceleration_option.hpp"
 
+/** \brief acceleration::soft or acceleration::hard */
 typedef acceleration::hard GLOBAL_ACCELERATION;
-/** \todo increase Dunavant order to avoid overindexing */
+/**
+ * \brief the maximal order of accelerated quadratures and field type accelerators
+ * \todo increase Dunavant order to avoid overindexing
+ */
 unsigned const GLOBAL_MAX_ORDER = 9;
+/** \brief the global accuracy of integraions */
 unsigned const GLOBAL_ACCURACY = 3;
 
 #endif
