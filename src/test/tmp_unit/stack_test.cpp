@@ -24,8 +24,8 @@
 int main(void)
 {
 	typedef tmp::empty_stack myStack_0;
-	typedef tmp::push_front<myStack_0, tmp::int_<1> >::type myStack_1;
-	typedef tmp::push_front<myStack_1, tmp::int_<2> >::type myStack_2;
+	typedef tmp::push_front<myStack_0, tmp::integer<int, 1> >::type myStack_1;
+	typedef tmp::push_front<myStack_1, tmp::integer<int, 2> >::type myStack_2;
 	typedef tmp::pop_front<myStack_2>::type myStack_3;
 	
 	std::cout << "Testing stack and operations" << std::endl;

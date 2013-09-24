@@ -692,8 +692,9 @@ INPUT                  = "${CMAKE_SOURCE_DIR}/../dox/mainpage.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/tech_cpp11.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/tech_meta.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/tech_poly.md" \
+                         "${CMAKE_SOURCE_DIR}/../dox/tech_general.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/tech_what_happens.md" \
-                         "${CMAKE_SOURCE_DIR}/../dox/tech_other.md" \
+                         "${CMAKE_SOURCE_DIR}/../dox/publications.md" \
                          "${CMAKE_SOURCE_DIR}/core/" \
                          "${CMAKE_SOURCE_DIR}/util/" \
                          "${CMAKE_SOURCE_DIR}/tmp/" \
@@ -764,7 +765,7 @@ EXCLUDE_SYMBOLS        = internal
 # directories that contain example code fragments that are included (see
 # the \include command).
 
-EXAMPLE_PATH           = examples/ src/tutorial/
+EXAMPLE_PATH           = examples/ src/tutorial/ src/test/util_unit/
 
 # If the value of the EXAMPLE_PATH tag contains directories, you can use the
 # EXAMPLE_PATTERNS tag to specify one or more wildcard pattern (like *.cpp

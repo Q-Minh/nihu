@@ -1,25 +1,24 @@
 // This file is a part of NiHu, a C++ BEM template library.
-// 
+//
 // Copyright (C) 2012-2013  Peter Fiala <fiala@hit.bme.hu>
 // Copyright (C) 2012-2013  Peter Rucz <rucz@hit.bme.hu>
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * \file vector.hpp
  * \ingroup tmp
- * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
  * \brief implementation of a compile time vector ::tmp::vector
  */
 #ifndef VECTOR_HPP_INCLUDED
@@ -89,7 +88,7 @@ namespace tmp
 		struct size_impl<vector_tag>
 		{
 			template <class Seq>
-			struct apply : int_<std::tuple_size<typename Seq::impl>::value> {};
+			struct apply : integer<int, std::tuple_size<typename Seq::impl>::value> {};
 		};
 	}
 
@@ -105,7 +104,7 @@ namespace tmp
 			template <class Vect>
 			struct apply
 			{
-				typedef vector_iterator<Vect, int_<0> > type;
+				typedef vector_iterator<Vect, integer<int, 0> > type;
 			};
 		};
 

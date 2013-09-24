@@ -1,18 +1,18 @@
 // This file is a part of NiHu, a C++ BEM template library.
-// 
+//
 // Copyright (C) 2012-2013  Peter Fiala <fiala@hit.bme.hu>
 // Copyright (C) 2012-2013  Peter Rucz <rucz@hit.bme.hu>
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -20,7 +20,6 @@
  * \file kernel.hpp
  * \ingroup kernel
  * \brief implementation of various kernels
- * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
  */
 
 #ifndef KERNEL_HPP_INCLUDED
@@ -144,6 +143,9 @@ public:
 		return output.get_result();
 	}
 
+	/** \brief return kernel data
+	 * \return kernel data
+	 */
 	data_t const &get_data(void) const
 	{
 		return m_data;
@@ -163,9 +165,19 @@ class couple_output :
 	public merge<outputs...>::type
 {
 public:
+	/** \brief the base type */
 	typedef typename merge<outputs...>::type base_t;
+	/** \brief the merged output type */
 	typedef couple<typename outputs::result_t...> result_t;
 
+	/** \brief constructor
+	 * \tparam test_input_t the test input type
+	 * \tparam trial_input_t the trial input type
+	 * \tparam kernel_t the kernel type
+	 * \param [in] test_input the test input
+	 * \param [in] trial_input the trial input
+	 * qparam [in] kernel the kernel instance
+	 */
 	template <class test_input_t, class trial_input_t, class kernel_t>
 	couple_output(
 		test_input_t const &test_input,
@@ -175,6 +187,9 @@ public:
 	{
 	}
 
+	/** \brief return result
+	 * \return couple result
+	 */
 	result_t get_result(void) const
 	{
 		return result_t(

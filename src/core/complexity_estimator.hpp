@@ -1,18 +1,18 @@
 // This file is a part of NiHu, a C++ BEM template library.
-// 
+//
 // Copyright (C) 2012-2013  Peter Fiala <fiala@hit.bme.hu>
 // Copyright (C) 2012-2013  Peter Rucz <rucz@hit.bme.hu>
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -28,34 +28,48 @@
 #include "field.hpp"
 
 
+/** \brief clas to estimate kernel complexity between two fields
+ * \tparam TestField the test field
+ * \tparam TrialField the trial field
+ * \tparam KernelEstimator the kernel's complexity estimator
+ */
 template <class TestField, class TrialField, class KernelEstimator>
 class complexity_estimator
 {
 public:
+	/** \brief the test field type */
 	typedef TestField test_field_t;
+	/** \brief the trial field type */
 	typedef TrialField trial_field_t;
 
 	enum {
+		/** \brief the test field complexity */
 		test_field_complexity =
 			shape_set_traits<typename test_field_t::nset_t>::polynomial_order +
 			shape_set_traits<typename test_field_t::elem_t::lset_t>::jacobian_order,
+		/** \brief the trial field complexity */
 		trial_field_complexity =
 			shape_set_traits<typename trial_field_t::nset_t>::polynomial_order +
 			shape_set_traits<typename trial_field_t::elem_t::lset_t>::jacobian_order
 	};
 
+	/** \brie the total field complexity */
 	static unsigned const total_field_complexity = tmp::max_<
 		std::integral_constant<unsigned, test_field_complexity>,
 		std::integral_constant<unsigned, trial_field_complexity>
 	>::value;
 
+	/** \brief compute total complexity
+	 * \param [in] test_field the test field instance
+	 * \param [in] trial_field the trial field instance
+	 * \return the kernel complexity
+	 */
 	static unsigned eval(
 		field_base<test_field_t> const &test_field,
 		field_base<trial_field_t> const &trial_field
 	)
 	{
-		return total_field_complexity +
-			KernelEstimator::eval(test_field, trial_field);
+		return total_field_complexity + KernelEstimator::eval(test_field, trial_field);
 	}
 };
 
@@ -85,6 +99,13 @@ struct merge_kernel_complexity_estimators<Estim1, Estim2>
 {
 	struct type
 	{
+		/** \brief compute complexity of merged estimators
+		 * \tparam test_field_t the test field type
+		 * \tparam trial_field_t the trial field type
+		 * \param [in] test_field the test field instance
+		 * \param [in] trial_field the trial field instance
+		 * \return the kernel complexity
+		 */
 		template <class test_field_t, class trial_field_t>
 		static unsigned eval(
 			field_base<test_field_t> const &test_field,

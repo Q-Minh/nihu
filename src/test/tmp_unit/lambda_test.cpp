@@ -73,8 +73,8 @@ int main(void)
 	// Argument selector test
 	std::cout << "Testing argument selector" << std::endl;
 	std::cout << "=========================" << std::endl;
-	std::cout << "<1, 0, 2> [1] : " << tmp::select_argument<1, tmp::int_<1>, tmp::int_<0>, tmp::int_<2> >::type::value << std::endl;
-	std::cout << "<1, 0, 2> [3] : " << tmp::select_argument<3, tmp::int_<1>, tmp::int_<0>, tmp::int_<2> >::type::value << std::endl;
+	std::cout << "<1, 0, 2> [1] : " << tmp::select_argument<1, tmp::integer<int, 1>, tmp::integer<int, 0>, tmp::integer<int, 2> >::type::value << std::endl;
+	std::cout << "<1, 0, 2> [3] : " << tmp::select_argument<3, tmp::integer<int, 1>, tmp::integer<int, 0>, tmp::integer<int, 2> >::type::value << std::endl;
 	std::cout << std::endl;
 	
 	// isPlaceholder test
@@ -99,11 +99,11 @@ int main(void)
 	std::cout << "Testing lambda" << std::endl;
 	std::cout << "==============" << std::endl;
 	
-	auto app_t2 = tmp::apply<TR2<tmp::_1, tmp::_2>, tmp::int_<-6>, tmp::int_<8> >::type();
+	auto app_t2 = tmp::apply<TR2<tmp::_1, tmp::_2>, tmp::integer<int, -6>, tmp::integer<int, 8> >::type();
 	std::cout << "apply<TR2, -6, 8>  : "; app_t2(); std::cout << std::endl;
 	
-	auto lam1 = tmp::lambda<TR1<tmp::_1 > >::type::apply<tmp::int_<1> >::type();
-	auto lam2 = tmp::lambda<TR2<tmp::_1, tmp::_2> >::type::apply<tmp::int_<-4>, tmp::int_<3> >::type();
+	auto lam1 = tmp::lambda<TR1<tmp::_1 > >::type::apply<tmp::integer<int, 1> >::type();
+	auto lam2 = tmp::lambda<TR2<tmp::_1, tmp::_2> >::type::apply<tmp::integer<int, -4>, tmp::integer<int, 3> >::type();
 	
 	std::cout << "lambda<TR1, _1>::apply<1> : "; lam1(); std::cout << std::endl;
 	std::cout << "lambda<TR2, _1, _2>::apply<-4, 3> : "; lam2(); std::cout << std::endl;

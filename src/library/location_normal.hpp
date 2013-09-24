@@ -1,24 +1,29 @@
 // This file is a part of NiHu, a C++ BEM template library.
-// 
+//
 // Copyright (C) 2012-2013  Peter Fiala <fiala@hit.bme.hu>
 // Copyright (C) 2012-2013  Peter Rucz <rucz@hit.bme.hu>
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * \file location_normal.hpp
+ * \ingroup library
+ * \brief implementation of location and normal kernel inputs
+ */
 
-#ifndef LOCATION_HPP_INCLUDED
-#define LOCATION_HPP_INCLUDED
+#ifndef LOCATION_NORMAL_HPP_INCLUDED
+#define LOCATION_NORMAL_HPP_INCLUDED
 
 #include "../util/brick.hpp"
 #include "../core/element.hpp"
@@ -29,6 +34,10 @@
 template <class Space>
 struct location
 {
+	/**
+	 * \brief the brick template class
+	 * \tparam wall the wall type to glue the brick on
+	 */
 	template <class wall>
 	class brick : public wall
 	{
@@ -70,6 +79,10 @@ struct location
 template <class Space>
 struct normal_jacobian
 {
+	/**
+	 * \brief the brick template class
+	 * \tparam wall the wall type to glue the brick on
+	 */
 	template <class wall>
 	struct brick : public wall
 	{
@@ -114,5 +127,5 @@ struct normal_jacobian
 	};
 };
 
-#endif // LOCATION_HPP_INCLUDED
+#endif // LOCATION_NORMAL_HPP_INCLUDED
 

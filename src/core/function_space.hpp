@@ -1,25 +1,24 @@
 // This file is a part of NiHu, a C++ BEM template library.
-// 
+//
 // Copyright (C) 2012-2013  Peter Fiala <fiala@hit.bme.hu>
 // Copyright (C) 2012-2013  Peter Rucz <rucz@hit.bme.hu>
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
 * \file function_space.hpp
 * \ingroup funcspace
-* \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
 * \brief declaration of class function_space
 */
 #ifndef FUNCTION_SPACE_HPP_INCLUDED
@@ -108,6 +107,7 @@ struct function_space_traits<function_space_view<Mesh, FieldOption> >
 	/** \brief the underlying mesh type */
 	typedef Mesh mesh_t;
 
+	/** \brief the mesh eleme type vector type */
 	typedef typename mesh_t::elem_type_vector_t etv_t;
 
 	/** \brief the field type vector */
@@ -483,6 +483,9 @@ public:
 		}
 	}
 
+	/** \brief return underlying mesh reference
+	 * \return the mesh
+	 */
 	mesh_t const &get_mesh(void) const
 	{
 		return static_cast<mesh_t const &>(*this);
@@ -582,10 +585,10 @@ public:
 
 /** \brief factory function to create a function space from fields
  * \tparam nodes_t the nodes matrix type
- * \tparam fields_t the fields matrix type
- * \tparam fields_t the field types
+ * \tparam elements_t the elements matrix type
+ * \tparam fields_t the field matrix type
  * \param [in] nodes the nodes matrix
- * \param [in] fields the field description matrix
+ * \param [in] elements the field description matrix
  * \param [in] fields the field tag instances
  */
 template <class nodes_t, class elements_t, class...fields_t>

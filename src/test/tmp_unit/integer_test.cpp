@@ -22,11 +22,11 @@
 
 int main(void)
 {
-	typedef tmp::int_<-31> _t;
-	typedef tmp::int_<-4> _a;
-	typedef tmp::int_< 5> _b;
-	typedef tmp::int_< 8> _c;
-	typedef tmp::int_<-9> _d;
+	typedef tmp::integer<int, -31> _t;
+	typedef tmp::integer<int, -4> _a;
+	typedef tmp::integer<int,  5> _b;
+	typedef tmp::integer<int,  8> _c;
+	typedef tmp::integer<int, -9> _d;
 	
 	std::cout << std::boolalpha;
 

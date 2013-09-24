@@ -1,25 +1,24 @@
 // This file is a part of NiHu, a C++ BEM template library.
-// 
+//
 // Copyright (C) 2012-2013  Peter Fiala <fiala@hit.bme.hu>
 // Copyright (C) 2012-2013  Peter Rucz <rucz@hit.bme.hu>
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /** \file helmholtz_singular_integrals.hpp
  * \brief (Semi)analytical expressions for the singular integrals of Helmholtz kernels
  * \details Semianalytical expression for the Helmholtz kernels over plane triangles
- * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
  */
 #ifndef HELMHOLTZ_SINGULAR_INTEGRALS_HPP_INCLUDED
 #define HELMHOLTZ_SINGULAR_INTEGRALS_HPP_INCLUDED
@@ -107,6 +106,13 @@ private:
 	}
 
 public:
+	/** \brief evaluate singular integral
+	 * \tparam result_t the result matrix type
+	 * \param [in, out] result reference to the result
+	 * \param [in] kernel the kernel instance
+	 * \param [in] trial_field the test and trial fields
+	 * \return reference to the result matrix
+	 */
 	template <class result_t>
 	static result_t &eval(
 		result_t &result,
@@ -185,6 +191,13 @@ private:
 	}
 
 public:
+	/** \brief evaluate singular integral
+	 * \tparam result_t the result matrix type
+	 * \param [in, out] result reference to the result
+	 * \param [in] kernel the kernel instance
+	 * \param [in] trial_field the test and trial fields
+	 * \return reference to the result matrix
+	 */
 	template <class result_t>
 	static result_t &eval(
 		result_t &result,
