@@ -21,11 +21,16 @@ Obtaining the source code {#install_obtain}
 =========================
 
 The source code of NiHu can be downloaded using the version control software [git].
-You can obtain the current version of the software by typing the command
+You can obtain the latest stable version of the software by typing the command
 
 	git clone -b release_1.0 git://last.hit.bme.hu/toolbox/nihu.git
 
 into the command line.
+There is a nightly build available for NiHu, which contains regular updates, however testing of the most recent features may not be complete.
+You can download the nightly version similarly by the command
+
+	git clone -b nightly git://last.hit.bme.hu/toolbox/nihu.git
+
 The command will create the directory `nihu` containing all the source files required for further steps.
 The directory containing the source files is referred to as _source directory_ in the following.
 Inside the source directory, the folder `src` contains the C++ and Matlab source codes, whereas other folders contain the documentation and tools required for building the project.

@@ -6,6 +6,8 @@ NiHu 1.0 {#mainpage}
  News {#main_news}
 =================
 
+- **Nightly builds** are available from 2013.09.27 built daily at 1 a.m. CET.
+
 - **NiHu 1.0 is released** on 2013.09.13. featuring
 	- **C++ template library**
 		- A general core functionality for the evaluation of weighted residuals
