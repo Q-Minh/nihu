@@ -56,7 +56,7 @@ int main(void)
 {
 	tmp::call_each<
 		tmp::vector<
-			line_1_elem, //line_2_elem,
+			line_1_elem, line_2_elem,
 			tria_1_elem, quad_1_elem,
 			tria_2_elem, quad_2_elem
 		>,

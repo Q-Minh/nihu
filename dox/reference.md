@@ -16,12 +16,11 @@ Function Space Representations {#reference_func_space}
 Elements {#reference_func_space_elements}
 --------
 
-- ::line_1_elem linear 2-noded line element in 2D
-- ::line_2_elem quadratic 3-noded line element in 2D
-- ::tria_1_elem linear 3-noded triangle element in 3D
-- ::tria_2_elem quadratic 6-noded triangle element in 3D
-- ::quad_1_elem linear 4-noded quadrangle element in 3D
-- ::quad_2_elem quadratic 9-noded quadrangle element in 3D
+ linear        | quadratic
+---------------|---------------
+ ::line_1_elem | ::line_2_elem 
+ ::tria_1_elem | ::tria_2_elem 
+ ::quad_1_elem | ::quad_2_elem 
 
 Fields and FieldViews {#reference_func_space_fields}
 ---------------------

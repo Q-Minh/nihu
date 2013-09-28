@@ -529,6 +529,44 @@ struct element_traits<general_surface_element<LSet, scalar_t> >
 	};
 };
 
+
+/** \brief implementation of normal vector computation for different dimensions
+ * \tparam scalar the scalar type
+ * \tparam N the number of dimensions
+ */
+template<class scalar, unsigned N>
+class normal_impl;
+
+/** \brief implementation of normal vector computation for 3D
+ * \tparam scalar the scalar type
+ */
+template <class scalar>
+class normal_impl<scalar, 3>
+{
+public:
+	/** \brief return the normal vector */
+	static Eigen::Matrix<scalar, 3, 1> eval(Eigen::Matrix<scalar, 3, 2> const &m)
+	{
+		return m.col(0).cross(m.col(1));
+	}
+};
+
+
+/** \brief implementation of normal vector computation for 2D
+ * \tparam scalar the scalar type
+ */
+template <class scalar>
+class normal_impl<scalar, 2>
+{
+public:
+	/** \brief return the normal vector */
+	static Eigen::Matrix<scalar, 2, 1> eval(Eigen::Matrix<scalar, 2, 1> const &m)
+	{
+		return Eigen::Rotation2D<scalar>(-M_PI/2.0) * m.col(0);
+	}
+};
+
+
 /** \brief class describing a general surface element that computes its normal in the general way
 * \tparam LSet type of the geometry shape set
 */
@@ -558,11 +596,14 @@ public:
 	 * \param [in] id element id
 	 * \param [in] nodes the nodal index vector
 	 */
-	general_surface_element(coords_t const &coords, unsigned id = 0, nodes_t const &nodes = nodes_t())
+	general_surface_element(
+		coords_t const &coords,
+		unsigned id = 0,
+		nodes_t const &nodes = nodes_t())
 		: base_t(coords, id, nodes)
 	{
-		dx_t dx = base_t::get_dx(domain_t::get_center());
-		base_t::m_linear_size_estimate = sqrt(dx.col(0).cross(dx.col(1)).norm() * domain_t::get_volume());
+		base_t::m_linear_size_estimate = sqrt(
+			get_normal(domain_t::get_center()).norm() * domain_t::get_volume());
 	}
 
 	/** \brief return normal vector at given location
@@ -572,8 +613,7 @@ public:
 	 */
 	x_t get_normal(xi_t const &xi) const
 	{
-		dx_t dx = base_t::get_dx(xi);
-		return dx.col(0).cross(dx.col(1));
+		return normal_impl<typename base_t::scalar_t, base_t::x_dim>::eval(base_t::get_dx(xi));
 	}
 };
 
