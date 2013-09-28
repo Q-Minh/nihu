@@ -554,10 +554,10 @@ public:
 	typedef typename base_t::domain_t domain_t;
 
 	/** \brief constructor
-	* \param [in] coords the coordinate matrix
-	* \param [in] id element id
-	* \param [in] nodes the nodal index vector
-	*/
+	 * \param [in] coords the coordinate matrix
+	 * \param [in] id element id
+	 * \param [in] nodes the nodal index vector
+	 */
 	general_surface_element(coords_t const &coords, unsigned id = 0, nodes_t const &nodes = nodes_t())
 		: base_t(coords, id, nodes)
 	{
@@ -566,9 +566,10 @@ public:
 	}
 
 	/** \brief return normal vector at given location
-	* \param [in] xi the location in the standard domain
-	* \return normal vector
-	*/
+	 * \todo Does not work for 2D elements
+	 * \param [in] xi the location in the standard domain
+	 * \return normal vector
+	 */
 	x_t get_normal(xi_t const &xi) const
 	{
 		dx_t dx = base_t::get_dx(xi);
@@ -576,6 +577,8 @@ public:
 	}
 };
 
+/** \brief quadratic 3-noded line element */
+typedef general_surface_element<line_2_shape_set, line_1_elem::space_t::scalar_t> line_2_elem;
 /** \brief quadratic 6-noded triangle element */
 typedef general_surface_element<tria_2_shape_set, tria_1_elem::space_t::scalar_t> tria_2_elem;
 /** \brief quadratic 9-noded quadrilateral element */

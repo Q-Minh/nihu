@@ -574,6 +574,83 @@ public:
 
 
 // Forward declaration
+class line_2_shape_set;
+
+/** \brief Traits for quadratic tria shapesets */
+template<>
+struct shape_set_traits<line_2_shape_set>
+{
+	/** \brief the domain type */
+	typedef line_domain domain_t;
+	/** \brief number of nodes */
+	enum {
+		num_nodes = 3,
+		polynomial_order = 2,
+		jacobian_order = 1
+	};
+};
+
+/**
+* \brief quadratic 3-noded line shape function set
+*/
+class line_2_shape_set : public shape_set_base<line_2_shape_set>
+{
+public:
+	/**
+	* \brief quadratic 3-noded line shape functions
+	* \param [in] _xi the domain variable
+	* \return the shape function vector
+	*/
+	static shape_t eval_shape(xi_t const &_xi)
+	{
+		scalar_t xi = _xi[0];
+		shape_t L;
+		L <<
+		 -xi*(1.0-xi)/2.0,
+		 1.0-xi*xi,
+		 xi*(1.0+xi)/2.0;
+		return L;
+	}
+
+	/**
+	* \brief quadratic 3-noded line shape function derivatives
+	* \param [in] _xi the domain variable
+	* \return the shape function gradient matrix
+	*/
+	static dshape_t eval_dshape(xi_t const & _xi)
+	{
+		scalar_t xi = _xi[0];
+		dshape_t dL;
+		dL <<
+		 -1.0*(1.0-xi)/2.0 + -xi*(-1.0)/2.0,
+		 -2.0*xi,
+		 1.0*(1.0+xi)/2.0 + xi*(1.0)/2.0;
+		return dL;
+	}
+
+	/** \brief return begin iterator to the corner nodes
+	* \return begin iterator to corner nodes
+	*/
+	static xi_t const *corner_begin(void)
+	{
+		return m_corners;
+	}
+
+protected:
+	/** \brief the corner nodes of the shape set */
+	static const xi_t m_corners[num_nodes];
+};
+
+line_2_shape_set::xi_t
+	const line_2_shape_set::m_corners[line_2_shape_set::num_nodes] = {
+		line_2_shape_set::xi_t::Constant(-1.0),
+		line_2_shape_set::xi_t::Constant(0.0),
+		line_2_shape_set::xi_t::Constant(1.0),
+};
+
+
+
+// Forward declaration
 class tria_2_shape_set;
 
 /** \brief Traits for quadratic tria shapesets */
