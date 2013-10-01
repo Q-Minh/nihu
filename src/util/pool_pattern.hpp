@@ -54,7 +54,7 @@ public:
 	 */
 	C const &operator[](unsigned idx) const
 	{
-		if (idx >= MaxOrder)
+		if (idx > MaxOrder)
 			throw std::out_of_range("Pool overindexing");
 		return *m_p_data[idx];
 	}

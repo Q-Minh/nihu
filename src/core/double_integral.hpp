@@ -398,6 +398,9 @@ protected:
 			typename kernel_traits<Kernel>::complexity_estimator_t
 		>::eval(test_field, trial_field);
 
+		if (degree > GLOBAL_MAX_ORDER)
+			throw std::out_of_range("Too high quadrature degree selected for collocational integration");
+
 		typedef store<field_type_accelerator_pool<
 			TestField, quadrature_family_t, GLOBAL_ACCELERATION, GLOBAL_MAX_ORDER
 		> > test_store_t;
