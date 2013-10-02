@@ -320,6 +320,15 @@ public:
 	{
 		return domain_t::get_corners();
 	}
+
+	/** \brief assign domain corner to node
+	 * \param [in] idx node index
+	 * \return the same domain index
+	 */
+	static unsigned node_to_domain_corner(unsigned idx)
+	{
+		return idx;
+	}
 };
 
 
@@ -636,9 +645,20 @@ public:
 		return m_corners;
 	}
 
+	static unsigned node_to_domain_corner(unsigned idx)
+	{
+		int ret = m_domain_indices[idx];
+		if (ret < 0)
+			throw std::out_of_range("line_2_shape_set domain corner nodes overindexed");
+		return ret;
+	}
+
 protected:
 	/** \brief the corner nodes of the shape set */
-	static const xi_t m_corners[num_nodes];
+	static xi_t const m_corners[num_nodes];
+
+	/** \brief the array of domain corner indices */
+	static int const m_domain_indices[num_nodes];
 };
 
 line_2_shape_set::xi_t
@@ -647,6 +667,8 @@ line_2_shape_set::xi_t
 		line_2_shape_set::xi_t::Constant(0.0),
 		line_2_shape_set::xi_t::Constant(1.0),
 };
+
+int const line_2_shape_set::m_domain_indices[line_2_shape_set::num_nodes] = {0, -1, 1};
 
 
 
@@ -719,9 +741,20 @@ public:
 		return m_corners;
 	}
 
+	static unsigned node_to_domain_corner(unsigned idx)
+	{
+		int ret = m_domain_corners[idx];
+		if (ret < 0)
+			throw std::out_of_range("tria_2_shape_set domain corner nodes overindexed");
+		return ret;
+	}
+
+
 protected:
 	/** \brief the corner nodes of the shape set */
-	static const xi_t m_corners[num_nodes];
+	static xi_t const m_corners[num_nodes];
+
+	static int const m_domain_corners[num_nodes];
 };
 
 tria_2_shape_set::xi_t
@@ -733,6 +766,9 @@ tria_2_shape_set::xi_t
 		tria_2_shape_set::xi_t(0.0, 1.0),
 		tria_2_shape_set::xi_t(0.0, 0.5)
 };
+
+int const tria_2_shape_set::m_domain_corners[tria_2_shape_set::num_nodes] =
+	{0, -1, 1, -1, 2, -1};
 
 
 
@@ -811,9 +847,19 @@ public:
 		return m_corners;
 	}
 
+	static unsigned node_to_domain_corner(unsigned idx)
+	{
+		int ret = m_domain_corners[idx];
+		if (ret < 0)
+			throw std::out_of_range("quad_2_shape_set domain corner nodes overindexed");
+		return ret;
+	}
+
 protected:
 	/** \brief the corner nodes of the shape set */
-	static const xi_t m_corners[num_nodes];
+	static xi_t const m_corners[num_nodes];
+
+	static int const m_domain_corners[num_nodes];
 };
 
 
@@ -829,6 +875,10 @@ quad_2_shape_set::xi_t
 		quad_2_shape_set::xi_t(-1.0, 0.0),
 		quad_2_shape_set::xi_t( 0.0, 0.0)
 };
+
+int const quad_2_shape_set::m_domain_corners[quad_2_shape_set::num_nodes] =
+	{0, -1, 1, -1, 2, -1, 3, -1, -1};
+
 
 
 #endif // SHAPESET_HPP_INCLUDED

@@ -32,6 +32,8 @@
 #include "../util/dual_range.hpp"
 #include "formalism.hpp"
 
+#include <stdexcept>
+
 /**
 * \brief a dual iterator to point to a test and a trial quadrature element
 * \tparam test_iterator_t the iterator type of the test quadrature
@@ -107,6 +109,9 @@ public:
 	/** \brief template argument as nested type */
 	typedef TrialField trial_field_t;
 
+	typedef typename test_field_t::elem_t::lset_t test_lset_t;
+	typedef typename trial_field_t::elem_t::lset_t trial_lset_t;
+
 	/** \brief test domain */
 	typedef typename test_field_t::elem_t::domain_t test_domain_t;
 	/** \brief trial domain */
@@ -164,20 +169,28 @@ public:
 				m_face_trial_quadrature.begin());
 			break;
 		case EDGE_MATCH:
+		{
+			unsigned test_domain_corner = test_lset_t::node_to_domain_corner(elem_match.get_overlap().get_ind1());
+			unsigned trial_domain_corner = trial_lset_t::node_to_domain_corner(elem_match.get_overlap().get_ind2());
 			return iterator(
-				m_edge_test_quadrature[elem_match.get_overlap().get_ind1()].begin(),
-				m_edge_trial_quadrature[elem_match.get_overlap().get_ind2()].begin());
+				m_edge_test_quadrature[test_domain_corner].begin(),
+				m_edge_trial_quadrature[trial_domain_corner].begin());
 			break;
+		}
 		case CORNER_MATCH:
+		{
+			unsigned test_domain_corner = test_lset_t::node_to_domain_corner(elem_match.get_overlap().get_ind1());
+			unsigned trial_domain_corner = trial_lset_t::node_to_domain_corner(elem_match.get_overlap().get_ind2());
 			return iterator(
-				m_corner_test_quadrature[elem_match.get_overlap().get_ind1()].begin(),
-				m_corner_trial_quadrature[elem_match.get_overlap().get_ind2()].begin());
+				m_corner_test_quadrature[test_domain_corner].begin(),
+				m_corner_trial_quadrature[trial_domain_corner].begin());
 			break;
+		}
 		case REGULAR:
-			throw("Cannot return singular quadrature for regular type");
+			throw std::logic_error("Cannot return singular quadrature for regular type");
 			break;
 		default:
-			throw("Unknown singularity type");
+			throw std::invalid_argument("Unknown singularity type");
 		}
 	}
 
@@ -195,20 +208,28 @@ public:
 				m_face_trial_quadrature.end());
 			break;
 		case EDGE_MATCH:
+		{
+			unsigned test_domain_corner = test_lset_t::node_to_domain_corner(elem_match.get_overlap().get_ind1());
+			unsigned trial_domain_corner = trial_lset_t::node_to_domain_corner(elem_match.get_overlap().get_ind2());
 			return iterator(
-				m_edge_test_quadrature[elem_match.get_overlap().get_ind1()].end(),
-				m_edge_trial_quadrature[elem_match.get_overlap().get_ind2()].end());
+				m_edge_test_quadrature[test_domain_corner].end(),
+				m_edge_trial_quadrature[trial_domain_corner].end());
 			break;
+		}
 		case CORNER_MATCH:
+		{
+			unsigned test_domain_corner = test_lset_t::node_to_domain_corner(elem_match.get_overlap().get_ind1());
+			unsigned trial_domain_corner = trial_lset_t::node_to_domain_corner(elem_match.get_overlap().get_ind2());
 			return iterator(
-				m_corner_test_quadrature[elem_match.get_overlap().get_ind1()].end(),
-				m_corner_trial_quadrature[elem_match.get_overlap().get_ind2()].end());
+				m_corner_test_quadrature[test_domain_corner].end(),
+				m_corner_trial_quadrature[trial_domain_corner].end());
 			break;
+		}
 		case REGULAR:
-			throw("Cannot return singular quadrature for regular type");
+			throw std::logic_error("Cannot return singular quadrature for regular type");
 			break;
 		default:
-			throw("Unknown singularity type");
+			throw std::invalid_argument("Unknown singularity type");
 		}
 	}
 
