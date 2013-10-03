@@ -26,6 +26,8 @@
 #define ELEMENT_MATCH_HPP_INCLUDED
 
 #include "element.hpp"
+#include "field.hpp"
+#include "formalism.hpp"
 
 /** \brief singularity types */
 enum singularity_type {
