@@ -89,7 +89,7 @@ int main(void)
 		quad_1_elem::id, 4, 5, 8, 7;
 
 
-	auto mesh = create_mesh(nodes, elements, _quad_1_tag());
+	auto mesh = create_mesh(nodes, elements, quad_1_tag());
 
 	std::cout << std::endl << "testing isoparametric galerkin case" << std::endl;
 	isoparam_galerkin_test(mesh);

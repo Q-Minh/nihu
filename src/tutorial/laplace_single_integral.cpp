@@ -29,7 +29,7 @@ int main(void)
 	nodes << 0., 0., 0., /*|*/ 1., 0., 0., /*|*/ 1., 1., 0., /*|*/ 0., 1., 0.;
 	uMatrix elements(1, 1+4);
 	elements <<	quad_1_elem::id, 0, 1, 2, 3;
-	auto msh = create_mesh(nodes, elements, _quad_1_tag());
+	auto msh = create_mesh(nodes, elements, quad_1_tag());
 //! [Mesh]
 
 //! [Function spaces]

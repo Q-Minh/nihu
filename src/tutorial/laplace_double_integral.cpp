@@ -68,7 +68,7 @@ int main(void)
 	elements << quad_1_elem::id, 0, 1, 3, 2;
 
 	// create the mesh
-	auto msh = create_mesh(nodes, elements, _tria_1_tag(), _quad_1_tag());
+	auto msh = create_mesh(nodes, elements, tria_1_tag(), quad_1_tag());
 //! [Mesh]
 
 //! [Operators]

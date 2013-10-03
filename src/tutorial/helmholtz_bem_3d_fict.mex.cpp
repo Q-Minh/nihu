@@ -32,8 +32,8 @@ void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 	dMatrix
  		surf_nodes(rhs[0]), surf_elem(rhs[1]),	
 		chief_nodes(rhs[2]), chief_elem(rhs[3]);
-	auto surf_mesh = create_mesh(surf_nodes, surf_elem, _tria_1_tag());
-	auto chief_mesh = create_mesh(chief_nodes, chief_elem, _quad_1_tag());
+	auto surf_mesh = create_mesh(surf_nodes, surf_elem, tria_1_tag());
+	auto chief_mesh = create_mesh(chief_nodes, chief_elem, quad_1_tag());
 //![Mesh]
 	
 //! [Function spaces]
