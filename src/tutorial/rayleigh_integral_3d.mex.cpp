@@ -31,8 +31,8 @@ void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 {
 //! [Meshes]
 	dMatrix surf_nodes(rhs[0]), surf_elem(rhs[1]), field_nodes(rhs[2]), field_elem(rhs[3]);
-	auto surf_mesh = create_mesh(surf_nodes, surf_elem, _quad_1_tag());
-	auto field_mesh = create_mesh(field_nodes, field_elem, _quad_1_tag());
+	auto surf_mesh = create_mesh(surf_nodes, surf_elem, quad_1_tag());
+	auto field_mesh = create_mesh(field_nodes, field_elem, quad_1_tag());
 //! [Meshes]
 
 //! [Function spaces]

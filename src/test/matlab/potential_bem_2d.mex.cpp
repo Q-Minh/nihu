@@ -30,12 +30,12 @@ void mexFunction(int nlhs, mxArray *lhs[],
 		throw("Too few input or output arguments");
 
 	dMatrix surf_nodes(rhs[0]), surf_elements(rhs[1]);
-	auto surf_mesh = create_mesh(surf_nodes, surf_elements, _line_1_tag());
+	auto surf_mesh = create_mesh(surf_nodes, surf_elements, line_1_tag());
 	auto const &trial_sp = constant_view(surf_mesh);
 	auto const &test_sp = dirac(trial_sp);
 
 	dMatrix field_nodes(rhs[2]), field_elements(rhs[3]);
-	auto field_mesh = create_mesh(field_nodes, field_elements, _line_1_tag());
+	auto field_mesh = create_mesh(field_nodes, field_elements, line_1_tag());
 	auto const &field_sp = dirac(constant_view(field_mesh));
 
 	auto L = create_integral_operator(laplace_2d_SLP_kernel());

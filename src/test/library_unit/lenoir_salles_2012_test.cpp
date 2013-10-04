@@ -54,7 +54,7 @@ int main(void)
 		tria_1_elem::id, 4, 8, 7, 0;
 
 	// create the mesh
-	auto msh = create_mesh(nodes, elements, _tria_1_tag(), _quad_1_tag());
+	auto msh = create_mesh(nodes, elements, tria_1_tag(), quad_1_tag());
 
 	// create a piecewise constant function space
 	auto const &w = constant_view(msh);
