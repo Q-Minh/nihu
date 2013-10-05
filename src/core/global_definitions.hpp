@@ -33,7 +33,7 @@ typedef acceleration::hard GLOBAL_ACCELERATION;
  * \brief the maximal order of accelerated quadratures and field type accelerators
  * \todo increase Dunavant order to avoid overindexing
  */
-unsigned const GLOBAL_MAX_ORDER = 9;
+unsigned const GLOBAL_MAX_ORDER = 14;
 /** \brief the global accuracy of integraions */
 unsigned const GLOBAL_ACCURACY = 3;
 
