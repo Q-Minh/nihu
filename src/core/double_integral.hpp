@@ -444,10 +444,13 @@ protected:
 			return singular_integral_shortcut<
 				Kernel, TestField, TrialField, singularity::corner_match_type
 				>::eval(result, kernel, test_field, trial_field, match);
-		case EDGE_MATCH:
+		case EDGE_MATCH:	// just for the warning, this case is impossible
+			;
+/*
 			return singular_integral_shortcut<
 				Kernel, TestField, TrialField, singularity::edge_match_type
 				>::eval(result, kernel, test_field, trial_field, match);
+*/
 		}
 		return eval(WITHOUT_SINGULARITY_CHECK(), result, kernel, test_field, trial_field);
 	}
@@ -541,6 +544,45 @@ public:
 		element_match const &match)
 	{
 		return eval_impl(formalism_t(), result, kernel, test_field, trial_field, match);
+	}
+};
+
+
+/** \brief trivial overload for singular_integral_shortcut for the collocation with constant test field
+ * \tparam Kernel the kernel class
+ * \tparam TestField the test field type
+ * \tparam TrialField the trial field type
+ * \tparam Singularity the singularity type
+ * \tparam Enable additional argument for std::enable_if
+ */
+template <class Kernel, class TestField, class TrialField, class Singularity>
+class singular_integral_shortcut<Kernel, TestField, TrialField, Singularity,
+	typename std::enable_if<
+		std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
+		std::is_same<typename TestField::nset_t, constant_shape_set<typename TestField::lset_t::domain_t> >::value &&
+		std::is_same<Singularity, singularity::corner_match_type>::value
+	>::type
+>
+{
+public:
+	/** \brief evaluate singular integral
+	 * \tparam result_t the result type
+	 * \param [out] result the integral result
+	 * \param [in] kernel the kernel instance
+	 * \param [in] test_field the test field instance
+	 * \param [in] trial_field the trial field instance
+	 * \param [in] match the element match information
+	 * \return reference to the integral result
+	 */
+	template <class result_t>
+	static result_t &eval(
+		result_t &result,
+		kernel_base<Kernel> const &kernel,
+		field_base<TestField> const &test_field,
+		field_base<TrialField> const &trial_field,
+		element_match const &match)
+	{
+		return result;
 	}
 };
 
