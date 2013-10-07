@@ -21,6 +21,8 @@
 #include "tmp/control.hpp"
 #include "tmp/vector.hpp"
 
+#include "library/quad_28_elem.hpp"
+
 #include <iostream>
 
 template <class ElemType>
@@ -58,7 +60,7 @@ int main(void)
 		tmp::vector<
 			line_1_elem, line_2_elem,
 			tria_1_elem, quad_1_elem,
-			tria_2_elem, quad_2_elem
+			tria_2_elem, quad_2_elem, quad_28_elem
 		>,
 		tester<tmp::_1>
 	>();
