@@ -49,13 +49,21 @@ switch type
             dN(:,:,2) = [4.*eta+4.*xi - 3,         -4.*xi, zeros(size(xi)),  4.*xi, 4.*eta - 1, 4 - 4.*xi - 8.*eta];
         end
     case 242
+%         % QUADRATIC QUAD element
+%         xi = x(:,1);
+%         eta = x(:,2);
+%         N = [ (eta.*xi.*(eta - 1).*(xi - 1))/4, -(eta.*(xi.^2 - 1).*(eta - 1))/2, (eta.*xi.*(eta - 1).*(xi + 1))/4, -(xi.*(eta.^2 - 1).*(xi + 1))/2, (eta.*xi.*(eta + 1).*(xi + 1))/4, -(eta.*(xi.^2 - 1).*(eta + 1))/2, (eta.*xi.*(eta + 1).*(xi - 1))/4, -(xi.*(eta.^2 - 1).*(xi - 1))/2, (eta.^2 - 1).*(xi.^2 - 1)];
+%         if nargout > 1
+%             dN(:,:,1) = [ (eta.*(2.*xi - 1).*(eta - 1))/4, -eta.*xi.*(eta - 1), (eta.*(2.*xi + 1).*(eta - 1))/4, -((eta.^2 - 1).*(2.*xi + 1))/2, (eta.*(2.*xi + 1).*(eta + 1))/4, -eta.*xi.*(eta + 1), (eta.*(2.*xi - 1).*(eta + 1))/4, -((eta.^2 - 1).*(2.*xi - 1))/2, 2.*xi.*(eta.^2 - 1)];
+%             dN(:,:,2) = [ (xi.*(2.*eta - 1).*(xi - 1))/4, -((2.*eta - 1).*(xi.^2 - 1))/2, (xi.*(2.*eta - 1).*(xi + 1))/4, -eta.*xi.*(xi + 1), (xi.*(2.*eta + 1).*(xi + 1))/4, -((2.*eta + 1).*(xi.^2 - 1))/2, (xi.*(2.*eta + 1).*(xi - 1))/4, -eta.*xi.*(xi - 1), 2.*eta.*(xi.^2 - 1)];
+%         end
         % QUADRATIC QUAD element
         xi = x(:,1);
         eta = x(:,2);
-        N = [ (eta.*xi.*(eta - 1).*(xi - 1))/4, -(eta.*(xi.^2 - 1).*(eta - 1))/2, (eta.*xi.*(eta - 1).*(xi + 1))/4, -(xi.*(eta.^2 - 1).*(xi + 1))/2, (eta.*xi.*(eta + 1).*(xi + 1))/4, -(eta.*(xi.^2 - 1).*(eta + 1))/2, (eta.*xi.*(eta + 1).*(xi - 1))/4, -(xi.*(eta.^2 - 1).*(xi - 1))/2, (eta.^2 - 1).*(xi.^2 - 1)];
+        N = [ -((xi - 1).*(eta - 1).*(xi + eta + 1))/4, ((xi.^2 - 1).*(eta - 1))/2, ((xi + 1).*(eta - 1).*(eta - xi + 1))/4, -((eta.^2 - 1).*(xi + 1))/2, ((xi + 1).*(eta + 1).*(xi + eta - 1))/4, -((xi.^2 - 1).*(eta + 1))/2, ((xi - 1).*(eta + 1).*(xi - eta + 1))/4, ((eta.^2 - 1).*(xi - 1))/2];
         if nargout > 1
-            dN(:,:,1) = [ (eta.*(2.*xi - 1).*(eta - 1))/4, -eta.*xi.*(eta - 1), (eta.*(2.*xi + 1).*(eta - 1))/4, -((eta.^2 - 1).*(2.*xi + 1))/2, (eta.*(2.*xi + 1).*(eta + 1))/4, -eta.*xi.*(eta + 1), (eta.*(2.*xi - 1).*(eta + 1))/4, -((eta.^2 - 1).*(2.*xi - 1))/2, 2.*xi.*(eta.^2 - 1)];
-            dN(:,:,2) = [ (xi.*(2.*eta - 1).*(xi - 1))/4, -((2.*eta - 1).*(xi.^2 - 1))/2, (xi.*(2.*eta - 1).*(xi + 1))/4, -eta.*xi.*(xi + 1), (xi.*(2.*eta + 1).*(xi + 1))/4, -((2.*eta + 1).*(xi.^2 - 1))/2, (xi.*(2.*eta + 1).*(xi - 1))/4, -eta.*xi.*(xi - 1), 2.*eta.*(xi.^2 - 1)];
+            dN(:,:,1) = [ -((2*xi + eta).*(eta - 1))/4, xi*(eta - 1), -((2*xi - eta).*(eta - 1))/4, 1/2 - eta^2/2, ((2*xi + eta).*(eta + 1))/4, -xi*(eta + 1), ((2*xi - eta).*(eta + 1))/4, eta.^2/2 - 1/2];
+            dN(:,:,2) = [ -((xi + 2*eta).*(xi - 1))/4, xi^2/2 - 1/2, -((xi - 2*eta).*(xi + 1))/4, -eta*(xi + 1), ((xi + 2*eta).*(xi + 1))/4, 1/2 - xi.^2/2, ((xi - 2*eta).*(xi - 1))/4, eta.*(xi - 1)];
         end
     case 34
         % TETRA element
