@@ -26,6 +26,8 @@
 #define SHAPESET_HPP_INCLUDED
 
 #include <iostream>
+#include <stdexcept>
+
 #include "domain.hpp"
 
 /** \brief Traits for shapesets */

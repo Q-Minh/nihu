@@ -568,19 +568,15 @@ public:
 	/** \brief evaluate singular integral
 	 * \tparam result_t the result type
 	 * \param [out] result the integral result
-	 * \param [in] kernel the kernel instance
-	 * \param [in] test_field the test field instance
-	 * \param [in] trial_field the trial field instance
-	 * \param [in] match the element match information
 	 * \return reference to the integral result
 	 */
 	template <class result_t>
 	static result_t &eval(
 		result_t &result,
-		kernel_base<Kernel> const &kernel,
-		field_base<TestField> const &test_field,
-		field_base<TrialField> const &trial_field,
-		element_match const &match)
+		kernel_base<Kernel> const &,
+		field_base<TestField> const &,
+		field_base<TrialField> const &,
+		element_match const &)
 	{
 		return result;
 	}
