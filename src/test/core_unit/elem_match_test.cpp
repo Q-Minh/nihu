@@ -53,8 +53,8 @@ int main()
 	typedef tmp::deref<tmp::begin<field_type_vector_t>::type >::type field_1_t;
 	typedef tmp::at<field_type_vector_t, tmp::integer<int, 1> >::type field_2_t;
 	
-	auto begin_1 = test_space.template field_begin<field_1_t>();
-	auto begin_2 = test_space.template field_begin<field_2_t>();
+	auto begin_1 = test_space.field_begin<field_1_t>();
+//	auto begin_2 = test_space.field_begin<field_2_t>();
 	
 	auto it = begin_1; ++it;
 	auto match = element_match_eval(*begin_1, *(it));
