@@ -16,6 +16,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * \file read_off_mesh.hpp
+ * \brief export NiHu mesh from OFF format
+ */
+
 #ifndef READ_OFF_MESH_HPP_INCLUDED
 #define READ_OFF_MESH_HPP_INCLUDED
 
