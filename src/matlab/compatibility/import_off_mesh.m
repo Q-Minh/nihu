@@ -22,15 +22,20 @@ data = fscanf(fid, '%d', 3);
 nnodes = data(1);
 nelements = data(2);
 
+% read nodes
 nodes = fscanf(fid, '%g', nnodes*3);
 nodes = reshape(nodes, 3, []).';
 
-% TODO: only tria elements are handled now
-elements = fscanf(fid, '%u', nelements*4);
-elements = reshape(elements, 4, []).';
-elements(:,2:end) = elements(:,2:end)+1;
+% read elements
+elements = zeros(nelements,0);
+for e = 1 : nelements
+	n = fscanf(fid, '%u', 1);
+	el = fscanf(fid, '%u', n);
+	elements(e,1:(1+n)) = [n el(:)'+1];
+end
 fclose(fid);
 
+% convert to NiHu format
 mesh.Nodes(:,2:4) = nodes;
 mesh.Nodes(:,1) = 1:nnodes;
 mesh.Elements(:,5:7) = elements(:,2:4);
