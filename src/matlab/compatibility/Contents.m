@@ -5,3 +5,4 @@
 %   export_gmsh_mesh - Export NiHu mesh into gmsh format.
 %   import_bulk_mesh - Import NiHu mesh from bulk file (.bdf)
 %   import_gmsh_mesh - Import NiHu mesh from gmsh file
+%   import_off_mesh  - Import NiHu mesh from off file

@@ -697,6 +697,7 @@ INPUT                  = "${CMAKE_SOURCE_DIR}/../dox/mainpage.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/tech_what_happens.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/publications.md" \
                          "${CMAKE_SOURCE_DIR}/core/" \
+                         "${CMAKE_SOURCE_DIR}/interface/" \
                          "${CMAKE_SOURCE_DIR}/util/" \
                          "${CMAKE_SOURCE_DIR}/tmp/" \
                          "${CMAKE_SOURCE_DIR}/library/" \
