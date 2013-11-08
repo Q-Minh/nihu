@@ -66,8 +66,14 @@ mesh<tmp::vector<typename tag2element<Tags>::type...> >
 	// read elements
 	uMatrix elements(nElements, 4);
 	for (unsigned i = 0; i < nElements; ++i)
+	{
 		if (!(is >> elements(i,0) >> elements(i,1) >> elements(i,2) >> elements(i,3)))
 			throw std::runtime_error("Error reading mesh elements");
+		if (elements(i,0) == 3)
+			elements(i,0) = tria_1_elem::id;
+		else if (elements(i,0) == 4)
+			elements(i,0) = quad_1_elem::id;
+	}
 
 	// close file
 	is.close();

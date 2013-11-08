@@ -1,5 +1,5 @@
 function export_gmsh_mesh(mesh, info, fname)
-% EXPORT_GMSH_MESH Export NiHu mesh into gmsh format.
+%EXPORT_GMSH_MESH Export NiHu mesh to gmsh format
 %
 % See also: EXPORT_BULK_MESH IMPORT_BULK_MESH IMPORT_GMSH_MESH
 

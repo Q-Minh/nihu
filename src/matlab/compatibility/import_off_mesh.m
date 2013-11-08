@@ -1,5 +1,5 @@
 function mesh = import_off_mesh(filename)
-%IMPORT_OFF_MESH import NiHu mesh from OFF format
+%IMPORT_OFF_MESH Import NiHu mesh from OFF format
 %   MESH = IMPORT_OFF_MESH(FILENAME) imports the NiHu mesh from OFF format.
 %
 % See also: import_gmsh_mesh import_bulk_mesh
