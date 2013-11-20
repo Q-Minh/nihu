@@ -51,7 +51,7 @@ int main()
 	typedef function_space_view<mesh_t, field_option::isoparametric>::field_type_vector_t field_type_vector_t;
 
 	typedef tmp::deref<tmp::begin<field_type_vector_t>::type >::type field_1_t;
-	typedef tmp::at<field_type_vector_t, tmp::integer<int, 1> >::type field_2_t;
+//	typedef tmp::at<field_type_vector_t, tmp::integer<int, 1> >::type field_2_t;
 	
 	auto begin_1 = test_space.field_begin<field_1_t>();
 //	auto begin_2 = test_space.field_begin<field_2_t>();
@@ -67,3 +67,4 @@ int main()
 	
 	return 0;
 }
+

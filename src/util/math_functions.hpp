@@ -50,7 +50,7 @@ namespace bessel
 
 	/** \brief small argument expansion of J_nu(z) for nu = 0, 1
 	 * \tparam nu the Bessel function's order
-	 * \param z the argument
+	 * \param [in] z the argument
 	 * \return J_nu(z)
 	 */
 	template <int nu>
@@ -71,7 +71,7 @@ namespace bessel
 
 	/** \brief small argument expansion of Y_nu(z)
 	 * \tparam nu the Bessel function's order
-	 * \param z the argument
+	 * \param [in] z the argument
 	 * \return Y_nu(z)
 	 */
 	template <int nu>
@@ -82,18 +82,18 @@ namespace bessel
 	{
 		int const N = 15;
 
-		std::complex<double> q(-z*z/4.0);
+		std::complex<double> q(z/2.0), q2(q*q);
 		std::complex<double> sum(0.0), ss(-1.0);
 		double a(0.0);
 
 		for (int k = 1; k <= N; ++k)
 		{
 			a += 1.0/k;
-			ss *= q*(1.0/k/k);
+			ss *= -q2*(1.0/k/k);
 			sum += a*ss;
 		}
 
-		return 2.0/M_PI*( (std::log(z/2.0)+gamma)*J_small<0>(z) + sum );
+		return 2.0/M_PI*( (std::log(q)+gamma)*J_small<0>(z) + sum );
 	}
 
 	template <>
@@ -123,7 +123,7 @@ namespace bessel
 
 	/** \brief large argument expansion of H^(2)_nu(z)
 	 * \tparam nu the Bessel function's order
-	 * \param z the argument
+	 * \param [in] z the argument
 	 * \return H^(2)_nu(z)
 	 */
 	template <int nu>
@@ -144,7 +144,7 @@ namespace bessel
 
 	/** \brief H^(2)_nu(z) Bessel function
 	 * \tparam nu the Bessel function's order
-	 * \param z the argument
+	 * \param [in] z the argument
 	 * \return H^(2)_nu(z)
 	 */
 	template <int nu>
