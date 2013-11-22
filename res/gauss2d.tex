@@ -37,12 +37,12 @@ G(r) = -\frac{\ln |r|}{2\pi}
 \frac{\partial}{\partial z}
 \int_{-d_1}^{d_2} 
 \frac{-1}{2\pi r} \frac{(y, -z) \cdot (0,1)}{r}
-\td y \\
+\td y \nonumber \\
 &=
 \frac{1}{2\pi} \frac{\partial}{\partial z}
 \int_{-d_1}^{d_2} 
 \frac{z}{\left(y^2+z^2\right)}
-\td y \\
+\td y \nonumber \\
 &=
 \frac{1}{2\pi} \frac{\partial}{\partial z}
 \left[
@@ -50,19 +50,19 @@ G(r) = -\frac{\ln |r|}{2\pi}
 -
 \tan^{-1}\left(-d_1/z\right)
 \right]
-\\
+\nonumber \\
 &=
 \frac{1}{2\pi} \frac{\partial}{\partial z}
 \left[
 \tan^{-1}\left(d_2/z\right) + \tan^{-1}\left(d_1/z\right)
 \right]
-\\
+\nonumber \\
 &=
 \frac{1}{2\pi} 
 \left[
 \frac{-d_2}{d_2^2+z^2} + \frac{-d_1}{d_1^2+z^2}
 \right]
-\\
+\nonumber \\
 & \to
 \frac{-1}{2\pi} 
 \left[
@@ -136,14 +136,14 @@ G(r)
 \frac{-1}{4\pi \left(r^2_{2D} + z^2\right)}
 \frac{({\bf r}_{2D},-z)\cdot({\bf 0},1)}{\sqrt{r^2_{2D} + z^2}}
 \td {\bf y}
-\\
+\nonumber \\
 &=
 \frac{1}{4\pi}
 \frac{\partial}{\partial z}
 \int
 \frac{z}{\left(r^2_{2D} + z^2\right)^{3/2}}
 \td {\bf y}
-\\
+\nonumber \\
 &=
 \frac{1}{4\pi}
 \frac{\partial}{\partial z}
@@ -152,7 +152,7 @@ G(r)
 \frac{r_{2D} z}{\left(r^2_{2D} + z^2\right)^{3/2}}
 \td r_{2D}
 \td \theta
-\\
+\nonumber \\
 &=
 \frac{-1}{4\pi}
 \frac{\partial}{\partial z}
@@ -163,14 +163,14 @@ G(r)
 1
 \right)
 \td \theta
-\\
+\nonumber \\
 &=
 \frac{-1}{4\pi}
 \int_{0}^{2\pi}
 \frac{\partial}{\partial z}
 \frac{z}{\sqrt{R(\theta)^2 + z^2}}
 \td \theta
-\\
+\nonumber \\
 &=
 \frac{-1}{4\pi}
 \int_{0}^{2\pi}
@@ -178,7 +178,7 @@ G(r)
 \frac{\sqrt{R(\theta)^2 + z^2} - \frac{z}{2\sqrt{R(\theta)^2 + z^2}}}{R(\theta)^2 + z^2}
 \right)
 \td \theta
-\\
+\nonumber \\
 &\to
 \frac{-1}{4\pi}
 \int_{0}^{2\pi}
@@ -213,11 +213,7 @@ J_0(z) &= \sum_{n=0}^{\infty} (-1)^n \frac{q^{2n}}{\left(n!\right)^2} \\
 Y_0(z) &= \frac{2}{\pi} \left[
 	\left(\ln q +\gamma\right)J_0(z)
 	-
-	\sum_{n=1}^{\infty} \left(
-		(-1)^{n}
-		b_n
-		\frac{q^{2n}}{\left(n!\right)^2}
-	\right)
+	\sum_{n=1}^{\infty} (-1)^{n} b_n \frac{q^{2n}}{\left(n!\right)^2}
 \right]
 \end{align}
 %
