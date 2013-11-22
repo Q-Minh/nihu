@@ -6,6 +6,7 @@ function export_off_mesh(mesh, fname)
 elements = elements(:,1:find(any(elements,1), 1, 'last'));
 
 elements(elements == 32404) = 4;
+elements(elements == 32303) = 3;
 
 fid = fopen(fname, 'wt');
 if fid == -1
@@ -15,7 +16,10 @@ end
 fprintf(fid, 'OFF\n');
 fprintf(fid, '%d %d 0\n', size(nodes,1), size(elements,1));
 fprintf(fid, '%g %g %g\n', nodes.');
-fprintf(fid, [repmat('%u ', 1, size(elements,2)) '\n'], elements.');
+for e = 1 : size(elements,1)
+    n = elements(e,1);
+    fprintf(fid, [repmat('%u ', 1, n+1) '\n'], elements(e,1:n+1));
+end
 
 fclose(fid);
 end

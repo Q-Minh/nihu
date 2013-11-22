@@ -61,6 +61,41 @@ public:
 	}
 };
 
+/** \brief Collocational singular integral of the 2d SLP kernel over a constant line
+ * \tparam TestField the test field type
+ * \tparam TrialField the trial field type
+ */
+template <class WaveNumber, class TestField, class TrialField>
+class singular_integral_shortcut<
+	helmholtz_2d_SLP_kernel<WaveNumber>, TestField, TrialField, singularity::face_match_type,
+	typename std::enable_if<
+		std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
+		std::is_same<typename TrialField::lset_t, line_1_shape_set>::value &&
+		std::is_same<typename TrialField::nset_t, line_0_shape_set>::value
+	>::type
+>
+{
+public:
+	/** \brief evaluate singular integral
+	 * \tparam result_t the result matrix type
+	 * \param [in, out] result reference to the result
+	 * \param [in] kernel the kernel instance
+	 * \param [in] trial_field the test and trial fields
+	 * \return reference to the result matrix
+	 */
+	template <class result_t>
+	static result_t &eval(
+		result_t &result,
+		kernel_base<helmholtz_2d_SLP_kernel<WaveNumber> > const &kernel,
+		field_base<TestField> const &,
+		field_base<TrialField> const &trial_field,
+		element_match const &)
+	{
+		return result;
+	}
+};
+
+
 /** \brief store-wrapper of a statically stored quadrature */
 template <unsigned order>
 struct tria_quad_store
