@@ -26,7 +26,9 @@
 #define GLOBAL_DEFINITIONS_HPP_INCLUDED
 
 #ifdef WIN32
-#define constexpr 
+#define CONSTEXPR
+#else
+#define CONSTEXPR constexpr
 #endif
 
 #include "field_type_acceleration_option.hpp"

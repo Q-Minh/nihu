@@ -173,7 +173,7 @@ public:
 	/** \brief specialisation of single_integral::eval for the empty case
 	 * \return the empty result matrix
 	 */
-	static constexpr result_t eval(
+	static CONSTEXPR result_t eval(
 		field_base<TestField> const &,
 		field_base<TrialField> const &)
 	{
@@ -193,7 +193,7 @@ class single_integral<TestField, TrialField,
 		std::is_same<
 			typename TestField::elem_t,
 			typename TrialField::elem_t
-		>::type::value
+		>::value
 	>::type
 > :	public single_integral_impl<TestField, TrialField> {};
 

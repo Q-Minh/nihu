@@ -35,7 +35,7 @@ struct empty_wall
 
 	/** \brief empty constructor from anything */
 	template <class...Args>
-	empty_wall(Args...)
+	empty_wall(Args const &...)
 	{
 	}
 };

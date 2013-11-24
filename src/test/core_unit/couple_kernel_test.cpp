@@ -30,7 +30,7 @@ int main(void)
 	);
 
 	// create an element
-	typename quad_1_elem::coords_t coords;
+	quad_1_elem::coords_t coords;
 	coords <<
 		0, 1, 1, 0,
 		0, 0, 1, 1,

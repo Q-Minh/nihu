@@ -59,7 +59,7 @@ namespace bessel
 		static_assert(nu == 0 || nu == 1, "unimplemented Bessel J order");
 
 		// upper limit for 1e-8 error
-		int N = 3+2.0*std::abs(z);
+		int N = (int)(3+2.0*std::abs(z));
 
 		std::complex<double> res(1.0), q(z*z/4.0);
 		for (int n = N; n > 0; --n)
