@@ -78,7 +78,7 @@ namespace tmp
 	template <class N, class M> struct less;
 
 	template <class T, T N, T M>
-	struct less<integer<T, N>, integer<T, M> > : std::integral_constant<bool, N < M> {};
+	struct less<integer<T, N>, integer<T, M> > : std::integral_constant<bool, (N<M) > {};
 
 	/**
 	 * \brief metafunction returning true if first is greater than second
@@ -86,7 +86,7 @@ namespace tmp
 	template <class N, class M> struct greater;
 
 	template <class T, T N, T M>
-	struct greater<integer<T, N>, integer<T, M> > : std::integral_constant<bool, !(N <= M)> {};
+	struct greater<integer<T, N>, integer<T, M> > : std::integral_constant<bool, (N>M) > {};
 
 
 	/** \brief compute maximum value of integral constants

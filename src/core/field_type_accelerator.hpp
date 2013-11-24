@@ -25,6 +25,7 @@
 #ifndef FIELD_TYPE_ACCELERATOR_HPP_INCLUDED
 #define FIELD_TYPE_ACCELERATOR_HPP_INCLUDED
 
+#include "global_definitions.hpp"
 #include "field_type_acceleration_option.hpp"
 #include "field.hpp"
 #include "quadrature.hpp"

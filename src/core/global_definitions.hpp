@@ -25,6 +25,10 @@
 #ifndef GLOBAL_DEFINITIONS_HPP_INCLUDED
 #define GLOBAL_DEFINITIONS_HPP_INCLUDED
 
+#ifdef WIN32
+#define constexpr 
+#endif
+
 #include "field_type_acceleration_option.hpp"
 
 /** \brief acceleration::soft or acceleration::hard */
