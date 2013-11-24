@@ -91,6 +91,28 @@ public:
 		field_base<TrialField> const &trial_field,
 		element_match const &)
 	{
+        std::complex<double> const c(0.57721566490153286060, M_PI/2);
+        unsigned const N = 5;
+
+		// compute elem radius
+		auto const &elem = trial_field.get_elem();
+		auto R = (elem.get_center() - elem.get_coords().col(0)).norm();
+
+		auto Q = kernel.get_data().get_wave_number() * R / 2.0;
+        auto clnq = c + std::log(Q);
+
+        auto res(clnq-1.0);		// initial (k=0) value of the result
+        decltype(Q) B(1.0);	// the power term in the series
+        double bn = 0.0;		// the harmonic series up to n = 0
+        for (unsigned n = 1; n < N; ++n)
+        {
+			B *= -Q*Q/n/n;		// the actual power term
+			bn += 1.0/n;		// the actual harmonic term
+			res += B/(2*n+1) * (clnq - bn - 1.0/(2*n+1));
+        }
+
+		result(0,0) = -R / M_PI * res;
+
 		return result;
 	}
 };
