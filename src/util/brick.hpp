@@ -106,9 +106,9 @@ struct merge<wall> : wall {};
  * \tparam wall a wall
  * \return a wall with the brick on the top
  */
-template <template <class T> class brick, class wall = empty_wall>
+template <template <class T> class _brick, class wall = empty_wall>
 struct glue :
-	public brick<wall>
+	public _brick<wall>
 {
 	/** \brief self-returning metafunction */
 	typedef glue type;
@@ -119,7 +119,7 @@ struct glue :
 	 * \return the new wall with the brick on top
 	 */
 	template <class newWall>
-	struct wrap : glue<brick, newWall> {};
+	struct wrap : glue<_brick, newWall> {};
 
 	/** constructor of wrapper class
 	 * \tparam Args arbitrary parameter types
@@ -127,7 +127,7 @@ struct glue :
 	 */
 	template <class...Args>
 	glue(Args const &...args) :
-		brick<wall>(args...)
+		_brick<wall>(args...)
 	{
 	}
 };
