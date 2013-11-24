@@ -24,11 +24,12 @@
 #ifndef INTERVAL_HPP_INCLUDED
 #define INTERVAL_HPP_INCLUDED
 
-#include "tmp/integer.hpp"
+#include "../core/global_definitions.hpp"
 #include <ratio>
 #include <stdexcept>
-#include "tmp/vector.hpp"
-#include "tmp/algorithm.hpp"
+#include "integer.hpp"
+#include "vector.hpp"
+#include "algorithm.hpp"
 
 /** \brief define exa as the infinite */
 typedef std::exa ratio_infinite;
@@ -163,5 +164,5 @@ int eval_interval<tmp::vector<> >(double)
 	throw std::out_of_range("cannot determine interval value");
 }
 
-
 #endif // INTERVAL_HPP_INCLUDED
+
