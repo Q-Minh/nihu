@@ -31,8 +31,8 @@
 #include "vector.hpp"
 #include "algorithm.hpp"
 
-/** \brief define exa as the infinite */
-typedef std::exa ratio_infinite;
+/** \brief define giga as the infinite as it fits into 32 bits */
+typedef std::giga ratio_infinite;
 
 /**
  * \brief a break point consisting of a X and a Y value

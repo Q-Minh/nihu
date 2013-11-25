@@ -164,11 +164,19 @@ template <class...outputs>
 class couple_output :
 	public merge<outputs...>::type
 {
+private:
+	/** \brief this metafunction is an msvc workaround for variadic templates */
+	template <class T>
+	struct result_mf
+	{
+		typedef typename T::result_t type;
+	};
+
 public:
 	/** \brief the base type */
 	typedef typename merge<outputs...>::type base_t;
 	/** \brief the merged output type */
-	typedef couple<typename outputs::result_t...> result_t;
+	typedef couple<typename result_mf<outputs>::type...> result_t;
 
 	/** \brief constructor
 	 * \tparam test_input_t the test input type
@@ -207,6 +215,12 @@ class couple_kernel;
 template <class...Kernels>
 struct kernel_traits<couple_kernel<Kernels...> >
 {
+private:
+	template <class K>
+	struct sing_order_constant : std::integral_constant<unsigned, K::singularity_order> {};
+	template <class K>
+	struct sing_quad_order_constant : std::integral_constant<unsigned, K::singular_quadrature_order> {};
+public:
 	/** \brief type of the first (test) kernel input */
 	typedef typename merge<typename kernel_traits<Kernels>::test_input_t...>::type test_input_t;
 	/** \brief type of the second (trial) kernel input */
@@ -228,13 +242,9 @@ struct kernel_traits<couple_kernel<Kernels...> >
 		std::integral_constant<bool, kernel_traits<Kernels>::is_symmetric>...
 	>::value;
 	/** \brief the singularity order ( r^(-order) ) */
-	static unsigned const singularity_order = tmp::max_<
-		std::integral_constant<unsigned, kernel_traits<Kernels>::singularity_order>...
-	>::value;
+	static unsigned const singularity_order = tmp::max_<typename sing_order_constant<Kernels>::type...>::value;
 	/** \brief the quadrature order used for the generation of Duffy type singular quadratures */
-	static unsigned const singular_quadrature_order = tmp::max_<
-		std::integral_constant<unsigned, kernel_traits<Kernels>::singular_quadrature_order>...
-	>::value;
+	static unsigned const singular_quadrature_order = tmp::max_<typename sing_quad_order_constant<Kernels>::type...>::value;
 	/** \brief the kernel complexity estimator class */
 	typedef typename merge_kernel_complexity_estimators<
 		typename kernel_traits<Kernels>::complexity_estimator_t...

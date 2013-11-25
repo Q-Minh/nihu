@@ -18,40 +18,36 @@
 
 #include "library/helmholtz_kernel.hpp"
 #include <iostream>
-#include <chrono>
-
-unsigned const N = 1000;
 
 template <class kernel>
 void tester(kernel_base<kernel> const &k)
 {
-	line_1_elem::coords_t coords;
-	coords <<
+	line_1_elem::coords_t coords1;
+	coords1 <<
 		0, 1,
 		0, 0;
+	line_1_elem::coords_t coords2;
+	coords2 <<
+		1, 2,
+		1, 1;
 
-	line_1_elem elem(coords);
-	auto xi1 = line_1_elem::domain_t::get_corner(0);
-	auto xi2 = line_1_elem::domain_t::get_corner(1);
+	line_1_elem elem1(coords1);
+	line_1_elem elem2(coords2);
+	auto xi1 = line_1_elem::domain_t::get_center();
+	auto xi2 = line_1_elem::domain_t::get_center();
 
-	auto start = std::chrono::steady_clock::now();
-	for (unsigned n = 0; n < N; ++n)
-	{
-		typename kernel_base<kernel>::test_input_t x(elem, xi1);
-		typename kernel_base<kernel>::trial_input_t y(elem, xi2);
-		k(x,y);
-	}
-	auto stop = std::chrono::steady_clock::now();
-	auto diff = stop - start;
-	std::cout << std::chrono::duration<double, std::micro>(diff).count() << " usec" << std::endl;
+	typename kernel_base<kernel>::test_input_t x(elem1, xi1);
+	typename kernel_base<kernel>::trial_input_t y(elem2, xi2);
+	std::cout << k(x,y) << std::endl;
 }
 
 int main(void)
 {
-	std::cout << N << " evaluations: " << std::endl;
-
+	double wave_number(1.0);
 	std::cout << "helmholtz G kernel";
-	tester(helmholtz_2d_SLP_kernel<double>(1.0));
+	tester(helmholtz_2d_SLP_kernel<double>(wave_number));
+	std::cout << "helmholtz H kernel";
+	tester(helmholtz_2d_DLP_kernel<double>(wave_number));
 
 	return 0;
 }
