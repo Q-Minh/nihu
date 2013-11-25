@@ -36,12 +36,17 @@ void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 	auto const &field_sp = dirac(constant_view(field_mesh));
 	int m = field_sp.get_num_dofs();
 
-	cMatrix Ls(n, n, lhs[0]), Lf(m, n, lhs[1]);
+	cMatrix Ls(n, n, lhs[0]), Lf(m, n, lhs[2]);
+	cMatrix Ms(n, n, lhs[1]), Mf(m, n, lhs[3]);
 
 	double k = *mxGetPr(rhs[4]);
+	auto I = identity_integral_operator();
 	auto L = create_integral_operator(helmholtz_2d_SLP_kernel<double>(k));
+	auto M = create_integral_operator(helmholtz_2d_DLP_kernel<double>(k));
 
 	Ls << dirac(surf_sp) * L[surf_sp];
+	Ms << dirac(surf_sp) * (M[surf_sp] + (-.5*I)[surf_sp]);
 	Lf  << field_sp * L[surf_sp];
+	Mf  << field_sp * M[surf_sp];
 }
 

@@ -37,9 +37,16 @@ template <template< class WaveNumber> class Kernel, class WaveNumber, class Test
 class singular_integral_shortcut<
 	Kernel<WaveNumber>, TestField, TrialField, singularity::face_match_type,
 	typename std::enable_if<
+		(
 		( std::is_same<Kernel<WaveNumber>, helmholtz_3d_DLP_kernel<WaveNumber> >::value ||
 		  std::is_same<Kernel<WaveNumber>, helmholtz_3d_DLPt_kernel<WaveNumber> >::value
 		) && std::is_same<typename TrialField::lset_t, tria_1_shape_set>::value
+		)
+		||
+		(
+		std::is_same<Kernel<WaveNumber>, helmholtz_2d_DLP_kernel<WaveNumber> >::value
+		&& std::is_same<typename TrialField::lset_t, line_1_shape_set>::value
+		)
 	>::type
 >
 {

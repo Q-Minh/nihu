@@ -15,7 +15,9 @@ ps(:,1) = repmat(A0,length(r),1).*(besselj(0,k*r)+1i*bessely(0,k*r));
 
 gm = atan((besselj(mm-1,k*a)-besselj(mm+1,k*a))./(bessely(mm+1,k*a)-bessely(mm-1,k*a)));
 Am = -2*1i.^(mm+1).*exp(-1i*gm).*sin(gm);
-ps(:,2:end) = repmat(Am,length(r),1).*cos(phi*mm).*(besselj(mm,k*r)+1i*bessely(mm,k*r));
+ps(:,2:end) = repmat(Am,length(r),1).*cos(phi*mm).*...
+    (besselj(repmat(mm, length(r),1),repmat(k*r, 1, m))+...
+    1i*bessely(repmat(mm, length(r), 1),repmat(k*r, 1, m)));
 
 ps = sum(ps,2);
 

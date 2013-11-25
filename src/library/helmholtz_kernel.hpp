@@ -449,8 +449,8 @@ struct helmholtz_3d_h_brick
 		{
 		}
 
-		/** \brief return helmholtz g kernel
-		 * \return helmholtz g kernel
+		/** \brief return helmholtz h kernel
+		 * \return helmholtz h kernel
 		 */
 		result_t const &get_helmholtz_h(void) const
 		{
