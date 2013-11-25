@@ -212,7 +212,7 @@ struct kernel_traits<couple_kernel<Kernels...> >
 	/** \brief type of the second (trial) kernel input */
 	typedef typename merge<typename kernel_traits<Kernels>::trial_input_t...>::type trial_input_t;
 	/** \brief the data type */
-	typedef typename merger<typename Kernels::data_t...>::ret_type data_t;
+	typedef typename merger<typename kernel_traits<Kernels>::data_t...>::ret_type data_t;
 	/** \brief type of the kernel output (not the result) */
 	typedef couple_output<typename kernel_traits<Kernels>::output_t...> output_t;
 	/** \brief type of the kernel's result */
