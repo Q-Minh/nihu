@@ -135,7 +135,7 @@ struct kernel_traits<laplace_2d_SLP_kernel>
 	> complexity_estimator_t;
 };
 
-/** \brief 2D laplace kernel \f$ -\ln r/2\pi \f$ */
+/** \brief Single layer potential kernel of the Laplace equation in 2D \f$ -\ln r/2\pi \f$ */
 class laplace_2d_SLP_kernel :
 	public kernel_base<laplace_2d_SLP_kernel>
 {
@@ -242,7 +242,7 @@ struct kernel_traits<laplace_2d_DLP_kernel>
 	> complexity_estimator_t;
 };
 
-/** \brief 2D laplace kernel \f$ -1/2\pi r \cdot r'_{n_y} \f$ */
+/** \brief Double layer potential kernel of the Laplace equation in 2D \f$ -1/2\pi r \cdot r'_{n_y} \f$ */
 class laplace_2d_DLP_kernel :
 	public kernel_base<laplace_2d_DLP_kernel>
 {
@@ -348,7 +348,7 @@ struct kernel_traits<laplace_2d_DLPt_kernel>
 	> complexity_estimator_t;
 };
 
-/** \brief 2D laplace kernel \f$ -1/2\pi r \cdot r'_{n_x} \f$ */
+/** \brief Transpose double layer potential kernel of the Laplace equation in 2D \f$ -1/2\pi r \cdot r'_{n_x} \f$ */
 class laplace_2d_DLPt_kernel :
 	public kernel_base<laplace_2d_DLPt_kernel>
 {
@@ -459,7 +459,7 @@ struct kernel_traits<laplace_2d_HSP_kernel>
 	> complexity_estimator_t;
 };
 
-/** \brief 2D laplace kernel \f$ \dots \f$ */
+/** \brief Hypersingular kernel of the Laplace equation in 2D \f$ \dots \f$ */
 class laplace_2d_HSP_kernel :
 	public kernel_base<laplace_2d_HSP_kernel>
 {
@@ -780,7 +780,7 @@ struct kernel_traits<laplace_3d_DLPt_kernel>
 	> complexity_estimator_t;
 };
 
-/** \brief 3D laplace derivative kernel \f$ -1/4\pi r^2 \cdot r'_{n_x} \f$ */
+/** \brief Transposed double layer potential kernel of the Laplace equation in 3D \f$ -1/4\pi r^2 \cdot r'_{n_x} \f$ */
 class laplace_3d_DLPt_kernel :
 	public kernel_base<laplace_3d_DLPt_kernel>
 {
@@ -892,7 +892,7 @@ struct kernel_traits<laplace_3d_HSP_kernel>
 	> complexity_estimator_t;
 };
 
-/** \brief 3D laplace derivative kernel \f$ 1/4\pi r^3 \cdot \left( n_x n_y + 3 r'_{n_x} r'_{n_y} \right) \f$ */
+/** \brief Hypersingular kernel of the Laplace equation in 3D \f$ 1/4\pi r^3 \cdot \left( n_x n_y + 3 r'_{n_x} r'_{n_y} \right) \f$ */
 class laplace_3d_HSP_kernel :
 	public kernel_base<laplace_3d_HSP_kernel>
 {

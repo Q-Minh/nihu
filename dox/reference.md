@@ -33,6 +33,9 @@ Fields and FieldViews {#reference_func_space_fields}
 Kernel Evaluation {#reference_kernel}
 =================
 
+Laplace equation
+----------------
+
 - ::laplace_2d_SLP_kernel
 - ::laplace_2d_DLP_kernel
 - ::laplace_2d_DLPt_kernel
@@ -42,6 +45,9 @@ Kernel Evaluation {#reference_kernel}
 - ::laplace_3d_DLP_kernel
 - ::laplace_3d_DLPt_kernel
 - ::laplace_3d_HSP_kernel
+
+Helmholtz equation
+------------------
 
 - ::helmholtz_2d_SLP_kernel
 - ::helmholtz_2d_DLP_kernel
