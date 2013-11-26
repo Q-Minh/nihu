@@ -22,6 +22,6 @@ ps(:,2:end) = repmat(Am,length(r),1).*cos(phi*mm).*...
     (besselj(repmat(mm, length(r),1),repmat(k*r, 1, m))+...
     1i*bessely(repmat(mm, length(r), 1),repmat(k*r, 1, m)));
 
-ps = sum(ps,2);
+ps = conj(sum(ps,2));
 
 end
