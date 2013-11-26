@@ -109,7 +109,7 @@ public:
         auto clnq = c + std::log(Q);
 
         auto res(clnq-1.0);		// initial (k=0) value of the result
-        decltype(Q) B(1.0);	// the power term in the series
+        decltype(Q) B(1.0);		// the power term in the series
         double bn = 0.0;		// the harmonic series up to n = 0
         for (unsigned n = 1; n < N; ++n)
         {

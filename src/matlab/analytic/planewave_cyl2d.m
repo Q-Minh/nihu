@@ -1,10 +1,13 @@
-function [ps] = planewave_cyl2d(r, phi, a, k, m)
+function ps = planewave_cyl2d(x, a, k, m)
+%PLANEWAVE_CYL2D scattering of an acoustic plane wave from a cylinder
+%   ps = PLANEWAVE_CYL2D(X, A, K, M) computes the acoustic wave field
+%   scattered from a rigid cylinder of radius A at a wave number K. The
+%   scattered field is computed in points described by the rows of matrix X
 
 % Simulate planewave reflection from cylinder
 % Copyright 2011-2012 Bence Olteán.
 
-% TODO: - add help and variable explanation
-%       - add variable position for cylinder and plane wave incident angle
+[phi, r] = cart2pol(x(:,1), x(:,2));
 
 mm = 1:m;
 ps = zeros(length(r),m+1);

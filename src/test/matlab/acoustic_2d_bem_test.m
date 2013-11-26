@@ -3,7 +3,7 @@ clear
 %% create meshes
 R0 = 1;
 R1 = 2;
-N = 200;
+N = 500;
 
 radiator = create_circle_boundary(R0, N);
 field_mesh = create_circle_boundary(R1, N);
@@ -16,13 +16,13 @@ field_mesh = create_circle_boundary(R1, N);
 
 %% wave number and system matrices
 kmax = min(mesh_kmax(radiator));
-k = .2 * kmax;
+k = .9 * kmax;
 
 tic;
 [Ls, Ms, Lf, Mf] = acoustic_2d_bem(r_nodes, r_elements, f_nodes, f_elements, k);
 t_Booni = toc;
 
-%% plane wave scattering
+%% Surgyelan test
 
 dir = [1 0 0];
 dir = dir / norm(dir);
@@ -37,17 +37,17 @@ ptot_s = pinc_s + pref_s;
 pref_f = Mf * pref_s - Lf * qref_s;
 ptot_f = pinc_f + pref_f;
 
-rf = sqrt(dot(xf,xf,2));
-phif = atan2(xf(:,2), xf(:,1));
-ptot_f_anal = planewave_cyl2d(rf, phif, R0, k, 30);
+[phif, rf] = cart2pol(xf(:,1),xf(:,2));
+pref_f_anal = conj(planewave_cyl2d(rf, phif, R0, k, 100));
+ptot_f_anal = pinc_f + pref_f_anal;
 
-plot(atan2(xf(:,2), xf(:,1)), abs(ptot_s), '.', ...
+plot(atan2(xf(:,2), xf(:,1)), abs(ptot_f), '.', ...
     atan2(xf(:,2), xf(:,1)), abs(ptot_f_anal), '.');
 xlabel('angle [rad]');
 ylabel('scattered field');
-legend('NiHu', 'Oltean');
+legend('NiHu', 'Surgyelan');
 
-%% 
+%% Transparent test
 x0 = [.2 -.1 0];
 
 [ps_anal, qs] = incident('line', x0, xs, ns, k);
@@ -57,10 +57,10 @@ ps = Ms \ (Ls * qs);
 pf = Mf * ps - Lf * qs;
 
 figure;
-plot(atan2(xs(:,2), xs(:,1)), abs(ps), '.', ...
-    atan2(xs(:,2), xs(:,1)), abs(ps_anal), '.', ...
-    atan2(xf(:,2), xf(:,1)), abs(pf), '.', ...
-    atan2(xf(:,2), xf(:,1)), abs(pf_anal), '.');
+plot(atan2(xs(:,2), xs(:,1)), real(ps), '.', ...
+    atan2(xs(:,2), xs(:,1)), real(ps_anal), '.', ...
+    atan2(xf(:,2), xf(:,1)), real(pf), '.', ...
+    atan2(xf(:,2), xf(:,1)), real(pf_anal), '.');
 xlabel('angle [rad]');
 ylabel('scattered field');
 legend('NiHu surface', 'Analytic', 'NiHu field', 'Analytic');
@@ -69,20 +69,20 @@ legend('NiHu surface', 'Analytic', 'NiHu field', 'Analytic');
 
 [gx, nx, w, i] = geo2gauss(radiator, 3);
 T = sparse(1:length(w), i, w);
-[L, M] = incident('line', xf, gx, nx, k);
+[L, M] = incident('line', xs, gx, nx, k);
 L = L.' * T;
 M = M.' * T;
 
 figure;
 
 subplot(1,2,1);
-pcolor(log10(abs(L./Lf-1)));
+surf(log10(abs(L./Ls-1)));
 shading interp;
 view(2);
 colorbar;
 
 subplot(1,2,2);
-pcolor(log10(abs(M./Mf-1)));
+surf(log10(abs((M-.5*speye(size(M)))./Ms-1)));
 shading interp;
 view(2);
 colorbar;
