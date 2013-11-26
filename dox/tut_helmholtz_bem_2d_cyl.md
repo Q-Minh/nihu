@@ -60,7 +60,7 @@ The C++ code {#tut_helmholtz_bem_2d_cyl_cpp}
 
 The C++ code is going to be called from Matlab as
 
-	[Ls, Ms, Lf, Mf] = helmholtz_bem_2d_cyl(
+	[Ls, Ms, Lf, Mf] = helmholtz_bem_2d_cyl(...
 	    surf_nodes, surf_elements, field_nodes, field_elements, wave_number);
 	
 \note The computed surface system matrix `Ms` will contain the discretised identity operator too, as required by the conventional BEM formalisms.

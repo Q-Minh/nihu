@@ -43,6 +43,9 @@ Kernel Evaluation {#reference_kernel}
 - ::laplace_3d_DLPt_kernel
 - ::laplace_3d_HSP_kernel
 
+- ::helmholtz_2d_SLP_kernel
+- ::helmholtz_2d_DLP_kernel
+
 - ::helmholtz_3d_SLP_kernel
 - ::helmholtz_3d_DLP_kernel
 - ::helmholtz_3d_DLPt_kernel

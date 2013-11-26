@@ -524,7 +524,7 @@ struct kernel_traits<helmholtz_2d_DLP_kernel<wave_number_t> >
 };
 
 
-/** \brief Double layer potential kernel of the Helmholtz equation in 3D \f$ \exp(-ikr)/4\pi r \left(-(1+ikr)/r\right) \cdot r'_{n_y} \f$ */
+/** \brief Double layer potential kernel of the Helmholtz equation in 2D \f$ ik/4 H_1(kr) \cdot r'_{n_y} \f$ */
 template <class wave_number_t>
 class helmholtz_2d_DLP_kernel :
 	public kernel_base<helmholtz_2d_DLP_kernel<wave_number_t> >
