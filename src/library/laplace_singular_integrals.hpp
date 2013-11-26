@@ -28,7 +28,7 @@
 #include "laplace_kernel.hpp"
 #include "plane_triangle_helper.hpp"
 
-/** \brief Singular integrals of the DLP and DLPt kernels over a plane elements
+/** \brief Singular integrals of the DLP and DLPt kernels over plane elements
  * \tparam Formalism the integration formalism (collocational or general)
  * \tparam Kernel the kernel type the test field type
  * \tparam TestField the test field type
