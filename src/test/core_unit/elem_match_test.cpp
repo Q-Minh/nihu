@@ -1,3 +1,21 @@
+// This file is a part of NiHu, a C++ BEM template library.
+// 
+// Copyright (C) 2012-2013  Peter Fiala <fiala@hit.bme.hu>
+// Copyright (C) 2012-2013  Peter Rucz <rucz@hit.bme.hu>
+// 
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 #include "core/mesh.hpp"
 #include "core/element.hpp"
 #include "core/element_match.hpp"
@@ -51,7 +69,7 @@ int main()
 	typedef function_space_view<mesh_t, field_option::isoparametric>::field_type_vector_t field_type_vector_t;
 
 	typedef tmp::deref<tmp::begin<field_type_vector_t>::type >::type field_1_t;
-	typedef tmp::at<field_type_vector_t, tmp::integer<int, 1> >::type field_2_t;
+//	typedef tmp::at<field_type_vector_t, tmp::integer<int, 1> >::type field_2_t;
 	
 	auto begin_1 = test_space.field_begin<field_1_t>();
 //	auto begin_2 = test_space.field_begin<field_2_t>();
@@ -67,3 +85,4 @@ int main()
 	
 	return 0;
 }
+

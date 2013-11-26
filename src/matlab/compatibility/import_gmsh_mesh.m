@@ -1,5 +1,5 @@
 function [mesh, info] = import_gmsh_mesh(fname)
-%IMPORT_GMSH_MESH Import NiHu mesh from gmsh file
+%IMPORT_GMSH_MESH Import NiHu mesh from gmsh format
 %   [MESH, INFO] = IMPOT_GMSH_MESH(FNAME)  imports mesh from a gmsh file
 %
 % See also: EXPORT_GMSH_MESH IMPORT_BULK_MESH EXPORT_BULK_MESH

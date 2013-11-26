@@ -355,8 +355,8 @@ public:
 	line_1_elem(coords_t const &coords, unsigned id = 0, nodes_t const &nodes = nodes_t())
 		: element_base(coords, id, nodes)
 	{
-		dx_t dx0(get_dx(xi_t::Zero()));
-		m_normal << -dx0(1), dx0(0);
+		dx_t dx0(get_dx(xi_t::Zero()));	// the element direction vector
+		m_normal << dx0(1), -dx0(0);	// the normal vector
 		m_linear_size_estimate = m_normal.norm()  * domain_t::get_volume();
 	}
 

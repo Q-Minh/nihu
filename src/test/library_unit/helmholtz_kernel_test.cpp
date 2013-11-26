@@ -16,32 +16,39 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * \file global_definitions.hpp
- * \brief global constants governing some accuracy parameters
- * \ingroup core
- */
+#include "library/helmholtz_kernel.hpp"
+#include <iostream>
 
-#ifndef GLOBAL_DEFINITIONS_HPP_INCLUDED
-#define GLOBAL_DEFINITIONS_HPP_INCLUDED
+template <class kernel>
+void tester(kernel_base<kernel> const &k)
+{
+	line_1_elem::coords_t coords1;
+	coords1 <<
+		0, 1,
+		0, 0;
+	line_1_elem::coords_t coords2;
+	coords2 <<
+		1, 2,
+		1, 1;
 
-#ifdef WIN32
-#define CONSTEXPR
-#else
-#define CONSTEXPR constexpr
-#endif
+	line_1_elem elem1(coords1);
+	line_1_elem elem2(coords2);
+	auto xi1 = line_1_elem::domain_t::get_center();
+	auto xi2 = line_1_elem::domain_t::get_center();
 
-#include "field_type_acceleration_option.hpp"
+	typename kernel_base<kernel>::test_input_t x(elem1, xi1);
+	typename kernel_base<kernel>::trial_input_t y(elem2, xi2);
+	std::cout << k(x,y) << std::endl;
+}
 
-/** \brief acceleration::soft or acceleration::hard */
-typedef acceleration::hard GLOBAL_ACCELERATION;
-/**
- * \brief the maximal order of accelerated quadratures and field type accelerators
- * \todo increase Dunavant order to avoid overindexing
- */
-unsigned const GLOBAL_MAX_ORDER = 14;
-/** \brief the global accuracy of integraions */
-unsigned const GLOBAL_ACCURACY = 3;
+int main(void)
+{
+	double wave_number(1.0);
+	std::cout << "helmholtz G kernel";
+	tester(helmholtz_2d_SLP_kernel<double>(wave_number));
+	std::cout << "helmholtz H kernel";
+	tester(helmholtz_2d_DLP_kernel<double>(wave_number));
 
-#endif
+	return 0;
+}
 

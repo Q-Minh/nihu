@@ -1,4 +1,6 @@
-\documentclass[a4paper,10pt,twocolumn]{article}
+\documentclass[a4paper,11pt]{article}
+
+\usepackage{a4wide}
 
 \usepackage{amsmath}
 \newcommand{\td}{\mathrm{d}}
@@ -25,48 +27,48 @@ G(r) = -\frac{\ln |r|}{2\pi}
 \frac{d_1 + d_2 - d_1 \ln |d_1| - d_2 \ln |d_2|}{2\pi}
 \end{equation}
 
-\begin{multline}
+\begin{align}
 \frac{\partial}{\partial n_x}
 \int_{-d_1}^{d_2} 
 \frac{\partial}{\partial n_y}
 \frac{-\ln |r|}{2\pi}
-\td y \\
-=
+\td y 
+&=
 \frac{\partial}{\partial z}
 \int_{-d_1}^{d_2} 
 \frac{-1}{2\pi r} \frac{(y, -z) \cdot (0,1)}{r}
-\td y \\
-=
+\td y \nonumber \\
+&=
 \frac{1}{2\pi} \frac{\partial}{\partial z}
 \int_{-d_1}^{d_2} 
 \frac{z}{\left(y^2+z^2\right)}
-\td y \\
-=
+\td y \nonumber \\
+&=
 \frac{1}{2\pi} \frac{\partial}{\partial z}
 \left[
 \tan^{-1}\left(d_2/z\right)
 -
 \tan^{-1}\left(-d_1/z\right)
 \right]
-\\
-=
+\nonumber \\
+&=
 \frac{1}{2\pi} \frac{\partial}{\partial z}
 \left[
 \tan^{-1}\left(d_2/z\right) + \tan^{-1}\left(d_1/z\right)
 \right]
-\\
-=
+\nonumber \\
+&=
 \frac{1}{2\pi} 
 \left[
 \frac{-d_2}{d_2^2+z^2} + \frac{-d_1}{d_1^2+z^2}
 \right]
-\\
-\to
+\nonumber \\
+& \to
 \frac{-1}{2\pi} 
 \left[
 \frac{1}{d_2} + \frac{1}{d_1}
 \right]
-\end{multline}
+\end{align}
 
 
 \subsubsection{Galerkin over constant line}
@@ -122,28 +124,27 @@ R_i \sin\alpha_i \left[ \log \left( \frac{\tan\left(\frac{\phi_i+\alpha_i}{2}\ri
 \end{equation}
 
 
-\begin{multline}
+\begin{align}
 \frac{\partial}{\partial n_x}
 \int
 \frac{\partial}{\partial n_y}
 G(r)
 \td y
-\\
-=
+&=
 \frac{\partial}{\partial z}
 \int
 \frac{-1}{4\pi \left(r^2_{2D} + z^2\right)}
 \frac{({\bf r}_{2D},-z)\cdot({\bf 0},1)}{\sqrt{r^2_{2D} + z^2}}
 \td {\bf y}
-\\
-=
+\nonumber \\
+&=
 \frac{1}{4\pi}
 \frac{\partial}{\partial z}
 \int
 \frac{z}{\left(r^2_{2D} + z^2\right)^{3/2}}
 \td {\bf y}
-\\
-=
+\nonumber \\
+&=
 \frac{1}{4\pi}
 \frac{\partial}{\partial z}
 \int_{0}^{2\pi}
@@ -151,8 +152,8 @@ G(r)
 \frac{r_{2D} z}{\left(r^2_{2D} + z^2\right)^{3/2}}
 \td r_{2D}
 \td \theta
-\\
-=
+\nonumber \\
+&=
 \frac{-1}{4\pi}
 \frac{\partial}{\partial z}
 \int_{0}^{2\pi}
@@ -162,31 +163,138 @@ G(r)
 1
 \right)
 \td \theta
-\\
-=
+\nonumber \\
+&=
 \frac{-1}{4\pi}
 \int_{0}^{2\pi}
 \frac{\partial}{\partial z}
 \frac{z}{\sqrt{R(\theta)^2 + z^2}}
 \td \theta
-\\
-=
+\nonumber \\
+&=
 \frac{-1}{4\pi}
 \int_{0}^{2\pi}
 \left(
 \frac{\sqrt{R(\theta)^2 + z^2} - \frac{z}{2\sqrt{R(\theta)^2 + z^2}}}{R(\theta)^2 + z^2}
 \right)
 \td \theta
-\\
-\to
+\nonumber \\
+&\to
 \frac{-1}{4\pi}
 \int_{0}^{2\pi}
 \frac{1}{R(\theta)}
 \td \theta
-\end{multline}
+\end{align}
 
 
 \section{Analytical singular integrals of the Helmholtz kernel}
+
+\subsection{2D case}
+
+The Helmholtz kernel in 2D reads as
+%
+\begin{equation}
+G(r) = -\frac{\ti}{4}H^{(2)}_0(k|r|)
+\end{equation}
+%
+where $H_0^{(2)}$ denotes the Hankel function of the second kind, defined using the Bessel functions of the first and second kinds:
+%
+\begin{equation}
+H^{(2)}_0(z) = J_0(z) - \ti Y_0(z)
+\end{equation}
+
+
+\subsubsection{Collocation over constant line}
+
+In order to integrate the 2D Green's function over a constant line with the singularity in the line's center, the series expansions of the Bessel functions are needed:
+%
+\begin{align}
+J_0(z) &= \sum_{n=0}^{\infty} (-1)^n \frac{q^{2n}}{\left(n!\right)^2} \\
+Y_0(z) &= \frac{2}{\pi} \left[
+	\left(\ln q +\gamma\right)J_0(z)
+	-
+	\sum_{n=1}^{\infty} (-1)^{n} b_n \frac{q^{2n}}{\left(n!\right)^2}
+\right]
+\end{align}
+%
+where
+%
+\begin{equation}
+q = z/2, \qquad b_n = \sum_{k=1}^n \frac{1}{k}, \qquad \gamma = \lim_{n\to\infty} b_n - \ln n
+\end{equation}
+
+Substituting the series expansions into the definition of the Hankel function results in:
+%
+\begin{equation}
+H^{(2)}_0(z) =
+\left[1 - \frac{2 \ti}{\pi} \left(\ln q +\gamma\right) \right]	
++
+\sum_{n=1}^{\infty} (-1)^n \frac{q^{2n}}{\left(n!\right)^2}
+\left[1 - \frac{2 \ti}{\pi} \left(\ln q +\gamma - b_n\right) \right]
+\end{equation}
+%
+multiplying by $-\ti/4$ yields the series expansion of the Green's function
+%
+\begin{multline}
+G(r) = \frac{-1}{2\pi} \left\{
+\left[\ti\pi/2 + \ln q +\gamma \right]	
++ \left(\sum_{n=1}^{\infty}
+(-1)^n \frac{q^{2n}}{\left(n!\right)^2}
+\left[\ti\pi/2 + \gamma - b_n \right]	\right) \right. \\
+\left.
++
+\left(\sum_{n=1}^{\infty}
+(-1)^n \frac{q^{2n}\left(\ln q\right)}{\left(n!\right)^2}
+\right)
+\right\}
+\end{multline}
+
+Obviously, the singularity is because of the term $\ln q$. In order to cancel the singularity, the static part of the Green's function is subtracted, resulting in the regular term
+%
+\begin{multline}
+G(r)-G_0(r) = \frac{-1}{2\pi} \left\{
+\left[\ti\pi/2 + \ln \left(k/2\right) +\gamma \right]	
++ 
+\left(\sum_{n=1}^{\infty}
+(-1)^n \frac{q^{2n}}{\left(n!\right)^2}
+\left[\ti\pi/2 + \gamma - b_n \right]	\right) \right. \\
+\left.
++
+\left(\sum_{n=1}^{\infty}
+(-1)^n \frac{q^{2n} \ln q}{\left(n!\right)^2}
+\right)
+\right\}
+\end{multline}
+%
+This regular power series can be integrated analytically:
+%
+\begin{multline}
+2\int_{0}^{R} G(r)-G_0(r) \td r
+= \\
+\frac{-R}{\pi} \left\{
+\left[\ti\pi/2 + \ln \left(k/2\right) +\gamma \right]
++
+\sum_{n=1}^{\infty}
+\frac{(-1)^n Q^{2n}}{\left(n!\right)^2\left(2n+1\right)}
+\left[\ti\pi/2 + \gamma - b_n + \ln Q - \frac{1}{2n + 1}\right]
+\right\}
+\end{multline}
+%
+where $Q = kR/2$.
+
+Finally, adding the integral of the static part to the regular integral, the power series simplifies to
+%
+\begin{multline}
+2\int_{0}^{R} G(r)-G_0(r) \td r + \frac{R}{\pi}\left(1-\ln R\right)
+= \\
+\frac{-R}{\pi} 
+\sum_{n=0}^{\infty}
+\frac{(-1)^n Q^{2n}}{\left(n!\right)^2\left(2n+1\right)}
+\left[\ti\pi/2 + \gamma + \ln Q - b_n - \frac{1}{2n + 1}\right]
+\end{multline}
+%
+where the definition of $b_n$ has been modified by including the $b_0 = 0$ term.
+
 
 \subsection{3D case}
 
@@ -206,12 +314,12 @@ The static part is integrated analytically.
 The dynamic part is regular and can be integrated using a low order Gaussian quadrature over the triangle.
 
 
-\begin{multline}
+\begin{equation}
 G''_{n_x, n_y} = \frac{G}{r^2} \left[ 
-\left(1+\ti k r\right)\left(n_x n_y + r'_{n_x} r'_{n_y}\right) \right. \\
-\left. + \left(2 + 2 \ti k r - (kr)^2\right) r'_{n_x} r'_{n_y}
+\left(1+\ti k r\right)\left(n_x n_y + r'_{n_x} r'_{n_y}\right) 
+ + \left(2 + 2 \ti k r - (kr)^2\right) r'_{n_x} r'_{n_y}
 \right]
-\end{multline}
+\end{equation}
 %
 and on a plane triangle
 %
@@ -221,8 +329,8 @@ G''_{n_x, n_y} = \frac{G}{r^2} \left(1+\ti k r\right)
 %
 We again subtract the static part, as well as the static Green's function $G_0(r)$ multiplied by $k^2/2$ to obtain a regular function represented by its Taylor series:
 %
-\begin{multline}
-G''_{n_x, n_y} - {G_0}''_{n_x, n_y} - \frac{k^2}{2} G_0 = \\
+\begin{equation}
+G''_{n_x, n_y} - {G_0}''_{n_x, n_y} - \frac{k^2}{2} G_0 =
 -\frac{\ti k^3}{4\pi}
 \left(
 \frac{1}{3}
@@ -233,25 +341,9 @@ G''_{n_x, n_y} - {G_0}''_{n_x, n_y} - \frac{k^2}{2} G_0 = \\
 -\frac{\gamma^5}{5760} 
 +\dots
 \right)
-\end{multline}
-%
-where $\gamma = \ti k r$
-
-
-
-
-\subsubsection{Collocation over constant triangle}
-
-The singular integral over a triangle is regularised by subtracting and adding the static ($k = 0$) part
-%
-\begin{equation}
-G(r) = \frac{1}{4\pi r} -\ti k \te^{-\ti k r/2} \frac{\sinc(k r/2)}{4\pi}
 \end{equation}
 %
-The static part is integrated analytically.
-The dynamic part is regular and can be integrated using a low order Gaussian quadrature over the triangle.
-
-
+where $\gamma = \ti k r$
 
 
 \end{document}

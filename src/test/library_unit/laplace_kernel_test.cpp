@@ -20,7 +20,7 @@
 #include <iostream>
 #include <chrono>
 
-unsigned const N = 1e6;
+unsigned const N = 1000000;
 
 template <class kernel>
 void tester(kernel_base<kernel> const &k)

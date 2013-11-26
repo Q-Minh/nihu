@@ -683,6 +683,7 @@ INPUT                  = "${CMAKE_SOURCE_DIR}/../dox/mainpage.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/tut_helmholtz_galerkin_bem.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/tut_helmholtz_bem_3d_fict.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/tut_helmholtz_ibem_3d.md" \
+                         "${CMAKE_SOURCE_DIR}/../dox/tut_helmholtz_bem_2d_cyl.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/tut_couple_radiation.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/tut_custom_element.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/tut_custom_singular_integrals.md" \

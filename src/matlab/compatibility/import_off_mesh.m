@@ -1,14 +1,14 @@
 function mesh = import_off_mesh(filename)
-%IMPORT_OFF_MESH import NiHu mesh from OFF format
+%IMPORT_OFF_MESH Import NiHu mesh from OFF format
 %   MESH = IMPORT_OFF_MESH(FILENAME) imports the NiHu mesh from OFF format.
 %
-% See also: import_gmsh_mesh import_bulk_mesh
+% See also: import_mesh export_off_mesh detect_off_mesh
 
 %   Copyright 2008-2013 P. Fiala, P. Rucz
 %   Budapest University of Technology and Economics
 %   Dept. of Networked Systems and Services
 
-% Last modified: 2013.10.11.
+% Last modified: 2013.11.08.
 
 fid = fopen(filename, 'rt');
 if (fid == -1)
@@ -38,9 +38,16 @@ fclose(fid);
 % convert to NiHu format
 mesh.Nodes(:,2:4) = nodes;
 mesh.Nodes(:,1) = 1:nnodes;
-mesh.Elements(:,5:7) = elements(:,2:4);
+% process tria elements
+tr = elements(:,1) == 3;
+mesh.Elements(tr,5:7) = elements(tr,2:4);
+mesh.Elements(tr,2) = 23;
+% process quad elements
+qu = elements(:,1) == 4;
+mesh.Elements(qu,5:8) = elements(qu,2:5);
+mesh.Elements(qu,2) = 24;
+
 mesh.Elements(:,1) = 1:nelements;
-mesh.Elements(:,2) = 23;
 mesh.Elements(:,3:4) = 1;
 [mesh.Materials, mesh.Properties] = default_mat_prop();
 

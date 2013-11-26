@@ -19,15 +19,14 @@
 #include "util/mex_matrix.hpp"
 #include "util/math_functions.hpp"
 #include <iostream>
+#include <stdexcept>
 
 typedef mex::complex_matrix<double> cMatrix;
 
-void mexFunction(
-	int nlhs, mxArray *lhs[],
-	int nrhs, mxArray const *rhs[])
+void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 {
 	if (nlhs != 2 || nrhs != 1)
-		throw("bad number of input or output arguments");
+		throw std::invalid_argument("bad number of input or output arguments");
 
 	cMatrix z(rhs[0]);
 	cMatrix H0(z.rows(), z.cols(), lhs[0]), H1(z.rows(), z.cols(), lhs[1]);

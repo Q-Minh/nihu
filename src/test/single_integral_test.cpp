@@ -16,12 +16,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "../bem/integral_operator.hpp"
+#include "../core/integral_operator.hpp"
 #include "../tmp/vector.hpp"
-#include "../bem/mesh.hpp"
-#include "../bem/function_space.hpp"
-#include "../bem/projection.hpp"
-#include "../bem/weighted_residual.hpp"
+#include "../core/mesh.hpp"
+#include "../core/function_space.hpp"
+#include "../core/projection.hpp"
+#include "../core/weighted_residual.hpp"
 
 #include "../library/unit_kernel.hpp"
 #include "../library/poisson_kernel.hpp"
