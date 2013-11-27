@@ -1,10 +1,10 @@
 NiHu 1.0 {#mainpage}
 ========
 
-[GPL]:http://www.gnu.org/licenses/gpl.html 
- 
- News {#main_news}
-=================
+[TOC]
+
+News {#main_news}
+====
 
 - **Nightly builds** are available from 2013.09.27 built daily at 1 a.m. CET.
 
@@ -28,15 +28,15 @@ NiHu is developed by the coworkers of the [Laboratory of Acoustics and Studio Te
 
 Members of the development team are:
 
-- Péter Fiala [fiala@hit.bme.hu](mailto:fiala@hit.bme.hu)
-- Péter Rucz [rucz@hit.bme.hu](mailto:rucz@hit.bme.hu)
+- [Péter Fiala](mailto:fiala@hit.bme.hu)
+- [Péter Rucz](mailto:rucz@hit.bme.hu)
 
 Please feel free to contact any of the developers with your questions or comments regarding NiHu. Your feedbacks are also greatly appreciated.
 
 Licensing {#main_licensing}
 =========
 
-NiHu is distributed under the GNU General Public License [GPL].
+NiHu is distributed under the [GNU General Public License](http://www.gnu.org/licenses/gpl.html)
 
 \defgroup core The software core
 
@@ -64,4 +64,5 @@ NiHu is distributed under the GNU General Public License [GPL].
 \ingroup interface
 
 \defgroup library Libraries for specific fields of application
+
 
