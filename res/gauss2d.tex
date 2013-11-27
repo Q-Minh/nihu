@@ -80,6 +80,48 @@ d^2\frac{3-2\ln d}{4\pi}
 \end{equation}
 
 
+\subsubsection{Galerkin over adjacent lines}
+
+\begin{multline}
+\int_{0}^{d_y}
+\left(
+\int_{0}^{d_x} \ln \left(\sqrt{(x+y\cos\alpha)^2+(y\sin\alpha)^2}\right)
+\td x \right)
+\td y \\
+=
+\int_{0}^{d_y}
+\left(
+\int_{y\cos\alpha}^{d_x+y\cos\alpha} \ln \left(\sqrt{\xi^2+(y\sin\alpha)^2}\right)
+\td \xi \right)
+\td y \\
+=
+\int_{0}^{d_y}
+\left[
+\xi \ln \left(\sqrt{\xi^2+(y\sin\alpha)^2}\right) - \xi + y\sin\alpha \tan^{-1} \left(\frac{\xi}{y\sin\alpha}\right)
+\right]_{y\cos\alpha}^{d_x+y\cos\alpha} 
+\td y \\
+=
+\int_{0}^{d_y}
+\left(
+\left(d_x+y\cos\alpha\right) \ln \left(\sqrt{\left(d_x+y\cos\alpha\right)^2+(y\sin\alpha)^2}\right) - d_x + y\sin\alpha \tan^{-1} \left(\frac{d_x+y\cos\alpha}{y\sin\alpha}\right)
+\right) \\
+-
+\left(
+\left(y\cos\alpha\right) \ln y + y\sin\alpha \tan^{-1} \left(\cot\alpha\right)
+\right)
+\td y \\
+=
+-d_x d_y - \cos\alpha \frac{d_y^2 \left(\ln d_y - 1/2\right)}{2}
+-
+\frac{d_y^2}{2}\sin\alpha \tan^{-1} \left(\cot\alpha\right) \\
++
+\int_{0}^{d_y}
+\left(
+\left(d_x+y\cos\alpha\right) \ln \left(\sqrt{\left(d_x+y\cos\alpha\right)^2+(y\sin\alpha)^2}\right) + y\sin\alpha \tan^{-1} \left(\frac{d_x+y\cos\alpha}{y\sin\alpha}\right)
+\right)
+\td y
+\end{multline}
+
 \subsection{3D case}
 
 \begin{equation}
