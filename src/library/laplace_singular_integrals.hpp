@@ -57,7 +57,7 @@ public:
 	 * \return the result reference
 	 */
 	template <class result_t>
-	constexpr static result_t &eval(
+	CONSTEXPR static result_t &eval(
 		result_t &result,
 		kernel_base<Kernel> const &,
 		field_base<TestField> const &,

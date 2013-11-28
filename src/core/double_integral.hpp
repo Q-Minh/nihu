@@ -224,9 +224,12 @@ protected:
 				Kernel, TestField, TrialField, singularity::corner_match_type
 				>::eval(result, kernel, test_field, trial_field, match);
 		case EDGE_MATCH:
+			/*
 			return singular_integral_shortcut<
 				Kernel, TestField, TrialField, singularity::edge_match_type
 				>::eval(result, kernel, test_field, trial_field, match);
+				*/
+			;
 		}
 		return eval(WITHOUT_SINGULARITY_CHECK(), result, kernel, test_field, trial_field);
 	}

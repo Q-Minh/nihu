@@ -250,6 +250,7 @@ public:
 	* \param [in] singular_quadrature_order polynomial order of the underlying regular quadrature
 	* \todo traversing four line quadratures should be replaced by traversing their
 	* Descartes product
+	* \todo singularity type should use singularity type and template instantiation from parameter
 	*/
 	template <singularity_type match_type>
 	static void generate(
