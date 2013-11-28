@@ -8,7 +8,7 @@ NiHu Component Library Reference {#reference}
 Introduction {#reference_intro}
 ============
 
-This pge is a reference guide of the NiHu Component Library.
+This page is a reference guide of the NiHu Component Library.
 
 Function Space Representations {#reference_func_space}
 ==============================
@@ -66,14 +66,19 @@ Regularisation
 Singular integrals implemented in library/laplace_singular_integrals.hpp
 
 - Singular collocational and Galerkin integrals of the normal derivative kernels over constant lines and triangles
+
 - Collocational integral of the Laplace 2D SLP kernel over a constant line
+- Galerkin integral of the Laplace 2D SLP kernel over a constant line
+- Galerkin integral of the Laplace 2D SLP kernel over a linear line
 - Collocational integral of the Laplace 2D HSP kernel over a constant line
+
 - Collocational integral of the Laplace 3D SLP kernel over a constant triangle
 - Collocational integral of the Laplace 3D HSP kernel over a constant triangle
 
 Singular integrals implemented in library/helmholtz_singular_integrals.hpp
 
 - Singular collocational and Galerkin integrals of the normal derivative kernels over constant lines and triangles
+
 - Collocational integral of the Helmholtz 2D SLP kernel over a constant line
 - Collocational integral of the Helmholtz 3D SLP kernel over a constant triangle
 - Collocational integral of the Helmholtz 3D HSP kernel over a constant triangle
