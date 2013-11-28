@@ -227,6 +227,28 @@ public:
 };
 
 
+/** \brief Galerkin face-match singular integral of the 2D HSP kernel over a constant line
+* \tparam TestField the test field type
+* \tparam TrialField the trial field type
+*/
+template <class TestField, class TrialField>
+class singular_integral_shortcut<
+	laplace_2d_HSP_kernel, TestField, TrialField, singularity::face_match_type,
+	typename std::enable_if<
+	std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::general>::value &&
+	std::is_same<typename TrialField::lset_t, line_1_shape_set>::value &&
+	std::is_same<typename TestField::nset_t, line_0_shape_set>::value &&
+	std::is_same<typename TrialField::nset_t, line_0_shape_set>::value
+	>::type
+>
+{
+public:
+	// the condition always evaluates to false
+	static_assert(!std::is_same<typename TestField::nset_t, typename TrialField::nset_t>::value,
+		"\n\nThe 2D HSP kernel of the Laplace equation can not be integrated over a constant line element in a Galerkin sense.\n\n");
+};
+
+
 /** \brief collocational singular integral of the SLP kernel over a constant triangle
  * \tparam TestField the test field type
  * \tparam TrialField the trial field type
