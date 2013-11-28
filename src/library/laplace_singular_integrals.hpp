@@ -108,6 +108,86 @@ public:
 };
 
 
+/** \brief Galerkin face-match singular integral of the 2D SLP kernel over a constant line
+* \tparam TestField the test field type
+* \tparam TrialField the trial field type
+*/
+template <class TestField, class TrialField>
+class singular_integral_shortcut<
+	laplace_2d_SLP_kernel, TestField, TrialField, singularity::face_match_type,
+	typename std::enable_if<
+	std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::general>::value &&
+	std::is_same<typename TrialField::lset_t, line_1_shape_set>::value &&
+	std::is_same<typename TestField::nset_t, line_0_shape_set>::value &&
+	std::is_same<typename TrialField::nset_t, line_0_shape_set>::value
+	>::type
+>
+{
+public:
+	/** \brief evaluate singular integral
+	* \tparam result_t the result matrix type
+	* \param [in, out] result reference to the result
+	* \param [in] trial_field the test and trial fields
+	* \return reference to the result matrix
+	*/
+	template <class result_t>
+	static result_t &eval(
+		result_t &result,
+		kernel_base<laplace_2d_SLP_kernel> const &,
+		field_base<TestField> const &,
+		field_base<TrialField> const &trial_field,
+		element_match const &)
+	{
+		auto const &C = trial_field.get_elem().get_coords();
+		auto d = (C.col(1) - C.col(0)).norm();	// element length
+		result(0, 0) = -d*d*(std::log(d)-1.5) / (2.0*M_PI);
+		return result;
+	}
+};
+
+
+/** \brief Galerkin face-match singular integral of the 2D SLP kernel over a linear line
+* \tparam TestField the test field type
+* \tparam TrialField the trial field type
+*/
+template <class TestField, class TrialField>
+class singular_integral_shortcut<
+	laplace_2d_SLP_kernel, TestField, TrialField, singularity::face_match_type,
+	typename std::enable_if<
+	std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::general>::value &&
+	std::is_same<typename TrialField::lset_t, line_1_shape_set>::value &&
+	std::is_same<typename TestField::nset_t, line_1_shape_set>::value &&
+	std::is_same<typename TrialField::nset_t, line_1_shape_set>::value
+	>::type
+>
+{
+public:
+	/** \brief evaluate singular integral
+	* \tparam result_t the result matrix type
+	* \param [in, out] result reference to the result
+	* \param [in] trial_field the test and trial fields
+	* \return reference to the result matrix
+	*/
+	template <class result_t>
+	static result_t &eval(
+		result_t &result,
+		kernel_base<laplace_2d_SLP_kernel> const &,
+		field_base<TestField> const &,
+		field_base<TrialField> const &trial_field,
+		element_match const &)
+	{
+		auto const &C = trial_field.get_elem().get_coords();
+		auto d = (C.col(1) - C.col(0)).norm();	// element length
+		auto lnd = std::log(d);
+		result <<
+			lnd - 1.75, lnd - 1.25,
+			lnd - 1.25, lnd - 1.45;
+		result *= -d*d / (8.0*M_PI);
+		return result;
+	}
+};
+
+
 /** \brief collocational singular integral of the 2D HSP kernel over a constant line
  * \tparam TestField the test field type
  * \tparam TrialField the trial field type
