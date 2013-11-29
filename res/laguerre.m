@@ -1,7 +1,8 @@
-clear;
-
-n = 10;
-
+function [x, w] = laguerre(n)
+%LAGUERRE Generate n-point Laguerre quadrature
+%   LAGUERRE(N) prints the abscissae and weights of the N point Laguerre
+%   quadrature that approximates int_0^1 f(x) dx where f(x) contains a
+%   log(x) type singularity.
 
 syms x;
 L(0+1) = sym('1');
@@ -11,9 +12,13 @@ for k = 1 : n
 end
 
 ti = solve(L(n+1));
-wi = ti/(n+1)/(n+1)./subs(L(n+1+1), x, ti).^2;
-[xi, i] = sort(double(exp(-ti)));
-wi = double(wi(i));
+w = ti/(n+1)/(n+1)./subs(L(n+1+1), x, ti).^2;
+[x, i] = sort(double(exp(-ti)));
+w = double(w(i));
 
-fprintf('\n');
-fprintf(1, '%.20x, %.20x,\n', [xi wi].')
+if nargout == 0
+    fprintf('\n');
+    fprintf(1, '%.20x, %.20x,\n', [x w].');
+end
+
+end
