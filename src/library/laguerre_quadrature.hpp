@@ -17,24 +17,24 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * \file lobatto_quadrature.hpp
+ * \file laguerre_quadrature.hpp
  * \ingroup quadrature
- * \brief implementation of Gauss-Lobatto quadratures
+ * \brief implementation of Gauss-Laguerre quadratures
  */
 
-#ifndef LOBATTO_QUADRATURE_HPP_INCLUDED
-#define LOBATTO_QUADRATURE_HPP_INCLUDED
+#ifndef LAGUERRE_QUADRATURE_HPP_INCLUDED
+#define LAGUERRE_QUADRATURE_HPP_INCLUDED
 
 #include <stdexcept>
 
 /**
- * \brief return 1D N-point Lobatto quadrature
+ * \brief return 1D N-point Laguerre quadrature
  * \tparam scalar_t the scalar type
  * \param [in] N number of quadrature points
- * \return matrix containing the Gauss-Lobatto locations and weights
+ * \return matrix containing the Gauss-Laguerre locations and weights
  */
 template <class scalar_t>
-Eigen::Matrix<scalar_t, Eigen::Dynamic, 2> lobatto_impl(unsigned N)
+Eigen::Matrix<scalar_t, Eigen::Dynamic, 2> laguerre_impl(unsigned N)
 {
 	V.resize(N,2);
 
@@ -125,10 +125,10 @@ Eigen::Matrix<scalar_t, Eigen::Dynamic, 2> lobatto_impl(unsigned N)
 			8.71278617867165094957e-01, 3.08441115765020146267e-01,
 		break;
 	default:
-		throw std::out_of_range("unsupported Lobatto degree");
+		throw std::out_of_range("unsupported laguerre degree");
 	}
 
 	return V;
 }
 
-#endif // LOBATTO_QUADRATURE_HPP_INCLUDED
+#endif // LAGUERRE_QUADRATURE_HPP_INCLUDED
