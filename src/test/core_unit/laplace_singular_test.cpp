@@ -1,6 +1,6 @@
 #include <core/weighted_residual.hpp>
 #include <library/laplace_kernel.hpp>
-#include <library/laplace_singular_integrals.hpp>
+// #include <library/laplace_singular_integrals.hpp>
 
 typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> dMatrix;
 
@@ -28,6 +28,7 @@ void constant_collocation_tester(void)
 	std::cout << integral_t::eval(kernel, test_field, trial_field, std::true_type()) << std::endl;
 }
 
+/*
 void galerkin_face_tester(void)
 {
 	typedef field_view<elem_t, field_option::constant> trial_field_t;
@@ -45,12 +46,11 @@ void galerkin_face_tester(void)
 	typedef double_integral<kernel_t, test_field_t, trial_field_t> integral_t;
 	std::cout << integral_t::eval(kernel, test_field, trial_field, std::true_type()) << std::endl;
 }
+*/
 
 int main(void)
 {
-	// constant_collocation_tester();
-
-	galerkin_face_tester();
+	constant_collocation_tester();
 
 	return 0;
 }

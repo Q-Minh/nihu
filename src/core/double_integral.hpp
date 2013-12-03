@@ -437,15 +437,15 @@ protected:
 		auto match = element_match_eval(test_field, trial_field);
 		switch (match.get_singularity_type())
 		{
-		case REGULAR:
+		case NO_MATCH:
 			break;
 		case FACE_MATCH:
 			return singular_integral_shortcut<
-				Kernel, TestField, TrialField, singularity::face_match_type
+				Kernel, TestField, TrialField, match::face_match_type
 				>::eval(result, kernel, test_field, trial_field, match);
 		case CORNER_MATCH:
 			return singular_integral_shortcut<
-				Kernel, TestField, TrialField, singularity::corner_match_type
+				Kernel, TestField, TrialField, match::corner_match_type
 				>::eval(result, kernel, test_field, trial_field, match);
 		case EDGE_MATCH:	// just for the warning, this case is impossible
 			;
@@ -563,7 +563,7 @@ class singular_integral_shortcut<Kernel, TestField, TrialField, Singularity,
 	typename std::enable_if<
 		std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
 		std::is_same<typename TestField::nset_t, constant_shape_set<typename TestField::lset_t::domain_t> >::value &&
-		std::is_same<Singularity, singularity::corner_match_type>::value
+		std::is_same<Singularity, match::corner_match_type>::value
 	>::type
 >
 {

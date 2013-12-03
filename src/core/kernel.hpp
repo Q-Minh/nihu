@@ -26,6 +26,7 @@
 #define KERNEL_HPP_INCLUDED
 
 #include "complexity_estimator.hpp"
+#include "singularity_types.hpp"
 #include "../util/crtp_base.hpp"
 #include "../util/brick.hpp"
 #include "../util/collection.hpp"
@@ -80,8 +81,10 @@ public:
 
 	/** \brief true if K(x,y) = K(y,x) */
 	static bool const is_symmetric = traits_t::is_symmetric;
-	/** \brief the singularity order ( r^(-order) ) */
-	static unsigned const singularity_order = traits_t::singularity_order;
+
+	/** \brief the singularity type */
+	typedef typename traits_t::singularity_type_t singularity_type_t;
+
 	/** \brief the quadrature order used for the generation of Duffy type singular quadratures */
 	static unsigned const singular_quadrature_order = traits_t::singular_quadrature_order;
 

@@ -29,9 +29,9 @@ nodes = reshape(nodes, 3, []).';
 % read elements
 elements = zeros(nelements,0);
 for e = 1 : nelements
-	n = fscanf(fid, '%u', 1);
-	el = fscanf(fid, '%u', n);
-	elements(e,1:(1+n)) = [n el(:)'+1];
+    n = fscanf(fid, '%u', 1);
+    el = fscanf(fid, '%u', n);
+    elements(e,1:(1+n)) = [n el(:)'+1];
 end
 fclose(fid);
 
@@ -40,12 +40,16 @@ mesh.Nodes(:,2:4) = nodes;
 mesh.Nodes(:,1) = 1:nnodes;
 % process tria elements
 tr = elements(:,1) == 3;
-mesh.Elements(tr,5:7) = elements(tr,2:4);
-mesh.Elements(tr,2) = 23;
+if any(tr)
+    mesh.Elements(tr,5:7) = elements(tr,2:4);
+    mesh.Elements(tr,2) = 23;
+end
 % process quad elements
 qu = elements(:,1) == 4;
-mesh.Elements(qu,5:8) = elements(qu,2:5);
-mesh.Elements(qu,2) = 24;
+if any(qu)
+    mesh.Elements(qu,5:8) = elements(qu,2:5);
+    mesh.Elements(qu,2) = 24;
+end
 
 mesh.Elements(:,1) = 1:nelements;
 mesh.Elements(:,3:4) = 1;
