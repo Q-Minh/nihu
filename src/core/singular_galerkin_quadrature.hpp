@@ -65,14 +65,14 @@ struct helper_base
 * \brief helper structure for the tria-tria case
 * \tparam match_type the type of singulartiy
 */
-template <singularity_type match_type>
+template <class match_type>
 struct tria_helper;
 
 /**
 * \brief specialisation of ::tria_helper for the FACE_MATCH case
 */
 template <>
-struct tria_helper<FACE_MATCH>
+struct tria_helper<match::face_match_type>
 	: public helper_base<tria_domain, tria_domain>
 {
 	/** \brief indicates whether the quadrature described below is symmetric or not */
@@ -127,7 +127,7 @@ struct tria_helper<FACE_MATCH>
 * \brief specialisation of ::tria_helper for the EDGE_MATCH case
 */
 template <>
-struct tria_helper<EDGE_MATCH>
+struct tria_helper<match::edge_match_type>
 	: public helper_base<tria_domain, tria_domain>
 {
 	/** \brief indicates whether the quadrature described below is symmetric or not */
@@ -197,7 +197,7 @@ struct tria_helper<EDGE_MATCH>
 * \brief specialisation of ::tria_helper for the CORNER_MATCH case
 */
 template <>
-struct tria_helper<CORNER_MATCH>
+struct tria_helper<match::corner_match_type>
 	: public helper_base<tria_domain, tria_domain>
 {
 	/** \brief indicates whether the quadrature described below is symmetric or not */
@@ -252,7 +252,7 @@ public:
 	* Descartes product
 	* \todo singularity type should use singularity type and template instantiation from parameter
 	*/
-	template <singularity_type match_type>
+	template <class match_type>
 	static void generate(
 		quadrature_t &test_quadrature,
 		quadrature_t &trial_quadrature,
@@ -324,12 +324,12 @@ public:
 /** \brief helper struct of the quad-quad algorithm
  * \tparam match_type the type of singularity
  */
-template <singularity_type match_type>
+template <class match_type>
 struct quad_helper;
 
 /** \brief specialisation of ::quad_helper for the ::FACE_MATCH case */
 template <>
-struct quad_helper<FACE_MATCH> : helper_base<quad_domain, quad_domain>
+struct quad_helper<match::face_match_type> : helper_base<quad_domain, quad_domain>
 {
 	/** \brief number of subdomains */
 	static const unsigned num_domains = 4;
@@ -349,7 +349,7 @@ struct quad_helper<FACE_MATCH> : helper_base<quad_domain, quad_domain>
 };
 
 quad_domain::scalar_t
-	const quad_helper<FACE_MATCH>::corners[4][4][2] = {
+	const quad_helper<match::face_match_type>::corners[4][4][2] = {
 		{{0.0, 0.0}, {0.0, 0.0}, { 2.0, -2.0}, { 2.0,  0.0}},
 		{{0.0, 0.0}, {0.0, 0.0}, { 2.0,  0.0}, { 2.0,  2.0}},
 		{{0.0, 0.0}, {0.0, 0.0}, { 2.0,  2.0}, { 0.0,  2.0}},
@@ -358,7 +358,7 @@ quad_domain::scalar_t
 
 /** \brief specialisation of ::quad_helper for the ::EDGE_MATCH case */
 template <>
-struct quad_helper<EDGE_MATCH> : helper_base<quad_domain, quad_domain>
+struct quad_helper<match::edge_match_type> : helper_base<quad_domain, quad_domain>
 {
 	/** \brief number of subdomains */
 	static const unsigned num_domains = 6;
@@ -378,7 +378,7 @@ struct quad_helper<EDGE_MATCH> : helper_base<quad_domain, quad_domain>
 };
 
 quad_domain::scalar_t
-	const quad_helper<EDGE_MATCH>::corners[6][4][2] = {
+	const quad_helper<match::edge_match_type>::corners[6][4][2] = {
 		{{ 0.0,  0.0}, { 0.0,  0.0}, {-2.0,  0.0}, {-2.0, -2.0}},
 		{{ 0.0,  0.0}, { 0.0,  0.0}, {-2.0, -2.0}, { 0.0, -2.0}},
 		{{ 0.0,  0.0}, { 0.0,  0.0}, { 0.0, -2.0}, { 2.0, -2.0}},
@@ -389,7 +389,7 @@ quad_domain::scalar_t
 
 /** \brief specialisation of ::quad_helper for the ::CORNER_MATCH case */
 template <>
-struct quad_helper<CORNER_MATCH> : helper_base<quad_domain, quad_domain>
+struct quad_helper<match::corner_match_type> : helper_base<quad_domain, quad_domain>
 {
 	/** \brief number of subdomains */
 	static const unsigned num_domains = 5;
@@ -409,7 +409,7 @@ struct quad_helper<CORNER_MATCH> : helper_base<quad_domain, quad_domain>
 };
 
 quad_domain::scalar_t
-	const quad_helper<CORNER_MATCH>::corners[5][4][2] = {
+	const quad_helper<match::corner_match_type>::corners[5][4][2] = {
 		{{ 0.0,  0.0}, { 0.0,  0.0}, {-2.0,  0.0}, {-2.0, -2.0}},
 		{{ 0.0,  0.0}, { 0.0,  0.0}, {-2.0, -2.0}, { 0.0, -2.0}},
 		{{-4.0,  0.0}, {-4.0, -2.0}, {-2.0, -2.0}, {-2.0,  0.0}},
@@ -442,7 +442,7 @@ public:
 	* \param [out] trial_quadrature the trial quadrature to be extended
 	* \param [in] singular_quadrature_order polynomial order of the underlying regular quadrature
 	*/
-	template <singularity_type match_type>
+	template <class match_type>
 	static void generate(
 		quadrature_t &test_quadrature,
 		quadrature_t &trial_quadrature,
@@ -546,15 +546,14 @@ public:
 	* \param [out] trial_quadrature the trial quadrature to be extended
 	* \param [in] singular_quadrature_order polynomial order of the underlying regular quadrature
 	*/
-	template <singularity_type match_type>
+	template <class match_type>
 	static void generate(
 		test_quadrature_t &test_quadrature,
 		trial_quadrature_t &trial_quadrature,
 		unsigned singular_quadrature_order)
 	{
 		// call specialised function member
-		generate(std::integral_constant<singularity_type, match_type>(),
-			test_quadrature, trial_quadrature, singular_quadrature_order);
+		generate(match_type(), test_quadrature, trial_quadrature, singular_quadrature_order);
 	}
 
 
@@ -566,14 +565,14 @@ private:
 	* \param [in] singular_quadrature_order polynomial order of the underlying regular quadrature
 	*/
 	static void generate(
-		std::integral_constant<singularity_type, CORNER_MATCH>,
+		match::corner_match_type,
 		test_quadrature_t &test_quadrature,
 		trial_quadrature_t &trial_quadrature,
 		unsigned singular_quadrature_order)
 	{
 		trial_quadrature_t test_base;
 		trial_quadrature_t trial_base;
-		base_sing_t::template generate<CORNER_MATCH>(
+		base_sing_t::template generate<match::corner_match_type>(
 			test_base, trial_base, singular_quadrature_order);
 
 		unsigned corner_idx[2][3] = {
@@ -603,7 +602,7 @@ private:
 	* \param [in] singular_quadrature_order polynomial order of the underlying regular quadrature
 	*/
 	static void generate(
-		std::integral_constant<singularity_type, EDGE_MATCH>,
+		match::edge_match_type,
 		test_quadrature_t &test_quadrature,
 		trial_quadrature_t &trial_quadrature,
 		unsigned singular_quadrature_order)
@@ -620,7 +619,7 @@ private:
 		// the underlying edge-singular tria-tria quadratures
 		trial_quadrature_t test_base;
 		trial_quadrature_t trial_base;
-		base_sing_t::template generate<EDGE_MATCH>(
+		base_sing_t::template generate<match::edge_match_type>(
 			test_base, trial_base, singular_quadrature_order);
 
 		// assemble corners, transform and insert into result
@@ -638,7 +637,7 @@ private:
 		trial_base.clear();
 
 		// the underlying corner-singular tria-tria quadratures
-		base_sing_t::template generate<CORNER_MATCH>(
+		base_sing_t::template generate<match::corner_match_type>(
 			test_base, trial_base, singular_quadrature_order);
 
 		// assemble corners, transform and insert into result
@@ -675,7 +674,7 @@ public:
 	* \param [out] trial_quadrature the trial quadrature to be extended
 	* \param [in] singular_quadrature_order polynomial order of the underlying regular quadrature
 	*/
-	template <singularity_type match_type>
+	template <class match_type>
 	static void generate(
 		test_quadrature_t &test_quadrature,
 		trial_quadrature_t &trial_quadrature,

@@ -26,7 +26,8 @@
 #define SINGULAR_ACCELERATOR_HPP_INCLUDED
 
 #include "singular_galerkin_quadrature.hpp"	// for the galerkin case
-#include "duffy_quadrature.hpp"		// for the collocational case
+#include "blind_transform_selector.hpp"	// for the collocation case
+#include "blind_singular_quadrature.hpp"	// for the collocation case
 #include "field.hpp"
 
 #include "../util/dual_range.hpp"
@@ -356,8 +357,6 @@ public:
 	/** \brief trial elem type */
 	typedef typename trial_field_t::elem_t trial_elem_t;
 
-	/** \brief test domain type */
-	typedef typename test_elem_t::domain_t test_domain_t;
 	/** \brief trial domain type */
 	typedef typename trial_elem_t::domain_t trial_domain_t;
 
@@ -377,8 +376,17 @@ public:
 	/** \brief the singular quadrature order required by the kernel */
 	static unsigned const singular_quadrature_order = kernel_traits<kernel_t>::singular_quadrature_order;
 
+	typedef typename blind_transform_selector<
+		typename kernel_traits<kernel_t>::singularity_type_t,
+		trial_domain_t
+	>::type blind_singular_transform_tag_t;
+
 	/** \brief the duffy quadrature type */
-	typedef duffy_quadrature<quadrature_family_t, trial_lset_t> trial_duffy_t;
+	typedef typename blind_singular_quadrature<
+		blind_singular_transform_tag_t,
+		quadrature_family_t,
+		trial_lset_t
+	>::type trial_blind_t;
 
 	/** \brief iterator type of the singular quadrature */
 	typedef typename trial_quadrature_t::const_iterator iterator;
@@ -404,7 +412,7 @@ public:
 		if (face_match_possible)
 		{
 			for (unsigned idx = 0; idx < test_nset_t::num_nodes; ++idx)
-				m_face_trial_quadratures[idx] += trial_duffy_t::on_face(
+				m_face_trial_quadratures[idx] += trial_blind_t::on_face(
 					singular_quadrature_order, test_nset_t::corner_at(idx));
 		}
 	}

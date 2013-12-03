@@ -29,10 +29,10 @@
 #include "field.hpp"
 #include "formalism.hpp"
 
-/** \brief singularity types */
-enum singularity_type {
+/** \brief element match type */
+enum element_match_type {
 	/** \brief no singularity */
-	REGULAR,
+	NO_MATCH,
 	/** \brief two elements are identical */
 	FACE_MATCH,
 	/** \brief two elements share a common edge */
@@ -41,11 +41,11 @@ enum singularity_type {
 	CORNER_MATCH
 };
 
-/** \brief singularity types */
-namespace singularity
+/** \brief match types */
+namespace match
 {
 	/** \brief no singularity */
-	typedef std::integral_constant<unsigned, REGULAR> regular_type;
+	typedef std::integral_constant<unsigned, NO_MATCH> no_match_type;
 	/** \brief two elements are identical */
 	typedef std::integral_constant<unsigned, FACE_MATCH> face_match_type;
 	/** \brief two elements share a common edge */
@@ -63,16 +63,16 @@ public:
 	 * \param [in] overlap the overlapping state
 	 */
 	element_match(
-		singularity_type const &sing_type,
+		element_match_type const &match_type,
 		element_overlapping const &overlap = element_overlapping()) :
-		m_sing_type(sing_type), m_overlap(overlap)
+		m_match_type(match_type), m_overlap(overlap)
 	{
 	}
 
 	/** \brief return singularity type */
-	singularity_type const &get_singularity_type(void) const
+	element_match_type const &get_singularity_type(void) const
 	{
-		return m_sing_type;
+		return m_match_type;
 	}
 
 	/** \brief return overlapping state */
@@ -83,7 +83,7 @@ public:
 
 private:
 	/** \brief the singularity type */
-	singularity_type const m_sing_type;
+	element_match_type const m_match_type;
 	/** \brief the overlapping state */
 	element_overlapping const m_overlap;
 };
@@ -122,7 +122,7 @@ element_match element_match_eval(
 			return element_match(CORNER_MATCH, overlap);
 	}
 
-	return element_match(REGULAR);
+	return element_match(NO_MATCH);
 }
 
 #endif // ELEMENT_MATCH_HPP_INCLUDED
