@@ -8,7 +8,7 @@ NiHu Component Library Reference {#reference}
 Introduction {#reference_intro}
 ============
 
-This pge is a reference guide of the NiHu Component Library.
+This page is a reference guide of the NiHu Component Library.
 
 Function Space Representations {#reference_func_space}
 ==============================
@@ -33,6 +33,9 @@ Fields and FieldViews {#reference_func_space_fields}
 Kernel Evaluation {#reference_kernel}
 =================
 
+Laplace equation
+----------------
+
 - ::laplace_2d_SLP_kernel
 - ::laplace_2d_DLP_kernel
 - ::laplace_2d_DLPt_kernel
@@ -42,6 +45,12 @@ Kernel Evaluation {#reference_kernel}
 - ::laplace_3d_DLP_kernel
 - ::laplace_3d_DLPt_kernel
 - ::laplace_3d_HSP_kernel
+
+Helmholtz equation
+------------------
+
+- ::helmholtz_2d_SLP_kernel
+- ::helmholtz_2d_DLP_kernel
 
 - ::helmholtz_3d_SLP_kernel
 - ::helmholtz_3d_DLP_kernel
@@ -54,6 +63,27 @@ Numerical Integration {#reference_integration}
 Regularisation
 --------------
 
-- Lenoir and Salles 2012
-- Matsumoto 2010
+Singular integrals implemented in library/laplace_singular_integrals.hpp
+
+- Singular collocational and Galerkin integrals of the normal derivative kernels over constant lines and triangles
+
+- Collocational integral of the Laplace 2D SLP kernel over a constant line
+- Galerkin integral of the Laplace 2D SLP kernel over a constant line
+- Galerkin integral of the Laplace 2D SLP kernel over a linear line
+- Collocational integral of the Laplace 2D HSP kernel over a constant line
+
+- Collocational integral of the Laplace 3D SLP kernel over a constant triangle
+- Collocational integral of the Laplace 3D HSP kernel over a constant triangle
+
+Singular integrals implemented in library/helmholtz_singular_integrals.hpp
+
+- Singular collocational and Galerkin integrals of the normal derivative kernels over constant lines and triangles
+
+- Collocational integral of the Helmholtz 2D SLP kernel over a constant line
+- Collocational integral of the Helmholtz 3D SLP kernel over a constant triangle
+- Collocational integral of the Helmholtz 3D HSP kernel over a constant triangle
+
+Singular integrals implemented in library/lenoir_salles_2012.hpp
+
+- Galerkin integral of the Laplace 3D SLP kernel over a constant triangle
 
