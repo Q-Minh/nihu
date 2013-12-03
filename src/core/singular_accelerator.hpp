@@ -187,7 +187,7 @@ public:
 				m_corner_trial_quadrature[trial_domain_corner].begin());
 			break;
 		}
-		case REGULAR:
+		case NO_MATCH:
 			throw std::logic_error("Cannot return singular quadrature for regular type");
 			break;
 		default:
@@ -226,8 +226,8 @@ public:
 				m_corner_trial_quadrature[trial_domain_corner].end());
 			break;
 		}
-		case REGULAR:
-			throw std::logic_error("Cannot return singular quadrature for regular type");
+		case NO_MATCH:
+			throw std::logic_error("Cannot return singular quadrature for NO_MATCH type");
 			break;
 		default:
 			throw std::invalid_argument("Unknown singularity type");

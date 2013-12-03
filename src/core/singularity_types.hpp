@@ -3,6 +3,8 @@
 
 namespace singularity_type
 {
+	struct regular {};
+
 	template <int order>
 	struct log {};
 

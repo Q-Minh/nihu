@@ -244,8 +244,10 @@ public:
 	static bool const is_symmetric = tmp::and_<
 		std::integral_constant<bool, kernel_traits<Kernels>::is_symmetric>...
 	>::value;
-	/** \brief the singularity order ( r^(-order) ) */
-	static unsigned const singularity_order = tmp::max_<typename sing_order_constant<Kernels>::type...>::value;
+	/** \brief the singularity order ( r^(-order) )
+	 * \todo this is very very sick, should be a maximum if applicable !!!
+	 */
+	typedef singularity_type::inverse<1> singularity_type_t;
 	/** \brief the quadrature order used for the generation of Duffy type singular quadratures */
 	static unsigned const singular_quadrature_order = tmp::max_<typename sing_quad_order_constant<Kernels>::type...>::value;
 	/** \brief the kernel complexity estimator class */

@@ -72,7 +72,7 @@ public:
 	/** \brief the quadrature family the kernel requires */
 	typedef typename kernel_traits<Kernel>::quadrature_family_t quadrature_family_t;
 	/** \brief indicates if kernel is singular and singular accelerators need to be instantiated */
-	static bool const is_kernel_singular = kernel_traits<Kernel>::singularity_order != 0;
+	static bool const is_kernel_singular = !std::is_same<typename kernel_traits<Kernel>::singularity_type_t, singularity_type::regular>::value;
 
 	/** \brief result type of the weighted residual */
 	typedef typename plain_type<
@@ -213,20 +213,20 @@ protected:
 		auto match = element_match_eval(test_field, trial_field);
 		switch (match.get_singularity_type())
 		{
-		case REGULAR:
+		case NO_MATCH:
 			break;
 		case FACE_MATCH:
 			return singular_integral_shortcut<
-				Kernel, TestField, TrialField, singularity::face_match_type
+				Kernel, TestField, TrialField, match::face_match_type
 				>::eval(result, kernel, test_field, trial_field, match);
 		case CORNER_MATCH:
 			return singular_integral_shortcut<
-				Kernel, TestField, TrialField, singularity::corner_match_type
+				Kernel, TestField, TrialField, match::corner_match_type
 				>::eval(result, kernel, test_field, trial_field, match);
 		case EDGE_MATCH:
 			/*
 			return singular_integral_shortcut<
-				Kernel, TestField, TrialField, singularity::edge_match_type
+				Kernel, TestField, TrialField, match::edge_match_type
 				>::eval(result, kernel, test_field, trial_field, match);
 				*/
 			;
@@ -291,7 +291,7 @@ public:
 	/** \brief the quadrature family the kernel requires */
 	typedef typename kernel_traits<Kernel>::quadrature_family_t quadrature_family_t;
 	/** \brief indicates if kernel is singular and singular accelerators need to be instantiated */
-	static bool const is_kernel_singular = kernel_traits<Kernel>::singularity_order != 0;
+	static bool const is_kernel_singular = !std::is_same<typename kernel_traits<Kernel>::singularity_type_t, singularity_type::regular>::value;
 
 	/** \brief N-set of the test field */
 	typedef typename TestField::nset_t test_nset_t;
@@ -451,7 +451,7 @@ protected:
 			;
 /*
 			return singular_integral_shortcut<
-				Kernel, TestField, TrialField, singularity::edge_match_type
+				Kernel, TestField, TrialField, match::edge_match_type
 				>::eval(result, kernel, test_field, trial_field, match);
 */
 		}
