@@ -29,6 +29,7 @@
 #include <complex>
 
 #include "../core/global_definitions.hpp"
+#include "../core/singularity_types.hpp"
 
 #include "../core/kernel.hpp"
 #include "../core/gaussian_quadrature.hpp"
@@ -276,10 +277,10 @@ struct kernel_traits<helmholtz_2d_SLP_kernel<wave_number_t> >
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
 	static bool const is_symmetric = true;
-	/** \brief kernel singularity order ( r^(-order) )
+	/** \brief kernel singularity type
 	 * \todo update this quantity
 	 */
-	static unsigned const singularity_order = 1;
+	typedef singularity_type::log<1> singularity_type_t;
 	/** \brief quadrature order used to generate Duffy singular quadratures
 	 * \todo update this quantity
 	 */
@@ -288,7 +289,7 @@ struct kernel_traits<helmholtz_2d_SLP_kernel<wave_number_t> >
 	 * \todo update this quantity
 	 */
 	typedef interval_estimator<
-		typename reciprocal_distance_kernel_interval<singularity_order, GLOBAL_ACCURACY>::type
+		typename reciprocal_distance_kernel_interval<1, GLOBAL_ACCURACY>::type
 	> complexity_estimator_t;
 };
 
@@ -331,13 +332,13 @@ struct kernel_traits<helmholtz_3d_SLP_kernel<wave_number_t> >
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
 	static bool const is_symmetric = true;
-	/** \brief kernel singularity order ( r^(-order) ) */
-	static unsigned const singularity_order = 1;
+	/** \brief kernel singularity type */
+	typedef singularity_type::inverse<1> singularity_type_t;
 	/** \brief quadrature order used to generate Duffy singular quadratures */
 	static unsigned const singular_quadrature_order = 7;
 	/** \brief the kernel complexity estimator class */
 	typedef interval_estimator<
-		typename reciprocal_distance_kernel_interval<singularity_order, GLOBAL_ACCURACY>::type
+		typename reciprocal_distance_kernel_interval<1, GLOBAL_ACCURACY>::type
 	> complexity_estimator_t;
 };
 
@@ -513,13 +514,15 @@ struct kernel_traits<helmholtz_2d_DLP_kernel<wave_number_t> >
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
 	static bool const is_symmetric = false;
-	/** \brief kernel singularity order ( r^(-order) ) */
-	static unsigned const singularity_order = 1;
+	/** \brief kernel singularity type */
+	typedef singularity_type::log<1> singularity_type_t;
 	/** \brief quadrature order used to generate Duffy singular quadratures */
 	static unsigned const singular_quadrature_order = 7;
-	/** \brief the kernel complexity estimator class */
+	/** \brief the kernel complexity estimator class
+	 * \todo update this
+	 */
 	typedef interval_estimator<
-		typename reciprocal_distance_kernel_interval<singularity_order, GLOBAL_ACCURACY>::type
+		typename reciprocal_distance_kernel_interval<1, GLOBAL_ACCURACY>::type
 	> complexity_estimator_t;
 };
 
@@ -562,13 +565,15 @@ struct kernel_traits<helmholtz_3d_DLP_kernel<wave_number_t> >
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
 	static bool const is_symmetric = false;
-	/** \brief kernel singularity order ( r^(-order) ) */
-	static unsigned const singularity_order = 2;
+	/** \brief kernel singularity type
+	 * \todo check
+	 */
+	typedef singularity_type::inverse<1> singularity_type_t;
 	/** \brief quadrature order used to generate Duffy singular quadratures */
 	static unsigned const singular_quadrature_order = 7;
 	/** \brief the kernel complexity estimator class */
 	typedef interval_estimator<
-		typename reciprocal_distance_kernel_interval<singularity_order, GLOBAL_ACCURACY>::type
+		typename reciprocal_distance_kernel_interval<2, GLOBAL_ACCURACY>::type
 	> complexity_estimator_t;
 };
 
@@ -678,13 +683,17 @@ struct kernel_traits<helmholtz_3d_DLPt_kernel<wave_number_t> >
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
 	static bool const is_symmetric = false;
-	/** \brief kernel singularity order ( r^(-order) ) */
-	static unsigned const singularity_order = 2;
+	/** \brief kernel singularity type
+	 * \todo check
+	 */
+	typedef singularity_type::inverse<1> singularity_type_t;
 	/** \brief quadrature order used to generate Duffy singular quadratures */
 	static unsigned const singular_quadrature_order = 7;
-	/** \brief the kernel complexity estimator class */
+	/** \brief the kernel complexity estimator class
+	 * \todo elaborate
+	 */
 	typedef interval_estimator<
-		typename reciprocal_distance_kernel_interval<singularity_order, GLOBAL_ACCURACY>::type
+		typename reciprocal_distance_kernel_interval<2, GLOBAL_ACCURACY>::type
 	> complexity_estimator_t;
 };
 
@@ -800,13 +809,15 @@ struct kernel_traits<helmholtz_3d_HSP_kernel<wave_number_t> >
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
 	static bool const is_symmetric = true;
-	/** \brief kernel singularity order ( r^(-order) ) */
-	static unsigned const singularity_order = 3;
-	/** \brief quadrature order used to generate Duffy singular quadratures */
-	static unsigned const singular_quadrature_order = 7;
+	/** \brief kernel singularity type */
+	typedef singularity_type::inverse<2> singularity_type_t;
+	/** \brief quadrature order used to generate Duffy singular quadratures
+	 * \todo check
+	 */
+	static unsigned const singular_quadrature_order = 9;
 	/** \brief the kernel complexity estimator class */
 	typedef interval_estimator<
-		typename reciprocal_distance_kernel_interval<singularity_order, GLOBAL_ACCURACY>::type
+		typename reciprocal_distance_kernel_interval<3, GLOBAL_ACCURACY>::type
 	> complexity_estimator_t;
 };
 
