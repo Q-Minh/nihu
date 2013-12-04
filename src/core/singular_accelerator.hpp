@@ -78,7 +78,23 @@ public:
 };
 
 
-class invalid_singular_accelerator {};
+class invalid_singular_iterator {};
+
+class invalid_singular_accelerator
+{
+public:
+	template <class match>
+	invalid_singular_iterator begin(match const &) const
+	{
+		return invalid_singular_iterator();
+	}
+
+	template <class match>
+	invalid_singular_iterator end(match const &) const
+	{
+		return invalid_singular_iterator();
+	}
+};
 
 /**
 * \brief an accelerator class that stores singular quadratures for different singularity types
@@ -246,7 +262,7 @@ private:
 	void generate_face(std::true_type)
 	{
 		// construct facials
-		quad_factory_t::template generate<FACE_MATCH>(
+		quad_factory_t::template generate<match::face_match_type>(
 			m_face_test_quadrature,
 			m_face_trial_quadrature,
 			singular_quadrature_order);
@@ -267,10 +283,10 @@ public:
 		trial_quadrature_t trial_edge_q, trial_corner_q;
 
 		// create test quadrature singular on the first corner
-		quad_factory_t::template generate<CORNER_MATCH>(
+		quad_factory_t::template generate<match::corner_match_type>(
 			test_corner_q, trial_corner_q, singular_quadrature_order);
 		// create test quadrature singular on the first edge
-		quad_factory_t::template generate<EDGE_MATCH>(
+		quad_factory_t::template generate<match::edge_match_type>(
 			test_edge_q, trial_edge_q, singular_quadrature_order);
 
 		// rotate test quadratures
@@ -437,7 +453,7 @@ template <class Kernel, class TestField, class TrialField>
 struct select_singular_accelerator <Kernel, TestField, TrialField, typename std::enable_if<
 	minimal_reference_dimension<
 		typename kernel_traits<Kernel>::singularity_type_t
-	>::value <= TrialField::domain_t::dimension
+	>::value <= TrialField::elem_t::domain_t::dimension
 >::type>
 {
 	typedef singular_accelerator<Kernel, TestField, TrialField> type;

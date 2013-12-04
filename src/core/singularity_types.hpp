@@ -22,10 +22,10 @@ struct minimal_reference_dimension<singularity_type::log<1> >
 };
 
 
-template <unsigned n>
-struct minimal_reference_dimension<singularity_type::inverse<n> >
+template <unsigned order>
+struct minimal_reference_dimension<singularity_type::inverse<order> >
 {
-	static unsigned const value = n+1;
+	static unsigned const value = order+1;
 };
 
 

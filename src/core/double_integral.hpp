@@ -176,10 +176,10 @@ public:
 			kernel_base<Kernel> const &,
 			field_base<TestField> const &,
 			field_base<TrialField> const &,
-			singular_iterator_t begin,
-			singular_iterator_t end)
+			singular_iterator_t,
+			singular_iterator_t)
 		{
-			throw std::runtime_error("Invalid quadrature");
+			throw std::runtime_error("Invalid general singular quadrature");
 			return result;
 		}
 	};
