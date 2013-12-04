@@ -25,6 +25,7 @@
 #ifndef SINGULAR_ACCELERATOR_HPP_INCLUDED
 #define SINGULAR_ACCELERATOR_HPP_INCLUDED
 
+#include "kernel.hpp"	// for the galerkin case
 #include "singular_galerkin_quadrature.hpp"	// for the galerkin case
 #include "blind_transform_selector.hpp"	// for the collocation case
 #include "blind_singular_quadrature.hpp"	// for the collocation case
@@ -76,13 +77,16 @@ public:
 	}
 };
 
+
+class invalid_singular_accelerator {};
+
 /**
 * \brief an accelerator class that stores singular quadratures for different singularity types
 * \tparam Kernel the kernel that is integrated
 * \tparam TestField the test field over which integration is performed
 * \tparam TrialField the trial field over which integration is performed
 */
-template <class Formalism, class Kernel, class TestField, class TrialField>
+template <class Kernel, class TestField, class TrialField, class = typename get_formalism<TestField, TrialField>::type >
 class singular_accelerator;
 
 
@@ -93,7 +97,7 @@ class singular_accelerator;
 * \tparam TrialField the trial field over which integration is performed
 */
 template <class Kernel, class TestField, class TrialField>
-class singular_accelerator<formalism::general, Kernel, TestField, TrialField>
+class singular_accelerator<Kernel, TestField, TrialField, formalism::general>
 {
 	// CRTP check
 	static_assert(std::is_base_of<kernel_base<Kernel>, Kernel>::value,
@@ -337,7 +341,7 @@ protected:
 * \tparam TrialField the trial field type
 */
 template <class Kernel, class TestField, class TrialField>
-class singular_accelerator<formalism::collocational, Kernel, TestField, TrialField>
+class singular_accelerator<Kernel, TestField, TrialField, formalism::collocational>
 {
 	// CRTP check
 	static_assert(std::is_base_of<kernel_base<Kernel>, Kernel>::value,
@@ -420,6 +424,23 @@ public:
 protected:
 	/** \brief pointer to the trial singular quadrature */
 	trial_quadrature_t m_face_trial_quadratures[test_nset_t::num_nodes];
+};
+
+
+template <class Kernel, class TestField, class TrialField, class = void>
+struct select_singular_accelerator
+{
+	typedef invalid_singular_accelerator type;
+};
+
+template <class Kernel, class TestField, class TrialField>
+struct select_singular_accelerator <Kernel, TestField, TrialField, typename std::enable_if<
+	minimal_reference_dimension<
+		typename kernel_traits<Kernel>::singularity_type_t
+	>::value <= TrialField::domain_t::dimension
+>::type>
+{
+	typedef singular_accelerator<Kernel, TestField, TrialField> type;
 };
 
 #endif // SINGULAR_ACCELERATOR_HPP_INCLUDED
