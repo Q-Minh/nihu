@@ -158,8 +158,6 @@ public:
 		// Get wavenumber from the kernel
 		auto const &k = kernel.get_data().get_wave_number();
 		
-		std::cout << "k = " << k << std::endl;
-		
 		// Obtain the element
 		auto const &tr_elem = trial_field.get_elem();
 		unsigned const N = tria_1_elem::num_nodes;
