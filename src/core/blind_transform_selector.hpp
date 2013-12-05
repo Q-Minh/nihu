@@ -19,5 +19,18 @@ struct blind_transform_selector<singularity_type::log<1>, line_domain>
 	typedef blind_transform::square type;
 };
 
+template <>
+struct blind_transform_selector<singularity_type::inverse<1>, tria_domain>
+{
+	typedef blind_transform::duffy type;
+};
+
+template <>
+struct blind_transform_selector<singularity_type::inverse<1>, quad_domain>
+{
+	typedef blind_transform::duffy type;
+};
+
+
 
 #endif // BLIND_TRANSFORM_SELECTOR_INCLUDED

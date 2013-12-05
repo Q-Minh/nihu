@@ -10,6 +10,7 @@ typedef elem_t::coords_t coords_t;
 
 auto kernel = kernel_t();
 
+/*
 void constant_collocation_tester(void)
 {
 	typedef field_view<elem_t, field_option::constant> trial_field_t;
@@ -27,6 +28,7 @@ void constant_collocation_tester(void)
 
 	std::cout << integral_t::eval(kernel, test_field, trial_field, std::true_type()) << std::endl;
 }
+*/
 
 /*
 void galerkin_face_tester(void)
@@ -50,7 +52,9 @@ void galerkin_face_tester(void)
 
 int main(void)
 {
+/*
 	constant_collocation_tester();
+*/
 
 	return 0;
 }

@@ -3,11 +3,30 @@
 
 namespace singularity_type
 {
-	template <int order>
+	struct regular {};
+
+	template <unsigned order>
 	struct log {};
 
-	template <int order>
+	template <unsigned order>
 	struct inverse {};
 }
+
+template <class SingularityType>
+struct minimal_reference_dimension;
+
+template <>
+struct minimal_reference_dimension<singularity_type::log<1> >
+{
+	static unsigned const value = 1;
+};
+
+
+template <unsigned order>
+struct minimal_reference_dimension<singularity_type::inverse<order> >
+{
+	static unsigned const value = order+1;
+};
+
 
 #endif // SINGULARITY_TYPES_HPP_INCLUDED

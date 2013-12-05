@@ -1,6 +1,7 @@
 #ifndef BLIND_SINGULAR_QUADRATURE_HPP_INCLUDED
 #define BLIND_SINGULAR_QUADRATURE_HPP_INCLUDED
 
+#include "formalism.hpp"
 #include "blind_transform_selector.hpp"
 #include "duffy_quadrature.hpp"
 
@@ -18,5 +19,6 @@ struct blind_singular_quadrature<blind_transform::square, RegularFamily, LSet>
 {
 	typedef duffy_quadrature<RegularFamily, LSet> type;
 };
+
 
 #endif // BLIND_SINGULAR_QUADRATURE_HPP_INCLUDED

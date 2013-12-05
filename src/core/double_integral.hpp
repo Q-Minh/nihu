@@ -72,7 +72,10 @@ public:
 	/** \brief the quadrature family the kernel requires */
 	typedef typename kernel_traits<Kernel>::quadrature_family_t quadrature_family_t;
 	/** \brief indicates if kernel is singular and singular accelerators need to be instantiated */
-	static bool const is_kernel_singular = kernel_traits<Kernel>::singularity_order != 0;
+	static bool const is_kernel_singular = !std::is_same<
+		typename kernel_traits<Kernel>::singularity_type_t,
+		singularity_type::regular
+	>::value;
 
 	/** \brief result type of the weighted residual */
 	typedef typename plain_type<
@@ -133,32 +136,53 @@ public:
 	* \param [in] end end iterator of the singular quadrature
 	* \return reference to the integration result
 	*/
-	template <class singular_iterator_t>
-	static result_t &eval_singular_on_accelerator(
-		result_t &result,
-		kernel_base<Kernel> const &kernel,
-		field_base<TestField> const &test_field,
-		field_base<TrialField> const &trial_field,
-		singular_iterator_t begin,
-		singular_iterator_t end)
+	template <class singular_accelerator_t, class dummy>
+	struct eval_singular_on_accelerator
 	{
-		while (begin != end)
+		template <class singular_iterator_t>
+		static result_t &eval(
+			result_t &result,
+			kernel_base<Kernel> const &kernel,
+			field_base<TestField> const &test_field,
+			field_base<TrialField> const &trial_field,
+			singular_iterator_t begin,
+			singular_iterator_t end)
 		{
-			w_test_input_t test_input(test_field.get_elem(), begin.get_test_quadrature_elem().get_xi());
-			w_trial_input_t trial_input(trial_field.get_elem(), begin.get_trial_quadrature_elem().get_xi());
+			while (begin != end)
+			{
+				w_test_input_t test_input(test_field.get_elem(), begin.get_test_quadrature_elem().get_xi());
+				w_trial_input_t trial_input(trial_field.get_elem(), begin.get_trial_quadrature_elem().get_xi());
 
-			auto left = (TestField::nset_t::eval_shape(begin.get_test_quadrature_elem().get_xi())
-				* (test_input.get_jacobian() * begin.get_test_quadrature_elem().get_w())).eval();
-			auto right = (TrialField::nset_t::eval_shape(begin.get_trial_quadrature_elem().get_xi())
-				* (trial_input.get_jacobian() * begin.get_trial_quadrature_elem().get_w())).eval();
+				auto left = (TestField::nset_t::eval_shape(begin.get_test_quadrature_elem().get_xi())
+					* (test_input.get_jacobian() * begin.get_test_quadrature_elem().get_w())).eval();
+				auto right = (TrialField::nset_t::eval_shape(begin.get_trial_quadrature_elem().get_xi())
+					* (trial_input.get_jacobian() * begin.get_trial_quadrature_elem().get_w())).eval();
 
-			result += left * kernel(test_input, trial_input) * right.transpose();
+				result += left * kernel(test_input, trial_input) * right.transpose();
 
-			++begin;
+				++begin;
+			}
+
+			return result;
 		}
+	};
 
-		return result;
-	}
+	template <class dummy>
+	struct eval_singular_on_accelerator<invalid_singular_accelerator, dummy>
+	{
+		template <class singular_iterator_t>
+		static result_t &eval(
+			result_t &result,
+			kernel_base<Kernel> const &,
+			field_base<TestField> const &,
+			field_base<TrialField> const &,
+			singular_iterator_t,
+			singular_iterator_t)
+		{
+			throw std::runtime_error("Invalid general singular quadrature");
+			return result;
+		}
+	};
 
 protected:
 	/** \brief evaluate double integral of a kernel on specific fields without singularity check
@@ -213,20 +237,20 @@ protected:
 		auto match = element_match_eval(test_field, trial_field);
 		switch (match.get_singularity_type())
 		{
-		case REGULAR:
+		case NO_MATCH:
 			break;
 		case FACE_MATCH:
 			return singular_integral_shortcut<
-				Kernel, TestField, TrialField, singularity::face_match_type
+				Kernel, TestField, TrialField, match::face_match_type
 				>::eval(result, kernel, test_field, trial_field, match);
 		case CORNER_MATCH:
 			return singular_integral_shortcut<
-				Kernel, TestField, TrialField, singularity::corner_match_type
+				Kernel, TestField, TrialField, match::corner_match_type
 				>::eval(result, kernel, test_field, trial_field, match);
 		case EDGE_MATCH:
 			/*
 			return singular_integral_shortcut<
-				Kernel, TestField, TrialField, singularity::edge_match_type
+				Kernel, TestField, TrialField, match::edge_match_type
 				>::eval(result, kernel, test_field, trial_field, match);
 				*/
 			;
@@ -291,7 +315,10 @@ public:
 	/** \brief the quadrature family the kernel requires */
 	typedef typename kernel_traits<Kernel>::quadrature_family_t quadrature_family_t;
 	/** \brief indicates if kernel is singular and singular accelerators need to be instantiated */
-	static bool const is_kernel_singular = kernel_traits<Kernel>::singularity_order != 0;
+	static bool const is_kernel_singular = !std::is_same<
+		typename kernel_traits<Kernel>::singularity_type_t,
+		singularity_type::regular
+	>::value;
 
 	/** \brief N-set of the test field */
 	typedef typename TestField::nset_t test_nset_t;
@@ -354,32 +381,50 @@ public:
 	* \param [in] sa singular accelerator
 	* \return reference to the integration result
 	*/
-	template <class singular_accelerator_t>
-	static result_t &eval_singular_on_accelerator(
-		result_t &result,
-		kernel_base<Kernel> const &kernel,
-		field_base<TestField> const &test_field,
-		field_base<TrialField> const &trial_field,
-		singular_accelerator_t const &sa)
+	template <class singular_accelerator_t, class dummy>
+	struct eval_singular_on_accelerator
 	{
-		for (unsigned idx = 0; idx < test_nset_t::num_nodes; ++idx)
+		static result_t & eval(
+			result_t &result,
+			kernel_base<Kernel> const &kernel,
+			field_base<TestField> const &test_field,
+			field_base<TrialField> const &trial_field,
+			singular_accelerator_t const &sa)
 		{
-			test_input_t collocational_point(test_field.get_elem(), test_nset_t::corner_at(idx));
-			auto bound = kernel.bind(collocational_point);
-			auto const &quad = sa.get_trial_quadrature(idx);
-
-			for (auto quad_it = quad.begin(); quad_it != quad.end(); ++quad_it)
+			for (unsigned idx = 0; idx < test_nset_t::num_nodes; ++idx)
 			{
-				w_trial_input_t trial_input(trial_field.get_elem(), quad_it->get_xi());
+				test_input_t collocational_point(test_field.get_elem(), test_nset_t::corner_at(idx));
+				auto bound = kernel.bind(collocational_point);
+				auto const &quad = sa.get_trial_quadrature(idx);
 
-				result.row(idx) += bound(trial_input) *
-					(trial_input.get_jacobian() * quad_it->get_w() *
-					TrialField::nset_t::eval_shape(quad_it->get_xi()));
+				for (auto quad_it = quad.begin(); quad_it != quad.end(); ++quad_it)
+				{
+					w_trial_input_t trial_input(trial_field.get_elem(), quad_it->get_xi());
+
+					result.row(idx) += bound(trial_input) *
+						(trial_input.get_jacobian() * quad_it->get_w() *
+						TrialField::nset_t::eval_shape(quad_it->get_xi()));
+				}
 			}
-		}
 
-		return result;
-	}
+			return result;
+		}
+	};
+
+	template <class dummy>
+	struct eval_singular_on_accelerator<invalid_singular_accelerator, dummy>
+	{
+		static result_t & eval(
+			result_t &result,
+			kernel_base<Kernel> const &,
+			field_base<TestField> const &,
+			field_base<TrialField> const &,
+			invalid_singular_accelerator const &)
+		{
+			throw std::runtime_error("Invalid quadrature");
+			return result;
+		}
+	};
 
 protected:
 	/** \brief evaluate single integral of a kernel on specific fields without singularity check
@@ -451,7 +496,7 @@ protected:
 			;
 /*
 			return singular_integral_shortcut<
-				Kernel, TestField, TrialField, singularity::edge_match_type
+				Kernel, TestField, TrialField, match::edge_match_type
 				>::eval(result, kernel, test_field, trial_field, match);
 */
 		}
@@ -497,9 +542,8 @@ template <class Kernel, class TestField, class TrialField, class Singularity, cl
 class singular_integral_shortcut
 {
 	typedef typename get_formalism<TestField, TrialField>::type formalism_t;
-	typedef store<
-		singular_accelerator<formalism_t, Kernel, TestField, TrialField>
-	> store_t;
+	typedef typename select_singular_accelerator<Kernel, TestField, TrialField>::type singular_accelerator_t;
+	typedef store<singular_accelerator_t> store_t;
 
 	template <class result_t>
 	static result_t &eval_impl(
@@ -510,7 +554,7 @@ class singular_integral_shortcut
 		field_base<TrialField> const &trial_field,
 		element_match const &match)
 	{
-		return double_integral<Kernel, TestField, TrialField>::eval_singular_on_accelerator(
+		return double_integral<Kernel, TestField, TrialField>::template eval_singular_on_accelerator<singular_accelerator_t, void>::eval(
 			result, kernel, test_field, trial_field, store_t::m_data.begin(match), store_t::m_data.end(match));
 	}
 
@@ -523,10 +567,9 @@ class singular_integral_shortcut
 		field_base<TrialField> const &trial_field,
 		element_match const &)
 	{
-		return double_integral<Kernel, TestField, TrialField>::eval_singular_on_accelerator(
+		return double_integral<Kernel, TestField, TrialField>::template eval_singular_on_accelerator<singular_accelerator_t, void>::eval(
 			result, kernel, test_field, trial_field, store_t::m_data);
 	}
-
 
 public:
 	/** \brief evaluate singular integral
