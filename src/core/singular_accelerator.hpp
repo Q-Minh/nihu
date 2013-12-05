@@ -78,17 +78,27 @@ public:
 };
 
 
+/** \brief an invalid singular iterator assigned to nonexisting integrals */
 class invalid_singular_iterator {};
 
+/** \brief an invalid singular accelerator assigned to nonexisting integrals */
 class invalid_singular_accelerator
 {
 public:
+	/** \brief return the begin iterator
+	 * \tparam match the element match type
+	 * \return returns and invalud iterator
+	 */
 	template <class match>
 	invalid_singular_iterator begin(match const &) const
 	{
 		return invalid_singular_iterator();
 	}
 
+	/** \brief return the end iterator
+	 * \tparam match the element match type
+	 * \return returns and invalud iterator
+	 */
 	template <class match>
 	invalid_singular_iterator end(match const &) const
 	{
@@ -446,12 +456,22 @@ protected:
 };
 
 
+/** \brief select a singular accelerator for a kernel and test and trial fields
+ * \tparam Kernel the kernel type
+ * \tparam TestField the test field type
+ * \tparam TrialField the trial field tpye
+ */
 template <class Kernel, class TestField, class TrialField, class = void>
 struct select_singular_accelerator
 {
 	typedef invalid_singular_accelerator type;
 };
 
+/** \brief select a singular accelerator for an integrable kernel over a test and trial field
+ * \tparam Kernel the kernel type
+ * \tparam TestField the test field type
+ * \tparam TrialField the trial field tpye
+ */
 template <class Kernel, class TestField, class TrialField>
 struct select_singular_accelerator <Kernel, TestField, TrialField, typename std::enable_if<
 	minimal_reference_dimension<

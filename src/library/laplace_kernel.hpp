@@ -127,12 +127,13 @@ struct kernel_traits<laplace_2d_SLP_kernel>
 	static bool const is_symmetric = true;
 	/** \brief kernel singularity type */
 	typedef singularity_type::log<1> singularity_type_t;
-	static unsigned const singularity_order = 1;
 	/** \brief quadrature order used to generate Duffy singular quadratures */
 	static unsigned const singular_quadrature_order = 7;
-	/** \brief the kernel complexity estimator class */
+	/** \brief the kernel complexity estimator class
+	 * \todo check this
+	 */
 	typedef interval_estimator<
-		typename reciprocal_distance_kernel_interval<singularity_order, GLOBAL_ACCURACY>::type
+		typename reciprocal_distance_kernel_interval<1, GLOBAL_ACCURACY>::type
 	> complexity_estimator_t;
 };
 

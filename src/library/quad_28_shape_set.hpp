@@ -93,6 +93,11 @@ public:
 		return m_corners;
 	}
 
+	/** \brief convert a node index to a domain corner index
+	 * \param [in] idx the node index
+	 * \return the domain corner index.
+	 * \details if the domain corner index does not exist, an out_of_range exception is thrown
+	 */
 	static unsigned node_to_domain_corner(unsigned idx)
 	{
 		int ret = m_domain_corners[idx];
@@ -104,7 +109,7 @@ public:
 protected:
 	/** \brief the corner nodes of the shape set */
 	static xi_t const m_corners[num_nodes];
-
+	/** \brief the domain corners assigned to the nodal corners */
 	static int const m_domain_corners[num_nodes];
 };
 
