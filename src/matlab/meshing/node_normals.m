@@ -21,8 +21,14 @@ tria = elements(elements(:,2) == 23,[1 (5:7)]);
 quad = elements(elements(:,2) == 24,[1 (5:8)]);
 
 % Create sparse matrix
-I = [reshape(tria(:,2:4).',1,[]); reshape(quad(:,2:5).',1,[])];
-J = [reshape(repmat(tria(:,1),1,3).',1,[]); reshape(repmat(quad(:,1),1,4).',1,[])];
+I = [
+    reshape(tria(:,2:4).',1,[])
+    reshape(quad(:,2:5).',1,[])
+    ];
+J = [
+    reshape(repmat(tria(:,1),1,3).',1,[])
+    reshape(repmat(quad(:,1),1,4).',1,[])
+    ];
 
 N = sparse(I,J,ones(size(I)),nNode,nElem);
 

@@ -25,12 +25,16 @@
 #ifndef SINGULAR_ACCELERATOR_HPP_INCLUDED
 #define SINGULAR_ACCELERATOR_HPP_INCLUDED
 
+#include "kernel.hpp"	// for the galerkin case
 #include "singular_galerkin_quadrature.hpp"	// for the galerkin case
-#include "duffy_quadrature.hpp"		// for the collocational case
+#include "blind_transform_selector.hpp"	// for the collocation case
+#include "blind_singular_quadrature.hpp"	// for the collocation case
 #include "field.hpp"
 
 #include "../util/dual_range.hpp"
 #include "formalism.hpp"
+
+#include <stdexcept>
 
 /**
 * \brief a dual iterator to point to a test and a trial quadrature element
@@ -73,13 +77,32 @@ public:
 	}
 };
 
+
+class invalid_singular_iterator {};
+
+class invalid_singular_accelerator
+{
+public:
+	template <class match>
+	invalid_singular_iterator begin(match const &) const
+	{
+		return invalid_singular_iterator();
+	}
+
+	template <class match>
+	invalid_singular_iterator end(match const &) const
+	{
+		return invalid_singular_iterator();
+	}
+};
+
 /**
 * \brief an accelerator class that stores singular quadratures for different singularity types
 * \tparam Kernel the kernel that is integrated
 * \tparam TestField the test field over which integration is performed
 * \tparam TrialField the trial field over which integration is performed
 */
-template <class Formalism, class Kernel, class TestField, class TrialField>
+template <class Kernel, class TestField, class TrialField, class = typename get_formalism<TestField, TrialField>::type >
 class singular_accelerator;
 
 
@@ -90,7 +113,7 @@ class singular_accelerator;
 * \tparam TrialField the trial field over which integration is performed
 */
 template <class Kernel, class TestField, class TrialField>
-class singular_accelerator<formalism::general, Kernel, TestField, TrialField>
+class singular_accelerator<Kernel, TestField, TrialField, formalism::general>
 {
 	// CRTP check
 	static_assert(std::is_base_of<kernel_base<Kernel>, Kernel>::value,
@@ -106,6 +129,11 @@ public:
 	typedef TestField test_field_t;
 	/** \brief template argument as nested type */
 	typedef TrialField trial_field_t;
+
+	/** \brief the L-set of the test domain */
+	typedef typename test_field_t::elem_t::lset_t test_lset_t;
+	/** \brief the L-set of the trial domain */
+	typedef typename trial_field_t::elem_t::lset_t trial_lset_t;
 
 	/** \brief test domain */
 	typedef typename test_field_t::elem_t::domain_t test_domain_t;
@@ -164,20 +192,28 @@ public:
 				m_face_trial_quadrature.begin());
 			break;
 		case EDGE_MATCH:
+		{
+			unsigned test_domain_corner = test_lset_t::node_to_domain_corner(elem_match.get_overlap().get_ind1());
+			unsigned trial_domain_corner = trial_lset_t::node_to_domain_corner(elem_match.get_overlap().get_ind2());
 			return iterator(
-				m_edge_test_quadrature[elem_match.get_overlap().get_ind1()].begin(),
-				m_edge_trial_quadrature[elem_match.get_overlap().get_ind2()].begin());
+				m_edge_test_quadrature[test_domain_corner].begin(),
+				m_edge_trial_quadrature[trial_domain_corner].begin());
 			break;
+		}
 		case CORNER_MATCH:
+		{
+			unsigned test_domain_corner = test_lset_t::node_to_domain_corner(elem_match.get_overlap().get_ind1());
+			unsigned trial_domain_corner = trial_lset_t::node_to_domain_corner(elem_match.get_overlap().get_ind2());
 			return iterator(
-				m_corner_test_quadrature[elem_match.get_overlap().get_ind1()].begin(),
-				m_corner_trial_quadrature[elem_match.get_overlap().get_ind2()].begin());
+				m_corner_test_quadrature[test_domain_corner].begin(),
+				m_corner_trial_quadrature[trial_domain_corner].begin());
 			break;
-		case REGULAR:
-			throw("Cannot return singular quadrature for regular type");
+		}
+		case NO_MATCH:
+			throw std::logic_error("Cannot return singular quadrature for regular type");
 			break;
 		default:
-			throw("Unknown singularity type");
+			throw std::invalid_argument("Unknown singularity type");
 		}
 	}
 
@@ -195,20 +231,28 @@ public:
 				m_face_trial_quadrature.end());
 			break;
 		case EDGE_MATCH:
+		{
+			unsigned test_domain_corner = test_lset_t::node_to_domain_corner(elem_match.get_overlap().get_ind1());
+			unsigned trial_domain_corner = trial_lset_t::node_to_domain_corner(elem_match.get_overlap().get_ind2());
 			return iterator(
-				m_edge_test_quadrature[elem_match.get_overlap().get_ind1()].end(),
-				m_edge_trial_quadrature[elem_match.get_overlap().get_ind2()].end());
+				m_edge_test_quadrature[test_domain_corner].end(),
+				m_edge_trial_quadrature[trial_domain_corner].end());
 			break;
+		}
 		case CORNER_MATCH:
+		{
+			unsigned test_domain_corner = test_lset_t::node_to_domain_corner(elem_match.get_overlap().get_ind1());
+			unsigned trial_domain_corner = trial_lset_t::node_to_domain_corner(elem_match.get_overlap().get_ind2());
 			return iterator(
-				m_corner_test_quadrature[elem_match.get_overlap().get_ind1()].end(),
-				m_corner_trial_quadrature[elem_match.get_overlap().get_ind2()].end());
+				m_corner_test_quadrature[test_domain_corner].end(),
+				m_corner_trial_quadrature[trial_domain_corner].end());
 			break;
-		case REGULAR:
-			throw("Cannot return singular quadrature for regular type");
+		}
+		case NO_MATCH:
+			throw std::logic_error("Cannot return singular quadrature for NO_MATCH type");
 			break;
 		default:
-			throw("Unknown singularity type");
+			throw std::invalid_argument("Unknown singularity type");
 		}
 	}
 
@@ -220,7 +264,7 @@ private:
 	void generate_face(std::true_type)
 	{
 		// construct facials
-		quad_factory_t::template generate<FACE_MATCH>(
+		quad_factory_t::template generate<match::face_match_type>(
 			m_face_test_quadrature,
 			m_face_trial_quadrature,
 			singular_quadrature_order);
@@ -241,10 +285,10 @@ public:
 		trial_quadrature_t trial_edge_q, trial_corner_q;
 
 		// create test quadrature singular on the first corner
-		quad_factory_t::template generate<CORNER_MATCH>(
+		quad_factory_t::template generate<match::corner_match_type>(
 			test_corner_q, trial_corner_q, singular_quadrature_order);
 		// create test quadrature singular on the first edge
-		quad_factory_t::template generate<EDGE_MATCH>(
+		quad_factory_t::template generate<match::edge_match_type>(
 			test_edge_q, trial_edge_q, singular_quadrature_order);
 
 		// rotate test quadratures
@@ -315,7 +359,7 @@ protected:
 * \tparam TrialField the trial field type
 */
 template <class Kernel, class TestField, class TrialField>
-class singular_accelerator<formalism::collocational, Kernel, TestField, TrialField>
+class singular_accelerator<Kernel, TestField, TrialField, formalism::collocational>
 {
 	// CRTP check
 	static_assert(std::is_base_of<kernel_base<Kernel>, Kernel>::value,
@@ -335,8 +379,6 @@ public:
 	/** \brief trial elem type */
 	typedef typename trial_field_t::elem_t trial_elem_t;
 
-	/** \brief test domain type */
-	typedef typename test_elem_t::domain_t test_domain_t;
 	/** \brief trial domain type */
 	typedef typename trial_elem_t::domain_t trial_domain_t;
 
@@ -356,8 +398,18 @@ public:
 	/** \brief the singular quadrature order required by the kernel */
 	static unsigned const singular_quadrature_order = kernel_traits<kernel_t>::singular_quadrature_order;
 
+	/** \brief the blind transformation tag that governs the singular quadrature transformation method */
+	typedef typename blind_transform_selector<
+		typename kernel_traits<kernel_t>::singularity_type_t,
+		trial_domain_t
+	>::type blind_singular_transform_tag_t;
+
 	/** \brief the duffy quadrature type */
-	typedef duffy_quadrature<quadrature_family_t, trial_lset_t> trial_duffy_t;
+	typedef typename blind_singular_quadrature<
+		blind_singular_transform_tag_t,
+		quadrature_family_t,
+		trial_lset_t
+	>::type trial_blind_t;
 
 	/** \brief iterator type of the singular quadrature */
 	typedef typename trial_quadrature_t::const_iterator iterator;
@@ -383,7 +435,7 @@ public:
 		if (face_match_possible)
 		{
 			for (unsigned idx = 0; idx < test_nset_t::num_nodes; ++idx)
-				m_face_trial_quadratures[idx] += trial_duffy_t::on_face(
+				m_face_trial_quadratures[idx] += trial_blind_t::on_face(
 					singular_quadrature_order, test_nset_t::corner_at(idx));
 		}
 	}
@@ -391,6 +443,23 @@ public:
 protected:
 	/** \brief pointer to the trial singular quadrature */
 	trial_quadrature_t m_face_trial_quadratures[test_nset_t::num_nodes];
+};
+
+
+template <class Kernel, class TestField, class TrialField, class = void>
+struct select_singular_accelerator
+{
+	typedef invalid_singular_accelerator type;
+};
+
+template <class Kernel, class TestField, class TrialField>
+struct select_singular_accelerator <Kernel, TestField, TrialField, typename std::enable_if<
+	minimal_reference_dimension<
+		typename kernel_traits<Kernel>::singularity_type_t
+	>::value <= TrialField::elem_t::domain_t::dimension
+>::type>
+{
+	typedef singular_accelerator<Kernel, TestField, TrialField> type;
 };
 
 #endif // SINGULAR_ACCELERATOR_HPP_INCLUDED

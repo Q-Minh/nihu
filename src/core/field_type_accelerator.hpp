@@ -25,6 +25,7 @@
 #ifndef FIELD_TYPE_ACCELERATOR_HPP_INCLUDED
 #define FIELD_TYPE_ACCELERATOR_HPP_INCLUDED
 
+#include "global_definitions.hpp"
 #include "field_type_acceleration_option.hpp"
 #include "field.hpp"
 #include "quadrature.hpp"
@@ -51,6 +52,7 @@ class field_type_accelerator_elem<Field, Family, acceleration::soft> :
 	>
 {
 public:
+	/** \brief the base type */
 	typedef quadrature_elem<
 		typename Field::elem_t::domain_t::xi_t, typename Field::domain_t::scalar_t
 	> base_t;
@@ -65,7 +67,7 @@ public:
 };
 
 
-/** \brief specialisation of ::field_type_accelerator_elem for the hard case */
+/** \brief specialisation of ::field_type_accelerator_elem for the hard acceleration case */
 template <class Field, class Family>
 class field_type_accelerator_elem<Field, Family, acceleration::hard> :
 	public quadrature_elem<
@@ -74,6 +76,7 @@ class field_type_accelerator_elem<Field, Family, acceleration::hard> :
 	>
 {
 public:
+	/** \brief the base type */
 	typedef quadrature_elem<
 		typename Field::elem_t::domain_t::xi_t,
 		typename Field::elem_t::domain_t::scalar_t
@@ -97,14 +100,20 @@ public:
 	}
 
 protected:
+	/** \brief the accelerated n-set */
 	typename Field::nset_t::shape_t m_nset;
 };
 
 
 
+// forward declaration
 template <class Field, class Family, class Acceleration, class Enable = void>
 class field_type_accelerator;
 
+/** \brief field type accelerator for the hard non-dirac case
+ * \tparam Field the field type to accelerate
+ * \tparam the quadrature family type
+ */
 template <class Field, class Family>
 class field_type_accelerator<
 	Field, Family, acceleration::hard,
@@ -115,15 +124,21 @@ class field_type_accelerator<
 	>::type
 {
 public:
+	/** \brief the accelerator element type */
 	typedef field_type_accelerator_elem<
 		Field, Family, acceleration::hard
 	> accelerator_elem_t;
+	/** \brief the base type */
 	typedef typename EigenStdVector<accelerator_elem_t>::type base_t;
 
+	/** \brief the quadrature type */
 	typedef typename quadrature_type<
 		Family, typename Field::elem_t::domain_t
 	>::type quadrature_t;
 
+	/** \brief contructor from a quadrature
+	 * \param [in] quadrature the quadrature instance
+	 */
 	field_type_accelerator(quadrature_t const &quadrature)
 	{
 		this->reserve(quadrature.size());
@@ -131,6 +146,9 @@ public:
 			this->push_back(accelerator_elem_t(quadrature[i]));
 	}
 
+	/** \brief constructor from quadrature order
+	 * \param [in] order the quadrature order
+	 */
 	field_type_accelerator(unsigned order) :
 		field_type_accelerator(quadrature_t(order))
 	{
@@ -138,6 +156,10 @@ public:
 };
 
 
+/** \brief field type accelerator for the soft non-dirac case
+ * \tparam Field the field type to accelerate
+ * \tparam the quadrature family type
+ */
 template <class Field, class Family>
 class field_type_accelerator<Field, Family, acceleration::soft,
 	typename std::enable_if<!field_traits<Field>::is_dirac>::type
@@ -145,20 +167,27 @@ class field_type_accelerator<Field, Family, acceleration::soft,
 	public quadrature_type<Family, typename Field::elem_t::domain_t>::type
 {
 public:
+	/** \brief the base type */
 	typedef typename quadrature_type<Family, typename Field::elem_t::domain_t>::type base_t;
-
+	/** \brief the accelerator element type */
 	typedef field_type_accelerator_elem<Field, Family, acceleration::soft> accelerator_elem_t;
-
+	/** \brief the iterator type */
 	typedef casted_iterator<
 		typename base_t::const_iterator,
 		accelerator_elem_t
 	> const_iterator;
 
+	/** \brief return begin iterator
+	 * \return begin iterator
+	 */
 	const_iterator begin(void) const
 	{
 		return base_t::cbegin();
 	}
 
+	/** \brief return end iterator
+	 * \return end iterator
+	 */
 	const_iterator end(void) const
 	{
 		return base_t::cend();
@@ -166,9 +195,12 @@ public:
 };
 
 
+/** \brief an index class defined to use as a base class */
 struct index_t
 {
+	/** \brief constructor */
 	index_t(unsigned idx) :	m_idx(idx) {}
+	/** \brief the underlying index value */
 	unsigned m_idx;
 };
 
@@ -184,7 +216,7 @@ public:
 	/** \brief return quadrature weight
 	 * \return quadrature weight (constant 1.0)
 	 */
-	constexpr typename NSet::scalar_t get_w(void) const
+	CONSTEXPR typename NSet::scalar_t get_w(void) const
 	{
 		return 1.0;
 	}
@@ -192,7 +224,7 @@ public:
 	/** \brief return shape set vector
 	 * \return constant shape set vector
 	 */
-	constexpr typename NSet::shape_t get_N(void) const
+	CONSTEXPR typename NSet::shape_t get_N(void) const
 	{
 		return NSet::shape_t::Unit(index_t::m_idx);
 	}
@@ -200,41 +232,62 @@ public:
 	/** \brief return quadrature point location
 	 * \return constant quadrature point location
 	 */
-	constexpr typename NSet::xi_t get_xi(void) const
+	CONSTEXPR typename NSet::xi_t get_xi(void) const
 	{
 		return NSet::corner_at(index_t::m_idx);
 	}
 };
 
+/** \brief an iterator class used for the dirac accelerators */
 class dirac_field_type_accelerator_iterator
 {
 public:
+	/** \brief constructor
+	 * \param [in] idx the index
+	 */
 	dirac_field_type_accelerator_iterator(index_t const &idx) :
 		m_idx(idx)
 	{
 	}
 
+	/** \brief increment operator
+	 * \return the incremented iterator reference
+	 */
 	dirac_field_type_accelerator_iterator &operator++(void)
 	{
 		++m_idx.m_idx;
 		return *this;
 	}
 
+	/** \brief check inequality
+	 * \param [in] other the other iterator
+	 * \return true if the two iterators are different
+	 */
 	bool operator !=(dirac_field_type_accelerator_iterator const &other) const
 	{
 		return m_idx.m_idx != other.m_idx.m_idx;
 	}
 
+	/** \brief check equality
+	 * \param [in] other the other iterator
+	 * \return true if the two are equal
+	 */
 	bool operator ==(dirac_field_type_accelerator_iterator const &other) const
 	{
 		return !(*this != other);
 	}
 
+	/** \brief dereference operator
+	 * \return the dereferred index
+	 */
 	index_t const &operator*(void) const
 	{
 		return m_idx;
 	}
 
+	/** \brief pointer dereference operator
+	 * \return the address of the stored index
+	 */
 	index_t const *operator->(void) const
 	{
 		return &m_idx;
@@ -260,6 +313,7 @@ public:
 		typename Field::nset_t
 	> accelerator_elem_t;
 
+	/** \brief default constructor */
 	field_type_accelerator(unsigned)
 	{
 	}
@@ -269,12 +323,18 @@ public:
 		accelerator_elem_t
 	> const_iterator;
 
-	constexpr static const_iterator begin(void)
+	/** \brief return begin iterator
+	 * \return begin iterator
+	 */
+	CONSTEXPR static const_iterator begin(void)
 	{
 		return dirac_field_type_accelerator_iterator(index_t(0));
 	}
 
-	constexpr static const_iterator end(void)
+	/** \brief return end iterator
+	 * \return end iterator
+	 */
+	CONSTEXPR static const_iterator end(void)
 	{
 		return dirac_field_type_accelerator_iterator(index_t(Field::num_dofs));
 	}

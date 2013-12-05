@@ -1,18 +1,18 @@
 function [mesh, info] = import_gmsh_mesh(fname)
-%IMPORT_GMSH_MESH Import NiHu mesh from gmsh file
+%IMPORT_GMSH_MESH Import NiHu mesh from gmsh format
 %   [MESH, INFO] = IMPOT_GMSH_MESH(FNAME)  imports mesh from a gmsh file
 %
 % See also: EXPORT_GMSH_MESH IMPORT_BULK_MESH EXPORT_BULK_MESH
 
 %   Copyright 2008-2013 P. Fiala, P. Rucz
 %   Budapest University of Technology and Economics
-%   Dept. of Telecommunications
+%   Dept. of Networked Systems and Services
 
-% Last modified: 2013.09.22.
+% Last modified: 2013.10.11.
 
 fid = fopen(fname);
 if fid == -1
-    error('Cannot open bulk file %s', fname);
+    error('NiHu:file_open', 'Cannot open bulk file %s', fname);
 end
 ftext = textscan(fid, '%s', 'Delimiter', '\n');
 ftext = ftext{1};
@@ -165,3 +165,4 @@ function elements = read_elements(ftext, commands)
     % Drop unread elements
     elements = elements(1 : jElem, :);
 end
+

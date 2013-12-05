@@ -7,7 +7,8 @@ elem_data = {
     %ID, num_new_elems, num_new_nod, refine_func
     12, 2, 3, @quadratise_line
     23, 4, 6, @quadratise_tria
-    24, 4, 9, @quadratise_quad
+%     24, 4, 9, @quadratise_quad
+    24, 4, 8, @quadratise_quad
     };
 
 newmesh.Elements = [];
@@ -74,7 +75,8 @@ function [nodes, element] = quadratise_quad(nodes)
 nodes = [
     nodes
     (nodes(1:4,:) + nodes([2 3 4 1], :)) /2
-    mean(nodes,1)
+%     mean(nodes,1)
     ];
-element = [1 5 2 6 3 7 4 8 9];
+% element = [1 5 2 6 3 7 4 8 9];
+element = [1 5 2 6 3 7 4 8];
 end

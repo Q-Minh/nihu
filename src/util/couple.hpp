@@ -27,6 +27,8 @@
 /** \brief GCC version defined conventionally */
 #define GCC_VERSION (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
 
+#include "../core/global_definitions.hpp"
+
 #include "crtp_base.hpp"
 #include "product_type.hpp"
 #include <tuple>
@@ -339,7 +341,7 @@ public:
 	{
 	}
 
-#if !defined(__clang__) && (GCC_VERSION < 408000)
+#if !defined(__clang__) && (GCC_VERSION < 408000) && !defined(WIN32)
 	/** \brief this pointer-like expression */
 	static constexpr couple_product_right const *This = static_cast<couple_product_right const *>(nullptr);
 	/** \brief return left expression */
@@ -442,7 +444,7 @@ public:
 	{
 	}
 
-#if !defined(__clang__) && (GCC_VERSION < 408000)
+#if !defined(__clang__) && (GCC_VERSION < 408000) && !defined(WIN32)
 	/** \brief this pointer-like expression */
 	static constexpr couple_product_left const *This = static_cast<couple_product_left const *>(nullptr);
 	/** \brief return left expression */

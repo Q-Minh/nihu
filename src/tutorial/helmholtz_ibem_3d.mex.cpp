@@ -27,9 +27,9 @@ typedef mex::complex_matrix<double> cMatrix;
 void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 {
 	dMatrix surf_nodes(rhs[0]), surf_elem(rhs[1]);
-	auto surf_mesh = create_mesh(surf_nodes, surf_elem, _tria_1_tag());
+	auto surf_mesh = create_mesh(surf_nodes, surf_elem, tria_1_tag());
 	dMatrix field_nodes(rhs[2]), field_elem(rhs[3]);
-	auto field_mesh = create_mesh(field_nodes, field_elem, _quad_1_tag());
+	auto field_mesh = create_mesh(field_nodes, field_elem, quad_1_tag());
 	
 //! [Function spaces]
 	auto const &surf_sp = constant_view(surf_mesh);

@@ -282,7 +282,6 @@ public:
 			{
 				if (m_nodes[i] == otherNodes[j])
 				{
-					// no previous coincident nodes
 					if (num_coinc == 0)
 					{
 						start_ind1 = i;
@@ -293,12 +292,12 @@ public:
 						if (i < start_ind1
 							|| (i==num_nodes-1
 							&& start_ind1 == 0
-							&& num_coinc < num_nodes-1))
+							&& num_coinc == 1))
 							start_ind1 = i;
 						if (j < start_ind2 ||
 							(j==OtherElem::num_nodes-1 &&
 							start_ind2 == 0 &&
-							num_coinc < OtherElem::num_nodes-1))
+							num_coinc == 1))
 							start_ind2 = j;
 					}
 					num_coinc++;
@@ -323,7 +322,7 @@ bool operator<(elem_id_t const &lhs, elem_id_t const &rhs)
 
 
 /** \brief tag of a 2-noded linear line element */
-struct _line_1_tag {};
+struct line_1_tag {};
 
 /** \brief a linear line element in 2D space */
 class line_1_elem;
@@ -356,8 +355,8 @@ public:
 	line_1_elem(coords_t const &coords, unsigned id = 0, nodes_t const &nodes = nodes_t())
 		: element_base(coords, id, nodes)
 	{
-		dx_t dx0(get_dx(xi_t::Zero()));
-		m_normal << -dx0(1), dx0(0);
+		dx_t dx0(get_dx(xi_t::Zero()));	// the element direction vector
+		m_normal << dx0(1), -dx0(0);	// the normal vector
 		m_linear_size_estimate = m_normal.norm()  * domain_t::get_volume();
 	}
 
@@ -374,9 +373,9 @@ protected:
 	x_t m_normal;
 };
 
-/** \brief element assigned to the _line_1_tag */
+/** \brief element assigned to the line_1_tag */
 template <>
-struct tag2element<_line_1_tag> : line_1_elem {};
+struct tag2element<line_1_tag> : line_1_elem {};
 
 
 
@@ -385,7 +384,7 @@ struct tag2element<_line_1_tag> : line_1_elem {};
 class tria_1_elem;
 
 /** \brief tag of a 3-noded linear triangle element */
-struct _tria_1_tag {};
+struct tria_1_tag {};
 
 /** \brief element properties of a linear 3D tria element */
 template <>
@@ -442,9 +441,9 @@ protected:
 	x_t m_normal;
 };
 
-/** \brief element assigned to the _tria_1_tag */
+/** \brief element assigned to the tria_1_tag */
 template <>
-struct tag2element<_tria_1_tag> : tria_1_elem {};
+struct tag2element<tria_1_tag> : tria_1_elem {};
 
 
 
@@ -464,7 +463,7 @@ struct element_traits<quad_1_elem>
 };
 
 /** \brief tag of a 4-noded linear quadrilateral element */
-struct _quad_1_tag {};
+struct quad_1_tag {};
 
 /** \brief a linear quad element in 3D space */
 class quad_1_elem : public element_base<quad_1_elem>
@@ -505,9 +504,9 @@ protected:
 	dx_t m_n_xi;
 };
 
-/** \brief element assigned to the _quad_1_tag */
+/** \brief element assigned to the quad_1_tag */
 template <>
-struct tag2element<_quad_1_tag> : quad_1_elem {};
+struct tag2element<quad_1_tag> : quad_1_elem {};
 
 
 // forward declaration
@@ -528,6 +527,52 @@ struct element_traits<general_surface_element<LSet, scalar_t> >
 		is_normal_stored = true
 	};
 };
+
+
+/** \brief compute surface normal in N dimensions
+ * \tparam scalar the scalar type
+ * \tparam N the number of dimensions
+ */
+template<class scalar, unsigned N>
+class normal_impl;
+
+/** \brief implementation of normal vector computation for 3D
+ * \tparam scalar the scalar type
+ */
+template <class scalar>
+class normal_impl<scalar, 3>
+{
+public:
+	/**
+	 * \brief return the normal vector
+	 * \param m the 3x2 derivative matrix
+	 * \return the normal vector
+	 */
+	static Eigen::Matrix<scalar, 3, 1> eval(Eigen::Matrix<scalar, 3, 2> const &m)
+	{
+		return m.col(0).cross(m.col(1));
+	}
+};
+
+
+/** \brief implementation of normal vector computation for 2D
+ * \tparam scalar the scalar type
+ */
+template <class scalar>
+class normal_impl<scalar, 2>
+{
+public:
+	/**
+	 * \brief return the normal vector
+	 * \param m the 2x1 derivative vector
+	 * \return the normal vector
+	 */
+	static Eigen::Matrix<scalar, 2, 1> eval(Eigen::Matrix<scalar, 2, 1> const &m)
+	{
+		return Eigen::Rotation2D<scalar>(-M_PI/2.0) * m.col(0);
+	}
+};
+
 
 /** \brief class describing a general surface element that computes its normal in the general way
 * \tparam LSet type of the geometry shape set
@@ -554,32 +599,68 @@ public:
 	typedef typename base_t::domain_t domain_t;
 
 	/** \brief constructor
-	* \param [in] coords the coordinate matrix
-	* \param [in] id element id
-	* \param [in] nodes the nodal index vector
-	*/
-	general_surface_element(coords_t const &coords, unsigned id = 0, nodes_t const &nodes = nodes_t())
+	 * \param [in] coords the coordinate matrix
+	 * \param [in] id element id
+	 * \param [in] nodes the nodal index vector
+	 */
+	general_surface_element(
+		coords_t const &coords,
+		unsigned id = 0,
+		nodes_t const &nodes = nodes_t())
 		: base_t(coords, id, nodes)
 	{
-		dx_t dx = base_t::get_dx(domain_t::get_center());
-		base_t::m_linear_size_estimate = sqrt(dx.col(0).cross(dx.col(1)).norm() * domain_t::get_volume());
+		base_t::m_linear_size_estimate = sqrt(
+			get_normal(domain_t::get_center()).norm() * domain_t::get_volume());
 	}
 
 	/** \brief return normal vector at given location
-	* \param [in] xi the location in the standard domain
-	* \return normal vector
-	*/
+	 * \todo Does not work for 2D elements
+	 * \param [in] xi the location in the standard domain
+	 * \return normal vector
+	 */
 	x_t get_normal(xi_t const &xi) const
 	{
-		dx_t dx = base_t::get_dx(xi);
-		return dx.col(0).cross(dx.col(1));
+		return normal_impl<typename base_t::scalar_t, base_t::x_dim>::eval(base_t::get_dx(xi));
 	}
+};
+
+/** \brief quadratic 3-noded line element */
+typedef general_surface_element<line_2_shape_set, line_1_elem::space_t::scalar_t> line_2_elem;
+
+struct line_2_tag {};
+
+/** \brief element assigned to the line_2_tag */
+template <>
+struct tag2element<line_2_tag>
+{
+	typedef line_2_elem type;
 };
 
 /** \brief quadratic 6-noded triangle element */
 typedef general_surface_element<tria_2_shape_set, tria_1_elem::space_t::scalar_t> tria_2_elem;
+
+/** \brief tag of a 6-noded quadratic tria element */
+struct tria_2_tag {};
+
+/** \brief element assigned to the tria_2_tag */
+template <>
+struct tag2element<tria_2_tag>
+{
+	typedef tria_2_elem type;
+};
+
 /** \brief quadratic 9-noded quadrilateral element */
 typedef general_surface_element<quad_2_shape_set, quad_1_elem::space_t::scalar_t> quad_2_elem;
+
+/** \brief tag of a 9-noded quadratic quad element */
+struct quad_2_tag {};
+
+/** \brief element assigned to the quad_2_tag */
+template <>
+struct tag2element<quad_2_tag>
+{
+	typedef quad_2_elem type;
+};
 
 #endif
 

@@ -35,11 +35,18 @@
  */
 template <template< class WaveNumber> class Kernel, class WaveNumber, class TestField, class TrialField>
 class singular_integral_shortcut<
-	Kernel<WaveNumber>, TestField, TrialField, singularity::face_match_type,
+	Kernel<WaveNumber>, TestField, TrialField, match::face_match_type,
 	typename std::enable_if<
+		(
 		( std::is_same<Kernel<WaveNumber>, helmholtz_3d_DLP_kernel<WaveNumber> >::value ||
 		  std::is_same<Kernel<WaveNumber>, helmholtz_3d_DLPt_kernel<WaveNumber> >::value
 		) && std::is_same<typename TrialField::lset_t, tria_1_shape_set>::value
+		)
+		||
+		(
+		std::is_same<Kernel<WaveNumber>, helmholtz_2d_DLP_kernel<WaveNumber> >::value
+		&& std::is_same<typename TrialField::lset_t, line_1_shape_set>::value
+		)
 	>::type
 >
 {
@@ -50,7 +57,7 @@ public:
 	 * \return the result reference
 	 */
 	template <class result_t>
-	static constexpr result_t &eval(
+	static CONSTEXPR result_t &eval(
 		result_t &result,
 		kernel_base<Kernel<WaveNumber> > const &,
 		field_base<TestField> const &,
@@ -60,6 +67,63 @@ public:
 		return result;
 	}
 };
+
+/** \brief Collocational singular integral of the 2d SLP kernel over a constant line
+ * \tparam TestField the test field type
+ * \tparam TrialField the trial field type
+ */
+template <class WaveNumber, class TestField, class TrialField>
+class singular_integral_shortcut<
+	helmholtz_2d_SLP_kernel<WaveNumber>, TestField, TrialField, match::face_match_type,
+	typename std::enable_if<
+		std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
+		std::is_same<typename TrialField::lset_t, line_1_shape_set>::value &&
+		std::is_same<typename TrialField::nset_t, line_0_shape_set>::value
+	>::type
+>
+{
+public:
+	/** \brief evaluate singular integral
+	 * \tparam result_t the result matrix type
+	 * \param [in, out] result reference to the result
+	 * \param [in] kernel the kernel instance
+	 * \param [in] trial_field the test and trial fields
+	 * \return reference to the result matrix
+	 */
+	template <class result_t>
+	static result_t &eval(
+		result_t &result,
+		kernel_base<helmholtz_2d_SLP_kernel<WaveNumber> > const &kernel,
+		field_base<TestField> const &,
+		field_base<TrialField> const &trial_field,
+		element_match const &)
+	{
+        std::complex<double> const c(0.57721566490153286060, M_PI/2);
+        unsigned const N = 5;
+
+		// compute elem radius
+		auto const &elem = trial_field.get_elem();
+		auto R = (elem.get_center() - elem.get_coords().col(0)).norm();
+
+		auto Q = kernel.get_data().get_wave_number() * R / 2.0;
+        auto clnq = c + std::log(Q);
+
+        auto res(clnq-1.0);		// initial (k=0) value of the result
+        decltype(Q) B(1.0);		// the power term in the series
+        double bn = 0.0;		// the harmonic series up to n = 0
+        for (unsigned n = 1; n < N; ++n)
+        {
+			B *= -Q*Q/n/n;		// the actual power term
+			bn += 1.0/n;		// the actual harmonic term
+			res += B/(2*n+1) * (clnq - bn - 1.0/(2*n+1));
+        }
+
+		result(0,0) = -R / M_PI * res;
+
+		return result;
+	}
+};
+
 
 /** \brief store-wrapper of a statically stored quadrature */
 template <unsigned order>
@@ -80,7 +144,7 @@ gaussian_quadrature<tria_domain> const tria_quad_store<order>::quadrature(order)
  */
 template <class WaveNumber, class TestField, class TrialField>
 class singular_integral_shortcut<
-	helmholtz_3d_SLP_kernel<WaveNumber>, TestField, TrialField, singularity::face_match_type,
+	helmholtz_3d_SLP_kernel<WaveNumber>, TestField, TrialField, match::face_match_type,
 	typename std::enable_if<
 		std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
 		std::is_same<typename TrialField::lset_t, tria_1_shape_set>::value &&
@@ -159,7 +223,7 @@ public:
  */
 template <class WaveNumber, class TestField, class TrialField>
 class singular_integral_shortcut<
-	helmholtz_3d_HSP_kernel<WaveNumber>, TestField, TrialField, singularity::face_match_type,
+	helmholtz_3d_HSP_kernel<WaveNumber>, TestField, TrialField, match::face_match_type,
 	typename std::enable_if<
 		std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
 		std::is_same<typename TrialField::lset_t, tria_1_shape_set>::value &&

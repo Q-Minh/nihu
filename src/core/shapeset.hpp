@@ -26,6 +26,8 @@
 #define SHAPESET_HPP_INCLUDED
 
 #include <iostream>
+#include <stdexcept>
+
 #include "domain.hpp"
 
 /** \brief Traits for shapesets */
@@ -320,6 +322,15 @@ public:
 	{
 		return domain_t::get_corners();
 	}
+
+	/** \brief assign domain corner to node
+	 * \param [in] idx node index
+	 * \return the same domain index
+	 */
+	static unsigned node_to_domain_corner(unsigned idx)
+	{
+		return idx;
+	}
 };
 
 
@@ -574,6 +585,101 @@ public:
 
 
 // Forward declaration
+class line_2_shape_set;
+
+/** \brief Traits for quadratic tria shapesets */
+template<>
+struct shape_set_traits<line_2_shape_set>
+{
+	/** \brief the domain type */
+	typedef line_domain domain_t;
+	/** \brief number of nodes */
+	enum {
+		num_nodes = 3,
+		polynomial_order = 2,
+		jacobian_order = 1
+	};
+};
+
+/**
+* \brief quadratic 3-noded line shape function set
+*/
+class line_2_shape_set : public shape_set_base<line_2_shape_set>
+{
+public:
+	/**
+	* \brief quadratic 3-noded line shape functions
+	* \param [in] _xi the domain variable
+	* \return the shape function vector
+	*/
+	static shape_t eval_shape(xi_t const &_xi)
+	{
+		scalar_t xi = _xi[0];
+		shape_t L;
+		L <<
+		 -xi*(1.0-xi)/2.0,
+		 1.0-xi*xi,
+		 xi*(1.0+xi)/2.0;
+		return L;
+	}
+
+	/**
+	* \brief quadratic 3-noded line shape function derivatives
+	* \param [in] _xi the domain variable
+	* \return the shape function gradient matrix
+	*/
+	static dshape_t eval_dshape(xi_t const & _xi)
+	{
+		scalar_t xi = _xi[0];
+		dshape_t dL;
+		dL <<
+		 -1.0*(1.0-xi)/2.0 + -xi*(-1.0)/2.0,
+		 -2.0*xi,
+		 1.0*(1.0+xi)/2.0 + xi*(1.0)/2.0;
+		return dL;
+	}
+
+	/** \brief return begin iterator to the corner nodes
+	* \return begin iterator to corner nodes
+	*/
+	static xi_t const *corner_begin(void)
+	{
+		return m_corners;
+	}
+
+	/** \brief assign a domain corner to a shapeset node corner
+	 * \param [in] idx the indes of the shapeset node
+	 * \return index of the domain node
+	 * \details the function throws an exception if nonexisting index is searched
+	 */
+	static unsigned node_to_domain_corner(unsigned idx)
+	{
+		int ret = m_domain_indices[idx];
+		if (ret < 0)
+			throw std::out_of_range("line_2_shape_set domain corner nodes overindexed");
+		return ret;
+	}
+
+protected:
+	/** \brief the corner nodes of the shape set */
+	static xi_t const m_corners[num_nodes];
+
+	/** \brief the array of domain corner indices */
+	static int const m_domain_indices[num_nodes];
+};
+
+line_2_shape_set::xi_t
+	const line_2_shape_set::m_corners[line_2_shape_set::num_nodes] = {
+		line_2_shape_set::xi_t::Constant(-1.0),
+		line_2_shape_set::xi_t::Constant(0.0),
+		line_2_shape_set::xi_t::Constant(1.0),
+};
+
+int const line_2_shape_set::m_domain_indices[line_2_shape_set::num_nodes] = {0, -1, 1};
+
+
+
+// Forward declaration
 class tria_2_shape_set;
 
 /** \brief Traits for quadratic tria shapesets */
@@ -642,9 +748,25 @@ public:
 		return m_corners;
 	}
 
+	/** \brief assign a domain corner to a shapeset node corner
+	 * \param [in] idx the indes of the shapeset node
+	 * \return index of the domain node
+	 * \details the function throws an exception if nonexisting index is searched
+	 */
+	static unsigned node_to_domain_corner(unsigned idx)
+	{
+		int ret = m_domain_corners[idx];
+		if (ret < 0)
+			throw std::out_of_range("tria_2_shape_set domain corner nodes overindexed");
+		return ret;
+	}
+
+
 protected:
 	/** \brief the corner nodes of the shape set */
-	static const xi_t m_corners[num_nodes];
+	static xi_t const m_corners[num_nodes];
+	/** \brief the domain's corner indices assigned to the shape set nodes */
+	static int const m_domain_corners[num_nodes];
 };
 
 tria_2_shape_set::xi_t
@@ -656,6 +778,9 @@ tria_2_shape_set::xi_t
 		tria_2_shape_set::xi_t(0.0, 1.0),
 		tria_2_shape_set::xi_t(0.0, 0.5)
 };
+
+int const tria_2_shape_set::m_domain_corners[tria_2_shape_set::num_nodes] =
+	{0, -1, 1, -1, 2, -1};
 
 
 
@@ -734,9 +859,24 @@ public:
 		return m_corners;
 	}
 
+	/** \brief assign a domain corner to a shapeset node corner
+	 * \param [in] idx the indes of the shapeset node
+	 * \return index of the domain node
+	 * \details the function throws an exception if nonexisting index is searched
+	 */
+	static unsigned node_to_domain_corner(unsigned idx)
+	{
+		int ret = m_domain_corners[idx];
+		if (ret < 0)
+			throw std::out_of_range("quad_2_shape_set domain corner nodes overindexed");
+		return ret;
+	}
+
 protected:
 	/** \brief the corner nodes of the shape set */
-	static const xi_t m_corners[num_nodes];
+	static xi_t const m_corners[num_nodes];
+	/** \brief the domain's corner indices assigned to the shape set nodes */
+	static int const m_domain_corners[num_nodes];
 };
 
 
@@ -752,6 +892,10 @@ quad_2_shape_set::xi_t
 		quad_2_shape_set::xi_t(-1.0, 0.0),
 		quad_2_shape_set::xi_t( 0.0, 0.0)
 };
+
+int const quad_2_shape_set::m_domain_corners[quad_2_shape_set::num_nodes] =
+	{0, -1, 1, -1, 2, -1, 3, -1, -1};
+
 
 
 #endif // SHAPESET_HPP_INCLUDED

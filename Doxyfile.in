@@ -683,9 +683,11 @@ INPUT                  = "${CMAKE_SOURCE_DIR}/../dox/mainpage.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/tut_helmholtz_galerkin_bem.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/tut_helmholtz_bem_3d_fict.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/tut_helmholtz_ibem_3d.md" \
+                         "${CMAKE_SOURCE_DIR}/../dox/tut_helmholtz_bem_2d_cyl.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/tut_couple_radiation.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/tut_custom_element.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/tut_custom_singular_integrals.md" \
+                         "${CMAKE_SOURCE_DIR}/../dox/reference.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/theory.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/theo_bem_example.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/techniques.md" \
@@ -696,6 +698,7 @@ INPUT                  = "${CMAKE_SOURCE_DIR}/../dox/mainpage.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/tech_what_happens.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/publications.md" \
                          "${CMAKE_SOURCE_DIR}/core/" \
+                         "${CMAKE_SOURCE_DIR}/interface/" \
                          "${CMAKE_SOURCE_DIR}/util/" \
                          "${CMAKE_SOURCE_DIR}/tmp/" \
                          "${CMAKE_SOURCE_DIR}/library/" \

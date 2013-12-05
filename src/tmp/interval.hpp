@@ -24,14 +24,15 @@
 #ifndef INTERVAL_HPP_INCLUDED
 #define INTERVAL_HPP_INCLUDED
 
-#include "tmp/integer.hpp"
+#include "../core/global_definitions.hpp"
 #include <ratio>
 #include <stdexcept>
-#include "tmp/vector.hpp"
-#include "tmp/algorithm.hpp"
+#include "integer.hpp"
+#include "vector.hpp"
+#include "algorithm.hpp"
 
-/** \brief define exa as the infinite */
-typedef std::exa ratio_infinite;
+/** \brief define giga as the infinite as it fits into 32 bits */
+typedef std::giga ratio_infinite;
 
 /**
  * \brief a break point consisting of a X and a Y value
@@ -54,7 +55,7 @@ struct break_point
 	 * \return the rational number converted to scalar_t
 	 */
 	template<class scalar_t = double>
-	constexpr static scalar_t x_value(void)
+	CONSTEXPR static scalar_t x_value(void)
 	{
 		return scalar_t(x::num)/scalar_t(x::den);
 	}
@@ -163,5 +164,5 @@ int eval_interval<tmp::vector<> >(double)
 	throw std::out_of_range("cannot determine interval value");
 }
 
-
 #endif // INTERVAL_HPP_INCLUDED
+

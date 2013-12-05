@@ -24,11 +24,10 @@ mesh.Nodes(:,4) = 0;
 mesh.Elements(:,5:7) = t;
 mesh.Elements(:,1) = 1:size(t,1);
 mesh.Elements(:,2:4) = repmat([23 1 1], size(t,1), 1);
-mesh.Properties = 1;
-mesh.Materials = 1;
+[mesh.Materials, mesh.Properties] = default_mat_prop();
 
 end
 
-function h = hfun(x,y,q)
+function h = hfun(x,~,q)
 h = q * ones(size(x));
 end

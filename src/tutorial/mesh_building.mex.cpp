@@ -43,7 +43,7 @@ void test1()
 //! [Matrices]
 
 //! [Creation]
-	auto my_mesh = create_mesh(nodes, elements, _quad_1_tag(), _tria_1_tag());
+	auto my_mesh = create_mesh(nodes, elements, quad_1_tag(), tria_1_tag());
 //! [Creation]
 }
 
@@ -69,7 +69,7 @@ void test2(void)
 		elements(i,2) = (i+1)%N;
 	}
 
-	auto mesh = create_mesh(nodes, elements, _line_1_tag());	// homogeneous mesh
+	auto mesh = create_mesh(nodes, elements, line_1_tag());	// homogeneous mesh
 //! [2D Circle]
 }
 
@@ -84,7 +84,7 @@ void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 	// matrix import
 	mex::real_matrix<double> nodes(rhs[0]), elements(rhs[1]);
 	// create the mesh from Matlab
-	auto surf_mesh = create_mesh(nodes, elements, _tria_1_tag(), _quad_1_tag());
+	auto surf_mesh = create_mesh(nodes, elements, tria_1_tag(), quad_1_tag());
 }
 //! [Matlab example]
 

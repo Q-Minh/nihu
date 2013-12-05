@@ -32,7 +32,7 @@ template <class LSet>
 struct duffy_traits;
 
 /**
- * \brief Transform regular quadratures into weakly singular Duffy-type quadratures
+ * \brief Transform regular quadratures into weakly singular ,,Duffy-type'' quadratures
  * \tparam QuadFamily the regular quadrature family
  * \tparam LSet the element geometrical shape set representation
  */
@@ -80,9 +80,11 @@ private:
 		xi_t const &sing_coord,
 		ret_quad_type &result)
 	{
+		// the first array element is the number of triangles
 		unsigned num_duffies = *array;
 		array++;
 
+		// create a regular quadrature
 		source_quad_type source(degree);
 
 		coords_t coords;
