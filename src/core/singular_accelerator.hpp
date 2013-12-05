@@ -130,7 +130,9 @@ public:
 	/** \brief template argument as nested type */
 	typedef TrialField trial_field_t;
 
+	/** \brief the L-set of the test domain */
 	typedef typename test_field_t::elem_t::lset_t test_lset_t;
+	/** \brief the L-set of the trial domain */
 	typedef typename trial_field_t::elem_t::lset_t trial_lset_t;
 
 	/** \brief test domain */
@@ -396,6 +398,7 @@ public:
 	/** \brief the singular quadrature order required by the kernel */
 	static unsigned const singular_quadrature_order = kernel_traits<kernel_t>::singular_quadrature_order;
 
+	/** \brief the blind transformation tag that governs the singular quadrature transformation method */
 	typedef typename blind_transform_selector<
 		typename kernel_traits<kernel_t>::singularity_type_t,
 		trial_domain_t

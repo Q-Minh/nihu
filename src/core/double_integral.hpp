@@ -47,8 +47,21 @@ class singular_integral_shortcut;
 * \tparam TestField type of the test field
 * \tparam TrialField type of the trial field
 */
-template <class Kernel, class TestField, class TrialField, class = typename get_formalism<TestField, TrialField>::type>
-class double_integral
+template <
+	class Kernel, class TestField, class TrialField,
+	class Formalism = typename get_formalism<TestField, TrialField>::type
+>
+class double_integral;
+
+
+/**
+ * \brief specialisation of ::double_integral for the general formalism
+ * \tparam Kernel type of the kernel to integrate
+ * \tparam TestField type of the test field
+ * \tparam TrialField type of the trial field
+ */
+template <class Kernel, class TestField, class TrialField>
+class double_integral<Kernel, TestField, TrialField, formalism::general>
 {
 	typedef std::true_type WITH_SINGULARITY_CHECK;
 	typedef std::false_type WITHOUT_SINGULARITY_CHECK;

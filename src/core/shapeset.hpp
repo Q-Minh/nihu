@@ -647,6 +647,11 @@ public:
 		return m_corners;
 	}
 
+	/** \brief assign a domain corner to a shapeset node corner
+	 * \param [in] idx the indes of the shapeset node
+	 * \return index of the domain node
+	 * \details the function throws an exception if nonexisting index is searched
+	 */
 	static unsigned node_to_domain_corner(unsigned idx)
 	{
 		int ret = m_domain_indices[idx];
@@ -743,6 +748,11 @@ public:
 		return m_corners;
 	}
 
+	/** \brief assign a domain corner to a shapeset node corner
+	 * \param [in] idx the indes of the shapeset node
+	 * \return index of the domain node
+	 * \details the function throws an exception if nonexisting index is searched
+	 */
 	static unsigned node_to_domain_corner(unsigned idx)
 	{
 		int ret = m_domain_corners[idx];
@@ -755,7 +765,7 @@ public:
 protected:
 	/** \brief the corner nodes of the shape set */
 	static xi_t const m_corners[num_nodes];
-
+	/** \brief the domain's corner indices assigned to the shape set nodes */
 	static int const m_domain_corners[num_nodes];
 };
 
@@ -849,6 +859,11 @@ public:
 		return m_corners;
 	}
 
+	/** \brief assign a domain corner to a shapeset node corner
+	 * \param [in] idx the indes of the shapeset node
+	 * \return index of the domain node
+	 * \details the function throws an exception if nonexisting index is searched
+	 */
 	static unsigned node_to_domain_corner(unsigned idx)
 	{
 		int ret = m_domain_corners[idx];
@@ -860,7 +875,7 @@ public:
 protected:
 	/** \brief the corner nodes of the shape set */
 	static xi_t const m_corners[num_nodes];
-
+	/** \brief the domain's corner indices assigned to the shape set nodes */
 	static int const m_domain_corners[num_nodes];
 };
 
