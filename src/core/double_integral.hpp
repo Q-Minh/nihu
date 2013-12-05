@@ -47,8 +47,21 @@ class singular_integral_shortcut;
 * \tparam TestField type of the test field
 * \tparam TrialField type of the trial field
 */
-template <class Kernel, class TestField, class TrialField, class = typename get_formalism<TestField, TrialField>::type>
-class double_integral
+template <
+	class Kernel, class TestField, class TrialField,
+	class Formalism = typename get_formalism<TestField, TrialField>::type
+>
+class double_integral;
+
+
+/**
+ * \brief specialisation of ::double_integral for the general formalism
+ * \tparam Kernel type of the kernel to integrate
+ * \tparam TestField type of the test field
+ * \tparam TrialField type of the trial field
+ */
+template <class Kernel, class TestField, class TrialField>
+class double_integral<Kernel, TestField, TrialField, formalism::general>
 {
 	typedef std::true_type WITH_SINGULARITY_CHECK;
 	typedef std::false_type WITHOUT_SINGULARITY_CHECK;
@@ -128,17 +141,21 @@ protected:
 
 public:
 	/** \brief evaluate double singular integral with selected singular accelerator
-	* \param [out] result reference to the integration result matrix
-	* \param [in] kernel the kernel to integrate
-	* \param [in] test_field the test field to integrate on
-	* \param [in] trial_field the trial field to integrate on
-	* \param [in] begin begin iteartor of the singular quadrature
-	* \param [in] end end iterator of the singular quadrature
-	* \return reference to the integration result
-	*/
+	 * \tparam singular_accelerator_t the singular accelerator class
+	 * \tparam dummy a dummy type needed to keep specialisation within the class body
+	 */
 	template <class singular_accelerator_t, class dummy>
 	struct eval_singular_on_accelerator
 	{
+		/** \brief evaluate double singular integral with selected singular accelerator
+		* \param [out] result reference to the integration result matrix
+		* \param [in] kernel the kernel to integrate
+		* \param [in] test_field the test field to integrate on
+		* \param [in] trial_field the trial field to integrate on
+		* \param [in] begin begin iteartor of the singular quadrature
+		* \param [in] end end iterator of the singular quadrature
+		* \return reference to the integration result
+		*/
 		template <class singular_iterator_t>
 		static result_t &eval(
 			result_t &result,
@@ -167,9 +184,15 @@ public:
 		}
 	};
 
+	/** \brief specialisation of eval_singular_on_accelerator to the invalid accelerator
+	 * \tparam dummy a dummy type needed to keep specialisation within the class body
+	 */
 	template <class dummy>
 	struct eval_singular_on_accelerator<invalid_singular_accelerator, dummy>
 	{
+		/** \brief evaluate double singular integral with the invalid accelerator
+		 * \details this function simply throws an exception
+		 */
 		template <class singular_iterator_t>
 		static result_t &eval(
 			result_t &result,
@@ -373,17 +396,21 @@ protected:
 
 public:
 	/** \brief evaluate collocational singular integral with selected singular accelerator
-	* \tparam singular_accelerator_t type of the singular quadrature accelerator
-	* \param [out] result reference to the integration result matrix
-	* \param [in] kernel the kernel to integrate
-	* \param [in] test_field the test field to integrate on
-	* \param [in] trial_field the trial field to integrate on
-	* \param [in] sa singular accelerator
-	* \return reference to the integration result
-	*/
+	 * \tparam singular_accelerator_t the singular accelerator type
+	 * \tparam dummy dummy argument to keep explicit specialisation within class body
+	 */
 	template <class singular_accelerator_t, class dummy>
 	struct eval_singular_on_accelerator
 	{
+		/** \brief evaluate collocational singular integral with selected singular accelerator
+		* \tparam singular_accelerator_t type of the singular quadrature accelerator
+		* \param [out] result reference to the integration result matrix
+		* \param [in] kernel the kernel to integrate
+		* \param [in] test_field the test field to integrate on
+		* \param [in] trial_field the trial field to integrate on
+		* \param [in] sa singular accelerator
+		* \return reference to the integration result
+		*/
 		static result_t & eval(
 			result_t &result,
 			kernel_base<Kernel> const &kernel,
@@ -411,9 +438,18 @@ public:
 		}
 	};
 
+	/** \brief evaluate collocational singular integral with the invalid accelerator
+	 * \tparam dummy dummy argument to keep explicit specialisation within class body
+	 */
 	template <class dummy>
 	struct eval_singular_on_accelerator<invalid_singular_accelerator, dummy>
 	{
+		/** \brief evaluate collocational singular integral with selected singular accelerator
+		* \tparam singular_accelerator_t type of the singular quadrature accelerator
+		* \param [out] result reference to the integration result matrix
+		* \return reference to the integration result
+		* \details throws and exception is called, this case does not exist.
+		*/
 		static result_t & eval(
 			result_t &result,
 			kernel_base<Kernel> const &,
@@ -595,6 +631,7 @@ public:
 
 
 /** \brief trivial overload for singular_integral_shortcut for the collocation with constant test field
+ * \todo this specialisation should not be implemented, try to avoid referencing
  * \tparam Kernel the kernel class
  * \tparam TestField the test field type
  * \tparam TrialField the trial field type
