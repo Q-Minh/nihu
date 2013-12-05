@@ -59,7 +59,7 @@ class element_match
 {
 public:
 	/** \brief constructor
-	 * \param [in] sing_type the singularity type
+	 * \param [in] match_type the singularity type
 	 * \param [in] overlap the overlapping state
 	 */
 	element_match(
