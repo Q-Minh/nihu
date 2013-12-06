@@ -85,8 +85,11 @@ public:
 	/** \brief the singularity type */
 	typedef typename traits_t::singularity_type_t singularity_type_t;
 
-	/** \brief the quadrature order used for the generation of Duffy type singular quadratures */
+	/** \brief the quadrature order used for the generation of blind singular quadratures */
 	static unsigned const singular_quadrature_order = traits_t::singular_quadrature_order;
+
+	/** \brief the asymptotic (far field) behaviour of the kernel */
+	typedef typename traits_t::far_field_behaviour_t far_field_behaviour_t;
 
 	/** \brief constructor initialising the kernel data */
 	kernel_base(data_t const &data = data_t()) :
@@ -244,12 +247,18 @@ public:
 	static bool const is_symmetric = tmp::and_<
 		std::integral_constant<bool, kernel_traits<Kernels>::is_symmetric>...
 	>::value;
-	/** \brief the singularity order ( r^(-order) )
-	 * \todo this is very very sick, should be a maximum if applicable !!!
-	 */
-	typedef singularity_type::inverse<1> singularity_type_t;
-	/** \brief the quadrature order used for the generation of Duffy type singular quadratures */
-	static unsigned const singular_quadrature_order = tmp::max_<typename sing_quad_order_constant<Kernels>::type...>::value;
+	/** \brief the combined singularity order */
+	typedef typename tmp::max_<
+		typename kernel_traits<Kernels>::singularity_type_t...
+	>::type singularity_type_t;
+	/** \brief the quadrature order used for the generation of blind singular quadratures */
+	static unsigned const singular_quadrature_order = tmp::max_<
+		typename sing_quad_order_constant<Kernels>::type...
+	>::type::value;
+	/** \brief the combined far field behaviour order */
+	typedef typename tmp::max_<
+		typename kernel_traits<Kernels>::far_field_behaviour_t...
+	>::type far_field_behaviour_t;
 	/** \brief the kernel complexity estimator class */
 	typedef typename merge_kernel_complexity_estimators<
 		typename kernel_traits<Kernels>::complexity_estimator_t...

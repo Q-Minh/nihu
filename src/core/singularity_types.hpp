@@ -23,6 +23,8 @@
 #ifndef SINGULARITY_TYPES_HPP_INCLUDED
 #define SINGULARITY_TYPES_HPP_INCLUDED
 
+#include "../tmp/relation.hpp"
+
 /** \brief namespace encapsulating singularity type classes */
 namespace singularity_type
 {
@@ -64,6 +66,43 @@ struct minimal_reference_dimension<singularity_type::inverse<order> >
 {
 	static unsigned const value = order+1;
 };
+
+
+
+namespace tmp
+{
+	template <unsigned o1, unsigned o2>
+	struct less<singularity_type::log<o1>, singularity_type::log<o2> >
+		: std::integral_constant<bool, (o1 < o2) > {};
+
+	template <unsigned o1, unsigned o2>
+	struct greater<singularity_type::log<o1>, singularity_type::log<o2> >
+		: std::integral_constant<bool, (o1 > o2) > {};
+
+	template <unsigned o1, unsigned o2>
+	struct less<singularity_type::inverse<o1>, singularity_type::inverse<o2> >
+		: std::integral_constant<bool, (o1 < o2) > {};
+
+	template <unsigned o1, unsigned o2>
+	struct greater<singularity_type::inverse<o1>, singularity_type::inverse<o2> >
+		: std::integral_constant<bool, (o1 > o2) > {};
+
+	template <unsigned o1, unsigned o2>
+	struct less<singularity_type::log<o1>, singularity_type::inverse<o2> >
+		: std::true_type {};
+
+	template <unsigned o1, unsigned o2>
+	struct less<singularity_type::inverse<o1>, singularity_type::log<o2> >
+		: std::false_type {};
+
+	template <unsigned o1, unsigned o2>
+	struct greater<singularity_type::log<o1>, singularity_type::inverse<o2> >
+		: std::false_type {};
+
+	template <unsigned o1, unsigned o2>
+	struct greater<singularity_type::inverse<o1>, singularity_type::log<o2> >
+		: std::true_type {};
+}
 
 
 #endif // SINGULARITY_TYPES_HPP_INCLUDED

@@ -285,6 +285,10 @@ struct kernel_traits<helmholtz_2d_SLP_kernel<wave_number_t> >
 	 * \todo update this quantity
 	 */
 	static unsigned const singular_quadrature_order = 7;
+
+	/** \brief the far field asymptotic behaviour of the kernel */
+	typedef singularity_type::log<1> far_field_behaviour_t;
+
 	/** \brief the kernel complexity estimator class
 	 * \todo update this quantity
 	 */
@@ -334,8 +338,10 @@ struct kernel_traits<helmholtz_3d_SLP_kernel<wave_number_t> >
 	static bool const is_symmetric = true;
 	/** \brief kernel singularity type */
 	typedef singularity_type::inverse<1> singularity_type_t;
-	/** \brief quadrature order used to generate Duffy singular quadratures */
+	/** \brief quadrature order used to generate blind singular quadratures */
 	static unsigned const singular_quadrature_order = 7;
+	/** \brief the far field asymptotic behaviour of the kernel */
+	typedef singularity_type::inverse<1> far_field_behaviour_t;
 	/** \brief the kernel complexity estimator class */
 	typedef interval_estimator<
 		typename reciprocal_distance_kernel_interval<1, GLOBAL_ACCURACY>::type
@@ -518,6 +524,8 @@ struct kernel_traits<helmholtz_2d_DLP_kernel<wave_number_t> >
 	typedef singularity_type::log<1> singularity_type_t;
 	/** \brief quadrature order used to generate Duffy singular quadratures */
 	static unsigned const singular_quadrature_order = 7;
+	/** \brief the far field asymptotic behaviour of the kernel */
+	typedef singularity_type::inverse<1> far_field_behaviour_t;
 	/** \brief the kernel complexity estimator class
 	 * \todo update this
 	 */
@@ -571,6 +579,8 @@ struct kernel_traits<helmholtz_3d_DLP_kernel<wave_number_t> >
 	typedef singularity_type::inverse<1> singularity_type_t;
 	/** \brief quadrature order used to generate Duffy singular quadratures */
 	static unsigned const singular_quadrature_order = 7;
+	/** \brief the far field asymptotic behaviour of the kernel */
+	typedef singularity_type::inverse<2> far_field_behaviour_t;
 	/** \brief the kernel complexity estimator class */
 	typedef interval_estimator<
 		typename reciprocal_distance_kernel_interval<2, GLOBAL_ACCURACY>::type
@@ -689,6 +699,8 @@ struct kernel_traits<helmholtz_3d_DLPt_kernel<wave_number_t> >
 	typedef singularity_type::inverse<1> singularity_type_t;
 	/** \brief quadrature order used to generate Duffy singular quadratures */
 	static unsigned const singular_quadrature_order = 7;
+	/** \brief the far field asymptotic behaviour of the kernel */
+	typedef singularity_type::inverse<2> far_field_behaviour_t;
 	/** \brief the kernel complexity estimator class
 	 * \todo elaborate
 	 */
@@ -815,6 +827,8 @@ struct kernel_traits<helmholtz_3d_HSP_kernel<wave_number_t> >
 	 * \todo check
 	 */
 	static unsigned const singular_quadrature_order = 9;
+	/** \brief the far field asymptotic behaviour of the kernel */
+	typedef singularity_type::inverse<3> far_field_behaviour_t;
 	/** \brief the kernel complexity estimator class */
 	typedef interval_estimator<
 		typename reciprocal_distance_kernel_interval<3, GLOBAL_ACCURACY>::type

@@ -27,7 +27,6 @@
 #include "../tmp/integer.hpp"
 #include "field.hpp"
 
-
 /** \brief clas to estimate kernel complexity between two fields
  * \tparam TestField the test field
  * \tparam TrialField the trial field
@@ -55,9 +54,9 @@ public:
 
 	/** \brie the total field complexity */
 	static unsigned const total_field_complexity = tmp::max_<
-		std::integral_constant<unsigned, test_field_complexity>,
-		std::integral_constant<unsigned, trial_field_complexity>
-	>::value;
+		tmp::integer<unsigned, test_field_complexity>,
+		tmp::integer<unsigned, trial_field_complexity>
+	>::type::value;
 
 	/** \brief compute total complexity
 	 * \param [in] test_field the test field instance
