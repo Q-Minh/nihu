@@ -33,17 +33,17 @@
 namespace matsumoto_internal
 {
 
-/** \brief store-wrapper of a statically stored line quadrature */
-template <unsigned order>
-struct line_quad_store
-{
-	/** \brief the stored static quadrature member */
-	static gaussian_quadrature<line_domain> const quadrature;
-};
+	/** \brief store-wrapper of a statically stored line quadrature */
+	template <unsigned order>
+	struct line_quad_store
+	{
+		/** \brief the stored static quadrature member */
+		static gaussian_quadrature<line_domain> const quadrature;
+	};
 
-/** \brief definition of the statically stored quadrature member */
-template <unsigned order>
-gaussian_quadrature<line_domain> const line_quad_store<order>::quadrature(order);
+	/** \brief definition of the statically stored quadrature member */
+	template <unsigned order>
+	gaussian_quadrature<line_domain> const line_quad_store<order>::quadrature(order);
 
 }
 
@@ -205,3 +205,4 @@ private:
 };
 
 #endif // MATSUMOTO_2010_HPP_INCLUDED
+

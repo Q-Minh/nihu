@@ -18,6 +18,7 @@
 
 /** \file blind_transform_selector.hpp
  * \brief select a blind transform method to a singularity type and a reference domain
+ * \ingroup quadrature
  */
 
 #ifndef BLIND_TRANSFORM_SELECTOR_HPP_INCLUDED
