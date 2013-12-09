@@ -127,7 +127,7 @@ struct kernel_traits<laplace_2d_SLP_kernel>
 	static bool const is_symmetric = true;
 	/** \brief kernel singularity type */
 	typedef singularity_type::log<1> singularity_type_t;
-	/** \brief quadrature order used to generate Duffy singular quadratures */
+	/** \brief quadrature order used to generate blind singular quadratures */
 	static unsigned const singular_quadrature_order = 7;
 	/** \brief the far field asymptotic behaviour of the kernel */
 	typedef singularity_type::log<1> far_field_behaviour_t;
@@ -240,7 +240,7 @@ struct kernel_traits<laplace_2d_DLP_kernel>
 	 * \todo check this!
 	 */
 	typedef singularity_type::log<1> singularity_type_t;
-	/** \brief quadrature order used to generate Duffy singular quadratures */
+	/** \brief quadrature order used to generate blind singular quadratures */
 	static unsigned const singular_quadrature_order = 7;
 	/** \brief the far field asymptotic behaviour of the kernel */
 	typedef singularity_type::inverse<1> far_field_behaviour_t;
