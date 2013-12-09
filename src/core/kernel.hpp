@@ -223,9 +223,9 @@ struct kernel_traits<couple_kernel<Kernels...> >
 {
 private:
 	template <class K>
-	struct sing_order_constant : std::integral_constant<unsigned, K::singularity_order> {};
+	struct sing_order_constant : tmp::integer<unsigned, K::singularity_order> {};
 	template <class K>
-	struct sing_quad_order_constant : std::integral_constant<unsigned, K::singular_quadrature_order> {};
+	struct sing_quad_order_constant : tmp::integer<unsigned, K::singular_quadrature_order> {};
 public:
 	/** \brief type of the first (test) kernel input */
 	typedef typename merge<typename kernel_traits<Kernels>::test_input_t...>::type test_input_t;
