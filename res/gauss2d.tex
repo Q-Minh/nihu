@@ -2,7 +2,7 @@
 
 \usepackage{a4wide}
 
-\usepackage{amsmath}
+\usepackage{amsmath,bm}
 \newcommand{\td}{\mathrm{d}}
 \newcommand{\te}{\mathrm{e}}
 \newcommand{\ti}{\mathrm{i}}
@@ -413,6 +413,103 @@ G''_{n_x, n_y} - {G_0}''_{n_x, n_y} - \frac{k^2}{2} G_0 =
 \end{equation}
 %
 where $\gamma = \ti k r$
+
+
+\section{General singular}
+
+General shape set, general element shape ($L$-set)
+%
+\begin{equation}
+\int_S G({\bf x}-{\bf x}_0) N({\bf x}) \td S
+\end{equation}
+%
+Reference system
+%
+\begin{equation}
+\int_{\Sigma} G({\bf x}(\bm{\xi})-{\bf x}_0) N(\bm{\xi}) J(\bm{\xi}) \td \Sigma
+\end{equation}
+%
+Polar transform
+%
+\begin{equation}
+\int_{0}^{2\pi}
+\int_{\alpha(\varepsilon,\theta)}^{R(\theta)}
+G({\bf x}(\bm{\xi}(\rho,\theta))-{\bf x}_0) N(\bm{\xi}(\rho,\theta)) J(\bm{\xi}(\rho,\theta)) \rho
+\td \rho
+\td \theta
+=
+\int_{0}^{2\pi}
+\int_{\alpha(\varepsilon,\theta)}^{R(\theta)}
+F(\rho, \theta)
+\td \rho
+\td \theta
+\end{equation}
+
+$F$ expressed using its Laurent series:
+%
+\begin{equation}
+F(\rho, \theta) = \frac{F_{-1}(\theta)}{\rho} + O(1)
+\end{equation}
+%
+\begin{equation}
+I =
+\int_{0}^{2\pi}
+\int_{\alpha(\varepsilon,\theta)}^{R(\theta)}
+\underbrace{
+F(\rho, \theta) - \frac{F_{-1}(\theta)}{\rho}
+}_{O(1)}
+\td \rho
+\td \theta
++
+\int_{0}^{2\pi}
+F_{-1}(\theta)
+\ln \left(\frac{R(\theta)}{\alpha(\varepsilon,\theta)}\right)
+\td \theta
+\end{equation}
+
+\subsection{Specialisation to normal derivative Green kernel}
+
+\begin{equation}
+F
+= \frac{-1}{r^2} \frac{{\bf r} \cdot {\bf n}}{r} N J \rho
+= \frac{-{\bf r} \cdot {\bf J} N \rho}{r^3}
+\end{equation}
+%
+Everything expressed using Taylor series
+%
+\begin{equation}
+{\bf r} = \rho \left(
+\left.{\bf x}'_{\xi}\right|_{\bm{\xi}_0} \cos \theta
++
+\left.{\bf x}'_{\eta}\right|_{\bm{\xi}_0} \sin \theta
+\right)
++ O(\rho^2)
+=
+\rho {\bf A}(\theta) + O(\rho^2)
+\end{equation}
+%
+\begin{equation}
+N = N_0 + O(\rho)
+\end{equation}
+%
+\begin{equation}
+{\bf J} = {\bf J}_0 + O(\rho)
+\end{equation}
+%
+\begin{align}
+F
+&= \frac{-\left(\rho {\bf A}(\theta) + O(\rho^2)\right)
+\cdot
+\left( {\bf J}_0 + O(\rho)\right)
+\left(N_0 + O(\rho)\right) \rho}{\left|\rho {\bf A}(\theta) + O(\rho^2)\right|^3} \\
+&= \frac{1}{\rho}
+\frac{-\left({\bf A}(\theta) + O(\rho)\right)
+\cdot
+\left( {\bf J}_0 + O(\rho)\right)
+\left(N_0 + O(\rho)\right)}{\left|{\bf A}(\theta) + O(\rho)\right|^3} \\
+&= \frac{1}{\rho}
+\frac{-{\bf A}(\theta) \cdot {\bf J}_0 N_0}{\left|{\bf A}(\theta)\right|^3}
+\end{align}
 
 
 \end{document}
