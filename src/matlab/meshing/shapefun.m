@@ -1,4 +1,4 @@
-function [N, dN] = shapefun(x, type)
+function [N, dN, ddN] = shapefun(x, type)
 %SHAPEFUN Shape functions over standard elements
 % [N, dN] = SHAPEFUN(X, TYPE) returns linear shape function samples over
 % standard elements. The input vector X is a nxd vector, each
@@ -38,6 +38,11 @@ switch type
         if nargout > 1
             dN(:,:,1) = [-(1-eta), (1-eta), (1+eta), -(1+eta)] / 4;
             dN(:,:,2) = [-(1-xi), -(1+xi), (1+xi), (1-xi)] / 4;
+        end
+        if nargout > 2
+            ddN(:,:,1) = zeros(length(xi), 4);
+            ddN(:,:,2) = repmat([1, -1, +1, -1] / 4, length(xi), 1);
+            ddN(:,:,3) = zeros(length(xi), 4);
         end
     case 232
         % QUADRATIC TRIA element
