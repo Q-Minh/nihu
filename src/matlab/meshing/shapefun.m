@@ -10,7 +10,7 @@ function [N, dN, ddN] = shapefun(x, type)
 %   Copyright 2008-2012 P. Fiala and P. Rucz
 %   Budapest University of Technology and Economics
 
-% Last modified 2012.12.12.
+% Last modified 2013.12.16.
 
 switch type
     case 12
