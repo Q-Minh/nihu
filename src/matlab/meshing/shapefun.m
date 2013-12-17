@@ -29,8 +29,17 @@ switch type
             dN(:,:,1) = repmat([-1, +1,  0], size(xi,1),1);
             dN(:,:,2) = repmat([-1,  0, +1], size(xi,1),1);
         end
+    case {21}
+        % constant QUAD shape
+        N = ones(size(x,1), 1);
+        if nargout > 1
+            dN = zeros(size(x,1), 1, 2);
+        end
+        if nargout > 2
+            ddN = zeros(size(x,1), 1, 3);
+        end
     case {24 241}
-        % QUAD element
+        % linear QUAD element
         xi = x(:,1);
         eta = x(:,2);
         N = [(1-xi).*(1-eta), (1+xi).*(1-eta),...

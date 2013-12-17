@@ -24,7 +24,7 @@ X = [
     0 0 0
     1 0 0
     1 1 0
-    0 1 0
+    0 1.2 1
     ];
 
 % collocation point (x0 eta0)
@@ -92,7 +92,7 @@ Rho = linspace(0, 1, 2e2);
 Theta = linspace(-pi, pi, 1e2);
 [Rho, Theta] = meshgrid(Rho, Theta);
 
-RReg = subs(Reg(1), {rho, theta}, {Rho, Theta});
+RReg = double(subs(Reg(1), {rho, theta}, {Rho, Theta}));
 
 %% plot Taylor expansion functions and regular part
 th = (-pi:1e-2:pi);
