@@ -29,6 +29,9 @@ switch type
             dN(:,:,1) = repmat([-1, +1,  0], size(xi,1),1);
             dN(:,:,2) = repmat([-1,  0, +1], size(xi,1),1);
         end
+        if nargout > 2
+            ddN = zeros(length(xi), 3, 3);
+        end
     case {21}
         % constant QUAD shape
         N = ones(size(x,1), 1);
