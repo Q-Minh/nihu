@@ -85,6 +85,27 @@ public:
  		return dL;
 	}
 
+	/**
+	* \brief quadratic 8-noded quad shape function second derivatives
+	* \param [in] _xi the domain variable
+	* \return the shape function second derivative matrix
+	*/
+	static ddshape_t eval_ddshape(xi_t const & _xi)
+	{
+		scalar_t xi(_xi[0]), eta(_xi[1]);
+		ddshape_t ddL;
+		ddL <<
+			.5-eta/2.0, 1/4.0 - xi/2.0 - eta/2.0, .5 - xi/2.0,
+			eta-1,     xi,                 0,
+			.5-eta/2.0, eta/2.0 - xi/2.0 - 1/4.0, xi/2.0 + .5,
+			0,           -eta,               - xi - 1,
+			eta/2.0+.5, eta/2.0 + xi/2.0 + 1/4.0, xi/2.0 + .5,
+			-eta-1,   -xi,                0,
+			eta/2.0+.5, xi/2.0 - eta/2.0 - 1/4.0, .5 - xi/2.0,
+			0,           eta,                xi - 1;
+		return ddL;
+	}
+
 	/** \brief return begin iterator to the corner nodes
 	* \return begin iterator to corner nodes
 	*/

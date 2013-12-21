@@ -44,6 +44,11 @@ struct tester
 			for (auto it = shape_set::corner_begin(); it != shape_set::corner_end(); ++it)
 				std::cout << shape_set::eval_dshape(*it).transpose() << "  sum: " << shape_set::eval_dshape(*it).sum() << std::endl;
 			std::cout << std::endl;
+
+			std::cout << "shape second derivative values in corners" << std::endl;
+			for (auto it = shape_set::corner_begin(); it != shape_set::corner_end(); ++it)
+				std::cout << shape_set::eval_ddshape(*it).transpose() << "  sum: " << shape_set::eval_ddshape(*it).sum() << std::endl;
+			std::cout << std::endl;
 		}
 	};
 };

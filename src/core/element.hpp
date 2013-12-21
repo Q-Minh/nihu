@@ -128,13 +128,16 @@ public:
 		x_dim = space_t::dimension,
 		/** \brief the element id */
 		id = elem_id<Derived>::value,
-		num_nodes = lset_t::num_nodes
+		num_nodes = lset_t::num_nodes,
+		num_dd = lset_t::num_dd
 	};
 
 	/** \brief type of the element's independent location variable \f$x\f$ */
 	typedef typename space_t::location_t x_t;
 	/** \brief type of the gradient of the element's independent location variable \f$x'_{\xi}\f$ */
 	typedef Eigen::Matrix<scalar_t, x_dim, xi_dim> dx_t;
+	/** \brief type of the second derivative of the element's independent location variable \f$x''_{\xi}\f$ */
+	typedef Eigen::Matrix<scalar_t, x_dim, num_dd> ddx_t;
 	/** \brief matrix type that stores the element's corner nodes \f$x_i\f$ */
 	typedef Eigen::Matrix<unsigned, num_nodes, 1> nodes_t;
 	/** \brief matrix type that stores the element's corner coordinates \f$x_i\f$ */
@@ -235,6 +238,16 @@ public:
 	dx_t get_dx(xi_t const &xi) const
 	{
 		return m_coords * lset_t::eval_dshape(xi);
+	}
+
+	/**
+	* \brief return element location gradient
+	* \param [in] xi location \f$\xi\f$ in the base domain
+	* \return location gradient \f$x'_{\xi}\f$ in the element
+	*/
+	ddx_t get_ddx(xi_t const &xi) const
+	{
+		return m_coords * lset_t::eval_ddshape(xi);
 	}
 
 	/**

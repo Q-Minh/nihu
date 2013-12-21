@@ -65,7 +65,8 @@ public:
 		num_nodes = traits_t::num_nodes,
 		polynomial_order = traits_t::polynomial_order,
 		jacobian_order = traits_t::jacobian_order,
-		id = shape_set_id<Derived>::value
+		id = shape_set_id<Derived>::value,
+		num_dd = domain_t::dimension * (domain_t::dimension+1) / 2
 	};
 
 	/** \brief scalar type inherited from the domain */
@@ -76,6 +77,8 @@ public:
 	typedef Eigen::Matrix<scalar_t, num_nodes, 1> shape_t;
 	/** \brief type of a \f$\nabla L(\xi)\f$ gradient matrix */
 	typedef Eigen::Matrix<scalar_t, num_nodes, domain_t::dimension> dshape_t;
+	/** \brief type of the double derivative \f$\nabla L(\xi)\f$ matrix */
+	typedef Eigen::Matrix<scalar_t, num_nodes, num_dd> ddshape_t;
 
 public:
 	/** \brief return end iterator to the corner nodes
@@ -133,6 +136,8 @@ public:
 	typedef typename base_t::shape_t shape_t;
 	/** \brief type of a shape function gradient matrix */
 	typedef typename base_t::dshape_t dshape_t;
+	/** \brief type of a shape function second derivative matrix */
+	typedef typename base_t::ddshape_t ddshape_t;
 
 	/**
 	* \brief return constant shape functions
@@ -158,6 +163,18 @@ public:
 		return m_dshape;
 	}
 
+	/**
+	* \brief Second derivatives of constant shape functions
+	* \return Second derivatives of the constant shape functions
+	* \details The derivatives are
+	*
+	* \f$\L''_1(\xi) = 0\f$
+	*/
+	static ddshape_t const &eval_ddshape(xi_t const &)
+	{
+		return m_ddshape;
+	}
+
 	/** \brief return begin iterator to the corner nodes
 	* \return begin iterator to corner nodes
 	*/
@@ -171,6 +188,8 @@ protected:
 	static const shape_t m_shape;
 	/** \brief static shape function gradient */
 	static const dshape_t m_dshape;
+	/** \brief static shape function second derivatives */
+	static const ddshape_t m_ddshape;
 };
 
 
@@ -194,6 +213,11 @@ template <>
 typename line_0_shape_set::dshape_t
 	const line_0_shape_set::m_dshape = line_0_shape_set::dshape_t::Zero();
 
+/** \brief shape function second derivatives of the constant line shape set */
+template <>
+typename line_0_shape_set::ddshape_t
+	const line_0_shape_set::m_ddshape = line_0_shape_set::ddshape_t::Zero();
+
 /** \brief shape functions of the constant quad shape set */
 template <>
 typename tria_0_shape_set::shape_t
@@ -203,6 +227,11 @@ typename tria_0_shape_set::shape_t
 template <>
 typename tria_0_shape_set::dshape_t
 	const tria_0_shape_set::m_dshape = tria_0_shape_set::dshape_t::Zero();
+
+/** \brief second shape function derivatives of the constant quad shape set */
+template <>
+typename tria_0_shape_set::ddshape_t
+	const tria_0_shape_set::m_ddshape = tria_0_shape_set::ddshape_t::Zero();
 
 /** \brief shape functions of the constant tria shape set */
 template <>
@@ -214,6 +243,11 @@ template <>
 typename quad_0_shape_set::dshape_t
 	const quad_0_shape_set::m_dshape = quad_0_shape_set::dshape_t::Zero();
 
+/** \brief second shape function derivatives of the constant tria shape set */
+template <>
+typename quad_0_shape_set::ddshape_t
+	const quad_0_shape_set::m_ddshape = quad_0_shape_set::ddshape_t::Zero();
+
 /** \brief shape functions of the constant brick shape set */
 template <>
 typename brick_0_shape_set::shape_t
@@ -223,6 +257,11 @@ typename brick_0_shape_set::shape_t
 template <>
 typename brick_0_shape_set::dshape_t
 	const brick_0_shape_set::m_dshape = brick_0_shape_set::dshape_t::Zero();
+
+/** \brief second shape function derivatives of the constant brick shape set */
+template <>
+typename brick_0_shape_set::ddshape_t
+	const brick_0_shape_set::m_ddshape = brick_0_shape_set::ddshape_t::Zero();
 
 
 
@@ -300,6 +339,8 @@ public:
 	typedef typename base_t::shape_t shape_t;
 	/** \brief type of a shape gradient matrix */
 	typedef typename base_t::dshape_t dshape_t;
+	/** \brief type of a second shape derivative matrix */
+	typedef typename base_t::ddshape_t ddshape_t;
 
 	/**
 	* \brief return shape functions
@@ -314,6 +355,13 @@ public:
 	* \return the shape function derivatives
 	*/
 	static dshape_t eval_dshape(xi_t const &xi);
+
+	/**
+	* \brief return second shape function derivatives
+	* \param [in] xi the location in the base domain
+	* \return second shape function derivatives
+	*/
+	static ddshape_t eval_ddshape(xi_t const &xi);
 
 	/** \brief return begin iterator to the corner nodes
 	* \return begin iterator to corner nodes
@@ -375,6 +423,21 @@ inline typename isoparam_shape_set<line_domain>::dshape_t
 }
 
 
+/**
+* \brief linear 2-noded line shape function second derivative matrix
+* \return shape function second derivative matrix
+* \details The shape function derivatives are
+*
+* \f$L''_1(\xi) = 0 \f$
+*/
+template<>
+inline typename isoparam_shape_set<line_domain>::ddshape_t
+	line_1_shape_set::eval_ddshape(typename line_1_shape_set::xi_t const &)
+{
+	return ddshape_t::Zero();
+}
+
+
 /** linear tria shape set */
 typedef isoparam_shape_set<tria_domain> tria_1_shape_set;
 
@@ -413,6 +476,18 @@ inline typename tria_1_shape_set::dshape_t
 		0.0, +1.0;
 	return dL;
 }
+
+/**
+* \brief linear 3-noded tria elem shape function second derivative matrix
+* \return sape function second derivative matrix
+*/
+template<>
+inline typename tria_1_shape_set::ddshape_t
+	tria_1_shape_set::eval_ddshape(typename tria_1_shape_set::xi_t const &)
+{
+	return ddshape_t::Zero();
+}
+
 
 
 /** linear quad shape set */
@@ -458,6 +533,24 @@ inline typename quad_1_shape_set::dshape_t
 		-.25 * (1+xi[1]), (1.0-xi[0]) * +.25;
 	return dL;
 }
+
+/**
+* \brief linear 4-noded general quadrilater shape function second derivative matrix
+* \return shape function second derivative matrix
+*/
+template<>
+inline typename quad_1_shape_set::ddshape_t
+	quad_1_shape_set::eval_ddshape(typename quad_1_shape_set::xi_t const &xi)
+{
+	ddshape_t ddL;
+	ddL <<
+		0.0, +.25, 0.0,
+		0.0, -.25, 0.0,
+		0.0, +.25, 0.0,
+		0.0, -.25, 0.0;
+	return ddL;
+}
+
 
 
 /** linear brick shape set */
@@ -517,6 +610,28 @@ inline typename brick_1_shape_set::dshape_t
 	return dL;
 }
 
+/**
+* \brief linear 8-noded general brick shape function second derivative matrix
+* \param [in] xi the domain variable vector
+* \return shape function second derivative matrix
+*/
+template<>
+inline typename brick_1_shape_set::ddshape_t
+	brick_1_shape_set::eval_ddshape(typename brick_1_shape_set::xi_t const &xi)
+{
+	ddshape_t dL;
+	dL <<
+		0,  1/8.0 - xi[2]/8.0,  1/8.0 - xi[1]/8.0, 0,  1/8.0 - xi[0]/8.0, 0,
+		0,  xi[2]/8.0 - 1/8.0,  xi[1]/8.0 - 1/8.0, 0,  xi[0]/8.0 + 1/8.0, 0,
+		0,  1/8.0 - xi[2]/8.0, -xi[1]/8.0 - 1/8.0, 0, -xi[0]/8.0 - 1/8.0, 0,
+		0,  xi[2]/8.0 - 1/8.0,  xi[1]/8.0 + 1/8.0, 0,  xi[0]/8.0 - 1/8.0, 0,
+		0,  xi[2]/8.0 + 1/8.0,  xi[1]/8.0 - 1/8.0, 0,  xi[0]/8.0 - 1/8.0, 0,
+		0, -xi[2]/8.0 - 1/8.0,  1/8.0 - xi[1]/8.0, 0, -xi[0]/8.0 - 1/8.0, 0,
+		0,  xi[2]/8.0 + 1/8.0,  xi[1]/8.0 + 1/8.0, 0,  xi[0]/8.0 + 1/8.0, 0,
+		0, -xi[2]/8.0 - 1/8.0, -xi[1]/8.0 - 1/8.0, 0,  1/8.0 - xi[0]/8.0, 0;
+	return dL;
+}
+
 
 // Forward declaration
 class parallelogram_shape_set;
@@ -573,6 +688,15 @@ public:
 		return dL;
 	}
 
+	/**
+	* \brief linear 3-noded parallelogram second shape function derivatives
+	* \return the shape function second derivative matrix
+	*/
+	static ddshape_t eval_ddshape(xi_t const &)
+	{
+		return ddshape_t::Zero();
+	}
+
 	/** \brief return begin iterator to the corner nodes
 	* \return begin iterator to corner nodes
 	*/
@@ -587,7 +711,7 @@ public:
 // Forward declaration
 class line_2_shape_set;
 
-/** \brief Traits for quadratic tria shapesets */
+/** \brief Traits for quadratic line shapesets */
 template<>
 struct shape_set_traits<line_2_shape_set>
 {
@@ -637,6 +761,16 @@ public:
 		 -2.0*xi,
 		 1.0*(1.0+xi)/2.0 + xi*(1.0)/2.0;
 		return dL;
+	}
+
+	/**
+	* \brief quadratic 3-noded line shape function derivatives
+	* \param [in] _xi the domain variable
+	* \return the shape function gradient matrix
+	*/
+	static ddshape_t eval_ddshape(xi_t const &)
+	{
+		return ddshape_t(1.0, -2.0, 1.0);
 	}
 
 	/** \brief return begin iterator to the corner nodes
@@ -738,6 +872,24 @@ public:
 			0,            4*eta-1,
 			-4*eta,       4-4*xi-8*eta;
 		return dL;
+	}
+
+	/**
+	* \brief quadratic 6-noded tria shape function second derivatives
+	* \param [in] _xi the domain variable
+	* \return the shape function second derivative matrix
+	*/
+	static ddshape_t eval_ddshape(xi_t const &)
+	{
+		ddshape_t ddL;
+		ddL <<
+			 4,  4,  4,
+			-8, -4,  0,
+			 4,  0,  0,
+			 0,  4,  0,
+			 0,  0,  4,
+			 0, -4, -8;
+		return ddL;
 	}
 
 	/** \brief return begin iterator to the corner nodes
@@ -849,6 +1001,28 @@ public:
             -(2.0*xi-1.0)*(eta2-1.0)/2.0,   -xi*eta*(xi-1.0),
             2.0*xi*(eta2-1.0),              2.0*eta*(xi2-1.0);
 		return dL;
+	}
+
+	/**
+	* \brief quadratic 9-noded quad shape function second derivatives
+	* \param [in] _xi the domain variable
+	* \return the shape function second derivative matrix
+	*/
+	static ddshape_t eval_ddshape(xi_t const & _xi)
+	{
+		scalar_t xi = _xi[0], eta = _xi[1], xi2 = xi*xi, eta2 = eta*eta;
+		ddshape_t ddL;
+		ddL <<
+			eta2/2.0 - eta/2.0, eta*xi - xi/2.0 - eta/2.0 + 1.0/4.0, xi2/2.0 - xi/2.0,
+			- eta2 + eta,   xi - 2*eta*xi,               1.0 - xi2,
+			eta2/2.0 - eta/2.0, eta/2.0 - xi/2.0 + eta*xi - 1.0/4.0, xi2/2.0 + xi/2.0,
+			1.0 - eta2,       - eta - 2*eta*xi,            - xi2 - xi,
+			eta2/2.0 + eta/2.0, eta/2.0 + xi/2.0 + eta*xi + 1.0/4.0, xi2/2.0 + xi/2.0,
+			- eta2 - eta,   - xi - 2*eta*xi,             1.0 - xi2,
+			eta2/2.0 + eta/2.0, xi/2.0 - eta/2.0 + eta*xi - 1.0/4.0, xi2/2.0 - xi/2.0,
+			1.0 - eta2,       eta - 2*eta*xi,              - xi2 + xi,
+			2*eta2 - 2.0,     4*eta*xi,                    2*xi2 - 2.0;
+   		return ddL;
 	}
 
 	/** \brief return begin iterator to the corner nodes
