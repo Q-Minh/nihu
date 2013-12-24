@@ -1,0 +1,156 @@
+\documentclass[a4paper,11pt,twoside]{paper}
+
+\usepackage{a4wide}
+\usepackage{amsmath,bm}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+\newcommand{\td}{\mathrm{d}}
+\newcommand{\te}{\mathrm{e}}
+
+\title{Time Domain BEM}
+\author{Peter Fiala}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+
+\section{Introduction}
+
+Really just the first steps in TD BEM.
+
+\section{Convolution integral}
+
+\begin{equation}
+\frac{1}{2}p({\bf x}, t) =
+\int_{0}^{t}
+\int_{S}
+\left\{
+G'_{n_y}({\bf x},{\bf y}, t-\tau) p({\bf y}, \tau)
+-
+G({\bf x}-{\bf y}, t-\tau) q({\bf y}, \tau)
+\right\}
+\td S_{y}
+\td \tau
+\end{equation}
+
+\begin{equation}
+G({\bf x}-{\bf y}, t) = \frac{\delta(t-r/c)}{4\pi r}, \qquad r = |{\bf y}-{\bf x}|
+\end{equation}
+
+\section{Discretisation}
+
+Interpolation in space-time:
+%
+\begin{equation}
+p({\bf x}, t) =
+\sum_{\beta} \sum_j
+p^{\beta}_{j} N_j({\bf x}) T_{\beta}(t)
+\end{equation}
+%
+substituting into the convolution integral
+%
+\begin{multline}
+\frac{1}{2}p({\bf x}, t) =
+\sum_{\beta} \sum_j 
+\int_{0}^{t} \int_{S}
+G'_{n_y}({\bf x}-{\bf y}, t-\tau)
+N_j({\bf y}) T_{\beta}(\tau)
+\td S_{y} \td \tau
+p^{\beta}_{j} \\
+-
+\sum_{\beta} \sum_j 
+\int_{0}^{t} \int_{S}
+G({\bf x}-{\bf y}, t-\tau)
+N_j({\bf y}) T_{\beta}(\tau)
+\td S_{y} \td \tau
+q^{\beta}_{j} 
+\end{multline}
+
+\section{Collocation}
+
+
+\begin{equation}
+\frac{1}{2}p_{i}^{\alpha} =
+\sum_{\beta} \sum_j 
+H_{ij}^{\alpha \beta}
+p^{\beta}_{j} \\
+-
+\sum_{\beta} \sum_j 
+G_{ij}^{\alpha \beta}
+q^{\beta}_{j} 
+\end{equation}
+%
+where
+%
+\begin{align}
+G_{ij}^{\alpha \beta} &=
+\int_{0}^{t_{\alpha}} \int_{S}
+G({\bf x}_i-{\bf y}, t_{\alpha}-\tau)
+N_j({\bf y}) T_{\beta}(\tau)
+\td S_{y} \td \tau
+\nonumber \\
+H_{ij}^{\alpha \beta} &=
+\int_{0}^{t_{\alpha}} \int_{S}
+G'_{n_y}({\bf x}_i-{\bf y}, t_{\alpha}-\tau)
+N_j({\bf y}) T_{\beta}(\tau)
+\td S_{y} \td \tau
+\end{align}
+
+Substituting the Green's function
+
+\begin{align}
+G_{ij}^{\alpha \beta}
+&=
+\int_{0}^{t_{\alpha}} \int_{S}
+\frac{\delta(t_{\alpha}-\tau-r/c)}{4\pi r}
+N_j({\bf y}) T_{\beta}(\tau)
+\td S_{y} \td \tau
+\nonumber \\
+&=
+\int_{S}
+\frac{N_j({\bf y}) T_{\beta}(t_{\alpha}-r/c)}{4\pi r}
+\td S_{y}
+\end{align}
+%
+and
+%
+\begin{align}
+H_{ij}^{\alpha \beta}
+&=
+\int_{0}^{t_{\alpha}} \int_{S}
+\frac{\partial}{\partial r}\left(\frac{\delta(t_{\alpha}-\tau-r/c)}{4\pi r}\right)
+\frac{\left({\bf y}-{\bf x}\right){\bf n}_y}{r}
+N_j({\bf y}) T_{\beta}(\tau)
+\td S_{y} \td \tau
+\nonumber \\
+&=
+\int_{0}^{t_{\alpha}} \int_{S}
+\left(
+\frac{\delta'(t_{\alpha}-\tau-r/c)(-1/c)}{4\pi r}
+-
+\frac{\delta(t_{\alpha}-\tau-r/c)}{4\pi r^2}
+\right)
+\frac{\left({\bf y}-{\bf x}\right){\bf n}_y}{r}
+N_j({\bf y}) T_{\beta}(\tau)
+\td S_{y} \td \tau
+\nonumber \\
+&=
+\int_{S}
+\left(
+\frac{T'_{\beta}(t_{\alpha}-r/c)/c}{4\pi r}
+-
+\frac{T_{\beta}(t_{\alpha}-r/c)}{4\pi r^2}
+\right)
+\frac{\left({\bf y}-{\bf x}\right){\bf n}_y}{r}
+N_j({\bf y})
+\td S_{y}
+\end{align}
+%
+
+
+
+\end{document}
+

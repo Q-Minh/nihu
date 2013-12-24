@@ -31,9 +31,9 @@ struct shape_set_traits<quad_28_shape_set>
 {
 	typedef quad_domain domain_t;	/**< \brief the domain type */
 	enum {
-		num_nodes = 8,
-		polynomial_order = 2,
-		jacobian_order = 3
+		num_nodes = 8,			/** \brief number of shape function nodes */
+		polynomial_order = 2,	/** \brief polynomial order of the shape functions */
+		jacobian_order = 3		/** \brief polynomial order of the Jacobian */
 	};
 };
 
@@ -45,7 +45,7 @@ class quad_28_shape_set : public shape_set_base<quad_28_shape_set>
 public:
 	/**
 	* \brief quadratic 8-noded quad shape functions
-	* \param [in] _xi the domain variable
+	* \param [in] _xi the domain variable vector
 	* \return the shape function vector
 	*/
 	static shape_t eval_shape(xi_t const &_xi)
@@ -66,7 +66,7 @@ public:
 
 	/**
 	* \brief quadratic 8-noded quad shape function derivatives
-	* \param [in] _xi the domain variable
+	* \param [in] _xi the domain variable vector
 	* \return the shape function gradient matrix
 	*/
 	static dshape_t eval_dshape(xi_t const & _xi)
@@ -87,22 +87,22 @@ public:
 
 	/**
 	* \brief quadratic 8-noded quad shape function second derivatives
-	* \param [in] _xi the domain variable
+	* \param [in] _xi the domain variable vector
 	* \return the shape function second derivative matrix
 	*/
 	static ddshape_t eval_ddshape(xi_t const & _xi)
 	{
-		scalar_t xi(_xi[0]), eta(_xi[1]);
+		auto xi(_xi[0]), eta(_xi[1]);
 		ddshape_t ddL;
 		ddL <<
-			.5-eta/2.0, 1/4.0 - xi/2.0 - eta/2.0, .5 - xi/2.0,
-			eta-1,     xi,                 0,
-			.5-eta/2.0, eta/2.0 - xi/2.0 - 1/4.0, xi/2.0 + .5,
-			0,           -eta,               - xi - 1,
-			eta/2.0+.5, eta/2.0 + xi/2.0 + 1/4.0, xi/2.0 + .5,
-			-eta-1,   -xi,                0,
-			eta/2.0+.5, xi/2.0 - eta/2.0 - 1/4.0, .5 - xi/2.0,
-			0,           eta,                xi - 1;
+			.5-eta/2.0,  1/4.0-xi/2.0-eta/2.0, .5-xi/2.0,
+			eta-1.0,     xi,                   0.0,
+			.5-eta/2.0,  eta/2.0-xi/2.0-1/4.0, xi/2.0+.5,
+			0.0,         -eta,                 -xi-1.0,
+			eta/2.0+.5,  eta/2.0+xi/2.0+1/4.0, xi/2.0+.5,
+			-eta-1.0,    -xi,                  0.0,
+			eta/2.0+.5,  xi/2.0-eta/2.0-1/4.0, .5-xi/2.0,
+			0.0,         eta,                  xi-1.0;
 		return ddL;
 	}
 

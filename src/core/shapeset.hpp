@@ -61,11 +61,17 @@ public:
 	/** \brief Domain */
 	typedef typename traits_t::domain_t domain_t;
 
+	/** \brief integer constants */
 	enum {
+		/** number of shape function nodes */
 		num_nodes = traits_t::num_nodes,
+		/** \brief the shape set polynomial order */
 		polynomial_order = traits_t::polynomial_order,
+		/** \brief the Jacobian polynomial order */
 		jacobian_order = traits_t::jacobian_order,
+		/** \brief the shape set id */
 		id = shape_set_id<Derived>::value,
+		/** \brief number of second derivatives */
 		num_dd = domain_t::dimension * (domain_t::dimension+1) / 2
 	};
 
@@ -77,7 +83,7 @@ public:
 	typedef Eigen::Matrix<scalar_t, num_nodes, 1> shape_t;
 	/** \brief type of a \f$\nabla L(\xi)\f$ gradient matrix */
 	typedef Eigen::Matrix<scalar_t, num_nodes, domain_t::dimension> dshape_t;
-	/** \brief type of the double derivative \f$\nabla L(\xi)\f$ matrix */
+	/** \brief type of the double derivative \f$ L''(\xi)\f$ matrix */
 	typedef Eigen::Matrix<scalar_t, num_nodes, num_dd> ddshape_t;
 
 public:
@@ -764,9 +770,8 @@ public:
 	}
 
 	/**
-	* \brief quadratic 3-noded line shape function derivatives
-	* \param [in] _xi the domain variable
-	* \return the shape function gradient matrix
+	* \brief quadratic 3-noded line shape function second derivatives
+	* \return the shape function second derivative matrix
 	*/
 	static ddshape_t eval_ddshape(xi_t const &)
 	{
@@ -875,10 +880,9 @@ public:
 	}
 
 	/**
-	* \brief quadratic 6-noded tria shape function second derivatives
-	* \param [in] _xi the domain variable
-	* \return the shape function second derivative matrix
-	*/
+	 * \brief quadratic 6-noded tria shape function second derivatives
+	 * \return the shape function second derivative matrix
+	 */
 	static ddshape_t eval_ddshape(xi_t const &)
 	{
 		ddshape_t ddL;
@@ -982,10 +986,10 @@ public:
 	}
 
 	/**
-	* \brief quadratic 9-noded quad shape function derivatives
-	* \param [in] _xi the domain variable
-	* \return the shape function gradient matrix
-	*/
+	 * \brief quadratic 9-noded quad shape function derivatives
+	 * \param [in] _xi the domain variable
+	 * \return the shape function gradient matrix
+	 */
 	static dshape_t eval_dshape(xi_t const & _xi)
 	{
 		scalar_t xi = _xi[0], eta = _xi[1], xi2 = xi*xi, eta2 = eta*eta;
@@ -1004,10 +1008,10 @@ public:
 	}
 
 	/**
-	* \brief quadratic 9-noded quad shape function second derivatives
-	* \param [in] _xi the domain variable
-	* \return the shape function second derivative matrix
-	*/
+	 * \brief quadratic 9-noded quad shape function second derivatives
+	 * \param [in] _xi the domain variable
+	 * \return the shape function second derivative matrix
+	 */
 	static ddshape_t eval_ddshape(xi_t const & _xi)
 	{
 		scalar_t xi = _xi[0], eta = _xi[1], xi2 = xi*xi, eta2 = eta*eta;

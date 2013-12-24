@@ -7,20 +7,25 @@
 
 #include <cmath>
 #include "../core/shapeset.hpp"
+#include "laplace_kernel.hpp"
 
-template <class Kernel, class Field>
-class guiggiani_hypersingular_collocation
+/** \brief field-related quantities of the Guiggiani-method
+ * \tparam Field the field type
+ */
+template <class Field>
+class guiggiani_field
 {
 	/** \brief template argument as nested type */
 	typedef Field field_t;
 
+	/** \brief the element type */
 	typedef typename field_t::elem_t elem_t;
+	/** \brief the element L-set */
 	typedef typename elem_t::lset_t lset_t;
+	/** \brief the element N-set */
 	typedef typename field_t::nset_t nset_t;
 
-	typedef typename lset_t::shape_t l_shape_t;
-	typedef typename nset_t::shape_t n_shape_t;
-
+	/** \brief the intrinsic coordinate vctor type */
 	typedef typename elem_t::xi_t xi_t;
 
 public:
@@ -51,7 +56,7 @@ public:
 	 * \param [in] xi0 the reference coordinate
 	 * \return the static part of the shape functions
 	 */
-	static n_shape_t N0(xi_t const &xi0)
+	static typename nset_t::shape_t N0(xi_t const &xi0)
 	{
 		return nset_t::eval_shape(xi0);
 	}
@@ -61,11 +66,23 @@ public:
 	 * \param [in] theta the angle parameter
 	 * \return the linear part of the shape functions
 	 */
-	static n_shape_t N1(xi_t const &xi0, double theta)
+	static typename nset_t::shape_t N1(xi_t const &xi0, double theta)
 	{
 		auto dN = nset_t::eval_dshape(xi0);
 		return dN.col(0)*cos(theta) + dN.col(1)*sin(theta);
 	}
+};
+
+
+
+template <class Kernel, class Field>
+class guiggiani_hypersingular;
+
+template <class Field>
+class guiggiani_hypersingular<laplace_3d_HSP_kernel, Field>
+{
+public:
+private:
 };
 
 #endif // GUIGGIANI_1992_HPP_INCLUDED
