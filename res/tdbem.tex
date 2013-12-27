@@ -128,7 +128,7 @@ H_{ij}^{\alpha \beta}
 &=
 \int_{0}^{t_{\alpha}} \int_{S}
 \frac{\partial}{\partial r}\left(\frac{\delta(t_{\alpha}-\tau-r/c)}{4\pi r}\right)
-\frac{\left({\bf y}-{\bf x}\right){\bf n}_y}{r}
+r'_{n_{y}}
 N_j({\bf y}) T_{\beta}(\tau)
 \td S_{y} \td \tau
 \nonumber \\
@@ -139,7 +139,7 @@ N_j({\bf y}) T_{\beta}(\tau)
 -
 \frac{\delta(t_{\alpha}-\tau-r/c)}{4\pi r^2}
 \right)
-\frac{\left({\bf y}-{\bf x}\right){\bf n}_y}{r}
+r'_{n_{y}}
 N_j({\bf y}) T_{\beta}(\tau)
 \td S_{y} \td \tau
 \nonumber \\
@@ -150,7 +150,7 @@ N_j({\bf y}) T_{\beta}(\tau)
 -
 \frac{T_{\beta}(t_{\alpha}-r/c)}{4\pi r^2}
 \right)
-\frac{\left({\bf y}-{\bf x}\right){\bf n}_y}{r}
+r'_{n_{y}}
 N_j({\bf y})
 \td S_{y}
 \end{align}
@@ -181,24 +181,24 @@ or, as used above:
 \begin{equation}
 T_{\alpha-\gamma}(t_{\alpha}-r/c)
 = \begin{cases}
-\gamma + 1 -r' & \gamma < r' \le \gamma+1 \\
-\gamma + 1 +r' & \gamma-1 < r' \le \gamma
+\gamma + 1 -r^* & \gamma < r^* \le \gamma+1 \\
+\gamma + 1 +r^* & \gamma-1 < r^* \le \gamma
 \end{cases} \nonumber \\
 \end{equation}
 %
 \begin{equation}
 T'_{\alpha-\gamma}(t_{\alpha}-r/c) = \begin{cases}
-\frac{1}{\Delta t} & \gamma < r' \le \gamma+1 \\
--\frac{1}{\Delta t} & \gamma-1 < r' \le \gamma
+\frac{1}{\Delta t} & \gamma < r^* \le \gamma+1 \\
+-\frac{1}{\Delta t} & \gamma-1 < r^* \le \gamma
 \end{cases}
 \end{equation}
 %
-where $r' = r/c\Delta t$ is the normalised distance from the collocation point
+where $r^* = r/c\Delta t$ is the normalised distance from the collocation point
 
 
-\begin{equation}
+\begin{align}
 G_{ij}^{\gamma}
-=
+&=
 \frac{\gamma + 1}{4\pi}
 \int_{S_i^{\gamma}}
 \frac{N_j({\bf y})}{r}
@@ -213,37 +213,26 @@ N_j({\bf y})
 \int_{S_i^{\gamma+}}
 N_j({\bf y})
 \td S_{y}
-\right)
-\end{equation}
-%
-
-
-\begin{multline}
+\right) \nonumber \\
 H_{ij}^{\gamma}
-=
+&=
 -
 \frac{\gamma+1}{4\pi}
 \int_{S_{i}^{\gamma}}
-\frac{1}{r^2}
-\frac{\left({\bf y}-{\bf x}\right){\bf n}_y}{r}
-N_j({\bf y})
+\frac{r'_{n_{y}} N_j({\bf y})}{r^2}
 \td S_{y}
-\\ +
++
 \frac{1}{2\pi c \Delta t}
 \left(
 \int_{S_{i}^{\gamma+}}
-\frac{1}{r}
-\frac{\left({\bf y}-{\bf x}\right){\bf n}_y}{r}
-N_j({\bf y})
+\frac{r'_{n_{y}} N_j({\bf y})}{r}
 \td S_{y}
 -
 \int_{S_{i}^{\gamma-}}
-\frac{1}{r}
-\frac{\left({\bf y}-{\bf x}\right){\bf n}_y}{r}
-N_j({\bf y})
+\frac{r'_{n_{y}} N_j({\bf y})}{r}
 \td S_{y}
 \right)
-\end{multline}
+\end{align}
 
 
 
