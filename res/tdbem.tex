@@ -128,8 +128,7 @@ H_{ij}^{\alpha \beta}
 &=
 \int_{0}^{t_{\alpha}} \int_{S}
 \frac{\partial}{\partial r}\left(\frac{\delta(t_{\alpha}-\tau-r/c)}{4\pi r}\right)
-r'_{n_{y}}
-N_j({\bf y}) T_{\beta}(\tau)
+r'_{n_{y}} N_j({\bf y}) T_{\beta}(\tau)
 \td S_{y} \td \tau
 \nonumber \\
 &=
@@ -139,8 +138,7 @@ N_j({\bf y}) T_{\beta}(\tau)
 -
 \frac{\delta(t_{\alpha}-\tau-r/c)}{4\pi r^2}
 \right)
-r'_{n_{y}}
-N_j({\bf y}) T_{\beta}(\tau)
+r'_{n_{y}} N_j({\bf y}) T_{\beta}(\tau)
 \td S_{y} \td \tau
 \nonumber \\
 &=
@@ -150,8 +148,7 @@ N_j({\bf y}) T_{\beta}(\tau)
 -
 \frac{T_{\beta}(t_{\alpha}-r/c)}{4\pi r^2}
 \right)
-r'_{n_{y}}
-N_j({\bf y})
+r'_{n_{y}} N_j({\bf y})
 \td S_{y}
 \end{align}
 %
@@ -234,6 +231,37 @@ H_{ij}^{\gamma}
 \right)
 \end{align}
 
+For constant triangles
+%
+\begin{align}
+G_{ij}^{\gamma}
+&=
+\frac{\gamma + 1}{4\pi}
+\int_{S_{ij}^{\gamma}}
+\frac{1}{r}
+\td S_{y}
++
+\frac{S_{ij}^{\gamma-} - S_{ij}^{\gamma+}}{4\pi c \Delta t}
+\nonumber \\
+H_{ij}^{\gamma}
+&=
+-
+\frac{\gamma+1}{4\pi}
+\int_{S_{ij}^{\gamma}}
+\frac{r'_{n_{y}}}{r^2}
+\td S_{y}
++
+\frac{1}{2\pi c \Delta t}
+\left(
+\int_{S_{ij}^{\gamma+}}
+\frac{r'_{n_{y}}}{r}
+\td S_{y}
+-
+\int_{S_{ij}^{\gamma-}}
+\frac{r'_{n_{y}}}{r}
+\td S_{y}
+\right)
+\end{align}
 
 
 
