@@ -370,7 +370,7 @@ public:
 	{
 		dx_t dx0(get_dx(xi_t::Zero()));	// the element direction vector
 		m_normal << dx0(1), -dx0(0);	// the normal vector
-		m_linear_size_estimate = m_normal.norm()  * domain_t::get_volume();
+		m_linear_size_estimate = m_normal.norm() * domain_t::get_volume();
 	}
 
 	/** \brief return normal vector
