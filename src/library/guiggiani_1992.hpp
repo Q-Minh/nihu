@@ -6,132 +6,117 @@
 #define GUIGGIANI_1992_HPP_INCLUDED
 
 #include <cmath>
-#include "../core/shapeset.hpp"
-#include "laplace_kernel.hpp"
+#include "../core/field.hpp"
 
-/** \brief field-related quantities of the Guiggiani-method
- * \tparam Field the field type
+/** \brief traits of a guiggiani class
+ * \tparam Derived the CRTP derived class
  */
-template <class Field>
-class guiggiani_field
+template <class Derived>
+struct guiggiani_traits;
+
+/** \brief CRTP base class of all guiggiani classes
+ * \tparam Derived the CRTP derived class
+ */
+template <class Derived>
+class guiggiani_base
 {
-	/** \brief template argument as nested type */
-	typedef Field field_t;
-
-	/** \brief the element type */
-	typedef typename field_t::elem_t elem_t;
-	/** \brief the element L-set */
-	typedef typename elem_t::lset_t lset_t;
-	/** \brief the element N-set */
-	typedef typename field_t::nset_t nset_t;
-
-	/** \brief the intrinsic coordinate vctor type */
-	typedef typename elem_t::xi_t xi_t;
-
 public:
+	enum {XI = 0, ETA = 1, XIXI = 0, XIETA = 1, ETAXI = 1, ETAETA = 2};
+	typedef guiggiani_traits<Derived> traits_t;
 
-	/** \brief compute location derivative with respect to rho
-	 * \param [in] xi0 the reference location at the collocation point
-	 * \return location derivatives
-	 */
-	static typename elem_t::x_t A_vector(elem_t const &elem, xi_t const &xi0, double theta)
-	{
-		auto dx = elem.get_dx(xi0);
-		return dx.col(0) * std::cos(theta) + dx.col(1) * std::sin(theta);
-	}
-
-	/** \brief compute location second derivative with respect to rho
-	 * \param [in] xi0 the reference location at the collocation point
-	 * \return location second derivative vector
-	 */
-	static typename elem_t::x_t B_vector(elem_t const &elem, xi_t const &xi0, double theta)
-	{
-		auto ddx = elem.get_ddx(xi0);
-		auto c = std::cos(theta);
-		auto s = std::sin(theta);
-		return ddx.col(0) * c*c/2.0 + ddx.col(1) * c*s + ddx.col(2) * s*s/2.0;
-	}
-
-	static typename elem_t::x_t J0_vector(elem_t const &elem, xi_t const &xi0)
-	{
-		return elem.get_normal(xi0);
-	}
-
-	static typename elem_t::x_t J1_vector(elem_t const &elem, xi_t const &xi0, double theta)
-	{
-		auto dx = elem.get_dx(xi0);
-		auto ddx = elem.get_ddx(xi0);
-
-		return std::cos(theta) * (ddx.col(0).cross(dx.col(1)) + dx.col(0).cross(ddx.col(1))) +
-			std::sin(theta) * (ddx.col(1).cross(dx.col(1)) + dx.col(0).cross(ddx.col(2)));
-	}
-
-	/** \brief evaluate static part of the shape functions
-	 * \param [in] xi0 the reference coordinate
-	 * \return the static part of the shape functions
-	 */
-	static typename nset_t::shape_t N0(xi_t const &xi0)
-	{
-		return nset_t::eval_shape(xi0);
-	}
-
-	/** \brief evaluate linear part of the shape functions
-	 * \param [in] xi0 the reference coordinate
-	 * \param [in] theta the angle parameter
-	 * \return the linear part of the shape functions
-	 */
-	static typename nset_t::shape_t N1(xi_t const &xi0, double theta)
-	{
-		auto dN = nset_t::eval_dshape(xi0);
-		return dN.col(0)*cos(theta) + dN.col(1)*sin(theta);
-	}
-};
-
-
-
-template <class Kernel, class Field>
-class guiggiani_hypersingular;
-
-template <class Field>
-class guiggiani_hypersingular<laplace_3d_HSP_kernel, Field>
-{
-	typedef Field field_t;
-
+	typedef typename traits_t::field_t field_t;
+	typedef typename field_t::elem_t elem_t;
+	typedef typename elem_t::xi_t xi_t;
+	typedef typename elem_t::x_t x_t;
+	typedef typename elem_t::scalar_t scalar_t;
 	typedef typename field_t::nset_t nset_t;
 	typedef typename nset_t::shape_t n_shape_t;
-	/** \brief the element type */
-	typedef typename field_t::elem_t elem_t;
-	/** \brief the intrinsic coordinate vctor type */
-	typedef typename elem_t::xi_t xi_t;
 
-	typedef guiggiani_field<field_t> guifield_t;
+	/** \brief constructor
+	 * \param [in] elem the element
+	 */
+	guiggiani_base(elem_t const &elem) : m_elem(elem)
+	{
+	}
 
+	/** \brief compute the coefficients at a local coordinate and an angle
+	 * \param [in] xi0 the local coordinate
+	 * \param [theta] theta the angle parameter
+	 */
+	void compute(xi_t const &xi0, double theta)
+	{
+		m_xi0 = xi0;
+
+		auto c = std::cos(theta);
+		auto s = std::sin(theta);
+
+		auto dx = m_elem.get_dx(xi0);
+		auto ddx = m_elem.get_ddx(xi0);
+
+		m_A_vector = dx.col(XI) * c + dx.col(ETA) * s;
+		m_A = m_A_vector.norm();
+		m_B_vector = ddx.col(XIXI) * c*c / 2.0 + ddx.col(XIETA) * c*s + ddx.col(ETAETA) * s*s / 2.0;
+
+		m_J0_vector = m_elem.get_normal(xi0);
+		m_J1_vector = c * (ddx.col(XIXI).cross(dx.col(ETA)) + dx.col(XI).cross(ddx.col(XIETA))) +
+			s * (ddx.col(ETAXI).cross(dx.col(ETA)) + dx.col(XI).cross(ddx.col(ETAETA)));
+		m_J0 = m_J0_vector.norm();
+		m_n0 = m_J0_vector / m_J0;
+
+		m_N0 = nset_t::eval_shape(xi0);
+		auto dN = nset_t::eval_dshape(xi0);
+		m_N1 = dN.col(XI)*c + dN.col(ETA)*s;
+	}
+
+protected:
+	elem_t const &m_elem;	/**< \brief the element reference */
+	xi_t m_xi0;				/**< \brief the local coordinate */
+	x_t m_A_vector;			/**< \brief the location derivative vector */
+	scalar_t m_A;			/**< \brief the magnitude of the location derivative */
+	x_t m_B_vector;			/**< \brief the location second derivative vector */
+	x_t m_J0_vector;		/**< \brief the constant Jacobian vector */
+	scalar_t m_J0;			/**< \brief the magnitude of the constant Jacobian */
+	x_t m_n0;				/**< \brief the unit normal vector */
+	x_t m_J1_vector;		/**< \brief the linear part of the Jacobian vector */
+	n_shape_t m_N0;			/**< \brief the constant part of the shape function vector */
+	n_shape_t m_N1;			/**< \brief the linear part of the shape function vector */
+	n_shape_t m_Fm2;		/**< \brief the -2-nd order Laurent coefficient */
+	n_shape_t m_Fm1;		/**< \brief the -1-st order Laurent coefficient */
+};
+
+// forward declaration
+template <class Field, class Kernel>
+class guiggiani;
+
+/** \brief traits of a guiggiani class */
+template <class Field, class Kernel>
+struct guiggiani_traits<guiggiani<Field, Kernel> >
+{
+	typedef Field field_t;
+	typedef Kernel kernel_t;
+};
+
+#include "../library/laplace_kernel.hpp"
+
+template <class Field>
+class guiggiani<Field, laplace_3d_HSP_kernel> : public guiggiani_base<guiggiani<Field, laplace_3d_HSP_kernel> >
+{
 public:
-	static n_shape_t Fm2(elem_t const &elem, xi_t const &xi0, double theta)
+	typedef guiggiani_base<guiggiani> base_t;
+	typedef typename base_t::elem_t elem_t;
+
+	guiggiani(elem_t const &elem) : base_t(elem)
 	{
-		auto A = guifield_t::A_vector(elem, xi0, theta).norm();
-		auto J0 = guifield_t::J0_vector(elem, xi0).norm();
-		return J0 * guifield_t::N0(xi0) / (4.0 * M_PI * A*A*A);
 	}
 
-	static n_shape_t Fm1(elem_t const &elem, xi_t const &xi0, double theta)
+	void compute_Fm1Fm2(void)
 	{
-		auto Avec = guifield_t::A_vector(elem, xi0, theta);
-		auto Bvec = guifield_t::B_vector(elem, xi0, theta);
-		auto A = Avec.norm();
-		Avec /= A;
-		Bvec /= A;
-		auto J0vec = guifield_t::J0_vector(elem, xi0);
-		auto J0 = J0vec.norm();
-		auto nx0 = J0vec / J0;
-		auto J1 = guifield_t::J1_vector(elem, xi0, theta).dot(nx0);
-		auto N0 = guifield_t::N0(xi0);
-		auto N1 = guifield_t::N1(xi0, theta);
-
-		return (J0*N1 + J1*N0 - 3.0*N0*J0*Avec.dot(Bvec)) / (4.0*M_PI * A*A*A);
+		auto A2 = this->m_A*this->m_A;
+		auto A3 = A2 * this->m_A;
+		this->m_Fm2 = this->m_J0 * this->m_N0 / (4.0 * M_PI * A3);
+		this->m_Fm1 = (this->m_J0*this->m_N1 + this->m_J1_vector.dot(this->m_n0)*this->m_N0
+			- 3.0*this->m_N0*this->m_J0* this->m_A_vector.dot(this->m_B_vector) / A2) / (4.0*M_PI * A3);
 	}
-
-private:
 };
 
 #endif // GUIGGIANI_1992_HPP_INCLUDED
