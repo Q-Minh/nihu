@@ -10,9 +10,10 @@ function [I, Isurf, Ilin1, Ilin2] = Guiggiani(n, id, X, xi0)
 [xi, w] = DuffyQuad(n, id, xi0);
 % the same in polar
 [theta, rho] = cart2pol(xi(:,1)-xi0(1), xi(:,2)-xi0(2));
+% decompensate null Jacobian
 w = w./ rho;
 
-[Fm2, Fm1] = series_expansion(theta, xi0, id, X);
+[Fm2, Fm1] = guiggiani_series_expansion(theta, xi0, id, X);
 Series = bsxfun(@times, Fm2, 1./rho.^2) + bsxfun(@times, Fm1, 1./rho);
 
 % the hypersingular function
@@ -57,7 +58,7 @@ for l = 1 : nC
         t2 = t2 + 2*pi;
     end
     [theta, w] = gaussquad(n, t1, t2);
-    [Fm2, Fm1, beta, gamma] = series_expansion(theta, xi0, id, X);
+    [Fm2, Fm1, beta, gamma] = guiggiani_series_expansion(theta, xi0, id, X);
 
     rho_lim = distance_to_reference_boundary(xi0, theta, id);
     Ilin1 = Ilin1 + w' * (bsxfun(@times, Fm1, log(abs(rho_lim ./ beta))));

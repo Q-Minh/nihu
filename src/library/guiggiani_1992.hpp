@@ -6,7 +6,23 @@
 #define GUIGGIANI_1992_HPP_INCLUDED
 
 #include <cmath>
+#include "../util/crtp_base.hpp"
 #include "../core/field.hpp"
+#include "../core/gaussian_quadrature.hpp"
+
+
+/** \brief store-wrapper of a statically stored line quadrature */
+template <unsigned order>
+struct line_quad_store
+{
+	/** \brief the stored static quadrature member */
+	static gaussian_quadrature<line_domain> const quadrature;
+};
+
+/** \brief definition of the statically stored quadrature member */
+template <unsigned order>
+gaussian_quadrature<line_domain> const line_quad_store<order>::quadrature(order);
+
 
 /** \brief traits of a guiggiani class
  * \tparam Derived the CRTP derived class
@@ -21,12 +37,18 @@ template <class Derived>
 class guiggiani_base
 {
 public:
-	enum {XI = 0, ETA = 1, XIXI = 0, XIETA = 1, ETAXI = 1, ETAETA = 2};
+	NIHU_CRTP_HELPERS
+
 	typedef guiggiani_traits<Derived> traits_t;
+
+	enum { XI = 0, ETA = 1, XIXI = 0, XIETA = 1, ETAXI = 1, ETAETA = 2 };
+	enum { quadrature_order = 7 };
+	typedef line_quad_store<quadrature_order> line_quadr_t;
 
 	typedef typename traits_t::field_t field_t;
 	typedef typename field_t::elem_t elem_t;
-	typedef typename elem_t::xi_t xi_t;
+	typedef typename field_t::domain_t domain_t;
+	typedef typename domain_t::xi_t xi_t;
 	typedef typename elem_t::x_t x_t;
 	typedef typename elem_t::scalar_t scalar_t;
 	typedef typename field_t::nset_t nset_t;
@@ -53,19 +75,57 @@ public:
 		auto dx = m_elem.get_dx(xi0);
 		auto ddx = m_elem.get_ddx(xi0);
 
+		m_J0_vector = m_elem.get_normal(xi0);
+		m_J0 = m_J0_vector.norm();
+		m_n0 = m_J0_vector / m_J0;
+		m_N0 = nset_t::eval_shape(xi0);
+
 		m_A_vector = dx.col(XI) * c + dx.col(ETA) * s;
 		m_A = m_A_vector.norm();
 		m_B_vector = ddx.col(XIXI) * c*c / 2.0 + ddx.col(XIETA) * c*s + ddx.col(ETAETA) * s*s / 2.0;
 
-		m_J0_vector = m_elem.get_normal(xi0);
 		m_J1_vector = c * (ddx.col(XIXI).cross(dx.col(ETA)) + dx.col(XI).cross(ddx.col(XIETA))) +
 			s * (ddx.col(ETAXI).cross(dx.col(ETA)) + dx.col(XI).cross(ddx.col(ETAETA)));
-		m_J0 = m_J0_vector.norm();
-		m_n0 = m_J0_vector / m_J0;
 
-		m_N0 = nset_t::eval_shape(xi0);
 		auto dN = nset_t::eval_dshape(xi0);
 		m_N1 = dN.col(XI)*c + dN.col(ETA)*s;
+	}
+
+	void line_integrals(xi_t const &xi0, n_shape_t &I1, n_shape_t &I2)
+	{
+		unsigned const N = domain_t::num_corners;
+		for (unsigned n = 0; n < N; ++n)
+		{
+			auto const &c1 = domain_t::get_corner(n);
+			auto const &c2 = domain_t::get_corner((n + 1) % N);
+			auto l = (c2 - c1).normalized();
+
+			auto d1 = c1 - xi0, d2 = c2 - xi0;
+			auto d0 = d2 - l*d2.dot(l);
+			double t1 = std::atan2(d1(1), d1(0)), t2 = std::atan2(d2(1), d2(0));
+			if (t1 > t2)
+				t2 += 2.0 * M_PI;
+			double t0 = std::atan2(d0(1), d0(0));
+			double d = d0.norm();
+
+			for (auto it = line_quadr_t::quadrature.begin(); it != line_quadr_t::quadrature.end(); ++it)
+			{
+				auto x = it->get_xi()(0);
+				auto w = it->get_w() * (t2 - t1) / 2.0;
+				auto theta = (t1 * (1 - x) + t2 * (1 + x)) / 2.0;
+
+				compute(xi0, theta);
+				derived().compute_Fm1Fm2();
+
+				auto beta = 1.0 / m_A;
+				auto gamma = -m_A_vector.dot(m_B_vector) / (m_A*m_A*m_A*m_A);
+
+				double rho_lim = d / std::cos(theta-t0);
+
+				I1 += w * m_Fm1 * std::log(std::abs(rho_lim / beta));
+				I2 += w * m_Fm2 * (gamma / beta / beta + 1.0 / rho_lim);
+			}
+		}
 	}
 
 protected:
