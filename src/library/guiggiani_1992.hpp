@@ -24,6 +24,19 @@ template <unsigned order>
 gaussian_quadrature<line_domain> const line_quad_store<order>::quadrature(order);
 
 
+/** \brief store-wrapper of a statically stored surface quadrature */
+template <class domain, unsigned order>
+struct surface_quad_store
+{
+	/** \brief the stored static quadrature member */
+	static gaussian_quadrature<domain> const quadrature;
+};
+
+/** \brief definition of the statically stored quadrature member */
+template <class domain, unsigned order>
+gaussian_quadrature<domain> const surface_quad_store<domain, order>::quadrature(order);
+
+
 /** \brief traits of a guiggiani class
  * \tparam Derived the CRTP derived class
  */
@@ -43,7 +56,6 @@ public:
 
 	enum { XI = 0, ETA = 1, XIXI = 0, XIETA = 1, ETAXI = 1, ETAETA = 2 };
 	enum { quadrature_order = 7 };
-	typedef line_quad_store<quadrature_order> line_quadr_t;
 
 	typedef typename traits_t::field_t field_t;
 	typedef typename field_t::elem_t elem_t;
@@ -53,6 +65,9 @@ public:
 	typedef typename elem_t::scalar_t scalar_t;
 	typedef typename field_t::nset_t nset_t;
 	typedef typename nset_t::shape_t n_shape_t;
+
+	typedef line_quad_store<quadrature_order> line_quadr_t;
+	typedef surface_quad_store<domain_t, quadrature_order> surf_quadr_t;
 
 	/** \brief constructor
 	 * \param [in] elem the element
@@ -89,6 +104,39 @@ public:
 
 		auto dN = nset_t::eval_dshape(xi0);
 		m_N1 = dN.col(XI)*c + dN.col(ETA)*s;
+	}
+
+	void surface_integral(xi_t const &xi0, n_shape_t &I)
+	{
+		auto x = m_elem.get_x(xi0);
+		auto nx = m_elem.get_normal(xi0).normalized();
+
+		for (auto it = surf_quadr_t::quadrature.begin(); it != surf_quadr_t::quadrature.end(); ++it)
+		{
+			auto xi = it->get_xi();
+			auto w = it->get_w();
+			auto dxi = xi - xi0;
+			double theta = std::atan2(dxi(1), dxi(0));
+			double rho = dxi.norm();
+
+			auto y = m_elem.get_x(xi);
+			auto ny = m_elem.get_normal(xi);
+
+			auto rvec = y - x;
+			auto r = rvec.norm();
+			auto rdnx = -rvec.dot(nx) / r;
+			auto rdny = rvec.dot(ny) / r;
+
+			auto N = nset_t::eval_shape(xi);
+			n_shape_t F = N * rho / (4.0*M_PI * r*r*r) * (nx.dot(ny) + 3.0 * rdnx * rdny);
+
+			compute(xi0, theta);
+			derived().compute_Fm1Fm2();
+
+			F -= m_Fm2 / rho / rho + m_Fm1 / rho;
+
+			I += w * F / rho;
+		}
 	}
 
 	void line_integrals(xi_t const &xi0, n_shape_t &I1, n_shape_t &I2)

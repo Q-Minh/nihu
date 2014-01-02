@@ -21,11 +21,14 @@ int main(void)
 
 	auto xi0 = elem_t::domain_t::get_center();
 
-	field_t::nset_t::shape_t I1, I2;
+	field_t::nset_t::shape_t I0, I1, I2;
+	I0.setZero();
 	I1.setZero();
 	I2.setZero();
+	gui.surface_integral(xi0, I0);
 	gui.line_integrals(xi0, I1, I2);
 
+	std::cout << "I0: " << I0 << std::endl;
 	std::cout << "I1: " << I1 << std::endl;
 	std::cout << "I2: " << I2 << std::endl;
 

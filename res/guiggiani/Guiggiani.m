@@ -7,7 +7,8 @@ function [I, Isurf, Ilin1, Ilin2] = Guiggiani(n, id, X, xi0)
 
 %% surface integral
 % create surface Duffy quadrature
-[xi, w] = DuffyQuad(n, id, xi0);
+% [xi, w] = DuffyQuad(n, id, xi0);
+[xi, w] = gaussquad2(2*n-1, 4);
 % the same in polar
 [theta, rho] = cart2pol(xi(:,1)-xi0(1), xi(:,2)-xi0(2));
 % decompensate null Jacobian
@@ -40,7 +41,7 @@ gradr = bsxfun(@times, rvec, 1./r);
 % shape function values
 N = shapefun(xi, 21);
 % G'' * N * rho
-F = ((J*nx0.')-3*(dot(gradr,J,2)).*(-gradr*nx0.')).*rho./ (4*pi*r.^3);
+F = ((J*nx0.')+3*(dot(gradr,J,2)).*(-gradr*nx0.')).*rho./ (4*pi*r.^3);
 F = bsxfun(@times, F, N);
 
 Isurf = w' * (F - Series);

@@ -22,7 +22,7 @@ Ianal = -2*sin(pi/4)*4/4/pi;
 nvec = 4;
 for i = 1 : length(nvec)
     [I(i,:), Isurf, Ilin1, Ilin2] = Guiggiani(nvec(i), 24, X, xi0);
-    fprintf(1, 'I1: %g\nI2: %g\n', Ilin1, Ilin2);
+    fprintf(1, 'I0: %g\nI1: %g\nI2: %g\n', Isurf, Ilin1, Ilin2);
 end
 
 plot(nvec, log10(abs(I/Ianal - 1)), '.-');
