@@ -4,7 +4,7 @@ clear;
 X = [
     -1 -1 1
     +1 -1 0
-    +1 +1 0
+    +1 +1 1
     -1 +1 0
     ];
 xi0 = [0 0];
@@ -19,7 +19,7 @@ fprintf(1, '4 pi * F-1: %g\n', Fm1*4*pi);
 %%
 Ianal = -2*sin(pi/4)*4/4/pi;
 
-nvec = 4;
+nvec = 2:10;
 for i = 1 : length(nvec)
     [I(i,:), Isurf, Ilin1, Ilin2] = Guiggiani(nvec(i), 24, X, xi0);
     fprintf(1, 'I0: %g\nI1: %g\nI2: %g\n', Isurf, Ilin1, Ilin2);

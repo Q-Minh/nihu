@@ -7,8 +7,8 @@ function [I, Isurf, Ilin1, Ilin2] = Guiggiani(n, id, X, xi0)
 
 %% surface integral
 % create surface Duffy quadrature
-% [xi, w] = DuffyQuad(n, id, xi0);
-[xi, w] = gaussquad2(2*n-1, 4);
+[xi, w] = DuffyQuad(n, id, xi0);
+% [xi, w] = gaussquad2(2*n-1, 4);
 % the same in polar
 [theta, rho] = cart2pol(xi(:,1)-xi0(1), xi(:,2)-xi0(2));
 % decompensate null Jacobian

@@ -12,7 +12,7 @@ int main(void)
 	coords <<
 		-1, +1, +1, -1,
 		-1, -1, +1, +1,
-		1, 0, 0, 0;
+		1, 0, 1, 0;
 	elem_t elem(coords);
 
 	typedef guiggiani<field_t, kernel_t> gui_t;

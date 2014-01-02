@@ -62,7 +62,7 @@ nx0 = nx0 / sqrt(dot(nx0, nx0));
 gradr = simple(rvec / r);
 
 % Green's function
-G = N/r^3 * (dot(Jac, nx0) - 3 * dot(Jac, gradr)*dot(gradr, nx0)) * rho;
+G = N/r^3 * (dot(Jac, nx0) + 3 * dot(Jac, gradr)*dot(gradr, -nx0)) * rho;
 G = subs(G, {xi, eta}, {xi0+rho*cos(theta), eta0+rho*sin(theta)});
 
 %% Series expansion
