@@ -76,24 +76,14 @@ public:
 	{
 	}
 
-	/** \brief compute the coefficients at a local coordinate and an angle
-	 * \param [in] xi0 the local coordinate
-	 * \param [theta] theta the angle parameter
-	 */
-	void compute(xi_t const &xi0, double theta)
+private:
+	void compute_theta(double theta)
 	{
-		m_xi0 = xi0;
-
 		auto c = std::cos(theta);
 		auto s = std::sin(theta);
 
-		auto dx = m_elem.get_dx(xi0);
-		auto ddx = m_elem.get_ddx(xi0);
-
-		m_J0_vector = m_elem.get_normal(xi0);
-		m_J0 = m_J0_vector.norm();
-		m_n0 = m_J0_vector / m_J0;
-		m_N0 = nset_t::eval_shape(xi0);
+		typename elem_t::dx_t dx = m_elem.get_dx(m_xi0);
+		typename elem_t::ddx_t ddx = m_elem.get_ddx(m_xi0);
 
 		m_A_vector = dx.col(XI) * c + dx.col(ETA) * s;
 		m_A = m_A_vector.norm();
@@ -102,54 +92,51 @@ public:
 		m_J1_vector = c * (ddx.col(XIXI).cross(dx.col(ETA)) + dx.col(XI).cross(ddx.col(XIETA))) +
 			s * (ddx.col(ETAXI).cross(dx.col(ETA)) + dx.col(XI).cross(ddx.col(ETAETA)));
 
-		auto dN = nset_t::eval_dshape(xi0);
+		typename nset_t::dshape_t dN = nset_t::eval_dshape(m_xi0);
 		m_N1 = dN.col(XI)*c + dN.col(ETA)*s;
 	}
 
-	void surface_integral(xi_t const &xi0, n_shape_t &I)
+	void compute_xi0(xi_t const &xi0)
 	{
-		auto x = m_elem.get_x(xi0);
-		auto nx = m_elem.get_normal(xi0).normalized();
+		m_xi0 = xi0;
+		m_x0 = m_elem.get_x(m_xi0);
+		m_J0_vector = m_elem.get_normal(m_xi0);
+		m_J0 = m_J0_vector.norm();
+		m_n0 = m_J0_vector / m_J0;
 
+		m_N0 = nset_t::eval_shape(xi0);
+	}
+
+	void surface_integral(n_shape_t &I)
+	{
 		for (auto it = surf_quadr_t::quadrature.begin(); it != surf_quadr_t::quadrature.end(); ++it)
 		{
 			auto xi = it->get_xi();
 			auto w = it->get_w();
-			auto dxi = xi - xi0;
+			auto dxi = xi - m_xi0;
+
 			double theta = std::atan2(dxi(1), dxi(0));
 			double rho = dxi.norm();
 
-			auto y = m_elem.get_x(xi);
-			auto ny = m_elem.get_normal(xi);
-
-			auto rvec = y - x;
-			auto r = rvec.norm();
-			auto rdnx = -rvec.dot(nx) / r;
-			auto rdny = rvec.dot(ny) / r;
-
-			auto N = nset_t::eval_shape(xi);
-			n_shape_t F = N * rho / (4.0*M_PI * r*r*r) * (nx.dot(ny) + 3.0 * rdnx * rdny);
-
-			compute(xi0, theta);
+			compute_theta(theta);
 			derived().compute_Fm1Fm2();
 
-			F -= m_Fm2 / rho / rho + m_Fm1 / rho;
-
-			I += w * F / rho;
+			auto F = derived().compute_kernel(xi);
+			I += w * (F - (m_Fm2 / rho + m_Fm1) / rho / rho);
 		}
 	}
 
-	void line_integrals(xi_t const &xi0, n_shape_t &I1, n_shape_t &I2)
+	void line_integrals(n_shape_t &I)
 	{
 		unsigned const N = domain_t::num_corners;
 		for (unsigned n = 0; n < N; ++n)
 		{
-			auto const &c1 = domain_t::get_corner(n);
-			auto const &c2 = domain_t::get_corner((n + 1) % N);
-			auto l = (c2 - c1).normalized();
+			xi_t const &c1 = domain_t::get_corner(n);
+			xi_t const &c2 = domain_t::get_corner((n + 1) % N);
+			xi_t l = (c2 - c1).normalized();
 
-			auto d1 = c1 - xi0, d2 = c2 - xi0;
-			auto d0 = d2 - l*d2.dot(l);
+			xi_t d1 = c1 - m_xi0, d2 = c2 - m_xi0;
+			xi_t d0 = d2 - l*d2.dot(l);
 			double t1 = std::atan2(d1(1), d1(0)), t2 = std::atan2(d2(1), d2(0));
 			if (t1 > t2)
 				t2 += 2.0 * M_PI;
@@ -158,36 +145,46 @@ public:
 
 			for (auto it = line_quadr_t::quadrature.begin(); it != line_quadr_t::quadrature.end(); ++it)
 			{
-				auto x = it->get_xi()(0);
-				auto w = it->get_w() * (t2 - t1) / 2.0;
-				auto theta = (t1 * (1 - x) + t2 * (1 + x)) / 2.0;
+				double x = it->get_xi()(0);
+				double w = it->get_w() * (t2 - t1) / 2.0;
+				double theta = (t1 * (1 - x) + t2 * (1 + x)) / 2.0;
 
-				compute(xi0, theta);
+				compute_theta(theta);
 				derived().compute_Fm1Fm2();
 
-				auto beta = 1.0 / m_A;
-				auto gamma = -m_A_vector.dot(m_B_vector) / (m_A*m_A*m_A*m_A);
+				double gamma = -m_A_vector.dot(m_B_vector) / (m_A*m_A);
 
-				double rho_lim = d / std::cos(theta-t0);
+				double rho_lim = d / std::cos(theta - t0);
 
-				I1 += w * m_Fm1 * std::log(std::abs(rho_lim / beta));
-				I2 += w * m_Fm2 * (gamma / beta / beta + 1.0 / rho_lim);
+				I += w * (m_Fm1 * std::log(std::abs(rho_lim * m_A)) - m_Fm2 * (gamma + 1.0 / rho_lim));
 			}
 		}
 	}
 
+public:
+	void integral(xi_t const &xi0, n_shape_t &I)
+	{
+		compute_xi0(xi0);
+		surface_integral(I);
+		line_integrals(I);
+	}
+
 protected:
 	elem_t const &m_elem;	/**< \brief the element reference */
-	xi_t m_xi0;				/**< \brief the local coordinate */
+
+	xi_t m_xi0;				/**< \brief the source local coordinate */
+	x_t m_x0;				/**< \brief the source point */
+	x_t m_J0_vector;		/**< \brief the Jacobian vector at the source point */
+	scalar_t m_J0;			/**< \brief the Jacobian at the source point */
+	x_t m_n0;				/**< \brief the unit normal vector at the source point */
+	n_shape_t m_N0;			/**< \brief the shape function vector at the source point */
+
 	x_t m_A_vector;			/**< \brief the location derivative vector */
 	scalar_t m_A;			/**< \brief the magnitude of the location derivative */
 	x_t m_B_vector;			/**< \brief the location second derivative vector */
-	x_t m_J0_vector;		/**< \brief the constant Jacobian vector */
-	scalar_t m_J0;			/**< \brief the magnitude of the constant Jacobian */
-	x_t m_n0;				/**< \brief the unit normal vector */
 	x_t m_J1_vector;		/**< \brief the linear part of the Jacobian vector */
-	n_shape_t m_N0;			/**< \brief the constant part of the shape function vector */
 	n_shape_t m_N1;			/**< \brief the linear part of the shape function vector */
+
 	n_shape_t m_Fm2;		/**< \brief the -2-nd order Laurent coefficient */
 	n_shape_t m_Fm1;		/**< \brief the -1-st order Laurent coefficient */
 };
@@ -212,6 +209,7 @@ class guiggiani<Field, laplace_3d_HSP_kernel> : public guiggiani_base<guiggiani<
 public:
 	typedef guiggiani_base<guiggiani> base_t;
 	typedef typename base_t::elem_t elem_t;
+	typedef typename base_t::n_shape_t n_shape_t;
 
 	guiggiani(elem_t const &elem) : base_t(elem)
 	{
@@ -224,6 +222,20 @@ public:
 		this->m_Fm2 = this->m_J0 * this->m_N0 / (4.0 * M_PI * A3);
 		this->m_Fm1 = (this->m_J0*this->m_N1 + this->m_J1_vector.dot(this->m_n0)*this->m_N0
 			- 3.0*this->m_N0*this->m_J0* this->m_A_vector.dot(this->m_B_vector) / A2) / (4.0*M_PI * A3);
+	}
+
+	n_shape_t compute_kernel(typename elem_t::xi_t const &xi)
+	{
+		auto y = this->m_elem.get_x(xi);
+		auto Jny = this->m_elem.get_normal(xi);
+
+		auto rvec = y - this->m_x0;
+		auto r = rvec.norm();
+		auto rdnx = -rvec.dot(this->m_n0) / r;
+		auto rdny = rvec.dot(Jny) / r;
+
+		auto N = nset_t::eval_shape(xi);
+		return N / (4.0*M_PI * r*r*r) * (this->m_n0.dot(Jny) + 3.0 * rdnx * rdny);
 	}
 };
 
