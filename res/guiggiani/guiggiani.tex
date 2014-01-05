@@ -7,14 +7,17 @@
 
 \begin{document}
 
-Integral equation:
+\section{The hypersingular boundary integral equation}
 
+The starting point of the derivation is Green' second theorem written on two regular functions $G$ and $u$ over the surface $S$
+%
 \begin{equation}
 \int_{S} \left( G'_{n_y}({\bf y}, {\bf x}) u({\bf y}) - G({\bf y}, {\bf x}) q({\bf y})
 \right) \td S_y = 0
 \end{equation}
 %
-If ${\bf x} \in S$ then excluding the singular point and taking a limit:
+If ${\bf x}$ is outside the volume enclosed by $S$, then the above integral equation can be evaluated in a conventional way.
+If ${\bf x} \in S$ then the surface is slightly modified to exclude the singular point from the enclosed domain, and the integral is interpreted as limiting case:
 %
 \begin{equation}
 \lim_{\epsilon \to 0^+}
@@ -25,7 +28,7 @@ G'_{n_y}({\bf y}, {\bf x}) u({\bf y}) - G({\bf y}, {\bf x}) q({\bf y})
 \td S_y = 0
 \end{equation}
 %
-differentiating with respect to the outward normal at ${\bf x}$
+As the singular point is excluded from the surface, the integral can be differentiated with respect to the outward normal at ${\bf x}$:
 %
 \begin{equation}
 \lim_{\epsilon \to 0^+}
@@ -36,7 +39,7 @@ G''_{n_x,n_y}({\bf y}, {\bf x}) u({\bf y}) - G'_{n_x}({\bf y}, {\bf x}) q({\bf y
 \td S_y = 0
 \end{equation}
 %
-splitting into two integrals
+The integrals over the truncated surface $S-e_{\epsilon}$ and the attached boundry $s_{\epsilon}$ are split into two:
 %
 \begin{multline}
 \lim_{\epsilon \to 0^+}
@@ -55,19 +58,14 @@ G''_{n_x,n_y}({\bf y}, {\bf x}) u({\bf y}) - G'_{n_x}({\bf y}, {\bf x}) q({\bf y
 \td S_y = 0
 \end{multline}
 %
-expanding $u({\bf y})$ around {\bf x}:
+The functions $u$ and $q$ are expanded around the singular point as
 %
-\begin{equation}
-u({\bf y}) = u({\bf x}) + \nabla u({\bf x}) ({\bf y} - {\bf x}) + O(r^2)
-\end{equation}
+\begin{align}
+u({\bf y}) &= u({\bf x}) + \nabla u({\bf x}) ({\bf y} - {\bf x}) + O(r^2) \nonumber \\
+q({\bf y}) &= \nabla u({\bf y}) {\bf n}_y = \nabla u({\bf x}) {\bf n}_y + O(r)
+\end{align}
 %
-expanding $q({\bf y})$ around {\bf x}:
-%
-\begin{equation}
-q({\bf y}) = \nabla u({\bf y}) {\bf n}_y = \nabla u({\bf x}) {\bf n}_y + O(r)
-\end{equation}
-%
-Substituting and assuming spherical corrections
+We substitute the expansions into the two integrals. Furthermore, we assume that $s_{\epsilon}$ is a spherical surface of radius $\epsilon$:
 %
 \begin{multline}
 \lim_{\epsilon \to 0^+}
