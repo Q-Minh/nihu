@@ -1,4 +1,4 @@
-\documentclass[a4paper,11pt,twoside]{article}
+\documentclass[a4paper,11pt]{article}
 
 \usepackage{amsmath,bm}
 \usepackage{a4wide}
@@ -6,6 +6,152 @@
 \newcommand{\td}{\mathrm{d}}
 
 \begin{document}
+
+Integral equation:
+
+\begin{equation}
+\int_{S} \left( G'_{n_y}({\bf y}, {\bf x}) u({\bf y}) - G({\bf y}, {\bf x}) q({\bf y})
+\right) \td S_y = 0
+\end{equation}
+%
+If ${\bf x} \in S$ then excluding the singular point and taking a limit:
+%
+\begin{equation}
+\lim_{\epsilon \to 0^+}
+\int_{S-e_{\epsilon}+s_{\epsilon}}
+\left(
+G'_{n_y}({\bf y}, {\bf x}) u({\bf y}) - G({\bf y}, {\bf x}) q({\bf y})
+\right) 
+\td S_y = 0
+\end{equation}
+%
+differentiating with respect to the outward normal at ${\bf x}$
+%
+\begin{equation}
+\lim_{\epsilon \to 0^+}
+\int_{S-e_{\epsilon}+s_{\epsilon}}
+\left(
+G''_{n_x,n_y}({\bf y}, {\bf x}) u({\bf y}) - G'_{n_x}({\bf y}, {\bf x}) q({\bf y})
+\right)
+\td S_y = 0
+\end{equation}
+%
+splitting into two integrals
+%
+\begin{multline}
+\lim_{\epsilon \to 0^+}
+\int_{S-e_{\epsilon}}
+\left(
+G''_{n_x,n_y}({\bf y}, {\bf x}) u({\bf y}) - G'_{n_x}({\bf y}, {\bf x}) q({\bf y})
+\right)
+\td S_y
+\\
++
+\lim_{\epsilon \to 0^+}
+\int_{s_{\epsilon}}
+\left(
+G''_{n_x,n_y}({\bf y}, {\bf x}) u({\bf y}) - G'_{n_x}({\bf y}, {\bf x}) q({\bf y})
+\right)
+\td S_y = 0
+\end{multline}
+%
+expanding $u({\bf y})$ around {\bf x}:
+%
+\begin{equation}
+u({\bf y}) = u({\bf x}) + \nabla u({\bf x}) ({\bf y} - {\bf x}) + O(r^2)
+\end{equation}
+%
+expanding $q({\bf y})$ around {\bf x}:
+%
+\begin{equation}
+q({\bf y}) = \nabla u({\bf y}) {\bf n}_y = \nabla u({\bf x}) {\bf n}_y + O(r)
+\end{equation}
+%
+Substituting and assuming spherical corrections
+%
+\begin{multline}
+\lim_{\epsilon \to 0^+}
+\int_{S-e_{\epsilon}}
+\left(
+G''_{n_x,n_y}({\bf y}, {\bf x}) u({\bf y})
+- G'_{n_x}({\bf y}, {\bf x}) q({\bf y})
+\right)
+\td S_y
+\\
++
+\lim_{\epsilon \to 0^+}
+\int_{s_{\epsilon}}
+\left(
+\underbrace{G''_{n_x,n_y}({\bf y}, {\bf x})}_{O(\epsilon^{-3})} \underbrace{\left[u({\bf y}) - u({\bf x}) - \nabla u({\bf x}) ({\bf y} - {\bf x})\right]}_{O(\epsilon^2)}
+- \underbrace{G'_{n_x}({\bf y}, {\bf x})}_{O(\epsilon^{-2})} \underbrace{\left[q({\bf y}) - \nabla u({\bf x}) {\bf n}_y\right]}_{O(\epsilon)}
+\right)
+\underbrace{\td S_y}_{O(\epsilon^2)}
+\\
++
+\lim_{\epsilon \to 0^+}
+\int_{s_{\epsilon}}
+\left(
+G''_{n_x,n_y}({\bf y}, {\bf x}) \left[u({\bf x}) + \nabla u({\bf x}) ({\bf y} - {\bf x})\right]
+- G'_{n_x}({\bf y}, {\bf x}) \nabla u({\bf x}) {\bf n}_y
+\right)
+\td S_y = 0
+\end{multline}
+%
+cancellation:
+%
+\begin{multline}
+\lim_{\epsilon \to 0^+}
+\int_{S-e_{\epsilon}}
+\left(
+G''_{n_x,n_y}({\bf y}, {\bf x}) u({\bf y})
+- G'_{n_x}({\bf y}, {\bf x}) q({\bf y})
+\right)
+\td S_y
++
+u({\bf x})
+\lim_{\epsilon \to 0^+}
+\underbrace{
+\int_{s_{\epsilon}}
+G''_{n_x,n_y}({\bf y}, {\bf x}) 
+\td S_y
+}_{b({\bf x})/\epsilon}
+\\
++
+\nabla u({\bf x}) 
+\underbrace{
+\lim_{\epsilon \to 0^+}
+\int_{s_{\epsilon}}
+\left(
+G''_{n_x,n_y}({\bf y}, {\bf x}) ({\bf y} - {\bf x})
+- G'_{n_x}({\bf y}, {\bf x}) {\bf n}_y
+\right)
+\td S_y
+}_{\bf c({\bf x})}
+= 0
+\end{multline}
+%
+
+Summarising the final result:
+%
+\begin{equation}
+\lim_{\epsilon \to 0^+}
+\left\{
+\int_{S-e_{\epsilon}}
+\left(
+G''_{n_x,n_y}({\bf y}, {\bf x}) u({\bf y})
+- G'_{n_x}({\bf y}, {\bf x}) q({\bf y})
+\right)
+\td S_y
++
+u({\bf x})
+\frac{b({\bf x})}{\epsilon}
+\right\}
++
+\nabla u({\bf x}) 
+{\bf c}({\bf x})
+= 0
+\end{equation}
+
 
 \begin{equation}
 \lim_{\epsilon\to0^+}\int_{S-S_{\epsilon}} G({\bf y}, {\bf x}) N({\bf y}) \td S_y

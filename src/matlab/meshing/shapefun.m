@@ -13,12 +13,25 @@ function [N, dN, ddN] = shapefun(x, type)
 % Last modified 2013.12.16.
 
 switch type
-    case 12
+    case {12 121}
         % Line element
         xi = x(:,1);
         N = [1-xi, 1+xi]/2;
         if nargout > 1
             dN = repmat([-1, +1]/2, size(xi,1),1);
+        end
+        if nargout > 2
+            ddN = zeros(length(xi), 2);
+        end
+    case 122
+        % Quadratic Line element
+        xi = x(:,1);
+        N = [(xi-1).*xi/2, 1-xi.^2, (1+xi).*xi/2];
+        if nargout > 1
+            dN = [xi-.5, -2*xi, xi+.5];
+        end
+        if nargout > 2
+            ddN = repmat([1, -2, 1], size(xi,1),1);
         end
     case {23 231}
         % TRIA element

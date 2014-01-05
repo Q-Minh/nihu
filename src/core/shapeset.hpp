@@ -763,9 +763,9 @@ public:
 		scalar_t xi = _xi[0];
 		dshape_t dL;
 		dL <<
-		 -1.0*(1.0-xi)/2.0 + -xi*(-1.0)/2.0,
-		 -2.0*xi,
-		 1.0*(1.0+xi)/2.0 + xi*(1.0)/2.0;
+			xi - 0.5,
+			-2.0*xi,
+			xi + 0.5;
 		return dL;
 	}
 

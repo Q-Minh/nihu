@@ -248,4 +248,43 @@ public:
 	}
 };
 
+
+template <class Field>
+class guiggiani<Field, laplace_2d_HSP_kernel> : public guiggiani_base<guiggiani<Field, laplace_2d_HSP_kernel> >
+{
+public:
+	typedef guiggiani_base<guiggiani> base_t;
+	typedef typename base_t::elem_t elem_t;
+	typedef typename base_t::nset_t nset_t;
+	typedef typename base_t::n_shape_t n_shape_t;
+
+	guiggiani(elem_t const &elem) : base_t(elem)
+	{
+	}
+
+	void compute_Fm1Fm2(void)
+	{
+		auto A2 = this->m_A*this->m_A;
+		auto A3 = A2 * this->m_A;
+		this->m_Fm2 = this->m_J0 * this->m_N0 / (2.0 * M_PI * A2);
+		this->m_Fm1 = (this->m_J0*this->m_N1 + this->m_J1_vector.dot(this->m_n0)*this->m_N0
+			- 2.0*this->m_N0*this->m_J0* this->m_A_vector.dot(this->m_B_vector) / A2) / (2.0*M_PI * A2);
+	}
+
+	n_shape_t compute_kernel(typename elem_t::xi_t const &xi)
+	{
+		auto y = this->m_elem.get_x(xi);
+		auto Jny = this->m_elem.get_normal(xi);
+
+		auto rvec = y - this->m_x0;
+		auto r = rvec.norm();
+		auto rdnx = -rvec.dot(this->m_n0) / r;
+		auto rdny = rvec.dot(Jny) / r;
+
+		auto N = nset_t::eval_shape(xi);
+		return N / (2.0*M_PI * r*r) * (this->m_n0.dot(Jny) + 2.0 * rdnx * rdny);
+	}
+};
+
+
 #endif // GUIGGIANI_1992_HPP_INCLUDED
