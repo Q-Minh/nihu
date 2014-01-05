@@ -414,7 +414,7 @@ public:
 		trial_domain_t
 	>::type blind_singular_transform_tag_t;
 
-	/** \brief the duffy quadrature type */
+	/** \brief the blind quadrature type */
 	typedef typename blind_singular_quadrature<
 		blind_singular_transform_tag_t,
 		quadrature_family_t,

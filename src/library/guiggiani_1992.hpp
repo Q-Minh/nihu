@@ -8,8 +8,9 @@
 #include <cmath>
 #include "../util/crtp_base.hpp"
 #include "../core/field.hpp"
+#include "../core/kernel.hpp"
 #include "../core/gaussian_quadrature.hpp"
-
+#include "location_normal.hpp"
 
 /** \brief store-wrapper of a statically stored line quadrature */
 template <unsigned order>
@@ -55,7 +56,7 @@ public:
 	typedef guiggiani_traits<Derived> traits_t;
 
 	enum { XI = 0, ETA = 1, XIXI = 0, XIETA = 1, ETAXI = 1, ETAETA = 2 };
-	enum { quadrature_order = 7 };
+	enum { quadrature_order = 4 };
 
 	typedef typename traits_t::field_t field_t;
 	typedef typename field_t::elem_t elem_t;
@@ -65,6 +66,17 @@ public:
 	typedef typename elem_t::scalar_t scalar_t;
 	typedef typename field_t::nset_t nset_t;
 	typedef typename nset_t::shape_t n_shape_t;
+
+	typedef typename traits_t::kernel_t kernel_t;
+
+	typedef typename kernel_traits<kernel_t>::test_input_t test_input_t;
+	typedef typename kernel_traits<kernel_t>::trial_input_t trial_input_t;
+
+	typedef test_input_t w_test_input_t;
+	typedef typename merge<
+		trial_input_t,
+		typename build<normal_jacobian<typename trial_input_t::space_t> >::type
+	>::type w_trial_input_t;
 
 	typedef line_quad_store<quadrature_order> line_quadr_t;
 	typedef surface_quad_store<domain_t, quadrature_order> surf_quadr_t;
@@ -77,6 +89,17 @@ public:
 	}
 
 private:
+	void compute_xi0(xi_t const &xi0)
+	{
+		m_xi0 = xi0;
+		m_x0 = m_elem.get_x(m_xi0);
+		m_J0_vector = m_elem.get_normal(m_xi0);
+		m_J0 = m_J0_vector.norm();
+		m_n0 = m_J0_vector / m_J0;
+
+		m_N0 = nset_t::eval_shape(xi0);
+	}
+
 	void compute_theta(double theta)
 	{
 		auto c = std::cos(theta);
@@ -96,33 +119,20 @@ private:
 		m_N1 = dN.col(XI)*c + dN.col(ETA)*s;
 	}
 
-	void compute_xi0(xi_t const &xi0)
-	{
-		m_xi0 = xi0;
-		m_x0 = m_elem.get_x(m_xi0);
-		m_J0_vector = m_elem.get_normal(m_xi0);
-		m_J0 = m_J0_vector.norm();
-		m_n0 = m_J0_vector / m_J0;
-
-		m_N0 = nset_t::eval_shape(xi0);
-	}
-
 	void surface_integral(n_shape_t &I)
 	{
 		for (auto it = surf_quadr_t::quadrature.begin(); it != surf_quadr_t::quadrature.end(); ++it)
 		{
-			auto xi = it->get_xi();
-			auto w = it->get_w();
-			auto dxi = xi - m_xi0;
-
+			xi_t const &xi = it->get_xi();
+			xi_t dxi = xi - m_xi0;
 			double theta = std::atan2(dxi(1), dxi(0));
 			double rho = dxi.norm();
 
 			compute_theta(theta);
 			derived().compute_Fm1Fm2();
-
+			
 			auto F = derived().compute_kernel(xi);
-			I += w * (F - (m_Fm2 / rho + m_Fm1) / rho / rho);
+			I += it->get_w() * (F - (m_Fm2 / rho + m_Fm1) / rho / rho);
 		}
 	}
 
@@ -152,21 +162,19 @@ private:
 				compute_theta(theta);
 				derived().compute_Fm1Fm2();
 
-				double gamma = -m_A_vector.dot(m_B_vector) / (m_A*m_A);
-
 				double rho_lim = d / std::cos(theta - t0);
 
-				I += w * (m_Fm1 * std::log(std::abs(rho_lim * m_A)) - m_Fm2 * (gamma + 1.0 / rho_lim));
+				I += w * (m_Fm1 * std::log(rho_lim) - m_Fm2 / rho_lim);
 			}
 		}
 	}
 
 public:
-	void integral(xi_t const &xi0, n_shape_t &I)
+	void integral(xi_t const &xi0, n_shape_t &result)
 	{
 		compute_xi0(xi0);
-		surface_integral(I);
-		line_integrals(I);
+		surface_integral(result);
+		line_integrals(result);
 	}
 
 protected:
@@ -209,6 +217,7 @@ class guiggiani<Field, laplace_3d_HSP_kernel> : public guiggiani_base<guiggiani<
 public:
 	typedef guiggiani_base<guiggiani> base_t;
 	typedef typename base_t::elem_t elem_t;
+	typedef typename base_t::nset_t nset_t;
 	typedef typename base_t::n_shape_t n_shape_t;
 
 	guiggiani(elem_t const &elem) : base_t(elem)
