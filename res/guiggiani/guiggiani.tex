@@ -153,6 +153,43 @@ u({\bf x})
 \end{equation}
 
 
+\section{Demonstration}
+
+
+2D, constant straight line element with the singular point in the middle.
+
+\begin{equation}
+G''_{n_x, n_y} = \frac{1}{2\pi r^2} \left({\bf n}_x {\bf n}_y + 2 r'_{n_x} r'_{n_y}\right)
+\end{equation}
+%
+on the straight lines the kernel simplifies to
+%
+\begin{equation}
+G''_{n_x, n_y} = \frac{1}{2\pi r^2}
+\end{equation}
+
+\begin{equation}
+\int_{S-e_{\epsilon}} G''_{n_x,n_y} \td S_y
+=
+\int_{-D}^{-\epsilon} \frac{1}{2\pi r^2} \td r + \int_{\epsilon}^{D} \frac{1}{2\pi r^2} \td r
+=
+\frac{1}{\pi \epsilon} - \frac{1}{\pi D}
+\end{equation}
+%
+On the semicircle $s_{\epsilon}$ the integral simplifies to
+%
+\begin{align}
+\int_{s_{\epsilon}} G''_{n_x,n_y} \td S_y
+&=
+\frac{1}{2\pi\epsilon^2}\int_{s_{\epsilon}} \left({\bf n}_x{\bf n}_y + 2 r'_{n_x} r'_{n_y}\right) \td S_y \nonumber \\
+&=
+\frac{1}{2\pi \epsilon^2} \int_{-\pi/2}^{\pi/2} \left(\cos\theta + 2 \cos\theta (-1)\right) \epsilon \td \theta \nonumber \\
+&= \frac{-1}{\pi\epsilon}
+\end{align}
+%
+Apparently, the two unbounded terms in the two parts of the integrals cancel each other, yielding the finite result $-2/D$.
+
+
 \begin{equation}
 \lim_{\epsilon\to0^+}\int_{S-S_{\epsilon}} G({\bf y}, {\bf x}) N({\bf y}) \td S_y
 \end{equation}
