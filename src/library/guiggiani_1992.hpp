@@ -56,7 +56,7 @@ public:
 	typedef guiggiani_traits<Derived> traits_t;
 
 	enum { XI = 0, ETA = 1, XIXI = 0, XIETA = 1, ETAXI = 1, ETAETA = 2 };
-	enum { quadrature_order = 4 };
+	enum { quadrature_order = 7 };
 
 	typedef typename traits_t::field_t field_t;
 	typedef typename field_t::elem_t elem_t;

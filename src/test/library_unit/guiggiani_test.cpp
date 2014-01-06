@@ -1,7 +1,7 @@
 #include <iostream>
 #include "library/guiggiani_1992.hpp"
 
-typedef tria_1_elem elem_t;
+typedef quad_1_elem elem_t;
 typedef elem_t::xi_t xi_t;
 typedef field_view<elem_t, field_option::constant> field_t;
 typedef laplace_3d_HSP_kernel kernel_t;
@@ -31,16 +31,16 @@ double anal(elem_t const &elem, xi_t const &xi0)
 int main(void)
 {
 	elem_t::coords_t coords;
-	/*
 	coords <<
-		-1.5, +1.5, +1.5, 0.0,
+		-1.5, +1.5, +1.5, -1.5,
 		-1.5, -1.5, +1.5, +1.5,
 		0, 0, 0, 0;
-		*/
+	/*
 	coords <<
 		0.0, 1.0, 0.0,
 		0.0, 0.0, 1.0,
 		0.0, 0.0, 0.0;
+		*/
 	elem_t elem(coords);
 	elem_t::xi_t xi0 = elem_t::domain_t::get_center();
 
