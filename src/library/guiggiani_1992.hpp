@@ -53,7 +53,7 @@ class guiggiani_base
 public:
 	NIHU_CRTP_HELPERS
 
-	typedef guiggiani_traits<Derived> traits_t;
+		typedef guiggiani_traits<Derived> traits_t;
 
 	enum { XI = 0, ETA = 1, XIXI = 0, XIETA = 1, ETAXI = 1, ETAETA = 2 };
 	enum { quadrature_order = 7 };
@@ -72,7 +72,6 @@ public:
 	typedef typename kernel_traits<kernel_t>::test_input_t test_input_t;
 	typedef typename kernel_traits<kernel_t>::trial_input_t trial_input_t;
 
-	typedef test_input_t w_test_input_t;
 	typedef typename merge<
 		trial_input_t,
 		typename build<normal_jacobian<typename trial_input_t::space_t> >::type
@@ -84,7 +83,7 @@ public:
 	/** \brief constructor
 	 * \param [in] elem the element
 	 */
-	guiggiani_base(elem_t const &elem) : m_elem(elem)
+	guiggiani_base(elem_t const &elem, kernel_t const &kernel) : m_elem(elem), m_kernel(kernel)
 	{
 	}
 
@@ -100,7 +99,8 @@ private:
 		m_N0 = nset_t::eval_shape(xi0);
 	}
 
-	void compute_theta(double theta)
+	/*
+	void compute_theta_3d(double theta)
 	{
 		auto c = std::cos(theta);
 		auto s = std::sin(theta);
@@ -118,8 +118,26 @@ private:
 		typename nset_t::dshape_t dN = nset_t::eval_dshape(m_xi0);
 		m_N1 = dN.col(XI)*c + dN.col(ETA)*s;
 	}
+	*/
 
-	void surface_integral(n_shape_t &I)
+	void compute_theta_2d(double theta)
+	{
+		auto c = std::cos(theta);
+
+		typename elem_t::dx_t dx = m_elem.get_dx(m_xi0);
+		typename elem_t::ddx_t ddx = m_elem.get_ddx(m_xi0);
+
+		m_A_vector = dx.col(XI) * c;
+		m_A = m_A_vector.norm();
+		m_B_vector = ddx.col(XIXI) * c*c / 2.0;
+
+		m_J1_vector = c * ddx.col(XIXI);
+
+		typename nset_t::dshape_t dN = nset_t::eval_dshape(m_xi0);
+		m_N1 = dN.col(XI)*c;
+	}
+
+	void surface_integral_3d(n_shape_t &I)
 	{
 		for (auto it = surf_quadr_t::quadrature.begin(); it != surf_quadr_t::quadrature.end(); ++it)
 		{
@@ -128,11 +146,35 @@ private:
 			double theta = std::atan2(dxi(1), dxi(0));
 			double rho = dxi.norm();
 
-			compute_theta(theta);
+			compute_theta_2d(theta);
 			derived().compute_Fm1Fm2();
-			
-			auto F = derived().compute_kernel(xi);
+
+			test_input_t test_input(m_elem, m_xi0);
+			w_trial_input_t trial_input(m_elem, xi);
+
+			auto F = m_kernel(test_input, trial_input) * trial_input.get_jacobian() * nset_t::eval_shape(xi);
 			I += it->get_w() * (F - (m_Fm2 / rho + m_Fm1) / rho / rho);
+		}
+	}
+
+	void surface_integral_2d(n_shape_t &I)
+	{
+		for (auto it = surf_quadr_t::quadrature.begin(); it != surf_quadr_t::quadrature.end(); ++it)
+		{
+			xi_t const &xi = it->get_xi();
+			xi_t dxi = xi - m_xi0;
+			double theta = std::atan2(0.0, dxi(0));
+			double rho = dxi.norm();
+
+			compute_theta_2d(theta);
+			derived().compute_Fm1Fm2();
+
+			test_input_t test_input(m_elem, m_xi0);
+			w_trial_input_t trial_input(m_elem, xi);
+
+			auto F = m_kernel(test_input, trial_input) * trial_input.get_jacobian() * nset_t::eval_shape(xi);
+
+			I += it->get_w() * (F - (m_Fm2 / rho + m_Fm1) / rho);
 		}
 	}
 
@@ -159,7 +201,7 @@ private:
 				double w = it->get_w() * (t2 - t1) / 2.0;
 				double theta = (t1 * (1 - x) + t2 * (1 + x)) / 2.0;
 
-				compute_theta(theta);
+				compute_theta_2d(theta);
 				derived().compute_Fm1Fm2();
 
 				double rho_lim = d / std::cos(theta - t0);
@@ -169,15 +211,32 @@ private:
 		}
 	}
 
+
+	void differences(n_shape_t &I)
+	{
+		double rho = (domain_t::get_corner(1) - m_xi0).norm();
+		compute_theta_2d(0.0);
+		derived().compute_Fm1Fm2();
+		I += m_Fm1 * std::log(rho) - m_Fm2 / rho;
+
+		rho = (domain_t::get_corner(0) - m_xi0).norm();
+		compute_theta_2d(M_PI);
+		derived().compute_Fm1Fm2();
+		I += m_Fm1 * std::log(rho) - m_Fm2 / rho;
+	}
+
+
 public:
 	void integral(xi_t const &xi0, n_shape_t &result)
 	{
 		compute_xi0(xi0);
-		surface_integral(result);
-		line_integrals(result);
+		surface_integral_2d(result);
+		differences(result);
+		/* line_integrals(result); */
 	}
 
 protected:
+	kernel_t const &m_kernel;	/**< \brief the kernel reference */
 	elem_t const &m_elem;	/**< \brief the element reference */
 
 	xi_t m_xi0;				/**< \brief the source local coordinate */
@@ -216,11 +275,10 @@ class guiggiani<Field, laplace_3d_HSP_kernel> : public guiggiani_base<guiggiani<
 {
 public:
 	typedef guiggiani_base<guiggiani> base_t;
+	typedef typename  base_t::kernel_t kernel_t;
 	typedef typename base_t::elem_t elem_t;
-	typedef typename base_t::nset_t nset_t;
-	typedef typename base_t::n_shape_t n_shape_t;
 
-	guiggiani(elem_t const &elem) : base_t(elem)
+	guiggiani(elem_t const &elem, kernel_t const &kernel) : base_t(elem, kernel)
 	{
 	}
 
@@ -232,20 +290,6 @@ public:
 		this->m_Fm1 = (this->m_J0*this->m_N1 + this->m_J1_vector.dot(this->m_n0)*this->m_N0
 			- 3.0*this->m_N0*this->m_J0* this->m_A_vector.dot(this->m_B_vector) / A2) / (4.0*M_PI * A3);
 	}
-
-	n_shape_t compute_kernel(typename elem_t::xi_t const &xi)
-	{
-		auto y = this->m_elem.get_x(xi);
-		auto Jny = this->m_elem.get_normal(xi);
-
-		auto rvec = y - this->m_x0;
-		auto r = rvec.norm();
-		auto rdnx = -rvec.dot(this->m_n0) / r;
-		auto rdny = rvec.dot(Jny) / r;
-
-		auto N = nset_t::eval_shape(xi);
-		return N / (4.0*M_PI * r*r*r) * (this->m_n0.dot(Jny) + 3.0 * rdnx * rdny);
-	}
 };
 
 
@@ -255,36 +299,19 @@ class guiggiani<Field, laplace_2d_HSP_kernel> : public guiggiani_base<guiggiani<
 public:
 	typedef guiggiani_base<guiggiani> base_t;
 	typedef typename base_t::elem_t elem_t;
-	typedef typename base_t::nset_t nset_t;
-	typedef typename base_t::n_shape_t n_shape_t;
+	typedef typename base_t::kernel_t kernel_t;
 
-	guiggiani(elem_t const &elem) : base_t(elem)
+	guiggiani(elem_t const &elem, kernel_t const &kernel) : base_t(elem, kernel)
 	{
 	}
 
 	void compute_Fm1Fm2(void)
 	{
 		auto A2 = this->m_A*this->m_A;
-		auto A3 = A2 * this->m_A;
-		this->m_Fm2 = this->m_J0 * this->m_N0 / (2.0 * M_PI * A2);
+		this->m_Fm2 = this->m_J0 * this->m_N0 / (2.0*M_PI * A2);
 		this->m_Fm1 = (this->m_J0*this->m_N1 + this->m_J1_vector.dot(this->m_n0)*this->m_N0
 			- 2.0*this->m_N0*this->m_J0* this->m_A_vector.dot(this->m_B_vector) / A2) / (2.0*M_PI * A2);
 	}
-
-	n_shape_t compute_kernel(typename elem_t::xi_t const &xi)
-	{
-		auto y = this->m_elem.get_x(xi);
-		auto Jny = this->m_elem.get_normal(xi);
-
-		auto rvec = y - this->m_x0;
-		auto r = rvec.norm();
-		auto rdnx = -rvec.dot(this->m_n0) / r;
-		auto rdny = rvec.dot(Jny) / r;
-
-		auto N = nset_t::eval_shape(xi);
-		return N / (2.0*M_PI * r*r) * (this->m_n0.dot(Jny) + 2.0 * rdnx * rdny);
-	}
 };
-
 
 #endif // GUIGGIANI_1992_HPP_INCLUDED

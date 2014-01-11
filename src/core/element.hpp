@@ -582,7 +582,7 @@ public:
 	 */
 	static Eigen::Matrix<scalar, 2, 1> eval(Eigen::Matrix<scalar, 2, 1> const &m)
 	{
-		return Eigen::Rotation2D<scalar>(-M_PI/2.0) * m.col(0);
+		return Eigen::Rotation2D<scalar>(-M_PI/2.0) * m;
 	}
 };
 
