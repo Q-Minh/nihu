@@ -373,7 +373,7 @@ class singular_accelerator<Kernel, TestField, TrialField, formalism::collocation
 {
 	// CRTP check
 	static_assert(std::is_base_of<kernel_base<Kernel>, Kernel>::value,
-		"The kernel field must be derived from kernel_base<Kernel>");
+		"The kernel must be derived from kernel_base<Kernel>");
 	static_assert(std::is_base_of<field_base<TrialField>, TrialField>::value,
 		"The trial field must be derived from field_base<TrialField>");
 public:

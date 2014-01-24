@@ -19,7 +19,7 @@
 /**
  * \file kernel.hpp
  * \ingroup kernel
- * \brief implementation of various kernels
+ * \brief implementation of class kernel and its traits, as well as couple kernels
  */
 
 #ifndef KERNEL_HPP_INCLUDED
@@ -41,6 +41,9 @@ class empty_data {};
 template <class Derived>
 struct kernel_traits;
 
+template <class Derived>
+struct singular_kernel_traits;
+
 /**
  * \brief CRTP base class of all BEM kernels
  * \tparam Derived the CRTP derived class
@@ -51,8 +54,8 @@ class kernel_base
 public:
 	NIHU_CRTP_HELPERS
 
-	/** \brief the traits class */
-	typedef kernel_traits<Derived> traits_t;
+		/** \brief the traits class */
+		typedef kernel_traits<Derived> traits_t;
 
 	/** \brief type of the first (test) kernel input */
 	typedef typename traits_t::test_input_t test_input_t;
@@ -82,11 +85,8 @@ public:
 	/** \brief true if K(x,y) = K(y,x) */
 	static bool const is_symmetric = traits_t::is_symmetric;
 
-	/** \brief the singularity type */
-	typedef typename traits_t::singularity_type_t singularity_type_t;
-
-	/** \brief the quadrature order used for the generation of blind singular quadratures */
-	static unsigned const singular_quadrature_order = traits_t::singular_quadrature_order;
+	/** \brief true if the kernel is singular */
+	static bool const is_sungular = traits_t::is_singular;
 
 	/** \brief the asymptotic (far field) behaviour of the kernel */
 	typedef typename traits_t::far_field_behaviour_t far_field_behaviour_t;
@@ -208,7 +208,7 @@ public:
 	{
 		return result_t(
 			static_cast<typename find_in_wall<outputs, base_t>::type const &>(*this).get_result()...
-		);
+			);
 	}
 };
 
@@ -221,11 +221,6 @@ class couple_kernel;
 template <class...Kernels>
 struct kernel_traits<couple_kernel<Kernels...> >
 {
-private:
-	template <class K>
-	struct sing_order_constant : tmp::integer<unsigned, K::singularity_order> {};
-	template <class K>
-	struct sing_quad_order_constant : tmp::integer<unsigned, K::singular_quadrature_order> {};
 public:
 	/** \brief type of the first (test) kernel input */
 	typedef typename merge<typename kernel_traits<Kernels>::test_input_t...>::type test_input_t;
@@ -247,14 +242,10 @@ public:
 	static bool const is_symmetric = tmp::and_<
 		std::integral_constant<bool, kernel_traits<Kernels>::is_symmetric>...
 	>::value;
-	/** \brief the combined singularity order */
-	typedef typename tmp::max_<
-		typename kernel_traits<Kernels>::singularity_type_t...
-	>::type singularity_type_t;
-	/** \brief the quadrature order used for the generation of blind singular quadratures */
-	static unsigned const singular_quadrature_order = tmp::max_<
-		typename sing_quad_order_constant<Kernels>::type...
-	>::type::value;
+	/** \brief true if any if the kernels is singular */
+	static bool const is_singular = tmp::or_<
+		std::integral_constant<bool, kernel_traits<Kernels>::is_singular>...
+	>::value;
 	/** \brief the combined far field behaviour order */
 	typedef typename tmp::max_<
 		typename kernel_traits<Kernels>::far_field_behaviour_t...
@@ -263,6 +254,27 @@ public:
 	typedef typename merge_kernel_complexity_estimators<
 		typename kernel_traits<Kernels>::complexity_estimator_t...
 	>::type complexity_estimator_t;
+};
+
+/** \brief specialisation of ::singular_kernel_traits for the ::couple_kernel class */
+template <class...Kernels>
+struct singular_kernel_traits<couple_kernel<Kernels...> >
+{
+private:
+	template <class K>
+	struct sing_order_constant : tmp::integer<unsigned, K::singularity_order> {};
+	template <class K>
+	struct sing_quad_order_constant : tmp::integer<unsigned, K::singular_quadrature_order> {};
+
+public:
+	/** \brief the combined singularity order */
+	typedef typename tmp::max_<
+		typename kernel_traits<Kernels>::singularity_type_t...
+	>::type singularity_type_t;
+	/** \brief the quadrature order used for the generation of blind singular quadratures */
+	static unsigned const singular_quadrature_order = tmp::max_<
+		typename sing_quad_order_constant<Kernels>::type...
+	>::type::value;
 };
 
 
@@ -293,8 +305,7 @@ public:
  * \return a couple kernel instance
  */
 template <class...Args>
-couple_kernel<Args...>
-	create_couple_kernel(kernel_base<Args> const &...args)
+couple_kernel<Args...> create_couple_kernel(kernel_base<Args> const &...args)
 {
 	return couple_kernel<Args...>(args...);
 }

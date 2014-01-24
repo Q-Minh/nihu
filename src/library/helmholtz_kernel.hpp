@@ -277,6 +277,8 @@ struct kernel_traits<helmholtz_2d_SLP_kernel<wave_number_t> >
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
 	static bool const is_symmetric = true;
+	/** \brief indicates whether kernel is singular */
+	static bool const is_singular = true;
 	/** \brief kernel singularity type
 	 * \todo update this quantity
 	 */
@@ -336,6 +338,8 @@ struct kernel_traits<helmholtz_3d_SLP_kernel<wave_number_t> >
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
 	static bool const is_symmetric = true;
+	/** \brief indicates whether kernel is singular */
+	static bool const is_singular = true;
 	/** \brief kernel singularity type */
 	typedef singularity_type::inverse<1> singularity_type_t;
 	/** \brief quadrature order used to generate blind singular quadratures */
@@ -520,6 +524,8 @@ struct kernel_traits<helmholtz_2d_DLP_kernel<wave_number_t> >
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
 	static bool const is_symmetric = false;
+	/** \brief indicates whether kernel is singular */
+	static bool const is_singular = true;
 	/** \brief kernel singularity type */
 	typedef singularity_type::log<1> singularity_type_t;
 	/** \brief quadrature order used to generate blind singular quadratures */
@@ -573,6 +579,8 @@ struct kernel_traits<helmholtz_3d_DLP_kernel<wave_number_t> >
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
 	static bool const is_symmetric = false;
+	/** \brief indicates whether kernel is singular */
+	static bool const is_singular = true;
 	/** \brief kernel singularity type
 	 * \todo check
 	 */
@@ -693,6 +701,8 @@ struct kernel_traits<helmholtz_3d_DLPt_kernel<wave_number_t> >
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
 	static bool const is_symmetric = false;
+	/** \brief indicates whether kernel is singular */
+	static bool const is_singular = true;
 	/** \brief kernel singularity type
 	 * \todo check
 	 */
@@ -821,6 +831,8 @@ struct kernel_traits<helmholtz_3d_HSP_kernel<wave_number_t> >
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
 	static bool const is_symmetric = true;
+	/** \brief indicates whether kernel is singular */
+	static bool const is_singular = true;
 	/** \brief kernel singularity type */
 	typedef singularity_type::inverse<2> singularity_type_t;
 	/** \brief quadrature order used to generate blind singular quadratures

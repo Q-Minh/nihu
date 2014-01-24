@@ -97,7 +97,7 @@ public:
 	*/
 	template <class LSet>
 	quadrature_elem &transform_inplace(
-		const Eigen::Matrix<scalar_t, LSet::num_nodes, LSet::domain_t::dimension> &coords)
+		Eigen::Matrix<scalar_t, LSet::num_nodes, LSet::domain_t::dimension> const &coords)
 	{
 		// CRTP check
 		static_assert(std::is_base_of<shape_set_base<LSet>, LSet>::value,

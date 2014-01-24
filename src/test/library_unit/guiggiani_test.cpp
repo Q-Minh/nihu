@@ -28,13 +28,14 @@ void test_3d(void)
 {
 	typedef quad_1_elem elem_t;
 	typedef elem_t::xi_t xi_t;
-	typedef field_view<elem_t, field_option::constant> field_t;
+	typedef field_view<elem_t, field_option::constant> trial_field_t;
+	typedef trial_field_t test_field_t;
 	typedef laplace_3d_HSP_kernel kernel_t;
 
 	elem_t::coords_t coords;
 	coords <<
 		-1.5, +1.5, +1.5, -1.5,
-		-1.5, -1.5, +1.5, +1.5,
+		-1.5, -1.5, +1.5, +1.6,
 		0, 0, 0, 0;
 	/*
 	coords <<
@@ -46,11 +47,11 @@ void test_3d(void)
 	xi_t xi0 = elem_t::domain_t::get_center();
 	kernel_t kernel;
 
-	guiggiani<field_t, kernel_t> gui(elem, kernel);
+	guiggiani<test_field_t, trial_field_t, kernel_t> gui(elem, kernel);
 
-	field_t::nset_t::shape_t I;
+	trial_field_t::nset_t::shape_t I;
 	I.setZero();
-	gui.integral(xi0, I);
+	gui.integral(I);
 	double I0 = anal_3d(elem, xi0);
 
 	std::cout << "I:\t" << I << std::endl;
@@ -59,6 +60,7 @@ void test_3d(void)
 }
 
 
+/*
 void test_2d(void)
 {
 	typedef line_2_elem elem_t;
@@ -85,11 +87,12 @@ void test_2d(void)
 //	std::cout << "Ianal:\t" << I0 << std::endl;
 //	std::cout << "log10 error:\t" << std::log10(std::abs((I / I0).norm() - 1.0)) << std::endl;
 }
+*/
 
 
 int main(void)
 {
-	test_2d();
+	test_3d();
 
 	return 0;
 }

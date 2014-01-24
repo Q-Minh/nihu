@@ -84,11 +84,6 @@ public:
 
 	/** \brief the quadrature family the kernel requires */
 	typedef typename kernel_traits<Kernel>::quadrature_family_t quadrature_family_t;
-	/** \brief indicates if kernel is singular and singular accelerators need to be instantiated */
-	static bool const is_kernel_singular = !std::is_same<
-		typename kernel_traits<Kernel>::singularity_type_t,
-		singularity_type::regular
-	>::value;
 
 	/** \brief result type of the weighted residual */
 	typedef typename plain_type<
@@ -296,7 +291,7 @@ public:
 		OnSameMesh)
 	{
 		static bool const sing_check_needed =
-			is_kernel_singular && std::is_same<OnSameMesh, std::true_type>::value;
+			kernel_traits<Kernel>::is_singular && std::is_same<OnSameMesh, std::true_type>::value;
 
 		result_t result;
 		result.setZero();	// clear result
@@ -337,11 +332,6 @@ public:
 
 	/** \brief the quadrature family the kernel requires */
 	typedef typename kernel_traits<Kernel>::quadrature_family_t quadrature_family_t;
-	/** \brief indicates if kernel is singular and singular accelerators need to be instantiated */
-	static bool const is_kernel_singular = !std::is_same<
-		typename kernel_traits<Kernel>::singularity_type_t,
-		singularity_type::regular
-	>::value;
 
 	/** \brief N-set of the test field */
 	typedef typename TestField::nset_t test_nset_t;
@@ -555,7 +545,7 @@ public:
 		OnSameMesh)
 	{
 		static bool const sing_check_needed =
-			is_kernel_singular && std::is_same<OnSameMesh, std::true_type>::value;
+			kernel_traits<Kernel>::is_singular && std::is_same<OnSameMesh, std::true_type>::value;
 
 		result_t result;
 		result.setZero();	// clear result

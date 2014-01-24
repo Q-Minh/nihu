@@ -107,7 +107,7 @@ struct laplace_2d_g_wall : build<
 // forward declaration
 class laplace_2d_SLP_kernel;
 
-/** \brief traits of the laplace 2D G kernel */
+/** \brief traits of the laplace 2D SLP kernel */
 template<>
 struct kernel_traits<laplace_2d_SLP_kernel>
 {
@@ -125,10 +125,8 @@ struct kernel_traits<laplace_2d_SLP_kernel>
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
 	static bool const is_symmetric = true;
-	/** \brief kernel singularity type */
-	typedef singularity_type::log<1> singularity_type_t;
-	/** \brief quadrature order used to generate blind singular quadratures */
-	static unsigned const singular_quadrature_order = 7;
+	/** \brief indicates if kernel is singular */
+	static bool const is_singular = true;
 	/** \brief the far field asymptotic behaviour of the kernel */
 	typedef singularity_type::log<1> far_field_behaviour_t;
 	/** \brief the kernel complexity estimator class
@@ -138,6 +136,19 @@ struct kernel_traits<laplace_2d_SLP_kernel>
 		typename reciprocal_distance_kernel_interval<1, GLOBAL_ACCURACY>::type
 	> complexity_estimator_t;
 };
+
+
+/** \brief singular traits of the laplace 2D SLP kernel */
+template<>
+struct singular_kernel_traits<laplace_2d_SLP_kernel>
+{
+	/** \brief kernel singularity type */
+	typedef singularity_type::log<1> singularity_type_t;
+	/** \brief quadrature order used to generate blind singular quadratures */
+	static unsigned const singular_quadrature_order = 7;
+};
+
+
 
 /** \brief Single layer potential kernel of the Laplace equation in 2D \f$ -\ln r/2\pi \f$ */
 class laplace_2d_SLP_kernel :
@@ -236,12 +247,8 @@ struct kernel_traits<laplace_2d_DLP_kernel>
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
 	static bool const is_symmetric = false;
-	/** \brief kernel singularity type
-	 * \todo check this!
-	 */
-	typedef singularity_type::log<1> singularity_type_t;
-	/** \brief quadrature order used to generate blind singular quadratures */
-	static unsigned const singular_quadrature_order = 7;
+	/** \brief indicates if kernel is singular */
+	static bool const is_singular = true;
 	/** \brief the far field asymptotic behaviour of the kernel */
 	typedef singularity_type::inverse<1> far_field_behaviour_t;
 	/** \brief the kernel complexity estimator class
@@ -251,6 +258,19 @@ struct kernel_traits<laplace_2d_DLP_kernel>
 		typename reciprocal_distance_kernel_interval<1, GLOBAL_ACCURACY>::type
 	> complexity_estimator_t;
 };
+
+/** \brief singular traits of the laplace 2D DLP kernel */
+template<>
+struct singular_kernel_traits<laplace_2d_DLP_kernel>
+{
+	/** \brief kernel singularity type
+	 * \todo check this!
+	 */
+	typedef singularity_type::log<1> singularity_type_t;
+	/** \brief quadrature order used to generate blind singular quadratures */
+	static unsigned const singular_quadrature_order = 7;
+};
+
 
 /** \brief Double layer potential kernel of the Laplace equation in 2D \f$ -1/2\pi r \cdot r'_{n_y} \f$ */
 class laplace_2d_DLP_kernel :
@@ -348,12 +368,8 @@ struct kernel_traits<laplace_2d_DLPt_kernel>
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
 	static bool const is_symmetric = false;
-	/** \brief the singularity type
-	 * \todo check this just like the plain DLP kernel
-	 */
-	typedef singularity_type::log<1> singularity_type_t;
-	/** \brief quadrature order used to generate blind singular quadratures */
-	static unsigned const singular_quadrature_order = 7;
+	/** \brief indicates if kernel is singular */
+	static bool const is_singular = true;
 	/** \brief the far field asymptotic behaviour of the kernel */
 	typedef singularity_type::inverse<1> far_field_behaviour_t;
 	/** \brief the kernel complexity estimator class
@@ -363,6 +379,20 @@ struct kernel_traits<laplace_2d_DLPt_kernel>
 		typename reciprocal_distance_kernel_interval<1, GLOBAL_ACCURACY>::type
 	> complexity_estimator_t;
 };
+
+/** \brief singular traits of the laplace 2D DLPt kernel */
+template<>
+struct singular_kernel_traits<laplace_2d_DLPt_kernel>
+{
+	/** \brief the singularity type
+	 * \todo check this just like the plain DLP kernel
+	 */
+	typedef singularity_type::log<1> singularity_type_t;
+	/** \brief quadrature order used to generate blind singular quadratures */
+	static unsigned const singular_quadrature_order = 7;
+};
+
+
 
 /** \brief Transpose double layer potential kernel of the Laplace equation in 2D \f$ -1/2\pi r \cdot r'_{n_x} \f$ */
 class laplace_2d_DLPt_kernel :
@@ -465,12 +495,9 @@ struct kernel_traits<laplace_2d_HSP_kernel>
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
 	static bool const is_symmetric = true;
-	/** \brief the singularity type
-	 * \todo check this
-	 */
-	typedef singularity_type::inverse<1> singularity_type_t;
-	/** \brief quadrature order used to generate blind singular quadratures */
-	static unsigned const singular_quadrature_order = 7;
+	/** \brief indicates if kernel is singular */
+	static bool const is_singular = true;
+
 	/** \brief the far field asymptotic behaviour of the kernel */
 	typedef singularity_type::inverse<2> far_field_behaviour_t;
 	/** \brief the kernel complexity estimator class
@@ -481,13 +508,24 @@ struct kernel_traits<laplace_2d_HSP_kernel>
 	> complexity_estimator_t;
 };
 
+/** \brief singular traits of the laplace 2D HSP kernel */
+template <>
+struct singular_kernel_traits<laplace_2d_HSP_kernel>
+{
+	/** \brief the singularity type
+	 * \todo check this
+	 */
+	typedef singularity_type::inverse<1> singularity_type_t;
+	/** \brief quadrature order used to generate blind singular quadratures */
+	static unsigned const singular_quadrature_order = 7;
+};
+
+
 /** \brief Hypersingular kernel of the Laplace equation in 2D \f$ \dots \f$ */
 class laplace_2d_HSP_kernel :
 	public kernel_base<laplace_2d_HSP_kernel>
 {
 };
-
-
 
 
 /** \brief a brick representing a 3D laplace kernel \f$ 1/4\pi r \f$
@@ -560,7 +598,7 @@ struct laplace_3d_g_wall : build<
 // forward declaration
 class laplace_3d_SLP_kernel;
 
-/** \brief traits of the laplace 3D G kernel */
+/** \brief traits of the laplace 3D Single Layer Potential kernel */
 template<>
 struct kernel_traits<laplace_3d_SLP_kernel>
 {
@@ -578,10 +616,9 @@ struct kernel_traits<laplace_3d_SLP_kernel>
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
 	static bool const is_symmetric = true;
-	/** \brief kernel singularity type */
-	typedef singularity_type::inverse<1> singularity_type_t;
-	/** \brief quadrature order used to generate blind singular quadratures */
-	static unsigned const singular_quadrature_order = 7;
+	/** \brief indicates if kernel is singular */
+	static bool const is_singular = true;
+
 	/** \brief the far field asymptotic behaviour of the kernel */
 	typedef singularity_type::inverse<1> far_field_behaviour_t;
 	/** \brief the kernel complexity estimator class */
@@ -589,6 +626,18 @@ struct kernel_traits<laplace_3d_SLP_kernel>
 		typename reciprocal_distance_kernel_interval<1, GLOBAL_ACCURACY>::type
 	> complexity_estimator_t;
 };
+
+/** \brief singular traits of the laplace 3D SLP kernel */
+template <>
+struct singular_kernel_traits<laplace_3d_SLP_kernel>
+{
+	/** \brief kernel singularity type */
+	typedef singularity_type::inverse<1> singularity_type_t;
+	/** \brief quadrature order used to generate blind singular quadratures */
+	static unsigned const singular_quadrature_order = 7;
+};
+
+
 
 /** \brief Single layer potential kernel of the laplace equation in 3D \f$ 1/4\pi r\f$ */
 class laplace_3d_SLP_kernel :
@@ -687,12 +736,9 @@ struct kernel_traits<laplace_3d_DLP_kernel>
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
 	static bool const is_symmetric = false;
-	/** \brief singularity type
-	 * \todo check this
-	 */
-	typedef singularity_type::inverse<1> singularity_type_t;
-	/** \brief quadrature order used to generate blind singular quadratures */
-	static unsigned const singular_quadrature_order = 7;
+	/** \brief indicates if kernel is singular */
+	static bool const is_singular = true;
+
 	/** \brief the far field asymptotic behaviour of the kernel */
 	typedef singularity_type::log<2> far_field_behaviour_t;
 	/** \brief the kernel complexity estimator class
@@ -702,6 +748,19 @@ struct kernel_traits<laplace_3d_DLP_kernel>
 		typename reciprocal_distance_kernel_interval<2, GLOBAL_ACCURACY>::type
 	> complexity_estimator_t;
 };
+
+/** \brief singular traits of the laplace 3D DLP kernel */
+template <>
+struct singular_kernel_traits<laplace_3d_DLP_kernel>
+{
+	/** \brief singularity type
+	 * \todo check this
+	 */
+	typedef singularity_type::inverse<1> singularity_type_t;
+	/** \brief quadrature order used to generate blind singular quadratures */
+	static unsigned const singular_quadrature_order = 7;
+};
+
 
 /** \brief Double layer potential kernel of the Laplace equation in 3D \f$ -1/4\pi r^2 \cdot dr/dn \f$ */
 class laplace_3d_DLP_kernel :
@@ -800,12 +859,9 @@ struct kernel_traits<laplace_3d_DLPt_kernel>
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
 	static bool const is_symmetric = false;
-	/** \brief singularity type
-	* \todo check this
-	*/
-	typedef singularity_type::inverse<1> singularity_type_t;
-	/** \brief quadrature order used to generate blind singular quadratures */
-	static unsigned const singular_quadrature_order = 7;
+	/** \brief indicates if kernel is singular */
+	static bool const is_singular = true;
+
 	/** \brief the far field asymptotic behaviour of the kernel */
 	typedef singularity_type::inverse<2> far_field_behaviour_t;
 	/** \brief the kernel complexity estimator class
@@ -815,6 +871,20 @@ struct kernel_traits<laplace_3d_DLPt_kernel>
 		typename reciprocal_distance_kernel_interval<2, GLOBAL_ACCURACY>::type
 	> complexity_estimator_t;
 };
+
+/** \brief singular traits of the laplace 3D DLPt kernel */
+template <>
+struct singular_kernel_traits<laplace_3d_DLPt_kernel>
+{
+	/** \brief singularity type
+	* \todo check this
+	*/
+	typedef singularity_type::inverse<1> singularity_type_t;
+	/** \brief quadrature order used to generate blind singular quadratures */
+	static unsigned const singular_quadrature_order = 7;
+};
+
+
 
 /** \brief Transposed double layer potential kernel of the Laplace equation in 3D \f$ -1/4\pi r^2 \cdot r'_{n_x} \f$ */
 class laplace_3d_DLPt_kernel :
@@ -918,12 +988,9 @@ struct kernel_traits<laplace_3d_HSP_kernel>
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
 	static bool const is_symmetric = true;
-	/** \brief singularity type
-	 * \todo check this
-	 */
-	typedef singularity_type::inverse<2> singularity_type_t;
-	/** \brief quadrature order used to generate blind singular quadratures */
-	static unsigned const singular_quadrature_order = 7;
+	/** \brief indicates if kernel is singular */
+	static bool const is_singular = true;
+
 	/** \brief the far field asymptotic behaviour of the kernel */
 	typedef singularity_type::inverse<3> far_field_behaviour_t;
 	/** \brief the kernel complexity estimator class
@@ -932,6 +999,18 @@ struct kernel_traits<laplace_3d_HSP_kernel>
 	typedef interval_estimator<
 		typename reciprocal_distance_kernel_interval<3, GLOBAL_ACCURACY>::type
 	> complexity_estimator_t;
+};
+
+/** \brief singular traits of the laplace 3D HSP kernel */
+template <>
+struct singular_kernel_traits<laplace_3d_HSP_kernel>
+{
+	/** \brief singularity type
+	 * \todo check this
+	 */
+	typedef singularity_type::inverse<2> singularity_type_t;
+	/** \brief quadrature order used to generate blind singular quadratures */
+	static unsigned const singular_quadrature_order = 7;
 };
 
 /** \brief Hypersingular kernel of the Laplace equation in 3D \f$ 1/4\pi r^3 \cdot \left( n_x n_y + 3 r'_{n_x} r'_{n_y} \right) \f$ */
