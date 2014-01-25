@@ -175,7 +175,7 @@ public:
 	*/
 	scalar_t sum_of_weights(void) const
 	{
-		scalar_t res();
+		scalar_t res = 0.0;
 		for (auto it = base_t::begin(); it != base_t::end(); ++it)
 			res += it->get_w();
 		return res;
