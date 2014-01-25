@@ -34,12 +34,12 @@
 template <class scalar_t>
 void planar_triangle_helper(
 	tria_1_elem const &elem,
+	tria_1_elem::x_t const &x0,
 	scalar_t r[],
 	scalar_t theta[],
 	scalar_t alpha [])
 {
 	auto const &C_old = elem.get_coords();
-	auto const &x0 = elem.get_center();
 	unsigned const N = tria_1_elem::num_nodes;
 
 	typename tria_1_elem::coords_t R, C;

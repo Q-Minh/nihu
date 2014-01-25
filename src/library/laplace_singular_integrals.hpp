@@ -69,6 +69,18 @@ public:
 };
 
 
+class laplace_2d_SLP_collocation_constant_line
+{
+public:
+	static double eval(line_1_elem const &elem, line_1_elem::x_t const &x0)
+	{
+		auto const &C = elem.get_coords();
+		double d1 = (x0 - C.col(0)).norm(), d2 = (x0 - C.col(1)).norm();
+		return (d1 * (1.0 - std::log(d1)) + d2 * (1.0 - std::log(d2))) / (2*M_PI);
+	}
+};
+
+
 /** \brief collocational singular integral of the 2D SLP kernel over a constant line
  * \tparam TestField the test field type
  * \tparam TrialField the trial field type
@@ -98,11 +110,9 @@ public:
 		field_base<TrialField> const &trial_field,
 		element_match const &)
 	{
-		auto const &c = trial_field.get_elem().get_center();
-		auto const &C = trial_field.get_elem().get_coords();
-		auto d1 = (c - C.col(0)).norm();
-		auto d2 = (c - C.col(1)).norm();
-		result(0,0) = (d1 * (1.0 - std::log(d1)) + d2 * (1.0 - std::log(d2))) / (2*M_PI);
+		result(0,0) = laplace_2d_SLP_collocation_constant_line::eval(
+			trial_field.get_elem(),
+			trial_field.get_elem().get_center());
 		return result;
 	}
 };
@@ -187,6 +197,17 @@ public:
 	}
 };
 
+class laplace_2d_HSP_collocation_constant_line
+{
+public:
+	static double eval(line_1_elem const &elem, line_1_elem::x_t const &x0)
+	{
+		auto const &C = elem.get_coords();
+		double d1 = (x0 - C.col(0)).norm(), d2 = (x0 - C.col(1)).norm();
+		return -(1.0/d1 + 1.0/d2) / (2.0*M_PI);
+	}
+};
+
 
 /** \brief collocational singular integral of the 2D HSP kernel over a constant line
  * \tparam TestField the test field type
@@ -217,11 +238,9 @@ public:
 		field_base<TrialField> const &trial_field,
 		element_match const &)
 	{
-		auto const &c = trial_field.get_elem().get_center();
-		auto const &C = trial_field.get_elem().get_coords();
-		auto d1 = (c - C.col(0)).norm();
-		auto d2 = (c - C.col(1)).norm();
-		result(0,0) = -(1.0/d1 + 1.0/d2) / (2.0*M_PI);
+		result(0,0) = laplace_2d_HSP_collocation_constant_line::eval(
+			trial_field.get_elem(),
+			trial_field.get_elem().get_center());
 		return result;
 	}
 };
@@ -248,17 +267,15 @@ public:
 		"\n\nThe 2D HSP kernel of the Laplace equation can not be integrated over a constant line element in a Galerkin sense.\n\n");
 };
 
-
 class laplace_3d_SLP_collocation_constant_triangle
 {
 public:
-	static double eval(tria_1_elem const &elem)
+	static double eval(tria_1_elem const &elem, tria_1_elem::x_t const &x0)
 	{
-		unsigned const N = tria_1_elem::num_nodes;
-		double r[N], theta[N], alpha[N], result = 0.0;
-		planar_triangle_helper(elem, r, theta, alpha);
+		double r[3], theta[3], alpha[3], result = 0.0;
+		planar_triangle_helper(elem, x0, r, theta, alpha);
 
-		for (unsigned i = 0; i < N; ++i)
+		for (unsigned i = 0; i < 3; ++i)
 			result += r[i] * std::sin(alpha[i]) * std::log(std::tan((alpha[i] + theta[i]) / 2.0) / std::tan(alpha[i] / 2.0));
 
 		return result / (4.0 * M_PI);
@@ -294,7 +311,9 @@ public:
 		field_base<TrialField> const &trial_field,
 		element_match const &)
 	{
-		result(0, 0) = laplace_3d_SLP_collocation_constant_triangle::eval(trial_field.get_elem());
+		result(0, 0) = laplace_3d_SLP_collocation_constant_triangle::eval(
+			trial_field.get_elem(),
+			trial_field.get_elem().get_center());
 		return result;
 	}
 };
@@ -303,10 +322,10 @@ public:
 class laplace_3d_HSP_collocation_constant_triangle
 {
 public:
-	static double eval(tria_1_elem const &elem)
+	static double eval(tria_1_elem const &elem, tria_1_elem::x_t const &x0)
 	{
 		double r[3], theta[3], alpha[3], result = 0.0;
-		planar_triangle_helper(elem, r, theta, alpha);
+		planar_triangle_helper(elem, x0, r, theta, alpha);
 
 		for (unsigned i = 0; i < 3; ++i)
 			result += (std::cos(alpha[i] + theta[i]) - std::cos(alpha[i])) / (r[i] * std::sin(alpha[i]));
@@ -344,7 +363,9 @@ public:
 		field_base<TrialField> const &trial_field,
 		element_match const &)
 	{
-		result(0, 0) = laplace_3d_HSP_collocation_constant_triangle::eval(trial_field.get_elem());
+		result(0, 0) = laplace_3d_HSP_collocation_constant_triangle::eval(
+			trial_field.get_elem(),
+			trial_field.get_elem().get_center());
 		return result;
 	}
 };

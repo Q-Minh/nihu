@@ -152,10 +152,13 @@ private:
 
 public:
 	template <class wavenumber_t>
-	static std::complex<double> eval(tria_1_elem const &elem, wavenumber_t const &k)
+	static std::complex<double> eval(
+		tria_1_elem const &elem,
+		tria_1_elem::x_t const &x0,
+		wavenumber_t const &k)
 	{
 		double r[3], theta[3], alpha[3];
-		planar_triangle_helper(elem, r, theta, alpha);
+		planar_triangle_helper(elem, x0, r, theta, alpha);
 
 		// integrate dynamic part
 		double I_stat = 0.0;
@@ -165,7 +168,6 @@ public:
 			);
 
 		// integrate dynamic part
-		auto const &x0 = elem.get_center();
 		std::complex<double> I_dyn = 0.0;
 		for (auto it = quadr_t::quadrature.begin(); it != quadr_t::quadrature.end(); ++it)
 		{
@@ -212,6 +214,7 @@ public:
 	{
 		result(0, 0) = helmholtz_3d_SLP_collocation_constant_triangle::eval(
 			trial_field.get_elem(),
+			trial_field.get_elem().get_center(),
 			kernel.get_data().get_wave_number());
 		return result;
 	}
@@ -238,10 +241,13 @@ private:
 
 public:
 	template <class wavenumber_t>
-	static std::complex<double> eval(tria_1_elem const &elem, wavenumber_t const &k)
+	static std::complex<double> eval(
+		tria_1_elem const &elem,
+		tria_1_elem::x_t const &x0,
+		wavenumber_t const &k)
 	{
 		double r[3], theta[3], alpha[3];
-		planar_triangle_helper(elem, r, theta, alpha);
+		planar_triangle_helper(elem, x0, r, theta, alpha);
 
 		// integrate static part
 		double IG0 = 0.0, IddG0 = 0.0;
@@ -252,7 +258,6 @@ public:
 		}
 
 		// integrate dynamic part
-		auto const &x0 = elem.get_center();
 		std::complex<double> I_acc = 0.0;
 		for (auto it = quadr_t::quadrature.begin(); it != quadr_t::quadrature.end(); ++it)
 		{
@@ -300,6 +305,7 @@ public:
 	{
 		result(0, 0) = helmholtz_3d_HSP_collocation_constant_triangle::eval(
 			trial_field.get_elem(),
+			trial_field.get_elem().get_center(),
 			kernel.get_data().get_wave_number());
 		return result;
 	}

@@ -5,7 +5,7 @@
 #include "library/helmholtz_singular_integrals.hpp"
 
 template <class elem_t>
-double anal_3d(elem_t const &elem, typename elem_t::xi_t const &xi0)
+double laplace_planar_analytic(elem_t const &elem, typename elem_t::xi_t const &xi0)
 {
 	typedef typename elem_t::x_t x_t;
 	double res = 0;
@@ -27,43 +27,76 @@ double anal_3d(elem_t const &elem, typename elem_t::xi_t const &xi0)
 	return -res / (4.0 * M_PI);
 }
 
-void test_laplace_3d(void)
+void test_laplace_3d_quadratic(void)
 {
 	typedef tria_1_elem elem0_t;
-	typedef tria_2_elem elem_t;
-	typedef field_view<elem_t, field_option::constant> trial_field_t;
-	typedef trial_field_t test_field_t;
-	typedef laplace_3d_HSP_kernel kernel_t;
-
 	elem0_t::coords_t coords0;
 	coords0 <<
 		0.0, 1.0, 0.0,
 		0.0, 0.0, 1.0,
 		0.0, 0.0, 0.0;
-	coords0.row(1) *= 2.0;
 	elem0_t elem0(coords0);
+
+	typedef tria_2_elem elem_t;
+	typedef field_view<elem_t, field_option::constant> trial_field_t;
+	typedef trial_field_t test_field_t;
+	typedef laplace_3d_HSP_kernel kernel_t;
+
+	kernel_t kernel;
 
 	elem_t::coords_t coords;
 	coords <<
 		0.0, 0.5, 1.0, 0.5, 0.0, 0.0,
 		0.0, 0.0, 0.0, 0.5, 1.0, 0.5,
 		0.0, 0.0, 0.0, 0.0, 0.0, 0.0;
-	coords.row(1) *= 2.0;
+	trial_field_t::nset_t::shape_t I;
+	for (unsigned i = 1; i < 10; ++i)
+	{
+		double c = i * 0.1;
+		coords(0,1) = c;
+		elem_t elem(coords);
+		guiggiani<test_field_t, trial_field_t, kernel_t> gui(elem, kernel);
+		I.setZero();
+		gui.integral(I);
+
+		double I0 = laplace_3d_HSP_collocation_constant_triangle::eval(elem0, elem.get_center());
+
+		std::cout << c << ": " << std::log10(std::abs((I / I0).norm() - 1.0)) << std::endl;
+	}
+}
+
+
+void test_laplace_3d_linear(void)
+{
+	typedef quad_1_elem elem_t;
+	elem_t::coords_t coords;
+	coords <<
+		0.0, 1.0, 1.0, 0.0,
+		0.0, 0.0, 1.0, 1.0,
+		0.0, 0.0, 0.0, 0.0;
 	elem_t elem(coords);
+
+	typedef field_view<elem_t, field_option::constant> trial_field_t;
+	typedef trial_field_t test_field_t;
+	typedef laplace_3d_HSP_kernel kernel_t;
 
 	kernel_t kernel;
 
-	guiggiani<test_field_t, trial_field_t, kernel_t> gui(elem, kernel);
+	Eigen::Matrix<double, 1, 1> I;
 
-	trial_field_t::nset_t::shape_t I;
-	I.setZero();
-	gui.integral(I);
+	for (unsigned i = 1; i <= 10; ++i)
+	{
+		double c = i * 0.1;
+		coords(0,1) = c;
+		elem_t elem(coords);
+		guiggiani<test_field_t, trial_field_t, kernel_t> gui(elem, kernel);
+		I.setZero();
+		gui.integral(I);
 
-	double I0 = laplace_3d_HSP_collocation_constant_triangle::eval(elem0);
+		double I0 = laplace_planar_analytic(elem, elem_t::domain_t::get_center());
 
-	std::cout << "I:\t" << I << std::endl;
-	std::cout << "Ianal:\t" << I0 << std::endl;
-	std::cout << "log10 error:\t" << std::log10(std::abs((I / I0).norm() - 1.0)) << std::endl;
+		std::cout << c << ": " << std::log10(std::abs((I / I0).norm() - 1.0)) << std::endl;
+	}
 }
 
 
@@ -98,18 +131,21 @@ void test_helmholtz_3d(void)
 	Eigen::Matrix<std::complex<double>, 1, 1> I;
 	I.setZero();
 	gui.integral(I);
-	std::complex<double> I0 = helmholtz_3d_HSP_collocation_constant_triangle::eval(elem0, 1.0);
+	std::complex<double> I0 = helmholtz_3d_HSP_collocation_constant_triangle::eval(
+		elem0,
+		elem.get_center(),
+		1.0);
 
 	std::cout << "I:\t" << I << std::endl;
 	std::cout << "Ianal:\t" << I0 << std::endl;
 	std::cout << "log10 error:\t" << std::log10(std::abs((I / I0).norm() - 1.0)) << std::endl;
 }
 
-
 int main(void)
 {
-	test_laplace_3d();
-	test_helmholtz_3d();
+//	test_laplace_3d_quadratic();
+	test_laplace_3d_linear();
+//	test_helmholtz_3d();
 
 	return 0;
 }
