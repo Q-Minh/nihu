@@ -129,12 +129,12 @@ public:
 
 			for (unsigned n = 0; n < domain_t::num_corners; ++n)
 			{
-				xi_t d1 = domain_t::get_corner(n)-xi0;			
+				xi_t d1 = domain_t::get_corner(n)-xi0;
 				xi_t d2 = domain_t::get_corner((n + 1) % domain_t::num_corners) - xi0;
 
 				coords(0) = std::atan2(d1(1), d1(0));
 				coords(1) = std::atan2(d2(1), d2(0));		// second angle limit
-				if (coords(0) > coords(1))			// unwrap angles if needed 
+				if (coords(0) > coords(1))			// unwrap angles if needed
 					coords(1) += 2.0 * M_PI;
 				m_quadratures[idx][n] = source.transform<line_1_shape_set>(coords);
 			}
@@ -354,6 +354,32 @@ struct guiggiani_traits<guiggiani<TestField, TrialField, Kernel> >
 template <class TestField, class TrialField>
 class guiggiani<TestField, TrialField, laplace_3d_HSP_kernel>
 	: public guiggiani_base<guiggiani<TestField, TrialField, laplace_3d_HSP_kernel> >
+{
+	typedef guiggiani_base<guiggiani> base_t;
+	typedef typename  base_t::kernel_t kernel_t;
+	typedef typename base_t::elem_t elem_t;
+
+public:
+	guiggiani(elem_t const &elem, kernel_t const &kernel) : base_t(elem, kernel)
+	{
+	}
+
+	void compute_Fm1Fm2(void)
+	{
+		auto A2 = this->m_A*this->m_A;
+		auto A3 = A2 * this->m_A;
+		this->m_Fm2 = this->m_J0 * this->m_N0 / (4.0 * M_PI * A3);
+		this->m_Fm1 = (this->m_J0*this->m_N1 + this->m_J1_vector.dot(this->m_n0)*this->m_N0
+			- 3.0*this->m_N0*this->m_J0* this->m_A_vector.dot(this->m_B_vector) / A2) / (4.0*M_PI * A3);
+	}
+};
+
+
+#include "../library/helmholtz_kernel.hpp"
+
+template <class TestField, class TrialField>
+class guiggiani<TestField, TrialField, helmholtz_3d_HSP_kernel<double> >
+	: public guiggiani_base<guiggiani<TestField, TrialField, helmholtz_3d_HSP_kernel<double> > >
 {
 	typedef guiggiani_base<guiggiani> base_t;
 	typedef typename  base_t::kernel_t kernel_t;

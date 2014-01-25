@@ -35,8 +35,8 @@ template <class Dervied>
 struct shape_set_traits;
 
 /** \brief metafunction assigning a shape set id to a shape set
-* \brief tparam shape_set the shape set
-*/
+ * \brief tparam shape_set the shape set
+ */
 template <class shape_set>
 struct shape_set_id
 {
@@ -48,9 +48,9 @@ struct shape_set_id
 };
 
 /**
-* \brief Shapeset base class for CRTP
-* \tparam Derived The derived shapeset class
-*/
+ * \brief Shapeset base class for CRTP
+ * \tparam Derived The derived shapeset class
+ */
 template <class Derived>
 class shape_set_base
 {
@@ -541,12 +541,12 @@ inline typename quad_1_shape_set::dshape_t
 }
 
 /**
-* \brief linear 4-noded general quadrilater shape function second derivative matrix
-* \return shape function second derivative matrix
-*/
+ * \brief linear 4-noded general quadrilater shape function second derivative matrix
+ * \return shape function second derivative matrix
+ */
 template<>
 inline typename quad_1_shape_set::ddshape_t
-	quad_1_shape_set::eval_ddshape(typename quad_1_shape_set::xi_t const &xi)
+	quad_1_shape_set::eval_ddshape(typename quad_1_shape_set::xi_t const &)
 {
 	ddshape_t ddL;
 	ddL <<
