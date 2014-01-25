@@ -129,12 +129,12 @@ public:
 
 			for (unsigned n = 0; n < domain_t::num_corners; ++n)
 			{
-				xi_t d1 = domain_t::get_corner(n)-xi0;			
+				xi_t d1 = domain_t::get_corner(n)-xi0;
 				xi_t d2 = domain_t::get_corner((n + 1) % domain_t::num_corners) - xi0;
 
 				coords(0) = std::atan2(d1(1), d1(0));
 				coords(1) = std::atan2(d2(1), d2(0));		// second angle limit
-				if (coords(0) > coords(1))			// unwrap angles if needed 
+				if (coords(0) > coords(1))			// unwrap angles if needed
 					coords(1) += 2.0 * M_PI;
 				m_quadratures[idx][n] = source.transform<line_1_shape_set>(coords);
 			}
@@ -245,11 +245,16 @@ private:
 	template <class result_t, class quadrature_t>
 	void surface_integral(result_t I, quadrature_t const &quadrature)
 	{
+		// bind the kernel at the test input
+		test_input_t test_input(m_elem, m_xi0);
+		auto bound = m_kernel.bind(test_input);
+
+		// iterate through the quadrature points
 		for (auto it = quadrature.begin(); it != quadrature.end(); ++it)
 		{
 			// vector from the singular point in the reference domain
 			xi_t const &xi = it->get_xi();				// tip
-			xi_t dxi = xi - m_xi0;						// vector
+			auto dxi = xi - m_xi0;						// vector
 			double theta = std::atan2(dxi(1), dxi(0));	// angle
 			double rho = dxi.norm();					// length
 
@@ -258,12 +263,19 @@ private:
 			derived().compute_Fm1Fm2();
 
 			// evaluate the kernel
-			test_input_t test_input(m_elem, m_xi0);
 			w_trial_input_t trial_input(m_elem, xi);
-			auto F = m_kernel(test_input, trial_input) * trial_input.get_jacobian() * trial_nset_t::eval_shape(xi);
+			auto F = (
+				bound(trial_input) * trial_input.get_jacobian() *
+				trial_nset_t::eval_shape(xi)
+				).eval();
 
-			// integrate the regular part
-			I += it->get_w() * (F - (m_Fm2 / rho + m_Fm1) / (rho*rho));
+			// subtract the analytical singularity
+			auto singular_part = (m_Fm2 / rho + m_Fm1) / (rho*rho);
+			for (int j = 0; j < F.cols(); ++j)	// loop needed for scalar casting
+				F(j) -= singular_part(j);
+
+			// integrate the remaining regular part
+			I += it->get_w() * F;
 		}
 	}
 
@@ -285,8 +297,9 @@ private:
 			xi_t d2 = c2 - m_xi0;	// vectors to corners
 			xi_t d0 = d2 - l*d2.dot(l);				// perpendicular to side
 			double t0 = std::atan2(d0(1), d0(0));		// mid angle
-			double d = d0.norm();	// distance to side
+			double d = d0.norm();					// distance to side
 
+			// iterate through quadrature points
 			for (auto it = quadratures[n].begin(); it != quadratures[n].end(); ++it)
 			{
 				double theta = it->get_xi()(0);
@@ -295,9 +308,11 @@ private:
 				compute_theta(theta);
 				derived().compute_Fm1Fm2();
 
-				double rho_lim = d / std::cos(theta - t0);
+				double rho_lim = d / std::cos(theta - t0);	// distance from xi0 to xi
+				auto toadd = w * (m_Fm1 * std::log(rho_lim) - m_Fm2 / rho_lim);
 
-				I += w * (m_Fm1 * std::log(rho_lim) - m_Fm2 / rho_lim);
+				for (int j = 0; j < I.cols(); ++j)	// loop needed for scalar casting
+					I(j) += toadd(j);
 			}
 		}
 	}
@@ -373,5 +388,31 @@ public:
 			- 3.0*this->m_N0*this->m_J0* this->m_A_vector.dot(this->m_B_vector) / A2) / (4.0*M_PI * A3);
 	}
 };
+
+#include "../library/helmholtz_kernel.hpp"
+
+template <class TestField, class TrialField>
+class guiggiani<TestField, TrialField, helmholtz_3d_HSP_kernel<double> >
+	: public guiggiani_base<guiggiani<TestField, TrialField, helmholtz_3d_HSP_kernel<double> > >
+{
+	typedef guiggiani_base<guiggiani> base_t;
+	typedef typename  base_t::kernel_t kernel_t;
+	typedef typename base_t::elem_t elem_t;
+
+public:
+	guiggiani(elem_t const &elem, kernel_t const &kernel) : base_t(elem, kernel)
+	{
+	}
+
+	void compute_Fm1Fm2(void)
+	{
+		auto A2 = this->m_A*this->m_A;
+		auto A3 = A2 * this->m_A;
+		this->m_Fm2 = this->m_J0 * this->m_N0 / (4.0 * M_PI * A3);
+		this->m_Fm1 = (this->m_J0*this->m_N1 + this->m_J1_vector.dot(this->m_n0)*this->m_N0
+			- 3.0*this->m_N0*this->m_J0* this->m_A_vector.dot(this->m_B_vector) / A2) / (4.0*M_PI * A3);
+	}
+};
+
 
 #endif // GUIGGIANI_1992_HPP_INCLUDED
