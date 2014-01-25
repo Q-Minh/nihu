@@ -138,6 +138,48 @@ template <unsigned order>
 gaussian_quadrature<tria_domain> const tria_quad_store<order>::quadrature(order);
 
 
+class helmholtz_3d_SLP_collocation_constant_triangle
+{
+private:
+	typedef tria_quad_store<7> quadr_t;
+
+	template <class wavenumber_t>
+	static std::complex<double> dynamic_part(double const &r, wavenumber_t const &k)
+	{
+		std::complex<double> const I(0.0, 1.0);
+		return -I*k * std::exp(-I*k*r / 2.0) * sinc(k*r / 2.0);
+	}
+
+public:
+	template <class wavenumber_t>
+	static std::complex<double> eval(tria_1_elem const &elem, wavenumber_t const &k)
+	{
+		double r[3], theta[3], alpha[3];
+		planar_triangle_helper(elem, r, theta, alpha);
+
+		// integrate dynamic part
+		double I_stat = 0.0;
+		for (unsigned i = 0; i < 3; ++i)
+			I_stat += r[i] * std::sin(alpha[i]) *
+			std::log(std::tan((alpha[i] + theta[i]) / 2.0) / std::tan(alpha[i] / 2.0)
+			);
+
+		// integrate dynamic part
+		auto const &x0 = elem.get_center();
+		std::complex<double> I_dyn = 0.0;
+		for (auto it = quadr_t::quadrature.begin(); it != quadr_t::quadrature.end(); ++it)
+		{
+			double r = (elem.get_x(it->get_xi()) - x0).norm();
+			I_dyn += dynamic_part(r, k) * it->get_w();
+		}
+		I_dyn *= elem.get_normal(tria_domain::xi_t()).norm();
+
+		// assemble result from static and dynamic parts
+		return (I_stat + I_dyn) / (4.0 * M_PI);
+	}
+};
+
+
 /** \brief Collocational singular integral of the SLP kernel over a constant triangle
  * \tparam TestField the test field type
  * \tparam TrialField the trial field type
@@ -152,23 +194,6 @@ class singular_integral_shortcut<
 	>::type
 >
 {
-private:
-	enum { quadrature_order = 7 };
-	typedef tria_quad_store<quadrature_order> quadr_t;
-
-	/** \brief Compute the regular dynamic part of the singular kernel
-	 * \tparam T the scalar type
-	 * \param [in] r the scalar distance
-	 * \param [in] k the wave number
-	 * \return the dynamic part of the singular kernel
-	 */
-	template <class T>
-	static std::complex<T> dynamic_part(T const &r, WaveNumber const &k)
-	{
-		std::complex<T> const I(0.0, 1.0);	// imaginary unit
-		return -I*k * std::exp(-I*k*r/2.0) * sinc(k*r/2.0);
-	}
-
 public:
 	/** \brief evaluate singular integral
 	 * \tparam result_t the result matrix type
@@ -185,36 +210,62 @@ public:
 		field_base<TrialField> const &trial_field,
 		element_match const &)
 	{
-		auto const &tr_elem = trial_field.get_elem();
-		unsigned const N = tria_1_elem::num_nodes;
-		double r[N], theta[N], alpha[N];
-		planar_triangle_helper(tr_elem, r, theta, alpha);
-
-		for (unsigned i = 0; i < N; ++i)
-			result(0,0) += r[i] * std::sin(alpha[i]) *
-				std::log(
-					std::tan((alpha[i]+theta[i])/2.0)/
-					std::tan(alpha[i]/2.0)
-				);
-
-		// integrate dynamic_part
-		auto const &x0 = tr_elem.get_center();
-		std::complex<double> I_dyn = 0.0;
-		for (auto it = quadr_t::quadrature.begin(); it != quadr_t::quadrature.end(); ++it)
-			I_dyn += dynamic_part(
-				(tr_elem.get_x(it->get_xi()) - x0).norm(),
-				kernel.get_data().get_wave_number()
-			) * it->get_w();
-		// multiply by Jacobian
-		I_dyn *= tr_elem.get_normal(tria_domain::xi_t()).norm();
-
-		result(0,0) += I_dyn;
-
-		result(0,0) /= (4.0 * M_PI);
-
+		result(0, 0) = helmholtz_3d_SLP_collocation_constant_triangle::eval(
+			trial_field.get_elem(),
+			kernel.get_data().get_wave_number());
 		return result;
 	}
 };
+
+
+class helmholtz_3d_HSP_collocation_constant_triangle
+{
+private:
+	typedef tria_quad_store<7> quadr_t;
+
+	template <class wavenumber_t>
+	static std::complex<double> dynamic_part(double const &r, wavenumber_t const &k)
+	{
+		std::complex<double> const I(0.0, 1.0);	// imaginary unit
+		std::complex<double> const ikr(I*k*r);
+		if (std::abs(r) > 1e-3)
+			return (std::exp(-ikr)*(1.0 + ikr) - 1.0 + ikr*ikr / 2.0) / r / r / r;
+		else
+			return -I*k*k*k * (
+			1.0 / 3.0 - ikr*(1.0 / 8.0 - ikr*(1.0 / 30.0 - ikr*(1.0 / 144.0 - ikr*(1.0 / 840.0 - ikr / 5760.0))))
+			);
+	}
+
+public:
+	template <class wavenumber_t>
+	static std::complex<double> eval(tria_1_elem const &elem, wavenumber_t const &k)
+	{
+		double r[3], theta[3], alpha[3];
+		planar_triangle_helper(elem, r, theta, alpha);
+
+		// integrate static part
+		double IG0 = 0.0, IddG0 = 0.0;
+		for (unsigned i = 0; i < 3; ++i)
+		{
+			IG0 += r[i] * std::sin(alpha[i]) * std::log(std::tan((alpha[i] + theta[i]) / 2.0) / tan(alpha[i] / 2.0));
+			IddG0 += (std::cos(alpha[i] + theta[i]) - std::cos(alpha[i])) / (r[i] * std::sin(alpha[i]));
+		}
+
+		// integrate dynamic part
+		auto const &x0 = elem.get_center();
+		std::complex<double> I_acc = 0.0;
+		for (auto it = quadr_t::quadrature.begin(); it != quadr_t::quadrature.end(); ++it)
+		{
+			double r = (elem.get_x(it->get_xi()) - x0).norm();
+			I_acc += dynamic_part(r, k) * it->get_w();
+		}
+		I_acc *= elem.get_normal(tria_domain::xi_t()).norm();
+
+		// assemble result from static and dynamic parts
+		return (IddG0 + k*k/2.0 * IG0 + I_acc) / (4.0 * M_PI);
+	}
+};
+
 
 
 /** \brief Collocational singular integral of the HSP kernel over a constant triangle
@@ -231,29 +282,6 @@ class singular_integral_shortcut<
 	>::type
 >
 {
-private:
-	enum { quadrature_order = 7 };
-	typedef tria_quad_store<quadrature_order> quadr_t;
-
-	/** \brief Compute the regular dynamic part of the singular kernel
-	 * \tparam T the scalar type
-	 * \param [in] r the scalar distance
-	 * \param [in] k the wave number
-	 * \return the dynamic part of the singular kernel
-	 */
-	template <class T>
-	static std::complex<T> dynamic_part(T const &r, WaveNumber const &k)
-	{
-		std::complex<T> const I(0.0, 1.0);	// imaginary unit
-		std::complex<T> const ikr(I*k*r);
-		if (std::abs(r) > 1e-3)
-			return (std::exp(-ikr)*(1.0+ikr)-1.0+ikr*ikr/2.0)/r/r/r;
-		else
-			return -I*k*k*k * (
-				1.0/3.0 - ikr*(1.0/8.0 - ikr*(1.0/30.0 - ikr*(1.0/144.0 - ikr*(1.0/840.0 - ikr/5760.0))))
-			);
-	}
-
 public:
 	/** \brief evaluate singular integral
 	 * \tparam result_t the result matrix type
@@ -270,33 +298,9 @@ public:
 		field_base<TrialField> const &trial_field,
 		element_match const &)
 	{
-		unsigned const N = tria_1_elem::num_nodes;
-		double r[N], theta[N], alpha[N];
-		planar_triangle_helper(trial_field.get_elem(), r, theta, alpha);
-
-		double IG0 = 0.0, IddG0 = 0.0;
-		for (unsigned i = 0; i < N; ++i)
-		{
-			IG0 += r[i] * std::sin(alpha[i]) * std::log(std::tan((alpha[i]+theta[i])/2.0)/tan(alpha[i]/2.0));
-			IddG0 += (std::cos(alpha[i]+theta[i]) - std::cos(alpha[i])) / (r[i] * std::sin(alpha[i]));
-		}
-
-		// integrate dynamic_part
-		auto const &tr_elem = trial_field.get_elem();
-		auto const &x0 = tr_elem.get_center();
-		std::complex<double> I_acc = 0.0;
-		for (auto it = quadr_t::quadrature.begin(); it != quadr_t::quadrature.end(); ++it)
-			I_acc += dynamic_part(
-				(tr_elem.get_x(it->get_xi()) - x0).norm(),
-				kernel.get_data().get_wave_number()
-			) * it->get_w();
-		// multiply by Jacobian
-		I_acc *= tr_elem.get_normal(tria_domain::xi_t()).norm();
-
-		// assemble result from static and dynamic parts
-		auto k2p2 = kernel.get_data().get_wave_number()*kernel.get_data().get_wave_number()/2.0;
-		result(0,0) += (IddG0 + k2p2 * IG0 + I_acc) / (4.0 * M_PI);
-
+		result(0, 0) = helmholtz_3d_HSP_collocation_constant_triangle::eval(
+			trial_field.get_elem(),
+			kernel.get_data().get_wave_number());
 		return result;
 	}
 };

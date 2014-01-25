@@ -14,7 +14,6 @@
 #include "../core/duffy_quadrature.hpp"
 #include "location_normal.hpp"
 
-
 /**
  * \brief acclerator class for storing duffy-type surface quadratures
  * \tparam TestField the test field type
@@ -413,6 +412,5 @@ public:
 			- 3.0*this->m_N0*this->m_J0* this->m_A_vector.dot(this->m_B_vector) / A2) / (4.0*M_PI * A3);
 	}
 };
-
 
 #endif // GUIGGIANI_1992_HPP_INCLUDED

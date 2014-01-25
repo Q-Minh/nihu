@@ -1,6 +1,8 @@
 #include <iostream>
 
 #include "library/guiggiani_1992.hpp"
+#include "library/laplace_singular_integrals.hpp"
+#include "library/helmholtz_singular_integrals.hpp"
 
 template <class elem_t>
 double anal_3d(elem_t const &elem, typename elem_t::xi_t const &xi0)
@@ -27,25 +29,17 @@ double anal_3d(elem_t const &elem, typename elem_t::xi_t const &xi0)
 
 void test_laplace_3d(void)
 {
-	typedef quad_1_elem elem_t;
-	typedef elem_t::xi_t xi_t;
+	typedef tria_1_elem elem_t;
 	typedef field_view<elem_t, field_option::constant> trial_field_t;
 	typedef trial_field_t test_field_t;
 	typedef laplace_3d_HSP_kernel kernel_t;
 
 	elem_t::coords_t coords;
 	coords <<
-		-1.5, +1.5, +1.5, -1.5,
-		-1.5, -1.5, +1.5, +1.6,
-		0, 0, 0, 0;
-	/*
-	coords <<
-	0.0, 1.0, 0.0,
-	0.0, 0.0, 1.0,
-	0.0, 0.0, 0.0;
-	*/
+		0.0, 1.0, 0.0,
+		0.0, 0.0, 2.0,
+		0.0, 0.0, 0.0;
 	elem_t elem(coords);
-	xi_t xi0 = elem_t::domain_t::get_center();
 	kernel_t kernel;
 
 	guiggiani<test_field_t, trial_field_t, kernel_t> gui(elem, kernel);
@@ -53,7 +47,8 @@ void test_laplace_3d(void)
 	trial_field_t::nset_t::shape_t I;
 	I.setZero();
 	gui.integral(I);
-	double I0 = anal_3d(elem, xi0);
+
+	double I0 = laplace_3d_HSP_collocation_constant_triangle::eval(elem);
 
 	std::cout << "I:\t" << I << std::endl;
 	std::cout << "Ianal:\t" << I0 << std::endl;
@@ -63,25 +58,17 @@ void test_laplace_3d(void)
 
 void test_helmholtz_3d(void)
 {
-	typedef quad_1_elem elem_t;
-	typedef elem_t::xi_t xi_t;
+	typedef tria_1_elem elem_t;
 	typedef field_view<elem_t, field_option::constant> trial_field_t;
 	typedef trial_field_t test_field_t;
 	typedef helmholtz_3d_HSP_kernel<double> kernel_t;
 
 	elem_t::coords_t coords;
 	coords <<
-		-1.5, +1.5, +1.5, -1.5,
-		-1.5, -1.5, +1.5, +1.6,
-		0, 0, 0, 0;
-	/*
-	coords <<
-	0.0, 1.0, 0.0,
-	0.0, 0.0, 1.0,
-	0.0, 0.0, 0.0;
-	*/
+		0.0, 1.0, 0.0,
+		0.0, 0.0, 1.0,
+		0.0, 0.0, 0.0;
 	elem_t elem(coords);
-	xi_t xi0 = elem_t::domain_t::get_center();
 	kernel_t kernel(1.0);
 
 	guiggiani<test_field_t, trial_field_t, kernel_t> gui(elem, kernel);
@@ -89,7 +76,7 @@ void test_helmholtz_3d(void)
 	Eigen::Matrix<std::complex<double>, 1, 1> I;
 	I.setZero();
 	gui.integral(I);
-	std::complex<double> I0 = anal_3d(elem, xi0);
+	std::complex<double> I0 = helmholtz_3d_HSP_collocation_constant_triangle::eval(elem, 1.0);
 
 	std::cout << "I:\t" << I << std::endl;
 	std::cout << "Ianal:\t" << I0 << std::endl;

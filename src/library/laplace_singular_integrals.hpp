@@ -249,7 +249,24 @@ public:
 };
 
 
-/** \brief collocational singular integral of the SLP kernel over a constant triangle
+class laplace_3d_SLP_collocation_constant_triangle
+{
+public:
+	static double eval(tria_1_elem const &elem)
+	{
+		unsigned const N = tria_1_elem::num_nodes;
+		double r[N], theta[N], alpha[N], result = 0.0;
+		planar_triangle_helper(elem, r, theta, alpha);
+
+		for (unsigned i = 0; i < N; ++i)
+			result += r[i] * std::sin(alpha[i]) * std::log(std::tan((alpha[i] + theta[i]) / 2.0) / std::tan(alpha[i] / 2.0));
+
+		return result / (4.0 * M_PI);
+	}
+};
+
+
+/** \brief collocational singular integral of the 3D SLP kernel over a constant triangle
  * \tparam TestField the test field type
  * \tparam TrialField the trial field type
  */
@@ -277,16 +294,24 @@ public:
 		field_base<TrialField> const &trial_field,
 		element_match const &)
 	{
-		unsigned const N = tria_1_elem::num_nodes;
-		double r[N], theta[N], alpha[N];
-		planar_triangle_helper(trial_field.get_elem(), r, theta, alpha);
-
-		for (unsigned i = 0; i < N; ++i)
-			result(0,0) += r[i] * std::sin(alpha[i]) * std::log(std::tan((alpha[i]+theta[i])/2.0)/std::tan(alpha[i]/2.0));
-
-		result(0,0) /= (4.0 * M_PI);
-
+		result(0, 0) = laplace_3d_SLP_collocation_constant_triangle::eval(trial_field.get_elem());
 		return result;
+	}
+};
+
+
+class laplace_3d_HSP_collocation_constant_triangle
+{
+public:
+	static double eval(tria_1_elem const &elem)
+	{
+		double r[3], theta[3], alpha[3], result = 0.0;
+		planar_triangle_helper(elem, r, theta, alpha);
+
+		for (unsigned i = 0; i < 3; ++i)
+			result += (std::cos(alpha[i] + theta[i]) - std::cos(alpha[i])) / (r[i] * std::sin(alpha[i]));
+
+		return result / (4.0 * M_PI);
 	}
 };
 
@@ -319,16 +344,7 @@ public:
 		field_base<TrialField> const &trial_field,
 		element_match const &)
 	{
-		unsigned const N = tria_1_elem::num_nodes;
-
-		double r[N], theta[N], alpha[N];	// radius lengths
-		planar_triangle_helper(trial_field.get_elem(), r, theta, alpha);
-
-		for (unsigned i = 0; i < N; ++i)
-			result(0,0) += (std::cos(alpha[i]+theta[i]) - std::cos(alpha[i])) / (r[i] * std::sin(alpha[i]));
-
-		result(0,0) /= (4.0 * M_PI);
-
+		result(0, 0) = laplace_3d_HSP_collocation_constant_triangle::eval(trial_field.get_elem());
 		return result;
 	}
 };
