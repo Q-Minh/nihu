@@ -73,7 +73,7 @@ private:
 
 
 /**
- * \brief acclerator class for storing line quadratures
+ * \brief accelerator class for storing line quadratures
  * \tparam TestField the test field type
  * \tparam TrialField the trial field type
  * \tparam order the quadrature order
@@ -373,6 +373,5 @@ public:
 			- 3.0*this->m_N0*this->m_J0* this->m_A_vector.dot(this->m_B_vector) / A2) / (4.0*M_PI * A3);
 	}
 };
-
 
 #endif // GUIGGIANI_1992_HPP_INCLUDED
