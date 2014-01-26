@@ -5,11 +5,10 @@
 #include "library/helmholtz_singular_integrals.hpp"
 
 template <class elem_t>
-double laplace_planar_analytic(elem_t const &elem, typename elem_t::xi_t const &xi0)
+double laplace_planar_analytic(elem_t const &elem, typename elem_t::x_t const &x0)
 {
 	typedef typename elem_t::x_t x_t;
-	double res = 0;
-	x_t x0 = elem.get_x(xi0);
+	double res = 0.0;
 	unsigned const N = elem_t::domain_t::num_corners;
 	for (unsigned i = 0; i < N; ++i)
 	{
@@ -29,6 +28,7 @@ double laplace_planar_analytic(elem_t const &elem, typename elem_t::xi_t const &
 
 void test_laplace_3d_quadratic(void)
 {
+	std::cout << "distortion test of laplace 3D kernel with quadratic triangle:\n";
 	typedef tria_1_elem elem0_t;
 	elem0_t::coords_t coords0;
 	coords0 <<
@@ -50,10 +50,10 @@ void test_laplace_3d_quadratic(void)
 		0.0, 0.0, 0.0, 0.5, 1.0, 0.5,
 		0.0, 0.0, 0.0, 0.0, 0.0, 0.0;
 	trial_field_t::nset_t::shape_t I;
-	for (unsigned i = 1; i < 10; ++i)
+	for (double c = 1e-2; c < 1.0; c += 1e-2)
 	{
-		double c = i * 0.1;
-		coords(0,1) = c;
+		coords(0, 1) = coords(0, 3) = c;
+		coords(1, 3) = 1.0 - c;
 		elem_t elem(coords);
 		guiggiani<test_field_t, trial_field_t, kernel_t> gui(elem, kernel);
 		I.setZero();
@@ -61,13 +61,14 @@ void test_laplace_3d_quadratic(void)
 
 		double I0 = laplace_3d_HSP_collocation_constant_triangle::eval(elem0, elem.get_center());
 
-		std::cout << c << ": " << std::log10(std::abs((I / I0).norm() - 1.0)) << std::endl;
+		std::cout << c << "\t" << std::log10(std::abs((I / I0).norm() - 1.0)) << std::endl;
 	}
 }
 
 
 void test_laplace_3d_linear(void)
 {
+	std::cout << "distortion test of laplace 3D kernel with linear rectangle:\n";
 	typedef quad_1_elem elem_t;
 	elem_t::coords_t coords;
 	coords <<
@@ -84,18 +85,17 @@ void test_laplace_3d_linear(void)
 
 	Eigen::Matrix<double, 1, 1> I;
 
-	for (unsigned i = 1; i <= 10; ++i)
+	for (double c = 1e-2; c <= 2.0; c += 1e-2)
 	{
-		double c = i * 0.1;
 		coords(0,1) = c;
 		elem_t elem(coords);
 		guiggiani<test_field_t, trial_field_t, kernel_t> gui(elem, kernel);
 		I.setZero();
 		gui.integral(I);
 
-		double I0 = laplace_planar_analytic(elem, elem_t::domain_t::get_center());
+		double I0 = laplace_planar_analytic(elem, elem.get_center());
 
-		std::cout << c << ": " << std::log10(std::abs((I / I0).norm() - 1.0)) << std::endl;
+		std::cout << c << "\t" << std::log10(std::abs((I / I0).norm() - 1.0)) << std::endl;
 	}
 }
 
@@ -143,7 +143,7 @@ void test_helmholtz_3d(void)
 
 int main(void)
 {
-//	test_laplace_3d_quadratic();
+	test_laplace_3d_quadratic();
 	test_laplace_3d_linear();
 //	test_helmholtz_3d();
 
