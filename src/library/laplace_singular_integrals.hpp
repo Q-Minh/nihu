@@ -28,7 +28,64 @@
 #include "laplace_kernel.hpp"
 #include "plane_triangle_helper.hpp"
 
-/** \brief Singular integrals of the DLP and DLPt kernels over plane elements
+
+class laplace_2d_SLP_collocation_constant_line
+{
+public:
+	static double eval(line_1_elem const &elem, line_1_elem::x_t const &x0)
+	{
+		auto const &C = elem.get_coords();
+		double d1 = (x0 - C.col(0)).norm(), d2 = (x0 - C.col(1)).norm();
+		return (d1 * (1.0 - std::log(d1)) + d2 * (1.0 - std::log(d2))) / (2.0 * M_PI);
+	}
+};
+
+class laplace_2d_HSP_collocation_constant_line
+{
+public:
+	static double eval(line_1_elem const &elem, line_1_elem::x_t const &x0)
+	{
+		auto const &C = elem.get_coords();
+		double d1 = (x0 - C.col(0)).norm(), d2 = (x0 - C.col(1)).norm();
+		return -(1.0 / d1 + 1.0 / d2) / (2.0 * M_PI);
+	}
+};
+
+
+class laplace_3d_SLP_collocation_constant_triangle
+{
+public:
+	static double eval(tria_1_elem const &elem, tria_1_elem::x_t const &x0)
+	{
+		double r[3], theta[3], alpha[3], result = 0.0;
+		planar_triangle_helper(elem, x0, r, theta, alpha);
+
+		for (unsigned i = 0; i < 3; ++i)
+			result += r[i] * std::sin(alpha[i]) * std::log(std::tan((alpha[i] + theta[i]) / 2.0) / std::tan(alpha[i] / 2.0));
+
+		return result / (4.0 * M_PI);
+	}
+};
+
+class laplace_3d_HSP_collocation_constant_triangle
+{
+public:
+	static double eval(tria_1_elem const &elem, tria_1_elem::x_t const &x0)
+	{
+		double r[3], theta[3], alpha[3], result = 0.0;
+		planar_triangle_helper(elem, x0, r, theta, alpha);
+
+		for (unsigned i = 0; i < 3; ++i)
+			result += (std::cos(alpha[i] + theta[i]) - std::cos(alpha[i])) / (r[i] * std::sin(alpha[i]));
+
+		return result / (4.0 * M_PI);
+	}
+};
+
+
+
+
+/** \brief Singular integrals of the DLP and DLPt kernels over plane triangle elements
  * \tparam Formalism the integration formalism (collocational or general)
  * \tparam Kernel the kernel type the test field type
  * \tparam TestField the test field type
@@ -65,18 +122,6 @@ public:
 		element_match const &)
 	{
 		return result;
-	}
-};
-
-
-class laplace_2d_SLP_collocation_constant_line
-{
-public:
-	static double eval(line_1_elem const &elem, line_1_elem::x_t const &x0)
-	{
-		auto const &C = elem.get_coords();
-		double d1 = (x0 - C.col(0)).norm(), d2 = (x0 - C.col(1)).norm();
-		return (d1 * (1.0 - std::log(d1)) + d2 * (1.0 - std::log(d2))) / (2*M_PI);
 	}
 };
 
@@ -119,9 +164,9 @@ public:
 
 
 /** \brief Galerkin face-match singular integral of the 2D SLP kernel over a constant line
-* \tparam TestField the test field type
-* \tparam TrialField the trial field type
-*/
+ * \tparam TestField the test field type
+ * \tparam TrialField the trial field type
+ */
 template <class TestField, class TrialField>
 class singular_integral_shortcut<
 	laplace_2d_SLP_kernel, TestField, TrialField, match::face_match_type,
@@ -135,11 +180,11 @@ class singular_integral_shortcut<
 {
 public:
 	/** \brief evaluate singular integral
-	* \tparam result_t the result matrix type
-	* \param [in, out] result reference to the result
-	* \param [in] trial_field the test and trial fields
-	* \return reference to the result matrix
-	*/
+	 * \tparam result_t the result matrix type
+	 * \param [in, out] result reference to the result
+	 * \param [in] trial_field the test and trial fields
+	 * \return reference to the result matrix
+	 */
 	template <class result_t>
 	static result_t &eval(
 		result_t &result,
@@ -196,18 +241,6 @@ public:
 		return result;
 	}
 };
-
-class laplace_2d_HSP_collocation_constant_line
-{
-public:
-	static double eval(line_1_elem const &elem, line_1_elem::x_t const &x0)
-	{
-		auto const &C = elem.get_coords();
-		double d1 = (x0 - C.col(0)).norm(), d2 = (x0 - C.col(1)).norm();
-		return -(1.0/d1 + 1.0/d2) / (2.0*M_PI);
-	}
-};
-
 
 /** \brief collocational singular integral of the 2D HSP kernel over a constant line
  * \tparam TestField the test field type
@@ -267,22 +300,6 @@ public:
 		"\n\nThe 2D HSP kernel of the Laplace equation can not be integrated over a constant line element in a Galerkin sense.\n\n");
 };
 
-class laplace_3d_SLP_collocation_constant_triangle
-{
-public:
-	static double eval(tria_1_elem const &elem, tria_1_elem::x_t const &x0)
-	{
-		double r[3], theta[3], alpha[3], result = 0.0;
-		planar_triangle_helper(elem, x0, r, theta, alpha);
-
-		for (unsigned i = 0; i < 3; ++i)
-			result += r[i] * std::sin(alpha[i]) * std::log(std::tan((alpha[i] + theta[i]) / 2.0) / std::tan(alpha[i] / 2.0));
-
-		return result / (4.0 * M_PI);
-	}
-};
-
-
 /** \brief collocational singular integral of the 3D SLP kernel over a constant triangle
  * \tparam TestField the test field type
  * \tparam TrialField the trial field type
@@ -315,22 +332,6 @@ public:
 			trial_field.get_elem(),
 			trial_field.get_elem().get_center());
 		return result;
-	}
-};
-
-
-class laplace_3d_HSP_collocation_constant_triangle
-{
-public:
-	static double eval(tria_1_elem const &elem, tria_1_elem::x_t const &x0)
-	{
-		double r[3], theta[3], alpha[3], result = 0.0;
-		planar_triangle_helper(elem, x0, r, theta, alpha);
-
-		for (unsigned i = 0; i < 3; ++i)
-			result += (std::cos(alpha[i] + theta[i]) - std::cos(alpha[i])) / (r[i] * std::sin(alpha[i]));
-
-		return result / (4.0 * M_PI);
 	}
 };
 

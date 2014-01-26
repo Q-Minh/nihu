@@ -28,99 +28,36 @@
 #include "plane_triangle_helper.hpp"
 #include "../util/math_functions.hpp"
 
-/** \brief Trivial integrals of various kernels over plane surfaces
- * \tparam Kernel the kernel type
- * \tparam TestField the test field type
- * \tparam TrialField the trial field type
- */
-template <template< class WaveNumber> class Kernel, class WaveNumber, class TestField, class TrialField>
-class singular_integral_shortcut<
-	Kernel<WaveNumber>, TestField, TrialField, match::face_match_type,
-	typename std::enable_if<
-		(
-		( std::is_same<Kernel<WaveNumber>, helmholtz_3d_DLP_kernel<WaveNumber> >::value ||
-		  std::is_same<Kernel<WaveNumber>, helmholtz_3d_DLPt_kernel<WaveNumber> >::value
-		) && std::is_same<typename TrialField::lset_t, tria_1_shape_set>::value
-		)
-		||
-		(
-		std::is_same<Kernel<WaveNumber>, helmholtz_2d_DLP_kernel<WaveNumber> >::value
-		&& std::is_same<typename TrialField::lset_t, line_1_shape_set>::value
-		)
-	>::type
->
+class helmholtz_2d_SLP_collocation_constant_line
 {
 public:
-	/** \brief evaluate the kernel (zero)
-	 * \tparam result_t the result's type
-	 * \param [in] result the result reference
-	 * \return the result reference
-	 */
-	template <class result_t>
-	static CONSTEXPR result_t &eval(
-		result_t &result,
-		kernel_base<Kernel<WaveNumber> > const &,
-		field_base<TestField> const &,
-		field_base<TrialField> const &,
-		element_match const &)
+	template <class wavenumber_t>
+	static std::complex<double> eval(
+		line_1_elem const &elem,
+		line_1_elem::x_t const &x0,
+		wavenumber_t const &k)
 	{
-		return result;
-	}
-};
-
-/** \brief Collocational singular integral of the 2d SLP kernel over a constant line
- * \tparam TestField the test field type
- * \tparam TrialField the trial field type
- */
-template <class WaveNumber, class TestField, class TrialField>
-class singular_integral_shortcut<
-	helmholtz_2d_SLP_kernel<WaveNumber>, TestField, TrialField, match::face_match_type,
-	typename std::enable_if<
-		std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
-		std::is_same<typename TrialField::lset_t, line_1_shape_set>::value &&
-		std::is_same<typename TrialField::nset_t, line_0_shape_set>::value
-	>::type
->
-{
-public:
-	/** \brief evaluate singular integral
-	 * \tparam result_t the result matrix type
-	 * \param [in, out] result reference to the result
-	 * \param [in] kernel the kernel instance
-	 * \param [in] trial_field the test and trial fields
-	 * \return reference to the result matrix
-	 */
-	template <class result_t>
-	static result_t &eval(
-		result_t &result,
-		kernel_base<helmholtz_2d_SLP_kernel<WaveNumber> > const &kernel,
-		field_base<TestField> const &,
-		field_base<TrialField> const &trial_field,
-		element_match const &)
-	{
-        std::complex<double> const c(0.57721566490153286060, M_PI/2);
-        unsigned const N = 5;
+		double const EulerMascheroni = 0.57721566490153286060;
+		std::complex<double> const c(EulerMascheroni, M_PI / 2.0);
+		unsigned const N = 5;
 
 		// compute elem radius
-		auto const &elem = trial_field.get_elem();
-		auto R = (elem.get_center() - elem.get_coords().col(0)).norm();
+		auto R = (x0 - elem.get_coords().col(0)).norm();
 
-		auto Q = kernel.get_data().get_wave_number() * R / 2.0;
-        auto clnq = c + std::log(Q);
+		auto Q = k * R / 2.0;
+		auto clnq = c + std::log(Q);
 
-        auto res(clnq-1.0);		// initial (k=0) value of the result
-        decltype(Q) B(1.0);		// the power term in the series
-        double bn = 0.0;		// the harmonic series up to n = 0
-        for (unsigned n = 1; n < N; ++n)
-        {
-			B *= -Q*Q/n/n;		// the actual power term
-			bn += 1.0/n;		// the actual harmonic term
-			res += B/(2*n+1) * (clnq - bn - 1.0/(2*n+1));
-        }
+		auto res(clnq - 1.0);		// initial (k=0) value of the result
+		decltype(Q) B(1.0);		// the power term in the series
+		double bn = 0.0;		// the harmonic series up to n = 0
+		for (unsigned n = 1; n < N; ++n)
+		{
+			B *= -Q*Q / n / n;		// the actual power term
+			bn += 1.0 / n;		// the actual harmonic term
+			res += B / (2 * n + 1) * (clnq - bn - 1.0 / (2 * n + 1));
+		}
 
-		result(0,0) = -R / M_PI * res;
-
-		return result;
+		return -R / M_PI * res;
 	}
 };
 
@@ -182,45 +119,6 @@ public:
 };
 
 
-/** \brief Collocational singular integral of the SLP kernel over a constant triangle
- * \tparam TestField the test field type
- * \tparam TrialField the trial field type
- */
-template <class WaveNumber, class TestField, class TrialField>
-class singular_integral_shortcut<
-	helmholtz_3d_SLP_kernel<WaveNumber>, TestField, TrialField, match::face_match_type,
-	typename std::enable_if<
-		std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
-		std::is_same<typename TrialField::lset_t, tria_1_shape_set>::value &&
-		std::is_same<typename TrialField::nset_t, tria_0_shape_set>::value
-	>::type
->
-{
-public:
-	/** \brief evaluate singular integral
-	 * \tparam result_t the result matrix type
-	 * \param [in, out] result reference to the result
-	 * \param [in] kernel the kernel instance
-	 * \param [in] trial_field the test and trial fields
-	 * \return reference to the result matrix
-	 */
-	template <class result_t>
-	static result_t &eval(
-		result_t &result,
-		kernel_base<helmholtz_3d_SLP_kernel<WaveNumber> > const &kernel,
-		field_base<TestField> const &,
-		field_base<TrialField> const &trial_field,
-		element_match const &)
-	{
-		result(0, 0) = helmholtz_3d_SLP_collocation_constant_triangle::eval(
-			trial_field.get_elem(),
-			trial_field.get_elem().get_center(),
-			kernel.get_data().get_wave_number());
-		return result;
-	}
-};
-
-
 class helmholtz_3d_HSP_collocation_constant_triangle
 {
 private:
@@ -267,10 +165,128 @@ public:
 		I_acc *= elem.get_normal(tria_domain::xi_t()).norm();
 
 		// assemble result from static and dynamic parts
-		return (IddG0 + k*k/2.0 * IG0 + I_acc) / (4.0 * M_PI);
+		return (IddG0 + k*k / 2.0 * IG0 + I_acc) / (4.0 * M_PI);
 	}
 };
 
+
+/** \brief Trivial integrals of various kernels over plane surfaces
+ * \tparam Kernel the kernel type
+ * \tparam TestField the test field type
+ * \tparam TrialField the trial field type
+ */
+template <template< class WaveNumber> class Kernel, class WaveNumber, class TestField, class TrialField>
+class singular_integral_shortcut<
+	Kernel<WaveNumber>, TestField, TrialField, match::face_match_type,
+	typename std::enable_if<
+		(
+		( std::is_same<Kernel<WaveNumber>, helmholtz_3d_DLP_kernel<WaveNumber> >::value ||
+		  std::is_same<Kernel<WaveNumber>, helmholtz_3d_DLPt_kernel<WaveNumber> >::value
+		) && std::is_same<typename TrialField::lset_t, tria_1_shape_set>::value
+		)
+		||
+		(
+		std::is_same<Kernel<WaveNumber>, helmholtz_2d_DLP_kernel<WaveNumber> >::value
+		&& std::is_same<typename TrialField::lset_t, line_1_shape_set>::value
+		)
+	>::type
+>
+{
+public:
+	/** \brief evaluate the kernel (zero)
+	 * \tparam result_t the result's type
+	 * \param [in] result the result reference
+	 * \return the result reference
+	 */
+	template <class result_t>
+	static CONSTEXPR result_t &eval(
+		result_t &result,
+		kernel_base<Kernel<WaveNumber> > const &,
+		field_base<TestField> const &,
+		field_base<TrialField> const &,
+		element_match const &)
+	{
+		return result;
+	}
+};
+
+/** \brief Collocational singular integral of the 2d SLP kernel over a constant line
+ * \tparam TestField the test field type
+ * \tparam TrialField the trial field type
+ */
+template <class WaveNumber, class TestField, class TrialField>
+class singular_integral_shortcut<
+	helmholtz_2d_SLP_kernel<WaveNumber>, TestField, TrialField, match::face_match_type,
+	typename std::enable_if<
+	std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
+	std::is_same<typename TrialField::lset_t, line_1_shape_set>::value &&
+	std::is_same<typename TrialField::nset_t, line_0_shape_set>::value
+	>::type
+>
+{
+public:
+	/** \brief evaluate singular integral
+	 * \tparam result_t the result matrix type
+	 * \param [in, out] result reference to the result
+	 * \param [in] kernel the kernel instance
+	 * \param [in] trial_field the test and trial fields
+	 * \return reference to the result matrix
+	 */
+	template <class result_t>
+	static result_t &eval(
+		result_t &result,
+		kernel_base<helmholtz_2d_SLP_kernel<WaveNumber> > const &kernel,
+		field_base<TestField> const &,
+		field_base<TrialField> const &trial_field,
+		element_match const &)
+	{
+		result(0, 0) = helmholtz_2d_SLP_collocation_constant_line::eval(
+			trial_field.get_elem(),
+			trial_field.get_elem().get_center(),
+			kernel.get_data().get_wave_number());
+
+		return result;
+	}
+};
+
+
+/** \brief Collocational singular integral of the SLP kernel over a constant triangle
+ * \tparam TestField the test field type
+ * \tparam TrialField the trial field type
+ */
+template <class WaveNumber, class TestField, class TrialField>
+class singular_integral_shortcut<
+	helmholtz_3d_SLP_kernel<WaveNumber>, TestField, TrialField, match::face_match_type,
+	typename std::enable_if<
+		std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
+		std::is_same<typename TrialField::lset_t, tria_1_shape_set>::value &&
+		std::is_same<typename TrialField::nset_t, tria_0_shape_set>::value
+	>::type
+>
+{
+public:
+	/** \brief evaluate singular integral
+	 * \tparam result_t the result matrix type
+	 * \param [in, out] result reference to the result
+	 * \param [in] kernel the kernel instance
+	 * \param [in] trial_field the test and trial fields
+	 * \return reference to the result matrix
+	 */
+	template <class result_t>
+	static result_t &eval(
+		result_t &result,
+		kernel_base<helmholtz_3d_SLP_kernel<WaveNumber> > const &kernel,
+		field_base<TestField> const &,
+		field_base<TrialField> const &trial_field,
+		element_match const &)
+	{
+		result(0, 0) = helmholtz_3d_SLP_collocation_constant_triangle::eval(
+			trial_field.get_elem(),
+			trial_field.get_elem().get_center(),
+			kernel.get_data().get_wave_number());
+		return result;
+	}
+};
 
 
 /** \brief Collocational singular integral of the HSP kernel over a constant triangle
