@@ -164,7 +164,7 @@ public:
 	typedef guiggiani_traits<Derived> traits_t;
 
 	enum { XI = 0, ETA = 1, XIXI = 0, XIETA = 1, ETAXI = 1, ETAETA = 2 };
-	enum { quadrature_order = 9 };
+	enum { quadrature_order = traits_t::order };
 
 	typedef typename traits_t::test_field_t test_field_t;
 	typedef typename traits_t::trial_field_t trial_field_t;
@@ -351,23 +351,24 @@ protected:
 };
 
 // forward declaration
-template <class TestField, class TrialField, class Kernel>
+template <class TestField, class TrialField, class Kernel, unsigned order>
 class guiggiani;
 
 /** \brief traits of a guiggiani class */
-template <class TestField, class TrialField, class Kernel>
-struct guiggiani_traits<guiggiani<TestField, TrialField, Kernel> >
+template <class TestField, class TrialField, class Kernel, unsigned Order>
+struct guiggiani_traits<guiggiani<TestField, TrialField, Kernel, Order> >
 {
 	typedef TestField test_field_t;
 	typedef TrialField trial_field_t;
 	typedef Kernel kernel_t;
+	enum { order = Order };
 };
 
 #include "../library/laplace_kernel.hpp"
 
-template <class TestField, class TrialField>
-class guiggiani<TestField, TrialField, laplace_3d_HSP_kernel>
-	: public guiggiani_base<guiggiani<TestField, TrialField, laplace_3d_HSP_kernel> >
+template <class TestField, class TrialField, unsigned order>
+class guiggiani<TestField, TrialField, laplace_3d_HSP_kernel, order>
+	: public guiggiani_base<guiggiani<TestField, TrialField, laplace_3d_HSP_kernel, order> >
 {
 	typedef guiggiani_base<guiggiani> base_t;
 	typedef typename  base_t::kernel_t kernel_t;
@@ -390,9 +391,9 @@ public:
 
 #include "../library/helmholtz_kernel.hpp"
 
-template <class TestField, class TrialField>
-class guiggiani<TestField, TrialField, helmholtz_3d_HSP_kernel<double> >
-	: public guiggiani_base<guiggiani<TestField, TrialField, helmholtz_3d_HSP_kernel<double> > >
+template <class TestField, class TrialField, unsigned order>
+class guiggiani<TestField, TrialField, helmholtz_3d_HSP_kernel<double>, order >
+	: public guiggiani_base<guiggiani<TestField, TrialField, helmholtz_3d_HSP_kernel<double>, order > >
 {
 	typedef guiggiani_base<guiggiani> base_t;
 	typedef typename  base_t::kernel_t kernel_t;

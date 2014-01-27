@@ -4,6 +4,8 @@
 #include "library/laplace_singular_integrals.hpp"
 #include "library/helmholtz_singular_integrals.hpp"
 
+unsigned const order = 15;
+
 template <class elem_t>
 double laplace_planar_analytic(elem_t const &elem, typename elem_t::x_t const &x0)
 {
@@ -53,9 +55,9 @@ void test_laplace_3d_quadratic(void)
 	for (double c = 1e-2; c < 1.0; c += 1e-2)
 	{
 		coords(0, 1) = coords(0, 3) = c;
-		coords(1, 3) = 1.0 - c;
+		coords(1, 3) = coords(1,5) = 1.0 - c;
 		elem_t elem(coords);
-		guiggiani<test_field_t, trial_field_t, kernel_t> gui(elem, kernel);
+		guiggiani<test_field_t, trial_field_t, kernel_t, order> gui(elem, kernel);
 		I.setZero();
 		gui.integral(I);
 
@@ -85,11 +87,11 @@ void test_laplace_3d_linear(void)
 
 	Eigen::Matrix<double, 1, 1> I;
 
-	for (double c = 1e-2; c <= 2.0; c += 1e-2)
+	for (double c = 2.0; c <= 2.0; c += 1e-2)
 	{
-		coords(0,1) = c;
+		coords(0,1) = coords(0,2) = c;
 		elem_t elem(coords);
-		guiggiani<test_field_t, trial_field_t, kernel_t> gui(elem, kernel);
+		guiggiani<test_field_t, trial_field_t, kernel_t, order> gui(elem, kernel);
 		I.setZero();
 		gui.integral(I);
 
@@ -126,7 +128,7 @@ void test_helmholtz_3d(void)
 
 	kernel_t kernel(1.0);
 
-	guiggiani<test_field_t, trial_field_t, kernel_t> gui(elem, kernel);
+	guiggiani<test_field_t, trial_field_t, kernel_t, order> gui(elem, kernel);
 
 	Eigen::Matrix<std::complex<double>, 1, 1> I;
 	I.setZero();
@@ -143,7 +145,7 @@ void test_helmholtz_3d(void)
 
 int main(void)
 {
-	test_laplace_3d_quadratic();
+//	test_laplace_3d_quadratic();
 	test_laplace_3d_linear();
 //	test_helmholtz_3d();
 

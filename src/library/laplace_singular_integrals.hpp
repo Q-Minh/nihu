@@ -47,6 +47,45 @@ public:
 	}
 };
 
+/** \brief Galerkin face match singular integral of the 2D Laplace SLP kernel over a constant line element */
+class laplace_2d_SLP_galerkin_face_constant_line
+{
+public:
+	/**
+	* \brief Evaluate the integral
+	* \param [in] elem the line element
+	* \return the integral value
+	*/
+	static double eval(line_1_elem const &elem)
+	{
+		auto const &C = elem.get_coords();
+		double d = (C.col(1) - C.col(0)).norm();	// element length
+		return -d*d*(std::log(d) - 1.5) / (2.0*M_PI);
+	}
+};
+
+/** \brief Galerkin face match singular integral of the 2D Laplace SLP kernel over a linear line element */
+class laplace_2d_SLP_galerkin_face_linear_line
+{
+public:
+	/**
+	* \brief Evaluate the integral
+	* \param [in] elem the line element
+	* \param [out] i11 the first diagonal elem of the result
+	* \param [out] i12 the off-diagonal elem of the result
+	* \param [out] i22 the second diagonal elem of the result
+	*/
+	static void eval(line_1_elem const &elem, double &i11, double &i12, double &i22)
+	{
+		auto const &C = elem.get_coords();
+		double d = (C.col(1) - C.col(0)).norm();	// element length
+		double lnd = std::log(d);
+		i11 = lnd - 1.75;
+		i12 = lnd - 1.25;
+		i22 = lnd - 1.45;
+	}
+};
+
 /** \brief Collocational singular integral of the 2D Laplace HSP kernel over a constant line element */
 class laplace_2d_HSP_collocation_constant_line
 {
@@ -221,9 +260,7 @@ public:
 		field_base<TrialField> const &trial_field,
 		element_match const &)
 	{
-		auto const &C = trial_field.get_elem().get_coords();
-		auto d = (C.col(1) - C.col(0)).norm();	// element length
-		result(0, 0) = -d*d*(std::log(d)-1.5) / (2.0*M_PI);
+		result(0, 0) = laplace_2d_SLP_galerkin_face_constant_line::eval(trial_field.get_elem());
 		return result;
 	}
 };
@@ -259,13 +296,8 @@ public:
 		field_base<TrialField> const &trial_field,
 		element_match const &)
 	{
-		auto const &C = trial_field.get_elem().get_coords();
-		auto d = (C.col(1) - C.col(0)).norm();	// element length
-		auto lnd = std::log(d);
-		result <<
-			lnd - 1.75, lnd - 1.25,
-			lnd - 1.25, lnd - 1.45;
-		result *= -d*d / (8.0*M_PI);
+		laplace_2d_SLP_galerkin_face_linear_line::eval(result(0, 0), result(0, 1), result(1, 1));
+		result(1, 0) = result(0, 1);
 		return result;
 	}
 };

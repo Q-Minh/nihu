@@ -17,19 +17,19 @@ L = [
     ] / 4;
 
 % the field shape set
-N = L;
+N = 1;
 
 % element coordinates
 X = [
     0 0 0
     1 0 0
-    1 1 0
-    0 1.2 1
+    1.2 1 0
+    0 1 0
     ];
 
 % collocation point (x0 eta0)
-xi0 = .5;
-eta0 = .5;
+xi0 = 0;
+eta0 = 0;
 
 
 %% first and second derivatives
@@ -88,7 +88,7 @@ Fm1 = simple(((N1 * J0vec  + N0 * J1vec) / (A^3) - (3*N0*J0vec*dot(Avec, Bvec))/
 %% Regularisation
 Reg = simple(G - Fm2/rho^2 - Fm1/rho);
 
-Rho = linspace(0, 1, 2e2);
+Rho = 1e-1 : 1e-1 : 1;
 Theta = linspace(-pi, pi, 1e2);
 [Rho, Theta] = meshgrid(Rho, Theta);
 
