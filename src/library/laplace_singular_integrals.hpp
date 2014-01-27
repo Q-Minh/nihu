@@ -29,9 +29,16 @@
 #include "plane_triangle_helper.hpp"
 
 
+/** \brief Collocational singular integral of the 2D Laplace SLP kernel over a constant line element */
 class laplace_2d_SLP_collocation_constant_line
 {
 public:
+    /**
+     * \brief Evaluate the integral
+     * \param [in] elem the line element
+     * \param [in] x0 the singular point
+     * \return the integral value
+     */
 	static double eval(line_1_elem const &elem, line_1_elem::x_t const &x0)
 	{
 		auto const &C = elem.get_coords();
@@ -40,9 +47,16 @@ public:
 	}
 };
 
+/** \brief Collocational singular integral of the 2D Laplace HSP kernel over a constant line element */
 class laplace_2d_HSP_collocation_constant_line
 {
 public:
+    /**
+     * \brief Evaluate the integral
+     * \param [in] elem the line element
+     * \param [in] x0 the singular point
+     * \return the integral value
+     */
 	static double eval(line_1_elem const &elem, line_1_elem::x_t const &x0)
 	{
 		auto const &C = elem.get_coords();
@@ -52,9 +66,16 @@ public:
 };
 
 
+/** \brief Collocational singular integral of the 3D Laplace SLP kernel over a constant triangle element */
 class laplace_3d_SLP_collocation_constant_triangle
 {
 public:
+    /**
+     * \brief Evaluate the integral
+     * \param [in] elem the line element
+     * \param [in] x0 the singular point
+     * \return the integral value
+     */
 	static double eval(tria_1_elem const &elem, tria_1_elem::x_t const &x0)
 	{
 		double r[3], theta[3], alpha[3], result = 0.0;
@@ -67,9 +88,16 @@ public:
 	}
 };
 
+/** \brief Collocational singular integral of the 3D Laplace HSP kernel over a constant triangle element */
 class laplace_3d_HSP_collocation_constant_triangle
 {
 public:
+    /**
+     * \brief Evaluate the integral
+     * \param [in] elem the line element
+     * \param [in] x0 the singular point
+     * \return the integral value
+     */
 	static double eval(tria_1_elem const &elem, tria_1_elem::x_t const &x0)
 	{
 		double r[3], theta[3], alpha[3], result = 0.0;
@@ -85,7 +113,7 @@ public:
 
 
 
-/** \brief Singular integrals of the DLP and DLPt kernels over plane triangle elements
+/** \brief Singular integrals of the DLP and DLPt kernels over plane line elements
  * \tparam Formalism the integration formalism (collocational or general)
  * \tparam Kernel the kernel type the test field type
  * \tparam TestField the test field type

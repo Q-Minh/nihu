@@ -17,8 +17,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /** \file helmholtz_singular_integrals.hpp
- * \brief (Semi)analytical expressions for the singular integrals of Helmholtz kernels
- * \details Semianalytical expression for the Helmholtz kernels over plane triangles
+ * \brief (Semi)analytical expressions for the singular integrals of Helmholtz kernels over plane triangles
  */
 #ifndef HELMHOLTZ_SINGULAR_INTEGRALS_HPP_INCLUDED
 #define HELMHOLTZ_SINGULAR_INTEGRALS_HPP_INCLUDED
@@ -28,9 +27,18 @@
 #include "plane_triangle_helper.hpp"
 #include "../util/math_functions.hpp"
 
+/** \brief Collocational singular integral of the 2D Helmholtz SLP kernel over a constant line element */
 class helmholtz_2d_SLP_collocation_constant_line
 {
 public:
+    /**
+     * \brief Evaluate the integral
+     * \tparam wavenumber_t the wave number type
+     * \param [in] elem the line element
+     * \param [in] x0 the singular point
+     * \param [in] k the wave number
+     * \return the integral value
+     */
 	template <class wavenumber_t>
 	static std::complex<double> eval(
 		line_1_elem const &elem,
@@ -75,6 +83,7 @@ template <unsigned order>
 gaussian_quadrature<tria_domain> const tria_quad_store<order>::quadrature(order);
 
 
+/** \brief Collocational singular integral of the 3D Helmholtz SLP kernel over a constant triangle element */
 class helmholtz_3d_SLP_collocation_constant_triangle
 {
 private:
@@ -88,6 +97,14 @@ private:
 	}
 
 public:
+    /**
+     * \brief Evaluate the integral
+     * \tparam wavenumber_t the wave number type
+     * \param [in] elem the line element
+     * \param [in] x0 the singular point
+     * \param [in] k the wave number
+     * \return the integral value
+     */
 	template <class wavenumber_t>
 	static std::complex<double> eval(
 		tria_1_elem const &elem,
@@ -119,6 +136,7 @@ public:
 };
 
 
+/** \brief Collocational singular integral of the 3D Helmholtz HSP kernel over a constant triangle element */
 class helmholtz_3d_HSP_collocation_constant_triangle
 {
 private:
@@ -138,6 +156,14 @@ private:
 	}
 
 public:
+    /**
+     * \brief Evaluate the integral
+     * \tparam wavenumber_t the wave number type
+     * \param [in] elem the line element
+     * \param [in] x0 the singular point
+     * \param [in] k the wave number
+     * \return the integral value
+     */
 	template <class wavenumber_t>
 	static std::complex<double> eval(
 		tria_1_elem const &elem,
