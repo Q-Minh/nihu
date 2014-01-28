@@ -192,6 +192,8 @@ public:
 	typedef store<guiggiani_surface_accelerator<test_field_t, trial_field_t, quadrature_order> > surf_accel_store_t;
 	typedef store<guiggiani_line_accelerator<test_field_t, trial_field_t, quadrature_order> > line_accel_store_t;
 
+	typedef Eigen::Matrix<scalar_t, domain_t::dimension, domain_t::dimension> trans_t;
+
 	/** \brief constructor
 	 * \param [in] elem the element
 	 * \param [in] kernel the kernel
@@ -209,7 +211,18 @@ private:
 	{
 		m_xi0 = xi0;
 		m_x0 = m_elem.get_x(m_xi0);
-		m_J0_vector = m_elem.get_normal(m_xi0);
+		typename elem_t::dx_t dx = m_elem.get_dx(m_xi0);
+		double gamma = std::acos(dx.col(XI).dot(dx.col(ETA)) / dx.col(XI).norm() / dx.col(ETA).norm());
+
+		m_T <<
+			1.0, std::cos(gamma) * dx.col(ETA).norm() / dx.col(XI).norm(),
+			0.0, std::sin(gamma) * dx.col(ETA).norm() / dx.col(XI).norm();
+
+		m_Tinv = m_T.inverse();
+
+		m_eta0 = m_T * m_xi0;
+		
+		m_J0_vector = m_elem.get_normal(m_xi0) / m_T.determinant();
 		m_J0 = m_J0_vector.norm();
 		m_n0 = m_J0_vector / m_J0;
 		m_N0 = trial_nset_t::eval_shape(xi0);
@@ -220,20 +233,21 @@ private:
 	 */
 	void compute_theta(double theta)
 	{
-		double c = std::cos(theta), s = std::sin(theta);
+		xi_t eta(std::cos(theta), std::sin(theta));
+		xi_t xi = m_Tinv * eta; // contains cos theta sin theta in xi system
 
 		typename elem_t::dx_t dx = m_elem.get_dx(m_xi0);
 		typename elem_t::ddx_t ddx = m_elem.get_ddx(m_xi0);
 
-		m_A_vector = dx.col(XI) * c + dx.col(ETA) * s;
+		m_A_vector = dx.col(XI) * xi(0) + dx.col(ETA) * xi(1);
 		m_A = m_A_vector.norm();
-		m_B_vector = ddx.col(XIXI) * c*c / 2.0 + ddx.col(XIETA) * c*s + ddx.col(ETAETA) * s*s / 2.0;
+		m_B_vector = ddx.col(XIXI) * xi(0)*xi(0) / 2.0 + ddx.col(XIETA) * xi(0)*xi(1) + ddx.col(ETAETA) * xi(1)*xi(1) / 2.0;
 
-		m_J1_vector = c * (ddx.col(XIXI).cross(dx.col(ETA)) + dx.col(XI).cross(ddx.col(XIETA))) +
-			s * (ddx.col(ETAXI).cross(dx.col(ETA)) + dx.col(XI).cross(ddx.col(ETAETA)));
+		m_J1_vector = xi(0) * (ddx.col(XIXI).cross(dx.col(ETA)) + dx.col(XI).cross(ddx.col(XIETA))) +
+			xi(1) * (ddx.col(ETAXI).cross(dx.col(ETA)) + dx.col(XI).cross(ddx.col(ETAETA)));
 
 		typename trial_nset_t::dshape_t dN = trial_nset_t::eval_dshape(m_xi0);
-		m_N1 = dN.col(XI)*c + dN.col(ETA)*s;
+		m_N1 = dN.col(XI)*xi(0) + dN.col(ETA)*xi(1);
 	}
 
 	/** \brief evaluate the surface integral
@@ -253,9 +267,10 @@ private:
 		{
 			// vector from the singular point in the reference domain
 			xi_t const &xi = it->get_xi();				// tip
-			auto dxi = xi - m_xi0;						// vector
-			double theta = std::atan2(dxi(1), dxi(0));	// angle
-			double rho = dxi.norm();					// length
+			xi_t eta = m_T * xi;
+			auto deta = eta - m_eta0;
+			double theta = std::atan2(deta(1), deta(0));	// angle
+			double rho = deta.norm();					// length
 
 			// compute theta-related quantities
 			compute_theta(theta);
@@ -264,7 +279,7 @@ private:
 			// evaluate the kernel
 			w_trial_input_t trial_input(m_elem, xi);
 			auto F = (
-				bound(trial_input) * trial_input.get_jacobian() *
+				bound(trial_input) * trial_input.get_jacobian() / m_T.determinant() *
 				trial_nset_t::eval_shape(xi)
 				).eval();
 
@@ -274,35 +289,47 @@ private:
 				F(j) -= singular_part(j);
 
 			// integrate the remaining regular part
-			I += it->get_w() * F;
+			I += it->get_w() * F * m_T.determinant();
 		}
 	}
-
 
 	/** \brief compute line integrals
 	 * \tparam result_t the result type
 	 * \param [out] I the row where the integral is collected
 	 */
-	template <class result_t, class quadrature_t>
-	void line_integrals(result_t I, quadrature_t const quadratures[])
+	template <class result_t>
+	void line_integrals(result_t I)
 	{
 		unsigned const N = domain_t::num_corners;
+
+		gaussian_quadrature<line_domain> quad(order);
+
 		for (unsigned n = 0; n < N; ++n)
 		{
-			xi_t const &c1 = domain_t::get_corner(n);			// corner
-			xi_t const &c2 = domain_t::get_corner((n + 1) % N);	// next corner
+			xi_t c1 = m_T * domain_t::get_corner(n);			// corner
+			xi_t c2 = m_T * domain_t::get_corner((n + 1) % N);	// next corner
 			xi_t l = (c2 - c1).normalized();					// side vector
 
-			xi_t d2 = c2 - m_xi0;	// vectors to corners
+			xi_t d2 = c2 - m_T * m_xi0;	// vectors to corners
+			xi_t d1 = c1 - m_T * m_xi0;	// vectors to corners
+
 			xi_t d0 = d2 - l*d2.dot(l);				// perpendicular to side
+
+			double t1 = std::atan2(d1(1), d1(0));
+			double t2 = std::atan2(d2(1), d2(0));
+			if (t1 > t2)
+				t2 += 2.0 * M_PI;
 			double t0 = std::atan2(d0(1), d0(0));		// mid angle
 			double d = d0.norm();					// distance to side
 
 			// iterate through quadrature points
-			for (auto it = quadratures[n].begin(); it != quadratures[n].end(); ++it)
+			for (auto it = quad.begin(); it != quad.end(); ++it)
 			{
-				double theta = it->get_xi()(0);
+				double xx = it->get_xi()(0);
 				double w = it->get_w();
+
+				double theta = (1.0 - xx) / 2.0*t1 + (1.0 + xx) / 2.0*t2;
+				w *= (t2 - t1) / 2.0;
 
 				compute_theta(theta);
 				derived().compute_Fm1Fm2();
@@ -325,7 +352,7 @@ public:
 		{
 			compute_xi0(test_nset_t::corner_at(idx));
 			surface_integral(result.row(idx), surf_accel_store_t::m_data.get_quadrature(idx));
-			line_integrals(result.row(idx), line_accel_store_t::m_data.get_quadrature(idx));
+			line_integrals(result.row(idx));
 		}
 	}
 
@@ -335,6 +362,11 @@ protected:
 
 	xi_t m_xi0;				/**< \brief the source local coordinate */
 	x_t m_x0;				/**< \brief the source point */
+
+	trans_t m_T;
+	trans_t m_Tinv;
+	xi_t m_eta0;				/**< \brief the source local coordinate */
+
 	x_t m_J0_vector;		/**< \brief the Jacobian vector at the source point */
 	scalar_t m_J0;			/**< \brief the Jacobian at the source point */
 	x_t m_n0;				/**< \brief the unit normal vector at the source point */

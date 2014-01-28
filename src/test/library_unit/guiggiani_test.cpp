@@ -4,7 +4,7 @@
 #include "library/laplace_singular_integrals.hpp"
 #include "library/helmholtz_singular_integrals.hpp"
 
-unsigned const order = 15;
+unsigned const order = 5;
 
 template <class elem_t>
 double laplace_planar_analytic(elem_t const &elem, typename elem_t::x_t const &x0)
@@ -20,10 +20,12 @@ double laplace_planar_analytic(elem_t const &elem, typename elem_t::x_t const &x
 		x_t side = c2 - c1;
 		x_t d = d1 - side.normalized() * side.normalized().dot(d1);
 
-		double phi1 = std::acos(d.normalized().dot(d1.normalized()));
-		double phi2 = std::acos(d.normalized().dot(d2.normalized()));
+		double dd1 = d.normalized().dot(d1.normalized());
+		double dd2 = d.normalized().dot(d2.normalized());
 
-		res += (std::sin(phi2) + std::sin(phi1)) / d.norm();
+		res += (std::sqrt(1.0 - dd1*dd1) + std::sqrt(1.0 - dd2*dd2)) / d.norm();
+
+//		res += (std::sin(phi2) + std::sin(phi1)) / d.norm();
 	}
 	return -res / (4.0 * M_PI);
 }
@@ -87,9 +89,11 @@ void test_laplace_3d_linear(void)
 
 	Eigen::Matrix<double, 1, 1> I;
 
-	for (double c = 2.0; c <= 2.0; c += 1e-2)
+	for (double c = 1e-2; c <= 2; c += 1e-2)
 	{
-		coords(0,1) = coords(0,2) = c;
+		coords(1,2) = coords(1,3) = c;
+		coords(0, 2) = 1.0 + c;
+		coords(0, 3) = c;
 		elem_t elem(coords);
 		guiggiani<test_field_t, trial_field_t, kernel_t, order> gui(elem, kernel);
 		I.setZero();
@@ -97,7 +101,7 @@ void test_laplace_3d_linear(void)
 
 		double I0 = laplace_planar_analytic(elem, elem.get_center());
 
-		std::cout << c << "\t" << std::log10(std::abs((I / I0).norm() - 1.0)) << std::endl;
+		std::cout << c << "\t" << std::log10(std::abs((I / I0).norm() - 1.0)) << " " << I0 << " " << I << std::endl;
 	}
 }
 
