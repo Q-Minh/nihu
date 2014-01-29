@@ -85,7 +85,7 @@ void test_laplace_3d_linear(void)
 
 	kernel_t kernel;
 
-	for (double c = .5; c <= 2.0; c += 1e-1)
+	for (double c = .5; c <= 5; c += 1e-1)
 	{
 		coords(0, 1) = c;
 		elem_t elem(coords);
@@ -146,7 +146,7 @@ void test_helmholtz_3d(void)
 
 int main(void)
 {
-	test_laplace_3d_quadratic();
+	// test_laplace_3d_quadratic();
 	test_laplace_3d_linear();
 	//	test_helmholtz_3d();
 
