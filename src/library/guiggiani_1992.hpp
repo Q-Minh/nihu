@@ -302,7 +302,7 @@ private:
 	{
 		unsigned const N = domain_t::num_corners;
 
-		gaussian_quadrature<line_domain> quad(order);
+		gaussian_quadrature<line_domain> quad(quadrature_order);
 
 		for (unsigned n = 0; n < N; ++n)
 		{
