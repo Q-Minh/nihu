@@ -85,16 +85,21 @@ void test_laplace_3d_linear(void)
 
 	kernel_t kernel;
 
-	Eigen::Matrix<double, 1, 1> I;
+	for (double c = .5; c <= 2.0; c += 1e-1)
+	{
+		coords(0, 1) = c;
+		elem_t elem(coords);
 
-	guiggiani<test_field_t, trial_field_t, kernel_t, order> gui(elem, kernel);
-	I.setZero();
-	gui.integral(I);
+		Eigen::Matrix<double, 1, 1> I;
 
-	double I0 = laplace_planar_analytic(elem, elem.get_center());
+		guiggiani<test_field_t, trial_field_t, kernel_t, order> gui(elem, kernel);
+		I.setZero();
+		gui.integral(I);
 
-	std::cout << "Err: " << std::log10(std::abs((I / I0).norm() - 1.0)) << " anal: " << I0 << " num: " << I << std::endl;
+		double I0 = laplace_planar_analytic(elem, elem.get_center());
 
+		std::cout << c << "\t" << std::log10(std::abs((I / I0).norm() - 1.0)) << std::endl;
+	}
 }
 
 

@@ -14,138 +14,6 @@
 #include "../core/duffy_quadrature.hpp"
 #include "location_normal.hpp"
 
-/**
- * \brief acclerator class for storing duffy-type surface quadratures
- * \tparam TestField the test field type
- * \tparam TrialField the trial field type
- */
-template <class TestField, class TrialField, unsigned order>
-class guiggiani_surface_accelerator
-{
-	// CRTP check
-	static_assert(std::is_base_of<field_base<TestField>, TestField>::value,
-		"The test field must be derived from field_base<TestField>");
-	static_assert(std::is_base_of<field_base<TrialField>, TrialField>::value,
-		"The trial field must be derived from field_base<TrialField>");
-public:
-	/** \brief template argument as nested type */
-	typedef TestField test_field_t;
-	/** \brief template argument as nested type */
-	typedef TrialField trial_field_t;
-
-	/** \brief test N-set type */
-	typedef typename test_field_t::nset_t test_nset_t;
-
-	/** \brief the duffy quadrature type */
-	typedef duffy_quadrature<
-		gauss_family_tag,
-		typename trial_field_t::elem_t::lset_t
-	> trial_duffy_t;
-
-	/** \brief the stored quadrature type */
-	typedef typename trial_duffy_t::ret_quad_type quadrature_t;
-
-	/**
-	 * \brief return the stored quadrature for a singular point
-	 * \param [in] idx the singular point index
-	 * \return quadrature singular at the specified point
-	 */
-	quadrature_t const &get_quadrature(unsigned idx) const
-	{
-		return m_quadratures[idx];
-	}
-
-	/**
-	 * \brief constructor initialising the quadratures
-	 */
-	guiggiani_surface_accelerator(void)
-	{
-		for (unsigned idx = 0; idx < test_nset_t::num_nodes; ++idx)
-			m_quadratures[idx] += trial_duffy_t::on_face(
-			order, test_nset_t::corner_at(idx));
-	}
-
-private:
-	/** \brief array of singular quadratures */
-	quadrature_t m_quadratures[test_nset_t::num_nodes];
-};
-
-
-/**
- * \brief accelerator class for storing line quadratures
- * \tparam TestField the test field type
- * \tparam TrialField the trial field type
- * \tparam order the quadrature order
- */
-template <class TestField, class TrialField, unsigned order>
-class guiggiani_line_accelerator
-{
-	// CRTP check
-	static_assert(std::is_base_of<field_base<TestField>, TestField>::value,
-	"The test field must be derived from field_base<TestField>");
-	static_assert(std::is_base_of<field_base<TrialField>, TrialField>::value,
-		"The trial field must be derived from field_base<TrialField>");
-public:
-	/** \brief template argument as nested type */
-	typedef TestField test_field_t;
-	/** \brief template argument as nested type */
-	typedef TrialField trial_field_t;
-
-	/** \brief test N-set type */
-	typedef typename test_field_t::nset_t test_nset_t;
-	/** \brief trial N-set type */
-	typedef typename trial_field_t::nset_t trial_nset_t;
-
-	/** \brief the reference domain type */
-	typedef typename trial_field_t::elem_t::domain_t domain_t;
-	/** \brief the reference location type */
-	typedef typename domain_t::xi_t xi_t;
-
-	/** \brief the stored quadrature type */
-	typedef gaussian_quadrature<line_domain> quadrature_t;
-
-	/**
-	 * \brief return the stored quadrature for a singular point
-	 * \param [in] idx the singular point index
-	 * \return quadrature singular at the specified point
-	 */
-	quadrature_t const *get_quadrature(unsigned idx) const
-	{
-		return m_quadratures[idx];
-	}
-
-	/**
-	 * \brief constructor initialising the quadratures
-	 */
-	guiggiani_line_accelerator(void)
-	{
-		quadrature_t source(order);
-
-		for (unsigned idx = 0; idx < test_nset_t::num_nodes; ++idx)
-		{
-			Eigen::Matrix<double, 2, 1> coords;
-			xi_t xi0 = test_nset_t::corner_at(idx);
-
-			for (unsigned n = 0; n < domain_t::num_corners; ++n)
-			{
-				xi_t d1 = domain_t::get_corner(n)-xi0;
-				xi_t d2 = domain_t::get_corner((n + 1) % domain_t::num_corners) - xi0;
-
-				coords(0) = std::atan2(d1(1), d1(0));
-				coords(1) = std::atan2(d2(1), d2(0));		// second angle limit
-				if (coords(0) > coords(1))			// unwrap angles if needed
-					coords(1) += 2.0 * M_PI;
-				m_quadratures[idx][n] = source.transform<line_1_shape_set>(coords);
-			}
-		}
-	}
-
-private:
-	/** \brief array of line quadratures */
-	quadrature_t m_quadratures[test_nset_t::num_nodes][domain_t::num_corners];
-};
-
-
 /** \brief traits of a guiggiani class
  * \tparam Derived the CRTP derived class
  */
@@ -161,7 +29,7 @@ class guiggiani_base
 public:
 	NIHU_CRTP_HELPERS
 
-	typedef guiggiani_traits<Derived> traits_t;
+		typedef guiggiani_traits<Derived> traits_t;
 
 	enum { XI = 0, ETA = 1, XIXI = 0, XIETA = 1, ETAXI = 1, ETAETA = 2 };
 	enum { quadrature_order = traits_t::order };
@@ -188,9 +56,6 @@ public:
 		trial_input_t,
 		typename build<normal_jacobian<typename trial_input_t::space_t> >::type
 	>::type w_trial_input_t;
-
-	typedef store<guiggiani_surface_accelerator<test_field_t, trial_field_t, quadrature_order> > surf_accel_store_t;
-	typedef store<guiggiani_line_accelerator<test_field_t, trial_field_t, quadrature_order> > line_accel_store_t;
 
 	typedef Eigen::Matrix<scalar_t, domain_t::dimension, domain_t::dimension> trans_t;
 
@@ -221,11 +86,25 @@ private:
 		m_Tinv = m_T.inverse();
 
 		m_eta0 = m_T * m_xi0;
-		
+
 		m_J0_vector = m_elem.get_normal(m_xi0) / m_T.determinant();
 		m_J0 = m_J0_vector.norm();
 		m_n0 = m_J0_vector / m_J0;
 		m_N0 = trial_nset_t::eval_shape(xi0);
+
+		// print_debug_xi0();
+	}
+
+	void print_debug_xi0(void)
+	{
+		std::cout << "PrintDebug xi0" << std::endl;
+		std::cout << "xi0:\t" << m_xi0.transpose() << std::endl;
+		std::cout << "x0:\t" << m_x0.transpose() << std::endl;
+		std::cout << "T:\t" << m_T << std::endl;
+		std::cout << "T(-1):\t" << m_Tinv << std::endl;
+		std::cout << "eta0:\t" << m_eta0.transpose() << std::endl;
+		std::cout << "J0vec:\t" << m_J0_vector.transpose() << std::endl;
+		std::cout << "J0:\t" << m_J0 << std::endl;
 	}
 
 	/** \brief store theta-related quantities for acceleration
@@ -250,48 +129,96 @@ private:
 		m_N1 = dN.col(XI)*xi(0) + dN.col(ETA)*xi(1);
 	}
 
+	void print_debug_theta(double theta)
+	{
+		std::cout << "\nPrintDebug theta\n" << std::endl;
+		std::cout << "theta:\t" << theta << std::endl;
+		std::cout << "Avec:\t" << m_A_vector.transpose() << std::endl;
+		std::cout << "A:\t" << m_A << std::endl;
+		std::cout << "Bvec:\t" << m_B_vector.transpose() << std::endl;
+		std::cout << "J1vec:\t" << m_J1_vector.transpose() << std::endl;
+		std::cout << "F1:\t" << m_Fm1 << std::endl;
+		std::cout << "F2:\t" << m_Fm2 << std::endl;
+	}
+
 	/** \brief evaluate the surface integral
 	 * \tparam result_t the result type
-	 * \tparam quadrature_t the quadrature type
 	 * \param [out] I the row where the integral is collected
 	 */
-	template <class result_t, class quadrature_t>
-	void surface_integral(result_t I, quadrature_t const &quadrature)
+	template <class result_t>
+	void surface_integral(result_t I)
 	{
 		// bind the kernel at the test input
 		test_input_t test_input(m_elem, m_xi0);
 		auto bound = m_kernel.bind(test_input);
 
-		// iterate through the quadrature points
-		for (auto it = quadrature.begin(); it != quadrature.end(); ++it)
+		unsigned const N = domain_t::num_corners;
+
+		gaussian_quadrature<line_domain> quad(quadrature_order);
+
+		// iterate through triangles
+		for (unsigned n = 0; n < N; ++n)
 		{
-			// vector from the singular point in the reference domain
-			xi_t const &xi = it->get_xi();				// tip
-			xi_t eta = m_T * xi;
-			auto deta = eta - m_eta0;
-			double theta = std::atan2(deta(1), deta(0));	// angle
-			double rho = deta.norm();					// length
+			xi_t c1 = m_T * domain_t::get_corner(n);			// corner
+			xi_t c2 = m_T * domain_t::get_corner((n + 1) % N);	// next corner
+			xi_t l = (c2 - c1).normalized();					// side vector
 
-			// compute theta-related quantities
-			compute_theta(theta);
-			derived().compute_Fm1Fm2();
+			xi_t d2 = c2 - m_eta0;	// vectors to corners
+			xi_t d1 = c1 - m_eta0;	// vectors to corners
 
-			// evaluate the kernel
-			w_trial_input_t trial_input(m_elem, xi);
-			auto F = (
-				bound(trial_input) * trial_input.get_jacobian() / m_T.determinant() *
-				trial_nset_t::eval_shape(xi)
-				).eval();
+			xi_t d0 = d2 - l*d2.dot(l);				// perpendicular to side
 
-			// subtract the analytical singularity
-			auto singular_part = (m_Fm2 / rho + m_Fm1) / (rho*rho);
-			for (int j = 0; j < F.cols(); ++j)	// loop needed for scalar casting
-				F(j) -= singular_part(j);
+			double t1 = std::atan2(d1(1), d1(0));
+			double t2 = std::atan2(d2(1), d2(0));
+			if (t1 > t2)
+				t2 += 2.0 * M_PI;
+			double t0 = std::atan2(d0(1), d0(0));		// mid angle
+			double d = d0.norm();					// distance to side
 
-			// integrate the remaining regular part
-			I += it->get_w() * m_T.determinant() * F;
-		}
-	}
+			// theta integration
+			for (auto it = quad.begin(); it != quad.end(); ++it)
+			{
+				double xx = it->get_xi()(0);
+				double ww = it->get_w();
+
+				double theta = (1.0 - xx) / 2.0*t1 + (1.0 + xx) / 2.0*t2;
+				double w_theta = ww * (t2 - t1) / 2.0;
+
+				compute_theta(theta);
+				derived().compute_Fm1Fm2();
+
+				double rho_lim = d / std::cos(theta - t0);	// distance from xi0 to xi
+
+				// rho integration
+				for (auto it2 = quad.begin(); it2 != quad.end(); ++it2)
+				{
+					double xx = it2->get_xi()(0);
+					double ww = it2->get_w();
+
+					double rho = (1.0 - xx) / 2.0*0.0 + (1.0 + xx) / 2.0*rho_lim;
+					double w_rho = ww * (rho_lim - 0.0) / 2.0;
+
+					xi_t eta(rho*std::cos(theta), rho*std::sin(theta));
+					eta += m_eta0;
+					xi_t xi = m_Tinv * eta;
+
+					// evaluate kernel
+					w_trial_input_t trial_input(m_elem, xi);
+					auto F = (
+						bound(trial_input) * trial_input.get_jacobian() / m_T.determinant() * rho *
+						trial_nset_t::eval_shape(xi)
+						).eval();
+
+					// subtract the analytical singularity
+					auto singular_part = (m_Fm2 / rho / rho + m_Fm1 / rho);
+					for (int j = 0; j < F.cols(); ++j)	// loop needed for scalar casting
+						F(j) -= singular_part(j);
+
+					I += w_theta * w_rho * F;
+				} // end of rho loop
+			} // end of theta loop
+		} // end of loop on triangle sides
+	} // end of function
 
 	/** \brief compute line integrals
 	 * \tparam result_t the result type
@@ -334,6 +261,8 @@ private:
 				compute_theta(theta);
 				derived().compute_Fm1Fm2();
 
+				// print_debug_theta(theta);
+
 				double rho_lim = d / std::cos(theta - t0);	// distance from xi0 to xi
 				auto toadd = w * (m_Fm1 * std::log(rho_lim) - m_Fm2 / rho_lim);
 
@@ -351,7 +280,7 @@ public:
 		for (unsigned idx = 0; idx < test_nset_t::num_nodes; ++idx)
 		{
 			compute_xi0(test_nset_t::corner_at(idx));
-			surface_integral(result.row(idx), surf_accel_store_t::m_data.get_quadrature(idx));
+			surface_integral(result.row(idx));
 			line_integrals(result.row(idx));
 		}
 	}

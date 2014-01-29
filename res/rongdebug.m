@@ -1,12 +1,14 @@
 clear;
 
+close all;
+
 order = 9;
 nGauss = floor(order/2+1);
 
 xi = sym('xi', [2 1]);
 eta = sym('eta', [2 1]);
 
-Corners = [
+ReferenceCorners = [
     -1 1 1 -1
     -1 -1 1 1
     ];
@@ -49,7 +51,7 @@ Tinv = inv(T);
 
 eta0 = T * xi0;
 
-L_eta = subs(L, xi, T \ eta);
+L_eta = simple(subs(L, xi, T \ eta));
 
 dL_eta = [
     diff(L_eta, eta(1), 1)
@@ -61,18 +63,19 @@ ddL_eta = [
     diff(dL_eta(2,:), eta(2), 1)
     ];
 
-dx_eta = X * subs(dL_eta, eta, eta0).';
-ddx_eta = X * subs(ddL_eta, eta, eta0).';
-J0vec = cross(dx_eta(:,1), dx_eta(:,2));
-J0 = norm(J0vec);
+dx0_eta = X * subs(dL_eta, eta, eta0).';
+ddx0_eta = X * subs(ddL_eta, eta, eta0).';
+J0vec_eta = cross(dx0_eta(:,1), dx0_eta(:,2));
+J0_eta = norm(J0vec_eta);
+n0_eta = J0vec_eta / J0_eta;
 
 N0 = 1;
 
 result = 0;
 
 for n = 1 : 4
-    c1 = T * Corners(:,n);
-    c2 = T * Corners(:,mod(n+1-1,4)+1);
+    c1 = T * ReferenceCorners(:,n);
+    c2 = T * ReferenceCorners(:,mod(n+1-1,4)+1);
     
     l = c2-c1;
     l = l / norm(l);
@@ -90,31 +93,38 @@ for n = 1 : 4
         t2 = t2 + 2*pi;
     end
     
-    [theta, w] = gaussquad(nGauss, t1, t2);
+    [theta, w] = gaussquad(nGauss, double(t1), double(t2));
     
-    Avec = dx_eta * [
+    Avec = double(dx0_eta) * [
         cos(theta).'
         sin(theta)'
         ];
-    Bvec = ddx_eta * [
+    A = sqrt(dot(Avec, Avec, 1)).';
+    Bvec = double(ddx0_eta) * [
         cos(theta).^2.' / 2
         sin(theta).' .* cos(theta).'
         sin(theta).^2.' / 2
         ];
-    J1vec = (cross(ddx_eta(:,1), dx_eta(:,2)) + cross(dx_eta(:,1), ddx_eta(:,2))) * cos(theta).' +...
-        (cross(ddx_eta(:,2), dx_eta(:,2)) + cross(dx_eta(:,1), ddx_eta(:,3))) * sin(theta).';
-    A = sqrt(dot(Avec, Avec, 1)).';
+    J1vec_eta = (cross(double(ddx0_eta(:,1)), double(dx0_eta(:,2))) + cross(double(dx0_eta(:,1)), double(ddx0_eta(:,2)))) * cos(theta).' +...
+        (cross(double(ddx0_eta(:,2)), double(dx0_eta(:,2))) + cross(double(dx0_eta(:,1)), double(ddx0_eta(:,3)))) * sin(theta).';
     
-    F2 = J0 * N0 ./ (4*pi*A.^3);
+    F2 = double(J0_eta * N0 ./ (4*pi*A.^3));
+    F1 = double(J1vec_eta.' * n0_eta) ./ (4*pi*A.^3) -...
+        double(3*(n0_eta.' * J0vec_eta) * dot(Avec, Bvec, 1).') ./ (4*pi*A.^5);
     
-    rho_lim = d ./ cos(theta-t0);
+    rho_lim = double(d ./ cos(theta-t0));
     
     %     disp(w);
     
+    figure(1);
     hold on;
     plot(theta, (-F2 ./ rho_lim));
     
-    result = result + w.' * (-F2 ./ rho_lim);
+    figure(2);
+    hold on;
+    plot(theta, (F1 .* log(rho_lim)));
+    
+    result = result + w.' * (F1 .* log(rho_lim) -F2 ./ rho_lim);
 end
 
 fprintf(1, 'result: %.12g\n', result);
