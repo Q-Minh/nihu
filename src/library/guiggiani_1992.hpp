@@ -243,8 +243,8 @@ private:
 		m_A = m_A_vector.norm();
 		m_B_vector = ddx.col(XIXI) * xi(0)*xi(0) / 2.0 + ddx.col(XIETA) * xi(0)*xi(1) + ddx.col(ETAETA) * xi(1)*xi(1) / 2.0;
 
-		m_J1_vector = xi(0) * (ddx.col(XIXI).cross(dx.col(ETA)) + dx.col(XI).cross(ddx.col(XIETA))) +
-			xi(1) * (ddx.col(ETAXI).cross(dx.col(ETA)) + dx.col(XI).cross(ddx.col(ETAETA)));
+		m_J1_vector = (xi(0) * (ddx.col(XIXI).cross(dx.col(ETA)) + dx.col(XI).cross(ddx.col(XIETA))) +
+			xi(1) * (ddx.col(ETAXI).cross(dx.col(ETA)) + dx.col(XI).cross(ddx.col(ETAETA)))) / m_T.determinant();
 
 		typename trial_nset_t::dshape_t dN = trial_nset_t::eval_dshape(m_xi0);
 		m_N1 = dN.col(XI)*xi(0) + dN.col(ETA)*xi(1);
@@ -289,7 +289,7 @@ private:
 				F(j) -= singular_part(j);
 
 			// integrate the remaining regular part
-			I += it->get_w() * F * m_T.determinant();
+			I += it->get_w() * m_T.determinant() * F;
 		}
 	}
 
@@ -310,8 +310,8 @@ private:
 			xi_t c2 = m_T * domain_t::get_corner((n + 1) % N);	// next corner
 			xi_t l = (c2 - c1).normalized();					// side vector
 
-			xi_t d2 = c2 - m_T * m_xi0;	// vectors to corners
-			xi_t d1 = c1 - m_T * m_xi0;	// vectors to corners
+			xi_t d2 = c2 - m_eta0;	// vectors to corners
+			xi_t d1 = c1 - m_eta0;	// vectors to corners
 
 			xi_t d0 = d2 - l*d2.dot(l);				// perpendicular to side
 
@@ -326,10 +326,10 @@ private:
 			for (auto it = quad.begin(); it != quad.end(); ++it)
 			{
 				double xx = it->get_xi()(0);
-				double w = it->get_w();
+				double ww = it->get_w();
 
 				double theta = (1.0 - xx) / 2.0*t1 + (1.0 + xx) / 2.0*t2;
-				w *= (t2 - t1) / 2.0;
+				double w = ww * (t2 - t1) / 2.0;
 
 				compute_theta(theta);
 				derived().compute_Fm1Fm2();

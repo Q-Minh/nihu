@@ -4,7 +4,7 @@
 #include "library/laplace_singular_integrals.hpp"
 #include "library/helmholtz_singular_integrals.hpp"
 
-unsigned const order = 5;
+unsigned const order = 9;
 
 template <class elem_t>
 double laplace_planar_analytic(elem_t const &elem, typename elem_t::x_t const &x0)
@@ -17,15 +17,13 @@ double laplace_planar_analytic(elem_t const &elem, typename elem_t::x_t const &x
 		x_t c1 = elem.get_coords().col(i);
 		x_t c2 = elem.get_coords().col((i + 1) % N);
 		x_t d1 = c1 - x0, d2 = c2 - x0;
-		x_t side = c2 - c1;
-		x_t d = d1 - side.normalized() * side.normalized().dot(d1);
+		x_t side = (c2 - c1).normalized();
+		x_t d = d1 - side * side.dot(d1);
 
-		double dd1 = d.normalized().dot(d1.normalized());
-		double dd2 = d.normalized().dot(d2.normalized());
+		double phi1 = std::asin(d1.normalized().cross(d.normalized())(2));
+		double phi2 = std::asin(d.normalized().cross(d2.normalized())(2));
 
-		res += (std::sqrt(1.0 - dd1*dd1) + std::sqrt(1.0 - dd2*dd2)) / d.norm();
-
-//		res += (std::sin(phi2) + std::sin(phi1)) / d.norm();
+		res += (std::sin(phi2) + std::sin(phi1)) / d.norm();
 	}
 	return -res / (4.0 * M_PI);
 }
@@ -57,7 +55,7 @@ void test_laplace_3d_quadratic(void)
 	for (double c = 1e-2; c < 1.0; c += 1e-2)
 	{
 		coords(0, 1) = coords(0, 3) = c;
-		coords(1, 3) = coords(1,5) = 1.0 - c;
+		coords(1, 3) = coords(1, 5) = 1.0 - c;
 		elem_t elem(coords);
 		guiggiani<test_field_t, trial_field_t, kernel_t, order> gui(elem, kernel);
 		I.setZero();
@@ -89,20 +87,14 @@ void test_laplace_3d_linear(void)
 
 	Eigen::Matrix<double, 1, 1> I;
 
-	for (double c = 1e-2; c <= 2; c += 1e-2)
-	{
-		coords(1,2) = coords(1,3) = c;
-		coords(0, 2) = 1.0 + c;
-		coords(0, 3) = c;
-		elem_t elem(coords);
-		guiggiani<test_field_t, trial_field_t, kernel_t, order> gui(elem, kernel);
-		I.setZero();
-		gui.integral(I);
+	guiggiani<test_field_t, trial_field_t, kernel_t, order> gui(elem, kernel);
+	I.setZero();
+	gui.integral(I);
 
-		double I0 = laplace_planar_analytic(elem, elem.get_center());
+	double I0 = laplace_planar_analytic(elem, elem.get_center());
 
-		std::cout << c << "\t" << std::log10(std::abs((I / I0).norm() - 1.0)) << " " << I0 << " " << I << std::endl;
-	}
+	std::cout << "Err: " << std::log10(std::abs((I / I0).norm() - 1.0)) << " anal: " << I0 << " num: " << I << std::endl;
+
 }
 
 
@@ -149,9 +141,9 @@ void test_helmholtz_3d(void)
 
 int main(void)
 {
-//	test_laplace_3d_quadratic();
+	test_laplace_3d_quadratic();
 	test_laplace_3d_linear();
-//	test_helmholtz_3d();
+	//	test_helmholtz_3d();
 
 	return 0;
 }
