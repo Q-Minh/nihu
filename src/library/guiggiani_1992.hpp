@@ -14,6 +14,21 @@
 #include "../core/duffy_quadrature.hpp"
 #include "location_normal.hpp"
 
+/** \brief store-wrapper of a statically stored quadrature */
+template <unsigned order>
+struct line_quad_store
+{
+	/** \brief the stored static quadrature member */
+	static gaussian_quadrature<line_domain> const quadrature;
+};
+
+/** \brief definition of the statically stored quadrature member */
+template <unsigned order>
+gaussian_quadrature<line_domain> const line_quad_store<order>::quadrature(order);
+
+
+
+
 /** \brief traits of a guiggiani class
  * \tparam Derived the CRTP derived class
  */
@@ -151,7 +166,7 @@ private:
 	void compute_theta(scalar_t theta)
 	{
 		// contains cos theta sin theta in xi system
-		xi_t xi = m_Tinv.col(0) * std::cos(theta) + m_Tinv.col(1) * std::sin(theta);
+		xi_t xi = m_Tinv.col(XI) * std::cos(theta) + m_Tinv.col(ETA) * std::sin(theta);
 
 		typename elem_t::dx_t dx = m_elem.get_dx(m_xi0);
 		typename elem_t::ddx_t ddx = m_elem.get_ddx(m_xi0);
@@ -190,12 +205,14 @@ private:
 		test_input_t test_input(m_elem, m_xi0);
 		auto bound = m_kernel.bind(test_input);
 
-		gaussian_quadrature<line_domain> quad(quadrature_order);
+		// get the quadrature from the store
+		auto const &quad = line_quad_store<quadrature_order>::quadrature;
 
 		// iterate through triangles
 		unsigned const N = domain_t::num_corners;
 		for (unsigned n = 0; n < N; ++n)
 		{
+			// get angular integration limits
 			scalar_t t1 = m_theta_lim[n];
 			scalar_t t2 = m_theta_lim[(n + 1) % N];
 			if (t2 < t1)
@@ -206,7 +223,7 @@ private:
 			{
 				// compute theta base point and weight
 				scalar_t xx = it_theta->get_xi()(0);
-				scalar_t theta = (1.0 - xx) / 2.0 * t1 + (1.0 + xx) / 2.0 * t2;
+				scalar_t theta = ((1.0 - xx) * t1 + (1.0 + xx) * t2) / 2.0;
 				scalar_t w_theta = it_theta->get_w() * (t2 - t1) / 2.0;
 
 				// compute theta-related members
@@ -214,13 +231,13 @@ private:
 				derived().compute_Fm1Fm2();
 
 				// reference domain's limit
-				scalar_t rho_lim = m_ref_distance[n] / std::cos(theta - m_theta0[n]);	// distance from xi0 to xi
+				scalar_t rho_lim = m_ref_distance[n] / std::cos(theta - m_theta0[n]);
 
 				auto toadd = w_theta * (m_Fm1 * std::log(rho_lim) - m_Fm2 / rho_lim);
 				for (int j = 0; j < I.cols(); ++j)	// loop needed for scalar casting
 					I(j) += toadd(j);
 
-				// rho integration
+				// radial part of surface integration
 				for (auto it_rho = quad.begin(); it_rho != quad.end(); ++it_rho)
 				{
 					// quadrature base point and weight
@@ -232,7 +249,7 @@ private:
 					eta += m_eta0;
 					xi_t xi = m_Tinv * eta;
 
-					// evaluate kernel multiplied by rho and the jacobian and shape vector
+					// evaluate G * N * J * rho
 					w_trial_input_t trial_input(m_elem, xi);
 					auto F = (
 						bound(trial_input) *
@@ -246,11 +263,11 @@ private:
 					for (int j = 0; j < F.cols(); ++j)	// loop needed for scalar casting
 						F(j) -= singular_part(j);
 
-					// integration
+					// surface integral accumulation
 					I += w_theta * w_rho * F;
-				} // end of rho loop
-			} // end of theta loop
-		} // end of loop on triangle sides
+				} // end of inner rho loop
+			} // end of outer theta loop
+		} // end of loop on element sides
 	} // end of function
 
 public:
@@ -275,8 +292,11 @@ protected:
 	trans_t m_Tinv;			/**< \brief inverse of the transformation */
 	xi_t m_eta0;			/**< \brief the source local coordinate in the distorted reference domain */
 
+	/** \brief angles to the corners of the distorted reference domain */
 	scalar_t m_theta_lim[domain_t::num_corners];
+	/** \brief angles to the sides of the distorted reference domain */
 	scalar_t m_theta0[domain_t::num_corners];
+	/** \brief distances to the distorted reference domain */
 	scalar_t m_ref_distance[domain_t::num_corners];
 
 	x_t m_J0_vector;		/**< \brief the Jacobian vector at the source point */
@@ -302,10 +322,10 @@ class guiggiani;
 template <class TestField, class TrialField, class Kernel, unsigned Order>
 struct guiggiani_traits<guiggiani<TestField, TrialField, Kernel, Order> >
 {
-	typedef TestField test_field_t;
-	typedef TrialField trial_field_t;
-	typedef Kernel kernel_t;
-	enum { order = Order };
+	typedef TestField test_field_t;		/**< \brief the test field type */
+	typedef TrialField trial_field_t;	/**< \brief the trial field type */
+	typedef Kernel kernel_t;			/**< \brief the kernel type */
+	enum { order = Order };				/**< \brief the integration quadrature order */
 };
 
 #include "../library/laplace_kernel.hpp"
@@ -319,7 +339,8 @@ class guiggiani<TestField, TrialField, laplace_3d_HSP_kernel, order>
 	typedef typename base_t::elem_t elem_t;
 
 public:
-	guiggiani(elem_t const &elem, kernel_t const &kernel) : base_t(elem, kernel)
+	guiggiani(elem_t const &elem, kernel_t const &kernel)
+		: base_t(elem, kernel)
 	{
 	}
 

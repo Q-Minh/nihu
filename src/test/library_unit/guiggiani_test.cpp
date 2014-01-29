@@ -105,6 +105,8 @@ void test_laplace_3d_linear(void)
 
 void test_helmholtz_3d(void)
 {
+	std::cout << "distortion test of helmholtz 3D kernel with quadratic triangle:\n";
+
 	typedef tria_1_elem elem0_t;
 	typedef tria_2_elem elem_t;
 	typedef field_view<elem_t, field_option::constant> trial_field_t;
@@ -116,18 +118,22 @@ void test_helmholtz_3d(void)
 		0.0, 1.0, 0.0,
 		0.0, 0.0, 1.0,
 		0.0, 0.0, 0.0;
-	coords0.row(1) *= 2.0;
-	elem0_t elem0(coords0);
 
 	elem_t::coords_t coords;
 	coords <<
 		0.0, 0.5, 1.0, 0.5, 0.0, 0.0,
 		0.0, 0.0, 0.0, 0.5, 1.0, 0.5,
 		0.0, 0.0, 0.0, 0.0, 0.0, 0.0;
+
+	coords0.row(1) *= 2.0;
 	coords.row(1) *= 2.0;
+
+	elem0_t elem0(coords0);
 	elem_t elem(coords);
 
-	kernel_t kernel(1.0);
+	double wave_num = .1;
+
+	kernel_t kernel(wave_num);
 
 	guiggiani<test_field_t, trial_field_t, kernel_t, order> gui(elem, kernel);
 
@@ -137,7 +143,7 @@ void test_helmholtz_3d(void)
 	std::complex<double> I0 = helmholtz_3d_HSP_collocation_constant_triangle::eval(
 		elem0,
 		elem.get_center(),
-		1.0);
+		wave_num);
 
 	std::cout << "I:\t" << I << std::endl;
 	std::cout << "Ianal:\t" << I0 << std::endl;
@@ -146,9 +152,9 @@ void test_helmholtz_3d(void)
 
 int main(void)
 {
-	// test_laplace_3d_quadratic();
+	test_laplace_3d_quadratic();
 	test_laplace_3d_linear();
-	//	test_helmholtz_3d();
+	test_helmholtz_3d();
 
 	return 0;
 }
