@@ -251,8 +251,7 @@ private:
 
 					// compute location in original reference domain
 					xi_t eta(rho*std::cos(theta), rho*std::sin(theta));
-					eta += m_eta0;
-					xi_t xi = m_Tinv * eta;
+					xi_t xi = m_Tinv * eta + m_xi0;
 
 					// evaluate G * N * J * rho
 					w_trial_input_t trial_input(m_elem, xi);
@@ -264,16 +263,16 @@ private:
 						).eval();
 
 					// subtract the analytical singularity
-					auto singular_part = ((m_Fcoeffs[1] / rho + m_Fcoeffs[0]) / rho).eval();
+					auto singular_part = (m_Fcoeffs[1] / rho + m_Fcoeffs[0]) / rho;
 					for (int j = 0; j < F.cols(); ++j)	// loop needed for scalar casting
 						F(j) -= singular_part(j);
 
 					// surface integral accumulation
 					I += w_theta * w_rho * F;
-				} // end of inner rho loop
-			} // end of outer theta loop
-		} // end of loop on element sides
-	} // end of function
+				} // rho loop
+			} // theta loop
+		} // element sides
+	} // function
 
 public:
 	template <class result_t>

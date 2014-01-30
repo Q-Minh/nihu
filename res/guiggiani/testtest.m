@@ -1,6 +1,6 @@
 clear;
 
-xi0 = [.66 .66];
+xi0 = [0 0];
 [L, dL, ddL] = shapefun(xi0, 242);
 m = sqrt(2)/2;
 X = [
@@ -11,7 +11,7 @@ X = [
 N0 = 1;
 N1 = 0;
 
-theta = -2.3365891293288557;
+theta = 1.3;
 
 x0 = X * squeeze(L)';
 dx0 = X * squeeze(dL);

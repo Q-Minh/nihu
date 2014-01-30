@@ -4,6 +4,8 @@
 #include "library/laplace_singular_integrals.hpp"
 #include "library/helmholtz_singular_integrals.hpp"
 
+#include "library/quad_28_elem.hpp"
+
 unsigned const order = 9;
 
 template <class elem_t>
@@ -138,7 +140,6 @@ void test_guiggiani_92_curved(void)
 {
 	typedef double wave_number_t;
 	typedef laplace_3d_HSP_kernel kernel_t;
-	wave_number_t k(-2.0);
 	kernel_t kernel;
 
 	typedef quad_2_elem elem_t;
@@ -154,7 +155,7 @@ void test_guiggiani_92_curved(void)
 		0, 0, 0, b, 1, 1, 1, b, b;
 
 	elem_t elem(coords);
-	guiggiani<field_t, field_t, kernel_t, 15> gui(elem, kernel);
+	guiggiani<field_t, field_t, kernel_t, 7> gui(elem, kernel);
 
 	elem_t::xi_t xi0;
 	Eigen::Matrix<double, 1, 1> I;
@@ -164,15 +165,15 @@ void test_guiggiani_92_curved(void)
 	gui.integral(I, xi0);
 	std::cout << I << std::endl;
 
-	I.setZero();
-	xi0 << 0.66, 0.0;
-	gui.integral(I, xi0);
-	std::cout << I << std::endl;
+	//I.setZero();
+	//xi0 << 0.66, 0.0;
+	//gui.integral(I, xi0);
+	//std::cout << I << std::endl;
 
-	I.setZero();
-	xi0 << 0.66, 0.66;
-	gui.integral(I, xi0);
-	std::cout << I << std::endl;
+	//I.setZero();
+	//xi0 << 0.66, 0.66;
+	//gui.integral(I, xi0);
+	//std::cout << I << std::endl;
 }
 
 

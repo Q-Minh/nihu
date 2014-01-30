@@ -41,7 +41,7 @@
  * \tparam scalar scalar type of the coordinate space the distance is defined over
  */
 template <class scalar>
-struct laplace_2d_g_brick
+struct laplace_2d_SLP_brick
 {
 	/** \brief the brick template
 	 * \tparam the wall the brick is placed on
@@ -93,14 +93,14 @@ struct laplace_2d_g_brick
 };
 
 
-/** \brief combination of ::distance_vector_brick, ::distance_brick and ::laplace_2d_g_brick into a wall
+/** \brief combination of ::distance_vector_brick, ::distance_brick and ::laplace_2d_SLP_brick into a wall
  * \tparam space the coordinate space the laplace kernel is defined over
  */
 template <class scalar>
-struct laplace_2d_g_wall : build<
+struct laplace_2d_SLP_wall : build<
 	distance_vector_brick<space<scalar, 2> >,
 	distance_brick<scalar>,
-	laplace_2d_g_brick<scalar>
+	laplace_2d_SLP_brick<scalar>
 > {};
 
 
@@ -118,7 +118,7 @@ struct kernel_traits<laplace_2d_SLP_kernel>
 	/** \brief the data type */
 	typedef collect<empty_data> data_t;
 	/** \brief the kernel output type */
-	typedef laplace_2d_g_wall<space_2d::scalar_t>::type output_t;
+	typedef laplace_2d_SLP_wall<space_2d::scalar_t>::type output_t;
 	/** \brief kernel result type */
 	typedef output_t::result_t result_t;
 	/** \brief the quadrature family the kernel is integrated with */
@@ -162,7 +162,7 @@ class laplace_2d_SLP_kernel :
  * \tparam scalar scalar type of the coordinate space the distance is defined over
  */
 template <class scalar>
-struct laplace_2d_h_brick
+struct laplace_2d_DLP_brick
 {
 	/** \brief the brick template
 	 * \tparam the wall the brick is placed on
@@ -214,15 +214,15 @@ struct laplace_2d_h_brick
 };
 
 
-/** \brief combination of ::distance_vector_brick, ::distance_brick, ::rdny_brick and ::laplace_2d_h_brick into a wall
+/** \brief combination of ::distance_vector_brick, ::distance_brick, ::rdny_brick and ::laplace_2d_DLP_brick into a wall
  * \tparam space the coordinate space the laplace kernel is defined over
  */
 template <class scalar>
-struct laplace_2d_h_wall : build<
+struct laplace_2d_DLP_wall : build<
 	distance_vector_brick<space<scalar, 2> >,
 	distance_brick<scalar>,
 	rdny_brick<scalar>,
-	laplace_2d_h_brick<scalar>
+	laplace_2d_DLP_brick<scalar>
 > {};
 
 
@@ -240,7 +240,7 @@ struct kernel_traits<laplace_2d_DLP_kernel>
 	/** \brief the data type */
 	typedef collect<empty_data> data_t;
 	/** \brief the kernel output type */
-	typedef laplace_2d_h_wall<space_2d::scalar_t>::type output_t;
+	typedef laplace_2d_DLP_wall<space_2d::scalar_t>::type output_t;
 	/** \brief kernel result type */
 	typedef space_2d::scalar_t result_t;
 	/** \brief the quadrature family the kernel is integrated with */
@@ -283,7 +283,7 @@ class laplace_2d_DLP_kernel :
  * \tparam scalar scalar type of the coordinate space the distance is defined over
  */
 template <class scalar>
-struct laplace_2d_ht_brick
+struct laplace_2d_DLPt_brick
 {
 	/** \brief the brick template
 	 * \tparam the wall the brick is placed on
@@ -335,15 +335,15 @@ struct laplace_2d_ht_brick
 };
 
 
-/** \brief combination of ::distance_vector_brick, ::distance_brick, ::rdnx_brick and ::laplace_2d_ht_brick into a wall
+/** \brief combination of ::distance_vector_brick, ::distance_brick, ::rdnx_brick and ::laplace_2d_DLPt_brick into a wall
  * \tparam space the coordinate space the laplace kernel is defined over
  */
 template <class scalar>
-struct laplace_2d_ht_wall : build<
+struct laplace_2d_DLPt_wall : build<
 	distance_vector_brick<space<scalar, 2> >,
 	distance_brick<scalar>,
 	rdnx_brick<scalar>,
-	laplace_2d_ht_brick<scalar>
+	laplace_2d_DLPt_brick<scalar>
 > {};
 
 
@@ -361,7 +361,7 @@ struct kernel_traits<laplace_2d_DLPt_kernel>
 	/** \brief the data type */
 	typedef collect<empty_data> data_t;
 	/** \brief the kernel output type */
-	typedef laplace_2d_ht_wall<space_2d::scalar_t>::type output_t;
+	typedef laplace_2d_DLPt_wall<space_2d::scalar_t>::type output_t;
 	/** \brief kernel result type */
 	typedef space_2d::scalar_t result_t;
 	/** \brief the quadrature family the kernel is integrated with */
@@ -406,7 +406,7 @@ class laplace_2d_DLPt_kernel :
  * \tparam scalar scalar type of the coordinate space the distance is defined over
  */
 template <class scalar>
-struct laplace_2d_hyper_brick
+struct laplace_2d_HSP_brick
 {
 	/** \brief the brick template
 	 * \tparam the wall the brick is placed on
@@ -465,12 +465,12 @@ struct laplace_2d_hyper_brick
  * \tparam space the coordinate space the laplace kernel is defined over
  */
 template <class scalar>
-struct laplace_2d_hyper_wall : build<
+struct laplace_2d_HSP_wall : build<
 	distance_vector_brick<space<scalar, 2> >,
 	distance_brick<scalar>,
 	rdny_brick<scalar>,
 	rdnx_brick<scalar>,
-	laplace_2d_hyper_brick<scalar>
+	laplace_2d_HSP_brick<scalar>
 > {};
 
 
@@ -488,7 +488,7 @@ struct kernel_traits<laplace_2d_HSP_kernel>
 	/** \brief the data type */
 	typedef collect<empty_data> data_t;
 	/** \brief the kernel output type */
-	typedef laplace_2d_hyper_wall<space_2d::scalar_t>::type output_t;
+	typedef laplace_2d_HSP_wall<space_2d::scalar_t>::type output_t;
 	/** \brief kernel result type */
 	typedef output_t::result_t result_t;
 	/** \brief the quadrature family the kernel is integrated with */
@@ -532,7 +532,7 @@ class laplace_2d_HSP_kernel :
  * \tparam scalar the scalar of the coordinate space the distance is defined over
  */
 template <class scalar>
-struct laplace_3d_g_brick
+struct laplace_3d_SLP_brick
 {
 	/** \brief the brick template
 	 * \tparam the wall the brick is placed on
@@ -584,14 +584,14 @@ struct laplace_3d_g_brick
 };
 
 
-/** \brief combination of ::distance_vector_brick, ::distance_brick and ::laplace_3d_g_brick into a wall
+/** \brief combination of ::distance_vector_brick, ::distance_brick and ::laplace_3d_SLP_brick into a wall
  * \tparam space the coordinate space the laplace kernel is defined over
  */
 template <class scalar>
-struct laplace_3d_g_wall : build<
+struct laplace_3d_SLP_wall : build<
 	distance_vector_brick<space<scalar, 3> >,
 	distance_brick<scalar>,
-	laplace_3d_g_brick<scalar>
+	laplace_3d_SLP_brick<scalar>
 > {};
 
 
@@ -609,7 +609,7 @@ struct kernel_traits<laplace_3d_SLP_kernel>
 	/** \brief the data type */
 	typedef collect<empty_data> data_t;
 	/** \brief the kernel output type */
-	typedef laplace_3d_g_wall<space_3d::scalar_t>::type output_t;
+	typedef laplace_3d_SLP_wall<space_3d::scalar_t>::type output_t;
 	/** \brief kernel result type */
 	typedef output_t::result_t result_t;
 	/** \brief the quadrature family the kernel is integrated with */
@@ -650,7 +650,7 @@ class laplace_3d_SLP_kernel :
  * \tparam scalar the scalar of the coordinate space the distance is defined over
  */
 template <class scalar>
-struct laplace_3d_h_brick
+struct laplace_3d_DLP_brick
 {
 	/** \brief the brick template
 	 * \tparam the wall the brick is placed on
@@ -702,16 +702,16 @@ struct laplace_3d_h_brick
 };
 
 
-/** \brief combination of laplace_g_wall and laplace_h_brick into a wall
+/** \brief combination of laplace_SLP_wall and laplace_DLP_brick into a wall
  * \tparam space the coordinate space the laplace kernel is defined over
  */
 template <class scalar>
-struct laplace_3d_h_wall : build<
+struct laplace_3d_DLP_wall : build<
 	distance_vector_brick<space<scalar, 3> >,
 	distance_brick<scalar>,
 	rdny_brick<scalar>,
-	laplace_3d_g_brick<scalar>,
-	laplace_3d_h_brick<scalar>
+	laplace_3d_SLP_brick<scalar>,
+	laplace_3d_DLP_brick<scalar>
 > {};
 
 
@@ -729,7 +729,7 @@ struct kernel_traits<laplace_3d_DLP_kernel>
 	/** \brief the data type */
 	typedef collect<empty_data> data_t;
 	/** \brief the kernel output type */
-	typedef laplace_3d_h_wall<space_3d::scalar_t>::type output_t;
+	typedef laplace_3d_DLP_wall<space_3d::scalar_t>::type output_t;
 	/** \brief kernel result type */
 	typedef output_t::result_t result_t;
 	/** \brief the quadrature family the kernel is integrated with */
@@ -773,7 +773,7 @@ class laplace_3d_DLP_kernel :
  * \tparam scalar the scalar of the coordinate space the distance is defined over
  */
 template <class scalar>
-struct laplace_3d_ht_brick
+struct laplace_3d_DLPt_brick
 {
 	/** \brief the brick template
 	 * \tparam the wall the brick is placed on
@@ -825,16 +825,16 @@ struct laplace_3d_ht_brick
 };
 
 
-/** \brief combination of ::distance_vector_brick, ::distance_brick, ::rdnx_brick, laplace_3d_g_brick and laplace_3d_ht_brick into a wall
+/** \brief combination of ::distance_vector_brick, ::distance_brick, ::rdnx_brick, laplace_3d_SLP_brick and laplace_3d_DLPt_brick into a wall
  * \tparam scalar the scalar type of the laplace ht kernel result
  */
 template <class scalar>
-struct laplace_3d_ht_wall : build<
+struct laplace_3d_DLPt_wall : build<
 	distance_vector_brick<space<scalar, 3> >,
 	distance_brick<scalar>,
 	rdnx_brick<scalar>,
-	laplace_3d_g_brick<scalar>,
-	laplace_3d_ht_brick<scalar>
+	laplace_3d_SLP_brick<scalar>,
+	laplace_3d_DLPt_brick<scalar>
 > {};
 
 
@@ -852,7 +852,7 @@ struct kernel_traits<laplace_3d_DLPt_kernel>
 	/** \brief the data type */
 	typedef collect<empty_data> data_t;
 	/** \brief the kernel output type */
-	typedef laplace_3d_ht_wall<space_3d::scalar_t>::type output_t;
+	typedef laplace_3d_DLPt_wall<space_3d::scalar_t>::type output_t;
 	/** \brief kernel result type */
 	typedef space_3d::scalar_t result_t;
 	/** \brief the quadrature family the kernel is integrated with */
@@ -897,7 +897,7 @@ class laplace_3d_DLPt_kernel :
  * \tparam scalar the scalar of the coordinate space the distance is defined over
  */
 template <class scalar>
-struct laplace_3d_hyper_brick
+struct laplace_3d_HSP_brick
 {
 	/** \brief the brick template
 	 * \tparam the wall the brick is placed on
@@ -953,17 +953,17 @@ struct laplace_3d_hyper_brick
 };
 
 
-/** \brief combination of ::distance_vector_brick, ::distance_brick, ::rdnx_brick, laplace_3d_g_brick and laplace_3d_ht_brick into a wall
+/** \brief combination of ::distance_vector_brick, ::distance_brick, ::rdnx_brick, laplace_3d_SLP_brick and laplace_3d_DLPt_brick into a wall
  * \tparam scalar the scalar type of the laplace ht kernel result
  */
 template <class scalar>
-struct laplace_3d_hyper_wall : build<
+struct laplace_3d_HSP_wall : build<
 	distance_vector_brick<space<scalar, 3> >,
 	distance_brick<scalar>,
 	rdnx_brick<scalar>,
 	rdny_brick<scalar>,
-	laplace_3d_g_brick<scalar>,
-	laplace_3d_hyper_brick<scalar>
+	laplace_3d_SLP_brick<scalar>,
+	laplace_3d_HSP_brick<scalar>
 > {};
 
 
@@ -981,7 +981,7 @@ struct kernel_traits<laplace_3d_HSP_kernel>
 	/** \brief the data type */
 	typedef collect<empty_data> data_t;
 	/** \brief the kernel output type */
-	typedef laplace_3d_hyper_wall<space_3d::scalar_t>::type output_t;
+	typedef laplace_3d_HSP_wall<space_3d::scalar_t>::type output_t;
 	/** \brief kernel result type */
 	typedef space_3d::scalar_t result_t;
 	/** \brief the quadrature family the kernel is integrated with */
