@@ -6,12 +6,10 @@
 #define GUIGGIANI_1992_HPP_INCLUDED
 
 #include <cmath>
-#include "../util/crtp_base.hpp"
 #include "../util/store_pattern.hpp"
 #include "../core/field.hpp"
 #include "../core/kernel.hpp"
 #include "../core/gaussian_quadrature.hpp"
-#include "../core/duffy_quadrature.hpp"
 #include "location_normal.hpp"
 
 /** \brief store-wrapper of a statically stored quadrature */
@@ -27,35 +25,27 @@ template <unsigned order>
 gaussian_quadrature<line_domain> const line_quad_store<order>::quadrature(order);
 
 
+// forward declaration
+template <class singularity_type>
+class guiggiani_laurent_coeffs;
 
-
-/** \brief traits of a guiggiani class
- * \tparam Derived the CRTP derived class
- */
-template <class Derived>
-struct guiggiani_traits;
 
 /** \brief CRTP base class of all guiggiani classes
  * \tparam Derived the CRTP derived class
  */
-template <class Derived>
-class guiggiani_base
+template <class TestField, class TrialField, class Kernel, unsigned order>
+class guiggiani
 {
 public:
-	NIHU_CRTP_HELPERS
-
-	/** \brief the traits type */
-	typedef guiggiani_traits<Derived> traits_t;
-
 	enum { XI = 0, ETA = 1, XIXI = 0, XIETA = 1, ETAXI = 1, ETAETA = 2 };
 
 	/** \brief the quadrature order */
-	enum { quadrature_order = traits_t::order };
+	enum { quadrature_order = order };
 
 	/** \brief the test field type */
-	typedef typename traits_t::test_field_t test_field_t;
+	typedef TestField test_field_t;
 	/** \brief the trial field type */
-	typedef typename traits_t::trial_field_t trial_field_t;
+	typedef TrialField trial_field_t;
 	/** \brief the element type */
 	typedef typename trial_field_t::elem_t elem_t;
 
@@ -80,7 +70,7 @@ public:
 	typedef typename trial_nset_t::shape_t trial_n_shape_t;
 
 	/** \brief the kernel type */
-	typedef typename traits_t::kernel_t kernel_t;
+	typedef Kernel kernel_t;
 
 	/** \brief the kernel's test input type */
 	typedef typename kernel_traits<kernel_t>::test_input_t test_input_t;
@@ -96,11 +86,19 @@ public:
 	/** \brief the Rong's transformation matrix type */
 	typedef Eigen::Matrix<scalar_t, domain_t::dimension, domain_t::dimension> trans_t;
 
+	/** \brief the singular kernel ancestor type */
+	typedef typename singular_kernel_traits<kernel_t>::singular_kernel_ancestor_t singular_kernel_ancestor_t;
+	/** \brief the laurent coefficients computing class */
+	typedef guiggiani_laurent_coeffs<singular_kernel_ancestor_t> laurent_t;
+
+	template <class singularity_type>
+	friend class guiggiani_laurent_coeffs;
+
 	/** \brief constructor
 	 * \param [in] elem the element
 	 * \param [in] kernel the kernel
 	 */
-	guiggiani_base(elem_t const &elem, kernel_t const &kernel)
+	guiggiani(elem_t const &elem, kernel_t const &kernel)
 		: m_elem(elem), m_kernel(kernel)
 	{
 	}
@@ -114,11 +112,14 @@ private:
 		m_xi0 = xi0;
 		m_x0 = m_elem.get_x(m_xi0);
 		typename elem_t::dx_t dx = m_elem.get_dx(m_xi0);
-		scalar_t gamma = std::acos(dx.col(XI).dot(dx.col(ETA)) / dx.col(XI).norm() / dx.col(ETA).norm());
 
+		scalar_t cosgamma = dx.col(XI).dot(dx.col(ETA)) / dx.col(XI).norm() / dx.col(ETA).norm();
+		scalar_t u = dx.col(ETA).norm() / dx.col(XI).norm();
 		m_T <<
-			1.0, std::cos(gamma) * dx.col(ETA).norm() / dx.col(XI).norm(),
-			0.0, std::sin(gamma) * dx.col(ETA).norm() / dx.col(XI).norm();
+			1.0, cosgamma * u,
+			0.0, std::sqrt(1.0-cosgamma*cosgamma) * u;
+
+		m_T << 1.0, 0.0, 0.0, 1.0;
 
 		m_Tinv = m_T.inverse();
 
@@ -171,15 +172,19 @@ private:
 		typename elem_t::dx_t dx = m_elem.get_dx(m_xi0);
 		typename elem_t::ddx_t ddx = m_elem.get_ddx(m_xi0);
 
-		m_A_vector = dx.col(XI) * xi(0) + dx.col(ETA) * xi(1);
+		m_A_vector = dx.col(XI) * xi(0) + dx.col(ETA) * xi(ETA);
 		m_A = m_A_vector.norm();
-		m_B_vector = ddx.col(XIXI) * xi(0)*xi(0) / 2.0 + ddx.col(XIETA) * xi(0)*xi(1) + ddx.col(ETAETA) * xi(1)*xi(1) / 2.0;
+		m_B_vector = ddx.col(XIXI) * xi(XI)*xi(XI) / 2.0 +
+			ddx.col(XIETA) * xi(XI)*xi(1) +
+			ddx.col(ETAETA) * xi(ETA)*xi(ETA) / 2.0;
 
-		m_J1_vector = (xi(0) * (ddx.col(XIXI).cross(dx.col(ETA)) + dx.col(XI).cross(ddx.col(XIETA))) +
-			xi(1) * (ddx.col(ETAXI).cross(dx.col(ETA)) + dx.col(XI).cross(ddx.col(ETAETA)))) / m_T.determinant();
+		m_J1_vector = (
+			xi(XI) * (ddx.col(XIXI).cross(dx.col(ETA)) + dx.col(XI).cross(ddx.col(XIETA))) +
+			xi(ETA) * (ddx.col(ETAXI).cross(dx.col(ETA)) + dx.col(XI).cross(ddx.col(ETAETA)))
+			) / m_T.determinant();
 
 		auto dN = trial_nset_t::eval_dshape(m_xi0);
-		m_N1 = dN.col(XI)*xi(0) + dN.col(ETA)*xi(1);
+		m_N1 = dN.col(XI)*xi(XI) + dN.col(ETA)*xi(ETA);
 	}
 
 	void print_debug_theta(scalar_t theta)
@@ -190,8 +195,8 @@ private:
 		std::cout << "A:\t" << m_A << std::endl;
 		std::cout << "Bvec:\t" << m_B_vector.transpose() << std::endl;
 		std::cout << "J1vec:\t" << m_J1_vector.transpose() << std::endl;
-		std::cout << "F1:\t" << m_Fm1 << std::endl;
-		std::cout << "F2:\t" << m_Fm2 << std::endl;
+		std::cout << "F1:\t" << m_Fcoeffs[0] << std::endl;
+		std::cout << "F2:\t" << m_Fcoeffs[1] << std::endl;
 	}
 
 	/** \brief evaluate the surface integral
@@ -228,12 +233,12 @@ private:
 
 				// compute theta-related members
 				compute_theta(theta);
-				derived().compute_Fm1Fm2();
+				laurent_t::eval(*this);
 
 				// reference domain's limit
 				scalar_t rho_lim = m_ref_distance[n] / std::cos(theta - m_theta0[n]);
 
-				auto toadd = w_theta * (m_Fm1 * std::log(rho_lim) - m_Fm2 / rho_lim);
+				auto toadd = w_theta * (m_Fcoeffs[0] * std::log(rho_lim) - m_Fcoeffs[1] / rho_lim);
 				for (int j = 0; j < I.cols(); ++j)	// loop needed for scalar casting
 					I(j) += toadd(j);
 
@@ -259,7 +264,7 @@ private:
 						).eval();
 
 					// subtract the analytical singularity
-					auto singular_part = (m_Fm2 / rho + m_Fm1) / rho;
+					auto singular_part = ((m_Fcoeffs[1] / rho + m_Fcoeffs[0]) / rho).eval();
 					for (int j = 0; j < F.cols(); ++j)	// loop needed for scalar casting
 						F(j) -= singular_part(j);
 
@@ -279,6 +284,13 @@ public:
 			compute_xi0(test_nset_t::corner_at(idx));
 			integrate(result.row(idx));
 		}
+	}
+
+	template <class result_t>
+	void integral(result_t &result, xi_t const &xi0)
+	{
+		compute_xi0(xi0);
+		integrate(result.row(0));
 	}
 
 protected:
@@ -310,72 +322,24 @@ protected:
 	x_t m_J1_vector;		/**< \brief the linear part of the Jacobian vector */
 	trial_n_shape_t m_N1;	/**< \brief the linear part of the shape function vector */
 
-	trial_n_shape_t m_Fm2;	/**< \brief the -2-nd order Laurent coefficient */
-	trial_n_shape_t m_Fm1;	/**< \brief the -1-st order Laurent coefficient */
-};
-
-// forward declaration
-template <class TestField, class TrialField, class Kernel, unsigned order>
-class guiggiani;
-
-/** \brief traits of a guiggiani class */
-template <class TestField, class TrialField, class Kernel, unsigned Order>
-struct guiggiani_traits<guiggiani<TestField, TrialField, Kernel, Order> >
-{
-	typedef TestField test_field_t;		/**< \brief the test field type */
-	typedef TrialField trial_field_t;	/**< \brief the trial field type */
-	typedef Kernel kernel_t;			/**< \brief the kernel type */
-	enum { order = Order };				/**< \brief the integration quadrature order */
+	trial_n_shape_t m_Fcoeffs[2];	/**< \brief the 1st and 2nd order Laurent coefficient */
 };
 
 #include "../library/laplace_kernel.hpp"
-
-template <class TestField, class TrialField, unsigned order>
-class guiggiani<TestField, TrialField, laplace_3d_HSP_kernel, order>
-	: public guiggiani_base<guiggiani<TestField, TrialField, laplace_3d_HSP_kernel, order> >
-{
-	typedef guiggiani_base<guiggiani> base_t;
-	typedef typename  base_t::kernel_t kernel_t;
-	typedef typename base_t::elem_t elem_t;
-
-public:
-	guiggiani(elem_t const &elem, kernel_t const &kernel)
-		: base_t(elem, kernel)
-	{
-	}
-
-	void compute_Fm1Fm2(void)
-	{
-		auto A2 = this->m_A*this->m_A;
-		auto A3 = A2 * this->m_A;
-		this->m_Fm2 = this->m_J0 * this->m_N0 / (4.0 * M_PI * A3);
-		this->m_Fm1 = (this->m_J0*this->m_N1 + this->m_J1_vector.dot(this->m_n0)*this->m_N0
-			- 3.0*this->m_N0*this->m_J0* this->m_A_vector.dot(this->m_B_vector) / A2) / (4.0*M_PI * A3);
-	}
-};
-
 #include "../library/helmholtz_kernel.hpp"
 
-template <class TestField, class TrialField, class WaveNumber, unsigned order>
-class guiggiani<TestField, TrialField, helmholtz_3d_HSP_kernel<WaveNumber>, order >
-	: public guiggiani_base<guiggiani<TestField, TrialField, helmholtz_3d_HSP_kernel<WaveNumber>, order > >
+template <>
+class guiggiani_laurent_coeffs<laplace_3d_HSP_kernel>
 {
-	typedef guiggiani_base<guiggiani> base_t;
-	typedef typename  base_t::kernel_t kernel_t;
-	typedef typename base_t::elem_t elem_t;
-
 public:
-	guiggiani(elem_t const &elem, kernel_t const &kernel) : base_t(elem, kernel)
+	template <class guiggiani>
+	static void eval(guiggiani &obj)
 	{
-	}
-
-	void compute_Fm1Fm2(void)
-	{
-		auto A2 = this->m_A*this->m_A;
-		auto A3 = A2 * this->m_A;
-		this->m_Fm2 = this->m_J0 * this->m_N0 / (4.0 * M_PI * A3);
-		this->m_Fm1 = (this->m_J0*this->m_N1 + this->m_J1_vector.dot(this->m_n0)*this->m_N0
-			- 3.0*this->m_N0*this->m_J0* this->m_A_vector.dot(this->m_B_vector) / A2) / (4.0*M_PI * A3);
+		auto A2 = obj.m_A*obj.m_A;
+		auto A3 = A2 * obj.m_A;
+		obj.m_Fcoeffs[1] = obj.m_J0 * obj.m_N0 / (4.0 * M_PI * A3);
+		obj.m_Fcoeffs[0] = (obj.m_J0*obj.m_N1 + obj.m_J1_vector.dot(obj.m_n0)*obj.m_N0
+			- 3.0*obj.m_N0*obj.m_J0* obj.m_A_vector.dot(obj.m_B_vector) / A2) / (4.0*M_PI * A3);
 	}
 };
 

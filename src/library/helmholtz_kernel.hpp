@@ -833,18 +833,28 @@ struct kernel_traits<helmholtz_3d_HSP_kernel<wave_number_t> >
 	static bool const is_symmetric = true;
 	/** \brief indicates whether kernel is singular */
 	static bool const is_singular = true;
-	/** \brief kernel singularity type */
-	typedef singularity_type::inverse<2> singularity_type_t;
-	/** \brief quadrature order used to generate blind singular quadratures
-	 * \todo check
-	 */
-	static unsigned const singular_quadrature_order = 9;
+
 	/** \brief the far field asymptotic behaviour of the kernel */
 	typedef singularity_type::inverse<3> far_field_behaviour_t;
 	/** \brief the kernel complexity estimator class */
 	typedef interval_estimator<
 		typename reciprocal_distance_kernel_interval<3, GLOBAL_ACCURACY>::type
 	> complexity_estimator_t;
+};
+
+
+/** \brief singular traits of the laplace 3D HSP kernel */
+template <class wave_number_t>
+struct singular_kernel_traits<helmholtz_3d_HSP_kernel<wave_number_t> >
+{
+	/** \brief singularity type
+	* \todo check this
+	*/
+	typedef singularity_type::inverse<3> singularity_type_t;
+	/** \brief the singularity type when used with guiggiani's method */
+	typedef laplace_3d_HSP_kernel singular_kernel_ancestor_t;
+	/** \brief quadrature order  */
+	static unsigned const singular_quadrature_order = 9;
 };
 
 

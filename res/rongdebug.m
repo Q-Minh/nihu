@@ -2,23 +2,24 @@ clear;
 
 close all;
 
-order = 9;
+order = 39;
 nGauss = floor(order/2+1);
 
 xi = sym('xi', [2 1]);
 eta = sym('eta', [2 1]);
 
 ReferenceCorners = [
-    -1 1 1 -1
-    -1 -1 1 1
+    0 1 0
+    0 0 1
     ];
 
 L = [
-    (1-xi(1))*(1-xi(2)), ...
-    (1+xi(1))*(1-xi(2)), ...
-    (1+xi(1))*(1+xi(2)), ...
-    (1-xi(1))*(1+xi(2))
-    ] / 4;
+    (xi(2) + xi(1) - 1).*(2.*xi(2) + 2.*xi(1) - 1),...
+    -4.*xi(1).*(xi(2) + xi(1) - 1),...
+    xi(1).*(2.*xi(1) - 1),...
+    4.*xi(2).*xi(1),...
+    xi(2).*(2.*xi(2) - 1),...
+    -4.*xi(2).*(xi(2) + xi(1) - 1)];
 dL = [
     diff(L, xi(1), 1)
     diff(L, xi(2), 1)
@@ -30,12 +31,12 @@ ddL = [
     ];
 
 X = [
-    0 .5 1 0
-    0 0 1 1
-    0 0 0 0
+    1.0, 1.0, 1.0, cos(pi/8), cos(pi/4), cos(pi/8)
+    -0.5, 0.0, 0.5, 0.25, 0.0, -0.25
+    0.0, 0.0, 0.0, sin(pi/8), sin(pi/4), sin(pi/8)
     ];
 
-xi0 = [0 0].';
+xi0 = [.64 .31].';
 
 x0 = X * subs(L, xi, xi0).';
 dx0 = X * subs(dL, xi, xi0).';
@@ -73,9 +74,9 @@ N0 = 1;
 
 result = 0;
 
-for n = 1 : 4
+for n = 1 : size(ReferenceCorners,2)
     c1 = T * ReferenceCorners(:,n);
-    c2 = T * ReferenceCorners(:,mod(n+1-1,4)+1);
+    c2 = T * ReferenceCorners(:,mod(n+1-1,size(ReferenceCorners,2))+1);
     
     l = c2-c1;
     l = l / norm(l);

@@ -102,6 +102,79 @@ void test_laplace_3d_linear(void)
 	}
 }
 
+void test_rong(void)
+{
+	typedef double wave_number_t;
+	typedef laplace_3d_HSP_kernel kernel_t;
+	wave_number_t k(-2.0);
+	kernel_t kernel;
+
+	typedef tria_2_elem elem_t;
+	typedef field_view<elem_t, field_option::constant> field_t;
+
+	typedef elem_t::coords_t coords_t;
+
+	coords_t coords;
+	coords <<
+		 1.0, 1.0, 1.0, std::cos(M_PI / 8.0), std::cos(M_PI / 4.0), std::cos(M_PI / 8.0),
+		-0.5, 0.0, 0.5, 0.25, 0.0, -0.25,
+		 0.0, 0.0, 0.0, std::sin(M_PI / 8.0), std::sin(M_PI / 4.0), std::sin(M_PI / 8.0);
+
+	elem_t elem(coords);
+
+	elem_t::xi_t xi0(.64, .31);
+
+	Eigen::Matrix<double, 1, 1> I;
+
+	guiggiani<field_t, field_t, kernel_t, 15> gui(elem, kernel);
+	I.setZero();
+	gui.integral(I, xi0);
+	std::cout << I << std::endl;
+
+}
+
+
+void test_guiggiani_92_curved(void)
+{
+	typedef double wave_number_t;
+	typedef laplace_3d_HSP_kernel kernel_t;
+	wave_number_t k(-2.0);
+	kernel_t kernel;
+
+	typedef quad_2_elem elem_t;
+	typedef field_view<elem_t, field_option::constant> field_t;
+
+	typedef elem_t::coords_t coords_t;
+
+	coords_t coords;
+	double b = std::sqrt(2.0) / 2.0;
+	coords <<
+		1, 1, 1, b, 0, 0, 0, b, b,
+		0, 1, 2, 2, 2, 1, 0, 0, 1,
+		0, 0, 0, b, 1, 1, 1, b, b;
+
+	elem_t elem(coords);
+	guiggiani<field_t, field_t, kernel_t, 15> gui(elem, kernel);
+
+	elem_t::xi_t xi0;
+	Eigen::Matrix<double, 1, 1> I;
+
+	I.setZero();
+	xi0 << 0.0, 0.0;
+	gui.integral(I, xi0);
+	std::cout << I << std::endl;
+
+	I.setZero();
+	xi0 << 0.66, 0.0;
+	gui.integral(I, xi0);
+	std::cout << I << std::endl;
+
+	I.setZero();
+	xi0 << 0.66, 0.66;
+	gui.integral(I, xi0);
+	std::cout << I << std::endl;
+}
+
 
 void test_helmholtz_3d(void)
 {
@@ -152,9 +225,10 @@ void test_helmholtz_3d(void)
 
 int main(void)
 {
-	test_laplace_3d_quadratic();
-	test_laplace_3d_linear();
-	test_helmholtz_3d();
+//	test_laplace_3d_quadratic();
+//	test_laplace_3d_linear();
+//	test_helmholtz_3d();
+	test_guiggiani_92_curved();
 
 	return 0;
 }
