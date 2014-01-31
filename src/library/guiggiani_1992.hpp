@@ -27,13 +27,13 @@ gaussian_quadrature<line_domain> const line_quad_store<order>::quadrature(order)
 
 // forward declaration
 template <class singularity_type>
-class guiggiani_laurent_coeffs;
+class polar_laurent_coeffs;
 
 
 /** \brief CRTP base class of all guiggiani classes
  * \tparam Derived the CRTP derived class
  */
-template <class TestField, class TrialField, class Kernel, unsigned order>
+template <class TrialField, class Kernel, unsigned order>
 class guiggiani
 {
 public:
@@ -42,16 +42,10 @@ public:
 	/** \brief the quadrature order */
 	enum { quadrature_order = order };
 
-	/** \brief the test field type */
-	typedef TestField test_field_t;
 	/** \brief the trial field type */
 	typedef TrialField trial_field_t;
 	/** \brief the element type */
 	typedef typename trial_field_t::elem_t elem_t;
-
-	// compile time check that the test and trial elements are of the same type
-	static_assert(std::is_same<elem_t, typename test_field_t::elem_t>::value,
-		"Test and Trial element types must be the same for collocational Guiggiani integration");
 
 	/** \brief the reference domain type */
 	typedef typename elem_t::domain_t domain_t;
@@ -64,8 +58,6 @@ public:
 
 	/** \brief the trial N-set type */
 	typedef typename trial_field_t::nset_t trial_nset_t;
-	/** \brief the test N-set type */
-	typedef typename test_field_t::nset_t test_nset_t;
 	/** \brief the trial shape function vector type */
 	typedef typename trial_nset_t::shape_t trial_n_shape_t;
 
@@ -89,10 +81,10 @@ public:
 	/** \brief the singular kernel ancestor type */
 	typedef typename singular_kernel_traits<kernel_t>::singular_kernel_ancestor_t singular_kernel_ancestor_t;
 	/** \brief the laurent coefficients computing class */
-	typedef guiggiani_laurent_coeffs<singular_kernel_ancestor_t> laurent_t;
+	typedef polar_laurent_coeffs<singular_kernel_ancestor_t> laurent_t;
 
 	template <class singularity_type>
-	friend class guiggiani_laurent_coeffs;
+	friend class polar_laurent_coeffs;
 
 	/** \brief constructor
 	 * \param [in] elem the element
@@ -118,9 +110,6 @@ private:
 		m_T <<
 			1.0, cosgamma * u,
 			0.0, std::sqrt(1.0-cosgamma*cosgamma) * u;
-
-		m_T << 1.0, 0.0, 0.0, 1.0;
-
 		m_Tinv = m_T.inverse();
 
 		m_eta0 = m_T * m_xi0;
@@ -210,9 +199,6 @@ private:
 		test_input_t test_input(m_elem, m_xi0);
 		auto bound = m_kernel.bind(test_input);
 
-		// get the quadrature from the store
-		auto const &quad = line_quad_store<quadrature_order>::quadrature;
-
 		// iterate through triangles
 		unsigned const N = domain_t::num_corners;
 		for (unsigned n = 0; n < N; ++n)
@@ -224,7 +210,8 @@ private:
 				t2 += 2.0 * M_PI;
 
 			// theta integration
-			for (auto it_theta = quad.begin(); it_theta != quad.end(); ++it_theta)
+			auto const &quad_theta = line_quad_store<quadrature_order>::quadrature;
+			for (auto it_theta = quad_theta.begin(); it_theta != quad_theta.end(); ++it_theta)
 			{
 				// compute theta base point and weight
 				scalar_t xx = it_theta->get_xi()(0);
@@ -238,12 +225,13 @@ private:
 				// reference domain's limit
 				scalar_t rho_lim = m_ref_distance[n] / std::cos(theta - m_theta0[n]);
 
-				auto toadd = w_theta * (m_Fcoeffs[0] * std::log(rho_lim) - m_Fcoeffs[1] / rho_lim);
+				auto toadd = w_theta * (m_Fcoeffs[0] * std::log(rho_lim) - m_Fcoeffs[1] * (1.0 / rho_lim));
 				for (int j = 0; j < I.cols(); ++j)	// loop needed for scalar casting
 					I(j) += toadd(j);
 
 				// radial part of surface integration
-				for (auto it_rho = quad.begin(); it_rho != quad.end(); ++it_rho)
+				auto const &quad_rho = line_quad_store<2 * 4 - 1>::quadrature;
+				for (auto it_rho = quad_rho.begin(); it_rho != quad_rho.end(); ++it_rho)
 				{
 					// quadrature base point and weight
 					scalar_t rho = (1.0 + it_rho->get_xi()(0)) * rho_lim / 2.0;
@@ -275,16 +263,6 @@ private:
 	} // function
 
 public:
-	template <class result_t>
-	void integral(result_t &result)
-	{
-		for (unsigned idx = 0; idx < test_nset_t::num_nodes; ++idx)
-		{
-			compute_xi0(test_nset_t::corner_at(idx));
-			integrate(result.row(idx));
-		}
-	}
-
 	template <class result_t>
 	void integral(result_t &result, xi_t const &xi0)
 	{
@@ -328,7 +306,7 @@ protected:
 #include "../library/helmholtz_kernel.hpp"
 
 template <>
-class guiggiani_laurent_coeffs<laplace_3d_HSP_kernel>
+class polar_laurent_coeffs<laplace_3d_HSP_kernel>
 {
 public:
 	template <class guiggiani>

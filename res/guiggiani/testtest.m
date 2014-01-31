@@ -11,7 +11,7 @@ X = [
 N0 = 1;
 N1 = 0;
 
-theta = 1.3;
+theta = sym('theta', 'real');
 
 x0 = X * squeeze(L)';
 dx0 = X * squeeze(dL);
