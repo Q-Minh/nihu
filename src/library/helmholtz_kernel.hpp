@@ -43,6 +43,8 @@
 #include "reciprocal_kernel_intervals.hpp"
 #include "interval_estimator.hpp"
 
+#include "laplace_kernel.hpp"
+
 /**
  * \brief kernel data that stores the wave number
  * \tparam wave_number_type the wave number type
