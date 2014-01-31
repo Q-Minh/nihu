@@ -47,6 +47,19 @@ struct shape_set_id
 	};
 };
 
+/** \brief shape function derivative indices */
+namespace shape_index {
+	enum {
+		dXI = 0,		/**< \brief index of xi in shape derivative matrix */
+		dETA = 1,	/**< \brief index of eta in shape derivative matrix */
+		dXIXI = 0,	/**< \brief index of xi_xi in shape second derivative matrix */
+		dXIETA = 1,	/**< \brief index of xi_eta in shape derivative matrix */
+		dETAXI = 1,	/**< \brief index of eta_xi in shape second derivative matrix */
+		dETAETA = 2	/**< \brief index of eta-eta in shape second derivative matrix */
+	};
+}
+
+
 /**
  * \brief Shapeset base class for CRTP
  * \tparam Derived The derived shapeset class

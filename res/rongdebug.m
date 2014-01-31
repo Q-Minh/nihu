@@ -2,7 +2,7 @@ clear;
 
 close all;
 
-order = 39;
+order = 9;
 nGauss = floor(order/2+1);
 
 xi = sym('xi', [2 1]);
@@ -40,6 +40,7 @@ xi0 = [.64 .31].';
 
 x0 = X * subs(L, xi, xi0).';
 dx0 = X * subs(dL, xi, xi0).';
+ddx0 = X * subs(ddL, xi, xi0).';
 
 gamma = acos(dot(dx0(:,1), dx0(:,2), 1)/norm(dx0(:,1)) / norm(dx0(:,2)));
 
@@ -96,12 +97,12 @@ for n = 1 : size(ReferenceCorners,2)
     
     [theta, w] = gaussquad(nGauss, double(t1), double(t2));
     
-    Avec = double(dx0_eta) * [
+    Avec_eta = double(dx0_eta) * [
         cos(theta).'
         sin(theta)'
         ];
-    A = sqrt(dot(Avec, Avec, 1)).';
-    Bvec = double(ddx0_eta) * [
+    A = sqrt(dot(Avec_eta, Avec_eta, 1)).';
+    Bvec_eta = double(ddx0_eta) * [
         cos(theta).^2.' / 2
         sin(theta).' .* cos(theta).'
         sin(theta).^2.' / 2
@@ -109,13 +110,27 @@ for n = 1 : size(ReferenceCorners,2)
     J1vec_eta = (cross(double(ddx0_eta(:,1)), double(dx0_eta(:,2))) + cross(double(dx0_eta(:,1)), double(ddx0_eta(:,2)))) * cos(theta).' +...
         (cross(double(ddx0_eta(:,2)), double(dx0_eta(:,2))) + cross(double(dx0_eta(:,1)), double(ddx0_eta(:,3)))) * sin(theta).';
     
+    cc = (double(T) \ [
+        cos(theta).'
+        sin(theta).'
+         ]).';
+    Avec = double(dx0) * [
+        cc(:,1).'
+        cc(:,2).'
+        ];
+    
+    Bvec = double(ddx0) * [
+        cc(:,1).^2.' / 2
+        cc(:,1).' .* cc(:,2).'
+        cc(:,2).^2.' / 2
+        ];
+
+    
     F2 = double(J0_eta * N0 ./ (4*pi*A.^3));
     F1 = double(J1vec_eta.' * n0_eta) ./ (4*pi*A.^3) -...
-        double(3*(n0_eta.' * J0vec_eta) * dot(Avec, Bvec, 1).') ./ (4*pi*A.^5);
+        double(3*(n0_eta.' * J0vec_eta) * dot(Avec_eta, Bvec_eta, 1).') ./ (4*pi*A.^5);
     
     rho_lim = double(d ./ cos(theta-t0));
-    
-    %     disp(w);
     
     figure(1);
     hold on;

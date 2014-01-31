@@ -44,7 +44,7 @@ struct tester
 		> gui(elem, kernel);
 		Eigen::Matrix<typename Kernel::scalar_t, 1, 1> result;
 		result.setZero();
-		gui.integral(result, xi0);
+		gui.integrate(result, xi0);
 		return result(0, 0);
 	}
 };
@@ -255,26 +255,26 @@ void test_rong(void)
 
 	guiggiani<field_t, kernel_t, 2 * 20 - 1> gui20(elem, kernel);
 	I20.setZero();
-	gui20.integral(I20, xi0);
+	gui20.integrate(I20, xi0);
 
 	guiggiani<field_t, kernel_t, 2 * 5 - 1> gui5(elem, kernel);
 	I5.setZero();
-	gui5.integral(I5, xi0);
+	gui5.integrate(I5, xi0);
 	std::cout << I5 << ' ' << std::log10(std::abs(I5(0, 0) / I20(0, 0) - 1.0)) << std::endl;
 
 	guiggiani<field_t, kernel_t, 2 * 8 - 1> gui8(elem, kernel);
 	I8.setZero();
-	gui8.integral(I8, xi0);
+	gui8.integrate(I8, xi0);
 	std::cout << I8 << ' ' << std::log10(std::abs(I8(0, 0) / I20(0, 0) - 1.0)) << std::endl;
 
 	guiggiani<field_t, kernel_t, 2 * 10 - 1> gui10(elem, kernel);
 	I10.setZero();
-	gui10.integral(I10, xi0);
+	gui10.integrate(I10, xi0);
 	std::cout << I10 << ' ' << std::log10(std::abs(I10(0, 0) / I20(0, 0) - 1.0)) << std::endl;
 
 	guiggiani<field_t, kernel_t, 2 * 12 - 1> gui12(elem, kernel);
 	I12.setZero();
-	gui12.integral(I12, xi0);
+	gui12.integrate(I12, xi0);
 	std::cout << I12 << ' ' << std::log10(std::abs(I12(0, 0) / I20(0, 0) - 1.0)) << std::endl;
 
 }
@@ -306,7 +306,7 @@ void test_guiggiani_92_curved(void)
 
 	I.setZero();
 	xi0 << 0.0, 0.0;
-	gui.integral(I, xi0);
+	gui.integrate(I, xi0);
 	std::cout << I << std::endl;
 
 	//I.setZero();
@@ -357,7 +357,7 @@ void test_helmholtz_3d(void)
 
 	Eigen::Matrix<std::complex<double>, 1, 1> I;
 	I.setZero();
-	gui.integral(I, elem_t::domain_t::get_center());
+	gui.integrate(I, elem_t::domain_t::get_center());
 	std::complex<double> I0 = helmholtz_3d_HSP_collocation_constant_triangle::eval(
 		elem0,
 		elem.get_center(),

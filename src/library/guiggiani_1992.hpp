@@ -31,16 +31,19 @@ class polar_laurent_coeffs;
 
 
 /** \brief CRTP base class of all guiggiani classes
- * \tparam Derived the CRTP derived class
+ * \tparam TrialField the trial field type
+ * \tparam TrialField the kernel type
+ * \tparam TrialField the quadrature order of radial integration
+ * \tparam TrialField the quadrature order of tangential integration
  */
-template <class TrialField, class Kernel, unsigned order>
+template <class TrialField, class Kernel, unsigned RadialOrder, unsigned TangentialOrder = RadialOrder>
 class guiggiani
 {
 public:
-	enum { XI = 0, ETA = 1, XIXI = 0, XIETA = 1, ETAXI = 1, ETAETA = 2 };
-
-	/** \brief the quadrature order */
-	enum { quadrature_order = order };
+	enum {
+		radial_order = RadialOrder,	/**< \brief quadrature order in radial direction */
+		tangential_order = TangentialOrder	/**< \brief quadrature order in tangential direction */
+	};
 
 	/** \brief the trial field type */
 	typedef TrialField trial_field_t;
@@ -105,8 +108,8 @@ private:
 		m_x0 = m_elem.get_x(m_xi0);
 		typename elem_t::dx_t dx = m_elem.get_dx(m_xi0);
 
-		scalar_t cosgamma = dx.col(XI).dot(dx.col(ETA)) / dx.col(XI).norm() / dx.col(ETA).norm();
-		scalar_t u = dx.col(ETA).norm() / dx.col(XI).norm();
+		scalar_t cosgamma = dx.col(shape_index::dXI).dot(dx.col(shape_index::dETA)) / dx.col(shape_index::dXI).norm() / dx.col(shape_index::dETA).norm();
+		scalar_t u = dx.col(shape_index::dETA).norm() / dx.col(shape_index::dXI).norm();
 		m_T <<
 			1.0, cosgamma * u,
 			0.0, std::sqrt(1.0-cosgamma*cosgamma) * u;
@@ -134,20 +137,6 @@ private:
 			m_theta0[n] = std::atan2(d0(1), d0(0));		// mid angle
 			m_ref_distance[n] = d0.norm();				// distance to side
 		}
-
-		// print_debug_xi0();
-	}
-
-	void print_debug_xi0(void)
-	{
-		std::cout << "PrintDebug xi0" << std::endl;
-		std::cout << "xi0:\t" << m_xi0.transpose() << std::endl;
-		std::cout << "x0:\t" << m_x0.transpose() << std::endl;
-		std::cout << "T:\t" << m_T << std::endl;
-		std::cout << "T(-1):\t" << m_Tinv << std::endl;
-		std::cout << "eta0:\t" << m_eta0.transpose() << std::endl;
-		std::cout << "J0vec:\t" << m_J0_vector.transpose() << std::endl;
-		std::cout << "J0:\t" << m_J0 << std::endl;
 	}
 
 	/** \brief store theta-related quantities for acceleration
@@ -156,45 +145,37 @@ private:
 	void compute_theta(scalar_t theta)
 	{
 		// contains cos theta sin theta in xi system
-		xi_t xi = m_Tinv.col(XI) * std::cos(theta) + m_Tinv.col(ETA) * std::sin(theta);
+		xi_t xi = m_Tinv.col(shape_index::dXI) * std::cos(theta) + m_Tinv.col(shape_index::dETA) * std::sin(theta);
 
 		typename elem_t::dx_t dx = m_elem.get_dx(m_xi0);
 		typename elem_t::ddx_t ddx = m_elem.get_ddx(m_xi0);
 
-		m_A_vector = dx.col(XI) * xi(0) + dx.col(ETA) * xi(ETA);
+		m_A_vector = dx.col(shape_index::dXI) * xi(shape_index::dXI) + dx.col(shape_index::dETA) * xi(shape_index::dETA);
 		m_A = m_A_vector.norm();
-		m_B_vector = ddx.col(XIXI) * xi(XI)*xi(XI) / 2.0 +
-			ddx.col(XIETA) * xi(XI)*xi(1) +
-			ddx.col(ETAETA) * xi(ETA)*xi(ETA) / 2.0;
+		m_B_vector = ddx.col(shape_index::dXIXI) * xi(shape_index::dXI)*xi(shape_index::dXI) / 2.0 +
+			ddx.col(shape_index::dXIETA) * xi(shape_index::dXI)*xi(1) +
+			ddx.col(shape_index::dETAETA) * xi(shape_index::dETA)*xi(shape_index::dETA) / 2.0;
 
 		m_J1_vector = (
-			xi(XI) * (ddx.col(XIXI).cross(dx.col(ETA)) + dx.col(XI).cross(ddx.col(XIETA))) +
-			xi(ETA) * (ddx.col(ETAXI).cross(dx.col(ETA)) + dx.col(XI).cross(ddx.col(ETAETA)))
+			xi(shape_index::dXI) * (ddx.col(shape_index::dXIXI).cross(dx.col(shape_index::dETA)) + dx.col(shape_index::dXI).cross(ddx.col(shape_index::dXIETA))) +
+			xi(shape_index::dETA) * (ddx.col(shape_index::dETAXI).cross(dx.col(shape_index::dETA)) + dx.col(shape_index::dXI).cross(ddx.col(shape_index::dETAETA)))
 			) / m_T.determinant();
 
 		auto dN = trial_nset_t::eval_dshape(m_xi0);
-		m_N1 = dN.col(XI)*xi(XI) + dN.col(ETA)*xi(ETA);
+		m_N1 = dN.col(shape_index::dXI)*xi(shape_index::dXI) + dN.col(shape_index::dETA)*xi(shape_index::dETA);
 	}
 
-	void print_debug_theta(scalar_t theta)
-	{
-		std::cout << "\nPrintDebug theta\n" << std::endl;
-		std::cout << "theta:\t" << theta << std::endl;
-		std::cout << "Avec:\t" << m_A_vector.transpose() << std::endl;
-		std::cout << "A:\t" << m_A << std::endl;
-		std::cout << "Bvec:\t" << m_B_vector.transpose() << std::endl;
-		std::cout << "J1vec:\t" << m_J1_vector.transpose() << std::endl;
-		std::cout << "F1:\t" << m_Fcoeffs[0] << std::endl;
-		std::cout << "F2:\t" << m_Fcoeffs[1] << std::endl;
-	}
-
-	/** \brief evaluate the surface integral
-	 * \tparam result_t the result type
-	 * \param [out] I the row where the integral is collected
+public:
+	/** \brief the entry point of integration
+	 * \tparam result_t the result type where the integral is assembled
+	 * \param [in] xi0 the singular point in intrinsic coordinates
+	 * \param [out] result the result matrix where the data is assembled
 	 */
 	template <class result_t>
-	void integrate(result_t I)
+	void integrate(result_t &I, xi_t const &xi0)
 	{
+		compute_xi0(xi0);
+
 		// bind the kernel at the test input
 		test_input_t test_input(m_elem, m_xi0);
 		auto bound = m_kernel.bind(test_input);
@@ -210,7 +191,7 @@ private:
 				t2 += 2.0 * M_PI;
 
 			// theta integration
-			auto const &quad_theta = line_quad_store<quadrature_order>::quadrature;
+			auto const &quad_theta = line_quad_store<tangential_order>::quadrature;
 			for (auto it_theta = quad_theta.begin(); it_theta != quad_theta.end(); ++it_theta)
 			{
 				// compute theta base point and weight
@@ -230,7 +211,7 @@ private:
 					I(j) += toadd(j);
 
 				// radial part of surface integration
-				auto const &quad_rho = line_quad_store<2 * 4 - 1>::quadrature;
+				auto const &quad_rho = line_quad_store<radial_order>::quadrature;
 				for (auto it_rho = quad_rho.begin(); it_rho != quad_rho.end(); ++it_rho)
 				{
 					// quadrature base point and weight
@@ -260,14 +241,6 @@ private:
 				} // rho loop
 			} // theta loop
 		} // element sides
-	} // function
-
-public:
-	template <class result_t>
-	void integral(result_t &result, xi_t const &xi0)
-	{
-		compute_xi0(xi0);
-		integrate(result.row(0));
 	}
 
 protected:
@@ -303,7 +276,6 @@ protected:
 };
 
 #include "../library/laplace_kernel.hpp"
-#include "../library/helmholtz_kernel.hpp"
 
 template <>
 class polar_laurent_coeffs<laplace_3d_HSP_kernel>
