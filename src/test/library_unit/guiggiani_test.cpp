@@ -9,31 +9,15 @@
 template <class elem_t>
 double laplace_planar_analytic(typename elem_t::coords_t const &coords, typename elem_t::x_t const &x0)
 {
-	typedef typename elem_t::x_t x_t;
 	elem_t elem(coords);
-	double res = 0.0;
-	unsigned const N = elem_t::domain_t::num_corners;
-	for (unsigned i = 0; i < N; ++i)
-	{
-		x_t c1 = elem.get_coords().col(i);
-		x_t c2 = elem.get_coords().col((i + 1) % N);
-		x_t d1 = c1 - x0, d2 = c2 - x0;
-		x_t side = (c2 - c1).normalized();
-		x_t d = d1 - side * side.dot(d1);
-
-		double phi1 = std::asin(d1.normalized().cross(d.normalized())(2));
-		double phi2 = std::asin(d.normalized().cross(d2.normalized())(2));
-
-		res += (std::sin(phi2) + std::sin(phi1)) / d.norm();
-	}
-	return -res / (4.0 * M_PI);
+	return laplace_3d_HSP_collocation_constant_plane::eval(elem, x0);
 }
 
 
 template <class Kernel, class Elem, unsigned order>
 struct tester
 {
-	static typename Kernel::scalar_t
+	static typename Kernel::result_t
 	eval(Kernel const &kernel, typename Elem::coords_t const &coords, typename Elem::xi_t const &xi0)
 	{
 		Elem elem(coords);
@@ -42,7 +26,7 @@ struct tester
 			Kernel,
 			2 * order - 1
 		> gui(elem, kernel);
-		Eigen::Matrix<typename Kernel::scalar_t, 1, 1> result;
+		Eigen::Matrix<typename Kernel::result_t, 1, 1> result;
 		result.setZero();
 		gui.integrate(result, xi0, elem.get_normal(xi0).normalized());
 		return result(0, 0);
@@ -55,10 +39,10 @@ for (unsigned i = 0; i < sizeof(xi0) / sizeof(xi0[0]); ++i) \
 {\
 	quad_1_elem elem(coords); \
 	I0[i] = laplace_planar_analytic<quad_1_elem>(coords, elem.get_x(xi0[i])); \
-	I[i][0] = tester<laplace_3d_HSP_kernel, quad_1_elem, 3>::eval(kernel, coords, xi0[i]);\
-	I[i][1] = tester<laplace_3d_HSP_kernel, quad_1_elem, 5>::eval(kernel, coords, xi0[i]);\
-	I[i][2] = tester<laplace_3d_HSP_kernel, quad_1_elem, 7>::eval(kernel, coords, xi0[i]);\
-	I[i][3] = tester<laplace_3d_HSP_kernel, quad_1_elem, 9>::eval(kernel, coords, xi0[i]);\
+	I[i][0] = tester<kernel_t, quad_1_elem, 3>::eval(kernel, coords, xi0[i]);\
+	I[i][1] = tester<kernel_t, quad_1_elem, 5>::eval(kernel, coords, xi0[i]);\
+	I[i][2] = tester<kernel_t, quad_1_elem, 7>::eval(kernel, coords, xi0[i]);\
+	I[i][3] = tester<kernel_t, quad_1_elem, 9>::eval(kernel, coords, xi0[i]);\
 }\
 std::cout << "xi0:";\
 for (unsigned i = 0; i < sizeof(xi0) / sizeof(xi0[0]); ++i)\
@@ -74,16 +58,16 @@ for (unsigned j = 0; j < 4; ++j)\
 
 
 
-void test_laplace_3d_plane_linear(void)
+template <class kernel_t>
+void test_plane_linear(kernel_t const &kernel)
 {
-	laplace_3d_HSP_kernel kernel;
 	quad_1_elem::coords_t coords;
 	quad_1_elem::xi_t xi0[3];
 	xi0[0] << 0.0, 0.0;
 	xi0[1] << 0.57, 0.0;
 	xi0[2] << 0.9, 0.923;
 
-	double I0[3], I[3][4];
+	typename kernel_t::result_t I0[3], I[3][4];
 
 	std::cout << std::setprecision(4);
 
@@ -144,10 +128,10 @@ for (unsigned i = 0; i < sizeof(xi0) / sizeof(xi0[0]); ++i) \
 {\
 	quad_2_elem elem(coords); \
 	I0[i] = laplace_planar_analytic<quad_1_elem>(coords0, elem.get_x(xi0[i])); \
-	I[i][0] = tester<laplace_3d_HSP_kernel, quad_2_elem, 3>::eval(kernel, coords, xi0[i]); \
-	I[i][1] = tester<laplace_3d_HSP_kernel, quad_2_elem, 5>::eval(kernel, coords, xi0[i]); \
-	I[i][2] = tester<laplace_3d_HSP_kernel, quad_2_elem, 7>::eval(kernel, coords, xi0[i]); \
-	I[i][3] = tester<laplace_3d_HSP_kernel, quad_2_elem, 9>::eval(kernel, coords, xi0[i]); \
+	I[i][0] = tester<kernel_t, quad_2_elem, 3>::eval(kernel, coords, xi0[i]); \
+	I[i][1] = tester<kernel_t, quad_2_elem, 5>::eval(kernel, coords, xi0[i]); \
+	I[i][2] = tester<kernel_t, quad_2_elem, 7>::eval(kernel, coords, xi0[i]); \
+	I[i][3] = tester<kernel_t, quad_2_elem, 9>::eval(kernel, coords, xi0[i]); \
 	}\
 	std::cout << "xi0:"; \
 for (unsigned i = 0; i < sizeof(xi0) / sizeof(xi0[0]); ++i)\
@@ -163,9 +147,9 @@ for (unsigned i = 0; i < sizeof(xi0) / sizeof(xi0[0]); ++i)\
 
 
 
-void test_laplace_3d_plane_quadratic(void)
+template <class kernel_t>
+void test_plane_quadratic(kernel_t const &kernel)
 {
-	laplace_3d_HSP_kernel kernel;
 	quad_2_elem::coords_t coords;
 	quad_1_elem::coords_t coords0;
 	quad_2_elem::xi_t xi0[3];
@@ -173,7 +157,7 @@ void test_laplace_3d_plane_quadratic(void)
 	xi0[1] << 0.57, 0.0;
 	xi0[2] << 0.9, 0.923;
 
-	double I0[3], I[3][4];
+	typename kernel_t::result_t I0[3], I[3][4];
 
 	std::cout << std::setprecision(4);
 
@@ -357,7 +341,7 @@ void test_helmholtz_3d(void)
 	I.setZero();
 	auto xi0 = elem_t::domain_t::get_center();
 	gui.integrate(I, xi0, elem.get_normal(xi0).normalized());
-	std::complex<double> I0 = helmholtz_3d_HSP_collocation_constant_triangle::eval(
+	std::complex<double> I0 = helmholtz_3d_HSP_collocation_constant_plane::eval(
 		elem0,
 		elem.get_center(),
 		wave_num);
@@ -369,14 +353,20 @@ void test_helmholtz_3d(void)
 
 int main(void)
 {
-	test_laplace_3d_plane_linear();
-	test_laplace_3d_plane_quadratic();
+	std::cout << "\n\nTesting with Laplace kernel\n";
 
-	//	test_laplace_3d_quadratic();
-	//	test_helmholtz_3d();
+	laplace_3d_HSP_kernel l_kernel;
+	test_plane_linear(l_kernel);
+	test_plane_quadratic(l_kernel);
 
-	test_guiggiani_92_curved();
-	test_rong();
+	std::cout << "\n\nTesting with Helmholtz kernel\n";
+
+	helmholtz_3d_HSP_kernel<double> h_kernel(.2);
+	test_plane_linear(h_kernel);
+	test_plane_quadratic(h_kernel);
+
+//	test_guiggiani_92_curved();
+//	test_rong();
 
 	return 0;
 }

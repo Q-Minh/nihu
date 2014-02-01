@@ -18,7 +18,7 @@
 
 /** \file laplace_singular_integrals.hpp
  * \brief Analytical expressions for the singular integrals of laplace kernels
- * \details analytical expression for the laplace kernels over plane triangles
+ * \details analytical expression for the laplace kernels over plane elements
  * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
  */
 #ifndef LAPLACE_SINGULAR_INTEGRALS_HPP_INCLUDED
@@ -26,7 +26,7 @@
 
 #include "../core/integral_operator.hpp"
 #include "laplace_kernel.hpp"
-#include "plane_triangle_helper.hpp"
+#include "plane_element_helper.hpp"
 
 
 /** \brief Collocational singular integral of the 2D Laplace SLP kernel over a constant line element */
@@ -105,8 +105,8 @@ public:
 };
 
 
-/** \brief Collocational singular integral of the 3D Laplace SLP kernel over a constant triangle element */
-class laplace_3d_SLP_collocation_constant_triangle
+/** \brief Collocational singular integral of the 3D Laplace SLP kernel over a constant plane element */
+class laplace_3d_SLP_collocation_constant_plane
 {
 public:
     /**
@@ -115,20 +115,22 @@ public:
      * \param [in] x0 the singular point
      * \return the integral value
      */
-	static double eval(tria_1_elem const &elem, tria_1_elem::x_t const &x0)
+	template <class elem_t>
+	static double eval(elem_t const &elem, typename elem_t::x_t const &x0)
 	{
-		double r[3], theta[3], alpha[3], result = 0.0;
-		planar_triangle_helper(elem, x0, r, theta, alpha);
+		enum { N = elem_t::domain_t::num_corners  };
+		double r[N], theta[N], alpha[N], result = 0.0;
+		plane_element_helper(elem, x0, r, theta, alpha);
 
-		for (unsigned i = 0; i < 3; ++i)
+		for (unsigned i = 0; i < N; ++i)
 			result += r[i] * std::sin(alpha[i]) * std::log(std::tan((alpha[i] + theta[i]) / 2.0) / std::tan(alpha[i] / 2.0));
 
 		return result / (4.0 * M_PI);
 	}
 };
 
-/** \brief Collocational singular integral of the 3D Laplace HSP kernel over a constant triangle element */
-class laplace_3d_HSP_collocation_constant_triangle
+/** \brief Collocational singular integral of the 3D Laplace HSP kernel over a planar element */
+class laplace_3d_HSP_collocation_constant_plane
 {
 public:
     /**
@@ -137,12 +139,14 @@ public:
      * \param [in] x0 the singular point
      * \return the integral value
      */
-	static double eval(tria_1_elem const &elem, tria_1_elem::x_t const &x0)
+	template <class elem_t>
+	static double eval(elem_t const &elem, typename elem_t::x_t const &x0)
 	{
-		double r[3], theta[3], alpha[3], result = 0.0;
-		planar_triangle_helper(elem, x0, r, theta, alpha);
+		enum { N = elem_t::domain_t::num_corners };
+		double r[N], theta[N], alpha[N], result = 0.0;
+		plane_element_helper(elem, x0, r, theta, alpha);
 
-		for (unsigned i = 0; i < 3; ++i)
+		for (unsigned i = 0; i < N; ++i)
 			result += (std::cos(alpha[i] + theta[i]) - std::cos(alpha[i])) / (r[i] * std::sin(alpha[i]));
 
 		return result / (4.0 * M_PI);
