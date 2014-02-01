@@ -41,4 +41,9 @@ Customising your own NiHu
 1. \subpage tut_custom_element : Introduce a new element/field type
 2. \subpage tut_custom_singular_integrals : Specialise the singular integral for constant triangle
 
+Other
+-----
+
+1. \subpage tut_guiggiani_hypersingular : Hypersingular integrals with Guiggiani's method
+
 

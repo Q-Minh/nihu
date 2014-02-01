@@ -1,3 +1,21 @@
+// This file is a part of NiHu, a C++ BEM template library.
+//
+// Copyright (C) 2012-2013  Peter Fiala <fiala@hit.bme.hu>
+// Copyright (C) 2012-2013  Peter Rucz <rucz@hit.bme.hu>
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 /** \file guiggiani_1992.hpp
  * \brief Guiggiani's method for hypersingular collocational integrals
  */
@@ -102,9 +120,11 @@ private:
 	/** \brief store xi0-related quantities for acceleration
 	 * \param [in] xi0 the singular point in the reference domain
 	 */
-	void compute_xi0(xi_t const &xi0)
+	void compute_xi0(xi_t const &xi0, x_t const &normal)
 	{
 		m_xi0 = xi0;
+		m_n0 = normal.normalized();
+
 		m_x0 = m_elem.get_x(m_xi0);
 		typename elem_t::dx_t dx = m_elem.get_dx(m_xi0);
 
@@ -118,8 +138,6 @@ private:
 		m_eta0 = m_T * m_xi0;
 
 		m_J0_vector = m_elem.get_normal(m_xi0) / m_T.determinant();
-		m_J0 = m_J0_vector.norm();
-		m_n0 = m_J0_vector / m_J0;
 		m_N0 = trial_nset_t::eval_shape(xi0);
 
 		// geometrical parameters (triangle helpers)
@@ -172,9 +190,9 @@ public:
 	 * \param [out] result the result matrix where the data is assembled
 	 */
 	template <class result_t>
-	void integrate(result_t &I, xi_t const &xi0)
+	void integrate(result_t &I, xi_t const &xi0, x_t const &normal)
 	{
-		compute_xi0(xi0);
+		compute_xi0(xi0, normal);
 
 		// bind the kernel at the test input
 		test_input_t test_input(m_elem, m_xi0);
@@ -249,6 +267,7 @@ protected:
 
 	xi_t m_xi0;				/**< \brief the source local coordinate */
 	x_t m_x0;				/**< \brief the source point */
+	x_t m_n0;				/**< \brief the unit normal vector at the source point */
 
 	trans_t m_T;			/**< \brief transformation to distorted reference domain */
 	trans_t m_Tinv;			/**< \brief inverse of the transformation */
@@ -262,8 +281,6 @@ protected:
 	scalar_t m_ref_distance[domain_t::num_corners];
 
 	x_t m_J0_vector;		/**< \brief the Jacobian vector at the source point */
-	scalar_t m_J0;			/**< \brief the Jacobian at the source point */
-	x_t m_n0;				/**< \brief the unit normal vector at the source point */
 	trial_n_shape_t m_N0;	/**< \brief the shape function vector at the source point */
 
 	x_t m_A_vector;			/**< \brief the location derivative vector */
@@ -284,11 +301,19 @@ public:
 	template <class guiggiani>
 	static void eval(guiggiani &obj)
 	{
-		auto A2 = obj.m_A*obj.m_A;
-		auto A3 = A2 * obj.m_A;
-		obj.m_Fcoeffs[1] = obj.m_J0 * obj.m_N0 / (4.0 * M_PI * A3);
-		obj.m_Fcoeffs[0] = (obj.m_J0*obj.m_N1 + obj.m_J1_vector.dot(obj.m_n0)*obj.m_N0
-			- 3.0*obj.m_N0*obj.m_J0* obj.m_A_vector.dot(obj.m_B_vector) / A2) / (4.0*M_PI * A3);
+		auto g1vec = obj.m_A_vector / obj.m_A / obj.m_A * (obj.m_B_vector.dot(obj.m_J0_vector) + obj.m_A_vector.dot(obj.m_J1_vector));
+
+		auto b0vec = -obj.m_J0_vector;
+		auto b1vec = 3.0 * g1vec - obj.m_J1_vector;
+
+		auto a0 = b0vec.dot(obj.m_n0) * obj.m_N0;
+		auto a1 = b1vec.dot(obj.m_n0) * obj.m_N0 + b0vec.dot(obj.m_n0) * obj.m_N1;
+
+		auto Sm2 = -3.0 * obj.m_A_vector.dot(obj.m_B_vector) / obj.m_A / obj.m_A / obj.m_A / obj.m_A / obj.m_A;
+		auto Sm3 = 1.0 / obj.m_A / obj.m_A / obj.m_A;
+
+		obj.m_Fcoeffs[0] = -(Sm2 * a0 + Sm3 * a1) / (4.0 * M_PI);
+		obj.m_Fcoeffs[1] = -(Sm3 * a0) / (4.0 * M_PI);
 	}
 };
 
