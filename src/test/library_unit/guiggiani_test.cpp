@@ -282,7 +282,6 @@ void test_rong(void)
 
 void test_guiggiani_92_curved(void)
 {
-	typedef double wave_number_t;
 	typedef laplace_3d_HSP_kernel kernel_t;
 	kernel_t kernel;
 
@@ -328,7 +327,6 @@ void test_helmholtz_3d(void)
 	typedef tria_1_elem elem0_t;
 	typedef tria_2_elem elem_t;
 	typedef field_view<elem_t, field_option::constant> trial_field_t;
-	typedef trial_field_t test_field_t;
 	typedef helmholtz_3d_HSP_kernel<double> kernel_t;
 
 	elem0_t::coords_t coords0;

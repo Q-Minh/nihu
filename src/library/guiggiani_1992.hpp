@@ -43,7 +43,18 @@ template <unsigned order>
 gaussian_quadrature<line_domain> const line_quad_store<order>::quadrature(order);
 
 
-// forward declaration
+/** \brief definition of Laurent coefficients of singularities
+ * \tparam singuarity_type the singularity type
+ * \details The class should implement a static function template eval templated on a guiggiani class
+ * and taking a guiggiani object by reference as parameter.
+ * The function  template should compute the Laurent coefficients of the singularity in terms of
+ * the series expansion of
+ * - the distance vector
+ * - the jacobian vector
+ * - the shape function vector
+ *
+ * and the unit normal at the singular point.
+ */
 template <class singularity_type>
 class polar_laurent_coeffs;
 
@@ -137,8 +148,8 @@ private:
 
 		m_eta0 = m_T * m_xi0;
 
-		m_J0_vector = m_elem.get_normal(m_xi0) / m_T.determinant();
-		m_N0 = trial_nset_t::eval_shape(xi0);
+		m_Jvec_series[0] = m_elem.get_normal(m_xi0) / m_T.determinant();
+		m_N_series[0] = trial_nset_t::eval_shape(xi0);
 
 		// geometrical parameters (triangle helpers)
 		unsigned const N = domain_t::num_corners;
@@ -168,19 +179,19 @@ private:
 		typename elem_t::dx_t dx = m_elem.get_dx(m_xi0);
 		typename elem_t::ddx_t ddx = m_elem.get_ddx(m_xi0);
 
-		m_A_vector = dx.col(shape_index::dXI) * xi(shape_index::dXI) + dx.col(shape_index::dETA) * xi(shape_index::dETA);
-		m_A = m_A_vector.norm();
-		m_B_vector = ddx.col(shape_index::dXIXI) * xi(shape_index::dXI)*xi(shape_index::dXI) / 2.0 +
+		m_rvec_series[0] = dx.col(shape_index::dXI) * xi(shape_index::dXI) + dx.col(shape_index::dETA) * xi(shape_index::dETA);
+		m_A = m_rvec_series[0].norm();
+		m_rvec_series[1] = ddx.col(shape_index::dXIXI) * xi(shape_index::dXI)*xi(shape_index::dXI) / 2.0 +
 			ddx.col(shape_index::dXIETA) * xi(shape_index::dXI)*xi(1) +
 			ddx.col(shape_index::dETAETA) * xi(shape_index::dETA)*xi(shape_index::dETA) / 2.0;
 
-		m_J1_vector = (
+		m_Jvec_series[1] = (
 			xi(shape_index::dXI) * (ddx.col(shape_index::dXIXI).cross(dx.col(shape_index::dETA)) + dx.col(shape_index::dXI).cross(ddx.col(shape_index::dXIETA))) +
 			xi(shape_index::dETA) * (ddx.col(shape_index::dETAXI).cross(dx.col(shape_index::dETA)) + dx.col(shape_index::dXI).cross(ddx.col(shape_index::dETAETA)))
 			) / m_T.determinant();
 
 		auto dN = trial_nset_t::eval_dshape(m_xi0);
-		m_N1 = dN.col(shape_index::dXI)*xi(shape_index::dXI) + dN.col(shape_index::dETA)*xi(shape_index::dETA);
+		m_N_series[1] = dN.col(shape_index::dXI)*xi(shape_index::dXI) + dN.col(shape_index::dETA)*xi(shape_index::dETA);
 	}
 
 public:
@@ -280,20 +291,17 @@ protected:
 	/** \brief distances to the distorted reference domain */
 	scalar_t m_ref_distance[domain_t::num_corners];
 
-	x_t m_J0_vector;		/**< \brief the Jacobian vector at the source point */
-	trial_n_shape_t m_N0;	/**< \brief the shape function vector at the source point */
+	scalar_t m_A;			        /**< \brief the magnitude of the location derivative */
 
-	x_t m_A_vector;			/**< \brief the location derivative vector */
-	scalar_t m_A;			/**< \brief the magnitude of the location derivative */
-	x_t m_B_vector;			/**< \brief the location second derivative vector */
-	x_t m_J1_vector;		/**< \brief the linear part of the Jacobian vector */
-	trial_n_shape_t m_N1;	/**< \brief the linear part of the shape function vector */
-
+	x_t m_rvec_series[2];	        /**< \brief series expansion of the location vector */
+	x_t m_Jvec_series[2];	        /**< \brief series expansion of the Jacobian vector */
+	trial_n_shape_t m_N_series[2];	/**< \brief series expansion of the the shape function vector */
 	trial_n_shape_t m_Fcoeffs[2];	/**< \brief the 1st and 2nd order Laurent coefficient */
 };
 
 #include "../library/laplace_kernel.hpp"
 
+/** \brief specialisation of class ::polar_laurent_coeffs for the ::laplace_3d_HSP_kernel */
 template <>
 class polar_laurent_coeffs<laplace_3d_HSP_kernel>
 {
@@ -301,16 +309,17 @@ public:
 	template <class guiggiani>
 	static void eval(guiggiani &obj)
 	{
-		auto g1vec = obj.m_A_vector / obj.m_A / obj.m_A * (obj.m_B_vector.dot(obj.m_J0_vector) + obj.m_A_vector.dot(obj.m_J1_vector));
+        auto A2 = obj.m_A * obj.m_A, A3 = A2 * obj.m_A;
+		auto g1vec = obj.m_rvec_series[0] / A2 * (obj.m_rvec_series[1].dot(obj.m_Jvec_series[0]) + obj.m_rvec_series[0].dot(obj.m_Jvec_series[1]));
 
-		auto b0vec = -obj.m_J0_vector;
-		auto b1vec = 3.0 * g1vec - obj.m_J1_vector;
+		auto b0vec = -obj.m_Jvec_series[0];
+		auto b1vec = 3.0 * g1vec - obj.m_Jvec_series[1];
 
-		auto a0 = b0vec.dot(obj.m_n0) * obj.m_N0;
-		auto a1 = b1vec.dot(obj.m_n0) * obj.m_N0 + b0vec.dot(obj.m_n0) * obj.m_N1;
+		auto a0 = b0vec.dot(obj.m_n0) * obj.m_N_series[0];
+		auto a1 = b1vec.dot(obj.m_n0) * obj.m_N_series[0] + b0vec.dot(obj.m_n0) * obj.m_N_series[1];
 
-		auto Sm2 = -3.0 * obj.m_A_vector.dot(obj.m_B_vector) / obj.m_A / obj.m_A / obj.m_A / obj.m_A / obj.m_A;
-		auto Sm3 = 1.0 / obj.m_A / obj.m_A / obj.m_A;
+		auto Sm2 = -3.0 * obj.m_rvec_series[0].dot(obj.m_rvec_series[1]) / A2 / A3;
+		auto Sm3 = 1.0 / A3;
 
 		obj.m_Fcoeffs[0] = -(Sm2 * a0 + Sm3 * a1) / (4.0 * M_PI);
 		obj.m_Fcoeffs[1] = -(Sm3 * a0) / (4.0 * M_PI);
