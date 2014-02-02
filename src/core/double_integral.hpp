@@ -548,7 +548,7 @@ public:
 			kernel_traits<Kernel>::is_singular && std::is_same<OnSameMesh, std::true_type>::value;
 
 		result_t result;
-		result.setZero();	// clear result
+		result.setZero();
 
 		return eval(
 			std::integral_constant<bool, sing_check_needed>(),

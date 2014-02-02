@@ -262,14 +262,12 @@ struct singular_kernel_traits<couple_kernel<Kernels...> >
 {
 private:
 	template <class K>
-	struct sing_order_constant : tmp::integer<unsigned, K::singularity_order> {};
-	template <class K>
-	struct sing_quad_order_constant : tmp::integer<unsigned, K::singular_quadrature_order> {};
+	struct sing_quad_order_constant : tmp::integer<unsigned, singular_kernel_traits<K>::singular_quadrature_order> {};
 
 public:
 	/** \brief the combined singularity order */
 	typedef typename tmp::max_<
-		typename kernel_traits<Kernels>::singularity_type_t...
+		typename singular_kernel_traits<Kernels>::singularity_type_t...
 	>::type singularity_type_t;
 	/** \brief the quadrature order used for the generation of blind singular quadratures */
 	static unsigned const singular_quadrature_order = tmp::max_<
