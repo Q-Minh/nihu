@@ -392,7 +392,7 @@ public:
 		field_base<TrialField> const &trial_field,
 		element_match const &)
 	{
-		result(0, 0) = laplace_3d_SLP_collocation_constant_triangle::eval(
+		result(0, 0) = laplace_3d_SLP_collocation_constant_plane::eval(
 			trial_field.get_elem(),
 			trial_field.get_elem().get_center());
 		return result;
@@ -428,7 +428,7 @@ public:
 		field_base<TrialField> const &trial_field,
 		element_match const &)
 	{
-		result(0, 0) = laplace_3d_HSP_collocation_constant_triangle::eval(
+		result(0, 0) = laplace_3d_HSP_collocation_constant_plane::eval(
 			trial_field.get_elem(),
 			trial_field.get_elem().get_center());
 		return result;

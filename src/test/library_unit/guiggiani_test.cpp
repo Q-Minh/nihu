@@ -1,17 +1,34 @@
 #include <iostream>
-#include <iomanip>
 
 #include "library/guiggiani_1992.hpp"
 #include "library/laplace_singular_integrals.hpp"
 #include "library/helmholtz_singular_integrals.hpp"
 #include "library/quad_28_elem.hpp"
 
-template <class elem_t>
-double laplace_planar_analytic(typename elem_t::coords_t const &coords, typename elem_t::x_t const &x0)
+template <class kernel_t>
+struct planar_analytic;
+
+template <class wavenumber_t>
+struct planar_analytic<helmholtz_3d_HSP_kernel<wavenumber_t> >
 {
-	elem_t elem(coords);
-	return laplace_3d_HSP_collocation_constant_plane::eval(elem, x0);
-}
+	template <class elem_t>
+	static typename helmholtz_3d_HSP_kernel<wavenumber_t>::result_t
+	eval(helmholtz_3d_HSP_kernel<wavenumber_t> const &kernel, elem_t const &elem, typename elem_t::x_t const &x0)
+	{
+		return helmholtz_3d_HSP_collocation_constant_plane<40>::eval(elem, x0, kernel.get_data().get_wave_number());
+	}
+};
+
+template <>
+struct planar_analytic<laplace_3d_HSP_kernel>
+{
+	template <class elem_t>
+	static typename laplace_3d_HSP_kernel::result_t
+		eval(laplace_3d_HSP_kernel const &kernel, elem_t const &elem, typename elem_t::x_t const &x0)
+	{
+		return laplace_3d_HSP_collocation_constant_plane::eval(elem, x0);
+	}
+};
 
 
 template <class Kernel, class Elem, unsigned order>
@@ -35,10 +52,11 @@ struct tester
 
 
 #define TEST \
-for (unsigned i = 0; i < sizeof(xi0) / sizeof(xi0[0]); ++i) \
+	for (unsigned i = 0; i < sizeof(xi0) / sizeof(xi0[0]); ++i) \
 {\
 	quad_1_elem elem(coords); \
-	I0[i] = laplace_planar_analytic<quad_1_elem>(coords, elem.get_x(xi0[i])); \
+	quad_1_elem elem0 = elem; \
+	I0[i] = planar_analytic<kernel_t>::eval(kernel, elem0, elem0.get_x(xi0[i])); \
 	I[i][0] = tester<kernel_t, quad_1_elem, 3>::eval(kernel, coords, xi0[i]);\
 	I[i][1] = tester<kernel_t, quad_1_elem, 5>::eval(kernel, coords, xi0[i]);\
 	I[i][2] = tester<kernel_t, quad_1_elem, 7>::eval(kernel, coords, xi0[i]);\
@@ -57,7 +75,6 @@ for (unsigned j = 0; j < 4; ++j)\
 }\
 
 
-
 template <class kernel_t>
 void test_plane_linear(kernel_t const &kernel)
 {
@@ -68,8 +85,6 @@ void test_plane_linear(kernel_t const &kernel)
 	xi0[2] << 0.9, 0.923;
 
 	typename kernel_t::result_t I0[3], I[3][4];
-
-	std::cout << std::setprecision(4);
 
 	std::cout << "\nLinear quad element:\n===================\n";
 
@@ -124,10 +139,11 @@ void test_plane_linear(kernel_t const &kernel)
 #undef TEST
 
 #define TEST \
-for (unsigned i = 0; i < sizeof(xi0) / sizeof(xi0[0]); ++i) \
+	for (unsigned i = 0; i < sizeof(xi0) / sizeof(xi0[0]); ++i) \
 {\
 	quad_2_elem elem(coords); \
-	I0[i] = laplace_planar_analytic<quad_1_elem>(coords0, elem.get_x(xi0[i])); \
+	quad_1_elem elem0(coords0); \
+	I0[i] = planar_analytic<kernel_t>::eval(kernel, elem0, elem.get_x(xi0[i])); \
 	I[i][0] = tester<kernel_t, quad_2_elem, 3>::eval(kernel, coords, xi0[i]); \
 	I[i][1] = tester<kernel_t, quad_2_elem, 5>::eval(kernel, coords, xi0[i]); \
 	I[i][2] = tester<kernel_t, quad_2_elem, 7>::eval(kernel, coords, xi0[i]); \
@@ -158,8 +174,6 @@ void test_plane_quadratic(kernel_t const &kernel)
 	xi0[2] << 0.9, 0.923;
 
 	typename kernel_t::result_t I0[3], I[3][4];
-
-	std::cout << std::setprecision(4);
 
 	std::cout << "\nQuadratic quad element:\n===================\n";
 
@@ -303,53 +317,6 @@ void test_guiggiani_92_curved(void)
 	//std::cout << I << std::endl;
 }
 
-
-void test_helmholtz_3d(void)
-{
-	std::cout << "distortion test of helmholtz 3D kernel with quadratic triangle:\n";
-
-	typedef tria_1_elem elem0_t;
-	typedef tria_2_elem elem_t;
-	typedef field_view<elem_t, field_option::constant> trial_field_t;
-	typedef helmholtz_3d_HSP_kernel<double> kernel_t;
-
-	elem0_t::coords_t coords0;
-	coords0 <<
-		0.0, 1.0, 0.0,
-		0.0, 0.0, 1.0,
-		0.0, 0.0, 0.0;
-
-	elem_t::coords_t coords;
-	coords <<
-		0.0, 0.5, 1.0, 0.5, 0.0, 0.0,
-		0.0, 0.0, 0.0, 0.5, 1.0, 0.5,
-		0.0, 0.0, 0.0, 0.0, 0.0, 0.0;
-
-	coords0.row(1) *= 2.0;
-	coords.row(1) *= 2.0;
-
-	elem0_t elem0(coords0);
-	elem_t elem(coords);
-
-	double wave_num = .1;
-
-	kernel_t kernel(wave_num);
-
-	guiggiani<trial_field_t, kernel_t, 5> gui(elem, kernel);
-
-	Eigen::Matrix<std::complex<double>, 1, 1> I;
-	I.setZero();
-	auto xi0 = elem_t::domain_t::get_center();
-	gui.integrate(I, xi0, elem.get_normal(xi0).normalized());
-	std::complex<double> I0 = helmholtz_3d_HSP_collocation_constant_plane::eval(
-		elem0,
-		elem.get_center(),
-		wave_num);
-
-	std::cout << "I:\t" << I << std::endl;
-	std::cout << "Ianal:\t" << I0 << std::endl;
-	std::cout << "log10 error:\t" << std::log10(std::abs((I / I0).norm() - 1.0)) << std::endl;
-}
 
 int main(void)
 {

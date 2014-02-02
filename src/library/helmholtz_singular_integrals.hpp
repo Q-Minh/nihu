@@ -28,6 +28,7 @@
 #include "../util/math_functions.hpp"
 
 /** \brief Collocational singular integral of the 2D Helmholtz SLP kernel over a constant line element */
+template <unsigned expansion_length>
 class helmholtz_2d_SLP_collocation_constant_line
 {
 public:
@@ -47,7 +48,6 @@ public:
 	{
 		double const EulerMascheroni = 0.57721566490153286060;
 		std::complex<double> const c(EulerMascheroni, M_PI / 2.0);
-		unsigned const N = 5;
 
 		// compute elem radius
 		auto R = (x0 - elem.get_coords().col(0)).norm();
@@ -58,7 +58,7 @@ public:
 		auto res(clnq - 1.0);		// initial (k=0) value of the result
 		decltype(Q) B(1.0);		// the power term in the series
 		double bn = 0.0;		// the harmonic series up to n = 0
-		for (unsigned n = 1; n < N; ++n)
+		for (unsigned n = 1; n < expansion_length; ++n)
 		{
 			B *= -Q*Q / n / n;		// the actual power term
 			bn += 1.0 / n;		// the actual harmonic term
@@ -84,6 +84,7 @@ gaussian_quadrature<domain_t> const domain_quad_store<domain_t, order>::quadratu
 
 
 /** \brief Collocational singular integral of the 3D Helmholtz SLP kernel over a constant planar element */
+template <unsigned order>
 class helmholtz_3d_SLP_collocation_constant_plane
 {
 private:
@@ -109,7 +110,7 @@ public:
 		typename elem_t::x_t const &x0,
 		wavenumber_t const &k)
 	{
-		typedef domain_quad_store<typename elem_t::domain_t, 7> quadr_t;
+		typedef domain_quad_store<typename elem_t::domain_t, order> quadr_t;
 
 		enum { N = elem_t::domain_t::num_corners };
 
@@ -128,9 +129,8 @@ public:
 		for (auto it = quadr_t::quadrature.begin(); it != quadr_t::quadrature.end(); ++it)
 		{
 			double r = (elem.get_x(it->get_xi()) - x0).norm();
-			I_dyn += dynamic_part(r, k) * it->get_w();
+			I_dyn += dynamic_part(r, k) * it->get_w() * elem.get_normal(it->get_xi()).norm();
 		}
-		I_dyn *= elem.get_normal(elem_t::domain_t::xi_t()).norm();
 
 		// assemble result from static and dynamic parts
 		return (I_stat + I_dyn) / (4.0 * M_PI);
@@ -139,6 +139,7 @@ public:
 
 
 /** \brief Collocational singular integral of the 3D Helmholtz HSP kernel over a constant planar element */
+template <unsigned order>
 class helmholtz_3d_HSP_collocation_constant_plane
 {
 private:
@@ -170,7 +171,7 @@ public:
 		typename elem_t::x_t const &x0,
 		wavenumber_t const &k)
 	{
-		typedef domain_quad_store<typename elem_t::domain_t, 7> quadr_t;
+		typedef domain_quad_store<typename elem_t::domain_t, order> quadr_t;
 		enum { N = elem_t::domain_t::num_corners };
 
 		double r[N], theta[N], alpha[N];
@@ -189,9 +190,8 @@ public:
 		for (auto it = quadr_t::quadrature.begin(); it != quadr_t::quadrature.end(); ++it)
 		{
 			double r = (elem.get_x(it->get_xi()) - x0).norm();
-			I_acc += dynamic_part(r, k) * it->get_w();
+			I_acc += dynamic_part(r, k) * it->get_w() * elem.get_normal(it->get_xi()).norm();
 		}
-		I_acc *= elem.get_normal(elem_t::domain_t::get_center()).norm();
 
 		// assemble result from static and dynamic parts
 		return (IddG0 + k*k / 2.0 * IG0 + I_acc) / (4.0 * M_PI);
@@ -269,7 +269,7 @@ public:
 		field_base<TrialField> const &trial_field,
 		element_match const &)
 	{
-		result(0, 0) = helmholtz_2d_SLP_collocation_constant_line::eval(
+		result(0, 0) = helmholtz_2d_SLP_collocation_constant_line<5>::eval(
 			trial_field.get_elem(),
 			trial_field.get_elem().get_center(),
 			kernel.get_data().get_wave_number());
@@ -309,7 +309,7 @@ public:
 		field_base<TrialField> const &trial_field,
 		element_match const &)
 	{
-		result(0, 0) = helmholtz_3d_SLP_collocation_constant_triangle::eval(
+		result(0, 0) = helmholtz_3d_SLP_collocation_constant_plane<7>::eval(
 			trial_field.get_elem(),
 			trial_field.get_elem().get_center(),
 			kernel.get_data().get_wave_number());
@@ -348,7 +348,7 @@ public:
 		field_base<TrialField> const &trial_field,
 		element_match const &)
 	{
-		result(0, 0) = helmholtz_3d_HSP_collocation_constant_triangle::eval(
+		result(0, 0) = helmholtz_3d_HSP_collocation_constant_plane<7>::eval(
 			trial_field.get_elem(),
 			trial_field.get_elem().get_center(),
 			kernel.get_data().get_wave_number());

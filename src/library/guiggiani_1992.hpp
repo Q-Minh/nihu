@@ -50,7 +50,7 @@ gaussian_quadrature<line_domain> const line_quad_store<order>::quadrature(order)
  * The function  template should compute the Laurent coefficients of the singularity in terms of
  * the series expansion of
  * - the distance vector
- * - the jacobian vector
+ * - the Jacobian vector
  * - the shape function vector
  *
  * and the unit normal at the singular point.
@@ -59,16 +59,17 @@ template <class singularity_type>
 class polar_laurent_coeffs;
 
 
-/** \brief CRTP base class of all guiggiani classes
+/** \brief Implementation of Guiggiani's method
  * \tparam TrialField the trial field type
- * \tparam TrialField the kernel type
- * \tparam TrialField the quadrature order of radial integration
- * \tparam TrialField the quadrature order of tangential integration
+ * \tparam Kernel the kernel type
+ * \tparam RadialOrder the quadrature order of radial integration
+ * \tparam TangentialOrder the quadrature order of tangential integration
  */
 template <class TrialField, class Kernel, unsigned RadialOrder, unsigned TangentialOrder = RadialOrder>
 class guiggiani
 {
 public:
+	/** \brief quadrature orders stored as internal constants */
 	enum {
 		radial_order = RadialOrder,	/**< \brief quadrature order in radial direction */
 		tangential_order = TangentialOrder	/**< \brief quadrature order in tangential direction */
@@ -79,18 +80,21 @@ public:
 	/** \brief the element type */
 	typedef typename trial_field_t::elem_t elem_t;
 
-	/** \brief the reference domain type */
+	/** \brief the original reference domain type */
 	typedef typename elem_t::domain_t domain_t;
 	/** \brief the reference coordinate vector type */
 	typedef typename domain_t::xi_t xi_t;
+	/** \brief the Rong's transformation matrix type */
+	typedef Eigen::Matrix<scalar_t, domain_t::dimension, domain_t::dimension> trans_t;
+
 	/** \brief the physical coordinate vector type */
 	typedef typename elem_t::x_t x_t;
-	/** \brief the scalar type */
+	/** \brief the geometrical scalar type */
 	typedef typename elem_t::scalar_t scalar_t;
 
-	/** \brief the trial N-set type */
+	/** \brief shape function set type */
 	typedef typename trial_field_t::nset_t trial_nset_t;
-	/** \brief the trial shape function vector type */
+	/** \brief the shape function vector type */
 	typedef typename trial_nset_t::shape_t trial_n_shape_t;
 
 	/** \brief the kernel type */
@@ -107,12 +111,9 @@ public:
 		typename build<normal_jacobian<typename trial_input_t::space_t> >::type
 	>::type w_trial_input_t;
 
-	/** \brief the Rong's transformation matrix type */
-	typedef Eigen::Matrix<scalar_t, domain_t::dimension, domain_t::dimension> trans_t;
-
 	/** \brief the singular kernel ancestor type */
 	typedef typename singular_kernel_traits<kernel_t>::singular_kernel_ancestor_t singular_kernel_ancestor_t;
-	/** \brief the laurent coefficients computing class */
+	/** \brief the Laurent coefficients computing class */
 	typedef polar_laurent_coeffs<singular_kernel_ancestor_t> laurent_t;
 
 	template <class singularity_type>
@@ -151,7 +152,7 @@ private:
 		m_Jvec_series[0] = m_elem.get_normal(m_xi0) / m_T.determinant();
 		m_N_series[0] = trial_nset_t::eval_shape(xi0);
 
-		// geometrical parameters (triangle helpers)
+		// geometrical parameters (planar helpers)
 		unsigned const N = domain_t::num_corners;
 		for (unsigned n = 0; n < N; ++n)
 		{

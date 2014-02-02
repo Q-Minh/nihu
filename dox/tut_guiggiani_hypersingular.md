@@ -12,7 +12,7 @@ Introduction {#tut_guiggiani_intro}
 
 This tutorial explains how hypersingular integrals are handled in NiHu.
 
-The integral
+The collocational integral
 
 \f$
 \displaystyle
@@ -24,6 +24,9 @@ is hypersingular when the kernel contains an \f$ O(1/r^3) \f$ type singularity i
 Guiggiani's method  {#tut_guiggiani_theory}
 ==================
 
+Guiggiani presented a method for the accurate numerical evaluation of collocational hypersingular integrals.
+The original method has been published in 1992, and an important improvement has been published recently, in 2013.
+
 The original formulation  {#tut_guiggiani_original}
 ------------------------
 
@@ -34,13 +37,15 @@ As usual, the integration is performed in intrinsic coordinates:
 I = \int_{\Sigma} K({\bf \xi}_0, {\bf \xi}) N({\bf \xi}) J({\bf \xi}) d\Sigma,
 \f$
 
-A polar coordinate transform is introduced around the singular point in the reference domain with the definition
+where \f$ \xi \f$ denotes the location vector in the local coordinate system, and \f$ \xi_0 \f$ denotes the image of the singular point. \f$ J(\xi) \f$ is the Jacobian of the coordinate transform.
+
+A further polar coordinate transform is introduced in the local coordinate system around the singular point with the definition
 
 \f$
 \displaystyle \xi = \xi_0 + \rho (\cos \theta, \sin \theta)
 \f$
 
-leading to the integral
+leading to the double integral
 
 \f$
 \displaystyle
@@ -48,14 +53,14 @@ I = \int_{0}^{2\pi} \int_{0}^{\bar{\rho}(\theta)} K(\rho, \theta) N(\rho, \theta
 = \int_{0}^{2\pi} \int_{0}^{\bar{\rho}(\theta)} F(\rho, \theta) d \rho d \theta
 \f$
 
-The integrand \f$ F(\rho, \theta)\f$ is approximated with its Laurent series around the orgin of the polar coordinate system:
+The integrand \f$ F(\rho, \theta)\f$ is approximated with its Laurent series around the origin of the polar coordinate system (the singular point):
 
 \f$
 \displaystyle
 F(\rho, \theta) = \frac{F_{-2}(\theta)}{\rho^2} + \frac{F_{-1}(\theta)}{\rho} + O(1)
 \f$
 
-and is subtracted and added to the integrand to yield
+and the truncated expansion is subtracted and added to the integrand to yield
 
 \f$
 \displaystyle
@@ -63,7 +68,7 @@ I = \int_{0}^{2\pi} \int_{0}^{\bar{\rho}(\theta)} F(\rho, \theta) - \frac{F_{-2}
 + \int_{0}^{2\pi} -\frac{F_{-2}(\theta)}{\bar{\rho}(\theta)} + F_{-1}(\theta) \ln |\bar{\rho}(\theta)| d \theta
 \f$
 
-In the last expression both surface and the line integrals are regular, and can be approximated with standard Gaussian quadrature rules.
+In the last expression both the surface and the line integrals are regular, and can be approximated with standard Gaussian quadrature rules.
 
 The method is fully general, it is valid for any type of curved or distorted surface elements and hypersingular kernels. The only limitation of the above formula is that the element should be smooth around the singular point.
 For corners and edges, the line integrals are extended with additional terms, but remain regular.
@@ -72,14 +77,14 @@ For corners and edges, the line integrals are extended with additional terms, bu
 Rong's improvement  {#tut_guiggiani_rong}
 ------------------
 
-Recently, Rong et al proposed a serious efficiency improvement to Guiggiani's original formulation.
+Recently, Rong et al proposed an efficiency improvement to Guiggiani's original formulation.
 They showed that the intrinsic reference domain \f$ \Sigma \f$ can be chosen such that the derivative
 
 \f$ \displaystyle \left| \lim_{\rho \to 0} \frac{\partial {\bf r}(\rho, \theta)}{\partial \rho} \right| \f$
 
 remains constant over the integration domain.
 As this derivative obviously plays an important role in the Laurent coefficients \f$ F_{-2}(\theta), F_{-1}(\theta) \f$ of the hypersingular kernel, the improvement allows for improved accuracy on highly distorted elements.
-Furthermore, the new reference domain yields analytical closed form expressions for the single angular integrals.
+Furthermore, the new reference domain yields analytical closed form expressions for the angular line integrals.
 
 Implementation  {#tut_guiggiani_implementation}
 ==============
