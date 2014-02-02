@@ -84,13 +84,13 @@ public:
 	typedef typename elem_t::domain_t domain_t;
 	/** \brief the reference coordinate vector type */
 	typedef typename domain_t::xi_t xi_t;
+	/** \brief the geometrical scalar type */
+	typedef typename elem_t::scalar_t scalar_t;
 	/** \brief the Rong's transformation matrix type */
 	typedef Eigen::Matrix<scalar_t, domain_t::dimension, domain_t::dimension> trans_t;
 
 	/** \brief the physical coordinate vector type */
 	typedef typename elem_t::x_t x_t;
-	/** \brief the geometrical scalar type */
-	typedef typename elem_t::scalar_t scalar_t;
 
 	/** \brief shape function set type */
 	typedef typename trial_field_t::nset_t trial_nset_t;
