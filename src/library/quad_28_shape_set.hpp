@@ -25,17 +25,32 @@
 // Forward declaration
 class quad_28_shape_set;
 
-/** \brief Traits for quadratic quad shapesets */
-template<>
-struct shape_set_traits<quad_28_shape_set>
+namespace shape_set_traits
 {
-	typedef quad_domain domain_t;	/**< \brief the domain type */
-	enum {
-		num_nodes = 8,			/** \brief number of shape function nodes */
-		polynomial_order = 2,	/** \brief polynomial order of the shape functions */
-		jacobian_order = 3		/** \brief polynomial order of the Jacobian */
+	template <>
+	struct domain<quad_28_shape_set>
+	{
+		typedef quad_domain type;
 	};
-};
+
+	template <>
+	struct num_nodes<quad_28_shape_set>
+	{
+		enum { value = 8 };
+	};
+
+	template <>
+	struct polynomial_order<quad_28_shape_set>
+	{
+		enum { value = 2 };
+	};
+
+	template <>
+	struct jacobian_order<quad_28_shape_set>
+	{
+		enum { value = 3 };
+	};
+}
 
 /**
 * \brief quadratic 8-noded quad shape function set

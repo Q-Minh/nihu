@@ -30,33 +30,47 @@
 
 #include "domain.hpp"
 
-/** \brief Traits for shapesets */
-template <class Dervied>
-struct shape_set_traits;
-
-/** \brief metafunction assigning a shape set id to a shape set
- * \brief tparam shape_set the shape set
- */
-template <class shape_set>
-struct shape_set_id
-{
-	/** \brief default shape set id computation */
-	enum { value =
-		domain_id<typename shape_set_traits<shape_set>::domain_t>::value * 100 +
-		shape_set_traits<shape_set>::num_nodes
-	};
-};
-
 /** \brief shape function derivative indices */
-namespace shape_index {
+namespace shape_index
+{
 	enum {
-		dXI = 0,		/**< \brief index of xi in shape derivative matrix */
+		dXI = 0,	/**< \brief index of xi in shape derivative matrix */
 		dETA = 1,	/**< \brief index of eta in shape derivative matrix */
 		dXIXI = 0,	/**< \brief index of xi_xi in shape second derivative matrix */
 		dXIETA = 1,	/**< \brief index of xi_eta in shape derivative matrix */
 		dETAXI = 1,	/**< \brief index of eta_xi in shape second derivative matrix */
 		dETAETA = 2	/**< \brief index of eta-eta in shape second derivative matrix */
 	};
+}
+
+/** \brief Traits of shape function sets */
+namespace shape_set_traits
+{
+	/** \brief Defines the domain where the shape function set is defined */
+	template <class Derived>
+	struct domain;
+
+	/** \brief Defines the number of nodes of the shape set */
+	template <class Derived>
+	struct num_nodes;
+
+	/** \brief Assigns an id to the shape set */
+	template <class Derived>
+	struct id
+	{
+		/** \brief default shape set id computation */
+		enum { value = domain_id<typename shape_set_traits::domain<Derived>::type>::value * 100 +
+			shape_set_traits::num_nodes<Derived>::value
+		};
+	};
+
+	/** \brief Defines the polynomial order of the shape set */
+	template <class Derived>
+	struct polynomial_order;
+
+	/** \brief Defines the polynomial order of the shape set's Jacobian */
+	template <class Derived>
+	struct jacobian_order;
 }
 
 
@@ -68,22 +82,19 @@ template <class Derived>
 class shape_set_base
 {
 public:
-	/** \brief the traits class type */
-	typedef shape_set_traits<Derived> traits_t;
-
 	/** \brief Domain */
-	typedef typename traits_t::domain_t domain_t;
+	typedef typename shape_set_traits::domain<Derived>::type domain_t;
 
 	/** \brief integer constants */
 	enum {
 		/** number of shape function nodes */
-		num_nodes = traits_t::num_nodes,
+		num_nodes = shape_set_traits::num_nodes<Derived>::value,
 		/** \brief the shape set polynomial order */
-		polynomial_order = traits_t::polynomial_order,
+		polynomial_order = shape_set_traits::polynomial_order<Derived>::value,
 		/** \brief the Jacobian polynomial order */
-		jacobian_order = traits_t::jacobian_order,
+		jacobian_order = shape_set_traits::jacobian_order<Derived>::value,
 		/** \brief the shape set id */
-		id = shape_set_id<Derived>::value,
+		id = shape_set_traits::id<Derived>::value,
 		/** \brief number of second derivatives */
 		num_dd = domain_t::dimension * (domain_t::dimension+1) / 2
 	};
@@ -99,10 +110,8 @@ public:
 	/** \brief type of the double derivative \f$ L''(\xi)\f$ matrix */
 	typedef Eigen::Matrix<scalar_t, num_nodes, num_dd> ddshape_t;
 
-public:
-	/** \brief return end iterator to the corner nodes
-	* \return end iterator to corner nodes
-	*/
+
+	/** \brief return end iterator to the corner nodes */
 	static xi_t const *corner_end(void)
 	{
 		return Derived::corner_begin() + num_nodes;
@@ -123,19 +132,32 @@ public:
 template <class Domain>
 class constant_shape_set;
 
-/** \brief Traits for constant shape sets */
-template <class Domain>
-struct shape_set_traits<constant_shape_set<Domain> >
+namespace shape_set_traits
 {
-	/** \brief the domain type */
-	typedef Domain domain_t;
-	/** \brief number of nodes */
-	enum {
-		num_nodes = 1,
-		polynomial_order = 0,
-		jacobian_order = 0
+	template <class Domain>
+	struct domain<constant_shape_set<Domain> >
+	{
+		typedef Domain type;
 	};
-};
+
+	template <class Domain>
+	struct num_nodes<constant_shape_set<Domain> >
+	{
+		enum { value = 1 };
+	};
+
+	template <class Domain>
+	struct polynomial_order<constant_shape_set<Domain> >
+	{
+		enum { value = 0 };
+	};
+
+	template <class Domain>
+	struct jacobian_order<constant_shape_set<Domain> >
+	{
+		enum { value = 0 };
+	};
+}
 
 /**
 * \brief Constant interpolation functions
@@ -284,61 +306,56 @@ typename brick_0_shape_set::ddshape_t
 
 
 
-/** \brief Common traits for all isoparametric shape sets
-* \tparam Domain the domain class of the shape set
-*/
-template <class Domain>
-struct isoparam_shape_set_traits_base
-{
-	/** \brief the domain type */
-	typedef Domain domain_t;
-
-	enum {
-		num_nodes = domain_t::num_corners,
-		polynomial_order = 1
-	};
-};
-
-
 // Forward declaration
 template <class Domain>
 class isoparam_shape_set;
 
-/** \brief Traits of the isoparametric line shape set */
-template <>
-struct shape_set_traits<isoparam_shape_set<line_domain> >
-	: isoparam_shape_set_traits_base<line_domain>
+/** \brief traits of shape function sets */
+namespace shape_set_traits
 {
-	/** \brief highest power of local variables in the jacobian */
-	enum { jacobian_order = 0 };
-};
+	template <class Domain>
+	struct domain<isoparam_shape_set<Domain> >
+	{
+		typedef Domain type;
+	};
 
-/** \brief Traits of the isoparametric triangle shape set */
-template <>
-struct shape_set_traits<isoparam_shape_set<tria_domain> >
-	: isoparam_shape_set_traits_base<tria_domain>
-{
-	/** \brief highest power of local variables in the jacobian */
-	enum { jacobian_order = 0 };
-};
+	template <class Domain>
+	struct num_nodes<isoparam_shape_set<Domain> >
+	{
+		enum { value = Domain::num_corners };
+	};
 
-/** \brief Traits of the isoparametric quadrangle shape set */
-template <>
-struct shape_set_traits<isoparam_shape_set<quad_domain> >
-	: isoparam_shape_set_traits_base<quad_domain>
-{
-	/** \brief highest power of local variables in the jacobian */
-	enum { jacobian_order = 1 };
-};
+	template <class Domain>
+	struct polynomial_order<isoparam_shape_set<Domain> >
+	{
+		enum { value = 1 };
+	};
 
-/** \brief Traits of the isoparametric brick shape set */
-template <>
-struct shape_set_traits<isoparam_shape_set<brick_domain> >
-	: isoparam_shape_set_traits_base<brick_domain>
-{
-	/** \brief highest power of local variables in the jacobian */
-	enum { jacobian_order = 1 };
-};
+	template <>
+	struct jacobian_order<isoparam_shape_set<line_domain> >
+	{
+		enum { value = 0 };
+	};
+
+	template <>
+	struct jacobian_order<isoparam_shape_set<tria_domain> >
+	{
+		enum { value = 0 };
+	};
+
+	template <>
+	struct jacobian_order<isoparam_shape_set<quad_domain> >
+	{
+		enum { value = 1 };
+	};
+
+	template <>
+	struct jacobian_order<isoparam_shape_set<brick_domain> >
+	{
+		enum { value = 1 };
+	};
+}
+
 
 /**
 * \brief Isoparametric shape sets
@@ -655,19 +672,32 @@ inline typename brick_1_shape_set::ddshape_t
 // Forward declaration
 class parallelogram_shape_set;
 
-/** \brief Traits for parallelogram shapesets */
-template<>
-struct shape_set_traits<parallelogram_shape_set>
+namespace shape_set_traits
 {
-	/** \brief the domain type */
-	typedef quad_domain domain_t;
-	/** \brief number of nodes */
-	enum {
-		num_nodes = 3,
-		polynomial_order = 1,
-		jacobian_order = 0
+	template <>
+	struct domain<parallelogram_shape_set>
+	{
+		typedef quad_domain type;
 	};
-};
+
+	template <>
+	struct num_nodes<parallelogram_shape_set>
+	{
+		enum { value = 3 };
+	};
+
+	template <>
+	struct polynomial_order<parallelogram_shape_set>
+	{
+		enum { value = 1 };
+	};
+
+	template <>
+	struct jacobian_order<parallelogram_shape_set>
+	{
+		enum { value = 0 };
+	};
+}
 
 /**
 * \brief linear 3-noded parallelogram shape function set
@@ -730,19 +760,34 @@ public:
 // Forward declaration
 class line_2_shape_set;
 
-/** \brief Traits for quadratic line shapesets */
-template<>
-struct shape_set_traits<line_2_shape_set>
+namespace shape_set_traits
 {
-	/** \brief the domain type */
-	typedef line_domain domain_t;
-	/** \brief number of nodes */
-	enum {
-		num_nodes = 3,
-		polynomial_order = 2,
-		jacobian_order = 1
+	template <>
+	struct domain<line_2_shape_set>
+	{
+		typedef line_domain type;
 	};
-};
+
+	template <>
+	struct num_nodes<line_2_shape_set>
+	{
+		enum { value = 3 };
+	};
+
+	template <>
+	struct polynomial_order<line_2_shape_set>
+	{
+		enum { value = 2 };
+	};
+
+	template <>
+	struct jacobian_order<line_2_shape_set>
+	{
+		enum { value = 1 };
+	};
+}
+
+
 
 /**
 * \brief quadratic 3-noded line shape function set
@@ -834,19 +879,33 @@ int const line_2_shape_set::m_domain_indices[line_2_shape_set::num_nodes] = {0, 
 // Forward declaration
 class tria_2_shape_set;
 
-/** \brief Traits for quadratic tria shapesets */
-template<>
-struct shape_set_traits<tria_2_shape_set>
+namespace shape_set_traits
 {
-	/** \brief the domain type */
-	typedef tria_domain domain_t;
-	/** \brief number of nodes */
-	enum {
-		num_nodes = 6,
-		polynomial_order = 2,
-		jacobian_order = 2
+	template <>
+	struct domain<tria_2_shape_set>
+	{
+		typedef tria_domain type;
 	};
-};
+
+	template <>
+	struct num_nodes<tria_2_shape_set>
+	{
+		enum { value = 6 };
+	};
+
+	template <>
+	struct polynomial_order<tria_2_shape_set>
+	{
+		enum { value = 2 };
+	};
+
+	template <>
+	struct jacobian_order<tria_2_shape_set>
+	{
+		enum { value = 2 };
+	};
+}
+
 
 /**
 * \brief quadratic 6-noded tria shape function set
@@ -956,17 +1015,33 @@ int const tria_2_shape_set::m_domain_corners[tria_2_shape_set::num_nodes] =
 // Forward declaration
 class quad_2_shape_set;
 
-/** \brief Traits for quadratic quad shapesets */
-template<>
-struct shape_set_traits<quad_2_shape_set>
+namespace shape_set_traits
 {
-	typedef quad_domain domain_t;	/**< \brief the domain type */
-	enum {
-		num_nodes = 9,
-		polynomial_order = 2,
-		jacobian_order = 3
+	template <>
+	struct domain<quad_2_shape_set>
+	{
+		typedef quad_domain type;
 	};
-};
+
+	template <>
+	struct num_nodes<quad_2_shape_set>
+	{
+		enum { value = 9 };
+	};
+
+	template <>
+	struct polynomial_order<quad_2_shape_set>
+	{
+		enum { value = 2 };
+	};
+
+	template <>
+	struct jacobian_order<quad_2_shape_set>
+	{
+		enum { value = 3 };
+	};
+}
+
 
 /**
 * \brief quadratic 9-noded quad shape function set

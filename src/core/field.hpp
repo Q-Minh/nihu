@@ -59,7 +59,7 @@ struct field_id
 {
 	/** \brief the default field id */
 	static unsigned const value =
-		elem_id<typename field_traits<field_t>::elem_t>::value * 100 +
+		element_traits::id<typename field_traits<field_t>::elem_t>::value * 100 +
 		field_traits<field_t>::nset_t::num_nodes;
 };
 

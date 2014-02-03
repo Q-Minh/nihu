@@ -24,14 +24,32 @@ class quad_1_gauss_shape_set;
 //! [Forward declaration]
 
 //! [Shape traits]
-template<>
-struct shape_set_traits<quad_1_gauss_shape_set>
+namespace shape_set_traits
 {
-	typedef quad_domain domain_t;
-	static unsigned const num_nodes = 4;
-	static unsigned const polynomial_order = 1;
-	static unsigned const jacobian_order = 1;
-};
+	template <>
+	struct domain<quad_1_gauss_shape_set>
+	{
+		typedef quad_domain type;
+	};
+
+	template <>
+	struct num_nodes<quad_1_gauss_shape_set>
+	{
+		enum { value = 4 };
+	};
+
+	template <>
+	struct jacobian_order<quad_1_gauss_shape_set>
+	{
+		enum { value = 1 };
+	};
+
+	template <>
+	struct polynomial_order<quad_1_gauss_shape_set>
+	{
+		enum { value = 1 };
+	};
+}
 //! [Shape traits]
 
 

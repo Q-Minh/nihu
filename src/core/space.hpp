@@ -36,8 +36,12 @@ class space
 public:
 	/** \brief template parameter as nested type */
 	typedef Scalar scalar_t;
-	/** \brief template parameter as nested type */
-	static unsigned const dimension = Dimension;
+
+	/** \brief integral constants */
+	enum {
+		/** \brief template parameter as nested type */
+		dimension = Dimension
+	};
 
 	/** \brief the location type */
 	typedef Eigen::Matrix<scalar_t, Dimension, 1> location_t;

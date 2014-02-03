@@ -25,6 +25,7 @@
 #ifndef DOMAIN_HPP_INCLUDED
 #define DOMAIN_HPP_INCLUDED
 
+#include "global_definitions.hpp"
 #include "space.hpp"
 
 /** \brief metafunction assigning an id to a domain */
@@ -34,8 +35,7 @@ struct domain_id;
 
 /**
  * \brief a subset of the \f$\xi\f$ space. All elements are defined on a domain.
- * \tparam Scalar the scalar type of the space
- * \tparam Dimension the dimensionality of the space
+ * \tparam Space the coordinate space the domain is defined on
  * \tparam NumCorners the number of corners of the domain
  */
 template <class Space, unsigned NumCorners>
@@ -44,16 +44,18 @@ class domain
 public:
 	/** \brief template parameter as nested type */
 	typedef Space space_t;
-	/** \brief template argument as nested type */
-	static unsigned const num_corners = NumCorners;
 
 	/** \brief scalar type inherited from the space */
 	typedef typename space_t::scalar_t scalar_t;
 	/** \brief dimension inherited from the sapce */
 	static unsigned const dimension = space_t::dimension;
 
-	/** \brief the domain id */
-	static unsigned const id = domain_id<domain>::value;
+	enum {
+		/** \brief number of domain corners */
+		num_corners = NumCorners,
+		/** \brief the domain id */
+		id = domain_id<domain>::value
+	};
 
 	/** \brief location vector renamed */
 	typedef typename space_t::location_t xi_t;
@@ -65,7 +67,7 @@ public:
 	 * \brief return the central point of the domain
 	 * \return center point
 	 */
-	static xi_t const &get_center(void)
+	static CONSTEXPR xi_t const &get_center(void)
 	{
 		return m_center;
 	}
@@ -74,7 +76,7 @@ public:
 	 * \brief return pointer to array of corners
 	 * \return pointer to array of corners
 	 */
-	static xi_t const *get_corners(void)
+	static CONSTEXPR xi_t const *get_corners(void)
 	{
 		return m_corners;
 	}
@@ -83,7 +85,7 @@ public:
 	 * \brief return reference to a coner point
 	 * \return constant reference to a corner point
 	 */
-	static xi_t const &get_corner(unsigned idx)
+	static CONSTEXPR xi_t const &get_corner(unsigned idx)
 	{
 		return get_corners()[idx];
 	}
@@ -92,7 +94,7 @@ public:
 	 * \brief return domain volume
 	 * \return domain volume
 	 */
-	static scalar_t const &get_volume(void)
+	static CONSTEXPR scalar_t const &get_volume(void)
 	{
 		return m_volume;
 	}
