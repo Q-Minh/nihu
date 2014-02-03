@@ -42,6 +42,9 @@ template <class Space, unsigned NumCorners>
 class domain
 {
 public:
+	/** \brief self-returning */
+	typedef domain type;
+
 	/** \brief template parameter as nested type */
 	typedef Space space_t;
 

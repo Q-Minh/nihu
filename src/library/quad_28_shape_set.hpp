@@ -58,66 +58,6 @@ namespace shape_set_traits
 class quad_28_shape_set : public shape_set_base<quad_28_shape_set>
 {
 public:
-	/**
-	* \brief quadratic 8-noded quad shape functions
-	* \param [in] _xi the domain variable vector
-	* \return the shape function vector
-	*/
-	static shape_t eval_shape(xi_t const &_xi)
-	{
-		scalar_t xi = _xi[0], eta = _xi[1], xi2 = xi*xi, eta2 = eta*eta;
-		return ( shape_t() <<
-			-((xi-1.0)*(eta-1.0)*(xi+eta+1.0))/4.0,
-            ((xi2 - 1.0)*(eta-1.0))/2.0,
-			((xi+1.0)*(eta-1.0)*(eta-xi+1.0))/4.0,
-           -((eta2-1.0)*(xi + 1.0))/2.0,
-			((xi+1.0)*(eta+1.0)*(xi+eta-1.0))/4.0,
-           -((xi2-1.0)*(eta+1.0))/2.0,
-			((xi-1.0)*(eta+1.0)*(xi-eta+1.0))/4.0,
-            ((eta2-1.0)*(xi-1.0))/2.0
-		).finished();
-	}
-
-	/**
-	* \brief quadratic 8-noded quad shape function derivatives
-	* \param [in] _xi the domain variable vector
-	* \return the shape function gradient matrix
-	*/
-	static dshape_t eval_dshape(xi_t const & _xi)
-	{
-		scalar_t x = _xi[0], y = _xi[1], x2 = x*x, y2 = y*y;
-		return ( dshape_t() <<
-		 -((2.0*x+y)*(y-1.0))/4.0, -((x + 2*y)*(x- 1.0))/4.0,
-					  x*(y - 1.0),            (x2 - 1.0)/2.0,
-		 -((2.0*x-y)*(y-1.0))/4.0, -((x - 2*y)*(x+ 1.0))/4.0,
-					(1.0- y2)/2.0,             -y*(x + 1.0),
-		  ((2.0*x+y)*(y+1.0))/4.0,  ((x + 2*y)*(x+ 1.0))/4.0,
-					 -x*(y + 1.0),            (1.0 - x2)/2.0,
-		  ((2.0*x-y)*(y+1.0))/4.0,  ((x - 2*y)*(x- 1.0))/4.0,
-					(y2- 1.0)/2.0,              y*(x - 1.0)
-		).finished();
-	}
-
-	/**
-	* \brief quadratic 8-noded quad shape function second derivatives
-	* \param [in] _xi the domain variable vector
-	* \return the shape function second derivative matrix
-	*/
-	static ddshape_t eval_ddshape(xi_t const & _xi)
-	{
-		auto xi(_xi[0]), eta(_xi[1]);
-		return ( ddshape_t() <<
-			.5-eta/2.0,  1/4.0-xi/2.0-eta/2.0, .5-xi/2.0,
-			eta-1.0,     xi,                   0.0,
-			.5-eta/2.0,  eta/2.0-xi/2.0-1/4.0, xi/2.0+.5,
-			0.0,         -eta,                 -xi-1.0,
-			eta/2.0+.5,  eta/2.0+xi/2.0+1/4.0, xi/2.0+.5,
-			-eta-1.0,    -xi,                  0.0,
-			eta/2.0+.5,  xi/2.0-eta/2.0-1/4.0, .5-xi/2.0,
-			0.0,         eta,                  xi-1.0
-		).finished();
-	}
-
 	/** \brief return begin iterator to the corner nodes
 	* \return begin iterator to corner nodes
 	*/
@@ -148,19 +88,100 @@ protected:
 
 
 quad_28_shape_set::xi_t
-	const quad_28_shape_set::m_corners[quad_28_shape_set::num_nodes] = {
-		quad_28_shape_set::xi_t(-1.0,-1.0),
-		quad_28_shape_set::xi_t( 0.0,-1.0),
-		quad_28_shape_set::xi_t(+1.0,-1.0),
-		quad_28_shape_set::xi_t(+1.0, 0.0),
-		quad_28_shape_set::xi_t(+1.0,+1.0),
-		quad_28_shape_set::xi_t( 0.0,+1.0),
-		quad_28_shape_set::xi_t(-1.0,+1.0),
-		quad_28_shape_set::xi_t(-1.0, 0.0)
+const quad_28_shape_set::m_corners[quad_28_shape_set::num_nodes] = {
+	quad_28_shape_set::xi_t(-1.0, -1.0),
+	quad_28_shape_set::xi_t(0.0, -1.0),
+	quad_28_shape_set::xi_t(+1.0, -1.0),
+	quad_28_shape_set::xi_t(+1.0, 0.0),
+	quad_28_shape_set::xi_t(+1.0, +1.0),
+	quad_28_shape_set::xi_t(0.0, +1.0),
+	quad_28_shape_set::xi_t(-1.0, +1.0),
+	quad_28_shape_set::xi_t(-1.0, 0.0)
 };
 
 int const quad_28_shape_set::m_domain_corners[quad_28_shape_set::num_nodes] =
-	{0, -1, 1, -1, 2, -1, 3, -1};
+{ 0, -1, 1, -1, 2, -1, 3, -1 };
 
+
+/**
+* \brief quadratic 8-noded quad shape functions
+* \param [in] _xi the domain variable vector
+* \return the shape function vector
+*/
+template<>
+class shape_function<quad_28_shape_set, 0>
+{
+	typedef shape_set_traits::shape_value_type<quad_28_shape_set, 0>::type shape_t;
+	typedef shape_set_traits::domain<quad_28_shape_set>::type::xi_t xi_t;
+public:
+	static shape_t eval(xi_t const &_xi)
+	{
+		auto xi = _xi[0], eta = _xi[1], xi2 = xi*xi, eta2 = eta*eta;
+		return (shape_t() <<
+			-((xi - 1.0)*(eta - 1.0)*(xi + eta + 1.0)) / 4.0,
+			((xi2 - 1.0)*(eta - 1.0)) / 2.0,
+			((xi + 1.0)*(eta - 1.0)*(eta - xi + 1.0)) / 4.0,
+			-((eta2 - 1.0)*(xi + 1.0)) / 2.0,
+			((xi + 1.0)*(eta + 1.0)*(xi + eta - 1.0)) / 4.0,
+			-((xi2 - 1.0)*(eta + 1.0)) / 2.0,
+			((xi - 1.0)*(eta + 1.0)*(xi - eta + 1.0)) / 4.0,
+			((eta2 - 1.0)*(xi - 1.0)) / 2.0
+			).finished();
+	}
+};
+
+/**
+* \brief quadratic 8-noded quad shape function derivatives
+* \param [in] _xi the domain variable vector
+* \return the shape function gradient matrix
+*/
+template<>
+class shape_function<quad_28_shape_set, 1>
+{
+	typedef shape_set_traits::shape_value_type<quad_28_shape_set, 1>::type shape_t;
+	typedef shape_set_traits::domain<quad_28_shape_set>::type::xi_t xi_t;
+public:
+	static shape_t eval(xi_t const &_xi)
+	{
+		auto x = _xi[0], y = _xi[1], x2 = x*x, y2 = y*y;
+		return (shape_t() <<
+			-((2.0*x + y)*(y - 1.0)) / 4.0, -((x + 2 * y)*(x - 1.0)) / 4.0,
+			x*(y - 1.0), (x2 - 1.0) / 2.0,
+			-((2.0*x - y)*(y - 1.0)) / 4.0, -((x - 2 * y)*(x + 1.0)) / 4.0,
+			(1.0 - y2) / 2.0, -y*(x + 1.0),
+			((2.0*x + y)*(y + 1.0)) / 4.0, ((x + 2 * y)*(x + 1.0)) / 4.0,
+			-x*(y + 1.0), (1.0 - x2) / 2.0,
+			((2.0*x - y)*(y + 1.0)) / 4.0, ((x - 2 * y)*(x - 1.0)) / 4.0,
+			(y2 - 1.0) / 2.0, y*(x - 1.0)
+			).finished();
+	}
+};
+
+/**
+* \brief quadratic 8-noded quad shape function second derivatives
+* \param [in] _xi the domain variable vector
+* \return the shape function second derivative matrix
+*/
+template<>
+class shape_function<quad_28_shape_set, 2>
+{
+	typedef shape_set_traits::shape_value_type<quad_28_shape_set, 2>::type shape_t;
+	typedef shape_set_traits::domain<quad_28_shape_set>::type::xi_t xi_t;
+public:
+	static shape_t eval(xi_t const &_xi)
+	{
+		auto xi(_xi[0]), eta(_xi[1]);
+		return (shape_t() <<
+			.5 - eta / 2.0, 1 / 4.0 - xi / 2.0 - eta / 2.0, .5 - xi / 2.0,
+			eta - 1.0, xi, 0.0,
+			.5 - eta / 2.0, eta / 2.0 - xi / 2.0 - 1 / 4.0, xi / 2.0 + .5,
+			0.0, -eta, -xi - 1.0,
+			eta / 2.0 + .5, eta / 2.0 + xi / 2.0 + 1 / 4.0, xi / 2.0 + .5,
+			-eta - 1.0, -xi, 0.0,
+			eta / 2.0 + .5, xi / 2.0 - eta / 2.0 - 1 / 4.0, .5 - xi / 2.0,
+			0.0, eta, xi - 1.0
+			).finished();
+	}
+};
 
 #endif
