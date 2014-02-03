@@ -467,7 +467,7 @@ public:
 		typedef guiggiani<TrialField, laplace_3d_HSP_kernel, 5, 9> guiggiani_t;
 		auto const &elem = trial_field.get_elem();
 		guiggiani_t gui(elem, kernel.derived());
-		for (unsigned r = 0; r < TestField::num_nodes; ++r)
+		for (unsigned r = 0; r < TestField::num_dofs; ++r)
 		{
 			auto const &xi0 = TestField::nset_t::corner_at(r);
 			gui.integrate(result.row(r), xi0, elem.get_normal(xi0));
@@ -478,3 +478,4 @@ public:
 
 
 #endif // LAPLACE_SINGULAR_INTEGRALS_HPP_INCLUDED
+

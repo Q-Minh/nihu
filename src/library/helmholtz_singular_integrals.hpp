@@ -26,6 +26,7 @@
 #include "helmholtz_kernel.hpp"
 #include "plane_element_helper.hpp"
 #include "../util/math_functions.hpp"
+#include "guiggiani_1992.hpp"
 
 /** \brief Collocational singular integral of the 2D Helmholtz SLP kernel over a constant line element */
 template <unsigned expansion_length>
@@ -355,5 +356,47 @@ public:
 		return result;
 	}
 };
+
+/** \brief collocational singular integral of the HSP kernel not over a constant triangle
+ * \tparam TestField the test field type
+ * \tparam TrialField the trial field type
+ */
+template <class WaveNumber, class TestField, class TrialField>
+class singular_integral_shortcut<
+	helmholtz_3d_HSP_kernel<WaveNumber>, TestField, TrialField, match::face_match_type,
+	typename std::enable_if<
+		std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
+		!(std::is_same<typename TrialField::lset_t, tria_1_shape_set>::value &&
+		std::is_same<typename TrialField::nset_t, tria_0_shape_set>::value)
+	>::type
+>
+{
+public:
+	/** \brief evaluate singular integral
+	 * \tparam result_t the result matrix type
+	 * \param [in, out] result reference to the result
+	 * \param [in] trial_field the trial and test field
+	 */
+	template <class result_t>
+	static result_t &eval(
+		result_t &result,
+		kernel_base<helmholtz_3d_HSP_kernel<WaveNumber> > const &kernel,
+		field_base<TestField> const &,
+		field_base<TrialField> const &trial_field,
+		element_match const &)
+	{
+		typedef guiggiani<TrialField, helmholtz_3d_HSP_kernel<WaveNumber>, 5, 9> guiggiani_t;
+		auto const &elem = trial_field.get_elem();
+		guiggiani_t gui(elem, kernel.derived());
+		for (unsigned r = 0; r < TestField::num_dofs; ++r)
+		{
+			auto const &xi0 = TestField::nset_t::corner_at(r);
+			gui.integrate(result.row(r), xi0, elem.get_normal(xi0));
+		}
+		return result;
+	}
+};
+
+
 
 #endif // HELMHOLTZ_SINGULAR_INTEGRALS_HPP_INCLUDED

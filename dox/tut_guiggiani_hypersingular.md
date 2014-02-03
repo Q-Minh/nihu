@@ -3,7 +3,8 @@ Hypersingular integrals and Guiggiani's method {#tut_guiggiani_hypersingular}
 
 \page tut_guiggiani_hypersingular
 
-[Eigen]:http://eigen.tuxfamily.org/index.php?title=Main_Page
+[RongMethod]:http://dx.doi.org/10.1016/j.enganabound.2013.10.014
+[GuiggianiMethod]:http://dx.doi.org/doi:10.1115/1.2893766
 
 [TOC]
 
@@ -24,8 +25,9 @@ is hypersingular when the kernel contains an \f$ O(1/r^3) \f$ type singularity i
 Guiggiani's method  {#tut_guiggiani_theory}
 ==================
 
-Guiggiani presented a method for the accurate numerical evaluation of collocational hypersingular integrals.
-The original method has been published in 1992, and an important improvement has been published recently, in 2013.
+[Guiggiani][GuiggianiMethod] presented a method in 1992 for the accurate numerical evaluation of collocational hypersingular integrals.
+Recently, [Rong et al][RongMethod] published an improved version of the original generic algorithm.
+NiHu implements the improved version.
 
 The original formulation  {#tut_guiggiani_original}
 ------------------------
@@ -37,7 +39,8 @@ As usual, the integration is performed in intrinsic coordinates:
 I = \int_{\Sigma} K({\bf \xi}_0, {\bf \xi}) N({\bf \xi}) J({\bf \xi}) d\Sigma,
 \f$
 
-where \f$ \xi \f$ denotes the location vector in the local coordinate system, and \f$ \xi_0 \f$ denotes the image of the singular point. \f$ J(\xi) \f$ is the Jacobian of the coordinate transform.
+where \f$ \xi \f$ denotes the location vector in the local coordinate system, and \f$ \xi_0 \f$ denotes the image of the singular point.
+\f$ J(\xi) \f$ is the Jacobian of the coordinate transform.
 
 A further polar coordinate transform is introduced in the local coordinate system around the singular point with the definition
 
@@ -70,7 +73,8 @@ I = \int_{0}^{2\pi} \int_{0}^{\bar{\rho}(\theta)} F(\rho, \theta) - \frac{F_{-2}
 
 In the last expression both the surface and the line integrals are regular, and can be approximated with standard Gaussian quadrature rules.
 
-The method is fully general, it is valid for any type of curved or distorted surface elements and hypersingular kernels. The only limitation of the above formula is that the element should be smooth around the singular point.
+The method is fully general, it is valid for any type of curved or distorted surface elements and hypersingular kernels.
+The only limitation of the above formula is that the element should be smooth around the singular point.
 For corners and edges, the line integrals are extended with additional terms, but remain regular.
 
 
@@ -106,4 +110,5 @@ The class ::polar_laurent_coeffs should implement a static function template cal
 - the unit normal vector \f$ {\bf n} \f$ at the singular point
 
 These members are obtained from the general guiggiani object taken as parameter by function eval.
+
 
