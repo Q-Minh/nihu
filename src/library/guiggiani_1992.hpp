@@ -202,7 +202,7 @@ public:
 	 * \param [out] result the result matrix where the data is assembled
 	 */
 	template <class result_t>
-	void integrate(result_t &I, xi_t const &xi0, x_t const &normal)
+	void integrate(result_t &&I, xi_t const &xi0, x_t const &normal)
 	{
 		compute_xi0(xi0, normal);
 
