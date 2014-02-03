@@ -66,8 +66,7 @@ public:
 	static shape_t eval_shape(xi_t const &_xi)
 	{
 		scalar_t xi = _xi[0], eta = _xi[1], xi2 = xi*xi, eta2 = eta*eta;
-		shape_t L;
-		L <<
+		return ( shape_t() <<
 			-((xi-1.0)*(eta-1.0)*(xi+eta+1.0))/4.0,
             ((xi2 - 1.0)*(eta-1.0))/2.0,
 			((xi+1.0)*(eta-1.0)*(eta-xi+1.0))/4.0,
@@ -75,8 +74,8 @@ public:
 			((xi+1.0)*(eta+1.0)*(xi+eta-1.0))/4.0,
            -((xi2-1.0)*(eta+1.0))/2.0,
 			((xi-1.0)*(eta+1.0)*(xi-eta+1.0))/4.0,
-            ((eta2-1.0)*(xi-1.0))/2.0;
-		return L;
+            ((eta2-1.0)*(xi-1.0))/2.0
+		).finished();
 	}
 
 	/**
@@ -87,8 +86,7 @@ public:
 	static dshape_t eval_dshape(xi_t const & _xi)
 	{
 		scalar_t x = _xi[0], y = _xi[1], x2 = x*x, y2 = y*y;
-		dshape_t dL;
-		dL <<
+		return ( dshape_t() <<
 		 -((2.0*x+y)*(y-1.0))/4.0, -((x + 2*y)*(x- 1.0))/4.0,
 					  x*(y - 1.0),            (x2 - 1.0)/2.0,
 		 -((2.0*x-y)*(y-1.0))/4.0, -((x - 2*y)*(x+ 1.0))/4.0,
@@ -96,8 +94,8 @@ public:
 		  ((2.0*x+y)*(y+1.0))/4.0,  ((x + 2*y)*(x+ 1.0))/4.0,
 					 -x*(y + 1.0),            (1.0 - x2)/2.0,
 		  ((2.0*x-y)*(y+1.0))/4.0,  ((x - 2*y)*(x- 1.0))/4.0,
-					(y2- 1.0)/2.0,              y*(x - 1.0);
- 		return dL;
+					(y2- 1.0)/2.0,              y*(x - 1.0)
+		).finished();
 	}
 
 	/**
@@ -108,8 +106,7 @@ public:
 	static ddshape_t eval_ddshape(xi_t const & _xi)
 	{
 		auto xi(_xi[0]), eta(_xi[1]);
-		ddshape_t ddL;
-		ddL <<
+		return ( ddshape_t() <<
 			.5-eta/2.0,  1/4.0-xi/2.0-eta/2.0, .5-xi/2.0,
 			eta-1.0,     xi,                   0.0,
 			.5-eta/2.0,  eta/2.0-xi/2.0-1/4.0, xi/2.0+.5,
@@ -117,8 +114,8 @@ public:
 			eta/2.0+.5,  eta/2.0+xi/2.0+1/4.0, xi/2.0+.5,
 			-eta-1.0,    -xi,                  0.0,
 			eta/2.0+.5,  xi/2.0-eta/2.0-1/4.0, .5-xi/2.0,
-			0.0,         eta,                  xi-1.0;
-		return ddL;
+			0.0,         eta,                  xi-1.0
+		).finished();
 	}
 
 	/** \brief return begin iterator to the corner nodes

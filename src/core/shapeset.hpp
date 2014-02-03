@@ -59,8 +59,8 @@ namespace shape_set_traits
 	struct id
 	{
 		/** \brief default shape set id computation */
-		enum { value = domain_id<typename shape_set_traits::domain<Derived>::type>::value * 100 +
-			shape_set_traits::num_nodes<Derived>::value
+		enum { value = domain_id<typename domain<Derived>::type>::value * 100 +
+			num_nodes<Derived>::value
 		};
 	};
 
@@ -433,11 +433,7 @@ template<>
 inline typename line_1_shape_set::shape_t
 	line_1_shape_set::eval_shape(typename line_1_shape_set::xi_t const &xi)
 {
-	shape_t L;
-	L <<
-		(1.0-xi[0])/2.0,
-		(1.0+xi[0])/2.0;
-	return L;
+	return (shape_t() << 1.0-xi[0], 1.0+xi[0] ).finished() / 2.0;
 }
 
 /**
@@ -451,11 +447,7 @@ template<>
 inline typename isoparam_shape_set<line_domain>::dshape_t
 	line_1_shape_set::eval_dshape(typename line_1_shape_set::xi_t const &)
 {
-	dshape_t dL;
-	dL <<
-		-0.5,
-		+0.5;
-	return dL;
+	return (dshape_t() << -0.5, +0.5).finished();
 }
 
 
@@ -489,12 +481,7 @@ template<>
 inline typename tria_1_shape_set::shape_t
 	tria_1_shape_set::eval_shape(typename tria_1_shape_set::xi_t const &xi)
 {
-	shape_t L;
-	L <<
-		1.0-xi[0]-xi[1],
-		xi[0],
-		xi[1];
-	return L;
+	return (shape_t() << 1.0-xi[0]-xi[1], xi[0], xi[1] ).finished();
 }
 
 /**
@@ -505,12 +492,11 @@ template<>
 inline typename tria_1_shape_set::dshape_t
 	tria_1_shape_set::eval_dshape(typename tria_1_shape_set::xi_t const &)
 {
-	dshape_t dL;
-	dL <<
+	return (dshape_t() <<
 		-1.0, -1.0,
 		+1.0,  0.0,
-		0.0, +1.0;
-	return dL;
+		0.0, +1.0
+		).finished();
 }
 
 /**
@@ -544,13 +530,12 @@ template<>
 inline typename quad_1_shape_set::shape_t
 	quad_1_shape_set::eval_shape(typename quad_1_shape_set::xi_t const &xi)
 {
-	shape_t L;
-	L <<
-		(1.0-xi[0])*(1.0-xi[1])/4.0,
-		(1.0+xi[0])*(1.0-xi[1])/4.0,
-		(1.0+xi[0])*(1.0+xi[1])/4.0,
-		(1.0-xi[0])*(1.0+xi[1])/4.0;
-	return L;
+	return (shape_t() <<
+		(1.0-xi[0])*(1.0-xi[1]),
+		(1.0+xi[0])*(1.0-xi[1]),
+		(1.0+xi[0])*(1.0+xi[1]),
+		(1.0-xi[0])*(1.0+xi[1])
+		).finished() / 4.0;
 }
 
 /**
@@ -561,13 +546,12 @@ template<>
 inline typename quad_1_shape_set::dshape_t
 	quad_1_shape_set::eval_dshape(typename quad_1_shape_set::xi_t const &xi)
 {
-	dshape_t dL;
-	dL <<
-		-.25 * (1-xi[1]), (1.0-xi[0]) * -.25,
-		+.25 * (1-xi[1]), (1.0+xi[0]) * -.25,
-		+.25 * (1+xi[1]), (1.0+xi[0]) * +.25,
-		-.25 * (1+xi[1]), (1.0-xi[0]) * +.25;
-	return dL;
+	return (dshape_t() <<
+		-(1.0-xi[1]), -(1.0-xi[0]),
+		+(1.0-xi[1]), -(1.0+xi[0]),
+		+(1.0+xi[1]), +(1.0+xi[0]),
+		-(1.0+xi[1]), +(1.0-xi[0])
+		).finished() / 4.0;
 }
 
 /**
@@ -578,15 +562,13 @@ template<>
 inline typename quad_1_shape_set::ddshape_t
 	quad_1_shape_set::eval_ddshape(typename quad_1_shape_set::xi_t const &)
 {
-	ddshape_t ddL;
-	ddL <<
+	return (ddshape_t() <<
 		0.0, +.25, 0.0,
 		0.0, -.25, 0.0,
 		0.0, +.25, 0.0,
-		0.0, -.25, 0.0;
-	return ddL;
+		0.0, -.25, 0.0
+	).finished();
 }
-
 
 
 /** linear brick shape set */
@@ -611,17 +593,16 @@ template<>
 inline typename brick_1_shape_set::shape_t
 	brick_1_shape_set::eval_shape(typename brick_1_shape_set::xi_t const &xi)
 {
-	shape_t L;
-	L <<
-		(1.0-xi[0])*(1.0-xi[1])*(1.0-xi[2])/8.0,
-		(1.0+xi[0])*(1.0-xi[1])*(1.0-xi[2])/8.0,
-		(1.0+xi[0])*(1.0+xi[1])*(1.0-xi[2])/8.0,
-		(1.0-xi[0])*(1.0+xi[1])*(1.0-xi[2])/8.0,
-		(1.0-xi[0])*(1.0-xi[1])*(1.0+xi[2])/8.0,
-		(1.0+xi[0])*(1.0-xi[1])*(1.0+xi[2])/8.0,
-		(1.0+xi[0])*(1.0+xi[1])*(1.0+xi[2])/8.0,
-		(1.0-xi[0])*(1.0+xi[1])*(1.0+xi[2])/8.0;
-	return L;
+	return (shape_t() <<
+		(1.0-xi[0])*(1.0-xi[1])*(1.0-xi[2]),
+		(1.0+xi[0])*(1.0-xi[1])*(1.0-xi[2]),
+		(1.0+xi[0])*(1.0+xi[1])*(1.0-xi[2]),
+		(1.0-xi[0])*(1.0+xi[1])*(1.0-xi[2]),
+		(1.0-xi[0])*(1.0-xi[1])*(1.0+xi[2]),
+		(1.0+xi[0])*(1.0-xi[1])*(1.0+xi[2]),
+		(1.0+xi[0])*(1.0+xi[1])*(1.0+xi[2]),
+		(1.0-xi[0])*(1.0+xi[1])*(1.0+xi[2])
+		).finished() / 8.0;
 }
 
 /**
@@ -633,17 +614,16 @@ template<>
 inline typename brick_1_shape_set::dshape_t
 	brick_1_shape_set::eval_dshape(typename brick_1_shape_set::xi_t const &xi)
 {
-	dshape_t dL;
-	dL <<
-		(-1.0)*(1.0-xi[1])*(1.0-xi[2])/8.0, (1.0-xi[0])*(-1.0)*(1.0-xi[2])/8.0, (1.0-xi[0])*(1.0-xi[1])*(-1.0)/8.0,
-		(+1.0)*(1.0-xi[1])*(1.0-xi[2])/8.0, (1.0+xi[0])*(-1.0)*(1.0-xi[2])/8.0, (1.0+xi[0])*(1.0-xi[1])*(-1.0)/8.0,
-		(+1.0)*(1.0+xi[1])*(1.0-xi[2])/8.0, (1.0+xi[0])*(+1.0)*(1.0-xi[2])/8.0, (1.0+xi[0])*(1.0+xi[1])*(-1.0)/8.0,
-		(-1.0)*(1.0+xi[1])*(1.0-xi[2])/8.0, (1.0-xi[0])*(+1.0)*(1.0-xi[2])/8.0, (1.0-xi[0])*(1.0+xi[1])*(-1.0)/8.0,
-		(-1.0)*(1.0-xi[1])*(1.0+xi[2])/8.0, (1.0-xi[0])*(-1.0)*(1.0+xi[2])/8.0, (1.0-xi[0])*(1.0-xi[1])*(+1.0)/8.0,
-		(+1.0)*(1.0-xi[1])*(1.0+xi[2])/8.0, (1.0+xi[0])*(-1.0)*(1.0+xi[2])/8.0, (1.0+xi[0])*(1.0-xi[1])*(+1.0)/8.0,
-		(+1.0)*(1.0+xi[1])*(1.0+xi[2])/8.0, (1.0+xi[0])*(+1.0)*(1.0+xi[2])/8.0, (1.0+xi[0])*(1.0+xi[1])*(+1.0)/8.0,
-		(-1.0)*(1.0+xi[1])*(1.0+xi[2])/8.0, (1.0-xi[0])*(+1.0)*(1.0+xi[2])/8.0, (1.0-xi[0])*(1.0+xi[1])*(+1.0)/8.0;
-	return dL;
+	return (dshape_t() <<
+		(-1.0)*(1.0-xi[1])*(1.0-xi[2]), (1.0-xi[0])*(-1.0)*(1.0-xi[2]), (1.0-xi[0])*(1.0-xi[1])*(-1.0),
+		(+1.0)*(1.0-xi[1])*(1.0-xi[2]), (1.0+xi[0])*(-1.0)*(1.0-xi[2]), (1.0+xi[0])*(1.0-xi[1])*(-1.0),
+		(+1.0)*(1.0+xi[1])*(1.0-xi[2]), (1.0+xi[0])*(+1.0)*(1.0-xi[2]), (1.0+xi[0])*(1.0+xi[1])*(-1.0),
+		(-1.0)*(1.0+xi[1])*(1.0-xi[2]), (1.0-xi[0])*(+1.0)*(1.0-xi[2]), (1.0-xi[0])*(1.0+xi[1])*(-1.0),
+		(-1.0)*(1.0-xi[1])*(1.0+xi[2]), (1.0-xi[0])*(-1.0)*(1.0+xi[2]), (1.0-xi[0])*(1.0-xi[1])*(+1.0),
+		(+1.0)*(1.0-xi[1])*(1.0+xi[2]), (1.0+xi[0])*(-1.0)*(1.0+xi[2]), (1.0+xi[0])*(1.0-xi[1])*(+1.0),
+		(+1.0)*(1.0+xi[1])*(1.0+xi[2]), (1.0+xi[0])*(+1.0)*(1.0+xi[2]), (1.0+xi[0])*(1.0+xi[1])*(+1.0),
+		(-1.0)*(1.0+xi[1])*(1.0+xi[2]), (1.0-xi[0])*(+1.0)*(1.0+xi[2]), (1.0-xi[0])*(1.0+xi[1])*(+1.0)
+	). finished() / 8.0;
 }
 
 /**
@@ -655,17 +635,16 @@ template<>
 inline typename brick_1_shape_set::ddshape_t
 	brick_1_shape_set::eval_ddshape(typename brick_1_shape_set::xi_t const &xi)
 {
-	ddshape_t dL;
-	dL <<
-		0,  1/8.0 - xi[2]/8.0,  1/8.0 - xi[1]/8.0, 0,  1/8.0 - xi[0]/8.0, 0,
-		0,  xi[2]/8.0 - 1/8.0,  xi[1]/8.0 - 1/8.0, 0,  xi[0]/8.0 + 1/8.0, 0,
-		0,  1/8.0 - xi[2]/8.0, -xi[1]/8.0 - 1/8.0, 0, -xi[0]/8.0 - 1/8.0, 0,
-		0,  xi[2]/8.0 - 1/8.0,  xi[1]/8.0 + 1/8.0, 0,  xi[0]/8.0 - 1/8.0, 0,
-		0,  xi[2]/8.0 + 1/8.0,  xi[1]/8.0 - 1/8.0, 0,  xi[0]/8.0 - 1/8.0, 0,
-		0, -xi[2]/8.0 - 1/8.0,  1/8.0 - xi[1]/8.0, 0, -xi[0]/8.0 - 1/8.0, 0,
-		0,  xi[2]/8.0 + 1/8.0,  xi[1]/8.0 + 1/8.0, 0,  xi[0]/8.0 + 1/8.0, 0,
-		0, -xi[2]/8.0 - 1/8.0, -xi[1]/8.0 - 1/8.0, 0,  1/8.0 - xi[0]/8.0, 0;
-	return dL;
+	return (ddshape_t() <<
+		0.0,  1.0 - xi[2],  1.0 - xi[1], 0.0,  1.0 - xi[0], 0.0,
+		0.0,  xi[2] - 1.0,  xi[1] - 1.0, 0.0,  xi[0] + 1.0, 0.0,
+		0.0,  1.0 - xi[2], -xi[1] - 1.0, 0.0, -xi[0] - 1.0, 0.0,
+		0.0,  xi[2] - 1.0,  xi[1] + 1.0, 0.0,  xi[0] - 1.0, 0.0,
+		0.0,  xi[2] + 1.0,  xi[1] - 1.0, 0.0,  xi[0] - 1.0, 0.0,
+		0.0, -xi[2] - 1.0,  1.0 - xi[1], 0.0, -xi[0] - 1.0, 0.0,
+		0.0,  xi[2] + 1.0,  xi[1] + 1.0, 0.0,  xi[0] + 1.0, 0.0,
+		0.0, -xi[2] - 1.0, -xi[1] - 1.0, 0.0,  1.0 - xi[0], 0.0
+	).finished() / 8.0;
 }
 
 
@@ -715,12 +694,7 @@ public:
 	*/
 	static shape_t eval_shape(xi_t const &xi)
 	{
-		shape_t L;
-		L <<
-			(-xi[0]-xi[1])/2.0,
-			(1.0+xi[0])/2.0,
-			(1.0+xi[1])/2.0;
-		return L;
+		return ( shape_t() << -xi[0]-xi[1], 1.0+xi[0], 1.0+xi[1] ).finished() / 2.0;
 	}
 
 	/**
@@ -729,12 +703,11 @@ public:
 	*/
 	static dshape_t eval_dshape(xi_t const &)
 	{
-		dshape_t dL;
-		dL <<
+		return ( dshape_t() <<
 			-.5, -.5,
 			+.5,  .0,
-			.0, +.5;
-		return dL;
+			.0, +.5
+		).finished();
 	}
 
 	/**
@@ -800,15 +773,13 @@ public:
 	* \param [in] _xi the domain variable
 	* \return the shape function vector
 	*/
-	static shape_t eval_shape(xi_t const &_xi)
+	static shape_t eval_shape(xi_t const &xi)
 	{
-		scalar_t xi = _xi[0];
-		shape_t L;
-		L <<
-		 -xi*(1.0-xi)/2.0,
-		 1.0-xi*xi,
-		 xi*(1.0+xi)/2.0;
-		return L;
+		return (shape_t() <<
+		 -xi*(1.0-xi[0])/2.0,
+		 1.0-xi[0]*xi[0],
+		 xi[0]*(1.0+xi[0])/2.0
+		).finished();
 	}
 
 	/**
@@ -816,15 +787,13 @@ public:
 	* \param [in] _xi the domain variable
 	* \return the shape function gradient matrix
 	*/
-	static dshape_t eval_dshape(xi_t const & _xi)
+	static dshape_t eval_dshape(xi_t const &xi)
 	{
-		scalar_t xi = _xi[0];
-		dshape_t dL;
-		dL <<
-			xi - 0.5,
-			-2.0*xi,
-			xi + 0.5;
-		return dL;
+		return (dshape_t() <<
+			xi[0] - 0.5,
+			-2.0*xi[0],
+			xi[0] + 0.5
+		).finished();
 	}
 
 	/**
@@ -921,15 +890,14 @@ public:
 	static shape_t eval_shape(xi_t const &_xi)
 	{
 		scalar_t xi = _xi[0], eta = _xi[1];
-		shape_t L;
-		L <<
-			(eta+xi-1)*(2*eta+2*xi-1),
-			-4*xi*(eta+xi-1),
-			xi*(2*xi-1),
-			4*eta*xi,
-			eta*(2*eta-1),
-			-4*eta*(eta+xi-1);
-		return L;
+		return ( shape_t() <<
+			(eta+xi-1.0)*(2.0*eta+2.0*xi-1.0),
+			-4.0*xi*(eta+xi-1),
+			xi*(2.0*xi-1.0),
+			4.0*eta*xi,
+			eta*(2.0*eta-1.0),
+			-4.0*eta*(eta+xi-1.0)
+		).finished();
 	}
 
 	/**
@@ -940,15 +908,14 @@ public:
 	static dshape_t eval_dshape(xi_t const & _xi)
 	{
 		scalar_t xi = _xi[0], eta = _xi[1];
-		dshape_t dL;
-		dL <<
-			4*eta+4*xi-3, 4*eta+4*xi-3,
-			4-8*xi-4*eta, -4*xi,
-			4*xi-1,       0,
-			4*eta,        4*xi,
-			0,            4*eta-1,
-			-4*eta,       4-4*xi-8*eta;
-		return dL;
+		return ( dshape_t() <<
+			4.0*eta+4*xi-3, 4.0*eta+4*xi-3.0,
+			4.0-8*xi-4*eta, -4.0*xi,
+			4.0*xi-1.0,     0.0,
+			4.0*eta,        4.0*xi,
+			0.0,            4.0*eta-1.0,
+			-4.0*eta,       4.0-4.0*xi-8.0*eta
+		).finished();
 	}
 
 	/**
@@ -957,15 +924,14 @@ public:
 	 */
 	static ddshape_t eval_ddshape(xi_t const &)
 	{
-		ddshape_t ddL;
-		ddL <<
-			 4,  4,  4,
-			-8, -4,  0,
-			 4,  0,  0,
-			 0,  4,  0,
-			 0,  0,  4,
-			 0, -4, -8;
-		return ddL;
+		return ( ddshape_t() <<
+			 4.0,  4.0,  4.0,
+			-8.0, -4.0,  0.0,
+			 4.0,  0.0,  0.0,
+			 0.0,  4.0,  0.0,
+			 0.0,  0.0,  4.0,
+			 0.0, -4.0, -8.0
+		).finished();
 	}
 
 	/** \brief return begin iterator to the corner nodes
@@ -1059,8 +1025,7 @@ public:
 		scalar_t xi = _xi[0], eta = _xi[1];
 		scalar_t _1mxi = 1-xi, _1pxi = 1+xi;
 		scalar_t _1meta = 1-eta, _1peta = 1+eta;
-		shape_t L;
-		L <<
+		return ( shape_t() <<
 			_1mxi*xi * _1meta*eta/4.0,
 			_1mxi*_1pxi * _1meta*(-eta)/2.0,
 			_1pxi*xi * _1meta*(-eta)/4.0,
@@ -1069,8 +1034,8 @@ public:
 			_1mxi*_1pxi * _1peta*eta/2.0,
 			_1mxi*(-xi) * _1peta*eta/4.0,
 			_1mxi*(-xi) * _1meta*_1peta/2.0,
-			_1mxi*_1pxi * _1meta*_1peta;
-		return L;
+			_1mxi*_1pxi * _1meta*_1peta
+		).finished();
 	}
 
 	/**
@@ -1081,8 +1046,7 @@ public:
 	static dshape_t eval_dshape(xi_t const & _xi)
 	{
 		scalar_t xi = _xi[0], eta = _xi[1], xi2 = xi*xi, eta2 = eta*eta;
-		dshape_t dL;
-		dL <<
+		return ( dshape_t() <<
             eta*(2.0*xi-1.0)*(eta-1.0)/4.0, xi*(2.0*eta-1.0)*(xi-1.0)/4.0,
             -xi*eta*(eta-1.0),              -(xi2-1.0)*(2.0*eta-1.0)/2.0,
             eta*(2.0*xi+1.0)*(eta-1.0)/4.0, xi*(2.0*eta-1.0)*(xi+1.0)/4.0,
@@ -1091,8 +1055,8 @@ public:
             -xi*eta*(eta+1.0),              -(xi2-1.0)*(2.0*eta+1.0)/2.0,
             eta*(2.0*xi-1.0)*(eta+1.0)/4.0, xi*(2.0*eta+1.0)*(xi-1.0)/4.0,
             -(2.0*xi-1.0)*(eta2-1.0)/2.0,   -xi*eta*(xi-1.0),
-            2.0*xi*(eta2-1.0),              2.0*eta*(xi2-1.0);
-		return dL;
+            2.0*xi*(eta2-1.0),              2.0*eta*(xi2-1.0)
+		).finished();
 	}
 
 	/**
@@ -1103,8 +1067,7 @@ public:
 	static ddshape_t eval_ddshape(xi_t const & _xi)
 	{
 		scalar_t xi = _xi[0], eta = _xi[1], xi2 = xi*xi, eta2 = eta*eta;
-		ddshape_t ddL;
-		ddL <<
+		return ( ddshape_t() <<
 			eta2/2.0 - eta/2.0, eta*xi - xi/2.0 - eta/2.0 + 1.0/4.0, xi2/2.0 - xi/2.0,
 			- eta2 + eta,   xi - 2*eta*xi,               1.0 - xi2,
 			eta2/2.0 - eta/2.0, eta/2.0 - xi/2.0 + eta*xi - 1.0/4.0, xi2/2.0 + xi/2.0,
@@ -1113,8 +1076,8 @@ public:
 			- eta2 - eta,   - xi - 2*eta*xi,             1.0 - xi2,
 			eta2/2.0 + eta/2.0, xi/2.0 - eta/2.0 + eta*xi - 1.0/4.0, xi2/2.0 - xi/2.0,
 			1.0 - eta2,       eta - 2*eta*xi,              - xi2 + xi,
-			2*eta2 - 2.0,     4*eta*xi,                    2*xi2 - 2.0;
-   		return ddL;
+			2*eta2 - 2.0,     4*eta*xi,                    2*xi2 - 2.0
+		).finished();
 	}
 
 	/** \brief return begin iterator to the corner nodes

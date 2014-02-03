@@ -72,28 +72,24 @@ inline quad_1_gauss_shape_set::shape_t
 	quad_1_gauss_shape_set::eval_shape(quad_1_gauss_shape_set::xi_t const &_xi)
 {
 	scalar_t xi = _xi[0], eta = _xi[1];
-	shape_t L;
-	L <<
-		(1.0 - std::sqrt(3.0)*xi) * (1.0 - std::sqrt(3.0)*eta) / 4.0,
-		(1.0 + std::sqrt(3.0)*xi) * (1.0 - std::sqrt(3.0)*eta) / 4.0,
-		(1.0 - std::sqrt(3.0)*xi) * (1.0 + std::sqrt(3.0)*eta) / 4.0,
-		(1.0 + std::sqrt(3.0)*xi) * (1.0 + std::sqrt(3.0)*eta) / 4.0;
-	return L;
+	return ( quad_1_gauss_shape_set::shape_t() <<
+		(1.0 - std::sqrt(3.0)*xi) * (1.0 - std::sqrt(3.0)*eta),
+		(1.0 + std::sqrt(3.0)*xi) * (1.0 - std::sqrt(3.0)*eta),
+		(1.0 - std::sqrt(3.0)*xi) * (1.0 + std::sqrt(3.0)*eta),
+		(1.0 + std::sqrt(3.0)*xi) * (1.0 + std::sqrt(3.0)*eta)
+	).finished() / 4.0;
 }
 
 inline quad_1_gauss_shape_set::dshape_t
 	quad_1_gauss_shape_set::eval_dshape(quad_1_gauss_shape_set::xi_t const & _xi)
 {
-
 	scalar_t xi = _xi[0], eta = _xi[1];
-
-	dshape_t dL;
-	dL <<
-		-std::sqrt(3.0) * (1.0 - std::sqrt(3.0)*eta) / 4.0, (1.0 - std::sqrt(3.0)*xi) * -std::sqrt(3.0) / 4.0,
-		+std::sqrt(3.0) * (1.0 - std::sqrt(3.0)*eta) / 4.0, (1.0 + std::sqrt(3.0)*xi) * -std::sqrt(3.0) / 4.0,
-		-std::sqrt(3.0) * (1.0 + std::sqrt(3.0)*eta) / 4.0, (1.0 - std::sqrt(3.0)*xi) * +std::sqrt(3.0) / 4.0,
-		+std::sqrt(3.0) * (1.0 + std::sqrt(3.0)*eta) / 4.0, (1.0 + std::sqrt(3.0)*xi) * +std::sqrt(3.0) / 4.0;
-	return dL;
+	return ( quad_1_gauss_shape_set::dshape_t() <<
+		-std::sqrt(3.0) * (1.0 - std::sqrt(3.0)*eta) , (1.0 - std::sqrt(3.0)*xi) * -std::sqrt(3.0),
+		+std::sqrt(3.0) * (1.0 - std::sqrt(3.0)*eta) , (1.0 + std::sqrt(3.0)*xi) * -std::sqrt(3.0),
+		-std::sqrt(3.0) * (1.0 + std::sqrt(3.0)*eta) , (1.0 - std::sqrt(3.0)*xi) * +std::sqrt(3.0),
+		+std::sqrt(3.0) * (1.0 + std::sqrt(3.0)*eta) , (1.0 + std::sqrt(3.0)*xi) * +std::sqrt(3.0)
+	).finished() / 4.0;
 }
 //! [Shape lsets]
 

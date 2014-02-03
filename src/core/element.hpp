@@ -71,9 +71,11 @@ private:
 /** \brief Traits describing element properties */
 namespace element_traits
 {
+	/** \brief The physical coordinate space of the element */
 	template <class Derived>
 	struct space_t;
 
+	/** \brief The geometrical shape set of the element */
 	template <class Derived>
 	struct lset;
 
@@ -565,8 +567,8 @@ namespace element_traits
 }
 
 
-/** \brief compute surface normal in N dimensions
- * \tparam scalar the scalar type
+/** \brief compute surface normal from derivatives in N dimensions
+ * \tparam dx_t the derivatives type
  * \tparam N the number of dimensions
  */
 template<class scalar, unsigned N>
