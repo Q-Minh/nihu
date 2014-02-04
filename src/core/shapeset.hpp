@@ -30,7 +30,7 @@
 #include <stdexcept>
 
 #include "domain.hpp"
-#include "../util/store_or_on_the_fly.hpp"
+#include "../util/conditional_precompute.hpp"
 
 /** \brief shape function derivative indices */
 namespace shape_derivative_index
@@ -47,9 +47,9 @@ namespace shape_derivative_index
 
 namespace matrix_function_complexity
 {
-	struct zero {};
-	struct constant {};
-	struct general {};
+	struct zero { typedef zero type; };
+	struct constant { typedef constant type; };
+	struct general { typedef general type; };
 }
 
 template <class Derived, unsigned Order>
@@ -116,7 +116,7 @@ namespace shape_set_traits
 	template <class Derived, unsigned Order>
 	struct factory_functor
 	{
-		typedef store_or_on_the_fly<
+		typedef conditional_precompute<
 			std::is_same<
 			typename shape_complexity<Derived, Order>::type,
 			matrix_function_complexity::general
@@ -227,22 +227,13 @@ namespace shape_set_traits
 	};
 
 	template <class Domain>
-	struct shape_complexity<constant_shape_set<Domain>, 0>
-	{
-		typedef matrix_function_complexity::constant type;
-	};
+	struct shape_complexity<constant_shape_set<Domain>, 0> : matrix_function_complexity::constant {};
 
 	template <class Domain>
-	struct shape_complexity<constant_shape_set<Domain>, 1>
-	{
-		typedef matrix_function_complexity::zero type;
-	};
+	struct shape_complexity<constant_shape_set<Domain>, 1> : matrix_function_complexity::zero {};
 
 	template <class Domain>
-	struct shape_complexity<constant_shape_set<Domain>, 2>
-	{
-		typedef matrix_function_complexity::zero type;
-	};
+	struct shape_complexity<constant_shape_set<Domain>, 2> : matrix_function_complexity::zero {};
 }
 
 /**
@@ -389,22 +380,13 @@ namespace shape_set_traits
 	};
 
 	template <>
-	struct shape_complexity<line_1_shape_set, 0>
-	{
-		typedef matrix_function_complexity::general type;
-	};
+	struct shape_complexity<line_1_shape_set, 0> : matrix_function_complexity::general {};
 
 	template <>
-	struct shape_complexity<line_1_shape_set, 1>
-	{
-		typedef matrix_function_complexity::constant type;
-	};
+	struct shape_complexity<line_1_shape_set, 1> : matrix_function_complexity::constant {};
 
 	template <>
-	struct shape_complexity<line_1_shape_set, 2>
-	{
-		typedef matrix_function_complexity::zero type;
-	};
+	struct shape_complexity<line_1_shape_set, 2> : matrix_function_complexity::zero {};
 }
 
 /**
@@ -473,7 +455,7 @@ public:
 };
 
 
-/** linear tria shape set */
+/** linear triangle shape set */
 typedef isoparam_shape_set<tria_domain> tria_1_shape_set;
 
 namespace shape_set_traits
@@ -485,25 +467,14 @@ namespace shape_set_traits
 	};
 
 	template <>
-	struct shape_complexity<tria_1_shape_set, 0>
-	{
-		typedef matrix_function_complexity::general type;
-	};
+	struct shape_complexity<tria_1_shape_set, 0> : matrix_function_complexity::general {};
 
 	template <>
-	struct shape_complexity<tria_1_shape_set, 1>
-	{
-		typedef matrix_function_complexity::constant type;
-	};
+	struct shape_complexity<tria_1_shape_set, 1> : matrix_function_complexity::constant {};
 
 	template <>
-	struct shape_complexity<tria_1_shape_set, 2>
-	{
-		typedef matrix_function_complexity::zero type;
-	};
+	struct shape_complexity<tria_1_shape_set, 2> : matrix_function_complexity::zero {};
 }
-
-
 
 
 /**
@@ -580,24 +551,14 @@ namespace shape_set_traits
 		enum { value = 1 };
 	};
 
+	template <>
+	struct shape_complexity<quad_1_shape_set, 0> : matrix_function_complexity::general {};
 
 	template <>
-	struct shape_complexity<quad_1_shape_set, 0>
-	{
-		typedef matrix_function_complexity::general type;
-	};
+	struct shape_complexity<quad_1_shape_set, 1> : matrix_function_complexity::general {};
 
 	template <>
-	struct shape_complexity<quad_1_shape_set, 1>
-	{
-		typedef matrix_function_complexity::general type;
-	};
-
-	template <>
-	struct shape_complexity<quad_1_shape_set, 2>
-	{
-		typedef matrix_function_complexity::constant type;
-	};
+	struct shape_complexity<quad_1_shape_set, 2> : matrix_function_complexity::constant {};
 }
 
 
@@ -684,28 +645,25 @@ namespace shape_set_traits
 	};
 
 	template <unsigned Order>
-	struct shape_complexity<brick_1_shape_set, Order>
-	{
-		typedef matrix_function_complexity::general type;
-	};
+	struct shape_complexity<brick_1_shape_set, Order> : matrix_function_complexity::general {};
 }
 
 
 /**
-* \brief linear 8-noded general brick shape functions
-* \param [in] xi the domain variable vector
-* \return the shape function vector
-* \details The shape functions are
-*
-* \f$L_1(\xi, \eta) = (1-\xi)(1-\eta)(1-\zeta)/8\\
-L_2(\xi, \eta) = (1+\xi)(1-\eta)(1-\zeta)/8\\
-L_3(\xi, \eta) = (1+\xi)(1+\eta)(1-\zeta)/8\\
-L_4(\xi, \eta) = (1-\xi)(1+\eta)(1-\zeta)/8\\
-L_2(\xi, \eta) = (1-\xi)(1-\eta)(1+\zeta)/8\\
-L_2(\xi, \eta) = (1+\xi)(1-\eta)(1+\zeta)/8\\
-L_3(\xi, \eta) = (1+\xi)(1+\eta)(1+\zeta)/8\\
-L_4(\xi, \eta) = (1-\xi)(1+\eta)(1+\zeta)/8\f$
-*/
+ * \brief linear 8-noded general brick shape functions
+ * \param [in] xi the domain variable vector
+ * \return the shape function vector
+ * \details The shape functions are
+ *
+ * \f$L_1(\xi, \eta) = (1-\xi)(1-\eta)(1-\zeta)/8\\
+ L_2(\xi, \eta) = (1+\xi)(1-\eta)(1-\zeta)/8\\
+ L_3(\xi, \eta) = (1+\xi)(1+\eta)(1-\zeta)/8\\
+ L_4(\xi, \eta) = (1-\xi)(1+\eta)(1-\zeta)/8\\
+ L_2(\xi, \eta) = (1-\xi)(1-\eta)(1+\zeta)/8\\
+ L_2(\xi, \eta) = (1+\xi)(1-\eta)(1+\zeta)/8\\
+ L_3(\xi, \eta) = (1+\xi)(1+\eta)(1+\zeta)/8\\
+ L_4(\xi, \eta) = (1-\xi)(1+\eta)(1+\zeta)/8\f$
+ */
 template<>
 class shape_function<brick_1_shape_set, 0>
 {
@@ -728,10 +686,10 @@ public:
 };
 
 /**
-* \brief linear 8-noded general brick shape function derivative matrix
-* \param [in] xi the domain variable vector
-* \return shape function gradient matrix
-*/
+ * \brief linear 8-noded general brick shape function derivative matrix
+ * \param [in] xi the domain variable vector
+ * \return shape function gradient matrix
+ */
 template<>
 class shape_function<brick_1_shape_set, 1>
 {
@@ -754,10 +712,10 @@ public:
 };
 
 /**
-* \brief linear 8-noded general brick shape function second derivative matrix
-* \param [in] xi the domain variable vector
-* \return shape function second derivative matrix
-*/
+ * \brief linear 8-noded general brick shape function second derivative matrix
+ * \param [in] xi the domain variable vector
+ * \return shape function second derivative matrix
+ */
 template<>
 class shape_function<brick_1_shape_set, 2>
 {
@@ -807,22 +765,13 @@ namespace shape_set_traits
 	};
 
 	template <>
-	struct shape_complexity<parallelogram_shape_set, 0>
-	{
-		typedef matrix_function_complexity::general type;
-	};
+	struct shape_complexity<parallelogram_shape_set, 0> : matrix_function_complexity::general {};
 
 	template <>
-	struct shape_complexity<parallelogram_shape_set, 1>
-	{
-		typedef matrix_function_complexity::constant type;
-	};
+	struct shape_complexity<parallelogram_shape_set, 1> : matrix_function_complexity::constant {};
 
 	template <>
-	struct shape_complexity<parallelogram_shape_set, 2>
-	{
-		typedef matrix_function_complexity::zero type;
-	};
+	struct shape_complexity<parallelogram_shape_set, 2> : matrix_function_complexity::zero {};
 }
 
 /**
@@ -840,6 +789,10 @@ public:
 	}
 };
 
+/**
+ * \brief linear 3-noded parallelogram shape functions
+ * \return the shape function vector
+ */
 template<>
 class shape_function<parallelogram_shape_set, 0>
 {
@@ -857,9 +810,9 @@ public:
 };
 
 /**
-* \brief linear 3-noded parallelogram shape function derivatives
-* \return the shape function gradient matrix
-*/
+ * \brief linear 3-noded parallelogram shape function derivatives
+ * \return the shape function gradient matrix
+ */
 template<>
 class shape_function<parallelogram_shape_set, 1>
 {
@@ -869,17 +822,17 @@ public:
 	static shape_t eval(xi_t const &xi)
 	{
 		return (shape_t() <<
-			-.5, -.5,
-			+.5, .0,
-			.0, +.5
-			).finished();
+			-1.0, -1.0,
+			1.0, 0.0,
+			0.0, 1.0
+			).finished() / 2.0;
 	}
 };
 
 /**
-* \brief linear 3-noded parallelogram second shape function derivatives
-* \return the shape function second derivative matrix
-*/
+ * \brief linear 3-noded parallelogram second shape function derivatives
+ * \return the shape function second derivative matrix
+ */
 template<>
 class shape_function<parallelogram_shape_set, 2>
 {
