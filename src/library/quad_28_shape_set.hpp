@@ -50,11 +50,15 @@ namespace shape_set_traits
 	{
 		enum { value = 3 };
 	};
+
+	template <unsigned Order>
+	struct shape_complexity<quad_28_shape_set, Order>
+	{
+		typedef matrix_function_complexity::general type;
+	};
 }
 
-/**
-* \brief quadratic 8-noded quad shape function set
-*/
+/** \brief quadratic 8-noded quad shape function set */
 class quad_28_shape_set : public shape_set_base<quad_28_shape_set>
 {
 public:

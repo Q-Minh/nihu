@@ -52,17 +52,20 @@ namespace matrix_function_complexity
 	struct general {};
 }
 
+template <class Derived, unsigned Order>
+class shape_function;
+
 template <unsigned Order, unsigned Dim>
-struct numnum;
+struct num_derivatives;
 
 template <unsigned Dim>
-struct numnum<0, Dim> { enum { value = 1 }; };
+struct num_derivatives<0, Dim> { enum { value = 1 }; };
 
 template <unsigned Dim>
-struct numnum<1, Dim> { enum { value = Dim }; };
+struct num_derivatives<1, Dim> { enum { value = Dim }; };
 
 template <unsigned Dim>
-struct numnum<2, Dim> { enum { value = Dim * (Dim + 1) / 2 }; };
+struct num_derivatives<2, Dim> { enum { value = Dim * (Dim + 1) / 2 }; };
 
 
 /** \brief Traits of shape function sets */
@@ -94,32 +97,44 @@ namespace shape_set_traits
 	template <class Derived>
 	struct jacobian_order;
 
+	/** \brief Defines the complexity to determine if the shape functions can be precomputed or not */
 	template <class Derived, unsigned Order>
 	struct shape_complexity;
 
+	/** \brief Defines the value type of the shape function matrix */
 	template <class Derived, unsigned Order>
 	struct shape_value_type
 	{
 		typedef Eigen::Matrix<
 			typename domain<Derived>::type::scalar_t,
 			num_nodes<Derived>::value,
-			numnum<Order, domain<Derived>::type::dimension>::value
+			num_derivatives<Order, domain<Derived>::type::dimension>::value
 		> type;
 	};
 
+	/** \brief Defines the factory functor that computes or stores the shape functions */
 	template <class Derived, unsigned Order>
-	struct shape_return_type : std::conditional<
-		std::is_same<
-		typename shape_complexity<Derived, Order>::type,
-		matrix_function_complexity::general
-		>::value,
-		typename shape_value_type<Derived, Order>::type,
-		typename shape_value_type<Derived, Order>::type const &
-	> {};
+	struct factory_functor
+	{
+		typedef store_or_on_the_fly<
+			std::is_same<
+			typename shape_complexity<Derived, Order>::type,
+			matrix_function_complexity::general
+			>::value,
+			shape_function<Derived, Order>,
+			typename shape_value_type<Derived, Order>::type,
+			typename domain<Derived>::type::xi_t
+		> type;
+	};
+
+	/** \brief Defines the return type of the shape function matrix */
+	template <class Derived, unsigned Order>
+	struct shape_return_type
+	{
+		typedef typename factory_functor<Derived, Order>::type::return_type type;
+	};
 }
 
-template <class Derived, unsigned Order>
-class shape_function;
 
 /**
  * \brief Shapeset base class for CRTP
@@ -153,17 +168,10 @@ public:
 	struct shape_t : shape_set_traits::shape_value_type<Derived, Order> {};
 
 	template <unsigned Order>
-	static typename shape_set_traits::shape_return_type<Derived, Order>::type eval_shape(xi_t const &xi)
+	static typename shape_set_traits::shape_return_type<Derived, Order>::type
+	eval_shape(xi_t const &xi)
 	{
-		return store_or_on_the_fly<
-			std::is_same<
-			typename shape_set_traits::shape_complexity<Derived, Order>::type,
-			matrix_function_complexity::general
-			>::value,
-			shape_function<Derived, Order>,
-			typename shape_t<Order>::type,
-			xi_t
-		>::eval(xi);
+		return shape_set_traits::factory_functor<Derived, Order>::type::eval(xi);
 	}
 
 	/** \brief return begin iterator of corner nodes */
@@ -800,6 +808,24 @@ namespace shape_set_traits
 	{
 		enum { value = 0 };
 	};
+
+	template <>
+	struct shape_complexity<parallelogram_shape_set, 0>
+	{
+		typedef matrix_function_complexity::general type;
+	};
+
+	template <>
+	struct shape_complexity<parallelogram_shape_set, 1>
+	{
+		typedef matrix_function_complexity::constant type;
+	};
+
+	template <>
+	struct shape_complexity<parallelogram_shape_set, 2>
+	{
+		typedef matrix_function_complexity::zero type;
+	};
 }
 
 /**
@@ -869,469 +895,4 @@ public:
 	}
 };
 
-
-
-// Forward declaration
-class line_2_shape_set;
-
-namespace shape_set_traits
-{
-	template <>
-	struct domain<line_2_shape_set>
-	{
-		typedef line_domain type;
-	};
-
-	template <>
-	struct num_nodes<line_2_shape_set>
-	{
-		enum { value = 3 };
-	};
-
-	template <>
-	struct polynomial_order<line_2_shape_set>
-	{
-		enum { value = 2 };
-	};
-
-	template <>
-	struct jacobian_order<line_2_shape_set>
-	{
-		enum { value = 1 };
-	};
-}
-
-
-
-/**
-* \brief quadratic 3-noded line shape function set
-*/
-class line_2_shape_set : public shape_set_base<line_2_shape_set>
-{
-public:
-	/** \brief return begin iterator to the corner nodes
-	* \return begin iterator to corner nodes
-	*/
-	static xi_t const *corner_begin(void)
-	{
-		return m_corners;
-	}
-
-	/** \brief assign a domain corner to a shapeset node corner
-	 * \param [in] idx the indes of the shapeset node
-	 * \return index of the domain node
-	 * \details the function throws an exception if nonexisting index is searched
-	 */
-	static unsigned node_to_domain_corner(unsigned idx)
-	{
-		int ret = m_domain_indices[idx];
-		if (ret < 0)
-			throw std::out_of_range("line_2_shape_set domain corner nodes overindexed");
-		return ret;
-	}
-
-protected:
-	/** \brief the corner nodes of the shape set */
-	static xi_t const m_corners[num_nodes];
-
-	/** \brief the array of domain corner indices */
-	static int const m_domain_indices[num_nodes];
-};
-
-line_2_shape_set::xi_t
-const line_2_shape_set::m_corners[line_2_shape_set::num_nodes] = {
-	line_2_shape_set::xi_t::Constant(-1.0),
-	line_2_shape_set::xi_t::Constant(0.0),
-	line_2_shape_set::xi_t::Constant(1.0),
-};
-
-int const line_2_shape_set::m_domain_indices[line_2_shape_set::num_nodes] = { 0, -1, 1 };
-
-
-/**
-* \brief quadratic 3-noded line shape functions
-* \param [in] _xi the domain variable
-* \return the shape function vector
-*/
-template<>
-class shape_function<line_2_shape_set, 0>
-{
-	typedef shape_set_traits::shape_value_type<line_2_shape_set, 0>::type shape_t;
-	typedef shape_set_traits::domain<line_2_shape_set>::type::xi_t xi_t;
-public:
-	static shape_t eval(xi_t const &xi)
-	{
-		return (shape_t() <<
-			-xi[0]*(1.0 - xi[0]) / 2.0,
-			1.0 - xi[0] * xi[0],
-			xi[0] * (1.0 + xi[0]) / 2.0
-			).finished();
-	}
-};
-
-/**
-* \brief quadratic 3-noded line shape function derivatives
-* \param [in] _xi the domain variable
-* \return the shape function gradient matrix
-*/
-template<>
-class shape_function<line_2_shape_set, 1>
-{
-	typedef shape_set_traits::shape_value_type<line_2_shape_set, 1>::type shape_t;
-	typedef shape_set_traits::domain<line_2_shape_set>::type::xi_t xi_t;
-public:
-	static shape_t eval(xi_t const &xi)
-	{
-		return (shape_t() <<
-			xi[0] - 0.5,
-			-2.0*xi[0],
-			xi[0] + 0.5
-			).finished();
-	}
-};
-
-/**
-* \brief quadratic 3-noded line shape function second derivatives
-* \return the shape function second derivative matrix
-*/
-template<>
-class shape_function<line_2_shape_set, 2>
-{
-	typedef shape_set_traits::shape_value_type<line_2_shape_set, 2>::type shape_t;
-	typedef shape_set_traits::domain<line_2_shape_set>::type::xi_t xi_t;
-public:
-	static shape_t eval(xi_t const &xi)
-	{
-		return shape_t(1.0, -2.0, 1.0);
-	}
-};
-
-
-
-// Forward declaration
-class tria_2_shape_set;
-
-namespace shape_set_traits
-{
-	template <>
-	struct domain<tria_2_shape_set>
-	{
-		typedef tria_domain type;
-	};
-
-	template <>
-	struct num_nodes<tria_2_shape_set>
-	{
-		enum { value = 6 };
-	};
-
-	template <>
-	struct polynomial_order<tria_2_shape_set>
-	{
-		enum { value = 2 };
-	};
-
-	template <>
-	struct jacobian_order<tria_2_shape_set>
-	{
-		enum { value = 2 };
-	};
-}
-
-
-/**
-* \brief quadratic 6-noded tria shape function set
-*/
-class tria_2_shape_set : public shape_set_base<tria_2_shape_set>
-{
-public:
-	/** \brief return begin iterator to the corner nodes
-	* \return begin iterator to corner nodes
-	*/
-	static xi_t const *corner_begin(void)
-	{
-		return m_corners;
-	}
-
-	/** \brief assign a domain corner to a shapeset node corner
-	 * \param [in] idx the indes of the shapeset node
-	 * \return index of the domain node
-	 * \details the function throws an exception if nonexisting index is searched
-	 */
-	static unsigned node_to_domain_corner(unsigned idx)
-	{
-		int ret = m_domain_corners[idx];
-		if (ret < 0)
-			throw std::out_of_range("tria_2_shape_set domain corner nodes overindexed");
-		return ret;
-	}
-
-
-protected:
-	/** \brief the corner nodes of the shape set */
-	static xi_t const m_corners[num_nodes];
-	/** \brief the domain's corner indices assigned to the shape set nodes */
-	static int const m_domain_corners[num_nodes];
-};
-
-tria_2_shape_set::xi_t
-const tria_2_shape_set::m_corners[tria_2_shape_set::num_nodes] = {
-	tria_2_shape_set::xi_t(0.0, 0.0),
-	tria_2_shape_set::xi_t(0.5, 0.0),
-	tria_2_shape_set::xi_t(1.0, 0.0),
-	tria_2_shape_set::xi_t(0.5, 0.5),
-	tria_2_shape_set::xi_t(0.0, 1.0),
-	tria_2_shape_set::xi_t(0.0, 0.5)
-};
-
-int const tria_2_shape_set::m_domain_corners[tria_2_shape_set::num_nodes] =
-{ 0, -1, 1, -1, 2, -1 };
-
-/**
-* \brief quadratic 6-noded tria shape functions
-* \param [in] _xi the domain variable
-* \return the shape function vector
-*/
-template<>
-class shape_function<tria_2_shape_set, 0>
-{
-	typedef shape_set_traits::shape_value_type<tria_2_shape_set, 0>::type shape_t;
-	typedef shape_set_traits::domain<tria_2_shape_set>::type::xi_t xi_t;
-public:
-	static shape_t eval(xi_t const &_xi)
-	{
-		auto xi = _xi[0], eta = _xi[1];
-		return (shape_t() <<
-			(eta + xi - 1.0)*(2.0*eta + 2.0*xi - 1.0),
-			-4.0*xi*(eta + xi - 1),
-			xi*(2.0*xi - 1.0),
-			4.0*eta*xi,
-			eta*(2.0*eta - 1.0),
-			-4.0*eta*(eta + xi - 1.0)
-			).finished();
-	}
-};
-
-/**
-* \brief quadratic 6-noded tria shape function derivatives
-* \param [in] _xi the domain variable
-* \return the shape function gradient matrix
-*/
-template<>
-class shape_function<tria_2_shape_set, 1>
-{
-	typedef shape_set_traits::shape_value_type<tria_2_shape_set, 1>::type shape_t;
-	typedef shape_set_traits::domain<tria_2_shape_set>::type::xi_t xi_t;
-public:
-	static shape_t eval(xi_t const &_xi)
-	{
-		auto xi = _xi[0], eta = _xi[1];
-		return (shape_t() <<
-			4.0*eta + 4 * xi - 3, 4.0*eta + 4 * xi - 3.0,
-			4.0 - 8 * xi - 4 * eta, -4.0*xi,
-			4.0*xi - 1.0, 0.0,
-			4.0*eta, 4.0*xi,
-			0.0, 4.0*eta - 1.0,
-			-4.0*eta, 4.0 - 4.0*xi - 8.0*eta
-			).finished();
-	}
-};
-
-/**
-* \brief quadratic 6-noded tria shape function second derivatives
-* \return the shape function second derivative matrix
-*/
-template<>
-class shape_function<tria_2_shape_set, 2>
-{
-	typedef shape_set_traits::shape_value_type<tria_2_shape_set, 2>::type shape_t;
-	typedef shape_set_traits::domain<tria_2_shape_set>::type::xi_t xi_t;
-public:
-	static shape_t eval(xi_t const &_xi)
-	{
-		return (shape_t() <<
-			4.0, 4.0, 4.0,
-			-8.0, -4.0, 0.0,
-			4.0, 0.0, 0.0,
-			0.0, 4.0, 0.0,
-			0.0, 0.0, 4.0,
-			0.0, -4.0, -8.0
-			).finished();
-	}
-};
-
-
-// Forward declaration
-class quad_2_shape_set;
-
-namespace shape_set_traits
-{
-	template <>
-	struct domain<quad_2_shape_set>
-	{
-		typedef quad_domain type;
-	};
-
-	template <>
-	struct num_nodes<quad_2_shape_set>
-	{
-		enum { value = 9 };
-	};
-
-	template <>
-	struct polynomial_order<quad_2_shape_set>
-	{
-		enum { value = 2 };
-	};
-
-	template <>
-	struct jacobian_order<quad_2_shape_set>
-	{
-		enum { value = 3 };
-	};
-}
-
-
-/**
-* \brief quadratic 9-noded quad shape function set
-*/
-class quad_2_shape_set : public shape_set_base<quad_2_shape_set>
-{
-public:
-	/** \brief return begin iterator to the corner nodes
-	* \return begin iterator to corner nodes
-	*/
-	static xi_t const *corner_begin(void)
-	{
-		return m_corners;
-	}
-
-	/** \brief assign a domain corner to a shapeset node corner
-	 * \param [in] idx the indes of the shapeset node
-	 * \return index of the domain node
-	 * \details the function throws an exception if nonexisting index is searched
-	 */
-	static unsigned node_to_domain_corner(unsigned idx)
-	{
-		int ret = m_domain_corners[idx];
-		if (ret < 0)
-			throw std::out_of_range("quad_2_shape_set domain corner nodes overindexed");
-		return ret;
-	}
-
-protected:
-	/** \brief the corner nodes of the shape set */
-	static xi_t const m_corners[num_nodes];
-	/** \brief the domain's corner indices assigned to the shape set nodes */
-	static int const m_domain_corners[num_nodes];
-};
-
-
-quad_2_shape_set::xi_t
-const quad_2_shape_set::m_corners[quad_2_shape_set::num_nodes] = {
-	quad_2_shape_set::xi_t(-1.0, -1.0),
-	quad_2_shape_set::xi_t(0.0, -1.0),
-	quad_2_shape_set::xi_t(+1.0, -1.0),
-	quad_2_shape_set::xi_t(+1.0, 0.0),
-	quad_2_shape_set::xi_t(+1.0, +1.0),
-	quad_2_shape_set::xi_t(0.0, +1.0),
-	quad_2_shape_set::xi_t(-1.0, +1.0),
-	quad_2_shape_set::xi_t(-1.0, 0.0),
-	quad_2_shape_set::xi_t(0.0, 0.0)
-};
-
-int const quad_2_shape_set::m_domain_corners[quad_2_shape_set::num_nodes] =
-{ 0, -1, 1, -1, 2, -1, 3, -1, -1 };
-
-
-/**
-* \brief quadratic 9-noded quad shape functions
-* \param [in] _xi the domain variable
-* \return the shape function vector
-*/
-template<>
-class shape_function<quad_2_shape_set, 0>
-{
-	typedef shape_set_traits::shape_value_type<quad_2_shape_set, 0>::type shape_t;
-	typedef shape_set_traits::domain<quad_2_shape_set>::type::xi_t xi_t;
-public:
-	static shape_t eval(xi_t const &_xi)
-	{
-		auto xi = _xi[0], eta = _xi[1];
-		auto _1mxi = 1 - xi, _1pxi = 1 + xi;
-		auto _1meta = 1 - eta, _1peta = 1 + eta;
-		return (shape_t() <<
-			_1mxi*xi * _1meta*eta / 4.0,
-			_1mxi*_1pxi * _1meta*(-eta) / 2.0,
-			_1pxi*xi * _1meta*(-eta) / 4.0,
-			_1pxi*xi * _1meta*_1peta / 2.0,
-			_1pxi*xi * _1peta*eta / 4.0,
-			_1mxi*_1pxi * _1peta*eta / 2.0,
-			_1mxi*(-xi) * _1peta*eta / 4.0,
-			_1mxi*(-xi) * _1meta*_1peta / 2.0,
-			_1mxi*_1pxi * _1meta*_1peta
-			).finished();
-	}
-};
-
-/**
-* \brief quadratic 9-noded quad shape function derivatives
-* \param [in] _xi the domain variable
-* \return the shape function gradient matrix
-*/
-template<>
-class shape_function<quad_2_shape_set, 1>
-{
-	typedef shape_set_traits::shape_value_type<quad_2_shape_set, 1>::type shape_t;
-	typedef shape_set_traits::domain<quad_2_shape_set>::type::xi_t xi_t;
-public:
-	static shape_t eval(xi_t const &_xi)
-	{
-		auto xi = _xi[0], eta = _xi[1], xi2 = xi*xi, eta2 = eta*eta;
-		return (shape_t() <<
-			eta*(2.0*xi - 1.0)*(eta - 1.0) / 4.0, xi*(2.0*eta - 1.0)*(xi - 1.0) / 4.0,
-			-xi*eta*(eta - 1.0), -(xi2 - 1.0)*(2.0*eta - 1.0) / 2.0,
-			eta*(2.0*xi + 1.0)*(eta - 1.0) / 4.0, xi*(2.0*eta - 1.0)*(xi + 1.0) / 4.0,
-			-(2.0*xi + 1.0)*(eta2 - 1.0) / 2.0, -xi*eta*(xi + 1.0),
-			eta*(2.0*xi + 1.0)*(eta + 1.0) / 4.0, xi*(2.0*eta + 1.0)*(xi + 1.0) / 4.0,
-			-xi*eta*(eta + 1.0), -(xi2 - 1.0)*(2.0*eta + 1.0) / 2.0,
-			eta*(2.0*xi - 1.0)*(eta + 1.0) / 4.0, xi*(2.0*eta + 1.0)*(xi - 1.0) / 4.0,
-			-(2.0*xi - 1.0)*(eta2 - 1.0) / 2.0, -xi*eta*(xi - 1.0),
-			2.0*xi*(eta2 - 1.0), 2.0*eta*(xi2 - 1.0)
-			).finished();
-	}
-};
-
-/**
- * \brief quadratic 9-noded quad shape function second derivatives
- * \param [in] _xi the domain variable
- * \return the shape function second derivative matrix
- */
-template<>
-class shape_function<quad_2_shape_set, 2>
-{
-	typedef shape_set_traits::shape_value_type<quad_2_shape_set, 2>::type shape_t;
-	typedef shape_set_traits::domain<quad_2_shape_set>::type::xi_t xi_t;
-public:
-	static shape_t eval(xi_t const &_xi)
-	{
-		auto xi = _xi[0], eta = _xi[1], xi2 = xi*xi, eta2 = eta*eta;
-		return (shape_t() <<
-			eta2 / 2.0 - eta / 2.0, eta*xi - xi / 2.0 - eta / 2.0 + 1.0 / 4.0, xi2 / 2.0 - xi / 2.0,
-			-eta2 + eta, xi - 2 * eta*xi, 1.0 - xi2,
-			eta2 / 2.0 - eta / 2.0, eta / 2.0 - xi / 2.0 + eta*xi - 1.0 / 4.0, xi2 / 2.0 + xi / 2.0,
-			1.0 - eta2, -eta - 2 * eta*xi, -xi2 - xi,
-			eta2 / 2.0 + eta / 2.0, eta / 2.0 + xi / 2.0 + eta*xi + 1.0 / 4.0, xi2 / 2.0 + xi / 2.0,
-			-eta2 - eta, -xi - 2 * eta*xi, 1.0 - xi2,
-			eta2 / 2.0 + eta / 2.0, xi / 2.0 - eta / 2.0 + eta*xi - 1.0 / 4.0, xi2 / 2.0 - xi / 2.0,
-			1.0 - eta2, eta - 2 * eta*xi, -xi2 + xi,
-			2 * eta2 - 2.0, 4 * eta*xi, 2 * xi2 - 2.0
-			).finished();
-	}
-};
-
-
-
-
 #endif // SHAPESET_HPP_INCLUDED
-

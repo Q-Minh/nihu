@@ -10,7 +10,9 @@ template <class Func, class Ret, class ...Args>
 class store_or_on_the_fly<true, Func, Ret, Args...>
 {
 public:
-	static Ret eval(Args const &...args)
+	typedef Ret return_type;
+
+	static return_type eval(Args const &...args)
 	{
 		return Func::eval(args...);
 	}
@@ -21,7 +23,9 @@ template <class Func, class Ret, class...Args>
 class store_or_on_the_fly<false, Func, Ret, Args...>
 {
 public:
-	static CONSTEXPR Ret const &eval(Args...)
+	typedef Ret const &return_type;
+
+	static CONSTEXPR return_type eval(Args...)
 	{
 		return m_stored;
 	}

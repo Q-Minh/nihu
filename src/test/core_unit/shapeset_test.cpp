@@ -20,6 +20,9 @@
 #include "core/shapeset.hpp"
 #include "tmp/vector.hpp"
 
+#include "library/line_2_shape_set.hpp"
+#include "library/tria_2_shape_set.hpp"
+#include "library/quad_2_shape_set.hpp"
 #include "library/quad_28_shape_set.hpp"
 
 template <class shape_set>
@@ -60,10 +63,9 @@ int main(void)
 	tmp::call_each<
 		tmp::vector<
 		line_0_shape_set, tria_0_shape_set, quad_0_shape_set, brick_0_shape_set,
-		line_1_shape_set, tria_1_shape_set, quad_1_shape_set, brick_1_shape_set
-		/*,
+		line_1_shape_set, tria_1_shape_set, quad_1_shape_set, brick_1_shape_set,
 		parallelogram_shape_set,
-		line_2_shape_set, tria_2_shape_set, quad_2_shape_set, quad_28_shape_set*/
+		line_2_shape_set, tria_2_shape_set, quad_2_shape_set, quad_28_shape_set
 		>,
 		tester<tmp::_1>
 	>();
