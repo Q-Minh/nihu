@@ -103,9 +103,9 @@ public:
 		static_assert(std::is_base_of<shape_set_base<LSet>, LSet>::value,
 			"LSet must be derived from shape_set_base<LSet>");
 		// compute Jacobian and multiply with original weight
-		m_w *= (LSet::eval_dshape(m_xi).transpose() * coords).determinant();
+		m_w *= (LSet::template eval_shape<1>(m_xi).transpose() * coords).determinant();
 		// compute new quadrature location
-		m_xi = LSet::eval_shape(m_xi).transpose() * coords;
+		m_xi = LSet::template eval_shape<0>(m_xi).transpose() * coords;
 		return *this;
 	}
 

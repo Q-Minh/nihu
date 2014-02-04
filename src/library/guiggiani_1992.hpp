@@ -151,7 +151,7 @@ private:
 		m_eta0 = m_T * m_xi0;
 
 		m_Jvec_series[0] = m_elem.get_normal(m_xi0) / m_T.determinant();
-		m_N_series[0] = trial_nset_t::eval_shape(xi0);
+		m_N_series[0] = trial_nset_t::template eval_shape<0>(xi0);
 
 		// geometrical parameters (planar helpers)
 		unsigned const N = domain_t::num_corners;
@@ -176,24 +176,24 @@ private:
 	void compute_theta(scalar_t theta)
 	{
 		// contains cos theta sin theta in xi system
-		xi_t xi = m_Tinv.col(shape_index::dXI) * std::cos(theta) + m_Tinv.col(shape_index::dETA) * std::sin(theta);
+		xi_t xi = m_Tinv.col(shape_derivative_index::dXI) * std::cos(theta) + m_Tinv.col(shape_derivative_index::dETA) * std::sin(theta);
 
 		typename elem_t::dx_t dx = m_elem.get_dx(m_xi0);
 		typename elem_t::ddx_t ddx = m_elem.get_ddx(m_xi0);
 
-		m_rvec_series[0] = dx.col(shape_index::dXI) * xi(shape_index::dXI) + dx.col(shape_index::dETA) * xi(shape_index::dETA);
+		m_rvec_series[0] = dx.col(shape_derivative_index::dXI) * xi(shape_derivative_index::dXI) + dx.col(shape_derivative_index::dETA) * xi(shape_derivative_index::dETA);
 		m_A = m_rvec_series[0].norm();
-		m_rvec_series[1] = ddx.col(shape_index::dXIXI) * xi(shape_index::dXI)*xi(shape_index::dXI) / 2.0 +
-			ddx.col(shape_index::dXIETA) * xi(shape_index::dXI)*xi(1) +
-			ddx.col(shape_index::dETAETA) * xi(shape_index::dETA)*xi(shape_index::dETA) / 2.0;
+		m_rvec_series[1] = ddx.col(shape_derivative_index::dXIXI) * xi(shape_derivative_index::dXI)*xi(shape_derivative_index::dXI) / 2.0 +
+			ddx.col(shape_derivative_index::dXIETA) * xi(shape_derivative_index::dXI)*xi(1) +
+			ddx.col(shape_derivative_index::dETAETA) * xi(shape_derivative_index::dETA)*xi(shape_derivative_index::dETA) / 2.0;
 
 		m_Jvec_series[1] = (
-			xi(shape_index::dXI) * (ddx.col(shape_index::dXIXI).cross(dx.col(shape_index::dETA)) + dx.col(shape_index::dXI).cross(ddx.col(shape_index::dXIETA))) +
-			xi(shape_index::dETA) * (ddx.col(shape_index::dETAXI).cross(dx.col(shape_index::dETA)) + dx.col(shape_index::dXI).cross(ddx.col(shape_index::dETAETA)))
+			xi(shape_derivative_index::dXI) * (ddx.col(shape_derivative_index::dXIXI).cross(dx.col(shape_derivative_index::dETA)) + dx.col(shape_derivative_index::dXI).cross(ddx.col(shape_derivative_index::dXIETA))) +
+			xi(shape_derivative_index::dETA) * (ddx.col(shape_derivative_index::dETAXI).cross(dx.col(shape_derivative_index::dETA)) + dx.col(shape_derivative_index::dXI).cross(ddx.col(shape_derivative_index::dETAETA)))
 			) / m_T.determinant();
 
-		auto dN = trial_nset_t::eval_dshape(m_xi0);
-		m_N_series[1] = dN.col(shape_index::dXI)*xi(shape_index::dXI) + dN.col(shape_index::dETA)*xi(shape_index::dETA);
+		auto dN = trial_nset_t::template eval_shape<1>(m_xi0);
+		m_N_series[1] = dN.col(shape_derivative_index::dXI)*xi(shape_derivative_index::dXI) + dN.col(shape_derivative_index::dETA)*xi(shape_derivative_index::dETA);
 	}
 
 public:
@@ -259,7 +259,7 @@ public:
 						bound(trial_input) *
 						trial_input.get_jacobian() / m_T.determinant() *
 						rho *
-						trial_nset_t::eval_shape(xi)
+						trial_nset_t::template eval_shape<0>(xi)
 						).eval();
 
 					// subtract the analytical singularity

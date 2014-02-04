@@ -123,9 +123,9 @@ protected:
 			w_test_input_t test_input(test_field.get_elem(), it.get_first()->get_xi());
 			w_trial_input_t trial_input(trial_field.get_elem(), it.get_second()->get_xi());
 
-			auto left = (TestField::nset_t::eval_shape(it.get_first()->get_xi())
+			auto left = (TestField::nset_t::template eval_shape<0>(it.get_first()->get_xi())
 				* (test_input.get_jacobian() * it.get_first()->get_w())).eval();
-			auto right = (TrialField::nset_t::eval_shape(it.get_second()->get_xi())
+			auto right = (TrialField::nset_t::template eval_shape<0>(it.get_second()->get_xi())
 				* (trial_input.get_jacobian() * it.get_second()->get_w())).eval();
 
 			result += left * kernel(test_input, trial_input) * right.transpose();
@@ -165,9 +165,9 @@ public:
 				w_test_input_t test_input(test_field.get_elem(), begin.get_test_quadrature_elem().get_xi());
 				w_trial_input_t trial_input(trial_field.get_elem(), begin.get_trial_quadrature_elem().get_xi());
 
-				auto left = (TestField::nset_t::eval_shape(begin.get_test_quadrature_elem().get_xi())
+				auto left = (TestField::nset_t::template eval_shape<0>(begin.get_test_quadrature_elem().get_xi())
 					* (test_input.get_jacobian() * begin.get_test_quadrature_elem().get_w())).eval();
-				auto right = (TrialField::nset_t::eval_shape(begin.get_trial_quadrature_elem().get_xi())
+				auto right = (TrialField::nset_t::template eval_shape<0>(begin.get_trial_quadrature_elem().get_xi())
 					* (trial_input.get_jacobian() * begin.get_trial_quadrature_elem().get_w())).eval();
 
 				result += left * kernel(test_input, trial_input) * right.transpose();
@@ -420,7 +420,7 @@ public:
 
 					result.row(idx) += bound(trial_input) *
 						(trial_input.get_jacobian() * quad_it->get_w() *
-						TrialField::nset_t::eval_shape(quad_it->get_xi()));
+						TrialField::nset_t::template eval_shape<0>(quad_it->get_xi()));
 				}
 			}
 
@@ -482,6 +482,9 @@ protected:
 		typedef store<field_type_accelerator_pool<
 			TrialField, quadrature_family_t, GLOBAL_ACCELERATION, GLOBAL_MAX_ORDER
 		> > trial_store_t;
+
+		std::cout << "Test store:\t" << test_store_t::m_data[degree].begin()->get_N() << std::endl;
+		std::cout << "Trial store:\t" << trial_store_t::m_data[degree].begin()->get_N() << std::endl;
 
 		auto acc = create_dual_field_type_accelerator(
 			test_store_t::m_data[degree], trial_store_t::m_data[degree], iteration::diadic());

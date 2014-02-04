@@ -27,10 +27,7 @@ class line_2_shape_set;
 namespace shape_set_traits
 {
 	template <>
-	struct domain<line_2_shape_set>
-	{
-		typedef line_domain type;
-	};
+	struct domain<line_2_shape_set> : line_domain {};
 
 	template <>
 	struct num_nodes<line_2_shape_set>

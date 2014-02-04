@@ -62,7 +62,7 @@ public:
 	 */
 	typename Field::nset_t::shape_t get_N(void) const
 	{
-		return Field::nset_t::eval_shape(base_t::get_xi());
+		return Field::nset_t::template eval_shape<0>(base_t::get_xi());
 	}
 };
 
@@ -87,8 +87,9 @@ public:
 	 */
 	field_type_accelerator_elem(base_t const &base) :
 		base_t(base),
-		m_nset(Field::nset_t::eval_shape(base_t::get_xi()))
+		m_nset(Field::nset_t::template eval_shape<0>(base_t::get_xi()))
 	{
+		std::cout << "Nset:\t" << m_nset << std::endl;
 	}
 
 	/** \brief return shape function

@@ -27,10 +27,7 @@ class quad_1_gauss_shape_set;
 namespace shape_set_traits
 {
 	template <>
-	struct domain<quad_1_gauss_shape_set>
-	{
-		typedef quad_domain type;
-	};
+	struct domain<quad_1_gauss_shape_set> : quad_domain {};
 
 	template <>
 	struct num_nodes<quad_1_gauss_shape_set>
@@ -49,6 +46,12 @@ namespace shape_set_traits
 	{
 		enum { value = 1 };
 	};
+
+	template <unsigned Order>
+	struct shape_complexity<quad_1_gauss_shape_set, Order>
+	{
+		typedef matrix_function_complexity::general type;
+	};
 }
 //! [Shape traits]
 
@@ -58,47 +61,14 @@ class quad_1_gauss_shape_set
 	: public shape_set_base<quad_1_gauss_shape_set>
 {
 public:
-	static shape_t eval_shape(xi_t const &_xi);
-	static dshape_t eval_dshape(xi_t const & _xi);
-	static xi_t const *corner_begin(void);
+	static xi_t const *corner_begin(void)
+	{
+		return m_corners;
+	}
 
 protected:
 	static const xi_t m_corners[num_nodes];
 };
-//! [Shape class]
-
-//! [Shape lsets]
-inline quad_1_gauss_shape_set::shape_t
-	quad_1_gauss_shape_set::eval_shape(quad_1_gauss_shape_set::xi_t const &_xi)
-{
-	scalar_t xi = _xi[0], eta = _xi[1];
-	return ( quad_1_gauss_shape_set::shape_t() <<
-		(1.0 - std::sqrt(3.0)*xi) * (1.0 - std::sqrt(3.0)*eta),
-		(1.0 + std::sqrt(3.0)*xi) * (1.0 - std::sqrt(3.0)*eta),
-		(1.0 - std::sqrt(3.0)*xi) * (1.0 + std::sqrt(3.0)*eta),
-		(1.0 + std::sqrt(3.0)*xi) * (1.0 + std::sqrt(3.0)*eta)
-	).finished() / 4.0;
-}
-
-inline quad_1_gauss_shape_set::dshape_t
-	quad_1_gauss_shape_set::eval_dshape(quad_1_gauss_shape_set::xi_t const & _xi)
-{
-	scalar_t xi = _xi[0], eta = _xi[1];
-	return ( quad_1_gauss_shape_set::dshape_t() <<
-		-std::sqrt(3.0) * (1.0 - std::sqrt(3.0)*eta) , (1.0 - std::sqrt(3.0)*xi) * -std::sqrt(3.0),
-		+std::sqrt(3.0) * (1.0 - std::sqrt(3.0)*eta) , (1.0 + std::sqrt(3.0)*xi) * -std::sqrt(3.0),
-		-std::sqrt(3.0) * (1.0 + std::sqrt(3.0)*eta) , (1.0 - std::sqrt(3.0)*xi) * +std::sqrt(3.0),
-		+std::sqrt(3.0) * (1.0 + std::sqrt(3.0)*eta) , (1.0 + std::sqrt(3.0)*xi) * +std::sqrt(3.0)
-	).finished() / 4.0;
-}
-//! [Shape lsets]
-
-//! [Shape corners]
-inline quad_1_gauss_shape_set::xi_t const *
-	quad_1_gauss_shape_set::corner_begin(void)
-{
-	return m_corners;
-}
 
 quad_1_gauss_shape_set::xi_t
 	const quad_1_gauss_shape_set::m_corners[quad_1_gauss_shape_set::num_nodes] = {
@@ -107,8 +77,46 @@ quad_1_gauss_shape_set::xi_t
 		quad_1_gauss_shape_set::xi_t(-std::sqrt(3.0)/3.0, +std::sqrt(3.0)/3.0),
 		quad_1_gauss_shape_set::xi_t(+std::sqrt(3.0)/3.0, +std::sqrt(3.0)/3.0)
 };
-//! [Shape corners]
+//! [Shape class]
 
+//! [Shape lsets]
+template <>
+class shape_function<quad_1_gauss_shape_set, 0>
+{
+	typedef shape_set_traits::shape_value_type<quad_1_gauss_shape_set, 0>::type shape_t;
+	typedef shape_set_traits::domain<quad_1_gauss_shape_set>::type::xi_t xi_t;
+public:
+	static shape_t eval(xi_t const &_xi)
+	{
+		auto xi = _xi[0], eta = _xi[1];
+		return ( quad_1_gauss_shape_set::shape_t() <<
+			(1.0 - std::sqrt(3.0)*xi) * (1.0 - std::sqrt(3.0)*eta),
+			(1.0 + std::sqrt(3.0)*xi) * (1.0 - std::sqrt(3.0)*eta),
+			(1.0 - std::sqrt(3.0)*xi) * (1.0 + std::sqrt(3.0)*eta),
+			(1.0 + std::sqrt(3.0)*xi) * (1.0 + std::sqrt(3.0)*eta)
+		).finished() / 4.0;
+	}
+};
+
+
+template <>
+class shape_function<quad_1_gauss_shape_set, 1>
+{
+	typedef shape_set_traits::shape_value_type<quad_1_gauss_shape_set, 1>::type shape_t;
+	typedef shape_set_traits::domain<quad_1_gauss_shape_set>::type::xi_t xi_t;
+public:
+	static shape_t eval(xi_t const &_xi)
+	{
+		auto xi = _xi[0], eta = _xi[1];
+		return ( quad_1_gauss_shape_set::dshape_t() <<
+			-std::sqrt(3.0) * (1.0 - std::sqrt(3.0)*eta) , (1.0 - std::sqrt(3.0)*xi) * -std::sqrt(3.0),
+			+std::sqrt(3.0) * (1.0 - std::sqrt(3.0)*eta) , (1.0 + std::sqrt(3.0)*xi) * -std::sqrt(3.0),
+			-std::sqrt(3.0) * (1.0 + std::sqrt(3.0)*eta) , (1.0 - std::sqrt(3.0)*xi) * +std::sqrt(3.0),
+			+std::sqrt(3.0) * (1.0 + std::sqrt(3.0)*eta) , (1.0 + std::sqrt(3.0)*xi) * +std::sqrt(3.0)
+		).finished() / 4.0;
+	}
+};
+//! [Shape lsets]
 
 //! [Field typedef]
 typedef field<quad_1_elem, quad_1_gauss_shape_set> quad_1_gauss_field;

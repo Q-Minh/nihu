@@ -27,10 +27,7 @@ class tria_2_shape_set;
 namespace shape_set_traits
 {
 	template <>
-	struct domain<tria_2_shape_set>
-	{
-		typedef tria_domain type;
-	};
+	struct domain<tria_2_shape_set> : tria_domain {};
 
 	template <>
 	struct num_nodes<tria_2_shape_set>

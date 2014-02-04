@@ -134,7 +134,7 @@ public:
 		/** \brief the element id */
 		id = element_traits::id<Derived>::value,
 		num_nodes = lset_t::num_nodes,
-		num_dd = lset_t::num_dd
+		num_dd = num_derivatives<2, xi_dim>::value
 	};
 
 	/** \brief type of the element's independent location variable \f$x\f$ */
@@ -223,7 +223,7 @@ public:
 	*/
 	x_t get_x(xi_t const &xi) const
 	{
-		return m_coords * lset_t::eval_shape(xi);
+		return m_coords * lset_t::template eval_shape<0>(xi);
 	}
 
 	/**
@@ -242,7 +242,7 @@ public:
 	*/
 	dx_t get_dx(xi_t const &xi) const
 	{
-		return m_coords * lset_t::eval_dshape(xi);
+		return m_coords * lset_t::template eval_shape<1>(xi);
 	}
 
 	/**
@@ -252,7 +252,7 @@ public:
 	*/
 	ddx_t get_ddx(xi_t const &xi) const
 	{
-		return m_coords * lset_t::eval_ddshape(xi);
+		return m_coords * lset_t::template eval_shape<2>(xi);
 	}
 
 	/**
@@ -662,6 +662,8 @@ public:
 	}
 };
 
+#include "../library/line_2_shape_set.hpp"
+
 /** \brief quadratic 3-noded line element */
 typedef general_surface_element<line_2_shape_set, line_1_elem::space_t::scalar_t> line_2_elem;
 
@@ -673,6 +675,8 @@ struct tag2element<line_2_tag>
 {
 	typedef line_2_elem type;
 };
+
+#include "../library/tria_2_shape_set.hpp"
 
 /** \brief quadratic 6-noded triangle element */
 typedef general_surface_element<tria_2_shape_set, tria_1_elem::space_t::scalar_t> tria_2_elem;
@@ -686,6 +690,8 @@ struct tag2element<tria_2_tag>
 {
 	typedef tria_2_elem type;
 };
+
+#include "../library/quad_2_shape_set.hpp"
 
 /** \brief quadratic 9-noded quadrilateral element */
 typedef general_surface_element<quad_2_shape_set, quad_1_elem::space_t::scalar_t> quad_2_elem;

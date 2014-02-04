@@ -164,7 +164,11 @@ public:
 	typedef typename domain_t::xi_t xi_t;
 	/** \brief type of an \f$L(\xi)\f$ vector */
 	template <unsigned Order>
-	struct shape_t : shape_set_traits::shape_value_type<Derived, Order> {};
+	struct shape_value_type : shape_set_traits::shape_value_type<Derived, Order> {};
+
+	typedef typename shape_value_type<0>::type shape_t;
+	typedef typename shape_value_type<1>::type dshape_t;
+	typedef typename shape_value_type<2>::type ddshape_t;
 
 	template <unsigned Order>
 	static typename shape_set_traits::shape_return_type<Derived, Order>::type
@@ -202,7 +206,7 @@ class constant_shape_set;
 namespace shape_set_traits
 {
 	template <class Domain>
-	struct domain<constant_shape_set<Domain> > : Domain{};
+	struct domain<constant_shape_set<Domain> > : Domain {};
 
 	template <class Domain>
 	struct num_nodes<constant_shape_set<Domain> >
@@ -323,10 +327,7 @@ class isoparam_shape_set;
 namespace shape_set_traits
 {
 	template <class Domain>
-	struct domain<isoparam_shape_set<Domain> >
-	{
-		typedef Domain type;
-	};
+	struct domain<isoparam_shape_set<Domain> > : Domain {};
 
 	template <class Domain>
 	struct num_nodes<isoparam_shape_set<Domain> >
@@ -785,10 +786,7 @@ class parallelogram_shape_set;
 namespace shape_set_traits
 {
 	template <>
-	struct domain<parallelogram_shape_set>
-	{
-		typedef quad_domain type;
-	};
+	struct domain<parallelogram_shape_set> : quad_domain {};
 
 	template <>
 	struct num_nodes<parallelogram_shape_set>

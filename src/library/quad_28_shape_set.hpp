@@ -28,10 +28,7 @@ class quad_28_shape_set;
 namespace shape_set_traits
 {
 	template <>
-	struct domain<quad_28_shape_set>
-	{
-		typedef quad_domain type;
-	};
+	struct domain<quad_28_shape_set> : quad_domain {};
 
 	template <>
 	struct num_nodes<quad_28_shape_set>

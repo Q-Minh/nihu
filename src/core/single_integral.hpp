@@ -152,7 +152,7 @@ public:
 		result_t result;
 		result.setZero();
 		for (unsigned row = 0; row < test_nset_t::num_nodes; ++row)
-			result.row(row) += trial_nset_t::eval_shape(test_nset_t::corner_at(row));
+			result.row(row) += trial_nset_t::template eval_shape<0>(test_nset_t::corner_at(row));
 		return result;
 	}
 };
