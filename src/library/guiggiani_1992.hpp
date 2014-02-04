@@ -140,8 +140,9 @@ private:
 		m_x0 = m_elem.get_x(m_xi0);
 		typename elem_t::dx_t dx = m_elem.get_dx(m_xi0);
 
-		scalar_t cosgamma = dx.col(shape_index::dXI).dot(dx.col(shape_index::dETA)) / dx.col(shape_index::dXI).norm() / dx.col(shape_index::dETA).norm();
-		scalar_t u = dx.col(shape_index::dETA).norm() / dx.col(shape_index::dXI).norm();
+		scalar_t cosgamma = dx.col(shape_derivative_index::dXI).dot(dx.col(shape_derivative_index::dETA)) /
+			dx.col(shape_derivative_index::dXI).norm() / dx.col(shape_derivative_index::dETA).norm();
+		scalar_t u = dx.col(shape_derivative_index::dETA).norm() / dx.col(shape_derivative_index::dXI).norm();
 		m_T <<
 			1.0, cosgamma * u,
 			0.0, std::sqrt(1.0-cosgamma*cosgamma) * u;

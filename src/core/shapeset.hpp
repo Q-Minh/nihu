@@ -19,7 +19,7 @@
 /**
  * \file shapeset.hpp
  * \ingroup funcspace
- * \brief Definition of various shape function sets
+ * \brief Definition of shape function sets
  */
 
 #ifndef SHAPESET_HPP_INCLUDED
@@ -33,15 +33,15 @@
 #include "../util/store_or_on_the_fly.hpp"
 
 /** \brief shape function derivative indices */
-namespace shape_index
+namespace shape_derivative_index
 {
 	enum {
-		dXI = 0,	/**< \brief index of xi in shape derivative matrix */
-		dETA = 1,	/**< \brief index of eta in shape derivative matrix */
-		dXIXI = 0,	/**< \brief index of xi_xi in shape second derivative matrix */
-		dXIETA = 1,	/**< \brief index of xi_eta in shape derivative matrix */
-		dETAXI = 1,	/**< \brief index of eta_xi in shape second derivative matrix */
-		dETAETA = 2	/**< \brief index of eta-eta in shape second derivative matrix */
+		dXI = 0,	/**< \brief index of xi in 1st derivative matrix */
+		dETA = 1,	/**< \brief index of eta in 1st derivative matrix */
+		dXIXI = 0,	/**< \brief index of xi_xi in 2nd derivative matrix */
+		dXIETA = 1,	/**< \brief index of xi_eta in 2nd derivative matrix */
+		dETAXI = 1,	/**< \brief index of eta_xi in 2nd derivative matrix */
+		dETAETA = 2	/**< \brief index of eta-eta in 2nd derivative matrix */
 	};
 }
 
@@ -122,7 +122,6 @@ namespace shape_set_traits
 			matrix_function_complexity::general
 			>::value,
 			shape_function<Derived, Order>,
-			typename shape_value_type<Derived, Order>::type,
 			typename domain<Derived>::type::xi_t
 		> type;
 	};
