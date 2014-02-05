@@ -50,6 +50,8 @@ struct tester
 
 			typename ElemType::x_t n = e.get_normal(xi);
 			std::cout << "n(xi): " << n.transpose() << std::endl;
+
+			std::cout << "Linear size estimate:\t" << e.get_linear_size_estimate() << std::endl;
 		}
 	};
 };

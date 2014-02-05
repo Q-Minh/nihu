@@ -1,5 +1,5 @@
-#ifndef CONDITIONAL_PRECOMPUTE_HPP_INCLUDED
-#define CONDITIONAL_PRECOMPUTE_HPP_INCLUDED
+#ifndef CONDITIONAL_PRECOMPUTE_INSTANCE_HPP_INCLUDED
+#define CONDITIONAL_PRECOMPUTE_INSTANCE_HPP_INCLUDED
 
 #include "core/global_definitions.hpp"
 #include <type_traits>
@@ -10,7 +10,7 @@
  * \tparam Arguments passed to the Func class
  */
 template <bool OnTheFly, class Func, class ...Args>
-class conditional_precompute
+class conditional_precompute_instance
 {
 public:
 	/** \brief the return type of the Func function class */
@@ -18,8 +18,13 @@ public:
 	/** \brief the return type of the static function eval */
 	typedef functor_ret_type return_type;
 
+	template <class...ConstrArgs>
+	conditional_precompute_instance(ConstrArgs const &...)
+	{
+	}
+
 	/** \brief return object computed by the function class */
-	static return_type eval(Args const &...args)
+	return_type operator()(Args const &...args)
 	{
 		return Func::eval(args...);
 	}
@@ -27,7 +32,7 @@ public:
 
 
 template <class Func, class...Args>
-class conditional_precompute<false, Func, Args...>
+class conditional_precompute_instance<false, Func, Args...>
 {
 public:
 	/** \brief the return type of the Func function class */
@@ -37,13 +42,21 @@ public:
         typename std::add_const<functor_ret_type>::type
     >::type return_type;
 
-	/** \brief return object computed by the function class */
-	static return_type eval(Args const &...args)
+	conditional_precompute_instance(Args const &...args)
+        : m_stored(Func::eval(args...))
 	{
-		static const functor_ret_type m_stored = Func::eval(args...);
+	}
+
+	/** \brief return object computed by the function class */
+	template <class...EvalArgs>
+	return_type operator()(EvalArgs const &...)
+	{
 		return m_stored;
 	}
+
+private:
+    const functor_ret_type m_stored;
 };
 
 
-#endif // CONDITIONAL_PRECOMPUTE_HPP_INCLUDED
+#endif // CONDITIONAL_PRECOMPUTE_INSTANCE_HPP_INCLUDED
