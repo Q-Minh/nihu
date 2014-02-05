@@ -24,7 +24,7 @@ public:
 	}
 
 	/** \brief return object computed by the function class */
-	return_type operator()(Args const &...args)
+	return_type operator()(Args const &...args) const
 	{
 		return Func::eval(args...);
 	}
@@ -49,7 +49,7 @@ public:
 
 	/** \brief return object computed by the function class */
 	template <class...EvalArgs>
-	return_type operator()(EvalArgs const &...)
+	return_type operator()(EvalArgs const &...) const
 	{
 		return m_stored;
 	}

@@ -26,6 +26,7 @@
 
 #include <iostream>
 #include "../util/crtp_base.hpp"
+#include "../util/conditional_precompute_instance.hpp"
 #include "../tmp/bool.hpp"
 #include "shapeset.hpp"
 
@@ -112,12 +113,15 @@ public:
 };
 
 
+template <class Derived, unsigned Order>
+class location_impl;
+
 /** \brief Traits describing element properties */
 namespace element_traits
 {
 	/** \brief The physical coordinate space of the element */
 	template <class Derived>
-	struct space_t;
+	struct space_type;
 
 	/** \brief The geometrical shape set of the element */
 	template <class Derived>
@@ -128,7 +132,7 @@ namespace element_traits
 	struct id
 	{
 		enum {
-			value = element_traits::space_t<Derived>::type::dimension * 10000 +
+			value = element_traits::space_type<Derived>::type::dimension * 10000 +
 			shape_set_traits::id<typename element_traits::lset<Derived>::type>::value
 		};
 	};
@@ -146,6 +150,59 @@ namespace element_traits
             matrix_function_complexity::general
         >::value
     > {};
+
+
+	/** \brief matrix type that stores the element's corner coordinates \f$ x_i \f$ */
+	template <class Derived>
+	struct coords_type
+	{
+        typedef Eigen::Matrix<
+            typename space_type<Derived>::type::scalar_t,
+            space_type<Derived>::type::dimension,
+            lset<Derived>::type::num_nodes
+        > type;
+	};
+
+	template <class Derived, unsigned Order>
+	struct location_value_type
+	{
+        typedef Eigen::Matrix<
+            typename space_type<Derived>::type::scalar_t,
+            space_type<Derived>::type::dimension,
+            num_derivatives<
+                Order,
+                shape_set_traits::domain<
+                    typename lset<Derived>::type
+                >::type::dimension
+            >::value
+        > type;
+	};
+
+	/** \brief Defines the factory functor that computes or stores the shape functions */
+	template <class Derived, unsigned Order>
+	struct location_factory_functor
+	{
+		typedef conditional_precompute_instance<
+			std::is_same<
+                typename location_complexity<Derived, Order>::type,
+                matrix_function_complexity::general
+			>::value,
+			location_impl<Derived, Order>,
+			typename coords_type<Derived>::type,
+			typename shape_set_traits::domain<
+                typename lset<Derived>::type
+            >::type::xi_t
+		> type;
+	};
+
+	template <class Derived, unsigned Order>
+	struct location_return_type
+	{
+		typedef typename location_factory_functor<
+            Derived,
+            Order
+        >::type::return_type type;
+	};
 }
 
 /** \brief metafunction assigning an element to an element tag */
@@ -154,6 +211,23 @@ struct tag2element;
 
 /** \brief type that stores the element's id */
 typedef Eigen::Matrix<unsigned, 1, 1> elem_id_t;
+
+
+template <class Derived, unsigned Order>
+class location_impl
+{
+public:
+    typedef typename element_traits::lset<Derived>::type lset_t;
+    typedef typename element_traits::coords_type<Derived>::type coords_t;
+    typedef typename element_traits::location_value_type<Derived, Order>::type ret_t;
+    typedef typename shape_set_traits::domain<lset_t>::type::xi_t xi_t;
+
+    static ret_t eval(coords_t const &coords, xi_t const &xi)
+    {
+        return coords * lset_t::template eval_shape<Order>(xi);
+    }
+};
+
 
 /**
 * \brief The geometrical element representation
@@ -167,7 +241,7 @@ public:
 	typedef Derived type;
 
 	/** \brief the element space type */
-	typedef typename element_traits::space_t<Derived>::type space_t;
+	typedef typename element_traits::space_type<Derived>::type space_t;
 	/** \brief the elements's L-set */
 	typedef typename element_traits::lset<Derived>::type lset_t;
 
@@ -192,12 +266,16 @@ public:
 		num_dd = num_derivatives<2, xi_dim>::value
 	};
 
-	/** \brief type of the element's independent location variable \f$x\f$ */
-	typedef typename space_t::location_t x_t;
-	/** \brief type of the gradient of the element's independent location variable \f$x'_{\xi}\f$ */
-	typedef Eigen::Matrix<scalar_t, x_dim, xi_dim> dx_t;
-	/** \brief type of the second derivative of the element's independent location variable \f$x''_{\xi}\f$ */
-	typedef Eigen::Matrix<scalar_t, x_dim, num_dd> ddx_t;
+	/** \brief type of the element's physical location variable \f$ x \f$ */
+	typedef typename element_traits::location_value_type<Derived, 0>::type x_t;
+	typedef typename element_traits::location_return_type<Derived, 0>::type x_return_type;
+	/** \brief type of the gradient of the element's physical location variable \f$ x'_{\xi} \f$ */
+	typedef typename element_traits::location_value_type<Derived, 1>::type dx_t;
+	typedef typename element_traits::location_return_type<Derived, 1>::type dx_return_type;
+	/** \brief type of the second derivative of the element's physical location variable \f$ x''_{\xi} \f$ */
+	typedef typename element_traits::location_value_type<Derived, 2>::type ddx_t;
+	typedef typename element_traits::location_return_type<Derived, 2>::type ddx_return_type;
+
 	/** \brief matrix type that stores the element's corner nodes \f$x_i\f$ */
 	typedef Eigen::Matrix<unsigned, num_nodes, 1> nodes_t;
 	/** \brief matrix type that stores the element's corner coordinates \f$x_i\f$ */
@@ -216,6 +294,10 @@ protected:
 	x_t m_center;
 	/** \brief estimated linear size of an element */
 	scalar_t m_linear_size_estimate;
+
+	typename element_traits::location_factory_functor<Derived, 0>::type x_computer;
+	typename element_traits::location_factory_functor<Derived, 1>::type dx_computer;
+	typename element_traits::location_factory_functor<Derived, 2>::type ddx_computer;
 
 	/** \brief the normal return type based on acceleration */
 	typedef typename std::conditional<
@@ -237,7 +319,8 @@ public:
 	 * \param [in] coords the elem coordinates
 	 */
 	element_base(coords_t const &coords, unsigned id = 0, nodes_t const &nodes = nodes_t())
-		: m_nodes(nodes), m_coords(coords), m_center(get_x(domain_t::get_center()))
+		: m_nodes(nodes), m_coords(coords), m_center(get_x(domain_t::get_center())),
+		x_computer(m_coords, xi_t()), dx_computer(m_coords, xi_t()), ddx_computer(m_coords, xi_t())
 	{
 		this->m_id << id;
 	}
@@ -277,6 +360,21 @@ public:
 	x_t get_x(xi_t const &xi) const
 	{
 		return m_coords * lset_t::template eval_shape<0>(xi);
+	}
+
+	x_return_type get_x2(xi_t const &xi) const
+	{
+		return x_computer(m_coords, xi);
+	}
+
+	dx_return_type get_dx2(xi_t const &xi) const
+	{
+		return dx_computer(m_coords, xi);
+	}
+
+	ddx_return_type get_ddx2(xi_t const &xi) const
+	{
+		return ddx_computer(m_coords, xi);
 	}
 
 	/**
@@ -400,7 +498,7 @@ class line_1_elem;
 namespace element_traits
 {
 	template <>
-	struct space_t<line_1_elem> : space_2d {};
+	struct space_type<line_1_elem> : space_2d {};
 
 	template <>
 	struct lset<line_1_elem>
@@ -456,7 +554,7 @@ struct tria_1_tag {};
 namespace element_traits
 {
 	template <>
-	struct space_t<tria_1_elem> : space_3d {};
+	struct space_type<tria_1_elem> : space_3d {};
 
 	template <>
 	struct lset<tria_1_elem>
@@ -508,7 +606,7 @@ class quad_1_elem;
 namespace element_traits
 {
 	template <>
-	struct space_t<quad_1_elem> : space_3d {};
+	struct space_type<quad_1_elem> : space_3d {};
 
 	template <>
 	struct lset<quad_1_elem>
@@ -572,7 +670,7 @@ class general_surface_element;
 namespace element_traits
 {
 	template <class LSet, class Scalar>
-	struct space_t<general_surface_element<LSet, Scalar> >
+	struct space_type<general_surface_element<LSet, Scalar> >
         : space<Scalar, LSet::domain_t::dimension + 1> {};
 
 	template <class LSet, class Scalar>
