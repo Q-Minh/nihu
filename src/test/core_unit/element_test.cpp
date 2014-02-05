@@ -45,14 +45,12 @@ struct tester
 			std::cout << "x  center: " << c.transpose() << std::endl;
 			std::cout << "nodal coords: " << std::endl << e.get_coords() << std::endl;
 
-			typename ElemType::x_t x = e.get_x(xi);
+			typename ElemType::x_return_type x = e.get_x(xi);
 			std::cout << "x(xi): " << x.transpose() << std::endl;
-			typename ElemType::x_return_type x2 = e.get_x2(xi);
-			std::cout << "x(xi): " << x2.transpose() << std::endl;
-			typename ElemType::dx_return_type dx2 = e.get_dx2(xi);
-			std::cout << "dx(xi): " << dx2.transpose() << std::endl;
-			typename ElemType::ddx_return_type ddx2 = e.get_ddx2(xi);
-			std::cout << "ddx(xi): " << ddx2.transpose() << std::endl;
+			typename ElemType::dx_return_type dx = e.get_dx(xi);
+			std::cout << "dx(xi): " << dx.transpose() << std::endl;
+			typename ElemType::ddx_return_type ddx = e.get_ddx(xi);
+			std::cout << "ddx(xi): " << ddx.transpose() << std::endl;
 
 			typename ElemType::x_t n = e.get_normal(xi);
 			std::cout << "n(xi): " << n.transpose() << std::endl;

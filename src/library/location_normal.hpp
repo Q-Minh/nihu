@@ -60,8 +60,7 @@ struct location
 		{
 		}
 
-		/** \brief return the location
-		 * \return the location */
+		/** \brief return the location */
 		x_t const &get_x(void) const
 		{
 			return m_x;
@@ -73,7 +72,7 @@ struct location
 };
 
 
-/** \brief a class representing a normal + jacobian brick
+/** \brief a class representing a normal + Jacobian brick
  * \tparam Space the coordinate space
  */
 template <class Space>
@@ -114,8 +113,8 @@ struct normal_jacobian
 			return m_norm;
 		}
 
-		/** \brief return the jacobian
-		 * \return the jacobian */
+		/** \brief return the Jacobian
+		 * \return the Jacobian */
 		scalar_t const &get_jacobian(void) const
 		{
 			return m_jac;

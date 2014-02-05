@@ -138,7 +138,7 @@ private:
 		m_n0 = normal.normalized();
 
 		m_x0 = m_elem.get_x(m_xi0);
-		typename elem_t::dx_t dx = m_elem.get_dx(m_xi0);
+		typename elem_t::dx_return_type dx = m_elem.get_dx(m_xi0);
 
 		scalar_t cosgamma = dx.col(shape_derivative_index::dXI).dot(dx.col(shape_derivative_index::dETA)) /
 			dx.col(shape_derivative_index::dXI).norm() / dx.col(shape_derivative_index::dETA).norm();
@@ -178,8 +178,8 @@ private:
 		// contains cos theta sin theta in xi system
 		xi_t xi = m_Tinv.col(shape_derivative_index::dXI) * std::cos(theta) + m_Tinv.col(shape_derivative_index::dETA) * std::sin(theta);
 
-		typename elem_t::dx_t dx = m_elem.get_dx(m_xi0);
-		typename elem_t::ddx_t ddx = m_elem.get_ddx(m_xi0);
+		typename elem_t::dx_return_type dx = m_elem.get_dx(m_xi0);
+		typename elem_t::ddx_return_type ddx = m_elem.get_ddx(m_xi0);
 
 		m_rvec_series[0] = dx.col(shape_derivative_index::dXI) * xi(shape_derivative_index::dXI) + dx.col(shape_derivative_index::dETA) * xi(shape_derivative_index::dETA);
 		m_A = m_rvec_series[0].norm();

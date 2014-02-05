@@ -26,7 +26,6 @@
 
 #include <iostream>
 #include "../util/crtp_base.hpp"
-#include "../util/conditional_precompute_instance.hpp"
 #include "../tmp/bool.hpp"
 #include "shapeset.hpp"
 
@@ -37,33 +36,33 @@ public:
 	/** \brief return number of coincident nodes */
 	unsigned get_num(void) const
 	{
-		return num;
+		return m_num;
 	}
 
 	/** \brief return index of first coincident node in element 1 */
 	unsigned get_ind1(void) const
 	{
-		return ind1;
+		return m_ind1;
 	}
 
 	/** \brief return index of first coincident node in element 2 */
 	unsigned get_ind2(void) const
 	{
-		return ind2;
+		return m_ind2;
 	}
 
 	/** \brief constructor */
 	element_overlapping(
 		unsigned num = 0, unsigned ind1 = 0, unsigned ind2 = 0) :
-		num(num), ind1(ind1), ind2(ind2)
+		m_num(num), m_ind1(ind1), m_ind2(ind2)
 	{
 	}
 
 private:
 	/** \brief number of coincident nodes */
-	unsigned num;
+	unsigned m_num;
 	/** \brief start node indices */
-	unsigned ind1, ind2;
+	unsigned m_ind1, m_ind2;
 };
 
 
@@ -74,9 +73,7 @@ private:
 template<class scalar, unsigned N>
 class normal_impl;
 
-/** \brief implementation of normal vector computation for 3D
- * \tparam scalar the scalar type
- */
+/** \brief specialisation of ::normal_impl for 3D */
 template <class scalar>
 class normal_impl<scalar, 3>
 {
@@ -93,9 +90,7 @@ public:
 	}
 };
 
-/** \brief implementation of normal vector computation for 2D
- * \tparam scalar the scalar type
- */
+/** \brief specialisation of ::normal_impl for 2D */
 template <class scalar>
 class normal_impl<scalar, 2>
 {
@@ -113,6 +108,7 @@ public:
 };
 
 
+/** \brief compute location derivatives from nodal coordinates */
 template <class Derived, unsigned Order>
 class location_impl;
 
@@ -139,10 +135,12 @@ namespace element_traits
 
 	/** \brief Defines the complexity to determine if the location derivative can be precomputed or not */
 	template <class Derived, unsigned Order>
-	struct location_complexity
-        : shape_set_traits::shape_complexity<typename lset<Derived>::type, Order> {};
+	struct location_complexity : shape_set_traits::shape_complexity<
+		typename lset<Derived>::type,
+		Order
+	> {};
 
-    /** Determines if the normal vector and is stored or not */
+    /** \brief Determines if the normal vector is stored or not */
 	template <class Derived>
 	struct is_normal_stored : std::integral_constant<bool,
         !std::is_same<
@@ -151,8 +149,7 @@ namespace element_traits
         >::value
     > {};
 
-
-	/** \brief matrix type that stores the element's corner coordinates \f$ x_i \f$ */
+	/** \brief Matrix that stores the element's corner coordinates */
 	template <class Derived>
 	struct coords_type
 	{
@@ -163,6 +160,7 @@ namespace element_traits
         > type;
 	};
 
+	/** \brief Matrix that stores the physical location's derivatives */
 	template <class Derived, unsigned Order>
 	struct location_value_type
 	{
@@ -178,15 +176,12 @@ namespace element_traits
         > type;
 	};
 
-	/** \brief Defines the factory functor that computes or stores the shape functions */
+	/** \brief Class that computes or stores the locations */
 	template <class Derived, unsigned Order>
 	struct location_factory_functor
 	{
 		typedef conditional_precompute_instance<
-			std::is_same<
-                typename location_complexity<Derived, Order>::type,
-                matrix_function_complexity::general
-			>::value,
+			typename location_complexity<Derived, Order>::type,
 			location_impl<Derived, Order>,
 			typename coords_type<Derived>::type,
 			typename shape_set_traits::domain<
@@ -195,6 +190,7 @@ namespace element_traits
 		> type;
 	};
 
+	/** \brief The return type of the physical location's derivatives */
 	template <class Derived, unsigned Order>
 	struct location_return_type
 	{
@@ -202,6 +198,26 @@ namespace element_traits
             Derived,
             Order
         >::type::return_type type;
+	};
+	
+	template <class Derived>
+	struct normal_factory_functor
+	{
+		typedef conditional_precompute_instance<
+			typename location_complexity<Derived, 1>::type,
+			normal_impl<
+				typename space_type<Derived>::type::scalar_t,
+				space_type<Derived>::type::dimension
+			>,
+			typename location_value_type<Derived, 1>::type
+		> type;
+	};
+
+	/** \brief The return type of the physical location's derivatives */
+	template <class Derived>
+	struct normal_return_type
+	{
+		typedef typename normal_factory_functor<Derived>::type::return_type type;
 	};
 }
 
@@ -272,6 +288,7 @@ public:
 	/** \brief type of the gradient of the element's physical location variable \f$ x'_{\xi} \f$ */
 	typedef typename element_traits::location_value_type<Derived, 1>::type dx_t;
 	typedef typename element_traits::location_return_type<Derived, 1>::type dx_return_type;
+	typedef typename element_traits::normal_return_type<Derived>::type normal_return_type;
 	/** \brief type of the second derivative of the element's physical location variable \f$ x''_{\xi} \f$ */
 	typedef typename element_traits::location_value_type<Derived, 2>::type ddx_t;
 	typedef typename element_traits::location_return_type<Derived, 2>::type ddx_return_type;
@@ -298,6 +315,7 @@ protected:
 	typename element_traits::location_factory_functor<Derived, 0>::type x_computer;
 	typename element_traits::location_factory_functor<Derived, 1>::type dx_computer;
 	typename element_traits::location_factory_functor<Derived, 2>::type ddx_computer;
+	typename element_traits::normal_factory_functor<Derived>::type normal_computer;
 
 	/** \brief the normal return type based on acceleration */
 	typedef typename std::conditional<
@@ -320,7 +338,7 @@ public:
 	 */
 	element_base(coords_t const &coords, unsigned id = 0, nodes_t const &nodes = nodes_t())
 		: m_nodes(nodes), m_coords(coords), m_center(get_x(domain_t::get_center())),
-		x_computer(m_coords, xi_t()), dx_computer(m_coords, xi_t()), ddx_computer(m_coords, xi_t())
+		x_computer(m_coords, xi_t()), dx_computer(m_coords, xi_t()), ddx_computer(m_coords, xi_t()), normal_computer(get_dx(xi_t()))
 	{
 		this->m_id << id;
 	}
@@ -357,22 +375,27 @@ public:
 	 * \param [in] \xi location \f$\xi\f$ in the base domain
 	 * \return location \f$x\f$ in the element
 	 */
-	x_t get_x(xi_t const &xi) const
-	{
-		return m_coords * lset_t::template eval_shape<0>(xi);
-	}
-
-	x_return_type get_x2(xi_t const &xi) const
+	x_return_type get_x(xi_t const &xi) const
 	{
 		return x_computer(m_coords, xi);
 	}
 
-	dx_return_type get_dx2(xi_t const &xi) const
+	/**
+	 * \brief return element location gradient
+	 * \param [in] xi location \f$\xi\f$ in the base domain
+	 * \return location gradient \f$x'_{\xi}\f$ in the element
+	 */
+	dx_return_type get_dx(xi_t const &xi) const
 	{
 		return dx_computer(m_coords, xi);
 	}
 
-	ddx_return_type get_ddx2(xi_t const &xi) const
+	/**
+	 * \brief return element location second derivative matrix
+	 * \param [in] xi location \f$ \xi \f$ in the base domain
+	 * \return location gradient \f$ x''_{\xi} \f$ in the element
+	 */
+	ddx_return_type get_ddx(xi_t const &xi) const
 	{
 		return ddx_computer(m_coords, xi);
 	}
@@ -387,33 +410,18 @@ public:
 	}
 
 	/**
-	 * \brief return element location gradient
-	 * \param [in] xi location \f$\xi\f$ in the base domain
-	 * \return location gradient \f$x'_{\xi}\f$ in the element
-	 */
-	dx_t get_dx(xi_t const &xi) const
-	{
-		return m_coords * lset_t::template eval_shape<1>(xi);
-	}
-
-	/**
-	 * \brief return element location second derivative matrix
-	 * \param [in] xi location \f$ \xi \f$ in the base domain
-	 * \return location gradient \f$ x''_{\xi} \f$ in the element
-	 */
-	ddx_t get_ddx(xi_t const &xi) const
-	{
-		return m_coords * lset_t::template eval_shape<2>(xi);
-	}
-
-	/**
 	 * \brief return element normal
 	 * \param [in] xi location in the reference domain
 	 * \return the element normal
 	 */
-	normal_ret_t get_normal(xi_t const &xi) const
+	// normal_ret_t get_normal(xi_t const &xi) const
+	// {
+		// return derived().get_normal(xi);
+	// }
+
+	normal_return_type get_normal(xi_t const &xi) const
 	{
-		return derived().get_normal(xi);
+		return normal_computer(ddx_computer(m_coords,xi));
 	}
 
 	/**
@@ -527,10 +535,10 @@ public:
 	/** \brief return normal vector
 	 * \return element normal
 	 */
-	x_t const &get_normal(xi_t const &) const
-	{
-		return m_normal;
-	}
+	// x_t const &get_normal(xi_t const &) const
+	// {
+		// return m_normal;
+	// }
 
 protected:
 	/** \brief the normal vector */
@@ -583,10 +591,15 @@ public:
 	}
 
 	/** \brief return normal vector */
-	x_t const &get_normal(xi_t const &) const
-	{
-		return m_normal;
-	}
+	// x_t const &get_normal(xi_t const &) const
+	// {
+		// return m_normal;
+	// }
+	
+	// x_t const &get_normal(void) const
+	// {
+		// return m_normal;
+	// }
 
 protected:
 	/** \brief the normal vector */

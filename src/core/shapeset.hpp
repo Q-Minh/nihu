@@ -45,13 +45,6 @@ namespace shape_derivative_index
 	};
 }
 
-namespace matrix_function_complexity
-{
-	struct zero { typedef zero type; };
-	struct constant { typedef constant type; };
-	struct general { typedef general type; };
-}
-
 template <class Derived, unsigned Order>
 class shape_function;
 
@@ -119,10 +112,7 @@ namespace shape_set_traits
 	struct factory_functor
 	{
 		typedef conditional_precompute<
-			std::is_same<
 			typename shape_complexity<Derived, Order>::type,
-			matrix_function_complexity::general
-			>::value,
 			shape_function<Derived, Order>,
 			typename domain<Derived>::type::xi_t
 		> type;
