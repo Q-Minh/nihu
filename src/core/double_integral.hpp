@@ -483,9 +483,6 @@ protected:
 			TrialField, quadrature_family_t, GLOBAL_ACCELERATION, GLOBAL_MAX_ORDER
 		> > trial_store_t;
 
-		std::cout << "Test store:\t" << test_store_t::m_data[degree].begin()->get_N() << std::endl;
-		std::cout << "Trial store:\t" << trial_store_t::m_data[degree].begin()->get_N() << std::endl;
-
 		auto acc = create_dual_field_type_accelerator(
 			test_store_t::m_data[degree], trial_store_t::m_data[degree], iteration::diadic());
 

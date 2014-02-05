@@ -89,7 +89,6 @@ public:
 		base_t(base),
 		m_nset(Field::nset_t::template eval_shape<0>(base_t::get_xi()))
 	{
-		std::cout << "Nset:\t" << m_nset << std::endl;
 	}
 
 	/** \brief return shape function

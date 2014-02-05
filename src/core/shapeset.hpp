@@ -93,7 +93,9 @@ namespace shape_set_traits
 	template <class Derived>
 	struct polynomial_order;
 
-	/** \brief Defines the polynomial order of the shape set's Jacobian */
+	/** \brief Defines the polynomial order of the shape set's Jacobian
+	 * \todo this should be moved to element_traits, where the coordinate transform is defined
+	 */
 	template <class Derived>
 	struct jacobian_order;
 

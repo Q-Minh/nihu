@@ -10,11 +10,7 @@
  * \tparam Arguments passed to the Func class
  */
 template <bool OnTheFly, class Func, class ...Args>
-class conditional_precompute;
-
-/** \brief Specialisation of ::conditional_precompute for the on-the-fly case */
-template <class Func, class ...Args>
-class conditional_precompute<true, Func, Args...>
+class conditional_precompute
 {
 public:
 	/** \brief the return type of the Func function class */
@@ -46,5 +42,6 @@ public:
 		return m_stored;
 	}
 };
+
 
 #endif // CONDITIONAL_PRECOMPUTE_HPP_INCLUDED
