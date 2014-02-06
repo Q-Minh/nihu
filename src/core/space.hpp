@@ -34,6 +34,9 @@ template <class Scalar, unsigned Dimension>
 class space
 {
 public:
+    /** self-returning */
+    typedef space type;
+
 	/** \brief template parameter as nested type */
 	typedef Scalar scalar_t;
 

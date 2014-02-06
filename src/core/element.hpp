@@ -17,10 +17,10 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
-* \file element.hpp
-* \ingroup funcspace
-* \brief Declaration of element classes and specialisations
-*/
+ * \file element.hpp
+ * \ingroup funcspace
+ * \brief Declaration of element classes and specialisations
+ */
 #ifndef ELEMENT_HPP_INCLUDED
 #define ELEMENT_HPP_INCLUDED
 
@@ -29,51 +29,95 @@
 #include "../tmp/bool.hpp"
 #include "shapeset.hpp"
 
-/**
- * \brief class describing the overlapping state of two elements
- */
+/** \brief class describing the overlapping state of two elements */
 class element_overlapping
 {
 public:
 	/** \brief return number of coincident nodes */
 	unsigned get_num(void) const
 	{
-		return num;
+		return m_num;
 	}
 
 	/** \brief return index of first coincident node in element 1 */
 	unsigned get_ind1(void) const
 	{
-		return ind1;
+		return m_ind1;
 	}
 
 	/** \brief return index of first coincident node in element 2 */
 	unsigned get_ind2(void) const
 	{
-		return ind2;
+		return m_ind2;
 	}
 
 	/** \brief constructor */
 	element_overlapping(
 		unsigned num = 0, unsigned ind1 = 0, unsigned ind2 = 0) :
-		num(num), ind1(ind1), ind2(ind2)
+		m_num(num), m_ind1(ind1), m_ind2(ind2)
 	{
 	}
 
 private:
 	/** \brief number of coincident nodes */
-	unsigned num;
+	unsigned m_num;
 	/** \brief start node indices */
-	unsigned ind1, ind2;
+	unsigned m_ind1, m_ind2;
 };
 
+
+/** \brief compute surface normal from derivatives in N dimensions
+ * \tparam dx_t the derivatives type
+ * \tparam N the number of dimensions
+ */
+template<class scalar, unsigned N>
+class normal_impl;
+
+/** \brief specialisation of ::normal_impl for 3D */
+template <class scalar>
+class normal_impl<scalar, 3>
+{
+public:
+	/**
+	 * \brief return the normal vector
+	 * \param m the 3x2 derivative matrix
+	 * \return the normal vector
+	 */
+	static Eigen::Matrix<scalar, 3, 1>
+	eval(Eigen::Matrix<scalar, 3, 2> const &m)
+	{
+		return m.col(shape_derivative_index::dXI).cross(m.col(shape_derivative_index::dETA));
+	}
+};
+
+/** \brief specialisation of ::normal_impl for 2D */
+template <class scalar>
+class normal_impl<scalar, 2>
+{
+public:
+	/**
+	 * \brief return the normal vector
+	 * \param m the 2x1 derivative vector
+	 * \return the normal vector
+	 */
+	static Eigen::Matrix<scalar, 2, 1>
+	eval(Eigen::Matrix<scalar, 2, 1> const &m)
+	{
+		return Eigen::Rotation2D<scalar>(-M_PI/2.0) * m;
+	}
+};
+
+
+/** \brief compute location derivatives from nodal coordinates */
+template <class Derived, unsigned Order>
+class location_impl;
 
 /** \brief Traits describing element properties */
 namespace element_traits
 {
 	/** \brief The physical coordinate space of the element */
 	template <class Derived>
-	struct space_t;
+	struct space_type;
 
 	/** \brief The geometrical shape set of the element */
 	template <class Derived>
@@ -84,13 +128,99 @@ namespace element_traits
 	struct id
 	{
 		enum {
-			value = element_traits::space_t<Derived>::type::dimension * 10000 +
+			value = element_traits::space_type<Derived>::type::dimension * 10000 +
 			shape_set_traits::id<typename element_traits::lset<Derived>::type>::value
 		};
 	};
 
+	/** \brief Defines the complexity to determine if the location derivative can be precomputed or not */
+	template <class Derived, unsigned Order>
+	struct location_complexity : shape_set_traits::shape_complexity<
+		typename lset<Derived>::type,
+		Order
+	> {};
+
+    /** \brief Determines if the normal vector is stored or not */
 	template <class Derived>
-	struct is_normal_stored;
+	struct is_normal_stored : std::integral_constant<bool,
+        !std::is_same<
+            typename location_complexity<Derived, 1>::type,
+            matrix_function_complexity::general
+        >::value
+    > {};
+
+	/** \brief Matrix that stores the element's corner coordinates */
+	template <class Derived>
+	struct coords_type
+	{
+        typedef Eigen::Matrix<
+            typename space_type<Derived>::type::scalar_t,
+            space_type<Derived>::type::dimension,
+            lset<Derived>::type::num_nodes
+        > type;
+	};
+
+	/** \brief Matrix that stores the physical location's derivatives */
+	template <class Derived, unsigned Order>
+	struct location_value_type
+	{
+        typedef Eigen::Matrix<
+            typename space_type<Derived>::type::scalar_t,
+            space_type<Derived>::type::dimension,
+            num_derivatives<
+                Order,
+                shape_set_traits::domain<
+                    typename lset<Derived>::type
+                >::type::dimension
+            >::value
+        > type;
+	};
+
+	/** \brief Class that computes or stores the locations */
+	template <class Derived, unsigned Order>
+	struct location_factory_functor
+	{
+		typedef conditional_precompute_instance<
+			typename location_complexity<Derived, Order>::type,
+			location_impl<Derived, Order>,
+			typename coords_type<Derived>::type,
+			typename shape_set_traits::domain<
+                typename lset<Derived>::type
+            >::type::xi_t
+		> type;
+	};
+
+	/** \brief The return type of the physical location's derivatives */
+	template <class Derived, unsigned Order>
+	struct location_return_type
+	{
+		typedef typename location_factory_functor<
+            Derived,
+            Order
+        >::type::return_type type;
+	};
+
+	template <class Derived>
+	struct normal_factory_functor
+	{
+		typedef conditional_precompute_instance<
+			typename location_complexity<Derived, 1>::type,
+			normal_impl<
+				typename space_type<Derived>::type::scalar_t,
+				space_type<Derived>::type::dimension
+			>,
+			typename location_value_type<Derived, 1>::type
+		> type;
+	};
+
+	/** \brief The return type of the normal vector */
+	template <class Derived>
+	struct normal_return_type
+	{
+		typedef typename normal_factory_functor<
+			Derived
+		>::type::return_type type;
+	};
 }
 
 /** \brief metafunction assigning an element to an element tag */
@@ -99,6 +229,23 @@ struct tag2element;
 
 /** \brief type that stores the element's id */
 typedef Eigen::Matrix<unsigned, 1, 1> elem_id_t;
+
+
+template <class Derived, unsigned Order>
+class location_impl
+{
+public:
+    typedef typename element_traits::lset<Derived>::type lset_t;
+    typedef typename element_traits::coords_type<Derived>::type coords_t;
+    typedef typename element_traits::location_value_type<Derived, Order>::type ret_t;
+    typedef typename shape_set_traits::domain<lset_t>::type::xi_t xi_t;
+
+    static ret_t eval(coords_t const &coords, xi_t const &xi)
+    {
+        return coords * lset_t::template eval_shape<Order>(xi);
+    }
+};
+
 
 /**
 * \brief The geometrical element representation
@@ -112,7 +259,7 @@ public:
 	typedef Derived type;
 
 	/** \brief the element space type */
-	typedef typename element_traits::space_t<Derived>::type space_t;
+	typedef typename element_traits::space_type<Derived>::type space_t;
 	/** \brief the elements's L-set */
 	typedef typename element_traits::lset<Derived>::type lset_t;
 
@@ -137,16 +284,20 @@ public:
 		num_dd = num_derivatives<2, xi_dim>::value
 	};
 
-	/** \brief type of the element's independent location variable \f$x\f$ */
-	typedef typename space_t::location_t x_t;
-	/** \brief type of the gradient of the element's independent location variable \f$x'_{\xi}\f$ */
-	typedef Eigen::Matrix<scalar_t, x_dim, xi_dim> dx_t;
-	/** \brief type of the second derivative of the element's independent location variable \f$x''_{\xi}\f$ */
-	typedef Eigen::Matrix<scalar_t, x_dim, num_dd> ddx_t;
+	/** \brief type of the element's physical location variable \f$ x \f$ */
+	typedef typename element_traits::location_value_type<Derived, 0>::type x_t;
+	typedef typename element_traits::location_return_type<Derived, 0>::type x_return_type;
+	/** \brief type of the gradient of the element's physical location variable \f$ x'_{\xi} \f$ */
+	typedef typename element_traits::location_value_type<Derived, 1>::type dx_t;
+	typedef typename element_traits::location_return_type<Derived, 1>::type dx_return_type;
+	typedef typename element_traits::normal_return_type<Derived>::type normal_return_type;
+	/** \brief type of the second derivative of the element's physical location variable \f$ x''_{\xi} \f$ */
+	typedef typename element_traits::location_value_type<Derived, 2>::type ddx_t;
+	typedef typename element_traits::location_return_type<Derived, 2>::type ddx_return_type;
+
 	/** \brief matrix type that stores the element's corner nodes \f$x_i\f$ */
 	typedef Eigen::Matrix<unsigned, num_nodes, 1> nodes_t;
-	/** \brief matrix type that stores the element's corner coordinates \f$x_i\f$ */
-	typedef Eigen::Matrix<scalar_t, x_dim, num_nodes> coords_t;
+	typedef typename element_traits::coords_type<Derived>::type coords_t;
 	/** \brief type that stores the element's id */
 	typedef elem_id_t id_t;
 
@@ -162,6 +313,11 @@ protected:
 	/** \brief estimated linear size of an element */
 	scalar_t m_linear_size_estimate;
 
+	typename element_traits::location_factory_functor<Derived, 0>::type x_computer;
+	typename element_traits::location_factory_functor<Derived, 1>::type dx_computer;
+	typename element_traits::location_factory_functor<Derived, 2>::type ddx_computer;
+	typename element_traits::normal_factory_functor<Derived>::type normal_computer;
+
 	/** \brief the normal return type based on acceleration */
 	typedef typename std::conditional<
 		element_traits::is_normal_stored<Derived>::value,
@@ -172,103 +328,107 @@ protected:
 public:
 	NIHU_CRTP_HELPERS
 
-	/**
-	* \brief default constructor for std::vector container
-	*/
+	/** \brief default constructor for std::vector container */
 	element_base() {}
 
 	/**
-	* \brief constructor
-	* \param [in] id the elem id
-	* \param [in] nodes the elem node indices
-	* \param [in] coords the elem coordinates
-	*/
+	 * \brief constructor
+	 * \param [in] id the elem id
+	 * \param [in] nodes the elem node indices
+	 * \param [in] coords the elem coordinates
+	 */
 	element_base(coords_t const &coords, unsigned id = 0, nodes_t const &nodes = nodes_t())
-		: m_nodes(nodes), m_coords(coords), m_center(get_x(domain_t::get_center()))
+		:m_id((id_t()<<id).finished()),
+		m_nodes(nodes),
+		m_coords(coords),
+		m_center(get_x(domain_t::get_center())),
+		x_computer(m_coords, xi_t()),
+		dx_computer(m_coords, xi_t()),
+		ddx_computer(m_coords, xi_t()),
+		normal_computer(get_dx(xi_t()))
 	{
-		this->m_id << id;
 	}
 
 	/**
-	* \brief return elem id
-	* \return elem id
-	*/
+	 * \brief return elem id
+	 * \return elem id
+	 */
 	id_t const &get_id(void) const
 	{
 		return m_id;
 	}
 
 	/**
-	* \brief return nodes
-	* \return elem nodes
-	*/
+	 * \brief return nodes
+	 * \return elem nodes
+	 */
 	nodes_t const &get_nodes(void) const
 	{
 		return m_nodes;
 	}
 
 	/**
-	* \brief return coordinates
-	* \return elem coordinates
-	*/
+	 * \brief return coordinates
+	 * \return elem coordinates
+	 */
 	coords_t const &get_coords(void) const
 	{
 		return m_coords;
 	}
 
 	/**
-	* \brief return element location
-	* \param [in] \xi location \f$\xi\f$ in the base domain
-	* \return location \f$x\f$ in the element
-	*/
-	x_t get_x(xi_t const &xi) const
+	 * \brief return element location
+	 * \param [in] \xi location \f$\xi\f$ in the base domain
+	 * \return location \f$x\f$ in the element
+	 */
+	x_return_type get_x(xi_t const &xi) const
 	{
-		return m_coords * lset_t::template eval_shape<0>(xi);
+		return x_computer(m_coords, xi);
 	}
 
 	/**
-	* \brief return element center
-	* \return location \f$x_0\f$ in the element center
-	*/
+	 * \brief return element location gradient
+	 * \param [in] xi location \f$\xi\f$ in the base domain
+	 * \return location gradient \f$x'_{\xi}\f$ in the element
+	 */
+	dx_return_type get_dx(xi_t const &xi) const
+	{
+		return dx_computer(m_coords, xi);
+	}
+
+	/**
+	 * \brief return element location second derivative matrix
+	 * \param [in] xi location \f$ \xi \f$ in the base domain
+	 * \return location gradient \f$ x''_{\xi} \f$ in the element
+	 */
+	ddx_return_type get_ddx(xi_t const &xi) const
+	{
+		return ddx_computer(m_coords, xi);
+	}
+
+	/**
+	 * \brief return element center
+	 * \return location \f$x_0\f$ in the element center
+	 */
 	x_t const &get_center(void) const
 	{
 		return m_center;
 	}
 
 	/**
-	* \brief return element location gradient
-	* \param [in] xi location \f$\xi\f$ in the base domain
-	* \return location gradient \f$x'_{\xi}\f$ in the element
-	*/
-	dx_t get_dx(xi_t const &xi) const
+	 * \brief return element normal
+	 * \param [in] xi location in the reference domain
+	 * \return the element normal
+	 */
+	normal_return_type get_normal(xi_t const &xi) const
 	{
-		return m_coords * lset_t::template eval_shape<1>(xi);
+		return normal_computer(dx_computer(m_coords, xi));
 	}
 
 	/**
-	* \brief return element location gradient
-	* \param [in] xi location \f$\xi\f$ in the base domain
-	* \return location gradient \f$x'_{\xi}\f$ in the element
-	*/
-	ddx_t get_ddx(xi_t const &xi) const
-	{
-		return m_coords * lset_t::template eval_shape<2>(xi);
-	}
-
-	/**
-	* \brief return element normal
-	* \param [in] xi location in the reference domain
-	* \return the element normal
-	*/
-	normal_ret_t get_normal(xi_t const &xi) const
-	{
-		return derived().get_normal(xi);
-	}
-
-	/**
-	* \brief return linear size estimate
-	* \return linear size estimate
-	*/
+	 * \brief return linear size estimate
+	 * \return linear size estimate
+	 */
 	scalar_t const &get_linear_size_estimate(void) const
 	{
 		return m_linear_size_estimate;
@@ -282,11 +442,11 @@ public:
 	}
 
 	/**
-	* \brief check overlapping state with other element
-	* \tparam OtherElem type of the other element
-	* \param [in] other reference to the other element
-	* \return structure containing overlapping information
-	*/
+	 * \brief check overlapping state with other element
+	 * \tparam OtherElem type of the other element
+	 * \param [in] other reference to the other element
+	 * \return structure containing overlapping information
+	 */
 	template <class OtherElem>
 	element_overlapping get_overlapping(OtherElem const &other) const
 	{
@@ -338,210 +498,6 @@ bool operator<(elem_id_t const &lhs, elem_id_t const &rhs)
 	return lhs(0,0) < rhs(0,0);
 }
 
-
-/** \brief tag of a 2-noded linear line element */
-struct line_1_tag {};
-
-/** \brief a linear line element in 2D space */
-class line_1_elem;
-
-namespace element_traits
-{
-	template <>
-	struct space_t<line_1_elem>
-	{
-		typedef space_2d type;
-	};
-
-	template <>
-	struct lset<line_1_elem>
-	{
-		typedef line_1_shape_set type;
-	};
-
-	template <>
-	struct is_normal_stored<line_1_elem> : std::true_type {};
-}
-
-/** \brief a linear line element in 2D space */
-class line_1_elem : public element_base<line_1_elem>
-{
-public:
-	/**
-	* \brief constructor
-	* \param [in] id the element id
-	* \param [in] nodes the nodal indices
-	* \param [in] coords the nodal coordinates
-	*/
-	line_1_elem(coords_t const &coords, unsigned id = 0, nodes_t const &nodes = nodes_t())
-		: element_base(coords, id, nodes)
-	{
-		dx_t dx0(get_dx(xi_t::Zero()));	// the element direction vector
-		m_normal << dx0(1), -dx0(0);	// the normal vector
-		m_linear_size_estimate = m_normal.norm() * domain_t::get_volume();
-	}
-
-	/** \brief return normal vector
-	* \return element normal
-	*/
-	x_t const &get_normal(xi_t const &) const
-	{
-		return m_normal;
-	}
-
-protected:
-	/** \brief the normal vector */
-	x_t m_normal;
-};
-
-/** \brief element assigned to the line_1_tag */
-template <>
-struct tag2element<line_1_tag> : line_1_elem {};
-
-
-
-
-/** \brief a linear triangle element in 3D space */
-class tria_1_elem;
-
-/** \brief tag of a 3-noded linear triangle element */
-struct tria_1_tag {};
-
-/** \brief element properties of a linear 3D tria element */
-namespace element_traits
-{
-	template <>
-	struct space_t<tria_1_elem>
-	{
-		typedef space_3d type;
-	};
-
-	template <>
-	struct lset<tria_1_elem>
-	{
-		typedef tria_1_shape_set type;
-	};
-
-	template <>
-	struct is_normal_stored<tria_1_elem> : std::true_type {};
-}
-
-
-/** \brief a linear tria element in 3D space */
-class tria_1_elem :
-	public element_base<tria_1_elem>
-{
-public:
-	/**
-	* \brief constructor
-	* \param [in] id the element id
-	* \param [in] nodes the nodal indices
-	* \param [in] coords the nodal coordinates
-	*/
-	tria_1_elem(coords_t const &coords, unsigned id = 0, nodes_t const &nodes = nodes_t())
-		: element_base(coords, id, nodes)
-	{
-		dx_t dx0(get_dx(xi_t::Zero()));
-		m_normal = dx0.col(0).cross(dx0.col(1));
-		m_linear_size_estimate = sqrt(m_normal.norm()  * domain_t::get_volume());
-	}
-
-	/** \brief return normal vector
-	* \return element normal
-	*/
-	x_t const &get_normal(xi_t const &) const
-	{
-		return m_normal;
-	}
-
-	/** \brief return normal vector
-	* \return element normal
-	*/
-	x_t const &get_normal(void) const
-	{
-		return m_normal;
-	}
-
-protected:
-	/** \brief the normal vector */
-	x_t m_normal;
-};
-
-/** \brief element assigned to the tria_1_tag */
-template <>
-struct tag2element<tria_1_tag> : tria_1_elem {};
-
-
-
-/** \brief a linear quad element in 3D space */
-class quad_1_elem;
-
-/** \brief element properties of a linear 3D quad element */
-namespace element_traits
-{
-	template <>
-	struct space_t<quad_1_elem>
-	{
-		typedef space_3d type;
-	};
-
-	template <>
-	struct lset<quad_1_elem>
-	{
-		typedef quad_1_shape_set type;
-	};
-
-	template <>
-	struct is_normal_stored<quad_1_elem> : std::false_type {};
-}
-
-/** \brief tag of a 4-noded linear quadrilateral element */
-struct quad_1_tag {};
-
-/** \brief a linear quad element in 3D space */
-class quad_1_elem : public element_base<quad_1_elem>
-{
-public:
-	/**
-	* \brief constructor
-	* \param [in] id the element id
-	* \param [in] nodes the nodal indices
-	* \param [in] coords the nodal coordinates
-	*/
-	quad_1_elem(coords_t const &coords, unsigned id = 0, nodes_t const &nodes = nodes_t())
-		: element_base(coords, id, nodes)
-	{
-		dx_t dx0 = get_dx(xi_t::Zero());
-		dx_t dx1 = get_dx(xi_t::Ones())-dx0;
-
-		m_n0 = dx0.col(0).cross(dx0.col(1));
-		m_n_xi.col(0) = dx0.col(0).cross(dx1.col(0));
-		m_n_xi.col(1) = dx1.col(0).cross(dx0.col(1));
-
-		m_linear_size_estimate = sqrt(m_n0.norm()  * domain_t::get_volume());
-	}
-
-	/** \brief return normal vector
-	* \param [in] xi local coordinate
-	* \return element normal
-	*/
-	x_t get_normal(xi_t const &xi) const
-	{
-		return m_n0 + m_n_xi * xi;
-	}
-
-protected:
-	/** \brief the normal at xi=0 */
-	x_t m_n0;
-	/** \brief 1st order tag of the Taylor series of the normal */
-	dx_t m_n_xi;
-};
-
-/** \brief element assigned to the quad_1_tag */
-template <>
-struct tag2element<quad_1_tag> : quad_1_elem {};
-
-
 // forward declaration
 template <class LSet, class scalar_t>
 class general_surface_element;
@@ -550,71 +506,19 @@ class general_surface_element;
 namespace element_traits
 {
 	template <class LSet, class Scalar>
-	struct space_t<general_surface_element<LSet, Scalar> >
-	{
-		typedef space<Scalar, LSet::domain_t::dimension + 1> type;
-	};
+	struct space_type<general_surface_element<LSet, Scalar> >
+        : space<Scalar, LSet::domain_t::dimension + 1> {};
 
 	template <class LSet, class Scalar>
 	struct lset<general_surface_element<LSet, Scalar> >
 	{
 		typedef LSet type;
 	};
-
-	template <class LSet, class Scalar>
-	struct is_normal_stored<general_surface_element<LSet, Scalar> >
-		: std::false_type {};
 }
 
-
-/** \brief compute surface normal from derivatives in N dimensions
- * \tparam dx_t the derivatives type
- * \tparam N the number of dimensions
- */
-template<class scalar, unsigned N>
-class normal_impl;
-
-/** \brief implementation of normal vector computation for 3D
- * \tparam scalar the scalar type
- */
-template <class scalar>
-class normal_impl<scalar, 3>
-{
-public:
-	/**
-	 * \brief return the normal vector
-	 * \param m the 3x2 derivative matrix
-	 * \return the normal vector
-	 */
-	static Eigen::Matrix<scalar, 3, 1> eval(Eigen::Matrix<scalar, 3, 2> const &m)
-	{
-		return m.col(0).cross(m.col(1));
-	}
-};
-
-
-/** \brief implementation of normal vector computation for 2D
- * \tparam scalar the scalar type
- */
-template <class scalar>
-class normal_impl<scalar, 2>
-{
-public:
-	/**
-	 * \brief return the normal vector
-	 * \param m the 2x1 derivative vector
-	 * \return the normal vector
-	 */
-	static Eigen::Matrix<scalar, 2, 1> eval(Eigen::Matrix<scalar, 2, 1> const &m)
-	{
-		return Eigen::Rotation2D<scalar>(-M_PI/2.0) * m;
-	}
-};
-
-
 /** \brief class describing a general surface element that computes its normal in the general way
-* \tparam LSet type of the geometry shape set
-*/
+ * \tparam LSet type of the geometry shape set
+ */
 template <class LSet, class scalar_t>
 class general_surface_element :
 	public element_base<general_surface_element<LSet, scalar_t> >
@@ -647,64 +551,38 @@ public:
 		nodes_t const &nodes = nodes_t())
 		: base_t(coords, id, nodes)
 	{
-		base_t::m_linear_size_estimate = sqrt(
-			get_normal(domain_t::get_center()).norm() * domain_t::get_volume());
-	}
-
-	/** \brief return normal vector at given location
-	 * \todo Does not work for 2D elements
-	 * \param [in] xi the location in the standard domain
-	 * \return normal vector
-	 */
-	x_t get_normal(xi_t const &xi) const
-	{
-		return normal_impl<typename base_t::scalar_t, base_t::x_dim>::eval(base_t::get_dx(xi));
+		base_t::m_linear_size_estimate = sqrt(base_t::get_normal(domain_t::get_center()).norm() * domain_t::get_volume());
 	}
 };
 
 #include "../library/line_2_shape_set.hpp"
-
-/** \brief quadratic 3-noded line element */
-typedef general_surface_element<line_2_shape_set, line_1_elem::space_t::scalar_t> line_2_elem;
-
-struct line_2_tag {};
-
-/** \brief element assigned to the line_2_tag */
-template <>
-struct tag2element<line_2_tag>
-{
-	typedef line_2_elem type;
-};
-
 #include "../library/tria_2_shape_set.hpp"
-
-/** \brief quadratic 6-noded triangle element */
-typedef general_surface_element<tria_2_shape_set, tria_1_elem::space_t::scalar_t> tria_2_elem;
-
-/** \brief tag of a 6-noded quadratic tria element */
-struct tria_2_tag {};
-
-/** \brief element assigned to the tria_2_tag */
-template <>
-struct tag2element<tria_2_tag>
-{
-	typedef tria_2_elem type;
-};
-
 #include "../library/quad_2_shape_set.hpp"
 
-/** \brief quadratic 9-noded quadrilateral element */
-typedef general_surface_element<quad_2_shape_set, quad_1_elem::space_t::scalar_t> quad_2_elem;
+typedef general_surface_element<line_1_shape_set, space_2d::scalar_t> line_1_elem;
+typedef general_surface_element<line_2_shape_set, space_2d::scalar_t> line_2_elem;
+typedef general_surface_element<tria_1_shape_set, space_3d::scalar_t> tria_1_elem;
+typedef general_surface_element<tria_2_shape_set, space_3d::scalar_t> tria_2_elem;
+typedef general_surface_element<quad_1_shape_set, space_3d::scalar_t> quad_1_elem;
+typedef general_surface_element<quad_2_shape_set, space_3d::scalar_t> quad_2_elem;
 
-/** \brief tag of a 9-noded quadratic quad element */
+
+struct line_1_tag {};
+template <> struct tag2element<line_1_tag> : line_1_elem {};
+struct line_2_tag {};
+template <> struct tag2element<line_2_tag> : line_2_elem {};
+
+
+struct tria_1_tag {};
+template <> struct tag2element<tria_1_tag> : tria_1_elem {};
+struct tria_2_tag {};
+template <> struct tag2element<tria_2_tag> : tria_2_elem {};
+
+
+struct quad_1_tag {};
+template <> struct tag2element<quad_1_tag> : quad_1_elem {};
 struct quad_2_tag {};
-
-/** \brief element assigned to the quad_2_tag */
-template <>
-struct tag2element<quad_2_tag>
-{
-	typedef quad_2_elem type;
-};
+template <> struct tag2element<quad_2_tag> : quad_2_elem {};
 
 #endif
 
