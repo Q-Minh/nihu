@@ -112,51 +112,6 @@ public:
 template <class Derived, unsigned Order>
 class location_impl;
 
-/** \brief compute surface normal from derivatives in N dimensions
- * \tparam dx_t the derivatives type
- * \tparam N the number of dimensions
- */
-template<class scalar, unsigned N>
-class normal_impl;
-
-/** \brief specialisation of ::normal_impl for 3D */
-template <class scalar>
-class normal_impl<scalar, 3>
-{
-public:
-	/**
-	 * \brief return the normal vector
-	 * \param m the 3x2 derivative matrix
-	 * \return the normal vector
-	 */
-	static Eigen::Matrix<scalar, 3, 1>
-	eval(Eigen::Matrix<scalar, 3, 2> const &m)
-	{
-		return m.col(shape_derivative_index::dXI).cross(m.col(shape_derivative_index::dETA));
-	}
-};
-
-/** \brief specialisation of ::normal_impl for 2D */
-template <class scalar>
-class normal_impl<scalar, 2>
-{
-public:
-	/**
-	 * \brief return the normal vector
-	 * \param m the 2x1 derivative vector
-	 * \return the normal vector
-	 */
-	static Eigen::Matrix<scalar, 2, 1>
-	eval(Eigen::Matrix<scalar, 2, 1> const &m)
-	{
-		return Eigen::Rotation2D<scalar>(-M_PI/2.0) * m;
-	}
-};
-
-
-/** \brief compute location derivatives from nodal coordinates */
-template <class Derived, unsigned Order>
-class location_impl;
 
 /** \brief Traits describing element properties */
 namespace element_traits
