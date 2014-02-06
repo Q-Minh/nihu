@@ -19,7 +19,7 @@
 /**
  * \file element.hpp
  * \ingroup funcspace
- * \brief Declaration of element classes and specialisations
+ * \brief Declaration of element classes
  */
 #ifndef ELEMENT_HPP_INCLUDED
 #define ELEMENT_HPP_INCLUDED
@@ -66,52 +66,13 @@ private:
 };
 
 
-/** \brief compute surface normal from derivatives in N dimensions
- * \tparam dx_t the derivatives type
- * \tparam N the number of dimensions
- */
-template<class scalar, unsigned N>
+/** \brief compute surface normal from location derivatives */
+template<class Derived, class enable = void>
 class normal_impl;
-
-/** \brief specialisation of ::normal_impl for 3D */
-template <class scalar>
-class normal_impl<scalar, 3>
-{
-public:
-	/**
-	 * \brief return the normal vector
-	 * \param m the 3x2 derivative matrix
-	 * \return the normal vector
-	 */
-	static Eigen::Matrix<scalar, 3, 1>
-	eval(Eigen::Matrix<scalar, 3, 2> const &m)
-	{
-		return m.col(shape_derivative_index::dXI).cross(m.col(shape_derivative_index::dETA));
-	}
-};
-
-/** \brief specialisation of ::normal_impl for 2D */
-template <class scalar>
-class normal_impl<scalar, 2>
-{
-public:
-	/**
-	 * \brief return the normal vector
-	 * \param m the 2x1 derivative vector
-	 * \return the normal vector
-	 */
-	static Eigen::Matrix<scalar, 2, 1>
-	eval(Eigen::Matrix<scalar, 2, 1> const &m)
-	{
-		return Eigen::Rotation2D<scalar>(-M_PI/2.0) * m;
-	}
-};
-
 
 /** \brief compute location derivatives from nodal coordinates */
 template <class Derived, unsigned Order>
 class location_impl;
-
 
 /** \brief Traits describing element properties */
 namespace element_traits
@@ -179,17 +140,14 @@ namespace element_traits
 
 	/** \brief Class that computes or stores the locations */
 	template <class Derived, unsigned Order>
-	struct location_factory_functor
-	{
-		typedef conditional_precompute_instance<
-			typename location_complexity<Derived, Order>::type,
-			location_impl<Derived, Order>,
-			typename coords_type<Derived>::type,
-			typename shape_set_traits::domain<
-                typename lset<Derived>::type
-            >::type::xi_t
-		> type;
-	};
+	struct location_factory_functor : conditional_precompute_instance<
+		typename location_complexity<Derived, Order>::type,
+		location_impl<Derived, Order>,
+		typename coords_type<Derived>::type,
+		typename shape_set_traits::domain<
+			typename lset<Derived>::type
+		>::type::xi_t
+	> {};
 
 	/** \brief The return type of the physical location's derivatives */
 	template <class Derived, unsigned Order>
@@ -201,18 +159,13 @@ namespace element_traits
         >::type::return_type type;
 	};
 
+	/** \brief Class that computes or stores the normals */
 	template <class Derived>
-	struct normal_factory_functor
-	{
-		typedef conditional_precompute_instance<
-			typename location_complexity<Derived, 1>::type,
-			normal_impl<
-				typename space_type<Derived>::type::scalar_t,
-				space_type<Derived>::type::dimension
-			>,
-			typename location_value_type<Derived, 1>::type
-		> type;
-	};
+	struct normal_factory_functor : conditional_precompute_instance<
+		typename location_complexity<Derived, 1>::type,
+		normal_impl<Derived>,
+		typename location_value_type<Derived, 1>::type
+	> {};
 
 	/** \brief The return type of the normal vector */
 	template <class Derived>
@@ -223,6 +176,34 @@ namespace element_traits
 		>::type::return_type type;
 	};
 }
+
+/** \brief specialisation of ::normal_impl for 3D */
+template <class Derived>
+class normal_impl<Derived, typename std::enable_if<
+	element_traits::space_type<Derived>::type::dimension == 3
+>::type>
+{
+public:
+	static typename element_traits::location_value_type<Derived, 0>::type
+	eval(typename element_traits::location_value_type<Derived, 1>::type const &m)
+	{
+		return m.col(shape_derivative_index::dXI).cross(m.col(shape_derivative_index::dETA));
+	}
+};
+
+/** \brief specialisation of ::normal_impl for 2D */
+template <class Derived>
+class normal_impl<Derived, typename std::enable_if<
+	element_traits::space_type<Derived>::type::dimension == 2
+>::type>
+{
+public:
+	static typename element_traits::location_value_type<Derived, 0>::type
+	eval(typename element_traits::location_value_type<Derived, 1>::type const &m)
+	{
+		return Eigen::Rotation2D<typename Derived::scalar_t>(-M_PI/2.0) * m;
+	}
+};
 
 /** \brief metafunction assigning an element to an element tag */
 template <class tag>
@@ -261,28 +242,20 @@ public:
 
 	/** \brief the element space type */
 	typedef typename element_traits::space_type<Derived>::type space_t;
-	/** \brief the elements's L-set */
+	/** \brief the element's L-set */
 	typedef typename element_traits::lset<Derived>::type lset_t;
-
-	/** \brief the elements's reference domain */
-	typedef typename lset_t::domain_t domain_t;
-	/** \brief the base domain's scalar variable */
+	/** \brief the element's scalar variable */
 	typedef typename space_t::scalar_t scalar_t;
 
+	/** \brief the element's reference domain */
+	typedef typename lset_t::domain_t domain_t;
 	/** \brief type of the shape functions' independent variable \f$\xi\f$ */
-	typedef typename lset_t::xi_t xi_t;
-	/** \brief type of an \f$L(\xi)\f$ vector */
-	typedef typename lset_t::shape_t L_t;
-	/** \brief type of an \f$\nabla L(\xi)\f$ gradient matrix */
-	typedef typename lset_t::dshape_t dL_t;
+	typedef typename domain_t::xi_t xi_t;
 
 	enum {
-		xi_dim = domain_t::dimension,
-		x_dim = space_t::dimension,
 		/** \brief the element id */
 		id = element_traits::id<Derived>::value,
 		num_nodes = lset_t::num_nodes,
-		num_dd = num_derivatives<2, xi_dim>::value
 	};
 
 	/** \brief type of the element's physical location variable \f$ x \f$ */
@@ -421,7 +394,7 @@ public:
 	 * \param [in] xi location in the reference domain
 	 * \return the element normal
 	 */
-	normal_return_type get_normal(xi_t const &xi) const
+	normal_return_type get_normal(xi_t const &xi = domain_t::get_center()) const
 	{
 		return normal_computer(dx_computer(m_coords, xi));
 	}

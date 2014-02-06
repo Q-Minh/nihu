@@ -1,20 +1,23 @@
 #include "util/conditional_precompute.hpp"
 
 #include <iostream>
+#include <Eigen/Dense>
+
+typedef Eigen::Matrix<double, 3, 3> dMatrix;
 
 struct Func
 {
-	static bool eval(char arg)
+	static dMatrix eval(char arg)
 	{
-		return arg == 'a';
+		return arg == 'a' ? dMatrix::Zero() : dMatrix::Ones();
 	}
 };
 
-typedef conditional_precompute<true, Func, char> fly_t;
-typedef conditional_precompute<false, Func, char> store_t;
+typedef conditional_precompute<matrix_function_complexity::general, Func, char> fly_t;
+typedef conditional_precompute<matrix_function_complexity::constant, Func, char> store_t;
 
-typedef conditional_precompute_instance<true, Func, char> fly_inst_t;
-typedef conditional_precompute_instance<false, Func, char> store_inst_t;
+typedef conditional_precompute_instance<matrix_function_complexity::general, Func, char> fly_inst_t;
+typedef conditional_precompute_instance<matrix_function_complexity::constant, Func, char> store_inst_t;
 
 int main(void)
 {

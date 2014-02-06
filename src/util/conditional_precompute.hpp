@@ -7,26 +7,28 @@
 /** \brief definition of complexity tags of matrix functions */
 namespace matrix_function_complexity
 {
-	/** \brief indicates that the matrix is a zero expression */
+	/** \brief the matrix is a zero expression */
 	struct zero { typedef zero type; };
-	/** \brief indicates that the matrix is constant and can stored */
+	/** \brief the matrix is constant and can be stored */
 	struct constant { typedef constant type; };
-	/** \brief indicates that the matrix should be computed on the fly */
+	/** \brief the matrix should be computed on the fly */
 	struct general { typedef general type; };
 }
 
 
 /** \brief Conditionally precompute and store objects
  * \tparam Complexity the result matrix's complexity
- * \tparam Func the class that computes the matrix
- * \tparam Args Arguments passed to the Func class
+ * \tparam Func the class whose static method computes the matrix
+ * \tparam Args Arguments passed to the eval method of Func
  */
 template <class Complexity, class Func, class ...Args>
 class conditional_precompute
 {
 public:
+	/** \brief self-returning */
+	typedef conditional_precompute type;
 	/** \brief the return type of the function class */
-	typedef decltype(Func::eval(Args()...)) functor_ret_type;
+	typedef decltype( Func::eval(std::declval<Args>()...) ) functor_ret_type;
 	/** \brief the return type of the static function eval */
 	typedef functor_ret_type return_type;
 
@@ -38,13 +40,15 @@ public:
 };
 
 
-/** \brief specialisation of ::conditional_precompute for the constant case */
+/** \brief specialisation of ::conditional_precompute for the matrix_function_complexity::constant case */
 template <class Func, class...Args>
 class conditional_precompute<matrix_function_complexity::constant, Func, Args...>
 {
 public:
+	/** \brief self-returning */
+	typedef conditional_precompute type;
 	/** \brief the return type of the Func function class */
-	typedef decltype(Func::eval(Args()...)) functor_ret_type;
+	typedef decltype( Func::eval(std::declval<Args>()...) ) functor_ret_type;
 	/** \brief the return type of the static function eval */
 	typedef typename std::add_lvalue_reference<
         typename std::add_const<functor_ret_type>::type
@@ -59,13 +63,15 @@ public:
 };
 
 
-/** \brief specialisation of ::conditional_precompute for the zero case */
+/** \brief specialisation of ::conditional_precompute for the matrix_function_complexity::zero case */
 template <class Func, class...Args>
 class conditional_precompute<matrix_function_complexity::zero, Func, Args...>
 {
 public:
+	/** \brief self-returning */
+	typedef conditional_precompute type;
 	/** \brief the return type of the Func function class */
-	typedef decltype(Func::eval(Args()...)) functor_ret_type;
+	typedef decltype( Func::eval(std::declval<Args>()...) ) functor_ret_type;
 	/** \brief the return type of the static function eval */
 	typedef decltype(functor_ret_type::Zero()) return_type;
 
@@ -81,8 +87,10 @@ template <class Complexity, class Func, class ...Args>
 class conditional_precompute_instance
 {
 public:
+	/** \brief self-returning */
+	typedef conditional_precompute_instance type;
 	/** \brief the return type of the Func function class */
-	typedef decltype(Func::eval(Args()...)) functor_ret_type;
+	typedef decltype( Func::eval(std::declval<Args>()...) ) functor_ret_type;
 	/** \brief the return type of the static function eval */
 	typedef functor_ret_type return_type;
 
@@ -107,8 +115,10 @@ template <class Func, class...Args>
 class conditional_precompute_instance<matrix_function_complexity::constant, Func, Args...>
 {
 public:
+	/** \brief self-returning */
+	typedef conditional_precompute_instance type;
 	/** \brief the return type of the Func function class */
-	typedef decltype(Func::eval(Args()...)) functor_ret_type;
+	typedef decltype( Func::eval(std::declval<Args>()...) ) functor_ret_type;
 	/** \brief the return type of the static function eval */
 	typedef typename std::add_lvalue_reference<
         typename std::add_const<functor_ret_type>::type
@@ -135,8 +145,10 @@ template <class Func, class...Args>
 class conditional_precompute_instance<matrix_function_complexity::zero, Func, Args...>
 {
 public:
+	/** \brief self-returning */
+	typedef conditional_precompute_instance type;
 	/** \brief the return type of the Func function class */
-	typedef decltype(Func::eval(Args()...)) functor_ret_type;
+	typedef decltype( Func::eval(std::declval<Args>()...) ) functor_ret_type;
 	/** \brief the return type of the static function eval */
 	typedef decltype(functor_ret_type::Zero()) return_type;
 

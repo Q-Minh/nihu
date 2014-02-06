@@ -109,14 +109,11 @@ namespace shape_set_traits
 
 	/** \brief Defines the factory functor that computes or stores the shape functions */
 	template <class Derived, unsigned Order>
-	struct factory_functor
-	{
-		typedef conditional_precompute<
-			typename shape_complexity<Derived, Order>::type,
-			shape_function<Derived, Order>,
-			typename domain<Derived>::type::xi_t
-		> type;
-	};
+	struct factory_functor : conditional_precompute<
+		typename shape_complexity<Derived, Order>::type,
+		shape_function<Derived, Order>,
+		typename domain<Derived>::type::xi_t
+	> {};
 
 	/** \brief Defines the return type of the shape function matrix */
 	template <class Derived, unsigned Order>
