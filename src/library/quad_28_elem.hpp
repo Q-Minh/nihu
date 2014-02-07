@@ -22,10 +22,10 @@
 #include "quad_28_shape_set.hpp"
 #include "../core/element.hpp"
 
-/** \brief quadratic 9-noded quadrilateral element */
-typedef general_surface_element<quad_28_shape_set, quad_1_elem::space_t::scalar_t> quad_28_elem;
+/** \brief quadratic 8-noded quadrilateral element */
+typedef general_surface_element<quad_28_shape_set, space_3d::scalar_t> quad_28_elem;
 
-/** \brief tag of a 9-noded quadratic quad element */
+/** \brief tag of a 8-noded quadratic quad element */
 struct quad_28_tag {};
 
 /** \brief element assigned to the quad_28_tag */
@@ -34,5 +34,11 @@ struct tag2element<quad_28_tag>
 {
 	typedef quad_28_elem type;
 };
+
+namespace element_traits
+{
+	template <>
+	const std::string name<quad_28_elem>::value = "Quad 28 elem";
+}
 
 #endif

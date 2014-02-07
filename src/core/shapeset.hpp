@@ -64,6 +64,13 @@ struct num_derivatives<2, Dim> { enum { value = Dim * (Dim + 1) / 2 }; };
 /** \brief Traits of shape function sets */
 namespace shape_set_traits
 {
+	/** \brief The shep set's textual id */
+	template <class Derived>
+	struct name
+	{
+		static const std::string value;
+	};
+
 	/** \brief Defines the domain where the shape function set is defined */
 	template <class Derived>
 	struct domain;
@@ -296,6 +303,21 @@ typedef constant_shape_set<quad_domain> quad_0_shape_set;
 /** constant brick shape set */
 typedef constant_shape_set<brick_domain> brick_0_shape_set;
 
+namespace shape_set_traits
+{
+	template <>
+	const std::string name<line_0_shape_set>::value = "Line 0 shape set";
+
+	template <>
+	const std::string name<tria_0_shape_set>::value = "Tria 0 shape set";
+
+	template <>
+	const std::string name<quad_0_shape_set>::value = "Quad 0 shape set";
+
+	template <>
+	const std::string name<brick_0_shape_set>::value = "Brick 0 shape set";
+}
+
 
 
 
@@ -362,6 +384,9 @@ typedef isoparam_shape_set<line_domain> line_1_shape_set;
 
 namespace shape_set_traits
 {
+	template <>
+	const std::string name<line_1_shape_set>::value = "Line 1 shape set";
+
 	template <>
 	struct jacobian_order<line_1_shape_set>
 	{
@@ -450,6 +475,9 @@ typedef isoparam_shape_set<tria_domain> tria_1_shape_set;
 namespace shape_set_traits
 {
 	template <>
+	const std::string name<tria_1_shape_set>::value = "Tria 1 shape set";
+
+	template <>
 	struct jacobian_order<tria_1_shape_set>
 	{
 		enum { value = 0 };
@@ -534,6 +562,9 @@ typedef isoparam_shape_set<quad_domain> quad_1_shape_set;
 
 namespace shape_set_traits
 {
+	template <>
+	const std::string name<quad_1_shape_set>::value = "Quad 1 shape set";
+
 	template <>
 	struct jacobian_order<quad_1_shape_set>
 	{
@@ -627,6 +658,9 @@ typedef isoparam_shape_set<brick_domain> brick_1_shape_set;
 
 namespace shape_set_traits
 {
+	template <>
+	const std::string name<brick_1_shape_set>::value = "Brick 1 shape set";
+
 	template <>
 	struct jacobian_order<brick_1_shape_set>
 	{
@@ -732,6 +766,9 @@ class parallelogram_shape_set;
 
 namespace shape_set_traits
 {
+	template <>
+	const std::string name<parallelogram_shape_set>::value = "Parallelogram shape set";
+
 	template <>
 	struct domain<parallelogram_shape_set> : quad_domain {};
 

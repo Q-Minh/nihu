@@ -77,6 +77,13 @@ class location_impl;
 /** \brief Traits describing element properties */
 namespace element_traits
 {
+	/** \brief The element type's textual id */
+	template <class Derived>
+	struct name
+	{
+		static const std::string value;
+	};
+
 	/** \brief The physical coordinate space of the element */
 	template <class Derived>
 	struct space_type;
@@ -540,6 +547,21 @@ typedef general_surface_element<tria_2_shape_set, space_3d::scalar_t> tria_2_ele
 typedef general_surface_element<quad_1_shape_set, space_3d::scalar_t> quad_1_elem;
 typedef general_surface_element<quad_2_shape_set, space_3d::scalar_t> quad_2_elem;
 
+namespace element_traits
+{
+	template <>
+	const std::string name<line_1_elem>::value = "Line 1 elem";
+	template <>
+	const std::string name<line_2_elem>::value = "Line 2 elem";
+	template <>
+	const std::string name<tria_1_elem>::value = "Tria 1 elem";
+	template <>
+	const std::string name<tria_2_elem>::value = "Tria 2 elem";
+	template <>
+	const std::string name<quad_1_elem>::value = "Quad 1 elem";
+	template <>
+	const std::string name<quad_2_elem>::value = "Quad 2 elem";
+}
 
 struct line_1_tag {};
 template <> struct tag2element<line_1_tag> : line_1_elem {};

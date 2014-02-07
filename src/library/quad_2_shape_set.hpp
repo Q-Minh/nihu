@@ -27,6 +27,9 @@ class quad_2_shape_set;
 namespace shape_set_traits
 {
 	template <>
+	const std::string name<quad_2_shape_set>::value = "Quad 2 shape set";
+
+	template <>
 	struct domain<quad_2_shape_set> : quad_domain {};
 
 	template <>

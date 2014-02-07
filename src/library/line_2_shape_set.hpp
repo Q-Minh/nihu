@@ -27,6 +27,9 @@ class line_2_shape_set;
 namespace shape_set_traits
 {
 	template <>
+	const std::string name<line_2_shape_set>::value = "Line 2 shape set";
+
+	template <>
 	struct domain<line_2_shape_set> : line_domain {};
 
 	template <>

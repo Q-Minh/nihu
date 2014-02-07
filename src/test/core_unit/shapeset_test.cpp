@@ -31,7 +31,8 @@ struct tester
 	struct type {
 		void operator()(void)
 		{
-			std::cout << std::endl << "shape set id: " << shape_set::id << std::endl;
+			std::cout << std::endl << shape_set_traits::name<shape_set>::value << " (" << shape_set::id << ")\n"
+				<< "========" << std::endl;
 
 			std::cout << "corners: " << std::endl;
 			for (auto it = shape_set::corner_begin(); it != shape_set::corner_end(); ++it)

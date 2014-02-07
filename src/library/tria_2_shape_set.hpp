@@ -27,6 +27,9 @@ class tria_2_shape_set;
 namespace shape_set_traits
 {
 	template <>
+	const std::string name<tria_2_shape_set>::value = "Tria 2 shape set";
+
+	template <>
 	struct domain<tria_2_shape_set> : tria_domain {};
 
 	template <>
