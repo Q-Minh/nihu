@@ -41,7 +41,7 @@ namespace domain_traits
 	template <class Domain>
 	struct id
 	{
-		enum { value = Domain::dimension * 10 + Domain::num_corners; };
+		enum { value = Domain::dimension * 10 + Domain::num_corners };
 	};
 }
 
