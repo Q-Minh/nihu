@@ -22,7 +22,6 @@
 
 #include <iostream>
 
-
 template <class domain>
 struct tester
 {
@@ -30,8 +29,8 @@ struct tester
 	{
 		void operator() (void)
 		{
-			std::cout << std::endl << domain_traits::name<domain>::value << " (" << domain id << ")\n"
-                <<: "==========" << std::endl;
+			std::cout << std::endl << domain_traits::name<domain>::value << " (" << domain::id << ")\n"
+                << "==========" << std::endl;
 			std::cout << "domain corners: " << std::endl;
 			for (unsigned i = 0; i < domain::num_corners; ++i)
 				std::cout << domain::get_corner(i).transpose() << std::endl;

@@ -84,7 +84,7 @@ namespace shape_set_traits
 	struct id
 	{
 		enum {
-			value = domain_id<typename domain<Derived>::type>::value * 100 +
+			value = domain_traits::id<typename domain<Derived>::type>::value * 100 +
 			num_nodes<Derived>::value
 		};
 	};
