@@ -680,6 +680,7 @@ INPUT                  = "${CMAKE_SOURCE_DIR}/../dox/mainpage.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/tech_meta.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/tech_poly.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/tech_general.md" \
+                         "${CMAKE_SOURCE_DIR}/../dox/tech_geometry.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/tech_what_happens.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/publications.md" \
                          "${CMAKE_SOURCE_DIR}/core/" \
