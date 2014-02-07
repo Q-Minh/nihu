@@ -35,7 +35,7 @@ typedef space<double, 2> space_2d;
 typedef space<double, 3> space_3d;
 ~~~~~
 
-For a simple usage example, the class can be used as follows:
+For a simple usage example consider the following code snippet:
 ~~~~~
 space_3d::location_t x, y;
 x << 0.0, 1.0, 1.0;
@@ -43,7 +43,6 @@ y << 1.0, 1.0, 2.0;
 space_3d::scalar_t d = (y - x).norm();
 std::cout << "The distance between " << x << " and " << y << " is " << d << std::endl;
 ~~~~~
-
 
 Domains {#tech_geometry_domain}
 =======

@@ -19,7 +19,7 @@
 /**
  * \file domain.hpp
  * \ingroup funcspace
- * \brief declaration of class ::domain and its derived domains
+ * \brief declaration of class ::domain
  */
 
 #ifndef DOMAIN_HPP_INCLUDED
@@ -28,10 +28,22 @@
 #include "global_definitions.hpp"
 #include "space.hpp"
 
-/** \brief metafunction assigning an id to a domain */
-template <class domain_t>
-struct domain_id;
+namespace domain_traits
+{
+	/** \brief Assign a name to the domain */
+	template <class Domain>
+	struct name
+	{
+		std::string const value;
+	};
 
+	/** \brief Assign an id to a domain */
+	template <class Domain>
+	struct id
+	{
+		enum { value = Domain::dimension * 10 + Domain::num_corners; };
+	};
+}
 
 /**
  * \brief a subset of the \f$\xi\f$ space. All elements are defined on a domain.
@@ -50,14 +62,14 @@ public:
 
 	/** \brief scalar type inherited from the space */
 	typedef typename space_t::scalar_t scalar_t;
-	/** \brief dimension inherited from the sapce */
+	/** \brief dimension inherited from the space */
 	static unsigned const dimension = space_t::dimension;
 
 	enum {
 		/** \brief number of domain corners */
 		num_corners = NumCorners,
 		/** \brief the domain id */
-		id = domain_id<domain>::value
+		id = domain_traits::id<domain>::value
 	};
 
 	/** \brief location vector renamed */
@@ -103,25 +115,13 @@ public:
 	}
 
 protected:
-	/** \brief the center point of the domain */
+	/** \brief the central point of the domain */
 	static xi_t const m_center;
 	/** \brief the corner points of the domain */
 	static corners_t const m_corners;
 	/** \brief the domain's volume */
 	static scalar_t const m_volume;
 };
-
-
-/** \brief metafunction assigning an id to a domain */
-template <class domain_t>
-struct domain_id
-{
-	/** \brief default computed value of a domain id */
-	static unsigned const value =
-		domain_t::dimension * 10 +
-		domain_t::num_corners;
-};
-
 
 
 /** \brief a 1D line domain \f$-1 \le \xi \le +1\f$*/
@@ -214,7 +214,6 @@ brick_domain::xi_t
 template <>
 brick_domain::scalar_t
 	const brick_domain::m_volume = 8.0;
-
 
 #endif
 
