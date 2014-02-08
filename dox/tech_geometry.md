@@ -14,21 +14,25 @@ This document explains how NiHu stores its geometries.
 Coordinate spaces {#tech_geometry_space}
 =================
 
-Core definition
+Core definition {#tech_geometry_space_core}
 ---------------
 
 The lowest level of geometrical representations is the definition of coordinate spaces like the three-dimensional real space \f$ \mathbb{R}^{3} \f$.
 Coordinate spaces are defined in class ::space, implemented in the source file space.hpp.
 The class has two obvious template parameters, \c scalar, representing the type of a coordinate and \c dimension representing the dimensionality of the coordinate space.
+~~~~~
+template <class scalar, unsigned dimension>
+class space;
+~~~~~
 
-The class - like most of NiHu's template classes - is a self-returning metafunction.
-This means that class ::space contains a public \c typedef called \c type that returns class ::space itself.
-This technique is useful for simplifying NiHu's syntax, as will be demonstrated later.
+Class ::space - like most of NiHu's template classes - implements a self-returning metafunction.
+This means that the class contains a public \c typedef called \c type that returns class ::space itself.
+This technique is useful for simplifying NiHu's TMP syntax, as will be demonstrated later.
 As an other typical NiHu concept, class ::space contains its template arguments in the form of a public \c typedef and an \c enum, making the arguments available from the class.
 
 Class ::space further defines the location vector type \c location_t of the coordinate space in the form of an Eigen vector type.
 
-Library reference
+Library reference {#tech_geometry_space_lib}
 -----------------
 
 A few commonly used coordinate spaces are predefined in NiHu's component library.
@@ -39,6 +43,9 @@ typedef space<double, 1> space_1d;
 typedef space<double, 2> space_2d;
 typedef space<double, 3> space_3d;
 ~~~~~
+
+Example {#tech_geometry_space_example}
+-------
 
 For a simple usage example consider the following code snippet:
 ~~~~~
@@ -52,20 +59,48 @@ std::cout << "The distance between " << x << " and " << y << " is " << d << std:
 Domains {#tech_geometry_domain}
 =======
 
-Class ::domain represents finite subdomains of a coordinate space.
-Domains are used in NiHu to define the parameter domains \f$ \mathcal{D} \f$ of coordinate transforms that describe element geometries.
-Class ::domain is implemented in domain.hpp.
+Core definition {#tech_geometry_domain_core}
+---------------
 
-The class is a template with two arguments: \c Space describes the coordinate space of the domain, and \c NumCorners describes the number of domain corners.
+Class ::domain, implemented in domain.hpp represents polygon-shaped subdomains of a coordinate space.
+These domains are used in NiHu to define the parameter domains \f$ \mathcal{D} \f$ of coordinate transforms that describe element geometries.
+
+The class is a template with two arguments:
+~~~~~
+template <class Space, unsigned NumCorners>
+class domain;
+~~~~~
+\c Space describes the coordinate space of the domain, and \c NumCorners describes the number of domain corners.
 The class is a self-returning metafunction, and similar to class ::space, it defines its template arguments as a nested type and an enum.
 
-The class further stores its corners (locations in the parameter space) in an array, as well as the domain's center. The class provides methods to return
-- the domain's corners array ::domain::get_corners
-- the domain's corners ::domain::get_corner
+The class further stores its corners (locations in the parameter space), as well as the domain's center in static members.
+The class provides static methods to return
+- the begin iterator to the domain's corners array ::domain::get_corners
+- the domain's specific corner ::domain::get_corner
 - the domain's center ::domain::get_center
 - and the domain's volume ::domain::get_volume
 
+Each domain is assigned a numeric identifier by the metafunction ::domain_traits::id. The default value of this id is 10 \c dimension + NumCorners, this the id of \c line_domain is 12, and the id of tria_domain is 23.
+Each domain is assigned a textual identifier by metafunction ::domain_traits::name.
+This textual id is useful for debugging and performance diagnostics.
 
+Library reference {#tech_geometry_domain_lib}
+-----------------
+
+The component library contains the definition of a few commonly used standard domains:
+~~~~~
+typedef domain<space_1d, 2> line_domain;
+typedef domain<space_2d, 3> tria_domain;
+typedef domain<space_2d, 4> quad_domain;
+typedef domain<space_3d, 8> brick_domain;
+~~~~~
+with the textual identifiers
+~~~~~
+std::string const name<line_domain>::value = "1D Line domain";
+std::string const name<tria_domain>::value = "2D Tria domain";
+std::string const name<quad_domain>::value = "2D Quad domain";
+std::string const name<brick_domain>::value = "3D Brick domain";
+~~~~~
 
 Interpolation functions {#tech_geometry_shapefun}
 =======================
