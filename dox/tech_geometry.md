@@ -63,7 +63,7 @@ Core definition {#tech_geometry_domain_core}
 ---------------
 
 Class ::domain, implemented in domain.hpp represents polygon-shaped subdomains of a coordinate space.
-These domains are used in NiHu to define the parameter domains \f$ \mathcal{D} \f$ of coordinate transforms that describe element geometries.
+These domains are used in NiHu as the reference domains \f$ \mathcal{D} \f$ of the coordinate transforms defining element geometries.
 
 The class is a template with two arguments:
 ~~~~~
@@ -71,7 +71,7 @@ template <class Space, unsigned NumCorners>
 class domain;
 ~~~~~
 \c Space describes the coordinate space of the domain, and \c NumCorners describes the number of domain corners.
-The class is a self-returning metafunction, and similar to class ::space, it defines its template arguments as a nested type and an enum.
+The class is a self-returning metafunction, and defines its template arguments as a nested type and an enum.
 
 The class further stores its corners (locations in the parameter space), as well as the domain's center in static members.
 The class provides static methods to return
@@ -80,7 +80,11 @@ The class provides static methods to return
 - the domain's center ::domain::get_center
 - and the domain's volume ::domain::get_volume
 
-Each domain is assigned a numeric identifier by the metafunction ::domain_traits::id. The default value of this id is 10 \c dimension + NumCorners, this the id of \c line_domain is 12, and the id of tria_domain is 23.
+Each domain is assigned a numeric identifier by the metafunction ::domain_traits::id. The default value of this id is
+
+	10 * dimension + NumCorners
+
+thus the id of \c line_domain is 12, and the id of tria_domain is 23.
 Each domain is assigned a textual identifier by metafunction ::domain_traits::name.
 This textual id is useful for debugging and performance diagnostics.
 
@@ -108,12 +112,12 @@ Interpolation functions {#tech_geometry_shapefun}
 Core definition {#tech_geometry_shapeset_core}
 ---------------
 
-Interpolation functions or shape functions are ingredients of the geometrical transformation describing the element geometries.
+Interpolation functions or shape function sets are used to define the element's coordinate transform.
 They are implemented in the header file shapeset.hpp.
 
 Shape function sets are implemented using the CRTP pattern with traits metafunctions.
 All shape set classes are derived from shape_set_base that defines their interface.
-The traits of a newly introduced derived shape set class are implemented in namespace ::shape_set_traits in the form of separate metafunctions. 
+The traits of a derived shape set class are implemented in namespace ::shape_set_traits in the form of separate metafunctions. 
 The base class template ::shape_set_base gets the necessary type informations from the traits metafunctions of the derived classes to define the specific interface.
 
 The interface consists of the following functions:
@@ -123,6 +127,34 @@ The interface consists of the following functions:
 
 Efficient shape function evaluation
 -----------------------------------
+
+- The function template ::shape_set_base::eval_shape<0> returns the shape functions \f$ L_i(\xi) \f$ in the form of an Eigen vector.
+- Function template ::shape_set_base::eval_shape<1> returns the gradient of each function \f$ L_{i,j}(\xi) \f$ in the form of an Eigen matrix.
+- Function template ::shape_set_base::eval_shape<2> returns the second derivatives of each function \f$ L_{i,jk}(\xi) \f$ in the form of an Eigen matrix.
+
+For increased efficiency, NiHu checks during compilation if the shape functions and derivatives are
+- zero
+- constant
+- or \f$ \xi \f$-dependent (the general case)
+
+For the case of a general \f$ \xi \f$-dependent shape function, the result is computed on the fly and is returned by value.
+For the case of a constant function (like the gradient of linear interpolation functions) the shape functions are precomputed during program initialisation, stored in static members, and the function returns a constant reference.
+For the case of a zero matrix (like the second derivatives of linear interpolation functions) an efficient Eigen::Zero type matrix is returned.
+
+The value types of the shape function vectors and matrices, as well as the actual return types of function eval_shape are defined in the metafunctions shape_set_traits::shape_value_type and shape_set_traits::shape_return_type.
+
+Library reference {#tech_geometry_shapeset_lib}
+-----------------
+
+NiHu's component library predefines the following shape functions:
+- ::line_1_shape_set linear 2-noded line inetrpolation
+- ::line_2_shape_set quadratic 3-noded line interpolation
+- ::tria_1_shape_set linear 3-noded triangle interpoation
+- ::tria_2_shape_set quadratic 6-noded triangle interpolation
+- ::quad_1_shape_set (bi)linear 4-noded quadrangle interplation
+- ::quad_2_shape_set quadratic 9-noded quadrangle interpolation
+- ::quad_28_shape_set quadratic 8-noded quadrangle interpolation
+- ::brick_1_shape_set (tri)linear 8-noded hexahedron interpolation
 
 Elements {#tech_geometry_elements}
 ========

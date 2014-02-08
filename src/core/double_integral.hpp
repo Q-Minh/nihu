@@ -100,14 +100,14 @@ public:
 
 protected:
 	/** \brief evaluate regular double integral with selected accelerators
-	* \param [out] result reference to the integration result matrix
-	* \param [in] kernel the kernel to integrate
-	* \param [in] test_field the test field to integrate on
-	* \param [in] trial_field the trial field to integrate on
-	* \param [in] it begin iterator of the accelerator
-	* \param [in] end end iterator of the accelerator
-	* \return reference to the integration result
-	*/
+	 * \param [out] result reference to the integration result matrix
+	 * \param [in] kernel the kernel to integrate
+	 * \param [in] test_field the test field to integrate on
+	 * \param [in] trial_field the trial field to integrate on
+	 * \param [in] it begin iterator of the accelerator
+	 * \param [in] end end iterator of the accelerator
+	 * \return reference to the integration result
+	 */
 	template <class dual_iterator_t>
 	static result_t &eval_on_accelerator(
 		result_t &result,
@@ -143,14 +143,14 @@ public:
 	struct eval_singular_on_accelerator
 	{
 		/** \brief evaluate double singular integral with selected singular accelerator
-		* \param [out] result reference to the integration result matrix
-		* \param [in] kernel the kernel to integrate
-		* \param [in] test_field the test field to integrate on
-		* \param [in] trial_field the trial field to integrate on
-		* \param [in] begin begin iteartor of the singular quadrature
-		* \param [in] end end iterator of the singular quadrature
-		* \return reference to the integration result
-		*/
+		 * \param [out] result reference to the integration result matrix
+		 * \param [in] kernel the kernel to integrate
+		 * \param [in] test_field the test field to integrate on
+		 * \param [in] trial_field the trial field to integrate on
+		 * \param [in] begin begin iterator of the singular quadrature
+		 * \param [in] end end iterator of the singular quadrature
+		 * \return reference to the integration result
+		 */
 		template <class singular_iterator_t>
 		static result_t &eval(
 			result_t &result,
@@ -204,12 +204,12 @@ public:
 
 protected:
 	/** \brief evaluate double integral of a kernel on specific fields without singularity check
-	* \param [out] result reference to the integration result matrix
-	* \param [in] kernel the kernel to integrate
-	* \param [in] test_field reference to the test field
-	* \param [in] trial_field reference to the trial field
-	* \return reference to the stored result
-	*/
+	 * \param [out] result reference to the integration result matrix
+	 * \param [in] kernel the kernel to integrate
+	 * \param [in] test_field reference to the test field
+	 * \param [in] trial_field reference to the trial field
+	 * \return reference to the stored result
+	 */
 	static result_t &eval(
 		WITHOUT_SINGULARITY_CHECK,
 		result_t &result,
@@ -266,23 +266,20 @@ protected:
 				Kernel, TestField, TrialField, match::corner_match_type
 				>::eval(result, kernel, test_field, trial_field, match);
 		case EDGE_MATCH:
-			/*
 			return singular_integral_shortcut<
 				Kernel, TestField, TrialField, match::edge_match_type
 				>::eval(result, kernel, test_field, trial_field, match);
-				*/
-			;
 		}
 		return eval(WITHOUT_SINGULARITY_CHECK(), result, kernel, test_field, trial_field);
 	}
 
 public:
 	/** \brief evaluate double integral on given fields
-	* \param [in] kernel the kernel to integrate
-	* \param [in] test_field the test field to integrate on
-	* \param [in] trial_field the trial field to integrate on
-	* \return the integration result by value
-	*/
+	 * \param [in] kernel the kernel to integrate
+	 * \param [in] test_field the test field to integrate on
+	 * \param [in] trial_field the trial field to integrate on
+	 * \return the integration result by value
+	 */
 	template <class OnSameMesh>
 	static result_t eval(
 		kernel_base<Kernel> const &kernel,
@@ -492,12 +489,12 @@ protected:
 
 
 	/** \brief evaluate single integral of a kernel on specific fields with singularity check
-	* \param [out] result reference to the integration result matrix
-	* \param [in] kernel the kernel to integrate
-	* \param [in] test_field reference to the test field
-	* \param [in] trial_field reference to the trial field
-	* \return reference to the stored result
-	*/
+	 * \param [out] result reference to the integration result matrix
+	 * \param [in] kernel the kernel to integrate
+	 * \param [in] test_field reference to the test field
+	 * \param [in] trial_field reference to the trial field
+	 * \return reference to the stored result
+	 */
 	static result_t &eval(
 		WITH_SINGULARITY_CHECK,
 		result_t &result,
@@ -520,11 +517,6 @@ protected:
 				>::eval(result, kernel, test_field, trial_field, match);
 		case EDGE_MATCH:	// just for the warning, this case is impossible
 			;
-/*
-			return singular_integral_shortcut<
-				Kernel, TestField, TrialField, match::edge_match_type
-				>::eval(result, kernel, test_field, trial_field, match);
-*/
 		}
 		return eval(WITHOUT_SINGULARITY_CHECK(), result, kernel, test_field, trial_field);
 	}
