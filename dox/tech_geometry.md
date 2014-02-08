@@ -105,6 +105,24 @@ std::string const name<brick_domain>::value = "3D Brick domain";
 Interpolation functions {#tech_geometry_shapefun}
 =======================
 
+Core definition {#tech_geometry_shapeset_core}
+---------------
+
+Interpolation functions or shape functions are ingredients of the geometrical transformation describing the element geometries.
+They are implemented in the header file shapeset.hpp.
+
+Shape function sets are implemented using the CRTP pattern with traits metafunctions.
+All shape set classes are derived from shape_set_base that defines their interface.
+The traits of a newly introduced derived shape set class are implemented in namespace ::shape_set_traits in the form of separate metafunctions. 
+The base class template ::shape_set_base gets the necessary type informations from the traits metafunctions of the derived classes to define the specific interface.
+
+The interface consists of the following functions:
+- shape_set_base::corner_begin and shape_set_base::corner_end return iterators to the nodal corners of the shape set.
+- shape_set_base::corner_at returns a specified corner of the shape set.
+- shape_set_base::eval_shape evaluates and returns the shape functions or their derivatives at a local coordinate.
+
+Efficient shape function evaluation
+-----------------------------------
 
 Elements {#tech_geometry_elements}
 ========
