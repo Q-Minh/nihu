@@ -469,7 +469,7 @@ public:
  * \param [in] rhs the right hand side of comparison
  * \return true if lhs < rhs
  */
-bool operator<(elem_id_t const &lhs, elem_id_t const &rhs)
+inline bool operator<(elem_id_t const &lhs, elem_id_t const &rhs)
 {
 	return lhs(0,0) < rhs(0,0);
 }
@@ -530,50 +530,6 @@ public:
 		base_t::m_linear_size_estimate = sqrt(base_t::get_normal(domain_t::get_center()).norm() * domain_t::get_volume());
 	}
 };
-
-#include "../library/line_2_shape_set.hpp"
-#include "../library/tria_2_shape_set.hpp"
-#include "../library/quad_2_shape_set.hpp"
-
-typedef general_surface_element<line_1_shape_set, space_2d::scalar_t> line_1_elem;
-typedef general_surface_element<line_2_shape_set, space_2d::scalar_t> line_2_elem;
-typedef general_surface_element<tria_1_shape_set, space_3d::scalar_t> tria_1_elem;
-typedef general_surface_element<tria_2_shape_set, space_3d::scalar_t> tria_2_elem;
-typedef general_surface_element<quad_1_shape_set, space_3d::scalar_t> quad_1_elem;
-typedef general_surface_element<quad_2_shape_set, space_3d::scalar_t> quad_2_elem;
-
-namespace element_traits
-{
-	template <>
-	const std::string name<line_1_elem>::value = "Line 1 elem";
-	template <>
-	const std::string name<line_2_elem>::value = "Line 2 elem";
-	template <>
-	const std::string name<tria_1_elem>::value = "Tria 1 elem";
-	template <>
-	const std::string name<tria_2_elem>::value = "Tria 2 elem";
-	template <>
-	const std::string name<quad_1_elem>::value = "Quad 1 elem";
-	template <>
-	const std::string name<quad_2_elem>::value = "Quad 2 elem";
-}
-
-struct line_1_tag {};
-template <> struct tag2element<line_1_tag> : line_1_elem {};
-struct line_2_tag {};
-template <> struct tag2element<line_2_tag> : line_2_elem {};
-
-
-struct tria_1_tag {};
-template <> struct tag2element<tria_1_tag> : tria_1_elem {};
-struct tria_2_tag {};
-template <> struct tag2element<tria_2_tag> : tria_2_elem {};
-
-
-struct quad_1_tag {};
-template <> struct tag2element<quad_1_tag> : quad_1_elem {};
-struct quad_2_tag {};
-template <> struct tag2element<quad_2_tag> : quad_2_elem {};
 
 #endif
 

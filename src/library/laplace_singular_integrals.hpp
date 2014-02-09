@@ -27,6 +27,7 @@
 #include "laplace_kernel.hpp"
 #include "plane_element_helper.hpp"
 #include "guiggiani_1992.hpp"
+#include "lib_element.hpp"
 
 
 /** \brief Collocational singular integral of the 2D Laplace SLP kernel over a constant line element */

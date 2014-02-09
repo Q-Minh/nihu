@@ -6,37 +6,42 @@ namespace shape_set_traits
 	const std::string name<line_0_shape_set>::value = "Line 0 shape set";
 
 	template <>
-	const std::string name<tria_0_shape_set>::value = "Tria 0 shape set";
-
-	template <>
-	const std::string name<quad_0_shape_set>::value = "Quad 0 shape set";
-
-	template <>
-	const std::string name<brick_0_shape_set>::value = "Brick 0 shape set";
-
-	template <>
 	const std::string name<line_1_shape_set>::value = "Line 1 shape set";
+
+	template <>
+	const std::string name<line_2_shape_set>::value = "Line 2 shape set";
+
+	template <>
+	const std::string name<tria_0_shape_set>::value = "Tria 0 shape set";
 
 	template <>
 	const std::string name<tria_1_shape_set>::value = "Tria 1 shape set";
 
 	template <>
+	const std::string name<tria_2_shape_set>::value = "Tria 2 shape set";
+
+	template <>
+	const std::string name<quad_0_shape_set>::value = "Quad 0 shape set";
+
+	template <>
 	const std::string name<quad_1_shape_set>::value = "Quad 1 shape set";
+
+	template <>
+	const std::string name<quad_2_shape_set>::value = "Quad 2 shape set";
+
+	template <>
+	const std::string name<quad_28_shape_set>::value = "Quad 28 shape set";
+
+	template <>
+	const std::string name<brick_0_shape_set>::value = "Brick 0 shape set";
 
 	template <>
 	const std::string name<brick_1_shape_set>::value = "Brick 1 shape set";
 
 	template <>
 	const std::string name<parallelogram_shape_set>::value = "Parallelogram shape set";
-
 }
 
-
-namespace shape_set_traits
-{
-	template <>
-	const std::string name<line_2_shape_set>::value = "Line 2 shape set";
-}
 
 line_2_shape_set::xi_t
 const line_2_shape_set::m_corners[line_2_shape_set::num_nodes] = {
@@ -47,12 +52,6 @@ const line_2_shape_set::m_corners[line_2_shape_set::num_nodes] = {
 
 int const line_2_shape_set::m_domain_indices[line_2_shape_set::num_nodes] = { 0, -1, 1 };
 
-
-namespace shape_set_traits
-{
-	template <>
-	const std::string name<tria_2_shape_set>::value = "Tria 2 shape set";
-}
 
 tria_2_shape_set::xi_t
 const tria_2_shape_set::m_corners[tria_2_shape_set::num_nodes] = {
@@ -67,12 +66,6 @@ const tria_2_shape_set::m_corners[tria_2_shape_set::num_nodes] = {
 int const tria_2_shape_set::m_domain_corners[tria_2_shape_set::num_nodes] =
 { 0, -1, 1, -1, 2, -1 };
 
-
-namespace shape_set_traits
-{
-	template <>
-	const std::string name<quad_2_shape_set>::value = "Quad 2 shape set";
-}
 
 quad_2_shape_set::xi_t
 const quad_2_shape_set::m_corners[quad_2_shape_set::num_nodes] = {
@@ -91,12 +84,6 @@ int const quad_2_shape_set::m_domain_corners[quad_2_shape_set::num_nodes] =
 { 0, -1, 1, -1, 2, -1, 3, -1, -1 };
 
 
-namespace shape_set_traits
-{
-	template <>
-	const std::string name<quad_28_shape_set>::value = "Quad 28 shape set";
-}
-
 quad_28_shape_set::xi_t
 const quad_28_shape_set::m_corners[quad_28_shape_set::num_nodes] = {
 	quad_28_shape_set::xi_t(-1.0, -1.0),
@@ -111,6 +98,4 @@ const quad_28_shape_set::m_corners[quad_28_shape_set::num_nodes] = {
 
 int const quad_28_shape_set::m_domain_corners[quad_28_shape_set::num_nodes] =
 { 0, -1, 1, -1, 2, -1, 3, -1 };
-
-
 

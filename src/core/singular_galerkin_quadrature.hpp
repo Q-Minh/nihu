@@ -29,6 +29,8 @@
 #include "quadrature.hpp"
 #include "element_match.hpp"
 
+#include "../library/lib_shape.hpp"
+
 /**
 * \brief class computing singular Galerkin type quadratures for different domains
 * \tparam quadrature_family_t the regular quadrature family

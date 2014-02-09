@@ -3,7 +3,7 @@
 #include "library/guiggiani_1992.hpp"
 #include "library/laplace_singular_integrals.hpp"
 #include "library/helmholtz_singular_integrals.hpp"
-#include "library/quad_28_elem.hpp"
+#include "library/lib_element.hpp"
 
 template <class kernel_t>
 struct planar_analytic;

@@ -170,8 +170,6 @@ unsigned const duffy_traits<quad_1_shape_set>::duffy_corner_indices[4][3+1] = {
 };
 
 
-#include "../library/tria_2_shape_set.hpp"
-
 /** \brief Specialisation of ::duffy_traits for ::tria_2_shape_set */
 template <>
 struct duffy_traits<tria_2_shape_set>
@@ -189,8 +187,6 @@ unsigned const duffy_traits<tria_2_shape_set>::duffy_corner_indices[6][3+1] = {
 	{2, /*|*/ 0, 1, 2}
 };
 
-
-#include "../library/quad_2_shape_set.hpp"
 
 /** \brief Specialisation of ::duffy_traits for ::quad_2_shape_set */
 template <>
