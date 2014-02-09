@@ -18,7 +18,7 @@
 
 #include "tmp/control.hpp"
 #include "tmp/vector.hpp"
-#include "core/domain.hpp"
+#include "library/lib_domain.hpp"
 
 #include <iostream>
 
@@ -29,7 +29,7 @@ struct tester
 	{
 		void operator() (void)
 		{
-			std::cout << std::endl << domain_traits::name<domain>::value << " (" << domain::id << ")\n"
+			std::cout << std::endl << domain::get_name() << " (" << domain::id << ")\n"
                 << "==========" << std::endl;
 			std::cout << "domain corners: " << std::endl;
 			for (unsigned i = 0; i < domain::num_corners; ++i)
@@ -40,7 +40,7 @@ struct tester
 	};
 };
 
-int main(void)
+int domain_test(void)
 {
 	tmp::call_each<
 		tmp::vector<line_domain, tria_domain, quad_domain, brick_domain>,

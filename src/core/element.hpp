@@ -133,15 +133,10 @@ namespace element_traits
 	template <class Derived, unsigned Order>
 	struct location_value_type
 	{
-        typedef Eigen::Matrix<
-            typename space_type<Derived>::type::scalar_t,
-            space_type<Derived>::type::dimension,
-            num_derivatives<
-                Order,
-                shape_set_traits::domain<
-                    typename lset<Derived>::type
-                >::type::dimension
-            >::value
+		typedef Eigen::Matrix<
+			typename space_type<Derived>::type::scalar_t,
+			space_type<Derived>::type::dimension,
+			num_derivatives(Order, shape_set_traits::domain<typename lset<Derived>::type>::type::dimension)
         > type;
 	};
 

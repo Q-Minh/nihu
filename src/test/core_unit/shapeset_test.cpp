@@ -20,10 +20,7 @@
 #include "core/shapeset.hpp"
 #include "tmp/vector.hpp"
 
-#include "library/line_2_shape_set.hpp"
-#include "library/tria_2_shape_set.hpp"
-#include "library/quad_2_shape_set.hpp"
-#include "library/quad_28_shape_set.hpp"
+#include "library/lib_shape.hpp"
 
 template <class shape_set>
 struct tester
@@ -59,7 +56,7 @@ struct tester
 	};
 };
 
-int main(void)
+int shapeset_test(void)
 {
 	tmp::call_each<
 		tmp::vector<
