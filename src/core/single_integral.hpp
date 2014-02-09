@@ -173,7 +173,7 @@ public:
 	/** \brief specialisation of single_integral::eval for the empty case
 	 * \return the empty result matrix
 	 */
-	static CONSTEXPR result_t eval(
+	static constexpr result_t eval(
 		field_base<TestField> const &,
 		field_base<TrialField> const &)
 	{

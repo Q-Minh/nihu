@@ -216,7 +216,7 @@ public:
 	/** \brief return quadrature weight
 	 * \return quadrature weight (constant 1.0)
 	 */
-	CONSTEXPR typename NSet::scalar_t get_w(void) const
+	constexpr typename NSet::scalar_t get_w(void) const
 	{
 		return 1.0;
 	}
@@ -224,7 +224,7 @@ public:
 	/** \brief return shape set vector
 	 * \return constant shape set vector
 	 */
-	CONSTEXPR typename NSet::shape_t get_N(void) const
+	constexpr typename NSet::shape_t get_N(void) const
 	{
 		return NSet::shape_t::Unit(index_t::m_idx);
 	}
@@ -232,7 +232,7 @@ public:
 	/** \brief return quadrature point location
 	 * \return constant quadrature point location
 	 */
-	CONSTEXPR typename NSet::xi_t get_xi(void) const
+	constexpr typename NSet::xi_t get_xi(void) const
 	{
 		return NSet::corner_at(index_t::m_idx);
 	}
@@ -326,7 +326,7 @@ public:
 	/** \brief return begin iterator
 	 * \return begin iterator
 	 */
-	CONSTEXPR static const_iterator begin(void)
+	constexpr static const_iterator begin(void)
 	{
 		return dirac_field_type_accelerator_iterator(index_t(0));
 	}
@@ -334,7 +334,7 @@ public:
 	/** \brief return end iterator
 	 * \return end iterator
 	 */
-	CONSTEXPR static const_iterator end(void)
+	constexpr static const_iterator end(void)
 	{
 		return dirac_field_type_accelerator_iterator(index_t(Field::num_dofs));
 	}

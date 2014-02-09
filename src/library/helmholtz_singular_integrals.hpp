@@ -229,7 +229,7 @@ public:
 	 * \return the result reference
 	 */
 	template <class result_t>
-	static CONSTEXPR result_t &eval(
+	static constexpr result_t &eval(
 		result_t &result,
 		kernel_base<Kernel<WaveNumber> > const &,
 		field_base<TestField> const &,

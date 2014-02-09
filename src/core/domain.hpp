@@ -82,7 +82,7 @@ public:
 	 * \brief return the central point of the domain
 	 * \return center point
 	 */
-	static CONSTEXPR xi_t const &get_center(void)
+	static constexpr xi_t const &get_center(void)
 	{
 		return m_center;
 	}
@@ -91,7 +91,7 @@ public:
 	 * \brief return pointer to array of corners
 	 * \return pointer to array of corners
 	 */
-	static CONSTEXPR xi_t const *get_corners(void)
+	static constexpr xi_t const *get_corners(void)
 	{
 		return m_corners;
 	}
@@ -100,7 +100,7 @@ public:
 	 * \brief return reference to a corner point
 	 * \return constant reference to a corner point
 	 */
-	static CONSTEXPR xi_t const &get_corner(unsigned idx)
+	static constexpr xi_t const &get_corner(unsigned idx)
 	{
 		return get_corners()[idx];
 	}
@@ -109,7 +109,7 @@ public:
 	 * \brief return domain volume
 	 * \return domain volume
 	 */
-	static CONSTEXPR scalar_t const &get_volume(void)
+	static constexpr scalar_t const &get_volume(void)
 	{
 		return m_volume;
 	}
