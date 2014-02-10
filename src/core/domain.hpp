@@ -30,24 +30,28 @@
 
 namespace domain_traits
 {
-	/** assigns a coordinate space to the domain */
+	/** \brief assigns a coordinate space to the domain */
     template <class Derived>
     struct space_type;
 
-	/** assigns the number of domain corners */
+	/** \brief defines the number of domain corners */
     template <class Derived>
     struct num_corners;
 
+	/** \brief Defines the domain's size (volume) */
 	template <class Derived>
 	struct volume;
 
-	/** \brief Assign an id to a domain */
+	/** \brief Assigns an id to the domain */
 	template <class Derived>
 	struct id
 	{
-		enum { value = space_type<Derived>::type::dimension * 10 + num_corners<Derived>::value };
+		enum {
+			value = space_type<Derived>::type::dimension * 10 + num_corners<Derived>::value
+		};
 	};
 
+	/** \brief Assigns a textual id the domain */
 	template <class Derived>
 	struct name
 	{
@@ -55,53 +59,62 @@ namespace domain_traits
 	};
 }
 
-/**
- * \brief a subset of the \f$\xi\f$ space. All elements are defined on a domain.
- * \tparam Space the coordinate space the domain is defined on
- * \tparam NumCorners the number of corners of the domain
- */
+/** \brief Polygonal subset of the \f$ \xi \f$ space. All elements are defined on a domain. */
 template <class Derived>
 class domain_base
 {
 public:
+	/** \brief self-returning */
 	typedef Derived type;
-
+	/** \brief the space type as nested typedef */
 	typedef typename domain_traits::space_type<Derived>::type space_t;
-	enum
-	{
-        num_corners = domain_traits::num_corners<Derived>::value,
-        id = domain_traits::id<Derived>::value,
-        dimension = space_t::dimension
-	};
-
+	/** \brief number of domain corners */
+	enum { num_corners = domain_traits::num_corners<Derived>::value };
+	/** \brief domain id as nested enum */
+    enum { id = domain_traits::id<Derived>::value };
+    /** \brief space dimensions */
+    enum { dimension = space_t::dimension };
+	/** \brief coordinate scalar type */
 	typedef typename space_t::scalar_t scalar_t;
+	/** \brief coordinate vector type */
 	typedef typename space_t::location_t xi_t;
+	/** \brief type of corners array */
 	typedef xi_t corners_t[num_corners];
 
+	/** \brief return domain center */
 	static xi_t const &get_center(void)
 	{
-      	static xi_t const center = Derived::get_center_impl();
-      	return center;
+      	return Derived::get_center_impl();
 	}
 
+	/** \brief return begin address of domain corners' array */
 	static xi_t const *get_corners(void)
 	{
 		return Derived::get_corners_impl();
 	}
 
+	/** \brief return specified corner of domain */
 	static xi_t const &get_corner(unsigned idx)
 	{
 		return get_corners()[idx];
 	}
 
+	/** \brief return domain volume */
 	static constexpr scalar_t get_volume(void)
 	{
         return domain_traits::volume<Derived>::value;
 	}
 
+	/** \brief return domain name */
 	static std::string const &get_name(void)
 	{
         return domain_traits::name<Derived>::value;
+	}
+
+	/** \brief return domain id */
+	static constexpr unsigned get_id(void)
+	{
+        return id;
 	}
 };
 
