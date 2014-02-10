@@ -1,9 +1,16 @@
 #include "lib_domain.hpp"
 
-std::string const line_domain::m_name = "Line domain";
-std::string const tria_domain::m_name = "Tria domain";
-std::string const quad_domain::m_name = "Quad domain";
-std::string const brick_domain::m_name = "Brick domain";
+namespace domain_traits
+{
+	template <>
+	const std::string name<line_domain>::value = "Line domain";
+	template <>
+	std::string const name<tria_domain>::value = "Tria domain";
+	template <>
+	std::string const name<quad_domain>::value = "Quad domain";
+	template <>
+	std::string const name<brick_domain>::value = "Brick domain";
+}
 
 line_domain::corners_t
 	const line_domain::m_corners = {

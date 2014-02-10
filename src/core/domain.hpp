@@ -30,9 +30,11 @@
 
 namespace domain_traits
 {
+	/** assigns a coordinate space to the domain */
     template <class Derived>
     struct space_type;
 
+	/** assigns the number of domain corners */
     template <class Derived>
     struct num_corners;
 
@@ -44,6 +46,12 @@ namespace domain_traits
 	struct id
 	{
 		enum { value = space_type<Derived>::type::dimension * 10 + num_corners<Derived>::value };
+	};
+
+	template <class Derived>
+	struct name
+	{
+		static std::string const value;
 	};
 }
 
@@ -93,7 +101,7 @@ public:
 
 	static std::string const &get_name(void)
 	{
-        return Derived::get_name_impl();
+        return domain_traits::name<Derived>::value;
 	}
 };
 
