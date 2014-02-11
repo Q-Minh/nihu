@@ -8,6 +8,6 @@ int main(void)
     space_test();
     domain_test();
     shapeset_test();
-    //element_test();
+    element_test();
     return 0;
 }
