@@ -14,23 +14,25 @@
 \setcounter{tocdepth}{5}
 \tableofcontents
 
-\section{Poisson kernel}
+\section{Laplace kernel}
 
 \subsection{2D case}
 
 \begin{equation}
-G(r) = -\frac{\ln |r|}{2\pi}
+G({\bf y}, {\bf x}) = -\frac{\ln |{\bf y}-{\bf x}|}{2\pi} = -\frac{\ln r}{2\pi}
 \end{equation}
 
 \subsubsection{Collocation}
 
-\paragraph{Constant line}
+\paragraph{Constant line SLP}
 
 \begin{equation}
-\int_{-d_1}^{d_2} G(r) \td r
+\lim_{\epsilon \to 0} \left( \int_{-d_1}^{-\epsilon} G(r) \td r + \int_{\epsilon}^{d_2} G(r) \td r \right)
 =
-\frac{d_1 + d_2 - d_1 \ln |d_1| - d_2 \ln |d_2|}{2\pi}
+\frac{d_1(1-\ln d_1) + d_2(1-\ln d_2)}{2\pi}
 \end{equation}
+
+\paragraph{Constant line HSP}
 
 \begin{align}
 \frac{\partial}{\partial n_x}
@@ -80,10 +82,17 @@ G(r) = -\frac{\ln |r|}{2\pi}
 
 \paragraph{Face match}
 
-\subparagraph{Constant line}
+\subparagraph{Constant line SLP}
 
 \begin{equation}
-\int_{0}^{d} \int_{0}^{d} G(x-y) \td y \td x
+\int_{0}^{d}
+\lim_{\epsilon \to 0}
+\left(
+\int_{0}^{x-\epsilon} G(x-y) \td y
++
+\int_{x+\epsilon}^{d} G(x-y) \td y
+\right)
+\td x
 =
 d^2\frac{3-2\ln d}{4\pi}
 \end{equation}
@@ -94,7 +103,7 @@ d^2\frac{3-2\ln d}{4\pi}
 \infty
 \end{equation}
 
-\subparagraph{Linear line}
+\subparagraph{Linear line SLP}
 
 \begin{equation}
 \int_{0}^{d} N_i(x) \int_{0}^{d} G(x-y) N_j(y) \td y \td x
@@ -105,49 +114,31 @@ d^2\frac{3-2\ln d}{4\pi}
 \end{bmatrix}
 \end{equation}
 
-\paragraph{Corner match}
+\paragraph{Edge match}
 
-\subparagraph{Constant line}
+\subparagraph{Constant line DLP kernel}
 
 \begin{multline}
-\int_{0}^{d_y}
-\left(
-\int_{0}^{d_x} \ln \left(\sqrt{(x+y\cos\alpha)^2+(y\sin\alpha)^2}\right)
-\td x \right)
-\td y \\
-=
-\int_{0}^{d_y}
-\left(
-\int_{y\cos\alpha}^{d_x+y\cos\alpha} \ln \left(\sqrt{\xi^2+(y\sin\alpha)^2}\right)
-\td \xi \right)
-\td y \\
-=
-\int_{0}^{d_y}
-\left[
-\xi \ln \left(\sqrt{\xi^2+(y\sin\alpha)^2}\right) - \xi + y\sin\alpha \tan^{-1} \left(\frac{\xi}{y\sin\alpha}\right)
-\right]_{y\cos\alpha}^{d_x+y\cos\alpha} 
-\td y \\
-=
-\int_{0}^{d_y}
-\left(
-\left(d_x+y\cos\alpha\right) \ln \left(\sqrt{\left(d_x+y\cos\alpha\right)^2+(y\sin\alpha)^2}\right) - d_x + y\sin\alpha \tan^{-1} \left(\frac{d_x+y\cos\alpha}{y\sin\alpha}\right)
-\right) \\
--
-\left(
-\left(y\cos\alpha\right) \ln y + y\sin\alpha \tan^{-1} \left(\cot\alpha\right)
-\right)
-\td y \\
-=
--d_x d_y - \cos\alpha \frac{d_y^2 \left(\ln d_y - 1/2\right)}{2}
--
-\frac{d_y^2}{2}\sin\alpha \tan^{-1} \left(\cot\alpha\right) \\
-+
-\int_{0}^{d_y}
-\left(
-\left(d_x+y\cos\alpha\right) \ln \left(\sqrt{\left(d_x+y\cos\alpha\right)^2+(y\sin\alpha)^2}\right) + y\sin\alpha \tan^{-1} \left(\frac{d_x+y\cos\alpha}{y\sin\alpha}\right)
-\right)
+\int_{S_{x}}
+\int_{S_{y}}
+G'(r) r'_{n_{y}}
+\td S_y
+\td S_x =
+\int_{0}^{d_1}
+\int_{0}^{d_2}
+\frac{x\sin\phi}{(x+y \cos\phi)^2 + (y\sin\phi)^2}
 \td y
+\td x \\
+=
+d_1 q(d_1, d_2, \phi) - d_2 \cos\phi q(d_2, d_1, \phi)
++ d_2 \sin\phi \ln\left(\frac{R_3}{d_2}\right)
 \end{multline}
+%
+where
+%
+\begin{equation}
+q(d_1, d_2, \phi) = \tan^{-1}\left(\frac{d_2 + d_1 \cos\phi}{d_1 \sin\phi}\right) - \tan^{-1}\left(\cot\phi\right)
+\end{equation}
 
 \subsection{3D case}
 
