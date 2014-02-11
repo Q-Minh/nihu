@@ -97,12 +97,6 @@ G({\bf y}, {\bf x}) = -\frac{\ln |{\bf y}-{\bf x}|}{2\pi} = -\frac{\ln r}{2\pi}
 d^2\frac{3-2\ln d}{4\pi}
 \end{equation}
 
-\begin{equation}
-\int_{0}^{d} \frac{\partial}{\partial n_x} \int_{0}^{d} \frac{\partial}{\partial n_y} G(x-y) \td y \td x
-=
-\infty
-\end{equation}
-
 \subparagraph{Linear line SLP}
 
 \begin{equation}
@@ -116,22 +110,21 @@ d^2\frac{3-2\ln d}{4\pi}
 
 \paragraph{Edge match}
 
-\subparagraph{Constant line DLP kernel}
+\subparagraph{Constant line SLP kernel}
 
 \begin{multline}
-\int_{S_{x}}
-\int_{S_{y}}
-G'(r) r'_{n_{y}}
-\td S_y
-\td S_x =
-\int_{0}^{d_1}
-\int_{0}^{d_2}
-\frac{x\sin\phi}{(x+y \cos\phi)^2 + (y\sin\phi)^2}
-\td y
-\td x \\
+\int_{S_{x}} \int_{S_{y}} G(r) \td S_y \td S_x =
+\int_{0}^{d_1} \int_{0}^{d_2}
+\ln \sqrt{(x+y \cos\phi)^2 + (y\sin\phi)^2}
+\td y \td x \\
 =
-d_1 q(d_1, d_2, \phi) - d_2 \cos\phi q(d_2, d_1, \phi)
-+ d_2 \sin\phi \ln\left(\frac{R_3}{d_2}\right)
+\frac{
+c \left(d_1^2 \ln \frac{d_1}{d_3} + {d_2}^2 \ln \frac{d_2}{d_3}\right)
++ s \left(d_1^2 q(d_1, d_2, \phi) + d_2^2 q(d_2, d_1, \phi)\right)
++ d_1 d_2 \left(3 - 2 \ln d_3 \right)
+}{
+4 \pi
+}
 \end{multline}
 %
 where
@@ -139,6 +132,18 @@ where
 \begin{equation}
 q(d_1, d_2, \phi) = \tan^{-1}\left(\frac{d_2 + d_1 \cos\phi}{d_1 \sin\phi}\right) - \tan^{-1}\left(\cot\phi\right)
 \end{equation}
+
+\subparagraph{Constant line DLP kernel}
+
+\begin{multline}
+\int_{S_{x}} \int_{S_{y}} G'(r) r'_{n_{y}} \td S_y \td S_x =
+\int_{0}^{d_1} \int_{0}^{d_2}
+\frac{x\sin\phi}{(x+y \cos\phi)^2 + (y\sin\phi)^2}
+\td y \td x \\
+=
+\frac{1}{2\pi}\left(-d_1 q(d_1, d_2, \phi) + d_2 \cos\phi q(d_2, d_1, \phi)
+- d_2 \sin\phi \ln \frac{d_3}{d_2}\right)
+\end{multline}
 
 \subsection{3D case}
 

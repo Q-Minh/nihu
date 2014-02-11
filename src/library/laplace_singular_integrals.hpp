@@ -61,7 +61,7 @@ public:
 	{
 		auto const &C = elem.get_coords();
 		double d = (C.col(1) - C.col(0)).norm();	// element length
-		return -d*d*(std::log(d) - 1.5) / (2.0*M_PI);
+		return d*d*(1.5-std::log(d)) / (2.0*M_PI);
 	}
 };
 
@@ -72,61 +72,25 @@ public:
 	/**
 	* \brief Evaluate the integral
 	* \param [in] elem the line element
-	* \param [out] i11 the first diagonal elem of the result
-	* \param [out] i12 the off-diagonal elem of the result
-	* \param [out] i22 the second diagonal elem of the result
+	* \param [out] i1 the diagonal elem of the result
+	* \param [out] i2 the off-diagonal elem of the result
 	*/
-	static void eval(line_1_elem const &elem, double &i11, double &i12, double &i22)
+	static void eval(line_1_elem const &elem, double &i1, double &i2)
 	{
 		auto const &C = elem.get_coords();
 		double d = (C.col(1) - C.col(0)).norm();	// element length
+		double c = d*d/(8.0*M_PI);
 		double lnd = std::log(d);
-		i11 = lnd - 1.75;
-		i12 = lnd - 1.25;
-		i22 = lnd - 1.45;
+		i1 = c * (1.75 - lnd);
+		i2 = c * (1.25 - lnd);
 	}
-};
-
-class laplace_2d_DLP_galerkin_edge_constant_line
-{
-    static double qfunc(double r1, double r2, double phi)
-    {
-        return r1 * (std::atan((r2+r1*std::cos(phi))/(r1*std::sin(phi))) - std::atan(std::tan(M_PI/2.0-phi)));
-    }
-
-public:
-    static double eval(line_1_elem const &elem1, line_1_elem const &elem2)
-    {
-		// get element corners
-        auto const &C1 = elem1.get_coords();
-        auto const &C2 = elem2.get_coords();
-        // get side vectors
-        auto r1vec = (C1.col(1) - C1.col(0)), r2vec = (C2.col(1) - C2.col(0));
-        // get side lengths
-        double r1 = r1vec.norm(), r2 = r2vec.norm();
-        // get angle between elements
-        double phi = std::asin(r1vec(0)*r2vec(1)-r2vec(0)*r1vec(1))/(r1*r2);
-        double result;
-        if (std::abs(phi) < 1e-3)
-			// Taylor expansion
-            result = r2*std::log(1.0+r1/r2)*phi;
-        else
-        {
-			// general expression
-            double r3 = std::sqrt(r1*r1 + 2*r1*r2*std::cos(phi) + r2*r2);
-            result = (qfunc(r1, r2, phi)-qfunc(r2, r1, phi)*std::cos(phi))
-                + r2*std::sin(phi)*std::log(r3/r2);
-        }
-
-        return -result / (2.0*M_PI);
-    }
 };
 
 class laplace_2d_SLP_galerkin_edge_constant_line
 {
     static double qfunc(double r1, double r2, double phi)
     {
-        return r1*r1 * (std::atan(std::tan(M_PI/2.0-phi))-std::atan((r2+r1*std::cos(phi))/(r1*std::sin(phi))));
+        return std::atan((r2+r1*std::cos(phi))/(r1*std::sin(phi)))) - std::atan(std::tan(M_PI/2.0-phi));
     }
 
 public:
@@ -141,25 +105,55 @@ public:
         double r1 = r1vec.norm(), r2 = r2vec.norm();
         // and signed angle between them
         double phi = std::asin(r1vec(0)*r2vec(1)-r2vec(0)*r1vec(1))/(r1*r2);
-        double result;
         if (std::abs(phi) < 1e-3)
 			// Taylor expansion if needed
-            result = 0.5 * (
-				(r1+r2)*(r1+r2)*std::log(r1*r2)
-				-r1*r1*std::log(r1) - r2*r2*std::log(r2) -3.0*r1*r2
+            return (
+				3.0*r1*r2 -(r1+r2)*(r1+r2)*std::log(r1+r2)
+				+r1*r1*std::log(r1) + r2*r2*std::log(r2)
+				) / (4.0*M_PI)
             );
         else
         {
 			// General expression
             double r3 = std::sqrt(r1*r1 + 2*r1*r2*std::cos(phi) + r2*r2);
-            result = -0.5 * (
+            return (
 				r1*r2*(3.0-2.0*std::log(r3))
-				+ std::sin(phi) * (qfunc(r1, r2, phi) + qfunc(r2, r1, phi))
 				+ std::cos(phi) * (r1*r1*std::log(r1/r3)+r2*r2*std::log(r2/r3))
-			);
+				- std::sin(phi) * (r1*r1*qfunc(r1, r2, phi) + r2*r2*qfunc(r2, r1, phi))
+			) / (4.0*M_PI);
         }
+    }
+};
 
-        return -result / (2.0*M_PI);
+class laplace_2d_DLP_galerkin_edge_constant_line
+{
+    static double qfunc(double r1, double r2, double phi)
+    {
+        return std::atan((r2+r1*std::cos(phi))/(r1*std::sin(phi))) - std::atan(std::tan(M_PI/2.0-phi));
+    }
+
+public:
+    static double eval(line_1_elem const &elem1, line_1_elem const &elem2)
+    {
+		// get element corners
+        auto const &C1 = elem1.get_coords();
+        auto const &C2 = elem2.get_coords();
+        // get side vectors
+        auto r1vec = (C1.col(1) - C1.col(0)), r2vec = (C2.col(1) - C2.col(0));
+        // get side lengths
+        double r1 = r1vec.norm(), r2 = r2vec.norm();
+        // get angle between elements
+        double phi = std::asin(r1vec(0)*r2vec(1)-r2vec(0)*r1vec(1))/(r1*r2);
+        if (std::abs(phi) < 1e-3)
+			// Taylor expansion
+            return -r2*std::log(1.0+r1/r2)*phi / (2.0*M_PI);
+        else
+        {
+			// general expression
+            double r3 = std::sqrt(r1*r1 + 2*r1*r2*std::cos(phi) + r2*r2);
+            return (-r1*qfunc(r1, r2, phi)+r2*std::cos(phi)*qfunc(r2, r1, phi)
+                - r2*std::sin(phi)*std::log(r3/r2)) / (2.0*M_PI);
+        }
     }
 };
 
