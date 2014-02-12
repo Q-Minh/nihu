@@ -1,0 +1,148 @@
+\documentclass[a4paper,11pt]{article}
+
+\usepackage{a4wide}
+
+\usepackage{amsmath,bm}
+\newcommand{\td}{\mathrm{d}}
+\newcommand{\te}{\mathrm{e}}
+\newcommand{\ti}{\mathrm{i}}
+\newcommand{\sinc}{\mathrm{sinc}}
+\usepackage{tikz}
+
+\title {Analytical integrals of the 2D Laplace kernel}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+\begin{equation}
+G({\bf y}, {\bf x}) = -\frac{\ln |{\bf y}-{\bf x}|}{2\pi} = -\frac{\ln r}{2\pi}
+\end{equation}
+
+\section{Collocation}
+
+\subsection{Constant line SLP}
+
+\begin{equation}
+\lim_{\epsilon \to 0} \left( \int_{-d_1}^{-\epsilon} G(r) \td r + \int_{\epsilon}^{d_2} G(r) \td r \right)
+=
+\frac{d_1(1-\ln d_1) + d_2(1-\ln d_2)}{2\pi}
+\end{equation}
+
+\subsection{Constant line HSP}
+
+\begin{align}
+\frac{\partial}{\partial n_x}
+\int_{-d_1}^{d_2} 
+\frac{\partial}{\partial n_y}
+\frac{-\ln |r|}{2\pi}
+\td y 
+&=
+\frac{\partial}{\partial z}
+\int_{-d_1}^{d_2} 
+\frac{-1}{2\pi r} \frac{(y, -z) \cdot (0,1)}{r}
+\td y \nonumber \\
+&=
+\frac{1}{2\pi} \frac{\partial}{\partial z}
+\int_{-d_1}^{d_2} 
+\frac{z}{\left(y^2+z^2\right)}
+\td y \nonumber \\
+&=
+\frac{1}{2\pi} \frac{\partial}{\partial z}
+\left[
+\tan^{-1}\left(d_2/z\right)
+-
+\tan^{-1}\left(-d_1/z\right)
+\right]
+\nonumber \\
+&=
+\frac{1}{2\pi} \frac{\partial}{\partial z}
+\left[
+\tan^{-1}\left(d_2/z\right) + \tan^{-1}\left(d_1/z\right)
+\right]
+\nonumber \\
+&=
+\frac{1}{2\pi} 
+\left[
+\frac{-d_2}{d_2^2+z^2} + \frac{-d_1}{d_1^2+z^2}
+\right]
+\nonumber \\
+& \to
+\frac{-1}{2\pi} 
+\left[
+\frac{1}{d_2} + \frac{1}{d_1}
+\right]
+\end{align}
+
+
+\section{Galerkin}
+
+\subsection{Face match}
+
+\subsubsection{Constant line SLP}
+
+\begin{equation}
+\int_{0}^{d}
+\lim_{\epsilon \to 0}
+\left(
+\int_{0}^{x-\epsilon} G(x-y) \td y
++
+\int_{x+\epsilon}^{d} G(x-y) \td y
+\right)
+\td x
+=
+d^2\frac{3-2\ln d}{4\pi}
+\end{equation}
+
+\subsubsection{Linear line SLP}
+
+\begin{equation}
+\int_{0}^{d} N_i(x) \int_{0}^{d} G(x-y) N_j(y) \td y \td x
+=
+\frac{d^2}{32\pi} \begin{bmatrix}
+7-4 \ln d & 5 - 4 \ln d \\
+5-4 \ln d & 7 - 4 \ln d
+\end{bmatrix}
+\end{equation}
+
+\subsection{Edge match}
+
+\subsubsection{Constant line SLP}
+
+\begin{multline}
+\int_{S_{x}} \int_{S_{y}} G(r) \td S_y \td S_x =
+\int_{0}^{d_1} \int_{0}^{d_2}
+\ln \sqrt{(x+y \cos\phi)^2 + (y\sin\phi)^2}
+\td y \td x \\
+=
+\frac{
+c \left(d_1^2 \ln \frac{d_1}{d_3} + {d_2}^2 \ln \frac{d_2}{d_3}\right)
++ s \left(d_1^2 q(d_1, d_2, \phi) + d_2^2 q(d_2, d_1, \phi)\right)
++ d_1 d_2 \left(3 - 2 \ln d_3 \right)
+}{
+4 \pi
+}
+\end{multline}
+%
+where
+%
+\begin{equation}
+q(d_1, d_2, \phi) = \tan^{-1}\left(\frac{d_2 + d_1 \cos\phi}{d_1 \sin\phi}\right) - \tan^{-1}\left(\cot\phi\right)
+\end{equation}
+
+\subsubsection{Constant line DLP}
+
+\begin{multline}
+\int_{S_{x}} \int_{S_{y}} G'(r) r'_{n_{y}} \td S_y \td S_x =
+\int_{0}^{d_1} \int_{0}^{d_2}
+\frac{x\sin\phi}{(x+y \cos\phi)^2 + (y\sin\phi)^2}
+\td y \td x \\
+=
+\frac{1}{2\pi}\left(-d_1 q(d_1, d_2, \phi) + d_2 \cos\phi q(d_2, d_1, \phi)
+- d_2 \sin\phi \ln \frac{d_3}{d_2}\right)
+\end{multline}
+
+\end{document}
+
