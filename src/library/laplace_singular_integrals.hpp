@@ -90,7 +90,7 @@ class laplace_2d_SLP_galerkin_edge_constant_line
 {
     static double qfunc(double r1, double r2, double phi)
     {
-        return std::atan((r2+r1*std::cos(phi))/(r1*std::sin(phi)))) - std::atan(std::tan(M_PI/2.0-phi));
+        return std::atan((r2+r1*std::cos(phi))/(r1*std::sin(phi))) - std::atan(std::tan(M_PI/2.0-phi));
     }
 
 public:
@@ -110,8 +110,7 @@ public:
             return (
 				3.0*r1*r2 -(r1+r2)*(r1+r2)*std::log(r1+r2)
 				+r1*r1*std::log(r1) + r2*r2*std::log(r2)
-				) / (4.0*M_PI)
-            );
+				) / (4.0*M_PI);
         else
         {
 			// General expression
@@ -223,8 +222,6 @@ public:
 		return result / (4.0 * M_PI);
 	}
 };
-
-
 
 
 /** \brief Singular integrals of the DLP and DLPt kernels over plane line elements
@@ -376,6 +373,84 @@ public:
 		return result;
 	}
 };
+
+/** \brief Galerkin edge-match singular integral of the 2D SLP kernel over two constant lines
+* \tparam TestField the test field type
+* \tparam TrialField the trial field type
+*/
+template <class TestField, class TrialField>
+class singular_integral_shortcut<
+	laplace_2d_SLP_kernel, TestField, TrialField, match::edge_match_type,
+	typename std::enable_if<
+	std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::general>::value &&
+	std::is_same<typename TrialField::lset_t, line_1_shape_set>::value &&
+	std::is_same<typename TrialField::nset_t, line_0_shape_set>::value &&
+	std::is_same<typename TestField::lset_t, line_1_shape_set>::value &&
+	std::is_same<typename TestField::nset_t, line_0_shape_set>::value
+	>::type
+>
+{
+public:
+	/** \brief evaluate singular integral
+	 * \tparam result_t the result matrix type
+	 * \param [in, out] result reference to the result
+	 * \param [in] test_field the test field
+	 * \param [in] trial_field the trial field
+	 * \return reference to the result matrix
+	 */
+	template <class result_t>
+	static result_t &eval(
+		result_t &result,
+		kernel_base<laplace_2d_SLP_kernel> const &,
+		field_base<TestField> const &test_field,
+		field_base<TrialField> const &trial_field,
+		element_match const &match)
+	{
+		result(0,0) = laplace_2d_SLP_galerkin_edge_constant_line::eval(
+			test_field.get_elem(), trial_field.get_elem());
+		return result;
+	}
+};
+
+
+/** \brief Galerkin edge-match singular integral of the 2D DLP kernel over two constant lines
+* \tparam TestField the test field type
+* \tparam TrialField the trial field type
+*/
+template <class TestField, class TrialField>
+class singular_integral_shortcut<
+	laplace_2d_DLP_kernel, TestField, TrialField, match::edge_match_type,
+	typename std::enable_if<
+	std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::general>::value &&
+	std::is_same<typename TrialField::lset_t, line_1_shape_set>::value &&
+	std::is_same<typename TrialField::nset_t, line_0_shape_set>::value &&
+	std::is_same<typename TestField::lset_t, line_1_shape_set>::value &&
+	std::is_same<typename TestField::nset_t, line_0_shape_set>::value
+	>::type
+>
+{
+public:
+	/** \brief evaluate singular integral
+	 * \tparam result_t the result matrix type
+	 * \param [in, out] result reference to the result
+	 * \param [in] test_field the test field
+	 * \param [in] trial_field the trial field
+	 * \return reference to the result matrix
+	 */
+	template <class result_t>
+	static result_t &eval(
+		result_t &result,
+		kernel_base<laplace_2d_DLP_kernel> const &,
+		field_base<TestField> const &test_field,
+		field_base<TrialField> const &trial_field,
+		element_match const &match)
+	{
+		result(0,0) = laplace_2d_DLP_galerkin_edge_constant_line::eval(
+			test_field.get_elem(), trial_field.get_elem());
+		return result;
+	}
+};
+
 
 /** \brief collocational singular integral of the 2D HSP kernel over a constant line
  * \tparam TestField the test field type

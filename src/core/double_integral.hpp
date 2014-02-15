@@ -41,6 +41,35 @@
 template <class Kernel, class TestField, class TrialField, class Singularity, class Enable = void>
 class singular_integral_shortcut;
 
+/** Helper class for tmp::call_until to select singular shortcuts based on singularity type */
+template <class Singularity>
+struct singular_shortcut_switch
+{
+	struct type
+	{
+		template <class result_t, class Kernel, class TestField, class TrialField>
+		bool operator()(
+			result_t &result,
+			kernel_base<Kernel> const &kernel,
+			field_base<TestField> const &test_field,
+			field_base<TrialField> const &trial_field,
+			element_match const &mtch)
+		{
+			// if the parameter singularity is valid, evaluate shortcut
+			if (mtch.get_singularity_type() == Singularity::value)
+			{
+				singular_integral_shortcut<Kernel, TestField, TrialField, Singularity>::eval(
+					result, kernel, test_field, trial_field, mtch
+				);
+				return true;
+			}
+			return false;
+		}
+	};
+};
+
+
+
 /**
 * \brief class evaluating double integrals of the weighted residual approach
 * \tparam Kernel type of the kernel to integrate
@@ -239,12 +268,12 @@ protected:
 
 
 	/** \brief evaluate double integral of a kernel on specific fields with singularity check
-	* \param [out] result reference to the integration result matrix
-	* \param [in] kernel the kernel to integrate
-	* \param [in] test_field reference to the test field
-	* \param [in] trial_field reference to the trial field
-	* \return reference to the stored result
-	*/
+	 * \param [out] result reference to the integration result matrix
+	 * \param [in] kernel the kernel to integrate
+	 * \param [in] test_field reference to the test field
+	 * \param [in] trial_field reference to the trial field
+	 * \return reference to the stored result
+	 */
 	static result_t &eval(
 		WITH_SINGULARITY_CHECK,
 		result_t &result,
@@ -252,26 +281,27 @@ protected:
 		field_base<TestField> const &test_field,
 		field_base<TrialField> const &trial_field)
 	{
-		auto match = element_match_eval(test_field, trial_field);
-		switch (match.get_singularity_type())
-		{
-		case NO_MATCH:
-			break;
-		case FACE_MATCH:
-			return singular_integral_shortcut<
-				Kernel, TestField, TrialField, match::face_match_type
-				>::eval(result, kernel, test_field, trial_field, match);
-		case CORNER_MATCH:
-			return singular_integral_shortcut<
-				Kernel, TestField, TrialField, match::corner_match_type
-				>::eval(result, kernel, test_field, trial_field, match);
-		case EDGE_MATCH:
-			return singular_integral_shortcut<
-				Kernel, TestField, TrialField, match::edge_match_type
-				>::eval(result, kernel, test_field, trial_field, match);
-		}
-		return eval(WITHOUT_SINGULARITY_CHECK(), result, kernel, test_field, trial_field);
-	}
+		// evaluate element match
+		auto mtch = element_match_eval(test_field, trial_field);
+
+		// if no match simple regular integral is computed
+		if (mtch.get_singularity_type() == NO_MATCH)
+			return eval(WITHOUT_SINGULARITY_CHECK(), result, kernel, test_field, trial_field);
+
+		// traverse possible singular integral shortcuts with tmp::call_until
+		if (!tmp::call_until<
+			tmp::vector<match::face_match_type, match::edge_match_type>,
+			singular_shortcut_switch<tmp::_1>,
+			result_t &,
+			kernel_base<Kernel> const &,
+			field_base<TestField> const &,
+			field_base<TrialField> const &,
+			element_match const &
+		>(result, kernel, test_field, trial_field, mtch))
+			std::cout << "UNHANDLED SINGULARITY TYPE: " << mtch.get_singularity_type() << std::endl;
+
+		return result;
+}
 
 public:
 	/** \brief evaluate double integral on given fields
@@ -502,23 +532,21 @@ protected:
 		field_base<TestField> const &test_field,
 		field_base<TrialField> const &trial_field)
 	{
-		auto match = element_match_eval(test_field, trial_field);
-		switch (match.get_singularity_type())
-		{
-		case NO_MATCH:
-			break;
-		case FACE_MATCH:
-			return singular_integral_shortcut<
-				Kernel, TestField, TrialField, match::face_match_type
-				>::eval(result, kernel, test_field, trial_field, match);
-		case CORNER_MATCH:
-			return singular_integral_shortcut<
-				Kernel, TestField, TrialField, match::corner_match_type
-				>::eval(result, kernel, test_field, trial_field, match);
-		case EDGE_MATCH:	// just for the warning, this case is impossible
-			;
-		}
-		return eval(WITHOUT_SINGULARITY_CHECK(), result, kernel, test_field, trial_field);
+		auto mtch = element_match_eval(test_field, trial_field);
+		if (mtch.get_singularity_type() == NO_MATCH)
+			return eval(WITHOUT_SINGULARITY_CHECK(), result, kernel, test_field, trial_field);
+
+		if (!tmp::call_until<
+			tmp::vector<match::face_match_type, match::corner_match_type>,
+			singular_shortcut_switch<tmp::_1>,
+			result_t &,
+			kernel_base<Kernel> const &,
+			field_base<TestField> const &,
+			field_base<TrialField> const &,
+			element_match const &
+		>(result, kernel, test_field, trial_field, mtch))
+			std::cout << "UNHANDLED SINGULARITY TYPE: " << mtch.get_singularity_type() << std::endl;
+		return result;
 	}
 
 public:

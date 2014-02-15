@@ -17,22 +17,70 @@
 
 \section{Introduction}
 
+This document describes the analytical formulae used to integrate the kernel of the Laplace equation in two dimensions over straight lines.
+
+The kernel is defined as
+%
 \begin{equation}
 G({\bf y}, {\bf x}) = -\frac{\ln |{\bf y}-{\bf x}|}{2\pi} = -\frac{\ln r}{2\pi}
 \end{equation}
+%
+where ${\bf x}$ is the source point. The kernel exhibits a weak (integrable) singularity when $r \to 0$.
+
+The kernel's normal derivative can be written as
+%
+\begin{equation}
+G'_{n_y}({\bf y}, {\bf x}) = -\frac{({\bf y}-{\bf x}) \cdot {\bf n}_y}{2\pi r^2}
+\end{equation}
+%
+this derivative kernel contains a strong singularity and can be integrated in a CPV sense.
+
+The kernel's second derivative (on a plane element) is computed as
+%
+\begin{equation}
+G''_{n_x n_y}({\bf x}, {\bf y}) = \frac{{\bf n}_x \cdot {\bf n}_y}{2\pi r^2} = \frac{1}{2\pi r^2}
+\end{equation}
+
 
 \section{Collocation}
 
+The following parts describe the case of collocation where ${\bf x}$ is a fixed location and integration is performed with respect to the variable ${\bf y}$.
+
 \subsection{Constant line SLP}
 
-\begin{equation}
-\lim_{\epsilon \to 0} \left( \int_{-d_1}^{-\epsilon} G(r) \td r + \int_{\epsilon}^{d_2} G(r) \td r \right)
-=
+\begin{align}
+\int_{S} G({\bf y}, {\bf x}) \td y
+& = \frac{-1}{2\pi}\lim_{\epsilon \to 0}
+\left( \int_{-d_1}^{-\epsilon} \ln |y| \td y + \int_{\epsilon}^{d_2}  \ln |y| \td y \right) \nonumber \\
+& = \frac{-1}{2\pi}\lim_{\epsilon \to 0}
+\left( \int_{\epsilon}^{d_1} \ln y \td y + \int_{\epsilon}^{d_2}  \ln y \td y \right) \nonumber \\
+&=
 \frac{d_1(1-\ln d_1) + d_2(1-\ln d_2)}{2\pi}
+\end{align}
+
+\subsection{Constant line DLP}
+
+\begin{equation}
+\int_{S} G'_{n_y}({\bf y}, {\bf x}) \td y = 0
 \end{equation}
+%
+as the element normal is perpendicular to the distance ${\bf y}-{\bf x}$.
 
 \subsection{Constant line HSP}
 
+First approach: finite part integral
+%
+\begin{align}
+\int_{S} G''_{n_x n_y}({\bf y}, {\bf x}) \td y
+&= \frac{1}{2\pi} \lim_{\epsilon \to 0} \left(\int_{-d_1}^{-\epsilon} \frac{1}{y^2}\td y + \int_{\epsilon}^{d_2} \frac{1}{y^2} \td y\right) \nonumber \\
+&= \frac{1}{2\pi} \lim_{\epsilon \to 0} \left(\left[\frac{-1}{y}\right]_{-d_1}^{-\epsilon} +  \left[\frac{-1}{y}\right]_{\epsilon}^{d_2} \right)
+\nonumber \\
+&= \frac{-1}{2\pi} \left(\frac{1}{d_1} +  \frac{1}{d_2} \right) + \lim_{\epsilon \to 0} \frac{1}{\pi\epsilon}
+\end{align}
+
+
+Second approach: approaching the boundary:
+%
 \begin{align}
 \frac{\partial}{\partial n_x}
 \int_{-d_1}^{d_2} 

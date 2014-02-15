@@ -242,7 +242,7 @@ public:
 	/** \brief return begin iterator to the corner nodes
 	* \return begin iterator to corner nodes
 	*/
-	static xi_t const *corner_begin(void)
+	static xi_t const *corner_begin_impl(void)
 	{
 		return &(domain_t::get_center());
 	}
@@ -327,7 +327,7 @@ public:
 	/** \brief return begin iterator to the corner nodes
 	* \return begin iterator to corner nodes
 	*/
-	static xi_t const *corner_begin(void)
+	static xi_t const *corner_begin_impl(void)
 	{
 		return domain_t::get_corners();
 	}
@@ -341,7 +341,5 @@ public:
 		return idx;
 	}
 };
-
-
 
 #endif // SHAPESET_HPP_INCLUDED
