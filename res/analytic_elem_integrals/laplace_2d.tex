@@ -1,6 +1,7 @@
 \documentclass[a4paper,11pt]{article}
 
 \usepackage{a4wide}
+\usepackage{tikz}
 
 \usepackage{amsmath,bm}
 \newcommand{\td}{\mathrm{d}}
@@ -51,32 +52,57 @@ The following parts describe the case of collocation where ${\bf x}$ is a fixed 
 
 \subsection{Regular integrals}
 
+\begin{figure}
+\center
+\begin{tikzpicture}[scale=1]
+\small
+\draw [thin, ->] (2,1) -- (3,.5) node [right] {$\xi$};
+\draw [thin, ->] (2,1) -- (2.5,2) node [left] {$\eta$};
+\path [draw, fill] (3,3) circle(.05) node [right] {${\bf x}_0$};
+\path [draw, very thick, fill] (4,0) circle(.05) node [below] {${\bf y}_2$} -- (4.5,-.25) circle(.05) node [below] {${\bf y}$} -- (6,-1) circle(.05) node [below] {${\bf y}_1$};
+\path [draw, thick, ->] (5,-.5) -- (5.5,.5) node [above] {${\bf n}$};
+\end{tikzpicture}
+\caption{Coordinate transform for the definition of the regular integrals over the straight line element}
+\label{fig:regular_local}
+\end{figure}
+
+In order to define the regular integrals in a convenient way local coordinates are introduced, as shown in Fig.~\ref{fig:regular_local}:
+\begin{align}
+\xi &= ({\bf y} - {\bf x}_0) \cdot \frac{{\bf y}_1 - {\bf y}_2}{|{\bf y}_1 - {\bf y}_2|} \nonumber \\
+\eta &= ({\bf x}_0 - {\bf y}) \cdot {\bf n}
+\end{align}
+
 \subsubsection{SLP kernel}
 
 The regular integral of the single layer potential kernel can be transformed to the general form
 %
 \begin{equation}
-I = \int_{x_1}^{x_2} \ln\left(\sqrt{x^2+y^2}\right) \left(a_0 + a_1 x + a_2 x^2\right) \td x
+I = \frac{-1}{2\pi} \int_{\xi_2}^{\xi_1} \ln\left(\sqrt{\xi^2+\eta^2}\right) \left(a_0 + a_1 \xi + a_2 \xi^2\right) \td \xi
 \end{equation}
 %
-The regularity of the integrand is ensured if $y \ne 0$ or $\sign x_1 = \sign x_2$
+The regularity of the integrand is ensured if $\eta \ne 0$ or $\sign \xi_1 = \sign \xi_2$
 
 \begin{equation}
-I = \frac{1}{2\pi} \left(
-\left(\frac{1}{9} - \frac{\ln r}{3}\right) a_2 x^3
-+ \left(\frac{1}{4}\right) a_1 x^2
-- \frac{\ln r}{2} a_1 r^2
-+ \left(a_0 \left(1 - \ln r\right) - \frac{a_2 y^2}{3}\right) x
-+ \left(\frac{a_2 y^2}{3} - a_0 \right) y \atan\frac{x}{y}
-\right)
+I = \frac{1}{2\pi} \left[
+\left(\frac{1}{9} - \frac{\ln \rho}{3}\right) a_2 \xi^3
++ \frac{a_1 \xi^2}{4}
+- \frac{a_1 \rho^2 \ln \rho}{2} 
+- a_0 \xi \ln \rho
++ \left(\frac{a_2 \eta^2}{3} - a_0 \right) \left(\eta \atan\frac{\xi}{\eta} - \xi\right)
+\right]_{\xi_2}^{\xi_1}
 \end{equation}
+%
+where $\rho = r = \sqrt{\xi^2+\eta^2}$.
 
 \subsubsection{DLP kernel}
 
+For the case of the double layer potential kernel, the integral is transformed as
+%
 \begin{equation}
-I = \frac{1}{2\pi} \left(
-\left( a_0 - a_2 y^2\right) \atan \frac{x}{y} + \left(a_2 x + a_1 \ln r\right) y
-\right)
+I = \frac{-1}{2\pi} \int_{\xi_2}^{\xi_1} \frac{-\eta \left(a_0 + a_1 \xi + a_2 \xi^2 \right)}{\xi^2+\eta^2}\td \xi
+= \frac{1}{2\pi} \left[
+\left( a_0 - a_2 \eta^2\right) \atan \frac{\xi}{\eta} + \left(a_2 \xi + a_1 \ln r\right) \eta
+\right]_{\xi_2}^{\xi_1}
 \end{equation}
 
 \subsection{Constant line SLP}

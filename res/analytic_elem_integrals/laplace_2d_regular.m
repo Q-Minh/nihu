@@ -14,7 +14,7 @@ function I = primitive_slp(x, y, a0, a1, a2)
 r2 = x^2 + y^2;
 lnr = log(r2)/2;
 I = (1/9 - lnr/3)*a2*x^3 + a1*(x^2/4 - lnr/2*r2) ...
-    +(a0*(1-lnr)-a2*y^2/3)*x + (a2*y^2/3-a0)*y*atan(x/y);
+    -a0*lnr*x + (a2*y^2/3-a0)*(y*atan(x/y)-x);
 end
 
 function I = primitive_dlp(x, y, a0, a1, a2)
