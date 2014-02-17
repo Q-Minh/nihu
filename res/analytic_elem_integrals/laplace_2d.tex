@@ -7,6 +7,8 @@
 \newcommand{\te}{\mathrm{e}}
 \newcommand{\ti}{\mathrm{i}}
 \newcommand{\sinc}{\mathrm{sinc}}
+\newcommand{\sign}{\mathrm{sign}}
+\newcommand{\atan}{\mathrm{atan}}
 \usepackage{tikz}
 
 \title {Analytical integrals of the 2D Laplace kernel}
@@ -45,6 +47,37 @@ G''_{n_x n_y}({\bf x}, {\bf y}) = \frac{{\bf n}_x \cdot {\bf n}_y}{2\pi r^2} = \
 \section{Collocation}
 
 The following parts describe the case of collocation where ${\bf x}$ is a fixed location and integration is performed with respect to the variable ${\bf y}$.
+
+
+\subsection{Regular integrals}
+
+\subsubsection{SLP kernel}
+
+The regular integral of the single layer potential kernel can be transformed to the general form
+%
+\begin{equation}
+I = \int_{x_1}^{x_2} \ln\left(\sqrt{x^2+y^2}\right) \left(a_0 + a_1 x + a_2 x^2\right) \td x
+\end{equation}
+%
+The regularity of the integrand is ensured if $y \ne 0$ or $\sign x_1 = \sign x_2$
+
+\begin{equation}
+I = \frac{1}{2\pi} \left(
+\left(\frac{1}{9} - \frac{\ln r}{3}\right) a_2 x^3
++ \left(\frac{1}{4}\right) a_1 x^2
+- \frac{\ln r}{2} a_1 r^2
++ \left(a_0 \left(1 - \ln r\right) - \frac{a_2 y^2}{3}\right) x
++ \left(\frac{a_2 y^2}{3} - a_0 \right) y \atan\frac{x}{y}
+\right)
+\end{equation}
+
+\subsubsection{DLP kernel}
+
+\begin{equation}
+I = \frac{1}{2\pi} \left(
+\left( a_0 - a_2 y^2\right) \atan \frac{x}{y} + \left(a_2 x + a_1 \ln r\right) y
+\right)
+\end{equation}
 
 \subsection{Constant line SLP}
 
