@@ -56,7 +56,6 @@ The following parts describe the case of collocation where ${\bf x}={\bf x}_0$ i
 %
 where $K$ denotes one of the kernels introduced above, and $N({\bf y})$ denotes (polynomial) weighting functions over the element.
 
-
 \subsection{Regular integrals}
 
 \begin{figure}
@@ -74,30 +73,31 @@ where $K$ denotes one of the kernels introduced above, and $N({\bf y})$ denotes 
 \end{figure}
 
 In order to define the regular integrals in a convenient way local coordinates are introduced, as shown in Fig.~\ref{fig:regular_local}:
+%
 \begin{align}
 \xi &= ({\bf y} - {\bf x}_0) \cdot \frac{{\bf y}_1 - {\bf y}_2}{|{\bf y}_1 - {\bf y}_2|} \nonumber \\
 \eta &= ({\bf x}_0 - {\bf y}) \cdot {\bf n}
 \end{align}
+%
+The straight line element lies in the $\eta = 0$ line. The nodal locations ${\bf y}_1$ and ${\bf y}_2$ correspond with the local coordinates $\xi_1$ and $\xi_2$, respectively, and due to the proper selection of the normal's direction, $\xi_1 = \xi_2 + d$ where $d$ is the element length. The origin of the local system is the image of ${\bf x}_0$ on the element's line.
+
+The regularity of the integrals is ensured if $\eta \ne 0$ or $\sign \xi_1 = \sign \xi_2$
+
 
 \subsubsection{SLP kernel}
 
-The regular integral of the single layer potential kernel can be transformed to the general form
+The regular integral of the single layer potential kernel can be now written in the general form
 %
-\begin{equation}
-I = \frac{-1}{2\pi} \int_{\xi_2}^{\xi_1} \ln\left(\sqrt{\xi^2+\eta^2}\right) \left(a_0 + a_1 \xi + a_2 \xi^2\right) \td \xi
-\end{equation}
-%
-The regularity of the integrand is ensured if $\eta \ne 0$ or $\sign \xi_1 = \sign \xi_2$
-
-\begin{equation}
-I = \frac{1}{2\pi} \left[
+\begin{align}
+I &= \frac{-1}{2\pi} \int_{\xi_2}^{\xi_1} \ln\left(\sqrt{\xi^2+\eta^2}\right) \left(a_0 + a_1 \xi + a_2 \xi^2\right) \td \xi \\
+ &= \frac{1}{2\pi} \left[
 \left(\frac{1}{9} - \frac{\ln \rho}{3}\right) a_2 \xi^3
-+ \frac{a_1 \xi^2}{4}
-- \frac{a_1 \rho^2 \ln \rho}{2} 
++ \frac{a_1}{2} \left(\frac{\xi^2}{2}
+- \rho^2 \ln \rho\right)
 - a_0 \xi \ln \rho
 + \left(\frac{a_2 \eta^2}{3} - a_0 \right) \left(\eta \atan\frac{\xi}{\eta} - \xi\right)
-\right]_{\xi_2}^{\xi_1}
-\end{equation}
+\right]_{\xi_2}^{\xi_1} \nonumber
+\end{align}
 %
 where $\rho = r = \sqrt{\xi^2+\eta^2}$.
 
