@@ -31,8 +31,8 @@ int main(void)
 	auto L_op = create_integral_operator(laplace_2d_SLP_kernel());
 	auto M_op = create_integral_operator(laplace_2d_DLP_kernel());
 
-	L << dirac(fspace) * L_op[fspace];
-	M << dirac(fspace) * M_op[fspace];
+	L << fspace * L_op[fspace];
+	M << fspace * M_op[fspace];
 
 	std::cout << L << std::endl;
 	std::cout << M << std::endl;

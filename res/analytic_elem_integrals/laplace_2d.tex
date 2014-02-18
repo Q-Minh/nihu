@@ -27,10 +27,11 @@ G({\bf y}, {\bf x}) = -\frac{\ln |{\bf y}-{\bf x}|}{2\pi} = -\frac{\ln r}{2\pi}
 %
 where ${\bf x}$ is the source point. The kernel exhibits a weak (integrable) singularity when $r \to 0$.
 
-The kernel's normal derivative can be written as
+The kernel's normal derivative with respect to the normal  ${\bf n}$ at coordinate ${\bf y}$ can be formulated as
 %
 \begin{equation}
-G'_{n_y}({\bf y}, {\bf x}) = -\frac{({\bf y}-{\bf x}) \cdot {\bf n}_y}{2\pi r^2}
+G'_{n_y}({\bf y}, {\bf x}) = \frac{\td G(r)}{\td r} \frac{\partial r}{\partial n_y} = -\frac{1}{2\pi r} \frac{{\bf r} \cdot {\bf n}_y}{r} = -\frac{({\bf y}-{\bf x}) \cdot {\bf n}_y}{2\pi r^2}
+G'_{n_y}({\bf y}, {\bf x}) = \frac{\td G(r)}{\td r} \frac{\partial r}{\partial n_y} = -\frac{1}{2\pi r} \frac{{\bf r} \cdot {\bf n}_y}{r} = -\frac{({\bf y}-{\bf x}) \cdot {\bf n}_y}{2\pi r^2}
 \end{equation}
 %
 this derivative kernel contains a strong singularity and can be integrated in a CPV sense.
@@ -44,7 +45,13 @@ G''_{n_x n_y}({\bf x}, {\bf y}) = \frac{{\bf n}_x \cdot {\bf n}_y}{2\pi r^2} = \
 
 \section{Collocation}
 
-The following parts describe the case of collocation where ${\bf x}$ is a fixed location and integration is performed with respect to the variable ${\bf y}$.
+The following parts describe the case of collocation where ${\bf x}={\bf x}_0$ is a fixed location and integration is performed with respect to the variable ${\bf y}$. In general, the integrals are written in the form
+%
+\begin{equation}
+\int_S K({\bf y}, {\bf x}_0) N({\bf y}) \td S_y
+\end{equation}
+%
+where $K$ denotes one of the kernels introduced above, and $N({\bf y})$ denotes (polynomial) weighting functions over the element.
 
 \subsection{Constant line SLP}
 
