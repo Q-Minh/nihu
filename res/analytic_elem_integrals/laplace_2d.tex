@@ -67,14 +67,17 @@ The following parts describe the case of collocation where ${\bf x}$ is a fixed 
 \end{figure}
 
 In order to define the regular integrals in a convenient way local coordinates are introduced, as shown in Fig.~\ref{fig:regular_local}:
+%
 \begin{align}
-\xi &= ({\bf y} - {\bf x}_0) \cdot \frac{{\bf y}_1 - {\bf y}_2}{|{\bf y}_1 - {\bf y}_2|} \nonumber \\
+\xi &= ({\bf y} - {\bf x}_0) \cdot {\bf t} \qquad {\bf t} = \frac{{\bf y}_1 - {\bf y}_2}{|{\bf y}_1 - {\bf y}_2|} \nonumber \\
 \eta &= ({\bf x}_0 - {\bf y}) \cdot {\bf n}
 \end{align}
+%
+The origin of the new coordinate system is the projection of the source point ${\bf x}_0$ on the element line.
 
 \subsubsection{SLP kernel}
 
-The regular integral of the single layer potential kernel can be transformed to the general form
+In the local coordinate system, the regular integral of the single layer potential kernel is written as
 %
 \begin{equation}
 I = \frac{-1}{2\pi} \int_{\xi_2}^{\xi_1} \ln\left(\sqrt{\xi^2+\eta^2}\right) \left(a_0 + a_1 \xi + a_2 \xi^2\right) \td \xi
@@ -85,8 +88,7 @@ The regularity of the integrand is ensured if $\eta \ne 0$ or $\sign \xi_1 = \si
 \begin{equation}
 I = \frac{1}{2\pi} \left[
 \left(\frac{1}{9} - \frac{\ln \rho}{3}\right) a_2 \xi^3
-+ \frac{a_1 \xi^2}{4}
-- \frac{a_1 \rho^2 \ln \rho}{2} 
++ \frac{a_1}{2} \left(\frac{\xi^2}{2} - \rho^2 \ln \rho\right)
 - a_0 \xi \ln \rho
 + \left(\frac{a_2 \eta^2}{3} - a_0 \right) \left(\eta \atan\frac{\xi}{\eta} - \xi\right)
 \right]_{\xi_2}^{\xi_1}

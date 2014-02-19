@@ -1,22 +1,24 @@
 clear all;
 
-x = sym('x', 'positive');
-y = sym('y', 'positive');
-theta = sym('theta', 'real');
-c = sym('c', 'real');
-s = sym('s', 'real');
-d1 = sym('d1', 'positive');
-d2 = sym('d2', 'positive');
-eps = sym('eps', 'positive');
+x = sym('x', 'positive');   % coordinate on element 1
+y = sym('y', 'positive');   % coordinate on element 2
+c = sym('c', 'real');       % cosine of inclication
+s = sym('s', 'real');       % sine of inclination
+d1 = sym('d1', 'positive'); % length of element 1
+d2 = sym('d2', 'positive'); % length of element 2
+eps = sym('eps', 'positive');   % limit variable
 
 %% analytical derivation
-rvec = [x+y*c, y*s];
-r = sqrt(rvec * rvec.');
+rvec = [x+y*c, y*s];        % distance vector
+r = sqrt(rvec * rvec.');    % scalar distance
 
-G = simple(-log(r)/2/pi);
+G = simple(-log(r)/2/pi);   % Green's function
 
+% primitive function
 Iinner = simple(int(G, y));
+% definite integral
 Iinner = simple(subs(Iinner, y, d2) - subs(Iinner, y, eps));
+% limit
 Iinner = simple(limit(Iinner, eps, 0));
 
 Iouter = simple(int(Iinner, x));
