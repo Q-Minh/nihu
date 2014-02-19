@@ -88,9 +88,12 @@ public:
 
 class laplace_2d_SLP_galerkin_edge_constant_line
 {
-    static double qfunc(double r1, double r2, double phi)
+    static double qfunc(double a, double phi)
     {
-        return std::atan((r2+r1*std::cos(phi))/(r1*std::sin(phi))) - std::atan(std::tan(M_PI/2.0-phi));
+    	if (std::abs(phi) < 1e-3)
+    		return a / (a + 1.0);
+    	double cotphi = std::tan(M_PI/2.0-phi);
+        return std::atan(a/std::sin(phi) + cotphi) - std::atan(cotphi);
     }
 
 public:
@@ -105,30 +108,24 @@ public:
         double r1 = r1vec.norm(), r2 = r2vec.norm();
         // and signed angle between them
         double phi = std::asin(r1vec(0)*r2vec(1)-r2vec(0)*r1vec(1))/(r1*r2);
-        if (std::abs(phi) < 1e-3)
-			// Taylor expansion if needed
-            return (
-				3.0*r1*r2 -(r1+r2)*(r1+r2)*std::log(r1+r2)
-				+r1*r1*std::log(r1) + r2*r2*std::log(r2)
-				) / (4.0*M_PI);
-        else
-        {
-			// General expression
-            double r3 = std::sqrt(r1*r1 + 2*r1*r2*std::cos(phi) + r2*r2);
-            return (
-				r1*r2*(3.0-2.0*std::log(r3))
-				+ std::cos(phi) * (r1*r1*std::log(r1/r3)+r2*r2*std::log(r2/r3))
-				- std::sin(phi) * (r1*r1*qfunc(r1, r2, phi) + r2*r2*qfunc(r2, r1, phi))
-			) / (4.0*M_PI);
-        }
+		// third side length
+		double r3 = std::sqrt(r1*r1 + 2*r1*r2*std::cos(phi) + r2*r2);
+		return (
+			r1*r2*(3.0-2.0*std::log(r3))
+			+ std::cos(phi) * (r1*r1*std::log(r1/r3)+r2*r2*std::log(r2/r3))
+			- std::sin(phi) * (r1*r1*qfunc(r2/r1, phi) + r2*r2*qfunc(r1/r2, phi))
+		) / (4.0*M_PI);
     }
 };
 
 class laplace_2d_DLP_galerkin_edge_constant_line
 {
-    static double qfunc(double r1, double r2, double phi)
+    static double qfunc(double a, double phi)
     {
-        return std::atan((r2+r1*std::cos(phi))/(r1*std::sin(phi))) - std::atan(std::tan(M_PI/2.0-phi));
+    	if (std::abs(phi) < 1e-3)
+    		return a / (a + 1.0);
+    	double cotphi = std::tan(M_PI/2.0-phi);
+        return std::atan(a/std::sin(phi) + cotphi) - std::atan(cotphi);
     }
 
 public:
@@ -143,16 +140,13 @@ public:
         double r1 = r1vec.norm(), r2 = r2vec.norm();
         // get angle between elements
         double phi = std::asin(r1vec(0)*r2vec(1)-r2vec(0)*r1vec(1))/(r1*r2);
-        if (std::abs(phi) < 1e-3)
-			// Taylor expansion
-            return -r2*std::log(1.0+r1/r2)*phi / (2.0*M_PI);
-        else
-        {
-			// general expression
-            double r3 = std::sqrt(r1*r1 + 2*r1*r2*std::cos(phi) + r2*r2);
-            return (-r1*qfunc(r1, r2, phi)+r2*std::cos(phi)*qfunc(r2, r1, phi)
-                - r2*std::sin(phi)*std::log(r3/r2)) / (2.0*M_PI);
-        }
+		// general expression
+		double r3 = std::sqrt(r1*r1 + 2*r1*r2*std::cos(phi) + r2*r2);
+		return (
+			r2*std::cos(phi) * qfunc(r1/r2, phi)
+			- r1 * qfunc(r2/r1, phi)
+			+ r2*std::sin(phi) * std::log(r2/r3)
+		) / (2.0*M_PI);
     }
 };
 

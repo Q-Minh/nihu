@@ -34,7 +34,6 @@ The kernel's normal derivative with respect to the normal  ${\bf n}$ at coordina
 %
 \begin{equation}
 G'_{n_y}({\bf y}, {\bf x}) = \frac{\td G(r)}{\td r} \frac{\partial r}{\partial n_y} = -\frac{1}{2\pi r} \frac{{\bf r} \cdot {\bf n}_y}{r} = -\frac{({\bf y}-{\bf x}) \cdot {\bf n}_y}{2\pi r^2}
-G'_{n_y}({\bf y}, {\bf x}) = \frac{\td G(r)}{\td r} \frac{\partial r}{\partial n_y} = -\frac{1}{2\pi r} \frac{{\bf r} \cdot {\bf n}_y}{r} = -\frac{({\bf y}-{\bf x}) \cdot {\bf n}_y}{2\pi r^2}
 \end{equation}
 %
 this derivative kernel contains a strong singularity and can be integrated in a CPV sense.
@@ -228,34 +227,36 @@ d^2\frac{3-2\ln d}{4\pi}
 \begin{multline}
 \int_{S_{x}} \int_{S_{y}} G(r) \td S_y \td S_x =
 \int_{0}^{d_1} \int_{0}^{d_2}
-\ln \sqrt{(x+y \cos\phi)^2 + (y\sin\phi)^2}
+\frac{-1}{2\pi}\ln \sqrt{(x+y \cos\phi)^2 + (y\sin\phi)^2}
 \td y \td x \\
 =
-\frac{
-c \left(d_1^2 \ln \frac{d_1}{d_3} + {d_2}^2 \ln \frac{d_2}{d_3}\right)
-+ s \left(d_1^2 q(d_1, d_2, \phi) + d_2^2 q(d_2, d_1, \phi)\right)
-+ d_1 d_2 \left(3 - 2 \ln d_3 \right)
-}{
-4 \pi
-}
+\frac{1}{4 \pi}
+\left[
+d_1 d_2 \left(3 - 2 \ln d_3 \right)
++ \cos\phi \left(d_1^2 \ln \frac{d_1}{d_3} + d_2^2 \ln \frac{d_2}{d_3}\right)
+- \sin\phi \left(d_1^2 q\left(\frac{d_2}{d_1}, \phi\right) + d_2^2 q\left(\frac{d_1}{d_2}, \phi\right)\right)
+\right]
 \end{multline}
 %
 where
 %
 \begin{equation}
-q(d_1, d_2, \phi) = \tan^{-1}\left(\frac{d_2 + d_1 \cos\phi}{d_1 \sin\phi}\right) - \tan^{-1}\left(\cot\phi\right)
+q(a, \phi) = \atan\left(\frac{a}{\sin\phi} + \cot\phi\right) - \atan\left(\cot\phi\right)
 \end{equation}
 
 \subsubsection{Constant line DLP}
 
 \begin{multline}
 \int_{S_{x}} \int_{S_{y}} G'(r) r'_{n_{y}} \td S_y \td S_x =
-\int_{0}^{d_1} \int_{0}^{d_2}
+\frac{-1}{2\pi}\int_{0}^{d_1} \int_{0}^{d_2}
 \frac{x\sin\phi}{(x+y \cos\phi)^2 + (y\sin\phi)^2}
 \td y \td x \\
 =
-\frac{1}{2\pi}\left(-d_1 q(d_1, d_2, \phi) + d_2 \cos\phi q(d_2, d_1, \phi)
-- d_2 \sin\phi \ln \frac{d_3}{d_2}\right)
+\frac{1}{2\pi}\left[
+	d_2 \cos\phi q\left(\frac{d_1}{d_2}, \phi\right)
+	- d_1 q\left(\frac{d_2}{d_1}, \phi\right)
+	+ d_2 \sin\phi \ln \frac{d_2}{d_3}
+\right]
 \end{multline}
 
 \end{document}
