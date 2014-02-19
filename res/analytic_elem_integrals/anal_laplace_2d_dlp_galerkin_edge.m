@@ -1,37 +1,46 @@
 clear all;
 
-x = sym('x', 'positive');
-y = sym('y', 'positive');
-theta = sym('theta', 'real');
-c = sym('c', 'real');
-s = sym('s', 'real');
-d1 = sym('d1', 'positive');
-d2 = sym('d2', 'positive');
-eps = sym('eps', 'positive');
+x = sym('x', 'positive');   % location on x elem
+y = sym('y', 'positive');   % location on y elem
+c = sym('c', 'real');       % cosine of angle between elements
+s = sym('s', 'real');       % sine of angle between elements
+d1 = sym('d1', 'positive'); % length of x elem
+d2 = sym('d2', 'positive'); % length of y elem
+eps = sym('eps', 'positive');   % limit variable
 
 %% analytical derivation
-rvec = [x+y*c, y*s];
-r = sqrt(rvec * rvec.');
-n = [s, -c];
-rdn = simple((rvec * n.') / r);
+rvec = [x+y*c, y*s];        % distance vector
+r = sqrt(rvec * rvec.');    % scalar distance
+n = [s, -c];                % normal on y elem
+rdn = simple((rvec * n.') / r); % loc normal derivative
 
-G = simple(-rdn/r/2/pi);
+G = simple(-rdn/r/2/pi);    % Green derivative
 
+% primitive function
 Iinner = simple(int(G, y));
+% definite integral
 Iinner = simple(subs(Iinner, y, d2) - subs(Iinner, y, eps));
+% limit
 Iinner = simple(limit(Iinner, eps, 0));
 
+% primitive function
 Iouter = simple(int(Iinner, x));
+% definite integral
 Iouter = simple(subs(Iouter, x, d1) - subs(Iouter, x, eps));
+% limit
 Iouter = simple(limit(Iouter, eps, 0));
 
 pretty(Iouter)
 
 %% reconstruction
-f11 = d1 * (atan((d2+d1*c)./(d1*s)) - atan(c./s));
-f12 = d2 * (atan((d1+d2*c)./(d2*s)) - atan(c./s));
+a = sym('a', 'positive');
+phi = sym('phi', 'real');
+q = symfun(atan(a/sin(phi)+cot(phi))-atan(cot(phi)), [a, phi]);
 R3 = sqrt(d1^2+d2^2+2*d1*d2*c);
-func = -(f11-f12*c + d2*s*log(R3./d2))/(2*pi);
+func = (...
+    d2*c * q(d1/d2, phi)...
+    -d1 * q(d2/d1, phi)...
+    - d2*s*log(R3./d2))/(2*pi);
 
 %% difference
 difference = Iouter - func;
