@@ -222,13 +222,30 @@ d^2\frac{3-2\ln d}{4\pi}
 
 \subsection{Edge match}
 
+The local coordinate system used for the calculation of edge-match type singular integrals is shown in Fig.~\ref{fig:local_galerkin_edge}. The lengths of the elements are denoted with $d_1$ and $d_2$, and the second element defines the direction of the normal vector. The angle between the two elements is denoted by $\phi$.
+
+\begin{figure}
+\center
+\begin{tikzpicture}[scale=.7]
+\path [draw, ->] (3,0) -- (-3,0) node [left] {$\xi$};
+\path [draw, ->] (0,0) -- (3,1.5) node [right] {$\eta$};
+\path [draw] (-2,0) --  node [above] {$d_3$} (2,1);
+\path [draw, very thick] (-2,0) node [below] {$d_1$} -- (0,0) -- (2,1) node [below] {$d_2$};
+\path [draw, thick, ->] (1,.5) -- (2,-1.5) node [below] {${\bf n}$};
+\draw [domain=0:26.5] plot ({cos(\x)}, {sin(\x)});
+\path (1,0) node [below left] {$\phi$};
+\end{tikzpicture}
+\caption{Local coordinates for the definition of Galerkin edge-match singular integrals}
+\label{fig:local_galerkin_edge}
+\end{figure}
+
 \subsubsection{Constant line SLP}
 
 \begin{multline}
 \int_{S_{x}} \int_{S_{y}} G(r) \td S_y \td S_x =
 \int_{0}^{d_1} \int_{0}^{d_2}
-\frac{-1}{2\pi}\ln \sqrt{(x+y \cos\phi)^2 + (y\sin\phi)^2}
-\td y \td x \\
+\frac{-1}{2\pi}\ln \sqrt{(\xi+\eta \cos\phi)^2 + (\eta\sin\phi)^2}
+\td \eta \td \xi \\
 =
 \frac{1}{4 \pi}
 \left[
@@ -246,18 +263,19 @@ q(a, \phi) = \atan\left(\frac{a}{\sin\phi} + \cot\phi\right) - \atan\left(\cot\p
 
 \subsubsection{Constant line DLP}
 
-\begin{multline}
-\int_{S_{x}} \int_{S_{y}} G'(r) r'_{n_{y}} \td S_y \td S_x =
+\begin{align}
+\int_{S_{x}} \int_{S_{y}} G'(r) r'_{n_{y}} \td S_y \td S_x
+&=
 \frac{-1}{2\pi}\int_{0}^{d_1} \int_{0}^{d_2}
-\frac{x\sin\phi}{(x+y \cos\phi)^2 + (y\sin\phi)^2}
-\td y \td x \\
-=
+\frac{\xi\sin\phi}{(\xi+\eta \cos\phi)^2 + (\eta\sin\phi)^2}
+\td \eta \td \xi \nonumber \\
+&=
 \frac{1}{2\pi}\left[
 	d_2 \cos\phi q\left(\frac{d_1}{d_2}, \phi\right)
 	- d_1 q\left(\frac{d_2}{d_1}, \phi\right)
 	+ d_2 \sin\phi \ln \frac{d_2}{d_3}
 \right]
-\end{multline}
+\end{align}
 
 \end{document}
 
