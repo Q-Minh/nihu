@@ -40,6 +40,10 @@ namespace field_option
 	struct constant {};
 }
 
+typedef std::integral_constant<unsigned, 1> _1d;
+typedef std::integral_constant<unsigned, 2> _2d;
+typedef std::integral_constant<unsigned, 3> _3d;
+
 /** \brief assign a field to a tag
  * \tparam field_tag the tag
  */
@@ -50,6 +54,7 @@ struct tag2field;
 /** \brief traits class of all fields */
 template <class Derived>
 struct field_traits;
+
 
 /** \brief metafunction assigning a default id to a field
 * \tparam field_t the field type
@@ -62,6 +67,7 @@ struct field_id
 		element_traits::id<typename field_traits<field_t>::elem_t>::value * 100 +
 		field_traits<field_t>::nset_t::num_nodes;
 };
+
 
 /**
  * \brief CRTP base class of all fields
@@ -84,31 +90,29 @@ public:
 	typedef typename traits_t::nset_t nset_t;
 	/** \brief the dofs vector type */
 	typedef typename traits_t::dofs_t dofs_t;
-	/** \brief the number of dofs */
-	static unsigned const num_dofs = nset_t::num_nodes;
 
 	enum {
-		id = field_id<Derived>::value
+		/** \brief the number of dofs */
+		num_dofs = nset_t::num_nodes,
+		/** \brief the field id */
+		id = field_id<Derived>::value,
+		/** \brief the quantity's dimensionality */
+		quantity_dimension = traits_t::quantity_dimension
 	};
 
-	/**
-	 * \brief return underlying element
-	 * \return the element of the field
-	 */
+	/** \brief return underlying element */
 	elem_t const &get_elem(void) const
 	{
 		return derived().get_elem();
 	}
 
-	/**
-	 * \brief return DOF vector
-	 * \return DOF vector
-	 */
+	/** \brief return DOF vector */
 	dofs_t const &get_dofs(void) const
 	{
 		return derived().get_dofs();
 	}
 };
+
 
 
 /** \brief imlementation class of a general field */
@@ -129,6 +133,9 @@ struct field_traits<dirac_field<Field> >
 	typedef typename field_traits<Field>::elem_t elem_t;
 	/** \brief the nset type */
 	typedef typename field_traits<Field>::nset_t nset_t;
+	enum {
+		quantity_dimension = field_traits<Field>::quantity_dimension
+	};
 	/** \brief the dof vector type */
 	typedef typename field_traits<Field>::dofs_t dofs_t;
 	/** \brief indicates that the field is dirac */
@@ -162,19 +169,21 @@ public:
 
 
 // forward declaration
-template <class ElemType, class FieldOption>
+template <class ElemType, class FieldOption, class Dimension>
 class field_view;
 
 /** \brief Specialisation of field_traits for the isoparametric field view case */
-template <class ElemType>
-struct field_traits<field_view<ElemType, field_option::isoparametric> >
+template <class ElemType, class Dimension>
+struct field_traits<field_view<ElemType, field_option::isoparametric, Dimension> >
 {
 	/** \brief the element type */
 	typedef ElemType elem_t;
 	/** \brief the dof vector type */
 	typedef typename elem_t::lset_t nset_t;
+
+	enum { quantity_dimension = Dimension::value };
 	/** \brief the dof vector type */
-	typedef typename elem_t::nodes_t dofs_t;
+	typedef Eigen::Matrix<unsigned, 1, quantity_dimension * nset_t::num_nodes> dofs_t;
 	/** \brief indicates that a field view is not dirac */
 	static bool const is_dirac = false;
 };
@@ -184,13 +193,13 @@ struct field_traits<field_view<ElemType, field_option::isoparametric> >
  * \details On an isoparametric field the shape function set equals the geometrical L-set.
  * \tparam ElemType the element type the field is associated with
  */
-template <class ElemType>
-class field_impl<field_view<ElemType, field_option::isoparametric> > :
+template <class ElemType, class Dimension>
+class field_impl<field_view<ElemType, field_option::isoparametric, Dimension> > :
 	public ElemType
 {
 private:
 	/** \brief the degree of freedom vector type */
-	typedef field_traits<field_view<ElemType, field_option::isoparametric> > traits_t;
+	typedef field_traits<field_view<ElemType, field_option::isoparametric, Dimension> > traits_t;
 
 public:
 	/**
@@ -203,9 +212,8 @@ public:
 		return *this;
 	}
 
-	/**
-	 * \brief return DOF vector
-	 * \return DOF vector
+	/** \brief return DOF vector
+	 * TODO RETURN REFERENCE OF LOCAL HERE
 	 */
 	typename traits_t::dofs_t const &get_dofs(void) const
 	{
@@ -215,15 +223,17 @@ public:
 
 
 /** \brief Specialisation of field_traits for the constant field case */
-template <class ElemType>
-struct field_traits<field_view<ElemType, field_option::constant> >
+template <class ElemType, class Dimension>
+struct field_traits<field_view<ElemType, field_option::constant, Dimension> >
 {
 	/** \brief the element type */
 	typedef ElemType elem_t;
 	/** \brief type of N-set */
 	typedef constant_shape_set<typename elem_t::domain_t> nset_t;
+
+	enum { quantity_dimension = Dimension::value };
 	/** \brief the dof vector type */
-	typedef typename elem_t::id_t dofs_t;
+	typedef Eigen::Matrix<unsigned, 1, quantity_dimension * nset_t::num_nodes> dofs_t;
 	/** \brief indicates that a field view is not dirac */
 	static bool const is_dirac = false;
 };
@@ -232,27 +242,21 @@ struct field_traits<field_view<ElemType, field_option::constant> >
  * \brief Specialisation of class ::field_impl for the case of a constant field view
  * \tparam ElemType the element type the field is associated with
  */
-template <class ElemType>
-class field_impl<field_view< ElemType, field_option::constant> >:
+template <class ElemType, class Dimension>
+class field_impl<field_view< ElemType, field_option::constant, Dimension> >:
 	public ElemType
 {
 private:
-	typedef field_traits<field_view<ElemType, field_option::constant> > traits_t;
+	typedef field_traits<field_view<ElemType, field_option::constant, Dimension> > traits_t;
 
 public:
-	/**
-	 * \brief return underlying element
-	 * \return the element of the field
-	 */
+	/** \brief return underlying element */
 	ElemType const &get_elem(void) const
 	{
 		return *this;
 	}
 
-	/**
-	 * \brief return DOF vector
-	 * \return DOF vector
-	 */
+	/** \brief return DOF vector */
 	typename traits_t::dofs_t const &get_dofs(void) const
 	{
 		return ElemType::get_id();
@@ -265,16 +269,16 @@ public:
  * \tparam ElemType the element type the field is associated with
  * \tparam Option field_option::constant or field_option::isoparametric
  */
-template <class ElemType, class Option>
+template <class ElemType, class Option, class Dimension>
 class field_view :
-	public field_base<field_view<ElemType, Option> >,
-	public field_impl<field_view<ElemType, Option> >
+	public field_base<field_view<ElemType, Option, Dimension> >,
+	public field_impl<field_view<ElemType, Option, Dimension> >
 {
 public:
 	/** \brief the crtp base type */
-	typedef field_base<field_view<ElemType, Option> > crtp_base_t;
+	typedef field_base<field_view<ElemType, Option, Dimension> > crtp_base_t;
 	/** \brief the implementation class type */
-	typedef field_impl<field_view<ElemType, Option> > impl_t;
+	typedef field_impl<field_view<ElemType, Option, Dimension> > impl_t;
 
 	/** \brief self-returning metafunction */
 	typedef field_view type;
@@ -292,39 +296,40 @@ public:
 
 
 /** \brief field class that stores the dof vector and a reference to the element */
-template <class ElemType, class NSet>
+template <class ElemType, class NSet, class Dimension>
 class field;
 
 
 /** \brief Specialisation of field_traits for the field_extension class */
-template <class ElemType, class NSet>
-struct field_traits<field<ElemType, NSet> >
+template <class ElemType, class NSet, class Dimension>
+struct field_traits<field<ElemType, NSet, Dimension> >
 {
 	/** \brief the element type */
 	typedef ElemType elem_t;
 	/** \brief the N-set type */
 	typedef NSet nset_t;
+	/** \brief the dimensionality of the physical quantity */
+	enum { quantity_dimension = Dimension::value };
 	/** \brief the dof vector type */
-	typedef Eigen::Matrix<unsigned, 1, nset_t::num_nodes> dofs_t;
+	typedef Eigen::Matrix<unsigned, 1, quantity_dimension * nset_t::num_nodes> dofs_t;
 	/** \brief indicates that a field is not a dirac field */
 	static bool const is_dirac = false;
 };
 
 
 /**
-* \brief the field class that stores the dof vector and the element by value
-* \tparam ElemType the underlying element type
-* \tparam NSet the shape function set
-
-*/
-template <class ElemType, class NSet>
-class field_impl<field<ElemType, NSet> >
+ * \brief the field class that stores the dof vector and the element by value
+ * \tparam ElemType the underlying element type
+ * \tparam NSet the shape function set
+ */
+template <class ElemType, class NSet, class Dimension>
+class field_impl<field<ElemType, NSet, Dimension> >
 {
 public:
 	/** \brief the element type */
 	typedef ElemType elem_t;
 	/** \brief the dofs vector type */
-	typedef field_traits<field<ElemType, NSet> > traits_t;
+	typedef field_traits<field<ElemType, NSet, Dimension> > traits_t;
 	/** \brief the dof vector type */
 	typedef typename traits_t::dofs_t dofs_t;
 
@@ -337,18 +342,13 @@ public:
 	{
 	}
 
-	/**
-	 * \brief return underlying element
-	 * \return the element of the field
-	 */
+	/** \brief return underlying element */
 	elem_t const &get_elem(void) const
 	{
 		return m_elem;
 	}
 
-	/**
-  	 * \return dofs
- 	 */
+	/** \return dofs */
 	dofs_t const &get_dofs(void) const
 	{
 		return m_dofs;
@@ -362,22 +362,22 @@ protected:
 };
 
 /**
-* \brief the field class that stores the dof vector and the element by value
-* \tparam ElemType the underlying element type
-* \tparam NSet the shape function set
-*/
-template <class ElemType, class NSet>
+ * \brief the field class that stores the dof vector and the element by value
+ * \tparam ElemType the underlying element type
+ * \tparam NSet the shape function set
+ */
+template <class ElemType, class NSet, class Dimension>
 class field :
-	public field_base<field<ElemType, NSet> >,
-	public field_impl<field<ElemType, NSet> >
+	public field_base<field<ElemType, NSet, Dimension> >,
+	public field_impl<field<ElemType, NSet, Dimension> >
 {
 public:
 	/** \brief self-returning metafunction */
 	typedef field type;
 	/** \brief the CRTP base type */
-	typedef field_base<field<ElemType, NSet> > base_t;
+	typedef field_base<field<ElemType, NSet, Dimension> > base_t;
 	/** \brief the implementation class type */
-	typedef field_impl<field<ElemType, NSet> > impl_t;
+	typedef field_impl<field<ElemType, NSet, Dimension> > impl_t;
 
 	/** \brief the element type */
 	typedef typename base_t::elem_t elem_t;
@@ -397,40 +397,32 @@ public:
 	}
 };
 
-/**
- * \brief field view factory
- */
-template <class Elem, class Option>
-field_view<Elem, Option> const &
- create_field_view(element_base<Elem> const & e, Option)
+/** \brief field view factory */
+template <class Elem, class Option, class Dimension>
+field_view<Elem, Option, Dimension> const &
+ create_field_view(element_base<Elem> const & e, Option, Dimension)
 {
-	return static_cast<field_view<Elem, Option> const &>(e.derived());
+	return static_cast<field_view<Elem, Option, Dimension> const &>(e.derived());
 }
 
 
-/**
- * \brief constant field view factory
- */
-template <class Elem>
-field_view<Elem, field_option::constant> const &
-	constant_view(element_base<Elem> const & e)
+/** \brief constant field view factory */
+template <class Elem, class Dimension>
+field_view<Elem, field_option::constant, Dimension> const &
+	constant_view(element_base<Elem> const & e, Dimension)
 {
-	return create_field_view(e, field_option::constant());
+	return create_field_view(e, field_option::constant(), Dimension());
 }
 
-/**
- * \brief isoparametric field view factory
- */
-template <class Elem>
-field_view<Elem, field_option::isoparametric> const &
-	isoparametric_view(element_base<Elem> const & e)
+/** \brief isoparametric field view factory */
+template <class Elem, class Dimension>
+field_view<Elem, field_option::isoparametric, Dimension> const &
+	isoparametric_view(element_base<Elem> const & e, Dimension)
 {
-	return create_field_view(e, field_option::isoparametric());
+	return create_field_view(e, field_option::isoparametric(), Dimension());
 }
 
-/**
- * \brief dirac field view factory
- */
+/** \brief dirac field view factory */
 template <class Field>
 dirac_field<Field> const &
 	dirac(field_base<Field> const & f)

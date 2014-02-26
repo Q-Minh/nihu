@@ -22,7 +22,7 @@ int main(void)
 		line_1_elem::id, 3, 0;
 
 	auto mesh = create_mesh(nodes, elements, line_1_tag());
-	auto const &fspace = constant_view(mesh);
+	auto const &fspace = constant_view(mesh, _1d());
 	auto nDof = fspace.get_num_dofs();
 
 	dMatrix L(nDof, nDof), M(nDof, nDof);
