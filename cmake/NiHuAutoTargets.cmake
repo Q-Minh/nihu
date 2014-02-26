@@ -14,6 +14,8 @@ foreach (cpp_source ${CPP_SOURCES})
 	# Add the executable / or mex file
 	if("${target_mex_name}" STREQUAL "${target_name}")
 		add_executable(${target_name} ${local_source})
+		target_link_libraries(${target_name} lib_domain lib_element lib_shape) 
+
 		# Add installation
 		install(TARGETS ${target_name} DESTINATION ${current_dir})
 	elseif(NIHU_BUILD_MEX)
