@@ -19,7 +19,7 @@
 /**
  * \file laplace_kernel.hpp
  * \ingroup library
- * \brief implementation of kernels of the laplace equation \f$ \nabla^2 p = 0 \f$
+ * \brief implementation of kernels of the Laplace equation \f$ \nabla^2 p = 0 \f$
  * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
  */
 
@@ -37,7 +37,7 @@
 #include "reciprocal_kernel_intervals.hpp"
 
 
-/** \brief a brick representing a 2D laplace kernel \f$ -\log r /2\pi \f$
+/** \brief a brick representing a 2D Laplace kernel \f$ -\log r /2\pi \f$
  * \tparam scalar scalar type of the coordinate space the distance is defined over
  */
 template <class scalar>
@@ -71,16 +71,16 @@ struct laplace_2d_SLP_brick
 		{
 		}
 
-		/** \brief return laplace g kernel
-		 * \return laplace g kernel
+		/** \brief return Laplace g kernel
+		 * \return Laplace g kernel
 		 */
 		scalar const & get_laplace_g(void) const
 		{
 			return m_laplace_g;
 		}
 
-		/** \brief return laplace g kernel
-		 * \return laplace g kernel
+		/** \brief return Laplace g kernel
+		 * \return Laplace g kernel
 		 */
 		scalar const & get_result(void) const
 		{
@@ -94,7 +94,7 @@ struct laplace_2d_SLP_brick
 
 
 /** \brief combination of ::distance_vector_brick, ::distance_brick and ::laplace_2d_SLP_brick into a wall
- * \tparam space the coordinate space the laplace kernel is defined over
+ * \tparam space the coordinate space the Laplace kernel is defined over
  */
 template <class scalar>
 struct laplace_2d_SLP_wall : build<
@@ -107,7 +107,7 @@ struct laplace_2d_SLP_wall : build<
 // forward declaration
 class laplace_2d_SLP_kernel;
 
-/** \brief traits of the laplace 2D SLP kernel */
+/** \brief traits of the Laplace 2D SLP kernel */
 template<>
 struct kernel_traits<laplace_2d_SLP_kernel>
 {
@@ -138,7 +138,7 @@ struct kernel_traits<laplace_2d_SLP_kernel>
 };
 
 
-/** \brief singular traits of the laplace 2D SLP kernel */
+/** \brief singular traits of the Laplace 2D SLP kernel */
 template<>
 struct singular_kernel_traits<laplace_2d_SLP_kernel>
 {
@@ -149,7 +149,6 @@ struct singular_kernel_traits<laplace_2d_SLP_kernel>
 };
 
 
-
 /** \brief Single layer potential kernel of the Laplace equation in 2D \f$ -\ln r/2\pi \f$ */
 class laplace_2d_SLP_kernel :
 	public kernel_base<laplace_2d_SLP_kernel>
@@ -158,7 +157,7 @@ class laplace_2d_SLP_kernel :
 
 
 
-/** \brief a brick representing a 2D laplace derivative kernel \f$ -1/2\pi r \cdot r'_{n_y}\f$
+/** \brief a brick representing a 2D Laplace derivative kernel \f$ -1/2\pi r \cdot r'_{n_y}\f$
  * \tparam scalar scalar type of the coordinate space the distance is defined over
  */
 template <class scalar>
@@ -192,16 +191,16 @@ struct laplace_2d_DLP_brick
 		{
 		}
 
-		/** \brief return laplace h kernel
-		 * \return laplace h kernel
+		/** \brief return Laplace h kernel
+		 * \return Laplace h kernel
 		 */
 		scalar const & get_laplace_h(void) const
 		{
 			return m_laplace_h;
 		}
 
-		/** \brief return laplace h kernel
-		 * \return laplace h kernel
+		/** \brief return Laplace h kernel
+		 * \return Laplace h kernel
 		 */
 		scalar const & get_result(void) const
 		{
@@ -215,7 +214,7 @@ struct laplace_2d_DLP_brick
 
 
 /** \brief combination of ::distance_vector_brick, ::distance_brick, ::rdny_brick and ::laplace_2d_DLP_brick into a wall
- * \tparam space the coordinate space the laplace kernel is defined over
+ * \tparam space the coordinate space the Laplace kernel is defined over
  */
 template <class scalar>
 struct laplace_2d_DLP_wall : build<
@@ -229,7 +228,7 @@ struct laplace_2d_DLP_wall : build<
 // forward declaration
 class laplace_2d_DLP_kernel;
 
-/** \brief traits of the laplace 2D H kernel */
+/** \brief traits of the Laplace 2D H kernel */
 template<>
 struct kernel_traits<laplace_2d_DLP_kernel>
 {
@@ -259,7 +258,7 @@ struct kernel_traits<laplace_2d_DLP_kernel>
 	> complexity_estimator_t;
 };
 
-/** \brief singular traits of the laplace 2D DLP kernel */
+/** \brief singular traits of the Laplace 2D DLP kernel */
 template<>
 struct singular_kernel_traits<laplace_2d_DLP_kernel>
 {
@@ -279,7 +278,7 @@ class laplace_2d_DLP_kernel :
 };
 
 
-/** \brief a brick representing a 2D laplace derivative kernel \f$ -1/2\pi r \cdot r'_{n_x}\f$
+/** \brief a brick representing a 2D Laplace derivative kernel \f$ -1/2\pi r \cdot r'_{n_x}\f$
  * \tparam scalar scalar type of the coordinate space the distance is defined over
  */
 template <class scalar>
@@ -313,16 +312,16 @@ struct laplace_2d_DLPt_brick
 		{
 		}
 
-		/** \brief return laplace h kernel
-		 * \return laplace ht kernel
+		/** \brief return Laplace h kernel
+		 * \return Laplace ht kernel
 		 */
 		scalar const & get_laplace_ht(void) const
 		{
 			return m_laplace_ht;
 		}
 
-		/** \brief return laplace ht kernel
-		 * \return laplace ht kernel
+		/** \brief return Laplace ht kernel
+		 * \return Laplace ht kernel
 		 */
 		scalar const & get_result(void) const
 		{
@@ -336,7 +335,7 @@ struct laplace_2d_DLPt_brick
 
 
 /** \brief combination of ::distance_vector_brick, ::distance_brick, ::rdnx_brick and ::laplace_2d_DLPt_brick into a wall
- * \tparam space the coordinate space the laplace kernel is defined over
+ * \tparam space the coordinate space the Laplace kernel is defined over
  */
 template <class scalar>
 struct laplace_2d_DLPt_wall : build<
@@ -350,7 +349,7 @@ struct laplace_2d_DLPt_wall : build<
 // forward declaration
 class laplace_2d_DLPt_kernel;
 
-/** \brief traits of the laplace 2D Ht kernel */
+/** \brief traits of the Laplace 2D Ht kernel */
 template<>
 struct kernel_traits<laplace_2d_DLPt_kernel>
 {
@@ -380,7 +379,7 @@ struct kernel_traits<laplace_2d_DLPt_kernel>
 	> complexity_estimator_t;
 };
 
-/** \brief singular traits of the laplace 2D DLPt kernel */
+/** \brief singular traits of the Laplace 2D DLPt kernel */
 template<>
 struct singular_kernel_traits<laplace_2d_DLPt_kernel>
 {
@@ -402,7 +401,7 @@ class laplace_2d_DLPt_kernel :
 
 
 
-/** \brief a brick representing a 2D laplace hypersingular kernel \f$ \dots \f$
+/** \brief a brick representing a 2D Laplace hypersingular kernel \f$ \dots \f$
  * \tparam scalar scalar type of the coordinate space the distance is defined over
  */
 template <class scalar>
@@ -439,16 +438,16 @@ struct laplace_2d_HSP_brick
 		{
 		}
 
-		/** \brief return laplace hypersingular kernel
-		 * \return laplace hypersingular kernel
+		/** \brief return Laplace hypersingular kernel
+		 * \return Laplace hypersingular kernel
 		 */
 		result_t const & get_laplace_hyper(void) const
 		{
 			return m_laplace_hyper;
 		}
 
-		/** \brief return laplace hypersingular kernel
-		 * \return laplace hypersingular kernel
+		/** \brief return Laplace hypersingular kernel
+		 * \return Laplace hypersingular kernel
 		 */
 		result_t const & get_result(void) const
 		{
@@ -462,7 +461,7 @@ struct laplace_2d_HSP_brick
 
 
 /** \brief combination of several bricks into a laplace_2d_hyper wall
- * \tparam space the coordinate space the laplace kernel is defined over
+ * \tparam space the coordinate space the Laplace kernel is defined over
  */
 template <class scalar>
 struct laplace_2d_HSP_wall : build<
@@ -477,7 +476,7 @@ struct laplace_2d_HSP_wall : build<
 // forward declaration
 class laplace_2d_HSP_kernel;
 
-/** \brief traits of the laplace 2D Hypersingular kernel */
+/** \brief traits of the Laplace 2D Hypersingular kernel */
 template<>
 struct kernel_traits<laplace_2d_HSP_kernel>
 {
@@ -508,7 +507,7 @@ struct kernel_traits<laplace_2d_HSP_kernel>
 	> complexity_estimator_t;
 };
 
-/** \brief singular traits of the laplace 2D HSP kernel */
+/** \brief singular traits of the Laplace 2D HSP kernel */
 template <>
 struct singular_kernel_traits<laplace_2d_HSP_kernel>
 {
@@ -528,7 +527,7 @@ class laplace_2d_HSP_kernel :
 };
 
 
-/** \brief a brick representing a 3D laplace kernel \f$ 1/4\pi r \f$
+/** \brief a brick representing a 3D Laplace kernel \f$ 1/4\pi r \f$
  * \tparam scalar the scalar of the coordinate space the distance is defined over
  */
 template <class scalar>
@@ -562,16 +561,16 @@ struct laplace_3d_SLP_brick
 		{
 		}
 
-		/** \brief return laplace g kernel
-		 * \return laplace g kernel
+		/** \brief return Laplace g kernel
+		 * \return Laplace g kernel
 		 */
 		scalar const & get_laplace_g(void) const
 		{
 			return m_laplace_g;
 		}
 
-		/** \brief return laplace g kernel
-		 * \return laplace g kernel
+		/** \brief return Laplace g kernel
+		 * \return Laplace g kernel
 		 */
 		scalar const & get_result(void) const
 		{
@@ -585,7 +584,7 @@ struct laplace_3d_SLP_brick
 
 
 /** \brief combination of ::distance_vector_brick, ::distance_brick and ::laplace_3d_SLP_brick into a wall
- * \tparam space the coordinate space the laplace kernel is defined over
+ * \tparam space the coordinate space the Laplace kernel is defined over
  */
 template <class scalar>
 struct laplace_3d_SLP_wall : build<
@@ -598,7 +597,7 @@ struct laplace_3d_SLP_wall : build<
 // forward declaration
 class laplace_3d_SLP_kernel;
 
-/** \brief traits of the laplace 3D Single Layer Potential kernel */
+/** \brief traits of the Laplace 3D Single Layer Potential kernel */
 template<>
 struct kernel_traits<laplace_3d_SLP_kernel>
 {
@@ -627,7 +626,7 @@ struct kernel_traits<laplace_3d_SLP_kernel>
 	> complexity_estimator_t;
 };
 
-/** \brief singular traits of the laplace 3D SLP kernel */
+/** \brief singular traits of the Laplace 3D SLP kernel */
 template <>
 struct singular_kernel_traits<laplace_3d_SLP_kernel>
 {
@@ -639,14 +638,14 @@ struct singular_kernel_traits<laplace_3d_SLP_kernel>
 
 
 
-/** \brief Single layer potential kernel of the laplace equation in 3D \f$ 1/4\pi r\f$ */
+/** \brief Single layer potential kernel of the Laplace equation in 3D \f$ 1/4\pi r\f$ */
 class laplace_3d_SLP_kernel :
 	public kernel_base<laplace_3d_SLP_kernel>
 {
 };
 
 
-/** \brief a brick representing a laplace derivative kernel \f$ -1/4\pi r^2 \cdot r'_{n_y} \f$
+/** \brief a brick representing a Laplace derivative kernel \f$ -1/4\pi r^2 \cdot r'_{n_y} \f$
  * \tparam scalar the scalar of the coordinate space the distance is defined over
  */
 template <class scalar>
@@ -680,16 +679,16 @@ struct laplace_3d_DLP_brick
 		{
 		}
 
-		/** \brief return laplace h kernel
-		 * \return laplace h kernel
+		/** \brief return Laplace h kernel
+		 * \return Laplace h kernel
 		 */
 		scalar const &get_laplace_h(void) const
 		{
 			return m_laplace_h;
 		}
 
-		/** \brief return laplace h kernel
-		 * \return laplace h kernel
+		/** \brief return Laplace h kernel
+		 * \return Laplace h kernel
 		 */
 		scalar const & get_result(void) const
 		{
@@ -703,7 +702,7 @@ struct laplace_3d_DLP_brick
 
 
 /** \brief combination of laplace_SLP_wall and laplace_DLP_brick into a wall
- * \tparam space the coordinate space the laplace kernel is defined over
+ * \tparam space the coordinate space the Laplace kernel is defined over
  */
 template <class scalar>
 struct laplace_3d_DLP_wall : build<
@@ -718,7 +717,7 @@ struct laplace_3d_DLP_wall : build<
 // forward declaration
 class laplace_3d_DLP_kernel;
 
-/** \brief traits of the laplace H kernel */
+/** \brief traits of the Laplace H kernel */
 template<>
 struct kernel_traits<laplace_3d_DLP_kernel>
 {
@@ -749,7 +748,7 @@ struct kernel_traits<laplace_3d_DLP_kernel>
 	> complexity_estimator_t;
 };
 
-/** \brief singular traits of the laplace 3D DLP kernel */
+/** \brief singular traits of the Laplace 3D DLP kernel */
 template <>
 struct singular_kernel_traits<laplace_3d_DLP_kernel>
 {
@@ -803,16 +802,16 @@ struct laplace_3d_DLPt_brick
 		{
 		}
 
-		/** \brief return laplace ht kernel
-		 * \return laplace ht kernel
+		/** \brief return Laplace ht kernel
+		 * \return Laplace ht kernel
 		 */
 		scalar const &get_laplace_ht(void) const
 		{
 			return m_laplace_ht;
 		}
 
-		/** \brief return laplace ht kernel
-		 * \return laplace ht kernel
+		/** \brief return Laplace ht kernel
+		 * \return Laplace ht kernel
 		 */
 		scalar const & get_result(void) const
 		{
@@ -826,7 +825,7 @@ struct laplace_3d_DLPt_brick
 
 
 /** \brief combination of ::distance_vector_brick, ::distance_brick, ::rdnx_brick, laplace_3d_SLP_brick and laplace_3d_DLPt_brick into a wall
- * \tparam scalar the scalar type of the laplace ht kernel result
+ * \tparam scalar the scalar type of the Laplace ht kernel result
  */
 template <class scalar>
 struct laplace_3d_DLPt_wall : build<
@@ -841,7 +840,7 @@ struct laplace_3d_DLPt_wall : build<
 // forward declaration
 class laplace_3d_DLPt_kernel;
 
-/** \brief traits of the laplace H kernel */
+/** \brief traits of the Laplace H kernel */
 template<>
 struct kernel_traits<laplace_3d_DLPt_kernel>
 {
@@ -872,7 +871,7 @@ struct kernel_traits<laplace_3d_DLPt_kernel>
 	> complexity_estimator_t;
 };
 
-/** \brief singular traits of the laplace 3D DLPt kernel */
+/** \brief singular traits of the Laplace 3D DLPt kernel */
 template <>
 struct singular_kernel_traits<laplace_3d_DLPt_kernel>
 {
@@ -893,7 +892,7 @@ class laplace_3d_DLPt_kernel :
 };
 
 
-/** \brief a brick representing a laplace double derivative kernel \f$ 1/4\pi r^3 \cdot \left( n_x n_y + 3 r'_{n_x} r'_{n_y} \right) \f$
+/** \brief a brick representing a Laplace double derivative kernel \f$ 1/4\pi r^3 \cdot \left( n_x n_y + 3 r'_{n_x} r'_{n_y} \right) \f$
  * \tparam scalar the scalar of the coordinate space the distance is defined over
  */
 template <class scalar>
@@ -931,16 +930,16 @@ struct laplace_3d_HSP_brick
 		{
 		}
 
-		/** \brief return laplace ht kernel
-		 * \return laplace ht kernel
+		/** \brief return Laplace ht kernel
+		 * \return Laplace ht kernel
 		 */
 		scalar const &get_laplace_hyper(void) const
 		{
 			return m_laplace_hyper;
 		}
 
-		/** \brief return laplace ht kernel
-		 * \return laplace ht kernel
+		/** \brief return Laplace ht kernel
+		 * \return Laplace ht kernel
 		 */
 		scalar const & get_result(void) const
 		{
@@ -954,7 +953,7 @@ struct laplace_3d_HSP_brick
 
 
 /** \brief combination of ::distance_vector_brick, ::distance_brick, ::rdnx_brick, laplace_3d_SLP_brick and laplace_3d_DLPt_brick into a wall
- * \tparam scalar the scalar type of the laplace ht kernel result
+ * \tparam scalar the scalar type of the Laplace ht kernel result
  */
 template <class scalar>
 struct laplace_3d_HSP_wall : build<
@@ -970,7 +969,7 @@ struct laplace_3d_HSP_wall : build<
 // forward declaration
 class laplace_3d_HSP_kernel;
 
-/** \brief traits of the laplace H kernel */
+/** \brief traits of the Laplace H kernel */
 template<>
 struct kernel_traits<laplace_3d_HSP_kernel>
 {
@@ -1001,7 +1000,7 @@ struct kernel_traits<laplace_3d_HSP_kernel>
 	> complexity_estimator_t;
 };
 
-/** \brief singular traits of the laplace 3D HSP kernel */
+/** \brief singular traits of the Laplace 3D HSP kernel */
 template <>
 struct singular_kernel_traits<laplace_3d_HSP_kernel>
 {
@@ -1009,7 +1008,7 @@ struct singular_kernel_traits<laplace_3d_HSP_kernel>
 	 * \todo check this
 	 */
 	typedef singularity_type::inverse<3> singularity_type_t;
-	/** \brief the singularity type when used with guiggiani's method */
+	/** \brief the singularity type when used with Guiggiani's method */
 	typedef laplace_3d_HSP_kernel singular_kernel_ancestor_t;
 	/** \brief quadrature order used to generate blind singular quadratures */
 	static unsigned const singular_quadrature_order = 7;
