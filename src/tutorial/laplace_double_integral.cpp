@@ -19,6 +19,7 @@
 //! [Includes]
 #include "core/weighted_residual.hpp"
 #include "library/laplace_kernel.hpp"
+#include "library/lib_element.hpp"
 //! [Includes]
 
 //! [Typedefs]

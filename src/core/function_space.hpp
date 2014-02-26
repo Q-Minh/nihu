@@ -238,11 +238,11 @@ function_space_view<Mesh, Option, Dimension> const &
  * \param [in] msh mesh reference
  * \return isoparametric function space view of the mesh
  */
-template <class Mesh, class Dimension>
+template <class Mesh, class Dimension = _1d>
 function_space_view<Mesh, field_option::isoparametric, Dimension> const &
-	isoparametric_view(Mesh const &msh, Dimension)
+	isoparametric_view(Mesh const &msh, Dimension dim = Dimension())
 {
-	return create_function_space_view(msh, field_option::isoparametric(), Dimension());
+	return create_function_space_view(msh, field_option::isoparametric(), dim);
 }
 
 /** \brief factory function to transform a mesh into a constant function space
@@ -250,11 +250,11 @@ function_space_view<Mesh, field_option::isoparametric, Dimension> const &
  * \param [in] msh mesh reference
  * \return constant function space view of the mesh
  */
-template <class Mesh, class Dimension>
+template <class Mesh, class Dimension = _1d>
 function_space_view<Mesh, field_option::constant, Dimension> const &
-	constant_view(Mesh const &msh, Dimension)
+	constant_view(Mesh const &msh, Dimension dim = Dimension())
 {
-	return create_function_space_view(msh, field_option::constant(), Dimension());
+	return create_function_space_view(msh, field_option::constant(), dim);
 }
 
 

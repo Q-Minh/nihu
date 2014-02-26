@@ -106,7 +106,7 @@ public:
 	/** \brief the nset type */
 	typedef typename field_traits::nset_type<Derived>::type nset_t;
 	/** \brief the dofs vector type */
-	typedef typename field_traits::dof_vector_type<Derived>::type dof_vector_t;
+	typedef typename field_traits::dof_vector_type<Derived>::type dofs_t;
 
 	enum {
 		/** \brief the number of dofs */
@@ -124,7 +124,7 @@ public:
 	}
 
 	/** \brief return DOF vector */
-	dof_vector_t const &get_dofs(void) const
+	dofs_t const &get_dofs(void) const
 	{
 		return derived().get_dofs();
 	}
@@ -193,7 +193,10 @@ namespace field_traits
 	struct elem_type<field_view<ElemType, FieldOption, Dimension> > : ElemType {};
 
 	template <class ElemType, class Dimension>
-	struct nset_type<field_view<ElemType, field_option::isoparametric, Dimension> > : ElemType::lset_t {};
+	struct nset_type<field_view<ElemType, field_option::isoparametric, Dimension> >
+	{
+		typedef  typename ElemType::lset_t type;
+	};
 
 	template <class ElemType, class Dimension>
 	struct nset_type<field_view<ElemType, field_option::constant, Dimension> >
@@ -275,12 +278,12 @@ class field_view :
 	public field_base<field_view<ElemType, Option, Dimension> >,
 	public field_impl<field_view<ElemType, Option, Dimension> >
 {
-public:
 	/** \brief the crtp base type */
 	typedef field_base<field_view<ElemType, Option, Dimension> > crtp_base_t;
 	/** \brief the implementation class type */
 	typedef field_impl<field_view<ElemType, Option, Dimension> > impl_t;
 
+public:
 	/** \brief self-returning metafunction */
 	typedef field_view type;
 
@@ -307,7 +310,10 @@ namespace field_traits
 	struct elem_type<field<ElemType, NSet, Dimension> > : ElemType {};
 
 	template <class ElemType, class NSet, class Dimension>
-	struct nset_type<field<ElemType, NSet, Dimension> > : NSet {};
+	struct nset_type<field<ElemType, NSet, Dimension> >
+	{
+		typedef NSet type;
+	};
 
 	template <class ElemType, class NSet, class Dimension>
 	struct quantity_dimension<field<ElemType, NSet, Dimension> > : Dimension {};
@@ -362,7 +368,7 @@ protected:
  * \tparam ElemType the underlying element type
  * \tparam NSet the shape function set
  */
-template <class ElemType, class NSet, class Dimension>
+template <class ElemType, class NSet, class Dimension = _1d>
 class field :
 	public field_base<field<ElemType, NSet, Dimension> >,
 	public field_impl<field<ElemType, NSet, Dimension> >
@@ -394,7 +400,7 @@ public:
 };
 
 /** \brief field view factory */
-template <class Elem, class Option, class Dimension>
+template <class Elem, class Option, class Dimension = _1d>
 field_view<Elem, Option, Dimension> const &
  create_field_view(element_base<Elem> const & e, Option, Dimension)
 {
@@ -403,19 +409,19 @@ field_view<Elem, Option, Dimension> const &
 
 
 /** \brief constant field view factory */
-template <class Elem, class Dimension>
+template <class Elem, class Dimension = _1d>
 field_view<Elem, field_option::constant, Dimension> const &
-	constant_view(element_base<Elem> const & e, Dimension)
+	constant_view(element_base<Elem> const & e, Dimension dim = Dimension())
 {
-	return create_field_view(e, field_option::constant(), Dimension());
+	return create_field_view(e, field_option::constant(), dim);
 }
 
 /** \brief isoparametric field view factory */
-template <class Elem, class Dimension>
+template <class Elem, class Dimension = _1d>
 field_view<Elem, field_option::isoparametric, Dimension> const &
-	isoparametric_view(element_base<Elem> const & e, Dimension)
+	isoparametric_view(element_base<Elem> const & e, Dimension dim = Dimension())
 {
-	return create_field_view(e, field_option::isoparametric(), Dimension());
+	return create_field_view(e, field_option::isoparametric(), dim);
 }
 
 /** \brief dirac field view factory */

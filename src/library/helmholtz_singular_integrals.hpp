@@ -22,6 +22,7 @@
 #ifndef HELMHOLTZ_SINGULAR_INTEGRALS_HPP_INCLUDED
 #define HELMHOLTZ_SINGULAR_INTEGRALS_HPP_INCLUDED
 
+#include "library/lib_element.hpp"
 #include "../core/integral_operator.hpp"
 #include "helmholtz_kernel.hpp"
 #include "plane_element_helper.hpp"

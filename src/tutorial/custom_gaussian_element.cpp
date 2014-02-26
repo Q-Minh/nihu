@@ -18,6 +18,7 @@
 
 #include "core/weighted_residual.hpp"
 #include "library/laplace_kernel.hpp"
+#include "library/lib_element.hpp"
 
 //! [Forward declaration]
 class quad_1_gauss_shape_set;
@@ -123,11 +124,14 @@ typedef field<quad_1_elem, quad_1_gauss_shape_set> quad_1_gauss_field;
 //! [Field typedef]
 
 //! [Field id]
-template <>
-struct field_id<quad_1_gauss_field>
+namespace field_traits
 {
-	static unsigned const value = 666;
-};
+	template <>
+	struct id<quad_1_gauss_field>
+	{
+		enum { value = 666 };
+	};
+}
 //! [Field id]
 
 //! [Field tag]
