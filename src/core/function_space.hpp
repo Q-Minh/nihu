@@ -226,9 +226,9 @@ public:
  * \param [in] msh mesh reference
  * \return function space view of the mesh
  */
-template <class Mesh, class Option, class Dimension>
+template <class Mesh, class Option, class Dimension = _1d>
 function_space_view<Mesh, Option, Dimension> const &
-	create_function_space_view(Mesh const &msh, Option, Dimension)
+	create_function_space_view(Mesh const &msh, Option, Dimension dim = Dimension())
 {
 	return static_cast<function_space_view<Mesh, Option, Dimension> const &>(msh);
 }

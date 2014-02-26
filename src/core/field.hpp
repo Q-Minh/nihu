@@ -184,7 +184,7 @@ public:
 
 
 // forward declaration
-template <class ElemType, class FieldOption, class Dimension>
+template <class ElemType, class FieldOption, class Dimension = _1d>
 class field_view;
 
 namespace field_traits
