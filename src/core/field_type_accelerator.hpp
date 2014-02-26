@@ -117,7 +117,7 @@ class field_type_accelerator;
 template <class Field, class Family>
 class field_type_accelerator<
 	Field, Family, acceleration::hard,
-	typename std::enable_if<!field_traits<Field>::is_dirac>::type
+	typename std::enable_if<!field_traits::is_dirac<Field>::value>::type
 	> :
 	public EigenStdVector<
 		field_type_accelerator_elem<Field, Family, acceleration::hard>
@@ -162,7 +162,7 @@ public:
  */
 template <class Field, class Family>
 class field_type_accelerator<Field, Family, acceleration::soft,
-	typename std::enable_if<!field_traits<Field>::is_dirac>::type
+	typename std::enable_if<!field_traits::is_dirac<Field>::value>::type
 	> :
 	public quadrature_type<Family, typename Field::elem_t::domain_t>::type
 {
@@ -305,7 +305,7 @@ private:
  */
 template <class Field, class Family, class Acceleration>
 class field_type_accelerator<Field, Family, Acceleration,
-	typename std::enable_if<field_traits<Field>::is_dirac>::type
+	typename std::enable_if<field_traits::is_dirac<Field>::value>::type
 	>
 {
 public:

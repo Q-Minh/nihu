@@ -51,22 +51,41 @@ template <class field_tag>
 struct tag2field;
 
 
-/** \brief traits class of all fields */
-template <class Derived>
-struct field_traits;
-
-
-/** \brief metafunction assigning a default id to a field
-* \tparam field_t the field type
-*/
-template <class field_t>
-struct field_id
+namespace field_traits
 {
-	/** \brief the default field id */
-	static unsigned const value =
-		element_traits::id<typename field_traits<field_t>::elem_t>::value * 100 +
-		field_traits<field_t>::nset_t::num_nodes;
-};
+	template <class Derived>
+	struct elem_type;
+
+	template <class Derived>
+	struct nset_type;
+
+	template <class Derived>
+	struct quantity_dimension;
+
+	template <class Derived>
+	struct is_dirac : std::false_type {};
+
+	/** \brief assign a numeric ID to the field */
+	template <class Derived>
+	struct id
+	{
+		/** \brief the default field id */
+		enum { value =
+			elem_type<Derived>::type::id * 100 + nset_type<Derived>::type::num_nodes
+		};
+	};
+
+
+	template <class Derived>
+	struct dof_vector_type
+	{
+		typedef Eigen::Matrix<
+			unsigned,
+			1,
+			quantity_dimension<Derived>::value *
+			nset_type<Derived>::type::num_nodes> type;
+	};
+}
 
 
 /**
@@ -82,22 +101,20 @@ public:
 	/** \brief self returning metafunction */
 	typedef Derived type;
 
-	/** \brief the traits class */
-	typedef field_traits<Derived> traits_t;
 	/** \brief the element type */
-	typedef typename traits_t::elem_t elem_t;
+	typedef typename field_traits::elem_type<Derived>::type elem_t;
 	/** \brief the nset type */
-	typedef typename traits_t::nset_t nset_t;
+	typedef typename field_traits::nset_type<Derived>::type nset_t;
 	/** \brief the dofs vector type */
-	typedef typename traits_t::dofs_t dofs_t;
+	typedef typename field_traits::dof_vector_type<Derived>::type dof_vector_t;
 
 	enum {
 		/** \brief the number of dofs */
 		num_dofs = nset_t::num_nodes,
 		/** \brief the field id */
-		id = field_id<Derived>::value,
+		id = field_traits::id<Derived>::value,
 		/** \brief the quantity's dimensionality */
-		quantity_dimension = traits_t::quantity_dimension
+		quantity_dimension = field_traits::quantity_dimension<Derived>::value
 	};
 
 	/** \brief return underlying element */
@@ -107,7 +124,7 @@ public:
 	}
 
 	/** \brief return DOF vector */
-	dofs_t const &get_dofs(void) const
+	dof_vector_t const &get_dofs(void) const
 	{
 		return derived().get_dofs();
 	}
@@ -119,28 +136,26 @@ public:
 template <class Derived>
 class field_impl;
 
+
+
 // forward declaration
 template <class Field>
 class dirac_field;
 
-/** \brief specialisation of ::field_traits for a ::dirac_field
- * \tparam Field the original field that is converted into a dirac_field
- */
-template <class Field>
-struct field_traits<dirac_field<Field> >
+namespace field_traits
 {
-	/** \brief the element type */
-	typedef typename field_traits<Field>::elem_t elem_t;
-	/** \brief the nset type */
-	typedef typename field_traits<Field>::nset_t nset_t;
-	enum {
-		quantity_dimension = field_traits<Field>::quantity_dimension
-	};
-	/** \brief the dof vector type */
-	typedef typename field_traits<Field>::dofs_t dofs_t;
-	/** \brief indicates that the field is dirac */
-	static bool const is_dirac = true;
-};
+	template <class Derived>
+	struct elem_type<dirac_field<Derived> > : elem_type<Derived> {};
+
+	template <class Derived>
+	struct nset_type<dirac_field<Derived> > : nset_type<Derived> {};
+
+	template <class Derived>
+	struct quantity_dimension<dirac_field<Derived> > : quantity_dimension<Derived> {};
+
+	template <class Derived>
+	struct is_dirac<dirac_field<Derived> > : std::true_type {};
+}
 
 
 /** \brief dirac view of a field
@@ -159,7 +174,7 @@ public:
 	typedef field_impl<Field> impl_t;
 
 	/** \brief shorthand for the element type */
-	typedef typename field_traits<dirac_field<Field> >::elem_t elem_t;
+	typedef typename field_traits::elem_type<dirac_field<Field> >::type elem_t;
 	/** \brief store the original field type for the iterator */
 	typedef Field field_t;
 
@@ -172,21 +187,24 @@ public:
 template <class ElemType, class FieldOption, class Dimension>
 class field_view;
 
-/** \brief Specialisation of field_traits for the isoparametric field view case */
-template <class ElemType, class Dimension>
-struct field_traits<field_view<ElemType, field_option::isoparametric, Dimension> >
+namespace field_traits
 {
-	/** \brief the element type */
-	typedef ElemType elem_t;
-	/** \brief the dof vector type */
-	typedef typename elem_t::lset_t nset_t;
+	template <class ElemType, class FieldOption, class Dimension>
+	struct elem_type<field_view<ElemType, FieldOption, Dimension> > : ElemType {};
 
-	enum { quantity_dimension = Dimension::value };
-	/** \brief the dof vector type */
-	typedef Eigen::Matrix<unsigned, 1, quantity_dimension * nset_t::num_nodes> dofs_t;
-	/** \brief indicates that a field view is not dirac */
-	static bool const is_dirac = false;
-};
+	template <class ElemType, class Dimension>
+	struct nset_type<field_view<ElemType, field_option::isoparametric, Dimension> > : ElemType::lset_t {};
+
+	template <class ElemType, class Dimension>
+	struct nset_type<field_view<ElemType, field_option::constant, Dimension> >
+	{
+		typedef constant_shape_set<typename ElemType::domain_t> type;
+	};
+
+	template <class ElemType, class FieldOption, class Dimension>
+	struct quantity_dimension<field_view<ElemType, FieldOption, Dimension> > : Dimension {};
+}
+
 
 /**
  * \brief Specialisation of class field_view for the isoparametric field view case
@@ -197,10 +215,8 @@ template <class ElemType, class Dimension>
 class field_impl<field_view<ElemType, field_option::isoparametric, Dimension> > :
 	public ElemType
 {
-private:
-	/** \brief the degree of freedom vector type */
-	typedef field_traits<field_view<ElemType, field_option::isoparametric, Dimension> > traits_t;
-
+	typedef field_view<ElemType, field_option::isoparametric, Dimension> Derived;
+	typedef typename field_traits::dof_vector_type<Derived>::type dofs_t;
 public:
 	/**
 	 * \brief return underlying element
@@ -215,28 +231,12 @@ public:
 	/** \brief return DOF vector
 	 * TODO RETURN REFERENCE OF LOCAL HERE
 	 */
-	typename traits_t::dofs_t const &get_dofs(void) const
+	dofs_t const &get_dofs(void) const
 	{
 		return ElemType::get_nodes();
 	}
 };
 
-
-/** \brief Specialisation of field_traits for the constant field case */
-template <class ElemType, class Dimension>
-struct field_traits<field_view<ElemType, field_option::constant, Dimension> >
-{
-	/** \brief the element type */
-	typedef ElemType elem_t;
-	/** \brief type of N-set */
-	typedef constant_shape_set<typename elem_t::domain_t> nset_t;
-
-	enum { quantity_dimension = Dimension::value };
-	/** \brief the dof vector type */
-	typedef Eigen::Matrix<unsigned, 1, quantity_dimension * nset_t::num_nodes> dofs_t;
-	/** \brief indicates that a field view is not dirac */
-	static bool const is_dirac = false;
-};
 
 /**
  * \brief Specialisation of class ::field_impl for the case of a constant field view
@@ -247,7 +247,8 @@ class field_impl<field_view< ElemType, field_option::constant, Dimension> >:
 	public ElemType
 {
 private:
-	typedef field_traits<field_view<ElemType, field_option::constant, Dimension> > traits_t;
+	typedef field_view<ElemType, field_option::constant, Dimension> Derived;
+	typedef typename field_traits::dof_vector_type<Derived>::type dofs_t;
 
 public:
 	/** \brief return underlying element */
@@ -257,7 +258,7 @@ public:
 	}
 
 	/** \brief return DOF vector */
-	typename traits_t::dofs_t const &get_dofs(void) const
+	dofs_t const &get_dofs(void) const
 	{
 		return ElemType::get_id();
 	}
@@ -300,21 +301,17 @@ template <class ElemType, class NSet, class Dimension>
 class field;
 
 
-/** \brief Specialisation of field_traits for the field_extension class */
-template <class ElemType, class NSet, class Dimension>
-struct field_traits<field<ElemType, NSet, Dimension> >
+namespace field_traits
 {
-	/** \brief the element type */
-	typedef ElemType elem_t;
-	/** \brief the N-set type */
-	typedef NSet nset_t;
-	/** \brief the dimensionality of the physical quantity */
-	enum { quantity_dimension = Dimension::value };
-	/** \brief the dof vector type */
-	typedef Eigen::Matrix<unsigned, 1, quantity_dimension * nset_t::num_nodes> dofs_t;
-	/** \brief indicates that a field is not a dirac field */
-	static bool const is_dirac = false;
-};
+	template <class ElemType, class NSet, class Dimension>
+	struct elem_type<field<ElemType, NSet, Dimension> > : ElemType {};
+
+	template <class ElemType, class NSet, class Dimension>
+	struct nset_type<field<ElemType, NSet, Dimension> > : NSet {};
+
+	template <class ElemType, class NSet, class Dimension>
+	struct quantity_dimension<field<ElemType, NSet, Dimension> > : Dimension {};
+}
 
 
 /**
@@ -326,12 +323,11 @@ template <class ElemType, class NSet, class Dimension>
 class field_impl<field<ElemType, NSet, Dimension> >
 {
 public:
+	typedef field<ElemType, NSet, Dimension> Derived;
 	/** \brief the element type */
 	typedef ElemType elem_t;
-	/** \brief the dofs vector type */
-	typedef field_traits<field<ElemType, NSet, Dimension> > traits_t;
 	/** \brief the dof vector type */
-	typedef typename traits_t::dofs_t dofs_t;
+	typedef typename field_traits::dof_vector_type<Derived>::type dofs_t;
 
 	/** \brief constructor from element and dof vector
 	 * \param [in] elem the element reference
