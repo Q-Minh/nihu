@@ -15,7 +15,16 @@ foreach (test_source ${MEX_TEST_SOURCES})
 	# Cpp tests
 	if(${test_name} STREQUAL ${test_mex_name})
 		# Add the test executable
-		add_executable(${test_name} ${local_source})
+		if(${test_name} STREQUAL "core_test")
+			add_executable(${test_name} ${local_source} 
+				"mesh_test.cpp"
+				"space_test.cpp"
+				"domain_test.cpp"
+				"element_test.cpp")
+		else()
+			add_executable(${test_name} ${local_source})
+		endif()
+		target_link_libraries(${test_name} lib_domain lib_element lib_shape)
 		# Add the test
 		add_test(${test_name} ${test_name})
 		# Install target
