@@ -104,6 +104,16 @@ set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall -Wunused -pedantic -O3 -std=c++11
 include_directories("${CMAKE_SOURCE_DIR}")
 include_directories("${EIGEN_INCLUDE_DIRS}")
 
+### Libraries
+SET(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/lib)
+
+add_library(lib_domain STATIC library/lib_domain.cpp)
+set_target_properties(lib_domain PROPERTIES PREFIX "")
+add_library(lib_element STATIC library/lib_element.cpp)
+set_target_properties(lib_element PROPERTIES PREFIX "")
+add_library(lib_shape STATIC library/lib_shape.cpp)
+set_target_properties(lib_shape PROPERTIES PREFIX "")
+
 ### Subdirectories
 add_subdirectory(tutorial)
 
