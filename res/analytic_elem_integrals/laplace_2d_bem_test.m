@@ -1,7 +1,7 @@
 clear all;
 
 %% create surface and field point meshes
-Ne =19;
+Ne =105;
 mesh = create_circle_boundary(1, Ne);
 field = create_circle_boundary(2, Ne);
 
