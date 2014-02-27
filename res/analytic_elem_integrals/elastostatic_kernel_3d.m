@@ -34,8 +34,6 @@ T = simple(subs(T, y, [rho*cos(theta); rho*sin(theta); 0]));
 T = simple(subs(T, n, [0; 0; 1]));
 
 R = sym('R', 'positive');
-T1 = sym('T1', 'real');
-T2 = sym('T2', 'real');
 eps = sym('eps', 'positive');
 
 IU1 = simple(int(U * rho, rho, 0, R/cos(theta)));

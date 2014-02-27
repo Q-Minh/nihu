@@ -26,6 +26,7 @@
 
 #include "singularity_types.hpp"
 #include "domain.hpp"
+#include "library/lib_domain.hpp"
 
 /** \brief defining blind transform algorithms */
 namespace blind_transform

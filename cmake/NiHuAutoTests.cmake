@@ -1,11 +1,15 @@
 # Find all mex test sources
 file(GLOB MEX_TEST_SOURCES *.cpp)
+list(REMOVE_ITEM MEX_TEST_SOURCES "${CMAKE_SOURCE_DIR}/test/core_unit/space_test.cpp")
+list(REMOVE_ITEM MEX_TEST_SOURCES "${CMAKE_SOURCE_DIR}/test/core_unit/domain_test.cpp")
+list(REMOVE_ITEM MEX_TEST_SOURCES "${CMAKE_SOURCE_DIR}/test/core_unit/element_test.cpp")
+list(REMOVE_ITEM MEX_TEST_SOURCES "${CMAKE_SOURCE_DIR}/test/core_unit/shapeset_test.cpp")
+list(REMOVE_ITEM MEX_TEST_SOURCES "${CMAKE_SOURCE_DIR}/test/core_unit/field_test.cpp")
 
 file(RELATIVE_PATH current_dir ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Create executable for all the unit tests
 foreach (test_source ${MEX_TEST_SOURCES})
-
 	# get_filename_component(local_source ${test_source} RELATIVE)
 	file(RELATIVE_PATH local_source ${CMAKE_CURRENT_SOURCE_DIR} ${test_source})
 	# Construct test name based on file name
@@ -17,10 +21,11 @@ foreach (test_source ${MEX_TEST_SOURCES})
 		# Add the test executable
 		if(${test_name} STREQUAL "core_test")
 			add_executable(${test_name} ${local_source} 
-				"mesh_test.cpp"
 				"space_test.cpp"
 				"domain_test.cpp"
-				"element_test.cpp")
+				"element_test.cpp"
+				"field_test.cpp"
+				"shapeset_test.cpp")
 		else()
 			add_executable(${test_name} ${local_source})
 		endif()
