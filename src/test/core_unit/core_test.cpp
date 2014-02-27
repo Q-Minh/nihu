@@ -4,7 +4,7 @@
 #include "space_test.h"
 
 
-#include "../library_unit/laplace_singular_test.hpp"
+// #include "../library_unit/laplace_singular_test.hpp"
 
 int main(void)
 {
@@ -13,7 +13,7 @@ int main(void)
     shapeset_test();
     element_test();
 
-    laplace_singular_integrals_test();
+//    laplace_singular_integrals_test();
 
     return 0;
 }
