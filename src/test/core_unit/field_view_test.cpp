@@ -21,6 +21,7 @@
 #include "tmp/sequence.hpp"
 #include "tmp/control.hpp"
 #include "tmp/vector.hpp"
+#include "library/lib_element.hpp"
 
 template <class FieldType>
 void eval_tester(field_base<FieldType> const &field)

@@ -204,7 +204,7 @@ public:
 * \tparam Mesh the underlying Mesh type
 * \tparam FieldOption determines how the field is generated from the mesh
 */
-template<class Mesh, class FieldOption, class Dimension>
+template<class Mesh, class FieldOption, class Dimension = _1d>
 class function_space_view :
 	public function_space_base<function_space_view<Mesh, FieldOption, Dimension> >,
 	public function_space_impl<function_space_view<Mesh, FieldOption, Dimension> >

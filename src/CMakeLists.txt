@@ -105,14 +105,14 @@ include_directories("${CMAKE_SOURCE_DIR}")
 include_directories("${EIGEN_INCLUDE_DIRS}")
 
 ### Libraries
-SET(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/lib)
+#SET(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/lib)
 
 add_library(lib_domain STATIC library/lib_domain.cpp)
-set_target_properties(lib_domain PROPERTIES PREFIX "")
+set_target_properties(lib_domain PROPERTIES PREFIX "" LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 add_library(lib_element STATIC library/lib_element.cpp)
-set_target_properties(lib_element PROPERTIES PREFIX "")
+set_target_properties(lib_element PROPERTIES PREFIX "" LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 add_library(lib_shape STATIC library/lib_shape.cpp)
-set_target_properties(lib_shape PROPERTIES PREFIX "")
+set_target_properties(lib_shape PROPERTIES PREFIX "" LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
 ### Subdirectories
 add_subdirectory(tutorial)

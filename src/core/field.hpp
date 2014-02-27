@@ -106,8 +106,6 @@ public:
 	typedef typename field_traits::nset_type<Derived>::type nset_t;
 	/** \brief the dofs vector type */
 	typedef typename field_traits::dof_vector_type<Derived>::type dofs_t;
-	/** \brief the dofs vector type */
-	typedef typename field_traits::dof_vector_return_type<Derived>::type dofs_return_t;
 
 	enum {
 		/** \brief the number of dofs */
@@ -125,7 +123,7 @@ public:
 	}
 
 	/** \brief return DOF vector */
-	dofs_return_t get_dofs(void) const
+	dofs_t const &get_dofs(void) const
 	{
 		return derived().get_dofs();
 	}
@@ -398,7 +396,7 @@ public:
 /** \brief field view factory */
 template <class Elem, class Option, class Dimension = _1d>
 field_view<Elem, Option, Dimension> const &
-	create_field_view(element_base<Elem> const & e, Option, Dimension)
+	create_field_view(element_base<Elem> const & e, Option, Dimension dim = Dimension())
 {
 	return static_cast<field_view<Elem, Option, Dimension> const &>(e.derived());
 }
