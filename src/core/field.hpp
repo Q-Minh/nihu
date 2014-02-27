@@ -75,15 +75,14 @@ namespace field_traits
 		};
 	};
 
-
 	template <class Derived>
 	struct dof_vector_type
 	{
 		typedef Eigen::Matrix<
-			unsigned,
-			1,
+			unsigned, 1,
 			quantity_dimension<Derived>::value *
-			nset_type<Derived>::type::num_nodes> type;
+			nset_type<Derived>::type::num_nodes
+		> type;
 	};
 }
 
@@ -107,6 +106,8 @@ public:
 	typedef typename field_traits::nset_type<Derived>::type nset_t;
 	/** \brief the dofs vector type */
 	typedef typename field_traits::dof_vector_type<Derived>::type dofs_t;
+	/** \brief the dofs vector type */
+	typedef typename field_traits::dof_vector_return_type<Derived>::type dofs_return_t;
 
 	enum {
 		/** \brief the number of dofs */
@@ -124,7 +125,7 @@ public:
 	}
 
 	/** \brief return DOF vector */
-	dofs_t const &get_dofs(void) const
+	dofs_return_t get_dofs(void) const
 	{
 		return derived().get_dofs();
 	}
@@ -132,10 +133,9 @@ public:
 
 
 
-/** \brief imlementation class of a general field */
+/** \brief implementation class of a general field */
 template <class Derived>
 class field_impl;
-
 
 
 // forward declaration
@@ -210,7 +210,7 @@ namespace field_traits
 
 
 /**
- * \brief Specialisation of class field_view for the isoparametric field view case
+ * \brief Specialisation of class field_impl for the isoparametric field view case
  * \details On an isoparametric field the shape function set equals the geometrical L-set.
  * \tparam ElemType the element type the field is associated with
  */
@@ -221,14 +221,10 @@ class field_impl<field_view<ElemType, field_option::isoparametric, Dimension> > 
 	typedef field_view<ElemType, field_option::isoparametric, Dimension> Derived;
 	typedef typename field_traits::dof_vector_type<Derived>::type dofs_t;
 public:
-	/**
-	 * \brief return underlying element
-	 * \return the element of the field
-	 */
+	/** \brief return underlying element */
 	ElemType const &get_elem(void) const
 	{
-		// static cast
-		return *this;
+		return *this;	// static cast
 	}
 
 	/** \brief return DOF vector
@@ -257,7 +253,7 @@ public:
 	/** \brief return underlying element */
 	ElemType const &get_elem(void) const
 	{
-		return *this;
+		return *this; // static cast
 	}
 
 	/** \brief return DOF vector */
@@ -402,7 +398,7 @@ public:
 /** \brief field view factory */
 template <class Elem, class Option, class Dimension = _1d>
 field_view<Elem, Option, Dimension> const &
- create_field_view(element_base<Elem> const & e, Option, Dimension)
+	create_field_view(element_base<Elem> const & e, Option, Dimension)
 {
 	return static_cast<field_view<Elem, Option, Dimension> const &>(e.derived());
 }
