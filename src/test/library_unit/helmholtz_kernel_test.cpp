@@ -17,6 +17,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "library/helmholtz_kernel.hpp"
+#include "library/lib_element.hpp"
 #include <iostream>
 
 template <class kernel>

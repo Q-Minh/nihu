@@ -20,5 +20,5 @@ int main(void)
     elastostatics_3d_U_kernel::test_input_t test_input(elem1, quad_1_elem::xi_t::Zero());
     elastostatics_3d_U_kernel::trial_input_t trial_input(elem2, quad_1_elem::xi_t::Zero());
 
-    std::cout << U(test_input, trial_input);
+    std::cout << U(test_input, trial_input) << std::endl;
 }

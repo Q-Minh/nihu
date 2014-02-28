@@ -28,6 +28,8 @@
 #include "../core/element_match.hpp"
 #include "../core/integral_operator.hpp"
 #include "helmholtz_kernel.hpp"
+#include "lib_element.hpp"
+
 
 /** \brief internal namespace hiding the stored line quadrature */
 namespace matsumoto_internal
