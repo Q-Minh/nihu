@@ -260,7 +260,7 @@ protected:
 		> > trial_store_t;
 
 		auto acc = create_dual_field_type_accelerator(
-			test_store_t::m_data[degree], trial_store_t::m_data[degree], iteration::diadic());
+			test_store_t::get_data()[degree], trial_store_t::get_data()[degree], iteration::diadic());
 
 		return eval_on_accelerator(
 			result, kernel, test_field, trial_field, acc.begin(), acc.end());
@@ -290,7 +290,7 @@ protected:
 
 		// traverse possible singular integral shortcuts with tmp::call_until
 		if (!tmp::call_until<
-			tmp::vector<match::face_match_type, match::edge_match_type>,
+			tmp::vector<match::face_match_type, match::edge_match_type, match::corner_match_type>,
 			singular_shortcut_switch<tmp::_1>,
 			result_t &,
 			kernel_base<Kernel> const &,
@@ -511,7 +511,7 @@ protected:
 		> > trial_store_t;
 
 		auto acc = create_dual_field_type_accelerator(
-			test_store_t::m_data[degree], trial_store_t::m_data[degree], iteration::diadic());
+			test_store_t::get_data()[degree], trial_store_t::get_data()[degree], iteration::diadic());
 
 		return eval_on_accelerator(
 			result, kernel, test_field, trial_field, acc.begin(), acc.end());
@@ -537,7 +537,7 @@ protected:
 			return eval(WITHOUT_SINGULARITY_CHECK(), result, kernel, test_field, trial_field);
 
 		if (!tmp::call_until<
-			tmp::vector<match::face_match_type, match::corner_match_type>,
+			tmp::vector<match::face_match_type, match::edge_match_type, match::corner_match_type>,
 			singular_shortcut_switch<tmp::_1>,
 			result_t &,
 			kernel_base<Kernel> const &,
@@ -601,7 +601,7 @@ class singular_integral_shortcut
 		element_match const &match)
 	{
 		return double_integral<Kernel, TestField, TrialField>::template eval_singular_on_accelerator<singular_accelerator_t, void>::eval(
-			result, kernel, test_field, trial_field, store_t::m_data.begin(match), store_t::m_data.end(match));
+			result, kernel, test_field, trial_field, store_t::get_data().begin(match), store_t::get_data().end(match));
 	}
 
 	template <class result_t>
@@ -614,7 +614,7 @@ class singular_integral_shortcut
 		element_match const &)
 	{
 		return double_integral<Kernel, TestField, TrialField>::template eval_singular_on_accelerator<singular_accelerator_t, void>::eval(
-			result, kernel, test_field, trial_field, store_t::m_data);
+			result, kernel, test_field, trial_field, store_t::get_data());
 	}
 
 public:

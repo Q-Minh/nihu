@@ -149,10 +149,10 @@ private:
 		function_space_base<TestSpace> const &test_space,
 		Result &result) const
 	{
-		if (&test_space.get_mesh() == &m_trial_space.get_mesh())
+		if (&test_space.get_mesh() == &m_trial_space.get_mesh())    // singular possible
 			assembly<TestSpace, typename std::decay<TrialSpace>::type, std::true_type>::eval_into(
 				result, m_op, test_space, m_trial_space);
-		else
+		else    // singular impossible
 			assembly<TestSpace, typename std::decay<TrialSpace>::type, std::false_type>::eval_into(
 				result, m_op, test_space, m_trial_space);
 	}
@@ -168,7 +168,7 @@ private:
 	}
 
 public:
-	/** \brief test a integral_transform with a test function space
+	/** \brief test an integral_transform with a test function space
 	* \tparam TestSpace type of the test space
 	* \tparam Result type of the result matrix
 	* \param [in] test_space the test space to test with

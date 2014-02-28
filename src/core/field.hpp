@@ -79,9 +79,9 @@ namespace field_traits
 	struct dof_vector_type
 	{
 		typedef Eigen::Matrix<
-			unsigned, 1,
-			quantity_dimension<Derived>::value *
-			nset_type<Derived>::type::num_nodes
+			unsigned,
+			quantity_dimension<Derived>::value * nset_type<Derived>::type::num_nodes,
+			1
 		> type;
 	};
 }

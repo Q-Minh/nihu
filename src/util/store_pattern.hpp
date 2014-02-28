@@ -25,13 +25,14 @@
 
 /** \brief class with a static member */
 template <class C>
-struct store
+class store
 {
-	static const C m_data;
+public:
+    static C const &get_data(void)
+    {
+        static const C m_data;
+        return m_data;
+    }
 };
-
-/** \brief definition of the stored static member with a default constructor */
-template <class C>
-const C store<C>::m_data;
 
 #endif // STORE_PATTERN_HPP

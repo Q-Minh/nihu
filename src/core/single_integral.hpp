@@ -106,8 +106,8 @@ public:
 		> > trial_store_t;
 
 		auto acc = create_dual_field_type_accelerator(
-			test_store_t::m_data[degree],
-			trial_store_t::m_data[degree],
+			test_store_t::get_data()[degree],
+			trial_store_t::get_data()[degree],
 			iteration::diagonal());
 
 		for (auto it = acc.begin(); it != acc.end(); ++it)

@@ -43,7 +43,7 @@ int main(void)
 	A.setZero();
 
 	auto K = create_integral_operator(laplace_3d_SLP_kernel());
-	A << ( test * K[trial] );
+	A << test * K[trial];
 //! [Weighted residual]
 
 //! [Results]

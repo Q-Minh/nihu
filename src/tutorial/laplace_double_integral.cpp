@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //! [Includes]
+#include "library/lib_element.hpp"
 #include "core/weighted_residual.hpp"
 #include "library/laplace_kernel.hpp"
-#include "library/lib_element.hpp"
 //! [Includes]
 
 //! [Typedefs]

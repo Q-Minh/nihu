@@ -48,9 +48,10 @@ private:
 //! [main]
 int main(void)
 {
-	std::cout << store<cache<int> >::m_data[5] << std::endl;
-	std::cout << store<cache<int> >::m_data[25] << std::endl;
-	std::cout << store<cache<char> >::m_data[33] << std::endl;
+	std::cout << store<cache<int> >::get_data()[5] << std::endl;
+	std::cout << store<cache<int> >::get_data()[25] << std::endl;
+	std::cout << store<cache<char> >::get_data()[33] << std::endl;
 	return 0;
 }
 //! [main]
+

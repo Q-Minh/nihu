@@ -27,6 +27,7 @@
 #include "../util/eigen_utils.hpp"
 #include "../util/crtp_base.hpp"
 #include "shapeset.hpp"
+#include "../library/lib_shape.hpp"
 
 /**
 * \brief a quadrature element is a base point and a weight
