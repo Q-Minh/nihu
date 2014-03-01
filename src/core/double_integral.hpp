@@ -29,6 +29,7 @@
 #include "../util/product_type.hpp"
 #include "../util/plain_type.hpp"
 #include "../util/brick.hpp"
+#include "../util/block_product.hpp"
 #include "../library/location_normal.hpp"
 #include "kernel.hpp"
 #include "complexity_estimator.hpp"
@@ -365,18 +366,24 @@ public:
 	/** \brief N-set of the trial field */
 	typedef typename TrialField::nset_t trial_nset_t;
 
-	/** \brief result type of the weighted residual */
-	typedef typename plain_type<
-		typename product_type<
-			typename kernel_traits<Kernel>::result_t,
-			typename plain_type<	// this plain type is needed by clang
-				typename product_type<
-					typename test_nset_t::shape_t,
-					Eigen::Transpose<typename trial_nset_t::shape_t>
-				>::type
-			>::type
-		>::type
-	>::type result_t;
+//	/** \brief result type of the weighted residual */
+//	typedef typename plain_type<
+//		typename product_type<
+//			typename kernel_traits<Kernel>::result_t,
+//			typename plain_type<	// this plain type is needed by clang
+//				typename product_type<
+//					typename test_nset_t::shape_t,
+//					Eigen::Transpose<typename trial_nset_t::shape_t>
+//				>::type
+//			>::type
+//		>::type
+//	>::type result_t;
+	
+	typedef typename block_product_impl<
+		typename test_nset_t::shape_t,
+		typename kernel_traits<Kernel>::result_t,
+		typename trial_nset_t::shape_t
+	>::result_type result_t;
 
 protected:
 	/** \brief evaluate regular collocational integral with selected trial field accelerator
@@ -405,7 +412,8 @@ protected:
 			auto left = (it.get_first()->get_N() * (it.get_first()->get_w())).eval();
 			auto right = (it.get_second()->get_N() * (trial_input.get_jacobian() * it.get_second()->get_w())).eval();
 
-			result += left * kernel(test_input, trial_input) * right.transpose();
+//			result += left * kernel(test_input, trial_input) * right.transpose();
+			result += block_product(left, kernel(test_input, trial_input), right);
 		}
 
 		return result;
@@ -444,10 +452,11 @@ public:
 				for (auto quad_it = quad.begin(); quad_it != quad.end(); ++quad_it)
 				{
 					w_trial_input_t trial_input(trial_field.get_elem(), quad_it->get_xi());
-
-					result.row(idx) += bound(trial_input) *
-						(trial_input.get_jacobian() * quad_it->get_w() *
-						TrialField::nset_t::template eval_shape<0>(quad_it->get_xi()));
+					
+					throw std::runtime_error("This part has been commented to compile");
+//					result.row(idx) += bound(trial_input) *
+//						(trial_input.get_jacobian() * quad_it->get_w() *
+//						TrialField::nset_t::template eval_shape<0>(quad_it->get_xi()));
 				}
 			}
 

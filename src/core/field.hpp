@@ -61,6 +61,9 @@ namespace field_traits
 
 	template <class Derived>
 	struct quantity_dimension;
+	
+	template <class Derived>
+	struct is_dof_vector_stored : std::false_type {};
 
 	template <class Derived>
 	struct is_dirac : std::false_type {};
@@ -84,6 +87,13 @@ namespace field_traits
 			1
 		> type;
 	};
+
+	template <class Derived>
+	struct dof_vector_return_type : std::conditional<
+		is_dof_vector_stored<Derived>::value,
+		typename dof_vector_type<Derived>::type const &,
+		typename dof_vector_type<Derived>::type
+	> {};
 }
 
 
@@ -106,7 +116,9 @@ public:
 	typedef typename field_traits::nset_type<Derived>::type nset_t;
 	/** \brief the dofs vector type */
 	typedef typename field_traits::dof_vector_type<Derived>::type dofs_t;
-
+	/** \brief the dofs vector return type */
+	typedef typename field_traits::dof_vector_return_type<Derived>::type dofs_return_t;
+	
 	enum {
 		/** \brief the number of dofs */
 		num_dofs = nset_t::num_nodes,
@@ -123,7 +135,7 @@ public:
 	}
 
 	/** \brief return DOF vector */
-	dofs_t const &get_dofs(void) const
+	dofs_return_t get_dofs(void) const
 	{
 		return derived().get_dofs();
 	}
@@ -218,6 +230,7 @@ class field_impl<field_view<ElemType, field_option::isoparametric, Dimension> > 
 {
 	typedef field_view<ElemType, field_option::isoparametric, Dimension> Derived;
 	typedef typename field_traits::dof_vector_type<Derived>::type dofs_t;
+	typedef typename field_traits::dof_vector_return_type<Derived>::type dofs_return_t;
 public:
 	/** \brief return underlying element */
 	ElemType const &get_elem(void) const
@@ -225,12 +238,15 @@ public:
 		return *this;	// static cast
 	}
 
-	/** \brief return DOF vector
-	 * TODO RETURN REFERENCE OF LOCAL HERE
-	 */
-	dofs_t const &get_dofs(void) const
+	/** \brief return DOF vector */
+	dofs_return_t get_dofs(void) const
 	{
-		return ElemType::get_nodes();
+		enum { D = Dimension::value };
+		dofs_t dofs;
+		for (unsigned n = 0; n < ElemType::num_nodes; ++n)
+			for (unsigned d = 0; d < D; ++d)
+				dofs(n*D+d) = ElemType::get_nodes()(n)*D + d;
+		return dofs;
 	}
 };
 
@@ -246,6 +262,7 @@ class field_impl<field_view< ElemType, field_option::constant, Dimension> >:
 private:
 	typedef field_view<ElemType, field_option::constant, Dimension> Derived;
 	typedef typename field_traits::dof_vector_type<Derived>::type dofs_t;
+	typedef typename field_traits::dof_vector_return_type<Derived>::type dofs_return_t;
 
 public:
 	/** \brief return underlying element */
@@ -255,9 +272,10 @@ public:
 	}
 
 	/** \brief return DOF vector */
-	dofs_t const &get_dofs(void) const
+	dofs_return_t get_dofs(void) const
 	{
-		return ElemType::get_id();
+		enum { D = Dimension::value };
+		return dofs_t::LinSpaced(D, ElemType::get_id()(0)*D, ElemType::get_id()(0)*D+D-1);
 	}
 };
 
@@ -328,6 +346,8 @@ public:
 	typedef ElemType elem_t;
 	/** \brief the dof vector type */
 	typedef typename field_traits::dof_vector_type<Derived>::type dofs_t;
+	/** \brief the dof vector type */
+	typedef typename field_traits::dof_vector_return_type<Derived>::type dofs_return_t;
 
 	/** \brief constructor from element and dof vector
 	 * \param [in] elem the element reference
@@ -345,7 +365,7 @@ public:
 	}
 
 	/** \return dofs */
-	dofs_t const &get_dofs(void) const
+	dofs_return_t get_dofs(void) const
 	{
 		return m_dofs;
 	}

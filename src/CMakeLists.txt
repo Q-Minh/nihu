@@ -200,7 +200,7 @@ endif(DOXYGEN_FOUND)
 
 # Select all hpp files for installation
 set(NIHU_HPP_DIRECTORIES
-	"core"; "library"; "tmp"; "util")
+	"core"; "interface"; "library"; "tmp"; "util")
 
 foreach(HPP_DIRECTORY ${NIHU_HPP_DIRECTORIES})
 	install(DIRECTORY ${HPP_DIRECTORY} DESTINATION include FILES_MATCHING PATTERN "*.hpp")
@@ -219,3 +219,4 @@ install(DIRECTORY "matlab/nihudemos" DESTINATION matlab)
 
 # Create installation rule for matlab install script
 install(FILES "matlab/install.m" DESTINATION matlab)
+

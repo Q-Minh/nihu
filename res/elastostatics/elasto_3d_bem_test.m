@@ -1,9 +1,9 @@
 %% create surface and field point meshes
-Ne = 4;
+Ne = 5;
 mesh = quad2tria(create_sphere_boundary(1, Ne));
-field = create_sphere_boundary(2, 3);
+field = create_sphere_boundary(2, 5);
 
-mater.mu = 1e8;
+mater.mu = 1;
 mater.nu = .33;
 
 % surface element centers and field points
