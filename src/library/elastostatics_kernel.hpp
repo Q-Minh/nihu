@@ -36,24 +36,21 @@
 #include "reciprocal_kernel_intervals.hpp"
 
 /** \brief kernel data that stores the Poisson's ratio */
-template <class poisson_ratio_type>
+template <class poisson_type>
 class poisson_ratio_data
 {
 public:
 	/** \brief constructor setting the Poisson's ratio */
-	poisson_ratio_data(poisson_ratio_type const &nu = poisson_ratio_type()) :
+	poisson_ratio_data(poisson_type const &nu = poisson_type()) :
 		m_poisson_ratio(nu)
 	{
 	}
 
 	/** \brief return Poisson's ratio */
-	poisson_ratio_type const &get_poisson_ratio(void) const
-	{
-		return m_poisson_ratio;
-	}
+	poisson_type const &get_poisson_ratio(void) const { return m_poisson_ratio; }
 
 private:
-	poisson_ratio_type m_poisson_ratio;
+	poisson_type m_poisson_ratio;
 };
 
 /** \brief a brick representing a 3D displacement kernel of elastostatics
@@ -96,16 +93,10 @@ struct elastostatics_3d_U_brick
 		}
 
 		/** \brief return U kernel */
-		result_t const & get_U(void) const
-		{
-			return m_U;
-		}
+		result_t const & get_U(void) const { return m_U; }
 
 		/** \brief return U kernel */
-		result_t const & get_result(void) const
-		{
-			return m_U;
-		}
+		result_t const & get_result(void) const { return m_U; }
 
 	private:
 		result_t m_U;
@@ -166,7 +157,7 @@ struct singular_kernel_traits<elastostatics_3d_U_kernel>
 };
 
 
-/** \brief Single layer potential kernel of the 3D U kernel in elastostatics */
+/** \brief 3D displacement kernel in elastostatics */
 class elastostatics_3d_U_kernel :
 	public kernel_base<elastostatics_3d_U_kernel>
 {
