@@ -26,7 +26,6 @@
 #ifndef ELASTOSTATICS_KERNEL_HPP_INCLUDED
 #define ELASTOSTATICS_KERNEL_HPP_INCLUDED
 
-#include <cmath>
 #include "../core/global_definitions.hpp"
 #include "../core/kernel.hpp"
 #include "../core/gaussian_quadrature.hpp"
@@ -56,9 +55,6 @@ public:
 private:
 	poisson_ratio_type m_poisson_ratio;
 };
-
-
-
 
 /** \brief a brick representing a 3D displacement kernel of elastostatics
  * \tparam scalar the scalar of the coordinate space the distance is defined over
@@ -116,7 +112,6 @@ struct elastostatics_3d_U_brick
 	};
 };
 
-
 /** \brief combination of common bricks and elastostatics_3d_U_brick into a wall
  * \tparam scalar the scalar type of the coordinate space
  */
@@ -153,7 +148,7 @@ struct kernel_traits<elastostatics_3d_U_kernel>
 	static bool const is_singular = true;
 
 	/** \brief the far field asymptotic behaviour of the kernel */
-	typedef singularity_type::inverse<1> far_field_behaviour_t;
+	typedef asymptotic_type::inverse<1> far_field_behaviour_t;
 	/** \brief the kernel complexity estimator class */
 	typedef interval_estimator<
 		typename reciprocal_distance_kernel_interval<1, GLOBAL_ACCURACY>::type
@@ -165,7 +160,7 @@ template <>
 struct singular_kernel_traits<elastostatics_3d_U_kernel>
 {
 	/** \brief kernel singularity type */
-	typedef singularity_type::inverse<1> singularity_type_t;
+	typedef asymptotic_type::inverse<1> singularity_type_t;
 	/** \brief quadrature order used to generate blind singular quadratures */
 	static unsigned const singular_quadrature_order = 7;
 };
