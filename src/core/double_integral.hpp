@@ -116,16 +116,10 @@ public:
 	typedef typename kernel_traits<Kernel>::quadrature_family_t quadrature_family_t;
 
 	/** \brief result type of the weighted residual */
-	typedef typename plain_type<
-		typename product_type<
-			typename kernel_traits<Kernel>::result_t,
-			typename plain_type<
-				typename product_type<
-					typename TestField::nset_t::shape_t,
-					Eigen::Transpose<typename TrialField::nset_t::shape_t>
-				>::type
-			>::type
-		>::type
+	typedef typename block_product_result_type<
+		typename TestField::nset_t::shape_t,
+		typename kernel_traits<Kernel>::result_t,
+		typename TrialField::nset_t::shape_t
 	>::type result_t;
 
 protected:
@@ -366,24 +360,12 @@ public:
 	/** \brief N-set of the trial field */
 	typedef typename TrialField::nset_t trial_nset_t;
 
-//	/** \brief result type of the weighted residual */
-//	typedef typename plain_type<
-//		typename product_type<
-//			typename kernel_traits<Kernel>::result_t,
-//			typename plain_type<	// this plain type is needed by clang
-//				typename product_type<
-//					typename test_nset_t::shape_t,
-//					Eigen::Transpose<typename trial_nset_t::shape_t>
-//				>::type
-//			>::type
-//		>::type
-//	>::type result_t;
-	
-	typedef typename block_product_impl<
-		typename test_nset_t::shape_t,
+	/** \brief result type of the weighted residual */
+	typedef typename block_product_result_type<
+		typename TestField::nset_t::shape_t,
 		typename kernel_traits<Kernel>::result_t,
-		typename trial_nset_t::shape_t
-	>::result_type result_t;
+		typename TrialField::nset_t::shape_t
+	>::type result_t;
 
 protected:
 	/** \brief evaluate regular collocational integral with selected trial field accelerator

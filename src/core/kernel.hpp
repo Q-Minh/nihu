@@ -26,7 +26,7 @@
 #define KERNEL_HPP_INCLUDED
 
 #include "complexity_estimator.hpp"
-#include "singularity_types.hpp"
+#include "asymptotic_types.hpp"
 #include "../util/crtp_base.hpp"
 #include "../util/brick.hpp"
 #include "../util/collection.hpp"

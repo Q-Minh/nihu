@@ -128,7 +128,7 @@ struct kernel_traits<laplace_2d_SLP_kernel>
 	/** \brief indicates if kernel is singular */
 	static bool const is_singular = true;
 	/** \brief the far field asymptotic behaviour of the kernel */
-	typedef singularity_type::log<1> far_field_behaviour_t;
+	typedef asymptotic::log<1> far_field_behaviour_t;
 	/** \brief the kernel complexity estimator class
 	 * \todo check this
 	 */
@@ -143,7 +143,7 @@ template<>
 struct singular_kernel_traits<laplace_2d_SLP_kernel>
 {
 	/** \brief kernel singularity type */
-	typedef singularity_type::log<1> singularity_type_t;
+	typedef asymptotic::log<1> singularity_type_t;
 	/** \brief quadrature order used to generate blind singular quadratures */
 	static unsigned const singular_quadrature_order = 7;
 };
@@ -249,7 +249,7 @@ struct kernel_traits<laplace_2d_DLP_kernel>
 	/** \brief indicates if kernel is singular */
 	static bool const is_singular = true;
 	/** \brief the far field asymptotic behaviour of the kernel */
-	typedef singularity_type::inverse<1> far_field_behaviour_t;
+	typedef asymptotic::inverse<1> far_field_behaviour_t;
 	/** \brief the kernel complexity estimator class
 	 * \todo introduce regular behaviour description
 	 */
@@ -265,7 +265,7 @@ struct singular_kernel_traits<laplace_2d_DLP_kernel>
 	/** \brief kernel singularity type
 	 * \todo check this!
 	 */
-	typedef singularity_type::log<1> singularity_type_t;
+	typedef asymptotic::log<1> singularity_type_t;
 	/** \brief quadrature order used to generate blind singular quadratures */
 	static unsigned const singular_quadrature_order = 7;
 };
@@ -370,7 +370,7 @@ struct kernel_traits<laplace_2d_DLPt_kernel>
 	/** \brief indicates if kernel is singular */
 	static bool const is_singular = true;
 	/** \brief the far field asymptotic behaviour of the kernel */
-	typedef singularity_type::inverse<1> far_field_behaviour_t;
+	typedef asymptotic::inverse<1> far_field_behaviour_t;
 	/** \brief the kernel complexity estimator class
 	 * \todo introduce regular behaviour
 	 */
@@ -386,7 +386,7 @@ struct singular_kernel_traits<laplace_2d_DLPt_kernel>
 	/** \brief the singularity type
 	 * \todo check this just like the plain DLP kernel
 	 */
-	typedef singularity_type::log<1> singularity_type_t;
+	typedef asymptotic::log<1> singularity_type_t;
 	/** \brief quadrature order used to generate blind singular quadratures */
 	static unsigned const singular_quadrature_order = 7;
 };
@@ -498,7 +498,7 @@ struct kernel_traits<laplace_2d_HSP_kernel>
 	static bool const is_singular = true;
 
 	/** \brief the far field asymptotic behaviour of the kernel */
-	typedef singularity_type::inverse<2> far_field_behaviour_t;
+	typedef asymptotic::inverse<2> far_field_behaviour_t;
 	/** \brief the kernel complexity estimator class
 	 * \todo introduce regular behaviour
 	 */
@@ -514,7 +514,7 @@ struct singular_kernel_traits<laplace_2d_HSP_kernel>
 	/** \brief the singularity type
 	 * \todo check this
 	 */
-	typedef singularity_type::inverse<1> singularity_type_t;
+	typedef asymptotic::inverse<1> singularity_type_t;
 	/** \brief quadrature order used to generate blind singular quadratures */
 	static unsigned const singular_quadrature_order = 7;
 };
@@ -619,7 +619,7 @@ struct kernel_traits<laplace_3d_SLP_kernel>
 	static bool const is_singular = true;
 
 	/** \brief the far field asymptotic behaviour of the kernel */
-	typedef singularity_type::inverse<1> far_field_behaviour_t;
+	typedef asymptotic::inverse<1> far_field_behaviour_t;
 	/** \brief the kernel complexity estimator class */
 	typedef interval_estimator<
 		typename reciprocal_distance_kernel_interval<1, GLOBAL_ACCURACY>::type
@@ -631,7 +631,7 @@ template <>
 struct singular_kernel_traits<laplace_3d_SLP_kernel>
 {
 	/** \brief kernel singularity type */
-	typedef singularity_type::inverse<1> singularity_type_t;
+	typedef asymptotic::inverse<1> singularity_type_t;
 	/** \brief quadrature order used to generate blind singular quadratures */
 	static unsigned const singular_quadrature_order = 7;
 };
@@ -739,7 +739,7 @@ struct kernel_traits<laplace_3d_DLP_kernel>
 	static bool const is_singular = true;
 
 	/** \brief the far field asymptotic behaviour of the kernel */
-	typedef singularity_type::log<2> far_field_behaviour_t;
+	typedef asymptotic::log<2> far_field_behaviour_t;
 	/** \brief the kernel complexity estimator class
 	 * \todo introduce regular behaviour
 	 */
@@ -755,7 +755,7 @@ struct singular_kernel_traits<laplace_3d_DLP_kernel>
 	/** \brief singularity type
 	 * \todo check this
 	 */
-	typedef singularity_type::inverse<1> singularity_type_t;
+	typedef asymptotic::inverse<1> singularity_type_t;
 	/** \brief quadrature order used to generate blind singular quadratures */
 	static unsigned const singular_quadrature_order = 7;
 };
@@ -862,7 +862,7 @@ struct kernel_traits<laplace_3d_DLPt_kernel>
 	static bool const is_singular = true;
 
 	/** \brief the far field asymptotic behaviour of the kernel */
-	typedef singularity_type::inverse<2> far_field_behaviour_t;
+	typedef asymptotic::inverse<2> far_field_behaviour_t;
 	/** \brief the kernel complexity estimator class
 	 * \todo introduce regular behaviour
 	 */
@@ -878,7 +878,7 @@ struct singular_kernel_traits<laplace_3d_DLPt_kernel>
 	/** \brief singularity type
 	* \todo check this
 	*/
-	typedef singularity_type::inverse<1> singularity_type_t;
+	typedef asymptotic::inverse<1> singularity_type_t;
 	/** \brief quadrature order used to generate blind singular quadratures */
 	static unsigned const singular_quadrature_order = 7;
 };
@@ -991,7 +991,7 @@ struct kernel_traits<laplace_3d_HSP_kernel>
 	static bool const is_singular = true;
 
 	/** \brief the far field asymptotic behaviour of the kernel */
-	typedef singularity_type::inverse<3> far_field_behaviour_t;
+	typedef asymptotic::inverse<3> far_field_behaviour_t;
 	/** \brief the kernel complexity estimator class
 	 * \todo introduce regular behaviour
 	 */
@@ -1007,7 +1007,7 @@ struct singular_kernel_traits<laplace_3d_HSP_kernel>
 	/** \brief singularity type
 	 * \todo check this
 	 */
-	typedef singularity_type::inverse<3> singularity_type_t;
+	typedef asymptotic::inverse<3> singularity_type_t;
 	/** \brief the singularity type when used with Guiggiani's method */
 	typedef laplace_3d_HSP_kernel singular_kernel_ancestor_t;
 	/** \brief quadrature order used to generate blind singular quadratures */

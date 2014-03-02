@@ -1,6 +1,6 @@
 %% create surface and field point meshes
 Ne = 5;
-mesh = quad2tria(create_sphere_boundary(1, Ne));
+mesh = create_sphere_boundary(1, Ne);
 field = create_sphere_boundary(2, 5);
 
 mater.mu = 1;
