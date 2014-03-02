@@ -119,8 +119,6 @@ struct kernel_traits<laplace_2d_SLP_kernel>
 	typedef collect<empty_data> data_t;
 	/** \brief the kernel output type */
 	typedef laplace_2d_SLP_wall<space_2d::scalar_t>::type output_t;
-	/** \brief kernel result type */
-	typedef output_t::result_t result_t;
 	/** \brief the quadrature family the kernel is integrated with */
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
@@ -240,8 +238,6 @@ struct kernel_traits<laplace_2d_DLP_kernel>
 	typedef collect<empty_data> data_t;
 	/** \brief the kernel output type */
 	typedef laplace_2d_DLP_wall<space_2d::scalar_t>::type output_t;
-	/** \brief kernel result type */
-	typedef space_2d::scalar_t result_t;
 	/** \brief the quadrature family the kernel is integrated with */
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
@@ -361,8 +357,6 @@ struct kernel_traits<laplace_2d_DLPt_kernel>
 	typedef collect<empty_data> data_t;
 	/** \brief the kernel output type */
 	typedef laplace_2d_DLPt_wall<space_2d::scalar_t>::type output_t;
-	/** \brief kernel result type */
-	typedef space_2d::scalar_t result_t;
 	/** \brief the quadrature family the kernel is integrated with */
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
@@ -488,8 +482,6 @@ struct kernel_traits<laplace_2d_HSP_kernel>
 	typedef collect<empty_data> data_t;
 	/** \brief the kernel output type */
 	typedef laplace_2d_HSP_wall<space_2d::scalar_t>::type output_t;
-	/** \brief kernel result type */
-	typedef output_t::result_t result_t;
 	/** \brief the quadrature family the kernel is integrated with */
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
@@ -609,8 +601,6 @@ struct kernel_traits<laplace_3d_SLP_kernel>
 	typedef collect<empty_data> data_t;
 	/** \brief the kernel output type */
 	typedef laplace_3d_SLP_wall<space_3d::scalar_t>::type output_t;
-	/** \brief kernel result type */
-	typedef output_t::result_t result_t;
 	/** \brief the quadrature family the kernel is integrated with */
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
@@ -729,8 +719,6 @@ struct kernel_traits<laplace_3d_DLP_kernel>
 	typedef collect<empty_data> data_t;
 	/** \brief the kernel output type */
 	typedef laplace_3d_DLP_wall<space_3d::scalar_t>::type output_t;
-	/** \brief kernel result type */
-	typedef output_t::result_t result_t;
 	/** \brief the quadrature family the kernel is integrated with */
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
@@ -852,8 +840,6 @@ struct kernel_traits<laplace_3d_DLPt_kernel>
 	typedef collect<empty_data> data_t;
 	/** \brief the kernel output type */
 	typedef laplace_3d_DLPt_wall<space_3d::scalar_t>::type output_t;
-	/** \brief kernel result type */
-	typedef space_3d::scalar_t result_t;
 	/** \brief the quadrature family the kernel is integrated with */
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
@@ -981,8 +967,6 @@ struct kernel_traits<laplace_3d_HSP_kernel>
 	typedef collect<empty_data> data_t;
 	/** \brief the kernel output type */
 	typedef laplace_3d_HSP_wall<space_3d::scalar_t>::type output_t;
-	/** \brief kernel result type */
-	typedef space_3d::scalar_t result_t;
 	/** \brief the quadrature family the kernel is integrated with */
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */

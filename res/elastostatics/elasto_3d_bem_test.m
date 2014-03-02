@@ -1,7 +1,7 @@
 %% create surface and field point meshes
-Ne = 5;
-mesh = create_sphere_boundary(1, Ne);
-field = create_sphere_boundary(2, 5);
+Ne = 3;
+mesh = quad2tria(create_sphere_boundary(1, Ne));
+field = create_sphere_boundary(2, Ne);
 
 mater.mu = 1;
 mater.nu = .33;
@@ -69,3 +69,5 @@ error = log10(abs(result./result_anal-1));
 fprintf(1, 'Minimal log10 error: %g\n', min(error));
 fprintf(1, 'Mean log10 error: %g\n', mean(error));
 fprintf(1, 'Maximal log10 error: %g\n', max(error));
+
+save results

@@ -53,15 +53,11 @@ private:
 	poisson_type m_poisson_ratio;
 };
 
-/** \brief a brick representing a 3D displacement kernel of elastostatics
- * \tparam scalar the scalar of the coordinate space the distance is defined over
- */
+/** \brief a brick representing a 3D displacement kernel of elastostatics */
 template <class scalar>
 struct elastostatics_3d_U_brick
 {
-	/** \brief the brick template
-	 * \tparam the wall the brick is placed on
-	 */
+	/** \brief the brick template */
 	template <class wall>
 	class brick : public wall
 	{
@@ -69,14 +65,7 @@ struct elastostatics_3d_U_brick
 		/** \brief the result type */
 		typedef Eigen::Matrix<scalar, 3, 3> result_t;
 
-		/** \brief templated constructor
-		 * \tparam test_input_t the test input type
-		 * \tparam trial_input_t the trial input type
-		 * \tparam kernel_data_t the kernel type
-		 * \param [in] test_input the test input
-		 * \param [in] trial_input the trial input
-		 * \param [in] kernel_data the kernel data instance
-		 */
+		/** \brief templated constructor */
 		template <class test_input_t, class trial_input_t, class kernel_data_t>
 		brick(
 			test_input_t const &test_input,
@@ -129,8 +118,6 @@ struct kernel_traits<elastostatics_3d_U_kernel>
 	typedef collect<poisson_ratio_data<double> > data_t;
 	/** \brief the kernel output type */
 	typedef elastostatics_3d_U_wall<space_3d::scalar_t>::type output_t;
-	/** \brief kernel result type */
-	typedef output_t::result_t result_t;
 	/** \brief the quadrature family the kernel is integrated with */
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
@@ -164,6 +151,117 @@ class elastostatics_3d_U_kernel :
 public:
 	elastostatics_3d_U_kernel(double nu) :
 		kernel_base<elastostatics_3d_U_kernel>(poisson_ratio_data<double>(nu))
+	{
+	}
+};
+
+
+
+
+/** \brief a brick representing a 3D traction kernel of elastostatics */
+template <class scalar>
+struct elastostatics_3d_T_brick
+{
+	/** \brief the brick template */
+	template <class wall>
+	class brick : public wall
+	{
+	public:
+		/** \brief the result type */
+		typedef Eigen::Matrix<scalar, 3, 3> result_t;
+
+		/** \brief templated constructor */
+		template <class test_input_t, class trial_input_t, class kernel_data_t>
+		brick(
+			test_input_t const &test_input,
+			trial_input_t const &trial_input,
+			kernel_data_t const &kernel_data) :
+			wall(test_input, trial_input, kernel_data)
+		{
+			auto const &nu = kernel_data.get_poisson_ratio();
+			auto const &rvec = wall::get_distance_vector();
+			auto const &r = wall::get_distance();
+			auto const &n = trial_input.get_unit_normal();
+			auto const &rdny = wall::get_rdny();
+			auto gradr = rvec / r;
+
+			m_T = -rdny * ( (1.-2.*nu)*result_t::Identity() + 3.*(gradr*gradr.transpose()) );
+			for (unsigned i = 0; i < 3; ++i)
+				for (unsigned k = 0; k < 3; ++k)
+					m_T(i,k) += (1.-2.*nu) * (gradr(k)*n(i) - gradr(i)*n(k));
+
+			m_T /= (8.0*M_PI*(1.0-nu)*r*r);
+		}
+
+		/** \brief return T kernel */
+		result_t const & get_T(void) const { return m_T; }
+
+		/** \brief return T kernel */
+		result_t const & get_result(void) const { return m_T; }
+
+	private:
+		result_t m_T;
+	};
+};
+
+/** \brief combination of common bricks and elastostatics_3d_T_brick into a wall */
+template <class scalar>
+struct elastostatics_3d_T_wall : build<
+	distance_vector_brick<space<scalar, 3> >,
+	distance_brick<scalar>,
+	rdny_brick<scalar>,
+	elastostatics_3d_T_brick<scalar>
+> {};
+
+
+// forward declaration
+class elastostatics_3d_T_kernel;
+
+/** \brief traits of the 3D T kernel in elastostatics */
+template <>
+struct kernel_traits<elastostatics_3d_T_kernel>
+{
+	/** \brief kernel test input type */
+	typedef build<location<space_3d> >::type test_input_t;
+	/** \brief kernel trial input type */
+	typedef build<location<space_3d>, normal_jacobian<space_3d> >::type trial_input_t;
+	/** \brief kernel data type */
+	typedef collect<poisson_ratio_data<double> > data_t;
+	/** \brief the kernel output type */
+	typedef elastostatics_3d_T_wall<space_3d::scalar_t>::type output_t;
+	/** \brief the quadrature family the kernel is integrated with */
+	typedef gauss_family_tag quadrature_family_t;
+	/** \brief indicates if K(x,y) = K(y,x) */
+	static bool const is_symmetric = false;
+	/** \brief indicates if kernel is singular */
+	static bool const is_singular = true;
+
+	/** \brief the far field asymptotic behaviour of the kernel */
+	typedef asymptotic::inverse<2> far_field_behaviour_t;
+	/** \brief the kernel complexity estimator class */
+	typedef interval_estimator<
+		typename reciprocal_distance_kernel_interval<2, GLOBAL_ACCURACY>::type
+	> complexity_estimator_t;
+};
+
+/** \brief singular traits of the 3D U kernel in elastostatics */
+template <>
+struct singular_kernel_traits<elastostatics_3d_T_kernel>
+{
+	/** \brief kernel singularity type */
+	typedef asymptotic::inverse<2> singularity_type_t;
+	/** \brief quadrature order used to generate blind singular quadratures */
+	static unsigned const singular_quadrature_order = 7;
+};
+
+
+/** \brief 3D displacement kernel in elastostatics */
+class elastostatics_3d_T_kernel :
+	public kernel_base<elastostatics_3d_T_kernel>
+{
+public:
+	elastostatics_3d_T_kernel(double nu) :
+		kernel_base<elastostatics_3d_T_kernel>(poisson_ratio_data<double>(nu))
 	{
 	}
 };

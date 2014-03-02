@@ -27,6 +27,7 @@
 
 #include "eigen_utils.hpp"
 #include "product_type.hpp"
+#include "plain_type.hpp"
 
 namespace internal
 {

@@ -269,8 +269,6 @@ struct kernel_traits<helmholtz_2d_SLP_kernel<wave_number_t> >
 	typedef collect<wave_number_data<wave_number_t> > data_t;
 	/** \brief the kernel output type */
 	typedef helmholtz_2d_g_wall<space_2d::scalar_t>::type output_t;
-	/** \brief kernel result type */
-	typedef typename output_t::result_t result_t;
 	/** \brief the quadrature family the kernel is integrated with
 	 * \todo update this quantity
 	 */
@@ -339,8 +337,6 @@ struct kernel_traits<helmholtz_3d_SLP_kernel<wave_number_t> >
 	typedef collect<wave_number_data<wave_number_t> > data_t;
 	/** \brief the kernel output type */
 	typedef helmholtz_3d_g_wall<space_3d::scalar_t>::type output_t;
-	/** \brief kernel result type */
-	typedef typename output_t::result_t result_t;
 	/** \brief the quadrature family the kernel is integrated with */
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
@@ -532,8 +528,6 @@ struct kernel_traits<helmholtz_2d_DLP_kernel<wave_number_t> >
 	typedef collect<wave_number_data<wave_number_t> > data_t;
 	/** \brief the kernel output type */
 	typedef helmholtz_2d_h_wall<space_2d::scalar_t>::type output_t;
-	/** \brief kernel result type */
-	typedef typename output_t::result_t result_t;
 	/** \brief the quadrature family the kernel is integrated with */
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
@@ -598,8 +592,6 @@ struct kernel_traits<helmholtz_3d_DLP_kernel<wave_number_t> >
 	typedef collect<wave_number_data<wave_number_t> > data_t;
 	/** \brief the kernel output type */
 	typedef helmholtz_3d_h_wall<space_3d::scalar_t>::type output_t;
-	/** \brief kernel result type */
-	typedef typename output_t::result_t result_t;
 	/** \brief the quadrature family the kernel is integrated with */
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
@@ -727,8 +719,6 @@ struct kernel_traits<helmholtz_3d_DLPt_kernel<wave_number_t> >
 	typedef collect<wave_number_data<wave_number_t> > data_t;
 	/** \brief the kernel output type */
 	typedef helmholtz_3d_ht_wall<space_3d::scalar_t>::type output_t;
-	/** \brief kernel result type */
-	typedef typename output_t::result_t result_t;
 	/** \brief the quadrature family the kernel is integrated with */
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
@@ -864,8 +854,6 @@ struct kernel_traits<helmholtz_3d_HSP_kernel<wave_number_t> >
 	typedef collect<wave_number_data<wave_number_t> > data_t;
 	/** \brief the kernel output type */
 	typedef helmholtz_3d_hyper_wall<space_3d::scalar_t>::type output_t;
-	/** \brief kernel result type */
-	typedef typename output_t::result_t result_t;
 	/** \brief the quadrature family the kernel is integrated with */
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */

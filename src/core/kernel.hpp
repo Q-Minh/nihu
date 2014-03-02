@@ -61,16 +61,15 @@ public:
 	typedef typename traits_t::test_input_t test_input_t;
 	/** \brief type of the second (trial) kernel input */
 	typedef typename traits_t::trial_input_t trial_input_t;
+	/** \brief compile time check if the two kernel inputs are compatible */
+	static_assert(std::is_same<typename test_input_t::space_t, typename trial_input_t::space_t>::value,
+		"The test and trial kernel inputs must define the same coordinate space");
 	/** \brief the kernel data type */
 	typedef typename traits_t::data_t data_t;
 	/** \brief type of the kernel output (not the result) */
 	typedef typename traits_t::output_t output_t;
-	/** \brief type of the kernel's result */
-	typedef typename traits_t::result_t result_t;
-
-	/** \brief compile time check if the two kernel inputs are compatible */
-	static_assert(std::is_same<typename test_input_t::space_t, typename trial_input_t::space_t>::value,
-		"The test and trial kernel inputs must define the same coordinate space");
+	/** \brief kernel result type */
+	typedef typename output_t::result_t result_t;
 
 	/** \brief type of the kernel's domain space */
 	typedef typename test_input_t::space_t space_t;

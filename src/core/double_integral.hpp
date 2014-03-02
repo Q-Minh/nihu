@@ -118,7 +118,7 @@ public:
 	/** \brief result type of the weighted residual */
 	typedef typename block_product_result_type<
 		typename TestField::nset_t::shape_t,
-		typename kernel_traits<Kernel>::result_t,
+		typename Kernel::result_t,
 		typename TrialField::nset_t::shape_t
 	>::type result_t;
 
@@ -363,7 +363,7 @@ public:
 	/** \brief result type of the weighted residual */
 	typedef typename block_product_result_type<
 		typename TestField::nset_t::shape_t,
-		typename kernel_traits<Kernel>::result_t,
+		typename Kernel::result_t,
 		typename TrialField::nset_t::shape_t
 	>::type result_t;
 
