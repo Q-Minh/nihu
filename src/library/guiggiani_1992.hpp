@@ -28,6 +28,7 @@
 #include "../core/field.hpp"
 #include "../core/kernel.hpp"
 #include "../core/gaussian_quadrature.hpp"
+#include "../util/block_product.hpp"
 #include "location_normal.hpp"
 
 /** \brief store-wrapper of a statically stored quadrature */
@@ -115,6 +116,18 @@ public:
 	typedef typename singular_kernel_traits<kernel_t>::singular_kernel_ancestor_t singular_kernel_ancestor_t;
 	/** \brief the Laurent coefficients computing class */
 	typedef polar_laurent_coeffs<singular_kernel_ancestor_t> laurent_t;
+
+	typedef typename block_product_result_type<
+		Eigen::Matrix<double, 1, 1>,
+		typename singular_kernel_ancestor_t::result_t,
+		trial_n_shape_t
+	>::type laurent_coeff_t;
+
+	typedef typename block_product_result_type<
+		Eigen::Matrix<double, 1, 1>,
+		typename kernel_t::result_t,
+		trial_n_shape_t
+	>::type total_result_t;
 
 	template <class singularity_type>
 	friend class polar_laurent_coeffs;
@@ -237,9 +250,10 @@ public:
 				// reference domain's limit
 				scalar_t rho_lim = m_ref_distance[n] / std::cos(theta - m_theta0[n]);
 
-				auto toadd = w_theta * (m_Fcoeffs[0] * std::log(rho_lim) - m_Fcoeffs[1] * (1.0 / rho_lim));
-				for (int j = 0; j < I.cols(); ++j)	// loop needed for scalar casting
-					I(j) += toadd(j);
+				auto toadd = w_theta * (m_Fcoeffs[0] * std::log(rho_lim) - m_Fcoeffs[1] / rho_lim);
+				for (int r = 0; r < I.rows(); ++r)	// loop needed for scalar casting
+					for (int c = 0; c < I.cols(); ++c)
+						I(r,c) += toadd(r,c);
 
 				// radial part of surface integration
 				auto const &quad_rho = line_quad_store<radial_order>::quadrature;
@@ -255,17 +269,18 @@ public:
 
 					// evaluate G * N * J * rho
 					w_trial_input_t trial_input(m_elem, xi);
-					auto F = (
-						bound(trial_input) *
-						trial_input.get_jacobian() / m_T.determinant() *
-						rho *
-						trial_nset_t::template eval_shape<0>(xi)
-						).eval();
+					typename kernel_t::result_t GJrho =
+						bound(trial_input) * (trial_input.get_jacobian() / m_T.determinant() * rho);
+					typename trial_nset_t::shape_t N =
+						trial_nset_t::template eval_shape<0>(xi);
+					total_result_t F = block_product(
+						(Eigen::Matrix<scalar_t, 1, 1>() << 1.).finished(), GJrho, N);
 
 					// subtract the analytical singularity
-					auto singular_part = (m_Fcoeffs[1] / rho + m_Fcoeffs[0]) / rho;
-					for (int j = 0; j < F.cols(); ++j)	// loop needed for scalar casting
-						F(j) -= singular_part(j);
+					laurent_coeff_t singular_part = (m_Fcoeffs[1] / rho + m_Fcoeffs[0]) / rho;
+					for (int r = 0; r < F.rows(); ++r)	// loop needed for scalar casting
+						for (int c = 0; c < F.cols(); ++c)
+							F(r,c) -= singular_part(r,c);
 
 					// surface integral accumulation
 					I += w_theta * w_rho * F;
@@ -298,34 +313,7 @@ protected:
 	x_t m_rvec_series[2];	        /**< \brief series expansion of the location vector */
 	x_t m_Jvec_series[2];	        /**< \brief series expansion of the Jacobian vector */
 	trial_n_shape_t m_N_series[2];	/**< \brief series expansion of the the shape function vector */
-	trial_n_shape_t m_Fcoeffs[2];	/**< \brief the 1st and 2nd order Laurent coefficient */
-};
-
-#include "../library/laplace_kernel.hpp"
-
-/** \brief specialisation of class ::polar_laurent_coeffs for the ::laplace_3d_HSP_kernel */
-template <>
-class polar_laurent_coeffs<laplace_3d_HSP_kernel>
-{
-public:
-	template <class guiggiani>
-	static void eval(guiggiani &obj)
-	{
-        auto A2 = obj.m_A * obj.m_A, A3 = A2 * obj.m_A;
-		auto g1vec = obj.m_rvec_series[0] / A2 * (obj.m_rvec_series[1].dot(obj.m_Jvec_series[0]) + obj.m_rvec_series[0].dot(obj.m_Jvec_series[1]));
-
-		auto b0vec = -obj.m_Jvec_series[0];
-		auto b1vec = 3.0 * g1vec - obj.m_Jvec_series[1];
-
-		auto a0 = b0vec.dot(obj.m_n0) * obj.m_N_series[0];
-		auto a1 = b1vec.dot(obj.m_n0) * obj.m_N_series[0] + b0vec.dot(obj.m_n0) * obj.m_N_series[1];
-
-		auto Sm2 = -3.0 * obj.m_rvec_series[0].dot(obj.m_rvec_series[1]) / A2 / A3;
-		auto Sm3 = 1.0 / A3;
-
-		obj.m_Fcoeffs[0] = -(Sm2 * a0 + Sm3 * a1) / (4.0 * M_PI);
-		obj.m_Fcoeffs[1] = -(Sm3 * a0) / (4.0 * M_PI);
-	}
+	laurent_coeff_t m_Fcoeffs[2];	/**< \brief the 1st and 2nd order Laurent coefficient */
 };
 
 #endif // GUIGGIANI_1992_HPP_INCLUDED

@@ -1004,5 +1004,33 @@ class laplace_3d_HSP_kernel :
 {
 };
 
+
+#include "guiggiani_1992.hpp"
+
+/** \brief specialisation of class ::polar_laurent_coeffs for the ::laplace_3d_HSP_kernel */
+template <>
+class polar_laurent_coeffs<laplace_3d_HSP_kernel>
+{
+public:
+	template <class guiggiani>
+	static void eval(guiggiani &obj)
+	{
+        auto A2 = obj.m_A * obj.m_A, A3 = A2 * obj.m_A;
+		auto g1vec = obj.m_rvec_series[0] / A2 * (obj.m_rvec_series[1].dot(obj.m_Jvec_series[0]) + obj.m_rvec_series[0].dot(obj.m_Jvec_series[1]));
+
+		auto b0vec = -obj.m_Jvec_series[0];
+		auto b1vec = 3.0 * g1vec - obj.m_Jvec_series[1];
+
+		auto a0 = b0vec.dot(obj.m_n0) * obj.m_N_series[0];
+		auto a1 = b1vec.dot(obj.m_n0) * obj.m_N_series[0] + b0vec.dot(obj.m_n0) * obj.m_N_series[1];
+
+		auto Sm2 = -3.0 * obj.m_rvec_series[0].dot(obj.m_rvec_series[1]) / A2 / A3;
+		auto Sm3 = 1.0 / A3;
+
+		obj.m_Fcoeffs[0] = -(Sm2 * a0 + Sm3 * a1) / (4.0 * M_PI);
+		obj.m_Fcoeffs[1] = -(Sm3 * a0) / (4.0 * M_PI);
+	}
+};
+
 #endif // LAPLACE_KERNEL_HPP_INCLUDED
 

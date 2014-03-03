@@ -227,95 +227,95 @@ void test_plane_quadratic(kernel_t const &kernel)
 
 }
 
-
-void test_rong(void)
-{
-	typedef double wave_number_t;
-	typedef helmholtz_3d_HSP_kernel<wave_number_t> kernel_t;
-	kernel_t kernel(0.0);
-
-	typedef tria_2_elem elem_t;
-	typedef field_view<elem_t, field_option::constant> field_t;
-
-	typedef elem_t::coords_t coords_t;
-
-	coords_t coords;
-	coords <<
-		1.0, 1.0, 1.0, std::cos(M_PI / 8.0), std::cos(M_PI / 4.0), std::cos(M_PI / 8.0),
-		-0.5, 0.0, 0.5, 0.25, 0.0, -0.25,
-		0.0, 0.0, 0.0, std::sin(M_PI / 8.0), std::sin(M_PI / 4.0), std::sin(M_PI / 8.0);
-
-	elem_t elem(coords);
-
-	elem_t::xi_t xi0(.3, .3);
-
-	Eigen::Matrix<std::complex<double>, 1, 1> I5, I8, I10, I12, I20;
-
-	guiggiani<field_t, kernel_t, 2 * 20 - 1> gui20(elem, kernel);
-	I20.setZero();
-	gui20.integrate(I20, xi0, elem.get_normal(xi0).normalized());
-
-	guiggiani<field_t, kernel_t, 2 * 5 - 1> gui5(elem, kernel);
-	I5.setZero();
-	gui5.integrate(I5, xi0, elem.get_normal(xi0).normalized());
-	std::cout << I5 << ' ' << std::log10(std::abs(I5(0, 0) / I20(0, 0) - 1.0)) << std::endl;
-
-	guiggiani<field_t, kernel_t, 2 * 8 - 1> gui8(elem, kernel);
-	I8.setZero();
-	gui8.integrate(I8, xi0, elem.get_normal(xi0).normalized());
-	std::cout << I8 << ' ' << std::log10(std::abs(I8(0, 0) / I20(0, 0) - 1.0)) << std::endl;
-
-	guiggiani<field_t, kernel_t, 2 * 10 - 1> gui10(elem, kernel);
-	I10.setZero();
-	gui10.integrate(I10, xi0, elem.get_normal(xi0).normalized());
-	std::cout << I10 << ' ' << std::log10(std::abs(I10(0, 0) / I20(0, 0) - 1.0)) << std::endl;
-
-	guiggiani<field_t, kernel_t, 2 * 12 - 1> gui12(elem, kernel);
-	I12.setZero();
-	gui12.integrate(I12, xi0, elem.get_normal(xi0).normalized());
-	std::cout << I12 << ' ' << std::log10(std::abs(I12(0, 0) / I20(0, 0) - 1.0)) << std::endl;
-
-}
-
-
-void test_guiggiani_92_curved(void)
-{
-	typedef laplace_3d_HSP_kernel kernel_t;
-	kernel_t kernel;
-
-	typedef quad_2_elem elem_t;
-	typedef field_view<elem_t, field_option::constant> field_t;
-
-	typedef elem_t::coords_t coords_t;
-
-	coords_t coords;
-	double b = std::sqrt(2.0) / 2.0;
-	coords <<
-		1, 1, 1, b, 0, 0, 0, b, b,
-		0, 1, 2, 2, 2, 1, 0, 0, 1,
-		0, 0, 0, b, 1, 1, 1, b, b;
-
-	elem_t elem(coords);
-	guiggiani<field_t, kernel_t, 7> gui(elem, kernel);
-
-	elem_t::xi_t xi0;
-	Eigen::Matrix<double, 1, 1> I;
-
-	I.setZero();
-	xi0 << 0.0, 0.0;
-	gui.integrate(I, xi0, elem.get_normal(xi0).normalized());
-	std::cout << I << std::endl;
-
-	//I.setZero();
-	//xi0 << 0.66, 0.0;
-	//gui.integral(I, xi0);
-	//std::cout << I << std::endl;
-
-	//I.setZero();
-	//xi0 << 0.66, 0.66;
-	//gui.integral(I, xi0);
-	//std::cout << I << std::endl;
-}
+//
+//void test_rong(void)
+//{
+//	typedef double wave_number_t;
+//	typedef helmholtz_3d_HSP_kernel<wave_number_t> kernel_t;
+//	kernel_t kernel(0.0);
+//
+//	typedef tria_2_elem elem_t;
+//	typedef field_view<elem_t, field_option::constant> field_t;
+//
+//	typedef elem_t::coords_t coords_t;
+//
+//	coords_t coords;
+//	coords <<
+//		1.0, 1.0, 1.0, std::cos(M_PI / 8.0), std::cos(M_PI / 4.0), std::cos(M_PI / 8.0),
+//		-0.5, 0.0, 0.5, 0.25, 0.0, -0.25,
+//		0.0, 0.0, 0.0, std::sin(M_PI / 8.0), std::sin(M_PI / 4.0), std::sin(M_PI / 8.0);
+//
+//	elem_t elem(coords);
+//
+//	elem_t::xi_t xi0(.3, .3);
+//
+//	Eigen::Matrix<std::complex<double>, 1, 1> I5, I8, I10, I12, I20;
+//
+//	guiggiani<field_t, kernel_t, 2 * 20 - 1> gui20(elem, kernel);
+//	I20.setZero();
+//	gui20.integrate(I20, xi0, elem.get_normal(xi0).normalized());
+//
+//	guiggiani<field_t, kernel_t, 2 * 5 - 1> gui5(elem, kernel);
+//	I5.setZero();
+//	gui5.integrate(I5, xi0, elem.get_normal(xi0).normalized());
+//	std::cout << I5 << ' ' << std::log10(std::abs(I5(0, 0) / I20(0, 0) - 1.0)) << std::endl;
+//
+//	guiggiani<field_t, kernel_t, 2 * 8 - 1> gui8(elem, kernel);
+//	I8.setZero();
+//	gui8.integrate(I8, xi0, elem.get_normal(xi0).normalized());
+//	std::cout << I8 << ' ' << std::log10(std::abs(I8(0, 0) / I20(0, 0) - 1.0)) << std::endl;
+//
+//	guiggiani<field_t, kernel_t, 2 * 10 - 1> gui10(elem, kernel);
+//	I10.setZero();
+//	gui10.integrate(I10, xi0, elem.get_normal(xi0).normalized());
+//	std::cout << I10 << ' ' << std::log10(std::abs(I10(0, 0) / I20(0, 0) - 1.0)) << std::endl;
+//
+//	guiggiani<field_t, kernel_t, 2 * 12 - 1> gui12(elem, kernel);
+//	I12.setZero();
+//	gui12.integrate(I12, xi0, elem.get_normal(xi0).normalized());
+//	std::cout << I12 << ' ' << std::log10(std::abs(I12(0, 0) / I20(0, 0) - 1.0)) << std::endl;
+//
+//}
+//
+//
+//void test_guiggiani_92_curved(void)
+//{
+//	typedef laplace_3d_HSP_kernel kernel_t;
+//	kernel_t kernel;
+//
+//	typedef quad_2_elem elem_t;
+//	typedef field_view<elem_t, field_option::constant> field_t;
+//
+//	typedef elem_t::coords_t coords_t;
+//
+//	coords_t coords;
+//	double b = std::sqrt(2.0) / 2.0;
+//	coords <<
+//		1, 1, 1, b, 0, 0, 0, b, b,
+//		0, 1, 2, 2, 2, 1, 0, 0, 1,
+//		0, 0, 0, b, 1, 1, 1, b, b;
+//
+//	elem_t elem(coords);
+//	guiggiani<field_t, kernel_t, 7> gui(elem, kernel);
+//
+//	elem_t::xi_t xi0;
+//	Eigen::Matrix<double, 1, 1> I;
+//
+//	I.setZero();
+//	xi0 << 0.0, 0.0;
+//	gui.integrate(I, xi0, elem.get_normal(xi0).normalized());
+//	std::cout << I << std::endl;
+//
+//	I.setZero();
+//	xi0 << 0.66, 0.0;
+//	gui.integral(I, xi0);
+//	std::cout << I << std::endl;
+//
+//	I.setZero();
+//	xi0 << 0.66, 0.66;
+//	gui.integral(I, xi0);
+//	std::cout << I << std::endl;
+//}
 
 
 int main(void)

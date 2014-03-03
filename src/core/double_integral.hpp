@@ -434,7 +434,7 @@ public:
 				for (auto quad_it = quad.begin(); quad_it != quad.end(); ++quad_it)
 				{
 					w_trial_input_t trial_input(trial_field.get_elem(), quad_it->get_xi());
-					
+
 					throw std::runtime_error("This part has been commented to compile");
 //					result.row(idx) += bound(trial_input) *
 //						(trial_input.get_jacobian() * quad_it->get_w() *
@@ -528,7 +528,7 @@ protected:
 			return eval(WITHOUT_SINGULARITY_CHECK(), result, kernel, test_field, trial_field);
 
 		if (!tmp::call_until<
-			tmp::vector<match::face_match_type, match::edge_match_type, match::corner_match_type>,
+			tmp::vector<match::face_match_type, match::corner_match_type>,
 			singular_shortcut_switch<tmp::_1>,
 			result_t &,
 			kernel_base<Kernel> const &,

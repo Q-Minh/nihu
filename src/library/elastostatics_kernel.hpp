@@ -141,6 +141,8 @@ struct singular_kernel_traits<elastostatics_3d_U_kernel>
 	typedef asymptotic::inverse<1> singularity_type_t;
 	/** \brief quadrature order used to generate blind singular quadratures */
 	static unsigned const singular_quadrature_order = 7;
+
+	typedef elastostatics_3d_U_kernel singular_kernel_ancestor_t;
 };
 
 
@@ -186,10 +188,7 @@ struct elastostatics_3d_T_brick
 			auto gradr = rvec / r;
 
 			m_T = -rdny * ( (1.-2.*nu)*result_t::Identity() + 3.*(gradr*gradr.transpose()) );
-			for (unsigned i = 0; i < 3; ++i)
-				for (unsigned k = 0; k < 3; ++k)
-					m_T(i,k) += (1.-2.*nu) * (gradr(k)*n(i) - gradr(i)*n(k));
-
+			m_T += (1.-2.*nu) * ((gradr*n.transpose()) - (n*gradr.transpose()));
 			m_T /= (8.0*M_PI*(1.0-nu)*r*r);
 		}
 
@@ -252,6 +251,8 @@ struct singular_kernel_traits<elastostatics_3d_T_kernel>
 	typedef asymptotic::inverse<2> singularity_type_t;
 	/** \brief quadrature order used to generate blind singular quadratures */
 	static unsigned const singular_quadrature_order = 7;
+
+	typedef elastostatics_3d_T_kernel singular_kernel_ancestor_t;
 };
 
 
@@ -265,6 +266,43 @@ public:
 	{
 	}
 };
+
+
+#include "guiggiani_1992.hpp"
+
+/** \brief specialisation of class ::polar_laurent_coeffs for the ::elastostatics_3d_U_kernel */
+template <>
+class polar_laurent_coeffs<elastostatics_3d_U_kernel>
+{
+public:
+	template <class guiggiani>
+	static void eval(guiggiani &obj)
+	{
+		obj.m_Fcoeffs[0].setZero();
+		obj.m_Fcoeffs[1].setZero();
+	}
+};
+
+/** \brief specialisation of class ::polar_laurent_coeffs for the ::elastostatics_3d_T_kernel */
+template <>
+class polar_laurent_coeffs<elastostatics_3d_T_kernel>
+{
+public:
+	template <class guiggiani>
+	static void eval(guiggiani &obj)
+	{
+        auto const &jac0 = obj.m_Jvec_series[0];
+        auto d0vec = obj.m_rvec_series[0].normalized();
+        auto nu = obj.m_kernel.get_data().get_poisson_ratio();
+
+        Eigen::Matrix<double, 3, 3> res = (d0vec*jac0.transpose()) - (jac0*d0vec.transpose());
+		res *= (1.-2.*nu)/(1.-nu)/obj.m_A/obj.m_A/(8.*M_PI);
+
+		obj.m_Fcoeffs[0] = block_product(Eigen::Matrix<double, 1, 1>(), res, obj.m_N_series[0]);
+		obj.m_Fcoeffs[1].setZero();
+	}
+};
+
 
 #endif // ELASTOSTATICS_KERNEL_HPP_INCLUDED
 

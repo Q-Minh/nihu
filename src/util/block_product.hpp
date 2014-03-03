@@ -74,7 +74,12 @@ template <class left, class mat, class right>
 	>
 	{
 	public:
-		typedef Eigen::Matrix<scalar1, N1*N2, N2*N3> result_type;
+		typedef typename product_type<
+			scalar1,
+			typename product_type<scalar2, scalar3>::type
+		>::type scalar;
+
+		typedef Eigen::Matrix<scalar, N1*N2, N2*N3> result_type;
 
 		static result_type eval(
 			Eigen::Matrix<scalar1, N1, 1> const &v1,
