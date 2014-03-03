@@ -161,5 +161,40 @@ struct find_in_wall<subWall, Wall, true>
 };
 
 
+
+template <class func>
+class single_brick_wall
+{
+	struct wrapped
+	{
+		template <class wall>
+		class brick : public wall
+		{
+		public:
+			typedef typename func::return_type result_t;
+
+			/** \brief templated constructor */
+			template <class test_input_t, class trial_input_t, class kernel_data_t>
+			brick(
+				test_input_t const &test_input,
+				trial_input_t const &trial_input,
+				kernel_data_t const &kernel_data) :
+				wall(test_input, trial_input, kernel_data),
+				m_kernel(func()(test_input, trial_input, kernel_data))
+			{
+			}
+
+			result_t const & get_result(void) const { return m_kernel; }
+
+		private:
+			result_t m_kernel;
+		};
+	};
+	
+public:
+	typedef typename build<wrapped>::type type;
+};
+
+
 #endif // BRICK_HPP_INCLUDED
 
