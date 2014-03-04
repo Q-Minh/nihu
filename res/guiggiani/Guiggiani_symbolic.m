@@ -1,4 +1,5 @@
-function [Fm1_ddG, Fm2_ddG, Fm1_dG, Fm2_dG, Fm1_G, Fm2_G] = Guiggiani_symbolic(ndim)
+function [Fm1_ddG, Fm2_ddG, Fm1_dG, Fm2_dG, Fm1_G, Fm2_G] =...
+    Guiggiani_symbolic(ndim)
 
 if nargin == 0
     ndim = 3;
