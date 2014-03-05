@@ -23,16 +23,21 @@
 
 \begin{document}
 
-In this section we demonstrate how a new family of problems can be incorporated into the NiHu framework.
-The addressed problem is three-dimensional linear isotropic elastostatics governed by the second order PDE:
+This section demonstrates how a new family of problems can be incorporated into the NiHu framework.
+The problem addressed here is three-dimensional linear isotropic elastostatics governed by the second order PDE:
 %
 \begin{equation}
-\mu u_{i,jj} + \left(\mu + \lambda\right) u_{j,ij} = 0, x \in \Omega
-\qquad t_i = \bar{t}_i, x \in \Gamma_t,
-\qquad u_i = \bar{u}_i, x \in \Gamma_u
+\mu u_{i,jj}(x) + \left(\mu + \lambda\right) u_{j,ij}(x) = 0, x \in \Omega
 \end{equation}
 %
-where $u$ denotes the displacement vector field, $t$ denotes the traction vector field and $\mu$ and $\lambda$ are the Lamé-coefficients.
+with the boundary conditions
+%
+\begin{equation}
+t_i(x) = \bar{t}_i(x), x \in \Gamma_t,
+\qquad u_i(x) = \bar{u}_i(x), x \in \Gamma_u
+\end{equation}
+%
+where $u_i(x)$ denotes the displacement vector field, $t_i(x)$ denotes the traction vector field and $\mu$ and $\lambda$ are the Lamé-coefficients.
 
 The corresponding BIE is formulated as
 %
@@ -51,7 +56,7 @@ The BIE is incorporated into the toolbox by introducing the fundamental solution
 The fundamental solutions are implemented in three steps:
 \begin{enumerate}
 	\item Formulate the kernel expressions with appropriate function objects
-	\item Define the kernels' properties in traits classes
+	\item Define the kernel class and its properties in traits classes
 	\item Derive the kernel class from kernel\_base
 \end{enumerate}
 %
@@ -62,7 +67,8 @@ The following code segments demonstrate how the strongly singular traction kerne
 
 Fundamental solutions are bivariate functions of two kernel inputs.
 The traction kernel takes a simple 3d location as test input and a location and normal vector as trial input.
-The kernel is further parametrised by material properties such as the shear modulus $\mu$ and Poisson's ratio $\nu$. Additional kernel parameters can be the location of reflecting surfaces for halfspace problems.
+The kernel is further parametrised by material properties such as the shear modulus $\mu$ and Poisson's ratio $\nu$.
+%Additional kernel parameters can be the location of reflecting surfaces for halfspace problems.
 
 First, the kernel data class---a simple wrapper for a double data---is implemented to store the Poisson's ratio.
 The shear modulus could also be incorporated into the data class, but as this parameter serves only as a scaling factor, it is omitted in the current implementation without the loss of generality.
@@ -77,7 +83,8 @@ private:
 };
 \end{lstlisting}
 
-Next, a function object, called Tkernel is created that evaluates the traction kernel on a test and trial input and parameters. The functor defines the kernel's return type as well in the form of an internal typedef.
+Next, a function object, called Tkernel is created that evaluates the traction kernel on a test and trial input and parameters.
+The functor defines the kernel's return type as well. % in the form of an internal typedef.
 %
 \begin{lstlisting}
 struct Tkernel {
@@ -137,12 +144,14 @@ For simplicity, this feature is not exploited in this example, and the kernel's 
 The following typedefs define the kernel's regular far field behaviour.
 The asymptotic behaviour is $O(1/r^2)$, and regular integrals are to be computed using standard Gaussian quadratures, where the quadrature order (complexity) is defined based on the distance between kernel input locations and the asymptotic behaviour, by an interval estimator class.
 
-The kernel is defined as being symmetric, this information is exploited with Galerkin discretisations.
-Finally, the kernel is defined as singular.
+The kernel is defined as being symmetric %, this information is exploited with Galerkin discretisations.
+%Finally, the kernel is defined as
+and singular.
 
 \subsection{Kernel class definition}
 
-Finally the kernel class is defined, derived from kernel\_base using the CRTP pattern. The class defines a constructor taking the Poisson's number as argument:
+The kernel class is defined, derived from kernel\_base using the CRTP pattern.
+The class defines a constructor taking the Poisson's ratio as argument:
 %
 \begin{lstlisting}
 class elastostatics_3d_T_kernel :
