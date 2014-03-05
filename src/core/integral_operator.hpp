@@ -165,7 +165,7 @@ public:
 	}
 
 private:
-	/** \brief the scalar miltiplier */
+	/** \brief the scalar multiplier */
 	Scalar m_scalar;
 	/** \brief the parent operator */
 	IntOp m_parent;
