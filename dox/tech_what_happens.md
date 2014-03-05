@@ -69,6 +69,23 @@ W_{ij} = \left< w_i, \left(\mathcal{K}d_j\right)_{S_i}\right>_{F_j}
 
 where \f$ S_i \f$ and \f$ F_j \f$ denote the subelements of the two (homogeneous sub)domains.
 
+Evaluation of element integrals
+===============================
 
-_to be continued_
+The double integral in the above equation is evaluated by calling the function ::integral_operator_base<Derived>::eval_on_fields, which is specialised for the `Derived` class by the function ::integral_operator::derived_eval_on_fields.
+These specialisations take care of algebraic operations performed over integral operators, such as scalar multiplication.
+In the special case of an identity operation, the evaluation is performed by the class ::single_integral, whereas generally the same is achieved by using the class ::double_integral.
+
+
+Selecting the integral type
+---------------------------
+
+Depending on the formulation, single or double integrals are to be evaluated.
+In case of double integrals there are further 
+
+A double integral is evaluated in the following way.
+
+
+
+
 
