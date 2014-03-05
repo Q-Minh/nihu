@@ -102,7 +102,7 @@ To provide flexibility, two choices can be made when the kernel is defined.
 	If not, then the kernel is not weakly singular, the integral can not be performed, and the code will not compile.
 	- To overcome the above limitations an alternative way is to specialise the ::singular_integral_shortcut class for the given kernel, field types and match type, by which an integration method can be specified.
 	If this specialisation of ::singular_integral_shortcut exists, the blind quadrature branch above is omitted in compile time.
-	This approach works both for **weakly and strongly singular** integrals.
+	This approach works for **weakly, strongly, and hypersingular** integrals.
 	
 A special case occurs when the kernel is not singular, or the integration is performed over two different meshes.
 In this case the regular evaluation is automatic by skipping the ::element_match_eval step.
@@ -110,7 +110,23 @@ In this case the regular evaluation is automatic by skipping the ::element_match
 Evaluation
 ----------
 
+Both the regular and singular branches discussed above result in the evaluation of a block in the system matrix.
+These blocks are calculated in most cases by iterating through a ::quadrature, nevertheless, analytical integration in special cases can be implemented by means of the ::singular_integral_shortcut.
 
+When the double integral is performed using a quadrature rule, iterating through the quadratures over the test and trial fields is done by double cycle.
+In the outer cycle the first kernel input (e.g. ::location) of the kernel is _bound_ to the input, that is calculated from the location of the current quadrature point on the physical element.
+The result of this binding is a ::kernel_base::kernel_bind type object, which can be evaluated given a single ::kernel_input. (The ::kernel_base::kernel_bind has an `operator()` function that takes only the second ::kernel_input of the original kernel, while the first input is stored in the ::kernel_base::kernel_bind object.)
+Then, in the inner cycle this ::kernel_base::kernel_bind object evaluates the kernel values, which are multiplied by the shape function values and quadrature weights and accumulated in the result matrix.
+In `NiHu` the outer iteration is over the test field, while the inner cycle iterates through the quadrature over the trial field.
 
+Matrix assembly
+---------------
 
+The accumulation process described above stores the values in a temporary matrix, which is allocated by the ::double_integral::eval() function of the ::double_integral class.
+(The size of the temporary matrix are known from the number of test and trial field DOFs.)
+The result matrix is returned to the ::assembly class, which adds this matrix to a block of the overall system matrix, where the block indices are DOF indices.
+The indexing is performed by the lightweight class ::matrix_block.
 
+The reason for evaluating into a smaller temporary matrix first is efficient memory management.
+Since the overall system matrix can be huge (can occupy tens of gigabytes of memory), direct access to its elements corresponding to DOF indices that are relatively far can require paging, which could slow down the iteration of the accumulation process to a great extent.
+By using the temporary matrix, the overall system matrix is accessed only once when an integral over a pair of fields is computed.
