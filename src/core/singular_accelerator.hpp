@@ -186,7 +186,7 @@ public:
 	/** \brief indicates whether ::FACE_MATCH is possible */
 	static const bool face_match_possible = std::is_same<test_field_t, trial_field_t>::value;
 	/** \brief the singular quadrature order required by the kernel */
-	static unsigned const singular_quadrature_order = kernel_traits<kernel_t>::singular_quadrature_order;
+	static unsigned const singular_quadrature_order = singular_kernel_traits<kernel_t>::singular_quadrature_order;
 
 	/**
 	 * \brief return begin iterator of the singular quadrature
@@ -373,7 +373,7 @@ class singular_accelerator<Kernel, TestField, TrialField, formalism::collocation
 {
 	// CRTP check
 	static_assert(std::is_base_of<kernel_base<Kernel>, Kernel>::value,
-		"The kernel field must be derived from kernel_base<Kernel>");
+		"The kernel must be derived from kernel_base<Kernel>");
 	static_assert(std::is_base_of<field_base<TrialField>, TrialField>::value,
 		"The trial field must be derived from field_base<TrialField>");
 public:
@@ -406,15 +406,15 @@ public:
 	/** \brief quadrature element type (it should be the same for test and trial) */
 	typedef typename trial_quadrature_t::quadrature_elem_t quadrature_elem_t;
 	/** \brief the singular quadrature order required by the kernel */
-	static unsigned const singular_quadrature_order = kernel_traits<kernel_t>::singular_quadrature_order;
+	static unsigned const singular_quadrature_order = singular_kernel_traits<kernel_t>::singular_quadrature_order;
 
 	/** \brief the blind transformation tag that governs the singular quadrature transformation method */
 	typedef typename blind_transform_selector<
-		typename kernel_traits<kernel_t>::singularity_type_t,
+		typename singular_kernel_traits<kernel_t>::singularity_type_t,
 		trial_domain_t
 	>::type blind_singular_transform_tag_t;
 
-	/** \brief the duffy quadrature type */
+	/** \brief the blind quadrature type */
 	typedef typename blind_singular_quadrature<
 		blind_singular_transform_tag_t,
 		quadrature_family_t,
@@ -475,7 +475,7 @@ struct select_singular_accelerator
 template <class Kernel, class TestField, class TrialField>
 struct select_singular_accelerator <Kernel, TestField, TrialField, typename std::enable_if<
 	minimal_reference_dimension<
-		typename kernel_traits<Kernel>::singularity_type_t
+		typename singular_kernel_traits<Kernel>::singularity_type_t
 	>::value <= TrialField::elem_t::domain_t::dimension
 >::type>
 {

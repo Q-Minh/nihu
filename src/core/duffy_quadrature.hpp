@@ -103,7 +103,7 @@ private:
 
 public:
 	/**
-	 * \brief create a duffy quadrature that is singular on one corner of the selected element
+	 * \brief create a Duffy quadrature that is singular on one corner of the selected element
 	 * \param [in] degree the polynomial degree of the original regular quadrature
 	 * \param [in] singular_corner index of the singular corner
 	 * \return a Duffy type singular quadrature
@@ -119,7 +119,7 @@ public:
 	}
 
 	/**
-	 * \brief create a duffy quadrature that is singular on the face of the selected element
+	 * \brief create a Duffy quadrature that is singular on the face of the selected element
 	 * \param [in] degree the polynomial degree of the original regular quadrature
 	 * \param [in] singular_point coordinates of the singular point
 	 * \return a Duffy type singular quadrature
@@ -135,7 +135,6 @@ public:
 		return duffy_impl(degree, face_indices, singular_point, result);
 	}
 }; // end of class duffy_quadrature
-
 
 
 /** \brief Specialisation of ::duffy_traits for ::tria_1_shape_set */

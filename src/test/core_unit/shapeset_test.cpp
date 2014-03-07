@@ -20,7 +20,7 @@
 #include "core/shapeset.hpp"
 #include "tmp/vector.hpp"
 
-#include "library/quad_28_shape_set.hpp"
+#include "library/lib_shape.hpp"
 
 template <class shape_set>
 struct tester
@@ -28,7 +28,8 @@ struct tester
 	struct type {
 		void operator()(void)
 		{
-			std::cout << std::endl << "shape set id: " << shape_set::id << std::endl;
+			std::cout << std::endl << shape_set_traits::name<shape_set>::value << " (" << shape_set::id << ")\n"
+				<< "========" << std::endl;
 
 			std::cout << "corners: " << std::endl;
 			for (auto it = shape_set::corner_begin(); it != shape_set::corner_end(); ++it)
@@ -37,25 +38,32 @@ struct tester
 
 			std::cout << "shape values in corners: " << std::endl;
 			for (auto it = shape_set::corner_begin(); it != shape_set::corner_end(); ++it)
-				std::cout << shape_set::eval_shape(*it).transpose() << std::endl;
+				std::cout << shape_set::template eval_shape<0>(*it).transpose() << std::endl;
 			std::cout << std::endl;
 
 			std::cout << "shape derivative values in corners" << std::endl;
 			for (auto it = shape_set::corner_begin(); it != shape_set::corner_end(); ++it)
-				std::cout << shape_set::eval_dshape(*it).transpose() << "  sum: " << shape_set::eval_dshape(*it).sum() << std::endl;
+				std::cout << shape_set::template eval_shape<1>(*it).transpose() <<
+				"  sum: " << shape_set::template eval_shape<1>(*it).sum() << std::endl;
+			std::cout << std::endl;
+
+			std::cout << "shape second derivative values in corners" << std::endl;
+			for (auto it = shape_set::corner_begin(); it != shape_set::corner_end(); ++it)
+				std::cout << shape_set::template eval_shape<2>(*it).transpose() <<
+				"  sum: " << shape_set::template eval_shape<2>(*it).sum() << std::endl;
 			std::cout << std::endl;
 		}
 	};
 };
 
-int main(void)
+int shapeset_test(void)
 {
 	tmp::call_each<
 		tmp::vector<
-			line_0_shape_set, tria_0_shape_set, quad_0_shape_set, brick_0_shape_set,
-			line_1_shape_set, tria_1_shape_set, quad_1_shape_set, brick_1_shape_set,
-			parallelogram_shape_set,
-			line_2_shape_set, tria_2_shape_set, quad_2_shape_set, quad_28_shape_set
+		line_0_shape_set, tria_0_shape_set, quad_0_shape_set, brick_0_shape_set,
+		line_1_shape_set, tria_1_shape_set, quad_1_shape_set, brick_1_shape_set,
+		parallelogram_shape_set,
+		line_2_shape_set, tria_2_shape_set, quad_2_shape_set, quad_28_shape_set
 		>,
 		tester<tmp::_1>
 	>();

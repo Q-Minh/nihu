@@ -191,11 +191,11 @@ namespace tmp
 	}
 
 	/**
-	* \brief Call Transform<x>::type(Args...) for each element x of the sequence Seq until it returns true
-	* \tparam Seq the sequence of values x
-	* \tparam Transform a metafunction with a callable internal struct called type
-	* \tparam Args function arguments
-	*/
+	 * \brief Call Transform<x>::type(Args...) for each element x of the sequence Seq until it returns true
+	 * \tparam Seq the sequence of values x
+	 * \tparam Transform a metafunction with a callable internal struct called type
+	 * \tparam Args function arguments
+	 */
 	template <class Seq, class Transform, class...Args>
 	static bool call_until(Args...args)
 	{

@@ -19,7 +19,7 @@
 /**
  * \file laplace_kernel.hpp
  * \ingroup library
- * \brief implementation of kernels of the laplace equation \f$ \nabla^2 p = 0 \f$
+ * \brief implementation of kernels of the Laplace equation \f$ \nabla^2 p = 0 \f$
  * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
  */
 
@@ -37,11 +37,11 @@
 #include "reciprocal_kernel_intervals.hpp"
 
 
-/** \brief a brick representing a 2D laplace kernel \f$ -\log r /2\pi \f$
+/** \brief a brick representing a 2D Laplace kernel \f$ -\log r /2\pi \f$
  * \tparam scalar scalar type of the coordinate space the distance is defined over
  */
 template <class scalar>
-struct laplace_2d_g_brick
+struct laplace_2d_SLP_brick
 {
 	/** \brief the brick template
 	 * \tparam the wall the brick is placed on
@@ -71,16 +71,16 @@ struct laplace_2d_g_brick
 		{
 		}
 
-		/** \brief return laplace g kernel
-		 * \return laplace g kernel
+		/** \brief return Laplace g kernel
+		 * \return Laplace g kernel
 		 */
 		scalar const & get_laplace_g(void) const
 		{
 			return m_laplace_g;
 		}
 
-		/** \brief return laplace g kernel
-		 * \return laplace g kernel
+		/** \brief return Laplace g kernel
+		 * \return Laplace g kernel
 		 */
 		scalar const & get_result(void) const
 		{
@@ -93,21 +93,21 @@ struct laplace_2d_g_brick
 };
 
 
-/** \brief combination of ::distance_vector_brick, ::distance_brick and ::laplace_2d_g_brick into a wall
- * \tparam space the coordinate space the laplace kernel is defined over
+/** \brief combination of ::distance_vector_brick, ::distance_brick and ::laplace_2d_SLP_brick into a wall
+ * \tparam space the coordinate space the Laplace kernel is defined over
  */
 template <class scalar>
-struct laplace_2d_g_wall : build<
+struct laplace_2d_SLP_wall : build<
 	distance_vector_brick<space<scalar, 2> >,
 	distance_brick<scalar>,
-	laplace_2d_g_brick<scalar>
+	laplace_2d_SLP_brick<scalar>
 > {};
 
 
 // forward declaration
 class laplace_2d_SLP_kernel;
 
-/** \brief traits of the laplace 2D G kernel */
+/** \brief traits of the Laplace 2D SLP kernel */
 template<>
 struct kernel_traits<laplace_2d_SLP_kernel>
 {
@@ -118,17 +118,15 @@ struct kernel_traits<laplace_2d_SLP_kernel>
 	/** \brief the data type */
 	typedef collect<empty_data> data_t;
 	/** \brief the kernel output type */
-	typedef laplace_2d_g_wall<space_2d::scalar_t>::type output_t;
-	/** \brief kernel result type */
-	typedef output_t::result_t result_t;
+	typedef laplace_2d_SLP_wall<space_2d::scalar_t>::type output_t;
 	/** \brief the quadrature family the kernel is integrated with */
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
 	static bool const is_symmetric = true;
-	/** \brief kernel singularity type */
-	typedef singularity_type::log<1> singularity_type_t;
-	/** \brief quadrature order used to generate Duffy singular quadratures */
-	static unsigned const singular_quadrature_order = 7;
+	/** \brief indicates if kernel is singular */
+	static bool const is_singular = true;
+	/** \brief the far field asymptotic behaviour of the kernel */
+	typedef asymptotic::log<1> far_field_behaviour_t;
 	/** \brief the kernel complexity estimator class
 	 * \todo check this
 	 */
@@ -136,6 +134,18 @@ struct kernel_traits<laplace_2d_SLP_kernel>
 		typename reciprocal_distance_kernel_interval<1, GLOBAL_ACCURACY>::type
 	> complexity_estimator_t;
 };
+
+
+/** \brief singular traits of the Laplace 2D SLP kernel */
+template<>
+struct singular_kernel_traits<laplace_2d_SLP_kernel>
+{
+	/** \brief kernel singularity type */
+	typedef asymptotic::log<1> singularity_type_t;
+	/** \brief quadrature order used to generate blind singular quadratures */
+	static unsigned const singular_quadrature_order = 7;
+};
+
 
 /** \brief Single layer potential kernel of the Laplace equation in 2D \f$ -\ln r/2\pi \f$ */
 class laplace_2d_SLP_kernel :
@@ -145,11 +155,11 @@ class laplace_2d_SLP_kernel :
 
 
 
-/** \brief a brick representing a 2D laplace derivative kernel \f$ -1/2\pi r \cdot r'_{n_y}\f$
+/** \brief a brick representing a 2D Laplace derivative kernel \f$ -1/2\pi r \cdot r'_{n_y}\f$
  * \tparam scalar scalar type of the coordinate space the distance is defined over
  */
 template <class scalar>
-struct laplace_2d_h_brick
+struct laplace_2d_DLP_brick
 {
 	/** \brief the brick template
 	 * \tparam the wall the brick is placed on
@@ -179,16 +189,16 @@ struct laplace_2d_h_brick
 		{
 		}
 
-		/** \brief return laplace h kernel
-		 * \return laplace h kernel
+		/** \brief return Laplace h kernel
+		 * \return Laplace h kernel
 		 */
 		scalar const & get_laplace_h(void) const
 		{
 			return m_laplace_h;
 		}
 
-		/** \brief return laplace h kernel
-		 * \return laplace h kernel
+		/** \brief return Laplace h kernel
+		 * \return Laplace h kernel
 		 */
 		scalar const & get_result(void) const
 		{
@@ -201,22 +211,22 @@ struct laplace_2d_h_brick
 };
 
 
-/** \brief combination of ::distance_vector_brick, ::distance_brick, ::rdny_brick and ::laplace_2d_h_brick into a wall
- * \tparam space the coordinate space the laplace kernel is defined over
+/** \brief combination of ::distance_vector_brick, ::distance_brick, ::rdny_brick and ::laplace_2d_DLP_brick into a wall
+ * \tparam space the coordinate space the Laplace kernel is defined over
  */
 template <class scalar>
-struct laplace_2d_h_wall : build<
+struct laplace_2d_DLP_wall : build<
 	distance_vector_brick<space<scalar, 2> >,
 	distance_brick<scalar>,
 	rdny_brick<scalar>,
-	laplace_2d_h_brick<scalar>
+	laplace_2d_DLP_brick<scalar>
 > {};
 
 
 // forward declaration
 class laplace_2d_DLP_kernel;
 
-/** \brief traits of the laplace 2D H kernel */
+/** \brief traits of the Laplace 2D H kernel */
 template<>
 struct kernel_traits<laplace_2d_DLP_kernel>
 {
@@ -227,19 +237,15 @@ struct kernel_traits<laplace_2d_DLP_kernel>
 	/** \brief the data type */
 	typedef collect<empty_data> data_t;
 	/** \brief the kernel output type */
-	typedef laplace_2d_h_wall<space_2d::scalar_t>::type output_t;
-	/** \brief kernel result type */
-	typedef space_2d::scalar_t result_t;
+	typedef laplace_2d_DLP_wall<space_2d::scalar_t>::type output_t;
 	/** \brief the quadrature family the kernel is integrated with */
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
 	static bool const is_symmetric = false;
-	/** \brief kernel singularity type
-	 * \todo check this!
-	 */
-	typedef singularity_type::log<1> singularity_type_t;
-	/** \brief quadrature order used to generate Duffy singular quadratures */
-	static unsigned const singular_quadrature_order = 7;
+	/** \brief indicates if kernel is singular */
+	static bool const is_singular = true;
+	/** \brief the far field asymptotic behaviour of the kernel */
+	typedef asymptotic::inverse<1> far_field_behaviour_t;
 	/** \brief the kernel complexity estimator class
 	 * \todo introduce regular behaviour description
 	 */
@@ -248,6 +254,19 @@ struct kernel_traits<laplace_2d_DLP_kernel>
 	> complexity_estimator_t;
 };
 
+/** \brief singular traits of the Laplace 2D DLP kernel */
+template<>
+struct singular_kernel_traits<laplace_2d_DLP_kernel>
+{
+	/** \brief kernel singularity type
+	 * \todo check this!
+	 */
+	typedef asymptotic::log<1> singularity_type_t;
+	/** \brief quadrature order used to generate blind singular quadratures */
+	static unsigned const singular_quadrature_order = 7;
+};
+
+
 /** \brief Double layer potential kernel of the Laplace equation in 2D \f$ -1/2\pi r \cdot r'_{n_y} \f$ */
 class laplace_2d_DLP_kernel :
 	public kernel_base<laplace_2d_DLP_kernel>
@@ -255,11 +274,11 @@ class laplace_2d_DLP_kernel :
 };
 
 
-/** \brief a brick representing a 2D laplace derivative kernel \f$ -1/2\pi r \cdot r'_{n_x}\f$
+/** \brief a brick representing a 2D Laplace derivative kernel \f$ -1/2\pi r \cdot r'_{n_x}\f$
  * \tparam scalar scalar type of the coordinate space the distance is defined over
  */
 template <class scalar>
-struct laplace_2d_ht_brick
+struct laplace_2d_DLPt_brick
 {
 	/** \brief the brick template
 	 * \tparam the wall the brick is placed on
@@ -289,16 +308,16 @@ struct laplace_2d_ht_brick
 		{
 		}
 
-		/** \brief return laplace h kernel
-		 * \return laplace ht kernel
+		/** \brief return Laplace h kernel
+		 * \return Laplace ht kernel
 		 */
 		scalar const & get_laplace_ht(void) const
 		{
 			return m_laplace_ht;
 		}
 
-		/** \brief return laplace ht kernel
-		 * \return laplace ht kernel
+		/** \brief return Laplace ht kernel
+		 * \return Laplace ht kernel
 		 */
 		scalar const & get_result(void) const
 		{
@@ -311,22 +330,22 @@ struct laplace_2d_ht_brick
 };
 
 
-/** \brief combination of ::distance_vector_brick, ::distance_brick, ::rdnx_brick and ::laplace_2d_ht_brick into a wall
- * \tparam space the coordinate space the laplace kernel is defined over
+/** \brief combination of ::distance_vector_brick, ::distance_brick, ::rdnx_brick and ::laplace_2d_DLPt_brick into a wall
+ * \tparam space the coordinate space the Laplace kernel is defined over
  */
 template <class scalar>
-struct laplace_2d_ht_wall : build<
+struct laplace_2d_DLPt_wall : build<
 	distance_vector_brick<space<scalar, 2> >,
 	distance_brick<scalar>,
 	rdnx_brick<scalar>,
-	laplace_2d_ht_brick<scalar>
+	laplace_2d_DLPt_brick<scalar>
 > {};
 
 
 // forward declaration
 class laplace_2d_DLPt_kernel;
 
-/** \brief traits of the laplace 2D Ht kernel */
+/** \brief traits of the Laplace 2D Ht kernel */
 template<>
 struct kernel_traits<laplace_2d_DLPt_kernel>
 {
@@ -337,19 +356,15 @@ struct kernel_traits<laplace_2d_DLPt_kernel>
 	/** \brief the data type */
 	typedef collect<empty_data> data_t;
 	/** \brief the kernel output type */
-	typedef laplace_2d_ht_wall<space_2d::scalar_t>::type output_t;
-	/** \brief kernel result type */
-	typedef space_2d::scalar_t result_t;
+	typedef laplace_2d_DLPt_wall<space_2d::scalar_t>::type output_t;
 	/** \brief the quadrature family the kernel is integrated with */
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
 	static bool const is_symmetric = false;
-	/** \brief the singularity type
-	 * \todo check this just like the plain DLP kernel
-	 */
-	typedef singularity_type::log<1> singularity_type_t;
-	/** \brief quadrature order used to generate Duffy singular quadratures */
-	static unsigned const singular_quadrature_order = 7;
+	/** \brief indicates if kernel is singular */
+	static bool const is_singular = true;
+	/** \brief the far field asymptotic behaviour of the kernel */
+	typedef asymptotic::inverse<1> far_field_behaviour_t;
 	/** \brief the kernel complexity estimator class
 	 * \todo introduce regular behaviour
 	 */
@@ -357,6 +372,20 @@ struct kernel_traits<laplace_2d_DLPt_kernel>
 		typename reciprocal_distance_kernel_interval<1, GLOBAL_ACCURACY>::type
 	> complexity_estimator_t;
 };
+
+/** \brief singular traits of the Laplace 2D DLPt kernel */
+template<>
+struct singular_kernel_traits<laplace_2d_DLPt_kernel>
+{
+	/** \brief the singularity type
+	 * \todo check this just like the plain DLP kernel
+	 */
+	typedef asymptotic::log<1> singularity_type_t;
+	/** \brief quadrature order used to generate blind singular quadratures */
+	static unsigned const singular_quadrature_order = 7;
+};
+
+
 
 /** \brief Transpose double layer potential kernel of the Laplace equation in 2D \f$ -1/2\pi r \cdot r'_{n_x} \f$ */
 class laplace_2d_DLPt_kernel :
@@ -366,11 +395,11 @@ class laplace_2d_DLPt_kernel :
 
 
 
-/** \brief a brick representing a 2D laplace hypersingular kernel \f$ \dots \f$
+/** \brief a brick representing a 2D Laplace hypersingular kernel \f$ \dots \f$
  * \tparam scalar scalar type of the coordinate space the distance is defined over
  */
 template <class scalar>
-struct laplace_2d_hyper_brick
+struct laplace_2d_HSP_brick
 {
 	/** \brief the brick template
 	 * \tparam the wall the brick is placed on
@@ -403,16 +432,16 @@ struct laplace_2d_hyper_brick
 		{
 		}
 
-		/** \brief return laplace hypersingular kernel
-		 * \return laplace hypersingular kernel
+		/** \brief return Laplace hypersingular kernel
+		 * \return Laplace hypersingular kernel
 		 */
 		result_t const & get_laplace_hyper(void) const
 		{
 			return m_laplace_hyper;
 		}
 
-		/** \brief return laplace hypersingular kernel
-		 * \return laplace hypersingular kernel
+		/** \brief return Laplace hypersingular kernel
+		 * \return Laplace hypersingular kernel
 		 */
 		result_t const & get_result(void) const
 		{
@@ -426,22 +455,22 @@ struct laplace_2d_hyper_brick
 
 
 /** \brief combination of several bricks into a laplace_2d_hyper wall
- * \tparam space the coordinate space the laplace kernel is defined over
+ * \tparam space the coordinate space the Laplace kernel is defined over
  */
 template <class scalar>
-struct laplace_2d_hyper_wall : build<
+struct laplace_2d_HSP_wall : build<
 	distance_vector_brick<space<scalar, 2> >,
 	distance_brick<scalar>,
 	rdny_brick<scalar>,
 	rdnx_brick<scalar>,
-	laplace_2d_hyper_brick<scalar>
+	laplace_2d_HSP_brick<scalar>
 > {};
 
 
 // forward declaration
 class laplace_2d_HSP_kernel;
 
-/** \brief traits of the laplace 2D Hypersingular kernel */
+/** \brief traits of the Laplace 2D Hypersingular kernel */
 template<>
 struct kernel_traits<laplace_2d_HSP_kernel>
 {
@@ -452,19 +481,16 @@ struct kernel_traits<laplace_2d_HSP_kernel>
 	/** \brief the data type */
 	typedef collect<empty_data> data_t;
 	/** \brief the kernel output type */
-	typedef laplace_2d_hyper_wall<space_2d::scalar_t>::type output_t;
-	/** \brief kernel result type */
-	typedef output_t::result_t result_t;
+	typedef laplace_2d_HSP_wall<space_2d::scalar_t>::type output_t;
 	/** \brief the quadrature family the kernel is integrated with */
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
 	static bool const is_symmetric = true;
-	/** \brief the singularity type
-	 * \todo check this
-	 */
-	typedef singularity_type::inverse<1> singularity_type_t;
-	/** \brief quadrature order used to generate Duffy singular quadratures */
-	static unsigned const singular_quadrature_order = 7;
+	/** \brief indicates if kernel is singular */
+	static bool const is_singular = true;
+
+	/** \brief the far field asymptotic behaviour of the kernel */
+	typedef asymptotic::inverse<2> far_field_behaviour_t;
 	/** \brief the kernel complexity estimator class
 	 * \todo introduce regular behaviour
 	 */
@@ -473,6 +499,19 @@ struct kernel_traits<laplace_2d_HSP_kernel>
 	> complexity_estimator_t;
 };
 
+/** \brief singular traits of the Laplace 2D HSP kernel */
+template <>
+struct singular_kernel_traits<laplace_2d_HSP_kernel>
+{
+	/** \brief the singularity type
+	 * \todo check this
+	 */
+	typedef asymptotic::inverse<1> singularity_type_t;
+	/** \brief quadrature order used to generate blind singular quadratures */
+	static unsigned const singular_quadrature_order = 7;
+};
+
+
 /** \brief Hypersingular kernel of the Laplace equation in 2D \f$ \dots \f$ */
 class laplace_2d_HSP_kernel :
 	public kernel_base<laplace_2d_HSP_kernel>
@@ -480,13 +519,11 @@ class laplace_2d_HSP_kernel :
 };
 
 
-
-
-/** \brief a brick representing a 3D laplace kernel \f$ 1/4\pi r \f$
+/** \brief a brick representing a 3D Laplace kernel \f$ 1/4\pi r \f$
  * \tparam scalar the scalar of the coordinate space the distance is defined over
  */
 template <class scalar>
-struct laplace_3d_g_brick
+struct laplace_3d_SLP_brick
 {
 	/** \brief the brick template
 	 * \tparam the wall the brick is placed on
@@ -516,16 +553,16 @@ struct laplace_3d_g_brick
 		{
 		}
 
-		/** \brief return laplace g kernel
-		 * \return laplace g kernel
+		/** \brief return Laplace g kernel
+		 * \return Laplace g kernel
 		 */
 		scalar const & get_laplace_g(void) const
 		{
 			return m_laplace_g;
 		}
 
-		/** \brief return laplace g kernel
-		 * \return laplace g kernel
+		/** \brief return Laplace g kernel
+		 * \return Laplace g kernel
 		 */
 		scalar const & get_result(void) const
 		{
@@ -538,21 +575,21 @@ struct laplace_3d_g_brick
 };
 
 
-/** \brief combination of ::distance_vector_brick, ::distance_brick and ::laplace_3d_g_brick into a wall
- * \tparam space the coordinate space the laplace kernel is defined over
+/** \brief combination of ::distance_vector_brick, ::distance_brick and ::laplace_3d_SLP_brick into a wall
+ * \tparam space the coordinate space the Laplace kernel is defined over
  */
 template <class scalar>
-struct laplace_3d_g_wall : build<
+struct laplace_3d_SLP_wall : build<
 	distance_vector_brick<space<scalar, 3> >,
 	distance_brick<scalar>,
-	laplace_3d_g_brick<scalar>
+	laplace_3d_SLP_brick<scalar>
 > {};
 
 
 // forward declaration
 class laplace_3d_SLP_kernel;
 
-/** \brief traits of the laplace 3D G kernel */
+/** \brief traits of the Laplace 3D Single Layer Potential kernel */
 template<>
 struct kernel_traits<laplace_3d_SLP_kernel>
 {
@@ -563,35 +600,46 @@ struct kernel_traits<laplace_3d_SLP_kernel>
 	/** \brief the data type */
 	typedef collect<empty_data> data_t;
 	/** \brief the kernel output type */
-	typedef laplace_3d_g_wall<space_3d::scalar_t>::type output_t;
-	/** \brief kernel result type */
-	typedef output_t::result_t result_t;
+	typedef laplace_3d_SLP_wall<space_3d::scalar_t>::type output_t;
 	/** \brief the quadrature family the kernel is integrated with */
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
 	static bool const is_symmetric = true;
-	/** \brief kernel singularity type */
-	typedef singularity_type::inverse<1> singularity_type_t;
-	/** \brief quadrature order used to generate Duffy singular quadratures */
-	static unsigned const singular_quadrature_order = 7;
+	/** \brief indicates if kernel is singular */
+	static bool const is_singular = true;
+
+	/** \brief the far field asymptotic behaviour of the kernel */
+	typedef asymptotic::inverse<1> far_field_behaviour_t;
 	/** \brief the kernel complexity estimator class */
 	typedef interval_estimator<
 		typename reciprocal_distance_kernel_interval<1, GLOBAL_ACCURACY>::type
 	> complexity_estimator_t;
 };
 
-/** \brief Single layer potential kernel of the laplace equation in 3D \f$ 1/4\pi r\f$ */
+/** \brief singular traits of the Laplace 3D SLP kernel */
+template <>
+struct singular_kernel_traits<laplace_3d_SLP_kernel>
+{
+	/** \brief kernel singularity type */
+	typedef asymptotic::inverse<1> singularity_type_t;
+	/** \brief quadrature order used to generate blind singular quadratures */
+	static unsigned const singular_quadrature_order = 7;
+};
+
+
+
+/** \brief Single layer potential kernel of the Laplace equation in 3D \f$ 1/4\pi r\f$ */
 class laplace_3d_SLP_kernel :
 	public kernel_base<laplace_3d_SLP_kernel>
 {
 };
 
 
-/** \brief a brick representing a laplace derivative kernel \f$ -1/4\pi r^2 \cdot r'_{n_y} \f$
+/** \brief a brick representing a Laplace derivative kernel \f$ -1/4\pi r^2 \cdot r'_{n_y} \f$
  * \tparam scalar the scalar of the coordinate space the distance is defined over
  */
 template <class scalar>
-struct laplace_3d_h_brick
+struct laplace_3d_DLP_brick
 {
 	/** \brief the brick template
 	 * \tparam the wall the brick is placed on
@@ -621,16 +669,16 @@ struct laplace_3d_h_brick
 		{
 		}
 
-		/** \brief return laplace h kernel
-		 * \return laplace h kernel
+		/** \brief return Laplace h kernel
+		 * \return Laplace h kernel
 		 */
 		scalar const &get_laplace_h(void) const
 		{
 			return m_laplace_h;
 		}
 
-		/** \brief return laplace h kernel
-		 * \return laplace h kernel
+		/** \brief return Laplace h kernel
+		 * \return Laplace h kernel
 		 */
 		scalar const & get_result(void) const
 		{
@@ -643,23 +691,23 @@ struct laplace_3d_h_brick
 };
 
 
-/** \brief combination of laplace_g_wall and laplace_h_brick into a wall
- * \tparam space the coordinate space the laplace kernel is defined over
+/** \brief combination of laplace_SLP_wall and laplace_DLP_brick into a wall
+ * \tparam space the coordinate space the Laplace kernel is defined over
  */
 template <class scalar>
-struct laplace_3d_h_wall : build<
+struct laplace_3d_DLP_wall : build<
 	distance_vector_brick<space<scalar, 3> >,
 	distance_brick<scalar>,
 	rdny_brick<scalar>,
-	laplace_3d_g_brick<scalar>,
-	laplace_3d_h_brick<scalar>
+	laplace_3d_SLP_brick<scalar>,
+	laplace_3d_DLP_brick<scalar>
 > {};
 
 
 // forward declaration
 class laplace_3d_DLP_kernel;
 
-/** \brief traits of the laplace H kernel */
+/** \brief traits of the Laplace H kernel */
 template<>
 struct kernel_traits<laplace_3d_DLP_kernel>
 {
@@ -670,19 +718,16 @@ struct kernel_traits<laplace_3d_DLP_kernel>
 	/** \brief the data type */
 	typedef collect<empty_data> data_t;
 	/** \brief the kernel output type */
-	typedef laplace_3d_h_wall<space_3d::scalar_t>::type output_t;
-	/** \brief kernel result type */
-	typedef output_t::result_t result_t;
+	typedef laplace_3d_DLP_wall<space_3d::scalar_t>::type output_t;
 	/** \brief the quadrature family the kernel is integrated with */
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
 	static bool const is_symmetric = false;
-	/** \brief singularity type
-	 * \todo check this
-	 */
-	typedef singularity_type::inverse<1> singularity_type_t;
-	/** \brief quadrature order used to generate Duffy singular quadratures */
-	static unsigned const singular_quadrature_order = 7;
+	/** \brief indicates if kernel is singular */
+	static bool const is_singular = true;
+
+	/** \brief the far field asymptotic behaviour of the kernel */
+	typedef asymptotic::log<2> far_field_behaviour_t;
 	/** \brief the kernel complexity estimator class
 	 * \todo introduce regular behaviour
 	 */
@@ -690,6 +735,19 @@ struct kernel_traits<laplace_3d_DLP_kernel>
 		typename reciprocal_distance_kernel_interval<2, GLOBAL_ACCURACY>::type
 	> complexity_estimator_t;
 };
+
+/** \brief singular traits of the Laplace 3D DLP kernel */
+template <>
+struct singular_kernel_traits<laplace_3d_DLP_kernel>
+{
+	/** \brief singularity type
+	 * \todo check this
+	 */
+	typedef asymptotic::inverse<1> singularity_type_t;
+	/** \brief quadrature order used to generate blind singular quadratures */
+	static unsigned const singular_quadrature_order = 7;
+};
+
 
 /** \brief Double layer potential kernel of the Laplace equation in 3D \f$ -1/4\pi r^2 \cdot dr/dn \f$ */
 class laplace_3d_DLP_kernel :
@@ -702,7 +760,7 @@ class laplace_3d_DLP_kernel :
  * \tparam scalar the scalar of the coordinate space the distance is defined over
  */
 template <class scalar>
-struct laplace_3d_ht_brick
+struct laplace_3d_DLPt_brick
 {
 	/** \brief the brick template
 	 * \tparam the wall the brick is placed on
@@ -732,16 +790,16 @@ struct laplace_3d_ht_brick
 		{
 		}
 
-		/** \brief return laplace ht kernel
-		 * \return laplace ht kernel
+		/** \brief return Laplace ht kernel
+		 * \return Laplace ht kernel
 		 */
 		scalar const &get_laplace_ht(void) const
 		{
 			return m_laplace_ht;
 		}
 
-		/** \brief return laplace ht kernel
-		 * \return laplace ht kernel
+		/** \brief return Laplace ht kernel
+		 * \return Laplace ht kernel
 		 */
 		scalar const & get_result(void) const
 		{
@@ -754,23 +812,23 @@ struct laplace_3d_ht_brick
 };
 
 
-/** \brief combination of ::distance_vector_brick, ::distance_brick, ::rdnx_brick, laplace_3d_g_brick and laplace_3d_ht_brick into a wall
- * \tparam scalar the scalar type of the laplace ht kernel result
+/** \brief combination of ::distance_vector_brick, ::distance_brick, ::rdnx_brick, laplace_3d_SLP_brick and laplace_3d_DLPt_brick into a wall
+ * \tparam scalar the scalar type of the Laplace ht kernel result
  */
 template <class scalar>
-struct laplace_3d_ht_wall : build<
+struct laplace_3d_DLPt_wall : build<
 	distance_vector_brick<space<scalar, 3> >,
 	distance_brick<scalar>,
 	rdnx_brick<scalar>,
-	laplace_3d_g_brick<scalar>,
-	laplace_3d_ht_brick<scalar>
+	laplace_3d_SLP_brick<scalar>,
+	laplace_3d_DLPt_brick<scalar>
 > {};
 
 
 // forward declaration
 class laplace_3d_DLPt_kernel;
 
-/** \brief traits of the laplace H kernel */
+/** \brief traits of the Laplace H kernel */
 template<>
 struct kernel_traits<laplace_3d_DLPt_kernel>
 {
@@ -781,19 +839,16 @@ struct kernel_traits<laplace_3d_DLPt_kernel>
 	/** \brief the data type */
 	typedef collect<empty_data> data_t;
 	/** \brief the kernel output type */
-	typedef laplace_3d_ht_wall<space_3d::scalar_t>::type output_t;
-	/** \brief kernel result type */
-	typedef space_3d::scalar_t result_t;
+	typedef laplace_3d_DLPt_wall<space_3d::scalar_t>::type output_t;
 	/** \brief the quadrature family the kernel is integrated with */
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
 	static bool const is_symmetric = false;
-	/** \brief singularity type
-	* \todo check this
-	*/
-	typedef singularity_type::inverse<1> singularity_type_t;
-	/** \brief quadrature order used to generate Duffy singular quadratures */
-	static unsigned const singular_quadrature_order = 7;
+	/** \brief indicates if kernel is singular */
+	static bool const is_singular = true;
+
+	/** \brief the far field asymptotic behaviour of the kernel */
+	typedef asymptotic::inverse<2> far_field_behaviour_t;
 	/** \brief the kernel complexity estimator class
 	 * \todo introduce regular behaviour
 	 */
@@ -802,6 +857,20 @@ struct kernel_traits<laplace_3d_DLPt_kernel>
 	> complexity_estimator_t;
 };
 
+/** \brief singular traits of the Laplace 3D DLPt kernel */
+template <>
+struct singular_kernel_traits<laplace_3d_DLPt_kernel>
+{
+	/** \brief singularity type
+	* \todo check this
+	*/
+	typedef asymptotic::inverse<1> singularity_type_t;
+	/** \brief quadrature order used to generate blind singular quadratures */
+	static unsigned const singular_quadrature_order = 7;
+};
+
+
+
 /** \brief Transposed double layer potential kernel of the Laplace equation in 3D \f$ -1/4\pi r^2 \cdot r'_{n_x} \f$ */
 class laplace_3d_DLPt_kernel :
 	public kernel_base<laplace_3d_DLPt_kernel>
@@ -809,11 +878,11 @@ class laplace_3d_DLPt_kernel :
 };
 
 
-/** \brief a brick representing a laplace double derivative kernel \f$ 1/4\pi r^3 \cdot \left( n_x n_y + 3 r'_{n_x} r'_{n_y} \right) \f$
+/** \brief a brick representing a Laplace double derivative kernel \f$ 1/4\pi r^3 \cdot \left( n_x n_y + 3 r'_{n_x} r'_{n_y} \right) \f$
  * \tparam scalar the scalar of the coordinate space the distance is defined over
  */
 template <class scalar>
-struct laplace_3d_hyper_brick
+struct laplace_3d_HSP_brick
 {
 	/** \brief the brick template
 	 * \tparam the wall the brick is placed on
@@ -847,16 +916,16 @@ struct laplace_3d_hyper_brick
 		{
 		}
 
-		/** \brief return laplace ht kernel
-		 * \return laplace ht kernel
+		/** \brief return Laplace ht kernel
+		 * \return Laplace ht kernel
 		 */
 		scalar const &get_laplace_hyper(void) const
 		{
 			return m_laplace_hyper;
 		}
 
-		/** \brief return laplace ht kernel
-		 * \return laplace ht kernel
+		/** \brief return Laplace ht kernel
+		 * \return Laplace ht kernel
 		 */
 		scalar const & get_result(void) const
 		{
@@ -869,24 +938,24 @@ struct laplace_3d_hyper_brick
 };
 
 
-/** \brief combination of ::distance_vector_brick, ::distance_brick, ::rdnx_brick, laplace_3d_g_brick and laplace_3d_ht_brick into a wall
- * \tparam scalar the scalar type of the laplace ht kernel result
+/** \brief combination of ::distance_vector_brick, ::distance_brick, ::rdnx_brick, laplace_3d_SLP_brick and laplace_3d_DLPt_brick into a wall
+ * \tparam scalar the scalar type of the Laplace ht kernel result
  */
 template <class scalar>
-struct laplace_3d_hyper_wall : build<
+struct laplace_3d_HSP_wall : build<
 	distance_vector_brick<space<scalar, 3> >,
 	distance_brick<scalar>,
 	rdnx_brick<scalar>,
 	rdny_brick<scalar>,
-	laplace_3d_g_brick<scalar>,
-	laplace_3d_hyper_brick<scalar>
+	laplace_3d_SLP_brick<scalar>,
+	laplace_3d_HSP_brick<scalar>
 > {};
 
 
 // forward declaration
 class laplace_3d_HSP_kernel;
 
-/** \brief traits of the laplace H kernel */
+/** \brief traits of the Laplace H kernel */
 template<>
 struct kernel_traits<laplace_3d_HSP_kernel>
 {
@@ -897,19 +966,16 @@ struct kernel_traits<laplace_3d_HSP_kernel>
 	/** \brief the data type */
 	typedef collect<empty_data> data_t;
 	/** \brief the kernel output type */
-	typedef laplace_3d_hyper_wall<space_3d::scalar_t>::type output_t;
-	/** \brief kernel result type */
-	typedef space_3d::scalar_t result_t;
+	typedef laplace_3d_HSP_wall<space_3d::scalar_t>::type output_t;
 	/** \brief the quadrature family the kernel is integrated with */
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
 	static bool const is_symmetric = true;
-	/** \brief singularity type
-	 * \todo check this
-	 */
-	typedef singularity_type::inverse<2> singularity_type_t;
-	/** \brief quadrature order used to generate Duffy singular quadratures */
-	static unsigned const singular_quadrature_order = 7;
+	/** \brief indicates if kernel is singular */
+	static bool const is_singular = true;
+
+	/** \brief the far field asymptotic behaviour of the kernel */
+	typedef asymptotic::inverse<3> far_field_behaviour_t;
 	/** \brief the kernel complexity estimator class
 	 * \todo introduce regular behaviour
 	 */
@@ -918,10 +984,52 @@ struct kernel_traits<laplace_3d_HSP_kernel>
 	> complexity_estimator_t;
 };
 
+/** \brief singular traits of the Laplace 3D HSP kernel */
+template <>
+struct singular_kernel_traits<laplace_3d_HSP_kernel>
+{
+	/** \brief singularity type
+	 * \todo check this
+	 */
+	typedef asymptotic::inverse<3> singularity_type_t;
+	/** \brief the singularity type when used with Guiggiani's method */
+	typedef laplace_3d_HSP_kernel singular_kernel_ancestor_t;
+	/** \brief quadrature order used to generate blind singular quadratures */
+	static unsigned const singular_quadrature_order = 7;
+};
+
 /** \brief Hypersingular kernel of the Laplace equation in 3D \f$ 1/4\pi r^3 \cdot \left( n_x n_y + 3 r'_{n_x} r'_{n_y} \right) \f$ */
 class laplace_3d_HSP_kernel :
 	public kernel_base<laplace_3d_HSP_kernel>
 {
+};
+
+
+#include "guiggiani_1992.hpp"
+
+/** \brief specialisation of class ::polar_laurent_coeffs for the ::laplace_3d_HSP_kernel */
+template <>
+class polar_laurent_coeffs<laplace_3d_HSP_kernel>
+{
+public:
+	template <class guiggiani>
+	static void eval(guiggiani &obj)
+	{
+        auto A2 = obj.m_A * obj.m_A, A3 = A2 * obj.m_A;
+		auto g1vec = obj.m_rvec_series[0] / A2 * (obj.m_rvec_series[1].dot(obj.m_Jvec_series[0]) + obj.m_rvec_series[0].dot(obj.m_Jvec_series[1]));
+
+		auto b0vec = -obj.m_Jvec_series[0];
+		auto b1vec = 3.0 * g1vec - obj.m_Jvec_series[1];
+
+		auto a0 = b0vec.dot(obj.m_n0) * obj.m_N_series[0];
+		auto a1 = b1vec.dot(obj.m_n0) * obj.m_N_series[0] + b0vec.dot(obj.m_n0) * obj.m_N_series[1];
+
+		auto Sm2 = -3.0 * obj.m_rvec_series[0].dot(obj.m_rvec_series[1]) / A2 / A3;
+		auto Sm3 = 1.0 / A3;
+
+		obj.m_Fcoeffs[0] = -(Sm2 * a0 + Sm3 * a1) / (4.0 * M_PI);
+		obj.m_Fcoeffs[1] = -(Sm3 * a0) / (4.0 * M_PI);
+	}
 };
 
 #endif // LAPLACE_KERNEL_HPP_INCLUDED

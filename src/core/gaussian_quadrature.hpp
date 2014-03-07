@@ -26,6 +26,7 @@
 #define GAUSSIAN_QUADRATURE_HPP_INCLUDED
 
 #include "quadrature.hpp"
+#include "../library/lib_domain.hpp"
 
 #include <stdexcept>
 
@@ -197,7 +198,7 @@ public:
 
 
 /**
- * \brief number of quadrature points for different dunavat orders
+ * \brief number of quadrature points for different Dunavant orders
  */
 static unsigned const dunavant_num[] = {1, 1, 3, 4, 6, 7, 12, 13, 16, 19};
 

@@ -17,7 +17,7 @@ A = -1i*[1, 2*1i.^(1:m)].*exp(-1i*g).*sin(g);
 
 ps = repmat(A,length(r),1).*cos(phi*(0:m)).*...
     besselh(repmat(0:m, length(r),1),...
-    ones(length(r), m+1), repmat(k*r, 1, m+1));
+    repmat(k*r, 1, m+1));
 
 ps = conj(sum(ps,2));
 

@@ -43,8 +43,8 @@ int main(void)
 	> v2;
 	
 	
-	std::cout << "Testing accumumlation" << std::endl;
-	std::cout << "=====================" << std::endl;
+	std::cout << "Testing accumulation" << std::endl;
+	std::cout << "====================" << std::endl;
 	std::cout << "v1       = "; print<v1>::eval();
 	std::cout << "v2       = "; print<v2>::eval();
 	std::cout << "sum(v1)  = "; std::cout << tmp::accumulate<v1, tmp::integer<int, 0>>::type::value << std::endl;

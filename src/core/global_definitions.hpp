@@ -25,12 +25,6 @@
 #ifndef GLOBAL_DEFINITIONS_HPP_INCLUDED
 #define GLOBAL_DEFINITIONS_HPP_INCLUDED
 
-#ifdef WIN32
-#define CONSTEXPR
-#else
-#define CONSTEXPR constexpr
-#endif
-
 #include "field_type_acceleration_option.hpp"
 
 /** \brief acceleration::soft or acceleration::hard */
@@ -40,7 +34,7 @@ typedef acceleration::hard GLOBAL_ACCELERATION;
  * \todo increase Dunavant order to avoid overindexing
  */
 unsigned const GLOBAL_MAX_ORDER = 14;
-/** \brief the global accuracy of integraions */
+/** \brief the global accuracy of integrations */
 unsigned const GLOBAL_ACCURACY = 3;
 
 #endif

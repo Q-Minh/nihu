@@ -2,7 +2,7 @@
 
 \usepackage{a4wide}
 
-\usepackage{amsmath}
+\usepackage{amsmath,bm}
 \newcommand{\td}{\mathrm{d}}
 \newcommand{\te}{\mathrm{e}}
 \newcommand{\ti}{\mathrm{i}}
@@ -14,23 +14,25 @@
 \setcounter{tocdepth}{5}
 \tableofcontents
 
-\section{Poisson kernel}
+\section{Laplace kernel}
 
 \subsection{2D case}
 
 \begin{equation}
-G(r) = -\frac{\ln |r|}{2\pi}
+G({\bf y}, {\bf x}) = -\frac{\ln |{\bf y}-{\bf x}|}{2\pi} = -\frac{\ln r}{2\pi}
 \end{equation}
 
 \subsubsection{Collocation}
 
-\paragraph{Constant line}
+\paragraph{Constant line SLP}
 
 \begin{equation}
-\int_{-d_1}^{d_2} G(r) \td r
+\lim_{\epsilon \to 0} \left( \int_{-d_1}^{-\epsilon} G(r) \td r + \int_{\epsilon}^{d_2} G(r) \td r \right)
 =
-\frac{d_1 + d_2 - d_1 \ln |d_1| - d_2 \ln |d_2|}{2\pi}
+\frac{d_1(1-\ln d_1) + d_2(1-\ln d_2)}{2\pi}
 \end{equation}
+
+\paragraph{Constant line HSP}
 
 \begin{align}
 \frac{\partial}{\partial n_x}
@@ -80,21 +82,22 @@ G(r) = -\frac{\ln |r|}{2\pi}
 
 \paragraph{Face match}
 
-\subparagraph{Constant line}
+\subparagraph{Constant line SLP}
 
 \begin{equation}
-\int_{0}^{d} \int_{0}^{d} G(x-y) \td y \td x
+\int_{0}^{d}
+\lim_{\epsilon \to 0}
+\left(
+\int_{0}^{x-\epsilon} G(x-y) \td y
++
+\int_{x+\epsilon}^{d} G(x-y) \td y
+\right)
+\td x
 =
 d^2\frac{3-2\ln d}{4\pi}
 \end{equation}
 
-\begin{equation}
-\int_{0}^{d} \frac{\partial}{\partial n_x} \int_{0}^{d} \frac{\partial}{\partial n_y} G(x-y) \td y \td x
-=
-\infty
-\end{equation}
-
-\subparagraph{Linear line}
+\subparagraph{Linear line SLP}
 
 \begin{equation}
 \int_{0}^{d} N_i(x) \int_{0}^{d} G(x-y) N_j(y) \td y \td x
@@ -105,48 +108,41 @@ d^2\frac{3-2\ln d}{4\pi}
 \end{bmatrix}
 \end{equation}
 
-\paragraph{Corner match}
+\paragraph{Edge match}
 
-\subparagraph{Constant line}
+\subparagraph{Constant line SLP kernel}
 
 \begin{multline}
-\int_{0}^{d_y}
-\left(
-\int_{0}^{d_x} \ln \left(\sqrt{(x+y\cos\alpha)^2+(y\sin\alpha)^2}\right)
-\td x \right)
-\td y \\
+\int_{S_{x}} \int_{S_{y}} G(r) \td S_y \td S_x =
+\int_{0}^{d_1} \int_{0}^{d_2}
+\ln \sqrt{(x+y \cos\phi)^2 + (y\sin\phi)^2}
+\td y \td x \\
 =
-\int_{0}^{d_y}
-\left(
-\int_{y\cos\alpha}^{d_x+y\cos\alpha} \ln \left(\sqrt{\xi^2+(y\sin\alpha)^2}\right)
-\td \xi \right)
-\td y \\
+\frac{
+c \left(d_1^2 \ln \frac{d_1}{d_3} + {d_2}^2 \ln \frac{d_2}{d_3}\right)
++ s \left(d_1^2 q(d_1, d_2, \phi) + d_2^2 q(d_2, d_1, \phi)\right)
++ d_1 d_2 \left(3 - 2 \ln d_3 \right)
+}{
+4 \pi
+}
+\end{multline}
+%
+where
+%
+\begin{equation}
+q(d_1, d_2, \phi) = \tan^{-1}\left(\frac{d_2 + d_1 \cos\phi}{d_1 \sin\phi}\right) - \tan^{-1}\left(\cot\phi\right)
+\end{equation}
+
+\subparagraph{Constant line DLP kernel}
+
+\begin{multline}
+\int_{S_{x}} \int_{S_{y}} G'(r) r'_{n_{y}} \td S_y \td S_x =
+\int_{0}^{d_1} \int_{0}^{d_2}
+\frac{x\sin\phi}{(x+y \cos\phi)^2 + (y\sin\phi)^2}
+\td y \td x \\
 =
-\int_{0}^{d_y}
-\left[
-\xi \ln \left(\sqrt{\xi^2+(y\sin\alpha)^2}\right) - \xi + y\sin\alpha \tan^{-1} \left(\frac{\xi}{y\sin\alpha}\right)
-\right]_{y\cos\alpha}^{d_x+y\cos\alpha} 
-\td y \\
-=
-\int_{0}^{d_y}
-\left(
-\left(d_x+y\cos\alpha\right) \ln \left(\sqrt{\left(d_x+y\cos\alpha\right)^2+(y\sin\alpha)^2}\right) - d_x + y\sin\alpha \tan^{-1} \left(\frac{d_x+y\cos\alpha}{y\sin\alpha}\right)
-\right) \\
--
-\left(
-\left(y\cos\alpha\right) \ln y + y\sin\alpha \tan^{-1} \left(\cot\alpha\right)
-\right)
-\td y \\
-=
--d_x d_y - \cos\alpha \frac{d_y^2 \left(\ln d_y - 1/2\right)}{2}
--
-\frac{d_y^2}{2}\sin\alpha \tan^{-1} \left(\cot\alpha\right) \\
-+
-\int_{0}^{d_y}
-\left(
-\left(d_x+y\cos\alpha\right) \ln \left(\sqrt{\left(d_x+y\cos\alpha\right)^2+(y\sin\alpha)^2}\right) + y\sin\alpha \tan^{-1} \left(\frac{d_x+y\cos\alpha}{y\sin\alpha}\right)
-\right)
-\td y
+\frac{1}{2\pi}\left(-d_1 q(d_1, d_2, \phi) + d_2 \cos\phi q(d_2, d_1, \phi)
+- d_2 \sin\phi \ln \frac{d_3}{d_2}\right)
 \end{multline}
 
 \subsection{3D case}
@@ -414,6 +410,158 @@ G''_{n_x, n_y} - {G_0}''_{n_x, n_y} - \frac{k^2}{2} G_0 =
 %
 where $\gamma = \ti k r$
 
+
+\section{General singular}
+
+General shape set, general element shape ($L$-set)
+%
+\begin{equation}
+\int_S G({\bf x}-{\bf x}_0) N({\bf x}) \td S
+\end{equation}
+%
+Reference system
+%
+\begin{equation}
+\int_{\Sigma} G({\bf x}(\bm{\xi})-{\bf x}_0) N(\bm{\xi}) J(\bm{\xi}) \td \Sigma
+\end{equation}
+%
+Polar transform
+%
+\begin{equation}
+\int_{0}^{2\pi}
+\int_{\alpha(\varepsilon,\theta)}^{R(\theta)}
+G({\bf x}(\bm{\xi}(\rho,\theta))-{\bf x}_0) N(\bm{\xi}(\rho,\theta)) J(\bm{\xi}(\rho,\theta)) \rho
+\td \rho
+\td \theta
+=
+\int_{0}^{2\pi}
+\int_{\alpha(\varepsilon,\theta)}^{R(\theta)}
+F(\rho, \theta)
+\td \rho
+\td \theta
+\end{equation}
+
+$F$ expressed using its Laurent series:
+%
+\begin{equation}
+F(\rho, \theta)
+= \frac{F_{-2}(\theta)}{\rho^2}
++ \frac{F_{-1}(\theta)}{\rho}
++ O(1)
+\end{equation}
+%
+\begin{multline}
+I =
+\int_{0}^{2\pi}
+\int_{0}^{R(\theta)}
+\underbrace{
+F(\rho, \theta) - \frac{F_{-2}(\theta)}{\rho^2} - \frac{F_{-1}(\theta)}{\rho}
+}_{O(1)}
+\td \rho
+\td \theta \\
++
+\int_{0}^{2\pi}
+F_{-2}(\theta)
+\left(
+\frac{1}{\alpha(\varepsilon,\theta)}
+-\frac{1}{R(\theta)}
+\right)
+\td \theta
++
+\int_{0}^{2\pi}
+F_{-1}(\theta)
+\ln \left|\frac{R(\theta)}{\alpha(\varepsilon,\theta)}\right|
+\td \theta
+\end{multline}
+%
+\begin{multline}
+I =
+\int_{0}^{2\pi}
+\int_{0}^{R(\theta)}
+F(\rho, \theta) - \frac{F_{-2}(\theta)}{\rho^2} - \frac{F_{-1}(\theta)}{\rho}
+\td \rho
+\td \theta
+-
+\int_{0}^{2\pi}
+\frac{F_{-2}(\theta)}{R(\theta)}
+\td \theta \\
++
+\int_{0}^{2\pi}
+F_{-2}(\theta)
+\frac{1}{\varepsilon\beta(\theta) + \varepsilon^2\gamma(\theta)}
+\td \theta
++
+\int_{0}^{2\pi}
+F_{-1}(\theta)
+\ln \left|\frac{R(\theta)}{\beta(\theta)}\right|
+\td \theta
+-
+\ln \varepsilon
+\underbrace{
+\int_{0}^{2\pi}
+F_{-1}(\theta)
+\td \theta}_0
+\end{multline}
+
+%
+\begin{multline}
+I =
+\int_{0}^{2\pi}
+\int_{0}^{R(\theta)}
+F(\rho, \theta) - \frac{F_{-2}(\theta)}{\rho^2} - \frac{F_{-1}(\theta)}{\rho}
+\td \rho
+\td \theta  \\
+-
+\int_{0}^{2\pi}
+F_{-2}(\theta)\left(\frac{1}{R(\theta)}
++
+\frac{\gamma(\theta)}{\beta^2(\theta)}
+\right)
+\td \theta
++
+\int_{0}^{2\pi}
+F_{-1}(\theta)
+\ln \left|\frac{R(\theta)}{\beta(\theta)}\right|
+\td \theta
+\end{multline}
+
+\begin{align}
+\beta(\theta) &= \frac{1}{A(\theta)} \\
+\gamma(\theta) &= -\frac{{\bf A}(\theta) \cdot {\bf B}(\theta)}{A^4(\theta)}
+\end{align}
+
+
+\subsection{Specialisation to 3D potential kernels}
+
+Assumptions: The element is smooth and the singular point is internal.
+%
+\begin{equation}
+F = \frac{-{\bf r} \cdot {\bf J} N \rho}{4\pi r^3}
+\end{equation}
+%
+\begin{equation}
+F_{-2}(\theta) = F_{-1}(\theta) = 0
+\end{equation}
+%
+meaning that simple Duffy quadrature is accurate.
+
+\begin{equation}
+F = \frac{
+\left[
+\left({\bf J} \cdot {\bf n}_{x_0}\right)
+-
+3 \left(\nabla r \cdot {\bf J}\right) \left(-\nabla r \cdot {\bf n}_{x0}\right)
+\right] N \rho
+}{
+4\pi r^3
+}
+\end{equation}
+%
+\begin{align}
+F_{-2}(\theta) &= \frac{J_0 N_0}{4\pi A^3(\theta)} \\
+F_{-1}(\theta) &= \left(\frac{{\bf J}_0 N_1(\theta) + {\bf J}_1(\theta) N_0}{4\pi A^3(\theta)}
+-\frac{3 N_0 {\bf J}_0 \left({\bf A}(\theta) \cdot {\bf B}(\theta)\right)}{4\pi A^5(\theta)}\right) {\bf n}_{x_0}
+\end{align}
 
 \end{document}
 

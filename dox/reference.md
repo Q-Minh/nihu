@@ -16,11 +16,11 @@ Function Space Representations {#reference_func_space}
 Elements {#reference_func_space_elements}
 --------
 
- linear        | quadratic
----------------|---------------
- ::line_1_elem | ::line_2_elem 
- ::tria_1_elem | ::tria_2_elem 
- ::quad_1_elem | ::quad_2_elem 
+ linear        					     | quadratic
+-------------------------------------|---------------
+ ::line_1_elem 						 | ::line_2_elem 
+ ::tria_1_elem 						 | ::tria_2_elem 
+ ::quad_1_elem, ::parallelogram_elem | ::quad_2_elem, ::quad_28_elem 
 
 Fields and FieldViews {#reference_func_space_fields}
 ---------------------

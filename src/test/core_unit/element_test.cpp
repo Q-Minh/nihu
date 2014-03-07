@@ -21,7 +21,7 @@
 #include "tmp/control.hpp"
 #include "tmp/vector.hpp"
 
-#include "library/quad_28_elem.hpp"
+#include "library/lib_element.hpp"
 
 #include <iostream>
 
@@ -45,16 +45,22 @@ struct tester
 			std::cout << "x  center: " << c.transpose() << std::endl;
 			std::cout << "nodal coords: " << std::endl << e.get_coords() << std::endl;
 
-			typename ElemType::x_t x = e.get_x(xi);
+			typename ElemType::x_return_type x = e.get_x(xi);
 			std::cout << "x(xi): " << x.transpose() << std::endl;
+			typename ElemType::dx_return_type dx = e.get_dx(xi);
+			std::cout << "dx(xi): " << dx.transpose() << std::endl;
+			typename ElemType::ddx_return_type ddx = e.get_ddx(xi);
+			std::cout << "ddx(xi): " << ddx.transpose() << std::endl;
 
 			typename ElemType::x_t n = e.get_normal(xi);
 			std::cout << "n(xi): " << n.transpose() << std::endl;
+
+			std::cout << "Linear size estimate:\t" << e.get_linear_size_estimate() << std::endl;
 		}
 	};
 };
 
-int main(void)
+int element_test(void)
 {
 	tmp::call_each<
 		tmp::vector<

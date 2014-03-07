@@ -55,7 +55,7 @@ struct break_point
 	 * \return the rational number converted to scalar_t
 	 */
 	template<class scalar_t = double>
-	CONSTEXPR static scalar_t x_value(void)
+	constexpr static scalar_t x_value(void)
 	{
 		return scalar_t(x::num)/scalar_t(x::den);
 	}

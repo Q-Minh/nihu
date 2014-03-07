@@ -64,15 +64,21 @@ mesh<tmp::vector<typename tag2element<Tags>::type...> >
 			throw std::runtime_error("Error reading mesh nodes");
 
 	// read elements
-	uMatrix elements(nElements, 4);
+	uMatrix elements(nElements, 5);
 	for (unsigned i = 0; i < nElements; ++i)
 	{
-		if (!(is >> elements(i,0) >> elements(i,1) >> elements(i,2) >> elements(i,3)))
+		unsigned nvert;
+		if (!(is >> nvert))
 			throw std::runtime_error("Error reading mesh elements");
-		if (elements(i,0) == 3)
+		if (nvert == 3)
 			elements(i,0) = tria_1_elem::id;
-		else if (elements(i,0) == 4)
+		else if (nvert == 4)
 			elements(i,0) = quad_1_elem::id;
+		else
+			throw std::runtime_error("Unsupported element type in OFF file");
+		for (unsigned c = 0; c < nvert; ++c)
+			if (!(is >> elements(i,c+1)))
+				throw std::runtime_error("Error reading mesh elements");
 	}
 
 	// close file
@@ -83,3 +89,4 @@ mesh<tmp::vector<typename tag2element<Tags>::type...> >
 }
 
 #endif // READ_OFF_MESH_HPP_INCLUDED
+

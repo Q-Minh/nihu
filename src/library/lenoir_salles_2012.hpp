@@ -25,6 +25,8 @@
 
 #include "../core/integral_operator.hpp"
 #include "laplace_kernel.hpp"
+#include "lib_element.hpp"
+
 
 /** \brief Galerkin singular integral of the Laplace SLP kernel over a constant triangle
  * \tparam TestField the test field type

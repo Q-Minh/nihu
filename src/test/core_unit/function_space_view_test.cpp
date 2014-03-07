@@ -18,6 +18,7 @@
 
 #include "tmp/vector.hpp"
 #include "core/function_space.hpp"
+#include "library/lib_element.hpp"
 
 typedef tmp::vector<tria_1_elem, quad_1_elem> elem_type_vector_t;
 typedef mesh<elem_type_vector_t> mesh_t;

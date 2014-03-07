@@ -20,6 +20,7 @@
 #include "core/weighted_residual.hpp"
 #include "library/laplace_kernel.hpp"
 #include "library/lenoir_salles_2012.hpp"
+#include "library/lib_element.hpp"
 //! [Includes]
 
 //! [Typedefs]

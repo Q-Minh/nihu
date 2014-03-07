@@ -106,8 +106,8 @@ public:
 		> > trial_store_t;
 
 		auto acc = create_dual_field_type_accelerator(
-			test_store_t::m_data[degree],
-			trial_store_t::m_data[degree],
+			test_store_t::get_data()[degree],
+			trial_store_t::get_data()[degree],
 			iteration::diagonal());
 
 		for (auto it = acc.begin(); it != acc.end(); ++it)
@@ -152,7 +152,7 @@ public:
 		result_t result;
 		result.setZero();
 		for (unsigned row = 0; row < test_nset_t::num_nodes; ++row)
-			result.row(row) += trial_nset_t::eval_shape(test_nset_t::corner_at(row));
+			result.row(row) += trial_nset_t::template eval_shape<0>(test_nset_t::corner_at(row));
 		return result;
 	}
 };
@@ -173,7 +173,7 @@ public:
 	/** \brief specialisation of single_integral::eval for the empty case
 	 * \return the empty result matrix
 	 */
-	static CONSTEXPR result_t eval(
+	static constexpr result_t eval(
 		field_base<TestField> const &,
 		field_base<TrialField> const &)
 	{

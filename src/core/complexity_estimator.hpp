@@ -27,7 +27,6 @@
 #include "../tmp/integer.hpp"
 #include "field.hpp"
 
-
 /** \brief clas to estimate kernel complexity between two fields
  * \tparam TestField the test field
  * \tparam TrialField the trial field
@@ -45,19 +44,19 @@ public:
 	enum {
 		/** \brief the test field complexity */
 		test_field_complexity =
-			shape_set_traits<typename test_field_t::nset_t>::polynomial_order +
-			shape_set_traits<typename test_field_t::elem_t::lset_t>::jacobian_order,
+			shape_set_traits::polynomial_order<typename test_field_t::nset_t>::value +
+			shape_set_traits::jacobian_order<typename test_field_t::elem_t::lset_t>::value,
 		/** \brief the trial field complexity */
 		trial_field_complexity =
-			shape_set_traits<typename trial_field_t::nset_t>::polynomial_order +
-			shape_set_traits<typename trial_field_t::elem_t::lset_t>::jacobian_order
+			shape_set_traits::polynomial_order<typename trial_field_t::nset_t>::value +
+			shape_set_traits::jacobian_order<typename trial_field_t::elem_t::lset_t>::value
 	};
 
 	/** \brie the total field complexity */
 	static unsigned const total_field_complexity = tmp::max_<
-		std::integral_constant<unsigned, test_field_complexity>,
-		std::integral_constant<unsigned, trial_field_complexity>
-	>::value;
+		tmp::integer<unsigned, test_field_complexity>,
+		tmp::integer<unsigned, trial_field_complexity>
+	>::type::value;
 
 	/** \brief compute total complexity
 	 * \param [in] test_field the test field instance

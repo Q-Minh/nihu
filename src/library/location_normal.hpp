@@ -60,8 +60,7 @@ struct location
 		{
 		}
 
-		/** \brief return the location
-		 * \return the location */
+		/** \brief return the location */
 		x_t const &get_x(void) const
 		{
 			return m_x;
@@ -73,7 +72,7 @@ struct location
 };
 
 
-/** \brief a class representing a normal + jacobian brick
+/** \brief a class representing a normal + Jacobian brick
  * \tparam Space the coordinate space
  */
 template <class Space>
@@ -107,15 +106,13 @@ struct normal_jacobian
 			m_norm /= m_jac;
 		}
 
-		/** \brief return the normal
-		 * \return the normal */
+		/** \brief return the normal */
 		x_t const &get_unit_normal(void) const
 		{
 			return m_norm;
 		}
 
-		/** \brief return the jacobian
-		 * \return the jacobian */
+		/** \brief return the Jacobian */
 		scalar_t const &get_jacobian(void) const
 		{
 			return m_jac;
@@ -126,6 +123,11 @@ struct normal_jacobian
 		scalar_t m_jac;
 	};
 };
+
+typedef build<location<space_2d> >::type location_input_2d;
+typedef build<location<space_3d> >::type location_input_3d;
+typedef build<location<space_2d>, normal_jacobian<space_2d> >::type location_normal_input_2d;
+typedef build<location<space_3d>, normal_jacobian<space_3d> >::type location_normal_input_3d;
 
 #endif // LOCATION_NORMAL_HPP_INCLUDED
 

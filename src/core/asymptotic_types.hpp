@@ -16,15 +16,17 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-/** \file singularity_types.hpp
- * \brief definition of different singularity types
+/** \file asymptotic_types.hpp
+ * \brief definition of different asymptotic function behaviour types
  */
 
-#ifndef SINGULARITY_TYPES_HPP_INCLUDED
-#define SINGULARITY_TYPES_HPP_INCLUDED
+#ifndef ASYMPTOTIC_TYPES_HPP_INCLUDED
+#define ASYMPTOTIC_TYPES_HPP_INCLUDED
+
+#include "../tmp/relation.hpp"
 
 /** \brief namespace encapsulating singularity type classes */
-namespace singularity_type
+namespace asymptotic
 {
 	/** \brief no singularity */
 	struct regular {};
@@ -50,7 +52,7 @@ struct minimal_reference_dimension;
 
 /** \brief specialisation of ::minimal_reference_dimension to the log<1> singularity */
 template <>
-struct minimal_reference_dimension<singularity_type::log<1> >
+struct minimal_reference_dimension<asymptotic::log<1> >
 {
 	static unsigned const value = 1;
 };
@@ -60,10 +62,48 @@ struct minimal_reference_dimension<singularity_type::log<1> >
  * \tparam order the inverse singularity order
  */
 template <unsigned order>
-struct minimal_reference_dimension<singularity_type::inverse<order> >
+struct minimal_reference_dimension<asymptotic::inverse<order> >
 {
 	static unsigned const value = order+1;
 };
 
 
-#endif // SINGULARITY_TYPES_HPP_INCLUDED
+
+namespace tmp
+{
+	template <unsigned o1, unsigned o2>
+	struct less<asymptotic::log<o1>, asymptotic::log<o2> >
+		: std::integral_constant<bool, (o1 < o2) > {};
+
+	template <unsigned o1, unsigned o2>
+	struct greater<asymptotic::log<o1>, asymptotic::log<o2> >
+		: std::integral_constant<bool, (o1 > o2) > {};
+
+	template <unsigned o1, unsigned o2>
+	struct less<asymptotic::inverse<o1>, asymptotic::inverse<o2> >
+		: std::integral_constant<bool, (o1 < o2) > {};
+
+	template <unsigned o1, unsigned o2>
+	struct greater<asymptotic::inverse<o1>, asymptotic::inverse<o2> >
+		: std::integral_constant<bool, (o1 > o2) > {};
+
+	template <unsigned o1, unsigned o2>
+	struct less<asymptotic::log<o1>, asymptotic::inverse<o2> >
+		: std::true_type {};
+
+	template <unsigned o1, unsigned o2>
+	struct less<asymptotic::inverse<o1>, asymptotic::log<o2> >
+		: std::false_type {};
+
+	template <unsigned o1, unsigned o2>
+	struct greater<asymptotic::log<o1>, asymptotic::inverse<o2> >
+		: std::false_type {};
+
+	template <unsigned o1, unsigned o2>
+	struct greater<asymptotic::inverse<o1>, asymptotic::log<o2> >
+		: std::true_type {};
+}
+
+
+#endif // ASYMPTOTIC_TYPES_HPP_INCLUDED
+

@@ -18,13 +18,15 @@
 
 /** \file blind_transform_selector.hpp
  * \brief select a blind transform method to a singularity type and a reference domain
+ * \ingroup quadrature
  */
 
 #ifndef BLIND_TRANSFORM_SELECTOR_HPP_INCLUDED
 #define BLIND_TRANSFORM_SELECTOR_HPP_INCLUDED
 
-#include "singularity_types.hpp"
+#include "asymptotic_types.hpp"
 #include "domain.hpp"
+#include "library/lib_domain.hpp"
 
 /** \brief defining blind transform algorithms */
 namespace blind_transform
@@ -36,16 +38,16 @@ namespace blind_transform
 }
 
 /** \brief assign a blind transformation method to a singularity type and a renference domain
- * \tparam singularity_type the singularity type
+ * \tparam asymptotic_type the singularity type
  * \tparam domain the reference domain
  */
-template <class singularity_type, class domain>
+template <class asymptotic_type, class domain>
 struct blind_transform_selector;
 
 /** \brief assign a blind transformation method to log<r> singularity
  */
 template <>
-struct blind_transform_selector<singularity_type::log<1>, line_domain>
+struct blind_transform_selector<asymptotic::log<1>, line_domain>
 {
 	typedef blind_transform::square type;
 };
@@ -53,7 +55,7 @@ struct blind_transform_selector<singularity_type::log<1>, line_domain>
 /** \brief assign a blind transformation method to 1/r singularity and tria domain
  */
 template <>
-struct blind_transform_selector<singularity_type::inverse<1>, tria_domain>
+struct blind_transform_selector<asymptotic::inverse<1>, tria_domain>
 {
 	typedef blind_transform::duffy type;
 };
@@ -61,10 +63,11 @@ struct blind_transform_selector<singularity_type::inverse<1>, tria_domain>
 /** \brief assign a blind transformation method to 1/r singularity and quad domain
  */
 template <>
-struct blind_transform_selector<singularity_type::inverse<1>, quad_domain>
+struct blind_transform_selector<asymptotic::inverse<1>, quad_domain>
 {
 	typedef blind_transform::duffy type;
 };
 
 
 #endif // BLIND_TRANSFORM_SELECTOR_INCLUDED
+

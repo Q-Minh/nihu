@@ -29,8 +29,6 @@
 #include <complex>
 
 #include "../core/global_definitions.hpp"
-#include "../core/singularity_types.hpp"
-
 #include "../core/kernel.hpp"
 #include "../core/gaussian_quadrature.hpp"
 
@@ -42,6 +40,8 @@
 
 #include "reciprocal_kernel_intervals.hpp"
 #include "interval_estimator.hpp"
+
+#include "laplace_kernel.hpp"
 
 /**
  * \brief kernel data that stores the wave number
@@ -269,22 +269,21 @@ struct kernel_traits<helmholtz_2d_SLP_kernel<wave_number_t> >
 	typedef collect<wave_number_data<wave_number_t> > data_t;
 	/** \brief the kernel output type */
 	typedef helmholtz_2d_g_wall<space_2d::scalar_t>::type output_t;
-	/** \brief kernel result type */
-	typedef typename output_t::result_t result_t;
 	/** \brief the quadrature family the kernel is integrated with
 	 * \todo update this quantity
 	 */
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
 	static bool const is_symmetric = true;
+	/** \brief indicates whether kernel is singular */
+	static bool const is_singular = true;
 	/** \brief kernel singularity type
 	 * \todo update this quantity
 	 */
-	typedef singularity_type::log<1> singularity_type_t;
-	/** \brief quadrature order used to generate Duffy singular quadratures
-	 * \todo update this quantity
-	 */
-	static unsigned const singular_quadrature_order = 7;
+
+	/** \brief the far field asymptotic behaviour of the kernel */
+	typedef asymptotic::log<1> far_field_behaviour_t;
+
 	/** \brief the kernel complexity estimator class
 	 * \todo update this quantity
 	 */
@@ -292,6 +291,18 @@ struct kernel_traits<helmholtz_2d_SLP_kernel<wave_number_t> >
 		typename reciprocal_distance_kernel_interval<1, GLOBAL_ACCURACY>::type
 	> complexity_estimator_t;
 };
+
+template <class wave_number_t>
+struct singular_kernel_traits<helmholtz_2d_SLP_kernel<wave_number_t> >
+{
+	typedef asymptotic::log<1> singularity_type_t;
+	/** \brief quadrature order used to generate blind singular quadratures
+	* \todo update this quantity
+	*/
+	static unsigned const singular_quadrature_order = 7;
+};
+
+
 
 
 /** \brief Single layer potential kernel of the Helmholtz equation in 2D \f$ -i/4 H_0(kr) \f$ */
@@ -326,21 +337,30 @@ struct kernel_traits<helmholtz_3d_SLP_kernel<wave_number_t> >
 	typedef collect<wave_number_data<wave_number_t> > data_t;
 	/** \brief the kernel output type */
 	typedef helmholtz_3d_g_wall<space_3d::scalar_t>::type output_t;
-	/** \brief kernel result type */
-	typedef typename output_t::result_t result_t;
 	/** \brief the quadrature family the kernel is integrated with */
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
 	static bool const is_symmetric = true;
-	/** \brief kernel singularity type */
-	typedef singularity_type::inverse<1> singularity_type_t;
-	/** \brief quadrature order used to generate Duffy singular quadratures */
-	static unsigned const singular_quadrature_order = 7;
+	/** \brief indicates whether kernel is singular */
+	static bool const is_singular = true;
+	/** \brief the far field asymptotic behaviour of the kernel */
+	typedef asymptotic::inverse<1> far_field_behaviour_t;
 	/** \brief the kernel complexity estimator class */
 	typedef interval_estimator<
 		typename reciprocal_distance_kernel_interval<1, GLOBAL_ACCURACY>::type
 	> complexity_estimator_t;
 };
+
+
+template <class wave_number_t>
+struct singular_kernel_traits<helmholtz_3d_SLP_kernel<wave_number_t> >
+{
+	/** \brief kernel singularity type */
+	typedef asymptotic::inverse<1> singularity_type_t;
+	/** \brief quadrature order used to generate blind singular quadratures */
+	static unsigned const singular_quadrature_order = 7;
+};
+
 
 
 /** \brief Single layer potential kernel of the Helmholtz equation in 3D \f$ \exp(-ikr)/4\pi r\f$ */
@@ -508,16 +528,14 @@ struct kernel_traits<helmholtz_2d_DLP_kernel<wave_number_t> >
 	typedef collect<wave_number_data<wave_number_t> > data_t;
 	/** \brief the kernel output type */
 	typedef helmholtz_2d_h_wall<space_2d::scalar_t>::type output_t;
-	/** \brief kernel result type */
-	typedef typename output_t::result_t result_t;
 	/** \brief the quadrature family the kernel is integrated with */
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
 	static bool const is_symmetric = false;
-	/** \brief kernel singularity type */
-	typedef singularity_type::log<1> singularity_type_t;
-	/** \brief quadrature order used to generate Duffy singular quadratures */
-	static unsigned const singular_quadrature_order = 7;
+	/** \brief indicates whether kernel is singular */
+	static bool const is_singular = true;
+	/** \brief the far field asymptotic behaviour of the kernel */
+	typedef asymptotic::inverse<1> far_field_behaviour_t;
 	/** \brief the kernel complexity estimator class
 	 * \todo update this
 	 */
@@ -525,6 +543,21 @@ struct kernel_traits<helmholtz_2d_DLP_kernel<wave_number_t> >
 		typename reciprocal_distance_kernel_interval<1, GLOBAL_ACCURACY>::type
 	> complexity_estimator_t;
 };
+
+
+template <class wave_number_t>
+struct singular_kernel_traits<helmholtz_2d_DLP_kernel<wave_number_t> >
+{
+	/** \brief kernel singularity type */
+	typedef asymptotic::log<1> singularity_type_t;
+	/** \brief quadrature order used to generate blind singular quadratures */
+	static unsigned const singular_quadrature_order = 7;
+};
+
+
+
+
+
 
 
 /** \brief Double layer potential kernel of the Helmholtz equation in 2D \f$ ik/4 H_1(kr) \cdot r'_{n_y} \f$ */
@@ -559,23 +592,32 @@ struct kernel_traits<helmholtz_3d_DLP_kernel<wave_number_t> >
 	typedef collect<wave_number_data<wave_number_t> > data_t;
 	/** \brief the kernel output type */
 	typedef helmholtz_3d_h_wall<space_3d::scalar_t>::type output_t;
-	/** \brief kernel result type */
-	typedef typename output_t::result_t result_t;
 	/** \brief the quadrature family the kernel is integrated with */
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
 	static bool const is_symmetric = false;
-	/** \brief kernel singularity type
-	 * \todo check
-	 */
-	typedef singularity_type::inverse<1> singularity_type_t;
-	/** \brief quadrature order used to generate Duffy singular quadratures */
-	static unsigned const singular_quadrature_order = 7;
+	/** \brief indicates whether kernel is singular */
+	static bool const is_singular = true;
+	/** \brief the far field asymptotic behaviour of the kernel */
+	typedef asymptotic::inverse<2> far_field_behaviour_t;
 	/** \brief the kernel complexity estimator class */
 	typedef interval_estimator<
 		typename reciprocal_distance_kernel_interval<2, GLOBAL_ACCURACY>::type
 	> complexity_estimator_t;
 };
+
+
+template <class wave_number_t>
+struct singular_kernel_traits<helmholtz_3d_DLP_kernel<wave_number_t> >
+{
+	/** \brief kernel singularity type
+	* \todo check
+	*/
+	typedef asymptotic::inverse<1> singularity_type_t;
+	/** \brief quadrature order used to generate blind singular quadratures */
+	static unsigned const singular_quadrature_order = 7;
+};
+
 
 
 /** \brief Double layer potential kernel of the Helmholtz equation in 3D \f$ \exp(-ikr)/4\pi r \left(-(1+ikr)/r\right) \cdot r'_{n_y} \f$ */
@@ -677,18 +719,13 @@ struct kernel_traits<helmholtz_3d_DLPt_kernel<wave_number_t> >
 	typedef collect<wave_number_data<wave_number_t> > data_t;
 	/** \brief the kernel output type */
 	typedef helmholtz_3d_ht_wall<space_3d::scalar_t>::type output_t;
-	/** \brief kernel result type */
-	typedef typename output_t::result_t result_t;
 	/** \brief the quadrature family the kernel is integrated with */
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
 	static bool const is_symmetric = false;
-	/** \brief kernel singularity type
-	 * \todo check
-	 */
-	typedef singularity_type::inverse<1> singularity_type_t;
-	/** \brief quadrature order used to generate Duffy singular quadratures */
-	static unsigned const singular_quadrature_order = 7;
+	/** \brief indicates whether kernel is singular */
+	static bool const is_singular = true;
+	typedef asymptotic::inverse<2> far_field_behaviour_t;
 	/** \brief the kernel complexity estimator class
 	 * \todo elaborate
 	 */
@@ -696,6 +733,20 @@ struct kernel_traits<helmholtz_3d_DLPt_kernel<wave_number_t> >
 		typename reciprocal_distance_kernel_interval<2, GLOBAL_ACCURACY>::type
 	> complexity_estimator_t;
 };
+
+
+template <class wave_number_t>
+struct singular_kernel_traits<helmholtz_3d_DLPt_kernel<wave_number_t> >
+{
+	/** \brief kernel singularity type
+	* \todo check
+	*/
+	typedef asymptotic::inverse<1> singularity_type_t;
+	/** \brief quadrature order used to generate blind singular quadratures */
+	static unsigned const singular_quadrature_order = 7;
+	/** \brief the far field asymptotic behaviour of the kernel */
+};
+
 
 
 /** \brief 3D Helmholtz Ht kernel \f$ \exp(-ikr)/4\pi r \left(-(1+ikr)/r\right) \cdot r'_{n_x} \f$ */
@@ -803,22 +854,34 @@ struct kernel_traits<helmholtz_3d_HSP_kernel<wave_number_t> >
 	typedef collect<wave_number_data<wave_number_t> > data_t;
 	/** \brief the kernel output type */
 	typedef helmholtz_3d_hyper_wall<space_3d::scalar_t>::type output_t;
-	/** \brief kernel result type */
-	typedef typename output_t::result_t result_t;
 	/** \brief the quadrature family the kernel is integrated with */
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
 	static bool const is_symmetric = true;
-	/** \brief kernel singularity type */
-	typedef singularity_type::inverse<2> singularity_type_t;
-	/** \brief quadrature order used to generate Duffy singular quadratures
-	 * \todo check
-	 */
-	static unsigned const singular_quadrature_order = 9;
+	/** \brief indicates whether kernel is singular */
+	static bool const is_singular = true;
+
+	/** \brief the far field asymptotic behaviour of the kernel */
+	typedef asymptotic::inverse<3> far_field_behaviour_t;
 	/** \brief the kernel complexity estimator class */
 	typedef interval_estimator<
 		typename reciprocal_distance_kernel_interval<3, GLOBAL_ACCURACY>::type
 	> complexity_estimator_t;
+};
+
+
+/** \brief singular traits of the laplace 3D HSP kernel */
+template <class wave_number_t>
+struct singular_kernel_traits<helmholtz_3d_HSP_kernel<wave_number_t> >
+{
+	/** \brief singularity type
+	* \todo check this
+	*/
+	typedef asymptotic::inverse<3> singularity_type_t;
+	/** \brief the singularity type when used with guiggiani's method */
+	typedef laplace_3d_HSP_kernel singular_kernel_ancestor_t;
+	/** \brief quadrature order  */
+	static unsigned const singular_quadrature_order = 9;
 };
 
 
