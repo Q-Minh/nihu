@@ -190,9 +190,6 @@ public:
 	}
 };
 
-Finally, the kernel is defined as a class derived from kernel\_base, taking the Poisson's number as constructor argument.
-
-
 
 #endif // ELASTOSTATICS_KERNEL_HPP_INCLUDED
 

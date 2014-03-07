@@ -21,7 +21,7 @@
 #include "util/mex_matrix.hpp"
 #include "library/elastostatics_kernel.hpp"
 #include "library/elastostatics_singular_integrals.hpp"
-#include "library/lib_elements.hpp"
+#include "library/lib_element.hpp"
 
 typedef mex::real_matrix<double> dMatrix;
 //![Header]
@@ -39,8 +39,7 @@ void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 
 //! [Matrices]
 	int n = surf_sp.get_num_dofs();
-	int m = field_sp.get_num_dofs();
-	cMatrix Us(n, n, lhs[0]), Ts(n, n, lhs[1]);
+	dMatrix Us(n, n, lhs[0]), Ts(n, n, lhs[1]);
 //! [Matrices]
 
 //! [Integral operators]
