@@ -37,8 +37,8 @@ function plot_mesh(mesh, varargin)
 % Last modified: 30.11.2009.
 
 %% Argument check and default parameters
-error(nargchk(1, 4, nargin, 'struct'));
-error(nargoutchk(0, 0, nargout, 'struct'));
+narginchk(1, 4);
+nargoutchk(0, 0);
 
 switch nargin
     case 1  % PLOT_MESH(MESH);
@@ -47,10 +47,10 @@ switch nargin
         nodewise = true;
     case 2  % PLOT_MESH(MESH, DATA);
         cData = varargin{1};
-        if length(cData) == size(mesh.Nodes,1)
+        if size(cData,1) == size(mesh.Nodes,1)
             cDOF = mesh.Nodes(:,1);
             nodewise = true;
-        elseif length(cData) == size(mesh.Elements,1)
+        elseif size(cData,1) == size(mesh.Elements,1)
             cDOF = mesh.Elements(:,1);
             nodewise = false;
         else
@@ -84,7 +84,7 @@ switch nargin
         cData = varargin{3};
 end
 
-if numel(cData) ~= numel(cDOF)
+if size(cData,1) ~= numel(cDOF)
     error('nihu:plot_mesh:argError', 'Invalid size of color data');
 end
 
@@ -103,8 +103,8 @@ if ~all(d)
 end
 
 dind(ID) = 1:length(ID);    % create ID-to-index permutation vector
-c = zeros(size(ID));        % null data
-c(dind(cDOF(d))) = cData(d);
+c = zeros(size(ID,1), size(cData,2));        % null data
+c(dind(cDOF(d)),:) = cData(d,:);
 
 x = mesh.Nodes(:,2);
 y = mesh.Nodes(:,3);
