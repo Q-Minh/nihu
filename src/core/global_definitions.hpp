@@ -26,6 +26,7 @@
 #define GLOBAL_DEFINITIONS_HPP_INCLUDED
 
 #include "field_type_acceleration_option.hpp"
+#include <cstddef>
 
 /** \brief acceleration::soft or acceleration::hard */
 typedef acceleration::hard GLOBAL_ACCELERATION;
@@ -36,6 +37,8 @@ typedef acceleration::hard GLOBAL_ACCELERATION;
 unsigned const GLOBAL_MAX_ORDER = 14;
 /** \brief the global accuracy of integrations */
 unsigned const GLOBAL_ACCURACY = 3;
+
+typedef std::ptrdiff_t Index;
 
 #endif
 

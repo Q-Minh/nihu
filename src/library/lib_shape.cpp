@@ -16,6 +16,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+/** \file lib_shape.cpp
+ * \details definition of static members of the library shape sets
+ */
+
 #include "lib_shape.hpp"
 
 namespace shape_set_traits

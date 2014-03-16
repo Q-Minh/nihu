@@ -64,11 +64,11 @@ constexpr unsigned num_derivatives(unsigned order, unsigned dim)
 /** \brief Traits of shape function sets */
 namespace shape_set_traits
 {
-	/** \brief The shep set's textual id */
+	/** \brief The shape set's textual id */
 	template <class Derived>
 	struct name
 	{
-		static const std::string value;
+		static const std::string value;	/**< \brief the textual name */
 	};
 
 	/** \brief Defines the domain where the shape function set is defined */
@@ -363,3 +363,4 @@ public:
 };
 
 #endif // SHAPESET_HPP_INCLUDED
+

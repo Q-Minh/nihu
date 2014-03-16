@@ -16,11 +16,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
-* \file block_product.hpp
-* \ingroup util
-* \brief declaration of template function ::block_product and its related metafunctions
-*/
+/** \file block_product.hpp
+ * \ingroup util
+ * \brief declaration of template function ::block_product and its related metafunctions
+ */
 
 #ifndef BLOCK_PRODUCT_HPP_INCLUDED
 #define BLOCK_PRODUCT_HPP_INCLUDED
@@ -28,10 +27,11 @@
 #include "eigen_utils.hpp"
 #include "product_type.hpp"
 #include "plain_type.hpp"
+#include <iostream>
 
 namespace internal
 {
-template <class left, class mat, class right>
+	template <class left, class mat, class right>
 	class block_product_impl;
 
 	/** \brief specialisation of block_product for two Eigen vectors and something general */
@@ -58,7 +58,7 @@ template <class left, class mat, class right>
 		>::type result_type;
 
 		static auto eval(lhs_t const &v1, mat const &m, rhs_t const &v2) ->
-			decltype(m * (v1 * v2.transpose()))
+			decltype( m * (v1 * v2.transpose()) )
 		{
 			return m * (v1 * v2.transpose());
 		}
@@ -73,40 +73,48 @@ template <class left, class mat, class right>
 		Eigen::Matrix<scalar3, N3, 1>
 	>
 	{
-	public:
 		typedef typename product_type<
 			scalar1,
 			typename product_type<scalar2, scalar3>::type
 		>::type scalar;
 
+	public:
 		typedef Eigen::Matrix<scalar, N1*N2, N2*N3> result_type;
 
 		static result_type eval(
-			Eigen::Matrix<scalar1, N1, 1> const &v1,
-			Eigen::Matrix<scalar2, N2, N2> const &m,
-			Eigen::Matrix<scalar3, N3, 1> const &v2)
+			Eigen::MatrixBase<Eigen::Matrix<scalar1, N1, 1> > const &v1,
+			Eigen::MatrixBase<Eigen::Matrix<scalar2, N2, N2> > const &m,
+			Eigen::MatrixBase<Eigen::Matrix<scalar3, N3, 1> > const &v2)
 		{
 			result_type result;
-			for (int row = 0; row < N1; ++row)
-				for (int col = 0; col < N3; ++col)
+			for (Index row = 0; row < N1; ++row)
+				for (Index col = 0; col < N3; ++col)
 					result.block(row*N2, col*N2, N2, N2) = v1(row) * m * v2(col);
 			return result;
 		}
 	};
 }
 
-
-template <class left, class mat, class right>
-auto block_product(left const &l, mat const &m, right const &r) ->
-	decltype(internal::block_product_impl<left, mat, right>::eval(l, m, r))
+/** \brief evaluate the block product v1 * m * v2^T
+ * \tparam v1 the left hand side vector type
+ * \tparam mat the matrix type
+ * \tparam v2 the right hand side vector type
+ * \param l the left vector
+ * \param m the center matrix
+ * \param r the right vector
+ */
+template <class v1, class mat, class v2>
+auto block_product(Eigen::MatrixBase<v1> const &l, mat const &m, Eigen::MatrixBase<v2> const &r) ->
+	decltype(internal::block_product_impl<v1, mat, v2>::eval(l, m, r))
 {
-	return internal::block_product_impl<left, mat, right>::eval(l, m, r);
+	return internal::block_product_impl<v1, mat, v2>::eval(l, m, r);
 }
 
-template <class lhs, class mat, class rhs>
+/** \brief metafunction returning the value type of a block product */
+template <class v1, class mat, class v2>
 struct block_product_result_type
 {
-	typedef typename internal::block_product_impl<lhs, mat, rhs>::result_type type;
+	typedef typename internal::block_product_impl<v1, mat, v2>::result_type type;
 };
 
 #endif // BLOCK_PRODUCT_HPP_INCLUDED
