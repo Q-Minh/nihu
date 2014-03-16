@@ -1,7 +1,7 @@
 // This file is a part of NiHu, a C++ BEM template library.
 //
-// Copyright (C) 2012-2013  Peter Fiala <fiala@hit.bme.hu>
-// Copyright (C) 2012-2013  Peter Rucz <rucz@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Fiala <fiala@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Rucz <rucz@hit.bme.hu>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -88,7 +88,7 @@ namespace tmp
 		struct size_impl<vector_tag>
 		{
 			template <class Seq>
-			struct apply : int_<std::tuple_size<typename Seq::impl>::value> {};
+			struct apply : integer<int, std::tuple_size<typename Seq::impl>::value> {};
 		};
 	}
 
@@ -104,7 +104,7 @@ namespace tmp
 			template <class Vect>
 			struct apply
 			{
-				typedef vector_iterator<Vect, int_<0> > type;
+				typedef vector_iterator<Vect, integer<int, 0> > type;
 			};
 		};
 

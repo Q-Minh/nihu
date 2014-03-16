@@ -1,7 +1,7 @@
 // This file is a part of NiHu, a C++ BEM template library.
 //
-// Copyright (C) 2012-2013  Peter Fiala <fiala@hit.bme.hu>
-// Copyright (C) 2012-2013  Peter Rucz <rucz@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Fiala <fiala@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Rucz <rucz@hit.bme.hu>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@
 #include "../util/eigen_utils.hpp"
 #include "../util/crtp_base.hpp"
 #include "shapeset.hpp"
+#include "../library/lib_shape.hpp"
 
 /**
 * \brief a quadrature element is a base point and a weight
@@ -97,15 +98,15 @@ public:
 	*/
 	template <class LSet>
 	quadrature_elem &transform_inplace(
-		const Eigen::Matrix<scalar_t, LSet::num_nodes, LSet::domain_t::dimension> &coords)
+		Eigen::Matrix<scalar_t, LSet::num_nodes, LSet::domain_t::dimension> const &coords)
 	{
 		// CRTP check
 		static_assert(std::is_base_of<shape_set_base<LSet>, LSet>::value,
 			"LSet must be derived from shape_set_base<LSet>");
 		// compute Jacobian and multiply with original weight
-		m_w *= (LSet::eval_dshape(m_xi).transpose() * coords).determinant();
+		m_w *= (LSet::template eval_shape<1>(m_xi).transpose() * coords).determinant();
 		// compute new quadrature location
-		m_xi = LSet::eval_shape(m_xi).transpose() * coords;
+		m_xi = LSet::template eval_shape<0>(m_xi).transpose() * coords;
 		return *this;
 	}
 
@@ -175,7 +176,7 @@ public:
 	*/
 	scalar_t sum_of_weights(void) const
 	{
-		scalar_t res();
+		scalar_t res = 0.0;
 		for (auto it = base_t::begin(); it != base_t::end(); ++it)
 			res += it->get_w();
 		return res;

@@ -1,7 +1,7 @@
 // This file is a part of NiHu, a C++ BEM template library.
 //
-// Copyright (C) 2012-2013  Peter Fiala <fiala@hit.bme.hu>
-// Copyright (C) 2012-2013  Peter Rucz <rucz@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Fiala <fiala@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Rucz <rucz@hit.bme.hu>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -16,33 +16,33 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-/** \file plane_triangle_helper.hpp
- * \brief helper functions to compute analytical integrals over plane triangles
+/** \file plane_element_helper.hpp
+ * \brief helper functions to compute analytical integrals over plane elements
  */
 
-#ifndef PLANE_TRIANGLE_HELPER_HPP_INCLUDED
-#define PLANE_TRIANGLE_HELPER_HPP_INCLUDED
+#ifndef PLANE_ELEMENT_HELPER_HPP_INCLUDED
+#define PLANE_ELEMENT_HELPER_HPP_INCLUDED
 
 /**
- * \brief compute angles and radii in a plane triangle
- * \tparam scalar_t the scalar type
+ * \brief compute angles and radii in a plane element
  * \param [in] elem the element
  * \param [out] r the radii from the collocation point
  * \param [out] theta the angles between the radii and the sides
  * \param [out] alpha the angles between the radii
  */
-template <class scalar_t>
-void planar_triangle_helper(
-	tria_1_elem const &elem,
-	scalar_t r[],
-	scalar_t theta[],
-	scalar_t alpha [])
+template <class elem_t>
+void plane_element_helper(
+	elem_t const &elem,
+	typename elem_t::x_t const &x0,
+	typename elem_t::scalar_t r[],
+	typename elem_t::scalar_t theta[],
+	typename elem_t::scalar_t alpha[])
 {
-	auto const &C_old = elem.get_coords();
-	auto const &x0 = elem.get_center();
-	unsigned const N = tria_1_elem::num_nodes;
+	enum{ N = elem_t::domain_t::num_corners };
 
-	typename tria_1_elem::coords_t R, C;
+	auto const &C_old = elem.get_coords();
+
+	typename elem_t::coords_t R, C;
 	for (unsigned i = 0; i < N; ++i)
 	{
 		R.col(i) = C_old.col(i) - x0;
@@ -59,4 +59,4 @@ void planar_triangle_helper(
 	}
 }
 
-#endif // PLANE_TRIANGLE_HELPER_HPP_INCLUDED
+#endif // PLANE_ELEMENT_HELPER_HPP_INCLUDED

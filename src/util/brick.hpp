@@ -1,7 +1,7 @@
 // This file is a part of NiHu, a C++ BEM template library.
 //
-// Copyright (C) 2012-2013  Peter Fiala <fiala@hit.bme.hu>
-// Copyright (C) 2012-2013  Peter Rucz <rucz@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Fiala <fiala@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Rucz <rucz@hit.bme.hu>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -35,7 +35,7 @@ struct empty_wall
 
 	/** \brief empty constructor from anything */
 	template <class...Args>
-	empty_wall(Args...)
+	empty_wall(Args const &...)
 	{
 	}
 };
@@ -106,9 +106,9 @@ struct merge<wall> : wall {};
  * \tparam wall a wall
  * \return a wall with the brick on the top
  */
-template <template <class T> class brick, class wall = empty_wall>
+template <template <class T> class _brick, class wall = empty_wall>
 struct glue :
-	public brick<wall>
+	public _brick<wall>
 {
 	/** \brief self-returning metafunction */
 	typedef glue type;
@@ -119,7 +119,7 @@ struct glue :
 	 * \return the new wall with the brick on top
 	 */
 	template <class newWall>
-	struct wrap : glue<brick, newWall> {};
+	struct wrap : glue<_brick, newWall> {};
 
 	/** constructor of wrapper class
 	 * \tparam Args arbitrary parameter types
@@ -127,7 +127,7 @@ struct glue :
 	 */
 	template <class...Args>
 	glue(Args const &...args) :
-		brick<wall>(args...)
+		_brick<wall>(args...)
 	{
 	}
 };
@@ -158,6 +158,41 @@ template <class subWall, class Wall>
 struct find_in_wall<subWall, Wall, true>
 {
 	typedef Wall type;
+};
+
+
+
+template <class func>
+class single_brick_wall
+{
+	struct wrapped
+	{
+		template <class wall>
+		class brick : public wall
+		{
+		public:
+			typedef typename func::return_type result_t;
+
+			/** \brief templated constructor */
+			template <class test_input_t, class trial_input_t, class kernel_data_t>
+			brick(
+				test_input_t const &test_input,
+				trial_input_t const &trial_input,
+				kernel_data_t const &kernel_data) :
+				wall(test_input, trial_input, kernel_data),
+				m_kernel(func()(test_input, trial_input, kernel_data))
+			{
+			}
+
+			result_t const & get_result(void) const { return m_kernel; }
+
+		private:
+			result_t m_kernel;
+		};
+	};
+	
+public:
+	typedef typename build<wrapped>::type type;
 };
 
 

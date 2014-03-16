@@ -1,7 +1,7 @@
 // This file is a part of NiHu, a C++ BEM template library.
 //
-// Copyright (C) 2012-2013  Peter Fiala <fiala@hit.bme.hu>
-// Copyright (C) 2012-2013  Peter Rucz <rucz@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Fiala <fiala@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Rucz <rucz@hit.bme.hu>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -25,13 +25,14 @@
 
 /** \brief class with a static member */
 template <class C>
-struct store
+class store
 {
-	static const C m_data;
+public:
+    static C const &get_data(void)
+    {
+        static const C m_data;
+        return m_data;
+    }
 };
-
-/** \brief definition of the stored static member with a default constructor */
-template <class C>
-const C store<C>::m_data;
 
 #endif // STORE_PATTERN_HPP

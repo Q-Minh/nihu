@@ -1,7 +1,7 @@
 // This file is a part of NiHu, a C++ BEM template library.
 // 
-// Copyright (C) 2012-2013  Peter Fiala <fiala@hit.bme.hu>
-// Copyright (C) 2012-2013  Peter Rucz <rucz@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Fiala <fiala@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Rucz <rucz@hit.bme.hu>
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 
 #include "tmp/vector.hpp"
 #include "core/function_space.hpp"
+#include "library/lib_element.hpp"
 
 typedef tmp::vector<tria_1_elem, quad_1_elem> elem_type_vector_t;
 typedef mesh<elem_type_vector_t> mesh_t;

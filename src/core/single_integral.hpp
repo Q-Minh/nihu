@@ -1,7 +1,7 @@
 // This file is a part of NiHu, a C++ BEM template library.
 //
-// Copyright (C) 2012-2013  Peter Fiala <fiala@hit.bme.hu>
-// Copyright (C) 2012-2013  Peter Rucz <rucz@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Fiala <fiala@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Rucz <rucz@hit.bme.hu>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -63,7 +63,9 @@ public:
 	/** \brief template parameter as nested type */
 	typedef TrialField trial_field_t;
 
+	/** \brief the traits class */
 	typedef single_integral_traits<test_field_t, trial_field_t> traits_t;
+	/** \brief the result matrix type */
 	typedef typename traits_t::result_t result_t;
 
 	/** \brief L-set of the elem */
@@ -104,8 +106,8 @@ public:
 		> > trial_store_t;
 
 		auto acc = create_dual_field_type_accelerator(
-			test_store_t::m_data[degree],
-			trial_store_t::m_data[degree],
+			test_store_t::get_data()[degree],
+			trial_store_t::get_data()[degree],
 			iteration::diagonal());
 
 		for (auto it = acc.begin(); it != acc.end(); ++it)
@@ -135,7 +137,9 @@ public:
 	/** \brief N-set of the trial field */
 	typedef typename TrialField::nset_t trial_nset_t;
 
+	/** \brief the traits class */
 	typedef single_integral_traits<TestField, TrialField> traits_t;
+	/** \brief the result matrix type of the single integral */
 	typedef typename traits_t::result_t result_t;
 
 	/** \brief evaluate collocational integral on a given field
@@ -148,24 +152,27 @@ public:
 		result_t result;
 		result.setZero();
 		for (unsigned row = 0; row < test_nset_t::num_nodes; ++row)
-			result.row(row) += trial_nset_t::eval_shape(test_nset_t::corner_at(row));
+			result.row(row) += trial_nset_t::template eval_shape<0>(test_nset_t::corner_at(row));
 		return result;
 	}
 };
 
 
 /**
-* \brief single integral over a field
-* \tparam TestField type of the test field
-* \tparam TrialField type of the trial field
-*/
+ * \brief single integral for different element types
+ * \tparam TestField type of the test field
+ * \tparam TrialField type of the trial field
+ */
 template <class TestField, class TrialField, class = void>
 class single_integral
 {
 public:
-	typedef single_integral_traits<TestField, TrialField> traits_t;
-	typedef typename traits_t::result_t result_t;
+	/** \brief the result matrix type */
+	typedef typename single_integral_traits<TestField, TrialField>::result_t result_t;
 
+	/** \brief specialisation of single_integral::eval for the empty case
+	 * \return the empty result matrix
+	 */
 	static constexpr result_t eval(
 		field_base<TestField> const &,
 		field_base<TrialField> const &)
@@ -175,13 +182,18 @@ public:
 };
 
 
+/**
+ * \brief single integral for matching element types
+ * \tparam TestField type of the test field
+ * \tparam TrialField type of the trial field
+ */
 template <class TestField, class TrialField>
 class single_integral<TestField, TrialField,
 	typename std::enable_if<
 		std::is_same<
 			typename TestField::elem_t,
 			typename TrialField::elem_t
-		>::type::value
+		>::value
 	>::type
 > :	public single_integral_impl<TestField, TrialField> {};
 

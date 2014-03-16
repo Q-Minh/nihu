@@ -1,13 +1,27 @@
 function [mesh, info] = import_gmsh_mesh(fname)
+%IMPORT_GMSH_MESH Import NiHu mesh from gmsh format
+%   [MESH, INFO] = IMPOT_GMSH_MESH(FNAME)  imports mesh from a gmsh file
+%
+% See also: EXPORT_GMSH_MESH IMPORT_BULK_MESH EXPORT_BULK_MESH
+
+%   Copyright 2008-2013 P. Fiala, P. Rucz
+%   Budapest University of Technology and Economics
+%   Dept. of Networked Systems and Services
+
+% Last modified: 2013.10.11.
 
 fid = fopen(fname);
+if fid == -1
+    error('NiHu:file_open', 'Cannot open bulk file %s', fname);
+end
 ftext = textscan(fid, '%s', 'Delimiter', '\n');
+ftext = ftext{1};
 fclose(fid);
 
 % Commands start with $ sign
 rxp_command = '^\$';
 
-r = regexp(ftext{1}, rxp_command, 'start');
+r = regexp(ftext, rxp_command, 'start');
 
 k = 1;
 commands = cell(0,2);
@@ -15,20 +29,20 @@ commands = cell(0,2);
 
 for i = 1 : numel(r)
     if ~isempty(r{i})
-        commands{k, 1} = ftext{1}{i};
+        commands{k, 1} = ftext{i};
         commands{k, 2} = i;
         k = k+1;
     end
 end
 
 % Obtain info
-info = read_info(ftext{1}, commands);
+info = read_info(ftext, commands);
 
 % Read nodes
-mesh.Nodes = read_nodes(ftext{1}, commands);
+mesh.Nodes = read_nodes(ftext, commands);
 
 % Read elements
-mesh.Elements = read_elements(ftext{1}, commands);
+mesh.Elements = read_elements(ftext, commands);
 
 % Create default materials and properties
 [mesh.Materials, mesh.Properties] = default_mat_prop();
@@ -151,3 +165,4 @@ function elements = read_elements(ftext, commands)
     % Drop unread elements
     elements = elements(1 : jElem, :);
 end
+

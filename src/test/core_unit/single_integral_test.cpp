@@ -1,23 +1,24 @@
 // This file is a part of NiHu, a C++ BEM template library.
-// 
-// Copyright (C) 2012-2013  Peter Fiala <fiala@hit.bme.hu>
-// Copyright (C) 2012-2013  Peter Rucz <rucz@hit.bme.hu>
-// 
+//
+// Copyright (C) 2012-2014  Peter Fiala <fiala@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Rucz <rucz@hit.bme.hu>
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "util/eigen_utils.hpp"
 #include "core/weighted_residual.hpp"
+#include "library/lib_element.hpp"
 
 typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> dMatrix;
 typedef Eigen::Matrix<unsigned, Eigen::Dynamic, Eigen::Dynamic> uMatrix;
@@ -89,7 +90,7 @@ int main(void)
 		quad_1_elem::id, 4, 5, 8, 7;
 
 
-	auto mesh = create_mesh(nodes, elements, _quad_1_tag());
+	auto mesh = create_mesh(nodes, elements, quad_1_tag());
 
 	std::cout << std::endl << "testing isoparametric galerkin case" << std::endl;
 	isoparam_galerkin_test(mesh);
@@ -102,3 +103,4 @@ int main(void)
 
 	return 0;
 }
+

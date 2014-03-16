@@ -1,0 +1,570 @@
+\documentclass[a4paper,11pt]{article}
+
+\usepackage{palatino,a4wide}
+\usepackage{bm,amsmath}
+\newcommand{\td}{\mathrm{d}}
+
+\begin{document}
+
+\section{The conventional boundary integral equation}
+
+Green's second identity for two regular functions on $S$ and an enclosed volume $V$
+%
+\begin{equation}
+\int_{S}
+\left(
+G'_{n_y}({\bf y}, {\bf x}) u({\bf y}) - G({\bf y}, {\bf x}) q({\bf y})
+\right)
+\td S = 0
+\end{equation}
+
+\subsection{Singularity inside the volume}
+
+If ${\bf x} \in V$ then the singular point must be excluded from the volume:
+%
+\begin{equation}
+\int_{S}
+\left(
+G'_{n_y}({\bf y}, {\bf x}) u({\bf y}) - G({\bf y}, {\bf x}) q({\bf y})
+\right)
+\td S
++
+\lim_{\epsilon \to 0^+}
+\int_{s_{\epsilon}}
+\left(
+G'_{n_y}({\bf y}, {\bf x}) u({\bf y}) - G({\bf y}, {\bf x}) q({\bf y})
+\right)
+\td S = 0
+\end{equation}
+
+Over $s_{\epsilon}$ the field functions can be approximated by series expansions around their values in the singular point:
+%
+\begin{align}
+u({\bf y}) &= u({\bf x}) + O(r) \nonumber \\
+q({\bf y}) &= O(1)
+\end{align}
+
+Adding and subtracting:
+\begin{multline}
+\int_{S}
+\left(
+G'_{n_y}({\bf y}, {\bf x}) u({\bf y}) - G({\bf y}, {\bf x}) q({\bf y})
+\right)
+\td S
++
+u({\bf x})
+\lim_{\epsilon \to 0^+}
+\int_{s_{\epsilon}}
+G'_{n_y}({\bf y}, {\bf x}) 
+\td S
+\\
++
+\lim_{\epsilon \to 0^+}
+\int_{s_{\epsilon}}
+\left(
+\underbrace{G'_{n_y}({\bf y}, {\bf x})}_{O(1/\epsilon^2)} \underbrace{\left(u({\bf y}) - u({\bf x})\right)}_{O(\epsilon)}
+- \underbrace{G({\bf y}, {\bf x})}_{O(1/\epsilon)} \underbrace{q({\bf y})}_{O(1)}
+\right)
+\underbrace{\td S}_{O(\epsilon^2)}
+= 0
+\end{multline}
+%
+the last term converges to 0, so the final result is
+%
+\begin{equation}
+\lim_{\epsilon \to 0^+}
+\int_{S}
+\left(
+G'_{n_y}({\bf y}, {\bf x}) u({\bf y}) - G({\bf y}, {\bf x}) q({\bf y})
+\right)
+\td S
++
+u({\bf x})
+c({\bf x})
+= 0
+\end{equation}
+%
+where
+%
+\begin{equation}
+c({\bf x})
+=
+\lim_{\epsilon \to 0^+}
+\int_{s_{\epsilon}}
+G'_{n_y}({\bf y}, {\bf x}) 
+\td S
+\end{equation}
+
+\subsection{Singularity on the surface}
+
+If ${\bf x} \in S$ then the singular point is again excluded from the volume:
+%
+\begin{multline}
+\lim_{\epsilon \to 0^+}
+\int_{S-e_{\epsilon}}
+\left(
+G'_{n_y}({\bf y}, {\bf x}) u({\bf y}) - G({\bf y}, {\bf x}) q({\bf y})
+\right)
+\td S
++
+\\
+\lim_{\epsilon \to 0^+}
+\int_{s_{\epsilon}}
+\left(
+G'_{n_y}({\bf y}, {\bf x}) u({\bf y}) - G({\bf y}, {\bf x}) q({\bf y})
+\right)
+\td S = 0
+\end{multline}
+%
+using the same series expansions, the final result becomes
+%
+\begin{equation}
+\lim_{\epsilon \to 0^+}
+\int_{S-e_{\epsilon}}
+\left(
+G'_{n_y}({\bf y}, {\bf x}) u({\bf y}) - G({\bf y}, {\bf x}) q({\bf y})
+\right)
+\td S
++
+u({\bf x})
+c({\bf x})
+= 0
+\end{equation}
+%
+where the definition of $c({\bf x})$ is analogous to the former case.
+
+\section{The hypersingular boundary integral equation}
+
+The starting point of the derivation is Green's second theorem written on the regularised domain $S-e_{\epsilon}+s_{\epsilon}$:
+%
+\begin{equation}
+\lim_{\epsilon \to 0^+}
+\int_{S-e_{\epsilon}+s_{\epsilon}}
+\left(
+G'_{n_y}({\bf y}, {\bf x}) u({\bf y}) - G({\bf y}, {\bf x}) q({\bf y})
+\right) 
+\td S_y = 0
+\end{equation}
+%
+As the singular point is excluded from the surface, the integral can be differentiated with respect to the normal at ${\bf x}$:
+%
+\begin{equation}
+\lim_{\epsilon \to 0^+}
+\int_{S-e_{\epsilon}+s_{\epsilon}}
+\left(
+G''_{n_x,n_y}({\bf y}, {\bf x}) u({\bf y}) - G'_{n_x}({\bf y}, {\bf x}) q({\bf y})
+\right)
+\td S_y = 0
+\end{equation}
+%
+The integrals over the truncated surface $S-e_{\epsilon}$ and the attached boundary $s_{\epsilon}$ are split into two:
+%
+\begin{multline}
+\lim_{\epsilon \to 0^+}
+\int_{S-e_{\epsilon}}
+\left(
+G''_{n_x,n_y}({\bf y}, {\bf x}) u({\bf y}) - G'_{n_x}({\bf y}, {\bf x}) q({\bf y})
+\right)
+\td S_y
+\\
++
+\lim_{\epsilon \to 0^+}
+\int_{s_{\epsilon}}
+\left(
+G''_{n_x,n_y}({\bf y}, {\bf x}) u({\bf y}) - G'_{n_x}({\bf y}, {\bf x}) q({\bf y})
+\right)
+\td S_y = 0
+\end{multline}
+%
+The functions $u$ and $q$ are expanded around the singular point as
+%
+\begin{align}
+u({\bf y}) &= u({\bf x}) + \nabla u({\bf x}) ({\bf y} - {\bf x}) + O(r^2) \nonumber \\
+q({\bf y}) &= \nabla u({\bf y}) {\bf n}_y = \nabla u({\bf x}) {\bf n}_y + O(r)
+\end{align}
+%
+We substitute the expansions into the two integrals. Furthermore, we assume that $s_{\epsilon}$ is a spherical surface of radius $\epsilon$:
+%
+\begin{multline}
+\lim_{\epsilon \to 0^+}
+\int_{S-e_{\epsilon}}
+\left(
+G''_{n_x,n_y}({\bf y}, {\bf x}) u({\bf y})
+- G'_{n_x}({\bf y}, {\bf x}) q({\bf y})
+\right)
+\td S_y
+\\
++
+\lim_{\epsilon \to 0^+}
+\int_{s_{\epsilon}}
+\left(
+\underbrace{G''_{n_x,n_y}({\bf y}, {\bf x})}_{O(\epsilon^{-3})} \underbrace{\left[u({\bf y}) - u({\bf x}) - \nabla u({\bf x}) ({\bf y} - {\bf x})\right]}_{O(\epsilon^2)}
+- \underbrace{G'_{n_x}({\bf y}, {\bf x})}_{O(\epsilon^{-2})} \underbrace{\left[q({\bf y}) - \nabla u({\bf x}) {\bf n}_y\right]}_{O(\epsilon)}
+\right)
+\underbrace{\td S_y}_{O(\epsilon^2)}
+\\
++
+\lim_{\epsilon \to 0^+}
+\int_{s_{\epsilon}}
+\left(
+G''_{n_x,n_y}({\bf y}, {\bf x}) \left[u({\bf x}) + \nabla u({\bf x}) ({\bf y} - {\bf x})\right]
+- G'_{n_x}({\bf y}, {\bf x}) \nabla u({\bf x}) {\bf n}_y
+\right)
+\td S_y = 0
+\end{multline}
+%
+cancellation:
+%
+\begin{multline}
+\lim_{\epsilon \to 0^+}
+\int_{S-e_{\epsilon}}
+\left(
+G''_{n_x,n_y}({\bf y}, {\bf x}) u({\bf y})
+- G'_{n_x}({\bf y}, {\bf x}) q({\bf y})
+\right)
+\td S_y
++
+u({\bf x})
+\lim_{\epsilon \to 0^+}
+\underbrace{
+\int_{s_{\epsilon}}
+G''_{n_x,n_y}({\bf y}, {\bf x}) 
+\td S_y
+}_{b({\bf x})/\epsilon}
+\\
++
+\nabla u({\bf x}) 
+\underbrace{
+\lim_{\epsilon \to 0^+}
+\int_{s_{\epsilon}}
+\left(
+G''_{n_x,n_y}({\bf y}, {\bf x}) ({\bf y} - {\bf x})
+- G'_{n_x}({\bf y}, {\bf x}) {\bf n}_y
+\right)
+\td S_y
+}_{\bf c({\bf x})}
+= 0
+\end{multline}
+%
+
+Summarising the final result:
+%
+\begin{equation}
+\lim_{\epsilon \to 0^+}
+\left\{
+\int_{S-e_{\epsilon}}
+\left(
+G''_{n_x,n_y}({\bf y}, {\bf x}) u({\bf y})
+- G'_{n_x}({\bf y}, {\bf x}) q({\bf y})
+\right)
+\td S_y
++
+u({\bf x})
+\frac{b({\bf x})}{\epsilon}
+\right\}
++
+\nabla u({\bf x}) 
+{\bf c}({\bf x})
+= 0
+\end{equation}
+%
+where
+%
+\begin{align}
+\frac{b({\bf x})}{\epsilon}
+&=
+\lim_{\epsilon \to 0^+}
+\int_{s_{\epsilon}}
+G''_{n_x,n_y}({\bf y}, {\bf x}) 
+\td S_y
+\nonumber \\
+\bf c({\bf x})
+&=
+\lim_{\epsilon \to 0^+}
+\int_{s_{\epsilon}}
+\left(
+G''_{n_x,n_y}({\bf y}, {\bf x}) ({\bf y} - {\bf x})
+- G'_{n_x}({\bf y}, {\bf x}) {\bf n}_y
+\right)
+\td S_y
+\end{align}
+
+\section{Evaluating the integrals}
+
+\subsection{The hypersingular case in 3D}
+
+\begin{equation}
+I =
+\lim_{\epsilon \to 0^+}
+\left\{
+\int_{S-e_{\epsilon}}
+G''_{n_x,n_y}({\bf y}, {\bf x}) N({\bf y})
+\td S_y
++
+N({\bf x})
+\frac{b({\bf x})}{\epsilon}
+\right\}
+\end{equation}
+%
+intrinsic coordinates
+%
+\begin{equation}
+I =
+\lim_{\epsilon \to 0^+}
+\left\{
+\int_{\Sigma-E(\epsilon)}
+G''_{n_x,n_y}({\bf y}(\bm{\xi}), {\bf x}(\bm{\xi})) N(\bm{\xi}) J(\bm{\xi})
+\td \Sigma_y
++
+N(\bm{\xi}_0)
+\frac{b({\bf x})}{\epsilon}
+\right\}
+\end{equation}
+%
+polar coordinates so that $\rho = |\bm{\xi}-\bm{\xi}_0|$ where ${\bf y}(\bm{\xi}_0) = {\bf x}$
+%
+\begin{equation}
+I =
+\lim_{\epsilon \to 0^+}
+\left\{
+\int_{0}^{2\pi}
+\int_{\alpha(\epsilon, \theta)}^{\hat{\rho}(\theta)}
+\underbrace{G''_{n_x,n_y}(\rho,\theta) N(\rho,\theta) J(\rho,\theta) \rho}_{
+	F(\theta,\rho) = \frac{F_{-2}(\theta)}{\rho^2} + \frac{F_{-1}(\theta)}{\rho} + O(1)
+} \,
+\td \rho
+\td \theta
++
+N(\bm{\xi}_0)
+\frac{b({\bf x})}{\epsilon}
+\right\}
+\end{equation}
+%
+Adding and subtracting the negative order coefficients of the Laurent expansion
+%
+\begin{multline}
+I =
+\int_{0}^{2\pi}
+\int_{0}^{\hat{\rho}(\theta)}
+\left(
+	F(\rho,\theta) - \frac{F_{-2}(\theta)}{\rho^2} - \frac{F_{-1}(\theta)}{\rho}
+\right)
+\td \rho
+\td \theta
+-
+\int_{0}^{2\pi}
+	\frac{F_{-2}(\theta)}{\hat{\rho}(\theta)}
+\td \theta
+\\
++
+\lim_{\epsilon \to 0^+}
+\left\{
++
+\int_{0}^{2\pi}
+	\frac{F_{-2}(\theta)}{\alpha(\epsilon, \theta)}
+\td \theta
++
+\int_{0}^{2\pi}
+F_{-1}(\theta) \log\left|
+	\frac{\hat{\rho}(\theta)}{\alpha(\epsilon, \theta)}
+	\right|
+\td \theta
++
+N(\bm{\xi}_0)
+\frac{b({\bf x})}{\epsilon}
+\right\}
+\end{multline}
+%
+\begin{equation}
+\alpha(\epsilon,\theta) = \epsilon \beta(\theta) + \epsilon^2 \gamma(\theta) + O(\epsilon^3)
+\end{equation}
+%
+\begin{multline}
+I =
+\int_{0}^{2\pi}
+\int_{0}^{\hat{\rho}(\theta)}
+\left(
+	F(\rho,\theta) - \frac{F_{-2}(\theta)}{\rho^2} - \frac{F_{-1}(\theta)}{\rho}
+\right)
+\td \rho
+\td \theta
+\\
++
+\int_{0}^{2\pi}
+\left(
+F_{-1}(\theta) \log\left|
+	\frac{\hat{\rho}(\theta)}{\beta(\theta)}
+	\right|
+-
+	F_{-2}(\theta)
+	\left(
+	\frac{1}{\hat{\rho}(\theta)}
+	+\frac{\gamma(\theta)}{\beta^2(\theta)}
+	\right)
+\right)
+\td \theta
+\\
++
+\lim_{\epsilon \to 0^+}
+\left\{
+-
+\log\epsilon
+\underbrace{\int_{0}^{2\pi}
+F_{-1}(\theta)
+\td \theta}_{0}
++
+\frac{1}{\epsilon}
+\left(
+\underbrace{
+\int_{0}^{2\pi}
+	\frac{F_{-2}(\theta)}{\beta(\theta)}
+\td \theta
++
+N(\bm{\xi}_0)
+b({\bf x})
+}_{0 \text{~The Cancellation}}
+\right)
+\right\}
+\end{multline}
+
+
+
+\subsection{The hypersingular case in 2D}
+
+\begin{equation}
+I =
+\lim_{\epsilon \to 0^+}
+\left\{
+\int_{S-e_{\epsilon}}
+G''_{n_x,n_y}({\bf y}, {\bf x}) N({\bf y})
+\td S_y
++
+N({\bf x})
+\frac{b({\bf x})}{\epsilon}
+\right\}
+\end{equation}
+%
+intrinsic coordinates
+%
+\begin{equation}
+I =
+\lim_{\epsilon \to 0^+}
+\left\{
+\int_{\Sigma-E(\epsilon)}
+G''_{n_x,n_y}({\bf y}(\xi), {\bf x}(\xi)) N(\xi) J(\xi)
+\td \Sigma_y
++
+N(\bm{\xi}_0)
+\frac{b({\bf x})}{\epsilon}
+\right\}
+\end{equation}
+%
+distance coordinate $\rho = |\xi-\xi_0|$ where ${\bf y}(\xi_0) = {\bf x}$
+%
+\begin{equation}
+I =
+\lim_{\epsilon \to 0^+}
+\left\{
+\left[
+\int_{\alpha(\epsilon, \theta)}^{\hat{\rho}(\theta)}
+\underbrace{G''_{n_x,n_y}(\rho,\theta) N(\rho,\theta) J(\rho,\theta)}_{
+	F(\rho,\theta) = \frac{F_{-2}(\theta)}{\rho^2} + \frac{F_{-1}(\theta)}{\rho} + O(1)
+} \,
+\td \rho
+\right]^{\pm}
++
+N(\bm{\xi}_0)
+\frac{b({\bf x})}{\epsilon}
+\right\}
+\end{equation}
+%
+%
+where $\theta \in \left\{ +, -\right\}$, and the notation $\left[q(\theta)\right]^{\pm}$ denotes $q^+ + q^-$.
+Adding and subtracting the negative order coefficients of the Laurent expansion
+%
+\begin{multline}
+I =
+\left[
+\int_{0}^{\hat{\rho}(\theta)}
+\left(
+	F(\rho,\theta) - \frac{F_{-2}(\theta)}{\rho^2} - \frac{F_{-1}(\theta)}{\rho}
+\right)
+\td \rho
+\right]^{\pm}
+-
+\left[
+	\frac{F_{-2}(\theta)}{\hat{\rho}(\theta)}
+\right]^{\pm}
+\\
++
+\lim_{\epsilon \to 0^+}
+\left\{
+\left[
+	\frac{F_{-2}(\theta)}{\alpha(\epsilon, \theta)}
+\right]^{\pm}
++
+\left[
+F_{-1}(\theta) \log\left|
+	\frac{\hat{\rho}(\theta)}{\alpha(\epsilon, \theta)}
+	\right|
+\right]^{\pm}
++
+N(\bm{\xi}_0)
+\frac{b({\bf x})}{\epsilon}
+\right\}
+\end{multline}
+%
+\begin{equation}
+\alpha(\epsilon,\theta) = \epsilon \beta(\theta) + \epsilon^2 \gamma(\theta) + O(\epsilon^3)
+\end{equation}
+%
+\begin{multline}
+I =
+\left[
+\int_{0}^{\hat{\rho}(\theta)}
+\left(
+	F(\rho,\theta) - \frac{F_{-2}(\theta)}{\rho^2} - \frac{F_{-1}(\theta)}{\rho}
+\right)
+\td \rho
+\right]^{\pm}
+\\
++
+\left[
+F_{-1}(\theta) \log\left|
+	\frac{\hat{\rho}(\theta)}{\beta(\theta)}
+	\right|
+-
+	F_{-2}(\theta)
+	\left(
+	\frac{1}{\hat{\rho}(\theta)}
+	+\frac{\gamma(\theta)}{\beta^2(\theta)}
+	\right)
+\right]^{\pm}
+\\
++
+\lim_{\epsilon \to 0^+}
+\left\{
+-
+\log\epsilon
+\underbrace{
+\left[
+F_{-1}(\theta)
+\right]^{\pm}
+}_{0}
++
+\frac{1}{\epsilon}
+\left(
+\underbrace{
+\left[
+	\frac{F_{-2}(\theta)}{\beta(\theta)}
+\right]^{\pm}
++
+N(\bm{\xi}_0)
+b({\bf x})
+}_{0}
+\right)
+\right\}
+\end{multline}
+
+\end{document}
+

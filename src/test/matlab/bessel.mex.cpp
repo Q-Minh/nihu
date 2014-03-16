@@ -1,7 +1,7 @@
 // This file is a part of NiHu, a C++ BEM template library.
 // 
-// Copyright (C) 2012-2013  Peter Fiala <fiala@hit.bme.hu>
-// Copyright (C) 2012-2013  Peter Rucz <rucz@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Fiala <fiala@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Rucz <rucz@hit.bme.hu>
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -19,15 +19,14 @@
 #include "util/mex_matrix.hpp"
 #include "util/math_functions.hpp"
 #include <iostream>
+#include <stdexcept>
 
 typedef mex::complex_matrix<double> cMatrix;
 
-void mexFunction(
-	int nlhs, mxArray *lhs[],
-	int nrhs, mxArray const *rhs[])
+void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 {
 	if (nlhs != 2 || nrhs != 1)
-		throw("bad number of input or output arguments");
+		throw std::invalid_argument("bad number of input or output arguments");
 
 	cMatrix z(rhs[0]);
 	cMatrix H0(z.rows(), z.cols(), lhs[0]), H1(z.rows(), z.cols(), lhs[1]);

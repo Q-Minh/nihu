@@ -1,7 +1,7 @@
 // This file is a part of NiHu, a C++ BEM template library.
 // 
-// Copyright (C) 2012-2013  Peter Fiala <fiala@hit.bme.hu>
-// Copyright (C) 2012-2013  Peter Rucz <rucz@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Fiala <fiala@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Rucz <rucz@hit.bme.hu>
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -19,6 +19,8 @@
 #include "util/mex_matrix.hpp"
 #include "core/weighted_residual.hpp"
 #include "library/laplace_kernel.hpp"
+#include "library/lib_element.hpp"
+
 
 typedef mex::real_matrix<double> dMatrix;
 
@@ -33,12 +35,12 @@ void mexFunction(
 
 	dMatrix surf_nodes(rhs[0]);
 	dMatrix surf_elements(rhs[1]);
-	auto surf_mesh = create_mesh(surf_nodes, surf_elements, _quad_1_tag());
+	auto surf_mesh = create_mesh(surf_nodes, surf_elements, quad_1_tag());
 	auto const &surf_sp = constant_view(surf_mesh);
 
 	dMatrix field_nodes(rhs[2]);
 	dMatrix field_elements(rhs[3]);
-	auto field_mesh = create_mesh(field_nodes, field_elements, _quad_1_tag());
+	auto field_mesh = create_mesh(field_nodes, field_elements, quad_1_tag());
 	auto const &field_sp = dirac(constant_view(field_mesh));
 
 	// generating integral operators

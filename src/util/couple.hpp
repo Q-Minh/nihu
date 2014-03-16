@@ -1,7 +1,7 @@
 // This file is a part of NiHu, a C++ BEM template library.
 //
-// Copyright (C) 2012-2013  Peter Fiala <fiala@hit.bme.hu>
-// Copyright (C) 2012-2013  Peter Rucz <rucz@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Fiala <fiala@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Rucz <rucz@hit.bme.hu>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -21,10 +21,13 @@
  * \brief Couple expressions
  */
 
-#define GCC_VERSION (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
-
 #ifndef COUPLE_HPP_INCLUDED
 #define COUPLE_HPP_INCLUDED
+
+/** \brief GCC version defined conventionally */
+#define GCC_VERSION (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
+
+#include "../core/global_definitions.hpp"
 
 #include "crtp_base.hpp"
 #include "product_type.hpp"
@@ -68,7 +71,7 @@ class couple_row
 {
 public:
 	/** \brief constructor
-	* \param [in] parent the couple expression whos row is expressed
+	* \param [in] parent the couple expression whose row is expressed
 	* \param [in] row_idx the row index
 	*/
 	couple_row(couple &parent, unsigned row_idx)
@@ -80,6 +83,10 @@ public:
 	template <class otherDerived, size_t idx>
 	struct increase
 	{
+		/** \brief evaluate couple row
+		 * \param [in] This couple expression
+		 * \param [in] other couple expression
+		 */
 		static void eval(
 			couple_row const & This,
 			couple_base<otherDerived> const &other)
@@ -94,6 +101,7 @@ public:
 	template <class otherDerived>
 	struct increase<otherDerived, 0>
 	{
+		/** \brief evaluate empty couple */
 		static void eval(couple_row const &, couple_base<otherDerived> const &)
 		{
 		}
@@ -333,11 +341,21 @@ public:
 	{
 	}
 
-#if !defined(__clang__) && (GCC_VERSION < 408000)
-static constexpr couple_product_right const *This = static_cast<couple_product_right const *>(nullptr);
-LDerived const &get_left(void) const { return m_left; }
-Right const &get_right(void) const { return m_right; }
+#if !defined(__clang__) && (GCC_VERSION < 408000) && !defined(WIN32)
+	/** \brief this pointer-like expression */
+	static constexpr couple_product_right const *This = static_cast<couple_product_right const *>(nullptr);
+	/** \brief return left expression */
+	LDerived const &get_left(void) const
+	{
+		return m_left;
+	}
+	/** \brief return right expression */
+	Right const &get_right(void) const
+	{
+		return m_right;
+	}
 
+	/** \brief return element of product */
 	template <size_t idx>
 	auto get(void) const
 		-> decltype( This->get_left().template get<idx>() * This->get_right() )
@@ -426,11 +444,22 @@ public:
 	{
 	}
 
-#if !defined(__clang__) && (GCC_VERSION < 408000)
+#if !defined(__clang__) && (GCC_VERSION < 408000) && !defined(WIN32)
+	/** \brief this pointer-like expression */
 	static constexpr couple_product_left const *This = static_cast<couple_product_left const *>(nullptr);
-	Left const &get_left(void) const { return m_left; }
-	RDerived const &get_right(void) const { return m_right; }
-	template <size_t idx> auto get(void) const
+	/** \brief return left expression */
+	Left const &get_left(void) const
+	{
+		return m_left;
+	}
+	/** \brief return right expression */
+	RDerived const &get_right(void) const
+	{
+		return m_right;
+	}
+	/** \brief return element of the couple product */
+	template <size_t idx>
+	auto get(void) const
 		-> decltype( This->get_left() * This->get_right().template get<idx>() )
 	{
 		return m_left * m_right.template get<idx>();

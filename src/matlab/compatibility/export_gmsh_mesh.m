@@ -1,5 +1,14 @@
 function export_gmsh_mesh(mesh, info, fname)
-% EXPORT_GMSH_MESH Export NiHu mesh into gmsh format.
+%EXPORT_GMSH_MESH Export NiHu mesh to gmsh format
+%
+% See also: EXPORT_BULK_MESH IMPORT_BULK_MESH IMPORT_GMSH_MESH
+
+%   Copyright 2008-2013 P. Fiala, P. Rucz
+%   Budapest University of Technology and Economics
+%   Dept. of Telecommunications
+
+% Last modified: 2013.09.22.
+
 
 elements = drop_IDs(mesh);
 nodes = [(1 : size(mesh.Nodes, 1)).', mesh.Nodes(:, 2:4)];

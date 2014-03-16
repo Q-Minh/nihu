@@ -27,7 +27,8 @@ These examples build C++ executables that are called from the Matlab frontend
 1. \subpage tut_rayleigh_integral : Acoustic radiation from a plane surface
 2. \subpage tut_helmholtz_galerkin_bem
 3. \subpage tut_helmholtz_bem_3d_fict
-4. \subpage tut_helmholtz_ibem_3d
+4. \subpage tut_helmholtz_bem_2d_cyl
+5. \subpage tut_helmholtz_ibem_3d
 
 Advanced topics
 ---------------
@@ -39,5 +40,10 @@ Customising your own NiHu
 
 1. \subpage tut_custom_element : Introduce a new element/field type
 2. \subpage tut_custom_singular_integrals : Specialise the singular integral for constant triangle
+
+Other
+-----
+
+1. \subpage tut_guiggiani_hypersingular : Hypersingular integrals with Guiggiani's method
 
 

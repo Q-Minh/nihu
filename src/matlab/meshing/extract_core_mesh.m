@@ -29,7 +29,8 @@ if ~isempty(ind23)
 end
 if ~isempty(ind24)
     elements(ind24,1) = 32409;
-    elements(ind24,2:10) = elem(ind24,4+(1:9))-1; % C-style indexing
+%     elements(ind24,1) = 32408;
+    elements(ind24,1+(1:9)) = elem(ind24,4+(1:9))-1; % C-style indexing
 end
 
 %% build new node matrix

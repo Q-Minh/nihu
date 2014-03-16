@@ -1,7 +1,7 @@
 // This file is a part of NiHu, a C++ BEM template library.
 //
-// Copyright (C) 2012-2013  Peter Fiala <fiala@hit.bme.hu>
-// Copyright (C) 2012-2013  Peter Rucz <rucz@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Fiala <fiala@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Rucz <rucz@hit.bme.hu>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -32,7 +32,7 @@ template <class LSet>
 struct duffy_traits;
 
 /**
- * \brief Transform regular quadratures into weakly singular Duffy-type quadratures
+ * \brief Transform regular quadratures into weakly singular ,,Duffy-type'' quadratures
  * \tparam QuadFamily the regular quadrature family
  * \tparam LSet the element geometrical shape set representation
  */
@@ -80,9 +80,11 @@ private:
 		xi_t const &sing_coord,
 		ret_quad_type &result)
 	{
+		// the first array element is the number of triangles
 		unsigned num_duffies = *array;
 		array++;
 
+		// create a regular quadrature
 		source_quad_type source(degree);
 
 		coords_t coords;
@@ -101,7 +103,7 @@ private:
 
 public:
 	/**
-	 * \brief create a duffy quadrature that is singular on one corner of the selected element
+	 * \brief create a Duffy quadrature that is singular on one corner of the selected element
 	 * \param [in] degree the polynomial degree of the original regular quadrature
 	 * \param [in] singular_corner index of the singular corner
 	 * \return a Duffy type singular quadrature
@@ -117,7 +119,7 @@ public:
 	}
 
 	/**
-	 * \brief create a duffy quadrature that is singular on the face of the selected element
+	 * \brief create a Duffy quadrature that is singular on the face of the selected element
 	 * \param [in] degree the polynomial degree of the original regular quadrature
 	 * \param [in] singular_point coordinates of the singular point
 	 * \return a Duffy type singular quadrature
@@ -133,7 +135,6 @@ public:
 		return duffy_impl(degree, face_indices, singular_point, result);
 	}
 }; // end of class duffy_quadrature
-
 
 
 /** \brief Specialisation of ::duffy_traits for ::tria_1_shape_set */

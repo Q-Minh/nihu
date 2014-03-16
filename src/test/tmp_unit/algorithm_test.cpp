@@ -1,7 +1,7 @@
 // This file is a part of NiHu, a C++ BEM template library.
 // 
-// Copyright (C) 2012-2013  Peter Fiala <fiala@hit.bme.hu>
-// Copyright (C) 2012-2013  Peter Rucz <rucz@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Fiala <fiala@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Rucz <rucz@hit.bme.hu>
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -26,29 +26,29 @@
 int main(void)
 {
 	typedef tmp::vector<
-		tmp::int_<1>,
-		tmp::int_<3>,
-		tmp::int_<28>,
-		tmp::int_<-32>,
-		tmp::int_<3>,
-		tmp::int_<0>,
-		tmp::int_<-2>
+		tmp::integer<int, 1>,
+		tmp::integer<int, 3>,
+		tmp::integer<int, 28>,
+		tmp::integer<int, -32>,
+		tmp::integer<int, 3>,
+		tmp::integer<int, 0>,
+		tmp::integer<int, -2>
 	> v1;
 	
 	typedef tmp::vector<
-		tmp::int_<-8>,
-		tmp::int_<6>,
-		tmp::int_<2>,
-		tmp::int_<-1>
+		tmp::integer<int, -8>,
+		tmp::integer<int, 6>,
+		tmp::integer<int, 2>,
+		tmp::integer<int, -1>
 	> v2;
 	
 	
-	std::cout << "Testing accumumlation" << std::endl;
-	std::cout << "=====================" << std::endl;
+	std::cout << "Testing accumulation" << std::endl;
+	std::cout << "====================" << std::endl;
 	std::cout << "v1       = "; print<v1>::eval();
 	std::cout << "v2       = "; print<v2>::eval();
-	std::cout << "sum(v1)  = "; std::cout << tmp::accumulate<v1, tmp::int_<0>>::type::value << std::endl;
-	std::cout << "prod(v2) = "; std::cout << tmp::accumulate<v2, tmp::int_<1>, tmp::mul<tmp::_1, tmp::_2> >::type::value << std::endl;
+	std::cout << "sum(v1)  = "; std::cout << tmp::accumulate<v1, tmp::integer<int, 0>>::type::value << std::endl;
+	std::cout << "prod(v2) = "; std::cout << tmp::accumulate<v2, tmp::integer<int, 1>, tmp::mul<tmp::_1, tmp::_2> >::type::value << std::endl;
 	std::cout << "max(v1)  = "; std::cout << tmp::max<v1>::type::value << std::endl;
 	std::cout << "min(v1)  = "; std::cout << tmp::min<v1>::type::value << std::endl;
 	std::cout << std::endl;
@@ -69,8 +69,8 @@ int main(void)
 	std::cout << "Testing find" << std::endl;
 	std::cout << "============" << std::endl; 
 	std::cout << "v1            = "; print<v1>::eval();
-	std::cout << "find(v1, 3)   = "; std::cout << tmp::deref<tmp::find<v1, tmp::int_<3> >::type>::type::value << std::endl;
-	std::cout << "find(v1, -32) = "; std::cout << tmp::deref<tmp::find<v1, tmp::int_<-32> >::type>::type::value << std::endl;
+	std::cout << "find(v1, 3)   = "; std::cout << tmp::deref<tmp::find<v1, tmp::integer<int, 3> >::type>::type::value << std::endl;
+	std::cout << "find(v1, -32) = "; std::cout << tmp::deref<tmp::find<v1, tmp::integer<int, -32> >::type>::type::value << std::endl;
 	std::cout << std::endl;
 	
 	std::cout << std::boolalpha;
@@ -78,11 +78,11 @@ int main(void)
 	std::cout << "=================" << std::endl;
 	std::cout << "v1          = "; print<v1>::eval();
 	std::cout << "{3} in v1 ? : "; 
-	std::cout << tmp::is_member<v1, tmp::int_<3> >::type::value << std::endl;
+	std::cout << tmp::is_member<v1, tmp::integer<int, 3> >::type::value << std::endl;
 	std::cout << "{2} in v1 ? : "; 
-	std::cout << tmp::is_member<v1, tmp::int_<2> >::type::value << std::endl;
+	std::cout << tmp::is_member<v1, tmp::integer<int, 2> >::type::value << std::endl;
 	std::cout << "{0} in v1 ? : "; 
-	std::cout << tmp::is_member<v1, tmp::int_<0> >::type::value << std::endl;
+	std::cout << tmp::is_member<v1, tmp::integer<int, 0> >::type::value << std::endl;
 	std::cout << std::endl;
 	
 	std::cout << "Testing serialise" << std::endl;

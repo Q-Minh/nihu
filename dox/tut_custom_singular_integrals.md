@@ -174,7 +174,7 @@ The following static member quadrature is suitable:
 static gaussian_quadrature<tria_domain> const reg_quadrature(7) // 7-th order
 ~~~~~~~~~~~~~~
 Class ::gaussian_quadrature<tria_domain> defines a Gaussian quadarture for a triangle domain.
-The contructor takes the integration order as parameter.
+The constructor takes the integration order as parameter.
 The generated quadrature is able to integrate 7-th order polynomials on a triangle without error.
 The quadrature is implemented as a container of quadrature points, and provides an iterator that traverses the quadrature points.
 Using this quadrature, the dynamic part is integrated as

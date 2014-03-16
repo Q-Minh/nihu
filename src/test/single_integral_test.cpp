@@ -1,7 +1,7 @@
 // This file is a part of NiHu, a C++ BEM template library.
 // 
-// Copyright (C) 2012-2013  Peter Fiala <fiala@hit.bme.hu>
-// Copyright (C) 2012-2013  Peter Rucz <rucz@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Fiala <fiala@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Rucz <rucz@hit.bme.hu>
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -16,16 +16,17 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "../bem/integral_operator.hpp"
-#include "../tmp/vector.hpp"
-#include "../bem/mesh.hpp"
-#include "../bem/function_space.hpp"
-#include "../bem/projection.hpp"
-#include "../bem/weighted_residual.hpp"
+#include "core/integral_operator.hpp"
+#include "tmp/vector.hpp"
+#include "core/mesh.hpp"
+#include "core/function_space.hpp"
+#include "core/assembly.hpp"
+#include "core/weighted_residual.hpp"
 
-#include "../library/unit_kernel.hpp"
-#include "../library/poisson_kernel.hpp"
-#include "../library/helmholtz_kernel.hpp"
+#include "library/unit_kernel.hpp"
+#include "library/laplace_kernel.hpp"
+#include "library/helmholtz_kernel.hpp"
+#include "library/lib_element.hpp"
 
 typedef tmp::vector<tria_1_elem, quad_1_elem> elem_type_vector_t;
 typedef mesh<elem_type_vector_t> mesh_t;
@@ -66,7 +67,7 @@ int main(void)
 	dMatrix A(nDOF, nDOF);
 	A.setZero();
 
-	auto b_op = create_integral_operator(poisson_G_kernel());
+	auto b_op = create_integral_operator(laplace_3d_SLP_kernel());
 	auto id_op = .5 * identity_integral_operator();
 	auto proj = b_op[trial] + id_op[trial];
 	auto wr = test * proj;

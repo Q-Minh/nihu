@@ -1,7 +1,7 @@
 // This file is a part of NiHu, a C++ BEM template library.
 //
-// Copyright (C) 2012-2013  Peter Fiala <fiala@hit.bme.hu>
-// Copyright (C) 2012-2013  Peter Rucz <rucz@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Fiala <fiala@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Rucz <rucz@hit.bme.hu>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -32,6 +32,7 @@
 template <class Seq, bool = std::is_same<Seq, typename tmp::empty<Seq>::type>::value>
 struct print
 {
+	/** \brief the print function */
 	static void eval(void)
 	{
 		std::cout << tmp::deref<typename tmp::begin<Seq>::type>::type::value << ", ";
@@ -43,6 +44,7 @@ struct print
 template <class Seq>
 struct print<Seq, true>
 {
+	/** \brief the print function */
 	static void eval(void)
 	{
 		std::cout << std::endl;

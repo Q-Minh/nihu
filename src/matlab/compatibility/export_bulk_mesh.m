@@ -1,11 +1,11 @@
 function export_bulk_mesh(model, fname)
-%EXPORT_BULK_MESH Export NiHu mesh into bulk file
+%EXPORT_BULK_MESH Export NiHu mesh to bulk format
 %   MODEL = EXPORT_BULK_MESH(FNAME) exports the NiHu mesh into a Nastran
 %   Bulk file.
 %
 % See also: IMPORT_BULK_MESH
 
-%   Copyright 2008-2010 P. Fiala
+%   Copyright 2008-2013 P. Fiala
 %   Budapest University of Technology and Economics
 %   Dept. of Telecommunications
 

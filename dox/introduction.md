@@ -39,7 +39,7 @@ Our implementation is capable to generate BEM executables
 The main C++ core of NiHu can be considered as a skeleton that defines different BEM problems in a general way, by reflecting mathematics behind boundary elements in the C++ code.
 The C++ code snippet below demonstrates the capabilities of NiHu's application layer:
 ~~~~~~~~~
-auto msh = create_mesh(nodes, elements, _quad_1_tag(), _tria_1_tag());
+auto msh = create_mesh(nodes, elements, quad_1_tag(), tria_1_tag());
 auto func_sp = constant_view(msh);
 auto L = create_integral_operator(laplace_3d_SLP_kernel());
 auto M = create_integral_operator(laplace_3d_DLP_kernel());

@@ -8,6 +8,7 @@ elem_data = {
     12, 2, 3, @quadratise_line
     23, 4, 6, @quadratise_tria
     24, 4, 9, @quadratise_quad
+%     24, 4, 8, @quadratise_quad
     };
 
 newmesh.Elements = [];
@@ -77,4 +78,5 @@ nodes = [
     mean(nodes,1)
     ];
 element = [1 5 2 6 3 7 4 8 9];
+% element = [1 5 2 6 3 7 4 8];
 end

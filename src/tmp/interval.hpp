@@ -1,18 +1,18 @@
 // This file is a part of NiHu, a C++ BEM template library.
-// 
-// Copyright (C) 2012-2013  Peter Fiala <fiala@hit.bme.hu>
-// Copyright (C) 2012-2013  Peter Rucz <rucz@hit.bme.hu>
-// 
+//
+// Copyright (C) 2012-2014  Peter Fiala <fiala@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Rucz <rucz@hit.bme.hu>
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -24,13 +24,15 @@
 #ifndef INTERVAL_HPP_INCLUDED
 #define INTERVAL_HPP_INCLUDED
 
-#include "tmp/integer.hpp"
+#include "../core/global_definitions.hpp"
 #include <ratio>
-#include "tmp/vector.hpp"
-#include "tmp/algorithm.hpp"
+#include <stdexcept>
+#include "integer.hpp"
+#include "vector.hpp"
+#include "algorithm.hpp"
 
-/** \brief define exa as the infinite */
-typedef std::exa ratio_infinite;
+/** \brief define giga as the infinite as it fits into 32 bits */
+typedef std::giga ratio_infinite;
 
 /**
  * \brief a break point consisting of a X and a Y value
@@ -76,10 +78,11 @@ struct merge_intervals
 	template <class Iter, class Begin>
 	struct copy_cond
 	{
-		// previous and current elements
+		/** \brief previous element */
 		typedef typename tmp::deref<typename tmp::prev<Iter>::type>::type prev;
+		/** \brief current element */
 		typedef typename tmp::deref<Iter>::type cur;
-		// copy if cur.x > prev.x and cur.y < prev.y
+		/** \brief copy if cur.x > prev.x and cur.y < prev.y */
 		typedef typename std::integral_constant<
 			bool,
 			std::ratio_greater<
@@ -112,19 +115,19 @@ struct merge_intervals
 		typename BP2::x
 	> {};
 
-	// sort the concatenated intervals by x ascending
+	/** \brief sort the concatenated intervals by x ascending */
 	typedef typename tmp::bubble_sort<
 		typename tmp::concatenate<Inter1, Inter2>::type,
 		compare_by_x_asc<tmp::_1, tmp::_2>
 	>::type half_sorted;
 
-	// sort by y descending
+	/** \brief sort by y descending */
 	typedef typename tmp::bubble_sort<
 		half_sorted,
 		compare_by_y_desc<tmp::_1, tmp::_2>
 	>::type sorted;
 
-	// zip using the copy condition
+	/** \brief zip using the copy condition */
 	typedef typename tmp::copy_if<
 		sorted,
 		tmp::inserter<
@@ -135,10 +138,15 @@ struct merge_intervals
 	>::type type;
 };
 
+/** \brief evaluate an interval at a given distance
+ * \tparam interval the interval to evaluate
+ * \param [in] r the scalar distance
+ * \return the appropriate interval limit
+ */
 template <class interval>
 int eval_interval(double r)
 {
-	// get first break point
+	/** \brief get first break point */
 	typedef typename tmp::deref<
 		typename tmp::begin<interval>::type
 	>::type bp;
@@ -149,11 +157,12 @@ int eval_interval(double r)
 		return eval_interval<typename tmp::pop_front<interval>::type>(r);
 }
 
+/** \brief error terminating case of eval_interval */
 template <>
 int eval_interval<tmp::vector<> >(double)
 {
-	throw "cannot determine interval value";
+	throw std::out_of_range("cannot determine interval value");
 }
 
-
 #endif // INTERVAL_HPP_INCLUDED
+

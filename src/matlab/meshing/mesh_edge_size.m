@@ -17,7 +17,7 @@ d = zeros(size(elem,1),1);
 iLine = find(elem(:,2) == 12 | elem(:,2) == 122);
 if ~isempty(iLine)
     line = elem(iLine,5:6);
-    dr = model.Nodes(line(:,2),2:4) - model.Nodes(line(:,5),2:4);
+    dr = model.Nodes(line(:,2),2:4) - model.Nodes(line(:,1),2:4);
     d(iLine) = sqrt(dot(dr,dr,2));
 end
 

@@ -76,7 +76,7 @@ if(MATLABMEX_FOUND)
 	# set the flags
 	if(WIN32)
 		SET(MEX_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMATLAB_MEX_FILE")
-		SET(MEX_SHARED_LINKER_FLAGS "-shared ${CMAKE_SHARED_LINKER_FLAGS} -L\"${MATLAB_ROOT}/bin/win${NIHU_SYS_BITS}\" -L\"${MATLAB_ROOT}/extern/lib/win${NIHU_SYS_BITS}/microsoft\" -m${NIHU_SYS_BITS} -lmex -lmx -lmat")
+		SET(MEX_SHARED_LINKER_FLAGS "-shared ${CMAKE_SHARED_LINKER_FLAGS} -m${NIHU_SYS_BITS} -L\"${MATLAB_ROOT}/bin/win${NIHU_SYS_BITS}\" -L\"${MATLAB_ROOT}/extern/lib/win${NIHU_SYS_BITS}/microsoft\" -L\"${CMAKE_BINARY_DIR}/lib\"  -lmex -lmx -lmat")
 	else(WIN32)
 		set(MEX_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -DMATLAB_MEX_FILE")
 	endif(WIN32)
@@ -103,6 +103,39 @@ set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall -Wunused -pedantic -O3 -std=c++11
 # setup global include directories
 include_directories("${CMAKE_SOURCE_DIR}")
 include_directories("${EIGEN_INCLUDE_DIRS}")
+
+### Libraries
+if(WIN32)
+	set(NIHU_STATIC_LIB_SUFFIX ".lib")
+else()
+	set(NIHU_STATIC_LIB_SUFFIX ".a")
+endif()
+	
+file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
+	
+add_library(lib_domain STATIC library/lib_domain.cpp)
+set_target_properties(lib_domain 
+	PROPERTIES 
+	PREFIX "" 
+	SUFFIX ${NIHU_STATIC_LIB_SUFFIX}
+	LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
+)
+
+add_library(lib_element STATIC library/lib_element.cpp)
+set_target_properties(lib_element 
+	PROPERTIES 
+	PREFIX "" 
+	SUFFIX ${NIHU_STATIC_LIB_SUFFIX}
+	LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
+)
+
+add_library(lib_shape STATIC library/lib_shape.cpp)
+set_target_properties(lib_shape
+	PROPERTIES
+	PREFIX ""
+	SUFFIX ${NIHU_STATIC_LIB_SUFFIX}
+	LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
+)
 
 ### Subdirectories
 add_subdirectory(tutorial)
@@ -190,7 +223,7 @@ endif(DOXYGEN_FOUND)
 
 # Select all hpp files for installation
 set(NIHU_HPP_DIRECTORIES
-	"core"; "library"; "tmp"; "util")
+	"core"; "interface"; "library"; "tmp"; "util")
 
 foreach(HPP_DIRECTORY ${NIHU_HPP_DIRECTORIES})
 	install(DIRECTORY ${HPP_DIRECTORY} DESTINATION include FILES_MATCHING PATTERN "*.hpp")
@@ -209,3 +242,4 @@ install(DIRECTORY "matlab/nihudemos" DESTINATION matlab)
 
 # Create installation rule for matlab install script
 install(FILES "matlab/install.m" DESTINATION matlab)
+

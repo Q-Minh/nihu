@@ -1,14 +1,14 @@
 function mesh = import_bulk_mesh(fname)
-%IMPORT_BULK_MESH Import NiHu mesh from bulk file (.bdf)
+%IMPORT_BULK_MESH Import NiHu mesh from bulk format
 %   MESH = IMPOT_BULK_MESH(FNAME)  imports mesh from a Nastran Bulk file.
 %
-% See also: EXPORT_BULK_MESH
+% See also: EXPORT_GMSH_MESH IMPORT_GMSH_MESH EXPORT_BULK_MESH
 
-%   Copyright 2008-2012 P. Fiala, P. Rucz
+%   Copyright 2008-2013 P. Fiala, P. Rucz
 %   Budapest University of Technology and Economics
 %   Dept. of Telecommunications
 
-% Last modified: 2012.12.14.
+% Last modified: 2013.09.22.
 
 %% Open and read the file
 fid = fopen(fname, 'rt');

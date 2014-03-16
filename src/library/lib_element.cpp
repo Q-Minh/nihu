@@ -1,7 +1,7 @@
 // This file is a part of NiHu, a C++ BEM template library.
 // 
-// Copyright (C) 2012-2013  Peter Fiala <fiala@hit.bme.hu>
-// Copyright (C) 2012-2013  Peter Rucz <rucz@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Fiala <fiala@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Rucz <rucz@hit.bme.hu>
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -16,19 +16,24 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "../bem/couple.hpp"
+#include "lib_element.hpp"
 
-#include <iostream>
-#include <Eigen/Dense>
-#include <complex>
-
-typedef std::complex<double> dcomplex;
-typedef Eigen::Matrix<double, 3, 3> mat_t;
-
-int main(void)
+namespace element_traits
 {
-	mat_t m;
-	dcomplex(1.0, 2.0) * m;
-
-	return 0;
+	template <>
+	const std::string name<line_1_elem>::value = "Line 1 elem";
+	template <>
+	const std::string name<line_2_elem>::value = "Line 2 elem";
+	template <>
+	const std::string name<tria_1_elem>::value = "Tria 1 elem";
+	template <>
+	const std::string name<tria_2_elem>::value = "Tria 2 elem";
+	template <>
+	const std::string name<quad_1_elem>::value = "Quad 1 elem";
+	template <>
+	const std::string name<quad_2_elem>::value = "Quad 2 elem";
+	template <>
+	const std::string name<quad_28_elem>::value = "Quad 28 elem";
 }
+
+

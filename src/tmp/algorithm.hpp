@@ -1,7 +1,7 @@
 // This file is a part of NiHu, a C++ BEM template library.
 //
-// Copyright (C) 2012-2013  Peter Fiala <fiala@hit.bme.hu>
-// Copyright (C) 2012-2013  Peter Rucz <rucz@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Fiala <fiala@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Rucz <rucz@hit.bme.hu>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -350,7 +350,7 @@ namespace tmp
 
 		template <
 			class Seq, class Compare,
-			class siz = typename less<int_<1>, typename size<Seq>::type>::type
+			class siz = typename less<integer<int, 1>, typename size<Seq>::type>::type
 		>
 		struct bubble_cycle
 		{
@@ -394,7 +394,7 @@ namespace tmp
 
 	/** \brief terminating case of bubble_sort for short vectors */
 	template <class Seq, class Compare>
-	struct bubble_sort<Seq, Compare, int_<0> > : Seq {};
+	struct bubble_sort<Seq, Compare, integer<int, 0> > : Seq {};
 }
 
 #endif // ALGORITHM_HPP_INCLUDED

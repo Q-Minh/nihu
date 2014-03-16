@@ -1,7 +1,7 @@
 // This file is a part of NiHu, a C++ BEM template library.
 //
-// Copyright (C) 2012-2013  Peter Fiala <fiala@hit.bme.hu>
-// Copyright (C) 2012-2013  Peter Rucz <rucz@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Fiala <fiala@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Rucz <rucz@hit.bme.hu>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -191,11 +191,11 @@ namespace tmp
 	}
 
 	/**
-	* \brief Call Transform<x>::type(Args...) for each element x of the sequence Seq until it returns true
-	* \tparam Seq the sequence of values x
-	* \tparam Transform a metafunction with a callable internal struct called type
-	* \tparam Args function arguments
-	*/
+	 * \brief Call Transform<x>::type(Args...) for each element x of the sequence Seq until it returns true
+	 * \tparam Seq the sequence of values x
+	 * \tparam Transform a metafunction with a callable internal struct called type
+	 * \tparam Args function arguments
+	 */
 	template <class Seq, class Transform, class...Args>
 	static bool call_until(Args...args)
 	{

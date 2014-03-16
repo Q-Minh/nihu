@@ -1,7 +1,7 @@
 // This file is a part of NiHu, a C++ BEM template library.
 // 
-// Copyright (C) 2012-2013  Peter Fiala <fiala@hit.bme.hu>
-// Copyright (C) 2012-2013  Peter Rucz <rucz@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Fiala <fiala@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Rucz <rucz@hit.bme.hu>
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 #include "core/weighted_residual.hpp"
 #include "util/mex_matrix.hpp"
 #include "library/helmholtz_kernel.hpp"
+#include "library/lib_element.hpp"
 
 typedef mex::real_matrix<double> dMatrix;
 typedef mex::complex_matrix<double> cMatrix;
@@ -26,12 +27,12 @@ typedef mex::complex_matrix<double> cMatrix;
 void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 {
 	dMatrix surf_nodes(rhs[0]), surf_elem(rhs[1]);
-	auto surf_mesh = create_mesh(surf_nodes, surf_elem, _quad_1_tag(), _tria_1_tag());
+	auto surf_mesh = create_mesh(surf_nodes, surf_elem, quad_1_tag(), tria_1_tag());
 	auto const &surf_sp = constant_view(surf_mesh);
 	int n = surf_sp.get_num_dofs();
 
 	dMatrix field_nodes(rhs[2]), field_elem(rhs[3]);
-	auto field_mesh = create_mesh(field_nodes, field_elem, _quad_1_tag());
+	auto field_mesh = create_mesh(field_nodes, field_elem, quad_1_tag());
 	auto const &field_sp = dirac(constant_view(field_mesh));
 	int m = field_sp.get_num_dofs();
 

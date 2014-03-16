@@ -1,7 +1,7 @@
 // This file is a part of NiHu, a C++ BEM template library.
 //
-// Copyright (C) 2012-2013  Peter Fiala <fiala@hit.bme.hu>
-// Copyright (C) 2012-2013  Peter Rucz <rucz@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Fiala <fiala@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Rucz <rucz@hit.bme.hu>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -34,10 +34,17 @@ template <class Scalar, unsigned Dimension>
 class space
 {
 public:
+    /** self-returning */
+    typedef space type;
+
 	/** \brief template parameter as nested type */
 	typedef Scalar scalar_t;
-	/** \brief template parameter as nested type */
-	static unsigned const dimension = Dimension;
+
+	/** \brief integral constants */
+	enum {
+		/** \brief template parameter as nested type */
+		dimension = Dimension
+	};
 
 	/** \brief the location type */
 	typedef Eigen::Matrix<scalar_t, Dimension, 1> location_t;

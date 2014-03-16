@@ -1,7 +1,7 @@
 // This file is a part of NiHu, a C++ BEM template library.
 //
-// Copyright (C) 2012-2013  Peter Fiala <fiala@hit.bme.hu>
-// Copyright (C) 2012-2013  Peter Rucz <rucz@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Fiala <fiala@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Rucz <rucz@hit.bme.hu>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -96,27 +96,32 @@ class function_space_impl;
 
 
 // forward declaration
-template<class Mesh, class FieldOption>
+template<class Mesh, class FieldOption, class Dimension>
 class function_space_view;
 
 
 /** \brief traits class of a function space view */
-template <class Mesh, class FieldOption>
-struct function_space_traits<function_space_view<Mesh, FieldOption> >
+template <class Mesh, class FieldOption, class Dimension>
+struct function_space_traits<function_space_view<Mesh, FieldOption, Dimension> >
 {
 	/** \brief the underlying mesh type */
 	typedef Mesh mesh_t;
 
+	enum {
+		quantity_dimension = Dimension::value
+	};
+
+	/** \brief the mesh eleme type vector type */
 	typedef typename mesh_t::elem_type_vector_t etv_t;
 
 	/** \brief the field type vector */
 	typedef typename tmp::transform<
 		etv_t,
-		tmp::inserter<
+		tmp::inserter <
 			typename tmp::empty<etv_t>::type,
 			tmp::push_back<tmp::_1, tmp::_2>
 		>,
-		field_view<tmp::_1, FieldOption>
+		field_view<tmp::_1, FieldOption, Dimension>
 	>::type field_type_vector_t;
 
 	/** \brief the iterator class traversing a field subvector */
@@ -133,31 +138,29 @@ struct function_space_traits<function_space_view<Mesh, FieldOption> >
 * \tparam Mesh the underlying Mesh type
 * \tparam FieldOption determines how the field is generated from the mesh
 */
-template<class Mesh, class FieldOption>
-class function_space_impl<function_space_view<Mesh, FieldOption> > :
+template<class Mesh, class FieldOption, class Dimension>
+class function_space_impl<function_space_view<Mesh, FieldOption, Dimension> > :
 	public Mesh
 {
 public:
 	/** \brief the traits class */
-	typedef function_space_traits< function_space_view<Mesh, FieldOption> > traits_t;
+	typedef function_space_traits< function_space_view<Mesh, FieldOption, Dimension> > traits_t;
 
 private:
 	/** \brief specialisation of number of dofs for the constant case */
 	unsigned get_num_dofs_impl(field_option::constant) const
 	{
-		return Mesh::get_num_elements();
+		return Mesh::get_num_elements() * traits_t::quantity_dimension;
 	}
 
 	/** \brief specialisation of number of dofs for the isoparametric case */
 	unsigned get_num_dofs_impl(field_option::isoparametric) const
 	{
-		return Mesh::get_num_points();
+		return Mesh::get_num_points() * traits_t::quantity_dimension;
 	}
 
 public:
-	/** \brief return mesh reference
-	* \return reference to the underlying mesh part
-	*/
+	/** \brief return mesh reference */
 	Mesh const &get_mesh(void) const
 	{
 		return static_cast<Mesh const &> (*this);
@@ -201,14 +204,14 @@ public:
 * \tparam Mesh the underlying Mesh type
 * \tparam FieldOption determines how the field is generated from the mesh
 */
-template<class Mesh, class FieldOption>
+template<class Mesh, class FieldOption, class Dimension = _1d>
 class function_space_view :
-	public function_space_base<function_space_view<Mesh, FieldOption> >,
-	public function_space_impl<function_space_view<Mesh, FieldOption> >
+	public function_space_base<function_space_view<Mesh, FieldOption, Dimension> >,
+	public function_space_impl<function_space_view<Mesh, FieldOption, Dimension> >
 {
 public:
 	/** \brief the implementation class */
-	typedef function_space_impl<function_space_view<Mesh, FieldOption> > impl_t;
+	typedef function_space_impl<function_space_view<Mesh, FieldOption, Dimension> > impl_t;
 
 	using impl_t::get_mesh;
 	using impl_t::field_begin;
@@ -223,11 +226,11 @@ public:
  * \param [in] msh mesh reference
  * \return function space view of the mesh
  */
-template <class Mesh, class Option>
-function_space_view<Mesh, Option> const &
-	create_function_space_view(Mesh const &msh, Option)
+template <class Mesh, class Option, class Dimension = _1d>
+function_space_view<Mesh, Option, Dimension> const &
+	create_function_space_view(Mesh const &msh, Option, Dimension dim = Dimension())
 {
-	return static_cast<function_space_view<Mesh, Option> const &>(msh);
+	return static_cast<function_space_view<Mesh, Option, Dimension> const &>(msh);
 }
 
 /** \brief factory function to transform a mesh into an isoparametric function space
@@ -235,11 +238,11 @@ function_space_view<Mesh, Option> const &
  * \param [in] msh mesh reference
  * \return isoparametric function space view of the mesh
  */
-template <class Mesh>
-function_space_view<Mesh, field_option::isoparametric> const &
-	isoparametric_view(Mesh const &msh)
+template <class Mesh, class Dimension = _1d>
+function_space_view<Mesh, field_option::isoparametric, Dimension> const &
+	isoparametric_view(Mesh const &msh, Dimension dim = Dimension())
 {
-	return create_function_space_view(msh, field_option::isoparametric());
+	return create_function_space_view(msh, field_option::isoparametric(), dim);
 }
 
 /** \brief factory function to transform a mesh into a constant function space
@@ -247,11 +250,11 @@ function_space_view<Mesh, field_option::isoparametric> const &
  * \param [in] msh mesh reference
  * \return constant function space view of the mesh
  */
-template <class Mesh>
-function_space_view<Mesh, field_option::constant> const &
-	constant_view(Mesh const &msh)
+template <class Mesh, class Dimension = _1d>
+function_space_view<Mesh, field_option::constant, Dimension> const &
+	constant_view(Mesh const &msh, Dimension dim = Dimension())
 {
-	return create_function_space_view(msh, field_option::constant());
+	return create_function_space_view(msh, field_option::constant(), dim);
 }
 
 
@@ -482,6 +485,9 @@ public:
 		}
 	}
 
+	/** \brief return underlying mesh reference
+	 * \return the mesh
+	 */
 	mesh_t const &get_mesh(void) const
 	{
 		return static_cast<mesh_t const &>(*this);

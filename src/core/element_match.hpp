@@ -1,18 +1,18 @@
 // This file is a part of NiHu, a C++ BEM template library.
-// 
-// Copyright (C) 2012-2013  Peter Fiala <fiala@hit.bme.hu>
-// Copyright (C) 2012-2013  Peter Rucz <rucz@hit.bme.hu>
-// 
+//
+// Copyright (C) 2012-2014  Peter Fiala <fiala@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Rucz <rucz@hit.bme.hu>
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -26,62 +26,35 @@
 #define ELEMENT_MATCH_HPP_INCLUDED
 
 #include "element.hpp"
-
-/** \brief singularity types */
-enum singularity_type {
-	/** \brief no singularity */
-	REGULAR,
-	/** \brief two elements are identical */
-	FACE_MATCH,
-	/** \brief two elements share a common edge */
-	EDGE_MATCH,
-	/** \brief two elements share a common corner */
-	CORNER_MATCH
-};
-
-/** \brief singularity types */
-namespace singularity
-{
-	/** \brief no singularity */
-	typedef std::integral_constant<unsigned, REGULAR> regular_type;
-	/** \brief two elements are identical */
-	typedef std::integral_constant<unsigned, REGULAR> face_match_type;
-	/** \brief two elements share a common edge */
-	typedef std::integral_constant<unsigned, REGULAR> edge_match_type;
-	/** \brief two elements share a common corner */
-	typedef std::integral_constant<unsigned, REGULAR> corner_match_type;
-}
+#include "match_types.hpp"
+#include "field.hpp"
+#include "formalism.hpp"
+#include <type_traits>
 
 /** \brief class describing the adjacency (match) state of two elements */
 class element_match
 {
 public:
 	/** \brief constructor
-	 * \param [in] sing_type the singularity type
+	 * \param [in] match_dimension the match dimension
 	 * \param [in] overlap the overlapping state
 	 */
 	element_match(
-		singularity_type const &sing_type,
+		int const match_dimension,
 		element_overlapping const &overlap = element_overlapping()) :
-		m_sing_type(sing_type), m_overlap(overlap)
+		m_match_dimension(match_dimension), m_overlap(overlap)
 	{
 	}
 
 	/** \brief return singularity type */
-	singularity_type const &get_singularity_type(void) const
-	{
-		return m_sing_type;
-	}
+	int get_match_dimension(void) const { return m_match_dimension; }
 
 	/** \brief return overlapping state */
-	element_overlapping const &get_overlap(void) const
-	{
-		return m_overlap;
-	}
+	element_overlapping const &get_overlap(void) const { return m_overlap; }
 
 private:
 	/** \brief the singularity type */
-	singularity_type const m_sing_type;
+	int m_match_dimension;
 	/** \brief the overlapping state */
 	element_overlapping const m_overlap;
 };
@@ -106,7 +79,7 @@ element_match element_match_eval(
 
 	if (face_match_possible) // compile time if
 		if (test_field.get_elem().get_id() == trial_field.get_elem().get_id())
-			return element_match(FACE_MATCH);
+			return element_match(2);
 
 	// compile time if, only for the general approach
 	if (std::is_same<typename get_formalism<test_field_t, trial_field_t>::type, formalism::general>::value)
@@ -114,13 +87,15 @@ element_match element_match_eval(
 		element_overlapping overlap(test_field.get_elem().get_overlapping(trial_field.get_elem()));
 
 		if (overlap.get_num() > 1)
-			return element_match(EDGE_MATCH, overlap);
+			return element_match(1, overlap);
 
 		if (overlap.get_num() == 1)
-			return element_match(CORNER_MATCH, overlap);
+			return element_match(0, overlap);
 	}
 
-	return element_match(REGULAR);
+	// no match
+	return element_match(-1);
 }
 
 #endif // ELEMENT_MATCH_HPP_INCLUDED
+

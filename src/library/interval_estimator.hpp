@@ -1,7 +1,7 @@
 // This file is a part of NiHu, a C++ BEM template library.
 //
-// Copyright (C) 2012-2013  Peter Fiala <fiala@hit.bme.hu>
-// Copyright (C) 2012-2013  Peter Rucz <rucz@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Fiala <fiala@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Rucz <rucz@hit.bme.hu>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -38,6 +38,13 @@ public:
 	/** \brief self returning */
 	typedef interval_estimator type;
 
+	/** \brief evaluate estimation
+	 * \tparam test_field_t the test field type
+	 * \tparam trial_field_t the trial field type
+	 * \param [in] test_field the test field instance
+	 * \param [in] trial_field the trial field instance
+	 * \return the estimated complexity
+	 */
 	template <class test_field_t, class trial_field_t>
 	static unsigned eval(
 		field_base<test_field_t> const &test_field,
@@ -51,6 +58,10 @@ public:
 	}
 };
 
+/** \brief merge two interval estimators
+ * \tparam Interval1 the first interval to merge
+ * \tparam Interval2 the second interval to merge
+ */
 template <class Interval1, class Interval2>
 struct merge_kernel_complexity_estimators<
 	interval_estimator<Interval1>,

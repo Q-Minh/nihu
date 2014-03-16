@@ -1,22 +1,23 @@
 // This file is a part of NiHu, a C++ BEM template library.
-// 
-// Copyright (C) 2012-2013  Peter Fiala <fiala@hit.bme.hu>
-// Copyright (C) 2012-2013  Peter Rucz <rucz@hit.bme.hu>
-// 
+//
+// Copyright (C) 2012-2014  Peter Fiala <fiala@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Rucz <rucz@hit.bme.hu>
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "core/mesh.hpp"
+#include "library/lib_element.hpp"
 
 //! [Typedefs]
 typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> dMatrix;
@@ -43,7 +44,7 @@ void test1()
 //! [Matrices]
 
 //! [Creation]
-	auto my_mesh = create_mesh(nodes, elements, _quad_1_tag(), _tria_1_tag());
+	auto my_mesh = create_mesh(nodes, elements, quad_1_tag(), tria_1_tag());
 //! [Creation]
 }
 
@@ -69,7 +70,7 @@ void test2(void)
 		elements(i,2) = (i+1)%N;
 	}
 
-	auto mesh = create_mesh(nodes, elements, _line_1_tag());	// homogeneous mesh
+	auto mesh = create_mesh(nodes, elements, line_1_tag());	// homogeneous mesh
 //! [2D Circle]
 }
 
@@ -84,7 +85,7 @@ void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 	// matrix import
 	mex::real_matrix<double> nodes(rhs[0]), elements(rhs[1]);
 	// create the mesh from Matlab
-	auto surf_mesh = create_mesh(nodes, elements, _tria_1_tag(), _quad_1_tag());
+	auto surf_mesh = create_mesh(nodes, elements, tria_1_tag(), quad_1_tag());
 }
 //! [Matlab example]
 

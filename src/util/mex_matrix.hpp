@@ -1,7 +1,7 @@
 // This file is a part of NiHu, a C++ BEM template library.
 //
-// Copyright (C) 2012-2013  Peter Fiala <fiala@hit.bme.hu>
-// Copyright (C) 2012-2013  Peter Rucz <rucz@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Fiala <fiala@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Rucz <rucz@hit.bme.hu>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -100,6 +100,7 @@ struct classID;
 template <>
 struct classID<double>
 {
+	/** \brief the Matlab class */
 	static mxClassID const value = mxDOUBLE_CLASS;
 };
 
@@ -107,6 +108,7 @@ struct classID<double>
 template <>
 struct classID<float>
 {
+	/** \brief the Matlab class */
 	static mxClassID const value = mxSINGLE_CLASS;
 };
 
@@ -191,7 +193,10 @@ public:
 	{
 	}
 
-	operator std::complex<scalar_t>()
+	/** \brief conversion of element to complex number
+	 * \return the complex number
+	 */
+	operator std::complex<scalar_t>() const
 	{
 		return std::complex<scalar_t>(real(), imag());
 	}
