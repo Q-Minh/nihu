@@ -1,7 +1,7 @@
 // This file is a part of NiHu, a C++ BEM template library.
 //
-// Copyright (C) 2012-2013  Peter Fiala <fiala@hit.bme.hu>
-// Copyright (C) 2012-2013  Peter Rucz <rucz@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Fiala <fiala@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Rucz <rucz@hit.bme.hu>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -26,22 +26,10 @@
 #define ELEMENT_MATCH_HPP_INCLUDED
 
 #include "element.hpp"
+#include "match_types.hpp"
 #include "field.hpp"
 #include "formalism.hpp"
 #include <type_traits>
-
-/** \brief match types */
-namespace match
-{
-	/** \brief no singularity */
-	typedef std::integral_constant<int, -1> no_match_type;
-	/** \brief two elements share a common corner */
-	typedef std::integral_constant<int, 0> match_0d_type;
-	/** \brief two elements share a common edge */
-	typedef std::integral_constant<int, 1> match_1d_type;
-	/** \brief two elements are identical */
-	typedef std::integral_constant<int, 2> match_2d_type;
-}
 
 /** \brief class describing the adjacency (match) state of two elements */
 class element_match
@@ -59,16 +47,10 @@ public:
 	}
 
 	/** \brief return singularity type */
-	int get_match_dimension(void) const
-	{
-		return m_match_dimension;
-	}
+	int get_match_dimension(void) const { return m_match_dimension; }
 
 	/** \brief return overlapping state */
-	element_overlapping const &get_overlap(void) const
-	{
-		return m_overlap;
-	}
+	element_overlapping const &get_overlap(void) const { return m_overlap; }
 
 private:
 	/** \brief the singularity type */
