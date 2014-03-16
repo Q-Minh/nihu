@@ -19,6 +19,8 @@
 #include "util/mex_matrix.hpp"
 #include "core/weighted_residual.hpp"
 #include "library/laplace_kernel.hpp"
+#include "library/lib_element.hpp"
+
 
 typedef mex::real_matrix<double> dMatrix;
 

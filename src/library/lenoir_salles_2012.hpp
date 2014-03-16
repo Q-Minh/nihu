@@ -34,7 +34,7 @@
  */
 template <class TestField, class TrialField>
 class singular_integral_shortcut<
-	laplace_3d_SLP_kernel, TestField, TrialField, match::face_match_type,
+	laplace_3d_SLP_kernel, TestField, TrialField, match::match_2d_type,
 	typename std::enable_if<
 		std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::general>::value &&
 		std::is_same<typename TrialField::lset_t, tria_1_shape_set>::value &&

@@ -201,25 +201,18 @@ public:
 };
 
 
-/** \brief Trivial integrals of various kernels over plane surfaces
+/** \brief Trivial integrals of various 3d kernels over plane surfaces
  * \tparam Kernel the kernel type
  * \tparam TestField the test field type
  * \tparam TrialField the trial field type
  */
-template <template< class WaveNumber> class Kernel, class WaveNumber, class TestField, class TrialField>
+template <template<class WaveNumber> class Kernel, class WaveNumber, class TestField, class TrialField>
 class singular_integral_shortcut<
-	Kernel<WaveNumber>, TestField, TrialField, match::face_match_type,
+	Kernel<WaveNumber>, TestField, TrialField, match::match_2d_type,
 	typename std::enable_if<
-		(
 		( std::is_same<Kernel<WaveNumber>, helmholtz_3d_DLP_kernel<WaveNumber> >::value ||
 		  std::is_same<Kernel<WaveNumber>, helmholtz_3d_DLPt_kernel<WaveNumber> >::value
 		) && std::is_same<typename TrialField::lset_t, tria_1_shape_set>::value
-		)
-		||
-		(
-		std::is_same<Kernel<WaveNumber>, helmholtz_2d_DLP_kernel<WaveNumber> >::value
-		&& std::is_same<typename TrialField::lset_t, line_1_shape_set>::value
-		)
 	>::type
 >
 {
@@ -241,13 +234,44 @@ public:
 	}
 };
 
+/** \brief Trivial integrals of various 2d kernels over plane surfaces
+ * \tparam Kernel the kernel type
+ * \tparam TestField the test field type
+ * \tparam TrialField the trial field type
+ */
+template <class WaveNumber, class TestField, class TrialField>
+class singular_integral_shortcut<
+	helmholtz_2d_DLP_kernel<WaveNumber>, TestField, TrialField, match::match_1d_type,
+	typename std::enable_if<
+		std::is_same<typename TrialField::lset_t, line_1_shape_set>::value
+	>::type
+>
+{
+public:
+	/** \brief evaluate the kernel (zero)
+	 * \tparam result_t the result's type
+	 * \param [in] result the result reference
+	 * \return the result reference
+	 */
+	template <class result_t>
+	static constexpr result_t &eval(
+		result_t &result,
+		kernel_base<helmholtz_2d_DLP_kernel<WaveNumber> > const &,
+		field_base<TestField> const &,
+		field_base<TrialField> const &,
+		element_match const &)
+	{
+		return result;
+	}
+};
+
 /** \brief Collocational singular integral of the 2d SLP kernel over a constant line
  * \tparam TestField the test field type
  * \tparam TrialField the trial field type
  */
 template <class WaveNumber, class TestField, class TrialField>
 class singular_integral_shortcut<
-	helmholtz_2d_SLP_kernel<WaveNumber>, TestField, TrialField, match::face_match_type,
+	helmholtz_2d_SLP_kernel<WaveNumber>, TestField, TrialField, match::match_1d_type,
 	typename std::enable_if<
 	std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
 	std::is_same<typename TrialField::lset_t, line_1_shape_set>::value &&
@@ -287,7 +311,7 @@ public:
  */
 template <class WaveNumber, class TestField, class TrialField>
 class singular_integral_shortcut<
-	helmholtz_3d_SLP_kernel<WaveNumber>, TestField, TrialField, match::face_match_type,
+	helmholtz_3d_SLP_kernel<WaveNumber>, TestField, TrialField, match::match_2d_type,
 	typename std::enable_if<
 		std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
 		std::is_same<typename TrialField::lset_t, tria_1_shape_set>::value &&
@@ -326,7 +350,7 @@ public:
  */
 template <class WaveNumber, class TestField, class TrialField>
 class singular_integral_shortcut<
-	helmholtz_3d_HSP_kernel<WaveNumber>, TestField, TrialField, match::face_match_type,
+	helmholtz_3d_HSP_kernel<WaveNumber>, TestField, TrialField, match::match_2d_type,
 	typename std::enable_if<
 		std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
 		std::is_same<typename TrialField::lset_t, tria_1_shape_set>::value &&
@@ -364,7 +388,7 @@ public:
  */
 template <class WaveNumber, class TestField, class TrialField>
 class singular_integral_shortcut<
-	helmholtz_3d_HSP_kernel<WaveNumber>, TestField, TrialField, match::face_match_type,
+	helmholtz_3d_HSP_kernel<WaveNumber>, TestField, TrialField, match::match_2d_type,
 	typename std::enable_if<
 		std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
 		!(std::is_same<typename TrialField::lset_t, tria_1_shape_set>::value &&
@@ -399,5 +423,5 @@ public:
 };
 
 
-
 #endif // HELMHOLTZ_SINGULAR_INTEGRALS_HPP_INCLUDED
+

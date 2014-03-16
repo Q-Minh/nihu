@@ -31,7 +31,7 @@ mex -v CXXFLAGS="$CXXFLAGS -std=c++11 -O3 -fPIC" ...
     ../../src/library/lib_element.cpp ...
     ../../src/library/lib_shape.cpp ...
     ../../src/library/lib_domain.cpp ...
-    -I/D/research/toolbox/Boonen13/src ...
+    -I../../src ...
     -I/usr/local/include/eigen3 ...
     -o elastostatics
 
@@ -62,9 +62,9 @@ ures_node = Trans * ures;
 
 %% plot results
 disp_mesh = mesh;
-disp_mesh.Nodes(:,2:4) = disp_mesh.Nodes(:,2:4) + ures_node/10;
+disp_mesh.Nodes(:,2:4) = disp_mesh.Nodes(:,2:4)-ures_node/10;
 figure;
-formatfig;
+formatfig([6 10], [0 0 0 0]);
 % shading interp;
 quiver3(xc(:,1), xc(:,2), xc(:,3)+.5, tpre(:,1), tpre(:,2), tpre(:,3), 'LineWidth', 2, 'Color', 'black');
 hold on;
@@ -72,4 +72,5 @@ plot_mesh(disp_mesh, ures_node(:,1));
 view(56, 25);
 light
 lighting phong
-printpdf bar
+axis off
+print -dpng bar -r600

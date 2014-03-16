@@ -55,7 +55,7 @@ namespace matsumoto_internal
  */
 template <class WaveNumber, class TestField, class TrialField>
 class singular_integral_shortcut<
-	helmholtz_3d_HSP_kernel<WaveNumber>, TestField, TrialField, match::face_match_type,
+	helmholtz_3d_HSP_kernel<WaveNumber>, TestField, TrialField, match::match_2d_type,
 	typename std::enable_if<
 		std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
 		std::is_same<typename TrialField::lset_t, tria_1_shape_set>::value &&
@@ -133,7 +133,7 @@ private:
  */
 template <class WaveNumber, class TestField, class TrialField>
 class singular_integral_shortcut<
-	helmholtz_3d_SLP_kernel<WaveNumber>, TestField, TrialField, match::face_match_type,
+	helmholtz_3d_SLP_kernel<WaveNumber>, TestField, TrialField, match::match_2d_type,
 	typename std::enable_if<
 		std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
 		std::is_same<typename TrialField::lset_t, tria_1_shape_set>::value &&

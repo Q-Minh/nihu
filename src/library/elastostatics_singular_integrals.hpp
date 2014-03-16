@@ -19,8 +19,8 @@
 /** \file elastostatics_singular_integrals.hpp
  * \brief Analytical expressions for the singular integrals of elastostatic kernels
  */
-#ifndef LAPLACE_SINGULAR_INTEGRALS_HPP_INCLUDED
-#define LAPLACE_SINGULAR_INTEGRALS_HPP_INCLUDED
+#ifndef ELASTOSTATICS_SINGULAR_INTEGRALS_HPP_INCLUDED
+#define ELASTOSTATICS_SINGULAR_INTEGRALS_HPP_INCLUDED
 
 #include "../core/integral_operator.hpp"
 #include "elastostatics_kernel.hpp"
@@ -33,7 +33,7 @@
  */
 template <class TestField, class TrialField>
 class singular_integral_shortcut<
-	elastostatics_3d_U_kernel, TestField, TrialField, match::face_match_type,
+	elastostatics_3d_U_kernel, TestField, TrialField, match::match_2d_type,
 	typename std::enable_if<
 		std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value
 	>::type
@@ -71,7 +71,7 @@ public:
  */
 template <class TestField, class TrialField>
 class singular_integral_shortcut<
-	elastostatics_3d_T_kernel, TestField, TrialField, match::face_match_type,
+	elastostatics_3d_T_kernel, TestField, TrialField, match::match_2d_type,
 	typename std::enable_if<
 		std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value
 	>::type
@@ -103,5 +103,5 @@ public:
 };
 
 
-#endif // LAPLACE_SINGULAR_INTEGRALS_HPP_INCLUDED
+#endif // ELASTOSTATICS_SINGULAR_INTEGRALS_HPP_INCLUDED
 

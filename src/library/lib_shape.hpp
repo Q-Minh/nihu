@@ -29,6 +29,12 @@ namespace shape_set_traits
 
 	template <>
 	struct shape_complexity<line_1_shape_set, 2> : matrix_function_complexity::zero {};
+
+	template <>
+	struct position_dof_vector<line_1_shape_set>
+	{
+		typedef tmp::vector<dof0, dof0> type;
+	};
 }
 
 /**
@@ -116,6 +122,12 @@ namespace shape_set_traits
 
 	template <>
 	struct shape_complexity<tria_1_shape_set, 2> : matrix_function_complexity::zero {};
+
+	template <>
+	struct position_dof_vector<tria_1_shape_set>
+	{
+		typedef tmp::vector<dof0, dof0, dof0> type;
+	};
 }
 
 
@@ -201,6 +213,12 @@ namespace shape_set_traits
 
 	template <>
 	struct shape_complexity<quad_1_shape_set, 2> : matrix_function_complexity::constant {};
+
+	template <>
+	struct position_dof_vector<quad_1_shape_set>
+	{
+		typedef tmp::vector<dof0, dof0, dof0, dof0> type;
+	};
 }
 
 
@@ -288,6 +306,12 @@ namespace shape_set_traits
 
 	template <unsigned Order>
 	struct shape_complexity<brick_1_shape_set, Order> : matrix_function_complexity::general {};
+
+	template <>
+	struct position_dof_vector<brick_1_shape_set>
+	{
+		typedef tmp::vector<dof0, dof0, dof0, dof0, dof0, dof0, dof0, dof0> type;
+	};
 }
 
 
@@ -414,6 +438,12 @@ namespace shape_set_traits
 
 	template <>
 	struct shape_complexity<parallelogram_shape_set, 2> : matrix_function_complexity::zero {};
+
+	template <>
+	struct position_dof_vector<parallelogram_shape_set>
+	{
+		typedef tmp::vector<dof0, dof0, dof0> type;
+	};
 }
 
 /**
@@ -518,6 +548,12 @@ namespace shape_set_traits
 	struct shape_complexity<line_2_shape_set, Order>
 	{
 		typedef matrix_function_complexity::general type;
+	};
+
+	template <>
+	struct position_dof_vector<line_2_shape_set>
+	{
+		typedef tmp::vector<dof0, dof1, dof0> type;
 	};
 }
 
@@ -644,6 +680,12 @@ namespace shape_set_traits
 	struct shape_complexity<tria_2_shape_set, Order>
 	{
 		typedef matrix_function_complexity::general type;
+	};
+
+	template <>
+	struct position_dof_vector<tria_2_shape_set>
+	{
+		typedef tmp::vector<dof0, dof1, dof0, dof1, dof0, dof1> type;
 	};
 }
 
@@ -787,6 +829,12 @@ namespace shape_set_traits
 	struct shape_complexity<quad_2_shape_set, Order>
 	{
 		typedef matrix_function_complexity::general type;
+	};
+
+	template <>
+	struct position_dof_vector<quad_2_shape_set>
+	{
+		typedef tmp::vector<dof0, dof1, dof0, dof1, dof0, dof1, dof0, dof1, dof2> type;
 	};
 }
 
@@ -943,6 +991,12 @@ namespace shape_set_traits
 	struct shape_complexity<quad_28_shape_set, Order>
 	{
 		typedef matrix_function_complexity::general type;
+	};
+
+	template <>
+	struct position_dof_vector<quad_28_shape_set>
+	{
+		typedef tmp::vector<dof0, dof1, dof0, dof1, dof0, dof1, dof0, dof1> type;
 	};
 }
 

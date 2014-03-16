@@ -34,6 +34,7 @@
 #include "kernel.hpp"
 #include "complexity_estimator.hpp"
 #include "element_match.hpp"
+#include "match_types.hpp"
 #include "field_type_accelerator.hpp"
 #include "singular_accelerator.hpp"
 #include "formalism.hpp"
@@ -57,7 +58,7 @@ struct singular_shortcut_switch
 			element_match const &mtch)
 		{
 			// if the parameter singularity is valid, evaluate shortcut
-			if (mtch.get_singularity_type() == Singularity::value)
+			if (mtch.get_match_dimension() == Singularity::value)
 			{
 				singular_integral_shortcut<Kernel, TestField, TrialField, Singularity>::eval(
 					result, kernel, test_field, trial_field, mtch
@@ -280,12 +281,12 @@ protected:
 		auto mtch = element_match_eval(test_field, trial_field);
 
 		// if no match simple regular integral is computed
-		if (mtch.get_singularity_type() == NO_MATCH)
+		if (mtch.get_match_dimension() == -1)
 			return eval(WITHOUT_SINGULARITY_CHECK(), result, kernel, test_field, trial_field);
 
 		// traverse possible singular integral shortcuts with tmp::call_until
 		if (!tmp::call_until<
-			tmp::vector<match::face_match_type, match::edge_match_type, match::corner_match_type>,
+			typename match_type_vector<TestField, TrialField>::type,
 			singular_shortcut_switch<tmp::_1>,
 			result_t &,
 			kernel_base<Kernel> const &,
@@ -293,7 +294,7 @@ protected:
 			field_base<TrialField> const &,
 			element_match const &
 		>(result, kernel, test_field, trial_field, mtch))
-			std::cout << "UNHANDLED SINGULARITY TYPE: " << mtch.get_singularity_type() << std::endl;
+			std::cout << "UNHANDLED SINGULARITY TYPE: " << mtch.get_match_dimension() << std::endl;
 
 		return result;
 }
@@ -524,11 +525,11 @@ protected:
 		field_base<TrialField> const &trial_field)
 	{
 		auto mtch = element_match_eval(test_field, trial_field);
-		if (mtch.get_singularity_type() == NO_MATCH)
+		if (mtch.get_match_dimension() == -1)
 			return eval(WITHOUT_SINGULARITY_CHECK(), result, kernel, test_field, trial_field);
 
 		if (!tmp::call_until<
-			tmp::vector<match::face_match_type, match::corner_match_type>,
+			typename match_type_vector<TestField, TrialField>::type,
 			singular_shortcut_switch<tmp::_1>,
 			result_t &,
 			kernel_base<Kernel> const &,
@@ -536,7 +537,7 @@ protected:
 			field_base<TrialField> const &,
 			element_match const &
 		>(result, kernel, test_field, trial_field, mtch))
-			std::cout << "UNHANDLED SINGULARITY TYPE: " << mtch.get_singularity_type() << std::endl;
+			std::cout << "UNHANDLED SINGULARITY TYPE: " << mtch.get_match_dimension() << std::endl;
 		return result;
 	}
 
@@ -630,41 +631,6 @@ public:
 	}
 };
 
-
-/** \brief trivial overload for singular_integral_shortcut for the collocation with constant test field
- * \todo this specialisation should not be implemented, try to avoid referencing
- * \tparam Kernel the kernel class
- * \tparam TestField the test field type
- * \tparam TrialField the trial field type
- * \tparam Singularity the singularity type
- * \tparam Enable additional argument for std::enable_if
- */
-template <class Kernel, class TestField, class TrialField, class Singularity>
-class singular_integral_shortcut<Kernel, TestField, TrialField, Singularity,
-	typename std::enable_if<
-		std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
-		std::is_same<typename TestField::nset_t, constant_shape_set<typename TestField::lset_t::domain_t> >::value &&
-		std::is_same<Singularity, match::corner_match_type>::value
-	>::type
->
-{
-public:
-	/** \brief evaluate singular integral
-	 * \tparam result_t the result type
-	 * \param [out] result the integral result
-	 * \return reference to the integral result
-	 */
-	template <class result_t>
-	static result_t &eval(
-		result_t &result,
-		kernel_base<Kernel> const &,
-		field_base<TestField> const &,
-		field_base<TrialField> const &,
-		element_match const &)
-	{
-		return result;
-	}
-};
 
 #endif
 

@@ -53,6 +53,12 @@ namespace shape_set_traits
 	{
 		typedef matrix_function_complexity::general type;
 	};
+
+	template <>
+	struct position_dof_vector<quad_1_gauss_shape_set>
+	{
+		typedef tmp::vector<dof2, dof2, dof2, dof2> type;
+	};
 }
 //! [Shape traits]
 
