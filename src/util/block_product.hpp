@@ -57,8 +57,11 @@ namespace internal
 			>::type
 		>::type result_type;
 
-		static auto eval(lhs_t const &v1, mat const &m, rhs_t const &v2) ->
-			decltype( m * (v1 * v2.transpose()) )
+		static result_type eval(
+			Eigen::MatrixBase<lhs_t> const &v1,
+			mat const &m,
+			Eigen::MatrixBase<rhs_t> const &v2
+		)
 		{
 			return m * (v1 * v2.transpose());
 		}
