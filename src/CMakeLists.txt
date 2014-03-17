@@ -112,30 +112,27 @@ else()
 endif()
 	
 file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
-	
-add_library(lib_domain STATIC library/lib_domain.cpp)
-set_target_properties(lib_domain 
-	PROPERTIES 
-	PREFIX "" 
-	SUFFIX ${NIHU_STATIC_LIB_SUFFIX}
-	LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
-)
 
-add_library(lib_element STATIC library/lib_element.cpp)
-set_target_properties(lib_element 
-	PROPERTIES 
-	PREFIX "" 
-	SUFFIX ${NIHU_STATIC_LIB_SUFFIX}
-	LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
-)
+FILE(GLOB NIHU_COMMON_LIBRARIES 
+	"${CMAKE_SOURCE_DIR}/library/lib_*.cpp")
 
-add_library(lib_shape STATIC library/lib_shape.cpp)
-set_target_properties(lib_shape
-	PROPERTIES
-	PREFIX ""
-	SUFFIX ${NIHU_STATIC_LIB_SUFFIX}
-	LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
-)
+# Iterate through the libraries by foreach
+foreach(lib_source ${NIHU_COMMON_LIBRARIES})
+	# Extract relative path
+	file(RELATIVE_PATH local_lib_source "${CMAKE_SOURCE_DIR}/library" ${lib_source})
+	string(REPLACE ".cpp" "" lib_name ${local_lib_source})
+	# Add the library
+	add_library(${lib_name} STATIC ${lib_source})
+	# Set the target properties
+	set_target_properties(${lib_name}
+		PROPERTIES 
+		PREFIX "" 
+		SUFFIX ${NIHU_STATIC_LIB_SUFFIX}
+		LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
+	)
+	# Set the link libraries
+	SET(NIHU_LINK_LIBRARIES ${NIHU_LINK_LIBRARIES}; ${lib_name})
+endforeach(lib_source)
 
 ### Subdirectories
 add_subdirectory(tutorial)
