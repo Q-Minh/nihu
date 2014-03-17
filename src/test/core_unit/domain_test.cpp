@@ -16,6 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#include "domain_test.h"
 #include "tmp/control.hpp"
 #include "tmp/vector.hpp"
 #include "library/lib_domain.hpp"
@@ -49,3 +50,4 @@ int domain_test(void)
 
 	return 0;
 }
+

@@ -18,7 +18,7 @@
 
 /** \file block_product.hpp
  * \ingroup util
- * \brief declaration of template function ::block_product and its related metafunctions
+ * \brief declaration of template function ::block_product, ::semi_block_product and its related metafunctions
  */
 
 #ifndef BLOCK_PRODUCT_HPP_INCLUDED
@@ -133,6 +133,15 @@ namespace internal
 	};
 }
 
+/** \brief compute semi block product of a matrix and a vector m * v^T
+ * \tparam left the left Eigen vector type
+ * \tparam mat the matrix type
+ * \tparam right the right Eigen vector type
+ * \param [in] l the left Eigen vector
+ * \param [in] m the matrix
+ * \param [in] r the right Eigen vector
+ * \return the block product l * m * r^T
+ */
 template <class left, class mat, class right>
 auto block_product(Eigen::MatrixBase<left> const &l, mat const &m, Eigen::MatrixBase<right> const &r)
 	-> decltype(internal::block_product_impl<left, mat, right>::eval(l, m, r))
@@ -140,21 +149,26 @@ auto block_product(Eigen::MatrixBase<left> const &l, mat const &m, Eigen::Matrix
 	return internal::block_product_impl<left, mat, right>::eval(l, m, r);
 }
 
-/** \brief metafunction returning the value type of a semi block product */
+/** \brief metafunction returning the value type of a block product */
 template <class left, class mat, class right>
 struct block_product_result_type
 {
 	typedef typename internal::block_product_impl<left, mat, right>::result_type type;
 };
 
+/** \brief compute semi block product of a matrix and a vector m * v^T
+ * \tparam mat the matrix type
+ * \tparam right the Eigen vector type
+ * \param [in] m the matrix
+ * \param [in] r the Eigen vector
+ * \return the block product m * r^T
+ */
 template <class mat, class right>
 auto semi_block_product(mat const &m, Eigen::MatrixBase<right> const &r)
 	-> decltype(internal::semi_block_product_impl<mat, right>::eval(m, r))
 {
 	return internal::semi_block_product_impl<mat, right>::eval(m, r);
 }
-
-
 
 #endif // BLOCK_PRODUCT_HPP_INCLUDED
 

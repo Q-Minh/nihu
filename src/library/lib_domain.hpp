@@ -16,6 +16,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+/** \file lib_domain.hpp
+ * \brief implementation of library domains
+ */
+
 #ifndef LIB_DOMAIN_HPP_INCLUDED
 #define LIB_DOMAIN_HPP_INCLUDED
 
@@ -44,10 +48,14 @@ namespace domain_traits
     template <> struct num_corners<brick_domain> { enum { value = 8 }; };
 }
 
-class line_domain : public domain_base<line_domain>
+/** \brief a 1D line domain */
+class line_domain :
+	public domain_base<line_domain>
 {
 public:
+	/** \brief return domain corners */
     static xi_t const *get_corners_impl(void) { return m_corners; }
+	/** \brief return domain center */
     static xi_t const &get_center_impl(void) { return m_center; }
 
 private:
@@ -55,10 +63,14 @@ private:
     static xi_t const m_center;
 };
 
-class tria_domain : public domain_base<tria_domain>
+/** \brief a 2D triangle domain */
+class tria_domain :
+	public domain_base<tria_domain>
 {
 public:
+	/** \brief return domain corners */
     static xi_t const *get_corners_impl(void) { return m_corners; }
+	/** \brief return domain center */
     static xi_t const &get_center_impl(void) { return m_center; }
 
 private:
@@ -66,10 +78,14 @@ private:
     static xi_t const m_center;
 };
 
-class quad_domain : public domain_base<quad_domain>
+/** \brief a 2D quad domain */
+class quad_domain :
+	public domain_base<quad_domain>
 {
 public:
+	/** \brief return domain corners */
     static xi_t const *get_corners_impl(void) { return m_corners; }
+	/** \brief return domain center */
     static xi_t const &get_center_impl(void) { return m_center; }
 
 private:
@@ -77,10 +93,14 @@ private:
     static xi_t const m_center;
 };
 
-class brick_domain : public domain_base<brick_domain>
+/** \brief a 3D brick domain */
+class brick_domain :
+	public domain_base<brick_domain>
 {
 public:
+	/** \brief return domain corners */
     static xi_t const *get_corners_impl(void) { return m_corners; }
+	/** \brief return domain center */
     static xi_t const &get_center_impl(void) { return m_center; }
 
 private:
@@ -89,3 +109,4 @@ private:
 };
 
 #endif // LIB_DOMAIN_HPP_INCLUDED
+

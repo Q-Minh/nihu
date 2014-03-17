@@ -16,15 +16,23 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+/** \file lib_shape.hpp
+ * \brief definition of shape function sets
+ */
+
 #ifndef LIB_SHAPE_HPP_INCLUDED
 #define LIB_SHAPE_HPP_INCLUDED
 
 #include "../core/shapeset.hpp"
 #include "lib_domain.hpp"
 
+/** \brief a constant line shape set */
 typedef constant_shape_set<line_domain> line_0_shape_set;
+/** \brief a constant triangle shape set */
 typedef constant_shape_set<tria_domain> tria_0_shape_set;
+/** \brief a constant quadrangle shape set */
 typedef constant_shape_set<quad_domain> quad_0_shape_set;
+/** \brief a constant brick shape set */
 typedef constant_shape_set<brick_domain> brick_0_shape_set;
 
 
@@ -1134,3 +1142,4 @@ public:
 
 
 #endif // LIB_SHAPE_HPP_INCLUDED
+

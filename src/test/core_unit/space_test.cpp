@@ -16,6 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#include "space_test.h"
 #include "tmp/control.hpp"
 #include "tmp/vector.hpp"
 #include "core/space.hpp"

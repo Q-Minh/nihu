@@ -19,7 +19,7 @@
 /**
  * \file domain.hpp
  * \ingroup funcspace
- * \brief declaration of class ::domain
+ * \brief declaration of CRTP base class ::domain_base
  */
 
 #ifndef DOMAIN_HPP_INCLUDED
