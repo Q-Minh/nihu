@@ -48,7 +48,7 @@ private:
 struct Ukernel
 {
 	typedef Eigen::Matrix<double, 3, 3> return_type;
-	
+
 	return_type operator()(
 		location_input_3d const &x,
 		location_input_3d const &y,
@@ -100,7 +100,7 @@ public:
 struct Tkernel
 {
 	typedef Eigen::Matrix<double, 3, 3> return_type;
-	
+
 	return_type operator()(
 		location_input_3d const &x,
 		location_normal_input_3d const &y,
@@ -185,7 +185,7 @@ public:
         Eigen::Matrix<double, 3, 3> res = (d0vec*jac0.transpose()) - (jac0*d0vec.transpose());
 		res *= (1.-2.*nu)/(1.-nu)/obj.m_A/obj.m_A/(8.*M_PI);
 
-		obj.m_Fcoeffs[0] = block_product(Eigen::Matrix<double, 1, 1>(), res, obj.m_N_series[0]);
+		obj.m_Fcoeffs[0] = semi_block_product(res, obj.m_N_series[0]);
 		obj.m_Fcoeffs[1].setZero();
 	}
 };

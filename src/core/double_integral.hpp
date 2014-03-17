@@ -148,12 +148,11 @@ protected:
 			w_test_input_t test_input(test_field.get_elem(), it.get_first()->get_xi());
 			w_trial_input_t trial_input(trial_field.get_elem(), it.get_second()->get_xi());
 
-			auto left = (TestField::nset_t::template eval_shape<0>(it.get_first()->get_xi())
-				* (test_input.get_jacobian() * it.get_first()->get_w())).eval();
-			auto right = (TrialField::nset_t::template eval_shape<0>(it.get_second()->get_xi())
-				* (trial_input.get_jacobian() * it.get_second()->get_w())).eval();
-
-			result += left * kernel(test_input, trial_input) * right.transpose();
+			result += block_product(
+				TestField::nset_t::template eval_shape<0>(it.get_first()->get_xi())	* (test_input.get_jacobian() * it.get_first()->get_w()),
+				kernel(test_input, trial_input),
+				TrialField::nset_t::template eval_shape<0>(it.get_second()->get_xi()) * (trial_input.get_jacobian() * it.get_second()->get_w())
+				);
 		}
 
 		return result;
@@ -190,12 +189,11 @@ public:
 				w_test_input_t test_input(test_field.get_elem(), begin.get_test_quadrature_elem().get_xi());
 				w_trial_input_t trial_input(trial_field.get_elem(), begin.get_trial_quadrature_elem().get_xi());
 
-				auto left = (TestField::nset_t::template eval_shape<0>(begin.get_test_quadrature_elem().get_xi())
-					* (test_input.get_jacobian() * begin.get_test_quadrature_elem().get_w())).eval();
-				auto right = (TrialField::nset_t::template eval_shape<0>(begin.get_trial_quadrature_elem().get_xi())
-					* (trial_input.get_jacobian() * begin.get_trial_quadrature_elem().get_w())).eval();
-
-				result += left * kernel(test_input, trial_input) * right.transpose();
+				result += block_product(
+					TestField::nset_t::template eval_shape<0>(begin.get_test_quadrature_elem().get_xi()) * (test_input.get_jacobian() * begin.get_test_quadrature_elem().get_w()),
+					kernel(test_input, trial_input),
+					TrialField::nset_t::template eval_shape<0>(begin.get_trial_quadrature_elem().get_xi()) * (trial_input.get_jacobian() * begin.get_trial_quadrature_elem().get_w())
+					);
 
 				++begin;
 			}
@@ -368,6 +366,11 @@ public:
 		typename TrialField::nset_t::shape_t
 	>::type result_t;
 
+	enum {
+		kernel_rows = 1,
+		kernel_cols = 1
+	};
+
 protected:
 	/** \brief evaluate regular collocational integral with selected trial field accelerator
 	* \param [out] result reference to the integration result matrix
@@ -392,11 +395,11 @@ protected:
 			w_test_input_t test_input(test_field.get_elem(), it.get_first()->get_xi());
 			w_trial_input_t trial_input(trial_field.get_elem(), it.get_second()->get_xi());
 
-			auto left = (it.get_first()->get_N() * (it.get_first()->get_w())).eval();
-			auto right = (it.get_second()->get_N() * (trial_input.get_jacobian() * it.get_second()->get_w())).eval();
-
-//			result += left * kernel(test_input, trial_input) * right.transpose();
-			result += block_product(left, kernel(test_input, trial_input), right);
+			result += block_product(
+				it.get_first()->get_N() * (it.get_first()->get_w()),
+				kernel(test_input, trial_input),
+				it.get_second()->get_N() * (trial_input.get_jacobian() * it.get_second()->get_w())
+			);
 		}
 
 		return result;
@@ -436,10 +439,11 @@ public:
 				{
 					w_trial_input_t trial_input(trial_field.get_elem(), quad_it->get_xi());
 
-					throw std::runtime_error("This part has been commented to compile");
-//					result.row(idx) += bound(trial_input) *
-//						(trial_input.get_jacobian() * quad_it->get_w() *
-//						TrialField::nset_t::template eval_shape<0>(quad_it->get_xi()));
+					result.template block<kernel_rows, kernel_cols*trial_nset_t::num_nodes>(idx*kernel_rows, 0)
+					+= semi_block_product(
+						bound(trial_input),
+						trial_nset_t::template eval_shape<0>(quad_it->get_xi()) * trial_input.get_jacobian() * quad_it->get_w()
+					);
 				}
 			}
 

@@ -20,6 +20,7 @@
 #include "core/weighted_residual.hpp"
 #include "library/lib_element.hpp"
 #include "library/elastostatics_kernel.hpp"
+#include "library/elastostatics_singular_integrals.hpp"
 
 typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> dMatrix;
 typedef Eigen::Matrix<unsigned, Eigen::Dynamic, Eigen::Dynamic> uMatrix;

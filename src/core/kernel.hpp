@@ -54,8 +54,8 @@ class kernel_base
 public:
 	NIHU_CRTP_HELPERS
 
-		/** \brief the traits class */
-		typedef kernel_traits<Derived> traits_t;
+	/** \brief the traits class */
+	typedef kernel_traits<Derived> traits_t;
 
 	/** \brief type of the first (test) kernel input */
 	typedef typename traits_t::test_input_t test_input_t;
