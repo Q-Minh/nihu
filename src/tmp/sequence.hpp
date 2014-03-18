@@ -77,37 +77,37 @@ namespace tmp
 	/** \brief return begin iterator of a sequence */
 	template <class Seq>
 	struct begin :
-		internal::begin_impl<typename Seq::tag> :: template apply<Seq> {};
+		internal::begin_impl<typename Seq::tag>::template apply<Seq> {};
 
 	/** \brief return end iterator of a sequence */
 	template <class Seq>
 	struct end :
-		internal::end_impl<typename Seq::tag> :: template apply<Seq> {};
+		internal::end_impl<typename Seq::tag>::template apply<Seq> {};
 
 	/** \brief clear a sequence */
 	template <class Seq>
 	struct clear :
-		internal::clear_impl<typename Seq::tag> :: template apply<Seq> {};
+		internal::clear_impl<typename Seq::tag>::template apply<Seq> {};
 
 	/** \brief push an element to the front */
 	template <class Seq, class T>
 	struct push_front :
-		internal::push_front_impl<typename Seq::tag> :: template apply<Seq, T> {};
+		internal::push_front_impl<typename Seq::tag>::template apply<Seq, T> {};
 
 	/** \brief push an element to the back */
 	template <class Seq, class T>
 	struct push_back :
-		internal::push_back_impl<typename Seq::tag> :: template apply<Seq, T> {};
+		internal::push_back_impl<typename Seq::tag>::template apply<Seq, T> {};
 
 	/** \brief pop an element from the front */
 	template <class Seq>
 	struct pop_front :
-		internal::pop_front_impl<typename Seq::tag> :: template apply<Seq> {};
+		internal::pop_front_impl<typename Seq::tag>::template apply<Seq> {};
 
 	/** \brief pop an element from the back */
 	template <class Seq>
 	struct pop_back :
-		internal::pop_back_impl<typename Seq::tag> :: template apply<Seq> {};
+		internal::pop_back_impl<typename Seq::tag>::template apply<Seq> {};
 
 	/** \brief metafunction to dereference an iterator */
 	template <class Iter>

@@ -31,6 +31,7 @@
 
 #include "domain.hpp"
 #include "../tmp/vector.hpp"
+#include "../tmp/algorithm.hpp"
 #include "../util/conditional_precompute.hpp"
 
 /** \brief shape function derivative indices */
@@ -46,16 +47,21 @@ namespace shape_derivative_index
 	};
 }
 
+/** \brief position degree of freedom of a point in the intrinsic domain */
 template <unsigned d>
 struct position_dof : std::integral_constant<unsigned, d> {};
-
+/** \brief shorthand for 0 dof */
 typedef position_dof<0> dof0;
+/** \brief shorthand for 1 dof */
 typedef position_dof<1> dof1;
+/** \brief shorthand for 2 dof */
 typedef position_dof<2> dof2;
 
+// forward declaration
 template <class Derived, unsigned Order>
 class shape_function;
 
+/** \brief retuirn the number of partial derivatives in dim dimensions */
 constexpr unsigned num_derivatives(unsigned order, unsigned dim)
 {
 	return order == 0 ? 1 : (order == 1 ? dim : dim * (dim + 1) / 2);
@@ -310,7 +316,7 @@ public:
 template <class Domain>
 class isoparam_shape_set;
 
-/** \brief traits of shape function sets */
+/** \brief traits of isoparametric shape function sets */
 namespace shape_set_traits
 {
 	template <class Domain>
@@ -327,6 +333,13 @@ namespace shape_set_traits
 	{
 		enum { value = 1 };
 	};
+
+	template <class Domain>
+	struct position_dof_vector<isoparam_shape_set<Domain> > : tmp::constant_sequence<
+		dof0,
+		num_nodes<isoparam_shape_set<Domain> >::value,
+		tmp::vector<>
+	> {};
 }
 
 /**
