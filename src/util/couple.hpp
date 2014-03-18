@@ -98,20 +98,21 @@ public:
 };
 
 
-/** \brief a row of a couple of matrices
+/** \brief a block of a couple of matrices
  * \tparam couple the parent couple type
- * \todo This is a minimal implementation. couple_row should be derived from couple_base
+ * \todo This is a minimal implementation. couple_block should be derived from couple_base
  */
-template <class couple>
-class couple_row
+template <class couple, unsigned rows = 1, unsigned cols = 1>
+class couple_block
 {
 public:
 	/** \brief constructor
-	* \param [in] parent the couple expression whose row is expressed
-	* \param [in] row_idx the row index
-	*/
-	couple_row(couple &parent, unsigned row_idx)
-		: m_parent(parent), m_idx(row_idx)
+	 * \param [in] parent the couple expression whose block is expressed
+	 * \param [in] row_idx the row start index
+	 * \param [in] col_idx the column start index
+	 */
+	couple_block(couple &parent, unsigned row_idx, unsigned col_idx)
+		: m_parent(parent), m_row_idx(row_idx), m_col_idx(col_idx)
 	{
 	}
 
@@ -119,15 +120,13 @@ public:
 	template <class otherDerived, size_t idx>
 	struct increase
 	{
-		/** \brief evaluate couple row
+		/**
 		 * \param [in] This couple expression
 		 * \param [in] other couple expression
 		 */
-		static void eval(
-			couple_row const & This,
-			couple_base<otherDerived> const &other)
+		static void eval(couple_block const &This, couple_base<otherDerived> const &other)
 		{
-			This.m_parent.template get<idx-1>().row(This.m_idx)
+			This.m_parent.template get<idx-1>().template block<rows, cols>(This.m_row_idx, This.m_col_idx)
 				+= other.template get<idx-1>();
 			increase<otherDerived, idx-1>::eval(This, other);
 		}
@@ -138,19 +137,19 @@ public:
 	struct increase<otherDerived, 0>
 	{
 		/** \brief evaluate empty couple */
-		static void eval(couple_row const &, couple_base<otherDerived> const &)
+		static void eval(couple_block const &, couple_base<otherDerived> const &)
 		{
 		}
 	};
 
 public:
 	/**
-	* \brief increment a row by a couple expression
-	* \tparam otherDerived the other couple expression type
-	* \param other constant reference to the other couple
-	*/
+	 * \brief increment a block by a couple expression
+	 * \tparam otherDerived the other couple expression type
+	 * \param other constant reference to the other couple
+	 */
 	template <class otherDerived>
-	couple_row const &operator += (couple_base<otherDerived> const &other)
+	couple_block const &operator += (couple_base<otherDerived> const &other)
 	{
 		increase<otherDerived, couple_traits<couple>::tuple_size>::eval(*this, other);
 		return *this;
@@ -160,7 +159,9 @@ protected:
 	/** \brief reference to the parent couple */
 	couple &m_parent;
 	/** \brief the row index */
-	unsigned const m_idx;
+	unsigned const m_row_idx;
+	/** \brief the row index */
+	unsigned const m_col_idx;
 };
 
 
@@ -251,8 +252,7 @@ public:
 	 * \return couple element
 	 */
 	template <size_t idx>
-	typename std::tuple_element<idx, base_t>::type const &
-		get(void) const
+	typename std::tuple_element<idx, base_t>::type const &get(void) const
 	{
 		return std::get<idx>(*this);
 	}
@@ -261,8 +261,7 @@ public:
 	 * \return reference to couple element
 	 */
 	template <size_t idx>
-	typename std::tuple_element<idx, std::tuple<Args...> >::type &
-		get(void)
+	typename std::tuple_element<idx, base_t>::type &get(void)
 	{
 		return std::get<idx>(*this);
 	}
@@ -283,7 +282,9 @@ private:
 	template <class C, class OtherDerived>
 	struct add_impl<C, OtherDerived, 0>
 	{
-		static void eval(C &, couple_base<OtherDerived> const &) {}
+		static void eval(C &, couple_base<OtherDerived> const &)
+		{
+		}
 	};
 
 
@@ -299,10 +300,11 @@ public:
 		return *this;
 	}
 
-	/** \brief return row proxy */
-	couple_row<couple> row(unsigned idx)
+	/** \brief return block proxy */
+	template <unsigned rows = 1, unsigned cols = 1>
+	couple_block<couple, rows, cols> block(unsigned row, unsigned col)
 	{
-		return couple_row<couple>(*this, idx);
+		return couple_block<couple, rows, cols>(*this, row, col);
 	}
 };
 
@@ -521,6 +523,38 @@ inline couple_product_left<
 		std::forward<Left>(lhs),
 		std::forward<RDerived>(rhs));
 }
+
+
+
+namespace internal
+{
+	template <class Derived, unsigned s, unsigned i>
+	struct print_impl
+	{
+		static void eval(std::ostream &os, couple_base<Derived> const &c)
+		{
+			std::cout << c.template get<i>() << ",\t";
+			print_impl<Derived, s, i+1>::eval(os, c);
+		}
+	};
+
+	template <class Derived, unsigned s>
+	struct print_impl<Derived, s, s>
+	{
+		static void eval(std::ostream &, couple_base<Derived> const &)
+		{
+		}
+	};
+}
+
+/** \brief print a couple expression to an output streram */
+template <class Derived>
+std::ostream &operator<<(std::ostream &os, couple_base<Derived> const &c)
+{
+	internal::print_impl<Derived, couple_traits<Derived>::tuple_size, 0>::eval(os, c);
+	return os;
+}
+
 
 #endif //  COUPLE_HPP_INCLUDED
 

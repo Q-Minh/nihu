@@ -22,17 +22,29 @@
 
 int main(void)
 {
-	couple<int, float, char, Eigen::Matrix<double, 3, 3> > a;
-	std::cout << a.get<0>() << '\n';
-	std::cout << a.get<1>() << '\n';
-	std::cout << a.get<2>() << '\n';
-	std::cout << a.get<3>() << '\n';
+	// testing couple constructor and get functions
+	couple<int, float, char, Eigen::Matrix<double, 3, 3> > a(3, 3.14, 'b', Eigen::Matrix<double, 3, 3>::Constant(2.0));
+	std::cout << a << std::endl;
+	
+	// testing eval_to_tuple
+	auto t = a.eval_to_tuple();
+	std::cout << std::get<0>(t) << std::endl;
+	std::cout << std::get<1>(t) << std::endl;
+	std::cout << std::get<2>(t) << std::endl;
+	std::cout << std::get<3>(t) << std::endl;
 
+	// testing right product
 	auto b = a * 2;
+	std::cout << b << std::endl;
+	
+	// testing left product
+	auto c = 2 * a;
+	std::cout << c << std::endl;
 
-	std::cout << b.get<0>() << '\n';
-	std::cout << b.get<1>() << '\n';
-	std::cout << b.get<2>() << '\n';
-	std::cout << b.get<3>() << '\n';
+	// testing couple block
+	Eigen::Matrix<double, 3, 3> m1 = Eigen::Matrix<double, 3, 3>::Zero(), m2 = Eigen::Matrix<double, 3, 3>::Zero();
+	auto C = create_couple(m1, m2);
+	C.block<2,2>(1,1) += create_couple(Eigen::Matrix<double,2,2>::Constant(1.0), Eigen::Matrix<double, 2, 2>::Constant(1.0));
+	std::cout << C << std::endl;
 }
 
