@@ -395,6 +395,30 @@ namespace tmp
 	/** \brief terminating case of bubble_sort for short vectors */
 	template <class Seq, class Compare>
 	struct bubble_sort<Seq, Compare, integer<int, 0> > : Seq {};
+
+
+	namespace internal
+	{
+		template <class value, unsigned N, class Seq>
+		struct constant_sequence_impl : push_back<
+			typename constant_sequence_impl<
+				value, N-1, Seq
+			>::type,
+			value
+		> {};
+
+		template <class value, class Seq>
+		struct constant_sequence_impl<value, 0, Seq>
+		{
+			typedef Seq type;
+		};
+	}
+
+	/** \brief generate a constant sequence */
+	template <class value, unsigned N, class Seq>
+	struct constant_sequence : internal::constant_sequence_impl<
+		value, N, typename empty<Seq>::type
+	> {};
 }
 
 #endif // ALGORITHM_HPP_INCLUDED
