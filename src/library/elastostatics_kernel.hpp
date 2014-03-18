@@ -183,15 +183,12 @@ public:
         auto nu = obj.m_kernel.get_data().get_poisson_ratio();
 
         Eigen::Matrix<double, 3, 3> res = (d0vec*jac0.transpose()) - (jac0*d0vec.transpose());
-		res *= (1.-2.*nu)/(1.-nu)/obj.m_A/obj.m_A/(8.*M_PI);
+		res *= (1.-2.*nu)/(1.-nu)/(8.*M_PI);
 
 		obj.m_Fcoeffs[0] = block_product(Eigen::Matrix<double, 1, 1>(), res, obj.m_N_series[0]);
 		obj.m_Fcoeffs[1].setZero();
 	}
 };
-
-Finally, the kernel is defined as a class derived from kernel\_base, taking the Poisson's number as constructor argument.
-
 
 
 #endif // ELASTOSTATICS_KERNEL_HPP_INCLUDED
