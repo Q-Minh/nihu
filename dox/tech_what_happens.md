@@ -72,7 +72,7 @@ where \f$ S_i \f$ and \f$ F_j \f$ denote the subelements of the two (homogeneous
 Evaluation of element integrals
 ===============================
 
-The double integral in the above equation is evaluated by calling the function ::integral_operator_base<Derived>::eval_on_fields, which is specialised for the `Derived` class by the function ::integral_operator::derived_eval_on_fields.
+The double integral in the above equation is evaluated by calling the function ::integral_operator_base::eval_on_fields, which is specialised for the `Derived` class by the function ::integral_operator::derived_eval_on_fields.
 These specialisations take care of algebraic operations performed over integral operators, such as scalar multiplication.
 In the special case of an identity operation, the evaluation is performed by the class ::single_integral, whereas generally the same is achieved by using the class ::double_integral.
 
@@ -81,11 +81,52 @@ Selecting the integral type
 ---------------------------
 
 Depending on the formulation, single or double integrals are to be evaluated.
-In case of double integrals there are further 
+In case of double integrals the input is a test and a trial field and there are further cases that are treated separately.
 
-A double integral is evaluated in the following way.
+In the general case (i.e. the kernel is singular and the test and trial spaces are interpreted over the same mesh) it is checked first if the integral to be computed is a singular or a regular one.
+This check is performed by the evaluation of ::element_match_eval function on the elements belonging to the test and trial fields.
+The latter return an ::element_match object, which stores the match type and the matching nodes if applicable.
 
+1. If the integral is regular (i.e. the ::element_match gives ::NO_MATCH), the ::complexity_estimator specified by the kernel class is evaluated in order to attain the quadrature degree needed for the integration.
+When the quadrature degree is determined, the pre-evaluated shape function values are already available in the corresponding ::store pattern.
+This way shape functions values are evaluated only once for each regular quadrature, and this first and only evaluation happens when the corresponding _accelerator_ (::field_type_accelerator in this case) is first accessed.
+(This pre-evaluation technique is referred to as _acceleration_ in the `NiHu` framework.)
 
+2. If the integral is singular (i.e. the ::element_match gives ::FACE_MATCH, ::EDGE_MATCH, or ::CORNER_MATCH), the situation is bit more complicated.
+Generally singular integrals can not be evaluated with good precision by means of standard quadratures, therefore their specialisations for different kernels, formalisms and element types is an essential part of the BEM.
+To provide flexibility, two choices can be made when the kernel is defined.
+	- When the kernel is **weakly singular** it means that the singularity can be cancelled by the appropriate choice of quadratures.
+	The appropriate type of quadrature in this case is selectable by knowing only the _type of singularity_ (specified in the ::singular_kernel_traits namespace) appearing in the kernel.
+	Therefore this type of quadrature selection is referred to as **blind quadrature**, and is done automatically in `NiHu`.
+	However, it is checked in compilation time if the specified kernel is integrable by means of a blind quadrature.
+	If not, then the kernel is not weakly singular, the integral can not be performed, and the code will not compile.
+	- To overcome the above limitations an alternative way is to specialise the ::singular_integral_shortcut class for the given kernel, field types and match type, by which an integration method can be specified.
+	If this specialisation of ::singular_integral_shortcut exists, the blind quadrature branch above is omitted in compile time.
+	This approach works for **weakly, strongly, and hypersingular** integrals.
+	
+A special case occurs when the kernel is not singular, or the integration is performed over two different meshes.
+In this case the regular evaluation is automatic by skipping the ::element_match_eval step.
 
+Evaluation
+----------
 
+Both the regular and singular branches discussed above result in the evaluation of a block in the system matrix.
+These blocks are calculated in most cases by iterating through a ::quadrature, nevertheless, analytical integration in special cases can be implemented by means of the ::singular_integral_shortcut.
 
+When the double integral is performed using a quadrature rule, iterating through the quadratures over the test and trial fields is done by double cycle.
+In the outer cycle the first kernel input (e.g. ::location) of the kernel is _bound_ to the input, that is calculated from the location of the current quadrature point on the physical element.
+The result of this binding is a ::kernel_base::kernel_bind type object, which can be evaluated given a single ::kernel_input. (The ::kernel_base::kernel_bind has an `operator()` function that takes only the second ::kernel_input of the original kernel, while the first input is stored in the ::kernel_base::kernel_bind object.)
+Then, in the inner cycle this ::kernel_base::kernel_bind object evaluates the kernel values, which are multiplied by the shape function values and quadrature weights and accumulated in the result matrix.
+In `NiHu` the outer iteration is over the test field, while the inner cycle iterates through the quadrature over the trial field.
+
+Matrix assembly
+---------------
+
+The accumulation process described above stores the values in a temporary matrix, which is allocated by the ::double_integral::eval() function of the ::double_integral class.
+(The size of the temporary matrix are known from the number of test and trial field DOFs.)
+The result matrix is returned to the ::assembly class, which adds this matrix to a block of the overall system matrix, where the block indices are DOF indices.
+The indexing is performed by the lightweight class ::matrix_block.
+
+The reason for evaluating into a smaller temporary matrix first is efficient memory management.
+Since the overall system matrix can be huge (can occupy tens of gigabytes of memory), direct access to its elements corresponding to DOF indices that are relatively far can require paging, which could slow down the iteration of the accumulation process to a great extent.
+By using the temporary matrix, the overall system matrix is accessed only once when an integral over a pair of fields is computed.

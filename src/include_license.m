@@ -13,14 +13,17 @@ for i = 1 : length(files)
     fclose(fid);
     
     if (strcmp(Insert{1}, content{1}))
+%         content = regexprep(content, ...
+%             'Copyright \(C\) 2012-2013',...
+%             'Copyright \(C\) 2012-2014');
         continue;
+    else
+        content = [
+            Insert
+            {''}
+            content
+            ];
     end
-    
-    content = [
-        Insert
-        {''}
-        content
-        ];
     
     fid = fopen(fullfile(root, files(i).name), 'wt');
     for l = 1 : length(content);

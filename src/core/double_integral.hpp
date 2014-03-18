@@ -1,7 +1,7 @@
 // This file is a part of NiHu, a C++ BEM template library.
 //
-// Copyright (C) 2012-2013  Peter Fiala <fiala@hit.bme.hu>
-// Copyright (C) 2012-2013  Peter Rucz <rucz@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Fiala <fiala@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Rucz <rucz@hit.bme.hu>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -34,6 +34,7 @@
 #include "kernel.hpp"
 #include "complexity_estimator.hpp"
 #include "element_match.hpp"
+#include "match_types.hpp"
 #include "field_type_accelerator.hpp"
 #include "singular_accelerator.hpp"
 #include "formalism.hpp"
@@ -57,7 +58,7 @@ struct singular_shortcut_switch
 			element_match const &mtch)
 		{
 			// if the parameter singularity is valid, evaluate shortcut
-			if (mtch.get_singularity_type() == Singularity::value)
+			if (mtch.get_match_dimension() == Singularity::value)
 			{
 				singular_integral_shortcut<Kernel, TestField, TrialField, Singularity>::eval(
 					result, kernel, test_field, trial_field, mtch
@@ -147,12 +148,11 @@ protected:
 			w_test_input_t test_input(test_field.get_elem(), it.get_first()->get_xi());
 			w_trial_input_t trial_input(trial_field.get_elem(), it.get_second()->get_xi());
 
-			auto left = (TestField::nset_t::template eval_shape<0>(it.get_first()->get_xi())
-				* (test_input.get_jacobian() * it.get_first()->get_w())).eval();
-			auto right = (TrialField::nset_t::template eval_shape<0>(it.get_second()->get_xi())
-				* (trial_input.get_jacobian() * it.get_second()->get_w())).eval();
-
-			result += left * kernel(test_input, trial_input) * right.transpose();
+			result += block_product(
+				TestField::nset_t::template eval_shape<0>(it.get_first()->get_xi())	* (test_input.get_jacobian() * it.get_first()->get_w()),
+				kernel(test_input, trial_input),
+				TrialField::nset_t::template eval_shape<0>(it.get_second()->get_xi()) * (trial_input.get_jacobian() * it.get_second()->get_w())
+				);
 		}
 
 		return result;
@@ -189,12 +189,11 @@ public:
 				w_test_input_t test_input(test_field.get_elem(), begin.get_test_quadrature_elem().get_xi());
 				w_trial_input_t trial_input(trial_field.get_elem(), begin.get_trial_quadrature_elem().get_xi());
 
-				auto left = (TestField::nset_t::template eval_shape<0>(begin.get_test_quadrature_elem().get_xi())
-					* (test_input.get_jacobian() * begin.get_test_quadrature_elem().get_w())).eval();
-				auto right = (TrialField::nset_t::template eval_shape<0>(begin.get_trial_quadrature_elem().get_xi())
-					* (trial_input.get_jacobian() * begin.get_trial_quadrature_elem().get_w())).eval();
-
-				result += left * kernel(test_input, trial_input) * right.transpose();
+				result += block_product(
+					TestField::nset_t::template eval_shape<0>(begin.get_test_quadrature_elem().get_xi()) * (test_input.get_jacobian() * begin.get_test_quadrature_elem().get_w()),
+					kernel(test_input, trial_input),
+					TrialField::nset_t::template eval_shape<0>(begin.get_trial_quadrature_elem().get_xi()) * (trial_input.get_jacobian() * begin.get_trial_quadrature_elem().get_w())
+					);
 
 				++begin;
 			}
@@ -280,12 +279,12 @@ protected:
 		auto mtch = element_match_eval(test_field, trial_field);
 
 		// if no match simple regular integral is computed
-		if (mtch.get_singularity_type() == NO_MATCH)
+		if (mtch.get_match_dimension() == -1)
 			return eval(WITHOUT_SINGULARITY_CHECK(), result, kernel, test_field, trial_field);
 
 		// traverse possible singular integral shortcuts with tmp::call_until
 		if (!tmp::call_until<
-			tmp::vector<match::face_match_type, match::edge_match_type, match::corner_match_type>,
+			typename match_type_vector<TestField, TrialField>::type,
 			singular_shortcut_switch<tmp::_1>,
 			result_t &,
 			kernel_base<Kernel> const &,
@@ -293,7 +292,7 @@ protected:
 			field_base<TrialField> const &,
 			element_match const &
 		>(result, kernel, test_field, trial_field, mtch))
-			std::cout << "UNHANDLED SINGULARITY TYPE: " << mtch.get_singularity_type() << std::endl;
+			std::cout << "UNHANDLED SINGULARITY TYPE: " << mtch.get_match_dimension() << std::endl;
 
 		return result;
 }
@@ -367,6 +366,11 @@ public:
 		typename TrialField::nset_t::shape_t
 	>::type result_t;
 
+	enum {
+		kernel_rows = 1,
+		kernel_cols = 1
+	};
+
 protected:
 	/** \brief evaluate regular collocational integral with selected trial field accelerator
 	* \param [out] result reference to the integration result matrix
@@ -391,11 +395,11 @@ protected:
 			w_test_input_t test_input(test_field.get_elem(), it.get_first()->get_xi());
 			w_trial_input_t trial_input(trial_field.get_elem(), it.get_second()->get_xi());
 
-			auto left = (it.get_first()->get_N() * (it.get_first()->get_w())).eval();
-			auto right = (it.get_second()->get_N() * (trial_input.get_jacobian() * it.get_second()->get_w())).eval();
-
-//			result += left * kernel(test_input, trial_input) * right.transpose();
-			result += block_product(left, kernel(test_input, trial_input), right);
+			result += block_product(
+				it.get_first()->get_N() * (it.get_first()->get_w()),
+				kernel(test_input, trial_input),
+				it.get_second()->get_N() * (trial_input.get_jacobian() * it.get_second()->get_w())
+			);
 		}
 
 		return result;
@@ -435,10 +439,11 @@ public:
 				{
 					w_trial_input_t trial_input(trial_field.get_elem(), quad_it->get_xi());
 
-					throw std::runtime_error("This part has been commented to compile");
-//					result.row(idx) += bound(trial_input) *
-//						(trial_input.get_jacobian() * quad_it->get_w() *
-//						TrialField::nset_t::template eval_shape<0>(quad_it->get_xi()));
+					result.template block<kernel_rows, kernel_cols*trial_nset_t::num_nodes>(idx*kernel_rows, 0)
+					+= semi_block_product(
+						bound(trial_input),
+						trial_nset_t::template eval_shape<0>(quad_it->get_xi()) * trial_input.get_jacobian() * quad_it->get_w()
+					);
 				}
 			}
 
@@ -524,11 +529,11 @@ protected:
 		field_base<TrialField> const &trial_field)
 	{
 		auto mtch = element_match_eval(test_field, trial_field);
-		if (mtch.get_singularity_type() == NO_MATCH)
+		if (mtch.get_match_dimension() == -1)
 			return eval(WITHOUT_SINGULARITY_CHECK(), result, kernel, test_field, trial_field);
 
 		if (!tmp::call_until<
-			tmp::vector<match::face_match_type, match::corner_match_type>,
+			typename match_type_vector<TestField, TrialField>::type,
 			singular_shortcut_switch<tmp::_1>,
 			result_t &,
 			kernel_base<Kernel> const &,
@@ -536,7 +541,7 @@ protected:
 			field_base<TrialField> const &,
 			element_match const &
 		>(result, kernel, test_field, trial_field, mtch))
-			std::cout << "UNHANDLED SINGULARITY TYPE: " << mtch.get_singularity_type() << std::endl;
+			std::cout << "UNHANDLED SINGULARITY TYPE: " << mtch.get_match_dimension() << std::endl;
 		return result;
 	}
 
@@ -630,41 +635,6 @@ public:
 	}
 };
 
-
-/** \brief trivial overload for singular_integral_shortcut for the collocation with constant test field
- * \todo this specialisation should not be implemented, try to avoid referencing
- * \tparam Kernel the kernel class
- * \tparam TestField the test field type
- * \tparam TrialField the trial field type
- * \tparam Singularity the singularity type
- * \tparam Enable additional argument for std::enable_if
- */
-template <class Kernel, class TestField, class TrialField, class Singularity>
-class singular_integral_shortcut<Kernel, TestField, TrialField, Singularity,
-	typename std::enable_if<
-		std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
-		std::is_same<typename TestField::nset_t, constant_shape_set<typename TestField::lset_t::domain_t> >::value &&
-		std::is_same<Singularity, match::corner_match_type>::value
-	>::type
->
-{
-public:
-	/** \brief evaluate singular integral
-	 * \tparam result_t the result type
-	 * \param [out] result the integral result
-	 * \return reference to the integral result
-	 */
-	template <class result_t>
-	static result_t &eval(
-		result_t &result,
-		kernel_base<Kernel> const &,
-		field_base<TestField> const &,
-		field_base<TrialField> const &,
-		element_match const &)
-	{
-		return result;
-	}
-};
 
 #endif
 

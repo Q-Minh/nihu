@@ -1,7 +1,7 @@
 // This file is a part of NiHu, a C++ BEM template library.
 //
-// Copyright (C) 2012-2013  Peter Fiala <fiala@hit.bme.hu>
-// Copyright (C) 2012-2013  Peter Rucz <rucz@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Fiala <fiala@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Rucz <rucz@hit.bme.hu>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -52,6 +52,12 @@ namespace shape_set_traits
 	struct shape_complexity<quad_1_gauss_shape_set, Order>
 	{
 		typedef matrix_function_complexity::general type;
+	};
+
+	template <>
+	struct position_dof_vector<quad_1_gauss_shape_set>
+	{
+		typedef tmp::vector<dof2, dof2, dof2, dof2> type;
 	};
 }
 //! [Shape traits]

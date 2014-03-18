@@ -1,7 +1,7 @@
 // This file is a part of NiHu, a C++ BEM template library.
 //
-// Copyright (C) 2012-2013  Peter Fiala <fiala@hit.bme.hu>
-// Copyright (C) 2012-2013  Peter Rucz <rucz@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Fiala <fiala@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Rucz <rucz@hit.bme.hu>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -31,9 +31,9 @@
 namespace formalism
 {
 	/** \brief general case when the test field is not Dirac */
-	struct general {};
+	struct general { typedef general type; };
 	/** \brief collocational case when the test field is Dirac */
-	struct collocational {};
+	struct collocational { typedef collocational type; };
 }
 
 /** \brief return formalism from Test and Trial field types
@@ -48,10 +48,7 @@ template <class TestField, class TrialField>
 struct get_formalism<TestField, TrialField,	typename std::enable_if<
 		field_traits::is_dirac<TestField>::value && !field_traits::is_dirac<TrialField>::value
 	>::type
->
-{
-	typedef formalism::collocational type;
-};
+> : formalism::collocational {};
 
 
 /** \brief specialiastion of ::get_formalism for the general case */
@@ -60,10 +57,7 @@ struct get_formalism<TestField, TrialField,
 	typename std::enable_if<
 		!field_traits::is_dirac<TestField>::value && !field_traits::is_dirac<TrialField>::value
 	>::type
->
-{
-	typedef formalism::general type;
-};
+> : formalism::general {};
 
 
 #endif

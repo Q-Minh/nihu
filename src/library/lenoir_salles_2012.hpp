@@ -1,7 +1,7 @@
 // This file is a part of NiHu, a C++ BEM template library.
 //
-// Copyright (C) 2012-2013  Peter Fiala <fiala@hit.bme.hu>
-// Copyright (C) 2012-2013  Peter Rucz <rucz@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Fiala <fiala@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Rucz <rucz@hit.bme.hu>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@
  */
 template <class TestField, class TrialField>
 class singular_integral_shortcut<
-	laplace_3d_SLP_kernel, TestField, TrialField, match::face_match_type,
+	laplace_3d_SLP_kernel, TestField, TrialField, match::match_2d_type,
 	typename std::enable_if<
 		std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::general>::value &&
 		std::is_same<typename TrialField::lset_t, tria_1_shape_set>::value &&

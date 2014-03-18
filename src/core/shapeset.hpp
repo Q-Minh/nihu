@@ -1,7 +1,7 @@
 // This file is a part of NiHu, a C++ BEM template library.
 //
-// Copyright (C) 2012-2013  Peter Fiala <fiala@hit.bme.hu>
-// Copyright (C) 2012-2013  Peter Rucz <rucz@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Fiala <fiala@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Rucz <rucz@hit.bme.hu>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -30,6 +30,7 @@
 #include <stdexcept>
 
 #include "domain.hpp"
+#include "../tmp/vector.hpp"
 #include "../util/conditional_precompute.hpp"
 
 /** \brief shape function derivative indices */
@@ -45,6 +46,13 @@ namespace shape_derivative_index
 	};
 }
 
+template <unsigned d>
+struct position_dof : std::integral_constant<unsigned, d> {};
+
+typedef position_dof<0> dof0;
+typedef position_dof<1> dof1;
+typedef position_dof<2> dof2;
+
 template <class Derived, unsigned Order>
 class shape_function;
 
@@ -56,11 +64,11 @@ constexpr unsigned num_derivatives(unsigned order, unsigned dim)
 /** \brief Traits of shape function sets */
 namespace shape_set_traits
 {
-	/** \brief The shep set's textual id */
+	/** \brief The shape set's textual id */
 	template <class Derived>
 	struct name
 	{
-		static const std::string value;
+		static const std::string value;	/**< \brief the textual name */
 	};
 
 	/** \brief Defines the domain where the shape function set is defined */
@@ -120,6 +128,10 @@ namespace shape_set_traits
 	{
 		typedef typename factory_functor<Derived, Order>::type::return_type type;
 	};
+
+	/** \brief defines the nodal degrees of freedoms of the shape functions */
+	template <class Derived>
+	struct position_dof_vector;
 }
 
 
@@ -153,6 +165,8 @@ public:
 	/** \brief type of an \f$L(\xi)\f$ vector */
 	template <unsigned Order>
 	struct shape_value_type : shape_set_traits::shape_value_type<Derived, Order> {};
+
+	typedef typename shape_set_traits::position_dof_vector<Derived>::type position_dof_vector;
 
 	typedef typename shape_value_type<0>::type shape_t;
 	typedef typename shape_value_type<1>::type dshape_t;
@@ -222,6 +236,12 @@ namespace shape_set_traits
 
 	template <class Domain>
 	struct shape_complexity<constant_shape_set<Domain>, 2> : matrix_function_complexity::zero {};
+
+	template <class Domain>
+	struct position_dof_vector<constant_shape_set<Domain> >
+	{
+		typedef tmp::vector<position_dof<Domain::dimension> > type;
+	};
 }
 
 /**
@@ -343,3 +363,4 @@ public:
 };
 
 #endif // SHAPESET_HPP_INCLUDED
+

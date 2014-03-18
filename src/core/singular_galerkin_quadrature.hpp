@@ -1,7 +1,7 @@
 // This file is a part of NiHu, a C++ BEM template library.
 //
-// Copyright (C) 2012-2013  Peter Fiala <fiala@hit.bme.hu>
-// Copyright (C) 2012-2013  Peter Rucz <rucz@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Fiala <fiala@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Rucz <rucz@hit.bme.hu>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -71,10 +71,10 @@ template <class match_type>
 struct tria_helper;
 
 /**
-* \brief specialisation of ::tria_helper for the FACE_MATCH case
+* \brief specialisation of ::tria_helper for the 2d match case
 */
 template <>
-struct tria_helper<match::face_match_type>
+struct tria_helper<match::match_2d_type>
 	: public helper_base<tria_domain, tria_domain>
 {
 	/** \brief indicates whether the quadrature described below is symmetric or not */
@@ -126,10 +126,10 @@ struct tria_helper<match::face_match_type>
 };
 
 /**
-* \brief specialisation of ::tria_helper for the EDGE_MATCH case
+* \brief specialisation of ::tria_helper for the 0d match case
 */
 template <>
-struct tria_helper<match::edge_match_type>
+struct tria_helper<match::match_1d_type>
 	: public helper_base<tria_domain, tria_domain>
 {
 	/** \brief indicates whether the quadrature described below is symmetric or not */
@@ -196,10 +196,10 @@ struct tria_helper<match::edge_match_type>
 };
 
 /**
-* \brief specialisation of ::tria_helper for the CORNER_MATCH case
+* \brief specialisation of ::tria_helper for the 0d match case
 */
 template <>
-struct tria_helper<match::corner_match_type>
+struct tria_helper<match::match_0d_type>
 	: public helper_base<tria_domain, tria_domain>
 {
 	/** \brief indicates whether the quadrature described below is symmetric or not */
@@ -329,9 +329,9 @@ public:
 template <class match_type>
 struct quad_helper;
 
-/** \brief specialisation of ::quad_helper for the ::FACE_MATCH case */
+/** \brief specialisation of ::quad_helper for the 2d match case */
 template <>
-struct quad_helper<match::face_match_type> : helper_base<quad_domain, quad_domain>
+struct quad_helper<match::match_2d_type> : helper_base<quad_domain, quad_domain>
 {
 	/** \brief number of subdomains */
 	static const unsigned num_domains = 4;
@@ -351,16 +351,16 @@ struct quad_helper<match::face_match_type> : helper_base<quad_domain, quad_domai
 };
 
 quad_domain::scalar_t
-	const quad_helper<match::face_match_type>::corners[4][4][2] = {
+	const quad_helper<match::match_2d_type>::corners[4][4][2] = {
 		{{0.0, 0.0}, {0.0, 0.0}, { 2.0, -2.0}, { 2.0,  0.0}},
 		{{0.0, 0.0}, {0.0, 0.0}, { 2.0,  0.0}, { 2.0,  2.0}},
 		{{0.0, 0.0}, {0.0, 0.0}, { 2.0,  2.0}, { 0.0,  2.0}},
 		{{0.0, 0.0}, {0.0, 0.0}, { 0.0,  2.0}, {-2.0,  2.0}}
 };
 
-/** \brief specialisation of ::quad_helper for the ::EDGE_MATCH case */
+/** \brief specialisation of ::quad_helper for the 1d match case */
 template <>
-struct quad_helper<match::edge_match_type> : helper_base<quad_domain, quad_domain>
+struct quad_helper<match::match_1d_type> : helper_base<quad_domain, quad_domain>
 {
 	/** \brief number of subdomains */
 	static const unsigned num_domains = 6;
@@ -380,7 +380,7 @@ struct quad_helper<match::edge_match_type> : helper_base<quad_domain, quad_domai
 };
 
 quad_domain::scalar_t
-	const quad_helper<match::edge_match_type>::corners[6][4][2] = {
+	const quad_helper<match::match_1d_type>::corners[6][4][2] = {
 		{{ 0.0,  0.0}, { 0.0,  0.0}, {-2.0,  0.0}, {-2.0, -2.0}},
 		{{ 0.0,  0.0}, { 0.0,  0.0}, {-2.0, -2.0}, { 0.0, -2.0}},
 		{{ 0.0,  0.0}, { 0.0,  0.0}, { 0.0, -2.0}, { 2.0, -2.0}},
@@ -389,9 +389,9 @@ quad_domain::scalar_t
 		{{ 0.0, -2.0}, { 0.0, -4.0}, { 2.0, -4.0}, { 2.0, -2.0}},
 };
 
-/** \brief specialisation of ::quad_helper for the ::CORNER_MATCH case */
+/** \brief specialisation of ::quad_helper for the 0d match case */
 template <>
-struct quad_helper<match::corner_match_type> : helper_base<quad_domain, quad_domain>
+struct quad_helper<match::match_0d_type> : helper_base<quad_domain, quad_domain>
 {
 	/** \brief number of subdomains */
 	static const unsigned num_domains = 5;
@@ -411,7 +411,7 @@ struct quad_helper<match::corner_match_type> : helper_base<quad_domain, quad_dom
 };
 
 quad_domain::scalar_t
-	const quad_helper<match::corner_match_type>::corners[5][4][2] = {
+	const quad_helper<match::match_0d_type>::corners[5][4][2] = {
 		{{ 0.0,  0.0}, { 0.0,  0.0}, {-2.0,  0.0}, {-2.0, -2.0}},
 		{{ 0.0,  0.0}, { 0.0,  0.0}, {-2.0, -2.0}, { 0.0, -2.0}},
 		{{-4.0,  0.0}, {-4.0, -2.0}, {-2.0, -2.0}, {-2.0,  0.0}},
@@ -561,20 +561,20 @@ public:
 
 private:
 	/**
-	* \brief specialisation of ::generate for the ::CORNER_MATCH case
+	* \brief specialisation of ::generate for the 0d match case
 	* \param [out] test_quadrature the test quadrature to be extended
 	* \param [out] trial_quadrature the trial quadrature to be extended
 	* \param [in] singular_quadrature_order polynomial order of the underlying regular quadrature
 	*/
 	static void generate(
-		match::corner_match_type,
+		match::match_0d_type,
 		test_quadrature_t &test_quadrature,
 		trial_quadrature_t &trial_quadrature,
 		unsigned singular_quadrature_order)
 	{
 		trial_quadrature_t test_base;
 		trial_quadrature_t trial_base;
-		base_sing_t::template generate<match::corner_match_type>(
+		base_sing_t::template generate<match::match_0d_type>(
 			test_base, trial_base, singular_quadrature_order);
 
 		unsigned corner_idx[2][3] = {
@@ -598,21 +598,21 @@ private:
 	}
 
 	/**
-	* \brief specialisation of ::generate for the ::EDGE_MATCH case
+	* \brief specialisation of ::generate for the 1d match case
 	* \param [out] test_quadrature the test quadrature to be extended
 	* \param [out] trial_quadrature the trial quadrature to be extended
 	* \param [in] singular_quadrature_order polynomial order of the underlying regular quadrature
 	*/
 	static void generate(
-		match::edge_match_type,
+		match::match_1d_type,
 		test_quadrature_t &test_quadrature,
 		trial_quadrature_t &trial_quadrature,
 		unsigned singular_quadrature_order)
 	{
 		// the quad domain is divided into two triangles
 		unsigned corner_idx[2][3] = {
-			{0, 1, 2},	// EDGE_MATCH
-			{0, 2, 3}	// CORNER_MATCH
+			{0, 1, 2},	// 1d match
+			{0, 2, 3}	// 0d match
 		};
 
 		// for transformation pusposes
@@ -621,7 +621,7 @@ private:
 		// the underlying edge-singular tria-tria quadratures
 		trial_quadrature_t test_base;
 		trial_quadrature_t trial_base;
-		base_sing_t::template generate<match::edge_match_type>(
+		base_sing_t::template generate<match::match_1d_type>(
 			test_base, trial_base, singular_quadrature_order);
 
 		// assemble corners, transform and insert into result
@@ -639,7 +639,7 @@ private:
 		trial_base.clear();
 
 		// the underlying corner-singular tria-tria quadratures
-		base_sing_t::template generate<match::corner_match_type>(
+		base_sing_t::template generate<match::match_0d_type>(
 			test_base, trial_base, singular_quadrature_order);
 
 		// assemble corners, transform and insert into result

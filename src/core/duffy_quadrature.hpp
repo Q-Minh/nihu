@@ -1,7 +1,7 @@
 // This file is a part of NiHu, a C++ BEM template library.
 //
-// Copyright (C) 2012-2013  Peter Fiala <fiala@hit.bme.hu>
-// Copyright (C) 2012-2013  Peter Rucz <rucz@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Fiala <fiala@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Rucz <rucz@hit.bme.hu>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@
 #define DUFFY_QUADRATURE_HPP_INCLUDED
 
 #include "quadrature.hpp"
+#include "../library/lib_shape.hpp"
 
 /** \brief Traits class of a Duffy quadrature */
 template <class LSet>
@@ -59,8 +60,8 @@ public:
 
 private:
 	/** \brief the source quadrature type (regular quad quadrature)
-		\todo quad domain is hard coded here
-	*/
+	 * \todo quad domain is hard coded here
+	 */
 	typedef typename quadrature_type<quadrature_family_tag, quad_domain>::type source_quad_type;
 	/** \brief the local coordinate matrix type of the transformation */
 	typedef Eigen::Matrix<scalar_t, quad_domain::num_corners, domain_t::dimension> coords_t;

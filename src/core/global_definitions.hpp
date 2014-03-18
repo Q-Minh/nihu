@@ -1,7 +1,7 @@
 // This file is a part of NiHu, a C++ BEM template library.
 //
-// Copyright (C) 2012-2013  Peter Fiala <fiala@hit.bme.hu>
-// Copyright (C) 2012-2013  Peter Rucz <rucz@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Fiala <fiala@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Rucz <rucz@hit.bme.hu>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@
 #define GLOBAL_DEFINITIONS_HPP_INCLUDED
 
 #include "field_type_acceleration_option.hpp"
+#include <cstddef>
 
 /** \brief acceleration::soft or acceleration::hard */
 typedef acceleration::hard GLOBAL_ACCELERATION;
@@ -36,6 +37,8 @@ typedef acceleration::hard GLOBAL_ACCELERATION;
 unsigned const GLOBAL_MAX_ORDER = 14;
 /** \brief the global accuracy of integrations */
 unsigned const GLOBAL_ACCURACY = 3;
+
+typedef std::ptrdiff_t Index;
 
 #endif
 

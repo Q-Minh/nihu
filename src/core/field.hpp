@@ -1,7 +1,7 @@
 // This file is a part of NiHu, a C++ BEM template library.
 //
-// Copyright (C) 2012-2013  Peter Fiala <fiala@hit.bme.hu>
-// Copyright (C) 2012-2013  Peter Rucz <rucz@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Fiala <fiala@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Rucz <rucz@hit.bme.hu>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -40,8 +40,11 @@ namespace field_option
 	struct constant {};
 }
 
+/** \brief type indicating a 1D valued function space */
 typedef std::integral_constant<unsigned, 1> _1d;
+/** \brief type indicating a 2D valued function space */
 typedef std::integral_constant<unsigned, 2> _2d;
+/** \brief type indicating a 3D valued function space */
 typedef std::integral_constant<unsigned, 3> _3d;
 
 /** \brief assign a field to a tag

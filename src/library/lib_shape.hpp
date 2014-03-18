@@ -1,12 +1,38 @@
+// This file is a part of NiHu, a C++ BEM template library.
+// 
+// Copyright (C) 2012-2014  Peter Fiala <fiala@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Rucz <rucz@hit.bme.hu>
+// 
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+/** \file lib_shape.hpp
+ * \brief definition of shape function sets
+ */
+
 #ifndef LIB_SHAPE_HPP_INCLUDED
 #define LIB_SHAPE_HPP_INCLUDED
 
 #include "../core/shapeset.hpp"
 #include "lib_domain.hpp"
 
+/** \brief a constant line shape set */
 typedef constant_shape_set<line_domain> line_0_shape_set;
+/** \brief a constant triangle shape set */
 typedef constant_shape_set<tria_domain> tria_0_shape_set;
+/** \brief a constant quadrangle shape set */
 typedef constant_shape_set<quad_domain> quad_0_shape_set;
+/** \brief a constant brick shape set */
 typedef constant_shape_set<brick_domain> brick_0_shape_set;
 
 
@@ -29,6 +55,12 @@ namespace shape_set_traits
 
 	template <>
 	struct shape_complexity<line_1_shape_set, 2> : matrix_function_complexity::zero {};
+
+	template <>
+	struct position_dof_vector<line_1_shape_set>
+	{
+		typedef tmp::vector<dof0, dof0> type;
+	};
 }
 
 /**
@@ -116,6 +148,12 @@ namespace shape_set_traits
 
 	template <>
 	struct shape_complexity<tria_1_shape_set, 2> : matrix_function_complexity::zero {};
+
+	template <>
+	struct position_dof_vector<tria_1_shape_set>
+	{
+		typedef tmp::vector<dof0, dof0, dof0> type;
+	};
 }
 
 
@@ -201,6 +239,12 @@ namespace shape_set_traits
 
 	template <>
 	struct shape_complexity<quad_1_shape_set, 2> : matrix_function_complexity::constant {};
+
+	template <>
+	struct position_dof_vector<quad_1_shape_set>
+	{
+		typedef tmp::vector<dof0, dof0, dof0, dof0> type;
+	};
 }
 
 
@@ -288,6 +332,12 @@ namespace shape_set_traits
 
 	template <unsigned Order>
 	struct shape_complexity<brick_1_shape_set, Order> : matrix_function_complexity::general {};
+
+	template <>
+	struct position_dof_vector<brick_1_shape_set>
+	{
+		typedef tmp::vector<dof0, dof0, dof0, dof0, dof0, dof0, dof0, dof0> type;
+	};
 }
 
 
@@ -414,6 +464,12 @@ namespace shape_set_traits
 
 	template <>
 	struct shape_complexity<parallelogram_shape_set, 2> : matrix_function_complexity::zero {};
+
+	template <>
+	struct position_dof_vector<parallelogram_shape_set>
+	{
+		typedef tmp::vector<dof0, dof0, dof0> type;
+	};
 }
 
 /**
@@ -518,6 +574,12 @@ namespace shape_set_traits
 	struct shape_complexity<line_2_shape_set, Order>
 	{
 		typedef matrix_function_complexity::general type;
+	};
+
+	template <>
+	struct position_dof_vector<line_2_shape_set>
+	{
+		typedef tmp::vector<dof0, dof1, dof0> type;
 	};
 }
 
@@ -644,6 +706,12 @@ namespace shape_set_traits
 	struct shape_complexity<tria_2_shape_set, Order>
 	{
 		typedef matrix_function_complexity::general type;
+	};
+
+	template <>
+	struct position_dof_vector<tria_2_shape_set>
+	{
+		typedef tmp::vector<dof0, dof1, dof0, dof1, dof0, dof1> type;
 	};
 }
 
@@ -787,6 +855,12 @@ namespace shape_set_traits
 	struct shape_complexity<quad_2_shape_set, Order>
 	{
 		typedef matrix_function_complexity::general type;
+	};
+
+	template <>
+	struct position_dof_vector<quad_2_shape_set>
+	{
+		typedef tmp::vector<dof0, dof1, dof0, dof1, dof0, dof1, dof0, dof1, dof2> type;
 	};
 }
 
@@ -944,6 +1018,12 @@ namespace shape_set_traits
 	{
 		typedef matrix_function_complexity::general type;
 	};
+
+	template <>
+	struct position_dof_vector<quad_28_shape_set>
+	{
+		typedef tmp::vector<dof0, dof1, dof0, dof1, dof0, dof1, dof0, dof1> type;
+	};
 }
 
 /** \brief quadratic 8-noded quad shape function set */
@@ -1062,3 +1142,4 @@ public:
 
 
 #endif // LIB_SHAPE_HPP_INCLUDED
+

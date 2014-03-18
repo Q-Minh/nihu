@@ -1,7 +1,7 @@
 // This file is a part of NiHu, a C++ BEM template library.
 //
-// Copyright (C) 2012-2013  Peter Fiala <fiala@hit.bme.hu>
-// Copyright (C) 2012-2013  Peter Rucz <rucz@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Fiala <fiala@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Rucz <rucz@hit.bme.hu>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -23,9 +23,6 @@
 
 #ifndef COUPLE_HPP_INCLUDED
 #define COUPLE_HPP_INCLUDED
-
-/** \brief GCC version defined conventionally */
-#define GCC_VERSION (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
 
 #include "../core/global_definitions.hpp"
 
@@ -58,6 +55,45 @@ public:
 		-> decltype(const_crtp_ptr<Derived, std::integral_constant<int,idx> >()->template get<idx>())
 	{
 		return derived().template get<idx>();
+	}
+
+private:
+	/** \brief specialisation of ::eval_to_tuple for the 1-argument tuple case */
+	typename couple_traits<Derived>::tuple_t
+	eval_to_tuple_impl(std::integral_constant<unsigned, 1>) const
+	{
+		return typename couple_traits<Derived>::tuple_t(get<0>());
+	}
+
+	/** \brief specialisation of ::eval_to_tuple for the 2-argument tuple case */
+	typename couple_traits<Derived>::tuple_t
+	eval_to_tuple_impl(std::integral_constant<unsigned, 2>) const
+	{
+		return typename couple_traits<Derived>::tuple_t(get<0>(), get<1>());
+	}
+
+	/** \brief specialisation of ::eval_to_tuple for the 3-argument tuple case */
+	typename couple_traits<Derived>::tuple_t
+	eval_to_tuple_impl(std::integral_constant<unsigned, 3>) const
+	{
+		return typename couple_traits<Derived>::tuple_t(get<0>(), get<1>(), get<2>());
+	}
+
+	/** \brief specialisation of ::eval_to_tuple for the 4-argument tuple case */
+	typename couple_traits<Derived>::tuple_t
+	eval_to_tuple_impl(std::integral_constant<unsigned, 4>) const
+	{
+		return typename couple_traits<Derived>::tuple_t(get<0>(), get<1>(), get<2>(), get<3>());
+	}
+
+public:
+	/** \brief evaluate the expression into a tuple value class */
+	typename couple_traits<Derived>::tuple_t
+	eval_to_tuple(void) const
+	{
+		/** \brief parameter dispatching */
+		return eval_to_tuple_impl(
+			std::integral_constant<unsigned, couple_traits<Derived>::tuple_size>());
 	}
 };
 
@@ -161,6 +197,9 @@ public:
 	/** \brief the traits class */
 	typedef couple_traits<type> traits_t;
 
+	/** \brief default constructor */
+	couple() {}
+
  	/** \brief constructor initialising all members
 	 * \param [in] args the arguments
 	 */
@@ -169,14 +208,16 @@ public:
 	{
 	}
 
- 	/** \brief constructor initialising all members
-	 * \tparam OtherArgs the argument types
-	 * \param [in] otherArgs the arguments
-	 */
-	template <class...OtherArgs>
-	couple(OtherArgs&&...otherArgs) :
-		base_t(std::forward<OtherArgs>(otherArgs)...)
+	/** \brief constructor from a couple expression */
+	template <class OtherDerived>
+	couple(couple_base<OtherDerived> const &other) :
+		base_t(other.eval_to_tuple())
 	{
+	}
+
+	base_t eval_to_tuple(void) const
+	{
+		return *this;
 	}
 
 private:
@@ -189,10 +230,7 @@ private:
 	}
 
 	/** \brief terminating case of setZero */
-	void setZeroImpl(
-		std::integral_constant<size_t, 0>)
-	{
-	}
+	void setZeroImpl(std::integral_constant<size_t, 0>) {}
 
 public:
 	/** \brief set all member matrices zero */
@@ -245,9 +283,7 @@ private:
 	template <class C, class OtherDerived>
 	struct add_impl<C, OtherDerived, 0>
 	{
-		static void eval(C &, couple_base<OtherDerived> const &)
-		{
-		}
+		static void eval(C &, couple_base<OtherDerived> const &) {}
 	};
 
 
@@ -329,6 +365,8 @@ protected:
 	/** \brief right hand side term */
 	Right m_right;
 
+	typedef couple_traits<couple_product_right> traits_t;
+
 public:
 	/**
 	 * \brief constructor from two term references
@@ -341,28 +379,6 @@ public:
 	{
 	}
 
-#if !defined(__clang__) && (GCC_VERSION < 408000) && !defined(WIN32)
-	/** \brief this pointer-like expression */
-	static constexpr couple_product_right const *This = static_cast<couple_product_right const *>(nullptr);
-	/** \brief return left expression */
-	LDerived const &get_left(void) const
-	{
-		return m_left;
-	}
-	/** \brief return right expression */
-	Right const &get_right(void) const
-	{
-		return m_right;
-	}
-
-	/** \brief return element of product */
-	template <size_t idx>
-	auto get(void) const
-		-> decltype( This->get_left().template get<idx>() * This->get_right() )
-	{
-		return m_left.template get<idx>() * m_right;
-	}
-#else
 	/**
 	 * \brief return element of the couple product
 	 * \return element of the couple product
@@ -373,7 +389,6 @@ public:
 	{
 		return m_left.template get<idx>() * m_right;
 	}
-#endif
 };
 
 
@@ -402,7 +417,7 @@ struct couple_traits<couple_product_left<Left, RDerived> >
 	template <class...Args>
 	struct tuple2args<std::tuple<Args...> >
 	{
-		typedef std::tuple<prod_t<Args>...> type;
+		typedef std::tuple<typename prod_t<Args>::type...> type;
 	};
 
 	/** \brief the underlying tuple type of the product */
@@ -444,27 +459,6 @@ public:
 	{
 	}
 
-#if !defined(__clang__) && (GCC_VERSION < 408000) && !defined(WIN32)
-	/** \brief this pointer-like expression */
-	static constexpr couple_product_left const *This = static_cast<couple_product_left const *>(nullptr);
-	/** \brief return left expression */
-	Left const &get_left(void) const
-	{
-		return m_left;
-	}
-	/** \brief return right expression */
-	RDerived const &get_right(void) const
-	{
-		return m_right;
-	}
-	/** \brief return element of the couple product */
-	template <size_t idx>
-	auto get(void) const
-		-> decltype( This->get_left() * This->get_right().template get<idx>() )
-	{
-		return m_left * m_right.template get<idx>();
-	}
-#else
 	/**
 	 * \brief return element of the couple product
 	 * \return element of the couple product
@@ -475,9 +469,7 @@ public:
 	{
 		return m_left * m_right.template get<idx>();
 	}
-#endif
 };
-
 
 
 /** \brief metafunction determining if argument is a couple expression

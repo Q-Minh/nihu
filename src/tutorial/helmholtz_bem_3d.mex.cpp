@@ -1,7 +1,7 @@
 // This file is a part of NiHu, a C++ BEM template library.
 //
-// Copyright (C) 2012-2013  Peter Fiala <fiala@hit.bme.hu>
-// Copyright (C) 2012-2013  Peter Rucz <rucz@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Fiala <fiala@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Rucz <rucz@hit.bme.hu>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -53,10 +53,10 @@ void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 //! [Integral operators]
 
 //! [System matrices]
-	Ls << ( surf_sp * L[surf_sp] );
-	Ms << ( surf_sp * M[surf_sp] ) + ( surf_sp * (-.5*I)[surf_sp] );
-	Lf  << ( field_sp * L[surf_sp] );
-	Mf  << ( field_sp * M[surf_sp] );
+	Ls << surf_sp * L[surf_sp];
+	Ms << surf_sp * M[surf_sp] + surf_sp * (-.5*I)[surf_sp];
+	Lf  << field_sp * L[surf_sp];
+	Mf  << field_sp * M[surf_sp];
 }
 //! [System matrices]
 

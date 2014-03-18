@@ -1,5 +1,7 @@
 # Find all mex test sources
 file(GLOB MEX_TEST_SOURCES *.cpp)
+
+# Remove unnecessary sources
 list(REMOVE_ITEM MEX_TEST_SOURCES "${CMAKE_SOURCE_DIR}/test/core_unit/space_test.cpp")
 list(REMOVE_ITEM MEX_TEST_SOURCES "${CMAKE_SOURCE_DIR}/test/core_unit/domain_test.cpp")
 list(REMOVE_ITEM MEX_TEST_SOURCES "${CMAKE_SOURCE_DIR}/test/core_unit/element_test.cpp")
@@ -29,7 +31,7 @@ foreach (test_source ${MEX_TEST_SOURCES})
 		else()
 			add_executable(${test_name} ${local_source})
 		endif()
-		target_link_libraries(${test_name} lib_domain lib_element lib_shape)
+		target_link_libraries(${test_name} ${NIHU_LINK_LIBRARIES})
 		# Add the test
 		add_test(${test_name} ${test_name})
 		# Install target
@@ -43,7 +45,7 @@ foreach (test_source ${MEX_TEST_SOURCES})
 
 		if(NOT NIHU_MATLAB_FORCE_MEX_COMPILER)
 			# add the test as a shared library
-			add_library(${test_mex_name} SHARED ${local_source})
+			add_library(${test_mex_name} SHARED ${local_source} ${NIHU_COMMON_LIBRARIES})
 			# remove the "lib" prefix
 			set_target_properties(${test_mex_name} PROPERTIES 
 				PREFIX "" 
@@ -64,6 +66,7 @@ foreach (test_source ${MEX_TEST_SOURCES})
 					-I"${CMAKE_SOURCE_DIR}" 
 					-I"${CMAKE_SOURCE_DIR}/util" 
 					"${CMAKE_CURRENT_SOURCE_DIR}/${local_source}"
+					"${NIHU_COMMON_LIBRARIES}"
 					-o "${test_name}"
 				COMMENT "Executing MEX for ${local_source}"
 			)

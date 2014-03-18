@@ -1,7 +1,7 @@
 // This file is a part of NiHu, a C++ BEM template library.
 //
-// Copyright (C) 2012-2013  Peter Fiala <fiala@hit.bme.hu>
-// Copyright (C) 2012-2013  Peter Rucz <rucz@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Fiala <fiala@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Rucz <rucz@hit.bme.hu>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -183,7 +183,7 @@ public:
 		typename test_quadrature_t::const_iterator,
 		typename trial_quadrature_t::const_iterator> iterator;
 
-	/** \brief indicates whether ::FACE_MATCH is possible */
+	/** \brief indicates whether 2d match is possible */
 	static const bool face_match_possible = std::is_same<test_field_t, trial_field_t>::value;
 	/** \brief the singular quadrature order required by the kernel */
 	static unsigned const singular_quadrature_order = singular_kernel_traits<kernel_t>::singular_quadrature_order;
@@ -194,32 +194,36 @@ public:
 	 */
 	iterator begin(element_match const &elem_match) const
 	{
-		switch (elem_match.get_singularity_type())
+		switch (elem_match.get_match_dimension())
 		{
-		case FACE_MATCH:
+		case 2:
 			return iterator(
 				m_face_test_quadrature.begin(),
 				m_face_trial_quadrature.begin());
 			break;
-		case EDGE_MATCH:
+		case 1:
 		{
-			unsigned test_domain_corner = test_lset_t::node_to_domain_corner(elem_match.get_overlap().get_ind1());
-			unsigned trial_domain_corner = trial_lset_t::node_to_domain_corner(elem_match.get_overlap().get_ind2());
+			unsigned test_domain_corner =
+				test_lset_t::node_to_domain_corner(elem_match.get_overlap().get_ind1());
+			unsigned trial_domain_corner =
+				trial_lset_t::node_to_domain_corner(elem_match.get_overlap().get_ind2());
 			return iterator(
 				m_edge_test_quadrature[test_domain_corner].begin(),
 				m_edge_trial_quadrature[trial_domain_corner].begin());
 			break;
 		}
-		case CORNER_MATCH:
+		case 0:
 		{
-			unsigned test_domain_corner = test_lset_t::node_to_domain_corner(elem_match.get_overlap().get_ind1());
-			unsigned trial_domain_corner = trial_lset_t::node_to_domain_corner(elem_match.get_overlap().get_ind2());
+			unsigned test_domain_corner =
+				test_lset_t::node_to_domain_corner(elem_match.get_overlap().get_ind1());
+			unsigned trial_domain_corner =
+				trial_lset_t::node_to_domain_corner(elem_match.get_overlap().get_ind2());
 			return iterator(
 				m_corner_test_quadrature[test_domain_corner].begin(),
 				m_corner_trial_quadrature[trial_domain_corner].begin());
 			break;
 		}
-		case NO_MATCH:
+		case -1:
 			throw std::logic_error("Cannot return singular quadrature for regular type");
 			break;
 		default:
@@ -233,32 +237,36 @@ public:
 	*/
 	iterator end(element_match const &elem_match) const
 	{
-		switch (elem_match.get_singularity_type())
+		switch (elem_match.get_match_dimension())
 		{
-		case FACE_MATCH:
+		case 2:
 			return iterator(
 				m_face_test_quadrature.end(),
 				m_face_trial_quadrature.end());
 			break;
-		case EDGE_MATCH:
+		case 1:
 		{
-			unsigned test_domain_corner = test_lset_t::node_to_domain_corner(elem_match.get_overlap().get_ind1());
-			unsigned trial_domain_corner = trial_lset_t::node_to_domain_corner(elem_match.get_overlap().get_ind2());
+			unsigned test_domain_corner =
+				test_lset_t::node_to_domain_corner(elem_match.get_overlap().get_ind1());
+			unsigned trial_domain_corner =
+				trial_lset_t::node_to_domain_corner(elem_match.get_overlap().get_ind2());
 			return iterator(
 				m_edge_test_quadrature[test_domain_corner].end(),
 				m_edge_trial_quadrature[trial_domain_corner].end());
 			break;
 		}
-		case CORNER_MATCH:
+		case 0:
 		{
-			unsigned test_domain_corner = test_lset_t::node_to_domain_corner(elem_match.get_overlap().get_ind1());
-			unsigned trial_domain_corner = trial_lset_t::node_to_domain_corner(elem_match.get_overlap().get_ind2());
+			unsigned test_domain_corner =
+				test_lset_t::node_to_domain_corner(elem_match.get_overlap().get_ind1());
+			unsigned trial_domain_corner =
+				trial_lset_t::node_to_domain_corner(elem_match.get_overlap().get_ind2());
 			return iterator(
 				m_corner_test_quadrature[test_domain_corner].end(),
 				m_corner_trial_quadrature[trial_domain_corner].end());
 			break;
 		}
-		case NO_MATCH:
+		case -1:
 			throw std::logic_error("Cannot return singular quadrature for NO_MATCH type");
 			break;
 		default:
@@ -274,7 +282,7 @@ private:
 	void generate_face(std::true_type)
 	{
 		// construct facials
-		quad_factory_t::template generate<match::face_match_type>(
+		quad_factory_t::template generate<match::match_2d_type>(
 			m_face_test_quadrature,
 			m_face_trial_quadrature,
 			singular_quadrature_order);
@@ -295,10 +303,10 @@ public:
 		trial_quadrature_t trial_edge_q, trial_corner_q;
 
 		// create test quadrature singular on the first corner
-		quad_factory_t::template generate<match::corner_match_type>(
+		quad_factory_t::template generate<match::match_0d_type>(
 			test_corner_q, trial_corner_q, singular_quadrature_order);
 		// create test quadrature singular on the first edge
-		quad_factory_t::template generate<match::edge_match_type>(
+		quad_factory_t::template generate<match::match_1d_type>(
 			test_edge_q, trial_edge_q, singular_quadrature_order);
 
 		// rotate test quadratures
