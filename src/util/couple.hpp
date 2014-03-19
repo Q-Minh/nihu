@@ -29,6 +29,7 @@
 #include "crtp_base.hpp"
 #include "product_type.hpp"
 #include <tuple>
+#include <iostream>
 
 /** \brief traits class of couple expressions */
 template <class C>
@@ -102,7 +103,7 @@ public:
  * \tparam couple the parent couple type
  * \todo This is a minimal implementation. couple_block should be derived from couple_base
  */
-template <class couple, unsigned rows = 1, unsigned cols = 1>
+template <class couple, unsigned rows, unsigned cols>
 class couple_block
 {
 public:
