@@ -29,6 +29,7 @@
 #include "single_integral.hpp"
 #include "double_integral.hpp"
 
+// forward declaration
 template <class Operator, class TrialSpace>
 class integral_transform;
 
@@ -89,6 +90,7 @@ public:
 	}
 };
 
+/** \brief metafunction returning true if IntOp is an integral operator expression */
 template <class IntOp>
 struct is_integral_operator : std::is_base_of<
 	integral_operator_base<typename std::decay<IntOp>::type>,
@@ -96,6 +98,7 @@ struct is_integral_operator : std::is_base_of<
 >{};
 
 
+// forward declaration
 template <class Scalar, class IntOp>
 class scaled_integral_operator;
 
@@ -123,9 +126,9 @@ struct integral_operator_traits<scaled_integral_operator<Scalar, IntOp> >
 
 
 /** \brief Proxy class representing an integral operator multiplied by a scalar
-* \tparam Scalar the scalar type
-* \tparam IntOp the integral operator's type
-*/
+ * \tparam Scalar the scalar type
+ * \tparam IntOp the integral operator's type
+ */
 template <class Scalar, class IntOp>
 class scaled_integral_operator :
 	public integral_operator_base<scaled_integral_operator<Scalar, IntOp> >
@@ -136,9 +139,9 @@ public:
 
 
 	/** \brief constructor from a scalar and an integral operator instance
-	* \param [in] scalar the scalar instance
-	* \param parent the integral operator to multiply with the scalar
-	*/
+	 * \param [in] scalar the scalar instance
+	 * \param parent the integral operator to multiply with the scalar
+	 */
 	scaled_integral_operator(
 		Scalar &&scalar,
 		IntOp &&parent) :
@@ -148,12 +151,12 @@ public:
 	}
 
 	/** \brief evaluate a scaled integral operator on a test and a trial field
-	* \tparam Test the test field's type
-	* \tparam Trial the trial field's type
-	* \param [in] test the test field
-	* \param [in] trial the trial field
-	* \return the result matrix of the double integral
-	*/
+	 * \tparam Test the test field's type
+	 * \tparam Trial the trial field's type
+	 * \param [in] test the test field
+	 * \param [in] trial the trial field
+	 * \return the result matrix of the double integral
+	 */
 	template <class Test, class Trial, class OnSameMesh>
 	typename base_t::template wr_result_type<Test, Trial>::type
 		derived_eval_on_fields(
@@ -173,12 +176,12 @@ private:
 
 
 /** \brief factory operator to create a scaled integral operator
-* \tparam Scalar the scalar type to multply with
-* \tparam IntOp the integral operator
-* \param [in] scalar the scalar to multiply with
-* \param [in] intop the right hand side integral operator
-* \return a scaled integral operator proxy object
-*/
+ * \tparam Scalar the scalar type to multply with
+ * \tparam IntOp the integral operator
+ * \param [in] scalar the scalar to multiply with
+ * \param [in] intop the right hand side integral operator
+ * \return a scaled integral operator proxy object
+ */
 template <class Scalar, class IntOp>
 scaled_integral_operator<
 	Scalar,
@@ -218,12 +221,12 @@ public:
 	typedef integral_operator_base<identity_integral_operator> base_t;
 
 	/** \brief evaluate an identity operator on a test and a trial field
-	* \tparam Test the test field's type
-	* \tparam Trial the trial field's type
-	* \param [in] test the test field
-	* \param [in] trial the trial field
-	* \return the result matrix of the double integral
-	*/
+	 * \tparam Test the test field's type
+	 * \tparam Trial the trial field's type
+	 * \param [in] test the test field
+	 * \param [in] trial the trial field
+	 * \return the result matrix of the double integral
+	 */
 	template <class Test, class Trial, class OnSameMesh = std::false_type>
 	typename base_t::template wr_result_type<Test, Trial>::type
 		derived_eval_on_fields(
@@ -261,8 +264,8 @@ struct integral_operator_traits<integral_operator<Kernel> >
 
 
 /** \brief the general integral operator with an arbitrary kernel
-* \tparam the Kernel class
-*/
+ * \tparam the Kernel class
+ */
 template <class Kernel>
 class integral_operator :
 	public integral_operator_base<integral_operator<Kernel> >
@@ -274,29 +277,29 @@ public:
 	/** \brief template argument as nested type */
 	typedef typename std::decay<Kernel>::type kernel_t;
 
-	/** \brief constructor from kernel reference
-	* \param [in] kernel reference to the kernel
-	*/
+	/** \brief constructor from kernel
+	 * \param [in] kernel the kernel
+	 */
 	integral_operator(Kernel &&kernel) :
 		m_kernel(std::forward<Kernel>(kernel))
 	{
 	}
 
 	/** \brief return kernel (reference)
-	* \return reference to the kernel
-	*/
+	 * \return reference to the kernel
+	 */
 	Kernel get_kernel(void) const
 	{
 		return m_kernel;
 	}
 
 	/** \brief evaluate an integral operator on a test and a trial field
-	* \tparam Test the test field's type
-	* \tparam Trial the trial field's type
-	* \param [in] test the test field
-	* \param [in] trial the trial field
-	* \return the result matrix of the double integral
-	*/
+	 * \tparam Test the test field's type
+	 * \tparam Trial the trial field's type
+	 * \param [in] test the test field
+	 * \param [in] trial the trial field
+	 * \return the result matrix of the double integral
+	 */
 	template <class Test, class Trial, class OnSameMesh>
 	typename base_t::template wr_result_type<Test, Trial>::type
 		derived_eval_on_fields(
@@ -315,10 +318,10 @@ private:
 
 
 /** \brief factory function of an integral operator
-* \tparam Kernel the kernel type
-* \param [in] kernel the kernel
-* \return the integral operator object
-*/
+ * \tparam Kernel the kernel type
+ * \param [in] kernel the kernel
+ * \return the integral operator object
+ */
 template <class Kernel>
 integral_operator<Kernel>
 	create_integral_operator(Kernel &&kernel)
@@ -328,12 +331,12 @@ integral_operator<Kernel>
 
 
 /** \brief factory function of an integral operator with couple kernels
-* \tparam K1 the kernel type
-* \tparam Kernels the remaining kernels' type
-* \param [in] k1 the first kernel
-* \param [in] kernels the remaining kernels
-* \return the integral operator object
-*/
+ * \tparam K1 the kernel type
+ * \tparam Kernels the remaining kernels' type
+ * \param [in] k1 the first kernel
+ * \param [in] kernels the remaining kernels
+ * \return the integral operator object
+ */
 template <class K1, class...Kernels>
 integral_operator<couple_kernel<K1, Kernels...> >
 	create_integral_operator(K1 &&k1, Kernels &&...kernels)
