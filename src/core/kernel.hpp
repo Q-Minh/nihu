@@ -232,8 +232,8 @@ public:
 	/** \brief type of the kernel's result */
 	typedef typename output_t::result_t result_t;
 	/** \brief the quadrature family the kernel is integrated with
-	\todo static assert here or something more clever
-	*/
+	 * \todo static assert here or something more clever
+	 */
 	typedef typename kernel_traits<
 		typename std::tuple_element<0, std::tuple<Kernels...> >::type
 	>::quadrature_family_t quadrature_family_t;
@@ -241,7 +241,7 @@ public:
 	static bool const is_symmetric = tmp::and_<
 		std::integral_constant<bool, kernel_traits<Kernels>::is_symmetric>...
 	>::value;
-	/** \brief true if any if the kernels is singular */
+	/** \brief true if any of the kernels is singular */
 	static bool const is_singular = tmp::or_<
 		std::integral_constant<bool, kernel_traits<Kernels>::is_singular>...
 	>::value;
