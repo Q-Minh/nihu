@@ -39,7 +39,8 @@ Customising your own NiHu
 -------------------------
 
 1. \subpage tut_custom_element : Introduce a new element/field type
-2. \subpage tut_custom_singular_integrals : Specialise the singular integral for constant triangle
+2. \subpage tut_custom_singular_integrals : Specialise a singular integral for a constant triangle
+3. \subpage tut_custom_kernel : Introduce a new family of PDE into the library
 
 Other
 -----

@@ -117,20 +117,24 @@ public:
 	/** \brief the Laurent coefficients computing class */
 	typedef polar_laurent_coeffs<singular_kernel_ancestor_t> laurent_t;
 
-	typedef typename block_product_result_type<
-		Eigen::Matrix<double, 1, 1>,
+	typedef typename semi_block_product_result_type<
 		typename singular_kernel_ancestor_t::result_t,
 		trial_n_shape_t
 	>::type laurent_coeff_t;
 
-	typedef typename block_product_result_type<
-		Eigen::Matrix<double, 1, 1>,
+	typedef typename semi_block_product_result_type<
 		typename kernel_t::result_t,
 		trial_n_shape_t
 	>::type total_result_t;
 
 	template <class singularity_type>
 	friend class polar_laurent_coeffs;
+	
+	/** \todo compute these parameters from the singular kernel traits */
+	enum {
+		is_hypersingular = true,
+		laurent_order = 2
+	};
 
 	/** \brief constructor
 	 * \param [in] elem the element
@@ -196,28 +200,36 @@ private:
 
 		m_rvec_series[0] = dx.col(shape_derivative_index::dXI) * xi(shape_derivative_index::dXI) + dx.col(shape_derivative_index::dETA) * xi(shape_derivative_index::dETA);
 		m_A = m_rvec_series[0].norm();
-		m_rvec_series[1] = ddx.col(shape_derivative_index::dXIXI) * xi(shape_derivative_index::dXI)*xi(shape_derivative_index::dXI) / 2.0 +
-			ddx.col(shape_derivative_index::dXIETA) * xi(shape_derivative_index::dXI)*xi(1) +
-			ddx.col(shape_derivative_index::dETAETA) * xi(shape_derivative_index::dETA)*xi(shape_derivative_index::dETA) / 2.0;
+		if (laurent_order > 1)
+		{
+			m_rvec_series[1] = ddx.col(shape_derivative_index::dXIXI) * xi(shape_derivative_index::dXI)*xi(shape_derivative_index::dXI) / 2.0 +
+				ddx.col(shape_derivative_index::dXIETA) * xi(shape_derivative_index::dXI)*xi(1) +
+				ddx.col(shape_derivative_index::dETAETA) * xi(shape_derivative_index::dETA)*xi(shape_derivative_index::dETA) / 2.0;
 
-		m_Jvec_series[1] = (
-			xi(shape_derivative_index::dXI) * (ddx.col(shape_derivative_index::dXIXI).cross(dx.col(shape_derivative_index::dETA)) + dx.col(shape_derivative_index::dXI).cross(ddx.col(shape_derivative_index::dXIETA))) +
-			xi(shape_derivative_index::dETA) * (ddx.col(shape_derivative_index::dETAXI).cross(dx.col(shape_derivative_index::dETA)) + dx.col(shape_derivative_index::dXI).cross(ddx.col(shape_derivative_index::dETAETA)))
-			) / m_T.determinant();
+			m_Jvec_series[1] = (
+				xi(shape_derivative_index::dXI) * (ddx.col(shape_derivative_index::dXIXI).cross(dx.col(shape_derivative_index::dETA))
+				+ dx.col(shape_derivative_index::dXI).cross(ddx.col(shape_derivative_index::dXIETA))) +
+				xi(shape_derivative_index::dETA) * (ddx.col(shape_derivative_index::dETAXI).cross(dx.col(shape_derivative_index::dETA))
+				+ dx.col(shape_derivative_index::dXI).cross(ddx.col(shape_derivative_index::dETAETA)))
+				) / m_T.determinant();
 
-		auto dN = trial_nset_t::template eval_shape<1>(m_xi0);
-		m_N_series[1] = dN.col(shape_derivative_index::dXI)*xi(shape_derivative_index::dXI) + dN.col(shape_derivative_index::dETA)*xi(shape_derivative_index::dETA);
+			auto dN = trial_nset_t::template eval_shape<1>(m_xi0);
+			m_N_series[1] = dN.col(shape_derivative_index::dXI)*xi(shape_derivative_index::dXI)
+				+ dN.col(shape_derivative_index::dETA)*xi(shape_derivative_index::dETA);
+		}
 	}
 
 public:
 	/** \brief the entry point of integration
 	 * \tparam result_t the result type where the integral is assembled
 	 * \param [in] xi0 the singular point in intrinsic coordinates
-	 * \param [out] result the result matrix where the data is assembled
+	 * \param [in] normal the normal vector in the singular point
+	 * \param [out] I the result matrix where the data is assembled
 	 */
 	template <class result_t>
 	void integrate(result_t &&I, xi_t const &xi0, x_t const &normal)
 	{
+		// compute the xi0-related quantities
 		compute_xi0(xi0, normal);
 
 		// bind the kernel at the test input
@@ -250,7 +262,11 @@ public:
 				// reference domain's limit
 				scalar_t rho_lim = m_ref_distance[n] / std::cos(theta - m_theta0[n]);
 
-				auto toadd = w_theta * (m_Fcoeffs[0] * std::log(rho_lim) - m_Fcoeffs[1] / rho_lim);
+				auto toadd = m_Fcoeffs[0] * std::log(rho_lim);
+				if (laurent_order > 1)
+					toadd -= m_Fcoeffs[1] / rho_lim;
+				toadd *= w_theta;
+
 				for (int r = 0; r < I.rows(); ++r)	// loop needed for scalar casting
 					for (int c = 0; c < I.cols(); ++c)
 						I(r,c) += toadd(r,c);
@@ -273,11 +289,14 @@ public:
 						bound(trial_input) * (trial_input.get_jacobian() / m_T.determinant() * rho);
 					typename trial_nset_t::shape_t N =
 						trial_nset_t::template eval_shape<0>(xi);
-					total_result_t F = block_product(
-						(Eigen::Matrix<scalar_t, 1, 1>() << 1.).finished(), GJrho, N);
+					total_result_t F = semi_block_product(GJrho, N);
 
 					// subtract the analytical singularity
-					laurent_coeff_t singular_part = (m_Fcoeffs[1] / rho + m_Fcoeffs[0]) / rho;
+					laurent_coeff_t singular_part = m_Fcoeffs[0];
+					if (laurent_order > 1)
+						singular_part += m_Fcoeffs[1] / rho;
+					singular_part /= rho;
+					
 					for (int r = 0; r < F.rows(); ++r)	// loop needed for scalar casting
 						for (int c = 0; c < F.cols(); ++c)
 							F(r,c) -= singular_part(r,c);
@@ -290,7 +309,7 @@ public:
 	}
 
 protected:
-	elem_t const &m_elem;	/**< \brief the element reference */
+	elem_t const &m_elem;		/**< \brief the element reference */
 	kernel_t const &m_kernel;	/**< \brief the kernel reference */
 
 	xi_t m_xi0;				/**< \brief the source local coordinate */
@@ -308,12 +327,13 @@ protected:
 	/** \brief distances to the distorted reference domain */
 	scalar_t m_ref_distance[domain_t::num_corners];
 
-	scalar_t m_A;			        /**< \brief the magnitude of the location derivative */
+	scalar_t m_A;        /**< \brief the magnitude of the location derivative */
 
-	x_t m_rvec_series[2];	        /**< \brief series expansion of the location vector */
-	x_t m_Jvec_series[2];	        /**< \brief series expansion of the Jacobian vector */
-	trial_n_shape_t m_N_series[2];	/**< \brief series expansion of the the shape function vector */
-	laurent_coeff_t m_Fcoeffs[2];	/**< \brief the 1st and 2nd order Laurent coefficient */
+	x_t m_rvec_series[laurent_order];	        /**< \brief series expansion of the location vector */
+	x_t m_Jvec_series[laurent_order];	        /**< \brief series expansion of the Jacobian vector */
+	trial_n_shape_t m_N_series[laurent_order];	/**< \brief series expansion of the the shape function vector */
+	laurent_coeff_t m_Fcoeffs[laurent_order];	/**< \brief the 1st and 2nd order Laurent coefficient */
 };
 
 #endif // GUIGGIANI_1992_HPP_INCLUDED
+
