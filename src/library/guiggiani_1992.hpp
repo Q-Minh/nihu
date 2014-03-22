@@ -17,7 +17,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /** \file guiggiani_1992.hpp
- * \brief Guiggiani's method for hypersingular collocational integrals
+ * \brief Guiggiani's method for CPV and HPF collocational integrals
  */
 
 #ifndef GUIGGIANI_1992_HPP_INCLUDED
@@ -117,22 +117,25 @@ public:
 	/** \brief the Laurent coefficients computing class */
 	typedef polar_laurent_coeffs<singular_kernel_ancestor_t> laurent_t;
 
+	/** \brief value type of the laurent coefficients */
 	typedef typename semi_block_product_result_type<
-		typename singular_kernel_ancestor_t::result_t,
-		trial_n_shape_t
+		typename singular_kernel_ancestor_t::result_t, trial_n_shape_t
 	>::type laurent_coeff_t;
 
+	/** \brief value type of the integral result */
 	typedef typename semi_block_product_result_type<
-		typename kernel_t::result_t,
-		trial_n_shape_t
+		typename kernel_t::result_t, trial_n_shape_t
 	>::type total_result_t;
 
+	/** \brief taking class template polar_laurent_coeffs as a friend */
 	template <class singularity_type>
 	friend class polar_laurent_coeffs;
 	
 	/** \todo compute these parameters from the singular kernel traits */
 	enum {
+		/** \brief indicates if the kernel is hypersingular */
 		is_hypersingular = true,
+		/** \brief the required Laurent expansion order */
 		laurent_order = 2
 	};
 
@@ -193,14 +196,16 @@ private:
 	void compute_theta(scalar_t theta)
 	{
 		// contains cos theta sin theta in xi system
-		xi_t xi = m_Tinv.col(shape_derivative_index::dXI) * std::cos(theta) + m_Tinv.col(shape_derivative_index::dETA) * std::sin(theta);
+		xi_t xi = m_Tinv.col(shape_derivative_index::dXI) * std::cos(theta)
+			+ m_Tinv.col(shape_derivative_index::dETA) * std::sin(theta);
 
 		typename elem_t::dx_return_type dx = m_elem.get_dx(m_xi0);
 		typename elem_t::ddx_return_type ddx = m_elem.get_ddx(m_xi0);
 
-		m_rvec_series[0] = dx.col(shape_derivative_index::dXI) * xi(shape_derivative_index::dXI) + dx.col(shape_derivative_index::dETA) * xi(shape_derivative_index::dETA);
+		m_rvec_series[0] = dx.col(shape_derivative_index::dXI) * xi(shape_derivative_index::dXI)
+			+ dx.col(shape_derivative_index::dETA) * xi(shape_derivative_index::dETA);
 		m_A = m_rvec_series[0].norm();
-		if (laurent_order > 1)
+		if (laurent_order > 1) // compile_time IF
 		{
 			m_rvec_series[1] = ddx.col(shape_derivative_index::dXIXI) * xi(shape_derivative_index::dXI)*xi(shape_derivative_index::dXI) / 2.0 +
 				ddx.col(shape_derivative_index::dXIETA) * xi(shape_derivative_index::dXI)*xi(1) +
@@ -263,7 +268,7 @@ public:
 				scalar_t rho_lim = m_ref_distance[n] / std::cos(theta - m_theta0[n]);
 
 				auto toadd = m_Fcoeffs[0] * std::log(rho_lim);
-				if (laurent_order > 1)
+				if (laurent_order > 1) // compile_time IF
 					toadd -= m_Fcoeffs[1] / rho_lim;
 				toadd *= w_theta;
 
@@ -293,7 +298,7 @@ public:
 
 					// subtract the analytical singularity
 					laurent_coeff_t singular_part = m_Fcoeffs[0];
-					if (laurent_order > 1)
+					if (laurent_order > 1) // compile_time IF
 						singular_part += m_Fcoeffs[1] / rho;
 					singular_part /= rho;
 					
@@ -312,13 +317,13 @@ protected:
 	elem_t const &m_elem;		/**< \brief the element reference */
 	kernel_t const &m_kernel;	/**< \brief the kernel reference */
 
-	xi_t m_xi0;				/**< \brief the source local coordinate */
-	x_t m_x0;				/**< \brief the source point */
-	x_t m_n0;				/**< \brief the unit normal vector at the source point */
+	xi_t m_xi0;		/**< \brief the source local coordinate */
+	x_t m_x0;		/**< \brief the source point */
+	x_t m_n0;		/**< \brief the unit normal vector at the source point */
 
-	trans_t m_T;			/**< \brief transformation to distorted reference domain */
-	trans_t m_Tinv;			/**< \brief inverse of the transformation */
-	xi_t m_eta0;			/**< \brief the source local coordinate in the distorted reference domain */
+	trans_t m_T;	/**< \brief transformation to distorted reference domain */
+	trans_t m_Tinv;	/**< \brief inverse of the transformation */
+	xi_t m_eta0;	/**< \brief the source local coordinate in the distorted reference domain */
 
 	/** \brief angles to the corners of the distorted reference domain */
 	scalar_t m_theta_lim[domain_t::num_corners];
@@ -327,7 +332,7 @@ protected:
 	/** \brief distances to the distorted reference domain */
 	scalar_t m_ref_distance[domain_t::num_corners];
 
-	scalar_t m_A;        /**< \brief the magnitude of the location derivative */
+	scalar_t m_A;        /**< \brief the magnitude of the location derivative (should be 1.0 because of Rong) */
 
 	x_t m_rvec_series[laurent_order];	        /**< \brief series expansion of the location vector */
 	x_t m_Jvec_series[laurent_order];	        /**< \brief series expansion of the Jacobian vector */
