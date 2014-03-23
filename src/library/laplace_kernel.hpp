@@ -128,7 +128,7 @@ struct kernel_traits<laplace_2d_SLP_kernel>
 	/** \brief the far field asymptotic behaviour of the kernel */
 	typedef asymptotic::log<1> far_field_behaviour_t;
 	/** \brief the kernel complexity estimator class
-	 * \todo check this
+	 * \todo introduce a new measure for logarithmic singularites
 	 */
 	typedef interval_estimator<
 		typename reciprocal_distance_kernel_interval<1, GLOBAL_ACCURACY>::type
@@ -246,9 +246,7 @@ struct kernel_traits<laplace_2d_DLP_kernel>
 	static bool const is_singular = true;
 	/** \brief the far field asymptotic behaviour of the kernel */
 	typedef asymptotic::inverse<1> far_field_behaviour_t;
-	/** \brief the kernel complexity estimator class
-	 * \todo introduce regular behaviour description
-	 */
+	/** \brief the kernel complexity estimator class */
 	typedef interval_estimator<
 		typename reciprocal_distance_kernel_interval<1, GLOBAL_ACCURACY>::type
 	> complexity_estimator_t;
@@ -365,9 +363,7 @@ struct kernel_traits<laplace_2d_DLPt_kernel>
 	static bool const is_singular = true;
 	/** \brief the far field asymptotic behaviour of the kernel */
 	typedef asymptotic::inverse<1> far_field_behaviour_t;
-	/** \brief the kernel complexity estimator class
-	 * \todo introduce regular behaviour
-	 */
+	/** \brief the kernel complexity estimator class */
 	typedef interval_estimator<
 		typename reciprocal_distance_kernel_interval<1, GLOBAL_ACCURACY>::type
 	> complexity_estimator_t;
@@ -491,9 +487,7 @@ struct kernel_traits<laplace_2d_HSP_kernel>
 
 	/** \brief the far field asymptotic behaviour of the kernel */
 	typedef asymptotic::inverse<2> far_field_behaviour_t;
-	/** \brief the kernel complexity estimator class
-	 * \todo introduce regular behaviour
-	 */
+	/** \brief the kernel complexity estimator class */
 	typedef interval_estimator<
 		typename reciprocal_distance_kernel_interval<2, GLOBAL_ACCURACY>::type
 	> complexity_estimator_t;
@@ -503,10 +497,8 @@ struct kernel_traits<laplace_2d_HSP_kernel>
 template <>
 struct singular_kernel_traits<laplace_2d_HSP_kernel>
 {
-	/** \brief the singularity type
-	 * \todo check this
-	 */
-	typedef asymptotic::inverse<1> singularity_type_t;
+	/** \brief the singularity type */
+	typedef asymptotic::inverse<2> singularity_type_t;
 	/** \brief quadrature order used to generate blind singular quadratures */
 	static unsigned const singular_quadrature_order = 7;
 };
@@ -727,10 +719,8 @@ struct kernel_traits<laplace_3d_DLP_kernel>
 	static bool const is_singular = true;
 
 	/** \brief the far field asymptotic behaviour of the kernel */
-	typedef asymptotic::log<2> far_field_behaviour_t;
-	/** \brief the kernel complexity estimator class
-	 * \todo introduce regular behaviour
-	 */
+	typedef asymptotic::inverse<2> far_field_behaviour_t;
+	/** \brief the kernel complexity estimator class */
 	typedef interval_estimator<
 		typename reciprocal_distance_kernel_interval<2, GLOBAL_ACCURACY>::type
 	> complexity_estimator_t;
@@ -740,9 +730,7 @@ struct kernel_traits<laplace_3d_DLP_kernel>
 template <>
 struct singular_kernel_traits<laplace_3d_DLP_kernel>
 {
-	/** \brief singularity type
-	 * \todo check this
-	 */
+	/** \brief singularity type */
 	typedef asymptotic::inverse<1> singularity_type_t;
 	/** \brief quadrature order used to generate blind singular quadratures */
 	static unsigned const singular_quadrature_order = 7;
@@ -849,9 +837,7 @@ struct kernel_traits<laplace_3d_DLPt_kernel>
 
 	/** \brief the far field asymptotic behaviour of the kernel */
 	typedef asymptotic::inverse<2> far_field_behaviour_t;
-	/** \brief the kernel complexity estimator class
-	 * \todo introduce regular behaviour
-	 */
+	/** \brief the kernel complexity estimator class */
 	typedef interval_estimator<
 		typename reciprocal_distance_kernel_interval<2, GLOBAL_ACCURACY>::type
 	> complexity_estimator_t;
@@ -861,9 +847,7 @@ struct kernel_traits<laplace_3d_DLPt_kernel>
 template <>
 struct singular_kernel_traits<laplace_3d_DLPt_kernel>
 {
-	/** \brief singularity type
-	* \todo check this
-	*/
+	/** \brief singularity type */
 	typedef asymptotic::inverse<1> singularity_type_t;
 	/** \brief quadrature order used to generate blind singular quadratures */
 	static unsigned const singular_quadrature_order = 7;
@@ -976,9 +960,7 @@ struct kernel_traits<laplace_3d_HSP_kernel>
 
 	/** \brief the far field asymptotic behaviour of the kernel */
 	typedef asymptotic::inverse<3> far_field_behaviour_t;
-	/** \brief the kernel complexity estimator class
-	 * \todo introduce regular behaviour
-	 */
+	/** \brief the kernel complexity estimator class */
 	typedef interval_estimator<
 		typename reciprocal_distance_kernel_interval<3, GLOBAL_ACCURACY>::type
 	> complexity_estimator_t;
@@ -988,9 +970,7 @@ struct kernel_traits<laplace_3d_HSP_kernel>
 template <>
 struct singular_kernel_traits<laplace_3d_HSP_kernel>
 {
-	/** \brief singularity type
-	 * \todo check this
-	 */
+	/** \brief singularity type */
 	typedef asymptotic::inverse<3> singularity_type_t;
 	/** \brief the singularity type when used with Guiggiani's method */
 	typedef laplace_3d_HSP_kernel singular_kernel_ancestor_t;
