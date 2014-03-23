@@ -58,8 +58,7 @@ struct Ukernel
 		auto rvec = y.get_x() - x.get_x();
 		auto r = rvec.norm();
 		auto gradr = rvec.normalized();
-		return ( (3.-4.*nu) * return_type::Identity()
-				 + (gradr * gradr.transpose()) ) / (16.*M_PI*(1.-nu)*r);
+		return ( (3.-4.*nu) * return_type::Identity() + (gradr * gradr.transpose()) ) / (16.*M_PI*(1.-nu)*r);
 	}
 };
 
@@ -157,7 +156,6 @@ public:
 
 #include "guiggiani_1992.hpp"
 
-/** \brief specialisation of class ::polar_laurent_coeffs for the ::elastostatics_3d_U_kernel */
 template <>
 class polar_laurent_coeffs<elastostatics_3d_U_kernel>
 {
@@ -170,7 +168,6 @@ public:
 	}
 };
 
-/** \brief specialisation of class ::polar_laurent_coeffs for the ::elastostatics_3d_T_kernel */
 template <>
 class polar_laurent_coeffs<elastostatics_3d_T_kernel>
 {
