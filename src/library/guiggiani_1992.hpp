@@ -49,7 +49,7 @@ gaussian_quadrature<line_domain> const line_quad_store<order>::quadrature(order)
  * \details The class should implement a static function template eval templated on a guiggiani class
  * and taking a guiggiani object by reference as parameter.
  * The function  template should compute the Laurent coefficients of the singularity in terms of
- * the series expansion of
+ * the Taylor series expansion of
  * - the distance vector
  * - the Jacobian vector
  * - the shape function vector
@@ -117,7 +117,7 @@ public:
 	/** \brief the Laurent coefficients computing class */
 	typedef polar_laurent_coeffs<singular_kernel_ancestor_t> laurent_t;
 
-	/** \brief value type of the laurent coefficients */
+	/** \brief value type of the Laurent coefficients */
 	typedef typename semi_block_product_result_type<
 		typename singular_kernel_ancestor_t::result_t, trial_n_shape_t
 	>::type laurent_coeff_t;
@@ -127,10 +127,6 @@ public:
 		typename kernel_t::result_t, trial_n_shape_t
 	>::type total_result_t;
 
-//	/** \brief taking class template polar_laurent_coeffs as a friend */
-//	template <class singularity_type>
-//	friend class polar_laurent_coeffs;
-	
 	/** \todo compute these parameters from the singular kernel traits */
 	enum {
 		/** \brief indicates if the kernel is hypersingular */
@@ -383,8 +379,6 @@ private:
 	scalar_t m_theta0[domain_t::num_corners];
 	/** \brief distances to the distorted reference domain */
 	scalar_t m_ref_distance[domain_t::num_corners];
-
-//	scalar_t m_A;        /**< \brief the magnitude of the location derivative (should be constant w.r.t theta because of Rong) */
 
 	x_t m_rvec_series[laurent_order];	        /**< \brief series expansion of the location vector */
 	x_t m_Jvec_series[laurent_order];	        /**< \brief series expansion of the Jacobian vector */
