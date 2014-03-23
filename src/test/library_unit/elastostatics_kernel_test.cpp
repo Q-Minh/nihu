@@ -19,24 +19,32 @@
 #include "library/elastostatics_kernel.hpp"
 #include "library/lib_element.hpp"
 
+template <class K, class E1, class E2>
+typename K::result_t tester(K const &k, E1 const &e1, E2 const &e2)
+{
+	// kernel inputs for U kernel
+    typename K::test_input_t test_input(e1, E1::domain_t::get_center());
+    typename K::trial_input_t trial_input(e2, E2::domain_t::get_center());
+    return k(test_input, trial_input);
+}
+
 int main(void)
 {
-    elastostatics_3d_U_kernel U(.33);
-
+	// two elements shifted (regular case)
     quad_1_elem::coords_t coords1, coords2;
     coords1 <<
 		0.0, 1.0, 1.0, 0.0,
 		0.0, 0.0, 1.0, 1.0,
 		0.0, 0.0, 0.0, 0.0;
-    coords2 <<
-		2.0, 3.0, 3.0, 1.0,
-		0.0, 0.0, 1.0, 1.0,
-		0.0, 0.0, 0.0, 0.0;
+    coords2 = coords1;
+    coords2.row(1) += Eigen::Matrix<double, 1, 4>::Constant(2.0);
 
     quad_1_elem elem1(coords1), elem2(coords2);
-
-    elastostatics_3d_U_kernel::test_input_t test_input(elem1, quad_1_elem::xi_t::Zero());
-    elastostatics_3d_U_kernel::trial_input_t trial_input(elem2, quad_1_elem::xi_t::Zero());
-
-    std::cout << U(test_input, trial_input) << std::endl;
+    
+    std::cout << tester(elastostatics_3d_U_kernel(.33), elem1, elem2) << std::endl;
+	std::cout << tester(elastostatics_3d_T_kernel(.33), elem1, elem2) << std::endl;
+    std::cout << tester(create_couple_kernel(elastostatics_3d_U_kernel(.33), elastostatics_3d_T_kernel(.33)), elem1, elem2) << std::endl;
+    
+    return 0;
 }
+

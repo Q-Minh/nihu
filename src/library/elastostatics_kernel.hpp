@@ -58,8 +58,7 @@ struct Ukernel
 		auto rvec = y.get_x() - x.get_x();
 		auto r = rvec.norm();
 		auto gradr = rvec.normalized();
-		return ( (3.-4.*nu) * return_type::Identity()
-				 + (gradr * gradr.transpose()) ) / (16.*M_PI*(1.-nu)*r);
+		return ( (3.-4.*nu) * return_type::Identity() + (gradr * gradr.transpose()) ) / (16.*M_PI*(1.-nu)*r);
 	}
 };
 
@@ -157,7 +156,6 @@ public:
 
 #include "guiggiani_1992.hpp"
 
-/** \brief specialisation of class ::polar_laurent_coeffs for the ::elastostatics_3d_U_kernel */
 template <>
 class polar_laurent_coeffs<elastostatics_3d_U_kernel>
 {
@@ -165,12 +163,11 @@ public:
 	template <class guiggiani>
 	static void eval(guiggiani &obj)
 	{
-		obj.m_Fcoeffs[0].setZero();
-		obj.m_Fcoeffs[1].setZero();
+		obj.template get_laurent_coeff<0>().setZero();
+		obj.template get_laurent_coeff<1>().setZero();
 	}
 };
 
-/** \brief specialisation of class ::polar_laurent_coeffs for the ::elastostatics_3d_T_kernel */
 template <>
 class polar_laurent_coeffs<elastostatics_3d_T_kernel>
 {
@@ -178,15 +175,14 @@ public:
 	template <class guiggiani>
 	static void eval(guiggiani &obj)
 	{
-        auto const &jac0 = obj.m_Jvec_series[0];
-        auto d0vec = obj.m_rvec_series[0].normalized();
-        auto nu = obj.m_kernel.get_data().get_poisson_ratio();
+        auto const &jac0 = obj.template get_Jvec_series<0>();
+        auto d0vec = obj.template get_rvec_series<0>().normalized();
+        auto nu = obj.get_kernel_data().get_poisson_ratio();
 
         Eigen::Matrix<double, 3, 3> res = (d0vec*jac0.transpose()) - (jac0*d0vec.transpose());
-		res *= (1.-2.*nu)/(1.-nu)/obj.m_A/obj.m_A/(8.*M_PI);
+		res *= (1.-2.*nu)/(1.-nu)/(8.*M_PI);
 
-		obj.m_Fcoeffs[0] = semi_block_product(res, obj.m_N_series[0]);
-		obj.m_Fcoeffs[1].setZero();
+		obj.template set_laurent_coeff<0>(semi_block_product(res, obj.template get_N_series<0>()));
 	}
 };
 
