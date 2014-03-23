@@ -366,6 +366,7 @@ public:
 		typename TrialField::nset_t::shape_t
 	>::type result_t;
 
+    /** \todo these constants should be computed from the kernel */
 	enum {
 		kernel_rows = 1,
 		kernel_cols = 1

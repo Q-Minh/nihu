@@ -127,12 +127,10 @@ public:
 		typename kernel_t::result_t, trial_n_shape_t
 	>::type total_result_t;
 
-	/** \todo compute these parameters from the singular kernel traits */
+	/** \todo these compuations are only valid for the 3D case */
 	enum {
-		/** \brief indicates if the kernel is hypersingular */
-		is_hypersingular = true,
 		/** \brief the required Laurent expansion order */
-		laurent_order = 2
+		laurent_order = singular_kernel_traits<kernel_t>::singularity_type_t::value - 1,
 	};
 
 	/** \brief constructor
@@ -300,7 +298,7 @@ public:
 					if (laurent_order > 1) // compile_time IF
 						singular_part += m_Fcoeffs[1] / rho;
 					singular_part /= rho;
-					
+
 					for (int r = 0; r < F.rows(); ++r)	// loop needed for scalar casting
 						for (int c = 0; c < F.cols(); ++c)
 							F(r,c) -= singular_part(r,c);
@@ -311,7 +309,7 @@ public:
 			} // theta loop
 		} // element sides
 	}
-	
+
 	/** \brief return Taylor coefficient of the distance measured from the collocation point */
 	template <unsigned order>
 	x_t const &get_rvec_series(void) const
@@ -335,7 +333,7 @@ public:
 		static_assert(order < laurent_order, "Required shape set Taylor coefficient too high");
 		return m_N_series[order];
 	}
-	
+
 	/** \brief set a Laurent coefficient */
 	template <unsigned order>
 	laurent_coeff_t &get_laurent_coeff(void)
@@ -343,7 +341,7 @@ public:
 		static_assert(order < laurent_order, "Required Laurent coefficient too high");
 		return m_Fcoeffs[order];
 	}
-	
+
 	/** \brief set a Laurent coefficient */
 	template <unsigned order>
 	void set_laurent_coeff(laurent_coeff_t const &v)
@@ -351,10 +349,10 @@ public:
 		static_assert(order < laurent_order, "Required Laurent coefficient too high");
 		m_Fcoeffs[order] = v;
 	}
-	
+
 	/** \brief return the unit normal at the collocation point */
 	x_t const &get_n0(void) const { return m_n0; }
-	
+
 	/** \brief return the kernel data */
 	typename kernel_t::data_t const &get_kernel_data(void) const
 	{
@@ -383,7 +381,7 @@ private:
 	x_t m_rvec_series[laurent_order];	        /**< \brief series expansion of the location vector */
 	x_t m_Jvec_series[laurent_order];	        /**< \brief series expansion of the Jacobian vector */
 	trial_n_shape_t m_N_series[laurent_order];	/**< \brief series expansion of the the shape function vector */
-	laurent_coeff_t m_Fcoeffs[laurent_order];	/**< \brief the 1st and 2nd order Laurent coefficient */
+	laurent_coeff_t m_Fcoeffs[laurent_order];	/**< \brief the Laurent coefficient */
 };
 
 #endif // GUIGGIANI_1992_HPP_INCLUDED

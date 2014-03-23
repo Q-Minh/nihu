@@ -29,19 +29,25 @@
 namespace asymptotic
 {
 	/** \brief no singularity */
-	struct regular {};
+	struct regular { typedef regular type; };
 
 	/** \brief logarithmic singularity with specified order \f$ log(r)^o \f$
 	 * \tparam order the order of the logarithm
 	 */
 	template <unsigned order>
-	struct log {};
+	struct log : std::integral_constant<unsigned, order>
+	{
+        typedef log type;
+	};
 
 	/** \brief inverse singularity with specified order \f$ 1/r^o \f$
 	 * \tparam order the singularity order
 	 */
 	template <unsigned order>
-	struct inverse {};
+	struct inverse : std::integral_constant<unsigned, order>
+	{
+        typedef inverse type;
+	};
 }
 
 /** \brief returns the minimal reference domain dimension where the singularity can be integrated
