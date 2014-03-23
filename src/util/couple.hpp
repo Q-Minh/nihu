@@ -362,9 +362,7 @@ template <class LDerived, class Right>
 class couple_product_right :
 	public couple_base<couple_product_right<LDerived, Right> >
 {
-//protected:
-//NOTE: hacked by ruster 20140320
-public:
+protected:
 	/** \brief left hand side term */
 	LDerived m_left;
 	/** \brief right hand side term */
