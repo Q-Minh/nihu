@@ -157,31 +157,20 @@ public:
 #include "guiggiani_1992.hpp"
 
 template <>
-class polar_laurent_coeffs<elastostatics_3d_U_kernel>
-{
-public:
-	template <class guiggiani>
-	static void eval(guiggiani &obj)
-	{
-		obj.m_Fcoeffs[0].setZero();
-	}
-};
-
-template <>
 class polar_laurent_coeffs<elastostatics_3d_T_kernel>
 {
 public:
 	template <class guiggiani>
 	static void eval(guiggiani &obj)
 	{
-        auto const &jac0 = obj.m_Jvec_series[0];
-        auto d0vec = obj.m_rvec_series[0].normalized();
-        auto nu = obj.m_kernel.get_data().get_poisson_ratio();
+        auto const &jac0 = obj.template get_Jvec_series<0>();
+        auto d0vec = obj.template get_rvec_series<0>().normalized();
+        auto nu = obj.get_kernel_data().get_poisson_ratio();
 
         Eigen::Matrix<double, 3, 3> res = (d0vec*jac0.transpose()) - (jac0*d0vec.transpose());
 		res *= (1.-2.*nu)/(1.-nu)/(8.*M_PI);
 
-		obj.m_Fcoeffs[0] = semi_block_product(res, obj.m_N_series[0]);
+		obj.template set_laurent_coeff<0>(semi_block_product(res, obj.template get_shape_series<0>()));
 	}
 };
 

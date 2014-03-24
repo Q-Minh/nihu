@@ -67,7 +67,7 @@ struct laplace_2d_SLP_brick
 			trial_input_t const &trial_input,
 			kernel_data_t const &kernel_data) :
 			wall(test_input, trial_input, kernel_data),
-			m_laplace_g(-std::log(wall::get_distance()) / (2.0 * M_PI))
+			m_laplace_g(-std::log(wall::get_distance()) / (2. * M_PI))
 		{
 		}
 
@@ -128,7 +128,7 @@ struct kernel_traits<laplace_2d_SLP_kernel>
 	/** \brief the far field asymptotic behaviour of the kernel */
 	typedef asymptotic::log<1> far_field_behaviour_t;
 	/** \brief the kernel complexity estimator class
-	 * \todo check this
+	 * \todo introduce a new measure for logarithmic singularites
 	 */
 	typedef interval_estimator<
 		typename reciprocal_distance_kernel_interval<1, GLOBAL_ACCURACY>::type
@@ -185,7 +185,7 @@ struct laplace_2d_DLP_brick
 			trial_input_t const &trial_input,
 			kernel_data_t const &kernel_data) :
 			wall(test_input, trial_input, kernel_data),
-			m_laplace_h(-wall::get_rdny()/wall::get_distance() / (2.0 * M_PI))
+			m_laplace_h(-wall::get_rdny()/wall::get_distance() / (2. * M_PI))
 		{
 		}
 
@@ -246,9 +246,7 @@ struct kernel_traits<laplace_2d_DLP_kernel>
 	static bool const is_singular = true;
 	/** \brief the far field asymptotic behaviour of the kernel */
 	typedef asymptotic::inverse<1> far_field_behaviour_t;
-	/** \brief the kernel complexity estimator class
-	 * \todo introduce regular behaviour description
-	 */
+	/** \brief the kernel complexity estimator class */
 	typedef interval_estimator<
 		typename reciprocal_distance_kernel_interval<1, GLOBAL_ACCURACY>::type
 	> complexity_estimator_t;
@@ -304,7 +302,7 @@ struct laplace_2d_DLPt_brick
 			trial_input_t const &trial_input,
 			kernel_data_t const &kernel_data) :
 			wall(test_input, trial_input, kernel_data),
-			m_laplace_ht(-wall::get_rdnx()/wall::get_distance() / (2.0 * M_PI))
+			m_laplace_ht(-wall::get_rdnx()/wall::get_distance() / (2. * M_PI))
 		{
 		}
 
@@ -365,9 +363,7 @@ struct kernel_traits<laplace_2d_DLPt_kernel>
 	static bool const is_singular = true;
 	/** \brief the far field asymptotic behaviour of the kernel */
 	typedef asymptotic::inverse<1> far_field_behaviour_t;
-	/** \brief the kernel complexity estimator class
-	 * \todo introduce regular behaviour
-	 */
+	/** \brief the kernel complexity estimator class */
 	typedef interval_estimator<
 		typename reciprocal_distance_kernel_interval<1, GLOBAL_ACCURACY>::type
 	> complexity_estimator_t;
@@ -426,9 +422,9 @@ struct laplace_2d_HSP_brick
 			kernel_data_t const &kernel_data) :
 			wall(test_input, trial_input, kernel_data),
 			m_laplace_hyper(
-				1.0/(2.0 * M_PI)/wall::get_distance()/wall::get_distance() * (
+				1./(2. * M_PI)/wall::get_distance()/wall::get_distance() * (
 					test_input.get_unit_normal().dot(trial_input.get_unit_normal()) +
-					2.0 * wall::get_rdny()*wall::get_rdnx()))
+					2. * wall::get_rdny()*wall::get_rdnx()))
 		{
 		}
 
@@ -491,9 +487,7 @@ struct kernel_traits<laplace_2d_HSP_kernel>
 
 	/** \brief the far field asymptotic behaviour of the kernel */
 	typedef asymptotic::inverse<2> far_field_behaviour_t;
-	/** \brief the kernel complexity estimator class
-	 * \todo introduce regular behaviour
-	 */
+	/** \brief the kernel complexity estimator class */
 	typedef interval_estimator<
 		typename reciprocal_distance_kernel_interval<2, GLOBAL_ACCURACY>::type
 	> complexity_estimator_t;
@@ -503,10 +497,8 @@ struct kernel_traits<laplace_2d_HSP_kernel>
 template <>
 struct singular_kernel_traits<laplace_2d_HSP_kernel>
 {
-	/** \brief the singularity type
-	 * \todo check this
-	 */
-	typedef asymptotic::inverse<1> singularity_type_t;
+	/** \brief the singularity type */
+	typedef asymptotic::inverse<2> singularity_type_t;
 	/** \brief quadrature order used to generate blind singular quadratures */
 	static unsigned const singular_quadrature_order = 7;
 };
@@ -549,7 +541,7 @@ struct laplace_3d_SLP_brick
 			trial_input_t const &trial_input,
 			kernel_data_t const &kernel_data) :
 			wall(test_input, trial_input, kernel_data),
-			m_laplace_g(1.0 / wall::get_distance() / (4.0 * M_PI))
+			m_laplace_g(1. / wall::get_distance() / (4. * M_PI))
 		{
 		}
 
@@ -727,10 +719,8 @@ struct kernel_traits<laplace_3d_DLP_kernel>
 	static bool const is_singular = true;
 
 	/** \brief the far field asymptotic behaviour of the kernel */
-	typedef asymptotic::log<2> far_field_behaviour_t;
-	/** \brief the kernel complexity estimator class
-	 * \todo introduce regular behaviour
-	 */
+	typedef asymptotic::inverse<2> far_field_behaviour_t;
+	/** \brief the kernel complexity estimator class */
 	typedef interval_estimator<
 		typename reciprocal_distance_kernel_interval<2, GLOBAL_ACCURACY>::type
 	> complexity_estimator_t;
@@ -740,9 +730,7 @@ struct kernel_traits<laplace_3d_DLP_kernel>
 template <>
 struct singular_kernel_traits<laplace_3d_DLP_kernel>
 {
-	/** \brief singularity type
-	 * \todo check this
-	 */
+	/** \brief singularity type */
 	typedef asymptotic::inverse<1> singularity_type_t;
 	/** \brief quadrature order used to generate blind singular quadratures */
 	static unsigned const singular_quadrature_order = 7;
@@ -849,9 +837,7 @@ struct kernel_traits<laplace_3d_DLPt_kernel>
 
 	/** \brief the far field asymptotic behaviour of the kernel */
 	typedef asymptotic::inverse<2> far_field_behaviour_t;
-	/** \brief the kernel complexity estimator class
-	 * \todo introduce regular behaviour
-	 */
+	/** \brief the kernel complexity estimator class */
 	typedef interval_estimator<
 		typename reciprocal_distance_kernel_interval<2, GLOBAL_ACCURACY>::type
 	> complexity_estimator_t;
@@ -861,9 +847,7 @@ struct kernel_traits<laplace_3d_DLPt_kernel>
 template <>
 struct singular_kernel_traits<laplace_3d_DLPt_kernel>
 {
-	/** \brief singularity type
-	* \todo check this
-	*/
+	/** \brief singularity type */
 	typedef asymptotic::inverse<1> singularity_type_t;
 	/** \brief quadrature order used to generate blind singular quadratures */
 	static unsigned const singular_quadrature_order = 7;
@@ -911,7 +895,7 @@ struct laplace_3d_HSP_brick
 			m_laplace_hyper(
 				wall::get_laplace_g() / wall::get_distance() / wall::get_distance() * (
 					test_input.get_unit_normal().dot(trial_input.get_unit_normal()) +
-					3.0 * wall::get_rdnx() * wall::get_rdny()
+					3. * wall::get_rdnx() * wall::get_rdny()
 				))
 		{
 		}
@@ -976,9 +960,7 @@ struct kernel_traits<laplace_3d_HSP_kernel>
 
 	/** \brief the far field asymptotic behaviour of the kernel */
 	typedef asymptotic::inverse<3> far_field_behaviour_t;
-	/** \brief the kernel complexity estimator class
-	 * \todo introduce regular behaviour
-	 */
+	/** \brief the kernel complexity estimator class */
 	typedef interval_estimator<
 		typename reciprocal_distance_kernel_interval<3, GLOBAL_ACCURACY>::type
 	> complexity_estimator_t;
@@ -988,9 +970,7 @@ struct kernel_traits<laplace_3d_HSP_kernel>
 template <>
 struct singular_kernel_traits<laplace_3d_HSP_kernel>
 {
-	/** \brief singularity type
-	 * \todo check this
-	 */
+	/** \brief singularity type */
 	typedef asymptotic::inverse<3> singularity_type_t;
 	/** \brief the singularity type when used with Guiggiani's method */
 	typedef laplace_3d_HSP_kernel singular_kernel_ancestor_t;
@@ -1015,20 +995,23 @@ public:
 	template <class guiggiani>
 	static void eval(guiggiani &obj)
 	{
-        auto A2 = obj.m_A * obj.m_A, A3 = A2 * obj.m_A;
-		auto g1vec = obj.m_rvec_series[0] / A2 * (obj.m_rvec_series[1].dot(obj.m_Jvec_series[0]) + obj.m_rvec_series[0].dot(obj.m_Jvec_series[1]));
+		auto g1vec = obj.template get_rvec_series<0>() * (
+			obj.template get_rvec_series<1>().dot(obj.template get_Jvec_series<0>())
+			+ obj.template get_rvec_series<0>().dot(obj.template get_Jvec_series<1>())
+			);
 
-		auto b0vec = -obj.m_Jvec_series[0];
-		auto b1vec = 3.0 * g1vec - obj.m_Jvec_series[1];
+		auto b0vec = -obj.template get_Jvec_series<0>();
+		auto b1vec = 3. * g1vec - obj.template get_Jvec_series<1>();
 
-		auto a0 = b0vec.dot(obj.m_n0) * obj.m_N_series[0];
-		auto a1 = b1vec.dot(obj.m_n0) * obj.m_N_series[0] + b0vec.dot(obj.m_n0) * obj.m_N_series[1];
+		auto a0 = b0vec.dot(obj.get_n0()) * obj.template get_shape_series<0>();
+		auto a1 = b1vec.dot(obj.get_n0()) * obj.template get_shape_series<0>()
+			+ b0vec.dot(obj.get_n0()) * obj.template get_shape_series<1>();
 
-		auto Sm2 = -3.0 * obj.m_rvec_series[0].dot(obj.m_rvec_series[1]) / A2 / A3;
-		auto Sm3 = 1.0 / A3;
+		auto Sm2 = -3. * obj.template get_rvec_series<0>().dot(obj.template get_rvec_series<1>());
+		auto Sm3 = 1.;
 
-		obj.m_Fcoeffs[0] = -(Sm2 * a0 + Sm3 * a1) / (4.0 * M_PI);
-		obj.m_Fcoeffs[1] = -(Sm3 * a0) / (4.0 * M_PI);
+		obj.template set_laurent_coeff<0>(-(Sm2 * a0 + Sm3 * a1) / (4. * M_PI));
+		obj.template set_laurent_coeff<1>(-(Sm3 * a0) / (4. * M_PI));
 	}
 };
 

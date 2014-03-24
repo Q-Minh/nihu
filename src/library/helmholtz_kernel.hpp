@@ -277,15 +277,10 @@ struct kernel_traits<helmholtz_2d_SLP_kernel<wave_number_t> >
 	static bool const is_symmetric = true;
 	/** \brief indicates whether kernel is singular */
 	static bool const is_singular = true;
-	/** \brief kernel singularity type
-	 * \todo update this quantity
-	 */
-
 	/** \brief the far field asymptotic behaviour of the kernel */
 	typedef asymptotic::log<1> far_field_behaviour_t;
-
 	/** \brief the kernel complexity estimator class
-	 * \todo update this quantity
+	 * \todo this is not correct, create a new specialisation for log type singularity
 	 */
 	typedef interval_estimator<
 		typename reciprocal_distance_kernel_interval<1, GLOBAL_ACCURACY>::type
@@ -295,10 +290,11 @@ struct kernel_traits<helmholtz_2d_SLP_kernel<wave_number_t> >
 template <class wave_number_t>
 struct singular_kernel_traits<helmholtz_2d_SLP_kernel<wave_number_t> >
 {
+	/** \brief the kernel's singular order */
 	typedef asymptotic::log<1> singularity_type_t;
 	/** \brief quadrature order used to generate blind singular quadratures
-	* \todo update this quantity
-	*/
+	 * \todo update this quantity
+	 */
 	static unsigned const singular_quadrature_order = 7;
 };
 
@@ -610,11 +606,11 @@ struct kernel_traits<helmholtz_3d_DLP_kernel<wave_number_t> >
 template <class wave_number_t>
 struct singular_kernel_traits<helmholtz_3d_DLP_kernel<wave_number_t> >
 {
-	/** \brief kernel singularity type
-	* \todo check
-	*/
+	/** \brief kernel singularity type */
 	typedef asymptotic::inverse<1> singularity_type_t;
-	/** \brief quadrature order used to generate blind singular quadratures */
+	/** \brief quadrature order used to generate blind singular quadratures
+	 * \todo update this
+	 */
 	static unsigned const singular_quadrature_order = 7;
 };
 
@@ -726,9 +722,7 @@ struct kernel_traits<helmholtz_3d_DLPt_kernel<wave_number_t> >
 	/** \brief indicates whether kernel is singular */
 	static bool const is_singular = true;
 	typedef asymptotic::inverse<2> far_field_behaviour_t;
-	/** \brief the kernel complexity estimator class
-	 * \todo elaborate
-	 */
+	/** \brief the kernel complexity estimator class */
 	typedef interval_estimator<
 		typename reciprocal_distance_kernel_interval<2, GLOBAL_ACCURACY>::type
 	> complexity_estimator_t;
@@ -738,13 +732,10 @@ struct kernel_traits<helmholtz_3d_DLPt_kernel<wave_number_t> >
 template <class wave_number_t>
 struct singular_kernel_traits<helmholtz_3d_DLPt_kernel<wave_number_t> >
 {
-	/** \brief kernel singularity type
-	* \todo check
-	*/
+	/** \brief kernel singularity type */
 	typedef asymptotic::inverse<1> singularity_type_t;
 	/** \brief quadrature order used to generate blind singular quadratures */
 	static unsigned const singular_quadrature_order = 7;
-	/** \brief the far field asymptotic behaviour of the kernel */
 };
 
 
@@ -870,13 +861,11 @@ struct kernel_traits<helmholtz_3d_HSP_kernel<wave_number_t> >
 };
 
 
-/** \brief singular traits of the laplace 3D HSP kernel */
+/** \brief singular traits of the Helmholtz 3D HSP kernel */
 template <class wave_number_t>
 struct singular_kernel_traits<helmholtz_3d_HSP_kernel<wave_number_t> >
 {
-	/** \brief singularity type
-	* \todo check this
-	*/
+	/** \brief singularity type */
 	typedef asymptotic::inverse<3> singularity_type_t;
 	/** \brief the singularity type when used with guiggiani's method */
 	typedef laplace_3d_HSP_kernel singular_kernel_ancestor_t;
