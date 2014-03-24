@@ -1,0 +1,27 @@
+\documentclass{article}
+\usepackage{a4wide}
+\usepackage{amsmath}
+\newcommand{\atanh}{\mathrm{atanh}}
+\newcommand{\td}{\mathrm{d}}
+
+\title{Analytical integrals of the elastostatics kernels}
+
+\begin{document}
+
+\maketitle
+
+\begin{align}
+I &= \lim_{\epsilon\to 0} \int \int_{\epsilon}^{R/\cos(\theta)} U(r,\theta,z) r \td r \td \theta \nonumber \\
+&= \frac{R}{16\pi\mu(1-\nu)}
+\begin{bmatrix}
+\sin\theta + (3-4\nu) q &  &  \text{symm} \\ 
+- \cos\!\left(\theta\right) - 1 &  4 (1-\nu) q - \sin\theta & \\
+0 & 0 & \left(3-4\nu\right)q 
+\end{bmatrix}
+\end{align}
+
+\begin{equation}
+q = 2 \atanh\left(\tan\frac{\theta}{2}\right)
+\end{equation}
+
+\end{document}

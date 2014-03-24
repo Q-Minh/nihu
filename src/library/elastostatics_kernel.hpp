@@ -164,7 +164,6 @@ public:
 	static void eval(guiggiani &obj)
 	{
 		obj.m_Fcoeffs[0].setZero();
-		obj.m_Fcoeffs[1].setZero();
 	}
 };
 
@@ -183,7 +182,6 @@ public:
 		res *= (1.-2.*nu)/(1.-nu)/(8.*M_PI);
 
 		obj.m_Fcoeffs[0] = semi_block_product(res, obj.m_N_series[0]);
-		obj.m_Fcoeffs[1].setZero();
 	}
 };
 
