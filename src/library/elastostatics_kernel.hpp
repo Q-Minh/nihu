@@ -157,18 +157,6 @@ public:
 #include "guiggiani_1992.hpp"
 
 template <>
-class polar_laurent_coeffs<elastostatics_3d_U_kernel>
-{
-public:
-	template <class guiggiani>
-	static void eval(guiggiani &obj)
-	{
-		obj.template get_laurent_coeff<0>().setZero();
-		obj.template get_laurent_coeff<1>().setZero();
-	}
-};
-
-template <>
 class polar_laurent_coeffs<elastostatics_3d_T_kernel>
 {
 public:
@@ -182,7 +170,7 @@ public:
         Eigen::Matrix<double, 3, 3> res = (d0vec*jac0.transpose()) - (jac0*d0vec.transpose());
 		res *= (1.-2.*nu)/(1.-nu)/(8.*M_PI);
 
-		obj.template set_laurent_coeff<0>(semi_block_product(res, obj.template get_N_series<0>()));
+		obj.template set_laurent_coeff<0>(semi_block_product(res, obj.template get_shape_series<0>()));
 	}
 };
 

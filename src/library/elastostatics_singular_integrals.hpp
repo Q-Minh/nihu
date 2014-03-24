@@ -27,44 +27,6 @@
 #include "guiggiani_1992.hpp"
 
 
-/** \brief collocational singular integral of the U kernel
- * \tparam TestField the test field type
- * \tparam TrialField the trial field type
- */
-template <class TestField, class TrialField>
-class singular_integral_shortcut<
-	elastostatics_3d_U_kernel, TestField, TrialField, match::match_2d_type,
-	typename std::enable_if<
-		std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value
-	>::type
->
-{
-public:
-	/** \brief evaluate singular integral
-	 * \tparam result_t the result matrix type
-	 * \param [in, out] result reference to the result
-	 * \param [in] trial_field the trial and test field
-	 */
-	template <class result_t>
-	static result_t &eval(
-		result_t &result,
-		kernel_base<elastostatics_3d_U_kernel> const &kernel,
-		field_base<TestField> const &,
-		field_base<TrialField> const &trial_field,
-		element_match const &)
-	{
-		typedef guiggiani<TrialField, elastostatics_3d_U_kernel, 5, 9> guiggiani_t;
-		auto const &elem = trial_field.get_elem();
-		guiggiani_t gui(elem, kernel.derived());
-
-		auto const &xi0 = TestField::nset_t::corner_at(0);
-		gui.integrate(result, xi0, elem.get_normal(xi0));
-
-		return result;
-	}
-};
-
-
 /** \brief collocational singular integral of the T kernel
  * \tparam TestField the test field type
  * \tparam TrialField the trial field type
