@@ -38,9 +38,6 @@
 #include "../util/collection.hpp"
 #include "../util/math_functions.hpp"
 
-#include "reciprocal_kernel_intervals.hpp"
-#include "interval_estimator.hpp"
-
 #include "laplace_kernel.hpp"
 
 /**
@@ -269,6 +266,8 @@ struct kernel_traits<helmholtz_2d_SLP_kernel<wave_number_t> >
 	typedef collect<wave_number_data<wave_number_t> > data_t;
 	/** \brief the kernel output type */
 	typedef helmholtz_2d_g_wall<space_2d::scalar_t>::type output_t;
+	/** \brief the kernel result's dimension */
+	enum { result_dimension = 1 };
 	/** \brief the quadrature family the kernel is integrated with
 	 * \todo update this quantity
 	 */
@@ -279,12 +278,6 @@ struct kernel_traits<helmholtz_2d_SLP_kernel<wave_number_t> >
 	static bool const is_singular = true;
 	/** \brief the far field asymptotic behaviour of the kernel */
 	typedef asymptotic::log<1> far_field_behaviour_t;
-	/** \brief the kernel complexity estimator class
-	 * \todo this is not correct, create a new specialisation for log type singularity
-	 */
-	typedef interval_estimator<
-		typename reciprocal_distance_kernel_interval<1, GLOBAL_ACCURACY>::type
-	> complexity_estimator_t;
 };
 
 template <class wave_number_t>
@@ -333,6 +326,8 @@ struct kernel_traits<helmholtz_3d_SLP_kernel<wave_number_t> >
 	typedef collect<wave_number_data<wave_number_t> > data_t;
 	/** \brief the kernel output type */
 	typedef helmholtz_3d_g_wall<space_3d::scalar_t>::type output_t;
+	/** \brief the kernel result's dimension */
+	enum { result_dimension = 1 };
 	/** \brief the quadrature family the kernel is integrated with */
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
@@ -341,10 +336,6 @@ struct kernel_traits<helmholtz_3d_SLP_kernel<wave_number_t> >
 	static bool const is_singular = true;
 	/** \brief the far field asymptotic behaviour of the kernel */
 	typedef asymptotic::inverse<1> far_field_behaviour_t;
-	/** \brief the kernel complexity estimator class */
-	typedef interval_estimator<
-		typename reciprocal_distance_kernel_interval<1, GLOBAL_ACCURACY>::type
-	> complexity_estimator_t;
 };
 
 
@@ -524,6 +515,8 @@ struct kernel_traits<helmholtz_2d_DLP_kernel<wave_number_t> >
 	typedef collect<wave_number_data<wave_number_t> > data_t;
 	/** \brief the kernel output type */
 	typedef helmholtz_2d_h_wall<space_2d::scalar_t>::type output_t;
+	/** \brief the kernel result's dimension */
+	enum { result_dimension = 1 };
 	/** \brief the quadrature family the kernel is integrated with */
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
@@ -532,12 +525,6 @@ struct kernel_traits<helmholtz_2d_DLP_kernel<wave_number_t> >
 	static bool const is_singular = true;
 	/** \brief the far field asymptotic behaviour of the kernel */
 	typedef asymptotic::inverse<1> far_field_behaviour_t;
-	/** \brief the kernel complexity estimator class
-	 * \todo update this
-	 */
-	typedef interval_estimator<
-		typename reciprocal_distance_kernel_interval<1, GLOBAL_ACCURACY>::type
-	> complexity_estimator_t;
 };
 
 
@@ -588,6 +575,8 @@ struct kernel_traits<helmholtz_3d_DLP_kernel<wave_number_t> >
 	typedef collect<wave_number_data<wave_number_t> > data_t;
 	/** \brief the kernel output type */
 	typedef helmholtz_3d_h_wall<space_3d::scalar_t>::type output_t;
+	/** \brief the kernel result's dimension */
+	enum { result_dimension = 1 };
 	/** \brief the quadrature family the kernel is integrated with */
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
@@ -596,10 +585,6 @@ struct kernel_traits<helmholtz_3d_DLP_kernel<wave_number_t> >
 	static bool const is_singular = true;
 	/** \brief the far field asymptotic behaviour of the kernel */
 	typedef asymptotic::inverse<2> far_field_behaviour_t;
-	/** \brief the kernel complexity estimator class */
-	typedef interval_estimator<
-		typename reciprocal_distance_kernel_interval<2, GLOBAL_ACCURACY>::type
-	> complexity_estimator_t;
 };
 
 
@@ -715,6 +700,8 @@ struct kernel_traits<helmholtz_3d_DLPt_kernel<wave_number_t> >
 	typedef collect<wave_number_data<wave_number_t> > data_t;
 	/** \brief the kernel output type */
 	typedef helmholtz_3d_ht_wall<space_3d::scalar_t>::type output_t;
+	/** \brief the kernel result's dimension */
+	enum { result_dimension = 1 };
 	/** \brief the quadrature family the kernel is integrated with */
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
@@ -722,10 +709,6 @@ struct kernel_traits<helmholtz_3d_DLPt_kernel<wave_number_t> >
 	/** \brief indicates whether kernel is singular */
 	static bool const is_singular = true;
 	typedef asymptotic::inverse<2> far_field_behaviour_t;
-	/** \brief the kernel complexity estimator class */
-	typedef interval_estimator<
-		typename reciprocal_distance_kernel_interval<2, GLOBAL_ACCURACY>::type
-	> complexity_estimator_t;
 };
 
 
@@ -845,6 +828,8 @@ struct kernel_traits<helmholtz_3d_HSP_kernel<wave_number_t> >
 	typedef collect<wave_number_data<wave_number_t> > data_t;
 	/** \brief the kernel output type */
 	typedef helmholtz_3d_hyper_wall<space_3d::scalar_t>::type output_t;
+	/** \brief the kernel result's dimension */
+	enum { result_dimension = 1 };
 	/** \brief the quadrature family the kernel is integrated with */
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
@@ -854,10 +839,6 @@ struct kernel_traits<helmholtz_3d_HSP_kernel<wave_number_t> >
 
 	/** \brief the far field asymptotic behaviour of the kernel */
 	typedef asymptotic::inverse<3> far_field_behaviour_t;
-	/** \brief the kernel complexity estimator class */
-	typedef interval_estimator<
-		typename reciprocal_distance_kernel_interval<3, GLOBAL_ACCURACY>::type
-	> complexity_estimator_t;
 };
 
 

@@ -31,6 +31,7 @@
 #include "../util/brick.hpp"
 #include "../util/block_product.hpp"
 #include "../library/location_normal.hpp"
+#include "../tmp/control.hpp"
 #include "kernel.hpp"
 #include "complexity_estimator.hpp"
 #include "element_match.hpp"
@@ -242,7 +243,7 @@ protected:
 	{
 		unsigned degree = complexity_estimator<
 			TestField, TrialField,
-			typename kernel_traits<Kernel>::complexity_estimator_t
+			typename Kernel::estimator_t
 		>::eval(test_field, trial_field);
 
 		typedef store<field_type_accelerator_pool<
@@ -368,8 +369,8 @@ public:
 
     /** \todo these constants should be computed from the kernel */
 	enum {
-		kernel_rows = 1,
-		kernel_cols = 1
+		kernel_rows = Kernel::result_dimension,
+		kernel_cols = Kernel::result_dimension
 	};
 
 protected:
@@ -493,7 +494,7 @@ protected:
 	{
 		unsigned degree = complexity_estimator<
 			TestField, TrialField,
-			typename kernel_traits<Kernel>::complexity_estimator_t
+			typename Kernel::estimator_t
 		>::eval(test_field, trial_field);
 
 		if (degree > GLOBAL_MAX_ORDER)

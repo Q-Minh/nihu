@@ -35,8 +35,9 @@ typedef acceleration::hard GLOBAL_ACCELERATION;
  * \todo increase Dunavant order to avoid overindexing
  */
 unsigned const GLOBAL_MAX_ORDER = 14;
+
 /** \brief the global accuracy of integrations */
-unsigned const GLOBAL_ACCURACY = 3;
+enum { GLOBAL_ACCURACY = 3 };
 
 typedef std::ptrdiff_t Index;
 

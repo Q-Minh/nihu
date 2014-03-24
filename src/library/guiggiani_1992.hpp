@@ -137,7 +137,7 @@ public:
 	 * \param [in] elem the element
 	 * \param [in] kernel the kernel
 	 */
-	guiggiani(elem_t const &elem, kernel_t const &kernel)
+	guiggiani(element_base<elem_t> const &elem, kernel_base<kernel_t> const &kernel)
 		: m_elem(elem), m_kernel(kernel)
 	{
 	}
@@ -360,8 +360,8 @@ public:
 	}
 
 private:
-	elem_t const &m_elem;		/**< \brief the element reference */
-	kernel_t const &m_kernel;	/**< \brief the kernel reference */
+	element_base<elem_t> const &m_elem;		/**< \brief the element reference */
+	kernel_base<kernel_t> const &m_kernel;	/**< \brief the kernel reference */
 
 	xi_t m_xi0;		/**< \brief the source local coordinate */
 	x_t m_x0;		/**< \brief the source point */

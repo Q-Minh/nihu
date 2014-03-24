@@ -31,10 +31,8 @@
 #include "../core/kernel.hpp"
 #include "../core/gaussian_quadrature.hpp"
 #include "../util/collection.hpp"
-#include "interval_estimator.hpp"
 #include "location_normal.hpp"
 #include "basic_bricks.hpp"
-#include "reciprocal_kernel_intervals.hpp"
 
 
 /** \brief a brick representing a 2D Laplace kernel \f$ -\log r /2\pi \f$
@@ -119,6 +117,8 @@ struct kernel_traits<laplace_2d_SLP_kernel>
 	typedef collect<empty_data> data_t;
 	/** \brief the kernel output type */
 	typedef laplace_2d_SLP_wall<space_2d::scalar_t>::type output_t;
+	/** \brief the kernel result's dimension */
+	enum { result_dimension = 1 };
 	/** \brief the quadrature family the kernel is integrated with */
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
@@ -127,12 +127,6 @@ struct kernel_traits<laplace_2d_SLP_kernel>
 	static bool const is_singular = true;
 	/** \brief the far field asymptotic behaviour of the kernel */
 	typedef asymptotic::log<1> far_field_behaviour_t;
-	/** \brief the kernel complexity estimator class
-	 * \todo introduce a new measure for logarithmic singularites
-	 */
-	typedef interval_estimator<
-		typename reciprocal_distance_kernel_interval<1, GLOBAL_ACCURACY>::type
-	> complexity_estimator_t;
 };
 
 
@@ -238,6 +232,8 @@ struct kernel_traits<laplace_2d_DLP_kernel>
 	typedef collect<empty_data> data_t;
 	/** \brief the kernel output type */
 	typedef laplace_2d_DLP_wall<space_2d::scalar_t>::type output_t;
+	/** \brief the kernel result's dimension */
+	enum { result_dimension = 1 };
 	/** \brief the quadrature family the kernel is integrated with */
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
@@ -246,10 +242,6 @@ struct kernel_traits<laplace_2d_DLP_kernel>
 	static bool const is_singular = true;
 	/** \brief the far field asymptotic behaviour of the kernel */
 	typedef asymptotic::inverse<1> far_field_behaviour_t;
-	/** \brief the kernel complexity estimator class */
-	typedef interval_estimator<
-		typename reciprocal_distance_kernel_interval<1, GLOBAL_ACCURACY>::type
-	> complexity_estimator_t;
 };
 
 /** \brief singular traits of the Laplace 2D DLP kernel */
@@ -355,6 +347,8 @@ struct kernel_traits<laplace_2d_DLPt_kernel>
 	typedef collect<empty_data> data_t;
 	/** \brief the kernel output type */
 	typedef laplace_2d_DLPt_wall<space_2d::scalar_t>::type output_t;
+	/** \brief the kernel result's dimension */
+	enum { result_dimension = 1 };
 	/** \brief the quadrature family the kernel is integrated with */
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
@@ -363,10 +357,6 @@ struct kernel_traits<laplace_2d_DLPt_kernel>
 	static bool const is_singular = true;
 	/** \brief the far field asymptotic behaviour of the kernel */
 	typedef asymptotic::inverse<1> far_field_behaviour_t;
-	/** \brief the kernel complexity estimator class */
-	typedef interval_estimator<
-		typename reciprocal_distance_kernel_interval<1, GLOBAL_ACCURACY>::type
-	> complexity_estimator_t;
 };
 
 /** \brief singular traits of the Laplace 2D DLPt kernel */
@@ -478,6 +468,8 @@ struct kernel_traits<laplace_2d_HSP_kernel>
 	typedef collect<empty_data> data_t;
 	/** \brief the kernel output type */
 	typedef laplace_2d_HSP_wall<space_2d::scalar_t>::type output_t;
+	/** \brief the kernel result's dimension */
+	enum { result_dimension = 1 };
 	/** \brief the quadrature family the kernel is integrated with */
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
@@ -487,10 +479,6 @@ struct kernel_traits<laplace_2d_HSP_kernel>
 
 	/** \brief the far field asymptotic behaviour of the kernel */
 	typedef asymptotic::inverse<2> far_field_behaviour_t;
-	/** \brief the kernel complexity estimator class */
-	typedef interval_estimator<
-		typename reciprocal_distance_kernel_interval<2, GLOBAL_ACCURACY>::type
-	> complexity_estimator_t;
 };
 
 /** \brief singular traits of the Laplace 2D HSP kernel */
@@ -593,6 +581,8 @@ struct kernel_traits<laplace_3d_SLP_kernel>
 	typedef collect<empty_data> data_t;
 	/** \brief the kernel output type */
 	typedef laplace_3d_SLP_wall<space_3d::scalar_t>::type output_t;
+	/** \brief the kernel result's dimension */
+	enum { result_dimension = 1 };
 	/** \brief the quadrature family the kernel is integrated with */
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
@@ -602,10 +592,6 @@ struct kernel_traits<laplace_3d_SLP_kernel>
 
 	/** \brief the far field asymptotic behaviour of the kernel */
 	typedef asymptotic::inverse<1> far_field_behaviour_t;
-	/** \brief the kernel complexity estimator class */
-	typedef interval_estimator<
-		typename reciprocal_distance_kernel_interval<1, GLOBAL_ACCURACY>::type
-	> complexity_estimator_t;
 };
 
 /** \brief singular traits of the Laplace 3D SLP kernel */
@@ -711,6 +697,8 @@ struct kernel_traits<laplace_3d_DLP_kernel>
 	typedef collect<empty_data> data_t;
 	/** \brief the kernel output type */
 	typedef laplace_3d_DLP_wall<space_3d::scalar_t>::type output_t;
+	/** \brief the kernel result's dimension */
+	enum { result_dimension = 1 };
 	/** \brief the quadrature family the kernel is integrated with */
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
@@ -720,10 +708,6 @@ struct kernel_traits<laplace_3d_DLP_kernel>
 
 	/** \brief the far field asymptotic behaviour of the kernel */
 	typedef asymptotic::inverse<2> far_field_behaviour_t;
-	/** \brief the kernel complexity estimator class */
-	typedef interval_estimator<
-		typename reciprocal_distance_kernel_interval<2, GLOBAL_ACCURACY>::type
-	> complexity_estimator_t;
 };
 
 /** \brief singular traits of the Laplace 3D DLP kernel */
@@ -828,6 +812,8 @@ struct kernel_traits<laplace_3d_DLPt_kernel>
 	typedef collect<empty_data> data_t;
 	/** \brief the kernel output type */
 	typedef laplace_3d_DLPt_wall<space_3d::scalar_t>::type output_t;
+	/** \brief the kernel result's dimension */
+	enum { result_dimension = 1 };
 	/** \brief the quadrature family the kernel is integrated with */
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
@@ -837,10 +823,6 @@ struct kernel_traits<laplace_3d_DLPt_kernel>
 
 	/** \brief the far field asymptotic behaviour of the kernel */
 	typedef asymptotic::inverse<2> far_field_behaviour_t;
-	/** \brief the kernel complexity estimator class */
-	typedef interval_estimator<
-		typename reciprocal_distance_kernel_interval<2, GLOBAL_ACCURACY>::type
-	> complexity_estimator_t;
 };
 
 /** \brief singular traits of the Laplace 3D DLPt kernel */
@@ -951,19 +933,16 @@ struct kernel_traits<laplace_3d_HSP_kernel>
 	typedef collect<empty_data> data_t;
 	/** \brief the kernel output type */
 	typedef laplace_3d_HSP_wall<space_3d::scalar_t>::type output_t;
+	/** \brief the kernel result's dimension */
+	enum { result_dimension = 1 };
 	/** \brief the quadrature family the kernel is integrated with */
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */
 	static bool const is_symmetric = true;
 	/** \brief indicates if kernel is singular */
 	static bool const is_singular = true;
-
 	/** \brief the far field asymptotic behaviour of the kernel */
 	typedef asymptotic::inverse<3> far_field_behaviour_t;
-	/** \brief the kernel complexity estimator class */
-	typedef interval_estimator<
-		typename reciprocal_distance_kernel_interval<3, GLOBAL_ACCURACY>::type
-	> complexity_estimator_t;
 };
 
 /** \brief singular traits of the Laplace 3D HSP kernel */

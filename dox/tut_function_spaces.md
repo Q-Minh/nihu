@@ -94,9 +94,21 @@ dirac_view<function_space_view<mesh<tmp::vector<tria_1_elem, quad_1_elem> >, fie
 ~~~~~~~~~~
 which is cumbersome to read and interpret.
 
+Vector spaces {#tut_funspace_vector}
+=============
+
+A mesh can be extended into a vector function space by passing additional arguments to the view constructors.
+The expression
+~~~~~~~~~~
+auto const &const_fsp = constant_view(my_mesh, _3d());
+~~~~~~~~~~
+creates a function space that interpolates a vector valued quantity over a mesh with piecewise constant interpolation funcions.
+
+
 Defining heterogeneous custom function spaces {#tut_funspace_custom}
 =============================================
 
 Heterogeneous function spaces are a collection of different element types with different field interpolation shape functions.
 NiHu provides a way (function ::create_function_space) to manually define heterogeneous function spaces in a similar manner as defining a mesh.
 Although this option is rarely needed, we refer to the tutorial \ref tut_custom_element for further information.
+

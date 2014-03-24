@@ -31,6 +31,8 @@
 #include "../util/brick.hpp"
 #include "../util/collection.hpp"
 #include "../util/couple.hpp"
+#include "../library/interval_estimator.hpp"
+#include "../library/distance_kernel_intervals.hpp"
 
 class empty_data {};
 
@@ -43,6 +45,17 @@ struct kernel_traits;
 
 template <class Derived>
 struct singular_kernel_traits;
+
+template <class Derived>
+struct kernel_compl_estimator
+{
+	typedef interval_estimator<
+		typename distance_kernel_interval<
+			typename kernel_traits<Derived>::far_field_behaviour_t
+		>::type
+	> type;
+};
+
 
 /**
  * \brief CRTP base class of all BEM kernels
@@ -70,6 +83,8 @@ public:
 	typedef typename traits_t::output_t output_t;
 	/** \brief kernel result type */
 	typedef typename output_t::result_t result_t;
+	/** \brief the kernel result's dimensionality */
+	enum { result_dimension = traits_t::result_dimension };
 
 	/** \brief type of the kernel's domain space */
 	typedef typename test_input_t::space_t space_t;
@@ -89,6 +104,9 @@ public:
 
 	/** \brief the asymptotic (far field) behaviour of the kernel */
 	typedef typename traits_t::far_field_behaviour_t far_field_behaviour_t;
+
+	/** \brief the kernel complexity estimator class */
+	typedef typename kernel_compl_estimator<Derived>::type estimator_t;
 
 	/** \brief constructor initialising the kernel data */
 	kernel_base(data_t const &data = data_t()) :
@@ -231,6 +249,10 @@ public:
 	typedef couple_output<typename kernel_traits<Kernels>::output_t...> output_t;
 	/** \brief type of the kernel's result */
 	typedef typename output_t::result_t result_t;
+	/** \brief the kernel result's dimensionality
+	 * \todo update this, couple does not work with vector kernels with this definition
+	 */
+	enum { result_dimension = 1 };
 	/** \brief the quadrature family the kernel is integrated with
 	 * \todo static assert here or something more clever
 	 */
@@ -249,10 +271,14 @@ public:
 	typedef typename tmp::max_<
 		typename kernel_traits<Kernels>::far_field_behaviour_t...
 	>::type far_field_behaviour_t;
-	/** \brief the kernel complexity estimator class */
+};
+
+template <class...Kernels>
+struct kernel_compl_estimator<couple_kernel<Kernels...> >
+{
 	typedef typename merge_kernel_complexity_estimators<
-		typename kernel_traits<Kernels>::complexity_estimator_t...
-	>::type complexity_estimator_t;
+		typename kernel_compl_estimator<Kernels>::type...
+	>::type type;
 };
 
 /** \brief specialisation of ::singular_kernel_traits for the ::couple_kernel class */

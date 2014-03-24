@@ -10,12 +10,20 @@
 
 \maketitle
 
+The displacement kernel:
+%
+\begin{equation}
+U_{ij}(r) = \frac{(3-4\nu)\delta_{ij} + r,_i r,_j}{16\pi\mu(1-\nu)r}
+\end{equation}
+%
+Integration over a plane triangle with the collocation point at the corner:
+%
 \begin{align}
 I &= \lim_{\epsilon\to 0} \int \int_{\epsilon}^{R/\cos(\theta)} U(r,\theta,z) r \td r \td \theta \nonumber \\
 &= \frac{R}{16\pi\mu(1-\nu)}
 \begin{bmatrix}
 \sin\theta + (3-4\nu) q &  &  \text{symm} \\ 
-- \cos\!\left(\theta\right) - 1 &  4 (1-\nu) q - \sin\theta & \\
+- \left(\cos\!\left(\theta\right) + 1\right) &  4 (1-\nu) q - \sin\theta & \\
 0 & 0 & \left(3-4\nu\right)q 
 \end{bmatrix}
 \end{align}
@@ -24,4 +32,48 @@ I &= \lim_{\epsilon\to 0} \int \int_{\epsilon}^{R/\cos(\theta)} U(r,\theta,z) r 
 q = 2 \atanh\left(\tan\frac{\theta}{2}\right)
 \end{equation}
 
+The traction kernel:
+%
+\begin{equation}
+T_{ij}(r,n) = \frac{-r,_n ((1-2\nu)\delta_{ij} + 3r,_i r,_j) + (1-2\nu) (r,_i n_j - r_,j n_i)}{8\pi(1-\nu)r^2}
+\end{equation}
+%
+on a plane triangle in polar coordinates
+%
+\begin{equation}
+T(r,\theta) = 
+\frac{1-2\nu}{8\pi(1-\nu)} \frac{1}{r^2} \begin{bmatrix}
+0 & 0 & \cos\theta \\
+0 & 0 & \sin\theta \\
+-\cos\theta & -\sin\theta & 0
+\end{bmatrix}
+\end{equation}
+%
+and its integral is
+%
+\begin{align}
+\lim_{\epsilon \to 0}\int \int_{\epsilon}^{R/\cos\theta} T(r,\theta) r \td r \td \theta
+&= 
+\frac{1-2\nu}{8\pi(1-\nu)}
+\lim_{\epsilon\to0}
+\int
+\left( \log \frac{R}{\cos\theta} - \log \epsilon \right) \begin{bmatrix}
+0 & 0 & \cos\theta \\
+0 & 0 & \sin\theta \\
+-\cos\theta & -\sin\theta & 0
+\end{bmatrix}
+\td\theta \nonumber \\
+&= 
+\frac{1-2\nu}{8\pi(1-\nu)}
+\int
+\log \frac{R}{\cos\theta} \begin{bmatrix}
+0 & 0 & \cos\theta \\
+0 & 0 & \sin\theta \\
+-\cos\theta & -\sin\theta & 0
+\end{bmatrix}
+\td\theta \nonumber \\
+\end{align}
+
+
 \end{document}
+

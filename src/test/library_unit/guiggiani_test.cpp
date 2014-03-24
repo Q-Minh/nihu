@@ -42,7 +42,7 @@ struct planar_analytic<laplace_3d_HSP_kernel>
 {
 	template <class elem_t>
 	static typename laplace_3d_HSP_kernel::result_t
-		eval(laplace_3d_HSP_kernel const &kernel, elem_t const &elem, typename elem_t::x_t const &x0)
+		eval(kernel_base<laplace_3d_HSP_kernel> const &kernel, elem_t const &elem, typename elem_t::x_t const &x0)
 	{
 		return laplace_3d_HSP_collocation_constant_plane::eval(elem, x0);
 	}
@@ -53,7 +53,7 @@ template <class Kernel, class Elem, unsigned order>
 struct tester
 {
 	static typename Kernel::result_t
-	eval(Kernel const &kernel, typename Elem::coords_t const &coords, typename Elem::xi_t const &xi0)
+	eval(kernel_base<Kernel> const &kernel, typename Elem::coords_t const &coords, typename Elem::xi_t const &xi0)
 	{
 		Elem elem(coords);
 		guiggiani<

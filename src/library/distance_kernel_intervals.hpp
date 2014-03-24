@@ -17,26 +17,27 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * \file reciprocal_kernel_intervals.hpp
- * \brief quadrature intervals for the 1/r^(order) type kernels
+ * \file distance_kernel_intervals.hpp
+ * \brief quadrature intervals for distance based complexities
  */
 
-#ifndef RECIPROCAL_KERNEL_INTERVALS_HPP_INCLUDED
-#define RECIPROCAL_KERNEL_INTERVALS_HPP_INCLUDED
+#ifndef DISTANCE_KERNEL_INTERVALS_HPP_INCLUDED
+#define DISTANCE_KERNEL_INTERVALS_HPP_INCLUDED
 
 #include "../tmp/interval.hpp"
+#include "../core/global_definitions.hpp"
 
 /** \brief define intervals for reciprocal order and accuracy
  * \tparam Order the reciprocal order
  * \tparam Accuracy -log10(eps) as an integer
  */
-template <unsigned Order, unsigned Accuracy>
-struct reciprocal_distance_kernel_interval;
+template <class asymptotic, unsigned Accuracy = GLOBAL_ACCURACY>
+struct distance_kernel_interval;
 
 
-/** \brief specialisation of ::reciprocal_distance_kernel_interval for 1/r and 1% error */
+/** \brief specialisation of ::distance_kernel_interval for 1/r and 1% error */
 template <>
-struct reciprocal_distance_kernel_interval<1, 2>
+struct distance_kernel_interval<asymptotic::inverse<1>, 2>
 {
 	typedef tmp::vector<
 		break_point<std::ratio<10,10>, tmp::integer<int, 4> >,
@@ -46,9 +47,9 @@ struct reciprocal_distance_kernel_interval<1, 2>
 };
 
 
-/** \brief specialisation of ::reciprocal_distance_kernel_interval for 1/r^2 and 1% error */
+/** \brief specialisation of ::distance_kernel_interval for 1/r^2 and 1% error */
 template <>
-struct reciprocal_distance_kernel_interval<2, 2>
+struct distance_kernel_interval<asymptotic::inverse<2>, 2>
 {
 	typedef tmp::vector<
 		break_point<std::ratio<10,10>, tmp::integer<int, 6> >,
@@ -59,9 +60,9 @@ struct reciprocal_distance_kernel_interval<2, 2>
 };
 
 
-/** \brief specialisation of ::reciprocal_distance_kernel_interval for 1/r^3 and 1% error */
+/** \brief specialisation of ::distance_kernel_interval for 1/r^3 and 1% error */
 template <>
-struct reciprocal_distance_kernel_interval<3, 2>
+struct distance_kernel_interval<asymptotic::inverse<3>, 2>
 {
 	typedef tmp::vector<
 		break_point<std::ratio<10,10>, tmp::integer<int, 8> >,
@@ -72,12 +73,9 @@ struct reciprocal_distance_kernel_interval<3, 2>
 	> type;
 };
 
-
-
-
-/** \brief specialisation of ::reciprocal_distance_kernel_interval for 1/r and .1% error */
+/** \brief specialisation of ::distance_kernel_interval for 1/r and .1% error */
 template <>
-struct reciprocal_distance_kernel_interval<1, 3>
+struct distance_kernel_interval<asymptotic::inverse<1>, 3>
 {
 	typedef tmp::vector<
 		break_point<std::ratio<11,10>, tmp::integer<int, 6> >,
@@ -87,10 +85,9 @@ struct reciprocal_distance_kernel_interval<1, 3>
 	> type;
 };
 
-
-/** \brief specialisation of ::reciprocal_distance_kernel_interval for 1/r^2 and .1% error */
+/** \brief specialisation of ::distance_kernel_interval for 1/r^2 and .1% error */
 template <>
-struct reciprocal_distance_kernel_interval<2, 3>
+struct distance_kernel_interval<asymptotic::inverse<2>, 3>
 {
 	typedef tmp::vector<
 		break_point<std::ratio< 11,10>, tmp::integer<int, 8> >,
@@ -102,9 +99,9 @@ struct reciprocal_distance_kernel_interval<2, 3>
 };
 
 
-/** \brief specialisation of ::reciprocal_distance_kernel_interval for 1/r^3 and .1% error */
+/** \brief specialisation of ::distance_kernel_interval for 1/r^3 and .1% error */
 template <>
-struct reciprocal_distance_kernel_interval<3, 3>
+struct distance_kernel_interval<asymptotic::inverse<3>, 3>
 {
 	typedef tmp::vector<
 		break_point<std::ratio< 10,10>, tmp::integer<int,  9> >, // should be 12
@@ -118,4 +115,12 @@ struct reciprocal_distance_kernel_interval<3, 3>
 };
 
 
-#endif // RECIPROCAL_KERNEL_INTERVALS_HPP_INCLUDED
+/** \brief specialisation of ::distance_kernel_interval for 1/r^3 and .1% error
+ * \todo update this estimator
+ */
+template <unsigned K, unsigned ACC>
+struct distance_kernel_interval<asymptotic::log<K>, ACC> :
+	distance_kernel_interval<asymptotic::inverse<1>, ACC> {};
+
+
+#endif // DISTANCE_KERNEL_INTERVALS_HPP_INCLUDED

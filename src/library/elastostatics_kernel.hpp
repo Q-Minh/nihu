@@ -30,10 +30,8 @@
 #include "../core/kernel.hpp"
 #include "../core/gaussian_quadrature.hpp"
 #include "../util/collection.hpp"
-#include "interval_estimator.hpp"
 #include "location_normal.hpp"
 #include "basic_bricks.hpp"
-#include "reciprocal_kernel_intervals.hpp"
 
 class poisson_ratio_data
 {
@@ -71,13 +69,11 @@ struct kernel_traits<elastostatics_3d_U_kernel>
 	typedef location_input_3d trial_input_t;
 	typedef collect<poisson_ratio_data> data_t;
 	typedef single_brick_wall<Ukernel>::type output_t;
+	enum { result_dimension = 3 };
 	typedef gauss_family_tag quadrature_family_t;
 	static bool const is_symmetric = true;
 	typedef asymptotic::inverse<1> far_field_behaviour_t;
 	static bool const is_singular = true;
-	typedef interval_estimator<
-		typename reciprocal_distance_kernel_interval<1, GLOBAL_ACCURACY>::type
-	> complexity_estimator_t;
 };
 
 template <>
@@ -126,13 +122,11 @@ struct kernel_traits<elastostatics_3d_T_kernel>
 	typedef location_normal_input_3d trial_input_t;
 	typedef collect<poisson_ratio_data> data_t;
 	typedef single_brick_wall<Tkernel>::type output_t;
+	enum { result_dimension = 3 };
 	typedef gauss_family_tag quadrature_family_t;
 	static bool const is_symmetric = false;
 	typedef asymptotic::inverse<2> far_field_behaviour_t;
 	static bool const is_singular = true;
-	typedef interval_estimator<
-		typename reciprocal_distance_kernel_interval<2, GLOBAL_ACCURACY>::type
-	> complexity_estimator_t;
 };
 
 template <>
@@ -153,7 +147,6 @@ public:
 	}
 };
 
-
 #include "guiggiani_1992.hpp"
 
 template <>
@@ -173,7 +166,6 @@ public:
 		obj.template set_laurent_coeff<0>(semi_block_product(res, obj.template get_shape_series<0>()));
 	}
 };
-
 
 #endif // ELASTOSTATICS_KERNEL_HPP_INCLUDED
 
