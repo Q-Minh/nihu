@@ -80,3 +80,4 @@ The introduced concept allows a beneficial application of the toolbox in
 - **education**, where general mathematical aspects need to be emphasized,
 - **research**, where the developer can focus on small scale details, while having his implementation working as a part of a general system;
 - and **engineering practice**, as the implementation is capable of solving problems of industrial size.
+
