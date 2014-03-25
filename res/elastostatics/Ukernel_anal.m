@@ -26,8 +26,6 @@ Iinner = subs(Iinner, rho, R/cos(theta)) - subs(Iinner, rho, eps);
 Iouter = int(Iinner, theta);
 I = simple(limit(Iouter, eps, 0));
 
-% latex(simple(Iouter*16*pi*mu*(1-nu)))
-
 %% check
 q = 2*atanh(tan(theta/2));
 I2 = R * [
