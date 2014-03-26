@@ -112,14 +112,14 @@ public:
 		typename build<normal_jacobian<typename trial_input_t::space_t> >::type
 	>::type w_trial_input_t;
 
-	/** \brief the singular kernel ancestor type */
-	typedef typename singular_kernel_traits<kernel_t>::singular_kernel_ancestor_t singular_kernel_ancestor_t;
+	/** \brief the singular core type */
+	typedef typename singular_kernel_traits<kernel_t>::singular_core_t singular_core_t;
 	/** \brief the Laurent coefficients computing class */
-	typedef polar_laurent_coeffs<singular_kernel_ancestor_t> laurent_t;
+	typedef polar_laurent_coeffs<singular_core_t> laurent_t;
 
 	/** \brief value type of the Laurent coefficients */
 	typedef typename semi_block_product_result_type<
-		typename singular_kernel_ancestor_t::result_t, trial_n_shape_t
+		typename singular_core_t::result_t, trial_n_shape_t
 	>::type laurent_coeff_t;
 
 	/** \brief value type of the integral result */

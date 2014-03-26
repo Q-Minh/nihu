@@ -952,7 +952,7 @@ struct singular_kernel_traits<laplace_3d_HSP_kernel>
 	/** \brief singularity type */
 	typedef asymptotic::inverse<3> singularity_type_t;
 	/** \brief the singularity type when used with Guiggiani's method */
-	typedef laplace_3d_HSP_kernel singular_kernel_ancestor_t;
+	typedef laplace_3d_HSP_kernel singular_core_t;
 	/** \brief quadrature order used to generate blind singular quadratures */
 	static unsigned const singular_quadrature_order = 7;
 };

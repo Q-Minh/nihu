@@ -81,7 +81,7 @@ struct singular_kernel_traits<elastostatics_3d_U_kernel>
 {
 	typedef asymptotic::inverse<1> singularity_type_t;
 	static unsigned const singular_quadrature_order = 7;
-	typedef elastostatics_3d_U_kernel singular_kernel_ancestor_t;
+	typedef elastostatics_3d_U_kernel singular_core_t;
 };
 
 class elastostatics_3d_U_kernel :
@@ -134,7 +134,7 @@ struct singular_kernel_traits<elastostatics_3d_T_kernel>
 {
 	typedef asymptotic::inverse<2> singularity_type_t;
 	static unsigned const singular_quadrature_order = 7;
-	typedef elastostatics_3d_T_kernel singular_kernel_ancestor_t;
+	typedef elastostatics_3d_T_kernel singular_core_t;
 };
 
 class elastostatics_3d_T_kernel :
