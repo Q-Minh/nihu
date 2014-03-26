@@ -987,8 +987,8 @@ public:
 			+ b0vec.dot(obj.get_n0()) * obj.get_shape_series(_1());
 
 		auto Sm2 = -3. * obj.get_rvec_series(_0()).dot(obj.get_rvec_series(_1()));
-
-		obj.set_laurent_coeff(_0(), -(Sm2 * a0 + Sm3 * a1) / (4. * M_PI));
+		
+		obj.set_laurent_coeff(_0(), -(Sm2 * a0 + a1) / (4. * M_PI));
 		obj.set_laurent_coeff(_1(), -a0 / (4. * M_PI));
 	}
 };

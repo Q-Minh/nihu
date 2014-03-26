@@ -156,14 +156,12 @@ public:
 	template <class guiggiani>
 	static void eval(guiggiani &obj)
 	{
-        auto const &jac0 = obj.template get_Jvec_series<0>();
-        auto d0vec = obj.template get_rvec_series<0>().normalized();
+        auto const &j0 = obj.get_Jvec_series(_0());
+        auto const &r0 = obj.get_rvec_series(_0());
         auto nu = obj.get_kernel_data().get_poisson_ratio();
-
-        Eigen::Matrix<double, 3, 3> res = (d0vec*jac0.transpose()) - (jac0*d0vec.transpose());
-		res *= (1.-2.*nu)/(1.-nu)/(8.*M_PI);
-
-		obj.template set_laurent_coeff<0>(semi_block_product(res, obj.template get_shape_series<0>()));
+        auto res = ((r0*j0.transpose())-(j0*r0.transpose())) *
+        	(1.-2.*nu)/(1.-nu)/(8.*M_PI);
+		obj.set_laurent_coeff(_0(), semi_block_product(res, obj.get_shape_series(_0())));
 	}
 };
 
