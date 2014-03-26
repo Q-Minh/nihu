@@ -974,23 +974,22 @@ public:
 	template <class guiggiani>
 	static void eval(guiggiani &obj)
 	{
-		auto g1vec = obj.template get_rvec_series<0>() * (
-			obj.template get_rvec_series<1>().dot(obj.template get_Jvec_series<0>())
-			+ obj.template get_rvec_series<0>().dot(obj.template get_Jvec_series<1>())
+		auto g1vec = obj.get_rvec_series(_0()) * (
+			obj.get_rvec_series(_1()).dot(obj.get_Jvec_series(_0()))
+			+ obj.get_rvec_series(_0()).dot(obj.get_Jvec_series(_1()))
 			);
 
-		auto b0vec = -obj.template get_Jvec_series<0>();
-		auto b1vec = 3. * g1vec - obj.template get_Jvec_series<1>();
+		auto b0vec = -obj.get_Jvec_series(_0());
+		auto b1vec = 3. * g1vec - obj.get_Jvec_series(_1());
 
-		auto a0 = b0vec.dot(obj.get_n0()) * obj.template get_shape_series<0>();
-		auto a1 = b1vec.dot(obj.get_n0()) * obj.template get_shape_series<0>()
-			+ b0vec.dot(obj.get_n0()) * obj.template get_shape_series<1>();
+		auto a0 = b0vec.dot(obj.get_n0()) * obj.get_shape_series(_0());
+		auto a1 = b1vec.dot(obj.get_n0()) * obj.get_shape_series(_0())
+			+ b0vec.dot(obj.get_n0()) * obj.get_shape_series(_1());
 
-		auto Sm2 = -3. * obj.template get_rvec_series<0>().dot(obj.template get_rvec_series<1>());
-		auto Sm3 = 1.;
+		auto Sm2 = -3. * obj.get_rvec_series(_0()).dot(obj.get_rvec_series(_1()));
 
-		obj.template set_laurent_coeff<0>(-(Sm2 * a0 + Sm3 * a1) / (4. * M_PI));
-		obj.template set_laurent_coeff<1>(-(Sm3 * a0) / (4. * M_PI));
+		obj.set_laurent_coeff(_0(), -(Sm2 * a0 + Sm3 * a1) / (4. * M_PI));
+		obj.set_laurent_coeff(_1(), -a0 / (4. * M_PI));
 	}
 };
 

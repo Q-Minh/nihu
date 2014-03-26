@@ -27,12 +27,36 @@
 #include "../tmp/interval.hpp"
 #include "../core/global_definitions.hpp"
 
-/** \brief define intervals for reciprocal order and accuracy
+/** \brief define intervals for distance range and accuracy
  * \tparam Order the reciprocal order
  * \tparam Accuracy -log10(eps) as an integer
  */
 template <class asymptotic, unsigned Accuracy = GLOBAL_ACCURACY>
 struct distance_kernel_interval;
+
+/** \brief specialisation of ::distance_kernel_interval for log r and 1% error */
+template <>
+struct distance_kernel_interval<asymptotic::log<1>, 2>
+{
+	typedef tmp::vector<
+		break_point<std::ratio<13,10>, tmp::integer<int, 4> >,
+		break_point<std::ratio<23,10>, tmp::integer<int, 2> >,
+		break_point<ratio_infinite, tmp::integer<int, 0> >
+	> type;
+};
+
+
+/** \brief specialisation of ::distance_kernel_interval for log r and .1% error */
+template <>
+struct distance_kernel_interval<asymptotic::log<1>, 3>
+{
+	typedef tmp::vector<
+		break_point<std::ratio<12,10>, tmp::integer<int, 8> >,
+		break_point<std::ratio<17,10>, tmp::integer<int, 4> >,
+		break_point<std::ratio<51,10>, tmp::integer<int, 2> >,
+		break_point<ratio_infinite, tmp::integer<int, 0> >
+	> type;
+};
 
 
 /** \brief specialisation of ::distance_kernel_interval for 1/r and 1% error */
@@ -113,14 +137,5 @@ struct distance_kernel_interval<asymptotic::inverse<3>, 3>
 		break_point<ratio_infinite, tmp::integer<int, 0> >
 	> type;
 };
-
-
-/** \brief specialisation of ::distance_kernel_interval for 1/r^3 and .1% error
- * \todo update this estimator
- */
-template <unsigned K, unsigned ACC>
-struct distance_kernel_interval<asymptotic::log<K>, ACC> :
-	distance_kernel_interval<asymptotic::inverse<1>, ACC> {};
-
 
 #endif // DISTANCE_KERNEL_INTERVALS_HPP_INCLUDED

@@ -59,6 +59,10 @@ gaussian_quadrature<line_domain> const line_quad_store<order>::quadrature(order)
 template <class singularity_type>
 class polar_laurent_coeffs;
 
+/** \brief shorthand for constant zero */
+typedef std::integral_constant<unsigned, 0> _0;
+/** \brief shorthand for constant one */
+typedef std::integral_constant<unsigned, 1> _1;
 
 /** \brief Implementation of Guiggiani's method
  * \tparam TrialField the trial field type
@@ -199,7 +203,6 @@ private:
 
 		m_rvec_series[0] = dx.col(shape_derivative_index::dXI) * xi(shape_derivative_index::dXI)
 			+ dx.col(shape_derivative_index::dETA) * xi(shape_derivative_index::dETA);
-//		m_A = m_rvec_series[0].norm();
 		if (laurent_order > 1) // compile_time IF
 		{
 			typename elem_t::ddx_return_type ddx = m_elem.get_ddx(m_xi0);
@@ -311,47 +314,50 @@ public:
 	}
 
 	/** \brief return Taylor coefficient of the distance measured from the collocation point */
-	template <unsigned order>
-	x_t const &get_rvec_series(void) const
+	template <class T, T order>
+	x_t const &get_rvec_series(std::integral_constant<T, order>) const
 	{
 		static_assert(order < laurent_order, "Required distance Taylor coefficient too high");
 		return m_rvec_series[order];
 	}
 
 	/** \brief return Taylor coefficient of the Jacobian vector around the collocation point */
-	template <unsigned order>
-	x_t const &get_Jvec_series(void) const
+	template <class T, T order>
+	x_t const &get_Jvec_series(std::integral_constant<T, order>) const
 	{
 		static_assert(order < laurent_order, "Required Jacobian Taylor coefficient too high");
 		return m_Jvec_series[order];
 	}
 
 	/** \brief return Taylor coefficient of the shape set around the collocation point */
-	template <unsigned order>
-	trial_n_shape_t const &get_shape_series(void) const
+	template <class T, T order>
+	trial_n_shape_t const &get_shape_series(std::integral_constant<T, order>) const
 	{
 		static_assert(order < laurent_order, "Required shape set Taylor coefficient too high");
 		return m_N_series[order];
 	}
 
 	/** \brief set a Laurent coefficient */
-	template <unsigned order>
-	laurent_coeff_t &get_laurent_coeff(void)
+	template <class T, T order>
+	laurent_coeff_t &get_laurent_coeff(std::integral_constant<T, order>)
 	{
 		static_assert(order < laurent_order, "Required Laurent coefficient too high");
 		return m_Fcoeffs[order];
 	}
 
 	/** \brief set a Laurent coefficient */
-	template <unsigned order>
-	void set_laurent_coeff(laurent_coeff_t const &v)
+	template <class T, T order>
+	void set_laurent_coeff(std::integral_constant<T, order>, laurent_coeff_t const &v)
 	{
 		static_assert(order < laurent_order, "Required Laurent coefficient too high");
 		m_Fcoeffs[order] = v;
 	}
 
 	/** \brief return the unit normal at the collocation point */
-	x_t const &get_n0(void) const { return m_n0; }
+	x_t const &get_n0(void) const 
+	{
+		return m_n0;
+	}
 
 	/** \brief return the kernel data */
 	typename kernel_t::data_t const &get_kernel_data(void) const

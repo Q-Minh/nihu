@@ -10,27 +10,38 @@
 
 \maketitle
 
-The displacement kernel:
+\section{The PDE}
+
+\section{The displacement kernel}
+
+The displacement kernel is defined as:
 %
 \begin{equation}
 U_{ij}(r) = \frac{(3-4\nu)\delta_{ij} + r,_i r,_j}{16\pi\mu(1-\nu)r}
 \end{equation}
 %
-Integration over a plane triangle with the collocation point at the corner:
+Integration over a plane triangle is considered using the following local coordinate system:
+The $\zeta$ axis is perpendicular to the element. The $\xi$ and $\eta$ axes are on the element plane, and the the $\xi$ axis is perpendicular to the opposite side, while the $\eta$ axis points towards $x_2-x_1$. Polar coordinates are introduced in the intrinsic domain. The collocation point $x_0$ is at the origin of the system.
+
+With unit weighting function  results in expression:
 %
 \begin{align}
-I &= \lim_{\epsilon\to 0} \int \int_{\epsilon}^{R/\cos(\theta)} U(r,\theta,z) r \td r \td \theta \nonumber \\
-&= \frac{R}{16\pi\mu(1-\nu)}
+I &= \lim_{\epsilon\to 0} \int \int_{\epsilon}^{\hat{\rho}/\cos(\theta)} U(\rho,\theta) \rho \td \rho \td \theta \nonumber \\
+&= \frac{\hat{\rho}}{16\pi\mu(1-\nu)}
 \begin{bmatrix}
 \sin\theta + (3-4\nu) q &  &  \text{symm} \\ 
 - \left(\cos\!\left(\theta\right) + 1\right) &  4 (1-\nu) q - \sin\theta & \\
 0 & 0 & \left(3-4\nu\right)q 
 \end{bmatrix}
 \end{align}
-
+%
+where
+%
 \begin{equation}
 q = 2 \atanh\left(\tan\frac{\theta}{2}\right)
 \end{equation}
+
+\section{The displacement kernel}
 
 The traction kernel:
 %
@@ -38,11 +49,11 @@ The traction kernel:
 T_{ij}(r,n) = \frac{-r,_n ((1-2\nu)\delta_{ij} + 3r,_i r,_j) + (1-2\nu) (r,_i n_j - r_,j n_i)}{8\pi(1-\nu)r^2}
 \end{equation}
 %
-on a plane triangle in polar coordinates
+In local coordinates on a plane triangle:
 %
 \begin{equation}
-T(r,\theta) = 
-\frac{1-2\nu}{8\pi(1-\nu)} \frac{1}{r^2} \begin{bmatrix}
+T(\rho,\theta) = 
+\frac{1-2\nu}{8\pi(1-\nu)} \frac{1}{\rho^2} \begin{bmatrix}
 0 & 0 & \cos\theta \\
 0 & 0 & \sin\theta \\
 -\cos\theta & -\sin\theta & 0
@@ -52,12 +63,12 @@ T(r,\theta) =
 and its integral is
 %
 \begin{align}
-\lim_{\epsilon \to 0}\int \int_{\epsilon}^{R/\cos\theta} T(r,\theta) r \td r \td \theta
+\lim_{\epsilon \to 0}\int \int_{\epsilon}^{\hat{\rho}/\cos\theta} T(\rho,\theta) \rho \td \rho \td \theta
 &= 
 \frac{1-2\nu}{8\pi(1-\nu)}
 \lim_{\epsilon\to0}
 \int
-\left( \log \frac{R}{\cos\theta} - \log \epsilon \right) \begin{bmatrix}
+\left( \log \frac{\hat{\rho}}{\cos\theta} - \log \epsilon \right) \begin{bmatrix}
 0 & 0 & \cos\theta \\
 0 & 0 & \sin\theta \\
 -\cos\theta & -\sin\theta & 0
@@ -66,14 +77,29 @@ and its integral is
 &= 
 \frac{1-2\nu}{8\pi(1-\nu)}
 \int
-\log \frac{R}{\cos\theta} \begin{bmatrix}
+\log \frac{\hat{\rho}}{\cos\theta} \begin{bmatrix}
 0 & 0 & \cos\theta \\
 0 & 0 & \sin\theta \\
 -\cos\theta & -\sin\theta & 0
 \end{bmatrix}
 \td\theta \nonumber \\
+&= 
+\frac{1-2\nu}{8\pi(1-\nu)}
+\begin{bmatrix}
+0 & 0 & a \\
+0 & 0 & b \\
+-a & -b & 0
+\end{bmatrix}
 \end{align}
-
+%
+where
+%
+\begin{align}
+a &= \int \log \frac{\hat{\rho}}{\cos\theta} \cos\theta \td \theta
+= \sin\theta \left(  \log \frac{\hat{\rho}}{\cos\theta} + 1\right) + \log \frac{\cos\frac{\theta}{2}-\sin\frac{\theta}{2}}{\cos\frac{\theta}{2}+\sin\frac{\theta}{2}}\\
+b &= \int \log \frac{\hat{\rho}}{\cos\theta} \sin\theta \td \theta
+=  -\cos\theta \left(  \log \frac{\hat{\rho}}{\cos\theta} + 1\right)
+\end{align}
 
 \end{document}
 
