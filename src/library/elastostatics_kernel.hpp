@@ -158,10 +158,11 @@ public:
 	{
         auto const &j0 = obj.get_Jvec_series(_0());
         auto const &r0 = obj.get_rvec_series(_0());
+        auto const &N0 = obj.get_shape_series(_0());
         auto nu = obj.get_kernel_data().get_poisson_ratio();
-        auto res = ((r0*j0.transpose())-(j0*r0.transpose())) *
+        Eigen::Matrix<double, 3, 3> res = ((r0*j0.transpose())-(j0*r0.transpose())) *
         	(1.-2.*nu)/(1.-nu)/(8.*M_PI);
-		obj.set_laurent_coeff(_0(), semi_block_product(res, obj.get_shape_series(_0())));
+		obj.set_laurent_coeff(_0(), semi_block_product(res, N0));
 	}
 };
 

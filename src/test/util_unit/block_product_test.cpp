@@ -24,6 +24,7 @@ int main(void)
 	// testing a real block product
 	Eigen::Matrix<double, 3, 3> m;
 	m.setConstant(2.0);
+	Eigen::Matrix<double, 1, 1> v;
 
 	std::cout << "block product:\n"
 		<< block_product(Eigen::Matrix<double, 2, 1>::Constant(1.0),
@@ -32,6 +33,9 @@ int main(void)
 
 	std::cout << "semi block product:\n"
 		<< semi_block_product(m, Eigen::Matrix<double, 2, 1>::Constant(3.0)) << std::endl;
+
+	std::cout << "semi block product:\n"
+		<< semi_block_product(m, v) << std::endl;
 
 	// testing a pseudo block product
 	std::cout << "block product:\n"

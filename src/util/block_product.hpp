@@ -93,7 +93,6 @@ namespace internal
 	template <class mat, class right>
 	class semi_block_product_impl;
 
-	/** \brief specialisation of block_product for two Eigen vectors and something general */
 	template <class mat, class right>
 	class semi_block_product_impl
 	{
@@ -126,7 +125,7 @@ namespace internal
 			Eigen::MatrixBase<right> const &v2)
 		{
 			result_type result;
-			for (Index col = 0; col < N3; ++col)
+			for (int col = 0; col < N3; ++col)
 				result.template block<N2, N2>(0, col*N2) = m * v2(col);
 			return result;
 		}
