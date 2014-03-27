@@ -23,8 +23,8 @@
 #include "../core/kernel.hpp"
 #include "../core/gaussian_quadrature.hpp"
 #include "../util/collection.hpp"
-#include "location_normal.hpp"
-#include "basic_bricks.hpp"
+#include "../library/location_normal.hpp"
+#include "../library/basic_bricks.hpp"
 
 
 //![parameter]
@@ -156,7 +156,7 @@ public:
 //![tkernel]
 
 
-#include "guiggiani_1992.hpp"
+#include "../library/guiggiani_1992.hpp"
 
 template <>
 class polar_laurent_coeffs<elastostatics_3d_T_kernel>
