@@ -22,12 +22,25 @@
 #include "../core/element.hpp"
 #include "lib_shape.hpp"
 
+/** \brief A linear (2-noded) line element in 2D space */
 typedef general_surface_element<line_1_shape_set, space_2d::scalar_t> line_1_elem;
+
+/** \brief A quadratic (3-noded) line element in 2D space */
 typedef general_surface_element<line_2_shape_set, space_2d::scalar_t> line_2_elem;
+
+/** \brief A linear (3-noded) triangular element in 3D space */
 typedef general_surface_element<tria_1_shape_set, space_3d::scalar_t> tria_1_elem;
+
+/** \brief A quadratic (6-noded) triangular element in 3D space */
 typedef general_surface_element<tria_2_shape_set, space_3d::scalar_t> tria_2_elem;
+
+/** \brief A linear (4-noded) quadrangular element in 3D space */
 typedef general_surface_element<quad_1_shape_set, space_3d::scalar_t> quad_1_elem;
+
+/** \brief A quadratic (9-noded) quadrangular element in 3D space */
 typedef general_surface_element<quad_2_shape_set, space_3d::scalar_t> quad_2_elem;
+
+/** \brief A quadratic (8-noded) quadrangular element in 3D space */
 typedef general_surface_element<quad_28_shape_set, space_3d::scalar_t> quad_28_elem;
 
 struct line_1_tag {};

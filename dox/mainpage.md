@@ -1,7 +1,7 @@
-NiHu 1.0 {#mainpage}
+NiHu 1.1 {#mainpage}
 ========
 
-[whatsnew11]:\ref news_whatsnew_11
+[whatsnew11]: \ref news_whatsnew_11 "What's new in release 1.1"
 
 [TOC]
 
@@ -12,7 +12,7 @@ News {#main_news}
 	- **Support for vector PDE**
 	- **Support for quiclkly incorporating new fundamental solutions**
 	- **A generic approach for the accurate evaluation of strongly and hypersingular integrals**
-	- For a detailed description of new features visit the [whatsnew11] page
+	- For a detailed description of new features visit the \subpage news_whatsnew_11 page
 
 - **Nightly builds** are available from 2013.09.27 built daily at 1 a.m. CET.
 

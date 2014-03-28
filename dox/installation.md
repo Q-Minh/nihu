@@ -23,7 +23,7 @@ Obtaining the source code {#install_obtain}
 The source code of NiHu can be downloaded using the version control software [git].
 You can obtain the latest stable version of the software by typing the command
 
-	git clone -b release_1.0 git://last.hit.bme.hu/toolbox/nihu.git
+	git clone -b release_1.1 git://last.hit.bme.hu/toolbox/nihu.git
 
 into the command line.
 There is a nightly build available for NiHu, which contains regular updates, however testing of the most recent features may not be complete.
@@ -45,7 +45,7 @@ In order to complie NiHu, the following prerequisites are needed:
 - A c++ compiler and linker that supports some features of the C++11 standard. You will find further information on the compiler selection in the [next section](#install_process).
 \note NiHu builds were tested using the gcc compiler versions 4.7 and 4.8 and the [clang](http://clang.llvm.org/) compiler.
 - NiHu relies on the template matrix library [Eigen]. If you do not have Eigen installed on your computer, the installation process will download and install the necessary header files for the compilation of NiHu.
-\note current version of NiHu was tested using Eigen 3.1.2.
+\note current version of NiHu was tested using Eigen 3.2.0.
 
 In order to use the Matlab interface and compile [mex] files the following prerequisites are needed:
 
