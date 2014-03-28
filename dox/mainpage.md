@@ -10,7 +10,7 @@ News {#main_news}
 
 - **NiHu 1.1 is released** on 2014.03.28.
 	- **Support for vector PDE**
-	- **Support for quiclkly incorporating new fundamental solutions**
+	- **Support for the easy incorporation of fundamental solutions**
 	- **A generic approach for the accurate evaluation of strongly and hypersingular integrals**
 	- For a detailed description of new features visit the \subpage news_whatsnew_11 page
 

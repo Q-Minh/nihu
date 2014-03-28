@@ -67,8 +67,20 @@ The next example builds a circle from line elements in 2D:
 
 \snippet mesh_building.mex.cpp 2D Circle
 
-Reading a mesh from an `OFF` file {#tut_mesh_offfile}
+Working with other matrix formats {#tut_mesh_othermatrix}
 ---------------------------------
+
+The ::create_mesh function is a template that can be called with any indexable matrix types.
+The only requirement against the matrix types is that they should be indexable with integers, using a `(row,col)`-type syntax.
+
+This feature, together with the ::mex::real_matrix class, makes easy Matlab [MEX] integration possible.
+
+\snippet mesh_building.mex.cpp Matlab example
+
+\note For more information on the Matlab MEX interface and on the arguments of the [mexFunction], refer to the Matlab [MEX] site.
+
+Reading a mesh from an `OFF` file {#tut_mesh_offfile}
+=================================
 
 `NiHu` can import meshes stored in [OFF].
 This can easily be done using the ::read_off_mesh function.
@@ -81,16 +93,4 @@ auto msh = read_off_mesh("a_mesh_file.off", tria_1_tag(), quad_1_tag())
 The element types to be read from the file are listed by passing the ::read_off_mesh function instances of the corresponding tags.
 
 \note Only ::tria_1_tag and quad_1_tag are currently supported by the ::read_off_mesh function.
-
-Working with other matrix formats {#tut_mesh_othermatrix}
----------------------------------
-
-The ::create_mesh function is a template that can be called with any indexable matrix types.
-The only requirement against the matrix types is that they should be indexable with integers, using a `(row,col)`-type syntax.
-
-This feature, together with the ::mex::real_matrix class, makes easy Matlab [MEX] integration possible.
-
-\snippet mesh_building.mex.cpp Matlab example
-
-\note For more information on the Matlab MEX interface and on the arguments of the [mexFunction], refer to the Matlab [MEX] site.
 
