@@ -56,18 +56,23 @@ struct tag2field;
 
 namespace field_traits
 {
+    /** \brief assigns the element type to the field */
 	template <class Derived>
 	struct elem_type;
 
+    /** \brief assigns the N-set type to the field */
 	template <class Derived>
 	struct nset_type;
 
+    /** \brief assigns the dimensionality of the interpolated physical quantity */
 	template <class Derived>
 	struct quantity_dimension;
-	
+
+    /** \brief indicate if the field stores its DOF vector or computes it on the fly */
 	template <class Derived>
 	struct is_dof_vector_stored : std::false_type {};
 
+    /** \brief indicate if the field is a Dirac field or not */
 	template <class Derived>
 	struct is_dirac : std::false_type {};
 
@@ -81,6 +86,7 @@ namespace field_traits
 		};
 	};
 
+    /** \brief assign the DOF vector value type to the field type */
 	template <class Derived>
 	struct dof_vector_type
 	{
@@ -91,6 +97,7 @@ namespace field_traits
 		> type;
 	};
 
+    /** \brief assign the DOF vector return type to the field type */
 	template <class Derived>
 	struct dof_vector_return_type : std::conditional<
 		is_dof_vector_stored<Derived>::value,
@@ -121,7 +128,7 @@ public:
 	typedef typename field_traits::dof_vector_type<Derived>::type dofs_t;
 	/** \brief the dofs vector return type */
 	typedef typename field_traits::dof_vector_return_type<Derived>::type dofs_return_t;
-	
+
 	enum {
 		/** \brief the number of dofs */
 		num_dofs = nset_t::num_nodes,
@@ -202,21 +209,25 @@ class field_view;
 
 namespace field_traits
 {
+    /** \brief assign an element type to a field view */
 	template <class ElemType, class FieldOption, class Dimension>
 	struct elem_type<field_view<ElemType, FieldOption, Dimension> > : ElemType {};
 
+    /** \brief assign an N-set type to a field view */
 	template <class ElemType, class Dimension>
 	struct nset_type<field_view<ElemType, field_option::isoparametric, Dimension> >
 	{
 		typedef  typename ElemType::lset_t type;
 	};
 
+    /** \brief assign an N-set type to a constant field view */
 	template <class ElemType, class Dimension>
 	struct nset_type<field_view<ElemType, field_option::constant, Dimension> >
 	{
 		typedef constant_shape_set<typename ElemType::domain_t> type;
 	};
 
+    /** \brief assign the dimension of the interpolated quantity to a field view */
 	template <class ElemType, class FieldOption, class Dimension>
 	struct quantity_dimension<field_view<ElemType, FieldOption, Dimension> > : Dimension {};
 }
@@ -321,15 +332,18 @@ class field;
 
 namespace field_traits
 {
+    /** \brief assign an element type to a field */
 	template <class ElemType, class NSet, class Dimension>
 	struct elem_type<field<ElemType, NSet, Dimension> > : ElemType {};
 
+    /** \brief assign an N-set type to a field */
 	template <class ElemType, class NSet, class Dimension>
 	struct nset_type<field<ElemType, NSet, Dimension> >
 	{
 		typedef NSet type;
 	};
 
+    /** \brief assign the dimension of the interpolated quantity to a field */
 	template <class ElemType, class NSet, class Dimension>
 	struct quantity_dimension<field<ElemType, NSet, Dimension> > : Dimension {};
 }
@@ -344,6 +358,7 @@ template <class ElemType, class NSet, class Dimension>
 class field_impl<field<ElemType, NSet, Dimension> >
 {
 public:
+    /** \brief the derived field type */
 	typedef field<ElemType, NSet, Dimension> Derived;
 	/** \brief the element type */
 	typedef ElemType elem_t;

@@ -1,20 +1,24 @@
 // This file is a part of NiHu, a C++ BEM template library.
-// 
+//
 // Copyright (C) 2012-2014  Peter Fiala <fiala@hit.bme.hu>
 // Copyright (C) 2012-2014  Peter Rucz <rucz@hit.bme.hu>
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+/**\file conditional_precompute.hpp
+ * \brief Implementation of conditionally precomputed and stored quantities
+ */
 
 #ifndef CONDITIONAL_PRECOMPUTE_HPP_INCLUDED
 #define CONDITIONAL_PRECOMPUTE_HPP_INCLUDED
@@ -22,14 +26,14 @@
 #include "core/global_definitions.hpp"
 #include <type_traits>
 
-/** \brief definition of complexity tags of matrix functions */
+/** \brief definition of complexity tags of functions returning matrices */
 namespace matrix_function_complexity
 {
-	/** \brief the matrix is a zero expression */
+	/** \brief the returned matrix is a zero expression */
 	struct zero { typedef zero type; };
-	/** \brief the matrix is constant and can be stored */
+	/** \brief the returned matrix is constant and can be stored */
 	struct constant { typedef constant type; };
-	/** \brief the matrix should be computed on the fly */
+	/** \brief the returned matrix should be computed on the fly */
 	struct general { typedef general type; };
 }
 
@@ -94,7 +98,7 @@ public:
 	typedef decltype(functor_ret_type::Zero()) return_type;
 
 	/** \brief return object computed by the function class */
-	static return_type eval(Args const &...args)
+	static constexpr return_type eval(Args const &...args)
 	{
 		return functor_ret_type::Zero();
 	}
@@ -123,10 +127,6 @@ public:
 		return Func::eval(args...);
 	}
 };
-
-#define ALLOW_PRECOMPUTE
-
-#ifdef ALLOW_PRECOMPUTE
 
 
 template <class Func, class...Args>
@@ -176,13 +176,11 @@ public:
 
 	/** \brief return object computed by the function class */
 	template <class...EvalArgs>
-	return_type operator()(EvalArgs const &...) const
+	return_type constexpr operator()(EvalArgs const &...) const
 	{
 		return functor_ret_type::Zero();
 	}
 };
-
-#endif
 
 #endif // CONDITIONAL_PRECOMPUTE_HPP_INCLUDED
 
