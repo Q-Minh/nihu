@@ -10,9 +10,9 @@ Introducing a new family of PDE into the NiHu framework {#tut_custom_kernel}
 Introduction {#tut_custom_kernel_intro}
 ============
 
-The purpose of this tutorial is to demonstrate how a new family of partial differential equations (PDE) can be introuced into the NiHu framework.
-In a boundary element context, the introduction of a new PDE is equaivalent to the implementation of its fundamental solutions.
-The demonstrative example is linear isotropic elasticity.
+The purpose of this tutorial is to demonstrate how a new family of partial differential equations (PDE) can be introduced into the NiHu framework.
+In a boundary element context, the introduction of a new PDE is equivalent to the implementation of its fundamental solutions.
+The demonstrative example is linear isotropic elastostatics.
 
 Theory {#tut_custom_kernel_theory}
 ======
@@ -23,6 +23,8 @@ PDE {#tut_custom_kernel_pde}
 3D linear isotropic elasticity is governed by the PDE
 
 \f$
+\displaystyle
+\sigma_{ij,j} = \delta_{ij} u_{k,ki} + \mu \left( u_{i,jj} + u_{j,ij} \right) \\
 \displaystyle
 \mu u_{i,jj}(x) + \left(\mu + \lambda\right) u_{j,ij}(x) = 0, \quad x \in \Omega \subset \mathbb{R}^{3}
 \f$
@@ -40,10 +42,10 @@ where \f$ u_i(x) \f$ denotes the displacement vector field, \f$ t_i(x) \f$ denot
 BIE {#tut_custom_kernel_bie}
 ---
 
-The equaivalent boundary integral representation of the PDE is
+The equivalent boundary integral representation of the PDE is
 
 \f$ \displaystyle
-\int_{\Gamma} t^*_{ij}(x,y) u_j(y) \mathrm{d} y - \int_{\Gamma} u^*_{ij}(x,y) t_{j}(y) \mathrm{d} y = c(x) u_i(x)
+\int_{\Gamma} t^*_{ij}(x,y) u_j(y) \mathrm{d} y - \int_{\Gamma} u^*_{ij}(x,y) t_{j}(y) \mathrm{d} y = u_i(x)
 \f$
 
 where the displacement and traction fundamental solutions are
@@ -84,7 +86,7 @@ First the kernel parameter class is defined that encapsulates a simple `double` 
 The kernel functor {#tut_custom_kernel_ukernelfunctor}
 ------------------
 
-As the next step, a function object (functor) is defined that returns the value of the displacement fundamental solution.
+As the next step, a function object (functor) named `Ukernel` is defined that returns the value of the displacement fundamental solution.
 
 \snippet custom_kernel.mex.cpp ufunctor
 
@@ -95,15 +97,15 @@ The kernel class {#tut_custom_kernel_ukernelclass}
 
 The next step is the definition of the final kernel class that is going to be used in numerical integrations.
 This is done in three steps.
-- The kernel class is declared
-- The kernel traits are defined
-- The kernel class is defined, derived from ::kernel_base using the CRTP pattern.
+	1. The kernel class is declared
+	2. Compile time properties of the kernel class are defined in its traits class
+	3. The kernel class is defined, derived from ::kernel_base using the CRTP pattern.
 
-The kernel class is forward declared as
+Step (1): The kernel class is forward declared as
 
 \snippet custom_kernel.mex.cpp udeclare
 
-The kernel traits are defined by specialising the traits class ::kernel_traits as follows
+Step(2): The kernel traits are defined by specialising the traits class ::kernel_traits as follows
 
 \snippet custom_kernel.mex.cpp utraits
 
@@ -124,7 +126,7 @@ The singular traits define the singularity type as \f$ O(1/r) \f$.
 In 3D, such a singularity is weak, and can be cancelled out by blind quadrature methods.
 Member `singular_quadrature_order` defines that the singular quadratures are going to be evaluated with a 7-th order blind singular quadrature rule.
 
-Finally, the kernel class can be defined:
+Step (3): Finally, the kernel class can be defined:
 
 \snippet custom_kernel.mex.cpp udefine
 

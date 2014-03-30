@@ -57,11 +57,17 @@ Helmholtz equation
 - ::helmholtz_3d_DLPt_kernel
 - ::helmholtz_3d_HSP_kernel
 
+Linear isotropic elastostatics
+------------------------------
+
+- ::elastostatics_3d_U_kernel
+- ::elastostatics_3d_T_kernel
+
 Numerical Integration {#reference_integration}
 =====================
 
-Regularisation
---------------
+Specialised singular integrals
+------------------------------
 
 Singular integrals implemented in library/laplace_singular_integrals.hpp
 
