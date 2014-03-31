@@ -44,7 +44,7 @@ public:
 	{
 		auto const &C = elem.get_coords();
 		double d1 = (x0 - C.col(0)).norm(), d2 = (x0 - C.col(1)).norm();
-		return (d1 * (1.0 - std::log(d1)) + d2 * (1.0 - std::log(d2))) / (2.0 * M_PI);
+		return (d1 * (1. - std::log(d1)) + d2 * (1. - std::log(d2))) / (2.*M_PI);
 	}
 };
 
@@ -61,7 +61,7 @@ public:
 	{
 		auto const &C = elem.get_coords();
 		double d = (C.col(1) - C.col(0)).norm();	// element length
-		return d*d*(1.5-std::log(d)) / (2.0*M_PI);
+		return d*d*(1.5-std::log(d)) / (2.*M_PI);
 	}
 };
 
@@ -79,7 +79,7 @@ public:
 	{
 		auto const &C = elem.get_coords();
 		double d = (C.col(1) - C.col(0)).norm();	// element length
-		double c = d*d/(8.0*M_PI);
+		double c = d*d/(8.*M_PI);
 		double lnd = std::log(d);
 		i1 = c * (1.75 - lnd);
 		i2 = c * (1.25 - lnd);
@@ -91,8 +91,8 @@ class laplace_2d_SLP_galerkin_edge_constant_line
     static double qfunc(double a, double phi)
     {
     	if (std::abs(phi) < 1e-3)
-    		return a / (a + 1.0);
-    	double cotphi = std::tan(M_PI/2.0-phi);
+    		return a / (a + 1.);
+    	double cotphi = std::tan(M_PI/2.-phi);
         return std::atan(a/std::sin(phi) + cotphi) - std::atan(cotphi);
     }
 
@@ -111,10 +111,10 @@ public:
 		// third side length
 		double r3 = std::sqrt(r1*r1 + 2*r1*r2*std::cos(phi) + r2*r2);
 		return (
-			r1*r2*(3.0-2.0*std::log(r3))
+			r1*r2*(3.-2.*std::log(r3))
 			+ std::cos(phi) * (r1*r1*std::log(r1/r3)+r2*r2*std::log(r2/r3))
 			- std::sin(phi) * (r1*r1*qfunc(r2/r1, phi) + r2*r2*qfunc(r1/r2, phi))
-		) / (4.0*M_PI);
+		) / (4.*M_PI);
     }
 };
 
@@ -123,8 +123,8 @@ class laplace_2d_DLP_galerkin_edge_constant_line
     static double qfunc(double a, double phi)
     {
     	if (std::abs(phi) < 1e-3)
-    		return a / (a + 1.0);
-    	double cotphi = std::tan(M_PI/2.0-phi);
+    		return a / (a + 1.);
+    	double cotphi = std::tan(M_PI/2.-phi);
         return std::atan(a/std::sin(phi) + cotphi) - std::atan(cotphi);
     }
 
@@ -146,7 +146,7 @@ public:
 			r2*std::cos(phi) * qfunc(r1/r2, phi)
 			- r1 * qfunc(r2/r1, phi)
 			+ r2*std::sin(phi) * std::log(r2/r3)
-		) / (2.0*M_PI);
+		) / (2.*M_PI);
     }
 };
 
@@ -164,7 +164,7 @@ public:
 	{
 		auto const &C = elem.get_coords();
 		double d1 = (x0 - C.col(0)).norm(), d2 = (x0 - C.col(1)).norm();
-		return -(1.0 / d1 + 1.0 / d2) / (2.0 * M_PI);
+		return -(1. / d1 + 1. / d2) / (2.*M_PI);
 	}
 };
 
@@ -183,13 +183,13 @@ public:
 	static double eval(elem_t const &elem, typename elem_t::x_t const &x0)
 	{
 		enum { N = elem_t::domain_t::num_corners  };
-		double r[N], theta[N], alpha[N], result = 0.0;
+		double r[N], theta[N], alpha[N], result = 0.;
 		plane_element_helper(elem, x0, r, theta, alpha);
 
 		for (unsigned i = 0; i < N; ++i)
-			result += r[i] * std::sin(alpha[i]) * std::log(std::tan((alpha[i] + theta[i]) / 2.0) / std::tan(alpha[i] / 2.0));
+			result += r[i] * std::sin(alpha[i]) * std::log(std::tan((alpha[i] + theta[i]) / 2.) / std::tan(alpha[i] / 2.));
 
-		return result / (4.0 * M_PI);
+		return result / (4.*M_PI);
 	}
 };
 
@@ -207,13 +207,13 @@ public:
 	static double eval(elem_t const &elem, typename elem_t::x_t const &x0)
 	{
 		enum { N = elem_t::domain_t::num_corners };
-		double r[N], theta[N], alpha[N], result = 0.0;
+		double r[N], theta[N], alpha[N], result = 0.;
 		plane_element_helper(elem, x0, r, theta, alpha);
 
 		for (unsigned i = 0; i < N; ++i)
 			result += (std::cos(alpha[i] + theta[i]) - std::cos(alpha[i])) / (r[i] * std::sin(alpha[i]));
 
-		return result / (4.0 * M_PI);
+		return result / (4.*M_PI);
 	}
 };
 

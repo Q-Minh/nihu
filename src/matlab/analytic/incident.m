@@ -1,6 +1,7 @@
 function [p, q] = incident(type, varargin)
 %INCIDENT Incident pressure and velocity wave field
 %   [p, q] = incident('point', r0, r, n, k, symm)
+%   [p, q] = incident('line', r0, r, n, k, symm)
 %   [p, q] = incident('plane', dir, r, n, k, symm)
 
 % Peter Fiala

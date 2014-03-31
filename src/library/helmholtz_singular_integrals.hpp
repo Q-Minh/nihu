@@ -305,7 +305,7 @@ public:
 };
 
 
-/** \brief Collocational singular integral of the SLP kernel over a constant triangle
+/** \brief Collocational singular integral of the 3D SLP kernel over a constant triangle
  * \tparam TestField the test field type
  * \tparam TrialField the trial field type
  */
@@ -344,7 +344,7 @@ public:
 };
 
 
-/** \brief Collocational singular integral of the HSP kernel over a constant triangle
+/** \brief Collocational singular integral of the 3D HSP kernel over a constant triangle
  * \tparam TestField the test field type
  * \tparam TrialField the trial field type
  */
@@ -382,7 +382,7 @@ public:
 	}
 };
 
-/** \brief collocational singular integral of the HSP kernel not over a constant triangle
+/** \brief Collocational singular integral of the 3D HSP kernel not over a constant triangle
  * \tparam TestField the test field type
  * \tparam TrialField the trial field type
  */

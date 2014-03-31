@@ -5,8 +5,9 @@ function export_off_mesh(mesh, fname)
 % delete trailing empty columns
 elements = elements(:,1:find(any(elements,1), 1, 'last'));
 
-elements(elements == 32404) = 4;
-elements(elements == 32303) = 3;
+elements(elements(:,1) == 32404, 1) = 4;
+elements(elements(:,1) == 32303, 1) = 3;
+elements(elements(:,1) == 21202, 1) = 2;
 
 fid = fopen(fname, 'wt');
 if fid == -1

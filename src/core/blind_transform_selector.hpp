@@ -33,35 +33,23 @@ namespace blind_transform
 {
 	/** \brief Duffy type polar transformation */
 	struct duffy {};
-	/** \brief t^2 transformation to cancel log singularities */
-	struct square {};
 }
 
-/** \brief assign a blind transformation method to a singularity type and a renference domain
+/** \brief assign a blind transformation method to a singularity type and a reference domain
  * \tparam asymptotic_type the singularity type
  * \tparam domain the reference domain
  */
 template <class asymptotic_type, class domain>
 struct blind_transform_selector;
 
-/** \brief assign a blind transformation method to log<r> singularity
- */
-template <>
-struct blind_transform_selector<asymptotic::log<1>, line_domain>
-{
-	typedef blind_transform::square type;
-};
-
-/** \brief assign a blind transformation method to 1/r singularity and tria domain
- */
+/** \brief assign a blind transformation method to 1/r singularity and tria domain */
 template <>
 struct blind_transform_selector<asymptotic::inverse<1>, tria_domain>
 {
 	typedef blind_transform::duffy type;
 };
 
-/** \brief assign a blind transformation method to 1/r singularity and quad domain
- */
+/** \brief assign a blind transformation method to 1/r singularity and quad domain */
 template <>
 struct blind_transform_selector<asymptotic::inverse<1>, quad_domain>
 {
