@@ -293,7 +293,7 @@ protected:
 			field_base<TrialField> const &,
 			element_match const &
 		>(result, kernel, test_field, trial_field, mtch))
-			std::cout << "UNHANDLED SINGULARITY TYPE: " << mtch.get_match_dimension() << std::endl;
+			std::cerr << "UNHANDLED SINGULARITY TYPE: " << mtch.get_match_dimension() << std::endl;
 
 		return result;
 }
@@ -534,8 +534,10 @@ protected:
 		if (mtch.get_match_dimension() == -1)
 			return eval(WITHOUT_SINGULARITY_CHECK(), result, kernel, test_field, trial_field);
 
+		typedef typename match_type_vector<TestField, TrialField>::type possible_match_types;
+
 		if (!tmp::call_until<
-			typename match_type_vector<TestField, TrialField>::type,
+			possible_match_types,
 			singular_shortcut_switch<tmp::_1>,
 			result_t &,
 			kernel_base<Kernel> const &,
@@ -543,7 +545,7 @@ protected:
 			field_base<TrialField> const &,
 			element_match const &
 		>(result, kernel, test_field, trial_field, mtch))
-			std::cout << "UNHANDLED SINGULARITY TYPE: " << mtch.get_match_dimension() << std::endl;
+			std::cerr << "UNHANDLED COLLOCATIONAL SINGULARITY TYPE: " << mtch.get_match_dimension() << std::endl;
 		return result;
 	}
 

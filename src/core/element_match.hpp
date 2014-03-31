@@ -79,7 +79,7 @@ element_match element_match_eval(
 
 	if (face_match_possible) // compile time if
 		if (test_field.get_elem().get_id() == trial_field.get_elem().get_id())
-			return element_match(2);
+			return element_match(test_field_t::elem_t::domain_t::dimension);
 
 	// compile time if, only for the general approach
 	if (std::is_same<typename get_formalism<test_field_t, trial_field_t>::type, formalism::general>::value)

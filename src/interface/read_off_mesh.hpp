@@ -25,6 +25,7 @@
 #define READ_OFF_MESH_HPP_INCLUDED
 
 #include "../core/mesh.hpp"
+#include "../library/lib_element.hpp"
 #include <string>
 #include <fstream>
 #include <stdexcept>
@@ -39,7 +40,6 @@ template <class...Tags>
 mesh<tmp::vector<typename tag2element<Tags>::type...> >
 	read_off_mesh(std::string const &fname, Tags...tags)
 {
-	typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> dMatrix;
 	typedef Eigen::Matrix<unsigned, Eigen::Dynamic, Eigen::Dynamic> uMatrix;
 
 	// read mesh file for reading
@@ -58,7 +58,7 @@ mesh<tmp::vector<typename tag2element<Tags>::type...> >
 		throw std::runtime_error("Error reading number of mesh entries");
 
 	// read nodes
-	dMatrix nodes(nNodes, 3);
+	Eigen::MatrixXd nodes(nNodes, 3);
 	for (unsigned i = 0; i < nNodes; ++i)
 		if (!(is >> nodes(i,0) >> nodes(i,1) >> nodes(i,2)))
 			throw std::runtime_error("Error reading mesh nodes");
@@ -70,12 +70,20 @@ mesh<tmp::vector<typename tag2element<Tags>::type...> >
 		unsigned nvert;
 		if (!(is >> nvert))
 			throw std::runtime_error("Error reading mesh elements");
-		if (nvert == 3)
-			elements(i,0) = tria_1_elem::id;
-		else if (nvert == 4)
-			elements(i,0) = quad_1_elem::id;
-		else
-			throw std::runtime_error("Unsupported element type in OFF file");
+		switch (nvert)
+		{
+			case 2:
+				elements(i,0) = line_1_elem::id;
+				break;
+			case 3:
+				elements(i,0) = tria_1_elem::id;
+				break;
+			case 4:
+				elements(i,0) = quad_1_elem::id;
+				break;
+			default:
+				throw std::runtime_error("Unsupported element type in OFF file");
+		}
 		for (unsigned c = 0; c < nvert; ++c)
 			if (!(is >> elements(i,c+1)))
 				throw std::runtime_error("Error reading mesh elements");
