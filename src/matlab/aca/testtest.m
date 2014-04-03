@@ -1,68 +1,64 @@
 clear;
 
-m = create_sphere_boundary(1, 20);
+m = create_sphere_boundary(1, 30);
 k = min(mesh_kmax(m));
 x = m.Nodes(:,2:4);
+M = @(row,col)helmholtz_matrix(row, col, x, k);
+Msp = @(row,col)helmholtz_matrix_sp(row, col, x, k);
 
 tic;
 Ctree = build_cluster_tree(x);
 tCtree = toc;
-fprintf('%g s needed to build cluster tree\n', tCtree);
+fprintf('%.3g s needed to build cluster tree\n', tCtree);
 
 tic;
 Btree = build_block_tree(Ctree);
 tBtree = toc;
-fprintf('%g s needed to build block tree\n', tBtree);
+fprintf('%.3g s needed to build block tree\n', tBtree);
 
-%%
-N = size(x,1);
+tic;
+[S, B_far] = sparsity(Ctree, Btree);
+tSpar = toc;
+fprintf('%.3g s needed to build sparsity structure\n', tSpar);
 
-%%
-q = 0;
-qq = 0;
-for b = 1 : length(Btree)
-    bt = Btree(b,:);
-    s = [length(Ctree(bt(1)).ind) length(Ctree(bt(2)).ind)];
-    if any(s <= 2)
-        q = q + 1;
-        qq = qq + prod(s);
-    end
-end
-fprintf(1, '%9d / %9d (%g) sparse entries\n', qq, N^2, qq/N^2);
-fprintf(1, '%9d / %9d nontrivial blocks\n', length(Btree)-q, length(Btree));
-
-%%
-exc = ones(N,1);
-resp = zeros(N,1);
-
-M = @(row,col)helmholtz_matrix(row, col, x, k);
+tic;
+M_near = sparse(S(:,1), S(:,2), Msp(S(:,1), S(:,2)));
+tNear = toc;
+fprintf('%.3g s needed to compute near field matrix\n', tNear);
 
 tic;
 R = 3;
-for b = 1 : size(Btree,1)
-    ACA(b).I = Ctree(Btree(b,1)).ind;
-    ACA(b).J = Ctree(Btree(b,2)).ind;
+for b = 1 : size(B_far,1)
+    ACA(b).I = Ctree(B_far(b,1)).ind;
+    ACA(b).J = Ctree(B_far(b,2)).ind;
     [ACA(b).U, ACA(b).V] = lowrank_approx(M, ACA(b).I, ACA(b).J, 1e-3);
 end
 tACA = toc;
-fprintf('%g s needed to generate ACA\n', tACA);
+fprintf('%.3g s needed to generate ACA\n', tACA);
+
+
+N = size(x,1);
+exc = ones(N,1);
 
 tic;
-resp(:) = 0;
-for b = 1 : length(Btree)
+resp = M_near * exc;
+for b = 1 : length(B_far)
     I = ACA(b).I;
     J = ACA(b).J;
     resp(I) = resp(I) + ACA(b).U * (ACA(b).V * exc(J));
 end
 tmat = toc;
-fprintf('%g s needed to compute matrix-vector product\n', tmat);
+fprintf('%.3g s needed to compute matrix-vector product\n', tmat);
 
-resp0 = M(1:N, 1:N) * exc;
-M0 = M(1:N,1:N);
+% tic;
+% M0 = M(1:N,1:N);
+% toc;
+% tic;
+% resp0 = M0 * exc;
+% toc;
 
-eps = log10(abs(resp./resp0-1));
+% eps = log10(abs(resp./resp0-1));
 
-%%
 figure;
 plot_mesh(m, eps);
 colorbar;
