@@ -1,4 +1,16 @@
 function Ctree = build_cluster_tree(x)
+%BUILD_CLUSTER_TREE build cluster tree for ACA algorithm
+%   T = BUILD_CLUSTER_TREE(x) builds a cluster tree containing a
+%   hierarchical structure of clusters. The first cluster encapsulates
+%   each point, and the leaf clusters contain one single point only.
+%
+% See also: build_block_tree
+%
+% Example:
+%   m = create_sphere_boundary(1, 10);
+%   C = build_cluster_tree(m.Nodes(:,2:4));
+%
+% Copyright (C) 2014 Peter Fiala
 
 bb = [
     min(x,[],1)
