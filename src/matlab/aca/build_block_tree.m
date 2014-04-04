@@ -1,4 +1,4 @@
-function T = build_block_tree(Ctree)
+function [Tnear, Tfar] = build_block_tree(Ctree)
 %BUILD_BLOCK_TREE build block structure from a cluster tree
 %   T = BUILD_BLOCK_TREE(C) builds the block structure of the ACA method
 %   from the cluster tree C. T is matrix with two columns, each row
@@ -15,49 +15,49 @@ function T = build_block_tree(Ctree)
 % Copyright (C) 2014 Peter Fiala
 
 % preallocating the output
-Capacity = 5000;
-T = zeros(Capacity,2);
-End = 0;
+CapacityFar = 5000;
+Tfar = zeros(CapacityFar,2);
+EndFar = 0;
 
-% preallocating the temporary pairs
-T1 = zeros(Capacity,2);
+CapacityNear = 5000;
+Tnear = zeros(CapacityNear,2);
+EndNear= 0;
 
-% initial guess pair
-T0 = [1 1];
+block_partition(1,1);
 
-while ~isempty(T0)
-    n = 0;  % restart building the temporary pairs
-    for i = 1 : size(T0,1)
-        if is_admissible(Ctree(T0(i,:)))
-            % build into final pairs
-            End = End+1;
-            if End > Capacity
-                Capacity = 2*Capacity;
-                T(Capacity,2) = 0;
+Tfar = Tfar(1:EndFar,:);
+Tnear = Tnear(1:EndNear,:);
+
+    function block_partition(i,j)
+        sigma = Ctree(i);
+        tau = Ctree(j);
+        if is_admissible(sigma, tau)
+            EndFar = EndFar+1;
+            if EndFar > CapacityFar
+                CapacityFar = 2*CapacityFar;
+                Tfar(CapacityFar,2) = 0;
             end
-            T(End,:) = T0(i,:);
+            Tfar(EndFar,:) = [i, j];
+        elseif ~isempty(sigma.children) && ~isempty(tau.children)
+            [s, t] = meshgrid(sigma.children, tau.children);
+            s = s(:); t = t(:);
+            for k = 1 : length(s)
+                block_partition(s(k),t(k));
+            end
         else
-            % try with children
-            Ch = get_children(Ctree(T0(i,:)));
-            l = size(Ch,1);
-            T1(n+(1:l),:) = Ch;
-            n = n + l;
+            EndNear = EndNear+1;
+            if EndNear > CapacityNear
+                CapacityNear = 2*CapacityNear;
+                Tnear(CapacityNear,2) = 0;
+            end
+            Tnear(EndNear,:) = [i, j];
         end
     end
-    % replace guess with children
-    T0 = T1(1:n,:);
+
 end
 
-T = T(1:End,:);
-end
-
-function TT = get_children(C)
-[L, R] = meshgrid(C(1).children, C(2).children);
-TT = [L(:), R(:)];
-end
-
-function b = is_admissible(C)
-b = C(2).D*sqrt(3) < norm(C(1).c - C(2).c) ||...
-    length(C(1).ind) == 1 ||...
-    length(C(2).ind) == 1;
+function b = is_admissible(C1, C2)
+dist = mean(C2.bb,1)-mean(C1.bb,1);
+dist = sqrt(dot(dist,dist,2));
+b = max(C1.D, C2.D) < dist;
 end

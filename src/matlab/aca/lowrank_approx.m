@@ -13,19 +13,19 @@ function [U, V] = lowrank_approx(M, I, J, eps)
 m = length(I);
 n = length(J);
 
-if m == 1
-    U = 1;
-    V = M(I,J);
-    return;
-end
-
-if n == 1
-    U = M(I,J);
-    V = 1;
-    return;
-end
-
-R = 10;
+% if m == 1
+%     U = 1;
+%     V = M(I,J);
+%     return;
+% end
+% 
+% if n == 1
+%     U = M(I,J);
+%     V = 1;
+%     return;
+% end
+% 
+R = 20;
 
 U = zeros(m,R);
 V = zeros(R,n);

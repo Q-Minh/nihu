@@ -7,9 +7,9 @@ N = 0;
 keep = true(length(Btree),1);
 for b = 1 : length(Btree)
     bt = Btree(b,:);
-    i = Ctree(bt(1)).ind;
-    j = Ctree(bt(2)).ind;
-    if length(i) < 2 || length(j) < 2
+    if isempty(Ctree(bt(1)).children) && isempty(Ctree(bt(2)).children)
+        i = Ctree(bt(1)).ind;
+        j = Ctree(bt(2)).ind;
         keep(b) = false;
         [I, J] = meshgrid(i, j);
         idx = N + (1:numel(I));
