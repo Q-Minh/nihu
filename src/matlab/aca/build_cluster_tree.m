@@ -20,10 +20,11 @@ if nargin == 1
 end
 
 Ctree(1).ind = 1 : size(x,1);
+Ctree(1).level = 0;
 Ctree(1).children = [];
 
 Capacity = 100;
-Ctree(Capacity).children = []; 
+Ctree(Capacity).level = 0;
 i = 1;
 S = 1;
 while i <= length(Ctree)
@@ -34,7 +35,7 @@ while i <= length(Ctree)
         Ctree(i).children = idx;
         if (max(idx) > Capacity)
             Capacity = 2*Capacity;
-            Ctree(Capacity).children = [];
+            Ctree(Capacity).level = 0;
         end
         Ctree(idx) = Children;
         S = S + length(Children);
@@ -55,12 +56,14 @@ s = std(x0 * V);
 dir = V(:,i);
 
 [~, i] = sort(x0 * dir);
-
 nhalf = round(length(i)/2);
 
 CC(1).ind = C.ind(i(1:nhalf));
+CC(1).level = C.level+1;
 CC(1).children = [];
+
 CC(2).ind = C.ind(i(nhalf+1:end));
+CC(2).level = C.level+1;
 CC(2).children = [];
 
 end
