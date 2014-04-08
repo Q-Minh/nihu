@@ -56,8 +56,15 @@ Tnear = Tnear(1:EndNear,:);
 
 end
 
-function b = is_admissible(C1, C2)
-dist = mean(C2.bb,1)-mean(C1.bb,1);
-dist = sqrt(dot(dist,dist,2));
-b = max(C1.D, C2.D) < dist;
+function b = is_admissible(C1, C2, eta)
+if nargin < 3
+    eta = .5;
+end
+bb1 = C1.bb;
+bb2 = C2.bb;
+dist = sqrt(...
+    min(min(abs(bsxfun(@minus, bb1(:,1), bb2(:,1)'))))^2 +...
+    min(min(abs(bsxfun(@minus, bb1(:,2), bb2(:,2)'))))^2 +...
+    min(min(abs(bsxfun(@minus, bb1(:,3), bb2(:,3)'))))^2);
+b = max(C1.D, C2.D) < eta * dist;
 end

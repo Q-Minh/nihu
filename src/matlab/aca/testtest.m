@@ -1,20 +1,47 @@
 clear;
 
-m = create_sphere_boundary(1, 5);
-k = min(mesh_kmax(m));
-x = m.Nodes(:,2:4);
-M = @(row,col)helmholtz_matrix(row, col, x, k);
-Msp = @(row,col)helmholtz_matrix_sp(row, col, x, k);
+if isunix
+    root = '/D';
+else
+    root = 'D:';
+end
+m = import_mesh(fullfile(root, 'research', 'pub',...
+    '2013', 'Boonen2013', 'work', 'industrial', 'data',...
+    'horse.off'));
+% m = create_sphere_boundary(1, 20);
+% k = min(mesh_kmax(m));
+x = centnorm(m);
+% M = @(row,col)helmholtz_matrix(row, col, x, k);
+% Msp = @(row,col)helmholtz_matrix_sp(row, col, x, k);
 
+%%
 tic;
 Ctree = build_cluster_tree(x);
 tCtree = toc;
 fprintf('%.3g s needed to build cluster tree\n', tCtree);
 
+%% plot cluster tree
+v = zeros(size(x,1),1);
+b = 1;
+for c = 1 : length(Ctree)
+    if isempty(Ctree(c).children)
+        v(Ctree(c).ind) = mod(b-1,20)+1;
+        b = b+1;
+    end
+end
+r = randperm(20)';
+plot_mesh(m, r(v));
+
+%%
 tic;
 [B_near, B_far] = build_block_tree(Ctree);
 tBtree = toc;
 fprintf('%.3g s needed to build block tree\n', tBtree);
+
+figure;
+display_block_structure(Ctree, B_near);
+figure;
+display_block_structure(Ctree, B_far);
 
 % tic;
 % M_near = sparse(S(:,1), S(:,2), Msp(S(:,1), S(:,2)));

@@ -5,7 +5,7 @@ function Ctree = build_cluster_tree(x, Cleaf)
 %   each point, and the leaf clusters contain one single point only.
 %
 %   T = BUILD_CLUSTER_TREE(X, C) creates a cluster tree where the leafs
-%   contain max C nodes. The default for C is 20.
+%   contain max C nodes. The default for C is 10.
 %
 % See also: build_block_tree
 %
@@ -16,46 +16,51 @@ function Ctree = build_cluster_tree(x, Cleaf)
 % Copyright (C) 2014 Peter Fiala
 
 if nargin == 1
-    Cleaf = 20;
+    Cleaf = 10;
 end
 
 Ctree(1).ind = 1 : size(x,1);
-Ctree(1).bb = [
-    min(x(Ctree(1).ind,:),[],1)
-    max(x(Ctree(1).ind,:),[],1)
-    ];
-Ctree(1).D = sqrt(sum(diff(Ctree(1).bb, 1).^2));
 Ctree(1).children = [];
 
+Capacity = 100;
+Ctree(Capacity).children = []; 
 i = 1;
+S = 1;
 while i <= length(Ctree)
     if length(Ctree(i).ind) <= Cleaf
     else
         Children = get_child_clusters(Ctree(i), x);
-        idx = length(Ctree) + (1 : length(Children));
+        idx = S + (1 : length(Children));
         Ctree(i).children = idx;
+        if (max(idx) > Capacity)
+            Capacity = 2*Capacity;
+            Ctree(Capacity).children = [];
+        end
         Ctree(idx) = Children;
+        S = S + length(Children);
     end
     i = i + 1;
 end
+Ctree = Ctree(1:S);
 
 end
 
 function CC = get_child_clusters(C, x)
-[Dmax, maxdir] = max(diff(C.bb, 1));
-sep = C.bb(1,maxdir)+Dmax/2;
 
-CC(1) = C;
-CC(1).ind = C.ind(x(C.ind,maxdir) < sep);
-CC(2) = C;
-CC(2).ind = setdiff(C.ind, CC(1).ind);
+x0 = x(C.ind,:);
+[~,~,V] = svd(x0, 0);
 
-for i = 1 : 2
-    CC(i).bb = [
-        min(x(CC(i).ind,:),[],1)
-        max(x(CC(i).ind,:),[],1)
-        ];
-    CC(i).D = sqrt(sum(diff(CC(i).bb, 1).^2));
-    CC(i).children = [];
-end
+s = std(x0 * V);
+[~, i] = max(s);
+dir = V(:,i);
+
+[~, i] = sort(x0 * dir);
+
+nhalf = round(length(i)/2);
+
+CC(1).ind = C.ind(i(1:nhalf));
+CC(1).children = [];
+CC(2).ind = C.ind(i(nhalf+1:end));
+CC(2).children = [];
+
 end
