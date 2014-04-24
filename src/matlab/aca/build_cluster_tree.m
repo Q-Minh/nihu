@@ -1,8 +1,11 @@
-function Ctree = build_cluster_tree(x)
+function Ctree = build_cluster_tree(x, Cleaf)
 %BUILD_CLUSTER_TREE build cluster tree for ACA algorithm
 %   T = BUILD_CLUSTER_TREE(x) builds a cluster tree containing a
 %   hierarchical structure of clusters. The first cluster encapsulates
 %   each point, and the leaf clusters contain one single point only.
+%
+%   T = BUILD_CLUSTER_TREE(X, C) creates a cluster tree where the leafs
+%   contain max C nodes. The default for C is 10.
 %
 % See also: build_block_tree
 %
@@ -12,51 +15,55 @@ function Ctree = build_cluster_tree(x)
 %
 % Copyright (C) 2014 Peter Fiala
 
-bb = [
-    min(x,[],1)
-    max(x,[],1)
-    ];
-Ctree(1).c = mean(bb, 1);
-Ctree(1).D = max(diff(bb, 1)) + 1e-3;
+if nargin == 1
+    Cleaf = 10;
+end
+
 Ctree(1).ind = 1 : size(x,1);
+Ctree(1).level = 0;
 Ctree(1).children = [];
 
+Capacity = 100;
+Ctree(Capacity).level = 0;
 i = 1;
+S = 1;
 while i <= length(Ctree)
-    if length(Ctree(i).ind) == 1
+    if length(Ctree(i).ind) <= Cleaf
     else
         Children = get_child_clusters(Ctree(i), x);
-        idx = length(Ctree) + (1 : length(Children));
+        idx = S + (1 : length(Children));
         Ctree(i).children = idx;
+        if (max(idx) > Capacity)
+            Capacity = 2*Capacity;
+            Ctree(Capacity).level = 0;
+        end
         Ctree(idx) = Children;
+        S = S + length(Children);
     end
     i = i + 1;
 end
+Ctree = Ctree(1:S);
 
 end
 
 function CC = get_child_clusters(C, x)
-d = [
-    -1 -1 -1
-    1 -1 -1
-    1  1 -1
-    -1  1 -1
-    -1 -1  1
-    1 -1  1
-    1  1  1
-    -1  1  1
-    ] * C.D/4;
-c = bsxfun(@plus, C.c, d);
-CC = struct('c', mat2cell(c, ones(8,1), 3),...
-    'D', C.D/2,...
-    'ind', mat2cell(repmat(C.ind, 8, 1), ones(8,1), length(C.ind)), ...
-    'children', mat2cell(zeros(8,0), ones(8,1), 0));
 
-include = true(8,1);
-for i = 1 : length(CC)
-    CC(i).ind = CC(i).ind(all(bsxfun(@gt, x(CC(i).ind,:), CC(i).c-CC(i).D/2) &...
-        bsxfun(@le, x(CC(i).ind,:), CC(i).c+CC(i).D/2), 2));
-    include(i) = ~isempty(CC(i).ind);
-end
-CC = CC(include);
+x0 = x(C.ind,:);
+[~,~,V] = svd(x0, 0);
+
+s = std(x0 * V);
+[~, i] = max(s);
+dir = V(:,i);
+
+[~, i] = sort(x0 * dir);
+nhalf = round(length(i)/2);
+
+CC(1).ind = C.ind(i(1:nhalf));
+CC(1).level = C.level+1;
+CC(1).children = [];
+
+CC(2).ind = C.ind(i(nhalf+1:end));
+CC(2).level = C.level+1;
+CC(2).children = [];
+
 end
