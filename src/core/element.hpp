@@ -66,10 +66,6 @@ private:
 };
 
 
-/** \brief compute surface normal from location derivatives */
-template<class Derived, class enable = void>
-class normal_impl;
-
 /** \brief compute location derivatives from nodal coordinates */
 template <class Derived, unsigned Order>
 class location_impl;
@@ -108,15 +104,6 @@ namespace element_traits
 		typename lset<Derived>::type,
 		Order
 	> {};
-
-    /** \brief Determines if the normal vector is stored or not */
-	template <class Derived>
-	struct is_normal_stored : std::integral_constant<bool,
-        !std::is_same<
-            typename location_complexity<Derived, 1>::type,
-            matrix_function_complexity::general
-        >::value
-    > {};
 
 	/** \brief Matrix that stores the element's corner coordinates */
 	template <class Derived>
@@ -160,52 +147,7 @@ namespace element_traits
             Order
         >::type::return_type type;
 	};
-
-	/** \brief Class that computes or stores the normals */
-	template <class Derived>
-	struct normal_factory_functor : conditional_precompute_instance<
-		typename location_complexity<Derived, 1>::type,
-		normal_impl<Derived>,
-		typename location_value_type<Derived, 1>::type
-	> {};
-
-	/** \brief The return type of the normal vector */
-	template <class Derived>
-	struct normal_return_type
-	{
-		typedef typename normal_factory_functor<
-			Derived
-		>::type::return_type type;
-	};
 }
-
-/** \brief specialisation of ::normal_impl for 3D */
-template <class Derived>
-class normal_impl<Derived, typename std::enable_if<
-	element_traits::space_type<Derived>::type::dimension == 3
->::type>
-{
-public:
-	static typename element_traits::location_value_type<Derived, 0>::type
-	eval(typename element_traits::location_value_type<Derived, 1>::type const &m)
-	{
-		return m.col(shape_derivative_index::dXI).cross(m.col(shape_derivative_index::dETA));
-	}
-};
-
-/** \brief specialisation of ::normal_impl for 2D */
-template <class Derived>
-class normal_impl<Derived, typename std::enable_if<
-	element_traits::space_type<Derived>::type::dimension == 2
->::type>
-{
-public:
-	static typename element_traits::location_value_type<Derived, 0>::type
-	eval(typename element_traits::location_value_type<Derived, 1>::type const &m)
-	{
-		return Eigen::Rotation2D<typename Derived::scalar_t>(-M_PI/2.0) * m;
-	}
-};
 
 /** \brief metafunction assigning an element to an element tag */
 template <class tag>
@@ -232,9 +174,9 @@ public:
 
 
 /**
-* \brief The geometrical element representation
-* \tparam Derived CRTP derived class
-*/
+ * \brief The geometrical element representation
+ * \tparam Derived CRTP derived class
+ */
 template <class Derived>
 class element_base
 {
@@ -266,7 +208,6 @@ public:
 	/** \brief type of the gradient of the element's physical location variable \f$ x'_{\xi} \f$ */
 	typedef typename element_traits::location_value_type<Derived, 1>::type dx_t;
 	typedef typename element_traits::location_return_type<Derived, 1>::type dx_return_type;
-	typedef typename element_traits::normal_return_type<Derived>::type normal_return_type;
 	/** \brief type of the second derivative of the element's physical location variable \f$ x''_{\xi} \f$ */
 	typedef typename element_traits::location_value_type<Derived, 2>::type ddx_t;
 	typedef typename element_traits::location_return_type<Derived, 2>::type ddx_return_type;
@@ -292,14 +233,6 @@ protected:
 	typename element_traits::location_factory_functor<Derived, 0>::type x_computer;
 	typename element_traits::location_factory_functor<Derived, 1>::type dx_computer;
 	typename element_traits::location_factory_functor<Derived, 2>::type ddx_computer;
-	typename element_traits::normal_factory_functor<Derived>::type normal_computer;
-
-	/** \brief the normal return type based on acceleration */
-	typedef typename std::conditional<
-		element_traits::is_normal_stored<Derived>::value,
-		x_t,
-		x_t const &
-	>::type normal_ret_t;
 
 public:
 	NIHU_CRTP_HELPERS
@@ -320,8 +253,7 @@ public:
 		m_center(get_x(domain_t::get_center())),
 		x_computer(m_coords, xi_t()),
 		dx_computer(m_coords, xi_t()),
-		ddx_computer(m_coords, xi_t()),
-		normal_computer(get_dx(xi_t()))
+		ddx_computer(m_coords, xi_t())
 	{
 	}
 
@@ -389,16 +321,6 @@ public:
 	x_t const &get_center(void) const
 	{
 		return m_center;
-	}
-
-	/**
-	 * \brief return element normal
-	 * \param [in] xi location in the reference domain
-	 * \return the element normal
-	 */
-	normal_return_type get_normal(xi_t const &xi = domain_t::get_center()) const
-	{
-		return normal_computer(dx_computer(m_coords, xi));
 	}
 
 	/**
@@ -474,60 +396,140 @@ inline bool operator<(elem_id_t const &lhs, elem_id_t const &rhs)
 	return lhs(0,0) < rhs(0,0);
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // forward declaration
 template <class LSet, class scalar_t>
-class general_surface_element;
+class surface_element;
+
+
+/** \brief compute surface normal from location derivatives */
+template<class Derived, class enable = void>
+class normal_impl;
+
+/** \brief specialisation of ::normal_impl for 3D */
+template <class Derived>
+class normal_impl<Derived, typename std::enable_if<
+	element_traits::space_type<Derived>::type::dimension == 3
+>::type>
+{
+public:
+	static typename element_traits::location_value_type<Derived, 0>::type
+	eval(typename element_traits::location_value_type<Derived, 1>::type const &m)
+	{
+		return m.col(shape_derivative_index::dXI).cross(m.col(shape_derivative_index::dETA));
+	}
+};
+
+/** \brief specialisation of ::normal_impl for 2D */
+template <class Derived>
+class normal_impl<Derived, typename std::enable_if<
+	element_traits::space_type<Derived>::type::dimension == 2
+>::type>
+{
+public:
+	static typename element_traits::location_value_type<Derived, 0>::type
+	eval(typename element_traits::location_value_type<Derived, 1>::type const &m)
+	{
+		return Eigen::Rotation2D<typename Derived::scalar_t>(-M_PI/2.0) * m;
+	}
+};
 
 /** \brief specialisation of element_traits for the general surface element */
 namespace element_traits
 {
 	template <class LSet, class Scalar>
-	struct space_type<general_surface_element<LSet, Scalar> >
+	struct space_type<surface_element<LSet, Scalar> >
         : space<Scalar, LSet::domain_t::dimension + 1> {};
 
 	template <class LSet, class Scalar>
-	struct lset<general_surface_element<LSet, Scalar> >
+	struct lset<surface_element<LSet, Scalar> >
 	{
 		typedef LSet type;
 	};
+
+	/** \brief Class that computes or stores the normals */
+	template <class Derived>
+	struct normal_factory_functor : conditional_precompute_instance<
+		typename location_complexity<Derived, 1>::type,
+		normal_impl<Derived>,
+		typename location_value_type<Derived, 1>::type
+	> {};
+
+	/** \brief The return type of the normal vector */
+	template <class Derived>
+	struct normal_return_type
+	{
+		typedef typename normal_factory_functor<
+			Derived
+		>::type::return_type type;
+	};
 }
 
-/** \brief class describing a general surface element that computes its normal in the general way
+/** \brief class describing a general surface element that provides a normal vector
  * \tparam LSet type of the geometry shape set
  */
 template <class LSet, class scalar_t>
-class general_surface_element :
-	public element_base<general_surface_element<LSet, scalar_t> >
+class surface_element :
+	public element_base<surface_element<LSet, scalar_t> >
 {
 public:
 	/** \brief the base class type */
-	typedef element_base<general_surface_element<LSet, scalar_t> > base_t;
+	typedef element_base<surface_element<LSet, scalar_t> > base_t;
 
-	/** \brief type of the coordinate matrix */
-	typedef typename base_t::coords_t coords_t;
-	/** \brief type of the node index vector */
-	typedef typename base_t::nodes_t nodes_t;
-	/** \brief type of the coordinate  on the standard element */
-	typedef typename base_t::xi_t xi_t;
-	/** \brief type of the coordinate vector */
-	typedef typename base_t::x_t x_t;
-	/** \brief type of the coordinate derivative vector */
-	typedef typename base_t::dx_t dx_t;
-	/** \brief type of the reference domain */
-	typedef typename base_t::domain_t domain_t;
+	using typename base_t::coords_t;
+	using typename base_t::nodes_t;
+	using typename base_t::xi_t;
+	using typename base_t::x_t;
+	using typename base_t::dx_t;
+	using domain_t = typename base_t::domain_t;
 
+	using base_t::get_dx;
+
+	typedef typename element_traits::normal_return_type<surface_element>::type normal_return_type;
+
+protected:
+	typename element_traits::normal_factory_functor<surface_element>::type normal_computer;
+
+public:
 	/** \brief constructor
 	 * \param [in] coords the coordinate matrix
 	 * \param [in] id element id
 	 * \param [in] nodes the nodal index vector
 	 */
-	general_surface_element(
+	surface_element(
 		coords_t const &coords,
 		unsigned id = 0,
 		nodes_t const &nodes = nodes_t())
-		: base_t(coords, id, nodes)
+		: base_t(coords, id, nodes),
+		normal_computer(get_dx(xi_t()))
 	{
-		base_t::m_linear_size_estimate = sqrt(base_t::get_normal(domain_t::get_center()).norm() * domain_t::get_volume());
+		base_t::m_linear_size_estimate = sqrt(get_normal(domain_t::get_center()).norm() * domain_t::get_volume());
+	}
+
+	/**
+	 * \brief return element normal
+	 * \param [in] xi location in the reference domain
+	 * \return the element normal
+	 */
+	normal_return_type get_normal(xi_t const &xi = domain_t::get_center()) const
+	{
+		return normal_computer(this->dx_computer(this->m_coords, xi));
 	}
 };
 

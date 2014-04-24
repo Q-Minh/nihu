@@ -1,17 +1,17 @@
 clear;
 
-% %%
-% if isunix
-%     root = '/D';
-% else
-%     root = 'D:';
-% end
-% m = import_mesh(fullfile(root, 'research', 'pub',...
-%     '2013', 'Boonen2013', 'work', 'industrial', 'data',...
-%     'horse.off'));
-% 
 %%
-m = create_sphere_boundary(1, 15);
+if isunix
+    root = '/D';
+else
+    root = 'D:';
+end
+m = import_mesh(fullfile(root, 'research', 'pub',...
+    '2013', 'Boonen2013', 'work', 'industrial', 'data',...
+    'horse.off'));
+
+%%
+% m = create_sphere_boundary(1, 15);
 x = centnorm(m);
 
 %%
@@ -24,7 +24,7 @@ fprintf('%.3g s needed to build cluster tree\n', tCtree);
 v = ones(size(x,1),1);
 b = 1;
 for c = 1 : length(Ctree)
-    if Ctree(c).level == 9
+    if Ctree(c).level == 13
         v(Ctree(c).ind) = mod(b-1,20)+2;
         b = b+1;
     end
