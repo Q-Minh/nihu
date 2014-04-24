@@ -262,17 +262,22 @@ public:
 
 	/** \brief type of the element's physical location variable \f$ x \f$ */
 	typedef typename element_traits::location_value_type<Derived, 0>::type x_t;
+	/** \brief return type of the element physical location variable when obtained by get_x */
 	typedef typename element_traits::location_return_type<Derived, 0>::type x_return_type;
 	/** \brief type of the gradient of the element's physical location variable \f$ x'_{\xi} \f$ */
 	typedef typename element_traits::location_value_type<Derived, 1>::type dx_t;
+	/** \brief return type of the element physical location derivative */
 	typedef typename element_traits::location_return_type<Derived, 1>::type dx_return_type;
+	/** \brief return type of the element normal */
 	typedef typename element_traits::normal_return_type<Derived>::type normal_return_type;
 	/** \brief type of the second derivative of the element's physical location variable \f$ x''_{\xi} \f$ */
 	typedef typename element_traits::location_value_type<Derived, 2>::type ddx_t;
+	/** \brief return type of the element physical location second derivative */
 	typedef typename element_traits::location_return_type<Derived, 2>::type ddx_return_type;
 
-	/** \brief matrix type that stores the element's corner nodes \f$x_i\f$ */
+	/** \brief vector type that stores the element's corner node indices */
 	typedef Eigen::Matrix<unsigned, num_nodes, 1> nodes_t;
+	/** \brief matrix type that stores the element's corner nodes \f$x_i\f$ */
 	typedef typename element_traits::coords_type<Derived>::type coords_t;
 	/** \brief type that stores the element's id */
 	typedef elem_id_t id_t;
@@ -293,13 +298,6 @@ protected:
 	typename element_traits::location_factory_functor<Derived, 1>::type dx_computer;
 	typename element_traits::location_factory_functor<Derived, 2>::type ddx_computer;
 	typename element_traits::normal_factory_functor<Derived>::type normal_computer;
-
-	/** \brief the normal return type based on acceleration */
-	typedef typename std::conditional<
-		element_traits::is_normal_stored<Derived>::value,
-		x_t,
-		x_t const &
-	>::type normal_ret_t;
 
 public:
 	NIHU_CRTP_HELPERS
@@ -520,6 +518,7 @@ public:
 	 * \param [in] coords the coordinate matrix
 	 * \param [in] id element id
 	 * \param [in] nodes the nodal index vector
+	 * \todo this sqrt is only valid for 3D surfaces
 	 */
 	general_surface_element(
 		coords_t const &coords,
@@ -530,6 +529,69 @@ public:
 		base_t::m_linear_size_estimate = sqrt(base_t::get_normal(domain_t::get_center()).norm() * domain_t::get_volume());
 	}
 };
+
+
+
+
+
+// forward declaration
+template <class LSet, class scalar_t>
+class general_volume_element;
+
+/** \brief specialisation of element_traits for the general surface element */
+namespace element_traits
+{
+	template <class LSet, class Scalar>
+	struct space_type<general_volume_element<LSet, Scalar> >
+        : space<Scalar, LSet::domain_t::dimension> {};
+
+	template <class LSet, class Scalar>
+	struct lset<general_volume_element<LSet, Scalar> >
+	{
+		typedef LSet type;
+	};
+}
+
+/** \brief class describing a general surface element that computes its normal in the general way
+ * \tparam LSet type of the geometry shape set
+ */
+template <class LSet, class scalar_t>
+class general_volume_element :
+	public element_base<general_volume_element<LSet, scalar_t> >
+{
+public:
+	/** \brief the base class type */
+	typedef element_base<general_volume_element<LSet, scalar_t> > base_t;
+
+	/** \brief type of the coordinate matrix */
+	typedef typename base_t::coords_t coords_t;
+	/** \brief type of the node index vector */
+	typedef typename base_t::nodes_t nodes_t;
+	/** \brief type of the coordinate  on the standard element */
+	typedef typename base_t::xi_t xi_t;
+	/** \brief type of the coordinate vector */
+	typedef typename base_t::x_t x_t;
+	/** \brief type of the coordinate derivative vector */
+	typedef typename base_t::dx_t dx_t;
+	/** \brief type of the reference domain */
+	typedef typename base_t::domain_t domain_t;
+
+	/** \brief constructor
+	 * \param [in] coords the coordinate matrix
+	 * \param [in] id element id
+	 * \param [in] nodes the nodal index vector
+
+	 */
+	general_volume_element(
+		coords_t const &coords,
+		unsigned id = 0,
+		nodes_t const &nodes = nodes_t())
+		: base_t(coords, id, nodes)
+	{
+		base_t::m_linear_size_estimate = sqrt(base_t::get_dx(domain_t::get_center()).determinant() * domain_t::get_volume());
+	}
+};
+
 
 #endif
 

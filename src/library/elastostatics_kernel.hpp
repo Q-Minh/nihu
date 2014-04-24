@@ -62,6 +62,7 @@ struct Ukernel
 
 class elastostatics_3d_U_kernel;
 
+/** \brief the properties of the elastostatics U kernel */
 template <>
 struct kernel_traits<elastostatics_3d_U_kernel>
 {
@@ -76,6 +77,7 @@ struct kernel_traits<elastostatics_3d_U_kernel>
 	static bool const is_singular = true;
 };
 
+/** \brief the singular properties of the elastostatics U kernel */
 template <>
 struct singular_kernel_traits<elastostatics_3d_U_kernel>
 {
@@ -129,6 +131,7 @@ struct kernel_traits<elastostatics_3d_T_kernel>
 	static bool const is_singular = true;
 };
 
+/** \brief the singular properties of the elastostatics T kernel */
 template <>
 struct singular_kernel_traits<elastostatics_3d_T_kernel>
 {

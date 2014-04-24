@@ -158,3 +158,4 @@ namespace bessel
 }
 
 #endif // MATH_FUNCTIONS_HPP_INCLUDED
+

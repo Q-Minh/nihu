@@ -356,6 +356,12 @@ public:
 };
 
 
+/**
+ * \brief specialisation of ::field_type_accelerator for the soft acceleration case
+ * \tparam Field the field type
+ * \tparam Family the quadrature family
+ * \tparam MaxOrder the maximal stored quadrature order
+ */
 template <class Field, class Family, unsigned MaxOrder>
 class field_type_accelerator_pool<Field, Family, acceleration::soft, MaxOrder> :
 	public pool<typename quadrature_type<Family, typename Field::elem_t::domain_t>::type, MaxOrder>
@@ -370,6 +376,7 @@ public:
 	{
 	}
 
+    /** \brief constant index oprerator */
 	accelerator_t const &operator[](unsigned idx) const
 	{
 		return static_cast<accelerator_t const &>(base_t::operator[](idx));

@@ -86,6 +86,7 @@ public:
 	}
 };
 
+/** \brief Galerkin integral of the 2D slp kernel over a constant line with edge match */
 class laplace_2d_SLP_galerkin_edge_constant_line
 {
     static double qfunc(double a, double phi)
@@ -97,6 +98,7 @@ class laplace_2d_SLP_galerkin_edge_constant_line
     }
 
 public:
+    /** \brief evaluate the integral on two elements */
     static double eval(line_1_elem const &elem1, line_1_elem const &elem2)
     {
 		// get the element corner coordinates
@@ -118,6 +120,7 @@ public:
     }
 };
 
+/** \brief Galerkin integral of the 2D dlp kernel over a constant line with edge match */
 class laplace_2d_DLP_galerkin_edge_constant_line
 {
     static double qfunc(double a, double phi)
@@ -129,6 +132,7 @@ class laplace_2d_DLP_galerkin_edge_constant_line
     }
 
 public:
+    /** \brief evaluate the integral on two elements */
     static double eval(line_1_elem const &elem1, line_1_elem const &elem2)
     {
 		// get element corners
@@ -419,6 +423,7 @@ public:
 	 * \param [in, out] result reference to the result
 	 * \param [in] test_field the test field
 	 * \param [in] trial_field the trial field
+	 * \param [in] match the match data
 	 * \return reference to the result matrix
 	 */
 	template <class result_t>
@@ -458,6 +463,7 @@ public:
 	 * \param [in, out] result reference to the result
 	 * \param [in] test_field the test field
 	 * \param [in] trial_field the trial field
+	 * \param [in] match the match data
 	 * \return reference to the result matrix
 	 */
 	template <class result_t>
@@ -623,6 +629,7 @@ public:
 	/** \brief evaluate singular integral
 	 * \tparam result_t the result matrix type
 	 * \param [in, out] result reference to the result
+	 * \param [in] kernel the kernel instance
 	 * \param [in] trial_field the trial and test field
 	 */
 	template <class result_t>
