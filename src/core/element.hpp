@@ -566,6 +566,8 @@ public:
 	using typename base_t::xi_t;
 	using typename base_t::x_t;
 	using typename base_t::dx_t;
+
+	/** \brief the domain type */
 	using domain_t = typename base_t::domain_t;
 
 	using base_t::get_dx;
