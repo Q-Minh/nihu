@@ -25,9 +25,9 @@
 
 /** \brief class with a static member */
 template <class C>
-class store
+struct store
 {
-public:
+    /** \brief return reference to stored data */
     static C const &get_data(void)
     {
         static const C m_data;
