@@ -38,7 +38,7 @@ static T sinc(T const &x)
 	if (std::abs(x) > 1e-3)
 		return std::sin(x) / x;
 	else
-		return 1.0 - x*x/6.0 * (1.0 - x*x/20.0);
+		return 1. - x*x/6. * (1. - x*x/20.);
 }
 
 namespace bessel
@@ -59,13 +59,13 @@ namespace bessel
 		static_assert(nu == 0 || nu == 1, "unimplemented Bessel J order");
 
 		// upper limit for 1e-8 error
-		int N = (int)(3+2.0*std::abs(z));
+		int N = (int)(3+2.*std::abs(z));
 
-		std::complex<double> res(1.0), q(z*z/4.0);
+		std::complex<double> res(1.), q(z*z/4.);
 		for (int n = N; n > 0; --n)
-			res = 1.0 - q*(1.0/(n*(n+nu)))*res;
+			res = 1. - q*(1./(n*(n+nu)))*res;
 		if (nu == 1)
-			res *= z/2.0;
+			res *= z/2.;
 		return res;
 	}
 
@@ -82,14 +82,14 @@ namespace bessel
 	{
 		int const N = 15;
 
-		std::complex<double> q(z/2.0), q2(q*q);
-		std::complex<double> sum(0.0), ss(-1.0);
-		double a(0.0);
+		std::complex<double> q(z/2.), q2(q*q);
+		std::complex<double> sum(0.), ss(-1.);
+		double a(0.);
 
 		for (int k = 1; k <= N; ++k)
 		{
-			a += 1.0/k;
-			ss *= -q2*(1.0/k/k);
+			a += 1./k;
+			ss *= -q2*(1./k/k);
 			sum += a*ss;
 		}
 
@@ -107,18 +107,18 @@ namespace bessel
 
 		std::complex<double> third(0.0);
 		std::complex<double> q2pow(-q);
-		double a(1.0);
-		double div = 1.0;
+		double a(1.);
+		double div = 1.;
 		for (int k = 0; k < N; ++k)
 		{
 			third += div*q2pow*a;
 
 			div /= -(k+1)*(k+2);
 			q2pow *= q2;
-			a += 1.0/(k+1.0) + 1.0/(k+2.0);
+			a += 1./(k+1.) + 1./(k+2.);
 		}
 
-		return 1.0/M_PI * (first + second + third);
+		return 1./M_PI * (first + second + third);
 	}
 
 	/** \brief large argument expansion of H^(2)_nu(z)
@@ -131,15 +131,15 @@ namespace bessel
 	{
 		int const N(15);
 
-		std::complex<double> sum(1.0), c(1.0);
+		std::complex<double> sum(1.), c(1.);
 		for (int k = 1; k < N; ++k)
 		{
-			c *= -I/z * ((4.0*nu*nu-(2*k-1)*(2*k-1))/k/8.0);
+			c *= -I/z * ((4.*nu*nu-(2*k-1)*(2*k-1))/k/8.);
 			sum += c;
 		}
 
-		std::complex<double> om(z-nu*M_PI/2.0-M_PI/4.0);
-		return std::sqrt(2.0/M_PI/z) * std::exp(-I*om) * sum;
+		std::complex<double> om(z-nu*M_PI/2.-M_PI/4.);
+		return std::sqrt(2./M_PI/z) * std::exp(-I*om) * sum;
 	}
 
 	/** \brief H^(2)_nu(z) Bessel function
@@ -154,6 +154,27 @@ namespace bessel
 			return J_small<nu>(z) - I * Y_small<nu>(z);
 		else
 			return H_large<nu>(z);
+	}
+
+	/** \brief K_nu(z) modified Bessel function
+	 * \tparam nu the Bessel function's order
+	 * \param [in] z the argument
+	 * \return K_nu(z)
+	 * \todo This formulation is only valid in the  -pi/2 < arg(z) < pi  case
+	 */
+	template <int nu>
+	std::complex<double> K(std::complex<double> const &z);
+
+	template <>
+	std::complex<double> K<0>(std::complex<double> const &z)
+	{
+		return -.5*I*M_PI*H<0>(-I*z);
+	}
+
+	template <>
+	std::complex<double> K<1>(std::complex<double> const &z)
+	{
+		return -.5*M_PI*H<1>(-I*z);
 	}
 }
 
