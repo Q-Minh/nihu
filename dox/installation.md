@@ -43,7 +43,7 @@ Prerequisites {#install_prereq}
 In order to complie NiHu, the following prerequisites are needed:
 
 - A c++ compiler and linker that supports some features of the C++11 standard. You will find further information on the compiler selection in the [next section](#install_process).
-\note NiHu builds were tested using the gcc compiler versions 4.7 and 4.8 and the [clang](http://clang.llvm.org/) compiler.
+\note NiHu builds were tested using the gcc compiler versions 4.7, 4.8, and 4.9 and the [clang](http://clang.llvm.org/) compiler.
 - NiHu relies on the template matrix library [Eigen]. If you do not have Eigen installed on your computer, the installation process will download and install the necessary header files for the compilation of NiHu.
 \note current version of NiHu was tested using Eigen 3.2.0.
 
