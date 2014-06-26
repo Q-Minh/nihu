@@ -32,5 +32,17 @@ int main(void)
 	std::cout << bessel::K<0>(std::complex<double>(0., -1.)) << std::endl;
 	std::cout << bessel::K<0>(std::complex<double>(1., -1.)) << std::endl;
 	std::cout << bessel::K<0>(std::complex<double>(2., -1.)) << std::endl;
+
+	std::cout << bessel::K<1>(std::complex<double>(0.)) << std::endl;
+	std::cout << bessel::K<1>(std::complex<double>(1.)) << std::endl;
+	std::cout << bessel::K<1>(std::complex<double>(2.)) << std::endl;
+
+	std::cout << bessel::K<1>(std::complex<double>(0., 1.)) << std::endl;
+	std::cout << bessel::K<1>(std::complex<double>(1., 1.)) << std::endl;
+	std::cout << bessel::K<1>(std::complex<double>(2., 1.)) << std::endl;
+
+	std::cout << bessel::K<1>(std::complex<double>(0., -1.)) << std::endl;
+	std::cout << bessel::K<1>(std::complex<double>(1., -1.)) << std::endl;
+	std::cout << bessel::K<1>(std::complex<double>(2., -1.)) << std::endl;
 }
 

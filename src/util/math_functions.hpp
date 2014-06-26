@@ -126,20 +126,22 @@ namespace bessel
 	 * \param [in] z the argument
 	 * \return H^(2)_nu(z)
 	 */
-	template <int nu>
+	template <int nu, int kind = 2>
 	std::complex<double> H_large(std::complex<double> const &z)
 	{
+		static_assert(kind == 1 || kind == 2, "invalid kind argument of bessel::K");
+		double const C = kind == 2 ? -1. : 1.;
 		int const N(15);
 
 		std::complex<double> sum(1.), c(1.);
 		for (int k = 1; k < N; ++k)
 		{
-			c *= -I/z * ((4.*nu*nu-(2*k-1)*(2*k-1))/k/8.);
+			c *= C*I/z * ((4.*nu*nu-(2*k-1)*(2*k-1))/k/8.);
 			sum += c;
 		}
 
 		std::complex<double> om(z-nu*M_PI/2.-M_PI/4.);
-		return std::sqrt(2./M_PI/z) * std::exp(-I*om) * sum;
+		return std::sqrt(2./M_PI/z) * std::exp(C*I*om) * sum;
 	}
 
 	/** \brief H^(2)_nu(z) Bessel function
@@ -147,11 +149,13 @@ namespace bessel
 	 * \param [in] z the argument
 	 * \return H^(2)_nu(z)
 	 */
-	template <int nu>
+	template <int nu, int kind = 2>
 	std::complex<double> H(std::complex<double> const &z)
 	{
+		static_assert(kind == 1 || kind == 2, "invalid kind argument of bessel::K");
+		double const C = kind == 2 ? -1. : 1.;
 		if (std::abs(z) < 6.0)
-			return J_small<nu>(z) - I * Y_small<nu>(z);
+			return J_small<nu>(z) + C * I * Y_small<nu>(z);
 		else
 			return H_large<nu>(z);
 	}
@@ -160,7 +164,6 @@ namespace bessel
 	 * \tparam nu the Bessel function's order
 	 * \param [in] z the argument
 	 * \return K_nu(z)
-	 * \todo This formulation is only valid in the  -pi/2 < arg(z) < pi  case
 	 */
 	template <int nu>
 	std::complex<double> K(std::complex<double> const &z);
@@ -168,13 +171,19 @@ namespace bessel
 	template <>
 	std::complex<double> K<0>(std::complex<double> const &z)
 	{
-		return -.5*I*M_PI*H<0>(-I*z);
+		if (z.imag() < 0.)
+			return .5*I*M_PI*H<0, 1>(I*z);
+		else
+			return -.5*I*M_PI*H<0, 2>(-I*z);
 	}
 
 	template <>
 	std::complex<double> K<1>(std::complex<double> const &z)
 	{
-		return -.5*M_PI*H<1>(-I*z);
+		if (z.imag() < 0.)
+			return -.5*M_PI*H<1, 1>(I*z);
+		else
+			return -.5*M_PI*H<1, 2>(-I*z);
 	}
 }
 
