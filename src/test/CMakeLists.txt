@@ -1,6 +1,6 @@
 # Test directories with cpp tests
 set(cpp_test_dirs
-	"core_unit"; "library_unit"; "stallone_unit"; "tmp_unit"; "util_unit")
+	"core_unit" ; "library_unit" ; "stallone_unit" ; "tmp_unit" ; "util_unit")
 
 # Add each test directory
 foreach(cpp_test_dir ${cpp_test_dirs})
@@ -19,7 +19,7 @@ endforeach(cpp_test_dir)
 
 # Test directories with matlab tests 
 set(matlab_test_dirs
-	"mex_unit"; "matlab")
+	"mex_unit" ; "matlab")
 
 if(NIHU_BUILD_MEX)
 	foreach(matlab_test_dir ${matlab_test_dirs})

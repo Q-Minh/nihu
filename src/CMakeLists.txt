@@ -219,8 +219,8 @@ endif(DOXYGEN_FOUND)
 ### Installation section
 
 # Select all hpp files for installation
-set(NIHU_HPP_DIRECTORIES
-	"core"; "interface"; "library"; "tmp"; "util")
+set(NIHU_HPP_DIRECTORIES 
+	"core" ; "interface" ; "library" ; "tmp" ; "util")
 
 foreach(HPP_DIRECTORY ${NIHU_HPP_DIRECTORIES})
 	install(DIRECTORY ${HPP_DIRECTORY} DESTINATION include FILES_MATCHING PATTERN "*.hpp")
@@ -228,7 +228,7 @@ endforeach(HPP_DIRECTORY)
 
 # Matlab installation section
 set(NIHU_MATLAB_DIRECTORIES
-	"analytic"; "compatibility"; "meshing")
+	"analytic" ; "compatibility" ; "meshing")
 
 foreach(MATLAB_DIRECTORY ${NIHU_MATLAB_DIRECTORIES})
 	install(DIRECTORY "matlab/${MATLAB_DIRECTORY}" DESTINATION matlab FILES_MATCHING PATTERN "*.m")

@@ -7,6 +7,11 @@ This page collects publications related to the NiHu toolbox.
 
 [TOC]
 
+Journal articles {#pub_journals}
+================
+
+- P. Fiala, P. Rucz: _NiHu: An open source C++ BEM library_, in **Advances in Engineering Software (75)** pp. 101-112, 2014. DOI: [10.1016/j.advengsoft.2014.05.011](http://dx.doi.org/10.1016/j.advengsoft.2014.05.011)
+
 Conference proceedings {#pub_proceedings}
 ======================
 
