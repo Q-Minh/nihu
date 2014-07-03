@@ -4,7 +4,7 @@ function [tree, fathersou, fatherrec] = clustertree(depth, source, varargin)
 %   Builds the cluster tree based on a set of source and receiver nodes.
 % Parameters:
 %   depth : Depth of the cluster tree (starting with level 0, so the
-%           tree consits of depth+1 levels)
+%           tree consists of depth+1 levels)
 %   xs    : Nx3 xyz coordinates of the source nodes
 %   xr    : Mx3 xyz coordinates of the receiver nodes. Default is xr = xs
 %   symm  : symmetry parameter: -1, 0 (default) or +1

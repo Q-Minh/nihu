@@ -1,0 +1,195 @@
+\documentclass{article}
+
+\usepackage{amsmath}
+\usepackage{palatino}
+\usepackage{listings}
+\usepackage{a4wide}
+\usepackage{xcolor}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+
+\newcommand{\td}{\mathrm{d}}
+
+\lstset{ %
+  basicstyle=\footnotesize,        % the size of the fonts that are used for the code
+  breaklines=true,                 % sets automatic line breaking
+  language=C++,                 % the language of the code
+  numbers=left,                    % where to put the line-numbers; possible values are (none, left, right)
+  numberstyle=\tiny\color{gray}, % the style that is used for the line-numbers
+  stepnumber=1,                    % the step between two line-numbers. If it's 1, each line will be numbered
+  numbersep=0pt,                   % how far the line-numbers are from the code
+  tabsize=2,                       % sets default tabsize to 2 spaces
+}
+
+\begin{document}
+
+This section demonstrates how a new family of problems can be incorporated into the NiHu framework.
+The problem addressed here is three-dimensional linear isotropic elastostatics governed by the second order PDE:
+%
+\begin{equation}
+\mu u_{i,jj}(x) + \left(\mu + \lambda\right) u_{j,ij}(x) = 0, x \in \Omega
+\end{equation}
+%
+with the boundary conditions
+%
+\begin{equation}
+t_i(x) = \bar{t}_i(x), x \in \Gamma_t,
+\qquad u_i(x) = \bar{u}_i(x), x \in \Gamma_u
+\end{equation}
+%
+where $u_i(x)$ denotes the displacement vector field, $t_i(x)$ denotes the traction vector field and $\mu$ and $\lambda$ are the Lamé-coefficients.
+
+The corresponding BIE is formulated as
+%
+\begin{equation}
+\int_{\Gamma} T_{ij}(x,y) u_j(y) \td \Gamma(y) - \int_{\Gamma} U_{ij}(x,y) t_{j}(y) \td \Gamma = c(x) u_i(x)
+\end{equation}
+%
+where the displacement and traction fundamental solutions are given as
+%
+\begin{equation}
+U_{ij} = \frac{(3-4\nu) \delta_{ij} + r,_i r,_j}{16 \pi \mu (1-\nu) r}, \qquad
+T_{ij} = \frac{-r,_n ((1-2\nu)\delta_{ij} + 3 r,_i r,_j) + (1-2\nu) (r,_i n_j - r,_j n_i)}{8 \pi (1-\nu) r^2}
+\end{equation}
+
+The BIE is incorporated into the toolbox by introducing the fundamental solutions as suitable kernel functions in integral operators.
+The fundamental solutions are implemented in three steps:
+\begin{enumerate}
+	\item Formulate the kernel expressions with appropriate function objects
+	\item Define the kernel class and its properties in traits classes
+	\item Derive the kernel class from kernel\_base
+\end{enumerate}
+%
+For the case of strongly singular and hypersingular kernels, like the traction kernel $T_{ij}$ above, the definition of additional analytical singular integral expressions are also needed.
+The following code segments demonstrate how the strongly singular traction kernel is implemented for use in collocational formalism with general higher order curved elements.
+
+\subsection{Kernel inputs, kernel data, kernel output and kernel expressions}
+
+Fundamental solutions are bivariate functions of two kernel inputs.
+The traction kernel takes a simple 3d location as test input and a location and normal vector as trial input.
+The kernel is further parametrised by material properties such as the shear modulus $\mu$ and Poisson's ratio $\nu$.
+%Additional kernel parameters can be the location of reflecting surfaces for halfspace problems.
+
+First, the kernel data class---a simple wrapper for a double data---is implemented to store the Poisson's ratio.
+The shear modulus could also be incorporated into the data class, but as this parameter serves only as a scaling factor, it is omitted in the current implementation without the loss of generality.
+
+\begin{lstlisting}
+class poisson_ratio_data {
+public:
+	poisson_ratio_data(double nu) :	m_nu(nu) {}
+	double get_poisson_ratio(void) const { return m_nu; }
+private:
+	double m_nu;
+};
+\end{lstlisting}
+
+Next, a function object, called Tkernel is created that evaluates the traction kernel on a test and trial input and parameters.
+The functor defines the kernel's return type as well. % in the form of an internal typedef.
+%
+\begin{lstlisting}
+struct Tkernel {
+	typedef Eigen::Matrix<double, 3, 3> return_type;
+	
+	return_type operator()(
+		location_input_3d const &x,
+		location_normal_input_3d const &y,
+		poisson_ratio_data const &data) {
+		auto nu = data.get_poisson_ratio();
+		auto rvec = y.get_x() - x.get_x();
+		auto const &n = y.get_unit_normal();
+		auto r = rvec.norm();
+		auto dr = rvec.normalized();
+		auto rdn = dr.dot(n);
+		return (-rdn * ((1.-2.*nu)*return_type::Identity() + 3.*(dr*dr.transpose()))
+			+ (1.-2.*nu) * (dr*n.transpose()-n*dr.transpose())
+			) / (8.*M_PI*(1.-nu)*r*r);
+	}
+};
+\end{lstlisting}
+
+\subsection{Kernel properties}
+
+Now the final kernel class is declared:
+%
+\begin{lstlisting}
+class elastostatics_3d_T_kernel;
+\end{lstlisting}
+%
+and its properties are defined by specialising the template kernel\_traits to the new kernel class:
+%
+\begin{lstlisting}
+template <>
+struct kernel_traits<elastostatics_3d_T_kernel>
+{
+	typedef location_input_3d test_input_t;
+	typedef location_normal_input_3d trial_input_t;
+	typedef collect<poisson_ratio_data> data_t;
+	typedef single_brick_output<Tkernel>::type output_t;
+	
+	typedef asymptotic::inverse<2> far_field_behaviour_t;
+	typedef gauss_family_tag quadrature_family_t;
+	typedef interval_estimator<
+		typename reciprocal_distance_kernel_interval<2, GLOBAL_ACCURACY>::type
+	> complexity_estimator_t;
+	
+	static bool const is_symmetric = false;
+	static bool const is_singular = true;
+};
+\end{lstlisting}
+%
+The first four typedefs define the kernel's test and trial input types, the kernel's parameter data type and the kernel's output type.
+As mentioned before, NiHu provides a mechanism to split the kernel's output expression into a series of subexpressions---called bricks---, and instantiate a complex output structure to allow optimised parallel kernel evaluations.
+For simplicity, this feature is not exploited in this example, and the kernel's output is a single brick output, computed using the expression in functor Tkernel.
+
+The following typedefs define the kernel's regular far field behaviour.
+The asymptotic behaviour is $O(1/r^2)$, and regular integrals are to be computed using standard Gaussian quadratures, where the quadrature order (complexity) is defined based on the distance between kernel input locations and the asymptotic behaviour, by an interval estimator class.
+
+The kernel is defined as being symmetric %, this information is exploited with Galerkin discretisations.
+%Finally, the kernel is defined as
+and singular.
+
+\subsection{Kernel class definition}
+
+The kernel class is defined, derived from kernel\_base using the CRTP pattern.
+The class defines a constructor taking the Poisson's ratio as argument:
+%
+\begin{lstlisting}
+class elastostatics_3d_T_kernel :
+	public kernel_base<elastostatics_3d_T_kernel>
+{
+public:
+	elastostatics_3d_T_kernel(double nu) :
+		kernel_base<elastostatics_3d_T_kernel>(poisson_ratio_data(nu))
+	{
+	}
+};
+\end{lstlisting}
+
+\subsection{Further definitions}
+
+The kernel has been defined as singular.
+This necessitates the definition of further options in the specialisation of template singular\_kernel\_traits:
+%
+\begin{lstlisting}
+template <>
+struct singular_kernel_traits<elastostatics_3d_T_kernel>
+{
+	typedef asymptotic::inverse<2> singularity_type_t;
+	typedef elastostatics_3d_T_kernel singular_core_t;
+};
+\end{lstlisting}
+%
+The kernel's singularity order is defined as $O(1/r^2)$.
+From this information the compiler deduces that the singularity is strong, needs to be evaluated in CPV sense, and will not be handled by a blind quadrature.
+The library user has two choices here: Either specialise the class template singular\_integral\_shortcut for a specific discretisation option---e.g. define an analytical expression of the integral on a plane triangle with a constant weighting function---or specialise a unified integration method for strongly singular and hypersingular integrals, suitable for a general $O(1/r^2)$ singularity.
+This example demonstrates the latter, i.e. applying Guiggiani's method---implemented in the library in a generic way---for collocation.
+
+Guiggiani's method is a singularity subtraction technique in polar coordinates.
+The kernel's singular part is integrated analytically, and the remaining regular part is integrated by Gaussian quadratures.
+In order to facilitate this technique, the kernel's singular part needs to be defined in the form of a Laurent series expansion in polar intrinsic coordinates.
+As the fundamental solutions of elastodynamics share the same singularity as their static counterpart, the Laurent expansions are templated on the kernel's singular core type---the kernel itself in our special case.
+
+%
+The kernel is now ready to instantiate integral operators and accurately evaluate CPV integrals even on higher order curved elements.
+
+\end{document}

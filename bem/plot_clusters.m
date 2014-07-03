@@ -42,9 +42,9 @@ if level >= 1
     end
 end
 % figure settings
-axis equal;
-axis tight;
-alpha .7;
+% axis equal;
+% axis tight;
+alpha .2;
 
 
 function plot_cluster(center, diameter, color)

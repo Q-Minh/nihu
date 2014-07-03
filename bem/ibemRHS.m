@@ -19,13 +19,13 @@ M = sparse(nNodes, nNodes);
 nE = size(elements,1);
 for e = 1 : nE
     switch elements(e,2)
-        case {23 231}
+        case {23, 231}
             elem = elements(e, 4+(1:3));
             nodes = mesh.Nodes(elem,2:4);
             dN = dN3;
             N = N3;
             w = w3;
-        case {24 241}
+        case {24, 241}
             elem = elements(e, 4+(1:4));
             nodes = mesh.Nodes(elem,2:4);
             dN = dN4;

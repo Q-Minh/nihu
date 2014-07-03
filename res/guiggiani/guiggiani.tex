@@ -1,0 +1,112 @@
+\documentclass[a4paper,11pt]{article}
+
+\usepackage{amsmath,bm}
+\usepackage{a4wide}
+
+\newcommand{\td}{\mathrm{d}}
+
+\begin{document}
+
+\section{Demonstration}
+
+2D, constant straight line element with the singular point in the middle.
+
+\begin{equation}
+G''_{n_x, n_y} = \frac{1}{2\pi r^2} \left({\bf n}_x {\bf n}_y + 2 r'_{n_x} r'_{n_y}\right)
+\end{equation}
+%
+on the straight lines the kernel simplifies to
+%
+\begin{equation}
+G''_{n_x, n_y} = \frac{1}{2\pi r^2}
+\end{equation}
+
+\begin{equation}
+\int_{S-e_{\epsilon}} G''_{n_x,n_y} \td S_y
+=
+\int_{-D}^{-\epsilon} \frac{1}{2\pi r^2} \td r + \int_{\epsilon}^{D} \frac{1}{2\pi r^2} \td r
+=
+\frac{1}{\pi \epsilon} - \frac{1}{\pi D}
+\end{equation}
+%
+On the semicircle $s_{\epsilon}$ the integral simplifies to
+%
+\begin{align}
+\int_{s_{\epsilon}} G''_{n_x,n_y} \td S_y
+&=
+\frac{1}{2\pi\epsilon^2}\int_{s_{\epsilon}} \left({\bf n}_x{\bf n}_y + 2 r'_{n_x} r'_{n_y}\right) \td S_y \nonumber \\
+&=
+\frac{1}{2\pi \epsilon^2} \int_{-\pi/2}^{\pi/2} \left(\cos\theta + 2 \cos\theta (-1)\right) \epsilon \td \theta \nonumber \\
+&= \frac{-1}{\pi\epsilon}
+\end{align}
+%
+Apparently, the two unbounded terms in the two parts of the integrals cancel each other, yielding the finite result $-2/D$.
+
+
+\begin{equation}
+\lim_{\epsilon\to0^+}\int_{S-S_{\epsilon}} G({\bf y}, {\bf x}) N({\bf y}) \td S_y
+\end{equation}
+
+\section{2D}
+
+\begin{align}
+I &= \lim_{\epsilon \to 0+} \int_{\Sigma-\Sigma(\epsilon)} G({\bf y}(\xi), {\bf x}) N(\xi) J(\xi) \td \xi \nonumber \\
+&= \lim_{\epsilon \to 0+} \int_{\Sigma-\Sigma(\epsilon)} G({\bf y}(\xi), \xi_0) N(\xi) J(\xi) \td \xi \nonumber \\
+&= \lim_{\epsilon \to 0+} \left\{ \int_{\alpha^+(\epsilon)}^{R^+} G^+(\rho) N^+(\rho) J^+(\rho) \td \rho +
+\int_{\alpha^-(\epsilon)}^{R^-} G^-(\rho) N^-(\rho) J^-(\rho) \td \rho
+\right\}
+\end{align}
+
+\begin{align}
+G^+ N^+ J^+ = \frac{F_{-2}^+}{\rho^2} + \frac{F_{-1}^+}{\rho} + O(1) \nonumber \\
+G^- N^- J^- = \frac{F_{-2}^-}{\rho^2} + \frac{F_{-1}^-}{\rho} + O(1)
+\end{align}
+
+\begin{multline}
+I =
+\int_{0}^{R^+} G^+ N^+ J^+ - \frac{F_{-2}^+}{\rho^2} - \frac{F_{-1}^+}{\rho} \td \rho +
+\int_{0}^{R^-} G^- N^- J^- - \frac{F_{-2}^-}{\rho^2} - \frac{F_{-1}^-}{\rho} \td \rho \\
+-
+\left(
+\frac{F_{-2}^+}{R^+}
++ \frac{F_{-2}^-}{R^-} 
+\right)
++ F_{-1}^+ \ln R^+
++ F_{-1}^- \ln R^- \\
++
+\lim_{\epsilon \to 0+}
+\left\{
+\frac{F_{-2}^+}{\alpha^+(\epsilon)}
++ \frac{F_{-2}^-}{\alpha^-(\epsilon)}
+- \left(F_{-1}^+ \ln \left|\alpha^+(\epsilon) \right|
++ F_{-1}^- \ln \left|\alpha^-(\epsilon) \right|\right)
+\right\}
+\end{multline}
+
+\begin{equation}
+\alpha^+(\epsilon) =  \epsilon \beta^+ + \epsilon^2 \gamma^+ + O(\epsilon^3)
+\end{equation}
+
+\begin{multline}
+I =
+\int_{0}^{R^+} G^+ N^+ J^+ - \frac{F_{-2}^+}{\rho^2} - \frac{F_{-1}^+}{\rho} \td \rho +
+\int_{0}^{R^-} G^- N^- J^- - \frac{F_{-2}^-}{\rho^2} - \frac{F_{-1}^-}{\rho} \td \rho \\
+-
+\left\{
+F_{-2}^+\left(\frac{1}{R^+} + \frac{\gamma^+}{\beta^{+2}}\right)
++
+F_{-2}^-\left(\frac{1}{R^-} + \frac{\gamma^-}{\beta^{-2}}\right)
+\right\}
++ F_{-1}^+ \ln \left|\frac{R^+}{\beta^+}\right|
++ F_{-1}^- \ln \left|\frac{R^-}{\beta^-}\right| \\
++
+\lim_{\epsilon \to 0+}
+\frac{1}{\epsilon}
+\left(
+\frac{F_{-2}^+}{\beta^+}
++ \frac{F_{-2}^-}{\beta^-}
+\right)
+\end{multline}
+
+\end{document}
+

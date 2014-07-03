@@ -1,0 +1,269 @@
+\documentclass[a4paper,11pt,twoside]{article}
+
+\usepackage{palatino}
+\usepackage{a4wide}
+\usepackage{amsmath,bm}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+\newcommand{\td}{\mathrm{d}}
+\newcommand{\te}{\mathrm{e}}
+
+\title{Time Domain BEM}
+\author{Peter Fiala}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+
+\section{Introduction}
+
+Really just the first steps in TD BEM.
+
+\section{Convolution integral}
+
+The sound pressure $p$ at time $t$ and location ${\bf x}$ can be expressed using the convolutional form of the Helmholtz-integral:
+%
+\begin{equation}
+\frac{1}{2}p({\bf x}, t) =
+\int_{0}^{t}
+\int_{S}
+\left\{
+G'_{n_y}({\bf x},{\bf y}, t-\tau) p({\bf y}, \tau)
+-
+G({\bf x}-{\bf y}, t-\tau) q({\bf y}, \tau)
+\right\}
+\td S_{y}
+\td \tau
+\end{equation}
+%
+where $G$ denotes the fundamental solution of the governing differential equation. For the case of the wave equation in 3D, the fundamental solution is expressed as
+%
+\begin{equation}
+G({\bf x}-{\bf y}, t) = \frac{\delta(t-r/c)}{4\pi r}, \qquad r = |{\bf y}-{\bf x}|
+\end{equation}
+
+\section{Discretisation}
+
+The pressure and its normal derivative are interpolated along the surface $S$ and time:
+%
+\begin{equation}
+p({\bf x}, t) =
+\sum_{\beta} \sum_j
+p^{\beta}_{j} N_j({\bf x}) T_{\beta}(t)
+\end{equation}
+%
+Introducing the interpolation in the convolutional integral yields the expression
+%
+\begin{multline}
+\frac{1}{2}p({\bf x}, t) =
+\sum_{\beta} \sum_j 
+\int_{0}^{t} \int_{S}
+G'_{n_y}({\bf x}-{\bf y}, t-\tau)
+N_j({\bf y}) T_{\beta}(\tau)
+\td S_{y} \td \tau
+p^{\beta}_{j} \\
+-
+\sum_{\beta} \sum_j 
+\int_{0}^{t} \int_{S}
+G({\bf x}-{\bf y}, t-\tau)
+N_j({\bf y}) T_{\beta}(\tau)
+\td S_{y} \td \tau
+q^{\beta}_{j} 
+\end{multline}
+
+\section{Collocation}
+
+The integral equation is solved using the collocation method:
+%
+\begin{equation}
+\frac{1}{2}p_{i}^{\alpha} =
+\sum_{\beta = 1}^{\alpha} \sum_j 
+H_{ij}^{\alpha \beta}
+p^{\beta}_{j} \\
+-
+\sum_{\beta = 1}^{\alpha} \sum_j 
+G_{ij}^{\alpha \beta}
+q^{\beta}_{j} 
+\end{equation}
+%
+where
+%
+\begin{align}
+G_{ij}^{\alpha \beta} &=
+\int_{0}^{t_{\alpha}} \int_{S}
+G({\bf x}_i-{\bf y}, t_{\alpha}-\tau)
+N_j({\bf y}) T_{\beta}(\tau)
+\td S_{y} \td \tau
+\nonumber \\
+H_{ij}^{\alpha \beta} &=
+\int_{0}^{t_{\alpha}} \int_{S}
+G'_{n_y}({\bf x}_i-{\bf y}, t_{\alpha}-\tau)
+N_j({\bf y}) T_{\beta}(\tau)
+\td S_{y} \td \tau
+\end{align}
+
+Substituting the Green's function of the wave equation yields
+%
+\begin{align}
+G_{ij}^{\alpha \beta}
+&=
+\int_{0}^{t_{\alpha}} \int_{S}
+\frac{\delta(t_{\alpha}-\tau-r/c)}{4\pi r}
+N_j({\bf y}) T_{\beta}(\tau)
+\td S_{y} \td \tau
+\nonumber \\
+&=
+\int_{S}
+\frac{N_j({\bf y}) T_{\beta}(t_{\alpha}-r/c)}{4\pi r}
+\td S_{y}
+\end{align}
+%
+and
+%
+\begin{align}
+H_{ij}^{\alpha \beta}
+&=
+\int_{0}^{t_{\alpha}} \int_{S}
+\frac{\partial}{\partial r}\left(\frac{\delta(t_{\alpha}-\tau-r/c)}{4\pi r}\right)
+r'_{n_{y}} N_j({\bf y}) T_{\beta}(\tau)
+\td S_{y} \td \tau
+\nonumber \\
+&=
+\int_{0}^{t_{\alpha}} \int_{S}
+\left(
+\frac{\delta'(t_{\alpha}-\tau-r/c)(-1/c)}{4\pi r}
+-
+\frac{\delta(t_{\alpha}-\tau-r/c)}{4\pi r^2}
+\right)
+r'_{n_{y}} N_j({\bf y}) T_{\beta}(\tau)
+\td S_{y} \td \tau
+\nonumber \\
+&=
+\int_{S}
+\left(
+\frac{T'_{\beta}(t_{\alpha}-r/c)/c}{4\pi r}
+-
+\frac{T_{\beta}(t_{\alpha}-r/c)}{4\pi r^2}
+\right)
+r'_{n_{y}} N_j({\bf y})
+\td S_{y}
+\end{align}
+%
+
+\section{Integral expressions}
+
+\subsection{Linear time shape functions}
+
+Introducing linear temporal interpolation functions defined with the equidistant base points at $\beta \Delta t$:
+%
+\begin{equation}
+T_{\beta}(t) = \begin{cases}
+\frac{t-(\beta-1)\Delta t}{\Delta t} & (\beta-1)\Delta t \le t < \beta \Delta t \\
+1-\frac{t-\beta\Delta t}{\Delta t} & \beta\Delta t \le t < (\beta+1) \Delta t
+\end{cases}, \qquad \beta = 1 \dots \alpha
+\end{equation}
+%
+\begin{equation}
+T'_{\beta}(t) = \begin{cases}
+\frac{1}{\Delta t} & (\beta-1)\Delta t \le t < \beta \Delta t \\
+-\frac{1}{\Delta t} & \beta\Delta t \le t < (\beta+1) \Delta t
+\end{cases}, \qquad \beta = 1 \dots \alpha
+\end{equation}
+%
+or, as used above:
+%
+\begin{equation}
+T_{\alpha-\gamma}(t_{\alpha}-r/c)
+= \begin{cases}
+\gamma + 1 -r^* & \gamma < r^* \le \gamma+1 \\
+\gamma + 1 +r^* & \gamma-1 < r^* \le \gamma
+\end{cases} \nonumber \\
+\end{equation}
+%
+\begin{equation}
+T'_{\alpha-\gamma}(t_{\alpha}-r/c) = \begin{cases}
+\frac{1}{\Delta t} & \gamma < r^* \le \gamma+1 \\
+-\frac{1}{\Delta t} & \gamma-1 < r^* \le \gamma
+\end{cases}
+\end{equation}
+%
+where $r^* = r/c\Delta t$ is the normalised distance from the collocation point
+
+
+\begin{align}
+G_{ij}^{\gamma}
+&=
+\frac{\gamma + 1}{4\pi}
+\int_{S_i^{\gamma}}
+\frac{N_j({\bf y})}{r}
+\td S_{y}
++
+\frac{1}{4\pi c \Delta t}
+\left(
+\int_{S_i^{\gamma-}}
+N_j({\bf y})
+\td S_{y}
+-
+\int_{S_i^{\gamma+}}
+N_j({\bf y})
+\td S_{y}
+\right) \nonumber \\
+H_{ij}^{\gamma}
+&=
+-
+\frac{\gamma+1}{4\pi}
+\int_{S_{i}^{\gamma}}
+\frac{r'_{n_{y}} N_j({\bf y})}{r^2}
+\td S_{y}
++
+\frac{1}{2\pi c \Delta t}
+\left(
+\int_{S_{i}^{\gamma+}}
+\frac{r'_{n_{y}} N_j({\bf y})}{r}
+\td S_{y}
+-
+\int_{S_{i}^{\gamma-}}
+\frac{r'_{n_{y}} N_j({\bf y})}{r}
+\td S_{y}
+\right)
+\end{align}
+
+For constant triangles
+%
+\begin{align}
+G_{ij}^{\gamma}
+&=
+\frac{\gamma + 1}{4\pi}
+\int_{S_{ij}^{\gamma}}
+\frac{1}{r}
+\td S_{y}
++
+\frac{S_{ij}^{\gamma-} - S_{ij}^{\gamma+}}{4\pi c \Delta t}
+\nonumber \\
+H_{ij}^{\gamma}
+&=
+-
+\frac{\gamma+1}{4\pi}
+\int_{S_{ij}^{\gamma}}
+\frac{r'_{n_{y}}}{r^2}
+\td S_{y}
++
+\frac{1}{2\pi c \Delta t}
+\left(
+\int_{S_{ij}^{\gamma+}}
+\frac{r'_{n_{y}}}{r}
+\td S_{y}
+-
+\int_{S_{ij}^{\gamma-}}
+\frac{r'_{n_{y}}}{r}
+\td S_{y}
+\right)
+\end{align}
+
+
+
+\end{document}
+
