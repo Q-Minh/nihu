@@ -34,6 +34,7 @@ Low level NiHu
 --------------
 
 1. \subpage tut_elements : how to work with finite elements
+2. \subpage tut_quadrature : how to work with quadratures
 
 Advanced topics
 ---------------

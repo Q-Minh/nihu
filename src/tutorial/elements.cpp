@@ -67,3 +67,9 @@ void surface(void)
 //! [surface second derivative]
 }
 
+int main(void)
+{
+	volume();
+	surface();
+	return 0;
+}

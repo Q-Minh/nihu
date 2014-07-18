@@ -677,6 +677,7 @@ INPUT                  = "${CMAKE_SOURCE_DIR}/../dox/mainpage.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/tut_custom_kernel.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/tut_guiggiani_hypersingular.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/tut_elements.md" \
+                         "${CMAKE_SOURCE_DIR}/../dox/tut_quadrature.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/reference.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/techniques.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/tech_cpp11.md" \
