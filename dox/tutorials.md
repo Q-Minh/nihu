@@ -30,6 +30,11 @@ These examples build C++ executables that are called from the Matlab frontend
 4. \subpage tut_helmholtz_bem_2d_cyl
 5. \subpage tut_helmholtz_ibem_3d
 
+Low level NiHu
+--------------
+
+1. \subpage tut_elements : how to work with finite elements
+
 Advanced topics
 ---------------
 
