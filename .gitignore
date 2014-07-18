@@ -1,21 +1,35 @@
-# Disable thirdparty
-src/ThirdParty/*
+# BEM .m files created from mex
+bem/mex_source/*.m
 
+# Matlab stored data
+*.mat
+
+# Matlab autosave files
+*.asv
+
+# Matlab mex binaries
+*.mexw*
+*.mexa*
+
+# Ubuntu linux tmp files
 *.*~
-*~
+.fuse*
 
-*.o
+# LaTeX documentation tmp and output files
+*.aux
+*.dvi
+*.gz
+*.lof
+*.log
+*.lot
 *.out
+*.pdf
+*.toc
+*.vrb
 
-*.asm
+# Other binary formats
+*.wav
+*.mp3
 
-*.filter
-*.user
-*.sdf
-*.sln
-*.suo
-*.filters
-*.user
-
-*.depend
-*.layout
+# Doxygen generated documentation
+doc/*

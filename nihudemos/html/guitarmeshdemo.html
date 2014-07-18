@@ -1,0 +1,177 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Create BE surface mesh of a guitar body</title><meta name="generator" content="MATLAB 7.14"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2012-12-14"><meta name="DC.source" content="guitarmeshdemo.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, tt, code { font-size:12px; }
+pre { margin:0px 0px 20px; }
+pre.error { color:red; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+
+  </style></head><body><div class="content"><h1>Create BE surface mesh of a guitar body</h1><!--introduction--><p>This demo explains how to create a BE surface mesh of a guitar. The guitar shape is described by cubic Bezier curves, and is saved in an eps file.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Geometrical parameters</a></li><li><a href="#2">Load and mesh guitar body boundary curve</a></li><li><a href="#4">Meshing the body surface and the side plates</a></li><li><a href="#6">Assembling the guitar mesh</a></li></ul></div><h2>Geometrical parameters<a name="1"></a></h2><pre class="codeinput">Ly = 0.65;  <span class="comment">% guitar body length [m]</span>
+Lz = 0.1;   <span class="comment">% guitar body depth [m]</span>
+Le = 0.02;  <span class="comment">% length of a boundary element [m]</span>
+</pre><h2>Load and mesh guitar body boundary curve<a name="2"></a></h2><p>We first load the boundary curve path of the half guitar body from the postscript file halfguitar.eps using the toolbox function <a href="matlab:doc('read_epspath')">read_epspath</a>. The eps curve needs to be scaled in order to obtain the desired guitar body length. Instead, we first mesh the eps curve with a modified element length (using the toolbox function <a href="matlab:doc('mesh_path')">mesh_path</a>), and the resulting NiHu line mesh is scaled down using function <a href="matlab:doc('scale_mesh')">scale_mesh</a>.</p><pre class="codeinput">epsfile = <span class="string">'data/halfguitar.eps'</span>;
+epsfile = fullfile(fileparts(mfilename(<span class="string">'fullpath'</span>)), epsfile);
+[bb, path] = read_epspath(epsfile);
+scale_factor = Ly/max(diff(bb, 1));
+bou = meshpath(path, Le/scale_factor);
+bou = scale_mesh(bou, scale_factor);
+
+figure;
+plot_mesh(bou);
+</pre><img vspace="5" hspace="5" src="guitarmeshdemo_01.png" alt=""> <p>We translate the mesh to the origin and reflect it in order to obtain a full symmetric guitar boundary.</p><pre class="codeinput">bou = translate_mesh(bou, [-max(bou.Nodes(:,2)) 0 0]);
+bou = join_meshes(bou, reflect_mesh(bou, [1 0 0]));
+
+figure;
+plot_mesh(bou);
+</pre><img vspace="5" hspace="5" src="guitarmeshdemo_02.png" alt=""> <h2>Meshing the body surface and the side plates<a name="4"></a></h2><p>The surface of the guitar body is meshed using the toolbox interface function <a href="matlab:doc('fill_polygon')">fill_polygon</a>. This function is an interface to the Matlab toolbox <a href="http://www.mathworks.com/matlabcentral/fileexchange/25555-mesh2d-automatic-mesh-generation">mesh2D</a> by Darren Engwirda.</p><pre class="codeinput">plate = fill_polygon(bou, Le);
+
+figure;
+plot_mesh(plate);
+</pre><pre class="codeoutput">WARNING: 8 duplicate node(s) removed
+</pre><img vspace="5" hspace="5" src="guitarmeshdemo_03.png" alt=""> <p>Mesh2D may refine the boundary of the guitar body surface. Therefore, we redefine the boudary mesh using the toolbox function <a href="matlab:doc('get_boundary')">get_boundary</a>, and extrude it with <a href="matlab:doc('extrude_mesh')">extrude_mesh</a> in order to obtain the guitar side plate.</p><pre class="codeinput">bou = get_boundary(plate);
+nz = ceil(Lz/Le);
+side = extrude_mesh(bou, [0 0 Lz/nz], nz);
+
+figure;
+plot_mesh(side);
+</pre><img vspace="5" hspace="5" src="guitarmeshdemo_04.png" alt=""> <h2>Assembling the guitar mesh<a name="6"></a></h2><p>We finally create the guitar back plate by flipping the elements of the front plate, and assemble the guitar mesh from the three parts.</p><pre class="codeinput">back = flip_elements(plate);
+top = translate_mesh(plate, [0 0 Lz]);
+guitar = join_meshes(top, back, side);
+</pre><p>After merging coincident nodes and dropping unused nodes, we plot the guitar mesh and outward surface normals</p><pre class="codeinput">guitar = merge_coincident_nodes(guitar);
+guitar = drop_unused_nodes(guitar);
+
+figure;
+plot_mesh(guitar);
+plot_elem_normals(guitar);
+</pre><img vspace="5" hspace="5" src="guitarmeshdemo_05.png" alt=""> <p class="footer"><br>
+      Published with MATLAB&reg; 7.14<br></p></div><!--
+##### SOURCE BEGIN #####
+%% Create BE surface mesh of a guitar body
+% This demo explains how to create a BE surface mesh of a guitar. The
+% guitar shape is described by cubic Bezier curves, and is saved in an eps
+% file.
+
+%% Geometrical parameters
+Ly = 0.65;  % guitar body length [m]
+Lz = 0.1;   % guitar body depth [m]
+Le = 0.02;  % length of a boundary element [m]
+
+%% Load and mesh guitar body boundary curve
+% We first load the boundary curve path of the half guitar body from the
+% postscript file halfguitar.eps using the toolbox function
+% <matlab:doc('read_epspath') read_epspath>. The eps curve needs to be
+% scaled in order to obtain the desired guitar body length. Instead, we
+% first mesh the eps curve with a modified element length (using the
+% toolbox function <matlab:doc('mesh_path') mesh_path>), and the resulting
+% NiHu line mesh is scaled down using function 
+% <matlab:doc('scale_mesh') scale_mesh>.
+epsfile = 'data/halfguitar.eps';
+epsfile = fullfile(fileparts(mfilename('fullpath')), epsfile);
+[bb, path] = read_epspath(epsfile);
+scale_factor = Ly/max(diff(bb, 1));
+bou = meshpath(path, Le/scale_factor);
+bou = scale_mesh(bou, scale_factor);
+
+figure;
+plot_mesh(bou);
+
+%% 
+% We translate the mesh to the origin and reflect it in order to obtain a
+% full symmetric guitar boundary.
+bou = translate_mesh(bou, [-max(bou.Nodes(:,2)) 0 0]);
+bou = join_meshes(bou, reflect_mesh(bou, [1 0 0]));
+
+figure;
+plot_mesh(bou);
+
+%% Meshing the body surface and the side plates
+% The surface of the guitar body is meshed using the toolbox interface
+% function <matlab:doc('fill_polygon') fill_polygon>. This function is an
+% interface to the Matlab toolbox
+% <http://www.mathworks.com/matlabcentral/fileexchange/25555-mesh2d-automatic-mesh-generation mesh2D>
+% by Darren Engwirda.
+plate = fill_polygon(bou, Le);
+
+figure;
+plot_mesh(plate);
+
+%%
+% Mesh2D may refine the boundary of the guitar body surface. Therefore, we
+% redefine the boudary mesh using the toolbox function
+% <matlab:doc('get_boundary') get_boundary>, and extrude it with
+% <matlab:doc('extrude_mesh') extrude_mesh> in order to
+% obtain the guitar side plate.
+bou = get_boundary(plate);
+nz = ceil(Lz/Le);
+side = extrude_mesh(bou, [0 0 Lz/nz], nz);
+
+figure;
+plot_mesh(side);
+
+%% Assembling the guitar mesh
+% We finally create the guitar back plate by flipping the elements of the
+% front plate, and assemble the guitar mesh from the three parts.
+back = flip_elements(plate);
+top = translate_mesh(plate, [0 0 Lz]);
+guitar = join_meshes(top, back, side);
+%%
+% After merging coincident nodes and dropping unused nodes, we plot the
+% guitar mesh and outward surface normals
+guitar = merge_coincident_nodes(guitar);
+guitar = drop_unused_nodes(guitar);
+
+figure;
+plot_mesh(guitar);
+plot_elem_normals(guitar);
+
+##### SOURCE END #####
+--></body></html>

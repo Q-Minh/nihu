@@ -1,0 +1,175 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Create Volume Mesh of a Muffler</title><meta name="generator" content="MATLAB 7.14"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2012-06-07"><meta name="DC.source" content="mufflerdemo.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, tt, code { font-size:12px; }
+pre { margin:0px 0px 20px; }
+pre.error { color:red; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+
+  </style></head><body><div class="content"><h1>Create Volume Mesh of a Muffler</h1><!--introduction--><p>This demo explains how to create a volume mesh of a muffler geometry.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Geometrical parameters</a></li><li><a href="#2">Create the muffler components</a></li><li><a href="#5">Combining the submodels</a></li><li><a href="#6">Mesh postprocessing</a></li></ul></div><h2>Geometrical parameters<a name="1"></a></h2><p>The muffler consists of three cylindrical parts: <img src="mufflerdemo_eq88684.png" alt="$A-B-A$">, where <img src="mufflerdemo_eq31461.png" alt="$A$"> is a cylinder with radius <img src="mufflerdemo_eq40646.png" alt="$r_A$">, length <img src="mufflerdemo_eq57786.png" alt="$l_A$">, and <img src="mufflerdemo_eq73617.png" alt="$B$"> is a cylinder with radius <img src="mufflerdemo_eq65134.png" alt="$r_B$"> and length <img src="mufflerdemo_eq81784.png" alt="$l_B$">.</p><pre class="codeinput">rA = 1;      <span class="comment">% radius of component A</span>
+lA = 1;      <span class="comment">% length of component A</span>
+rB = .39;    <span class="comment">% radius of component B</span>
+lB = .7;     <span class="comment">% length of component B</span>
+Le = .05;    <span class="comment">% length of a finite element</span>
+</pre><h2>Create the muffler components<a name="2"></a></h2><p>The mesh components <img src="mufflerdemo_eq31461.png" alt="$A$"> and <img src="mufflerdemo_eq73617.png" alt="$B$"> are created separately and the muffler is assembled later from the components. Both components are created by extrusion from disc surface meshes. The two discs are meshed in the following.</p><p>The larger disc geometry is constructed by meshing a slab in the domain <img src="mufflerdemo_eq77873.png" alt="$x \in [-r_A, r_A]$">, <img src="mufflerdemo_eq43780.png" alt="$y \in [-r_A, r_A]$"> and transforming the slab node coordinates <img src="mufflerdemo_eq57428.png" alt="$(x,y)$"> to coordinates of a disc <img src="mufflerdemo_eq46664.png" alt="$(\xi, \eta)$"> by the transform <img src="mufflerdemo_eq93752.png" alt="$(\xi, \eta) = (x, y) * \max(x,y)/r$">, where <img src="mufflerdemo_eq23751.png" alt="$r = \sqrt(x^2+y^2)$">.</p><p>The slab is meshed with a non-uniform division in order to ensure that the disc will contain nodes at <img src="mufflerdemo_eq88192.png" alt="$r = r_B$"> after the transformation.</p><pre class="codeinput">x1 = linspace(0, rB, ceil(rB/Le)); <span class="comment">% meshing the radius between 0 and r</span>
+x2 = linspace(rB, rA, ceil((rA-rB)/Le)); <span class="comment">% meshing the radius between r and R</span>
+x = unique([-x2, -x1, x1, x2]);        <span class="comment">% meshing the slab</span>
+Disc = create_slab(x);
+
+figure;
+plot_mesh(Disc);
+</pre><img vspace="5" hspace="5" src="mufflerdemo_01.png" alt=""> <p>The transformation is performed as follows:</p><pre class="codeinput">nodes = Disc.Nodes(:,2:4);          <span class="comment">% extract the nodes</span>
+r = sqrt(dot(nodes, nodes, 2));   <span class="comment">% radius of the slab coordinates</span>
+Disc.Nodes(:,2:4) = nodes .* repmat(max(abs(nodes),[],2)./r, 1, 3);
+Disc.Nodes(r == 0,2:4) = 0;
+
+figure;
+plot_mesh(Disc);
+</pre><img vspace="5" hspace="5" src="mufflerdemo_02.png" alt=""> <p>The inner disc is extracted from the <tt>Disc</tt> model by finding the elements satisfying the condition <img src="mufflerdemo_eq82011.png" alt="$r < r_B$"></p><pre class="codeinput">disc = Disc;
+tol = 1e-3;
+[disc_nod, disc_el] = mesh_select(disc,<span class="keyword">...</span>
+    sprintf(<span class="string">'r &lt; %g'</span>, rB+tol), <span class="string">'ind'</span>, <span class="string">'all'</span>);
+disc.Elements = disc.Elements(disc_el,:);
+
+figure;
+plot_mesh(disc);
+</pre><img vspace="5" hspace="5" src="mufflerdemo_03.png" alt=""> <h2>Combining the submodels<a name="5"></a></h2><p>The two cylinders are created by extruding the two disc models along the <img src="mufflerdemo_eq88768.png" alt="$z$"> axis, and combining the segments after translation.</p><pre class="codeinput">n = ceil(lB/Le);    <span class="comment">% number of extrusion segments for the small disc</span>
+cyl = extrude_mesh(disc, [0 0 lB/n], n);
+N = ceil(lA/Le);    <span class="comment">% number of extrusion segments for the large disc</span>
+Cyl = extrude_mesh(Disc, [0 0 lA/N], N);
+muffler = join_meshes(Cyl, translate_mesh(cyl, [0 0 lA]),<span class="keyword">...</span>
+    translate_mesh(Cyl, [0 0 lA+lB]));
+</pre><h2>Mesh postprocessing<a name="6"></a></h2><p>The mesh post processing consists of merging the coincident nodes and dropping the unused nodes of the muffler model.</p><pre class="codeinput">muffler = merge_coincident_nodes(muffler);
+muffler = drop_unused_nodes(muffler);
+
+figure;
+plot_mesh(muffler); view(3);
+</pre><img vspace="5" hspace="5" src="mufflerdemo_04.png" alt=""> <p class="footer"><br>
+      Published with MATLAB&reg; 7.14<br></p></div><!--
+##### SOURCE BEGIN #####
+%% Create Volume Mesh of a Muffler
+% This demo explains how to create a volume mesh of a muffler geometry.
+
+%% Geometrical parameters
+% The muffler consists of three cylindrical parts: $A-B-A$, where $A$
+% is a cylinder with radius $r_A$, length $l_A$, and $B$ is a cylinder with
+% radius $r_B$ and length $l_B$.
+rA = 1;      % radius of component A
+lA = 1;      % length of component A
+rB = .39;    % radius of component B
+lB = .7;     % length of component B
+Le = .05;    % length of a finite element
+
+%% Create the muffler components
+% The mesh components $A$ and $B$ are created separately and the muffler
+% is assembled later from the components. Both components are created by
+% extrusion from disc surface meshes. The two discs are meshed in the
+% following.
+%
+% The larger disc geometry is constructed by meshing a slab in the domain
+% $x \in [-r_A, r_A]$, $y \in [-r_A, r_A]$ and transforming the
+% slab node coordinates $(x,y)$ to coordinates of a disc $(\xi, \eta)$
+% by the transform
+% $(\xi, \eta) = (x, y) * \max(x,y)/r$, where $r = \sqrt(x^2+y^2)$.
+%
+% The slab is meshed with a non-uniform division in order to ensure that
+% the disc will contain nodes at $r = r_B$ after the transformation.
+x1 = linspace(0, rB, ceil(rB/Le)); % meshing the radius between 0 and r
+x2 = linspace(rB, rA, ceil((rA-rB)/Le)); % meshing the radius between r and R
+x = unique([-x2, -x1, x1, x2]);        % meshing the slab
+Disc = create_slab(x);
+
+figure;
+plot_mesh(Disc);
+
+%%
+% The transformation is performed as follows:
+nodes = Disc.Nodes(:,2:4);          % extract the nodes
+r = sqrt(dot(nodes, nodes, 2));   % radius of the slab coordinates
+Disc.Nodes(:,2:4) = nodes .* repmat(max(abs(nodes),[],2)./r, 1, 3);
+Disc.Nodes(r == 0,2:4) = 0;
+
+figure;
+plot_mesh(Disc);
+%%
+% The inner disc is extracted from the |Disc| model by finding the elements
+% satisfying the condition $r < r_B$
+disc = Disc;
+tol = 1e-3;
+[disc_nod, disc_el] = mesh_select(disc,...
+    sprintf('r < %g', rB+tol), 'ind', 'all');
+disc.Elements = disc.Elements(disc_el,:);
+
+figure;
+plot_mesh(disc);
+
+%% Combining the submodels
+% The two cylinders are created by extruding the two disc models along the
+% $z$ axis, and combining the segments after translation.
+n = ceil(lB/Le);    % number of extrusion segments for the small disc
+cyl = extrude_mesh(disc, [0 0 lB/n], n);
+N = ceil(lA/Le);    % number of extrusion segments for the large disc
+Cyl = extrude_mesh(Disc, [0 0 lA/N], N);
+muffler = join_meshes(Cyl, translate_mesh(cyl, [0 0 lA]),...
+    translate_mesh(Cyl, [0 0 lA+lB]));
+
+%% Mesh postprocessing
+% The mesh post processing consists of merging the coincident nodes and
+% dropping the unused nodes of the muffler model.
+muffler = merge_coincident_nodes(muffler);
+muffler = drop_unused_nodes(muffler);
+
+figure;
+plot_mesh(muffler); view(3);
+
+##### SOURCE END #####
+--></body></html>

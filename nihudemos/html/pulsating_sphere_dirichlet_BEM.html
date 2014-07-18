@@ -1,0 +1,228 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Radiation from a pulsating sphere</title><meta name="generator" content="MATLAB 7.14"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2012-06-06"><meta name="DC.source" content="pulsating_sphere_dirichlet_BEM.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, tt, code { font-size:12px; }
+pre { margin:0px 0px 20px; }
+pre.error { color:red; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+
+  </style></head><body><div class="content"><h1>Radiation from a pulsating sphere</h1><!--introduction--><p>This tutorial introduces how to use the toolbox <tt>NIHU</tt> to solve a simple exterior acoustic Dirichlet radiation problem.</p><p>The problem is radiation by a pulsating sphere to the infinite exterior domain. The boundary conditions are defined as prescribed pressure on the sphere surface. The computed surface velocities and field point pressures are compared with analytical solutions.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Surface mesh generation</a></li><li><a href="#5">Boundary conditions</a></li><li><a href="#6">Plot the incident wave field</a></li><li><a href="#7">Generate BEM matrices and solve system</a></li><li><a href="#9">Generate field point mesh</a></li><li><a href="#10">Compute field point pressure</a></li></ul></div><h2>Surface mesh generation<a name="1"></a></h2><p>Generate a sphere geometry with given radius and division parameter. The division parameter is the number of elements along the radius of the sphere.</p><pre class="codeinput">R = 1;      <span class="comment">% radius</span>
+nR = 10;    <span class="comment">% division parameter</span>
+mesh = create_sphere_boundary(R, nR);
+</pre><p>Check that the mesh is directed outward by plotting the normals with the toolbox function <a href="matlab:doc('plot_elem_normals')">plot_elem_normals</a></p><pre class="codeinput">figure;
+plot_mesh(mesh);
+plot_elem_normals(mesh);
+view(3);
+</pre><img vspace="5" hspace="5" src="pulsating_sphere_dirichlet_BEM_01.png" alt=""> <p>The maximal applicable frequency is determined by the rule of thumb</p><p><img src="pulsating_sphere_dirichlet_BEM_eq83420.png" alt="$$L_e \le \lambda / 7$$"></p><p>The maximal applicable wave number at each element of the mesh is computed by the toolbox function <a href="matlab:doc('bemkmax')">bemkmax</a>.</p><pre class="codeinput">ratio = 7;
+kmax_elem = bemkmax(mesh, ratio);
+
+figure;
+plot_mesh(mesh, kmax_elem); view(3);
+c = colorbar; ylabel(c, <span class="string">'k_{max} [1/m]'</span>);
+</pre><img vspace="5" hspace="5" src="pulsating_sphere_dirichlet_BEM_02.png" alt=""> <p>The minimum of these values is the overall frequency limit of computations with this mesh. In the present example, the wave number is set slightly lower than the maximal applicable wave number.</p><pre class="codeinput">kmax = min(kmax_elem);
+k = .9*kmax;
+</pre><h2>Boundary conditions<a name="5"></a></h2><p>The boundary conditions are defied on the sphere element corners (nodes) as a uniform normal derivative <img src="pulsating_sphere_dirichlet_BEM_eq76633.png" alt="$q_s = 1$">.</p><pre class="codeinput">r0 = [0.2 0 0];
+nNodes = size(mesh.Nodes,1);
+[psi, qsi] = incident(<span class="string">'point'</span>, r0, mesh.Nodes(:,2:4), mesh.Nodes(:,2:4), k);
+</pre><h2>Plot the incident wave field<a name="6"></a></h2><pre class="codeinput">figure;
+plot_mesh(mesh, real(psi)); shading <span class="string">interp</span>; colorbar;
+title(<span class="string">'Real part of surface pressure'</span>);
+</pre><img vspace="5" hspace="5" src="pulsating_sphere_dirichlet_BEM_03.png" alt=""> <h2>Generate BEM matrices and solve system<a name="7"></a></h2><p>The BEM system matrices are generated by the toolbox function <a href="matlab:doc('bemHG')">bemHG</a>. The system of equations</p><p><img src="pulsating_sphere_dirichlet_BEM_eq45890.png" alt="$$ \left({\bf H} - \frac{1}{2} {\bf I}\right) {\bf p}_s = {\bf G} {\bf q}_s $$"></p><p>is solved by direct matrix inversion.</p><pre class="codeinput">tic;
+[H, G] = bemHG(mesh, k, <span class="string">'lin'</span>); <span class="comment">% Generate BEM matrices</span>
+toc;
+qs = G \ (H - .5*eye(size(H))) * psi;              <span class="comment">% solve the system</span>
+</pre><pre class="codeoutput">Elapsed time is 7.549658 seconds.
+</pre><p>The surface pressure derivative <img src="pulsating_sphere_dirichlet_BEM_eq53757.png" alt="$p'_s$"> is compared to the analytical solution of the problem. The analytical solution is computed as the incident velocity field of the source.</p><pre class="codeinput">e = norm(qs-qsi)/norm(repmat(qsi,nNodes,1));    <span class="comment">% compute relative error</span>
+
+figure;
+plot_mesh(mesh, abs(qs)); view(3);
+c = colorbar; ylabel(c, <span class="string">'Pressure magnitude'</span>);
+title(sprintf(<span class="string">'Relative error: %e'</span>, e));
+</pre><img vspace="5" hspace="5" src="pulsating_sphere_dirichlet_BEM_04.png" alt=""> <h2>Generate field point mesh<a name="9"></a></h2><p>The field point mesh is an annular ring generated by revolving a line.</p><pre class="codeinput">field = create_line([1.2*R 0 0; 3*R 0 0], 2*nR);
+field = revolve_mesh(field, [0 0 0], [0 -1 0], pi/4/nR, 2*nR);
+
+figure;
+plot_mesh(mesh);
+plot_mesh(field); view(3);
+</pre><img vspace="5" hspace="5" src="pulsating_sphere_dirichlet_BEM_05.png" alt=""> <h2>Compute field point pressure<a name="10"></a></h2><p>The points of the field point mesh are extracted from the structure <tt>field</tt>, and are used to generate the field point BEM matrices with the toolbox function <a href="matlab:doc('bemHG')">bemHG</a>. The field point pressure <img src="pulsating_sphere_dirichlet_BEM_eq87470.png" alt="$p_f$"> is computed as</p><p><img src="pulsating_sphere_dirichlet_BEM_eq03002.png" alt="$${\bf p}_f = {\bf H} {\bf p}_s - {\bf G} {\bf q}_s$$"></p><pre class="codeinput">points = field.Nodes(:,2:4);            <span class="comment">% field point coordinates</span>
+[H, G] = bemHG(mesh, k, <span class="string">'lin'</span>, points);
+pf = H * psi - G * qs;
+</pre><p>The field point pressure is compared to the analytical solution. The analytical solution is given by</p><pre class="codeinput">r = sqrt(dot(points,points,2));
+pfi = incident(<span class="string">'point'</span>, r0, field.Nodes(:,2:4), [], k);
+e = norm(pf-pfi)/norm(pfi);
+
+figure;
+plot_mesh(mesh, real(psi));
+plot_mesh(field, real(pf));
+c = colorbar; ylabel(c, <span class="string">'Real pressure'</span>);
+title(sprintf(<span class="string">'Relative error: %e'</span>, e));
+view(3);
+</pre><img vspace="5" hspace="5" src="pulsating_sphere_dirichlet_BEM_06.png" alt=""> <p class="footer"><br>
+      Published with MATLAB&reg; 7.14<br></p></div><!--
+##### SOURCE BEGIN #####
+%% Radiation from a pulsating sphere
+% This tutorial introduces how to use the toolbox |NIHU| to solve a simple
+% exterior acoustic Dirichlet radiation problem.
+%
+% The problem is radiation by a pulsating sphere to the infinite exterior
+% domain. The boundary conditions are defined as prescribed pressure
+% on the sphere surface.
+% The computed surface velocities and field point pressures are compared with
+% analytical solutions.
+
+%% Surface mesh generation
+% Generate a sphere geometry with given radius and division parameter. The
+% division parameter is the number of elements along the radius of the
+% sphere.
+R = 1;      % radius
+nR = 10;    % division parameter
+mesh = create_sphere_boundary(R, nR);
+
+%%
+% Check that the mesh is directed outward by plotting the normals with the
+% toolbox function <matlab:doc('plot_elem_normals') plot_elem_normals>
+figure;
+plot_mesh(mesh);
+plot_elem_normals(mesh);
+view(3);
+
+%%
+% The maximal applicable frequency is determined by the rule of thumb
+% 
+% $$L_e \le \lambda / 7$$
+% 
+% The maximal applicable wave number at each element of the mesh is
+% computed by the toolbox function <matlab:doc('bemkmax') bemkmax>.
+ratio = 7;
+kmax_elem = bemkmax(mesh, ratio);
+
+figure;
+plot_mesh(mesh, kmax_elem); view(3);
+c = colorbar; ylabel(c, 'k_{max} [1/m]');
+%%
+% The minimum of these values
+% is the overall frequency limit of computations with this mesh.
+% In the present example, the wave number is set slightly lower than the
+% maximal applicable wave number.
+kmax = min(kmax_elem);
+k = .9*kmax;
+
+%% Boundary conditions
+% The boundary conditions are defied on the sphere element corners (nodes)
+% as a uniform normal derivative $q_s = 1$.
+r0 = [0.2 0 0];
+nNodes = size(mesh.Nodes,1);
+[psi, qsi] = incident('point', r0, mesh.Nodes(:,2:4), mesh.Nodes(:,2:4), k);
+
+%% Plot the incident wave field
+figure;
+plot_mesh(mesh, real(psi)); shading interp; colorbar;
+title('Real part of surface pressure');
+
+%% Generate BEM matrices and solve system
+% The BEM system matrices are generated by the toolbox function <matlab:doc('bemHG') bemHG>.
+% The system of equations
+%
+% $$ \left({\bf H} - \frac{1}{2} {\bf I}\right) {\bf p}_s = {\bf G} {\bf q}_s $$
+%
+% is solved by direct matrix inversion.
+tic;
+[H, G] = bemHG(mesh, k, 'lin'); % Generate BEM matrices
+toc;
+qs = G \ (H - .5*eye(size(H))) * psi;              % solve the system
+
+%%
+% The surface pressure derivative $p'_s$ is compared to the analytical
+% solution of the problem. The analytical solution is computed as the
+% incident velocity field of the source.
+e = norm(qs-qsi)/norm(repmat(qsi,nNodes,1));    % compute relative error
+
+figure;
+plot_mesh(mesh, abs(qs)); view(3);
+c = colorbar; ylabel(c, 'Pressure magnitude');
+title(sprintf('Relative error: %e', e));
+
+%% Generate field point mesh
+% The field point mesh is an annular ring generated by revolving a line.
+field = create_line([1.2*R 0 0; 3*R 0 0], 2*nR);
+field = revolve_mesh(field, [0 0 0], [0 -1 0], pi/4/nR, 2*nR);
+
+figure;
+plot_mesh(mesh);
+plot_mesh(field); view(3);
+
+%% Compute field point pressure
+% The points of the field point mesh are extracted from the structure
+% |field|, and are used to generate the field point BEM matrices with the
+% toolbox function <matlab:doc('bemHG') bemHG>. The field point pressure $p_f$ is computed as
+% 
+% $${\bf p}_f = {\bf H} {\bf p}_s - {\bf G} {\bf q}_s$$
+% 
+points = field.Nodes(:,2:4);            % field point coordinates
+[H, G] = bemHG(mesh, k, 'lin', points);
+pf = H * psi - G * qs;
+
+%%
+% The field point pressure is compared to the analytical solution. The
+% analytical solution is given by
+r = sqrt(dot(points,points,2));
+pfi = incident('point', r0, field.Nodes(:,2:4), [], k);
+e = norm(pf-pfi)/norm(pfi);
+
+figure;
+plot_mesh(mesh, real(psi));
+plot_mesh(field, real(pf));
+c = colorbar; ylabel(c, 'Real pressure');
+title(sprintf('Relative error: %e', e));
+view(3);
+##### SOURCE END #####
+--></body></html>
