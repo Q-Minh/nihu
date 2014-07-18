@@ -76,7 +76,7 @@ mesh<tmp::vector<typename tag2element<Tags>::type...> >
 				elements(i,0) = line_1_elem::id;
 				break;
 			case 3:
-				elements(i,0) = tria_1_volume_elem::id;
+				elements(i,0) = tria_1_elem::id;
 				break;
 			case 4:
 				elements(i,0) = quad_1_elem::id;
