@@ -27,6 +27,8 @@ namespace element_traits
 	template <>
 	const std::string name<tria_1_elem>::value = "Tria 1 elem";
 	template <>
+	const std::string name<tria_1_volume_elem>::value = "Tria 1 volume elem";
+	template <>
 	const std::string name<tria_2_elem>::value = "Tria 2 elem";
 	template <>
 	const std::string name<quad_1_elem>::value = "Quad 1 elem";

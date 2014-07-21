@@ -63,5 +63,12 @@ template <> struct tag2element<quad_2_tag> : quad_2_elem {};
 struct quad_28_tag {};
 template <> struct tag2element<quad_28_tag> : quad_28_elem {};
 
+
+
+/** \brief A linear (3-noded) triangular volume element in 2D space */
+typedef volume_element<tria_1_shape_set, space_2d::scalar_t> tria_1_volume_elem;
+struct tria_1_volume_tag {};
+template <> struct tag2element<tria_1_volume_tag> : tria_1_volume_elem {};
+
 #endif // LIB_ELEMENT_HPP_INCLUDED
 

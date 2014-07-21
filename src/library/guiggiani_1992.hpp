@@ -48,7 +48,7 @@ gaussian_quadrature<line_domain> const line_quad_store<order>::quadrature(order)
  * \tparam singuarity_type the singularity type
  * \details The class should implement a static function template eval templated on a guiggiani class
  * and taking a guiggiani object by reference as parameter.
- * The function  template should compute the Laurent coefficients of the singularity in terms of
+ * The function template should compute the Laurent coefficients of the singularity in terms of
  * the Taylor series expansion of
  * - the distance vector
  * - the Jacobian vector
@@ -346,7 +346,7 @@ public:
 		return m_N_series[order];
 	}
 
-	/** \brief set a Laurent coefficient */
+	/** \brief return a Laurent coefficient */
 	template <class T, T order>
 	laurent_coeff_t &get_laurent_coeff(std::integral_constant<T, order>)
 	{
