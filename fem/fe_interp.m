@@ -11,11 +11,11 @@ function [Ap, Kp, Av, Kv] = fe_interp(mesh, El, Xi)
 %See also fe_eval_interp.
 
 % Peter Fiala, Peter Rucz
-% Last modified: 16.04.2010.
+% Last modified: 03.07.2014.
 
 %% Argument check and default parameters
-error(nargchk(3,4,nargin,'struct'));
-error(nargoutchk(1,4,nargout,'struct'));
+narginchk(3,4);
+nargoutchk(1,4);
 
 %% Initialization
 nNode = size(mesh.Nodes,1);         % number of nodes in the mesh
