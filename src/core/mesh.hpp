@@ -275,5 +275,45 @@ mesh<tmp::vector<typename tag2element<Args>::type...> >
 	return mesh<tmp::vector<typename tag2element<Args>::type...> >(nodes, elements);
 }
 
+
+template <class Mesh, class Elem>
+class homogeneous_submesh
+{
+public:
+	typedef Mesh mesh_t;
+	typedef Elem elem_t;
+
+	homogeneous_submesh(mesh_t const &parent) : m_parent(parent)
+	{
+	}
+
+	/** \brief return begin iterator of the elements */
+	typename mesh_t::template elem_iterator_t<elem_t>::type begin(void) const
+	{
+		return m_parent.template begin<elem_t>();
+	}
+
+	/** \brief return end iterator of the elements */
+	typename mesh_t::template elem_iterator_t<elem_t>::type end(void) const
+	{
+		return m_parent.template end<elem_t>();
+	}
+
+private:
+	mesh_t const &m_parent;
+};
+
+/** \brief factory function to create a homogeneous submesh from a mesh
+ * \tparam Mesh the mesh type
+ * \tparam Tag the element tag type
+ * \param [in] mesh the parent mesh
+ */
+template <class Mesh, class Tag>
+homogeneous_submesh<Mesh, typename tag2element<Tag>::type>
+create_homogeneous_submesh(Mesh const &mesh, Tag)
+{
+	return homogeneous_submesh<Mesh, typename tag2element<Tag>::type >(mesh);
+}
+
 #endif
 

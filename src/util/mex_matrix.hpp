@@ -34,6 +34,7 @@
 #include <mex.h>
 #include <matrix.h>
 
+#include "eigen_utils.hpp"
 #include "../core/result_matrix.hpp"
 
 /**
@@ -119,11 +120,12 @@ struct classID<float>
  */
 template <class T>
 class real_matrix :
-	public matrix_base
+	public Eigen::Map<Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> >
 {
 public:
 	/** \brief the scalar type */
 	typedef T scalar_t;
+	typedef Eigen::Map< Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> > base_t;
 
 	/** \brief output matrix (allocating) constructor
 	 * \details used when a matrix created in C++ is passed to Matlab
@@ -132,11 +134,10 @@ public:
 	 * \param [out] output pointer to the result matrix  is copied here
 	 */
 	real_matrix(size_t rows, size_t cols, mxArray *&output)
-		: matrix_base(rows, cols)
+		: base_t(
+			static_cast<scalar_t *>(mxGetData(output = mxCreateNumericMatrix(rows, cols, classID<scalar_t>::value, mxREAL))),
+			rows, cols)
 	{
-		output = mxCreateNumericMatrix(
-			m_rows, m_cols, classID<scalar_t>::value, mxREAL);
-		m_real = static_cast<scalar_t *>(mxGetData(output));
 	}
 
 	/** \brief input matrix constructor
@@ -144,34 +145,9 @@ public:
 	 * \param [in] input pointer to the native Matlab matrix format
 	 */
 	real_matrix(mxArray const *input)
-		: matrix_base(input)
+		: base_t(static_cast<scalar_t *>(mxGetData(input)), mxGetM(input), mxGetN(input))
 	{
-		m_real = static_cast<scalar_t *>(mxGetData(input));
 	}
-
-	/** \brief return matrix element
-	 * \param [in] row row index
-	 * \param [in] col column index
-	 * \return matrix element
-	 */
-	scalar_t operator() (size_t row, size_t col) const
-	{
-		return m_real[row + m_rows * col];
-	}
-
-	/** \brief return reference to matrix element
-	 * \param [in] row row index
-	 * \param [in] col column index
-	 * \return reference to matrix element
-	 */
-	scalar_t &operator() (size_t row, size_t col)
-	{
-		return m_real[row + m_rows * col];
-	}
-
-protected:
-	/** \brief array of real data */
-	scalar_t *m_real;
 };
 
 

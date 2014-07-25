@@ -29,6 +29,10 @@
 #include <cmath>
 #include <complex>
 
+#ifndef M_PI
+#define M_PI 3.141592653589793
+#endif
+
 /**
  * \brief \f$ sinc(x) = \sin(x) / x \f$ function
  * \tparam T type of x
@@ -132,8 +136,9 @@ namespace bessel
 	template <int nu, int kind = 2>
 	std::complex<double> H_large(std::complex<double> const &z)
 	{
-		static_assert(kind == 1 || kind == 2, "invalid kind argument of bessel::K");
-		double const C = kind == 2 ? -1. : 1.;
+		static_assert((kind == 1) || (kind == 2), "invalid kind argument of bessel::H");
+
+		double const C = (kind == 2 ? -1. : 1.);
 		int const N(15);
 
 		std::complex<double> sum(1.), c(1.);
@@ -155,12 +160,12 @@ namespace bessel
 	template <int nu, int kind = 2>
 	std::complex<double> H(std::complex<double> const &z)
 	{
-		static_assert(kind == 1 || kind == 2, "invalid kind argument of bessel::K");
-		double const C = kind == 2 ? -1. : 1.;
+		static_assert(kind == 1 || kind == 2, "invalid kind argument of bessel::H");
+		double const C = (kind == 2 ? -1. : 1.);
 		if (std::abs(z) < 6.0)
 			return J_small<nu>(z) + C * I * Y_small<nu>(z);
 		else
-			return H_large<nu>(z);
+			return H_large<nu, kind>(z);
 	}
 
 	/** \brief K_nu(z) modified Bessel function
