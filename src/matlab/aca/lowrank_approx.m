@@ -17,34 +17,37 @@ if nargin < 3
 end
 
 U = zeros(m,R);
-V = zeros(R,n);
+V = zeros(n,R);
+S2 = 0;
 
-i = 0;
+i = 1;
 r = 0;
-while true
-    i = i + 1;
-    if i > m
-        break;
-    end
-    
-    row = M(i,:) - U(i,1:r) * V(1:r,:);
-    [g, j] = max(abs(row));
-    if g < 1e-8
+while r < R
+    row = M(i,:) - U(i,1:r) * V(:,1:r)';
+    [gamma, j] = max(abs(row));
+    if gamma < 1e-8
+        i = i + 1;
         continue;
     end
-    col = M(:,j) - U(:,1:r) * V(1:r,j);
+    col = M(:,j) - U(:,1:r) * V(j,1:r)';
     
     r = r + 1;
     
     U(:, r) = col/col(i);
-    V(r, :) = row;
+    V(:, r) = row';
     
-    if norm(U(:,r), 'fro') * norm(V(r,:), 'fro') < eps * norm(U*V, 'fro')
-        break;
+    S2 = S2 + norm(U(:,r), 'fro')^2 * norm(V(:,r), 'fro')^2;
+    for j = 1 : r-1
+        S2 = S2 + 2 * (U(:,r)'*U(:,j)) * (V(:,j)'*V(:,r));
     end
+    
+    if norm(U(:,r), 'fro') * norm(V(:,r), 'fro') < eps * sqrt(S2)
+        U = U(:, 1:r);
+        V = V(:, 1:r);
+        return;
+    end
+    
+    [~,i] = max(abs(col(setdiff(1:m,i))));
 end
-
-U = U(:, 1:r);
-V = V(1:r, :);
 
 end

@@ -22,6 +22,7 @@ end
 Ctree(1).ind = 1 : size(x,1);
 Ctree(1).level = 0;
 Ctree(1).children = [];
+Ctree(1).bb = [min(x,[],1); max(x,[],1)];
 
 Capacity = 100;
 Ctree(Capacity).level = 0;
@@ -61,9 +62,11 @@ nhalf = round(length(i)/2);
 CC(1).ind = C.ind(i(1:nhalf));
 CC(1).level = C.level+1;
 CC(1).children = [];
+CC(1).bb = [min(x(CC(1).ind,:),[],1); max(x(CC(1).ind,:),[],1)];
 
 CC(2).ind = C.ind(i(nhalf+1:end));
 CC(2).level = C.level+1;
 CC(2).children = [];
+CC(2).bb = [min(x(CC(2).ind,:),[],1); max(x(CC(2).ind,:),[],1)];
 
 end

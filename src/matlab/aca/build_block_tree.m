@@ -53,7 +53,6 @@ Tnear = Tnear(1:EndNear,:);
             Tnear(EndNear,:) = [i, j];
         end
     end
-
 end
 
 function b = is_admissible(C1, C2, eta)
@@ -66,5 +65,5 @@ dist = sqrt(...
     min(min(abs(bsxfun(@minus, bb1(:,1), bb2(:,1)'))))^2 +...
     min(min(abs(bsxfun(@minus, bb1(:,2), bb2(:,2)'))))^2 +...
     min(min(abs(bsxfun(@minus, bb1(:,3), bb2(:,3)'))))^2);
-b = max(C1.D, C2.D) < eta * dist;
+b = max(norm(diff(bb1)), norm(diff(bb2))) < eta * dist;
 end

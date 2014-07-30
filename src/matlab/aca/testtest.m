@@ -1,17 +1,16 @@
 clear;
 
 %%
-if isunix
-    root = '/D';
-else
-    root = 'D:';
-end
-m = import_mesh(fullfile(root, 'research', 'pub',...
-    '2013', 'Boonen2013', 'work', 'industrial', 'data',...
-    'horse.off'));
-
+% if isunix
+%     root = '/D';
+% else
+%     root = 'D:';
+% end
+% m = import_mesh(fullfile(root, 'research', 'pub',...
+%     '2013', 'Boonen2013', 'work', 'industrial', 'data',...
+%     'horse.off'));
 %%
-% m = create_sphere_boundary(1, 15);
+m = create_sphere_boundary(1, 8);
 x = centnorm(m);
 
 %%
@@ -22,7 +21,7 @@ fprintf('%.3g s needed to build cluster tree\n', tCtree);
 
 %% plot cluster tree
 v = ones(size(x,1),1);
-b = 1;
+b = 5;
 for c = 1 : length(Ctree)
     if Ctree(c).level == 13
         v(Ctree(c).ind) = mod(b-1,20)+2;
@@ -31,6 +30,7 @@ for c = 1 : length(Ctree)
 end
 r = randperm(21)';
 plot_mesh(m, r(v));
+set(gcf, 'renderer', 'painters');
 
 %%
 tic;
@@ -40,6 +40,8 @@ fprintf('%.3g s needed to build block tree\n', tBtree);
 
 figure;
 display_block_structure(Ctree, B_near);
+set(gcf, 'renderer', 'painters');
+
 figure;
 display_block_structure(Ctree, B_far);
 
@@ -48,26 +50,30 @@ display_block_structure(Ctree, B_far);
 % tNear = toc;
 % fprintf('%.3g s needed to compute near field matrix\n', tNear);
 
-tic;
+M = @(i,j)helmholtz_matrix(i,j,x,1);
+
+tstart = tic;
 for b = 1 : size(B_far,1)
+    progbar(1, size(B_far,1), b);
     ACA(b).I = Ctree(B_far(b,1)).ind;
     ACA(b).J = Ctree(B_far(b,2)).ind;
     [ACA(b).U, ACA(b).V] = lowrank_approx_block(M, ACA(b).I, ACA(b).J, 1e-3);
 end
-tACA = toc;
+tACA = toc(tstart);
 fprintf('%.3g s needed to generate ACA\n', tACA);
 
 N = size(x,1);
 exc = ones(N,1);
 
-tic;
+tstart = tic;
 resp = M_near * exc;
 for b = 1 : length(B_far)
+    progbar(1, size(B_far,1), b);
     I = ACA(b).I;
     J = ACA(b).J;
     resp(I) = resp(I) + ACA(b).U * (ACA(b).V * exc(J));
 end
-tmat = toc;
+tmat = toc(tstart);
 fprintf('%.3g s needed to compute matrix-vector product\n', tmat);
 
 tic;
