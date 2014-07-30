@@ -1,8 +1,8 @@
-function [U, V] = lowrank_approx(M, I, J, eps)
-%LOWRANK_APPROX return low rank approximation of a matrix block
-%   [U,V] = LOWRANK_APPROX(M, I, J, eps) returns the low-rank approximation
-%   of the matrix block M(I,J). The low rank approximation is of the form
-%   M(I:J) = U * V
+function [U, V] = lowrank_approx(M, eps, R)
+%LOWRANK_APPROX return low rank approximation of a matrix
+%   [U,V] = LOWRANK_APPROX(M, eps) returns the low-rank approximation
+%   of the matrix block M. The low rank approximation is of the form
+%   M = U * V
 %   where U is an m x R matrix and V is an R x n matrix.
 %   Argument R denotes the maximal rank of the approximation.
 %
@@ -10,22 +10,11 @@ function [U, V] = lowrank_approx(M, I, J, eps)
 %
 % Copyright (C) 2014 Peter Fiala
 
-m = length(I);
-n = length(J);
+[m, n] = size(M);
 
-% if m == 1
-%     U = 1;
-%     V = M(I,J);
-%     return;
-% end
-% 
-% if n == 1
-%     U = M(I,J);
-%     V = 1;
-%     return;
-% end
-% 
-R = 20;
+if nargin < 3
+    R = min(m,n);
+end
 
 U = zeros(m,R);
 V = zeros(R,n);
@@ -38,21 +27,19 @@ while true
         break;
     end
     
-    row = M(I(i),J);
-    row = row - U(i,1:r) * V(1:r,:);
+    row = M(i,:) - U(i,1:r) * V(1:r,:);
     [g, j] = max(abs(row));
     if g < 1e-8
         continue;
     end
-    col = M(I,J(j));
-    col = col - U(:,1:r) * V(1:r,j);
+    col = M(:,j) - U(:,1:r) * V(1:r,j);
     
     r = r + 1;
     
     U(:, r) = col/col(i);
     V(r, :) = row;
     
-    if norm(U(:,r)*V(r,:), 'fro') / norm(U*V, 'fro') < eps
+    if norm(U(:,r), 'fro') * norm(V(r,:), 'fro') < eps * norm(U*V, 'fro')
         break;
     end
 end

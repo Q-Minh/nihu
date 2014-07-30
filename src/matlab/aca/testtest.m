@@ -52,7 +52,7 @@ tic;
 for b = 1 : size(B_far,1)
     ACA(b).I = Ctree(B_far(b,1)).ind;
     ACA(b).J = Ctree(B_far(b,2)).ind;
-    [ACA(b).U, ACA(b).V] = lowrank_approx(M, ACA(b).I, ACA(b).J, 1e-3);
+    [ACA(b).U, ACA(b).V] = lowrank_approx_block(M, ACA(b).I, ACA(b).J, 1e-3);
 end
 tACA = toc;
 fprintf('%.3g s needed to generate ACA\n', tACA);

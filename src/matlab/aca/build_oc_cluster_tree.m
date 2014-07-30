@@ -23,7 +23,7 @@ Ctree(1).children = [];
 
 i = 1;
 while i <= length(Ctree)
-    if length(Ctree(i).ind) == 1
+    if length(Ctree(i).ind) == 1	% only one node
     else
         Children = get_child_clusters(Ctree(i), x);
         idx = length(Ctree) + (1 : length(Children));
@@ -38,12 +38,12 @@ end
 function CC = get_child_clusters(C, x)
 d = [
     -1 -1 -1
-    1 -1 -1
-    1  1 -1
+     1 -1 -1
+     1  1 -1
     -1  1 -1
     -1 -1  1
-    1 -1  1
-    1  1  1
+     1 -1  1
+     1  1  1
     -1  1  1
     ] * C.D/4;
 c = bsxfun(@plus, C.c, d);
