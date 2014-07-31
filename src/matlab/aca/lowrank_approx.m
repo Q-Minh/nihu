@@ -1,4 +1,4 @@
-function [U, V] = lowrank_approx(M, eps, R)
+function [U, V] = lowrank_approx(M, siz, eps, R)
 %LOWRANK_APPROX return low rank approximation of a matrix
 %   [U,V] = LOWRANK_APPROX(M, eps) returns the low-rank approximation
 %   of the matrix block M. The low rank approximation is of the form
@@ -10,26 +10,38 @@ function [U, V] = lowrank_approx(M, eps, R)
 %
 % Copyright (C) 2014 Peter Fiala
 
-[m, n] = size(M);
+rows = siz(1);
+cols = siz(2);
 
-if nargin < 3
-    R = min(m,n);
+if nargin < 4
+    R = min([rows cols]);
 end
 
-U = zeros(m,R);
-V = zeros(n,R);
+U = zeros(rows,R);
+V = zeros(cols,R);
 S2 = 0;
+
+indices = [];
 
 i = 1;
 r = 0;
 while r < R
-    row = M(i,:) - U(i,1:r) * V(:,1:r)';
+    row = M(i,1:cols) - U(i,1:r) * V(:,1:r)';
     [gamma, j] = max(abs(row));
-    if gamma < 1e-8
-        i = i + 1;
+    if gamma < 1e-10
+        i = setdiff(1:rows, indices);
+        if (isempty(i))
+            U = U(:, 1:r);
+            V = V(:, 1:r);
+            return;
+        end
+        i = i(1);
         continue;
     end
-    col = M(:,j) - U(:,1:r) * V(j,1:r)';
+    
+    indices(end+1) = i;
+    
+    col = M(1:rows,j) - U(:,1:r) * V(j,1:r)';
     
     r = r + 1;
     
@@ -47,7 +59,7 @@ while r < R
         return;
     end
     
-    [~,i] = max(abs(col(setdiff(1:m,i))));
+    [~,i] = max(abs(col(setdiff(1:rows,indices))));
 end
 
 end

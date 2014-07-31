@@ -10,37 +10,36 @@ clear;
 %     '2013', 'Boonen2013', 'work', 'industrial', 'data',...
 %     'horse.off'));
 %%
-m = create_sphere_boundary(1, 8);
+m = create_sphere_boundary(1, 24);
 x = centnorm(m);
 
 %%
-tic;
-Ctree = build_cluster_tree(x);
-tCtree = toc;
+t0 = tic;
+Ctree = build_cluster_tree(x, 50);
+tCtree = toc(t0);
 fprintf('%.3g s needed to build cluster tree\n', tCtree);
 
 %% plot cluster tree
 v = ones(size(x,1),1);
-b = 5;
+b = 1;
 for c = 1 : length(Ctree)
-    if Ctree(c).level == 13
+    if Ctree(c).level == 9
         v(Ctree(c).ind) = mod(b-1,20)+2;
         b = b+1;
     end
 end
 r = randperm(21)';
 plot_mesh(m, r(v));
-set(gcf, 'renderer', 'painters');
 
-%%
-tic;
+%% build block tree
+t0 = tic;
 [B_near, B_far] = build_block_tree(Ctree);
-tBtree = toc;
+tBtree = toc(t0);
 fprintf('%.3g s needed to build block tree\n', tBtree);
 
+%%
 figure;
 display_block_structure(Ctree, B_near);
-set(gcf, 'renderer', 'painters');
 
 figure;
 display_block_structure(Ctree, B_far);
@@ -50,38 +49,34 @@ display_block_structure(Ctree, B_far);
 % tNear = toc;
 % fprintf('%.3g s needed to compute near field matrix\n', tNear);
 
-M = @(i,j)helmholtz_matrix(i,j,x,1);
-
-tstart = tic;
-for b = 1 : size(B_far,1)
-    progbar(1, size(B_far,1), b);
-    ACA(b).I = Ctree(B_far(b,1)).ind;
-    ACA(b).J = Ctree(B_far(b,2)).ind;
-    [ACA(b).U, ACA(b).V] = lowrank_approx_block(M, ACA(b).I, ACA(b).J, 1e-3);
-end
-tACA = toc(tstart);
-fprintf('%.3g s needed to generate ACA\n', tACA);
+%%
+k = min(mesh_kmax(m));
+M = @(i,j)helmholtz_matrix(i,j,x,k);
 
 N = size(x,1);
 exc = ones(N,1);
 
-tstart = tic;
-resp = M_near * exc;
-for b = 1 : length(B_far)
-    progbar(1, size(B_far,1), b);
-    I = ACA(b).I;
-    J = ACA(b).J;
-    resp(I) = resp(I) + ACA(b).U * (ACA(b).V * exc(J));
-end
-tmat = toc(tstart);
-fprintf('%.3g s needed to compute matrix-vector product\n', tmat);
+resp = zeros(N,1);
 
-tic;
+eps = 1e-2;
+t0 = tic;
+for b = 1 : size(B_far,1)
+    progbar(1, size(B_far,1), b);
+    I = Ctree(B_far(b,1)).ind;
+    J = Ctree(B_far(b,2)).ind;
+    [U, V] = lowrank_approx_block(M, I, J, eps);
+    resp(I) = resp(I) + U * (V' * exc(J));
+end
+tACA = toc(t0);
+fprintf('%.3g s needed to compute far field\n', tACA);
+
+%%
+t0 = tic;
 M0 = M(1:N,1:N);
-toc;
-tic;
+toc(t0);
+t0 = tic;
 resp0 = M0 * exc;
-toc;
+toc(t0);
 
 eps = log10(abs(resp./resp0-1));
 
