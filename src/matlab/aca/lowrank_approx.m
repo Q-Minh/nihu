@@ -1,65 +1,83 @@
 function [U, V] = lowrank_approx(M, siz, eps, R)
 %LOWRANK_APPROX return low rank approximation of a matrix
 %   [U,V] = LOWRANK_APPROX(M, eps) returns the low-rank approximation
-%   of the matrix block M. The low rank approximation is of the form
-%   M = U * V
-%   where U is an m x R matrix and V is an R x n matrix.
+%   of the matrix M. The low rank approximation is of the form
+%   M = U * V'
 %   Argument R denotes the maximal rank of the approximation.
 %
-% See also: BUILD_CLUSTER_TREE, BUILD_BLOCK_TREE
+% See also: LOWRANK_APPROX_BLOCK
 %
 % Copyright (C) 2014 Peter Fiala
 
-rows = siz(1);
-cols = siz(2);
+nRows = siz(1); % number of rows
+nCols = siz(2); % number of columns
 
-if nargin < 4
-    R = min([rows cols]);
+fprintf('block size: %3dx%3d\n', nRows, nCols);
+
+if nargin < 4   % maximal possible rank
+    R = min(nRows, nCols);
 end
 
-U = zeros(rows,R);
-V = zeros(cols,R);
-S2 = 0;
+U = zeros(nRows,R); % preallocate space for low rank
+V = zeros(nCols,R);
+S2 = 0;             % norm of estimator
 
-indices = [];
+r = 0;                      % result counter
+uncheckedrows = 1:nRows;    % indices of unchecked rows
+i = 1;                      % actual investigated row
 
-i = 1;
-r = 0;
-while r < R
-    row = M(i,1:cols) - U(i,1:r) * V(:,1:r)';
+% estimate magnitude of matrix elements by computing one percent
+C = min(ceil(nRows*nCols/100), R);
+irand(:,1) = randperm(nRows, C);
+irand(:,2) = randperm(nCols, C);
+magest = 0;
+for k = 1 : C
+    magest = magest+abs(M(irand(k,1),irand(k,2)));
+end
+magest = magest/C;
+
+for k = 1 : R   % max R iterations should be enough
+    uncheckedrows = setdiff(uncheckedrows,i);
+    
+    row = M(i,1:nCols) - U(i,1:r) * V(:,1:r)';
     [gamma, j] = max(abs(row));
-    if gamma < 1e-10
-        i = setdiff(1:rows, indices);
-        if (isempty(i))
-            U = U(:, 1:r);
-            V = V(:, 1:r);
-            return;
-        end
-        i = i(1);
+    if gamma / magest < 1e-8
+        i = uncheckedrows(1);
         continue;
     end
     
-    indices(end+1) = i;
-    
-    col = M(1:rows,j) - U(:,1:r) * V(j,1:r)';
+    col = M(1:nRows,j) - U(:,1:r) * V(j,1:r)';
     
     r = r + 1;
     
     U(:, r) = col/col(i);
     V(:, r) = row';
     
+    fprintf(1, 'skeleton (%2d,%2d), r=%2d', i, j, r);
+    
     S2 = S2 + norm(U(:,r), 'fro')^2 * norm(V(:,r), 'fro')^2;
     for j = 1 : r-1
         S2 = S2 + 2 * (U(:,r)'*U(:,j)) * (V(:,j)'*V(:,r));
     end
     
-    if norm(U(:,r), 'fro') * norm(V(:,r), 'fro') < eps * sqrt(S2)
-        U = U(:, 1:r);
-        V = V(:, 1:r);
-        return;
+    if r > 1
+        err = norm(U(:,r), 'fro') * norm(V(:,r), 'fro') / sqrt(S2);
+        fprintf(1, ', log10 err=%.2f\n', log10(err));
+        
+        if err < eps
+            break;
+        end
+    else
+        fprintf(1, '\n');
     end
     
-    [~,i] = max(abs(col(setdiff(1:rows,indices))));
+    [~, idx] = max(abs(col(uncheckedrows)));
+    i = uncheckedrows(idx);
 end
+
+U = U(:, 1:r);
+V = V(:, 1:r);
+
+fprintf(1, 'Compression: %g\n\n', ((nRows+nCols)*r)/(nRows*nCols));
 
 end
