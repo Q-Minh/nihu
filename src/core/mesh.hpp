@@ -206,6 +206,15 @@ public:
 	}
 
 	/**
+	 * \brief return element with a given index
+	 */
+	template <class ElemType>
+	ElemType const &get_elem(int i) const 
+	{
+		return m_elements.EigenStdVector<ElemType>::type::operator[](i);
+	}
+
+	/**
 	 * \brief add a new element to the mesh
 	 * \param input array of unsigned values.
 	 * input[0] is the elem ID, the subsequent elements are the nodal indices in the mesh
@@ -297,6 +306,11 @@ public:
 	typename mesh_t::template elem_iterator_t<elem_t>::type end(void) const
 	{
 		return m_parent.template end<elem_t>();
+	}
+
+	Elem const &get_elem(int i) const
+	{
+		return m_parent.template get_elem<elem_t>(i);
 	}
 
 private:

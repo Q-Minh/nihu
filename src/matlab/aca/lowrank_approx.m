@@ -42,6 +42,7 @@ for k = 1 : R   % max R iterations should be enough
     row = M(i,1:nCols) - U(i,1:r) * V(:,1:r)';
     [gamma, j] = max(abs(row));
     if gamma / magest < 1e-8
+        fprintf(1, 'Full zero row: %3d\n', i);
         i = uncheckedrows(1);
         continue;
     end
