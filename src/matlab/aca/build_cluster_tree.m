@@ -2,7 +2,7 @@ function Ctree = build_cluster_tree(x, Cleaf)
 %BUILD_CLUSTER_TREE build cluster tree for ACA algorithm
 %   T = BUILD_CLUSTER_TREE(x) builds a cluster tree containing a
 %   hierarchical structure of clusters. The first cluster encapsulates
-%   each point, and the leaf clusters contain one single point only.
+%   each point, and the leaf clusters contain a limited number of points.
 %
 %   T = BUILD_CLUSTER_TREE(X, C) creates a cluster tree where the leafs
 %   contain max C nodes. The default for C is 10.
@@ -22,6 +22,7 @@ end
 Ctree(1).ind = 1 : size(x,1);
 Ctree(1).level = 0;
 Ctree(1).children = [];
+Ctree(1).bb = [min(x,[],1); max(x,[],1)];
 
 Capacity = 100;
 Ctree(Capacity).level = 0;
@@ -61,9 +62,11 @@ nhalf = round(length(i)/2);
 CC(1).ind = C.ind(i(1:nhalf));
 CC(1).level = C.level+1;
 CC(1).children = [];
+CC(1).bb = [min(x(CC(1).ind,:)); max(x(CC(1).ind,:))];
 
 CC(2).ind = C.ind(i(nhalf+1:end));
 CC(2).level = C.level+1;
 CC(2).children = [];
+CC(2).bb = [min(x(CC(2).ind,:)); max(x(CC(2).ind,:))];
 
 end
