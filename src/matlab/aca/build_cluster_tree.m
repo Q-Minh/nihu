@@ -60,13 +60,12 @@ dir = V(:,i);
 nhalf = round(length(i)/2);
 
 CC(1).ind = C.ind(i(1:nhalf));
-CC(1).level = C.level+1;
-CC(1).children = [];
-CC(1).bb = [min(x(CC(1).ind,:),[],1); max(x(CC(1).ind,:),[],1)];
-
 CC(2).ind = C.ind(i(nhalf+1:end));
-CC(2).level = C.level+1;
-CC(2).children = [];
-CC(2).bb = [min(x(CC(2).ind,:),[],1); max(x(CC(2).ind,:),[],1)];
+
+for k = 1 : 2
+    CC(k).level = C.level+1;
+    CC(k).children = [];
+    CC(k).bb = [min(x(CC(k).ind,:)); max(x(CC(k).ind,:))];
+end
 
 end
