@@ -12,14 +12,14 @@ function [clusters, perm, order] = sort_cluster_tree(CTree)
 %
 % see also: build_cluster_tree, build_block_tree
 %
-% Copyright (C) 2014 Peter Fiala
-%
 % Example:
 %  xs = rand(1000,2);
 %  T = build_cluster_tree(xs,100);
 %  [C, P] = sort_cluster_tree(T);
 %  range = C(end,1) + (1:C(end,2));     % last cluster
 %  plot(xs(:,1), xs(:,2), 'k.', xs(P(range),1), xs(P(range),2), 'r*');
+
+% Copyright (C) 2014 Peter Fiala
 
 clusters = zeros(length(CTree),2);
 
