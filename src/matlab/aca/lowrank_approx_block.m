@@ -9,5 +9,5 @@ function [U, V] = lowrank_approx_block(M, I, J, varargin)
 %
 % Copyright (C) 2014 Peter Fiala
 
-[U, V] = lowrank_approx(@(i,j)M(I(i), J(j)), length(I), length(J), varargin{:});
+[U, V] = lowrank_approx(@(i,j)M(I(i), J(j)), [length(I), length(J)], varargin{:});
 end
