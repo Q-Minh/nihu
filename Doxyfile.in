@@ -692,6 +692,7 @@ INPUT                  = "${CMAKE_SOURCE_DIR}/../dox/mainpage.md" \
                          "${CMAKE_SOURCE_DIR}/util/" \
                          "${CMAKE_SOURCE_DIR}/tmp/" \
                          "${CMAKE_SOURCE_DIR}/library/" \
+                         "${CMAKE_SOURCE_DIR}/aca/" \
                          "${CMAKE_SOURCE_DIR}/tutorial/"
 
 # This tag can be used to specify the character encoding of the source files

@@ -1,6 +1,4 @@
 #include <iostream>
-#include <iterator>
-
 #include "aca/aca.hpp"
 
 int main(void)
@@ -9,53 +7,29 @@ int main(void)
 	M.resize(100, 100);
 	for (int i = 0; i < 100; ++i)
 		for (int j = 0; j < 100; ++j)
-			M(i,j) = std::abs(1./(i+200-j));
+			M(i,j) = std::abs(1./(i+150-j));
 			
-	Eigen::MatrixXd U(100,50), V(100,50);
-	
-	double eps = 1e-7;
+	Eigen::Matrix<int, 6, 2> rowClusters(6,2);
+	rowClusters << 50,50, 0,50, 25,25, 0,25, 75,25, 50,25;
 
-	int r = low_rank_approx(M, M.rows(), M.cols(), eps, 50, U, V);
+	Eigen::Matrix<int, 6, 2> colClusters;
+	colClusters << 0,50, 50,50, 0,25, 25,25, 50,25, 75,25;
 	
-	std::cout << "approximate rank: " << r << '\n';
-	std::cout << "prescribed error: " << eps << '\n';
-	std::cout << "error: " << (U.leftCols(r) * V.leftCols(r).transpose() - M).norm() / M.norm() << std::endl;
+	Eigen::Matrix<int, 6, 2> blocks(6,2);
+	blocks << 0,0, 1,1, 2,2, 3,3, 4,4, 5,5;
 	
-	int rowIndices[50];
-	std::iota(rowIndices, rowIndices+50, 0);
-	int rowLimits[] = {0, 50};
-	int nRowClusters = 1;
-	int colIndices[25];
-	std::iota(colIndices, colIndices+25, 0);
-	int colLimits[] = {0, 25};
-	int nColClusters = 1;
-	int nBlocks = 1;
-	int rowBlocks[] = {0};
-	int colBlocks[] = {0};
+	Eigen::VectorXd input(100,1), output(100,1);
+	input.setRandom();
+	output.setZero();
 	
-	double input[25], output[50];
-	std::fill(input, input+25, 1.);
-	
-	std::fill(output, output+5, 0.);
-	
-	aca_multiply(M,
-		rowIndices, rowLimits, nRowClusters,
-		colIndices, colLimits, nColClusters,
-		nBlocks, rowBlocks, colBlocks,
-		input, output,
-		1e-3, 50);
+	ACA aca;
+	aca.multiply(M, rowClusters, colClusters, blocks, input, output, 1e-5, 50);
 		
-	std::ostream_iterator<double> out_it(std::cout, " ");
-	std::copy(output, output+50, out_it);
-	
-	std::cout << "\n";
-	
-	// direct evaluation
-	std::fill(output, output+50, 0.);
-	for (int i = 0; i < 50; ++i)
-		for (int j = 0; j < 25; ++j)
-			output[rowIndices[i]] += M(rowIndices[i], colIndices[j]) * input[colIndices[j]];
-	std::copy(output, output+50, out_it);
+	auto output_full = (M * input).eval();
+
+	std::cout << "#elements: " << aca.get_nEval() << " / " <<
+	aca.get_matrixSize() << " : " << aca.get_sizeCompression() << std::endl;
+	std::cout << "error: " << (output - output_full).norm()/output.norm() << std::endl;
 
 	return 0;
 }
