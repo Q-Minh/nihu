@@ -120,6 +120,20 @@ private:
 	}
 
 public:
+	/** \brief Compute matrix-vector product with multilevel low rank approximation
+	 * \tparam Matrix	the matrix class
+	 * \tparam ClusterArray	type of the array storing the cluster tree
+	 * \tparam BlockArray	type of the array storing the block tree
+	 * \tparam Input	type of the input vector
+	 * \tparam Output	type of the output vector
+	 * \param [in] rowClusters	the row cluster tree
+	 * \param [in] colClusters	the column cluster tree
+	 * \param [in] blocks	the block tree
+	 * \param [in] input	the input vector
+	 * \param [out] output	the output vector
+	 * \param [in] eps	the ACA approximation error
+	 * \param [in] maxRank	the maximal ACA approximation rank
+	 */
 	template <class Matrix, class ClusterArray, class BlockArray, class Input, class Output>
 	void multiply(Matrix const &M,
 		Eigen::DenseBase<ClusterArray> const &rowClusters, Eigen::DenseBase<ClusterArray> const &colClusters,

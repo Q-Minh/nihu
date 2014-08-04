@@ -23,7 +23,6 @@ function [clusters, perm, order] = sort_cluster_tree(CTree)
 
 clusters = zeros(length(CTree),2);
 
-% get total number of indices
 isleaf = false(length(CTree),1);
 for t = 1 : length(CTree)
     if isempty(CTree(t).children)
