@@ -6,7 +6,8 @@
 #define ACA_HPP_INCLUDED
 
 #include <Eigen/Dense>
-#include <algorithm>
+#include <type_traits> // std::decay
+#include <utility> // std::forward
 
 /** \brief class performing Adaptive Cross Approximation */
 class ACA
@@ -93,10 +94,10 @@ private:
 			// compute j-th column
 			for (int s = 0; s < nRows; ++s)
 				U(s,r) = M(s,j);
+			// subtract already approximated parts
 			if (r > 0)
 				U.col(r) -= U.leftCols(r) * V.block(j,0,1,r).transpose();
-
-			// store row and col into result
+			// normalise
 			U.col(r) /= U(i,r);
 
 			// indicate that r rows and columns are ready
@@ -126,9 +127,9 @@ public:
 	 * \tparam BlockArray	type of the array storing the block tree
 	 * \tparam Input	type of the input vector
 	 * \tparam Output	type of the output vector
-	 * \param [in] rowClusters	the row cluster tree
-	 * \param [in] colClusters	the column cluster tree
-	 * \param [in] blocks	the block tree
+	 * \param [in] rowClusters	the row cluster tree as Eigen matrix
+	 * \param [in] colClusters	the column cluster tree as Eigen matrix
+	 * \param [in] blocks	the block tree as Eigen matrix
 	 * \param [in] input	the input vector
 	 * \param [out] output	the output vector
 	 * \param [in] eps	the ACA approximation error
@@ -188,8 +189,11 @@ public:
 	}
 	
 public:
+	/** \brief return number of matrix evaluations */
 	int get_nEval(void) const { return m_nEval; }
+	/** \brief number of matrix elements in processed blocks */
 	int get_matrixSize(void) const { return m_matrixSize; }
+	/** \brief return the size compression ratio */
 	double get_sizeCompression(void) const { return double(get_nEval()) / get_matrixSize(); }
 	
 private:
