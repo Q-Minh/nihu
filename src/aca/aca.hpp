@@ -27,7 +27,7 @@ private:
 
 		/** index operator */
 		Scalar operator()(int i, int j) const { return M(row0+i, col0+j); }
-	
+
 	private:
 		Matrix M;			/** \brief the matrix */
 		int row0, col0;		/** \brief the row and column offsets */
@@ -116,14 +116,15 @@ private:
 			// go to next row
 			++i;
 		}
-	
+
 		return r;
 	}
 
 public:
 	/** \brief Compute matrix-vector product with multilevel low rank approximation
 	 * \tparam Matrix	the matrix class
-	 * \tparam ClusterArray	type of the array storing the cluster tree
+	 * \tparam RowArray	type of the array storing the row cluster tree
+	 * \tparam ColumnArray	type of the array storing the column cluster tree
 	 * \tparam BlockArray	type of the array storing the block tree
 	 * \tparam Input	type of the input vector
 	 * \tparam Output	type of the output vector
@@ -135,22 +136,22 @@ public:
 	 * \param [in] eps	the ACA approximation error
 	 * \param [in] maxRank	the maximal ACA approximation rank
 	 */
-	template <class Matrix, class ClusterArray, class BlockArray, class Input, class Output>
+	template <class Matrix, class RowArray, class ColumnArray, class BlockArray, class Input, class Output>
 	void multiply(Matrix const &M,
-		Eigen::DenseBase<ClusterArray> const &rowClusters, Eigen::DenseBase<ClusterArray> const &colClusters,
+		Eigen::DenseBase<RowArray> const &rowClusters, Eigen::DenseBase<ColumnArray> const &colClusters,
 		Eigen::DenseBase<BlockArray> const &blocks,
 		Input const &input, Output &output,
 		double eps, int maxRank)
 	{
 		typedef typename Matrix::Scalar Scalar;
-	
+
 		// determine maximal row and column block size for preallocation
 		int nMaxRows = rowClusters.col(1).maxCoeff(), nMaxCols = colClusters.col(1).maxCoeff();
-	
+
 		// allocate memory for U, V and internal result vector of LRA
 		Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> U(nMaxRows, maxRank), V(nMaxCols, maxRank);
 		Eigen::Matrix<Scalar, Eigen::Dynamic, 1> Z(maxRank,1);
-	
+
 		// track number of matrix element evaluations
 		m_nEval = m_matrixSize = 0;
 
@@ -164,15 +165,15 @@ public:
 			// get cluster size
 			int row0 = rowCluster(0), nRows = rowCluster(1);
 			int col0 = colCluster(0), nCols = colCluster(1);
-		
+
 			auto u(U.topRows(nRows));	// reference objects
 			auto v(V.topRows(nCols));
-		
+
 			// compute low rank decomposition
 			int r = low_rank_approx(createBlock(M, row0, col0), nRows, nCols, eps, maxRank, u, v);
 			m_nEval += (nRows+nCols)*r;
 			m_matrixSize += nRows*nCols;
-		
+
 			// perform multiplication
 			auto vv(V.leftCols(r));		// reference objects
 			auto uu(U.leftCols(r));
@@ -187,7 +188,7 @@ public:
 				output[ row0+i ] += uu.row(i)*z;
 		}
 	}
-	
+
 public:
 	/** \brief return number of matrix evaluations */
 	int get_nEval(void) const { return m_nEval; }
@@ -195,7 +196,7 @@ public:
 	int get_matrixSize(void) const { return m_matrixSize; }
 	/** \brief return the size compression ratio */
 	double get_sizeCompression(void) const { return double(get_nEval()) / get_matrixSize(); }
-	
+
 private:
 	int m_nEval;
 	int m_matrixSize;
