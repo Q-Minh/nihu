@@ -1,4 +1,4 @@
-function [Tnear, Tfar] = build_block_tree_2(SourceTree, ReceiverTree)
+function [Tnear, Tfar] = build_block_tree_2(ReceiverTree, SourceTree)
 
 % preallocating the output
 CapacityFar = 5000;

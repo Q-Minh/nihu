@@ -10,33 +10,19 @@ clear;
 %     '2013', 'Boonen2013', 'work', 'industrial', 'data',...
 %     'horse.off'));
 %%
-source = create_sphere_boundary(1, 30);
-receiver = translate_mesh(create_sphere_boundary(1, 30), [.5 0 0]);
+source = create_line(1, 3000);
+receiver = translate_mesh(create_line(1, 3000), [.5 0 0]);
 xs = centnorm(source);
 xr = centnorm(receiver);
 
-%%
+%% build cluster trees
 t0 = tic;
 SourceTree = build_cluster_tree(xs, 25);
+[SourceClusters, SourcePerm] = sort_cluster_tree(SourceTree);
 ReceiverTree = build_cluster_tree(xr, 25);
+[ReceiverClusters, ReceiverPerm] = sort_cluster_tree(ReceiverTree);
 tTree = toc(t0);
 fprintf('%.3g s needed to build cluster tree\n', tTree);
-
-%%
-l = 10;
-ns = 0;
-for s = 1: length(SourceTree)
-    if SourceTree(s).level == l
-        ns = ns + length(SourceTree(s).ind);
-    end
-end
-
-nr = 0;
-for r = 1: length(ReceiverTree)
-    if ReceiverTree(r).level == l
-        nr = nr + length(ReceiverTree(r).ind);
-    end
-end
 
 %% build block tree
 t0 = tic;
@@ -44,29 +30,12 @@ t0 = tic;
 tBtree = toc(t0);
 fprintf('%.3g s needed to build block tree\n', tBtree);
 
-[~, i] = sort(B_near(:,1));
-B_near = B_near(i,:);
-
-[~, i] = sort(B_far(:,1));
-B_far = B_far(i,:);
-
 %% visualise far field block tree
-
-v = nan(size(xr,1),1);
-w = nan(size(xs,1),1);
-sigma = unique(B_far(:,1));
-sigma = sigma(end);
-v(ReceiverTree(sigma).ind) = 1;
-tau = B_far(B_far(:,1) == sigma,2);
-for t = 1: length(tau);
-    w(SourceTree(tau(t)).ind) = t;
+for b = 1 : size(B_far,1)
+    i = ReceiverClusters(B_far(b,1),:);
+    j = SourceClusters(B_far(b,2),:);
+    patch(j(1) + j(2)*[0 0 1 1]', i(1) + i(2)*[0 1 1 0]', b*ones(4,1));
 end
-
-figure;
-plot_mesh(source, w);
-plot_mesh(receiver, v);
-
-shading flat;
 
 %% visualise near field block tree
 v = nan(size(xr,1),1);

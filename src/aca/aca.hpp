@@ -158,9 +158,8 @@ public:
 		// traverse blocks
 		for (int iBlock = 0; iBlock < blocks.rows(); ++iBlock)
 		{
-			auto b(blocks.row(iBlock));				// reference object
-			auto rowCluster(rowClusters.row(b(0)));	// reference object
-			auto colCluster(colClusters.row(b(1)));	// reference object
+			auto rowCluster(rowClusters.row(blocks(iBlock,0)));	// reference object
+			auto colCluster(colClusters.row(blocks(iBlock,1)));	// reference object
 
 			// get cluster size
 			int row0 = rowCluster(0), nRows = rowCluster(1);
@@ -182,10 +181,10 @@ public:
 			// z = V' * y
 			z.setZero();
 			for (int j = 0; j < nCols; ++j)
-				z += vv.row(j).transpose() * input[ col0+j ];
+				z += vv.row(j).transpose() * input( col0+j , 0);
 			// x += U * z
 			for (int i = 0; i < nRows; ++i)
-				output[ row0+i ] += uu.row(i)*z;
+				output( row0+i, 0 ) += uu.row(i)*z;
 		}
 	}
 
