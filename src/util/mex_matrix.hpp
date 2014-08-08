@@ -63,16 +63,15 @@ protected:
 	 * \param [in] input the Matlab pointer to the matrix
 	 */
 	matrix_base(mxArray const *input)
+		: m_rows(mxGetM(input)), m_cols(mxGetN(input))
 	{
-		m_rows = mxGetM(input);
-		m_cols = mxGetN(input);
 	}
 
 public:
 	/** \brief return number of rows
 	 * \return the number of rows
 	 */
-	size_t rows(void) const
+	size_t rows(void) const 
 	{
 		return m_rows;
 	}
@@ -213,14 +212,6 @@ public:
 		imag() += data.imag();
 	}
 
-	/** \brief increment operator
-	 * \param data the data to add to the container
-	 */
-	void operator +=(scalar_t const &data)
-	{
-		real() += data;
-	}
-
 	/** \brief assignment operator
 	 * \param data the data to assign to the container
 	 */
@@ -228,6 +219,14 @@ public:
 	{
 		real() = data;
 		imag() = 0.0;
+	}
+
+	/** \brief increment operator
+	 * \param data the data to add to the container
+	 */
+	void operator +=(scalar_t const &data)
+	{
+		real() += data;
 	}
 
 private:
@@ -268,11 +267,9 @@ public:
 	 * \param [in] input pointer to the native Matlab matrix format
 	 */
 	complex_matrix(mxArray const *input)
-		: matrix_base(input)
+		: matrix_base(input), m_real(static_cast<scalar_t *>(mxGetData(input))),
+		m_imag(static_cast<scalar_t *>(mxGetImagData(input)))
 	{
-		// get real and imaginary data pointers from the Matlab matrix
-		m_real = static_cast<scalar_t *>(mxGetData(input));
-		m_imag = static_cast<scalar_t *>(mxGetImagData(input));
 	}
 
 	/** \brief index operator that returns a complex number

@@ -87,7 +87,7 @@ private:
 				if (std::abs(V(s,r)) > std::abs(V(j,r)))
 					j = s;
 
-			// if full zero row has bene found we are ready
+			// if full zero row has been found we are ready
 			if (std::abs(V(j,r)) / magest < 1e-10)
 				break;
 
@@ -179,17 +179,13 @@ public:
 			auto uu(U.leftCols(r));
 			auto z(Z.topRows(r));
 
-
 			// z = V' * y
 			z.setZero();
 			for (int j = 0; j < nCols; ++j)
 				z += vv.row(j).transpose() * input( col0+j , 0);
-
-
 			// x += U * z
 			for (int i = 0; i < nRows; ++i)
 				output( row0+i, 0 ) += (uu.row(i)*z)(0,0);
-
 		}
 	}
 
