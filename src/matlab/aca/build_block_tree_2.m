@@ -1,4 +1,4 @@
-function [Tnear, Tfar] = build_block_tree_2(ReceiverTree, SourceTree)
+function [Tnear, Tfar] = build_block_tree_2(RowTree, ColTree, eta)
 
 % preallocating the output
 CapacityFar = 5000;
@@ -9,15 +9,17 @@ CapacityNear = 5000;
 Tnear = zeros(CapacityNear,2);
 EndNear= 0;
 
-block_partition(1,1)
+% recursively partition the tree starting with the (1,1) block
+block_partition(1,1);
 
+% truncate the block tree
 Tfar = Tfar(1:EndFar,:);
 Tnear = Tnear(1:EndNear,:);
 
     function block_partition(i,j)
-        sigma = ReceiverTree(i);
-        tau = SourceTree(j);
-        if is_admissible(sigma, tau)
+        sigma = RowTree(i);
+        tau = ColTree(j);
+        if is_admissible(sigma, tau, eta)
             EndFar = EndFar+1;
             if EndFar > CapacityFar
                 CapacityFar = 2*CapacityFar;
@@ -32,8 +34,9 @@ Tnear = Tnear(1:EndNear,:);
             end
             Tnear(EndNear,:) = [i, j];
         else
-            Ds = norm(diff(sigma.bb));
-            Dt = norm(diff(tau.bb));
+			% try to divide the larger cluster if possible
+            Ds = norm(diff(sigma.bb));	% diameter of sigma
+            Dt = norm(diff(tau.bb));	% diameter of tau
             if (Ds > Dt && ~isempty(sigma.children)) || isempty(tau.children) % divide sigma
                 s = sigma.children;
                 for k = 1 : length(s)
@@ -45,18 +48,19 @@ Tnear = Tnear(1:EndNear,:);
                     block_partition(i,t(k));
                 end
             end
-        end
-    end
-end
+        end % if
+    end % of function block_partition
+end % of function build_block_tree_2
 
 function b = is_admissible(C1, C2, eta)
 if nargin < 3
     eta = .8;
 end
-bb1 = C1.bb;
-bb2 = C2.bb;
-d1 = norm(diff(bb1));
-d2 = norm(diff(bb2));
+bb1 = C1.bb;	% bounding box of cluster 1
+bb2 = C2.bb;	% bounding box of cluster 2
+d1 = norm(diff(bb1));	% diameter of cluster 1
+d2 = norm(diff(bb2));	% diameter of cluster 2
+% estimate minimal distance between two nodes
 dist = max(norm(mean(bb1)-mean(bb2))-(d1+d2)/2, 0);
 b = min(d1, d2) < eta * dist;
-end
+end % of function is_admissible
