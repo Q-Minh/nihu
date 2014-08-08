@@ -21,25 +21,22 @@ function [clusters, perm, order] = sort_cluster_tree(CTree)
 
 % Copyright (C) 2014 Peter Fiala
 
-clusters = zeros(length(CTree),2);
+perm = [];
+generate_permutation(1);
+order(perm) = 1 : length(perm);
 
-isleaf = false(length(CTree),1);
+clusters = zeros(length(CTree),2);
 for t = 1 : length(CTree)
-    if isempty(CTree(t).children)
-        isleaf(t) = true;
-    end
+    clusters(t,1) = min(order(CTree(t).ind))-1;
     clusters(t,2) = length(CTree(t).ind);
 end
 
-leafs = CTree(isleaf);
-perm = [];
-for t = 1 : length(leafs)
-    perm = [perm leafs(t).ind];
-end
-order(perm) = 1 : length(perm);
-
-for t = 1 : length(CTree)
-    clusters(t,1) = min(order(CTree(t).ind))-1;
-end
-
+    function generate_permutation(l)
+        if isempty(CTree(l).children)
+            perm = [perm CTree(l).ind];
+        else
+            generate_permutation(CTree(l).children(1));
+            generate_permutation(CTree(l).children(2));
+        end
+    end
 end

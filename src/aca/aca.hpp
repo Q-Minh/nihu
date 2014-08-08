@@ -170,6 +170,7 @@ public:
 
 			// compute low rank decomposition
 			int r = low_rank_approx(createBlock(M, row0, col0), nRows, nCols, eps, maxRank, u, v);
+
 			m_nEval += (nRows+nCols)*r;
 			m_matrixSize += nRows*nCols;
 
@@ -178,13 +179,17 @@ public:
 			auto uu(U.leftCols(r));
 			auto z(Z.topRows(r));
 
+
 			// z = V' * y
 			z.setZero();
 			for (int j = 0; j < nCols; ++j)
 				z += vv.row(j).transpose() * input( col0+j , 0);
+
+
 			// x += U * z
 			for (int i = 0; i < nRows; ++i)
-				output( row0+i, 0 ) += uu.row(i)*z;
+				output( row0+i, 0 ) += (uu.row(i)*z)(0,0);
+
 		}
 	}
 

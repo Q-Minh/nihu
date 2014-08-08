@@ -226,7 +226,7 @@ public:
 	 */
 	void operator =(scalar_t const &data)
 	{
-		real() += data;
+		real() = data;
 		imag() = 0.0;
 	}
 
