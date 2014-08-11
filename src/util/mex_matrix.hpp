@@ -98,6 +98,14 @@ struct classID;
 
 /** \brief specialisation of classID to double */
 template <>
+struct classID<int>
+{
+	/** \brief the Matlab class */
+	static mxClassID const value = mxINT32_CLASS;
+};
+
+/** \brief specialisation of classID to double */
+template <>
 struct classID<double>
 {
 	/** \brief the Matlab class */
@@ -267,7 +275,8 @@ public:
 	 * \param [in] input pointer to the native Matlab matrix format
 	 */
 	complex_matrix(mxArray const *input)
-		: matrix_base(input), m_real(static_cast<scalar_t *>(mxGetData(input))),
+		: matrix_base(input),
+		m_real(static_cast<scalar_t *>(mxGetData(input))),
 		m_imag(static_cast<scalar_t *>(mxGetImagData(input)))
 	{
 	}

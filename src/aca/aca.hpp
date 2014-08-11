@@ -136,12 +136,13 @@ public:
 	 * \param [in] eps	the ACA approximation error
 	 * \param [in] maxRank	the maximal ACA approximation rank
 	 */
-	template <class Matrix, class RowArray, class ColumnArray, class BlockArray, class Input, class Output>
+	template <class Matrix, class RowArray, class ColumnArray, class BlockArray, class Input, class Output, class Ranks>
 	void multiply(Matrix const &M,
 		Eigen::DenseBase<RowArray> const &rowClusters, Eigen::DenseBase<ColumnArray> const &colClusters,
 		Eigen::DenseBase<BlockArray> const &blocks,
 		Input const &input, Output &output,
-		double eps, int maxRank)
+		double eps, int maxRank,
+		Ranks &outRanks)
 	{
 		typedef typename Matrix::Scalar Scalar;
 
@@ -181,11 +182,15 @@ public:
 
 			// z = V' * y
 			z.setZero();
+
+
 			for (int j = 0; j < nCols; ++j)
 				z += vv.row(j).transpose() * input( col0+j , 0);
 			// x += U * z
 			for (int i = 0; i < nRows; ++i)
 				output( row0+i, 0 ) += (uu.row(i)*z)(0,0);
+
+			outRanks(iBlock,0) = r;
 		}
 	}
 
