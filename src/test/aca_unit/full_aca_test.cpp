@@ -17,6 +17,7 @@ public:
 		double y = y0 + j * dy;
 		return 1./std::abs(y-x);
 	}
+
 private:
 	double x0, dx, y0, dy;
 };
@@ -62,7 +63,14 @@ int main(void)
 			output_full(i) += M(i,j) * input(j);
 
 	std::cout << "#elements: " << aca.get_nEval() << " / " <<
-	aca.get_matrixSize() << " : " << aca.get_sizeCompression() << std::endl;
+		aca.get_matrixSize() << " : " << aca.get_sizeCompression() << std::endl;
+	std::cout << "error: " << (output - output_full).norm()/output.norm() << std::endl;
+
+	auto decomposition = ACA::decompose(M, rowClusters, colClusters, blocks, 1e-3, 50);
+
+	output.setZero();
+	for (auto d : decomposition)
+		output.block(d.getRow0(),0,d.getU().rows(), 1) += d.getU() * (d.getV().transpose() * input.block(d.getCol0(), 0, d.getV().rows(), 1));
 	std::cout << "error: " << (output - output_full).norm()/output.norm() << std::endl;
 
 	return 0;
