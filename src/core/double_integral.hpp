@@ -40,6 +40,23 @@
 #include "singular_accelerator.hpp"
 #include "formalism.hpp"
 
+
+template <class Elem>
+struct weighted_brick;
+
+template <class LSet, class Scalar>
+struct weighted_brick<volume_element<LSet, Scalar> >
+{
+	typedef volume_jacobian<typename volume_element<LSet, Scalar>::space_t> type;
+};
+
+template <class LSet, class Scalar>
+struct weighted_brick<surface_element<LSet, Scalar> >
+{
+	typedef normal_jacobian<typename surface_element<LSet, Scalar>::space_t> type;
+};
+
+
 // forward declaration
 template <class Kernel, class TestField, class TrialField, class Singularity, class Enable = void>
 class singular_integral_shortcut;
@@ -99,6 +116,8 @@ class double_integral<Kernel, TestField, TrialField, formalism::general>
 	typedef std::false_type WITHOUT_SINGULARITY_CHECK;
 
 public:
+	typedef typename TestField::elem_t test_elem_t;
+	typedef typename TrialField::elem_t trial_elem_t;
 	/** \brief test input type of kernel */
 	typedef typename kernel_traits<Kernel>::test_input_t test_input_t;
 	/** \brief trial input type of kernel */
@@ -106,12 +125,12 @@ public:
 	/** \brief weighted test input type of kernel */
 	typedef typename merge<
 		test_input_t,
-		typename build<normal_jacobian<typename test_input_t::space_t> >::type
+		typename build<typename weighted_brick<test_elem_t>::type >::type
 	>::type w_test_input_t;
 	/** \brief weighted trial input type of kernel */
 	typedef typename merge<
 		trial_input_t,
-		typename build<normal_jacobian<typename trial_input_t::space_t> >::type
+		typename build<typename weighted_brick<trial_elem_t>::type >::type
 	>::type w_trial_input_t;
 
 	/** \brief the quadrature family the kernel requires */
@@ -339,6 +358,7 @@ class double_integral<Kernel, TestField, TrialField, formalism::collocational>
 	typedef std::false_type WITHOUT_SINGULARITY_CHECK;
 
 public:
+	typedef typename TrialField::elem_t trial_elem_t;
 	/** \brief test input type of kernel */
 	typedef typename kernel_traits<Kernel>::test_input_t test_input_t;
 	/** \brief trial input type of kernel */
@@ -349,7 +369,7 @@ public:
 	/** \brief weighted trial input type */
 	typedef typename merge<
 		trial_input_t,
-		typename build<normal_jacobian<typename trial_input_t::space_t> >::type
+		typename build<typename weighted_brick<trial_elem_t>::type >::type
 	>::type w_trial_input_t;
 
 	/** \brief the quadrature family the kernel requires */

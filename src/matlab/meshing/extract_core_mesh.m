@@ -3,10 +3,10 @@ function [nodes, elements] = extract_core_mesh(model)
 
 %% Search for QUAD or TRIA elements and allocate space for bem model
 ind12 = find(model.Elements(:,2) == 12); % line elements
-ind3 = find(model.Elements(:,2) == 23); % tri elements
-ind4 = find(model.Elements(:,2) == 24); % quad elements
-ind23 = find(model.Elements(:,2) == 232); % quad elements
-ind24 = find(model.Elements(:,2) == 242); % quad elements
+ind3 = find(model.Elements(:,2) == 23); % linear tri elements
+ind4 = find(model.Elements(:,2) == 24); % linear quad elements
+ind23 = find(model.Elements(:,2) == 232); % quadratic tria elements
+ind24 = find(model.Elements(:,2) == 242); % quadratic quad elements
 elem = drop_IDs(model);
 elements = zeros(size(model.Elements,1),9+1);
 
@@ -34,5 +34,5 @@ if ~isempty(ind24)
 end
 
 %% build new node matrix
-nodes = model.Nodes(:,2:4);
+nodes = model.Nodes(:,2:end);
 end
