@@ -1,6 +1,6 @@
 /** \file aca.hpp
- * \details implementation of Adaptive Cross Approximation (ACA)
- */
+* \details implementation of Adaptive Cross Approximation (ACA)
+*/
 
 #ifndef ACA_HPP_INCLUDED
 #define ACA_HPP_INCLUDED
@@ -8,6 +8,29 @@
 #include <Eigen/Dense>
 #include <type_traits> // std::decay
 #include <utility> // std::forward
+#include <vector> // std::forward
+
+template <class Scalar>
+class LowRank
+{
+public:
+	LowRank() {}
+
+	template <class UType, class VType>
+	LowRank(int row0, int col0, Eigen::MatrixBase<UType> const &U, Eigen::DenseBase<VType> const &V)
+		: row0(row0), col0(col0), U(U), V(V) {}
+
+	Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> const &getU(void) const { return U; }
+	Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> const &getV(void) const { return V; }
+
+	int getRow0(void) const { return row0; } 
+	int getCol0(void) const { return col0; } 
+
+private:
+	int row0, col0;
+	Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> U;
+	Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> V;
+};
 
 /** \brief class performing Adaptive Cross Approximation */
 class ACA
@@ -36,25 +59,25 @@ private:
 
 	template <class Matrix>
 	static Block<Matrix>
-	createBlock(Matrix &&M, int row0, int col0)
+		createBlock(Matrix &&M, int row0, int col0)
 	{
 		return Block<Matrix>(std::forward<Matrix>(M), row0, col0);
 	}
 
 
 	/** \brief compute low rank approximation of a matrix with a prescribed accuracy and maximum rank
-	 * \details The low rank approximation is of the form M = U * V.transpose()
-	 * \tparam Matrix the matrix class
-	 * \tparam Result the type of the result (Eigen matrix)
-	 * \param [in] M the matrix to approximate
-	 * \param [in] nRows the number of matrix rows
-	 * \param [in] nCols the number of matrix cols
-	 * \param [in] eps the prescribed approximation accuracy
-	 * \param [in] R the maximum rank (number of iterations)
-	 * \param [out] U lhs term of the approximation
-	 * \param [out] V rhs term of the approximation
-	 * \return the actual rank of the approximation ( <= R )
-	 */
+	* \details The low rank approximation is of the form M = U * V.transpose()
+	* \tparam Matrix the matrix class
+	* \tparam Result the type of the result (Eigen matrix)
+	* \param [in] M the matrix to approximate
+	* \param [in] nRows the number of matrix rows
+	* \param [in] nCols the number of matrix cols
+	* \param [in] eps the prescribed approximation accuracy
+	* \param [in] R the maximum rank (number of iterations)
+	* \param [out] U lhs term of the approximation
+	* \param [out] V rhs term of the approximation
+	* \return the actual rank of the approximation ( <= R )
+	*/
 	template <class Matrix, class Result>
 	static int low_rank_approx(Matrix const &M, int nRows, int nCols, double eps, int R,
 		Eigen::DenseBase<Result> &U, Eigen::DenseBase<Result> &V)
@@ -192,6 +215,47 @@ public:
 
 			outRanks(iBlock,0) = r;
 		}
+	}
+
+	template <class Matrix, class RowArray, class ColumnArray, class BlockArray>
+	static std::vector<LowRank<typename Matrix::Scalar> > decompose(Matrix const &M,
+		Eigen::DenseBase<RowArray> const &rowClusters, Eigen::DenseBase<ColumnArray> const &colClusters,
+		Eigen::DenseBase<BlockArray> const &blocks,
+		double eps, int maxRank)
+	{
+		typedef typename Matrix::Scalar Scalar;
+		typedef std::vector<LowRank<Scalar> > ReturnType;
+
+		ReturnType ret;
+		ret.reserve(blocks.rows());
+
+		// determine maximal row and column block size for preallocation
+		int nMaxRows = rowClusters.col(1).maxCoeff(), nMaxCols = colClusters.col(1).maxCoeff();
+
+		// allocate memory for U, V and internal result vector of LRA
+		Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> U(nMaxRows, maxRank), V(nMaxCols, maxRank);
+		Eigen::Matrix<Scalar, Eigen::Dynamic, 1> Z(maxRank,1);
+
+		// traverse blocks
+		for (int iBlock = 0; iBlock < blocks.rows(); ++iBlock)
+		{
+			auto rowCluster(rowClusters.row(blocks(iBlock,0)));	// reference object
+			auto colCluster(colClusters.row(blocks(iBlock,1)));	// reference object
+
+			// get cluster size
+			int row0 = rowCluster(0), nRows = rowCluster(1);
+			int col0 = colCluster(0), nCols = colCluster(1);
+
+			auto u(U.topRows(nRows));	// reference objects
+			auto v(V.topRows(nCols));
+
+			// compute low rank decomposition
+			int r = low_rank_approx(createBlock(M, row0, col0), nRows, nCols, eps, maxRank, u, v);
+
+			ret.push_back(LowRank<Scalar>(row0, col0, U.leftCols(r), V.leftCols(r)));
+		}
+
+		return ret;
 	}
 
 public:

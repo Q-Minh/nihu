@@ -33,6 +33,8 @@ namespace element_traits
 	template <>
 	const std::string name<quad_1_elem>::value = "Quad 1 elem";
 	template <>
+	const std::string name<quad_1_volume_elem>::value = "Quad 1 volume elem";
+	template <>
 	const std::string name<quad_2_elem>::value = "Quad 2 elem";
 	template <>
 	const std::string name<quad_28_elem>::value = "Quad 28 elem";

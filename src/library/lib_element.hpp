@@ -70,5 +70,10 @@ typedef volume_element<tria_1_shape_set, space_2d::scalar_t> tria_1_volume_elem;
 struct tria_1_volume_tag {};
 template <> struct tag2element<tria_1_volume_tag> : tria_1_volume_elem {};
 
+/** \brief A linear (4-noded) quadrilateral volume element in 2D space */
+typedef volume_element<quad_1_shape_set, space_2d::scalar_t> quad_1_volume_elem;
+struct quad_1_volume_tag {};
+template <> struct tag2element<quad_1_volume_tag> : quad_1_volume_elem {};
+
 #endif // LIB_ELEMENT_HPP_INCLUDED
 

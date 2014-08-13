@@ -38,12 +38,13 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, mxArray const *prhs[])
 
 	// allocate Matlab output
 	mex::real_matrix<double> output(input.rows(), 1, plhs[0]);
+	mex::real_matrix<int> ranks(blocks.rows(), 1, plhs[1]);
 	output.setZero();
 
 	// instantiate Newton kernel matrix
 	Newton<mex::real_matrix<double> > M(xr, xs);
 
 	ACA aca;
-	aca.multiply(M, receiver_clusters, source_clusters, blocks, input, output, 1e-3, 50);
+	aca.multiply(M, receiver_clusters, source_clusters, blocks, input, output, 1e-3, 50, ranks);
 }
 
