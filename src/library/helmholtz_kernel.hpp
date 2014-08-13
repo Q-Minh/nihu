@@ -147,7 +147,7 @@ struct helmholtz_2d_g_brick
 			kernel_data_t const &kernel_data) :
 			wall(test_input, trial_input, kernel_data),
 			m_helmholtz_g(std::complex<scalar>(0.0, -.25) *
-				bessel::H<0>(kernel_data.get_wave_number()*wall::get_distance()))
+				bessel::H<0, 2>(kernel_data.get_wave_number()*wall::get_distance()))
 		{
 		}
 
@@ -397,7 +397,7 @@ struct helmholtz_2d_h_brick
 			kernel_data_t const &kernel_data) :
 			wall(test_input, trial_input, kernel_data),
 			m_helmholtz_h(std::complex<scalar>(.0, .25) * kernel_data.get_wave_number() *
-			bessel::H<1>(kernel_data.get_wave_number()*wall::get_distance())  * wall::get_rdny())
+			bessel::H<1, 2>(kernel_data.get_wave_number()*wall::get_distance())  * wall::get_rdny())
 		{
 		}
 

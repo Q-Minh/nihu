@@ -133,7 +133,7 @@ namespace bessel
 	 * \param [in] z the argument
 	 * \return H^(2)_nu(z)
 	 */
-	template <int nu, int kind = 2>
+	template <int nu, int kind>
 	std::complex<double> H_large(std::complex<double> const &z)
 	{
 		static_assert((kind == 1) || (kind == 2), "invalid kind argument of bessel::H");
@@ -157,7 +157,7 @@ namespace bessel
 	 * \param [in] z the argument
 	 * \return H^(2)_nu(z)
 	 */
-	template <int nu, int kind = 2>
+	template <int nu, int kind>
 	std::complex<double> H(std::complex<double> const &z)
 	{
 		static_assert(kind == 1 || kind == 2, "invalid kind argument of bessel::H");

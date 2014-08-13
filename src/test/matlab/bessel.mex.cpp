@@ -34,7 +34,8 @@ void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 	for (unsigned i = 0; i < z.rows(); ++i)
 		for (unsigned j = 0; j < z.cols(); ++j)
 		{
-			H0(i,j) = bessel::H<0>(z(i,j));
-			H1(i,j) = bessel::H<1>(z(i,j));
+			H0(i,j) = bessel::H<0, 2>(z(i,j));
+			H1(i,j) = bessel::H<1, 2>(z(i,j));
 		}
 }
+
