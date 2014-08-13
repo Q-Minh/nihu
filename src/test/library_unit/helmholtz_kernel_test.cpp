@@ -27,6 +27,7 @@ void tester(kernel_base<kernel> const &k)
 	coords1 <<
 		0, 1,
 		0, 0;
+
 	line_1_elem::coords_t coords2;
 	coords2 <<
 		1, 2,
@@ -37,18 +38,20 @@ void tester(kernel_base<kernel> const &k)
 	auto xi1 = line_1_elem::domain_t::get_center();
 	auto xi2 = line_1_elem::domain_t::get_center();
 
-	typename kernel_base<kernel>::test_input_t x(elem1, xi1);
-	typename kernel_base<kernel>::trial_input_t y(elem2, xi2);
+	typename kernel_traits<kernel>::test_input_t x(elem1, xi1);
+	typename kernel_traits<kernel>::trial_input_t y(elem2, xi2);
+
 	std::cout << k(x,y) << std::endl;
 }
 
 int main(void)
 {
-	double wave_number(1.0);
+	std::complex<double> wave_number(1., 1.);
+
 	std::cout << "helmholtz G kernel";
-	tester(helmholtz_2d_SLP_kernel<double>(wave_number));
+	tester(helmholtz_2d_SLP_kernel<std::complex<double> >(wave_number));
 	std::cout << "helmholtz H kernel";
-	tester(helmholtz_2d_DLP_kernel<double>(wave_number));
+	tester(helmholtz_2d_DLP_kernel<std::complex<double> >(wave_number));
 
 	return 0;
 }

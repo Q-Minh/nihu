@@ -98,7 +98,7 @@ struct ikr_brick
 			trial_input_t const &trial_input,
 			kernel_data_t const &kernel_data) :
 			wall(test_input, trial_input, kernel_data),
-			m_ikr(std::complex<scalar>(0.0,1.0) * kernel_data.get_wave_number() * wall::get_distance())
+			m_ikr(std::complex<scalar>(0.,1.) * kernel_data.get_wave_number() * wall::get_distance())
 		{
 		}
 
@@ -116,11 +116,12 @@ struct ikr_brick
 };
 
 
-/** \brief a brick representing a 2D Helmholtz kernel \f$ -i/4 H_0(kr) \f$
- * \tparam scalar the scalar of the coordinate space the distance is defined over
+
+/** \brief a brick representing the expression \f$ i k r \f$
+ * \tparam scalar scalar type of the coordinate space the distance is defined over
  */
 template <class scalar>
-struct helmholtz_2d_g_brick
+struct kr_brick
 {
 	/** \brief the brick template
 	 * \tparam the wall the brick is placed on
@@ -146,8 +147,56 @@ struct helmholtz_2d_g_brick
 			trial_input_t const &trial_input,
 			kernel_data_t const &kernel_data) :
 			wall(test_input, trial_input, kernel_data),
-			m_helmholtz_g(std::complex<scalar>(0.0, -.25) *
-				bessel::H<0, 2>(kernel_data.get_wave_number()*wall::get_distance()))
+			m_kr(kernel_data.get_wave_number() * wall::get_distance())
+		{
+		}
+
+		/** \brief return kr
+		 * \return kr
+		 */
+		result_t const &get_kr(void) const
+		{
+			return m_kr;
+		}
+
+	private:
+		result_t m_kr;
+	};
+};
+
+
+/** \brief a brick representing a 2D Helmholtz kernel \f$ -i/4 H_0^(2)(kr) \f$
+ * \tparam scalar the scalar of the coordinate space the distance is defined over
+ */
+template <class scalar>
+struct helmholtz_2d_SLP_brick
+{
+	/** \brief the brick template
+	 * \tparam the wall the brick is placed on
+	 */
+	template <class wall>
+	class brick : public wall
+	{
+	public:
+		/** \brief the result type */
+		typedef std::complex<scalar> result_t;
+
+		/** \brief templated constructor
+		 * \tparam test_input_t the test input type
+		 * \tparam trial_input_t the trial input type
+		 * \tparam kernel_data_t the kernel data type
+		 * \param [in] test_input the test input
+		 * \param [in] trial_input the trial input
+		 * \param [in] kernel_data the kernel data instance
+		 */
+		template <class test_input_t, class trial_input_t, class kernel_data_t>
+		brick(
+			test_input_t const &test_input,
+			trial_input_t const &trial_input,
+			kernel_data_t const &kernel_data) :
+			wall(test_input, trial_input, kernel_data),
+			m_helmholtz_g(std::complex<scalar>(0., -.25) *
+				bessel::H<0, 2>(wall::get_kr()))
 		{
 		}
 
@@ -177,7 +226,7 @@ struct helmholtz_2d_g_brick
  * \tparam scalar the scalar of the coordinate space the distance is defined over
  */
 template <class scalar>
-struct helmholtz_3d_g_brick
+struct helmholtz_3d_SLP_brick
 {
 	/** \brief the brick template
 	 * \tparam the wall the brick is placed on
@@ -203,7 +252,7 @@ struct helmholtz_3d_g_brick
 			trial_input_t const &trial_input,
 			kernel_data_t const &kernel_data) :
 			wall(test_input, trial_input, kernel_data),
-			m_helmholtz_g(std::exp(-wall::get_ikr()) / wall::get_distance() / (4.0 * M_PI))
+			m_helmholtz_g(std::exp(-wall::get_ikr()) / wall::get_distance() / (4. * M_PI))
 		{
 		}
 
@@ -229,43 +278,44 @@ struct helmholtz_3d_g_brick
 };
 
 
-/** \brief combination of ::distance_vector_brick, ::distance_brick and ::helmholtz_2d_g_brick into a wall
+/** \brief combination of ::distance_vector_brick, ::distance_brick and ::helmholtz_2d_SLP_brick into a wall
  * \tparam space the coordinate space the Helmholtz kernel is defined over
  */
 template <class scalar>
-struct helmholtz_2d_g_wall : build<
+struct helmholtz_2d_SLP_wall : build<
 	distance_vector_brick<space<scalar, 2> >,
 	distance_brick<scalar>,
-	helmholtz_2d_g_brick<scalar>
+	kr_brick<scalar>,
+	helmholtz_2d_SLP_brick<scalar>
 > {};
 
-/** \brief combination of ::distance_vector_brick, ::distance_brick, ::ikr_brick and ::helmholtz_3d_g_brick into a wall
+/** \brief combination of ::distance_vector_brick, ::distance_brick, ::ikr_brick and ::helmholtz_3d_SLP_brick into a wall
  * \tparam space the coordinate space the Helmholtz kernel is defined over
  */
 template <class scalar>
-struct helmholtz_3d_g_wall : build<
+struct helmholtz_3d_SLP_wall : build<
 	distance_vector_brick<space<scalar, 3> >,
 	distance_brick<scalar>,
 	ikr_brick<scalar>,
-	helmholtz_3d_g_brick<scalar>
+	helmholtz_3d_SLP_brick<scalar>
 > {};
 
 // forward declaration
 template <class wave_number_t>
 class helmholtz_2d_SLP_kernel;
 
-/** \brief traits of the Helmholtz G kernel */
+/** \brief traits of the Helmholtz SLP kernel */
 template <class wave_number_t>
 struct kernel_traits<helmholtz_2d_SLP_kernel<wave_number_t> >
 {
 	/** \brief kernel test input type */
-	typedef build<location<space_2d> >::type test_input_t;
+	typedef location_input_2d test_input_t;
 	/** \brief kernel trial input type */
-	typedef build<location<space_2d> >::type trial_input_t;
+	typedef location_input_2d trial_input_t;
 	/** \brief kernel data type */
 	typedef collect<wave_number_data<wave_number_t> > data_t;
 	/** \brief the kernel output type */
-	typedef helmholtz_2d_g_wall<space_2d::scalar_t>::type output_t;
+	typedef helmholtz_2d_SLP_wall<space_2d::scalar_t>::type output_t;
 	/** \brief the kernel result's dimension */
 	enum { result_dimension = 1 };
 	/** \brief the quadrature family the kernel is integrated with
@@ -314,18 +364,18 @@ public:
 template <class wave_number_t>
 class helmholtz_3d_SLP_kernel;
 
-/** \brief traits of the Helmholtz G kernel */
+/** \brief traits of the Helmholtz SLP kernel */
 template <class wave_number_t>
 struct kernel_traits<helmholtz_3d_SLP_kernel<wave_number_t> >
 {
 	/** \brief kernel test input type */
-	typedef build<location<space_3d> >::type test_input_t;
+	typedef location_input_3d test_input_t;
 	/** \brief kernel trial input type */
-	typedef build<location<space_3d> >::type trial_input_t;
+	typedef location_input_3d trial_input_t;
 	/** \brief kernel data type */
 	typedef collect<wave_number_data<wave_number_t> > data_t;
 	/** \brief the kernel output type */
-	typedef helmholtz_3d_g_wall<space_3d::scalar_t>::type output_t;
+	typedef helmholtz_3d_SLP_wall<space_3d::scalar_t>::type output_t;
 	/** \brief the kernel result's dimension */
 	enum { result_dimension = 1 };
 	/** \brief the quadrature family the kernel is integrated with */
@@ -370,7 +420,7 @@ public:
 * \tparam scalar the scalar of the coordinate space the distance is defined over
 */
 template <class scalar>
-struct helmholtz_2d_h_brick
+struct helmholtz_2d_DLP_brick
 {
 	/** \brief the brick template
 	* \tparam the wall the brick is placed on
@@ -396,8 +446,8 @@ struct helmholtz_2d_h_brick
 			trial_input_t const &trial_input,
 			kernel_data_t const &kernel_data) :
 			wall(test_input, trial_input, kernel_data),
-			m_helmholtz_h(std::complex<scalar>(.0, .25) * kernel_data.get_wave_number() *
-			bessel::H<1, 2>(kernel_data.get_wave_number()*wall::get_distance())  * wall::get_rdny())
+			m_helmholtz_h(std::complex<scalar>(0., .25) * kernel_data.get_wave_number() *
+			bessel::H<1, 2>(wall::get_kr())  * wall::get_rdny())
 		{
 		}
 
@@ -423,11 +473,11 @@ struct helmholtz_2d_h_brick
 };
 
 
-/** \brief a brick representing a 3D Helmholtz H kernel \f$ \exp(-ikr)/4\pi r \left(-(1+ikr)/r\right) \cdot r'_{n_y} \f$
+/** \brief a brick representing a 3D Helmholtz DLP kernel \f$ \exp(-ikr)/4\pi r \left(-(1+ikr)/r\right) \cdot r'_{n_y} \f$
  * \tparam scalar the scalar of the coordinate space the distance is defined over
  */
 template <class scalar>
-struct helmholtz_3d_h_brick
+struct helmholtz_3d_DLP_brick
 {
 	/** \brief the brick template
 	 * \tparam the wall the brick is placed on
@@ -453,20 +503,20 @@ struct helmholtz_3d_h_brick
 			trial_input_t const &trial_input,
 			kernel_data_t const &kernel_data) :
 			wall(test_input, trial_input, kernel_data),
-			m_helmholtz_h(-(1.0+wall::get_ikr()) * wall::get_helmholtz_g() / wall::get_distance() * wall::get_rdny())
+			m_helmholtz_h(-(1.+wall::get_ikr()) * wall::get_helmholtz_g() / wall::get_distance() * wall::get_rdny())
 		{
 		}
 
-		/** \brief return helmholtz h kernel
-		 * \return helmholtz h kernel
+		/** \brief return Helmholtz DLP kernel
+		 * \return Helmholtz DLP kernel
 		 */
 		result_t const &get_helmholtz_h(void) const
 		{
 			return m_helmholtz_h;
 		}
 
-		/** \brief return Helmholtz h kernel
-		 * \return Helmholtz h kernel
+		/** \brief return Helmholtz DLP kernel
+		 * \return Helmholtz DLP kernel
 		 */
 		result_t const &get_result(void) const
 		{
@@ -480,22 +530,23 @@ struct helmholtz_3d_h_brick
 
 
 template <class scalar>
-struct helmholtz_2d_h_wall : build<
+struct helmholtz_2d_DLP_wall : build<
 	distance_vector_brick<space<scalar, 2> >,
 	distance_brick<scalar>,
+	kr_brick<scalar>,
 	rdny_brick<scalar>,
-	helmholtz_2d_h_brick<scalar>
+	helmholtz_2d_DLP_brick<scalar>
 > {};
 
 
 template <class scalar>
-struct helmholtz_3d_h_wall : build<
+struct helmholtz_3d_DLP_wall : build<
 	distance_vector_brick<space<scalar, 3> >,
 	distance_brick<scalar>,
 	ikr_brick<scalar>,
-	helmholtz_3d_g_brick<scalar>,
+	helmholtz_3d_SLP_brick<scalar>,
 	rdny_brick<scalar>,
-	helmholtz_3d_h_brick<scalar>
+	helmholtz_3d_DLP_brick<scalar>
 > {};
 
 
@@ -503,18 +554,18 @@ struct helmholtz_3d_h_wall : build<
 template <class wave_number_t>
 class helmholtz_2d_DLP_kernel;
 
-/** \brief traits of the Helmholtz H kernel */
+/** \brief traits of the Helmholtz DLP kernel */
 template <class wave_number_t>
 struct kernel_traits<helmholtz_2d_DLP_kernel<wave_number_t> >
 {
 	/** \brief kernel test input type */
-	typedef build<location<space_2d> >::type test_input_t;
+	typedef location_input_2d test_input_t;
 	/** \brief kernel trial input type */
-	typedef build<location<space_2d>, normal_jacobian<space_2d> >::type trial_input_t;
+	typedef location_normal_input_2d trial_input_t;
 	/** \brief kernel data type */
 	typedef collect<wave_number_data<wave_number_t> > data_t;
 	/** \brief the kernel output type */
-	typedef helmholtz_2d_h_wall<space_2d::scalar_t>::type output_t;
+	typedef helmholtz_2d_DLP_wall<space_2d::scalar_t>::type output_t;
 	/** \brief the kernel result's dimension */
 	enum { result_dimension = 1 };
 	/** \brief the quadrature family the kernel is integrated with */
@@ -538,11 +589,6 @@ struct singular_kernel_traits<helmholtz_2d_DLP_kernel<wave_number_t> >
 };
 
 
-
-
-
-
-
 /** \brief Double layer potential kernel of the Helmholtz equation in 2D \f$ ik/4 H_1(kr) \cdot r'_{n_y} \f$ */
 template <class wave_number_t>
 class helmholtz_2d_DLP_kernel :
@@ -563,18 +609,18 @@ public:
 template <class wave_number_t>
 class helmholtz_3d_DLP_kernel;
 
-/** \brief traits of the Helmholtz H kernel */
+/** \brief traits of the Helmholtz DLP kernel */
 template <class wave_number_t>
 struct kernel_traits<helmholtz_3d_DLP_kernel<wave_number_t> >
 {
 	/** \brief kernel test input type */
-	typedef build<location<space_3d> >::type test_input_t;
+	typedef location_input_3d test_input_t;
 	/** \brief kernel trial input type */
-	typedef build<location<space_3d>, normal_jacobian<space_3d> >::type trial_input_t;
+	typedef location_normal_input_3d  trial_input_t;
 	/** \brief kernel data type */
 	typedef collect<wave_number_data<wave_number_t> > data_t;
 	/** \brief the kernel output type */
-	typedef helmholtz_3d_h_wall<space_3d::scalar_t>::type output_t;
+	typedef helmholtz_3d_DLP_wall<space_3d::scalar_t>::type output_t;
 	/** \brief the kernel result's dimension */
 	enum { result_dimension = 1 };
 	/** \brief the quadrature family the kernel is integrated with */
@@ -617,7 +663,7 @@ public:
 };
 
 
-/** \brief a brick representing a 3D Helmholtz H kernel \f$ \exp(-ikr)/4\pi r \left(-(1+ikr)/r\right) \cdot dr/dn \f$
+/** \brief a brick representing a 3D Helmholtz DLP kernel \f$ \exp(-ikr)/4\pi r \left(-(1+ikr)/r\right) \cdot dr/dn \f$
  * \tparam scalar the scalar of the coordinate space the distance is defined over
  */
 template <class scalar>
@@ -647,7 +693,7 @@ struct helmholtz_3d_ht_brick
 			trial_input_t const &trial_input,
 			kernel_data_t const &kernel_data) :
 			wall(test_input, trial_input, kernel_data),
-			m_helmholtz_ht(-(1.0+wall::get_ikr()) * wall::get_helmholtz_g() / wall::get_distance() * wall::get_rdnx())
+			m_helmholtz_ht(-(1.+wall::get_ikr()) * wall::get_helmholtz_g() / wall::get_distance() * wall::get_rdnx())
 		{
 		}
 
@@ -678,7 +724,7 @@ struct helmholtz_3d_ht_wall : build<
 	distance_vector_brick<space<scalar, 3> >,
 	distance_brick<scalar>,
 	ikr_brick<scalar>,
-	helmholtz_3d_g_brick<scalar>,
+	helmholtz_3d_SLP_brick<scalar>,
 	rdnx_brick<scalar>,
 	helmholtz_3d_ht_brick<scalar>
 > {};
@@ -693,9 +739,9 @@ template <class wave_number_t>
 struct kernel_traits<helmholtz_3d_DLPt_kernel<wave_number_t> >
 {
 	/** \brief kernel test input type */
-	typedef build<location<space_3d>, normal_jacobian<space_3d> >::type test_input_t;
+	typedef location_normal_input_3d test_input_t;
 	/** \brief kernel trial input type */
-	typedef build<location<space_3d> >::type trial_input_t;
+	typedef location_input_3d trial_input_t;
 	/** \brief kernel data type */
 	typedef collect<wave_number_data<wave_number_t> > data_t;
 	/** \brief the kernel output type */
@@ -739,11 +785,11 @@ public:
 };
 
 
-/** \brief a brick representing a 3D Helmholtz H kernel \f$ \exp(-ikr)/4\pi r \left(-(1+ikr)/r\right) \cdot dr/dn \f$
+/** \brief a brick representing a 3D Helmholtz DLP kernel \f$ \exp(-ikr)/4\pi r \left(-(1+ikr)/r\right) \cdot dr/dn \f$
  * \tparam scalar the scalar of the coordinate space the distance is defined over
  */
 template <class scalar>
-struct helmholtz_3d_hyper_brick
+struct helmholtz_3d_HSP_brick
 {
 	/** \brief the brick template
 	 * \tparam the wall the brick is placed on
@@ -771,15 +817,15 @@ struct helmholtz_3d_hyper_brick
 			wall(test_input, trial_input, kernel_data),
 			m_helmholtz_hyper(
 				wall::get_helmholtz_g()/wall::get_distance()/wall::get_distance() * (
-					(1.0 + wall::get_ikr())*test_input.get_unit_normal().dot(trial_input.get_unit_normal()) +
-					(3.0 + 3.0*wall::get_ikr() + wall::get_ikr()*wall::get_ikr())*wall::get_rdny()*wall::get_rdnx()
+					(1. + wall::get_ikr())*test_input.get_unit_normal().dot(trial_input.get_unit_normal()) +
+					(3. + 3.*wall::get_ikr() + wall::get_ikr()*wall::get_ikr())*wall::get_rdny()*wall::get_rdnx()
 				)
 			)
 		{
 		}
 
-		/** \brief return helmholtz hypersingular kernel
-		 * \return helmholtz hypersingular kernel
+		/** \brief return Helmholtz hypersingular kernel
+		 * \return Helmholtz hypersingular kernel
 		 */
 		result_t const &get_helmholtz_hyper(void) const
 		{
@@ -801,14 +847,14 @@ struct helmholtz_3d_hyper_brick
 
 
 template <class scalar>
-struct helmholtz_3d_hyper_wall : build<
+struct helmholtz_3d_HSP_wall : build<
 	distance_vector_brick<space<scalar, 3> >,
 	distance_brick<scalar>,
 	ikr_brick<scalar>,
-	helmholtz_3d_g_brick<scalar>,
+	helmholtz_3d_SLP_brick<scalar>,
 	rdnx_brick<scalar>,
 	rdny_brick<scalar>,
-	helmholtz_3d_hyper_brick<scalar>
+	helmholtz_3d_HSP_brick<scalar>
 > {};
 
 
@@ -821,13 +867,13 @@ template <class wave_number_t>
 struct kernel_traits<helmholtz_3d_HSP_kernel<wave_number_t> >
 {
 	/** \brief kernel test input type */
-	typedef build<location<space_3d>, normal_jacobian<space_3d> >::type test_input_t;
+	typedef location_normal_input_3d test_input_t;
 	/** \brief kernel trial input type */
-	typedef build<location<space_3d>, normal_jacobian<space_3d> >::type trial_input_t;
+	typedef location_normal_input_3d trial_input_t;
 	/** \brief kernel data type */
 	typedef collect<wave_number_data<wave_number_t> > data_t;
 	/** \brief the kernel output type */
-	typedef helmholtz_3d_hyper_wall<space_3d::scalar_t>::type output_t;
+	typedef helmholtz_3d_HSP_wall<space_3d::scalar_t>::type output_t;
 	/** \brief the kernel result's dimension */
 	enum { result_dimension = 1 };
 	/** \brief the quadrature family the kernel is integrated with */
