@@ -37,10 +37,10 @@ class assembly
 {
 private:
 	/** \brief implementation of ::eval_on
-	 * \tparam isEmpty indicates if the operation is void or not
 	 * \tparam Operator the integral operator type that is applied
 	 * \tparam TestField the test field type over which integration is performed
 	 * \tparam TrialField the trial field type over which integration is performed
+	 * \tparam isTrivial indicates if the operation is void or not
 	 */
 	template <class Operator, class TestField, class TrialField, bool isTrivial =
 		integral_operator_traits<Operator>::is_local &&
