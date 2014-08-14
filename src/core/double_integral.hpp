@@ -280,8 +280,8 @@ protected:
 			typename Kernel::estimator_t
 		>::eval(test_field, trial_field);
 
-		auto acc = create_dual_field_type_accelerator(
-			test_store_t::get_data()[degree], trial_store_t::get_data()[degree], iteration::diadic());
+		auto acc(create_dual_field_type_accelerator(
+			test_store_t::get_data()[degree], trial_store_t::get_data()[degree], iteration::diadic()));
 
 		return eval_on_accelerator(
 			result, kernel, test_field, trial_field, acc.begin(), acc.end());
@@ -303,7 +303,7 @@ protected:
 		field_base<TrialField> const &trial_field)
 	{
 		// evaluate element match
-		auto mtch = element_match_eval(test_field, trial_field);
+		auto mtch(element_match_eval(test_field, trial_field));
 
 		// if no match simple regular integral is computed
 		if (mtch.get_match_dimension() == -1)
@@ -458,7 +458,7 @@ public:
 		{
 			for (unsigned idx = 0; idx < test_nset_t::num_nodes; ++idx)
 			{
-				test_input_t collocational_point(test_field.get_elem(), test_nset_t::corner_at(idx));
+				test_input_t collocation_point(test_field.get_elem(), test_nset_t::corner_at(idx));
 
 				for (auto const &q : sa.get_trial_quadrature(idx))
 				{
@@ -530,8 +530,8 @@ protected:
 			TrialField, quadrature_family_t, GLOBAL_ACCELERATION, GLOBAL_MAX_ORDER
 		> > trial_store_t;
 
-		auto acc = create_dual_field_type_accelerator(
-			test_store_t::get_data()[degree], trial_store_t::get_data()[degree], iteration::diadic());
+		auto acc(create_dual_field_type_accelerator(
+			test_store_t::get_data()[degree], trial_store_t::get_data()[degree], iteration::diadic()));
 
 		return eval_on_accelerator(
 			result, kernel, test_field, trial_field, acc.begin(), acc.end());
@@ -552,7 +552,7 @@ protected:
 		field_base<TestField> const &test_field,
 		field_base<TrialField> const &trial_field)
 	{
-		auto mtch = element_match_eval(test_field, trial_field);
+		auto mtch(element_match_eval(test_field, trial_field));
 		if (mtch.get_match_dimension() == -1)
 			return eval(WITHOUT_SINGULARITY_CHECK(), result, kernel, test_field, trial_field);
 
