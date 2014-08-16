@@ -1,28 +1,26 @@
 // This file is a part of NiHu, a C++ BEM template library.
-// 
+//
 // Copyright (C) 2012-2014  Peter Fiala <fiala@hit.bme.hu>
 // Copyright (C) 2012-2014  Peter Rucz <rucz@hit.bme.hu>
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#include "space_test.h"
 #include "domain_test.h"
 #include "shapeset_test.h"
 #include "element_test.h"
-#include "space_test.h"
 #include "field_test.h"
-
-// #include "../library_unit/laplace_singular_test.hpp"
 
 int main(void)
 {
@@ -31,8 +29,6 @@ int main(void)
     shapeset_test();
     element_test();
     field_test();
-
-//    laplace_singular_integrals_test();
 
     return 0;
 }

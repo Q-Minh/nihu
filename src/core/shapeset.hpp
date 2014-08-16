@@ -34,7 +34,10 @@
 #include "../tmp/algorithm.hpp"
 #include "../util/conditional_precompute.hpp"
 
-/** \brief shape function derivative indices */
+/** \brief shape function derivative indices
+ * \details These indices are used to index the first and second derivatives of the
+ * shape functions.
+ */
 namespace shape_derivative_index
 {
 	enum {
@@ -43,11 +46,16 @@ namespace shape_derivative_index
 		dXIXI = 0,	/**< \brief index of xi_xi in 2nd derivative matrix */
 		dXIETA = 1,	/**< \brief index of xi_eta in 2nd derivative matrix */
 		dETAXI = 1,	/**< \brief index of eta_xi in 2nd derivative matrix */
-		dETAETA = 2	/**< \brief index of eta-eta in 2nd derivative matrix */
+		dETAETA = 2	/**< \brief index of eta_eta in 2nd derivative matrix */
 	};
 }
 
-/** \brief position degree of freedom of a point in the intrinsic domain */
+/** \brief position degree of freedom of a point in the intrinsic domain
+ * \details Position degree of freedom is the number of independent directions
+ * where the intrinsic domain is open.
+ * For example, a corner point in a 2D quad domain is of 0DOF,
+ * a point on the edge is 1DOF, and an internal point is 2DOF.
+ */
 template <unsigned d>
 struct position_dof : std::integral_constant<unsigned, d> {};
 /** \brief shorthand for 0 dof */
@@ -61,7 +69,11 @@ typedef position_dof<2> dof2;
 template <class Derived, unsigned Order>
 class shape_function;
 
-/** \brief retuirn the number of partial derivatives in dim dimensions */
+/** \brief return the number of partial derivatives in dim dimensions
+ * \details In 1D there is one partial derivative and one second partial derivative.
+ * In 2D there are two partial derivatives and four second derivatives, but
+ * because of symmetry, the actual number of different second derivatives is 3.
+ */
 constexpr unsigned num_derivatives(unsigned order, unsigned dim)
 {
 	return order == 0 ? 1 : (order == 1 ? dim : dim * (dim + 1) / 2);
@@ -70,7 +82,7 @@ constexpr unsigned num_derivatives(unsigned order, unsigned dim)
 /** \brief Traits of shape function sets */
 namespace shape_set_traits
 {
-	/** \brief The shape set's textual id */
+	/** \brief The shape set's textual id - used for debug information */
 	template <class Derived>
 	struct name
 	{
@@ -109,7 +121,7 @@ namespace shape_set_traits
 	template <class Derived, unsigned Order>
 	struct shape_complexity;
 
-	/** \brief Defines the value type of the shape function matrix */
+	/** \brief Defines the value type of the shape function matrix (and derivatives) */
 	template <class Derived, unsigned Order>
 	struct shape_value_type
 	{
