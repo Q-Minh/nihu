@@ -7,6 +7,8 @@ namespace potential
 	struct SLP { typedef SLP type; };
 	/** \brief tag type to identify the Double Layer Potential */
 	struct DLP { typedef DLP type; };
+	/** \brief tag type to identify the transposed Double Layer Potential */
+	struct DLPt { typedef DLPt type; };
 	/** \brief tag type to identify the Hypersingular Potential */
 	struct HSP { typedef HSP type; };
 }
