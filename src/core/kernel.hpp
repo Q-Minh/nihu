@@ -36,22 +36,38 @@
 
 class empty_data {};
 
+/** \brief metafunctions returning regular and singular kernel traits */
 namespace kernel_traits_ns
 {
+	/** \brief return the coordinate space where the kernel is defined */
 	template <class Derived> struct space;
+	/** \brief return the kernel's test input */
 	template <class Derived> struct test_input;
+	/** \brief return the kernel's trial input */
 	template <class Derived> struct trial_input;
+	/** \brief return the kernel's data type */
 	template <class Derived> struct data;
+	/** \brief return the kernel's output type */
 	template <class Derived> struct output;
+	/** \brief return the quadrature family the kerenel is integrated with */
 	template <class Derived> struct quadrature_family;
+	/** \brief return the far field asymptotic behaviour of the kernel */
 	template <class Derived> struct far_field_behaviour;
 
+	/** \brief return the kernel's result dimensionality
+	 * \todo this should be automatically deduced from the kernel result
+	 */
 	template <class Derived> struct result_dimension;
+	/** \brief return whether the kernel is symmetric or not */
 	template <class Derived> struct is_symmetric;
+	/** \brief return whether the kernel is singular or not */
 	template <class Derived> struct is_singular;
 
+	/** \brief return the kernel's singularity type */
 	template <class Derived> struct singularity_type;
+	/** \brief return the quadrature order the singular kernel needs to be integrated with */
 	template <class Derived> struct singular_quadrature_order;
+	/** \brief return the kernel's singular core type */
 	template <class Derived> struct singular_core;
 }
 

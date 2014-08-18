@@ -263,11 +263,16 @@ struct H1_brick
 };
 
 
-/** \brief a brick representing a 2D Helmholtz kernel \f$ -i/4 H_0^(2)(kr) \f$
- * \tparam scalar the scalar of the coordinate space the distance is defined over
+
+/** \brief a brick representing a Helmholtz SLP kernel
+ * \tparam Space the coordinate space the distance is defined over
  */
-template <class scalar>
-struct helmholtz_2d_SLP_brick
+template <class Space>
+struct helmholtz_SLP_brick;
+
+/** \brief specialisation of ::helmholtz_SLP_brick for the 2D case */
+template <class Scalar>
+struct helmholtz_SLP_brick<space_2d<Scalar> >
 {
 	/** \brief the brick template
 	 * \tparam the wall the brick is placed on
@@ -277,7 +282,7 @@ struct helmholtz_2d_SLP_brick
 	{
 	public:
 		/** \brief the result type */
-		typedef std::complex<scalar> result_t;
+		typedef std::complex<Scalar> result_t;
 
 		/** \brief templated constructor
 		 * \tparam test_input_t the test input type
@@ -293,8 +298,7 @@ struct helmholtz_2d_SLP_brick
 			trial_input_t const &trial_input,
 			kernel_data_t const &kernel_data) :
 			wall(test_input, trial_input, kernel_data),
-			m_helmholtz_g(std::complex<scalar>(0., -.25) *
-				bessel::H<0, 2>(wall::get_kr()))
+			m_helmholtz_g(result_t(0., -.25) * bessel::H<0, 2>(wall::get_kr()))
 		{
 		}
 
@@ -320,11 +324,9 @@ struct helmholtz_2d_SLP_brick
 };
 
 
-/** \brief a brick representing a 3D Helmholtz kernel \f$ exp(-ikr) / 4\pi r \f$
- * \tparam scalar the scalar of the coordinate space the distance is defined over
- */
-template <class scalar>
-struct helmholtz_3d_SLP_brick
+/** \brief specialisation of ::helmholtz_SLP_brick for the 3D case */
+template <class Scalar>
+struct helmholtz_SLP_brick<space_3d<Scalar> >
 {
 	/** \brief the brick template
 	 * \tparam the wall the brick is placed on
@@ -334,7 +336,7 @@ struct helmholtz_3d_SLP_brick
 	{
 	public:
 		/** \brief the result type */
-		typedef std::complex<scalar> result_t;
+		typedef std::complex<Scalar> result_t;
 
 		/** \brief templated constructor
 		 * \tparam test_input_t the test input type
@@ -376,149 +378,117 @@ struct helmholtz_3d_SLP_brick
 };
 
 
-/** \brief combination of ::distance_vector_brick, ::distance_brick and ::helmholtz_2d_SLP_brick into a wall
- * \tparam space the coordinate space the Helmholtz kernel is defined over
+/** \brief combination of several bricks into a Helmholtz SLP wall
+ * \tparam Space the coordinate space the Helmholtz kernel is defined over
  */
-template <class scalar>
-struct helmholtz_2d_SLP_wall : build<
-	distance_vector_brick<space<scalar, 2> >,
-	distance_brick<scalar>,
-	kr_brick<scalar>,
-	helmholtz_2d_SLP_brick<scalar>
+template <class Space>
+struct helmholtz_SLP_wall;
+
+/** \brief specialisation of ::helmholtz_SLP_wall for the 2D case */
+template <class Scalar>
+struct helmholtz_SLP_wall<space_2d<Scalar> > : build<
+	distance_vector_brick<space_2d<Scalar> >,
+	distance_brick<Scalar>,
+	kr_brick<Scalar>,
+	helmholtz_SLP_brick<space_2d<Scalar> >
 > {};
 
-/** \brief combination of ::distance_vector_brick, ::distance_brick, ::ikr_brick and ::helmholtz_3d_SLP_brick into a wall
- * \tparam space the coordinate space the Helmholtz kernel is defined over
- */
-template <class scalar>
-struct helmholtz_3d_SLP_wall : build<
-	distance_vector_brick<space<scalar, 3> >,
-	distance_brick<scalar>,
-	ikr_brick<scalar>,
-	helmholtz_3d_SLP_brick<scalar>
+/** \brief specialisation of ::helmholtz_SLP_wall for the 3D case */
+template <class Scalar>
+struct helmholtz_SLP_wall<space_3d<Scalar> > : build<
+	distance_vector_brick<space_3d<Scalar> >,
+	distance_brick<Scalar>,
+	ikr_brick<Scalar>,
+	helmholtz_SLP_brick<space_3d<Scalar> >
 > {};
 
-// forward declaration
-template <class wave_number_t>
-class helmholtz_2d_SLP_kernel;
+/** \brief SLP kernel of the Helmholtz equation
+ * \tparam Space the coordinate space
+ * \tparam WaveNumber the wave number type
+ */
+template <class Space, class WaveNumber>
+class helmholtz_SLP_kernel;
 
-/** \brief traits of the Helmholtz SLP kernel */
-template <class wave_number_t>
-struct kernel_traits<helmholtz_2d_SLP_kernel<wave_number_t> >
+namespace kernel_traits_ns
 {
-	/** \brief kernel test input type */
-	typedef location_input_2d test_input_t;
-	/** \brief kernel trial input type */
-	typedef location_input_2d trial_input_t;
-	/** \brief kernel data type */
-	typedef collect<wave_number_data<wave_number_t> > data_t;
-	/** \brief the kernel output type */
-	typedef helmholtz_2d_SLP_wall<space_2d<>::scalar_t>::type output_t;
-	/** \brief the kernel result's dimension */
-	enum { result_dimension = 1 };
-	/** \brief the quadrature family the kernel is integrated with
-	 * \todo update this quantity
-	 */
-	typedef gauss_family_tag quadrature_family_t;
-	/** \brief indicates if K(x,y) = K(y,x) */
-	static bool const is_symmetric = true;
-	/** \brief indicates whether kernel is singular */
-	static bool const is_singular = true;
-	/** \brief the far field asymptotic behaviour of the kernel */
-	typedef asymptotic::log<1> far_field_behaviour_t;
-};
+	template <class Space, class WaveNumber>
+	struct space<helmholtz_SLP_kernel<Space, WaveNumber> > : Space {};
 
-template <class wave_number_t>
-struct singular_kernel_traits<helmholtz_2d_SLP_kernel<wave_number_t> >
-{
-	/** \brief the kernel's singular order */
-	typedef asymptotic::log<1> singularity_type_t;
-	/** \brief quadrature order used to generate blind singular quadratures
-	 * \todo update this quantity
-	 */
-	static unsigned const singular_quadrature_order = 7;
-};
+	template <class Space, class WaveNumber>
+	struct test_input<helmholtz_SLP_kernel<Space, WaveNumber> > : build<location<Space> > {};
+
+	template <class Space, class WaveNumber>
+	struct trial_input<helmholtz_SLP_kernel<Space, WaveNumber> > : build<location<Space> > {};
+
+	template <class Space, class WaveNumber>
+	struct data<helmholtz_SLP_kernel<Space, WaveNumber> > {
+		typedef collect<wave_number_data<WaveNumber> > type;
+	};
+
+	template <class Space, class WaveNumber>
+	struct output<helmholtz_SLP_kernel<Space, WaveNumber> > : helmholtz_SLP_wall<Space> {};
+
+	template <class Space, class WaveNumber>
+	struct result_dimension<helmholtz_SLP_kernel<Space, WaveNumber> > : std::integral_constant<unsigned, 1> {};
+
+	template <class Space, class WaveNumber>
+	struct quadrature_family<helmholtz_SLP_kernel<Space, WaveNumber> > : gauss_family_tag {};
+
+	template <class Space, class WaveNumber>
+	struct is_symmetric<helmholtz_SLP_kernel<Space, WaveNumber> > : std::true_type {};
+
+	template <class Space, class WaveNumber>
+	struct is_singular<helmholtz_SLP_kernel<Space, WaveNumber> > : std::true_type {};
+
+	template <class Scalar, class WaveNumber>
+	struct far_field_behaviour<helmholtz_SLP_kernel<space_2d<Scalar>, WaveNumber> > : asymptotic::log<1> {};
+
+	template <class Scalar, class WaveNumber>
+	struct far_field_behaviour<helmholtz_SLP_kernel<space_3d<Scalar>, WaveNumber> > : asymptotic::inverse<1> {};
+
+	template <class Scalar, class WaveNumber>
+	struct singularity_type<helmholtz_SLP_kernel<space_2d<Scalar>, WaveNumber> > : asymptotic::log<1> {};
+
+	template <class Scalar, class WaveNumber>
+	struct singularity_type<helmholtz_SLP_kernel<space_3d<Scalar>, WaveNumber> > : asymptotic::inverse<1> {};
+
+	template <class Space, class WaveNumber>
+	struct singular_quadrature_order<helmholtz_SLP_kernel<Space, WaveNumber> > : std::integral_constant<unsigned, 7> {};
+
+	template <class Space, class WaveNumber>
+	struct singular_core<helmholtz_SLP_kernel<Space, WaveNumber> > {
+		typedef laplace_SLP_kernel<Space> type;
+	};
+}
 
 
-
-
-/** \brief Single layer potential kernel of the Helmholtz equation in 2D \f$ -i/4 H_0(kr) \f$ */
-template <class wave_number_t>
-class helmholtz_2d_SLP_kernel :
-	public kernel_base<helmholtz_2d_SLP_kernel<wave_number_t> >
+/** \brief SLP kernel of the Helmholtz equation */
+template <class Space, class WaveNumber>
+class helmholtz_SLP_kernel :
+	public kernel_base<helmholtz_SLP_kernel<Space, WaveNumber> >
 {
 public:
 	/** \brief constructor
 	 * \param [in] wave_number the wave number
 	 */
-	helmholtz_2d_SLP_kernel(wave_number_t const &wave_number) :
-		kernel_base<helmholtz_2d_SLP_kernel<wave_number_t> >(wave_number_data<wave_number_t>(wave_number))
+	helmholtz_SLP_kernel(WaveNumber const &wave_number) :
+		kernel_base<helmholtz_SLP_kernel<Space, WaveNumber> >(wave_number_data<WaveNumber>(wave_number))
 	{
 	}
 };
 
 
-// forward declaration
-template <class wave_number_t>
-class helmholtz_3d_SLP_kernel;
 
-/** \brief traits of the Helmholtz SLP kernel */
-template <class wave_number_t>
-struct kernel_traits<helmholtz_3d_SLP_kernel<wave_number_t> >
-{
-	/** \brief kernel test input type */
-	typedef location_input_3d test_input_t;
-	/** \brief kernel trial input type */
-	typedef location_input_3d trial_input_t;
-	/** \brief kernel data type */
-	typedef collect<wave_number_data<wave_number_t> > data_t;
-	/** \brief the kernel output type */
-	typedef helmholtz_3d_SLP_wall<space_3d<>::scalar_t>::type output_t;
-	/** \brief the kernel result's dimension */
-	enum { result_dimension = 1 };
-	/** \brief the quadrature family the kernel is integrated with */
-	typedef gauss_family_tag quadrature_family_t;
-	/** \brief indicates if K(x,y) = K(y,x) */
-	static bool const is_symmetric = true;
-	/** \brief indicates whether kernel is singular */
-	static bool const is_singular = true;
-	/** \brief the far field asymptotic behaviour of the kernel */
-	typedef asymptotic::inverse<1> far_field_behaviour_t;
-};
-
-
-template <class wave_number_t>
-struct singular_kernel_traits<helmholtz_3d_SLP_kernel<wave_number_t> >
-{
-	/** \brief kernel singularity type */
-	typedef asymptotic::inverse<1> singularity_type_t;
-	/** \brief quadrature order used to generate blind singular quadratures */
-	static unsigned const singular_quadrature_order = 7;
-};
-
-
-
-/** \brief Single layer potential kernel of the Helmholtz equation in 3D \f$ \exp(-ikr)/4\pi r\f$ */
-template <class wave_number_t>
-class helmholtz_3d_SLP_kernel :
-	public kernel_base<helmholtz_3d_SLP_kernel<wave_number_t> >
-{
-public:
-	/** \brief constructor
-	 * \param [in] wave_number the wave number
-	 */
-	helmholtz_3d_SLP_kernel(wave_number_t const &wave_number) :
-		kernel_base<helmholtz_3d_SLP_kernel<wave_number_t> >(wave_number_data<wave_number_t>(wave_number))
-	{
-	}
-};
-
-
-/** \brief a brick representing a 2D Helmholtz derivative kernel \f$ ik/4 H_1^(2)(kr) \cdot r'_{n_y} \f$
-* \tparam scalar the scalar of the coordinate space the distance is defined over
+/** \brief a brick representing a Helmholtz DLP kernel
+* \tparam Space the coordinate space the distance is defined over
 */
-template <class scalar>
-struct helmholtz_2d_DLP_brick
+template <class Space>
+struct helmholtz_DLP_brick;
+
+
+/** \brief specialisation of ::helmholtz_DLP_brick for the 2d case */
+template <class Scalar>
+struct helmholtz_DLP_brick<space_2d<Scalar> >
 {
 	/** \brief the brick template
 	* \tparam the wall the brick is placed on
@@ -528,7 +498,7 @@ struct helmholtz_2d_DLP_brick
 	{
 	public:
 		/** \brief the result type */
-		typedef std::complex<scalar> result_t;
+		typedef std::complex<Scalar> result_t;
 
 		/** \brief templated constructor
 		* \tparam test_input_t the test input type
@@ -544,7 +514,7 @@ struct helmholtz_2d_DLP_brick
 			trial_input_t const &trial_input,
 			kernel_data_t const &kernel_data) :
 			wall(test_input, trial_input, kernel_data),
-			m_helmholtz_h(std::complex<scalar>(0., .25) * kernel_data.get_wave_number() *
+			m_helmholtz_h(result_t(0., .25) * kernel_data.get_wave_number() *
 			wall::get_H1() * wall::get_rdny())
 		{
 		}
@@ -571,11 +541,9 @@ struct helmholtz_2d_DLP_brick
 };
 
 
-/** \brief a brick representing a 3D Helmholtz DLP kernel \f$ \exp(-ikr)/4\pi r \left(-(1+ikr)/r\right) \cdot r'_{n_y} \f$
- * \tparam scalar the scalar of the coordinate space the distance is defined over
- */
-template <class scalar>
-struct helmholtz_3d_DLP_brick
+/** \brief specialisation of ::helmholtz_DLP_brick for the 3d case */
+template <class Scalar>
+struct helmholtz_DLP_brick<space_3d<Scalar> >
 {
 	/** \brief the brick template
 	 * \tparam the wall the brick is placed on
@@ -585,7 +553,7 @@ struct helmholtz_3d_DLP_brick
 	{
 	public:
 		/** \brief the result type */
-		typedef std::complex<scalar> result_t;
+		typedef std::complex<Scalar> result_t;
 
 		/** \brief templated constructor
 		 * \tparam test_input_t the test input type
@@ -627,146 +595,116 @@ struct helmholtz_3d_DLP_brick
 };
 
 
-template <class scalar>
-struct helmholtz_2d_DLP_wall : build<
-	distance_vector_brick<space<scalar, 2> >,
-	distance_brick<scalar>,
-	kr_brick<scalar>,
-	H1_brick<scalar>,
-	rdny_brick<scalar>,
-	helmholtz_2d_DLP_brick<scalar>
+/** \brief combining several bricks into a Helmholtz DLP wall */ 
+template <class Space>
+struct helmholtz_DLP_wall;
+
+/** \brief specialisation of ::helmholtz_DLP_wall for the 2D case */
+template <class Scalar>
+struct helmholtz_DLP_wall<space_2d<Scalar> > : build<
+	distance_vector_brick<space_2d<Scalar> >,
+	distance_brick<Scalar>,
+	kr_brick<Scalar>,
+	H1_brick<Scalar>,
+	rdny_brick<Scalar>,
+	helmholtz_DLP_brick<space_2d<Scalar> >
 > {};
 
 
-template <class scalar>
-struct helmholtz_3d_DLP_wall : build<
-	distance_vector_brick<space<scalar, 3> >,
-	distance_brick<scalar>,
-	ikr_brick<scalar>,
-	helmholtz_3d_SLP_brick<scalar>,
-	rdny_brick<scalar>,
-	helmholtz_3d_DLP_brick<scalar>
+/** \brief specialisation of ::helmholtz_DLP_wall for the 3D case */
+template <class Scalar>
+struct helmholtz_DLP_wall<space_3d<Scalar> > : build<
+	distance_vector_brick<space_3d<Scalar> >,
+	distance_brick<Scalar>,
+	ikr_brick<Scalar>,
+	helmholtz_SLP_brick<space_3d<Scalar> >,
+	rdny_brick<Scalar>,
+	helmholtz_DLP_brick<space_3d<Scalar> >
 > {};
 
 
-// forward declaration
-template <class wave_number_t>
-class helmholtz_2d_DLP_kernel;
+/** \brief DLP kernel of the Helmholtz equation */
+template <class Space, class WaveNumber>
+class helmholtz_DLP_kernel;
 
-/** \brief traits of the Helmholtz DLP kernel */
-template <class wave_number_t>
-struct kernel_traits<helmholtz_2d_DLP_kernel<wave_number_t> >
+namespace kernel_traits_ns
 {
-	/** \brief kernel test input type */
-	typedef location_input_2d test_input_t;
-	/** \brief kernel trial input type */
-	typedef location_normal_input_2d trial_input_t;
-	/** \brief kernel data type */
-	typedef collect<wave_number_data<wave_number_t> > data_t;
-	/** \brief the kernel output type */
-	typedef helmholtz_2d_DLP_wall<space_2d<>::scalar_t>::type output_t;
-	/** \brief the kernel result's dimension */
-	enum { result_dimension = 1 };
-	/** \brief the quadrature family the kernel is integrated with */
-	typedef gauss_family_tag quadrature_family_t;
-	/** \brief indicates if K(x,y) = K(y,x) */
-	static bool const is_symmetric = false;
-	/** \brief indicates whether kernel is singular */
-	static bool const is_singular = true;
-	/** \brief the far field asymptotic behaviour of the kernel */
-	typedef asymptotic::inverse<1> far_field_behaviour_t;
-};
+	template <class Space, class WaveNumber>
+	struct space<helmholtz_DLP_kernel<Space, WaveNumber> > : Space {};
+
+	template <class Space, class WaveNumber>
+	struct test_input<helmholtz_DLP_kernel<Space, WaveNumber> > : build<location<Space> > {};
+
+	template <class Space, class WaveNumber>
+	struct trial_input<helmholtz_DLP_kernel<Space, WaveNumber> > : build<location<Space>, normal_jacobian<Space>  > {};
+
+	template <class Space, class WaveNumber>
+	struct data<helmholtz_DLP_kernel<Space, WaveNumber> > {
+		typedef collect<wave_number_data<WaveNumber> > type;
+	};
+
+	template <class Space, class WaveNumber>
+	struct output<helmholtz_DLP_kernel<Space, WaveNumber> > : helmholtz_DLP_wall<Space> {};
+
+	template <class Space, class WaveNumber>
+	struct result_dimension<helmholtz_DLP_kernel<Space, WaveNumber> > : std::integral_constant<unsigned, 1> {};
+
+	template <class Space, class WaveNumber>
+	struct quadrature_family<helmholtz_DLP_kernel<Space, WaveNumber> > : gauss_family_tag {};
+
+	template <class Space, class WaveNumber>
+	struct is_symmetric<helmholtz_DLP_kernel<Space, WaveNumber> > : std::false_type {};
+
+	template <class Space, class WaveNumber>
+	struct is_singular<helmholtz_DLP_kernel<Space, WaveNumber> > : std::true_type {};
+
+	template <class Scalar, class WaveNumber>
+	struct far_field_behaviour<helmholtz_DLP_kernel<space_2d<Scalar>, WaveNumber> > : asymptotic::inverse<1> {};
+
+	template <class Scalar, class WaveNumber>
+	struct far_field_behaviour<helmholtz_DLP_kernel<space_3d<Scalar>, WaveNumber> > : asymptotic::inverse<2> {};
+
+	/** \todo check this */
+	template <class Scalar, class WaveNumber>
+	struct singularity_type<helmholtz_DLP_kernel<space_2d<Scalar>, WaveNumber> > : asymptotic::log<1> {};
+
+	template <class Scalar, class WaveNumber>
+	struct singularity_type<helmholtz_DLP_kernel<space_3d<Scalar>, WaveNumber> > : asymptotic::inverse<1> {};
+
+	template <class Space, class WaveNumber>
+	struct singular_quadrature_order<helmholtz_DLP_kernel<Space, WaveNumber> > : std::integral_constant<unsigned, 7> {};
+
+	template <class Space, class WaveNumber>
+	struct singular_core<helmholtz_DLP_kernel<Space, WaveNumber> > {
+		typedef laplace_DLP_kernel<Space> type;
+	};
+}
 
 
-template <class wave_number_t>
-struct singular_kernel_traits<helmholtz_2d_DLP_kernel<wave_number_t> >
-{
-	/** \brief kernel singularity type */
-	typedef asymptotic::log<1> singularity_type_t;
-	/** \brief quadrature order used to generate blind singular quadratures */
-	static unsigned const singular_quadrature_order = 7;
-};
-
-
-/** \brief Double layer potential kernel of the Helmholtz equation in 2D \f$ ik/4 H_1(kr) \cdot r'_{n_y} \f$ */
-template <class wave_number_t>
-class helmholtz_2d_DLP_kernel :
-	public kernel_base<helmholtz_2d_DLP_kernel<wave_number_t> >
-{
-public:
-	/** \brief constructor
-	* \param [in] wave_number the wave number
-	*/
-	helmholtz_2d_DLP_kernel(wave_number_t const &wave_number) :
-		kernel_base<helmholtz_2d_DLP_kernel<wave_number_t> >(wave_number_data<wave_number_t>(wave_number))
-	{
-	}
-};
-
-
-// forward declaration
-template <class wave_number_t>
-class helmholtz_3d_DLP_kernel;
-
-/** \brief traits of the Helmholtz DLP kernel */
-template <class wave_number_t>
-struct kernel_traits<helmholtz_3d_DLP_kernel<wave_number_t> >
-{
-	/** \brief kernel test input type */
-	typedef location_input_3d test_input_t;
-	/** \brief kernel trial input type */
-	typedef location_normal_input_3d  trial_input_t;
-	/** \brief kernel data type */
-	typedef collect<wave_number_data<wave_number_t> > data_t;
-	/** \brief the kernel output type */
-	typedef helmholtz_3d_DLP_wall<space_3d<>::scalar_t>::type output_t;
-	/** \brief the kernel result's dimension */
-	enum { result_dimension = 1 };
-	/** \brief the quadrature family the kernel is integrated with */
-	typedef gauss_family_tag quadrature_family_t;
-	/** \brief indicates if K(x,y) = K(y,x) */
-	static bool const is_symmetric = false;
-	/** \brief indicates whether kernel is singular */
-	static bool const is_singular = true;
-	/** \brief the far field asymptotic behaviour of the kernel */
-	typedef asymptotic::inverse<2> far_field_behaviour_t;
-};
-
-
-template <class wave_number_t>
-struct singular_kernel_traits<helmholtz_3d_DLP_kernel<wave_number_t> >
-{
-	/** \brief kernel singularity type */
-	typedef asymptotic::inverse<1> singularity_type_t;
-	/** \brief quadrature order used to generate blind singular quadratures
-	 * \todo update this
-	 */
-	static unsigned const singular_quadrature_order = 7;
-};
-
-
-
-/** \brief Double layer potential kernel of the Helmholtz equation in 3D \f$ \exp(-ikr)/4\pi r \left(-(1+ikr)/r\right) \cdot r'_{n_y} \f$ */
-template <class wave_number_t>
-class helmholtz_3d_DLP_kernel :
-	public kernel_base<helmholtz_3d_DLP_kernel<wave_number_t> >
+template <class Space, class WaveNumber>
+class helmholtz_DLP_kernel :
+	public kernel_base<helmholtz_DLP_kernel<Space, WaveNumber> >
 {
 public:
 	/** \brief constructor
 	 * \param [in] wave_number the wave number
 	 */
-	helmholtz_3d_DLP_kernel(wave_number_t const &wave_number) :
-		kernel_base<helmholtz_3d_DLP_kernel<wave_number_t> >(wave_number_data<wave_number_t>(wave_number))
+	helmholtz_DLP_kernel(WaveNumber const &wave_number) :
+		kernel_base<helmholtz_DLP_kernel<Space, WaveNumber> >(wave_number_data<WaveNumber>(wave_number))
 	{
 	}
 };
 
 
-/** \brief a brick representing a 3D Helmholtz DLP kernel \f$ \exp(-ikr)/4\pi r \left(-(1+ikr)/r\right) \cdot dr/dn \f$
+/** \brief a brick representing a Helmholtz DLPt kernel
  * \tparam scalar the scalar of the coordinate space the distance is defined over
  */
-template <class scalar>
-struct helmholtz_3d_ht_brick
+template <class Space>
+struct helmholtz_DLPt_brick;
+
+/** \brief specialisation og ::helmholtz_DLPt_brick for the 3D case */
+template <class Scalar>
+struct helmholtz_DLPt_brick<space_3d<Scalar> >
 {
 	/** \brief the brick template
 	 * \tparam the wall the brick is placed on
@@ -776,7 +714,7 @@ struct helmholtz_3d_ht_brick
 	{
 	public:
 		/** \brief the result type */
-		typedef std::complex<scalar> result_t;
+		typedef std::complex<Scalar> result_t;
 
 		/** \brief templated constructor
 		 * \tparam test_input_t the test input type
@@ -813,82 +751,107 @@ struct helmholtz_3d_ht_brick
 		}
 
 	private:
-		std::complex<scalar> m_helmholtz_ht;
+		result_t m_helmholtz_ht;
 	};
 };
 
 
-template <class scalar>
-struct helmholtz_3d_ht_wall : build<
-	distance_vector_brick<space<scalar, 3> >,
-	distance_brick<scalar>,
-	ikr_brick<scalar>,
-	helmholtz_3d_SLP_brick<scalar>,
-	rdnx_brick<scalar>,
-	helmholtz_3d_ht_brick<scalar>
+/** \brief combining several bricks into a Helmholtz DLPt wall */
+template <class Space>
+struct helmholtz_DLPt_wall;
+
+/** \brief specialisation of ::helmholtz_DLPt_wall for the 3D case */
+template <class Scalar>
+struct helmholtz_DLPt_wall<space_3d<Scalar> > : build<
+	distance_vector_brick<space_3d<Scalar> >,
+	distance_brick<Scalar>,
+	ikr_brick<Scalar>,
+	helmholtz_SLP_brick<space_3d<Scalar> >,
+	rdnx_brick<Scalar>,
+	helmholtz_DLPt_brick<space_3d<Scalar> >
 > {};
 
+/** \brief DLPt kernel of the Helmholtz equation */
+template <class Space, class WaveNumber>
+class helmholtz_DLPt_kernel;
 
-/** \brief Transposed Double layer potential kernel of the Helmholtz equation in 3D \f$ \exp(-ikr)/4\pi r \left(-(1+ikr)/r\right) \cdot r'_{n_x} \f$ */
-template <class wave_number_t>
-class helmholtz_3d_DLPt_kernel;
-
-/** \brief traits of the Helmholtz Ht kernel */
-template <class wave_number_t>
-struct kernel_traits<helmholtz_3d_DLPt_kernel<wave_number_t> >
+namespace kernel_traits_ns
 {
-	/** \brief kernel test input type */
-	typedef location_normal_input_3d test_input_t;
-	/** \brief kernel trial input type */
-	typedef location_input_3d trial_input_t;
-	/** \brief kernel data type */
-	typedef collect<wave_number_data<wave_number_t> > data_t;
-	/** \brief the kernel output type */
-	typedef helmholtz_3d_ht_wall<space_3d<>::scalar_t>::type output_t;
-	/** \brief the kernel result's dimension */
-	enum { result_dimension = 1 };
-	/** \brief the quadrature family the kernel is integrated with */
-	typedef gauss_family_tag quadrature_family_t;
-	/** \brief indicates if K(x,y) = K(y,x) */
-	static bool const is_symmetric = false;
-	/** \brief indicates whether kernel is singular */
-	static bool const is_singular = true;
-	typedef asymptotic::inverse<2> far_field_behaviour_t;
-};
+	template <class Space, class WaveNumber>
+	struct space<helmholtz_DLPt_kernel<Space, WaveNumber> > : Space {};
 
+	template <class Space, class WaveNumber>
+	struct test_input<helmholtz_DLPt_kernel<Space, WaveNumber> > : build<location<Space>, normal_jacobian<Space>  > {};
 
-template <class wave_number_t>
-struct singular_kernel_traits<helmholtz_3d_DLPt_kernel<wave_number_t> >
-{
-	/** \brief kernel singularity type */
-	typedef asymptotic::inverse<1> singularity_type_t;
-	/** \brief quadrature order used to generate blind singular quadratures */
-	static unsigned const singular_quadrature_order = 7;
-};
+	template <class Space, class WaveNumber>
+	struct trial_input<helmholtz_DLPt_kernel<Space, WaveNumber> > : build<location<Space> > {};
 
+	template <class Space, class WaveNumber>
+	struct data<helmholtz_DLPt_kernel<Space, WaveNumber> > {
+		typedef collect<wave_number_data<WaveNumber> > type;
+	};
 
+	template <class Space, class WaveNumber>
+	struct output<helmholtz_DLPt_kernel<Space, WaveNumber> > : helmholtz_DLPt_wall<Space> {};
 
-/** \brief 3D Helmholtz Ht kernel \f$ \exp(-ikr)/4\pi r \left(-(1+ikr)/r\right) \cdot r'_{n_x} \f$ */
-template <class wave_number_t>
-class helmholtz_3d_DLPt_kernel :
-	public kernel_base<helmholtz_3d_DLPt_kernel<wave_number_t> >
+	template <class Space, class WaveNumber>
+	struct result_dimension<helmholtz_DLPt_kernel<Space, WaveNumber> > : std::integral_constant<unsigned, 1> {};
+
+	template <class Space, class WaveNumber>
+	struct quadrature_family<helmholtz_DLPt_kernel<Space, WaveNumber> > : gauss_family_tag {};
+
+	template <class Space, class WaveNumber>
+	struct is_symmetric<helmholtz_DLPt_kernel<Space, WaveNumber> > : std::false_type {};
+
+	template <class Space, class WaveNumber>
+	struct is_singular<helmholtz_DLPt_kernel<Space, WaveNumber> > : std::true_type {};
+
+	template <class Scalar, class WaveNumber>
+	struct far_field_behaviour<helmholtz_DLPt_kernel<space_2d<Scalar>, WaveNumber> > : asymptotic::inverse<1> {};
+
+	template <class Scalar, class WaveNumber>
+	struct far_field_behaviour<helmholtz_DLPt_kernel<space_3d<Scalar>, WaveNumber> > : asymptotic::inverse<2> {};
+
+	/** \todo check this */
+	template <class Scalar, class WaveNumber>
+	struct singularity_type<helmholtz_DLPt_kernel<space_2d<Scalar>, WaveNumber> > : asymptotic::log<1> {};
+
+	template <class Scalar, class WaveNumber>
+	struct singularity_type<helmholtz_DLPt_kernel<space_3d<Scalar>, WaveNumber> > : asymptotic::inverse<1> {};
+
+	template <class Space, class WaveNumber>
+	struct singular_quadrature_order<helmholtz_DLPt_kernel<Space, WaveNumber> > : std::integral_constant<unsigned, 7> {};
+
+	template <class Space, class WaveNumber>
+	struct singular_core<helmholtz_DLPt_kernel<Space, WaveNumber> > {
+		typedef laplace_DLP_kernel<Space> type;
+	};
+}
+
+template <class Space, class WaveNumber>
+class helmholtz_DLPt_kernel :
+	public kernel_base<helmholtz_DLPt_kernel<Space, WaveNumber> >
 {
 public:
 	/** \brief constructor
 	 * \param [in] wave_number the wave number
 	 */
-	helmholtz_3d_DLPt_kernel(wave_number_t const &wave_number) :
-		kernel_base<helmholtz_3d_DLPt_kernel<wave_number_t> >(wave_number_data<wave_number_t>(wave_number))
+	helmholtz_DLPt_kernel(WaveNumber const &wave_number) :
+		kernel_base<helmholtz_DLPt_kernel<Space, WaveNumber> >(wave_number_data<WaveNumber>(wave_number))
 	{
 	}
 };
 
 
-/** \brief a brick representing a 3D Helmholtz DLP kernel \f$ \exp(-ikr)/4\pi r \left(-(1+ikr)/r\right) \cdot dr/dn \f$
- * \tparam scalar the scalar of the coordinate space the distance is defined over
+/** \brief a brick representing a Helmholtz HSP kernel
+ * \tparam Space the scalar of the coordinate space the distance is defined over
  */
-template <class scalar>
-struct helmholtz_3d_HSP_brick
+template <class Space>
+struct helmholtz_HSP_brick;
+
+/** \brief specialisation of ::helmholtz_HSP_brick for the 3D case */
+template <class Scalar>
+struct helmholtz_HSP_brick<space_3d<Scalar> >
 {
 	/** \brief the brick template
 	 * \tparam the wall the brick is placed on
@@ -898,7 +861,7 @@ struct helmholtz_3d_HSP_brick
 	{
 	public:
 		/** \brief the result type */
-		typedef std::complex<scalar> result_t;
+		typedef std::complex<Scalar> result_t;
 
 		/** \brief templated constructor
 		 * \tparam test_input_t the test input type
@@ -945,72 +908,91 @@ struct helmholtz_3d_HSP_brick
 };
 
 
-template <class scalar>
-struct helmholtz_3d_HSP_wall : build<
-	distance_vector_brick<space<scalar, 3> >,
-	distance_brick<scalar>,
-	ikr_brick<scalar>,
-	helmholtz_3d_SLP_brick<scalar>,
-	rdnx_brick<scalar>,
-	rdny_brick<scalar>,
-	helmholtz_3d_HSP_brick<scalar>
+/** \brief building several bricks into a Helmholtz HSP wall */ 
+template <class Space>
+struct helmholtz_HSP_wall;
+
+
+/** \brief specialisation of ::helmholtz_HSP_wall for the 3D case */ 
+template <class Scalar>
+struct helmholtz_HSP_wall<space_3d<Scalar> > : build<
+	distance_vector_brick<space_3d<Scalar> >,
+	distance_brick<Scalar>,
+	ikr_brick<Scalar>,
+	helmholtz_SLP_brick<space_3d<Scalar> >,
+	rdnx_brick<Scalar>,
+	rdny_brick<Scalar>,
+	helmholtz_HSP_brick<space_3d<Scalar> >
 > {};
 
 
-// forward declaration
-template <class wave_number_t>
-class helmholtz_3d_HSP_kernel;
+/** \brief HSP kernel of the Helmholtz equation */
+template <class Space, class WaveNumber>
+class helmholtz_HSP_kernel;
 
-/** \brief traits of the Helmholtz Hyper kernel */
-template <class wave_number_t>
-struct kernel_traits<helmholtz_3d_HSP_kernel<wave_number_t> >
+namespace kernel_traits_ns
 {
-	/** \brief kernel test input type */
-	typedef location_normal_input_3d test_input_t;
-	/** \brief kernel trial input type */
-	typedef location_normal_input_3d trial_input_t;
-	/** \brief kernel data type */
-	typedef collect<wave_number_data<wave_number_t> > data_t;
-	/** \brief the kernel output type */
-	typedef helmholtz_3d_HSP_wall<space_3d<>::scalar_t>::type output_t;
-	/** \brief the kernel result's dimension */
-	enum { result_dimension = 1 };
-	/** \brief the quadrature family the kernel is integrated with */
-	typedef gauss_family_tag quadrature_family_t;
-	/** \brief indicates if K(x,y) = K(y,x) */
-	static bool const is_symmetric = true;
-	/** \brief indicates whether kernel is singular */
-	static bool const is_singular = true;
+	template <class Space, class WaveNumber>
+	struct space<helmholtz_HSP_kernel<Space, WaveNumber> > : Space {};
 
-	/** \brief the far field asymptotic behaviour of the kernel */
-	typedef asymptotic::inverse<3> far_field_behaviour_t;
-};
+	template <class Space, class WaveNumber>
+	struct test_input<helmholtz_HSP_kernel<Space, WaveNumber> > : build<location<Space>, normal_jacobian<Space>  > {};
+
+	template <class Space, class WaveNumber>
+	struct trial_input<helmholtz_HSP_kernel<Space, WaveNumber> > : build<location<Space>, normal_jacobian<Space>  > {};
+
+	template <class Space, class WaveNumber>
+	struct data<helmholtz_HSP_kernel<Space, WaveNumber> > {
+		typedef collect<wave_number_data<WaveNumber> > type;
+	};
+
+	template <class Space, class WaveNumber>
+	struct output<helmholtz_HSP_kernel<Space, WaveNumber> > : helmholtz_HSP_wall<Space> {};
+
+	template <class Space, class WaveNumber>
+	struct result_dimension<helmholtz_HSP_kernel<Space, WaveNumber> > : std::integral_constant<unsigned, 1> {};
+
+	template <class Space, class WaveNumber>
+	struct quadrature_family<helmholtz_HSP_kernel<Space, WaveNumber> > : gauss_family_tag {};
+
+	template <class Space, class WaveNumber>
+	struct is_symmetric<helmholtz_HSP_kernel<Space, WaveNumber> > : std::true_type {};
+
+	template <class Space, class WaveNumber>
+	struct is_singular<helmholtz_HSP_kernel<Space, WaveNumber> > : std::true_type {};
+
+	template <class Scalar, class WaveNumber>
+	struct far_field_behaviour<helmholtz_HSP_kernel<space_2d<Scalar>, WaveNumber> > : asymptotic::inverse<2> {};
+
+	template <class Scalar, class WaveNumber>
+	struct far_field_behaviour<helmholtz_HSP_kernel<space_3d<Scalar>, WaveNumber> > : asymptotic::inverse<3> {};
+
+	template <class Scalar, class WaveNumber>
+	struct singularity_type<helmholtz_HSP_kernel<space_2d<Scalar>, WaveNumber> > : asymptotic::log<2> {};
+
+	template <class Scalar, class WaveNumber>
+	struct singularity_type<helmholtz_HSP_kernel<space_3d<Scalar>, WaveNumber> > : asymptotic::inverse<3> {};
+
+	template <class Space, class WaveNumber>
+	struct singular_quadrature_order<helmholtz_HSP_kernel<Space, WaveNumber> > : std::integral_constant<unsigned, 9> {};
+
+	template <class Space, class WaveNumber>
+	struct singular_core<helmholtz_HSP_kernel<Space, WaveNumber> > {
+		typedef laplace_HSP_kernel<Space> type;
+	};
+}
 
 
-/** \brief singular traits of the Helmholtz 3D HSP kernel */
-template <class wave_number_t>
-struct singular_kernel_traits<helmholtz_3d_HSP_kernel<wave_number_t> >
-{
-	/** \brief singularity type */
-	typedef asymptotic::inverse<3> singularity_type_t;
-	/** \brief the singularity type when used with guiggiani's method */
-	typedef laplace_3d_HSP_kernel singular_core_t;
-	/** \brief quadrature order  */
-	static unsigned const singular_quadrature_order = 9;
-};
-
-
-/** \brief Hypersingular kernel of the Helmholtz equation in 3D */
-template <class wave_number_t>
-class helmholtz_3d_HSP_kernel :
-	public kernel_base<helmholtz_3d_HSP_kernel<wave_number_t> >
+template <class Space, class WaveNumber>
+class helmholtz_HSP_kernel :
+	public kernel_base<helmholtz_HSP_kernel<Space, WaveNumber> >
 {
 public:
 	/** \brief constructor
 	 * \param [in] wave_number the wave number
 	 */
-	helmholtz_3d_HSP_kernel(wave_number_t const &wave_number) :
-		kernel_base<helmholtz_3d_HSP_kernel<wave_number_t> >(wave_number_data<wave_number_t>(wave_number))
+	helmholtz_HSP_kernel(WaveNumber const &wave_number) :
+		kernel_base<helmholtz_HSP_kernel<Space, WaveNumber> >(wave_number_data<WaveNumber>(wave_number))
 	{
 	}
 };
@@ -1151,6 +1133,36 @@ public:
 	{
 	}
 };
+
+
+
+/** \brief shorthand for the 2d helmholtz SLP kernel */
+template <class WaveNumber>
+using helmholtz_2d_SLP_kernel = helmholtz_SLP_kernel<space_2d<>, WaveNumber>;
+/** \brief shorthand for the 3d helmholtz SLP kernel */
+template <class WaveNumber>
+using helmholtz_3d_SLP_kernel = helmholtz_SLP_kernel<space_3d<>, WaveNumber>;
+/** \brief shorthand for the 2d helmholtz DLP kernel */
+template <class WaveNumber>
+using helmholtz_2d_DLP_kernel = helmholtz_DLP_kernel<space_2d<>, WaveNumber>;
+/** \brief shorthand for the 3d helmholtz DLP kernel */
+template <class WaveNumber>
+using helmholtz_3d_DLP_kernel = helmholtz_DLP_kernel<space_3d<>, WaveNumber>;
+/** \brief shorthand for the 2d helmholtz DLPt kernel */
+template <class WaveNumber>
+using helmholtz_2d_DLPt_kernel = helmholtz_DLPt_kernel<space_2d<>, WaveNumber>;
+/** \brief shorthand for the 3d helmholtz DLPt kernel */
+template <class WaveNumber>
+using helmholtz_3d_DLPt_kernel = helmholtz_DLPt_kernel<space_3d<>, WaveNumber>;
+/** \brief shorthand for the 2d helmholtz HSP kernel */
+template <class WaveNumber>
+using helmholtz_2d_HSP_kernel = helmholtz_HSP_kernel<space_2d<>, WaveNumber>;
+/** \brief shorthand for the 3d helmholtz HSP kernel */
+template <class WaveNumber>
+using helmholtz_3d_HSP_kernel = helmholtz_HSP_kernel<space_3d<>, WaveNumber>;
+
+
+
 
 
 #endif // HELMHOLTZ_KERNEL_HPP_INCLUDED

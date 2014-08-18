@@ -36,11 +36,12 @@
 
 
 /** \brief a brick representing a Laplace SLP kernel
- * \tparam Space the coordinate space ther kernel is defined over
+ * \tparam Space the coordinate space the kernel is defined over
  */
 template <class Space>
 struct laplace_SLP_brick;
 
+/** \brief specialisation of ::laplace_SLP_brick for the 2D case */
 template <class Scalar>
 struct laplace_SLP_brick<space_2d<Scalar> >
 {
@@ -93,6 +94,7 @@ struct laplace_SLP_brick<space_2d<Scalar> >
 	};
 };
 
+/** \brief specialisation of ::laplace_SLP_brick for the 3D case */
 template <class Scalar>
 struct laplace_SLP_brick<space_3d<Scalar> >
 {
@@ -157,7 +159,7 @@ struct laplace_SLP_wall : build<
 > {};
 
 
-/** \brief Single layer potential kernel of the Laplace equation
+/** \brief SLP kernel of the Laplace equation
  * \tparam Space the coordinate space the kernel is defined over
  */
 template <class Space>
@@ -230,12 +232,13 @@ class laplace_SLP_kernel :
 
 
 
-/** \brief a brick representing a Laplace normal derivative kernel \f$ -1/2\pi r \cdot r'_{n_y}\f$
+/** \brief a brick representing a Laplace normal derivative kernel
  * \tparam Space the coordinate space the distance is defined over
  */
 template <class Space>
 struct laplace_DLP_brick;
 
+/** \brief specialisation of ::laplace_DLP_brick for the 2D case */
 template <class Scalar>
 struct laplace_DLP_brick<space_2d<Scalar> >
 {
@@ -288,9 +291,7 @@ struct laplace_DLP_brick<space_2d<Scalar> >
 	};
 };
 
-/** \brief a brick representing a 3d Laplace DLP kernel \f$ -1/4\pi r^2 \cdot r'_{n_y} \f$
- * \tparam Scalar the scalar of the coordinate space the distance is defined over
- */
+/** \brief specialisation of ::laplace_DLP_brick for the 3D case */
 template <class Scalar>
 struct laplace_DLP_brick<space_3d<Scalar> >
 {
@@ -344,9 +345,13 @@ struct laplace_DLP_brick<space_3d<Scalar> >
 };
 
 
+/** \brief combination of several bricks into a laplace DLP wall
+ * \tparam Scalar the coordinate space the Laplace kernel is defined over
+ */
 template <class Space>
 struct laplace_DLP_wall;
 
+/** \brief specialisation of ::laplace_DLP_wall for the 2D case */
 template <class Space>
 struct laplace_DLP_wall : build<
 	distance_vector_brick<Space>,
@@ -355,6 +360,7 @@ struct laplace_DLP_wall : build<
 	laplace_DLP_brick<Space>
 > {};
 
+/** \brief specialisation of ::laplace_DLP_wall for the 3D case */
 template <class Scalar>
 struct laplace_DLP_wall<space_3d<Scalar> > : build<
 	distance_vector_brick<space_3d<Scalar> >,
@@ -366,11 +372,12 @@ struct laplace_DLP_wall<space_3d<Scalar> > : build<
 
 
 
-// forward declaration
+/** \brief DLP kernel of the Laplace equation
+ * \tparam Space the coordinate space the kernel is defined over
+ */
 template <class Space>
 class laplace_DLP_kernel;
 
-/** \brief traits of the Laplace DLP kernel */
 namespace kernel_traits_ns
 {
 	template <class Space> 
@@ -428,7 +435,6 @@ namespace kernel_traits_ns
 }
 
 
-/** \brief Double layer potential kernel of the Laplace equation */
 template <class Space>
 class laplace_DLP_kernel :
 	public kernel_base<laplace_DLP_kernel<Space> >
@@ -445,6 +451,7 @@ template <class Space>
 struct laplace_DLPt_brick;
 
 
+/** \brief specialisation of ::laplace_DLPt_brick for the 2D case */
 template <class Scalar>
 struct laplace_DLPt_brick<space_2d<Scalar> >
 {
@@ -497,9 +504,7 @@ struct laplace_DLPt_brick<space_2d<Scalar> >
 	};
 };
 
-/** \brief a brick representing a Laplace derivative kernel \f$ -1/4\pi r^2 \cdot r'_{n_x} \f$
- * \tparam Scalar the scalar of the coordinate space the distance is defined over
- */
+/** \brief specialisation of ::laplace_DLPt_brick for the 3D case */
 template <class Scalar>
 struct laplace_DLPt_brick<space_3d<Scalar> >
 {
@@ -553,21 +558,22 @@ struct laplace_DLPt_brick<space_3d<Scalar> >
 };
 
 
-/** \brief combination of ::distance_vector_brick, ::distance_brick, ::rdnx_brick and ::laplace_2d_DLPt_brick into a wall
- * \tparam Space the coordinate space the Laplace kernel is defined over
+/** \brief combination of several bricks into a laplace DLPt wall
+ * \tparam Scalar the coordinate space the Laplace kernel is defined over
  */
 template <class Space>
-struct laplace_DLPt_wall : build<
-	distance_vector_brick<Space>,
-	distance_brick<typename Space::scalar_t>,
-	rdnx_brick<typename Space::scalar_t>,
-	laplace_DLPt_brick<Space>
+struct laplace_DLPt_wall;
+
+/** \brief specialsation of ::laplace_DLPt_wall for the 2D case */
+template <class Scalar>
+struct laplace_DLPt_wall<space_2d<Scalar> > : build<
+	distance_vector_brick<space_2d<Scalar> >,
+	distance_brick<Scalar>,
+	rdnx_brick<Scalar>,
+	laplace_DLPt_brick<space_2d<Scalar> >
 > {};
 
-
-/** \brief combination of ::distance_vector_brick, ::distance_brick, ::rdnx_brick, laplace_3d_SLP_brick and laplace_3d_DLPt_brick into a wall
- * \tparam Scalar the scalar type of the Laplace ht kernel result
- */
+/** \brief specialsation of ::laplace_DLPt_wall for the 3D case */
 template <class Scalar>
 struct laplace_DLPt_wall<space_3d<Scalar> > : build<
 	distance_vector_brick<space_3d<Scalar> >,
@@ -578,7 +584,9 @@ struct laplace_DLPt_wall<space_3d<Scalar> > : build<
 > {};
 
 
-// forward declaration
+/** \brief DLP transposed kernel of the Laplace equation
+ * \tparam Space the coordinate space the kernel is defined over
+ */
 template <class Space>
 class laplace_DLPt_kernel;
 
@@ -638,7 +646,6 @@ namespace kernel_traits_ns
 }
 
 
-/** \brief Transposed DLP kernel of the Laplace equation */
 template <class Space>
 class laplace_DLPt_kernel :
 	public kernel_base<laplace_DLPt_kernel<Space> >
@@ -648,12 +655,13 @@ class laplace_DLPt_kernel :
 
 
 
-template <class Space>
-struct laplace_HSP_brick;
-
 /** \brief a brick representing a 2D Laplace hypersingular kernel
  * \tparam Scalar scalar type of the coordinate space the kernel is defined over
  */
+template <class Space>
+struct laplace_HSP_brick;
+
+/** \brief specialisation of ::laplace_HSP_brick for the 2D case */
 template <class Scalar>
 struct laplace_HSP_brick<space_2d<Scalar> >
 {
@@ -710,9 +718,7 @@ struct laplace_HSP_brick<space_2d<Scalar> >
 };
 
 
-/** \brief a brick representing a Laplace double derivative kernel \f$ 1/4\pi r^3 \cdot \left( n_x n_y + 3 r'_{n_x} r'_{n_y} \right) \f$
- * \tparam Scalar the scalar of the coordinate space the distance is defined over
- */
+/** \brief specialisation of ::laplace_HSP_brick for the 3D case */
 template <class Scalar>
 struct laplace_HSP_brick<space_3d<Scalar> >
 {
@@ -770,12 +776,13 @@ struct laplace_HSP_brick<space_3d<Scalar> >
 };
 
 
-/** \brief combination of several bricks into a laplace hypersingular wall
+/** \brief combination of several bricks into a laplace HSP wall
  * \tparam Scalar the coordinate space the Laplace kernel is defined over
  */
 template <class Space>
 struct laplace_HSP_wall;
 
+/** \brief specialisation of ::laplace_HSP_wall for the 2D case */
 template <class Scalar>
 struct laplace_HSP_wall<space_2d<Scalar> > : build<
 	distance_vector_brick<space_2d<Scalar> >,
@@ -785,6 +792,7 @@ struct laplace_HSP_wall<space_2d<Scalar> > : build<
 	laplace_HSP_brick<space_2d<Scalar> >
 > {};
 
+/** \brief specialisation of ::laplace_HSP_wall for the 3D case */
 template <class Scalar>
 struct laplace_HSP_wall<space_3d<Scalar> > : build<
 	distance_vector_brick<space_3d<Scalar>>,
@@ -796,7 +804,9 @@ struct laplace_HSP_wall<space_3d<Scalar> > : build<
 > {};
 
 
-// forward declaration
+/** \brief HSP kernel of the Laplace equation
+ * \tparam Space the coordinate space the kernel is defined over
+ */
 template <class Space>
 class laplace_HSP_kernel;
 
@@ -853,7 +863,6 @@ namespace kernel_traits_ns
 }
 
 
-/** \brief Hypersingular kernel of the Laplace equation */
 template <class Space>
 class laplace_HSP_kernel :
 	public kernel_base<laplace_HSP_kernel<Space> >
@@ -883,8 +892,8 @@ typedef laplace_HSP_kernel<space_3d<> > laplace_3d_HSP_kernel;
 #include "guiggiani_1992.hpp"
 
 /** \brief specialisation of class ::polar_laurent_coeffs for the ::laplace_3d_HSP_kernel */
-template <>
-class polar_laurent_coeffs<laplace_3d_HSP_kernel>
+template <class Scalar>
+class polar_laurent_coeffs<laplace_HSP_kernel<space_3d<Scalar> > >
 {
 public:
 	template <class guiggiani>
