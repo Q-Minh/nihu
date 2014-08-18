@@ -36,15 +36,74 @@
 
 class empty_data {};
 
+namespace kernel_traits_ns
+{
+	template <class Derived> struct space;
+	template <class Derived> struct test_input;
+	template <class Derived> struct trial_input;
+	template <class Derived> struct data;
+	template <class Derived> struct output;
+	template <class Derived> struct quadrature_family;
+	template <class Derived> struct far_field_behaviour;
+
+	template <class Derived> struct result_dimension;
+	template <class Derived> struct is_symmetric;
+	template <class Derived> struct is_singular;
+
+	template <class Derived> struct singularity_type;
+	template <class Derived> struct singular_quadrature_order;
+	template <class Derived> struct singular_core;
+}
+
 /**
 * \brief traits class of a kernel
 * \tparam Derived the CRTP derived kernel
 */
 template <class Derived>
-struct kernel_traits;
+struct kernel_traits
+{
+	typedef typename kernel_traits_ns::space<Derived>::type space_t;
+	/** \brief kernel test input type */
+	typedef typename kernel_traits_ns::test_input<Derived>::type test_input_t;
+	/** \brief kernel trial input type */
+	typedef typename kernel_traits_ns::trial_input<Derived>::type trial_input_t;
+	/** \brief the data type */
+	typedef typename kernel_traits_ns::data<Derived>::type data_t;
+	/** \brief the kernel output type */
+	typedef typename kernel_traits_ns::output<Derived>::type output_t;
+	/** \brief the far field asymptotic behaviour of the kernel */
+	typedef typename kernel_traits_ns::far_field_behaviour<Derived>::type far_field_behaviour_t;
+	/** \brief the far field asymptotic behaviour of the kernel */
+	typedef typename kernel_traits_ns::quadrature_family<Derived>::type quadrature_family_t;
+
+
+
+	enum {
+		/** \brief the kernel result's dimension
+		 * \todo should be computed from the kernel result and not defined separately in traits
+		 */
+		result_dimension = kernel_traits_ns::result_dimension<Derived>::value,
+		/** \brief indicates if the kernel is symmetric */
+		is_symmetric = kernel_traits_ns::is_symmetric<Derived>::value,
+		/** \brief indicates if the kernel is singular */
+		is_singular = kernel_traits_ns::is_singular<Derived>::value
+	};
+};
+
 
 template <class Derived>
-struct singular_kernel_traits;
+struct singular_kernel_traits
+{
+	typedef typename kernel_traits_ns::singularity_type<Derived>::type singularity_type_t;
+
+	typedef typename kernel_traits_ns::singular_core<Derived>::type singular_core_t;
+
+	enum {
+		singular_quadrature_order = kernel_traits_ns::singular_quadrature_order<Derived>::value
+	};
+};
+
+
 
 template <class Derived>
 struct kernel_compl_estimator

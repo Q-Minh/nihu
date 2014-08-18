@@ -24,7 +24,6 @@
 #include <iostream>
 
 typedef select_singular_accelerator<
-	formalism::collocational,
 	laplace_3d_HSP_kernel,
 	field<quad_1_elem, quad_1_shape_set>,
 	field<quad_1_elem, quad_1_shape_set>
