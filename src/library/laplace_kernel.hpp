@@ -110,13 +110,13 @@ template<>
 struct kernel_traits<laplace_2d_SLP_kernel>
 {
 	/** \brief kernel test input type */
-	typedef build<location<space_2d> >::type test_input_t;
+	typedef build<location<space_2d<> > >::type test_input_t;
 	/** \brief kernel trial input type */
-	typedef build<location<space_2d> >::type trial_input_t;
+	typedef build<location<space_2d<> > >::type trial_input_t;
 	/** \brief the data type */
 	typedef collect<empty_data> data_t;
 	/** \brief the kernel output type */
-	typedef laplace_2d_SLP_wall<space_2d::scalar_t>::type output_t;
+	typedef laplace_2d_SLP_wall<space_2d<>::scalar_t>::type output_t;
 	/** \brief the kernel result's dimension */
 	enum { result_dimension = 1 };
 	/** \brief the quadrature family the kernel is integrated with */
@@ -225,13 +225,13 @@ template<>
 struct kernel_traits<laplace_2d_DLP_kernel>
 {
 	/** \brief kernel test input type */
-	typedef build<location<space_2d> >::type test_input_t;
+	typedef build<location<space_2d<> > >::type test_input_t;
 	/** \brief kernel trial input type */
-	typedef build<location<space_2d>, normal_jacobian<space_2d> >::type trial_input_t;
+	typedef build<location<space_2d<> >, normal_jacobian<space_2d<> > >::type trial_input_t;
 	/** \brief the data type */
 	typedef collect<empty_data> data_t;
 	/** \brief the kernel output type */
-	typedef laplace_2d_DLP_wall<space_2d::scalar_t>::type output_t;
+	typedef laplace_2d_DLP_wall<space_2d<>::scalar_t>::type output_t;
 	/** \brief the kernel result's dimension */
 	enum { result_dimension = 1 };
 	/** \brief the quadrature family the kernel is integrated with */
@@ -340,13 +340,13 @@ template<>
 struct kernel_traits<laplace_2d_DLPt_kernel>
 {
 	/** \brief kernel trial input type */
-	typedef build<location<space_2d>, normal_jacobian<space_2d> >::type test_input_t;
+	typedef build<location<space_2d<> >, normal_jacobian<space_2d<> > >::type test_input_t;
 	/** \brief kernel test input type */
-	typedef build<location<space_2d> >::type trial_input_t;
+	typedef build<location<space_2d<> > >::type trial_input_t;
 	/** \brief the data type */
 	typedef collect<empty_data> data_t;
 	/** \brief the kernel output type */
-	typedef laplace_2d_DLPt_wall<space_2d::scalar_t>::type output_t;
+	typedef laplace_2d_DLPt_wall<space_2d<>::scalar_t>::type output_t;
 	/** \brief the kernel result's dimension */
 	enum { result_dimension = 1 };
 	/** \brief the quadrature family the kernel is integrated with */
@@ -461,13 +461,13 @@ template<>
 struct kernel_traits<laplace_2d_HSP_kernel>
 {
 	/** \brief kernel test input type */
-	typedef build<location<space_2d>, normal_jacobian<space_2d> >::type test_input_t;
+	typedef build<location<space_2d<> >, normal_jacobian<space_2d<> > >::type test_input_t;
 	/** \brief kernel trial input type */
-	typedef build<location<space_2d>, normal_jacobian<space_2d>  >::type trial_input_t;
+	typedef build<location<space_2d<> >, normal_jacobian<space_2d<> >  >::type trial_input_t;
 	/** \brief the data type */
 	typedef collect<empty_data> data_t;
 	/** \brief the kernel output type */
-	typedef laplace_2d_HSP_wall<space_2d::scalar_t>::type output_t;
+	typedef laplace_2d_HSP_wall<space_2d<>::scalar_t>::type output_t;
 	/** \brief the kernel result's dimension */
 	enum { result_dimension = 1 };
 	/** \brief the quadrature family the kernel is integrated with */
@@ -574,13 +574,13 @@ template<>
 struct kernel_traits<laplace_3d_SLP_kernel>
 {
 	/** \brief kernel test input type */
-	typedef build<location<space_3d> >::type test_input_t;
+	typedef build<location<space_3d<> > >::type test_input_t;
 	/** \brief kernel trial input type */
-	typedef build<location<space_3d> >::type trial_input_t;
+	typedef build<location<space_3d<> > >::type trial_input_t;
 	/** \brief the data type */
 	typedef collect<empty_data> data_t;
 	/** \brief the kernel output type */
-	typedef laplace_3d_SLP_wall<space_3d::scalar_t>::type output_t;
+	typedef laplace_3d_SLP_wall<space_3d<>::scalar_t>::type output_t;
 	/** \brief the kernel result's dimension */
 	enum { result_dimension = 1 };
 	/** \brief the quadrature family the kernel is integrated with */
@@ -690,13 +690,13 @@ template<>
 struct kernel_traits<laplace_3d_DLP_kernel>
 {
 	/** \brief kernel test input type */
-	typedef build<location<space_3d> >::type test_input_t;
+	typedef build<location<space_3d<> > >::type test_input_t;
 	/** \brief kernel trial input type */
-	typedef build<location<space_3d>, normal_jacobian<space_3d> >::type trial_input_t;
+	typedef build<location<space_3d<> >, normal_jacobian<space_3d<> > >::type trial_input_t;
 	/** \brief the data type */
 	typedef collect<empty_data> data_t;
 	/** \brief the kernel output type */
-	typedef laplace_3d_DLP_wall<space_3d::scalar_t>::type output_t;
+	typedef laplace_3d_DLP_wall<space_3d<>::scalar_t>::type output_t;
 	/** \brief the kernel result's dimension */
 	enum { result_dimension = 1 };
 	/** \brief the quadrature family the kernel is integrated with */
@@ -805,13 +805,13 @@ template<>
 struct kernel_traits<laplace_3d_DLPt_kernel>
 {
 	/** \brief kernel test input type */
-	typedef build<location<space_3d>, normal_jacobian<space_3d> >::type test_input_t;
+	typedef build<location<space_3d<> >, normal_jacobian<space_3d<> > >::type test_input_t;
 	/** \brief kernel trial input type */
-	typedef build<location<space_3d> >::type trial_input_t;
+	typedef build<location<space_3d<> > >::type trial_input_t;
 	/** \brief the data type */
 	typedef collect<empty_data> data_t;
 	/** \brief the kernel output type */
-	typedef laplace_3d_DLPt_wall<space_3d::scalar_t>::type output_t;
+	typedef laplace_3d_DLPt_wall<space_3d<>::scalar_t>::type output_t;
 	/** \brief the kernel result's dimension */
 	enum { result_dimension = 1 };
 	/** \brief the quadrature family the kernel is integrated with */
@@ -926,13 +926,13 @@ template<>
 struct kernel_traits<laplace_3d_HSP_kernel>
 {
 	/** \brief kernel test input type */
-	typedef build<location<space_3d>, normal_jacobian<space_3d> >::type test_input_t;
+	typedef build<location<space_3d<> >, normal_jacobian<space_3d<> > >::type test_input_t;
 	/** \brief kernel trial input type */
-	typedef build<location<space_3d>, normal_jacobian<space_3d> >::type trial_input_t;
+	typedef build<location<space_3d<> >, normal_jacobian<space_3d<> > >::type trial_input_t;
 	/** \brief the data type */
 	typedef collect<empty_data> data_t;
 	/** \brief the kernel output type */
-	typedef laplace_3d_HSP_wall<space_3d::scalar_t>::type output_t;
+	typedef laplace_3d_HSP_wall<space_3d<>::scalar_t>::type output_t;
 	/** \brief the kernel result's dimension */
 	enum { result_dimension = 1 };
 	/** \brief the quadrature family the kernel is integrated with */

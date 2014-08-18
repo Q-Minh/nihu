@@ -413,7 +413,7 @@ struct kernel_traits<helmholtz_2d_SLP_kernel<wave_number_t> >
 	/** \brief kernel data type */
 	typedef collect<wave_number_data<wave_number_t> > data_t;
 	/** \brief the kernel output type */
-	typedef helmholtz_2d_SLP_wall<space_2d::scalar_t>::type output_t;
+	typedef helmholtz_2d_SLP_wall<space_2d<>::scalar_t>::type output_t;
 	/** \brief the kernel result's dimension */
 	enum { result_dimension = 1 };
 	/** \brief the quadrature family the kernel is integrated with
@@ -473,7 +473,7 @@ struct kernel_traits<helmholtz_3d_SLP_kernel<wave_number_t> >
 	/** \brief kernel data type */
 	typedef collect<wave_number_data<wave_number_t> > data_t;
 	/** \brief the kernel output type */
-	typedef helmholtz_3d_SLP_wall<space_3d::scalar_t>::type output_t;
+	typedef helmholtz_3d_SLP_wall<space_3d<>::scalar_t>::type output_t;
 	/** \brief the kernel result's dimension */
 	enum { result_dimension = 1 };
 	/** \brief the quadrature family the kernel is integrated with */
@@ -664,7 +664,7 @@ struct kernel_traits<helmholtz_2d_DLP_kernel<wave_number_t> >
 	/** \brief kernel data type */
 	typedef collect<wave_number_data<wave_number_t> > data_t;
 	/** \brief the kernel output type */
-	typedef helmholtz_2d_DLP_wall<space_2d::scalar_t>::type output_t;
+	typedef helmholtz_2d_DLP_wall<space_2d<>::scalar_t>::type output_t;
 	/** \brief the kernel result's dimension */
 	enum { result_dimension = 1 };
 	/** \brief the quadrature family the kernel is integrated with */
@@ -719,7 +719,7 @@ struct kernel_traits<helmholtz_3d_DLP_kernel<wave_number_t> >
 	/** \brief kernel data type */
 	typedef collect<wave_number_data<wave_number_t> > data_t;
 	/** \brief the kernel output type */
-	typedef helmholtz_3d_DLP_wall<space_3d::scalar_t>::type output_t;
+	typedef helmholtz_3d_DLP_wall<space_3d<>::scalar_t>::type output_t;
 	/** \brief the kernel result's dimension */
 	enum { result_dimension = 1 };
 	/** \brief the quadrature family the kernel is integrated with */
@@ -844,7 +844,7 @@ struct kernel_traits<helmholtz_3d_DLPt_kernel<wave_number_t> >
 	/** \brief kernel data type */
 	typedef collect<wave_number_data<wave_number_t> > data_t;
 	/** \brief the kernel output type */
-	typedef helmholtz_3d_ht_wall<space_3d::scalar_t>::type output_t;
+	typedef helmholtz_3d_ht_wall<space_3d<>::scalar_t>::type output_t;
 	/** \brief the kernel result's dimension */
 	enum { result_dimension = 1 };
 	/** \brief the quadrature family the kernel is integrated with */
@@ -972,7 +972,7 @@ struct kernel_traits<helmholtz_3d_HSP_kernel<wave_number_t> >
 	/** \brief kernel data type */
 	typedef collect<wave_number_data<wave_number_t> > data_t;
 	/** \brief the kernel output type */
-	typedef helmholtz_3d_HSP_wall<space_3d::scalar_t>::type output_t;
+	typedef helmholtz_3d_HSP_wall<space_3d<>::scalar_t>::type output_t;
 	/** \brief the kernel result's dimension */
 	enum { result_dimension = 1 };
 	/** \brief the quadrature family the kernel is integrated with */
@@ -1109,7 +1109,7 @@ struct kernel_traits<helmholtz_2d_double_kernel<wave_number_t, i, j> >
 	/** \brief kernel data type */
 	typedef collect<wave_number_data<wave_number_t> > data_t;
 	/** \brief the kernel output type */
-	typedef typename helmholtz_2d_double_wall<space_2d::scalar_t, i, j>::type output_t;
+	typedef typename helmholtz_2d_double_wall<space_2d<>::scalar_t, i, j>::type output_t;
 	/** \brief the kernel result's dimension */
 	enum { result_dimension = 1 };
 	/** \brief the quadrature family the kernel is integrated with */

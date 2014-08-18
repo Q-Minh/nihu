@@ -47,7 +47,7 @@ int space_test(void)
 	std::cout << "================================" << std::endl;
 
 	tmp::call_each<
-		tmp::vector<space_1d, space_2d, space_3d>,
+		tmp::vector<space_1d<>, space_2d<>, space_3d<> >,
 		tester<tmp::_1>
 	>();
 	std::cout << std::endl;
