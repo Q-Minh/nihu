@@ -34,7 +34,8 @@
 #include "../library/interval_estimator.hpp"
 #include "../library/distance_kernel_intervals.hpp"
 
-class empty_data {};
+/** \brief tag-class representing the empty (void) kernel data */
+class empty_data { typedef empty_data type; };
 
 /** \brief metafunctions returning regular and singular kernel traits */
 namespace kernel_traits_ns
@@ -49,7 +50,7 @@ namespace kernel_traits_ns
 	template <class Derived> struct data;
 	/** \brief return the kernel's output type */
 	template <class Derived> struct output;
-	/** \brief return the quadrature family the kerenel is integrated with */
+	/** \brief return the quadrature family the kernel is integrated with */
 	template <class Derived> struct quadrature_family;
 	/** \brief return the far field asymptotic behaviour of the kernel */
 	template <class Derived> struct far_field_behaviour;
@@ -71,13 +72,14 @@ namespace kernel_traits_ns
 	template <class Derived> struct singular_core;
 }
 
-/**
-* \brief traits class of a kernel
-* \tparam Derived the CRTP derived kernel
-*/
+/** \brief traits class of a kernel
+ * \tparam Derived the CRTP derived kernel
+ * \details This traits class inherits all its typedefs and integral constants from namespace ::kernel_traits_ns
+ */
 template <class Derived>
 struct kernel_traits
 {
+	/** \brief the kernel's coordinate space */
 	typedef typename kernel_traits_ns::space<Derived>::type space_t;
 	/** \brief kernel test input type */
 	typedef typename kernel_traits_ns::test_input<Derived>::type test_input_t;
@@ -92,8 +94,7 @@ struct kernel_traits
 	/** \brief the far field asymptotic behaviour of the kernel */
 	typedef typename kernel_traits_ns::quadrature_family<Derived>::type quadrature_family_t;
 
-
-
+	/** \brief integral constants */
 	enum {
 		/** \brief the kernel result's dimension
 		 * \todo should be computed from the kernel result and not defined separately in traits
@@ -107,14 +108,21 @@ struct kernel_traits
 };
 
 
+/** \brief singular traits class of a kernel
+ * \tparam Derived the CRTP derived kernel
+ * \details This traits class inherits all its typedefs and integral constants from namespace ::kernel_traits_ns
+ */
 template <class Derived>
 struct singular_kernel_traits
 {
+	/** \brief the kernel's singularity type */
 	typedef typename kernel_traits_ns::singularity_type<Derived>::type singularity_type_t;
-
+	/** \brief the kernel's singular core type */
 	typedef typename kernel_traits_ns::singular_core<Derived>::type singular_core_t;
 
+	/** \brief integral constants */
 	enum {
+		/** \brief the quadrature order singular integrals are handled with */
 		singular_quadrature_order = kernel_traits_ns::singular_quadrature_order<Derived>::value
 	};
 };
@@ -194,18 +202,18 @@ public:
 	{
 	public:
 		/** \brief constructor
-		* \param [in] kernel the kernel that is bound
-		* \param [in] x the test input that binds the kernel
-		*/
+		 * \param [in] kernel the kernel that is bound
+		 * \param [in] x the test input that binds the kernel
+		 */
 		kernel_bind(kernel_base<Derived> const &kernel, test_input_t const &x)
 			: m_kernel(kernel.derived()), m_test_input(x)
 		{
 		}
 
 		/** \brief evaluate bound kernel
-		* \param [in] y the trial input
-		* \return the kernel result value
-		*/
+		 * \param [in] y the trial input
+		 * \return the kernel result value
+		 */
 		result_t operator()(trial_input_t const &y) const
 		{
 			return m_kernel(m_test_input, y);
@@ -219,9 +227,9 @@ public:
 	};
 
 	/** \brief bind the kernel at its test input
-	* \param [in] x the test input that binds the kernel
-	* \return the bound kernel function
-	*/
+	 * \param [in] x the test input that binds the kernel
+	 * \return the bound kernel function
+	 */
 	kernel_bind bind(test_input_t const &x) const
 	{
 		return kernel_bind(*this, x);
