@@ -35,12 +35,26 @@
 #include "location_normal.hpp"
 #include "basic_bricks.hpp"
 
-
 /** \brief a brick representing a Laplace kernel
  * \tparam Space the coordinate space the kernel is defined over
  */
 template <class Space, class Layer>
 struct laplace_brick;
+
+/** \brief combination of several bricks into a Laplace wall
+ * \tparam Space the coordinate space the Laplace kernel is defined over
+ */
+template <class Space, class Layer>
+struct laplace_wall;
+
+/** \brief kernel of the Laplace equation
+ * \tparam Space the coordinate space the kernel is defined over
+ */
+template <class Space, class Layer>
+class laplace_kernel : public kernel_base<laplace_kernel<Space, Layer> >
+{
+};
+
 
 /** \brief specialisation of ::laplace_brick for the 2D SLP case */
 template <class Scalar>
@@ -148,13 +162,6 @@ struct laplace_brick<space_3d<Scalar>, potential::SLP>
 	};
 };
 
-
-/** \brief combination of several bricks into a Laplace wall
- * \tparam Space the coordinate space the Laplace kernel is defined over
- */
-template <class Space, class Layer>
-struct laplace_wall;
-
 /** \brief specialisation of ::laplace_wall for the SLP case */
 template <class Space>
 struct laplace_wall<Space, potential::SLP> : build<
@@ -162,13 +169,6 @@ struct laplace_wall<Space, potential::SLP> : build<
 	distance_brick<typename Space::scalar_t>,
 	laplace_brick<Space, potential::SLP>
 > {};
-
-
-/** \brief kernel of the Laplace equation
- * \tparam Space the coordinate space the kernel is defined over
- */
-template <class Space, class Layer>
-class laplace_kernel;
 
 namespace kernel_traits_ns
 {
@@ -225,14 +225,6 @@ namespace kernel_traits_ns
 		typedef  laplace_kernel<Space, Layer>  type;
 	};
 }
-
-
-template <class Space, class Layer>
-class laplace_kernel :
-	public kernel_base<laplace_kernel<Space, Layer> >
-{
-};
-
 
 /** \brief specialisation of ::laplace_brick for the 2D DLP case */
 template <class Scalar>
@@ -340,7 +332,6 @@ struct laplace_brick<space_3d<Scalar>, potential::DLP>
 	};
 };
 
-
 /** \brief specialisation of ::laplace_wall for the 2D DLP case */
 template <class Scalar>
 struct laplace_wall<space_2d<Scalar>, potential::DLP> : build<
@@ -359,7 +350,6 @@ struct laplace_wall<space_3d<Scalar>, potential::DLP> : build<
 	laplace_brick<space_3d<Scalar>, potential::SLP>,
 	laplace_brick<space_3d<Scalar>, potential::DLP>
 > {};
-
 
 namespace kernel_traits_ns
 {
@@ -390,7 +380,6 @@ namespace kernel_traits_ns
 	template <class Space>
 	struct singular_quadrature_order<laplace_kernel<Space, potential::DLP> > : std::integral_constant<unsigned, 7> {};
 }
-
 
 /** \brief specialisation of ::laplace_brick for the 2D DLPt case */
 template <class Scalar>
@@ -498,7 +487,6 @@ struct laplace_brick<space_3d<Scalar>, potential::DLPt>
 	};
 };
 
-
 /** \brief specialsation of ::laplace_wall for the 2D DLPt case */
 template <class Scalar>
 struct laplace_wall<space_2d<Scalar>, potential::DLPt> : build<
@@ -517,7 +505,6 @@ struct laplace_wall<space_3d<Scalar>, potential::DLPt> : build<
 	laplace_brick<space_3d<Scalar>, potential::SLP>,
 	laplace_brick<space_3d<Scalar>, potential::DLPt>
 > {};
-
 
 namespace kernel_traits_ns
 {
@@ -549,16 +536,9 @@ namespace kernel_traits_ns
 	struct singular_quadrature_order<laplace_kernel<Space, potential::DLPt> > : std::integral_constant<unsigned, 7> {};
 }
 
-
-/** \brief a brick representing a 2D Laplace hypersingular kernel
- * \tparam Scalar scalar type of the coordinate space the kernel is defined over
- */
-template <class Space>
-struct laplace_HSP_brick;
-
-/** \brief specialisation of ::laplace_HSP_brick for the 2D case */
+/** \brief specialisation of ::laplace_brick for the 2D HSP case */
 template <class Scalar>
-struct laplace_HSP_brick<space_2d<Scalar> >
+struct laplace_brick<space_2d<Scalar>, potential::HSP>
 {
 	/** \brief the brick template
 	 * \tparam wall the wall the brick is placed on
@@ -612,10 +592,9 @@ struct laplace_HSP_brick<space_2d<Scalar> >
 	};
 };
 
-
-/** \brief specialisation of ::laplace_HSP_brick for the 3D case */
+/** \brief specialisation of ::laplace_brick for the 3D HSP case */
 template <class Scalar>
-struct laplace_HSP_brick<space_3d<Scalar> >
+struct laplace_brick<space_3d<Scalar>, potential::HSP>
 {
 	/** \brief the brick template
 	 * \tparam wall the wall the brick is placed on
@@ -670,100 +649,53 @@ struct laplace_HSP_brick<space_3d<Scalar> >
 	};
 };
 
-
-/** \brief combination of several bricks into a laplace HSP wall
- * \tparam Scalar the coordinate space the Laplace kernel is defined over
- */
-template <class Space>
-struct laplace_HSP_wall;
-
-/** \brief specialisation of ::laplace_HSP_wall for the 2D case */
+/** \brief specialisation of ::laplace_wall for the 2D HSP case */
 template <class Scalar>
-struct laplace_HSP_wall<space_2d<Scalar> > : build<
+struct laplace_wall<space_2d<Scalar>, potential::HSP> : build<
 	distance_vector_brick<space_2d<Scalar> >,
 	distance_brick<Scalar>,
 	rdny_brick<Scalar>,
 	rdnx_brick<Scalar>,
-	laplace_HSP_brick<space_2d<Scalar> >
+	laplace_brick<space_2d<Scalar>, potential::HSP>
 > {};
 
-/** \brief specialisation of ::laplace_HSP_wall for the 3D case */
+/** \brief specialisation of ::laplace_wall for the 3D HSP case */
 template <class Scalar>
-struct laplace_HSP_wall<space_3d<Scalar> > : build<
+struct laplace_wall<space_3d<Scalar>, potential::HSP> : build<
 	distance_vector_brick<space_3d<Scalar>>,
 	distance_brick<Scalar>,
 	rdnx_brick<Scalar>,
 	rdny_brick<Scalar>,
 	laplace_brick<space_3d<Scalar>, potential::SLP>,
-	laplace_HSP_brick<space_3d<Scalar> >
+	laplace_brick<space_3d<Scalar>, potential::HSP>
 > {};
-
-
-/** \brief HSP kernel of the Laplace equation
- * \tparam Space the coordinate space the kernel is defined over
- */
-template <class Space>
-class laplace_HSP_kernel;
 
 namespace kernel_traits_ns
 {
 	template <class Space>
-	struct space<laplace_HSP_kernel<Space> > : Space {};
+	struct test_input<laplace_kernel<Space, potential::HSP> > : build<location<Space>, normal_jacobian<Space > > {};
 
 	template <class Space>
-	struct test_input<laplace_HSP_kernel<Space> > : build<location<Space>, normal_jacobian<Space > > {};
+	struct trial_input<laplace_kernel<Space, potential::HSP> > : build<location<Space>, normal_jacobian<Space> > {};
 
 	template <class Space>
-	struct trial_input<laplace_HSP_kernel<Space> > : build<location<Space>, normal_jacobian<Space> > {};
-
-	template <class Space>
-	struct data<laplace_HSP_kernel<Space> > {
-		typedef collect<empty_data> type;
-	};
-
-	template <class Space>
-	struct output<laplace_HSP_kernel<Space> > : laplace_HSP_wall<Space> {};
-
-	template <class Space>
-	struct result_dimension<laplace_HSP_kernel<Space> > : std::integral_constant<unsigned, 1> {};
-
-	template <class Space>
-	struct quadrature_family<laplace_HSP_kernel<Space> > : gauss_family_tag {};
-
-	template <class Space>
-	struct is_symmetric<laplace_HSP_kernel<Space> > : std::true_type {};
-
-	template <class Space>
-	struct is_singular<laplace_HSP_kernel<Space> > : std::true_type {};
+	struct is_symmetric<laplace_kernel<Space, potential::HSP> > : std::true_type {};
 
 	template <class Scalar>
-	struct far_field_behaviour<laplace_HSP_kernel<space_2d<Scalar> > > : asymptotic::inverse<2> {};
+	struct far_field_behaviour<laplace_kernel<space_2d<Scalar>, potential::HSP> > : asymptotic::inverse<2> {};
 
 	template <class Scalar>
-	struct far_field_behaviour<laplace_HSP_kernel<space_3d<Scalar> > > : asymptotic::inverse<3> {};
+	struct far_field_behaviour<laplace_kernel<space_3d<Scalar>, potential::HSP> > : asymptotic::inverse<3> {};
 
 	template <class Scalar>
-	struct singularity_type<laplace_HSP_kernel<space_2d<Scalar> > > : asymptotic::inverse<2> {};
+	struct singularity_type<laplace_kernel<space_2d<Scalar>, potential::HSP> > : asymptotic::inverse<2> {};
 
 	template <class Scalar>
-	struct singularity_type<laplace_HSP_kernel<space_3d<Scalar> > > : asymptotic::inverse<3> {};
+	struct singularity_type<laplace_kernel<space_3d<Scalar>, potential::HSP> > : asymptotic::inverse<3> {};
 
 	template <class Space>
-	struct singular_quadrature_order<laplace_HSP_kernel<Space> > : std::integral_constant<unsigned, 7> {};
-
-	template <class Space>
-	struct singular_core<laplace_HSP_kernel<Space> > {
-		typedef  laplace_HSP_kernel<Space>  type;
-	};
+	struct singular_quadrature_order<laplace_kernel<Space, potential::HSP> > : std::integral_constant<unsigned, 7> {};
 }
-
-
-template <class Space>
-class laplace_HSP_kernel :
-	public kernel_base<laplace_HSP_kernel<Space> >
-{
-};
-
 
 /** \brief shorthand for the 2d laplace SLP kernel */
 typedef laplace_kernel<space_2d<>, potential::SLP> laplace_2d_SLP_kernel;
@@ -778,17 +710,16 @@ typedef laplace_kernel<space_2d<>, potential::DLPt> laplace_2d_DLPt_kernel;
 /** \brief shorthand for the 3d laplace DLPt kernel */
 typedef laplace_kernel<space_3d<>, potential::DLPt> laplace_3d_DLPt_kernel;
 /** \brief shorthand for the 2d laplace HSP kernel */
-typedef laplace_HSP_kernel<space_2d<> > laplace_2d_HSP_kernel;
+typedef laplace_kernel<space_2d<>, potential::HSP> laplace_2d_HSP_kernel;
 /** \brief shorthand for the 3d laplace HSP kernel */
-typedef laplace_HSP_kernel<space_3d<> > laplace_3d_HSP_kernel;
-
+typedef laplace_kernel<space_3d<>, potential::HSP> laplace_3d_HSP_kernel;
 
 
 #include "guiggiani_1992.hpp"
 
 /** \brief specialisation of class ::polar_laurent_coeffs for the ::laplace_3d_HSP_kernel */
 template <class Scalar>
-class polar_laurent_coeffs<laplace_HSP_kernel<space_3d<Scalar> > >
+class polar_laurent_coeffs<laplace_kernel<space_3d<Scalar>, potential::HSP> >
 {
 public:
 	template <class guiggiani>
