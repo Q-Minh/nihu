@@ -27,11 +27,12 @@ Y = zeros(4, size(BlockTree,1));
 for b = 1 : size(BlockTree,1)
     i = RowClusters(BlockTree(b,1),:);
     j = ColClusters(BlockTree(b,2),:);
-	X(:,b) = j(1) + j(2)*[0 0 1 1];
-	Y(:,b) = i(1) + i(2)*[0 1 1 0];
+	X = j(1) + j(2)*[0 1 1 0];
+	Y = i(1) + i(2)*[0 0 1 1];
+    patch(X,Y,zeros(size(X)));
+    pause(.2);
 end
 
-p = patch(X,Y,zeros(size(X)));
 set(gca, 'yDir', 'reverse');
 
 end % of function display_block_structure
