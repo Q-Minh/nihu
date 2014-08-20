@@ -16,42 +16,23 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "space_test.h"
-#include "tmp/control.hpp"
-#include "tmp/vector.hpp"
 #include "core/space.hpp"
 
-#include <iostream>
+// testing if space dimensions are defined correctly
+static_assert(space<double, 1>::dimension == 1, "Space1D dimension error");
+static_assert(space<double, 2>::dimension == 2, "Space2D dimension error");
+static_assert(space<double, 3>::dimension == 3, "Space3D dimension error");
+// testing if space scalar is defined correctly
+static_assert(std::is_same<space<double, 1>::scalar_t, double>::value, "Space scalar error");
+static_assert(std::is_same<space<float, 1>::scalar_t, float>::value, "Space scalar error");
+static_assert(std::is_same<space<int, 1>::scalar_t, int>::value, "Space scalar error");
+// testing if space shorthands are defined correctly
+static_assert(std::is_same<space_1d<float>, space<float, 1> >::value, "Space_1d shorthand error");
+static_assert(std::is_same<space_2d<float>, space<float, 2> >::value, "Space_2d shorthand error");
+static_assert(std::is_same<space_3d<float>, space<float, 3> >::value, "Space_3d shorthand error");
+// testing if default space shorthands are defined correctly
+static_assert(std::is_same<space_1d<>, space<double, 1> >::value, "Space_1d default shorthand error");
+static_assert(std::is_same<space_2d<>, space<double, 2> >::value, "Space_2d default shorthand error");
+static_assert(std::is_same<space_3d<>, space<double, 3> >::value, "Space_3d default shorthand error");
 
-template <class space>
-struct tester
-{
-	struct type
-	{
-		void operator() (void)
-		{
-			std::cout << "Dim: " << space::dimension << ", ";
-			std::cout << "Loc: " << space::location_t::RowsAtCompileTime << " x " << space::location_t::ColsAtCompileTime << std::endl;
-		}
-	};
-};
-
-int space_test(void)
-{
-	std::cout << "Spaces" << std::endl;
-	std::cout << "======" << std::endl;
-	std::cout << "<space_1d, space_2d, space_3d>" << std::endl;
-	std::cout << std::endl;
-
-	std::cout << "Testing space dims and loc types" << std::endl;
-	std::cout << "================================" << std::endl;
-
-	tmp::call_each<
-		tmp::vector<space_1d<>, space_2d<>, space_3d<> >,
-		tester<tmp::_1>
-	>();
-	std::cout << std::endl;
-
-	return 0;
-}
-
+int main() {}
