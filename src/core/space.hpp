@@ -26,14 +26,13 @@
 
 #include <Eigen/Dense>
 
-/** \brief class representing a space with a scalar vaiable and a dimension
+/** \brief class representing a coordinate space with a scalar variable and a dimension
  * \tparam Scalar the scalar variable
  * \tparam Dimension the space dimensionality
  */
 template <class Scalar, unsigned Dimension>
-class space
+struct space
 {
-public:
     /** self-returning */
     typedef space type;
 
