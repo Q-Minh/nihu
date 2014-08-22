@@ -1,17 +1,30 @@
-TOOLBOXDIR=../../..
-GTESTDIR=$(TOOLBOXDIR)/gtest-1.7.0
-EIGENDIR=$(TOOLBOXDIR)/eigen
-NIHUDIR=$(TOOLBOXDIR)/nihu/src/nihu
-NIHULIBDIR=$(TOOLBOXDIR)/nihu/src/library
 CXX=g++
-LFLAGS=-L$(GTESTDIR) -lgtest -lgtest_main -lpthread
-CFLAGS=-std=c++11 -I../ -I../../../eigen -I$(GTESTDIR)/include
+TOOLBOXDIR=../../..
+GTESTDIR=$(TOOLBOXDIR)/gtest-svn
+EIGENDIR=$(TOOLBOXDIR)/eigen
+NIHUDIR=$(TOOLBOXDIR)/nihu
+NIHULIBDIR=$(NIHUDIR)/src/library
+LFLAGS=-lpthread
+CFLAGS=-Wall -Wextra -std=c++11 -c -I../ -I../../../eigen -I$(GTESTDIR)/include -I$(GTESTDIR)
 
-test_space.exe : test_space.o lib_domain.o
-	$(CXX) test_space.o lib_domain.o $(LFLAGS) -o test_space.exe
+test_space.exe : test_space.o lib_domain.o gtest_main.a
+	$(CXX) test_space.o lib_domain.o gtest_main.a $(LFLAGS) -o test_space.exe
+
+gtest_main.o:
+	$(CXX) $(CFLAGS) -isystem $(GTESTDIR)/include -I$(GTESTDIR) $(GTESTDIR)/src/gtest_main.cc -o gtest_main.o
+
+gtest-all.o:
+	$(CXX) $(CFLAGS) -isystem $(GTESTDIR)/include -I$(GTESTDIR) $(GTESTDIR)/src/gtest-all.cc -o gtest-all.o
+
+gtest_main.a: gtest_main.o gtest-all.o
+	ar rv gtest_main.a gtest-all.o gtest_main.o
 
 test_space.o : test_space.cpp
 	$(CXX) -c $(CFLAGS) test_space.cpp -o test_space.o
 
 lib_domain.o :  $(NIHULIBDIR)/lib_domain.cpp
 	$(CXX) -c $(CFLAGS) $(NIHULIBDIR)/lib_domain.cpp -o lib_domain.o
+
+clean:
+	rm *.o *.a *~ *.exe
+
