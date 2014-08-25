@@ -1,6 +1,39 @@
 #include <gtest/gtest.h>
 #include "library/lib_shape.hpp"
 
+template <class ShapeSet>
+struct GeneralShapeTester
+{
+	static void eval(double corners[][ShapeSet::domain_t::dimension])
+	{
+		for (unsigned i = 0; i < ShapeSet::num_nodes; ++i)
+			for (unsigned j = 0; j < ShapeSet::domain_t::dimension; ++j)
+				EXPECT_EQ(ShapeSet::corner_at(i)(j), corners[i][j]);
+		// test shape functions in nodes
+		for (unsigned i = 0; i < ShapeSet::num_nodes; ++i)
+		{
+			auto L = ShapeSet::template eval_shape<0>(ShapeSet::corner_at(i));
+			EXPECT_EQ(L, decltype(L)::Unit(i));
+		}
+		// test sum of shape functions and derivatives in random locations
+		unsigned const N(1000);
+		double const eps(1e-10);
+		for (unsigned n = 0; n < N; ++n)
+		{
+			auto xi = ShapeSet::xi_t::Random();
+			// sum of L should be one
+			auto L = ShapeSet::template eval_shape<0>(xi);
+			EXPECT_NEAR(L.sum(), 1., eps);
+			// sum of dL should be 0
+			auto dL = ShapeSet::template eval_shape<1>(xi);
+			EXPECT_NEAR(dL.sum(), 0., eps);
+			// sum of dL should be 0
+			auto ddL = ShapeSet::template eval_shape<2>(xi);
+			EXPECT_NEAR(ddL.sum(), 0., eps);
+		}
+	}
+};
+
 // testing line_0_shape_set
 static_assert(std::is_same<line_0_shape_set::domain_t, line_domain>::value, "Tria 2 shape set domain failure");
 static_assert(line_0_shape_set::num_nodes == 1, "Tria 2 shape set number of nodes failure");
@@ -34,30 +67,8 @@ static_assert(std::is_same<line_0_shape_set::position_dof_vector, tmp::vector<do
 		"Tria 2 shape set poisition DOF vector failure");
 
 TEST(ShapeSet, Line0){
-	// test nodal location
-	EXPECT_EQ(line_0_shape_set::corner_at(0)(0), 0.);
-	// test shape functions in nodes
-	for (unsigned i = 0; i < line_0_shape_set::num_nodes; ++i)
-	{
-		auto L = line_0_shape_set::eval_shape<0>(line_0_shape_set::corner_at(i));
-		EXPECT_EQ(L, decltype(L)::Unit(i));
-	}
-	// test sum of shape functions and derivatives in random locations
-	unsigned const N(1000);
-	double const eps(1e-10);
-	for (unsigned n = 0; n < N; ++n)
-	{
-		auto xi = line_0_shape_set::xi_t::Random();
-		// sum of L should be one
-		auto L = line_0_shape_set::eval_shape<0>(xi);
-		EXPECT_NEAR(L.sum(), 1., eps);
-		// sum of dL should be 0
-		auto dL = line_0_shape_set::eval_shape<1>(xi);
-		EXPECT_NEAR(dL.sum(), 0., eps);
-		// sum of dL should be 0
-		auto ddL = line_0_shape_set::eval_shape<2>(xi);
-		EXPECT_NEAR(ddL.sum(), 0., eps);
-	}
+	double corners[][1] = { {0.} };
+	GeneralShapeTester<line_0_shape_set>::eval(corners);
 }
 
 
@@ -95,29 +106,8 @@ static_assert(std::is_same<line_1_shape_set::position_dof_vector, tmp::vector<do
 		"Line 1 shape set poisition DOF vector failure");
 
 TEST(ShapeSet, Line1){
-	// test nodal location
-	EXPECT_EQ(line_1_shape_set::corner_at(0)(0), -1.);
-	EXPECT_EQ(line_1_shape_set::corner_at(1)(0), 1.);
-	// test shape functions in nodes
-	for (unsigned i = 0; i < line_1_shape_set::num_nodes; ++i)
-	{
-		auto L = line_1_shape_set::eval_shape<0>(line_1_shape_set::corner_at(i));
-		EXPECT_EQ(L, decltype(L)::Unit(i));
-	}
-	// test sum of shape functions and derivatives in random locations
-	unsigned const N(1000);
-	double const eps(1e-10);
-	for (unsigned n = 0; n < N; ++n)
-	{
-		auto xi = line_1_shape_set::xi_t::Random();
-		auto L = line_1_shape_set::eval_shape<0>(xi);
-		EXPECT_NEAR(L.sum(), 1., eps);
-		auto dL = line_1_shape_set::eval_shape<1>(xi);
-		EXPECT_NEAR(dL.sum(), 0., eps);
-		// sum of dL should be 0
-		auto ddL = line_1_shape_set::eval_shape<2>(xi);
-		EXPECT_NEAR(ddL.sum(), 0., eps);
-	}
+	double corners[][1] = { {-1.}, {1.} };
+	GeneralShapeTester<line_1_shape_set>::eval(corners);
 }
 
 // testing line_2_shape_set
@@ -153,30 +143,8 @@ static_assert(std::is_same<line_2_shape_set::position_dof_vector, tmp::vector<do
 		"Line 2 shape set poisition DOF vector failure");
 
 TEST(ShapeSet, Line2){
-	// test nodal location
-	EXPECT_EQ(line_2_shape_set::corner_at(0)(0), -1.);
-	EXPECT_EQ(line_2_shape_set::corner_at(1)(0), 0.);
-	EXPECT_EQ(line_2_shape_set::corner_at(2)(0), 1.);
-	// test shape functions in nodes
-	for (unsigned i = 0; i < line_2_shape_set::num_nodes; ++i)
-	{
-		auto L = line_2_shape_set::eval_shape<0>(line_2_shape_set::corner_at(i));
-		EXPECT_EQ(L, decltype(L)::Unit(i));
-	}
-	// test sum of shape functions and derivatives in random locations
-	unsigned const N(1000);
-	double const eps(1e-10);
-	for (unsigned n = 0; n < N; ++n)
-	{
-		auto xi = line_2_shape_set::xi_t::Random();
-		auto L = line_2_shape_set::eval_shape<0>(xi);
-		EXPECT_NEAR(L.sum(), 1., eps);
-		auto dL = line_2_shape_set::eval_shape<1>(xi);
-		EXPECT_NEAR(dL.sum(), 0., eps);
-		// sum of dL should be 0
-		auto ddL = line_2_shape_set::eval_shape<2>(xi);
-		EXPECT_NEAR(ddL.sum(), 0., eps);
-	}
+	double corners[][1] = { {-1.}, {0.}, {1.} };
+	GeneralShapeTester<line_2_shape_set>::eval(corners);
 }
 
 
@@ -213,31 +181,8 @@ static_assert(std::is_same<tria_0_shape_set::position_dof_vector, tmp::vector<do
 		"Tria 1 shape set poisition DOF vector failure");
 
 TEST(ShapeSet, Tria0){
-	// test nodal location
-	EXPECT_EQ(tria_0_shape_set::corner_at(0)(0), 1./3.);
-	EXPECT_EQ(tria_0_shape_set::corner_at(0)(1), 1./3.);
-	// test shape functions in nodes
-	for (unsigned i = 0; i < tria_0_shape_set::num_nodes; ++i)
-	{
-		auto L = tria_0_shape_set::eval_shape<0>(tria_0_shape_set::corner_at(i));
-		EXPECT_EQ(L, decltype(L)::Unit(i));
-	}
-	// test sum of shape functions and derivatives in random locations
-	unsigned const N(1000);
-	double const eps(1e-10);
-	for (unsigned n = 0; n < N; ++n)
-	{
-		auto xi = tria_0_shape_set::xi_t::Random();
-		// sum of L should be one
-		auto L = tria_0_shape_set::eval_shape<0>(xi);
-		EXPECT_NEAR(L.sum(), 1., eps);
-		// sum of dL should be 0
-		auto dL = tria_0_shape_set::eval_shape<1>(xi);
-		EXPECT_NEAR(dL.sum(), 0., eps);
-		// sum of dL should be 0
-		auto ddL = tria_0_shape_set::eval_shape<2>(xi);
-		EXPECT_NEAR(ddL.sum(), 0., eps);
-	}
+	double corners[][2] = { {1./3., 1./3.} };
+	GeneralShapeTester<tria_0_shape_set>::eval(corners);
 }
 
 
@@ -276,33 +221,7 @@ static_assert(std::is_same<tria_1_shape_set::position_dof_vector, tmp::vector<do
 TEST(ShapeSet, Tria1){
 	// test nodal corners
 	double corners[][2] = { {0., 0.}, {1., 0.}, {0., 1.} };
-	for (unsigned i = 0; i < tria_1_shape_set::num_nodes; ++i)
-	{
-		EXPECT_EQ(tria_1_shape_set::corner_at(i)(0), corners[i][0]);
-		EXPECT_EQ(tria_1_shape_set::corner_at(i)(1), corners[i][1]);
-	}
-	// test shape functions in nodes
-	for (unsigned i = 0; i < tria_1_shape_set::num_nodes; ++i)
-	{
-		auto L = tria_1_shape_set::eval_shape<0>(tria_1_shape_set::corner_at(i));
-		EXPECT_EQ(L, decltype(L)::Unit(i));
-	}
-	// test sum of shape functions and derivatives in random locations
-	unsigned const N(1000);
-	double const eps(1e-10);
-	for (unsigned n = 0; n < N; ++n)
-	{
-		auto xi = tria_1_shape_set::xi_t::Random();
-		// sum of L should be one
-		auto L = tria_1_shape_set::eval_shape<0>(xi);
-		EXPECT_NEAR(L.sum(), 1., eps);
-		// sum of dL should be 0
-		auto dL = tria_1_shape_set::eval_shape<1>(xi);
-		EXPECT_NEAR(dL.sum(), 0., eps);
-		// sum of dL should be 0
-		auto ddL = tria_1_shape_set::eval_shape<2>(xi);
-		EXPECT_NEAR(ddL.sum(), 0., eps);
-	}
+	GeneralShapeTester<tria_1_shape_set>::eval(corners);
 }
 
 
@@ -341,33 +260,7 @@ static_assert(std::is_same<tria_2_shape_set::position_dof_vector, tmp::vector<do
 TEST(ShapeSet, Tria2){
 	// test nodal corners
 	double corners[][2] = { {0., 0.}, {.5, 0.}, {1., 0.}, {.5, .5}, {0., 1.}, {0., .5} };
-	for (unsigned i = 0; i < tria_2_shape_set::num_nodes; ++i)
-	{
-		EXPECT_EQ(tria_2_shape_set::corner_at(i)(0), corners[i][0]);
-		EXPECT_EQ(tria_2_shape_set::corner_at(i)(1), corners[i][1]);
-	}
-	// test shape functions in nodes
-	for (unsigned i = 0; i < tria_2_shape_set::num_nodes; ++i)
-	{
-		auto L = tria_2_shape_set::eval_shape<0>(tria_2_shape_set::corner_at(i));
-		EXPECT_EQ(L, decltype(L)::Unit(i));
-	}
-	// test sum of shape functions and derivatives in random locations
-	unsigned const N(1000);
-	double const eps(1e-10);
-	for (unsigned n = 0; n < N; ++n)
-	{
-		auto xi = tria_2_shape_set::xi_t::Random();
-		// sum of L should be one
-		auto L = tria_2_shape_set::eval_shape<0>(xi);
-		EXPECT_NEAR(L.sum(), 1., eps);
-		// sum of dL should be 0
-		auto dL = tria_2_shape_set::eval_shape<1>(xi);
-		EXPECT_NEAR(dL.sum(), 0., eps);
-		// sum of dL should be 0
-		auto ddL = tria_2_shape_set::eval_shape<2>(xi);
-		EXPECT_NEAR(ddL.sum(), 0., eps);
-	}
+	GeneralShapeTester<tria_2_shape_set>::eval(corners);
 }
 
 
