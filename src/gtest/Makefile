@@ -1,4 +1,4 @@
-CXX=g++
+#CXX=g++
 TOOLBOXDIR=../../..
 GTESTDIR=$(TOOLBOXDIR)/gtest
 EIGENDIR=$(TOOLBOXDIR)/eigen
