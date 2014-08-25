@@ -98,7 +98,7 @@ public:
 	typedef decltype(functor_ret_type::Zero()) return_type;
 
 	/** \brief return object computed by the function class */
-	static constexpr return_type eval(Args const &...args)
+	static constexpr return_type eval(Args const &...)
 	{
 		return functor_ret_type::Zero();
 	}

@@ -35,7 +35,7 @@
 #include "../util/conditional_precompute.hpp"
 
 /** \brief shape function derivative indices
- * \details These indices are used to index the first and second derivatives of the
+ * These indices are used to index the first and second derivatives of the
  * shape functions.
  */
 namespace shape_derivative_index
@@ -70,7 +70,7 @@ template <class Derived, unsigned Order>
 class shape_function;
 
 /** \brief return the number of partial derivatives in dim dimensions
- * \details In 1D there is one partial derivative and one second partial derivative.
+ * In 1D there is one partial derivative and one second partial derivative.
  * In 2D there are two partial derivatives and four second derivatives, but
  * because of symmetry, the actual number of different second derivatives is 3.
  */
@@ -184,8 +184,6 @@ public:
 	template <unsigned Order>
 	struct shape_value_type : shape_set_traits::shape_value_type<Derived, Order> {};
 
-	typedef typename shape_set_traits::position_dof_vector<Derived>::type position_dof_vector;
-
 	typedef typename shape_value_type<0>::type shape_t;
 	typedef typename shape_value_type<1>::type dshape_t;
 	typedef typename shape_value_type<2>::type ddshape_t;
@@ -196,6 +194,8 @@ public:
 	{
 		return shape_set_traits::factory_functor<Derived, Order>::type::eval(xi);
 	}
+
+	typedef typename shape_set_traits::position_dof_vector<Derived>::type position_dof_vector;
 
 	/** \brief return begin iterator of corner nodes */
 	static xi_t const *corner_begin(void)
@@ -293,7 +293,7 @@ class shape_function<constant_shape_set<Domain>, 0>
 	typedef typename shape_set_traits::shape_value_type<constant_shape_set<Domain>, 0>::type shape_t;
 	typedef typename shape_set_traits::domain<constant_shape_set<Domain> >::type::xi_t xi_t;
 public:
-	static shape_t eval(xi_t const &xi)
+	static shape_t eval(xi_t const &)
 	{
 		return shape_t::Ones();
 	}
