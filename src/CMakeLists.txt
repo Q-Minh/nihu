@@ -135,7 +135,9 @@ foreach(lib_source ${NIHU_COMMON_LIBRARIES})
 endforeach(lib_source)
 
 ### Subdirectories
-add_subdirectory(tutorial)
+if(NOT NIHU_DISABLE_TUTORIALS)
+	add_subdirectory(tutorial)
+endif()
 
 ### Test section
 if(NIHU_ENABLE_TESTING)

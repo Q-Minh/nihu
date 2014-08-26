@@ -279,6 +279,14 @@ By default, the tests are excluded from the build process, however, you can turn
 - **NIHU_ENABLE_RUN_MATLAB_TESTS** When set to non-zero tests run from Matlab are included into all tests. Otherwise Matlab tests have to be run separately by using the test script provided with the compiled mex files. This option is only relevant if `NIHU_ENABLE_TESTING` is set to non-zero.
 \note This option is not recommended, since not all Matlab versions support command line mode, which is required for the tests in order to function properly.)
 
+Tutorial options {#install_tutorial_options}
+----------------
+
+You can control the compilation of tutorials by the following parameters.
+
+- **NIHU_DISABLE_TUTORIALS** When set to a non-zero value building of all tutorials are disabled.
+
+
 Documentation options {#install_doc_options}
 ---------------------
 
