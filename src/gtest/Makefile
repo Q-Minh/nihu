@@ -1,31 +1,26 @@
-CPP_FILES := $(wildcard *.cpp)
-OBJ_FILES := $(CPP_FILES:.cpp=.o)
 TOOLBOXDIR := ../../..
 GTESTDIR := $(TOOLBOXDIR)/gtest
 EIGENDIR := $(TOOLBOXDIR)/eigen
-NIHUDIR := $(TOOLBOXDIR)/nihu
-NIHULIBDIR := $(NIHUDIR)/src/library
+NIHUSRCDIR := $(TOOLBOXDIR)/nihu/src
+NIHULIBDIR := $(NIHUSRCDIR)/library
+TEST_CPP_FILES := $(wildcard *.cpp)
+TEST_OBJ_FILES := $(TEST_CPP_FILES:.cpp=.o)
+LIB_CPP_FILES := $(wildcard $(NIHULIBDIR)/*.cpp)
+LIB_OBJ_FILES := $(LIB_CPP_FILES:.cpp=.o)
+GTEST_CPP_FILES := $(GTESTDIR)/src/gtest_main.cc $(GTESTDIR)/src/gtest-all.cc
+GTEST_OBJ_FILES := $(GTEST_CPP_FILES:.cc=.o)
 LFLAGS := -lpthread
-CFLAGS := -Wall -Wextra -std=c++11 -c -I../ -I../../../eigen -I$(GTESTDIR)/include -I$(GTESTDIR)
+CFLAGS := -Wall -Wextra -std=c++11 -c -isystem $(GTESTDIR)/include -I$(NIHUSRCDIR) -I$(EIGENDIR) -I$(GTESTDIR)
 
-test_main.exe : $(OBJ_FILES) lib_domain.o lib_shape.o gtest_main.o gtest-all.o
+test_main.exe : $(TEST_OBJ_FILES) $(LIB_OBJ_FILES) $(GTEST_OBJ_FILES)
 	$(CXX) -o $@ $^ $(LFLAGS)
-
-gtest_main.o:
-	$(CXX) $(CFLAGS) -isystem $(GTESTDIR)/include -I$(GTESTDIR) $(GTESTDIR)/src/gtest_main.cc -o gtest_main.o
-
-gtest-all.o:
-	$(CXX) $(CFLAGS) -isystem $(GTESTDIR)/include -I$(GTESTDIR) $(GTESTDIR)/src/gtest-all.cc -o gtest-all.o
 
 %.o : %.cpp
 	$(CXX) $(CFLAGS) -o $@ $<
 
-lib_domain.o :  $(NIHULIBDIR)/lib_domain.cpp
-	$(CXX) $(CFLAGS) $(NIHULIBDIR)/lib_domain.cpp -o lib_domain.o
-
-lib_shape.o :  $(NIHULIBDIR)/lib_shape.cpp
-	$(CXX) $(CFLAGS) $(NIHULIBDIR)/lib_shape.cpp -o lib_shape.o
+%.o : %.cc
+	$(CXX) $(CFLAGS) -o $@ $<
 
 clean:
-	rm *.o *~ *.exe
+	rm $(TEST_OBJ_FILES) $(GTEST_OBJ_FILES) $(LIB_OBJ_FILES)
 
