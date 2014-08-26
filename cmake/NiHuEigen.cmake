@@ -3,11 +3,11 @@
 
 # Check for given eigen path
 if(DEFINED NIHU_EIGEN_PATH)
-	set(EIGEN_FOUND 1)
 	# Check if Eigen directory exists
 	if(NOT EXISTS "${NIHU_EIGEN_PATH}/Eigen")
-		message(ERROR "Eigen can not be found at the specified path: ${NIHU_EIGEN_PATH}")
+		message(FATAL_ERROR "Eigen can not be found at the specified path: ${NIHU_EIGEN_PATH}")
 	endif(NOT EXISTS "${NIHU_EIGEN_PATH}/Eigen")
+	set(EIGEN_FOUND 1)
 	set(EIGEN_INCLUDE_DIRS NIHU_EIGEN_PATH)
 else(DEFINED NIHU_EIGEN_PATH)
 	if(UNIX)
@@ -36,7 +36,7 @@ if(NOT EIGEN_FOUND OR NIHU_EIGEN_INSTALL)
 		# md5 checksum of the downloaded file tar.bz2
 		set(EIGEN_MD5 "894381be5be65bb7099c6fd91d61b357") #3.2.0
 
-		message(STATUS "Eigen3 headers will be installed as a part of NiHu")
+		message(STATUS "Eigen 3.2.0 headers will be installed as a part of NiHu")
 
 		set(EIGEN_DL_FILE "${CMAKE_SOURCE_DIR}/ThirdParty/eigen-3.2.0.tar.bz2")
 		
