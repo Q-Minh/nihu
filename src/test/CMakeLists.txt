@@ -1,6 +1,6 @@
 # Test directories with cpp tests
 set(cpp_test_dirs
-	"core_unit" ; "library_unit" ; "stallone_unit" ; "tmp_unit" ; "util_unit"; "aca_unit")
+	"core_unit" ; "library_unit" ; "stallone_unit" ; "tmp_unit" ; "util_unit" ; "aca_unit")
 
 # Add each test directory
 foreach(cpp_test_dir ${cpp_test_dirs})

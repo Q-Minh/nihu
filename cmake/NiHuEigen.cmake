@@ -24,32 +24,43 @@ endif(DEFINED NIHU_EIGEN_PATH)
 
 # Check if eigen found
 if(NOT EIGEN_FOUND OR NIHU_EIGEN_INSTALL)
-	
-	# Eigen download path
-	set(EIGEN_URL "http://bitbucket.org/eigen/eigen/get/3.2.0.tar.bz2")
-	# md5 checksum of the downloaded file tar.bz2
-	set(EIGEN_MD5 "894381be5be65bb7099c6fd91d61b357") #3.2.0
-
-	message(STATUS "Eigen3 headers will be installed as a part of NiHu")
-
-	set(EIGEN_DL_FILE "${CMAKE_SOURCE_DIR}/ThirdParty/eigen-3.2.0.tar.bz2")
+	# Configure Eigen directories
 	set(EIGEN_SOURCE_DIR "${CMAKE_SOURCE_DIR}/ThirdParty/eigen-3.2.0")
 	set(EIGEN_TEMP_DIR "eigen-eigen-ffa86ffb5570")
 	set(EIGEN_INSTALL_DIR "${CMAKE_BINARY_DIR}/include/eigen-3.2.0")
+	
+	# Check if NIHU_EIGEN_TARBALL is set
+	if (NOT DEFINED NIHU_EIGEN_TARBALL)
+		# Eigen download path
+		set(EIGEN_URL "http://bitbucket.org/eigen/eigen/get/3.2.0.tar.bz2")
+		# md5 checksum of the downloaded file tar.bz2
+		set(EIGEN_MD5 "894381be5be65bb7099c6fd91d61b357") #3.2.0
 
-	# Download
-	message(STATUS "Downloading Eigen3 from ${EIGEN_URL}")
-	file(
-		DOWNLOAD "${EIGEN_URL}" "${EIGEN_DL_FILE}"
-		EXPECTED_MD5 "${EIGEN_MD5}"
-		STATUS EIGEN_DL_STATUS
-	)
+		message(STATUS "Eigen3 headers will be installed as a part of NiHu")
+
+		set(EIGEN_DL_FILE "${CMAKE_SOURCE_DIR}/ThirdParty/eigen-3.2.0.tar.bz2")
 		
-	# Check download status
-	LIST(GET ${EIGEN_DL_STATUS} 1 EIGEN_DL_ERROR)
-	if(EIGEN_DL_ERROR)
-		message(FATAL_ERROR "Eigen download failed, cmake will exit")
-	endif(EIGEN_DL_ERROR)
+		# Download
+		message(STATUS "Downloading Eigen3 from ${EIGEN_URL}")
+		file(
+			DOWNLOAD "${EIGEN_URL}" "${EIGEN_DL_FILE}"
+			EXPECTED_MD5 "${EIGEN_MD5}"
+			STATUS EIGEN_DL_STATUS
+		)
+		
+		# Check download status
+		LIST(GET ${EIGEN_DL_STATUS} 1 EIGEN_DL_ERROR)
+		if(EIGEN_DL_ERROR)
+			message(FATAL_ERROR "Eigen download failed, cmake will exit")
+		endif(EIGEN_DL_ERROR)
+	else ()
+		# Install eigen from a predownloaded tarball file
+		if (EXISTS ${NIHU_EIGEN_TARBALL})
+			set(EIGEN_DL_FILE ${NIHU_EIGEN_TARBALL})
+		else ()
+			message(FATAL_ERROR "Given Eigen tarball ${NIHU_EIGEN_TARBALL} does not exist, cmake will exit")
+		endif ()
+	endif ()
 	
 	# Extract
 	message(STATUS "Extracting Eigen3 into ${EIGEN_SOURCE_DIR}")
@@ -67,11 +78,11 @@ if(NOT EIGEN_FOUND OR NIHU_EIGEN_INSTALL)
 		COMMAND ${CMAKE_COMMAND} -E rename "${NIHU_THIRDPARTY_DIR}/${EIGEN_TEMP_DIR}" "${EIGEN_SOURCE_DIR}"
 		OUTPUT_QUIET)
 
-#	# Apply eigen patch
-#	if(NOT NIHU_EIGEN_DISABLE_PATCH)
+	# Apply eigen patch
+#	if(UNIX AND NOT NIHU_EIGEN_DISABLE_PATCH)
 #		message(STATUS "Applying Eigen patch")
 #		execute_process(COMMAND "patch" "--directory=${EIGEN_SOURCE_DIR}" "--strip=2" "--input=${NIHU_THIRDPARTY_DIR}/patches/eigen-3.2.0.patch")
-#	endif(NOT NIHU_EIGEN_DISABLE_PATCH)
+#	endif(UNIX AND NOT NIHU_EIGEN_DISABLE_PATCH)
 			
 	# Copy the header files
 	message(STATUS "Copying Eigen3 headers into ${EIGEN_INSTALL_DIR}")
