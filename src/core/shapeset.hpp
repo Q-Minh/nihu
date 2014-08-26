@@ -64,6 +64,8 @@ typedef position_dof<0> dof0;
 typedef position_dof<1> dof1;
 /** \brief shorthand for 2 dof */
 typedef position_dof<2> dof2;
+/** \brief shorthand for 3 dof */
+typedef position_dof<3> dof3;
 
 // forward declaration
 template <class Derived, unsigned Order>
