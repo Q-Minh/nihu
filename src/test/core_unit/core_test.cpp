@@ -16,19 +16,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "space_test.h"
-#include "domain_test.h"
-#include "shapeset_test.h"
 #include "element_test.h"
 #include "field_test.h"
 
 int main(void)
 {
-    space_test();
-    domain_test();
-    shapeset_test();
     element_test();
     field_test();
 
     return 0;
 }
+

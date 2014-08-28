@@ -28,10 +28,13 @@
 #endif
 #include <cmath>
 #include <complex>
+#include <stdexcept>
 
 #ifndef M_PI
 #define M_PI 3.141592653589793
 #endif
+
+#include <iostream>
 
 /**
  * \brief \f$ sinc(x) = \sin(x) / x \f$ function
@@ -50,30 +53,108 @@ static T sinc(T const &x)
 
 namespace bessel
 {
+	double const large_lim(7.);
+
+	template <class T>
+	struct make_complex
+	{
+		typedef std::complex<T> type;
+	};
+
+	template <class T>
+	struct make_complex<std::complex<T> >
+	{
+		typedef std::complex<T> type;
+	};
+
 	/** \brief imaginary unit */
 	std::complex<double> const I(0.0, 1.0);
 	/** \brief Euler's constant */
 	double const gamma(0.57721566490153286060);
+
+	template <class T>
+	void mag_arg_large(int nu, T const &z, T &u, T &phi)
+	{
+		double mag[2][7] = {
+			{
+				1.,
+				-6.25e-2,
+				1.03515625e-1,
+				-5.428466796875e-1,
+				5.8486995697021484375,
+				-1.06886793971061706543e2,
+				2.96814293784275650978e3
+			},
+			{
+				1.,
+				1.875e-1,
+				-1.93359375e-1,
+				8.052978515625e-1,
+				-7.7399539947509765625,
+				1.32761824250221252441e2,
+				-3.54330366536602377892e3
+			}
+		};
+		double arg[2][7] = {
+			{
+				-1.25e-1,
+				6.51041666666666712926e-2,
+				-2.09570312499999994449e-1,	
+				1.63806588309151779370,
+				-2.34751277499728736586e1,
+				5.35640519510615945364e2,
+				-1.78372796889474739146e4
+			},
+			{
+				3.75e-1,
+				-1.640625e-1,
+				3.70898437500000011102e-1,
+				-2.36939784458705338110,
+				3.06240119934082031250e1,
+				-6.59185221823778988437e2,
+				2.11563140455278044101e4
+			}
+		};
+
+		u = phi = T(0.);
+		auto q(1./z/z);
+		for (int m = sizeof(mag[0])/sizeof(double)-1; m >= 0; --m)
+		{
+			u = q * u + mag[nu][m];
+			phi = q * phi + arg[nu][m];
+		}
+		phi = phi/z + z - (nu/2.+1./4.)*M_PI;
+	}
 
 	/** \brief small argument expansion of J_nu(z) for nu = 0, 1
 	 * \tparam nu the Bessel function's order
 	 * \param [in] z the argument
 	 * \return J_nu(z)
 	 */
-	template <int nu>
-	std::complex<double> J_small(std::complex<double> const &z)
+	template <int nu, class T>
+	T J_small(T const &z)
 	{
 		static_assert(nu == 0 || nu == 1, "unimplemented Bessel J order");
 
 		// upper limit for 1e-8 error
 		int N = (int)(3+2.*std::abs(z));
 
-		std::complex<double> res(1.), q(z*z/4.);
+		T res(1.), q(z*z/4.);
 		for (int n = N; n > 0; --n)
 			res = 1. - q*(1./(n*(n+nu)))*res;
 		if (nu == 1)
 			res *= z/2.;
 		return res;
+	}
+
+	template <int nu, class T>
+	T J_large(T const &z)
+	{
+		if (std::real(z) < 0 && std::abs(std::imag(z)) < 8.)
+			throw std::runtime_error("Bad BesselJ argument");
+		T mag, arg;
+		mag_arg_large(nu, z, mag, arg);
+		return std::sqrt(2./(M_PI * z)) * mag * std::cos(arg);
 	}
 
 	/** \brief small argument expansion of Y_nu(z)
@@ -87,7 +168,8 @@ namespace bessel
 	template <>
 	std::complex<double> Y_small<0>(std::complex<double> const &z)
 	{
-		int const N = 15;
+		// upper limit for 1e-8 error
+		int const N = (int)(4+2.*std::abs(z));
 
 		std::complex<double> q(z/2.), q2(q*q);
 		std::complex<double> sum(0.), ss(-1.);
@@ -106,7 +188,8 @@ namespace bessel
 	template <>
 	std::complex<double> Y_small<1>(std::complex<double> const &z)
 	{
-		int const N = 15;
+		// upper limit for 1e-8 error
+		int const N = (int)(4+2.*std::abs(z));
 
 		std::complex<double> q(z/2.0), q2(q*q);
 		std::complex<double> first(2.0*J_small<1>(z)*(std::log(q)+gamma));
@@ -128,28 +211,56 @@ namespace bessel
 		return 1./M_PI * (first + second + third);
 	}
 
+	template <int nu, class T>
+	T Y_large(T const &z)
+	{
+		if (std::real(z) < 0 && std::abs(std::imag(z)) < 8.)
+			throw std::runtime_error("Bad BesselY argument");
+		T mag, arg;
+		mag_arg_large(nu, z, mag, arg);
+		return std::sqrt(2./(M_PI * z)) * mag * std::sin(arg);
+	}
+
+
+	template <int nu, class T>
+	T J(T const &z)
+	{
+		if (std::abs(z) < large_lim)
+			return J_small<nu>(z);
+		else
+			return J_large<nu>(z);
+	}
+
+	template <int nu, class T>
+	T Y(T const &z)
+	{
+		if (std::abs(z) < large_lim)
+			return Y_small<nu>(z);
+		else
+			return Y_large<nu>(z);
+	}
+
 	/** \brief large argument expansion of H^(2)_nu(z)
 	 * \tparam nu the Bessel function's order
 	 * \param [in] z the argument
 	 * \return H^(2)_nu(z)
 	 */
-	template <int nu, int kind>
-	std::complex<double> H_large(std::complex<double> const &z)
+	template <int nu, int kind, class T>
+	typename make_complex<T>::type H_large(T const &z)
 	{
 		static_assert((kind == 1) || (kind == 2), "invalid kind argument of bessel::H");
 
+		if (kind == 1 && std::real(z) < 0 && std::imag(z) < 0. && std::imag(z) > -8.)
+			throw std::runtime_error("Bad BesselH1 argument");
+		if (kind == 2 && std::real(z) < 0 && std::imag(z) > 0. && std::imag(z) < 8.)
+			throw std::runtime_error("Bad BesselH2 argument");
+
 		double const C = (kind == 2 ? -1. : 1.);
-		int const N(15);
 
-		std::complex<double> sum(1.), c(1.);
-		for (int k = 1; k < N; ++k)
-		{
-			c *= C*I/z * ((4.*nu*nu-(2*k-1)*(2*k-1))/k/8.);
-			sum += c;
-		}
-
-		std::complex<double> om(z-nu*M_PI/2.-M_PI/4.);
-		return std::sqrt(2./M_PI/z) * std::exp(C*I*om) * sum;
+		typename make_complex<T>::type mag, arg;
+		mag_arg_large(nu, z, mag, arg);
+		
+		return std::sqrt(2./M_PI/z) * mag * std::exp(C*I*arg);
 	}
 
 	/** \brief H^(2)_nu(z) Bessel function
@@ -157,12 +268,12 @@ namespace bessel
 	 * \param [in] z the argument
 	 * \return H^(2)_nu(z)
 	 */
-	template <int nu, int kind>
-	std::complex<double> H(std::complex<double> const &z)
+	template <int nu, int kind, class T>
+	typename make_complex<T>::type H(T const &z)
 	{
 		static_assert(kind == 1 || kind == 2, "invalid kind argument of bessel::H");
 		double const C = (kind == 2 ? -1. : 1.);
-		if (std::abs(z) < 6.0)
+		if (std::abs(z) < large_lim)
 			return J_small<nu>(z) + C * I * Y_small<nu>(z);
 		else
 			return H_large<nu, kind>(z);
@@ -173,8 +284,8 @@ namespace bessel
 	 * \param [in] z the argument
 	 * \return K_nu(z)
 	 */
-	template <int nu>
-	std::complex<double> K(std::complex<double> const &z);
+	template <int nu, class T>
+	typename make_complex<T>::type K(T const &z);
 
 	template <>
 	std::complex<double> K<0>(std::complex<double> const &z)
