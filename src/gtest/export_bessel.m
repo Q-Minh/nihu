@@ -5,15 +5,15 @@ phi = (0 : 1 : 360) / 180* pi;	% angle
 Z = bsxfun(@times, r, exp(1i*phi'));	% complex arguments
 
 functions = {
-	'J0', @(z)besselj(0,z),
-	'J1', @(z)besselj(1,z),
-	'Y0', @(z)bessely(0,z),
-	'Y1', @(z)bessely(1,z),
-	'K0', @(z)besselk(0,z),
-	'K1', @(z)besselk(1,z),
-	'H01', @(z)besselh(0,1,z),
-	'H11', @(z)besselh(1,1,z),
-	'H02', @(z)besselh(0,2,z),
+	'J0', @(z)besselj(0,z)
+	'J1', @(z)besselj(1,z)
+	'Y0', @(z)bessely(0,z)
+	'Y1', @(z)bessely(1,z)
+	'K0', @(z)besselk(0,z)
+	'K1', @(z)besselk(1,z)
+	'H01', @(z)besselh(0,1,z)
+	'H11', @(z)besselh(1,1,z)
+	'H02', @(z)besselh(0,2,z)
 	'H12', @(z)besselh(1,2,z)
 };
 

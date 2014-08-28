@@ -28,7 +28,6 @@
 #endif
 #include <cmath>
 #include <complex>
-#include <stdexcept>
 
 #ifndef M_PI
 #define M_PI 3.141592653589793
@@ -158,8 +157,8 @@ namespace bessel
 	template <int nu, class T>
 	T J_large(T const &z)
 	{
-		if (std::real(z) < 0 && std::abs(std::imag(z)) < 8.)
-			throw std::runtime_error("Bad BesselJ argument");
+		if (std::real(z) < 0)
+			return J_large(-z) * (nu == 0 ? 1. : -1.);
 		T mag, arg;
 		mag_arg_large(nu, z, mag, arg);
 		return std::sqrt(2./(M_PI * z)) * mag * std::cos(arg);
@@ -228,8 +227,8 @@ namespace bessel
 	template <int nu, class T>
 	T Y_large(T const &z)
 	{
-		if (std::real(z) < 0 && std::abs(std::imag(z)) < 8.)
-			throw std::runtime_error("Bad BesselY argument");
+		if (std::real(z) < 0)
+			return Y_large(-z) * (nu == 0 ? 1. : -1.);
 		T mag, arg;
 		mag_arg_large(nu, z, mag, arg);
 		return std::sqrt(2./(M_PI * z)) * mag * std::sin(arg);
@@ -277,10 +276,8 @@ namespace bessel
 	{
 		static_assert((kind == 1) || (kind == 2), "invalid kind argument of bessel::H");
 
-		if (kind == 1 && std::real(z) < 0 && std::imag(z) < 0. && std::imag(z) > -8.)
-			throw std::runtime_error("Bad BesselH1 argument");
-		if (kind == 2 && std::real(z) < 0 && std::imag(z) > 0. && std::imag(z) < 8.)
-			throw std::runtime_error("Bad BesselH2 argument");
+		if (std::real(z) < 0)
+			return H_large<nu, kind, T>(-z) * (nu == 0 ? 1. : -1.);
 
 		double const C = (kind == 2 ? -1. : 1.);
 
