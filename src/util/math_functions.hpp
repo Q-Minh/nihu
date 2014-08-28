@@ -34,8 +34,6 @@
 #define M_PI 3.141592653589793
 #endif
 
-#include <iostream>
-
 /**
  * \brief \f$ sinc(x) = \sin(x) / x \f$ function
  * \tparam T type of x
@@ -51,27 +49,30 @@ static T sinc(T const &x)
 		return 1. - x*x/6. * (1. - x*x/20.);
 }
 
+/** \brief namespace encapsulating Bessel functions */
 namespace bessel
 {
+	/** \brief metafunction converting a floating point type to a complex type */
+	template <class T>
+	struct make_complex { typedef std::complex<T> type; };
+
+	template <class T>
+	struct make_complex<std::complex<T> > { typedef std::complex<T> type; };
+
+	/** \brief limit between small and large argument series */
 	double const large_lim(7.);
-
-	template <class T>
-	struct make_complex
-	{
-		typedef std::complex<T> type;
-	};
-
-	template <class T>
-	struct make_complex<std::complex<T> >
-	{
-		typedef std::complex<T> type;
-	};
-
 	/** \brief imaginary unit */
 	std::complex<double> const I(0.0, 1.0);
 	/** \brief Euler's constant */
 	double const gamma(0.57721566490153286060);
 
+	/** \brief large argument Bessel function Taylor series coefficients
+	 * \tparam T the argument type
+	 * \param [in] nu the Bessel function order
+	 * \param [in] z the Bessel argument
+	 * \param [out] u the magnitude approximation
+	 * \param [out] u the phase approximation
+	 */
 	template <class T>
 	void mag_arg_large(int nu, T const &z, T &u, T &phi)
 	{
@@ -128,6 +129,7 @@ namespace bessel
 
 	/** \brief small argument expansion of J_nu(z) for nu = 0, 1
 	 * \tparam nu the Bessel function's order
+	 * \tparam T the Bessel argument type
 	 * \param [in] z the argument
 	 * \return J_nu(z)
 	 */
@@ -147,6 +149,12 @@ namespace bessel
 		return res;
 	}
 
+	/** \brief large argument expansion of J_nu(z) for nu = 0, 1
+	 * \tparam nu the Bessel function's order
+	 * \tparam T the Bessel argument type
+	 * \param [in] z the argument
+	 * \return J_nu(z)
+	 */
 	template <int nu, class T>
 	T J_large(T const &z)
 	{
@@ -211,6 +219,12 @@ namespace bessel
 		return 1./M_PI * (first + second + third);
 	}
 
+	/** \brief large argument expansion of Y_nu(z) for nu = 0, 1
+	 * \tparam nu the Bessel function's order
+	 * \tparam T the Bessel argument type
+	 * \param [in] z the argument
+	 * \return Y_nu(z)
+	 */
 	template <int nu, class T>
 	T Y_large(T const &z)
 	{
@@ -222,6 +236,12 @@ namespace bessel
 	}
 
 
+	/** \brief Bessel function J_nu(z) for nu = 0, 1
+	 * \tparam nu the Bessel function's order
+	 * \tparam T the Bessel argument type
+	 * \param [in] z the argument
+	 * \return J_nu(z)
+	 */
 	template <int nu, class T>
 	T J(T const &z)
 	{
@@ -231,6 +251,12 @@ namespace bessel
 			return J_large<nu>(z);
 	}
 
+	/** \brief Bessel function Y_nu(z) for nu = 0, 1
+	 * \tparam nu the Bessel function's order
+	 * \tparam T the Bessel argument type
+	 * \param [in] z the argument
+	 * \return Y_nu(z)
+	 */
 	template <int nu, class T>
 	T Y(T const &z)
 	{
@@ -242,6 +268,7 @@ namespace bessel
 
 	/** \brief large argument expansion of H^(2)_nu(z)
 	 * \tparam nu the Bessel function's order
+	 * \tparam T the Bessel argument type
 	 * \param [in] z the argument
 	 * \return H^(2)_nu(z)
 	 */
@@ -265,6 +292,8 @@ namespace bessel
 
 	/** \brief H^(2)_nu(z) Bessel function
 	 * \tparam nu the Bessel function's order
+	 * \tparam kind the Bessel function's kind
+	 * \tparam T the Bessel argument type
 	 * \param [in] z the argument
 	 * \return H^(2)_nu(z)
 	 */
@@ -281,6 +310,7 @@ namespace bessel
 
 	/** \brief K_nu(z) modified Bessel function
 	 * \tparam nu the Bessel function's order
+	 * \tparam T the Bessel argument type
 	 * \param [in] z the argument
 	 * \return K_nu(z)
 	 */
