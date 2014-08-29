@@ -125,7 +125,7 @@ namespace bessel
 			u = q * u + mag[nu][m];
 			phi = q * phi + arg[nu][m];
 		}
-		phi = phi/z + z - (nu/2.+1./4.)*M_PI;
+		phi = phi/z + z - (nu/2.+.25)*M_PI;
 	}
 
 	/** \brief small argument expansion of J_nu(z) for nu = 0, 1
@@ -160,8 +160,17 @@ namespace bessel
 	T J_large(T const &z)
 	{
 		T mag, arg;
-		mag_arg_large(nu, z, mag, arg);
-		return std::sqrt(2./(M_PI * z)) * mag * std::cos(arg);
+		if (std::real(z) < 0)
+		{
+			double const C(nu==0 ? 1. : -1);
+			mag_arg_large(nu, -z, mag, arg);
+			return std::sqrt(2./(M_PI * -z)) * mag * std::cos(arg) * C;
+		}
+		else
+		{
+			mag_arg_large(nu, z, mag, arg);
+			return std::sqrt(2./(M_PI * z)) * mag * std::cos(arg);
+		}
 	}
 
 	/** \brief Bessel function J_nu(z) for nu = 0, 1
@@ -173,12 +182,10 @@ namespace bessel
 	template <int nu, class T>
 	T J(T const &z)
 	{
-		if (std::real(z) < 0)
-			return J<nu, T>(-z) * (nu == 0 ? 1. : -1.);
 		if (std::abs(z) < large_lim)
 			return J_small<nu>(z);
 		else
-			return J_large<nu, T>(z);
+			return J_large<nu>(z);
 	}
 
 
@@ -238,7 +245,6 @@ namespace bessel
 
 	/** \brief large argument expansion of Y_nu(z) for nu = 0, 1
 	 * \tparam nu the Bessel function's order
-	 * \tparam T the Bessel argument type
 	 * \param [in] z the argument
 	 * \return Y_nu(z)
 	 */
@@ -246,22 +252,29 @@ namespace bessel
 	std::complex<double> Y_large(std::complex<double> const &z)
 	{
 		std::complex<double> mag, arg;
-		mag_arg_large(nu, z, mag, arg);
-		return std::sqrt(2./(M_PI * z)) * mag * std::sin(arg);
+		if (std::real(z) < 0)
+		{
+			double const C1(nu == 0 ? 1. : -1.);
+			std::complex<double> const C2(0., std::imag(z) < 0 ? -2. : 2.);
+			mag_arg_large(nu, -z, mag, arg);
+			return std::sqrt(2./(M_PI * -z)) * mag * (std::sin(arg) + C2 * std::cos(arg)) * C1;
+		}
+		else
+		{
+			mag_arg_large(nu, z, mag, arg);
+			return std::sqrt(2./(M_PI * z)) * mag * std::sin(arg);
+		}
 	}
 
 
 	/** \brief Bessel function Y_nu(z) for nu = 0, 1
 	 * \tparam nu the Bessel function's order
-	 * \tparam T the Bessel argument type
 	 * \param [in] z the argument
 	 * \return Y_nu(z)
 	 */
 	template <int nu>
 	std::complex<double> Y(std::complex<double> const &z)
 	{
-		if (std::real(z) < 0)
-			return (Y<nu>(-z) + std::complex<double>(0.,std::imag(z) < 0 ? -2. : 2.)*J<nu>(-z)) * (nu == 0 ? 1. : -1.);
 		if (std::abs(z) < large_lim)
 			return Y_small<nu>(z);
 		else
@@ -320,7 +333,7 @@ namespace bessel
 	template <>
 	std::complex<double> K<0>(std::complex<double> const &z)
 	{
-		if (z.imag() < 0.)
+		if (std::imag(z) < 0.)
 			return .5*I*M_PI*H<0, 1>(I*z);
 		else
 			return -.5*I*M_PI*H<0, 2>(-I*z);
@@ -329,7 +342,7 @@ namespace bessel
 	template <>
 	std::complex<double> K<1>(std::complex<double> const &z)
 	{
-		if (z.imag() < 0.)
+		if (std::imag(z) < 0.)
 			return -.5*M_PI*H<1, 1>(I*z);
 		else
 			return -.5*M_PI*H<1, 2>(-I*z);
