@@ -40,8 +40,8 @@ void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 		{
 			J0(i,j) = bessel::J<0, std::complex<double> >(z(i,j));
 			J1(i,j) = bessel::J<1, std::complex<double> >(z(i,j));
-			Y0(i,j) = bessel::Y<0, std::complex<double> >(z(i,j));
-			Y1(i,j) = bessel::Y<1, std::complex<double> >(z(i,j));
+			Y0(i,j) = bessel::Y<0>(z(i,j));
+			Y1(i,j) = bessel::Y<1>(z(i,j));
 			H01(i,j) = bessel::H<0, 1, std::complex<double> >(z(i,j));
 			H11(i,j) = bessel::H<1, 1, std::complex<double> >(z(i,j));
 			H02(i,j) = bessel::H<0, 2, std::complex<double> >(z(i,j));

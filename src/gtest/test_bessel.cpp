@@ -55,6 +55,16 @@ TEST(Bessel, H02) {
 	bessel_tester(besselH02, sizeof(besselH02)/sizeof(besselH02[0]), bessel::H<0,2>);
 }
 
+TEST(Bessel, H11) {
+	#include "data/besselH11.dat"
+	bessel_tester(besselH11, sizeof(besselH11)/sizeof(besselH11[0]), bessel::H<1,1>);
+}
+
+TEST(Bessel, H12) {
+	#include "data/besselH12.dat"
+	bessel_tester(besselH12, sizeof(besselH12)/sizeof(besselH12[0]), bessel::H<1,2>);
+}
+
 TEST(Bessel, K0) {
 	#include "data/besselK0.dat"
 	bessel_tester(besselK0, sizeof(besselK0)/sizeof(besselK0[0]), bessel::K<0>);

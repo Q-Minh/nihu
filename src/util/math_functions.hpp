@@ -159,6 +159,8 @@ namespace bessel
 	template <int nu, class T>
 	T J_large(T const &z)
 	{
+		static_assert(nu == 0 || nu == 1, "unimplemented Bessel J order");
+
 		T mag, arg;
 		if (std::real(z) < 0)
 		{
@@ -182,10 +184,7 @@ namespace bessel
 	template <int nu, class T>
 	T J(T const &z)
 	{
-		if (std::abs(z) < large_lim)
-			return J_small<nu>(z);
-		else
-			return J_large<nu>(z);
+		 return std::abs(z) < large_lim ? J_small<nu>(z) : J_large<nu>(z);
 	}
 
 
@@ -256,8 +255,10 @@ namespace bessel
 		{
 			double const C1(nu == 0 ? 1. : -1.);
 			std::complex<double> const C2(0., std::imag(z) < 0 ? -2. : 2.);
+			std::complex<double> const MAG(std::sqrt(C2*C2+1.));
+			std::complex<double> const ARG(std::atan(1./C2));
 			mag_arg_large(nu, -z, mag, arg);
-			return std::sqrt(2./(M_PI * -z)) * mag * (std::sin(arg) + C2 * std::cos(arg)) * C1;
+			return std::sqrt(2./(M_PI * -z)) * mag * MAG * std::cos(arg-ARG) * C1;
 		}
 		else
 		{
@@ -275,10 +276,7 @@ namespace bessel
 	template <int nu>
 	std::complex<double> Y(std::complex<double> const &z)
 	{
-		if (std::abs(z) < large_lim)
-			return Y_small<nu>(z);
-		else
-			return Y_large<nu>(z);
+		return std::abs(z) < large_lim ? Y_small<nu>(z) : Y_large<nu>(z);
 	}
 
 	/** \brief large argument expansion of H^(2)_nu(z)
@@ -291,13 +289,23 @@ namespace bessel
 	typename make_complex<T>::type H_large(T const &z)
 	{
 		static_assert((kind == 1) || (kind == 2), "invalid kind argument of bessel::H");
-		
-		if (std::real(z) < 0 && std::abs(std::imag(z)) < 8.)
-			throw std::runtime_error("NiHu");
-
 		double const C = (kind == 2 ? -1. : 1.);
 
 		typename make_complex<T>::type mag, arg;
+
+		if (std::real(z) < 0 && std::abs(std::imag(z)) < 8.)
+		{
+			double const C1(nu == 0 ? 1. : -1.);
+
+			mag_arg_large(nu, -z, mag, arg);
+
+			double sgn = std::imag(z) < 0 ? -1. : 1.;
+			double MAG(-sgn*std::sqrt(3.));
+			std::complex<double> const ARG(std::atan(-sgn*I*.5));
+
+			return std::sqrt(2./(M_PI * -z)) * mag * (std::cos(arg) + C * MAG * std::cos(arg-ARG)) * C1;
+		}
+
 		mag_arg_large(nu, z, mag, arg);
 		
 		return std::sqrt(2./M_PI/z) * mag * std::exp(C*I*arg);
@@ -333,19 +341,13 @@ namespace bessel
 	template <>
 	std::complex<double> K<0>(std::complex<double> const &z)
 	{
-		if (std::imag(z) < 0.)
-			return .5*I*M_PI*H<0, 1>(I*z);
-		else
-			return -.5*I*M_PI*H<0, 2>(-I*z);
+		return .5*I*M_PI* (std::imag(z) < 0. ? H<0, 1>(I*z) : -H<0, 2>(-I*z));
 	}
 
 	template <>
 	std::complex<double> K<1>(std::complex<double> const &z)
 	{
-		if (std::imag(z) < 0.)
-			return -.5*M_PI*H<1, 1>(I*z);
-		else
-			return -.5*M_PI*H<1, 2>(-I*z);
+		return -.5*M_PI * (std::imag(z) < 0. ? H<1, 1>(I*z) : H<1, 2>(-I*z));
 	}
 }
 

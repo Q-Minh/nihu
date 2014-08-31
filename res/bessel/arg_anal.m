@@ -1,8 +1,8 @@
 syms z
 N = 14;
 nu = 0;
-Pnu = P(nu,1i*z,N);
-Qnu = Q(nu,1i*z,N);
+Pnu = P(nu,z,N);
+Qnu = Q(nu,z,N);
 
 U = sqrt(Pnu^2 + Qnu^2);
 Phi = atan(Qnu/Pnu);
