@@ -10,18 +10,11 @@ void bessel_tester(double data[][4], unsigned size, std::complex<double> (*func)
 		double const eps(1e-6);
 		std::complex<double> z(data[i][0], data[i][1]);
 		std::complex<double> Mat(data[i][2], data[i][3]);
-		try
-		{
-			std::complex<double> NiHu = func(z);
-			double E = std::abs((Mat-NiHu)/Mat);
-			if (E > eps)
-				std::cout << "R: " << std::abs(z) << " phi: " << std::arg(z)/M_PI*180. << " z: " << z << " Mat: " << Mat << " NiHu: " << NiHu << " eps " << E << '\n';
-			EXPECT_NEAR(E, 0., eps);
-		}
-		catch (std::runtime_error const &e)
-		{
-			return;
-		}
+		std::complex<double> NiHu = func(z);
+		double E = std::abs((Mat-NiHu)/Mat);
+		if (E > eps)
+			std::cout << "R: " << std::abs(z) << " phi: " << std::arg(z)/M_PI*180. << " z: " << z << " Mat: " << Mat << " NiHu: " << NiHu << " eps " << E << '\n';
+		EXPECT_NEAR(E, 0., eps);
 	}
 }
 

@@ -279,7 +279,7 @@ namespace bessel
 		return std::abs(z) < large_lim ? Y_small<nu>(z) : Y_large<nu>(z);
 	}
 
-	/** \brief large argument expansion of H^(2)_nu(z)
+	/** \brief large argument expansion of H^(K)_nu(z)
 	 * \tparam nu the Bessel function's order
 	 * \tparam T the Bessel argument type
 	 * \param [in] z the argument
@@ -311,7 +311,7 @@ namespace bessel
 		return std::sqrt(2./M_PI/z) * mag * std::exp(C*I*arg);
 	}
 
-	/** \brief H^(2)_nu(z) Bessel function
+	/** \brief H^(K)_nu(z) Bessel function
 	 * \tparam nu the Bessel function's order
 	 * \tparam kind the Bessel function's kind
 	 * \tparam T the Bessel argument type
