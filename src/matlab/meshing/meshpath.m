@@ -22,10 +22,9 @@ for iP = 1 : nP
             r0 = bezier(reshape(path(iP,2:9).',2,4).', Le);
     end
     n = size(r0,1);
+    m0 = create_empty_mesh();
     m0.Nodes = [(1:n).', r0, zeros(n,1)];
     m0.Elements = [(1:n-1).', repmat([12,1,1], n-1, 1), (1:n-1).' (2:n).'];
-    m0.Properties = 1;
-    m0.Materials = 1;
     if iP == 1
         m = m0;
     else
@@ -33,8 +32,6 @@ for iP = 1 : nP
     end
 end
 
-m.Properties = 1;
-m.Materials = 1;
 m.Elements(:,3) = 1;
 m.Elements(:,4) = 1;
 end

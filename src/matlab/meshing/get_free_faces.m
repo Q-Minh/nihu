@@ -1,4 +1,4 @@
-function [f ind] = get_free_faces(faces)
+function [f, ind] = get_free_faces(faces)
 %GET_FREE_FACES  Extract free (boundary) faces from FE faces
 %   The structure of the FACES matrix is
 %   [ElemID FaceType NodID1 ... NodIDn]

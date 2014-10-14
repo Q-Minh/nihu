@@ -38,11 +38,11 @@ tBtree = toc(t0);
 fprintf('%.3g s needed to build block tree\n', tBtree);
 
 %%
-figure;
-display_block_structure(Ctree, B_near);
+% figure;
+% display_block_structure(Ctree, Ctree, B_near);
 
-figure;
-display_block_structure(Ctree, B_far);
+% figure;
+% display_block_structure(Ctree, B_far);
 
 % tic;
 % M_near = sparse(S(:,1), S(:,2), Msp(S(:,1), S(:,2)));

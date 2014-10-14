@@ -18,12 +18,17 @@ function faces = get_faces(elements)
 % zero padding
 elements = [elements zeros(size(elements,1), 12-size(elements,2))];
 
+line = elements(elements(:,2) == 12,[1 (5:6)]);
 tria = elements(elements(:,2) == 23,[1 (5:7)]);
 quad = elements((elements(:,2) == 24) | (elements(:,2) == 122),[1 (5:8)]);
 tetra = elements(elements(:,2) == 34,[1 (5:8)]);
 penta = elements((elements(:,2) == 36) | (elements(:,2) == 133),[1 (5:10)]);
 hexa = elements((elements(:,2) == 38) | (elements(:,2) == 134),[1 (5:12)]);
 
+linefaces = [
+    0 1 
+    0 2 
+    ].';
 triafaces = [
     0 1 2 
     0 2 3 
@@ -69,12 +74,14 @@ hexafaces = [
 
     ].';
 
+linefac = reshape(line(:,linefaces(:)+1).',1+1,2*size(line,1)).';
 triafac = reshape(tria(:,triafaces(:)+1).',2+1,3*size(tria,1)).';
 quadfac = reshape(quad(:,quadfaces(:)+1).',2+1,4*size(quad,1)).';
 tetrafac = reshape(tetra(:,tetrafaces(:)+1).',3+1,4*size(tetra,1)).';
 pentatriafac = reshape(penta(:,pentatriafaces(:)+1).',3+1,2*size(penta,1)).';
 pentaquadfac = reshape(penta(:,pentaquadfaces(:)+1).',4+1,3*size(penta,1)).';
 hexafac = reshape(hexa(:,hexafaces(:)+1).',4+1,6*size(hexa,1)).';
+nl = size(linefac,1);
 ntr = size(triafac,1);
 nq = size(quadfac,1);
 nte = size(tetrafac,1);
@@ -82,16 +89,18 @@ np3 = size(pentatriafac,1);
 np4 = size(pentaquadfac,1);
 nh = size(hexafac,1);
 
-faces = zeros(ntr+nq+nte+np3+np4+nh,6);
-faces(1:ntr,[1 (3:4)]) = triafac;
-faces(ntr+(1:nq),[1 (3:4)]) = quadfac;
-faces(ntr+nq+(1:nte),[1 (3:5)]) = tetrafac;
-faces(ntr+nq+nte+(1:np3),[1 (3:5)]) = pentatriafac;
-faces(ntr+nq+nte+np3+(1:np4),[1 (3:6)]) = pentaquadfac;
-faces(ntr+nq+nte+np3+np4+(1:nh),[1 (3:6)]) = hexafac;
+faces = zeros(nl+ntr+nq+nte+np3+np4+nh,6);
+faces(1:nl,[1 (3)]) = linefac;
+faces(nl+(1:ntr),[1 (3:4)]) = triafac;
+faces(nl+ntr+(1:nq),[1 (3:4)]) = quadfac;
+faces(nl+ntr+nq+(1:nte),[1 (3:5)]) = tetrafac;
+faces(nl+ntr+nq+nte+(1:np3),[1 (3:5)]) = pentatriafac;
+faces(nl+ntr+nq+nte+np3+(1:np4),[1 (3:6)]) = pentaquadfac;
+faces(nl+ntr+nq+nte+np3+np4+(1:nh),[1 (3:6)]) = hexafac;
 faces(faces(:,6) ~= 0, 2) = 24;
 faces(faces(:,6) == 0, 2) = 23;
 faces(faces(:,5) == 0, 2) = 12;
+faces(faces(:,4) == 0, 2) = 1;
 
 faces = faces(:,any(faces, 1));
 
