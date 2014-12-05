@@ -12,7 +12,7 @@ function inside = isinside(mesh, points)
 
 % Last modified: 02.12.2009
 %% Parameter check
-error(nargchk(2,2,nargin,'struct'));
+narginchk(2,2);
 
 %% Initialization
 nPoints = size(points,1);   % number of points to check

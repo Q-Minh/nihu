@@ -28,9 +28,8 @@ Capacity = 100;
 Ctree(Capacity).level = 0;
 i = 1;
 S = 1;
-while i <= length(Ctree)
-    if length(Ctree(i).ind) <= Cleaf
-    else
+while i <= S
+    if length(Ctree(i).ind) > Cleaf
         Children = get_child_clusters(Ctree(i), x);
         idx = S + (1 : length(Children));
         Ctree(i).children = idx;
