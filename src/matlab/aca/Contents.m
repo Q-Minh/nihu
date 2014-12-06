@@ -17,4 +17,4 @@
 %   sparsity                - 
 %   test_dual               - if isunix
 %   testtest                - if isunix
-%   build_dual_block_tree   - 
+%   build_dual_block_tree   - build block structure from two cluster trees
