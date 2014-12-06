@@ -12,7 +12,7 @@ function [U, V] = lowrank_approx(M, siz, eps, R)
 nRows = siz(1); % number of rows
 nCols = siz(2); % number of columns
 
-fprintf('block size: %3dx%3d\n', nRows, nCols);
+% fprintf('block size: %3dx%3d\n', nRows, nCols);
 
 if nargin < 4   % maximal possible rank
     R = min(nRows, nCols);
@@ -54,7 +54,7 @@ for k = 1 : R   % max R iterations should be enough
     U(:, r) = col/col(i);
     V(:, r) = row';
     
-    fprintf(1, 'skeleton (%2d,%2d), r=%2d', i, j, r);
+%     fprintf(1, 'skeleton (%2d,%2d), r=%2d', i, j, r);
     
     S2 = S2 + norm(U(:,r), 'fro')^2 * norm(V(:,r), 'fro')^2;
     for j = 1 : r-1
@@ -63,13 +63,13 @@ for k = 1 : R   % max R iterations should be enough
     
     if r > 1
         err = norm(U(:,r), 'fro') * norm(V(:,r), 'fro') / sqrt(S2);
-        fprintf(1, ', log10 err=%.2f\n', log10(err));
+%         fprintf(1, ', log10 err=%.2f\n', log10(err));
         
         if err < eps
             break;
         end
     else
-        fprintf(1, '\n');
+%         fprintf(1, '\n');
     end
     
     [~, idx] = max(abs(col(uncheckedrows)));
@@ -79,6 +79,6 @@ end
 U = U(:, 1:r);
 V = V(:, 1:r);
 
-fprintf(1, 'Compression: %g\n\n', ((nRows+nCols)*r)/(nRows*nCols));
+% fprintf(1, 'Compression: %g\n\n', ((nRows+nCols)*r)/(nRows*nCols));
 
 end

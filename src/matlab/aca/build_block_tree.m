@@ -1,18 +1,22 @@
-function [Tnear, Tfar] = build_block_tree(Ctree)
+function [Tnear, Tfar] = build_block_tree(Ctree, eta)
 %BUILD_BLOCK_TREE build block structure from a cluster tree
-%   T = BUILD_BLOCK_TREE(C) builds the block structure of the ACA method
-%   from the cluster tree C. T is matrix with two columns, each row
-%   represents a pair of clusters that needs to be taken into account in
-%   the low rank approximation of the matrix.
+%   [Tnear, Tfar] = BUILD_BLOCK_TREE(C) builds the block structure of the ACA method
+%   from the cluster tree C.
+%   Tnear and Tfar are matrices with two columns, each row
+%   representing a pair of clusters.
 %
 %Example:
 %  m = create_sphere_boundary(1, 15);
 %  Ctree = build_cluster_tree(m.Nodes(:,2:4));
-%  Btree = build_block_tree(Ctree);
+%  [Bnear, Bfar] = build_block_tree(Ctree);
 %
 % See also: build_cluster_tree
 %
 % Copyright (C) 2014 Peter Fiala
+
+if nargin < 3
+    eta = .5;
+end
 
 % preallocating the output
 CapacityFar = 5000;
@@ -23,15 +27,17 @@ CapacityNear = 5000;
 Tnear = zeros(CapacityNear,2);
 EndNear= 0;
 
+% recursively partition the tree starting with the (1,1) block
 block_partition(1,1);
 
+% truncate the block tree
 Tfar = Tfar(1:EndFar,:);
 Tnear = Tnear(1:EndNear,:);
 
     function block_partition(i,j)
         sigma = Ctree(i);
         tau = Ctree(j);
-        if is_admissible(sigma, tau)
+        if is_admissible(sigma, tau, eta)
             EndFar = EndFar+1;
             if EndFar > CapacityFar
                 CapacityFar = 2*CapacityFar;
@@ -56,13 +62,12 @@ Tnear = Tnear(1:EndNear,:);
 end
 
 function b = is_admissible(C1, C2, eta)
-if nargin < 3
-    eta = .5;
-end
 bb1 = C1.bb;
 bb2 = C2.bb;
+d1 = norm(diff(bb1));
+d2 = norm(diff(bb2));
 dist = sqrt(...
     min(min(abs(bsxfun(@minus, bb1(:,1), bb2(:,1)'))))^2 +...
     min(min(abs(bsxfun(@minus, bb1(:,2), bb2(:,2)'))))^2);
-b = min(norm(diff(bb1)), norm(diff(bb2))) < eta * dist;
+b = min(d1, d2) < eta * dist;
 end

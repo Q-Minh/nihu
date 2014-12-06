@@ -1,4 +1,25 @@
-function [Tnear, Tfar] = build_block_tree_2(RowTree, ColTree, eta)
+function [Tnear, Tfar] = build_dual_block_tree(RowTree, ColTree, eta)
+%BUILD_DUAL_BLOCK_TREE build block structure from two cluster trees
+%   [Tnear, Tfar] = BUILD_DUAL_BLOCK_TREE(RowTree, ColTree) builds the
+%   block structure of the ACA method from the cluster treee RwoTree and
+%   ColTree.
+%   Tnear and Tfar are matrices with two columns, each row
+%   representing a pair of clusters.
+%
+%Example:
+%  r = create_sphere_boundary(1, 15);
+%  c = translate_mesh(r, [2 2 2]);
+%  RowTree = build_cluster_tree(r.Nodes(:,2:4));
+%  ColTree = build_cluster_tree(c.Nodes(:,2:4));
+%  [Bnear, Bfar] = build_block_tree(RowTree, ColTree);
+%
+% See also: build_cluster_tree build_block_tree
+%
+% Copyright (C) 2014 Peter Fiala
+
+if nargin < 3
+    eta = .8;
+end
 
 % preallocating the output
 CapacityFar = 5000;
@@ -53,9 +74,6 @@ Tnear = Tnear(1:EndNear,:);
 end % of function build_block_tree_2
 
 function b = is_admissible(C1, C2, eta)
-if nargin < 3
-    eta = .8;
-end
 bb1 = C1.bb;	% bounding box of cluster 1
 bb2 = C2.bb;	% bounding box of cluster 2
 d1 = norm(diff(bb1));	% diameter of cluster 1
