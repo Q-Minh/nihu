@@ -13,7 +13,7 @@ function [Tnear, Tfar] = build_block_tree(Ctree, Admit)
 %  [Bnear, Bfar] = build_block_tree(Ctree);
 %
 % See also: build_cluster_tree
-%
+
 % Copyright (C) 2014-2014 Peter Fiala
 
 % preallocating the output
@@ -56,5 +56,5 @@ Tnear = Tnear(1:EndNear,:);
             end
             Tnear(EndNear,:) = [i, j];
         end
-    end
-end
+    end % of internal function block_partition
+end % of function build_block_tree

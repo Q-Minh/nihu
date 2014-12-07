@@ -9,7 +9,7 @@
 #include <Eigen/Dense>
 #include <type_traits> // std::decay
 #include <utility> // std::forward
-#include <vector> // std::forward
+#include <vector>
 
 /// \brief Class capable of storing a Low Rank Approximation of a matrix block
 /// \details This class is used as return type of ACA::decompose to return the vector of LRA blocks
@@ -118,6 +118,7 @@ private:
 	}
 
 
+public:
 	/// \brief compute low rank approximation of a matrix with a prescribed accuracy and maximum rank
 	/// \details The low rank approximation is of the form M = U * V.transpose()
 	/// \tparam Matrix the matrix class
@@ -134,11 +135,14 @@ private:
 	static int low_rank_approx(Matrix const &M, int nRows, int nCols, double eps, int R,
 		Eigen::DenseBase<Result> &U, Eigen::DenseBase<Result> &V)
 	{
+		/// \brief the scalar type of the matrix
+		typedef typename std::decay<Matrix>::type::Scalar Scalar;
+	
 		// result counter
 		int r = 0;
 
 		// estimate typical matrix entry magnitude
-		double magest = std::abs(M(nRows/2,nCols/2));
+		Scalar magest = std::abs(M(nRows/2,nCols/2));
 
 		// start row
 		int i = 0;
@@ -195,7 +199,6 @@ private:
 		return r;
 	}
 
-public:
 	/// \brief Compute matrix-vector product with multilevel low rank approximation
 	/// \tparam Matrix	the matrix class
 	/// \tparam RowArray	type of the array storing the row cluster tree
