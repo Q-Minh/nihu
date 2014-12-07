@@ -36,7 +36,9 @@ private:
 class ACA
 {
 private:
-	/** \brief Block matrix representation of a matrix functor */
+	/** \brief Block matrix representation of a matrix functor
+	 * \brief the matrix type whose block is represented
+	 */
 	template <class Matrix>
 	class Block
 	{
@@ -44,11 +46,19 @@ private:
 		/** \brief the scalar type of the matrix */
 		typedef typename std::decay<Matrix>::type::Scalar Scalar;
 
-		/** constructor */
+		/** \brief constructor
+		 * \param [in] M the matrix
+		 * \param [in] row0 the row offset
+		 * \param [in] row0 the column offset
+		 */
 		Block(Matrix M, int row0, int col0)
 			: M(std::forward<Matrix>(M)), row0(row0), col0(col0) { }
 
-		/** index operator */
+		/** \brief index operator
+		 * \param [in] i the row index of the block
+		 * \param [in] j the column index of the block
+		 * \return the block's element
+		 */
 		Scalar operator()(int i, int j) const { return M(row0+i, col0+j); }
 
 	private:
@@ -57,6 +67,13 @@ private:
 	};
 
 
+	/** \brief factory function to create a matrix block
+	 * \tparam the matrix type
+	 * \param [in] M the matrix
+	 * \param [in] row0 the row offset
+	 * \param [in] col0 the column offset
+	 * \return the block object
+	 */
 	template <class Matrix>
 	static Block<Matrix>
 		createBlock(Matrix &&M, int row0, int col0)
@@ -217,6 +234,17 @@ public:
 		}
 	}
 
+	/** \brief decompose a matrix into ACA low rank decomposition
+	 * \tparam Matrix
+	 * \tparam RowArray
+	 * \tparam ColumnArray
+	 * \tparam BlockArray
+	 * \param [in] M the matrix to decompose
+	 * \param [in] rowClusters the matrix of row clusters
+	 * \param [in] colCluster the matrix of column clusters
+	 * \param [in] blocks the matrix of block indices
+	 * \return a std::vector of LowRank objects representing the LRA
+	 */
 	template <class Matrix, class RowArray, class ColumnArray, class BlockArray>
 	static std::vector<LowRank<typename Matrix::Scalar> > decompose(Matrix const &M,
 		Eigen::DenseBase<RowArray> const &rowClusters, Eigen::DenseBase<ColumnArray> const &colClusters,

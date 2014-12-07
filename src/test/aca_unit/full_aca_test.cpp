@@ -27,7 +27,7 @@ int const Nx=200, Ny=100;
 
 int main(void)
 {
-	Laplace M(0., 1., Nx, 2., 1., Ny);
+	Laplace M(0., 1., Nx, 1.5, 1., Ny);
 
 #ifdef MULTILEVEL
 	Eigen::Matrix<int, 2, 2> rowClusters;
@@ -71,7 +71,8 @@ int main(void)
 
 	output.setZero();
 	for (auto d : decomposition)
-		output.block(d.getRow0(),0,d.getU().rows(), 1) += d.getU() * (d.getV().transpose() * input.block(d.getCol0(), 0, d.getV().rows(), 1));
+		output.block(d.getRow0(),0,d.getU().rows(), 1) +=
+		d.getU() * (d.getV().transpose() * input.block(d.getCol0(), 0, d.getV().rows(), 1));
 	std::cout << "error: " << (output - output_full).norm()/output.norm() << std::endl;
 
 	return 0;
