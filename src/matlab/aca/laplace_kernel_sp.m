@@ -1,4 +1,4 @@
-function M = laplace_matrix_sp(x, y)
+function M = laplace_kernel_sp(x, y)
 if nargin < 2
 	y = x;
 end

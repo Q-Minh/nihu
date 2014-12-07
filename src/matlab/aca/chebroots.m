@@ -1,14 +1,17 @@
 function x = chebroots(n, d)
 %CHEBROOTS roots of Chebyshev polynomials
 %  X = CHEBROOTS(N) computes the roots of the Chebyshev polynomial Tn(x)
-%  X = CHEBROOTS(N, D) returns the roots in D dimensions (1, 2 or 3)
+%  X = CHEBROOTS(N, D) returns the roots in D dimensions (1, 2, 3 or 4)
 %
 % Example:
-%   chebroots(5)
 %   x = chebroots(5,2);
 %   figure; plot(x(:,1), x(:,2), '.');
 %   x = chebroots(5,3);
 %   figure; plot3(x(:,1), x(:,2), x(:,3), '.');
+%
+% See also: chebpoly chebinterp
+
+% copyright (C) Peter Fiala 2014-2014
 
 if nargin < 2
     d = 1;

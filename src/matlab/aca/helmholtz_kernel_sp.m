@@ -1,4 +1,4 @@
-function M = helmholtz_matrix_sp(x, y, k)
+function M = helmholtz_kernel_sp(x, y, k)
 if (nargin < 3)
     k = y;
     y = x;
