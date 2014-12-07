@@ -1,4 +1,4 @@
-% MATLAB
+% Fast methods based on Clustering
 %
 % Tree construction
 %   build_block_tree        - build block structure from a cluster tree
@@ -16,6 +16,9 @@
 %   lintrans                - linear transformation from multi-interval to other
 %   bb_tree_cheb_nodes      - Chebyshev nodes of a cluster tree
 %   bb_M2L                  - Multipole to Local sparse matrix
+%   bb_M2M                  - Multipole to Multipole sparse matrix
+%   bb_P2M                  - Point to Multipole sparse matrix
+%   bb_P2P                  - Point to Point sparse matrix
 % helper functions
 %   is_admissible_bb        - 
 %   is_admissible_dist      - 

@@ -2,8 +2,8 @@ clear;
 
 dim = 3;
 
-source = create_sphere_boundary(1,15);
-receiver = translate_mesh(source, [1 1 1]);
+source = create_sphere_boundary(1,10);
+receiver = translate_mesh(source, [2 2 2]);
 
 y = source.Nodes(:,2:4);
 x = receiver.Nodes(:,2:4);
@@ -20,5 +20,11 @@ rExp = 4;
 y0 = bb_tree_cheb_nodes(ColTree, cExp, dim);
 x0 = bb_tree_cheb_nodes(RowTree, rExp, dim);
 
+P2P = bb_P2P(B_near, RowTree, ColTree, x, y, @laplace_kernel);
 M2L = bb_M2L(B_far, x0, y0, rExp, cExp, @laplace_kernel);
 M2M = bb_M2M(ColTree, y0, cExp);
+P2M = bb_P2M(y, ColTree, y0, cExp);
+L2L = bb_M2M(RowTree, x0, rExp);
+L2P = bb_P2M(x, RowTree, x0, rExp);
+L2L = L2L.';
+L2P = L2P.';

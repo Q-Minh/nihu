@@ -1,10 +1,7 @@
-function M2M = bb_M2M(CTree, x0, nExp)
-%BB_M2M Multipole to Multipole sparse matrix
+function P2P = bb_P2P(B_near, RowTree, ColTree, x, y, kernel)
+%BB_P2P Point to Point sparse matrix
 
-nClusters = length(CTree);
-dim = size(x0,2);
-nNod = nExp^dim;
-nMat = nClusters * nNod;
+nBlocks = size(B_near,1);
 
 Capacity = 5000;
 II = zeros(Capacity,1);
@@ -12,19 +9,13 @@ JJ = zeros(Capacity,1);
 ZZ = zeros(Capacity,1);
 
 n = 0;
-for c = 1 : nClusters
-    ch = CTree(c).children;
-    if isempty(ch)
-        continue;
-    end
-
-    i = (c-1)*nNod + (1:nNod)';
+for b = 1 : nBlocks
+    block = B_near(b,:);
     
-    j = bsxfun(@plus, (1:nNod)', (ch-1)*nNod);
-    j = j(:);
-    
+    i = RowTree(block(1)).ind;
+    j = ColTree(block(2)).ind;
     [J, I] = meshgrid(j,i);
-    z = chebinterp(nExp, x0(j,:), CTree(c).bb);
+    z = kernel(x(i,:), y(j,:));
     
     idx = n+(1:numel(J));
     increase = false;
@@ -37,17 +28,17 @@ for c = 1 : nClusters
         JJ(Capacity) = 0;
         ZZ(Capacity) = 0;
     end
-    
+
     II(idx) = I(:);
     JJ(idx) = J(:);
     ZZ(idx) = z(:);
-    
+
     n = n + numel(J);
 end
 II = II(1:n);
 JJ = JJ(1:n);
 ZZ = ZZ(1:n);
-M2M = sparse(II, JJ, ZZ, nMat, nMat);
+P2P = sparse(II, JJ, ZZ, size(x,1), size(y,1));
 
 end
 

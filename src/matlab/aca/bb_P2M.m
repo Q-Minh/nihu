@@ -1,10 +1,11 @@
-function M2M = bb_M2M(CTree, x0, nExp)
-%BB_M2M Multipole to Multipole sparse matrix
+function P2M = bb_P2M(x, CTree, x0, nExp)
+%BB_P2M Point to Multipole sparse matrix
 
 nClusters = length(CTree);
 dim = size(x0,2);
 nNod = nExp^dim;
-nMat = nClusters * nNod;
+nRec = nClusters * nNod;
+nSou = size(x,1);
 
 Capacity = 5000;
 II = zeros(Capacity,1);
@@ -14,17 +15,14 @@ ZZ = zeros(Capacity,1);
 n = 0;
 for c = 1 : nClusters
     ch = CTree(c).children;
-    if isempty(ch)
+    if ~isempty(ch)
         continue;
     end
-
     i = (c-1)*nNod + (1:nNod)';
-    
-    j = bsxfun(@plus, (1:nNod)', (ch-1)*nNod);
-    j = j(:);
+    j = CTree(c).ind(:);
     
     [J, I] = meshgrid(j,i);
-    z = chebinterp(nExp, x0(j,:), CTree(c).bb);
+    z = chebinterp(nExp, x(j,:), CTree(c).bb);
     
     idx = n+(1:numel(J));
     increase = false;
@@ -47,7 +45,7 @@ end
 II = II(1:n);
 JJ = JJ(1:n);
 ZZ = ZZ(1:n);
-M2M = sparse(II, JJ, ZZ, nMat, nMat);
+P2M = sparse(II, JJ, ZZ, nRec, nSou);
 
 end
 
