@@ -1,7 +1,9 @@
-function [Tnear, Tfar] = build_block_tree(Ctree, eta)
+function [Tnear, Tfar] = build_block_tree(Ctree, Admit)
 %BUILD_BLOCK_TREE build block structure from a cluster tree
-%   [Tnear, Tfar] = BUILD_BLOCK_TREE(C) builds the block structure of the ACA method
-%   from the cluster tree C.
+%   [Tnear, Tfar] = BUILD_BLOCK_TREE(C, ADMIT) builds the block structure
+%   from the cluster tree C and the function ADMIT.
+%   The function ADMIT decides if two clusters are admissible to form a
+%   block.
 %   Tnear and Tfar are matrices with two columns, each row
 %   representing a pair of clusters.
 %
@@ -12,11 +14,7 @@ function [Tnear, Tfar] = build_block_tree(Ctree, eta)
 %
 % See also: build_cluster_tree
 %
-% Copyright (C) 2014 Peter Fiala
-
-if nargin < 3
-    eta = .5;
-end
+% Copyright (C) 2014-2014 Peter Fiala
 
 % preallocating the output
 CapacityFar = 5000;
@@ -37,7 +35,7 @@ Tnear = Tnear(1:EndNear,:);
     function block_partition(i,j)
         sigma = Ctree(i);
         tau = Ctree(j);
-        if is_admissible(sigma, tau, eta)
+        if Admit(sigma, tau)
             EndFar = EndFar+1;
             if EndFar > CapacityFar
                 CapacityFar = 2*CapacityFar;
@@ -59,15 +57,4 @@ Tnear = Tnear(1:EndNear,:);
             Tnear(EndNear,:) = [i, j];
         end
     end
-end
-
-function b = is_admissible(C1, C2, eta)
-bb1 = C1.bb;
-bb2 = C2.bb;
-d1 = norm(diff(bb1));
-d2 = norm(diff(bb2));
-dist = sqrt(...
-    min(min(abs(bsxfun(@minus, bb1(:,1), bb2(:,1)'))))^2 +...
-    min(min(abs(bsxfun(@minus, bb1(:,2), bb2(:,2)'))))^2);
-b = min(d1, d2) < eta * dist;
 end

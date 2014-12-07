@@ -1,18 +1,19 @@
 function [U, V] = lowrank_approx(M, siz, eps, R)
-%LOWRANK_APPROX return low rank approximation of a matrix
-%   [U,V] = LOWRANK_APPROX(M, eps) returns the low-rank approximation
-%   of the matrix M. The low rank approximation is of the form
+%LOWRANK_APPROX low rank approximation of a matrix
+%   [U,V] = LOWRANK_APPROX(M, siz, eps, R) returns the low-rank
+%   approximation of the matrix M.
+%   The low rank approximation is of the form
 %   M = U * V'
-%   Argument R denotes the maximal rank of the approximation.
+%   Argument siz denotes the size of the matrix, eps is the required
+%   relative error of the approximation, and R is the maximal rank of the
+%   approximation.
 %
 % See also: LOWRANK_APPROX_BLOCK
-%
-% Copyright (C) 2014 Peter Fiala
+
+% Copyright (C) 2014-2014 Peter Fiala
 
 nRows = siz(1); % number of rows
 nCols = siz(2); % number of columns
-
-% fprintf('block size: %3dx%3d\n', nRows, nCols);
 
 if nargin < 4   % maximal possible rank
     R = min(nRows, nCols);
@@ -54,8 +55,6 @@ for k = 1 : R   % max R iterations should be enough
     U(:, r) = col/col(i);
     V(:, r) = row';
     
-%     fprintf(1, 'skeleton (%2d,%2d), r=%2d', i, j, r);
-    
     S2 = S2 + norm(U(:,r), 'fro')^2 * norm(V(:,r), 'fro')^2;
     for j = 1 : r-1
         S2 = S2 + 2 * (U(:,r)'*U(:,j)) * (V(:,j)'*V(:,r));
@@ -63,13 +62,10 @@ for k = 1 : R   % max R iterations should be enough
     
     if r > 1
         err = norm(U(:,r), 'fro') * norm(V(:,r), 'fro') / sqrt(S2);
-%         fprintf(1, ', log10 err=%.2f\n', log10(err));
         
         if err < eps
             break;
         end
-    else
-%         fprintf(1, '\n');
     end
     
     [~, idx] = max(abs(col(uncheckedrows)));
@@ -78,7 +74,5 @@ end
 
 U = U(:, 1:r);
 V = V(:, 1:r);
-
-% fprintf(1, 'Compression: %g\n\n', ((nRows+nCols)*r)/(nRows*nCols));
 
 end
