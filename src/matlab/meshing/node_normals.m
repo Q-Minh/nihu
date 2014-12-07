@@ -36,7 +36,7 @@ N = sparse(I,J,ones(size(I)),nNode,nElem);
 n = N*normals;
 
 % Normalize
-n = n ./ repmat(sqrt(dot(n,n,2)),1,3);
+n = bsxfun(@times, n, 1./sqrt(dot(n,n,2)));
 
 end
 

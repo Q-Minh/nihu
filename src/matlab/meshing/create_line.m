@@ -5,7 +5,9 @@ function model = create_line(varargin)
 %   aligned along the x axis.
 %
 %   LINE = CREATE_LINE(R, N) creates a line model with end locations given
-%   in the 2x3 matrix R and division number given in N.
+%   in the 2x3 matrix R and division number given in N. If the matrix R is
+%   of size [1x3], the the starting point of the line is supposed to be the
+%   origin.
 %
 %   LINE = CREATE_LINE(Cx) creates a line model aligned along the x axis,
 %   with nodes located at the positions given in the vector or matrix Cx.
@@ -39,6 +41,9 @@ switch nargin
             N = varargin{2};
         elseif s(1) == 2
             R = [varargin{1}, zeros(s(1), 3-s(2))];
+            N = varargin{2};
+        elseif s(1) == 1
+            R = [0,0,0; varargin{1}, zeros(s(1), 3-s(2))];
             N = varargin{2};
         else
             error('NiHu:create_line:argFormat',...

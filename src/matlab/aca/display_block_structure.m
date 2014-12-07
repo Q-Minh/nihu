@@ -21,16 +21,13 @@ function p = display_block_structure(RowClusters, ColClusters, BlockTree)
 
 % Copyright (c) Peter Fiala 2014
 
-X = zeros(4, size(BlockTree,1));
-Y = zeros(4, size(BlockTree,1));
-
+p = zeros(size(BlockTree,1),1);
 for b = 1 : size(BlockTree,1)
     i = RowClusters(BlockTree(b,1),:);
     j = ColClusters(BlockTree(b,2),:);
 	X = j(1) + j(2)*[0 1 1 0];
 	Y = i(1) + i(2)*[0 0 1 1];
-    patch(X,Y,zeros(size(X)));
-    pause(.2);
+    p(b) = patch(X,Y,b*ones(size(X)));
 end
 
 set(gca, 'yDir', 'reverse');

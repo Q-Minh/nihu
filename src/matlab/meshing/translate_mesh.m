@@ -13,7 +13,6 @@ function mesh = translate_mesh(mesh, dir)
 % Last modifed: 2012.12.14.
 
 ind = 1+(1:length(dir));
-mesh.Nodes(:,ind) = mesh.Nodes(:,ind) + ...
-    repmat(dir(:).',size(mesh.Nodes,1),1);
+mesh.Nodes(:,ind) = bsxfun(@plus, mesh.Nodes(:,ind), dir(:).');
 
 end

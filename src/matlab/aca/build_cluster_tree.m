@@ -1,5 +1,5 @@
 function Ctree = build_cluster_tree(x, Cleaf, divtype)
-%BUILD_CLUSTER_TREE build cluster tree for ACA algorithm
+%BUILD_CLUSTER_TREE build cluster tree from a set of coordinates
 %   T = BUILD_CLUSTER_TREE(x) builds a cluster tree containing a
 %   hierarchical structure of clusters. The first cluster encapsulates
 %   each point, and the leaf clusters contain a limited number of points.

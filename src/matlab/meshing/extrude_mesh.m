@@ -27,7 +27,7 @@ dir = dir(:).'; % ensure that dir is a row vector
 nNod = size(mesh.Nodes,1);
 coord = zeros((nRep+1)*nNod,3);
 for iRep = 0 : nRep
-    coord(iRep*nNod+(1:nNod),:) = mesh.Nodes(:,2:4)+iRep*repmat(dir,nNod,1);
+    coord(iRep*nNod+(1:nNod),:) = bsxfun(@plus, mesh.Nodes(:,2:4), iRep*dir);
 end
 
 % Create new elements

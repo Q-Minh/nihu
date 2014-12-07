@@ -18,16 +18,15 @@ function mesh = reflect_mesh(mesh, normal, base)
 % Argument check
 if nargin < 3
     base = [0 0 0];
+else
+	base = base(:).';
 end
 
-%
-nN = size(mesh.Nodes,1);
-base = repmat(base(:).', nN, 1);
 normal = normal(:).' / norm(normal);
 
 % reflect nodes
 nodes = mesh.Nodes(:,2:4);
-mesh.Nodes(:,2:4) = nodes - (2*(nodes-base) * normal.') * normal;
+mesh.Nodes(:,2:4) = nodes - 2*(bsxfun(@minus, nodes, base) * normal.') * normal;
 
 % flip elements
 mesh = flip_elements(mesh);
