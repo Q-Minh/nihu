@@ -1,6 +1,7 @@
-/** \file aca.hpp
-* \details implementation of Adaptive Cross Approximation (ACA)
-*/
+/// \file aca.hpp
+/// \brief implementation of Adaptive Cross Approximation (ACA)
+/// \details this file contains declrations of class ::ACA that is able to perform
+/// LRA based matrix vector multiplications and decompositions.
 
 #ifndef ACA_HPP_INCLUDED
 #define ACA_HPP_INCLUDED
@@ -10,70 +11,105 @@
 #include <utility> // std::forward
 #include <vector> // std::forward
 
+/// \brief Class capable of storing a Low Rank Approximation of a matrix block
+/// \details This class is used as return type of ACA::decompose to return the vector of LRA blocks
+/// \tparam Scalar the scalar type of the approximated block
 template <class Scalar>
 class LowRank
 {
 public:
-	LowRank() {}
+	/// \brief default constructor to be able to use with std::vector container
+	LowRank(void)
+	{
+	}
 
+	/// \brief constructor setting members
+	/// \tparam UType the type of the U matrix
+	/// \tparam VType the type of theVU matrix
+	/// \param [in] row0 the row offset of the block
+	/// \param [in] col0 the column offset of the block
+	/// \param [in] U the lhs term of the LRA
+	/// \param [in] V the rhs term of the LRA
 	template <class UType, class VType>
 	LowRank(int row0, int col0, Eigen::MatrixBase<UType> const &U, Eigen::DenseBase<VType> const &V)
-		: row0(row0), col0(col0), U(U), V(V) {}
+		: row0(row0), col0(col0), U(U), V(V)
+	{
+	}
 
-	Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> const &getU(void) const { return U; }
-	Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> const &getV(void) const { return V; }
+	/// \brief return the lhs (U) member of the LRA
+	Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> const &getU(void) const
+	{
+		return U;
+	}
 
-	int getRow0(void) const { return row0; } 
-	int getCol0(void) const { return col0; } 
+	/// \brief return the rhs (V) member of the LRA
+	Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> const &getV(void) const
+	{
+		return V;
+	}
+
+	/// \brief return row offset
+	int getRow0(void) const
+	{
+		return row0;
+	} 
+
+	/// \brief return column offset
+	int getCol0(void) const
+	{
+		return col0;
+	} 
 
 private:
-	int row0, col0;
-	Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> U;
-	Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> V;
+	int row0;	///< \brief the row offset
+	int col0;	///< \brief the column offset
+	Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> U;	///< \brief the lhs term
+	Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> V;	///< \brief the rhs term
 };
 
-/** \brief class performing Adaptive Cross Approximation */
+/// \brief class performing Adaptive Cross Approximation
 class ACA
 {
 private:
-	/** \brief Block matrix representation of a matrix functor
-	 * \brief the matrix type whose block is represented
-	 */
+	/// \brief Block matrix representation of a matrix functor
+	/// \brief the matrix type whose block is represented
 	template <class Matrix>
 	class Block
 	{
 	public:
-		/** \brief the scalar type of the matrix */
+		/// \brief the scalar type of the matrix
 		typedef typename std::decay<Matrix>::type::Scalar Scalar;
 
-		/** \brief constructor
-		 * \param [in] M the matrix
-		 * \param [in] row0 the row offset
-		 * \param [in] row0 the column offset
-		 */
+		/// \brief constructor
+		/// \param [in] M the matrix
+		/// \param [in] row0 the row offset
+		/// \param [in] row0 the column offset
 		Block(Matrix M, int row0, int col0)
-			: M(std::forward<Matrix>(M)), row0(row0), col0(col0) { }
+			: M(std::forward<Matrix>(M)), row0(row0), col0(col0)
+		{
+		}
 
-		/** \brief index operator
-		 * \param [in] i the row index of the block
-		 * \param [in] j the column index of the block
-		 * \return the block's element
-		 */
-		Scalar operator()(int i, int j) const { return M(row0+i, col0+j); }
+		/// \brief index operator
+		/// \param [in] i the row index of the block
+		/// \param [in] j the column index of the block
+		/// \return the block's element
+		Scalar operator()(int i, int j) const
+		{
+			return M(row0+i, col0+j);
+		}
 
 	private:
-		Matrix M;			/** \brief the matrix */
-		int row0, col0;		/** \brief the row and column offsets */
+		Matrix M;			///< \brief the matrix
+		int row0, col0;		///< \brief the row and column offsets
 	};
 
 
-	/** \brief factory function to create a matrix block
-	 * \tparam the matrix type
-	 * \param [in] M the matrix
-	 * \param [in] row0 the row offset
-	 * \param [in] col0 the column offset
-	 * \return the block object
-	 */
+	/// \brief factory function to create a matrix block
+	/// \tparam the matrix type
+	/// \param [in] M the matrix
+	/// \param [in] row0 the row offset
+	/// \param [in] col0 the column offset
+	/// \return the block object
 	template <class Matrix>
 	static Block<Matrix>
 		createBlock(Matrix &&M, int row0, int col0)
@@ -82,19 +118,18 @@ private:
 	}
 
 
-	/** \brief compute low rank approximation of a matrix with a prescribed accuracy and maximum rank
-	* \details The low rank approximation is of the form M = U * V.transpose()
-	* \tparam Matrix the matrix class
-	* \tparam Result the type of the result (Eigen matrix)
-	* \param [in] M the matrix to approximate
-	* \param [in] nRows the number of matrix rows
-	* \param [in] nCols the number of matrix cols
-	* \param [in] eps the prescribed approximation accuracy
-	* \param [in] R the maximum rank (number of iterations)
-	* \param [out] U lhs term of the approximation
-	* \param [out] V rhs term of the approximation
-	* \return the actual rank of the approximation ( <= R )
-	*/
+	/// \brief compute low rank approximation of a matrix with a prescribed accuracy and maximum rank
+	/// \details The low rank approximation is of the form M = U * V.transpose()
+	/// \tparam Matrix the matrix class
+	/// \tparam Result the type of the result (Eigen matrix)
+	/// \param [in] M the matrix to approximate
+	/// \param [in] nRows the number of matrix rows
+	/// \param [in] nCols the number of matrix cols
+	/// \param [in] eps the prescribed approximation accuracy
+	/// \param [in] R the maximum rank (number of iterations)
+	/// \param [out] U lhs term of the approximation
+	/// \param [out] V rhs term of the approximation
+	/// \return the actual rank of the approximation ( <= R )
 	template <class Matrix, class Result>
 	static int low_rank_approx(Matrix const &M, int nRows, int nCols, double eps, int R,
 		Eigen::DenseBase<Result> &U, Eigen::DenseBase<Result> &V)
@@ -161,21 +196,20 @@ private:
 	}
 
 public:
-	/** \brief Compute matrix-vector product with multilevel low rank approximation
-	 * \tparam Matrix	the matrix class
-	 * \tparam RowArray	type of the array storing the row cluster tree
-	 * \tparam ColumnArray	type of the array storing the column cluster tree
-	 * \tparam BlockArray	type of the array storing the block tree
-	 * \tparam Input	type of the input vector
-	 * \tparam Output	type of the output vector
-	 * \param [in] rowClusters	the row cluster tree as Eigen matrix
-	 * \param [in] colClusters	the column cluster tree as Eigen matrix
-	 * \param [in] blocks	the block tree as Eigen matrix
-	 * \param [in] input	the input vector
-	 * \param [out] output	the output vector
-	 * \param [in] eps	the ACA approximation error
-	 * \param [in] maxRank	the maximal ACA approximation rank
-	 */
+	/// \brief Compute matrix-vector product with multilevel low rank approximation
+	/// \tparam Matrix	the matrix class
+	/// \tparam RowArray	type of the array storing the row cluster tree
+	/// \tparam ColumnArray	type of the array storing the column cluster tree
+	/// \tparam BlockArray	type of the array storing the block tree
+	/// \tparam Input	type of the input vector
+	/// \tparam Output	type of the output vector
+	/// \param [in] rowClusters	the row cluster tree as Eigen matrix
+	/// \param [in] colClusters	the column cluster tree as Eigen matrix
+	/// \param [in] blocks	the block tree as Eigen matrix
+	/// \param [in] input	the input vector
+	/// \param [out] output	the output vector
+	/// \param [in] eps	the ACA approximation error
+	/// \param [in] maxRank	the maximal ACA approximation rank
 	template <class Matrix, class RowArray, class ColumnArray, class BlockArray, class Input, class Output, class Ranks>
 	void multiply(Matrix const &M,
 		Eigen::DenseBase<RowArray> const &rowClusters, Eigen::DenseBase<ColumnArray> const &colClusters,
@@ -234,17 +268,16 @@ public:
 		}
 	}
 
-	/** \brief decompose a matrix into ACA low rank decomposition
-	 * \tparam Matrix
-	 * \tparam RowArray
-	 * \tparam ColumnArray
-	 * \tparam BlockArray
-	 * \param [in] M the matrix to decompose
-	 * \param [in] rowClusters the matrix of row clusters
-	 * \param [in] colCluster the matrix of column clusters
-	 * \param [in] blocks the matrix of block indices
-	 * \return a std::vector of LowRank objects representing the LRA
-	 */
+	/// \brief decompose a matrix into ACA low rank decomposition
+	/// \tparam Matrix
+	/// \tparam RowArray
+	/// \tparam ColumnArray
+	/// \tparam BlockArray
+	/// \param [in] M the matrix to decompose
+	/// \param [in] rowClusters the matrix of row clusters
+	/// \param [in] colCluster the matrix of column clusters
+	/// \param [in] blocks the matrix of block indices
+	/// \return a std::vector of LowRank objects representing the LRA
 	template <class Matrix, class RowArray, class ColumnArray, class BlockArray>
 	static std::vector<LowRank<typename Matrix::Scalar> > decompose(Matrix const &M,
 		Eigen::DenseBase<RowArray> const &rowClusters, Eigen::DenseBase<ColumnArray> const &colClusters,
@@ -287,16 +320,25 @@ public:
 	}
 
 public:
-	/** \brief return number of matrix evaluations */
-	int get_nEval(void) const { return m_nEval; }
-	/** \brief number of matrix elements in processed blocks */
-	int get_matrixSize(void) const { return m_matrixSize; }
-	/** \brief return the size compression ratio */
-	double get_sizeCompression(void) const { return double(get_nEval()) / get_matrixSize(); }
+	/// \brief return number of matrix evaluations
+	int get_nEval(void) const
+	{
+		return m_nEval;
+	}
+	/// \brief number of matrix elements in processed blocks
+	int get_matrixSize(void) const
+	{
+		return m_matrixSize;
+	}
+	/// \brief return the size compression ratio
+	double get_sizeCompression(void) const
+	{
+		return double(get_nEval()) / get_matrixSize();
+	}
 
 private:
-	int m_nEval;
-	int m_matrixSize;
+	int m_nEval;		///< \brief number of matrix evaluations
+	int m_matrixSize;	///< \brief the total number of full matrix elements
 };
 
 #endif // ACA_HPP_INCLUDED
