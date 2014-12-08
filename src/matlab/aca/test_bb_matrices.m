@@ -5,8 +5,8 @@ dim = 3;
 display = true;
 
 %%
-source = create_sphere_boundary(1,30);
-receiver = create_brick_boundary([1 1 1], [40 40 40]);
+source = create_sphere_boundary(1,15);
+receiver = create_brick_boundary([1 1 1], [20 20 20]);
 receiver = translate_mesh(receiver, [.5 .5 .5]);
 y = centnorm(source);
 x = centnorm(receiver);

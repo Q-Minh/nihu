@@ -1,4 +1,7 @@
 function x = bb_matvec(P2P, P2M, M2L, M2M, L2L, L2P, y)
+%BB_MATVEC Matrix-vector multiplication with bb FMM
+%   X = BB_MATVEC(P2P, P2M, M2L, M2M, L2L, L2P, Y)  performs matrix-vector
+%   multiplictaion.
 
 % direct response at low level
 x = P2P * y;
