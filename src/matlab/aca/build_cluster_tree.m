@@ -36,7 +36,7 @@ end
 bb = [min(x,[],1); max(x,[],1)];
 if strcmp(divtype, 'oc')
     c = mean(bb,1);
-    D = max(diff(bb,1));
+    D = max(diff(bb,1)) * (1+1e-2);
     bb = bsxfun(@plus, c, [-D; D]/2 * ones(1,size(x,2)));
 end
 

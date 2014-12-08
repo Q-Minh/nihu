@@ -1,5 +1,17 @@
 function M2L = bb_M2L(B_far, x0, y0, rExp, cExp, kernel)
 %BB_M2L Multipole to Local sparse matrix
+%   M2L = bb_M2L(B_FAR, X0, Y0, REXP, CEXP, KERNEL) computes the multipole
+%   to local transfer in a black box FMM computation.
+% B_FAR is the far field block structure
+% X0 and Y0  denote the receiver and source clusters' Chebyshev nodes,
+%   respectively.
+% REXP and CEXP denote the Chebyshev expansion of the receiver and source
+%   cluster trees
+% KERNEL denotes the kernel function
+%
+% see also: bb_M2M bb_P2M bb_P2P
+
+% copyright (c) 2014-2014 Peter Fiala
 
 nBlocks = size(B_far,1);
 dim = size(x0,2);

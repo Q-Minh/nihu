@@ -1,10 +1,10 @@
 % Fast methods based on Clustering
 %
 % Tree construction
-%   build_block_tree        - build block structure from a cluster tree
 %   build_cluster_tree      - build cluster tree from a set of coordinates
-%   build_dual_block_tree   - build block structure from two cluster trees
 %   sort_cluster_tree       - cluster-contiguous node numbering
+%   build_block_tree        - build block structure from a cluster tree
+%   build_dual_block_tree   - build block structure from two cluster trees
 % ACA
 %   lowrank_approx          - low rank approximation of a matrix
 %   lowrank_approx_block    - low rank approximation of a matrix block
@@ -27,6 +27,7 @@
 %   laplace_kernel          - 
 %   laplace_kernel_sp       - 
 % postprocessing
+%   plot_cluster            - 
 %   display_block_structure - visualise the block tree
 % unit tests
 %   build_tree              - build cluster tree for bbFMM method
@@ -39,4 +40,3 @@
 %   aca_tester              - general tester of the ACA algorithm
 %   test_bb_matrices        - 
 %   chebinterp_test         - 1D
-%   plot_cluster            - 
