@@ -44,7 +44,7 @@ Tnear = Tnear(1:EndNear,:);
                 Tfar(CapacityFar,2) = 0;
             end
             Tfar(EndFar,:) = [i, j];
-        elseif isempty(sigma.children) && isempty(tau.children)
+        elseif isempty(sigma.children) || isempty(tau.children)
             EndNear = EndNear+1;
             if EndNear > CapacityNear
                 CapacityNear = 2*CapacityNear;
@@ -52,20 +52,32 @@ Tnear = Tnear(1:EndNear,:);
             end
             Tnear(EndNear,:) = [i, j];
         else
-			% try to divide the larger cluster if possible
-            Ds = norm(diff(sigma.bb));	% diameter of sigma
-            Dt = norm(diff(tau.bb));	% diameter of tau
-            if (Ds > Dt && ~isempty(sigma.children)) || isempty(tau.children) % divide sigma
-                s = sigma.children;
-                for k = 1 : length(s)
-                    block_partition(s(k),j);
-                end
-            else % divide tau
-                t = tau.children;
-                for k = 1 : length(t)
-                    block_partition(i,t(k));
+            [s, t] = divide_both(i, j);
+            for i = 1 : numel(s)
+                for j = 1 : numel(t)
+                    block_partition(s(i), t(j));
                 end
             end
         end % if
     end % of function block_partition
+
+    function [s, t] = divide_larger(i, j)
+        sigma = RowTree(i);
+        tau = ColTree(j);
+        % try to divide the larger cluster if possible
+        Ds = norm(diff(sigma.bb));	% diameter of sigma
+        Dt = norm(diff(tau.bb));	% diameter of tau
+        if (Ds > Dt && ~isempty(sigma.children)) || isempty(tau.children) % divide sigma
+            s = sigma.children;
+            t = j;
+        else % divide tau
+            s = i;
+            t = tau.children;
+        end
+    end
+
+    function [s, t] = divide_both(i, j)
+        s = RowTree(i).children;
+        t = ColTree(j).children;
+    end
 end % of function build_dual_block_tree
