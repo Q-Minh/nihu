@@ -3,16 +3,17 @@ clear;
 % problem dimensionality
 dim = 3;
 
-% source and receiver geometries
-source = create_sphere_boundary(1,20);
-receiver = translate_mesh(source, [2 2 2]);
+display = true;
 
-% extract source and receiver points
-y = source.Nodes(:,2:4);
-x = receiver.Nodes(:,2:4);
+%%
+source = create_sphere_boundary(1,15);
+receiver = create_brick_boundary([1 1 1], [20 20 20]);
+receiver = translate_mesh(receiver, [.5 .5 .5]);
+y = centnorm(source);
+x = centnorm(receiver);
 
-% build oc cluster trees
-nLeaf = 100;
+%%
+nLeaf = 50;
 RowTree = build_cluster_tree(x, nLeaf, 'oc');
 ColTree = build_cluster_tree(y, nLeaf, 'oc');
 
@@ -26,12 +27,37 @@ rExp = 4;
 y0 = bb_tree_cheb_nodes(ColTree, cExp, dim);
 x0 = bb_tree_cheb_nodes(RowTree, rExp, dim);
 
-% compute bbFMM sparse matrices
-P2P = bb_P2P(B_near, RowTree, ColTree, x, y, @laplace_kernel);
-M2L = bb_M2L(B_far, x0, y0, rExp, cExp, @laplace_kernel);
-M2M = bb_M2M(ColTree, y0, cExp);
+kernel = @laplace_kernel;
+
+%% Compute bbFMM sparse matrices
+P2P = bb_P2P(B_near, RowTree, ColTree, x, y, kernel);
 P2M = bb_P2M(y, ColTree, y0, cExp);
+M2M = bb_M2M(ColTree, y0, cExp);
+M2L = bb_M2L(B_far, x0, y0, rExp, cExp, kernel);
 L2L = bb_M2M(RowTree, x0, rExp);
-L2P = bb_P2M(x, RowTree, x0, rExp);
 L2L = L2L.';
+L2P = bb_P2M(x, RowTree, x0, rExp);
 L2P = L2P.';
+
+%% matrix-vector product
+sigma = ones(size(y,1),1);
+t0 = tic;
+resp = bb_matvec(P2P, P2M, M2L, M2M, L2L, L2P, sigma);
+tProd = toc(t0);
+
+%% full product and error
+t0 = tic;
+resp0 = kernel(x, y) * sigma;
+tfull = toc(t0);
+error = log10(abs(resp./resp0-1));
+
+%%
+if display
+    figure;
+    plot_mesh(source);
+    plot_mesh(receiver, resp);
+    light;
+    lighting phong;
+    set(findall(gcf, 'Type', 'patch'), 'LineStyle', 'none');
+end
+

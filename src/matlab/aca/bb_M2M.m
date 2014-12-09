@@ -1,5 +1,14 @@
 function M2M = bb_M2M(CTree, x0, nExp)
 %BB_M2M Multipole to Multipole sparse matrix
+%   M2M = bb_M2M(CTREE, X0, NEXP) computes the Multipole To Multipole
+%   transfer matrix of the black box FMM method.
+% CTREE  denotes the cluster tree
+% X0  denotes the Chebyshev nodes in each cluster
+% NEXP  denotes the expansion length
+%
+% see also: bb_P2M bb_M2L bb_P2P
+
+% Copyright (c) 2014-2014 Peter Fiala
 
 nClusters = length(CTree);
 dim = size(x0,2);
@@ -25,6 +34,13 @@ for c = 1 : nClusters
     
     [J, I] = meshgrid(j,i);
     z = chebinterp(nExp, x0(j,:), CTree(c).bb);
+    if ~isreal(z)
+        if norm(z-real(z), 'fro')/norm(real(z), 'fro') > 1e-10
+            error('bbFMM:complex', 'M2M matrix is too complex');
+        else
+            z = real(z);
+        end
+    end
     
     idx = n+(1:numel(J));
     increase = false;

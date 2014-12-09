@@ -1,10 +1,10 @@
 % Fast methods based on Clustering
 %
 % Tree construction
-%   build_block_tree        - build block structure from a cluster tree
 %   build_cluster_tree      - build cluster tree from a set of coordinates
-%   build_dual_block_tree   - build block structure from two cluster trees
 %   sort_cluster_tree       - cluster-contiguous node numbering
+%   build_block_tree        - build block structure from a cluster tree
+%   build_dual_block_tree   - build block structure from two cluster trees
 % ACA
 %   lowrank_approx          - low rank approximation of a matrix
 %   lowrank_approx_block    - low rank approximation of a matrix block
@@ -19,6 +19,7 @@
 %   bb_M2M                  - Multipole to Multipole sparse matrix
 %   bb_P2M                  - Point to Multipole sparse matrix
 %   bb_P2P                  - Point to Point sparse matrix
+%   bb_matvec               - Matrix-vector multiplication with bb FMM
 % helper functions
 %   is_admissible_bb        - 
 %   is_admissible_dist      - 
@@ -27,6 +28,7 @@
 %   laplace_kernel          - 
 %   laplace_kernel_sp       - 
 % postprocessing
+%   plot_cluster            - 
 %   display_block_structure - visualise the block tree
 % unit tests
 %   build_tree              - build cluster tree for bbFMM method
@@ -38,5 +40,5 @@
 %   test_aca_dual_3D        - test 3D ACA with different meshes
 %   aca_tester              - general tester of the ACA algorithm
 %   test_bb_matrices        - 
+%   test_bb_solution        - 
 %   chebinterp_test         - 1D
-%   plot_cluster            - 

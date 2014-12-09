@@ -1,5 +1,16 @@
 function P2P = bb_P2P(B_near, RowTree, ColTree, x, y, kernel)
 %BB_P2P Point to Point sparse matrix
+%   P2P = bb_P2P(B_NEAR, ROWTREE, COLTREE, X, Y, KERNEL) computes the Point
+%   to Point transfer matrix of the black box FMM method.
+% B_NEAR  denotes the near field block structure matrix
+% ROWTREE  denotes the row cluster tree
+% COLTREE  denotes the column cluster tree
+% X and Y  denote the receiver and source points, respectively
+% KERNEL denotes the matrix kernel
+%
+% see also: bb_M2L bb_M2M bb_P2M
+
+% Copyright (c) 2014-2014 Peter Fiala
 
 nBlocks = size(B_near,1);
 
