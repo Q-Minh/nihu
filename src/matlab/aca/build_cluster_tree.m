@@ -91,28 +91,21 @@ end
 end
 
 function CC = get_oc_child_clusters(C, x)
+dim = size(x,2);
 c0 = mean(C.bb);
 D = diff(C.bb,1);
 D = D(1);
-d = [
-    -1 -1 -1
-    1 -1 -1
-    1  1 -1
-    -1  1 -1
-    -1 -1  1
-    1 -1  1
-    1  1  1
-    -1  1  1
-    ] * D/4;
+d = ((dec2bin(0:2^dim-1)-'0')-.5) * D/2;
+n = size(d,1);
 c = bsxfun(@plus, c0, d);
 CC = struct(...
-    'ind', mat2cell(repmat(C.ind, 8, 1), ones(8,1), length(C.ind)), ...
-    'level', num2cell(repmat(C.level+1, 8, 1)), ...
-    'children', mat2cell(zeros(8,0), ones(8,1), 0));
+    'ind', mat2cell(repmat(C.ind, n, 1), ones(n,1), length(C.ind)), ...
+    'level', num2cell(repmat(C.level+1, n, 1)), ...
+    'children', mat2cell(zeros(n,0), ones(n,1), 0));
 
-include = true(8,1);
+include = true(n,1);
 for i = 1 : length(CC)
-    CC(i).bb = bsxfun(@plus, c(i,:), [-D/4; D/4] * ones(1,3));
+    CC(i).bb = bsxfun(@plus, c(i,:), [-D/4; D/4] * ones(1,dim));
     CC(i).ind = CC(i).ind(all(...
         bsxfun(@gt, x(CC(i).ind,:), CC(i).bb(1,:)) &...
         bsxfun(@le, x(CC(i).ind,:), CC(i).bb(2,:)),...
