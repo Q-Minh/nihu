@@ -19,6 +19,7 @@
 %   bb_M2M                  - Multipole to Multipole sparse matrix
 %   bb_P2M                  - Point to Multipole sparse matrix
 %   bb_P2P                  - Point to Point sparse matrix
+%   bb_matvec               - Matrix-vector multiplication with bb FMM
 % helper functions
 %   is_admissible_bb        - 
 %   is_admissible_dist      - 
@@ -39,4 +40,5 @@
 %   test_aca_dual_3D        - test 3D ACA with different meshes
 %   aca_tester              - general tester of the ACA algorithm
 %   test_bb_matrices        - 
+%   test_bb_solution        - 
 %   chebinterp_test         - 1D
