@@ -5,7 +5,7 @@ dim = 3;
 display = true;
 
 %%
-source = create_sphere_boundary(1,20);
+source = create_sphere_boundary(1,15);
 x = centnorm(source);
 
 %%
