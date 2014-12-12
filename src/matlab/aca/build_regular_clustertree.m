@@ -9,6 +9,9 @@ function [tree, fathersou, dsrc, fatherrec, drec] = build_regular_clustertree(de
 
 [~, args] = options(varargin{:});
 
+% poblem dimensionality
+dim = size(source,2);
+
 if numel(args) < 1
     receiver = []; % receiver = source, each node is both source and receiver
 else
@@ -20,15 +23,15 @@ if isempty(receiver)
     % cluster tree
     nodes = source;
     % each node is both source and receiver
-    issou = true(size(nodes,1),1);
-    isrec = issou;
+    is_sou = true(size(nodes,1),1);
+    is_rec = is_sou;
 else
     % sources and receivers are defined separately
     nodes = [source; receiver];
     ns = size(source, 1); % number of sources
-    issou = false(size(nodes,1),1);
-    issou(1:ns) = true;
-    isrec = ~issou;
+    is_sou = false(size(nodes,1),1);
+    is_sou(1:ns) = true;
+    is_rec = ~is_sou;
 end
 
 % Computing model dimensions
@@ -37,13 +40,15 @@ r0 = min(nodes,[],1); % smallest corner coordinates
 D = max(mx - r0);    % max model size
 
 % allocating structure array
-c = cell(depth+1, 1);
+chil = cell(depth+1, 1);
 tree = struct('diameter', num2cell(D*2.^(0:-1:-depth).'),...
-    'coord', c,...
-    'father', c, 'fatheridx', c, 'children', c, 'childrenidx', c,...
-    'notadmissible', c,...
-    'nodsou', c, 'nodrec', c,...
-    'source', c, 'receiver', c);
+    'coord', chil,...
+    'father', chil, 'fatheridx', chil,...
+    'children', chil, 'childrenidx', chil,...
+    'nearfield', chil,...
+    'interlist', chil,...
+    'nodsou', chil, 'nodrec', chil,...
+    'source', chil, 'receiver', chil);
 
 %
 % clustering for each level
@@ -67,8 +72,8 @@ for l = depth : -1 : 0
     A = sort(A,2);
     A = fliplr(full(A(:,any(A,1))));
     if l == depth
-        sou = [0; issou];
-        rec = [0; isrec];
+        sou = [0; is_sou];
+        rec = [0; is_rec];
         tree(iL).nodsou = A;
         tree(iL).nodsou(~sou(tree(iL).nodsou+1)) = 0;
         tree(iL).nodrec = A;
@@ -98,10 +103,10 @@ fathersou = fathersou(:);
 fatherrec(jnod) = inod;
 fatherrec = fatherrec(:);
 
-% notadmissible clusters at level 0
+% nearfield clusters at level 0
 l = 0;
 iL = l + 1;
-tree(iL).notadmissible = 1;
+tree(iL).nearfield = 1;
 
 %
 for l = 1 : depth
@@ -115,54 +120,54 @@ for l = 1 : depth
     
     normnod = T.coord / T.diameter;
     
-    % notadmissible and interaction list matrix
-    notadmissible = zeros(nC, 0);
+    % nearfield and interaction list matrix
+    nearfield = zeros(nC, 0);
     interlist = zeros(nC, 0);
     for iS = 1 : nS
         iC = so(iS);
-        uncle = T2.notadmissible(T.father(iC),:);
+        uncle = T2.nearfield(T.father(iC),:);
         uncle = uncle(uncle ~= 0);
         il = T2.children(uncle,:);
         il = il(il~=0);
         
         % the near field condition
         diff = bsxfun(@minus, normnod(il,:), normnod(iC,:));
-        dt = diff(:,3);
-
-        dxy = abs(diff(:,1:2));
-        mindt2 = max(dt-1,0).^2;    % minimal dt^2 between two clusters
-        maxdt2 = (dt+1).^2;         % maximal dt^2
-        mindr2 = dot(max(dxy-1,0), max(dxy-1,0), 2);    % minimal distance
-        maxdr2 = dot(dxy+1, dxy+1, 2);  % maximal distance
+        nearcond = all(abs(diff) < 2-1e-2, 2);
+        near = il(nearcond);
+        il = il(~nearcond);
         
-        possible = dt >= 0 & maxdt2 - mindr2 >= 0;
-        admissible = mindt2 - maxdr2 > 1;
-        
-        nadm = il(possible & ~admissible);
-        il = il(possible & admissible);
-        
-        nadm = nadm(T.receiver(nadm));
+        near = near(T.receiver(near));
         il = il(T.receiver(il));
         
-        notadmissible(iC, 1:length(nadm)) = nadm;
+        nearfield(iC, 1:length(near)) = near;
         interlist(iC, 1:length(il)) = il;
     end
     % clear empty columns
-    tree(iL).notadmissible = sparse(notadmissible);
+    tree(iL).nearfield = sparse(nearfield);
     tree(iL).interlist = sparse(interlist);
 end
 
+% compute children, father and near field indices indices
 for l = 1 : length(tree)
+    % children indices are not computed on the leaf level
     if l ~= length(tree)
         [m, n] = size(tree(l).children);
-        [f, j, c] = find(tree(l).children);
-        childrenidx = ((tree(l).coord(f,:) - tree(l+1).coord(c,:)) < 0) * [1 2 4]' + 1;
-        tree(l).childrenidx = full(sparse(f, j, childrenidx, m, n));
+        [fath, j, chil] = find(tree(l).children);
+        powers = 2.^((1:dim)'-1);
+        childrenidx = ((tree(l).coord(fath,:) - tree(l+1).coord(chil,:)) < 0) * powers + 1;
+        tree(l).childrenidx = full(sparse(fath, j, childrenidx, m, n));
     end
     
+    % father indices are not computed on the root level
     if l ~= 1
-        tree(l).fatheridx = ((tree(l-1).coord(tree(l).father,:) - tree(l).coord) < 0) * [1 2 4]' + 1;
+        tree(l).fatheridx = ((tree(l-1).coord(tree(l).father,:) - tree(l).coord) < 0) * powers + 1;
     end
+    
+    [sou, j, rec] = find(tree(l).interlist);
+    normd = round((tree(l).coord(rec,:) - tree(l).coord(sou,:)) / tree(l).diameter);
+    normd = normd + 3;
+    idx = normd * 7.^((1:dim)'-1) + 1;
+    tree(l).interlistidx = sparse(sou, j, idx);
 end
 
 dsrc = (source - tree(end).coord(fathersou,:)) / (tree(end).diameter/2);
@@ -170,6 +175,4 @@ if ~isempty(receiver)
     drec = (receiver - tree(end).coord(fatherrec,:)) / (tree(end).diameter/2);
 end
 
-
 end
-
