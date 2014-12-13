@@ -153,21 +153,20 @@ for l = 1 : length(tree)
     if l ~= length(tree)
         [m, n] = size(tree(l).children);
         [fath, j, chil] = find(tree(l).children);
-        powers = 2.^((1:dim)'-1);
-        childrenidx = ((tree(l).coord(fath,:) - tree(l+1).coord(chil,:)) < 0) * powers + 1;
+        trans = (tree(l+1).coord(chil,:) - tree(l).coord(fath,:)) / tree(l+1).diameter;
+        childrenidx = trans2idx(trans, 2);
         tree(l).childrenidx = full(sparse(fath, j, childrenidx, m, n));
     end
     
     % father indices are not computed on the root level
     if l ~= 1
-        tree(l).fatheridx = ((tree(l-1).coord(tree(l).father,:) - tree(l).coord) < 0) * powers + 1;
+        trans = (tree(l-1).coord(tree(l).father,:) - tree(l).coord) / tree(l).diameter;
+        tree(l).fatheridx = trans2idx(trans, 2);
     end
     
     [sou, j, rec] = find(tree(l).interlist);
-    normd = round((tree(l).coord(rec,:) - tree(l).coord(sou,:)) / tree(l).diameter);
-    normd = normd + 3;
-    idx = normd * 7.^((1:dim)'-1) + 1;
-    tree(l).interlistidx = sparse(sou, j, idx);
+    trans = (tree(l).coord(rec,:) - tree(l).coord(sou,:)) / tree(l).diameter;
+    tree(l).interlistidx = sparse(sou, j, trans2idx(trans, 7));
 end
 
 dsrc = (source - tree(end).coord(fathersou,:)) / (tree(end).diameter/2);

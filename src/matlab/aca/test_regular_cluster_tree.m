@@ -1,17 +1,24 @@
 clear;
 
 %%
-msh3 = create_sphere_boundary(1, 50);
-xc3 = centnorm(msh3);
-T3 = build_regular_clustertree(6, xc3);
+dim = 2;
 
-dim = 3;
-kernel = @laplace_kernel;
-nExp = 4;
-M2L = bb_M2L_regular(dim, kernel, nExp);
+if dim == 3
+    msh = create_sphere_boundary(1, 30);
+elseif dim == 2
+    msh = create_circle(1, 30);
+end
+xc = centnorm(msh);
+xc = xc(:,1:dim);
+T = build_regular_clustertree(4, xc);
 
 %%
-msh2 = create_circle(1, 50);
-xc2 = centnorm(msh2);
-xc2 = xc2(:,1:2);
-T2 = build_regular_clustertree(8, xc2);
+kernel = @laplace_kernel;
+nExp = 4;
+M2M = bb_M2M_regular(dim, nExp);
+M2L = bb_M2L_regular(dim, kernel, nExp);
+L2L = bb_L2L_regular(dim, nExp);
+
+%%
+sigma = ones(nExp^dim, size(T(end).coord,1));
+bb_far_transfer(T, sigma, M2M, M2L, L2L);
