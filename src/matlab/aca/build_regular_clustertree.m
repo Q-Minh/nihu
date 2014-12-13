@@ -1,5 +1,5 @@
 function [tree, fathersou, dsrc, fatherrec, drec] = build_regular_clustertree(depth, source, varargin)
-%CLUSTERTREE Build cluster tree 
+%CLUSTERTREE Build cluster tree
 
 % Peter Fiala
 % 2014
