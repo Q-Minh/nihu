@@ -3,16 +3,18 @@ clear;
 %%
 profile on
 
+%%
 dim = 3;
 
 if dim == 3
-    msh = create_sphere_boundary(1, 50);
-    xc = centnorm(msh);
-    xc = xc(:,1:dim);
-    [T, fathersou, dsrc] = build_regular_clustertree(6, xc);
+    msh = create_sphere_boundary(1, 100);
+    depth = 8;
 elseif dim == 2
     msh = create_circle(1, 30);
 end
+xc = centnorm(msh);
+xc = xc(:,1:dim);
+[T, fathersou, dsrc] = build_regular_clustertree(depth, xc);
 
 %%
 kernel = @laplace_kernel;
@@ -29,6 +31,9 @@ sigma(round(end/2)) = -1;
 sigma(round(end)) = 1;
 
 [fi, times] = bb_far_transfer(T, sigma, P2M, M2M, M2L, L2L, P2M', -1);
+
+%%
+profile viewer
 
 %%
 figure;
