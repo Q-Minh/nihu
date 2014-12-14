@@ -9,9 +9,6 @@ function [tree, fathersou, dsrc, fatherrec, drec] = build_regular_clustertree(de
 
 [~, args] = options(varargin{:});
 
-% poblem dimensionality
-dim = size(source,2);
-
 if numel(args) < 1
     receiver = []; % receiver = source, each node is both source and receiver
 else
