@@ -1,4 +1,5 @@
 function [L2L, trans] = bb_L2L_regular(dim, nExp)
+%BB_L2L_REGULAR Local to Local sparse matrix
 
 trans = transgen(dim, 2);
 

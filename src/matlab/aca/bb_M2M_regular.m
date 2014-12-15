@@ -1,4 +1,5 @@
 function [M2M, trans] = bb_M2M_regular(dim, nExp)
+%BB_M2M_REGULAR Multipole to Multipole sparse matrix
 
 trans = transgen(dim, 2);
 

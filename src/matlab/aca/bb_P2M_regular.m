@@ -1,4 +1,5 @@
 function P2M = bb_P2M_regular(nExp, nClus, fathersou, dsrc)
+%BB_P2M_REGULAR Point to Multipole sparse matrix
 
 nPts = size(fathersou,1);
 dim = size(dsrc,2);

@@ -7,8 +7,8 @@ profile on
 dim = 3;
 
 if dim == 3
-    msh = create_sphere_boundary(1, 100);
-    depth = 7;
+    msh = create_sphere_boundary(1, 50);
+    depth = 5;
 elseif dim == 2
     msh = create_circle(1, 30);
 end
@@ -28,23 +28,18 @@ z = laplace_kernel_sp(xc(i,:), xc(j,:));
 P2P = sparse(i, j, z);
 
 %%
-sigma = zeros(size(xc,1),1);
-sigma(1) = 1;
-sigma(round(end/2)) = -1;
-sigma(round(end)) = 1;
-
-tic;
-fi_near = P2P * sigma;
-[fi_far, times] = bb_far_transfer(T, sigma, P2M, M2M, M2L, L2L, P2M', -1);
-fi = fi_near + fi_far;
-toc;
+matfun = @(x)bb_matvec_regular(x, T, P2P, P2M, M2M, M2L, L2L, P2M.', -1);
+sigma0 = xc(:,1);
+fi0 = matfun(sigma0);
+[sigma,flag,relres,iter,resvec] = gmres(matfun, fi0);
 
 %%
 profile viewer
 
 %%
 figure;
-plot_mesh(msh, 20*log10(fi));
+plot_mesh(msh, 20*log10(sigma));
 h = findall(gca, 'type', 'patch');
 set(h, 'linestyle', 'none');
 set(gcf, 'renderer', 'painters');
+caxis([-30 30]);
