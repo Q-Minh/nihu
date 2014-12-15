@@ -1,6 +1,6 @@
 clear;
 
-% problem dimensionality
+%TEST_BB_MATRICES 
 dim = 3;
 
 display = true;

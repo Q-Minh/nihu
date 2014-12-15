@@ -25,7 +25,7 @@ JJ = zeros(N,1);
 ZZ = zeros(N,1);
 
 n = 0;
-for b = 1 : nBlocks
+for b = nBlocks : -1 : 1
     block = B_far(b,:);
     
     i = (block(1)-1)*nRow + (1:nRow);
