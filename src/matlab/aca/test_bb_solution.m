@@ -11,7 +11,7 @@ x = centnorm(source);
 %%
 nLeaf = 35;
 CTree = build_cluster_tree(x, nLeaf, 'oc');
-Admit = @(C1, C2)is_admissible_bb(C1, C2, .8);
+Admit = @(C1, C2)is_admissible_bb(C1, C2, 1.1);
 [B_near, B_far] = build_dual_block_tree(CTree, CTree, Admit);
 nExp = 3;
 x0 = bb_tree_cheb_nodes(CTree, nExp, dim);
@@ -50,4 +50,3 @@ if display
     lighting phong;
     set(findall(gcf, 'Type', 'patch'), 'LineStyle', 'none');
 end
-
