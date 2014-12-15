@@ -1,7 +1,7 @@
 #include <Eigen/Dense>
 #include <iostream>
 #include <vector>
-#include "matrix.h"
+#include "mex.h"
 
 typedef double Real;
 typedef int Index;
@@ -31,6 +31,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, mxArray const *prhs[])
 	MapMatrix m(mxGetPr(multi), N, nClusters);
 	MapMatrix l(mxGetPr(local), N, nClusters);
 	std::vector<MapMatrix> m2l;
+    m2l.reserve(343);
 	for (int i = 0; i < 343; ++i)
 		m2l.push_back(MapMatrix(mxGetPr(M2L)+(N*N*i), N, N));
 		

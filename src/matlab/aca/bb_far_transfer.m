@@ -42,10 +42,12 @@ for level = 2 : depth
     t0 = tic();
     [s, ~, r] = find(tree(iL).interlist);
     [~, ~, ridx] = find(tree(iL).interlistidx);
-    for j = 1 : length(s)
-        res(iL).local(:,r(j)) = res(iL).local(:,r(j)) + ...
-            M2L(:,:,ridx(j)) * tree(iL).diameter^alpha * res(iL).multi(:,s(j));
-    end
+    loc = compute_M2L(int32(s)-1, int32(r)-1, int32(ridx)-1, M2L, res(iL).multi);
+    res(iL).local = res(iL).local + tree(iL).diameter^alpha * loc;
+    %    for j = 1 : length(s)
+    %        res(iL).local(:,r(j)) = res(iL).local(:,r(j)) + ...
+    %            M2L(:,:,ridx(j)) * tree(iL).diameter^alpha * res(iL).multi(:,s(j));
+    %    end
     times(iL).M2L = toc(t0);
 end
 
