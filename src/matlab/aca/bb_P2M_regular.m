@@ -7,7 +7,7 @@ nPts = length(fathersou);
 dim = size(dsrc,2);
 N = nExp^dim;
 
-Z = chebinterp(nExp, dsrc);
+Z = real(chebinterp(nExp, dsrc));
 II = bsxfun(@plus, (1:N)', N*(fathersou'-1));
 JJ = repmat(1:nPts, N, 1);
 P2M = sparse(II(:), JJ(:), Z(:), N*nClus, nPts);
