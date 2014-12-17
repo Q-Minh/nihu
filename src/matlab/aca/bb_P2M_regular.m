@@ -10,6 +10,7 @@ JJ = zeros(nPts*N,1);
 KK = zeros(nPts*N,1);
 n = 0;
 for iClus = 1 : nClus
+    progbar(1, nClus, iClus);
     idx = (iClus-1)*N + (1:N);
     s = find(fathersou == iClus);
     xs = dsrc(s,:);

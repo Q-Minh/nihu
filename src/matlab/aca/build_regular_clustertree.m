@@ -110,49 +110,43 @@ for l = 1 : depth
     iL = l + 1;
     T = tree(iL);
     T2 = tree(iL-1);
-    nC = size(T.coord,1);
     
-    so = find(T.source);
-    nS = length(so);
+    [sc, ~, rc] = find(T2.nearfield);
+    [ir, ~, jr] = find(T2.children(rc,:));
+    [is, ~, js] = find(T2.children(sc(ir),:));
+    irec = jr(is);
+    jsou = js(:);
+    cousin = sparse(jsou, irec, true(size(irec)));
+    
+    cond = T.source(jsou) & T.receiver(irec);
+    jsou = jsou(cond);
+    irec = irec(cond);
     
     normnod = T.coord / T.diameter;
+    diff = normnod(irec,:) - normnod(jsou,:);
+    nearcond = all(abs(diff) < 2-1e-2, 2);
     
-    % nearfield and interaction list matrix
-    nearfield = zeros(nC, 0);
-    interlist = zeros(nC, 0);
-    for iS = 1 : nS
-        iC = so(iS);
-        uncle = T2.nearfield(T.father(iC),:);
-        uncle = uncle(uncle ~= 0);
-        il = T2.children(uncle,:);
-        il = il(il~=0);
-        
-        % the near field condition
-        diff = bsxfun(@minus, normnod(il,:), normnod(iC,:));
-        nearcond = all(abs(diff) < 2-1e-2, 2);
-        near = il(nearcond);
-        il = il(~nearcond);
-        
-        near = near(T.receiver(near));
-        il = il(T.receiver(il));
-        
-        nearfield(iC, 1:length(near)) = near;
-        interlist(iC, 1:length(il)) = il;
-    end
-    % clear empty columns
-    tree(iL).nearfield = sparse(nearfield);
-    tree(iL).interlist = sparse(interlist);
+    jnear = jsou(nearcond);
+    inear = irec(nearcond);
+    nearfield = sparse(jnear, inear, inear);
+
+    jinter = jsou(~nearcond);
+    iinter = irec(~nearcond);
+    interlist = sparse(jinter, iinter, iinter);
+    
+    tree(iL).nearfield = sort(nearfield, 2, 'descend');
+    tree(iL).interlist = sort(interlist, 2, 'descend');
 end
 
-% compute children, father and near field indices indices
+% compute children, father and near field indices
 for l = 1 : length(tree)
     % children indices are not computed on the leaf level
     if l ~= length(tree)
         [m, n] = size(tree(l).children);
-        [fath, j, chil] = find(tree(l).children);
+        [fath, jsou, chil] = find(tree(l).children);
         trans = (tree(l+1).coord(chil,:) - tree(l).coord(fath,:)) / tree(l+1).diameter;
         childrenidx = trans2idx(trans, 2);
-        tree(l).childrenidx = full(sparse(fath, j, childrenidx, m, n));
+        tree(l).childrenidx = full(sparse(fath, jsou, childrenidx, m, n));
     end
     
     % father indices are not computed on the root level
@@ -161,9 +155,9 @@ for l = 1 : length(tree)
         tree(l).fatheridx = trans2idx(trans, 2);
     end
     
-    [sou, j, rec] = find(tree(l).interlist);
+    [sou, jsou, rec] = find(tree(l).interlist);
     trans = (tree(l).coord(rec,:) - tree(l).coord(sou,:)) / tree(l).diameter;
-    tree(l).interlistidx = sparse(sou, j, trans2idx(trans, 7));
+    tree(l).interlistidx = sparse(sou, jsou, trans2idx(trans, 7));
 end
 
 dsrc = (source - tree(end).coord(fathersou,:)) / (tree(end).diameter/2);
