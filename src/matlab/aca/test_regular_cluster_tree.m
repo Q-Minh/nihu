@@ -32,9 +32,10 @@ P2M = bb_P2M_regular(nExp, size(T(end).coord,1), fathersou, dsrc);
 matfun = @(x)bb_matvec_regular(x, T, P2P, P2M, M2M, M2L, L2L, P2M.', -1);
 L = .2;
 sigma0 = sin(xc(:,1)*pi/L);
-fi0 = matfun(sigma0);
-toc;
+profile on
+fi00 = matfun(sigma0);
 [sigma,flag,relres,iter,resvec] = gmres(matfun, fi0);
+profile viewer
 
 %%
 profile viewer
