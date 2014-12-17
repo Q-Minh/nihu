@@ -7,8 +7,8 @@ profile on
 dim = 3;
 
 if dim == 3
-    msh = create_sphere_boundary(1, 100);
-    depth = 7;
+    msh = create_sphere_boundary(1, 60);
+    depth = 6;
 elseif dim == 2
     msh = create_circle(1, 30);
 end
