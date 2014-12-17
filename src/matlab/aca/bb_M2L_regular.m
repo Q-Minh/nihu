@@ -1,5 +1,7 @@
 function [M2L, trans] = bb_M2L_regular(dim, kernel, nExp)
 
+% Copyright (C) 2014 Peter Fiala
+
 % generate displacement vectors
 trans = transgen(dim, 7);
 
