@@ -1,4 +1,5 @@
 function [M2L, trans] = bb_M2L_regular(dim, kernel, nExp)
+%BB_M2L_REGULAR compute M2L transfer matrices
 
 % Copyright (C) 2014 Peter Fiala
 

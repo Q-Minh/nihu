@@ -21,10 +21,12 @@
 %   bb_P2M                    - Point to Multipole sparse matrix
 %   bb_P2P                    - Point to Point sparse matrix
 %   bb_matvec                 - Matrix-vector multiplication with bb FMM
-%   bb_L2L_regular            - Local to Local sparse matrix
-%   bb_M2L_regular            - generate displacement vectors
-%   bb_M2M_regular            - Multipole to Multipole sparse matrix
+%   bb_P2P_regular            - compute P2P sparse matrix of a bb FMM
 %   bb_P2M_regular            - Point to Multipole sparse matrix
+%   bb_M2M_regular            - Multipole to Multipole sparse matrix
+%   bb_M2L_regular            - compute M2L transfer matrices
+%   bb_L2L_regular            - Local to Local sparse matrix
+%   compress_M2L              - Compress M2L matrices with ACA
 %   bb_far_transfer           - 
 %   bb_matvec_regular         - 
 %   nfij                      - Generate near field sparse matrix locations of a FMBEM model

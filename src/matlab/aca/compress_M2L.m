@@ -1,4 +1,5 @@
 function [U, V, r] = compress_M2L(M2L, eps)
+%COMPRESS_M2L Compress M2L matrices with ACA
 
 N = size(M2L,1);
 K = size(M2L,3);
