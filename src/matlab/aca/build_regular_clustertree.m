@@ -16,19 +16,18 @@ else
 end
 
 if isempty(receiver)
-    % only the source nodes have to be taken into account when creating the
-    % cluster tree
+    % only source nodes have to be taken into account
     nodes = source;
     % each node is both source and receiver
-    is_sou = true(size(nodes,1),1);
-    is_rec = is_sou;
+    is_source = true(size(nodes,1),1);
+    is_receiver = is_source;
 else
     % sources and receivers are defined separately
     nodes = [source; receiver];
     ns = size(source, 1); % number of sources
-    is_sou = false(size(nodes,1),1);
-    is_sou(1:ns) = true;
-    is_rec = ~is_sou;
+    is_source = false(size(nodes,1),1);
+    is_source(1:ns) = true;
+    is_receiver = ~is_source;
 end
 
 % Computing model dimensions
@@ -37,15 +36,19 @@ r0 = min(nodes,[],1); % smallest corner coordinates
 D = max(mx - r0);    % max model size
 
 % allocating structure array
-chil = cell(depth+1, 1);
+c = cell(depth+1, 1);
 tree = struct('diameter', num2cell(D*2.^(0:-1:-depth).'),...
-    'coord', chil,...
-    'father', chil, 'fatheridx', chil,...
-    'children', chil, 'childrenidx', chil,...
-    'nearfield', chil,...
-    'interlist', chil,...
-    'nodsou', chil, 'nodrec', chil,...
-    'source', chil, 'receiver', chil);
+    'coord', c,...
+    'father', c,...
+    'fatheridx', c,...
+    'children', c,...
+    'childrenidx', c,...
+    'nearfield', c,...
+    'interlist', c,...
+    'nodsou', c,...
+    'nodrec', c,...
+    'source', c,...
+    'receiver', c);
 
 %
 % clustering for each level
@@ -69,8 +72,8 @@ for l = depth : -1 : 0
     A = sort(A,2);
     A = fliplr(full(A(:,any(A,1))));
     if l == depth
-        sou = [0; is_sou];
-        rec = [0; is_rec];
+        sou = [0; is_source];
+        rec = [0; is_receiver];
         tree(iL).nodsou = A;
         tree(iL).nodsou(~sou(tree(iL).nodsou+1)) = 0;
         tree(iL).nodrec = A;
@@ -109,14 +112,13 @@ tree(iL).nearfield = 1;
 for l = 1 : depth
     iL = l + 1;
     T = tree(iL);
-    T2 = tree(iL-1);
+    Tpar = tree(iL-1);
     
-    [sc, ~, rc] = find(T2.nearfield);
-    [ir, ~, jr] = find(T2.children(rc,:));
-    [is, ~, js] = find(T2.children(sc(ir),:));
+    [sc, ~, rc] = find(Tpar.nearfield);
+    [ir, ~, jr] = find(Tpar.children(rc,:));
+    [is, ~, js] = find(Tpar.children(sc(ir),:));
     irec = jr(is);
     jsou = js(:);
-    cousin = sparse(jsou, irec, true(size(irec)));
     
     cond = T.source(jsou) & T.receiver(irec);
     jsou = jsou(cond);

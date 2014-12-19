@@ -41,13 +41,13 @@ for level = 2 : depth
     t0 = tic();
     [s, ~, r] = find(tree(iL).interlist);
     [~, ~, ridx] = find(tree(iL).interlistidx);
-if isstruct(M2L)
-    loc = compute_CM2L(int32(s)-1, int32(r)-1, int32(ridx)-1,...
-        M2L.U, M2L.V, int32(M2L.r),...
-        res(iL).multi);
-else
-    loc = compute_M2L(int32(s)-1, int32(r)-1, int32(ridx)-1, M2L, res(iL).multi);
-end
+    if isstruct(M2L)
+        loc = compute_CM2L(int32(s)-1, int32(r)-1, int32(ridx)-1,...
+            M2L.U, M2L.V, int32(M2L.r),...
+            res(iL).multi);
+    else
+        loc = compute_M2L(int32(s)-1, int32(r)-1, int32(ridx)-1, M2L, res(iL).multi);
+    end
     res(iL).local = res(iL).local + tree(iL).diameter^alpha * loc;
     times(iL).M2L = toc(t0);
 end
