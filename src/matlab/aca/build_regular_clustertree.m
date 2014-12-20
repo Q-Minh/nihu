@@ -1,4 +1,4 @@
-function [tree, fathersou, dsrc, fatherrec, drec] = build_regular_clustertree(depth, source, varargin)
+function [tree, fathersou, dsrc, fatherrec, drec] = build_regular_clustertree(depth, source, receiver, nearfun)
 %BUILD_REGULAR_CLUSTERTREE Build cluster tree
 
 % Peter Fiala
@@ -7,13 +7,14 @@ function [tree, fathersou, dsrc, fatherrec, drec] = build_regular_clustertree(de
 % Parameter check
 % default arguments
 
-[~, args] = options(varargin{:});
-
-if numel(args) < 1
-    receiver = []; % receiver = source, each node is both source and receiver
-else
-    receiver = args{1};
+if nargin < 4
+    nearfun = @(normdiff)dot(normdiff,normdiff,2) < 4-1e-2;
 end
+
+if nargin < 3
+    receiver = []; % receiver = source, each node is both source and receiver
+end
+
 
 if isempty(receiver)
     % only source nodes have to be taken into account
@@ -125,8 +126,8 @@ for l = 1 : depth
     irec = irec(cond);
     
     normnod = T.coord / T.diameter;
-    diff = normnod(irec,:) - normnod(jsou,:);
-    nearcond = all(abs(diff) < 2-1e-2, 2);
+    normdiff = normnod(irec,:) - normnod(jsou,:);
+    nearcond = nearfun(normdiff);
     
     jnear = jsou(nearcond);
     inear = irec(nearcond);
