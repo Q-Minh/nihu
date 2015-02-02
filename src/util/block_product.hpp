@@ -83,12 +83,10 @@ namespace internal
 			result_type result;
 			for (Index row = 0; row < N1; ++row)
 				for (Index col = 0; col < N3; ++col)
-					result.template block<N2, N2>(row*N2, col*N2) = v1(row) * m * v2(col);
+					result.template block<N2, N2>(row*N2, col*N2) = static_cast<scalar>(v1(row)) * m * static_cast<scalar>(v2(col));
 			return result;
 		}
 	};
-
-
 
 	template <class mat, class right>
 	class semi_block_product_impl;
