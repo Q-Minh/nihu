@@ -51,14 +51,19 @@ int main(void)
     coords2.row(1) += Eigen::Matrix<double, 1, 4>::Constant(2.0);
 
     quad_1_elem elem1(coords1), elem2(coords2);
-	double nu = 1./3.;
+	double nu = 0.3;
 	double rho = 100;
 	double mu = 1.e8;
 	double om = 2.*M_PI*10.;
 
-	elastodynamics_3d_U_kernel k(nu, rho, mu, om);
-    std::cout << tester(k, elem1, elem2) << std::endl;
-	std::cout << "U singular:\n" << singular_integral_test(k, elem1) << std::endl;
+	elastodynamics_3d_U_kernel U(nu, rho, mu, om);
+	elastodynamics_3d_T_kernel T(nu, rho, mu, om);
+
+    std::cout << tester(U, elem1, elem2) << std::endl;
+    std::cout << tester(T, elem1, elem2) << std::endl;
+
+	std::cout << "U singular:\n" << singular_integral_test(U, elem1) << std::endl;
+	std::cout << "T singular:\n" << singular_integral_test(T, elem1) << std::endl;
 
     return 0;
 }

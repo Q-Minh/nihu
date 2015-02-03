@@ -494,7 +494,7 @@ public:
 			field_base<TrialField> const &,
 			invalid_singular_accelerator const &)
 		{
-			throw std::runtime_error("Invalid quadrature");
+			throw std::runtime_error("Invalid quadrature returned by eval_singular_on_accelerator");
 			return result;
 		}
 	};
