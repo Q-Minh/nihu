@@ -107,7 +107,6 @@ struct Tkernel
 		elastostatics_data const &data)
 	{
 		auto nu = data.get_poisson_ratio();
-		auto mu = data.get_shear_modulus();
 		auto rvec = y.get_x() - x.get_x();
 		auto r = rvec.norm();
 		auto gradr = rvec.normalized();
@@ -115,7 +114,7 @@ struct Tkernel
 		auto rdny = gradr.dot(n);
 		return (-rdny * ( (1.-2.*nu)*return_type::Identity() + 3.*(gradr*gradr.transpose()) )
 			+ (1.-2.*nu) * (gradr*n.transpose()-n*gradr.transpose())
-			) / (8.*M_PI*(1.-nu)*r*r*mu);
+			) / (8.*M_PI*(1.-nu)*r*r);
 	}
 };
 
@@ -167,9 +166,8 @@ public:
         auto const &j0 = obj.get_Jvec_series(_0());
         auto const &N0 = obj.get_shape_series(_0());
         auto nu = obj.get_kernel_data().get_poisson_ratio();
-        auto mu = obj.get_kernel_data().get_shear_modulus();
         Eigen::Matrix<double, 3, 3> res = ((r1*j0.transpose())-(j0*r1.transpose()))
-			* (1.-2.*nu)/(1.-nu)/(8.*M_PI*mu);
+			* (1.-2.*nu)/(1.-nu)/(8.*M_PI);
 		obj.set_laurent_coeff(_m1(), semi_block_product(res, N0));
 	}
 };
