@@ -16,10 +16,9 @@ xf = centnorm(field);
 nu = .3;    % [-]
 rho = 1000;  % [kg/m3]
 mu = 1e8;   % [Pa]
-freq = 100; % [Hz]
+freq = 200; % [Hz]
 
 %% compute system matrices
-
 [r_nodes, r_elements] = extract_core_mesh(radiator);
 [f_nodes, f_elements] = extract_core_mesh(field);
 
@@ -28,17 +27,22 @@ tic;
     nu, rho, mu, freq);
 t_mat = toc;
 
-
 %% Pulsating test
 tsvec = -ns;
 ts = reshape(tsvec.', [], 1);
 us = (Ts - .5*eye(size(Ts))) \ (Us * ts);
-uf = Tf * us - Uf * ts;
+uf1 = Tf * us;
+uf2 = Uf * ts;
+uf = uf1-uf2;
 
 usvec = reshape(us, 3, []).';
+uf1vec = reshape(uf1, 3, []).';
+uf2vec = reshape(uf2, 3, []).';
 ufvec = reshape(uf, 3, []).';
 
-usn = dot(usvec, ns, 2);
+usn = sum(ns .* usvec, 2);
+uf1n = uf1vec(:,1);
+uf2n = uf2vec(:,1);
 ufn = ufvec(:,1);
 
 R = xf(:,1);
@@ -50,7 +54,6 @@ plot(xf(:,1), [real(ufn) imag(ufn)], xf(:,1), [real(gf), imag(gf)], '.');
 hold on;
 plot(Rs, [real(usn(1)), imag(usn(1))], '*',...
     Rs, [real(gs(1)), imag(gs(1))], '.');
-
 
 %% Transparent test
 load_normal = [1 0 0].';
@@ -74,3 +77,4 @@ ufvec = reshape(uf, 3, []).';
 d = 3;
 figure;
 plot(xf(:,1), [real(ufvec(:,d)) imag(ufvec(:,d))], xf(:,1), [real(ufvec_anal(:,d)) imag(ufvec_anal(:,d))], '.');
+
