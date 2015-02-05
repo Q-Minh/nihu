@@ -1,0 +1,122 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{a4wide}
+
+\begin{document}
+
+\section{Basic equations}
+
+Linear displacement-strain relations
+%
+\begin{equation}
+\varepsilon_{ij} = \frac{1}{2} \left(u_{i,j} + u_{j,i}\right)
+\end{equation}
+%
+stress-strain relations:
+%
+\begin{equation}
+\sigma_{ij} = \lambda \delta_{ij} \varepsilon_{kk} + 2 \mu \varepsilon_{ij}
+\end{equation}
+
+stress-tracton relation
+%
+\begin{equation}
+t_i = \sigma_{ij} n_j
+\end{equation}
+
+combination
+\begin{equation}
+t_i = \lambda n_i u_{k,k} + \mu \left( u_{i,j} + u_{j,i} \right) n_j
+\end{equation}
+
+From Kausel, the $j$-th derivative of the $i$-th displacement component when the unit point load acts in the $l$-th direction is
+%
+\begin{equation}
+u_{li,j} = \frac{1}{4\pi r\mu} \left(
+r_{,j} A \delta_{li}
++
+B r_{,j} r_{,l} r_{,i}
++
+C \left(\delta_{lj} r_{,i} + \delta_{ij} r_{,l} \right)
+\right)
+\end{equation}
+
+
+
+The $i$-th traction component on surface with normal $n_i$ due to a unit point source acting in direction $l$ is
+%
+\begin{equation}
+t_{li} = \lambda n_i u_{lk,k} + \mu \left( u_{li,j} + u_{lj,i} \right) n_j
+\end{equation}
+
+The components separately are:
+%
+\begin{align}
+u_{lk,k} &= \frac{1}{4\pi r\mu} \left(
+r_{,k} A \delta_{lk}
++
+B r_{,k} r_{,l} r_{,k}
++
+C \left(\delta_{lk} r_{,k} + \delta_{kk} r_{,l} \right)
+\right) \nonumber \\
+&= \frac{r_{,l}}{4\pi r\mu} \left( A + B + 4C \right)
+\end{align}
+%
+using that $r_{,k} r_{,k} = 1$ and $\delta_{k,k} = 3$.
+
+\begin{align}
+\left(u_{li,j} + u_{lj,i}\right) n_j
+&=
+\frac{1}{4\pi r\mu} \left(
+r_{,j} A \delta_{li}
++
+2B r_{,j} r_{,l} r_{,i}
++
+C \left(\delta_{lj} r_{,i} + \delta_{ij} r_{,l} \right)
++
+r_{,i} A \delta_{lj}
++
+C \left(\delta_{li} r_{,j} + \delta_{ji} r_{,l} \right)
+\right) n_j \nonumber \\
+&=
+\frac{1}{4\pi r\mu} \left(
+r_{,n} A \delta_{li}
++
+2B r_{,n} r_{,l} r_{,i}
++
+C \left(n_l r_{,i} + n_i r_{,l} \right)
++
+r_{,i} A n_l
++
+C \left(\delta_{li} r_{,n} + n_i r_{,l} \right)
+\right)
+\end{align}
+
+the final result is
+%
+\begin{align}
+t_{li}
+=
+\frac{1}{4\pi r} 
+\left\{
+\frac{\lambda}{\mu}
+n_i r_{,l} \left( A + B + 4C \right)
++
+r_{,n}
+\left[(A + C) \delta_{li}
++
+2B r_{,l} r_{,i}
+\right]
++
+C \left(n_l r_{,i} + n_i r_{,l} \right)
++
+r_{,i} A n_l
++
+C n_i r_{,l}
+\right\}
+\end{align}
+
+\end{document}
+
