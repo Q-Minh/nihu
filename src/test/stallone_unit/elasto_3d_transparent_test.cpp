@@ -36,8 +36,9 @@ int main(int argc, char *argv[])
 	auto const &w = constant_view(field, _3d());
 
 	double nu = .33;
-	auto U_op = create_integral_operator(elastostatics_3d_U_kernel(nu));
-	auto T_op = create_integral_operator(elastostatics_3d_T_kernel(nu));
+	double mu = 1e8;
+	auto U_op = create_integral_operator(elastostatics_3d_U_kernel(nu, mu));
+	auto T_op = create_integral_operator(elastostatics_3d_T_kernel(nu, mu));
 
 	dMatrix Us(v.get_num_dofs(), v.get_num_dofs());
 	Us.setZero();

@@ -44,7 +44,7 @@ int main(void)
 		0.0, 1.0, 2.0;
 	auto field = create_mesh(nodes, elements, quad_1_tag());
 	
-	auto K = create_integral_operator(elastostatics_3d_U_kernel(.33));
+	auto K = create_integral_operator(elastostatics_3d_U_kernel(.33, 1e8));
 	
 	auto const &w = isoparametric_view(field, _3d());
 	auto const &v = constant_view(mesh, _3d());
