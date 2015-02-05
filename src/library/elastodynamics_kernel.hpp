@@ -67,7 +67,8 @@ struct DynamicUkernel
 
 		// material properties and Helmholtz numbers
 		auto nu = data.get_poisson_ratio();
-		auto a = std::sqrt((1.-2.*nu)/2./(1.-nu));
+		auto a2 = (1.-2.*nu)/2./(1.-nu);
+		auto a = std::sqrt(a2);
 		auto mu = data.get_shear_modulus();
 		auto rho = data.get_mass_density();
 		auto cS = std::sqrt(mu/rho);
@@ -80,11 +81,11 @@ struct DynamicUkernel
 		std::complex<double> const I(0.0, 1.0);
 
 		std::complex<double> psi =
-			std::exp(-I*kPr) * (a*a) * (I/kPr + 1./(kPr*kPr)) +
+			std::exp(-I*kPr) * a2 * (I/kPr + 1./(kPr*kPr)) +
 			std::exp(-I*kSr) * (1. - I/kSr - 1./(kSr*kSr));
 
 		std::complex<double> chi =
-			std::exp(-I*kPr) * (a*a) * (1. - 3.*I/kPr - 3./(kPr*kPr)) -
+			std::exp(-I*kPr) * a2 * (1. - 3.*I/kPr - 3./(kPr*kPr)) -
 			std::exp(-I*kSr) * (1. - 3.*I/kSr - 3./(kSr*kSr));
 
 		// matrix valued result
@@ -128,11 +129,6 @@ public:
 
 
 
-
-
-
-
-
 struct DynamicTkernel
 {
 	typedef Eigen::Matrix<std::complex<double>, 3, 3> return_type;
@@ -151,8 +147,8 @@ struct DynamicTkernel
 
 		// material properties and Helmholtz numbers
 		auto nu = data.get_poisson_ratio();
-		auto a = std::sqrt((1.-2.*nu)/2./(1.-nu)); /* cs/cp */
-		auto a2 = a*a;
+		auto a2 = (1.-2.*nu)/2./(1.-nu);
+		auto a = std::sqrt(a2);
 		auto mu = data.get_shear_modulus();
 		auto lambdapermu = (1./a2 - 2.);
 		auto rho = data.get_mass_density();
@@ -173,30 +169,26 @@ struct DynamicTkernel
 			std::exp(-I*kPr) * a2 * (1. - 3.*I/kPr - 3./(kPr*kPr)) -
 			std::exp(-I*kSr) *      (1. - 3.*I/kSr - 3./(kSr*kSr));
 
-		std::complex<double> dpsi = (
+		std::complex<double> dpsi =
 			std::exp(-I*kPr) * a2 * (1.         - 2.*I/kPr - 2./(kPr*kPr)) -
-			std::exp(-I*kSr) *      (1. + I*kSr - 2.*I/kSr - 2./(kSr*kSr))
-			) / r;
+			std::exp(-I*kSr) *      (1. + I*kSr - 2.*I/kSr - 2./(kSr*kSr));
 
-		std::complex<double> dchi = (
+		std::complex<double> dchi =
 			std::exp(-I*kSr) *      (3. + I*kSr - 6.*I/kSr - 6./(kSr*kSr)) -
-			std::exp(-I*kPr) * a2 * (3. + I*kPr - 6.*I/kPr - 6./(kPr*kPr))
-			) / r;
+			std::exp(-I*kPr) * a2 * (3. + I*kPr - 6.*I/kPr - 6./(kPr*kPr));
 
-		std::complex<double> A = dpsi - psi/r;
-		std::complex<double> B = dchi - 3.*chi/r;
-		std::complex<double> C = chi/r;
+		std::complex<double> A = dpsi - psi;
+		std::complex<double> B = dchi - 3.*chi;
+		std::complex<double> C = chi;
 
 		// matrix valued result
 		return (
-			return_type::Identity() * rdn * (A+C)
+			rdn * (return_type::Identity() * (A+C) + 2.*B*(gradr * gradr.transpose()))
 			+
-			rdn * 2. * B * (gradr * gradr.transpose())
+			(2.*C + lambdapermu*(A+B+4.*C)) * (gradr * n.transpose())
 			+
-			(2.*C + lambdapermu*(A+B+4.*C)) * (n * gradr.transpose())
-			+
-			(A+C) * (gradr * n.transpose())
-		).transpose() / (4.*M_PI*r);
+			(A+C) * (n * gradr.transpose())
+		) / (4.*M_PI*r*r);
 	}
 };
 
@@ -234,7 +226,4 @@ public:
 		kernel_base<elastodynamics_3d_T_kernel>(elastodynamics_data(nu, rho, mu, omega)) {}
 };
 
-
-
 #endif // ELASTODYNAMICS_KERNEL_HPP_INCLUDED
-
