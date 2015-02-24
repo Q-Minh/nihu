@@ -13,7 +13,7 @@ function [xx, ww] = gaussquad1(order)
 
 % Last modified 02.12.2009
 %% Argument check
-error(nargchk(1, 1, nargin, 'struct'));
+narginchk(1, 1);
 
 %%
 n = ceil((order+1)/2);
