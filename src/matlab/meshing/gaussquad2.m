@@ -16,9 +16,9 @@ function [xx, ww] = gaussquad2(order, nvert)
 %   Budapest University of Technology and Economics
 %   Dept. of Telecommunications
 
-% Last modified 02.12.2009
+% Last modified 2015.03.05.
 %% Argument check
-error(nargchk(1, 2, nargin, 'struct'));
+narginchk(1, 2);
 if nargin < 2
     nvert = 4;
 end
@@ -31,30 +31,7 @@ switch nvert
         w = (w * w.');                % weights over rectangle
         xx = [xi(:) eta(:)];
         ww = w(:);
-        %         if sing
-        %             [N, dN] = shapefun(xx, 24);
-        %             vert1 = [-1 -1; -1 -1; 1 -1; 1 1];
-        %             vert2 = [-1 -1; -1 -1; 1 1; -1 1];
-        %             xx = [N * vert1; N*vert2];
-        %             d1xi = dN(:,:,1)*vert1;
-        %             d1eta = dN(:,:,2)*vert1;
-        %             d2xi = dN(:,:,1)*vert2;
-        %             d2eta = dN(:,:,2)*vert2;
-        %             ww = [ww; ww] .* [
-        %                 d1xi(:,1).*d1eta(:,2)-d1eta(:,1).*d1xi(:,2)
-        %                 d2xi(:,1).*d2eta(:,2)-d2eta(:,1).*d2xi(:,2)
-        %                 ];
-        %         end
     case 3
-        %         if sing
-        %             [xx, ww] = gaussquad2(order, 4);
-        %             [N, dN] = shapefun(xx, 24);
-        %             vert = [0 0; 0 0; 1 0; 0 1];
-        %             xx = N * vert;
-        %             dxi = dN(:,:,1)*vert;
-        %             deta = dN(:,:,2)*vert;
-        %             ww = ww .* (dxi(:,1).*deta(:,2)-deta(:,1).*dxi(:,2));
-        %         else
         switch order
             case {0, 1}
                 xx = [1/3 1/3];
@@ -263,10 +240,6 @@ switch nvert
                 [xx, ww] = dunavant_rule(order);
                 xx = fliplr(xx.');
                 ww = ww(:)/2;
-%             otherwise
-%                 error('NiHu:gaussquad2:argValue',...
-%                     'Quadrature number %d is not supported for triangles', order);
-%                 %             end
         end
     otherwise
         error('NiHu:gaussquad2:argValue',...

@@ -16,22 +16,22 @@ switch nargin
         % Process corners
         R = varargin{1};
         switch size(R,1)
+            %TODO relate these arguments to the LSet info
             case 1
                 if isscalar(R)
                     R = [R R R];
                 end
                 R = [
-                    0    R(2)    0
-                    R(1) R(2)    0
-                    R(1) 0 0
-                    0    0 0
-                    0    R(2)    R(3)
-                    R(1) R(2)    R(3)
-                    R(1) 0 R(3)
-                    0    0 R(3)
+                    0    0    0
+                    R(1) 0    0
+                    R(1) R(2) 0
+                    0    R(2) 0
+                    0    0    R(3)
+                    R(1) 0    R(3)
+                    R(1) R(2) R(3)
+                    0    R(2) R(3)
                     ];
             case 2
-                warning('check this');
                 R = [
                     R(1,1) R(1,2) R(1,3)
                     R(2,1) R(1,2) R(1,3)

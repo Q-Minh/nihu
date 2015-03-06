@@ -39,22 +39,22 @@ Elements = [Elements zeros(size(Elements,1), 8-size(Elements,2))];
 [~, normal] = centnorm(mesh);
 
 % Select which elements to flip to conserve outward normals
-flip = (normal * dir.') > 0;
+reverse = (normal * dir.') < 0 & Elements(:,2) ~= ShapeSet.LinearLine.Id;
 
-quads = Elements(:,2) == 24;
+quads = Elements(:,2) == ShapeSet.LinearQuad.Id;
 quad = Elements(quads,:);
 nq = size(quad,1);
-trias = Elements(:,2) == 23;
+trias = Elements(:,2) == ShapeSet.LinearTria.Id;
 tria = Elements(trias,:);
 nt = size(tria,1);
-lines = Elements(:,2) == 12;
+lines = Elements(:,2) == ShapeSet.LinearLine.Id;
 line = Elements(lines,:);
 nl = size(line,1);
 nE = nq+nt+nl;
 
-flipquad = flip(quads);
-fliptria = flip(trias);
-flipline = flip(lines);
+flipquad = reverse(quads);
+fliptria = reverse(trias);
+flipline = reverse(lines);
 
 quad(flipquad,5:8) = fliplr(quad(flipquad,5:8));
 tria(fliptria,5:7) = fliplr(tria(fliptria,5:7));
@@ -63,11 +63,10 @@ line(flipline,5:6) = fliplr(line(flipline,5:6));
 Elem = zeros(nRep*nE,12);
 
 for iRep = 1 : nRep
-    Elem((iRep-1)*nE+(1:nq),1:12) = [repmat([0 38],nq,1) quad(:,3:4) quad(:,5:8)+(iRep-1)*nNod quad(:,5:8)+iRep*nNod];
-    Elem((iRep-1)*nE+nq+(1:nt),1:10) = [repmat([0 36],nt,1) tria(:,3:4) tria(:,5:7)+(iRep-1)*nNod tria(:,5:7)+iRep*nNod];
-    Elem((iRep-1)*nE+nq+nt+(1:nl),1:8) = [repmat([0 24],nl,1) line(:,3:4) line(:,[5 6])+(iRep-1)*nNod line(:,[6 5])+iRep*nNod];
+    Elem((iRep-1)*nE+(1:nq),1:12) = [repmat([0 ShapeSet.LinearHexa.Id],nq,1) quad(:,3:4) quad(:,5:8)+(iRep-1)*nNod quad(:,5:8)+iRep*nNod];
+    Elem((iRep-1)*nE+nq+(1:nt),1:10) = [repmat([0 ShapeSet.LinearPenta.Id],nt,1) tria(:,3:4) tria(:,5:7)+(iRep-1)*nNod tria(:,5:7)+iRep*nNod];
+    Elem((iRep-1)*nE+nq+nt+(1:nl),1:8) = [repmat([0 ShapeSet.LinearQuad.Id],nl,1) line(:,3:4) line(:,[5 6])+(iRep-1)*nNod line(:,[6 5])+iRep*nNod];
 end
-
 
 % Assemble new mesh structure
 mesh2.Nodes(:,2:4) = coord;

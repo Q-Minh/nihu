@@ -21,13 +21,13 @@ function [xx, ww] = gaussquad3(order, nvert)
 
 % See also: gaussquad, gaussquad2, vert2gauss, geo2gauss
 
-%   Copyright 2008-2014 P. Fiala P.Rucz
+%   Copyright 2008-2015 P. Fiala P.Rucz
 %   Budapest University of Technology and Economics
 %   Dept. of Telecommunications
 
-% Last modified 08.12.2009
+% Last modified 2015.03.05.
 %% Parameter check
-error(nargchk(2, 2, nargin, 'struct'));
+narginchk(2, 2);
 
 %%
 switch nvert

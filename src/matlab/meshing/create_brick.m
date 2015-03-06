@@ -70,7 +70,7 @@ end
 model = create_brick_base(N);
 % Apply transformation
 if isfield(args, 'R')
-    phi = shapefun(model.Nodes(:,2:4), 38);
+    phi = ShapeSet.LinearHexa.eval(model.Nodes(:,2:4));
     model.Nodes(:,2:4) = phi * args.R;
 elseif isfield(args, 'Cx')
     [y, x, z] = meshgrid(args.Cy,args.Cx,args.Cz);    % create coordinates

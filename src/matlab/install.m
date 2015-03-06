@@ -8,7 +8,7 @@ name = mfilename('fullpath');
 path = fileparts(name);
 
 % these directories will be added
-dirs = {'analytic', 'compatibility', 'meshing', 'nihudemos'};
+dirs = {'analytic', 'compatibility', 'meshcore', 'meshing', 'nihudemos'};
 for i = 1 : length(dirs)
     addpath(fullfile(path, dirs{i}));
 end

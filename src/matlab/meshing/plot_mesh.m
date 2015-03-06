@@ -113,14 +113,14 @@ Elements = drop_IDs(mesh);
 
 
 %% Plot LINE elements
-lin = Elements(:,2) == 12;
+lin = Elements(:,2) == ShapeSet.LinearLine.Id;
 if any(lin)
     elem = Elements(lin,5:6);
     line(x(elem.'), y(elem.'), z(elem.'), 'Color', 'black');
 end
 
 %% Plot TRIA elements
-tria = (Elements(:,2) == 23 | Elements(:,2) == 223);
+tria = (Elements(:,2) == ShapeSet.LinearTria.Id | Elements(:,2) == 223);
 if any(tria)
     elem = Elements(tria,5:7);
     if nodewise
@@ -137,7 +137,7 @@ if any(tria)
 end
 
 %% Plot QUAD elements
-quad = find(Elements(:,2) == 24 | Elements(:,2) == 224);
+quad = find(Elements(:,2) == ShapeSet.LinearQuad.Id | Elements(:,2) == 224);
 if any(quad)
     elem = Elements(quad,5:8);
     if nodewise
@@ -173,7 +173,12 @@ end
 %% Plot 3D elements
 % 3D elements are plotted by extracting their boundary and plotting the
 % bounday's 2D surfrace elements with plot_mesh.
-i3D = floor(mod(mesh.Elements(:,2),100)/10) == 3;    % 3D selection
+dims = zeros(size(mesh.Elements,1),1);
+for e = 1 : size(mesh.Elements,1)
+    lset = ShapeSet.fromId(mesh.Elements(e,2));
+    dims(e) = lset.Domain.Space.Dimension;
+end
+i3D = dims == 3;    % 3D selection
 if any(i3D)
     mesh.Elements = mesh.Elements(i3D,:);   % keep 3D elements
     [bou, elemind] = get_boundary(mesh);      % compute boundary

@@ -49,7 +49,7 @@ hold off;
 % <matlab:doc('geo2gauss') geo2gauss>, and the obtained Gaussian weights
 % are summed:
 sphere = create_sphere_boundary(1, 10); % create sphere mesh
-[xg, ng, w] = geo2gauss(sphere, 0); % Gaussian quadrature over the mesh
+[~, ~, w] = geo2gauss(sphere, 0); % Gaussian quadrature over the mesh
 A = sum(w)                              % mesh surface area
 
 %% Integrate analytically given scalar field over a mesh surface
@@ -58,7 +58,7 @@ A = sum(w)                              % mesh surface area
 % $$I = \int_S z^2 \mathrm{d}S$$
 %
 % is computed over the sphere surface.
-[xg, ng, w] = geo2gauss(sphere, 3); % Higher order quadrature
+[xg, ~, w] = geo2gauss(sphere, 3); % Higher order quadrature
 f = xg(:,3).^2; % the function samples in the quadrature points
 I = w' * f      % integration
 

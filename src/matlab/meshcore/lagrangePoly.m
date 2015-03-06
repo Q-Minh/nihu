@@ -1,4 +1,4 @@
-function [N, dN, f, df] = lagrangePoly(base, corners)
+function [N, dN, f, df, ddf] = lagrangePoly(base, corners)
 
 d = size(corners,2);
 n = size(corners,1);
@@ -23,9 +23,13 @@ end
 
 f = matlabFunction(N, 'vars', {g});
 df = cell(n, d);
-for j = 1 : d
-    for i = 1 : n
+ddf = cell(n, d, d);
+for i = 1 : n
+    for j = 1 : d
         df{i,j} = matlabFunction(dN(j,i), 'vars', {g});
+        for k = 1 : d
+            ddf{i,j,k} = matlabFunction(simple(diff(dN(j,i), g(k))), 'vars', {g});
+        end
     end
 end
 
