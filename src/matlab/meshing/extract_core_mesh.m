@@ -2,11 +2,11 @@ function [nodes, elements] = extract_core_mesh(model)
 %EXTRACT_CORE_MESH Extract C++ core bem mesh from a NiHu mesh structure
 
 %% Search for QUAD or TRIA elements and allocate space for bem model
-ind12 = find(model.Elements(:,2) == 12); % line elements
-ind3 = find(model.Elements(:,2) == 23); % linear tri elements
-ind4 = find(model.Elements(:,2) == 24); % linear quad elements
-ind23 = find(model.Elements(:,2) == 232); % quadratic tria elements
-ind24 = find(model.Elements(:,2) == 242); % quadratic quad elements
+ind12 = find(model.Elements(:,2) == ShapeSet.LinearLine.Id); % line elements
+ind3 = find(model.Elements(:,2) == ShapeSet.LinearTria.Id); % linear tri elements
+ind4 = find(model.Elements(:,2) == ShapeSet.LinearQuad.Id); % linear quad elements
+ind23 = find(model.Elements(:,2) == ShapeSet.QuadraticTria.Id); % quadratic tria elements
+ind24 = find(model.Elements(:,2) == ShapeSet.QuadraticQuad.Id); % quadratic quad elements
 elem = drop_IDs(model);
 elements = zeros(size(model.Elements,1),9+1);
 
@@ -28,9 +28,9 @@ if ~isempty(ind23)
     elements(ind23,1+(1:6)) = elem(ind23,4+(1:6))-1; % C-style indexing
 end
 if ~isempty(ind24)
-    elements(ind24,1) = 32409;
-%     elements(ind24,1) = 32408;
-    elements(ind24,1+(1:9)) = elem(ind24,4+(1:9))-1; % C-style indexing
+%     elements(ind24,1) = 32409;
+    elements(ind24,1) = 32408;
+    elements(ind24,1+(1:8)) = elem(ind24,4+(1:8))-1; % C-style indexing
 end
 
 %% build new node matrix
