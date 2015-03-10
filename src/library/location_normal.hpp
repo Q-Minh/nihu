@@ -124,10 +124,51 @@ struct normal_jacobian
 	};
 };
 
-typedef build<location<space_2d> >::type location_input_2d;
-typedef build<location<space_3d> >::type location_input_3d;
-typedef build<location<space_2d>, normal_jacobian<space_2d> >::type location_normal_input_2d;
-typedef build<location<space_3d>, normal_jacobian<space_3d> >::type location_normal_input_3d;
+/** \brief a class representing a Jacobian brick used for volume elements
+ * \tparam Space the coordinate space
+ */
+template <class Space>
+struct volume_jacobian
+{
+	/**
+	 * \brief the brick template class
+	 * \tparam wall the wall type to glue the brick on
+	 */
+	template <class wall>
+	struct brick : public wall
+	{
+	public:
+		/** \brief template parameter as nested type */
+		typedef Space space_t;
+		/** \brief the scalar type */
+		typedef typename space_t::scalar_t scalar_t;
+
+		/** \brief constructor
+		 * \tparam elem_t the element type
+		 * \param [in] elem the element instance
+		 * \param [in] xi the reference domain variable */
+		template <class elem_t>
+		brick(elem_t const &elem, typename elem_t::xi_t const &xi) :
+			wall(elem, xi),
+			m_jac(elem.get_dx(xi).determinant())
+		{
+		}
+
+		/** \brief return the Jacobian */
+		scalar_t const &get_jacobian(void) const
+		{
+			return m_jac;
+		}
+
+	private:
+		scalar_t m_jac;
+	};
+};
+
+typedef build<location<space_2d<> > >::type location_input_2d;
+typedef build<location<space_3d<> > >::type location_input_3d;
+typedef build<location<space_2d<> >, normal_jacobian<space_2d<> > >::type location_normal_input_2d;
+typedef build<location<space_3d<> >, normal_jacobian<space_3d<> > >::type location_normal_input_3d;
 
 #endif // LOCATION_NORMAL_HPP_INCLUDED
 

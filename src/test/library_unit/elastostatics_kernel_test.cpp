@@ -54,16 +54,17 @@ int main(void)
 
     quad_1_elem elem1(coords1), elem2(coords2);
 	double nu = 1./3.;
+	double mu = 1e8;
 
-    std::cout << tester(elastostatics_3d_U_kernel(nu), elem1, elem2) << std::endl;
-	std::cout << tester(elastostatics_3d_T_kernel(nu), elem1, elem2) << std::endl;
+    std::cout << tester(elastostatics_3d_U_kernel(nu, mu), elem1, elem2) << std::endl;
+	std::cout << tester(elastostatics_3d_T_kernel(nu, mu), elem1, elem2) << std::endl;
     std::cout << tester(
-		create_couple_kernel(elastostatics_3d_U_kernel(nu), elastostatics_3d_T_kernel(nu)),
+		create_couple_kernel(elastostatics_3d_U_kernel(nu, mu), elastostatics_3d_T_kernel(nu, mu)),
 		elem1, elem2
 	) << std::endl;
 
-	std::cout << "U singular:\n" << singular_integral_test(elastostatics_3d_U_kernel(nu), elem1) << std::endl;
-	std::cout << "T singular:\n" << singular_integral_test(elastostatics_3d_T_kernel(nu), elem1) << std::endl;
+	std::cout << "U singular:\n" << singular_integral_test(elastostatics_3d_U_kernel(nu, mu), elem1) << std::endl;
+	std::cout << "T singular:\n" << singular_integral_test(elastostatics_3d_T_kernel(nu, mu), elem1) << std::endl;
 
     return 0;
 }

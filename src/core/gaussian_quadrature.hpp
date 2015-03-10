@@ -495,7 +495,7 @@ public:
 /**
  * \brief tag for the family of Gaussian quadratures
  */
-struct gauss_family_tag;
+struct gauss_family_tag { typedef gauss_family_tag type; };
 
 /** \brief specialisation of quadrature_type to Gaussian family on line */
 template<class Domain>

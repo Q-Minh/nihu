@@ -25,16 +25,29 @@ typedef mex::complex_matrix<double> cMatrix;
 
 void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 {
-	if (nlhs != 2 || nrhs != 1)
+	if (nlhs != 10 || nrhs != 1)
 		throw std::invalid_argument("bad number of input or output arguments");
 
 	cMatrix z(rhs[0]);
-	cMatrix H0(z.rows(), z.cols(), lhs[0]), H1(z.rows(), z.cols(), lhs[1]);
+	cMatrix J0(z.rows(), z.cols(), lhs[0]), J1(z.rows(), z.cols(), lhs[1]);
+	cMatrix Y0(z.rows(), z.cols(), lhs[2]), Y1(z.rows(), z.cols(), lhs[3]);
+	cMatrix H01(z.rows(), z.cols(), lhs[4]), H11(z.rows(), z.cols(), lhs[5]);
+	cMatrix H02(z.rows(), z.cols(), lhs[6]), H12(z.rows(), z.cols(), lhs[7]);
+	cMatrix K0(z.rows(), z.cols(), lhs[8]), K1(z.rows(), z.cols(), lhs[9]);
 
 	for (unsigned i = 0; i < z.rows(); ++i)
 		for (unsigned j = 0; j < z.cols(); ++j)
 		{
-			H0(i,j) = bessel::H<0>(z(i,j));
-			H1(i,j) = bessel::H<1>(z(i,j));
+			J0(i,j) = bessel::J<0, std::complex<double> >(z(i,j));
+			J1(i,j) = bessel::J<1, std::complex<double> >(z(i,j));
+			Y0(i,j) = bessel::Y<0>(z(i,j));
+			Y1(i,j) = bessel::Y<1>(z(i,j));
+			H01(i,j) = bessel::H<0, 1, std::complex<double> >(z(i,j));
+			H11(i,j) = bessel::H<1, 1, std::complex<double> >(z(i,j));
+			H02(i,j) = bessel::H<0, 2, std::complex<double> >(z(i,j));
+			H12(i,j) = bessel::H<1, 2, std::complex<double> >(z(i,j));
+			K0(i,j) = bessel::K<0, std::complex<double> >(z(i,j));
+			K1(i,j) = bessel::K<1, std::complex<double> >(z(i,j));
 		}
 }
+

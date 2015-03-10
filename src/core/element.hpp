@@ -88,6 +88,9 @@ namespace element_traits
 	template <class Derived>
 	struct lset;
 
+	template <class Derived>
+	struct is_surface_element;
+
 	/** \brief Assigns an id to the element type */
 	template <class Derived>
 	struct id
@@ -455,6 +458,9 @@ namespace element_traits
 		typedef LSet type;
 	};
 
+	template <class LSet, class Scalar>
+	struct is_surface_element<surface_element<LSet, Scalar> > : std::true_type {};
+
 	/** \brief Class that computes or stores the normals */
 	template <class Derived>
 	struct normal_factory_functor : conditional_precompute_instance<
@@ -548,6 +554,9 @@ namespace element_traits
 	{
 		typedef LSet type;
 	};
+
+	template <class LSet, class Scalar>
+	struct is_surface_element<volume_element<LSet, Scalar> > : std::false_type {};
 }
 
 /** \brief class describing a volume element that has no normal vector

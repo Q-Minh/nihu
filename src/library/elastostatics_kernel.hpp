@@ -33,14 +33,16 @@
 #include "location_normal.hpp"
 #include "basic_bricks.hpp"
 
-class poisson_ratio_data
+class elastostatics_data
 {
 public:
-	poisson_ratio_data(double nu) :	m_nu(nu) {}
+	elastostatics_data(double nu, double mu) :	m_nu(nu), m_mu(mu) {}
 	double get_poisson_ratio(void) const { return m_nu; }
+	double get_shear_modulus(void) const { return m_mu; }
 
 private:
 	double m_nu;
+	double m_mu;
 };
 
 struct Ukernel
@@ -50,13 +52,14 @@ struct Ukernel
 	return_type operator()(
 		location_input_3d const &x,
 		location_input_3d const &y,
-		poisson_ratio_data const &data)
+		elastostatics_data const &data)
 	{
 		auto nu = data.get_poisson_ratio();
+		auto mu = data.get_shear_modulus();
 		auto rvec = y.get_x() - x.get_x();
 		auto r = rvec.norm();
 		auto gradr = rvec.normalized();
-		return ( (3.-4.*nu) * return_type::Identity() + (gradr * gradr.transpose()) ) / (16.*M_PI*(1.-nu)*r);
+		return ( (3.-4.*nu) * return_type::Identity() + (gradr * gradr.transpose()) ) / (16.*M_PI*(1.-nu)*r*mu);
 	}
 };
 
@@ -68,7 +71,7 @@ struct kernel_traits<elastostatics_3d_U_kernel>
 {
 	typedef location_input_3d test_input_t;
 	typedef location_input_3d trial_input_t;
-	typedef collect<poisson_ratio_data> data_t;
+	typedef collect<elastostatics_data> data_t;
 	typedef single_brick_wall<Ukernel>::type output_t;
 	enum { result_dimension = 3 };
 	typedef gauss_family_tag quadrature_family_t;
@@ -90,8 +93,8 @@ class elastostatics_3d_U_kernel :
 	public kernel_base<elastostatics_3d_U_kernel>
 {
 public:
-	elastostatics_3d_U_kernel(double nu) :
-		kernel_base<elastostatics_3d_U_kernel>(poisson_ratio_data(nu)) {}
+	elastostatics_3d_U_kernel(double nu, double mu) :
+		kernel_base<elastostatics_3d_U_kernel>(elastostatics_data(nu, mu)) {}
 };
 
 struct Tkernel
@@ -101,7 +104,7 @@ struct Tkernel
 	return_type operator()(
 		location_input_3d const &x,
 		location_normal_input_3d const &y,
-		poisson_ratio_data const &data)
+		elastostatics_data const &data)
 	{
 		auto nu = data.get_poisson_ratio();
 		auto rvec = y.get_x() - x.get_x();
@@ -122,7 +125,7 @@ struct kernel_traits<elastostatics_3d_T_kernel>
 {
 	typedef location_input_3d test_input_t;
 	typedef location_normal_input_3d trial_input_t;
-	typedef collect<poisson_ratio_data> data_t;
+	typedef collect<elastostatics_data> data_t;
 	typedef single_brick_wall<Tkernel>::type output_t;
 	enum { result_dimension = 3 };
 	typedef gauss_family_tag quadrature_family_t;
@@ -144,8 +147,8 @@ class elastostatics_3d_T_kernel :
 	public kernel_base<elastostatics_3d_T_kernel>
 {
 public:
-	elastostatics_3d_T_kernel(double nu) :
-		kernel_base<elastostatics_3d_T_kernel>(poisson_ratio_data(nu))
+	elastostatics_3d_T_kernel(double nu, double mu) :
+		kernel_base<elastostatics_3d_T_kernel>(elastostatics_data(nu, mu))
 	{
 	}
 };

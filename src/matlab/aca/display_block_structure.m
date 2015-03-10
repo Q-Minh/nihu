@@ -1,22 +1,35 @@
-function display_block_structure(Ctree, B)
+function p = display_block_structure(RowClusters, ColClusters, BlockTree)
+%DISPLAY_BLOCK_STRUCTURE visualise the block tree
+%  DISPLAY_BLOCK_STRUCTURE(RC, CC, B) plots the block tree structure
+%  defined by the row clusters RC, column clusters CC and block tree B.
+%  P = DISPLAY_BLOCK_STRUCTURE(...) returns the handle to the plotted patch
+%  object.
+%
+% Example:
+%  source = create_line(1, 5000);
+%  receiver = translate_mesh(create_line(1, 5000), [.5 0 0]);
+%  
+%  ColTree = build_cluster_tree(centnorm(source), 20);
+%  CC = sort_cluster_tree(ColTree);
+%  RowTree = build_cluster_tree(centnorm(receiver), 20);
+%  RC = sort_cluster_tree(RowTree);
+%  [~, B] = build_block_tree_2(RowTree, ColTree, .8);
+%  
+%  display_block_structure(RC, CC, B);
+%
+% see also: build_cluster_tree build_block_tree_2 sort_cluster_tree
 
-N = length(Ctree(1).ind);
-M = zeros(N,N);
-m = 0;
-for b = 1 : length(B)
-    C1 = Ctree(B(b,1));
-    C2 = Ctree(B(b,2));
-    n = length(C1.ind)*length(C2.ind);
-    m = m + n;
-    M(C1.ind, C2.ind) = log10(n);
-%     M(C1.ind, C2.ind) = b;
+% Copyright (c) Peter Fiala 2014
+
+p = zeros(size(BlockTree,1),1);
+for b = 1 : size(BlockTree,1)
+    i = RowClusters(BlockTree(b,1),:);
+    j = ColClusters(BlockTree(b,2),:);
+	X = j(1) + j(2)*[0 1 1 0];
+	Y = i(1) + i(2)*[0 0 1 1];
+    p(b) = patch(X,Y,b*ones(size(X)));
 end
 
-p = surf(M);
-title(sprintf('nz: %d', m));
-view(2);
-set(p, 'LineStyle', 'none');
 set(gca, 'yDir', 'reverse');
-axis equal tight;
 
-end
+end % of function display_block_structure

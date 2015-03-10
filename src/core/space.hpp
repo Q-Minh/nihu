@@ -26,14 +26,13 @@
 
 #include <Eigen/Dense>
 
-/** \brief class representing a space with a scalar vaiable and a dimension
+/** \brief class representing a coordinate space with a scalar variable and a dimension
  * \tparam Scalar the scalar variable
  * \tparam Dimension the space dimensionality
  */
 template <class Scalar, unsigned Dimension>
-class space
+struct space
 {
-public:
     /** self-returning */
     typedef space type;
 
@@ -51,11 +50,16 @@ public:
 };
 
 /** \brief specialisation for a 1D space of double */
-typedef space<double, 1> space_1d;
+template <class Scalar = double>
+using space_1d = space<Scalar, 1>;
+
 /** \brief specialisation for a 2D space of double */
-typedef space<double, 2> space_2d;
+template <class Scalar = double>
+using space_2d = space<Scalar, 2>;
+
 /** \brief specialisation for a 3D space of double */
-typedef space<double, 3> space_3d;
+template <class Scalar = double>
+using space_3d = space<Scalar, 3> ;
 
 #endif // SPACE_HPP_INCLUDED
 

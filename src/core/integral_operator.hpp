@@ -52,31 +52,31 @@ public:
 	typedef integral_operator_traits<Derived> traits_t;
 
 	/** \brief metafunction obtained from the traits class */
-	template <class Test, class Trial>
-	struct wr_result_type : traits_t::template wr_result_type<Test, Trial> {};
+	template <class TestField, class TrialField>
+	struct wr_result_type : traits_t::template wr_result_type<TestField, TrialField> {};
 
 	/** \brief sub-weighted residual on a test and a trial field
-	* \tparam Test the test field type
-	* \tparam Trial the trial field type
-	* \param [in] test the test field reference
-	* \param [in] trial the trial field reference
-	* \return the result submatrix
-	*/
-	template <class Test, class Trial, class OnSameMesh>
-	typename wr_result_type<Test, Trial>::type
+	 * \tparam TestField the test field type
+	 * \tparam TrialField the trial field type
+	 * \param [in] test_field the test field reference
+	 * \param [in] trial_field the trial field reference
+	 * \return the result submatrix
+	 */
+	template <class TestField, class TrialField, class OnSameMesh>
+	typename wr_result_type<TestField, TrialField>::type
 		eval_on_fields(
-			field_base<Test> const &test,
-			field_base<Trial> const &trial,
+			field_base<TestField> const &test_field,
+			field_base<TrialField> const &trial_field,
 			OnSameMesh) const
 	{
-		return derived().derived_eval_on_fields(test, trial, OnSameMesh());
+		return derived().derived_eval_on_fields(test_field, trial_field, OnSameMesh());
 	}
 
 	/** \brief apply the integral operator on a function space and create an ::integral_transform
-	* \tparam FuncSpace the trial function space
-	* \param [in] funcspace the function space reference
-	* \return integral_transform proxy object
-	*/
+	 * \tparam FuncSpace the trial function space
+	 * \param [in] funcspace the function space reference
+	 * \return integral_transform proxy object
+	 */
 	template <class FuncSpace>
 	integral_transform<
 		Derived,
@@ -108,13 +108,13 @@ template <class Scalar, class IntOp>
 struct integral_operator_traits<scaled_integral_operator<Scalar, IntOp> >
 {
 	/** \brief metafunction returning the result type of a double integral */
-	template <class Test, class Trial>
+	template <class TestField, class TrialField>
 	struct wr_result_type : plain_type<
 		typename product_type<
 		Scalar,
 		typename integral_operator_traits<
 			typename std::decay<IntOp>::type
-		>::template wr_result_type<Test, Trial>::type
+		>::template wr_result_type<TestField, TrialField>::type
 		>::type
 	> {};
 
@@ -151,20 +151,20 @@ public:
 	}
 
 	/** \brief evaluate a scaled integral operator on a test and a trial field
-	 * \tparam Test the test field's type
-	 * \tparam Trial the trial field's type
-	 * \param [in] test the test field
-	 * \param [in] trial the trial field
+	 * \tparam TestField the test field's type
+	 * \tparam TrialField the trial field's type
+	 * \param [in] test_field the test field
+	 * \param [in] trial_field the trial field
 	 * \return the result matrix of the double integral
 	 */
-	template <class Test, class Trial, class OnSameMesh>
-	typename base_t::template wr_result_type<Test, Trial>::type
+	template <class TestField, class TrialField, class OnSameMesh>
+	typename base_t::template wr_result_type<TestField, TrialField>::type
 		derived_eval_on_fields(
-			field_base<Test> const &test,
-			field_base<Trial> const &trial,
+			field_base<TestField> const &test_field,
+			field_base<TrialField> const &trial_field,
 			OnSameMesh) const
 	{
-		return m_scalar * m_parent.eval_on_fields(test, trial, OnSameMesh());
+		return m_scalar * m_parent.eval_on_fields(test_field, trial_field, OnSameMesh());
 	}
 
 private:
@@ -202,10 +202,10 @@ class identity_integral_operator;
 template <>
 struct integral_operator_traits<identity_integral_operator>
 {
-	template <class Test, class Trial>
+	template <class TestField, class TrialField>
 	struct wr_result_type
 	{
-		typedef typename single_integral<Test, Trial>::result_t type;
+		typedef typename single_integral<TestField, TrialField>::result_t type;
 	};
 
 	/** \brief indicates if the operator is to be evaluated only on the same element */
@@ -221,20 +221,20 @@ public:
 	typedef integral_operator_base<identity_integral_operator> base_t;
 
 	/** \brief evaluate an identity operator on a test and a trial field
-	 * \tparam Test the test field's type
-	 * \tparam Trial the trial field's type
+	 * \tparam TestField the test field's type
+	 * \tparam TrialField the trial field's type
 	 * \param [in] test the test field
 	 * \param [in] trial the trial field
 	 * \return the result matrix of the double integral
 	 */
-	template <class Test, class Trial, class OnSameMesh = std::false_type>
-	typename base_t::template wr_result_type<Test, Trial>::type
+	template <class TestField, class TrialField, class OnSameMesh = std::false_type>
+	typename base_t::template wr_result_type<TestField, TrialField>::type
 		derived_eval_on_fields(
-			field_base<Test> const &test,
-			field_base<Trial> const &trial,
+			field_base<TestField> const &test_field,
+			field_base<TrialField> const &trial_field,
 			OnSameMesh) const
 	{
-		return single_integral<Test, Trial>::eval(test, trial);
+		return single_integral<TestField, TrialField>::eval(test_field, trial_field);
 	}
 };
 
@@ -251,10 +251,10 @@ template <class Kernel>
 struct integral_operator_traits<integral_operator<Kernel> >
 {
 	/** \brief metafunction returning the weighted residual return type */
-	template <class Test, class Trial>
+	template <class TestField, class TrialField>
 	struct wr_result_type
 	{
-		typedef typename double_integral<Kernel, Test, Trial>::result_t type;
+		typedef typename double_integral<Kernel, TestField, TrialField>::result_t type;
 	};
 
 	/** \brief indicates if the operator is to be evaluated only on the same element */
@@ -294,21 +294,21 @@ public:
 	}
 
 	/** \brief evaluate an integral operator on a test and a trial field
-	 * \tparam Test the test field's type
-	 * \tparam Trial the trial field's type
+	 * \tparam TestField the test field's type
+	 * \tparam TrialField the trial field's type
 	 * \param [in] test the test field
 	 * \param [in] trial the trial field
 	 * \return the result matrix of the double integral
 	 */
-	template <class Test, class Trial, class OnSameMesh>
-	typename base_t::template wr_result_type<Test, Trial>::type
+	template <class TestField, class TrialField, class OnSameMesh>
+	typename base_t::template wr_result_type<TestField, TrialField>::type
 		derived_eval_on_fields(
-			field_base<Test> const &test,
-			field_base<Trial> const &trial,
+			field_base<TestField> const &test_field,
+			field_base<TrialField> const &trial_field,
 			OnSameMesh) const
 	{
-		return double_integral<kernel_t, Test, Trial>::eval(
-			m_kernel, test, trial, OnSameMesh());
+		return double_integral<kernel_t, TestField, TrialField>::eval(
+			m_kernel, test_field, trial_field, OnSameMesh());
 	}
 
 private:
@@ -345,7 +345,6 @@ integral_operator<couple_kernel<K1, Kernels...> >
 		create_couple_kernel(std::forward<K1>(k1), std::forward<Kernels>(kernels)...)
 	);
 }
-
 
 #endif
 

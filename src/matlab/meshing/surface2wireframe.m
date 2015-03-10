@@ -32,8 +32,7 @@ wf.Nodes = mesh.Nodes;
 nEl = size(wf.Elements,1);
 wf.Elements(:,1) = 1:size(wf.Elements,1);
 wf.Elements(:,2:4) = repmat([12 1 1], nEl,1);
-wf.Properties = 1;
-wf.Materials = 1;
+[wf.Materials, wf.Properties] = default_mat_prop();
 
 %
 wireframe = join_meshes(wireframe, wf);

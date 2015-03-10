@@ -1,4 +1,4 @@
-function [nodes elements] = mesh_select(mesh, expression, indmode, selmode)
+function [nodes, elements] = mesh_select(mesh, expression, indmode, selmode)
 %MESH_SELECT Element and node selection
 %   [NODES, ELEMENTS] = MESH_SELECT(MESH, COND, INDMODE, SELMODE) selects
 %   nodes and elements satisfying a given condition.

@@ -34,8 +34,8 @@
 
 
 /** \brief base class of all weighted residual expressions
-* \tparam Derived the CRTP derived class
-*/
+ * \tparam Derived the CRTP derived class
+ */
 template <class Derived>
 class wr_base
 {
@@ -43,10 +43,10 @@ public:
 	NIHU_CRTP_HELPERS
 
 	/** \brief evaluate weighted residual into matrix
-	* \tparam result_t the result matrix type
-	* \param [out] result the result matrix
-	* \return reference to the result
-	*/
+	 * \tparam result_t the result matrix type
+	 * \param [out] result the result matrix
+	 * \return reference to the result
+	 */
 	template <class result_t>
 	result_t &eval(result_t &result) const
 	{
@@ -57,7 +57,7 @@ public:
 
 /** \brief A weighted residual proxy storing a function_space and an integral_transform
  * \tparam TestSpace the test function space
- * \tparam Projection the itnegral_transform
+ * \tparam Projection the integral_transform
  */
 template <class TestSpace, class Projection>
 class weighted_residual :
@@ -65,9 +65,9 @@ class weighted_residual :
 {
 public:
 	/** \brief constructor from test reference and integral_transform reference
-	* \param [in] test reference to the test space
-	* \param [in] proj reference to the integral_transform
-	*/
+	 * \param [in] test reference to the test space
+	 * \param [in] proj reference to the integral_transform
+	 */
 	weighted_residual(
 		TestSpace &&test,
 		Projection &&proj) :
@@ -76,11 +76,11 @@ public:
 	{
 	}
 
-	/** \brief evaluate wr sum into result
-	* \tparam result_t the result matrix type
-	* \param [out] result the result matrix
-	* \return reference to the result
-	*/
+	/** \brief evaluate wr into result
+	 * \tparam result_t the result matrix type
+	 * \param [out] result the result matrix
+	 * \return reference to the result
+	 */
 	template <class result_t>
 	result_t &eval(result_t &result) const
 	{
@@ -96,7 +96,7 @@ private:
 };
 
 
-/** \brief metafunction determining if artument is weighted_residual expression
+/** \brief metafunction determining if argument is weighted_residual expression
  * \tparam Wr the expression to examine
  */
 template <class Wr>
@@ -107,28 +107,28 @@ struct is_weighted_residual : std::is_base_of<
 
 
 /** \brief the sum of two weighted residual expressions
-* \tparam LeftDerived the left hand side class
-* \tparam RightDerived the right hand side class
-*/
+ * \tparam LeftDerived the left hand side class
+ * \tparam RightDerived the right hand side class
+ */
 template <class Left, class Right>
 class wr_sum :
 	public wr_base<wr_sum<Left, Right> >
 {
 public:
 	/** \brief constructor
-	* \param [in] left the left hand side wr reference
-	* \param [in] right the right hand side wr reference
-	*/
+	 * \param [in] left the left hand side wr reference
+	 * \param [in] right the right hand side wr reference
+	 */
 	wr_sum(Left &&left, Right &&right) :
 		m_lhs(std::forward<Left>(left)), m_rhs(std::forward<Right>(right))
 	{
 	}
 
 	/** \brief evaluate wr sum into result
-	* \tparam result_t the result matrix type
-	* \param [out] result the result matrix
-	* \return reference to the result
-	*/
+	 * \tparam result_t the result matrix type
+	 * \param [out] result the result matrix
+	 * \return reference to the result
+	 */
 	template <class result_t>
 	result_t &eval(result_t &result) const
 	{
@@ -164,12 +164,12 @@ wr_sum<
 
 
 /** \brief factory operator to create a wr from a test space and an integral_transform
-* \tparam Test the test space type
-* \tparam Proj the integral_transform type
-* \param [in] test the test space reference
-* \param [in] proj the integral_transform reference
-* \return the weighted residual
-*/
+ * \tparam Test the test space type
+ * \tparam Proj the integral_transform type
+ * \param [in] test the test space reference
+ * \param [in] proj the integral_transform reference
+ * \return the weighted residual
+ */
 template <class Test, class Proj>
 weighted_residual<
 	typename std::enable_if<is_function_space<Test>::value, Test>::type,
@@ -202,7 +202,7 @@ operator << (Res &res, WR &&wr)
 	return res;
 }
 
-/** \brief operator to evaluate a weighted residual into a result matrix
+/** \brief operator to evaluate a couple weighted residual into a result matrix
  * \tparam WR the weighted residual
  * \tparam Res the result matrix
  * \param [in] wr the weighted residual instance

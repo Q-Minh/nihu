@@ -93,7 +93,7 @@ class shape_function<line_1_shape_set, 1>
 	typedef shape_set_traits::shape_value_type<line_1_shape_set, 1>::type shape_t;
 	typedef shape_set_traits::domain<line_1_shape_set>::type::xi_t xi_t;
 public:
-	static shape_t eval(xi_t const &xi)
+	static shape_t eval(xi_t const &)
 	{
 		return (shape_t() <<
 			-0.5,
@@ -116,7 +116,7 @@ class shape_function<line_1_shape_set, 2>
 	typedef shape_set_traits::shape_value_type<line_1_shape_set, 2>::type shape_t;
 	typedef shape_set_traits::domain<line_1_shape_set>::type::xi_t xi_t;
 public:
-	static shape_t eval(xi_t const &xi)
+	static shape_t eval(xi_t const &)
 	{
 		return shape_t::Zero();
 	}
@@ -179,7 +179,7 @@ class shape_function<tria_1_shape_set, 1>
 	typedef shape_set_traits::shape_value_type<tria_1_shape_set, 1>::type shape_t;
 	typedef shape_set_traits::domain<tria_1_shape_set>::type::xi_t xi_t;
 public:
-	static shape_t eval(xi_t const &xi)
+	static shape_t eval(xi_t const &)
 	{
 		return (shape_t() <<
 			-1.0, -1.0,
@@ -200,7 +200,7 @@ class shape_function<tria_1_shape_set, 2>
 	typedef shape_set_traits::shape_value_type<tria_1_shape_set, 2>::type shape_t;
 	typedef shape_set_traits::domain<tria_1_shape_set>::type::xi_t xi_t;
 public:
-	static shape_t eval(xi_t const &xi)
+	static shape_t eval(xi_t const &)
 	{
 		return shape_t::Zero();
 	}
@@ -289,7 +289,7 @@ class shape_function<quad_1_shape_set, 2>
 	typedef shape_set_traits::shape_value_type<quad_1_shape_set, 2>::type shape_t;
 	typedef shape_set_traits::domain<quad_1_shape_set>::type::xi_t xi_t;
 public:
-	static shape_t eval(xi_t const &xi)
+	static shape_t eval(xi_t const &)
 	{
 		return (shape_t() <<
 			0.0, +.25, 0.0,
@@ -457,7 +457,7 @@ public:
 	/** \brief return begin iterator to the corner nodes
 	* \return begin iterator to corner nodes
 	*/
-	static xi_t const *corner_begin(void)
+	static xi_t const *corner_begin_impl(void)
 	{
 		return domain_t::get_corners();
 	}
@@ -493,7 +493,7 @@ class shape_function<parallelogram_shape_set, 1>
 	typedef shape_set_traits::shape_value_type<parallelogram_shape_set, 1>::type shape_t;
 	typedef shape_set_traits::domain<parallelogram_shape_set>::type::xi_t xi_t;
 public:
-	static shape_t eval(xi_t const &xi)
+	static shape_t eval(xi_t const &)
 	{
 		return (shape_t() <<
 			-1.0, -1.0,
@@ -513,7 +513,7 @@ class shape_function<parallelogram_shape_set, 2>
 	typedef shape_set_traits::shape_value_type<parallelogram_shape_set, 2>::type shape_t;
 	typedef shape_set_traits::domain<parallelogram_shape_set>::type::xi_t xi_t;
 public:
-	static shape_t eval(xi_t const &xi)
+	static shape_t eval(xi_t const &)
 	{
 		return shape_t::Zero();
 	}
@@ -553,6 +553,12 @@ namespace shape_set_traits
 	};
 
 	template <>
+	struct shape_complexity<line_2_shape_set, 2>
+	{
+		typedef matrix_function_complexity::constant type;
+	};
+
+	template <>
 	struct position_dof_vector<line_2_shape_set>
 	{
 		typedef tmp::vector<dof0, dof1, dof0> type;
@@ -566,7 +572,7 @@ public:
 	/** \brief return begin iterator to the corner nodes
 	* \return begin iterator to corner nodes
 	*/
-	static xi_t const *corner_begin(void)
+	static xi_t const *corner_begin_impl(void)
 	{
 		return m_corners;
 	}
@@ -645,7 +651,7 @@ class shape_function<line_2_shape_set, 2>
 	typedef shape_set_traits::shape_value_type<line_2_shape_set, 2>::type shape_t;
 	typedef shape_set_traits::domain<line_2_shape_set>::type::xi_t xi_t;
 public:
-	static shape_t eval(xi_t const &xi)
+	static shape_t eval(xi_t const &)
 	{
 		return shape_t(1.0, -2.0, 1.0);
 	}
@@ -701,7 +707,7 @@ public:
 	/** \brief return begin iterator to the corner nodes
 	* \return begin iterator to corner nodes
 	*/
-	static xi_t const *corner_begin(void)
+	static xi_t const *corner_begin_impl(void)
 	{
 		return m_corners;
 	}
@@ -787,7 +793,7 @@ class shape_function<tria_2_shape_set, 2>
 	typedef shape_set_traits::shape_value_type<tria_2_shape_set, 2>::type shape_t;
 	typedef shape_set_traits::domain<tria_2_shape_set>::type::xi_t xi_t;
 public:
-	static shape_t eval(xi_t const &_xi)
+	static shape_t eval(xi_t const &)
 	{
 		return (shape_t() <<
 			4.0, 4.0, 4.0,
@@ -850,7 +856,7 @@ public:
 	/** \brief return begin iterator to the corner nodes
 	* \return begin iterator to corner nodes
 	*/
-	static xi_t const *corner_begin(void)
+	static xi_t const *corner_begin_impl(void)
 	{
 		return m_corners;
 	}
@@ -1009,7 +1015,7 @@ public:
 	/** \brief return begin iterator to the corner nodes
 	* \return begin iterator to corner nodes
 	*/
-	static xi_t const *corner_begin(void)
+	static xi_t const *corner_begin_impl(void)
 	{
 		return m_corners;
 	}

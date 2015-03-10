@@ -44,8 +44,9 @@ void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 
 //! [Integral operators]
 	double nu = *mxGetPr(rhs[2]);
-	auto U = create_integral_operator(elastostatics_3d_U_kernel(nu));
-	auto T = create_integral_operator(elastostatics_3d_T_kernel(nu));
+	double mu = *mxGetPr(rhs[3]);
+	auto U = create_integral_operator(elastostatics_3d_U_kernel(nu, mu));
+	auto T = create_integral_operator(elastostatics_3d_T_kernel(nu, mu));
 //! [Integral operators]
 
 //! [System matrices]

@@ -135,17 +135,35 @@ foreach(lib_source ${NIHU_COMMON_LIBRARIES})
 endforeach(lib_source)
 
 ### Subdirectories
-add_subdirectory(tutorial)
+if(NOT NIHU_DISABLE_TUTORIALS)
+	add_subdirectory(tutorial)
+endif()
 
 ### Test section
 if(NIHU_ENABLE_TESTING)
+	# Check for gtest module
+	include (NiHuGTest)
+	# Check if gtest directories are found
+	if(NOT DEFINED GTEST_INCLUDE_DIRS)
+		message(STATUS "GTest not found, or could not be installed.")
+		message(STATUS "Build of gtest tests are disabled.")
+	else ()
+		message(STATUS "GTest headers will be imported from: ${GTEST_INCLUDE_DIRS}")
+		include_directories("${GTEST_INCLUDE_DIRS}")
+		include_directories("${GTEST_MAIN_DIR}")
+		add_subdirectory(gtest)
+	endif()
+	
+	# Check if install 
 	if(NIHU_ENABLE_TEST_INSTALL)
 		if(${NIHU_INSTALL_DIR} MATCHES ${CMAKE_BINARY_DIR})
 			set(NIHU_ENABLE_TEST_INSTALL 0)
 			message(STATUS "Installation of tests disabled (build dir is same as install dir)")
 		endif()
 	endif(NIHU_ENABLE_TEST_INSTALL)
+	# Enable testing globally
 	enable_testing()
+	# Check if automatic build of tests are disabled
 	if(NOT NIHU_DISABLE_TEST_BUILD)
 		add_subdirectory(test)
 	else(NOT NIHU_DISABLE_TEST_BUILD)
@@ -220,7 +238,7 @@ endif(DOXYGEN_FOUND)
 
 # Select all hpp files for installation
 set(NIHU_HPP_DIRECTORIES 
-	"core" ; "interface" ; "library" ; "tmp" ; "util")
+	"core" ; "interface" ; "library" ; "tmp" ; "util" ; "aca")
 
 foreach(HPP_DIRECTORY ${NIHU_HPP_DIRECTORIES})
 	install(DIRECTORY ${HPP_DIRECTORY} DESTINATION include FILES_MATCHING PATTERN "*.hpp")

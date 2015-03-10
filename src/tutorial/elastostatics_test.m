@@ -5,6 +5,7 @@ R = 1;
 H = 4;
 Le = .15;
 nu = .33;
+mu = 1e8;
 
 %% create mesh
 N = ceil(2*pi*R/Le/4);
@@ -38,7 +39,7 @@ mex -v CXXFLAGS="$CXXFLAGS -std=c++11 -O3 -fPIC" ...
 %% Call NiHu to compute system matrices
 [nodes, elements] = extract_core_mesh(qmesh);
 tic;
-[U, T] = elastostatics(nodes, elements, nu);
+[U, T] = elastostatics(nodes, elements, nu, mu);
 toc;
 
 %% Boundary conditions

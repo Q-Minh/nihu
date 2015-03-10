@@ -34,7 +34,10 @@
 #include "../tmp/algorithm.hpp"
 #include "../util/conditional_precompute.hpp"
 
-/** \brief shape function derivative indices */
+/** \brief shape function derivative indices
+ * These indices are used to index the first and second derivatives of the
+ * shape functions.
+ */
 namespace shape_derivative_index
 {
 	enum {
@@ -43,11 +46,16 @@ namespace shape_derivative_index
 		dXIXI = 0,	/**< \brief index of xi_xi in 2nd derivative matrix */
 		dXIETA = 1,	/**< \brief index of xi_eta in 2nd derivative matrix */
 		dETAXI = 1,	/**< \brief index of eta_xi in 2nd derivative matrix */
-		dETAETA = 2	/**< \brief index of eta-eta in 2nd derivative matrix */
+		dETAETA = 2	/**< \brief index of eta_eta in 2nd derivative matrix */
 	};
 }
 
-/** \brief position degree of freedom of a point in the intrinsic domain */
+/** \brief position degree of freedom of a point in the intrinsic domain
+ * \details Position degree of freedom is the number of independent directions
+ * where the intrinsic domain is open.
+ * For example, a corner point in a 2D quad domain is of 0DOF,
+ * a point on the edge is 1DOF, and an internal point is 2DOF.
+ */
 template <unsigned d>
 struct position_dof : std::integral_constant<unsigned, d> {};
 /** \brief shorthand for 0 dof */
@@ -56,12 +64,18 @@ typedef position_dof<0> dof0;
 typedef position_dof<1> dof1;
 /** \brief shorthand for 2 dof */
 typedef position_dof<2> dof2;
+/** \brief shorthand for 3 dof */
+typedef position_dof<3> dof3;
 
 // forward declaration
 template <class Derived, unsigned Order>
 class shape_function;
 
-/** \brief retuirn the number of partial derivatives in dim dimensions */
+/** \brief return the number of partial derivatives in dim dimensions
+ * In 1D there is one partial derivative and one second partial derivative.
+ * In 2D there are two partial derivatives and four second derivatives, but
+ * because of symmetry, the actual number of different second derivatives is 3.
+ */
 constexpr unsigned num_derivatives(unsigned order, unsigned dim)
 {
 	return order == 0 ? 1 : (order == 1 ? dim : dim * (dim + 1) / 2);
@@ -70,7 +84,7 @@ constexpr unsigned num_derivatives(unsigned order, unsigned dim)
 /** \brief Traits of shape function sets */
 namespace shape_set_traits
 {
-	/** \brief The shape set's textual id */
+	/** \brief The shape set's textual id - used for debug information */
 	template <class Derived>
 	struct name
 	{
@@ -109,7 +123,7 @@ namespace shape_set_traits
 	template <class Derived, unsigned Order>
 	struct shape_complexity;
 
-	/** \brief Defines the value type of the shape function matrix */
+	/** \brief Defines the value type of the shape function matrix (and derivatives) */
 	template <class Derived, unsigned Order>
 	struct shape_value_type
 	{
@@ -172,8 +186,6 @@ public:
 	template <unsigned Order>
 	struct shape_value_type : shape_set_traits::shape_value_type<Derived, Order> {};
 
-	typedef typename shape_set_traits::position_dof_vector<Derived>::type position_dof_vector;
-
 	typedef typename shape_value_type<0>::type shape_t;
 	typedef typename shape_value_type<1>::type dshape_t;
 	typedef typename shape_value_type<2>::type ddshape_t;
@@ -184,6 +196,8 @@ public:
 	{
 		return shape_set_traits::factory_functor<Derived, Order>::type::eval(xi);
 	}
+
+	typedef typename shape_set_traits::position_dof_vector<Derived>::type position_dof_vector;
 
 	/** \brief return begin iterator of corner nodes */
 	static xi_t const *corner_begin(void)
@@ -281,7 +295,7 @@ class shape_function<constant_shape_set<Domain>, 0>
 	typedef typename shape_set_traits::shape_value_type<constant_shape_set<Domain>, 0>::type shape_t;
 	typedef typename shape_set_traits::domain<constant_shape_set<Domain> >::type::xi_t xi_t;
 public:
-	static shape_t eval(xi_t const &xi)
+	static shape_t eval(xi_t const &)
 	{
 		return shape_t::Ones();
 	}

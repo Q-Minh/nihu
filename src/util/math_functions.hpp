@@ -23,8 +23,13 @@
 #ifndef MATH_FUNCTIONS_HPP_INCLUDED
 #define MATH_FUNCTIONS_HPP_INCLUDED
 
+#ifdef _MSC_VER
+#define _USE_MATH_DEFINES
+#endif
 #include <cmath>
 #include <complex>
+#include <stdexcept>
+#include <iostream>
 
 #ifndef M_PI
 #define M_PI 3.141592653589793
@@ -45,33 +50,143 @@ static T sinc(T const &x)
 		return 1. - x*x/6. * (1. - x*x/20.);
 }
 
+/** \brief namespace encapsulating Bessel functions */
 namespace bessel
 {
+	/** \brief metafunction converting a floating point type to a complex type */
+	template <class T>
+	struct make_complex { typedef std::complex<T> type; };
+
+	template <class T>
+	struct make_complex<std::complex<T> > { typedef std::complex<T> type; };
+
+	/** \brief limit between small and large argument series */
+	double const large_lim(7.);
 	/** \brief imaginary unit */
-	std::complex<double> const I(0.0, 1.0);
+	std::complex<double> const I(0., 1.);
 	/** \brief Euler's constant */
 	double const gamma(0.57721566490153286060);
 
+	/** \brief large argument Bessel function Taylor series coefficients
+	 * \tparam T the argument type
+	 * \param [in] nu the Bessel function order
+	 * \param [in] z the Bessel argument
+	 * \param [out] u the magnitude approximation
+	 * \param [out] u the phase approximation
+	 */
+	template <class T>
+	void mag_arg_large(int nu, T const &z, T &u, T &phi)
+	{
+		double mag[2][7] = {
+			{
+				1.,
+				-6.25e-2,
+				1.03515625e-1,
+				-5.428466796875e-1,
+				5.8486995697021484375,
+				-1.06886793971061706543e2,
+				2.96814293784275650978e3
+			},
+			{
+				1.,
+				1.875e-1,
+				-1.93359375e-1,
+				8.052978515625e-1,
+				-7.7399539947509765625,
+				1.32761824250221252441e2,
+				-3.54330366536602377892e3
+			}
+		};
+		double arg[2][7] = {
+			{
+				-1.25e-1,
+				6.51041666666666712926e-2,
+				-2.09570312499999994449e-1,	
+				1.63806588309151779370,
+				-2.34751277499728736586e1,
+				5.35640519510615945364e2,
+				-1.78372796889474739146e4
+			},
+			{
+				3.75e-1,
+				-1.640625e-1,
+				3.70898437500000011102e-1,
+				-2.36939784458705338110,
+				3.06240119934082031250e1,
+				-6.59185221823778988437e2,
+				2.11563140455278044101e4
+			}
+		};
+
+		u = phi = T(0.);
+		auto q(1./z/z);
+		for (int m = sizeof(mag[0])/sizeof(double)-1; m >= 0; --m)
+		{
+			u = q * u + mag[nu][m];
+			phi = q * phi + arg[nu][m];
+		}
+		phi = phi/z + z - (nu/2.+.25)*M_PI;
+	}
+
 	/** \brief small argument expansion of J_nu(z) for nu = 0, 1
 	 * \tparam nu the Bessel function's order
+	 * \tparam T the Bessel argument type
 	 * \param [in] z the argument
 	 * \return J_nu(z)
 	 */
-	template <int nu>
-	std::complex<double> J_small(std::complex<double> const &z)
+	template <int nu, class T>
+	T J_small(T const &z)
 	{
 		static_assert(nu == 0 || nu == 1, "unimplemented Bessel J order");
 
 		// upper limit for 1e-8 error
 		int N = (int)(3+2.*std::abs(z));
 
-		std::complex<double> res(1.), q(z*z/4.);
+		T res(1.), q(z*z/4.);
 		for (int n = N; n > 0; --n)
 			res = 1. - q*(1./(n*(n+nu)))*res;
 		if (nu == 1)
 			res *= z/2.;
 		return res;
 	}
+
+	/** \brief large argument expansion of J_nu(z) for nu = 0, 1
+	 * \tparam nu the Bessel function's order
+	 * \tparam T the Bessel argument type
+	 * \param [in] z the argument
+	 * \return J_nu(z)
+	 */
+	template <int nu, class T>
+	T J_large(T const &z)
+	{
+		static_assert(nu == 0 || nu == 1, "unimplemented Bessel J order");
+
+		T mag, arg;
+		if (std::real(z) < 0)
+		{
+			double const C(nu==0 ? 1. : -1);
+			mag_arg_large(nu, -z, mag, arg);
+			return std::sqrt(2./(M_PI * -z)) * mag * std::cos(arg) * C;
+		}
+		else
+		{
+			mag_arg_large(nu, z, mag, arg);
+			return std::sqrt(2./(M_PI * z)) * mag * std::cos(arg);
+		}
+	}
+
+	/** \brief Bessel function J_nu(z) for nu = 0, 1
+	 * \tparam nu the Bessel function's order
+	 * \tparam T the Bessel argument type
+	 * \param [in] z the argument
+	 * \return J_nu(z)
+	 */
+	template <int nu, class T>
+	T J(T const &z)
+	{
+		 return std::abs(z) < large_lim ? J_small<nu>(z) : J_large<nu>(z);
+	}
+
 
 	/** \brief small argument expansion of Y_nu(z)
 	 * \tparam nu the Bessel function's order
@@ -84,7 +199,8 @@ namespace bessel
 	template <>
 	std::complex<double> Y_small<0>(std::complex<double> const &z)
 	{
-		int const N = 15;
+		// upper limit for 1e-8 error
+		int const N = (int)(4+2.*std::abs(z));
 
 		std::complex<double> q(z/2.), q2(q*q);
 		std::complex<double> sum(0.), ss(-1.);
@@ -103,7 +219,8 @@ namespace bessel
 	template <>
 	std::complex<double> Y_small<1>(std::complex<double> const &z)
 	{
-		int const N = 15;
+		// upper limit for 1e-8 error
+		int const N = (int)(4+2.*std::abs(z));
 
 		std::complex<double> q(z/2.0), q2(q*q);
 		std::complex<double> first(2.0*J_small<1>(z)*(std::log(q)+gamma));
@@ -125,41 +242,88 @@ namespace bessel
 		return 1./M_PI * (first + second + third);
 	}
 
-	/** \brief large argument expansion of H^(2)_nu(z)
+	/** \brief large argument expansion of Y_nu(z) for nu = 0, 1
 	 * \tparam nu the Bessel function's order
 	 * \param [in] z the argument
-	 * \return H^(2)_nu(z)
+	 * \return Y_nu(z)
 	 */
-	template <int nu, int kind = 2>
-	std::complex<double> H_large(std::complex<double> const &z)
+	template <int nu>
+	std::complex<double> Y_large(std::complex<double> const &z)
 	{
-		static_assert((kind == 1) || (kind == 2), "invalid kind argument of bessel::H");
-
-		double const C = (kind == 2 ? -1. : 1.);
-		int const N(15);
-
-		std::complex<double> sum(1.), c(1.);
-		for (int k = 1; k < N; ++k)
+		std::complex<double> mag, arg;
+		if (std::real(z) < 0)
 		{
-			c *= C*I/z * ((4.*nu*nu-(2*k-1)*(2*k-1))/k/8.);
-			sum += c;
+			double const C1(nu == 0 ? 1. : -1.);
+			std::complex<double> const C2(0., std::imag(z) < 0 ? -2. : 2.);
+			std::complex<double> const MAG(std::sqrt(C2*C2+1.));
+			std::complex<double> const ARG(std::atan(1./C2));
+			mag_arg_large(nu, -z, mag, arg);
+			return std::sqrt(2./(M_PI * -z)) * mag * MAG * std::cos(arg-ARG) * C1;
 		}
-
-		std::complex<double> om(z-nu*M_PI/2.-M_PI/4.);
-		return std::sqrt(2./M_PI/z) * std::exp(C*I*om) * sum;
+		else
+		{
+			mag_arg_large(nu, z, mag, arg);
+			return std::sqrt(2./(M_PI * z)) * mag * std::sin(arg);
+		}
 	}
 
-	/** \brief H^(2)_nu(z) Bessel function
+
+	/** \brief Bessel function Y_nu(z) for nu = 0, 1
 	 * \tparam nu the Bessel function's order
+	 * \param [in] z the argument
+	 * \return Y_nu(z)
+	 */
+	template <int nu>
+	std::complex<double> Y(std::complex<double> const &z)
+	{
+		return std::abs(z) < large_lim ? Y_small<nu>(z) : Y_large<nu>(z);
+	}
+
+	/** \brief large argument expansion of H^(K)_nu(z)
+	 * \tparam nu the Bessel function's order
+	 * \tparam T the Bessel argument type
 	 * \param [in] z the argument
 	 * \return H^(2)_nu(z)
 	 */
-	template <int nu, int kind = 2>
-	std::complex<double> H(std::complex<double> const &z)
+	template <int nu, int kind, class T>
+	typename make_complex<T>::type H_large(T const &z)
+	{
+		static_assert((kind == 1) || (kind == 2), "invalid kind argument of bessel::H");
+		double const C = (kind == 2 ? -1. : 1.);
+
+		typename make_complex<T>::type mag, arg;
+
+		if (std::real(z) < 0 && std::abs(std::imag(z)) < 8.)
+		{
+			double const C1(nu == 0 ? 1. : -1.);
+
+			mag_arg_large(nu, -z, mag, arg);
+
+			double sgn = std::imag(z) < 0 ? -1. : 1.;
+			double MAG(-sgn*std::sqrt(3.));
+			std::complex<double> const ARG(std::atan(-sgn*I*.5));
+
+			return std::sqrt(2./(M_PI * -z)) * mag * (std::cos(arg) + C * MAG * std::cos(arg-ARG)) * C1;
+		}
+
+		mag_arg_large(nu, z, mag, arg);
+		
+		return std::sqrt(2./M_PI/z) * mag * std::exp(C*I*arg);
+	}
+
+	/** \brief H^(K)_nu(z) Bessel function
+	 * \tparam nu the Bessel function's order
+	 * \tparam kind the Bessel function's kind
+	 * \tparam T the Bessel argument type
+	 * \param [in] z the argument
+	 * \return H^(2)_nu(z)
+	 */
+	template <int nu, int kind, class T>
+	typename make_complex<T>::type H(T const &z)
 	{
 		static_assert(kind == 1 || kind == 2, "invalid kind argument of bessel::H");
 		double const C = (kind == 2 ? -1. : 1.);
-		if (std::abs(z) < 6.0)
+		if (std::abs(z) < large_lim)
 			return J_small<nu>(z) + C * I * Y_small<nu>(z);
 		else
 			return H_large<nu, kind>(z);
@@ -167,28 +331,23 @@ namespace bessel
 
 	/** \brief K_nu(z) modified Bessel function
 	 * \tparam nu the Bessel function's order
+	 * \tparam T the Bessel argument type
 	 * \param [in] z the argument
 	 * \return K_nu(z)
 	 */
-	template <int nu>
-	std::complex<double> K(std::complex<double> const &z);
+	template <int nu, class T>
+	typename make_complex<T>::type K(T const &z);
 
 	template <>
 	std::complex<double> K<0>(std::complex<double> const &z)
 	{
-		if (z.imag() < 0.)
-			return .5*I*M_PI*H<0, 1>(I*z);
-		else
-			return -.5*I*M_PI*H<0, 2>(-I*z);
+		return .5*I*M_PI* (std::imag(z) < 0. ? H<0, 1>(I*z) : -H<0, 2>(-I*z));
 	}
 
 	template <>
 	std::complex<double> K<1>(std::complex<double> const &z)
 	{
-		if (z.imag() < 0.)
-			return -.5*M_PI*H<1, 1>(I*z);
-		else
-			return -.5*M_PI*H<1, 2>(-I*z);
+		return -.5*M_PI * (std::imag(z) < 0. ? H<1, 1>(I*z) : H<1, 2>(-I*z));
 	}
 }
 

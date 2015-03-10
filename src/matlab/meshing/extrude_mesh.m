@@ -19,7 +19,7 @@ function mesh2 = extrude_mesh(mesh, dir, nRep)
 %   Budapest University of Technology and Economics
 %   Dept. of Telecommunications
 
-% Last modifed: 2012.12.19.
+% Last modifed: 2015.03.10.
 
 dir = dir(:).'; % ensure that dir is a row vector
 
@@ -27,7 +27,7 @@ dir = dir(:).'; % ensure that dir is a row vector
 nNod = size(mesh.Nodes,1);
 coord = zeros((nRep+1)*nNod,3);
 for iRep = 0 : nRep
-    coord(iRep*nNod+(1:nNod),:) = mesh.Nodes(:,2:4)+iRep*repmat(dir,nNod,1);
+    coord(iRep*nNod+(1:nNod),:) = bsxfun(@plus, mesh.Nodes(:,2:4), iRep*dir);
 end
 
 % Create new elements
@@ -39,7 +39,9 @@ Elements = [Elements zeros(size(Elements,1), 8-size(Elements,2))];
 [~, normal] = centnorm(mesh);
 
 % Select which elements to flip to conserve outward normals
-flip = (normal * dir.') > 0;
+dim = floor(Elements(:,2)/10);
+flip = ((normal * dir.') > 0 & dim == 1) | ...
+    ((normal * dir.') < 0 & dim == 2);
 
 quads = Elements(:,2) == 24;
 quad = Elements(quads,:);

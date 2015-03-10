@@ -150,16 +150,19 @@ function elements = read_elements(ftext, commands)
             case 4
                 elements(jElem+1, 1:4) = [data(1) 34 1 1];
                 elements(jElem+1, 4+(1:4)) = data(end-3 : end);
+                jElem = jElem+1;
             % 8-node hexahedron 
             % TODO: check node ordering
             case 5
                 elements(jElem+1, 1:4) = [data(1) 38 1 1];
                 elements(jElem+1, 4+(1:8)) = data(end-7 : end);
+                jElem = jElem+1;
             % 6-node prism
             % TODO: check node ordering
             case 6
                 elements(jElem+1, 1:4) = [data(1) 36 1 1];
                 elements(jElem+1, 4+(1:6)) = data(end-5 : end);
+                jElem = jElem+1;
         end
     end
     % Drop unread elements

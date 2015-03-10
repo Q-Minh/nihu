@@ -17,7 +17,7 @@ function mesh = create_sphere_boundary(R, nR)
 
 mesh = create_brick_boundary_base(nR*2*[1 1 1]);
 nodes = mesh.Nodes(:,2:4);
-nodes = nodes .* repmat(max(abs(nodes), [], 2)./sqrt(dot(nodes,nodes,2)),1,3);
+nodes = bsxfun(@times, nodes, max(abs(nodes), [], 2)./sqrt(dot(nodes,nodes,2)));
 mesh.Nodes(:,2:4) = nodes * R;
 
 end

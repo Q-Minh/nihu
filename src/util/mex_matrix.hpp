@@ -34,6 +34,7 @@
 #include <mex.h>
 #include <matrix.h>
 
+#include "eigen_utils.hpp"
 #include "../core/result_matrix.hpp"
 
 /**
@@ -62,16 +63,15 @@ protected:
 	 * \param [in] input the Matlab pointer to the matrix
 	 */
 	matrix_base(mxArray const *input)
+		: m_rows(mxGetM(input)), m_cols(mxGetN(input))
 	{
-		m_rows = mxGetM(input);
-		m_cols = mxGetN(input);
 	}
 
 public:
 	/** \brief return number of rows
 	 * \return the number of rows
 	 */
-	size_t rows(void) const
+	size_t rows(void) const 
 	{
 		return m_rows;
 	}
@@ -98,6 +98,14 @@ struct classID;
 
 /** \brief specialisation of classID to double */
 template <>
+struct classID<int>
+{
+	/** \brief the Matlab class */
+	static mxClassID const value = mxINT32_CLASS;
+};
+
+/** \brief specialisation of classID to double */
+template <>
 struct classID<double>
 {
 	/** \brief the Matlab class */
@@ -119,11 +127,12 @@ struct classID<float>
  */
 template <class T>
 class real_matrix :
-	public matrix_base
+	public Eigen::Map<Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> >
 {
 public:
 	/** \brief the scalar type */
 	typedef T scalar_t;
+	typedef Eigen::Map< Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> > base_t;
 
 	/** \brief output matrix (allocating) constructor
 	 * \details used when a matrix created in C++ is passed to Matlab
@@ -132,11 +141,10 @@ public:
 	 * \param [out] output pointer to the result matrix  is copied here
 	 */
 	real_matrix(size_t rows, size_t cols, mxArray *&output)
-		: matrix_base(rows, cols)
+		: base_t(
+			static_cast<scalar_t *>(mxGetData(output = mxCreateNumericMatrix(rows, cols, classID<scalar_t>::value, mxREAL))),
+			rows, cols)
 	{
-		output = mxCreateNumericMatrix(
-			m_rows, m_cols, classID<scalar_t>::value, mxREAL);
-		m_real = static_cast<scalar_t *>(mxGetData(output));
 	}
 
 	/** \brief input matrix constructor
@@ -144,34 +152,9 @@ public:
 	 * \param [in] input pointer to the native Matlab matrix format
 	 */
 	real_matrix(mxArray const *input)
-		: matrix_base(input)
+		: base_t(static_cast<scalar_t *>(mxGetData(input)), mxGetM(input), mxGetN(input))
 	{
-		m_real = static_cast<scalar_t *>(mxGetData(input));
 	}
-
-	/** \brief return matrix element
-	 * \param [in] row row index
-	 * \param [in] col column index
-	 * \return matrix element
-	 */
-	scalar_t operator() (size_t row, size_t col) const
-	{
-		return m_real[row + m_rows * col];
-	}
-
-	/** \brief return reference to matrix element
-	 * \param [in] row row index
-	 * \param [in] col column index
-	 * \return reference to matrix element
-	 */
-	scalar_t &operator() (size_t row, size_t col)
-	{
-		return m_real[row + m_rows * col];
-	}
-
-protected:
-	/** \brief array of real data */
-	scalar_t *m_real;
 };
 
 
@@ -237,21 +220,21 @@ public:
 		imag() += data.imag();
 	}
 
+	/** \brief assignment operator
+	 * \param data the data to assign to the container
+	 */
+	void operator =(scalar_t const &data)
+	{
+		real() = data;
+		imag() = 0.0;
+	}
+
 	/** \brief increment operator
 	 * \param data the data to add to the container
 	 */
 	void operator +=(scalar_t const &data)
 	{
 		real() += data;
-	}
-
-	/** \brief assignment operator
-	 * \param data the data to assign to the container
-	 */
-	void operator =(scalar_t const &data)
-	{
-		real() += data;
-		imag() = 0.0;
 	}
 
 private:
@@ -292,11 +275,10 @@ public:
 	 * \param [in] input pointer to the native Matlab matrix format
 	 */
 	complex_matrix(mxArray const *input)
-		: matrix_base(input)
+		: matrix_base(input),
+		m_real(static_cast<scalar_t *>(mxGetData(input))),
+		m_imag(static_cast<scalar_t *>(mxGetImagData(input)))
 	{
-		// get real and imaginary data pointers from the Matlab matrix
-		m_real = static_cast<scalar_t *>(mxGetData(input));
-		m_imag = static_cast<scalar_t *>(mxGetImagData(input));
 	}
 
 	/** \brief index operator that returns a complex number

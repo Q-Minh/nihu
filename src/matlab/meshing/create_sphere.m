@@ -17,7 +17,7 @@ function sphere = create_sphere(R, nR)
 
 sphere = create_brick_base(nR*2*[1 1 1]);
 nodes = sphere.Nodes(:,2:4);
-nodes = nodes .* repmat(max(abs(nodes), [], 2)./sqrt(dot(nodes,nodes,2)),1,3);
+nodes = bsxfun(@times, nodes, max(abs(nodes), [], 2)./sqrt(dot(nodes,nodes,2)));
 nodes(isnan(nodes)) = 0;
 sphere.Nodes(:,2:4) = nodes * R;
 

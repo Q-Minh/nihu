@@ -46,6 +46,6 @@ end
 
 % selection of appropriate nodes and elements
 expression = sprintf('(x>=%g) & (x<=%g) & (y>=%g) & (y<=%g) & (z>=%g) & (z<=%g)', limits);
-[nodeind elemind] = mesh_select(mesh, expression, 'ind', selmode);
+[nodeind, elemind] = mesh_select(mesh, expression, 'ind', selmode);
 mesh.Elements = mesh.Elements(elemind,:);
 end

@@ -1,18 +1,20 @@
-function [Tnear, Tfar] = build_block_tree(Ctree)
+function [Tnear, Tfar] = build_block_tree(Ctree, Admit)
 %BUILD_BLOCK_TREE build block structure from a cluster tree
-%   T = BUILD_BLOCK_TREE(C) builds the block structure of the ACA method
-%   from the cluster tree C. T is matrix with two columns, each row
-%   represents a pair of clusters that needs to be taken into account in
-%   the low rank approximation of the matrix.
+%   [Tnear, Tfar] = BUILD_BLOCK_TREE(C, ADMIT) builds the block structure
+%   from the cluster tree C and the function ADMIT.
+%   The function ADMIT decides if two clusters are admissible to form a
+%   block.
+%   Tnear and Tfar are matrices with two columns, each row
+%   representing a pair of clusters.
 %
 %Example:
 %  m = create_sphere_boundary(1, 15);
 %  Ctree = build_cluster_tree(m.Nodes(:,2:4));
-%  Btree = build_block_tree(Ctree);
+%  [Bnear, Bfar] = build_block_tree(Ctree);
 %
 % See also: build_cluster_tree
-%
-% Copyright (C) 2014 Peter Fiala
+
+% Copyright (C) 2014-2014 Peter Fiala
 
 % preallocating the output
 CapacityFar = 5000;
@@ -23,15 +25,17 @@ CapacityNear = 5000;
 Tnear = zeros(CapacityNear,2);
 EndNear= 0;
 
+% recursively partition the tree starting with the (1,1) block
 block_partition(1,1);
 
+% truncate the block tree
 Tfar = Tfar(1:EndFar,:);
 Tnear = Tnear(1:EndNear,:);
 
     function block_partition(i,j)
         sigma = Ctree(i);
         tau = Ctree(j);
-        if is_admissible(sigma, tau)
+        if Admit(sigma, tau)
             EndFar = EndFar+1;
             if EndFar > CapacityFar
                 CapacityFar = 2*CapacityFar;
@@ -52,19 +56,5 @@ Tnear = Tnear(1:EndNear,:);
             end
             Tnear(EndNear,:) = [i, j];
         end
-    end
-
-end
-
-function b = is_admissible(C1, C2, eta)
-if nargin < 3
-    eta = .5;
-end
-bb1 = C1.bb;
-bb2 = C2.bb;
-dist = sqrt(...
-    min(min(abs(bsxfun(@minus, bb1(:,1), bb2(:,1)'))))^2 +...
-    min(min(abs(bsxfun(@minus, bb1(:,2), bb2(:,2)'))))^2 +...
-    min(min(abs(bsxfun(@minus, bb1(:,3), bb2(:,3)'))))^2);
-b = max(C1.D, C2.D) < eta * dist;
-end
+    end % of internal function block_partition
+end % of function build_block_tree

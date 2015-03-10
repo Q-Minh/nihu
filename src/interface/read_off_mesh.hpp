@@ -30,6 +30,47 @@
 #include <fstream>
 #include <stdexcept>
 
+namespace internal
+{
+	template <class Tag1, class...Tags>
+	struct nvert2elem_id_impl
+	{
+		typedef typename tag2element<Tag1>::type elem_t;
+		static unsigned eval(unsigned nvert)
+		{
+			if (nvert == elem_t::num_nodes)
+				return elem_t::id;
+			return nvert2elem_id_impl<Tags...>::eval(nvert);
+		}
+	};
+
+	template <class Tag1>
+	struct nvert2elem_id_impl<Tag1>
+	{
+		typedef typename tag2element<Tag1>::type elem_t;
+		static unsigned eval(unsigned nvert)
+		{
+			if (nvert == elem_t::num_nodes)
+				return elem_t::id;
+			throw std::runtime_error("Invalid number of vertices for current element tag vector");
+		}
+	};
+}
+
+
+/** \brief convert number of vertices to element id
+ * \tparam Tags element tags to choose from
+ * \param [in] nvert the number of element vertices
+ * \param tags the possible element tags
+ * \return the first element id from the vector Tags... that matches the number of vertices
+ */
+template <class...Tags>
+unsigned nvert2elem_id(unsigned nvert, Tags...tags)
+{
+	return internal::nvert2elem_id_impl<Tags...>::eval(nvert);
+}
+
+
 /** \brief Read mesh from OFF format
  * \tparam Tags the element tags to import
  * \param [in] fname the file name
@@ -70,23 +111,10 @@ mesh<tmp::vector<typename tag2element<Tags>::type...> >
 		unsigned nvert;
 		if (!(is >> nvert))
 			throw std::runtime_error("Error reading mesh elements");
-		switch (nvert)
-		{
-			case 2:
-				elements(i,0) = line_1_elem::id;
-				break;
-			case 3:
-				elements(i,0) = tria_1_elem::id;
-				break;
-			case 4:
-				elements(i,0) = quad_1_elem::id;
-				break;
-			default:
-				throw std::runtime_error("Unsupported element type in OFF file");
-		}
 		for (unsigned c = 0; c < nvert; ++c)
 			if (!(is >> elements(i,c+1)))
 				throw std::runtime_error("Error reading mesh elements");
+		elements(i,0) = nvert2elem_id(nvert, tags...);
 	}
 
 	// close file

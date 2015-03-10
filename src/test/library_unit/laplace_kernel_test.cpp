@@ -58,8 +58,11 @@ int main(void)
 	std::cout << "laplace H kernel with wall output:      | ";
 	tester(laplace_3d_DLP_kernel());
 
-	std::cout << "couple G H kernel with wall output:     | ";
-	tester(create_couple_kernel(laplace_3d_DLP_kernel(), laplace_3d_SLP_kernel()));
+	std::cout << "laplace H kernel with wall output:      | ";
+	tester(laplace_3d_DLPt_kernel());
+
+	std::cout << "couple G H Ht kernel with wall output:     | ";
+	tester(create_couple_kernel(laplace_3d_SLP_kernel(), laplace_3d_DLP_kernel(), laplace_3d_DLPt_kernel()));
 
 	return 0;
 }

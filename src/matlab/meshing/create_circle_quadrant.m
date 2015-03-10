@@ -42,8 +42,8 @@ outer1 = create_slab(cou, nR/2*[1 1]);
 [cou(:,2), cou(:,1)] = cart2pol(cou(:,1), cou(:,2));
 outer2 = create_slab(cou, nR/2*[1 1]);
 [outer2.Nodes(:,2), outer2.Nodes(:,3)] = pol2cart(outer2.Nodes(:,3), outer2.Nodes(:,2));
-level = repmat(level,1,3);
-outer.Nodes(:,2:4) = (1-level) .* outer1.Nodes(:,2:4) + level .* outer2.Nodes(:,2:4);
+outer.Nodes(:,2:4) = bsxfun(@times, 1-level, outer1.Nodes(:,2:4)) +...
+	bsxfun(@times, level, outer2.Nodes(:,2:4));
 % combine innner, outer and outer's image regions
 model = join_meshes(inner, outer, reflect_mesh(outer, [-1 +1 0]));
 % scale to radius

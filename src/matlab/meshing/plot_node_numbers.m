@@ -21,6 +21,6 @@ if length(shift) < 3
 end
 
 %%
-coord = model.Nodes(:,2:4) + repmat(shift, size(model.Nodes,1), 1);
+coord = bsxfun(@plus, model.Nodes(:,2:4), shift);
 text(coord(:,1), coord(:,2), coord(:,3), num2str(model.Nodes(:,1)));
 end

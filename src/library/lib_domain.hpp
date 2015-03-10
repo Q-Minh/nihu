@@ -32,10 +32,10 @@ class brick_domain;
 
 namespace domain_traits
 {
-    template <> struct space_type<line_domain> : space_1d {};
-    template <> struct space_type<tria_domain> : space_2d {};
-    template <> struct space_type<quad_domain> : space_2d {};
-    template <> struct space_type<brick_domain> : space_3d {};
+    template <> struct space_type<line_domain> : space_1d<> {};
+    template <> struct space_type<tria_domain> : space_2d<> {};
+    template <> struct space_type<quad_domain> : space_2d<> {};
+    template <> struct space_type<brick_domain> : space_3d<> {};
 
     template <> struct volume<line_domain> { static constexpr double value = 2.0; };
     template <> struct volume<tria_domain> { static constexpr double value = 0.5; };

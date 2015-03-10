@@ -65,7 +65,7 @@ end
 % Jacobian
 j = sqrt(dot(gnorm,gnorm,2));
 % Unit normal
-gnorm = gnorm ./ repmat(j,1,3);
+gnorm = bsxfun(@times, gnorm, 1./j);
 % Gaussian weight
 weight = repmat(ww, nE, 1) .* j;
 %

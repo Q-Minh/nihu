@@ -32,7 +32,7 @@ args = create_slab_args(varargin{:});
 N = args.N;
 
 % Check the processed variables
-if size(N,1) ~= 1 || size(N,2) ~= 3
+if size(N,1) ~= 1 || size(N,2) ~= 2
     error('NiHu:create_slab_boundary:argFormat',...
         'Unsupported format of input arguments.');
 end

@@ -247,6 +247,8 @@ You can override the default behavior by the parameters listed below.
 
 - **NIHU_EIGEN_PATH** Specifies the full path to your existing Eigen installation, i.e. the path containing the directory `Eigen`. When this path is set, NiHu will not search for an existing Eigen installation, but tries to use Eigen header files specified by this path.
 - **NIHU_EIGEN_INSTALL** When set to a non-zero value, the installer will not look for an installed version of Eigen, but Eigen headers are installed as a part of NiHu. This is the default option on Windows operating systems. This option only has an effect when the path `NIHU_EIGEN_PATH` is not specified.
+- **NIHU_EIGEN_TARBALL** Specifies the full path to a downloaded `Eigen` tarball. NiHu will extract this archive instead of downloading the source from the predefined URL. This option only makes sense if the `NIHU_EIGEN_INSTALL` is set to non-zero.
+\note If you experience a `cmake` or other error when downloading from the official URL, you should try this option.
 - **NIHU_EIGEN_DISABLE_PATCH** When set to a non-zero value the patching of Eigen files are disabled. This option is only relevant when Eigen is installed as a part of NiHu, i.e. on Windows systems or when the `NIHU_EIGEN_INSTALL` parameter is to non-zero. (Note: The Eigen patch contains the removal of unnecessary `typedef`s in order to avoid compiler warnings of `gcc-4.8`.)
 
 \note If you want to use Eigen as a stand-alone project, you can install it using cmake. Please consult the [Eigen website](http://eigen.tuxfamily.org) for further information.
@@ -276,6 +278,14 @@ By default, the tests are excluded from the build process, however, you can turn
 - **NIHU_DISABLE_TEST_BUILD** When set to non-zero tests are excluded from the `make all` command. In this case tests can be compiled using separate `make` commands. This option is only relevant if `NIHU_ENABLE_TESTING` is set to non-zero.
 - **NIHU_ENABLE_RUN_MATLAB_TESTS** When set to non-zero tests run from Matlab are included into all tests. Otherwise Matlab tests have to be run separately by using the test script provided with the compiled mex files. This option is only relevant if `NIHU_ENABLE_TESTING` is set to non-zero.
 \note This option is not recommended, since not all Matlab versions support command line mode, which is required for the tests in order to function properly.)
+
+Tutorial options {#install_tutorial_options}
+----------------
+
+You can control the compilation of tutorials by the following parameters.
+
+- **NIHU_DISABLE_TUTORIALS** When set to a non-zero value building of all tutorials are disabled.
+
 
 Documentation options {#install_doc_options}
 ---------------------

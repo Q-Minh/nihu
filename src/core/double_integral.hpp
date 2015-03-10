@@ -40,6 +40,23 @@
 #include "singular_accelerator.hpp"
 #include "formalism.hpp"
 
+
+template <class Elem>
+struct weighted_brick;
+
+template <class LSet, class Scalar>
+struct weighted_brick<volume_element<LSet, Scalar> >
+{
+	typedef volume_jacobian<typename volume_element<LSet, Scalar>::space_t> type;
+};
+
+template <class LSet, class Scalar>
+struct weighted_brick<surface_element<LSet, Scalar> >
+{
+	typedef normal_jacobian<typename surface_element<LSet, Scalar>::space_t> type;
+};
+
+
 // forward declaration
 template <class Kernel, class TestField, class TrialField, class Singularity, class Enable = void>
 class singular_integral_shortcut;
@@ -74,11 +91,11 @@ struct singular_shortcut_switch
 
 
 /**
-* \brief class evaluating double integrals of the weighted residual approach
-* \tparam Kernel type of the kernel to integrate
-* \tparam TestField type of the test field
-* \tparam TrialField type of the trial field
-*/
+ * \brief class evaluating double integrals of the weighted residual approach
+ * \tparam Kernel type of the kernel to integrate
+ * \tparam TestField type of the test field
+ * \tparam TrialField type of the trial field
+ */
 template <
 	class Kernel, class TestField, class TrialField,
 	class Formalism = typename get_formalism<TestField, TrialField>::type
@@ -99,6 +116,10 @@ class double_integral<Kernel, TestField, TrialField, formalism::general>
 	typedef std::false_type WITHOUT_SINGULARITY_CHECK;
 
 public:
+	/** \brief the test elem type */
+	typedef typename TestField::elem_t test_elem_t;
+	/** \brief the trial elem type */
+	typedef typename TrialField::elem_t trial_elem_t;
 	/** \brief test input type of kernel */
 	typedef typename kernel_traits<Kernel>::test_input_t test_input_t;
 	/** \brief trial input type of kernel */
@@ -106,12 +127,12 @@ public:
 	/** \brief weighted test input type of kernel */
 	typedef typename merge<
 		test_input_t,
-		typename build<normal_jacobian<typename test_input_t::space_t> >::type
+		typename build<typename weighted_brick<test_elem_t>::type >::type
 	>::type w_test_input_t;
 	/** \brief weighted trial input type of kernel */
 	typedef typename merge<
 		trial_input_t,
-		typename build<normal_jacobian<typename trial_input_t::space_t> >::type
+		typename build<typename weighted_brick<trial_elem_t>::type >::type
 	>::type w_trial_input_t;
 
 	/** \brief the quadrature family the kernel requires */
@@ -150,9 +171,11 @@ protected:
 			w_trial_input_t trial_input(trial_field.get_elem(), it.get_second()->get_xi());
 
 			result += block_product(
-				TestField::nset_t::template eval_shape<0>(it.get_first()->get_xi())	* (test_input.get_jacobian() * it.get_first()->get_w()),
+				TestField::nset_t::template eval_shape<0>(it.get_first()->get_xi())	*
+				(test_input.get_jacobian() * it.get_first()->get_w()),
 				kernel(test_input, trial_input),
-				TrialField::nset_t::template eval_shape<0>(it.get_second()->get_xi()) * (trial_input.get_jacobian() * it.get_second()->get_w())
+				TrialField::nset_t::template eval_shape<0>(it.get_second()->get_xi()) *
+				(trial_input.get_jacobian() * it.get_second()->get_w())
 				);
 		}
 
@@ -185,18 +208,18 @@ public:
 			singular_iterator_t begin,
 			singular_iterator_t end)
 		{
-			while (begin != end)
+			for (; begin != end; ++begin)
 			{
 				w_test_input_t test_input(test_field.get_elem(), begin.get_test_quadrature_elem().get_xi());
 				w_trial_input_t trial_input(trial_field.get_elem(), begin.get_trial_quadrature_elem().get_xi());
 
 				result += block_product(
-					TestField::nset_t::template eval_shape<0>(begin.get_test_quadrature_elem().get_xi()) * (test_input.get_jacobian() * begin.get_test_quadrature_elem().get_w()),
+					TestField::nset_t::template eval_shape<0>(begin.get_test_quadrature_elem().get_xi()) * 
+					(test_input.get_jacobian() * begin.get_test_quadrature_elem().get_w()),
 					kernel(test_input, trial_input),
-					TrialField::nset_t::template eval_shape<0>(begin.get_trial_quadrature_elem().get_xi()) * (trial_input.get_jacobian() * begin.get_trial_quadrature_elem().get_w())
+					TrialField::nset_t::template eval_shape<0>(begin.get_trial_quadrature_elem().get_xi()) * 
+					(trial_input.get_jacobian() * begin.get_trial_quadrature_elem().get_w())
 					);
-
-				++begin;
 			}
 
 			return result;
@@ -241,21 +264,24 @@ protected:
 		field_base<TestField> const &test_field,
 		field_base<TrialField> const &trial_field)
 	{
+		// store type of the regular test quadratures
+		typedef store<field_type_accelerator_pool<
+			TestField, quadrature_family_t, GLOBAL_ACCELERATION, GLOBAL_MAX_ORDER
+		> > test_store_t;
+
+		// store type of the regular trial quadratures
+		typedef store<field_type_accelerator_pool<
+			TrialField, quadrature_family_t, GLOBAL_ACCELERATION, GLOBAL_MAX_ORDER
+		> > trial_store_t;
+
+		// determine integration degree based on the complexity estimator
 		unsigned degree = complexity_estimator<
 			TestField, TrialField,
 			typename Kernel::estimator_t
 		>::eval(test_field, trial_field);
 
-		typedef store<field_type_accelerator_pool<
-			TestField, quadrature_family_t, GLOBAL_ACCELERATION, GLOBAL_MAX_ORDER
-		> > test_store_t;
-
-		typedef store<field_type_accelerator_pool<
-			TrialField, quadrature_family_t, GLOBAL_ACCELERATION, GLOBAL_MAX_ORDER
-		> > trial_store_t;
-
-		auto acc = create_dual_field_type_accelerator(
-			test_store_t::get_data()[degree], trial_store_t::get_data()[degree], iteration::diadic());
+		auto acc(create_dual_field_type_accelerator(
+			test_store_t::get_data()[degree], trial_store_t::get_data()[degree], iteration::diadic()));
 
 		return eval_on_accelerator(
 			result, kernel, test_field, trial_field, acc.begin(), acc.end());
@@ -277,7 +303,7 @@ protected:
 		field_base<TrialField> const &trial_field)
 	{
 		// evaluate element match
-		auto mtch = element_match_eval(test_field, trial_field);
+		auto mtch(element_match_eval(test_field, trial_field));
 
 		// if no match simple regular integral is computed
 		if (mtch.get_match_dimension() == -1)
@@ -339,17 +365,17 @@ class double_integral<Kernel, TestField, TrialField, formalism::collocational>
 	typedef std::false_type WITHOUT_SINGULARITY_CHECK;
 
 public:
+	/** \brief type of the trial element */
+	typedef typename TrialField::elem_t trial_elem_t;
 	/** \brief test input type of kernel */
 	typedef typename kernel_traits<Kernel>::test_input_t test_input_t;
 	/** \brief trial input type of kernel */
 	typedef typename kernel_traits<Kernel>::trial_input_t trial_input_t;
 
-	/** \brief weighted test input type */
-	typedef test_input_t w_test_input_t;
 	/** \brief weighted trial input type */
 	typedef typename merge<
 		trial_input_t,
-		typename build<normal_jacobian<typename trial_input_t::space_t> >::type
+		typename build<typename weighted_brick<trial_elem_t>::type >::type
 	>::type w_trial_input_t;
 
 	/** \brief the quadrature family the kernel requires */
@@ -375,14 +401,14 @@ public:
 
 protected:
 	/** \brief evaluate regular collocational integral with selected trial field accelerator
-	* \param [out] result reference to the integration result matrix
-	* \param [in] kernel the kernel to integrate
-	* \param [in] test_field the test field to integrate on
-	* \param [in] trial_field the trial field to integrate on
-	* \param [in] it the begin iterator of the accelerator
-	* \param [in] end the end iterator of the accelerator
-	* \return reference to the integration result
-	*/
+	 * \param [out] result reference to the integration result matrix
+	 * \param [in] kernel the kernel to integrate
+	 * \param [in] test_field defining the collocation points
+	 * \param [in] trial_field the trial field to integrate on
+	 * \param [in] it the begin iterator of the accelerator
+	 * \param [in] end the end iterator of the accelerator
+	 * \return reference to the integration result
+	 */
 	template <class dual_iterator_t>
 	static result_t &eval_on_accelerator(
 		result_t &result,
@@ -394,7 +420,7 @@ protected:
 	{
 		for (; it != end; ++it)
 		{
-			w_test_input_t test_input(test_field.get_elem(), it.get_first()->get_xi());
+			test_input_t test_input(test_field.get_elem(), it.get_first()->get_xi());
 			w_trial_input_t trial_input(trial_field.get_elem(), it.get_second()->get_xi());
 
 			result += block_product(
@@ -416,14 +442,13 @@ public:
 	struct eval_singular_on_accelerator
 	{
 		/** \brief evaluate collocational singular integral with selected singular accelerator
-		* \tparam singular_accelerator_t type of the singular quadrature accelerator
-		* \param [out] result reference to the integration result matrix
-		* \param [in] kernel the kernel to integrate
-		* \param [in] test_field the test field to integrate on
-		* \param [in] trial_field the trial field to integrate on
-		* \param [in] sa singular accelerator
-		* \return reference to the integration result
-		*/
+		 * \param [out] result reference to the integration result matrix
+		 * \param [in] kernel the kernel to integrate
+		 * \param [in] test_field the test field defining the collocation points
+		 * \param [in] trial_field the trial field to integrate on
+		 * \param [in] sa singular accelerator
+		 * \return reference to the integration result
+		 */
 		static result_t & eval(
 			result_t &result,
 			kernel_base<Kernel> const &kernel,
@@ -433,18 +458,16 @@ public:
 		{
 			for (unsigned idx = 0; idx < test_nset_t::num_nodes; ++idx)
 			{
-				test_input_t collocational_point(test_field.get_elem(), test_nset_t::corner_at(idx));
-				auto bound = kernel.bind(collocational_point);
-				auto const &quad = sa.get_trial_quadrature(idx);
+				test_input_t collocation_point(test_field.get_elem(), test_nset_t::corner_at(idx));
 
-				for (auto quad_it = quad.begin(); quad_it != quad.end(); ++quad_it)
+				for (auto const &q : sa.get_trial_quadrature(idx))
 				{
-					w_trial_input_t trial_input(trial_field.get_elem(), quad_it->get_xi());
+					w_trial_input_t trial_input(trial_field.get_elem(), q.get_xi());
 
 					result.template block<kernel_rows, kernel_cols*trial_nset_t::num_nodes>(idx*kernel_rows, 0)
 					+= semi_block_product(
-						bound(trial_input),
-						trial_nset_t::template eval_shape<0>(quad_it->get_xi()) * trial_input.get_jacobian() * quad_it->get_w()
+						kernel(collocation_point, trial_input),
+						trial_nset_t::template eval_shape<0>(q.get_xi()) * trial_input.get_jacobian() * q.get_w()
 					);
 				}
 			}
@@ -460,11 +483,10 @@ public:
 	struct eval_singular_on_accelerator<invalid_singular_accelerator, dummy>
 	{
 		/** \brief evaluate collocational singular integral with selected singular accelerator
-		* \tparam singular_accelerator_t type of the singular quadrature accelerator
-		* \param [out] result reference to the integration result matrix
-		* \return reference to the integration result
-		* \details throws and exception is called, this case does not exist.
-		*/
+		 * \param [out] result reference to the integration result matrix
+		 * \return reference to the integration result
+		 * \details throws and exception if called, this case does not exist.
+		 */
 		static result_t & eval(
 			result_t &result,
 			kernel_base<Kernel> const &,
@@ -472,7 +494,7 @@ public:
 			field_base<TrialField> const &,
 			invalid_singular_accelerator const &)
 		{
-			throw std::runtime_error("Invalid quadrature");
+			throw std::runtime_error("Invalid quadrature returned by eval_singular_on_accelerator");
 			return result;
 		}
 	};
@@ -481,8 +503,8 @@ protected:
 	/** \brief evaluate single integral of a kernel on specific fields without singularity check
 	* \param [out] result reference to the integration result matrix
 	* \param [in] kernel the kernel to integrate
-	* \param [in] test_field reference to the test field
-	* \param [in] trial_field reference to the trial field
+	* \param [in] test_field reference to the test field defining the collocation points
+	* \param [in] trial_field reference to the trial field to integrate on
 	* \return reference to the stored result
 	*/
 	static result_t &eval(
@@ -508,8 +530,8 @@ protected:
 			TrialField, quadrature_family_t, GLOBAL_ACCELERATION, GLOBAL_MAX_ORDER
 		> > trial_store_t;
 
-		auto acc = create_dual_field_type_accelerator(
-			test_store_t::get_data()[degree], trial_store_t::get_data()[degree], iteration::diadic());
+		auto acc(create_dual_field_type_accelerator(
+			test_store_t::get_data()[degree], trial_store_t::get_data()[degree], iteration::diadic()));
 
 		return eval_on_accelerator(
 			result, kernel, test_field, trial_field, acc.begin(), acc.end());
@@ -519,8 +541,8 @@ protected:
 	/** \brief evaluate single integral of a kernel on specific fields with singularity check
 	 * \param [out] result reference to the integration result matrix
 	 * \param [in] kernel the kernel to integrate
-	 * \param [in] test_field reference to the test field
-	 * \param [in] trial_field reference to the trial field
+	 * \param [in] test_field reference to the test field defining the collocation points
+	 * \param [in] trial_field reference to the trial field to integrate on
 	 * \return reference to the stored result
 	 */
 	static result_t &eval(
@@ -530,7 +552,7 @@ protected:
 		field_base<TestField> const &test_field,
 		field_base<TrialField> const &trial_field)
 	{
-		auto mtch = element_match_eval(test_field, trial_field);
+		auto mtch(element_match_eval(test_field, trial_field));
 		if (mtch.get_match_dimension() == -1)
 			return eval(WITHOUT_SINGULARITY_CHECK(), result, kernel, test_field, trial_field);
 
@@ -551,12 +573,12 @@ protected:
 
 public:
 	/** \brief evaluate collocational integral on given fields
-	* \tparam singularity_check_needed indicates if surface system is solved or not
-	* \param [in] kernel the kernel to integrate
-	* \param [in] test_field the test field to integrate on
-	* \param [in] trial_field the trial field to integrate on
-	* \return the integration result by value
-	*/
+	 * \tparam OnSameMesh indicates that the two fields are defined over the same mesh and singularity check may be needed
+	 * \param [in] kernel the kernel to integrate
+	 * \param [in] test_field the test field defining the collocation points
+	 * \param [in] trial_field the trial field to integrate on
+	 * \return the integration result by value
+	 */
 	template <class OnSameMesh>
 	static result_t eval(
 		kernel_base<Kernel> const &kernel,
