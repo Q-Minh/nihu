@@ -9,13 +9,19 @@ function model = flip_elements(model)
 % Last modified 2012.12.19.
 
 %
-types = [12 23 24 36 38];
+LSetVector = [ShapeSet.LinearLine,...
+    ShapeSet.LinearTria,...
+    ShapeSet.LinearQuad, ...
+    ShapeSet.LinearPenta, ...
+    ShapeSet.LinearHexa
+    ];
 
-for t = 1 : length(types)
-    type = types(t);
-    sel = find(model.Elements(:,2) == type);
+for i = 1 : length(LSetVector)
+    lset = LSetVector(i);
+    sel = find(model.Elements(:,2) == lset.Id);
     if ~isempty(sel)
-        ind = 4+(1:mod(type, 10));
+        nNodes = size(lset.Nodes,1);
+        ind = 4+(1:nNodes);
         model.Elements(sel,ind) = fliplr(model.Elements(sel,ind));
     end
 end

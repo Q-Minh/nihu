@@ -46,7 +46,7 @@ end
 model = create_slab_boundary_base(N);
 % Apply transformation
 if isfield(args, 'R')
-    phi = shapefun(model.Nodes(:,2:4), 24);
+    phi = ShapeSet.LinearQuad.eval(model.Nodes(:,2:4));
     model.Nodes(:,2:4) = phi * args.R;
 elseif isfield(args, 'Cx')
     error('NiHu:create_slab_boundary:argFormat',...

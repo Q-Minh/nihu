@@ -1,4 +1,4 @@
-function [model origind] = quad2tria(model)
+function [model, origind] = quad2tria(model)
 %QUAD2TRIA  Replace Quad elements with TRIA elements
 %   [MESH ORIGID] = QUAD2TRIA(MESH) replaces each QUAD element in MESH by
 %   two TRIA elements. The element IDs are not conserved. The vector ORIGID
@@ -11,7 +11,7 @@ function [model origind] = quad2tria(model)
 %  plot_mesh(s2, 'elem', x(i))
 
 %% Argument check
-error(nargchk(1, 1, nargin, 'struct'));
+narginchk(1, 1);
 
 %% 
 q = model.Elements(:,2) == 24; % search for quad elements
