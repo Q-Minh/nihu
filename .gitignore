@@ -7,6 +7,10 @@ bem/mex_source/*.m
 # Matlab autosave files
 *.asv
 
+# executables
+*.o
+*.exe
+
 # Matlab mex binaries
 *.mexw*
 *.mexa*
