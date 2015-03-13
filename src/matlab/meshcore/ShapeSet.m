@@ -67,26 +67,16 @@ classdef ShapeSet < handle
     
     methods (Static = true)
         function obj = fromId(id)
-            switch id
-                case {12 121}
-                    obj = ShapeSet.LinearLine;
-                case 122
-                    obj = ShapeSet.QuadraticLine;
-                case {23 231}
-                    obj = ShapeSet.LinearTria;
-                case 232
-                    obj = ShapeSet.QuadraticTria;
-                case {24 241}
-                    obj = ShapeSet.LinearQuad;
-                case 242
-                    obj = ShapeSet.QuadraticQuad;
-                case {34 341}
-                    obj = ShapeSet.LinearTetra;
-                case {36 361}
-                    obj = ShapeSet.LinearPenta;
-                case {38 381}
-                    obj = ShapeSet.LinearHexa;
-            end
+            obj = ShapeSet.empty(size(id,1),0);
+            obj(id == 121, 1) = ShapeSet.LinearLine;
+            obj(id == 122, 1) = ShapeSet.QuadraticLine;
+            obj(id == 231, 1) = ShapeSet.LinearTria;
+            obj(id == 232, 1) = ShapeSet.QuadraticTria;
+            obj(id == 241, 1) = ShapeSet.LinearQuad;
+            obj(id == 242, 1) = ShapeSet.QuadraticQuad;
+            obj(id == 341, 1) = ShapeSet.LinearTetra;
+            obj(id == 361, 1) = ShapeSet.LinearPenta;
+            obj(id == 381, 1) = ShapeSet.LinearHexa;
         end
     end
     
