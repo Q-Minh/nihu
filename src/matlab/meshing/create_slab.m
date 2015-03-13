@@ -43,10 +43,10 @@ end
 model = create_slab_base(N);
 % Apply transformation
 if isfield(args, 'R')
-    phi = shapefun(model.Nodes(:,2:3), 24);
+    phi = ShapeSet.LinearQuad.eval(model.Nodes(:,2:3));
     model.Nodes(:,2:4) = phi * args.R;
 elseif isfield(args, 'Cx')
-    [y x] = meshgrid(args.Cy,args.Cx);            % create coordinates
+    [y, x] = meshgrid(args.Cy,args.Cx); % create coordinates
     model.Nodes(:,2:3) = [x(:) y(:)];   % replace coordinates
 end
 
