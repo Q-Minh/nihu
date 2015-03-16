@@ -18,7 +18,7 @@ function mesh2 = revolve_mesh(mesh, ang, nRep, dir, base)
 %   Budapest University of Technology and Economics
 %   Dept. of Telecommunications
 
-% Last modifed: 2012.12.19.
+% Last modifed: 2015.03.16.
 
 % translate mesh to base if needed
 if nargin > 4
@@ -38,27 +38,14 @@ for iPhi = 0 : nRep
     coord = coord * T;
 end
 
-% Create new elements
-Elements = drop_IDs(mesh);
-% zero padding
-Elements = [Elements zeros(size(Elements,1), 8-size(Elements,2))];
-quad = Elements(Elements(:,2) == 24,:);
-nq = size(quad,1);
-tria = Elements(Elements(:,2) == 23,:);
-nt = size(tria,1);
-line = Elements(Elements(:,2) == 12,:);
-nl = size(line,1);
-nE = nq+nt+nl;
+% Select which elements to flip to conserve outward normals
+[~, normal] = centnorm(mesh);
+lsetid = mesh.Elements(:,2);
+reverse = false(size(mesh.Elements,1),1);
 
-Elem = zeros(nRep*nE,12);
+Elem = extrude_elements(mesh, nNod, nRep, reverse);
 
-for iPhi = 1 : nRep
-    Elem((iPhi-1)*nE+(1:nq),1:12) = [repmat([0 38],nq,1) quad(:,3:4) quad(:,5:8)+(iPhi-1)*nNod quad(:,5:8)+iPhi*nNod];
-    Elem((iPhi-1)*nE+nq+(1:nt),1:10) = [repmat([0 36],nt,1) tria(:,3:4) tria(:,5:7)+(iPhi-1)*nNod tria(:,5:7)+iPhi*nNod];
-    Elem((iPhi-1)*nE+nq+nt+(1:nl),1:8) = [repmat([0 24],nl,1) line(:,3:4) line(:,[5 6])+(iPhi-1)*nNod line(:,[6 5])+iPhi*nNod];
-end
-
-% Assemble new mesh
+% Assemble new mesh structure
 mesh2.Nodes(:,2:4) = coords;
 mesh2.Nodes(:,1) = 1:size(mesh2.Nodes,1);
 mesh2.Elements = Elem;
