@@ -1,9 +1,9 @@
 function Elem = extrude_elements(mesh, nNod, nRep, reverse)
+%EXTRUDE_ELEMENTS helper function for EXTRUDE_MESH and REVEOLVE_MESH
+%   ELEM = EXTRUDE_ELEMENTS(MESH, NNOD, NREP, REVERSE)
 
 % Create new elements
 Elements = drop_IDs(mesh);
-% zero padding
-Elements = [Elements zeros(size(Elements,1), 8-size(Elements,2))];
 
 data = {
     ShapeSet.LinearLine, ShapeSet.LinearQuad, [1 2; 2 1]
