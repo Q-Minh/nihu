@@ -42,20 +42,20 @@ end
 Elements = drop_IDs(mesh);
 % zero padding
 Elements = [Elements zeros(size(Elements,1), 8-size(Elements,2))];
-quad = Elements(Elements(:,2) == 24,:);
+quad = Elements(Elements(:,2) == ShapeSet.LinearQuad.Id,:);
 nq = size(quad,1);
-tria = Elements(Elements(:,2) == 23,:);
+tria = Elements(Elements(:,2) == ShapeSet.LinearTria.Id,:);
 nt = size(tria,1);
-line = Elements(Elements(:,2) == 12,:);
+line = Elements(Elements(:,2) == ShapeSet.LinearLine.Id,:);
 nl = size(line,1);
 nE = nq+nt+nl;
 
 Elem = zeros(nRep*nE,12);
 
 for iPhi = 1 : nRep
-    Elem((iPhi-1)*nE+(1:nq),1:12) = [repmat([0 38],nq,1) quad(:,3:4) quad(:,5:8)+(iPhi-1)*nNod quad(:,5:8)+iPhi*nNod];
-    Elem((iPhi-1)*nE+nq+(1:nt),1:10) = [repmat([0 36],nt,1) tria(:,3:4) tria(:,5:7)+(iPhi-1)*nNod tria(:,5:7)+iPhi*nNod];
-    Elem((iPhi-1)*nE+nq+nt+(1:nl),1:8) = [repmat([0 24],nl,1) line(:,3:4) line(:,[5 6])+(iPhi-1)*nNod line(:,[6 5])+iPhi*nNod];
+    Elem((iPhi-1)*nE+(1:nq),1:12) = [repmat([0 ShapeSet.LinearHexa.Id],nq,1) quad(:,3:4) quad(:,5:8)+(iPhi-1)*nNod quad(:,5:8)+iPhi*nNod];
+    Elem((iPhi-1)*nE+nq+(1:nt),1:10) = [repmat([0 ShapeSet.LinearPenta.Id],nt,1) tria(:,3:4) tria(:,5:7)+(iPhi-1)*nNod tria(:,5:7)+iPhi*nNod];
+    Elem((iPhi-1)*nE+nq+nt+(1:nl),1:8) = [repmat([0 ShapeSet.LinearTetra.Id],nl,1) line(:,3:4) line(:,[5 6])+(iPhi-1)*nNod line(:,[6 5])+iPhi*nNod];
 end
 
 % Assemble new mesh
