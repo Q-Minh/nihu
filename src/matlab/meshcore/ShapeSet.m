@@ -6,6 +6,7 @@ classdef ShapeSet < handle
         Nodes   % the nodal locations of the shape set
         
         N       % symbolic expressions of the shape functions
+        dN      % symbolic expression of the shape function derivatives
         
         NFunc   % Matlab func evaluating the shape functions
         dNFunc  % Matlab func evaluating the shape function derivatives
@@ -23,7 +24,7 @@ classdef ShapeSet < handle
             switch type
                 case 'lagrange'
                     base = varargin{1};
-                    [obj.N, ~, obj.NFunc, obj.dNFunc, obj.ddNFunc] =...
+                    [obj.N, obj.dN, obj.NFunc, obj.dNFunc, obj.ddNFunc] =...
                         lagrangePoly(base, nodes);
             end
         end % of constructor
