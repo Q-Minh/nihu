@@ -1,13 +1,14 @@
 function v = mesh_volume(model)
-% Returns vector v, the volume for each element
+% Returns vector v, the approximate volume for each element
 % TODO: NOT TESTED YET
 %% preproc
 elem = drop_IDs(model);
-v = zeros(size(elem,1),1);
+lsetid = elem(:,2);
+v = zeros(size(lsetid));
 
 %% process Line elements
-iLine = find(elem(:,2) == 12);
-if ~isempty(iLine)
+iLine = lsetid == ShapeSet.LinearLine.Id;
+if any(iLine)
     line = elem(iLine,5:6);
     dr = model.Nodes(line(:,2),2:4) - model.Nodes(line(:,5),2:4);
     d = sqrt(dot(dr,dr,2));
@@ -15,8 +16,8 @@ if ~isempty(iLine)
 end
 
 %% process TRIA elements
-iTria = find(elem(:,2) == 23);
-if ~isempty(iTria)
+iTria = lsetid == ShapeSet.LinearTria.Id;
+if any(iTria)
     tria = elem(iTria,5:7);
     d1 = model.Nodes(tria(:,2),2:4) - model.Nodes(tria(:,1),2:4);
     d2 = model.Nodes(tria(:,3),2:4) - model.Nodes(tria(:,1),2:4);
@@ -26,8 +27,8 @@ if ~isempty(iTria)
 end
 
 %% process Quad elements
-iQuad = find(elem(:,2) == 24);
-if ~isempty(iQuad)
+iQuad = lsetid == ShapeSet.LinearQuad.Id;
+if any(iQuad)
     quad = elem(iQuad,5:8);
     d1 = model.Nodes(quad(:,2),2:4) - model.Nodes(quad(:,1),2:4);
     d2 = model.Nodes(quad(:,4),2:4) - model.Nodes(quad(:,1),2:4);
@@ -37,8 +38,8 @@ if ~isempty(iQuad)
 end
 
 %% process Tetra elements
-iTetra = find(elem(:,2) == 34);
-if ~isempty(iTetra)
+iTetra = lsetid == ShapeSet.LinearTetra.Id;
+if any(iTetra)
     tetra = elem(iTetra,5:8);
     d1 = model.Nodes(tetra(:,2),2:4) - model.Nodes(tetra(:,1),2:4);
     d2 = model.Nodes(tetra(:,3),2:4) - model.Nodes(tetra(:,1),2:4);
@@ -49,8 +50,8 @@ if ~isempty(iTetra)
 end
 
 %% process Penta elements
-iPenta = find(elem(:,2) == 36);
-if ~isempty(iPenta)
+iPenta = lsetid == ShapeSet.LinearPenta.Id;
+if any(iPenta)
     penta = elem(iPenta,5:10);
     d1 = model.Nodes(penta(:,2),2:4) - model.Nodes(penta(:,1),2:4);
     d2 = model.Nodes(penta(:,3),2:4) - model.Nodes(penta(:,1),2:4);
@@ -61,8 +62,8 @@ if ~isempty(iPenta)
 end
 
 %% process Hexa elements
-iHexa = find(elem(:,2) == 38);
-if ~isempty(iHexa)
+iHexa = lsetid == ShapeSet.LinearHexa.Id;
+if any(iHexa)
     hexa = elem(iHexa,5:12);
     d1 = model.Nodes(hexa(:,2),2:4) - model.Nodes(hexa(:,1),2:4);
     d2 = model.Nodes(hexa(:,4),2:4) - model.Nodes(hexa(:,1),2:4);
@@ -71,6 +72,5 @@ if ~isempty(iHexa)
     d = sqrt(Vvec.^2);
     v(iHexa) = d;
 end
-
 
 end
