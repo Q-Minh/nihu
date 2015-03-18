@@ -1,4 +1,4 @@
-function model = flip_elements(model)
+function Elements = flip_elements(Elements)
 %FLIP_ELEMENTS  Flip elements of a NiHu mesh
 %   MESH = FLIP_ELEMENTS(MESH) flips all the elements of a NiHu mesh
 
@@ -18,10 +18,10 @@ LSetVector = [ShapeSet.LinearLine,...
 
 for i = 1 : length(LSetVector)
     lset = LSetVector(i);
-    sel = find(model.Elements(:,2) == lset.Id);
+    sel = find(Elements(:,2) == lset.Id);
     if ~isempty(sel)
         nNodes = size(lset.Nodes,1);
         ind = 4+(1:nNodes);
-        model.Elements(sel,ind) = fliplr(model.Elements(sel,ind));
+        Elements(sel,ind) = fliplr(Elements(sel,ind));
     end
 end

@@ -29,5 +29,5 @@ nodes = mesh.Nodes(:,2:4);
 mesh.Nodes(:,2:4) = nodes - 2*(bsxfun(@minus, nodes, base) * normal.') * normal;
 
 % flip elements
-mesh = flip_elements(mesh);
+mesh.Elements = flip_elements(mesh.Elements);
 end

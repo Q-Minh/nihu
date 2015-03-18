@@ -35,8 +35,10 @@ end
 lsetid = mesh.Elements(:,2);
 reverse = lsetid ~= ShapeSet.LinearLine.Id & (normal * dir.') < 0 | ...
     lsetid == ShapeSet.LinearLine.Id & (normal * dir.') > 0;
+mesh.Elements(reverse,:) = flip_elements(mesh.Elements(reverse,:));
 
-Elem = extrude_elements(mesh, nNod, nRep, reverse);
+Elem = drop_IDs(mesh);
+Elem = extrude_elements(Elem, nNod, nRep);
 
 % Assemble new mesh structure
 mesh2.Nodes(:,2:4) = coord;

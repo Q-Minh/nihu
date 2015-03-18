@@ -7,7 +7,11 @@ function d = mesh_edge_size(model)
 %   Budapest University of Technology and Economics
 %   Dept. of Telecommunications
 
+
 % Last updated: 2012.12.19.
+
+%TODO no work
+warning('NiHu:mesh_edge_size', 'mesh_edge_size not updated yet');
 
 % preproc
 elem = drop_IDs(model);
