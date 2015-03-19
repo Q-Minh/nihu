@@ -99,13 +99,17 @@ classdef ShapeSet < handle
             obj = ShapeSet.empty(size(id,1),0);
             obj(id == 121, 1) = ShapeSet.LinearLine;
             obj(id == 122, 1) = ShapeSet.QuadraticLine;
+            obj(id == 1010, 1) = ShapeSet.InfiniteLine;
             obj(id == 231, 1) = ShapeSet.LinearTria;
             obj(id == 232, 1) = ShapeSet.QuadraticTria;
             obj(id == 241, 1) = ShapeSet.LinearQuad;
+            obj(id == 1121, 1) = ShapeSet.InfiniteLinearQuad;
             obj(id == 242, 1) = ShapeSet.QuadraticQuad;
             obj(id == 341, 1) = ShapeSet.LinearTetra;
             obj(id == 361, 1) = ShapeSet.LinearPenta;
+            obj(id == 1231, 1) = ShapeSet.InfiniteLinearPenta;
             obj(id == 381, 1) = ShapeSet.LinearHexa;
+            obj(id == 1241, 1) = ShapeSet.InfiniteLinearHexa;
         end
     end
     

@@ -9,7 +9,7 @@ function plot_elem_normals(model)
 % Last modified 02.12.2009.
 
 %% Argument check
-error(nargchk(1, 1, nargin, 'struct'));
+narginchk(1, 1);
 
 %% plot lines and markers
 [start, gnorm, w] = geo2gauss(model, 1);

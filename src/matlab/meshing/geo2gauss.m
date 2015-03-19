@@ -24,7 +24,7 @@ function [GC, GN, W, GI] = geo2gauss(model, order)
 %   Budapest University of Technology and Economics
 %   Dept. of Telecommunications
 
-% Last modified: 2015.03.11.
+% Last modified: 2015.03.18.
 
 %% Initialization
 Elements = drop_IDs(model);
@@ -36,16 +36,16 @@ GN = zeros(0,3);
 W = zeros(0,1);
 GI = zeros(0,1);
 
-for lset = [ShapeSet.LinearLine, ShapeSet.LinearTria, ShapeSet.LinearQuad]
+lSets = ShapeSet.fromId(unique(Elements(:,2)));
+for iLset = 1 : length(lSets)
+    lset = lSets(iLset);
     sel = Elements(:,2) == lset.Id;
-    if any(sel)
-        nNodes = size(lset.Nodes,1);
-        [gc, gn, w, gi] = vert2gauss(order, coords, lset, Elements(sel,4+(1:nNodes)));
-        GC = [GC; gc]; %#ok<*AGROW>
-        GN = [GN; gn];
-        W = [W; w];
-        GI = [GI; gi];
-    end
+    nNodes = size(lset.Nodes,1);
+    [gc, gn, w, gi] = vert2gauss(order, coords, lset, Elements(sel,4+(1:nNodes)));
+    GC = [GC; gc]; %#ok<*AGROW>
+    GN = [GN; gn];
+    W = [W; w];
+    GI = [GI; gi];
 end
 
 end
