@@ -8,20 +8,31 @@ function Elements = flip_elements(Elements)
 
 % Last modified 2012.12.19.
 
-%
-LSetVector = [ShapeSet.LinearLine,...
-    ShapeSet.LinearTria,...
-    ShapeSet.LinearQuad, ...
-    ShapeSet.LinearPenta, ...
-    ShapeSet.LinearHexa
-    ];
+flipRules = {
+    ShapeSet.ConstantLine.Id,  [1]
+    ShapeSet.LinearLine.Id,  [2 1]
+    ShapeSet.QuadraticLine.Id,  [3 2 1]
+    ShapeSet.ConstantTria.Id,  [1]
+    ShapeSet.LinearTria.Id,  [3 2 1]
+    ShapeSet.QuadraticTria.Id,  [3 2 1 6 5 4]
+    ShapeSet.ConstantQuad.Id,  [1]
+    ShapeSet.LinearQuad.Id,  [4 3 2 1]
+    ShapeSet.ConstantPenta.Id,  [1]
+    ShapeSet.LinearPenta.Id,  [4 5 6 1 2 3]
+    ShapeSet.ConstantHexa.Id,  [1]
+    ShapeSet.LinearHexa.Id,  [5 6 7 8 1 2 3 4]
+    };
 
-for i = 1 : length(LSetVector)
-    lset = LSetVector(i);
-    sel = find(Elements(:,2) == lset.Id);
-    if ~isempty(sel)
-        nNodes = size(lset.Nodes,1);
-        ind = 4+(1:nNodes);
-        Elements(sel,ind) = fliplr(Elements(sel,ind));
-    end
+setids = cell2mat(flipRules(:,1));
+
+lsets = unique(Elements(:,2));
+for i = 1 : length(lsets)
+    id = lsets(i);
+    perm = flipRules{setids == id,2};
+    sel = find(Elements(:,2) == id);
+    lset = ShapeSet.fromId(id);
+    nNodes = size(lset.Nodes,1);
+    ind = 4+(1:nNodes);
+    nodes = Elements(sel,ind);
+    Elements(sel,ind) = nodes(:,perm);
 end
