@@ -6,7 +6,7 @@ function Elements = flip_elements(Elements)
 %   Budapest University of Technology and Economics
 %   Dept. of Telecommunications
 
-% Last modified 2012.12.19.
+% Last modified 2015.03.19.
 
 flipRules = {
     ShapeSet.ConstantLine.Id,  [1]
@@ -36,3 +36,5 @@ for i = 1 : length(lsets)
     nodes = Elements(sel,ind);
     Elements(sel,ind) = nodes(:,perm);
 end
+
+end % of function

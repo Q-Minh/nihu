@@ -10,25 +10,29 @@ end
 
 switch opt
     case 'finite'
-        data = {
+        extrudeRule = {
             ShapeSet.LinearLine, ShapeSet.LinearQuad, [1 2; 2 1]
             ShapeSet.LinearTria, ShapeSet.LinearPenta, [1 2 3; 1 2 3]
             ShapeSet.LinearQuad, ShapeSet.LinearHexa, [1 2 3 4; 1 2 3 4]
             };
     case 'infinite'
-        data = {
+        extrudeRule = {
             ShapeSet.LinearLine, ShapeSet.InfiniteLinearQuad, [1 2; 2 1]
             ShapeSet.LinearTria, ShapeSet.InfiniteLinearPenta, [1 2 3; 1 2 3]
             ShapeSet.LinearQuad, ShapeSet.InfiniteLinearHexa, [1 2 3 4; 1 2 3 4]
             };
+    otherwise
+        error('NiHu:extrude_elements:Arg',...
+            'invalid extrusion option ''%s''\nValid options are ''finite'' or ''infinite''',...
+            opt);
 end
 
 Elem = [];
 
-for i = 1 : size(data,1)
-    srcLset = data{i,1};
-    dstLset = data{i,2};
-    idx = data{i,3};
+for i = 1 : size(extrudeRule,1)
+    srcLset = extrudeRule{i,1};
+    dstLset = extrudeRule{i,2};
+    idx = extrudeRule{i,3};
     
     nDstNodes = size(dstLset.Nodes,1);
     
@@ -52,4 +56,4 @@ for i = 1 : size(data,1)
     Elem(end+(1:size(dstElem,1)), 1:size(dstElem,2)) = dstElem;
 end
 
-end
+end % of function

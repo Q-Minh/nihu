@@ -12,7 +12,6 @@
 % as well as the number of elements $n_E$
 % * Defining the internal nodes ${\bf x}_i$ of the line.
 
-
 %%
 % In the first example, the first method is applied.
 L = 5;              % length of the line
@@ -39,12 +38,12 @@ lin3 = create_line(R, N);
 %%
 % In the third method, the line's nodes ${\bf x}_i$ are directly defined.
 % In this case, the line is aligned along the $x$ axis.
-Cx = (-1:.1:+2)';          % internal nodes
+Cx = (-1:.1:2)';          % internal nodes
 lin4 = create_line(Cx);
 
 %%
 % the nodes ${\bf x}_i$ can be defined as three-dimensional coordinates. In
-% this case |Cx| is an nx3 (or nx2) matrix:
+% this case |Cx| is an nxd matrix where d is the space's dimension:
 l = (0:1e-2:1)';
 Cx = [ l l.^2 l.^3 ];          % internal nodes
 lin5 = create_line(Cx);
@@ -149,9 +148,9 @@ brick2 = create_brick(C, [10, 10, 10]);
 
 %%
 % With the third method, non-uniform sampling can easily be defined:
-Cx = (.1:.05:1).^2; % nodes along the x axis
-Cy = (.1:.05:1).^3; % nodes along the y axis
-Cz = (.1:.05:1).^4; % nodes along the z axis
+Cx = (.1:.1:1).^2; % nodes along the x axis
+Cy = (.1:.1:1).^3; % nodes along the y axis
+Cz = (.1:.1:1).^4; % nodes along the z axis
 brick3 = create_brick(Cx, Cy, Cz);
 
 %%
