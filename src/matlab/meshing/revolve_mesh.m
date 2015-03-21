@@ -38,12 +38,14 @@ for iPhi = 0 : nRep
     coord = coord * T;
 end
 
-% Select which elements to flip to conserve outward normals
 [~, normal] = centnorm(mesh);
 lsetid = mesh.Elements(:,2);
+% TODO check which elements to flip to conserve outward normals
 reverse = false(size(mesh.Elements,1),1);
+mesh.Elements(reverse,:) = flip_elements(mesh.Elements(reverse,:));
 
-Elem = extrude_elements(mesh, nNod, nRep, reverse);
+Elem = drop_IDs(mesh);
+Elem = extrude_elements(Elem, nNod, nRep);
 
 % Assemble new mesh structure
 mesh2.Nodes(:,2:4) = coords;

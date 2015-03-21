@@ -112,15 +112,17 @@ z = mesh.Nodes(:,4);
 Elements = drop_IDs(mesh);
 
 
+lsetid = Elements(:,2);
+
 %% Plot LINE elements
-lin = Elements(:,2) == ShapeSet.LinearLine.Id;
+lin = lsetid == ShapeSet.LinearLine.Id | lsetid == ShapeSet.InfiniteLine.Id;
 if any(lin)
     elem = Elements(lin,5:6);
     line(x(elem.'), y(elem.'), z(elem.'), 'Color', 'black');
 end
 
 %% Plot TRIA elements
-tria = (Elements(:,2) == ShapeSet.LinearTria.Id | Elements(:,2) == 223);
+tria = (lsetid == ShapeSet.LinearTria.Id | lsetid == 223);
 if any(tria)
     elem = Elements(tria,5:7);
     if nodewise
@@ -137,7 +139,8 @@ if any(tria)
 end
 
 %% Plot QUAD elements
-quad = find(Elements(:,2) == ShapeSet.LinearQuad.Id | Elements(:,2) == 224);
+quad = find(lsetid == ShapeSet.LinearQuad.Id |...
+    lsetid == ShapeSet.InfiniteLinearQuad.Id | lsetid == 224);
 if any(quad)
     elem = Elements(quad,5:8);
     if nodewise
@@ -149,23 +152,6 @@ if any(quad)
         patch('Faces', elem,...
             'Vertices', [x y z], ...
             'FaceVertexCData', c(quad),...
-            'FaceColor','flat');
-    end
-end
-
-%% Plot 2D infinite elements
-iquad = find(Elements(:,2) == 122);
-if any(iquad)
-    elem = Elements(iquad,[5 6 8 7]);
-    if nodewise
-        patch('Faces', elem,...
-            'Vertices', [x y z], ...
-            'FaceVertexCData', c,...
-            'FaceColor', 'interp');
-    else
-        patch('Faces', elem,...
-            'Vertices', [x y z], ...
-            'FaceVertexCData', c(iquad),...
             'FaceColor','flat');
     end
 end

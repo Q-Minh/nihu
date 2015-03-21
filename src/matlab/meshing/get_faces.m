@@ -12,7 +12,7 @@ function E = get_faces(elements)
 %   Budapest University of Technology and Economics
 %   Dept. of Telecommunications
 
-FaceDef = {
+faceRules = {
     ShapeSet.LinearTria, ShapeSet.LinearLine, [1 2; 2 3; 3 1]
     ShapeSet.LinearQuad, ShapeSet.LinearLine, [1 2; 2 3; 3 4; 4 1]
     ShapeSet.LinearTetra, ShapeSet.LinearTria, [1 2 4; 2 3 4; 3 1 4; 1 3 2]
@@ -26,8 +26,8 @@ FaceDef = {
 E = zeros(0,0);
 N = 0;
 
-for i = 1 : size(FaceDef,1)
-    srclset = FaceDef{i,1};
+for i = 1 : size(faceRules,1)
+    srclset = faceRules{i,1};
     
     sel = elements(:,2) == srclset.Id;
     if ~any(sel)
@@ -36,8 +36,8 @@ for i = 1 : size(FaceDef,1)
     
     N = size(E,1);
 
-    dstlset = FaceDef{i,2};
-    faceind = FaceDef{i,3};
+    dstlset = faceRules{i,2};
+    faceind = faceRules{i,3};
     
     f = reshape(faceind.', [], 1);
     e = elements(sel, 4+f);

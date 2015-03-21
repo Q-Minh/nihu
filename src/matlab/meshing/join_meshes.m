@@ -26,12 +26,12 @@ else
     
     % Material and properties compatibility
     mesh.Materials = union(mesh1.Materials(:,2:end),mesh2.Materials(:,2:end),'rows');
-    [trash, matInd1, matOld1] = intersect(mesh.Materials,mesh1.Materials(:,2:end),'rows'); %#ok<ASGLU>
-    [trash, matInd2, matOld2] = intersect(mesh.Materials,mesh2.Materials(:,2:end),'rows'); %#ok<ASGLU>
+    [~, matInd1, matOld1] = intersect(mesh.Materials,mesh1.Materials(:,2:end),'rows');
+    [~, matInd2, matOld2] = intersect(mesh.Materials,mesh2.Materials(:,2:end),'rows');
     mesh.Materials = [(1:size(mesh.Materials,1)).',mesh.Materials];
     Prop = union(mesh1.Properties(:,2:end),mesh2.Properties(:,2:end),'rows');
-    [trash, propInd1, propOld1] = intersect(Prop,mesh1.Properties(:,2:end),'rows'); %#ok<ASGLU>
-    [trash, propInd2, propOld2] = intersect(Prop,mesh2.Properties(:,2:end),'rows'); %#ok<ASGLU>
+    [~, propInd1, propOld1] = intersect(Prop,mesh1.Properties(:,2:end),'rows');
+    [~, propInd2, propOld2] = intersect(Prop,mesh2.Properties(:,2:end),'rows');
     mesh.Properties = [(1:size(Prop,1)).',Prop];
     
     % Get number of nodes and elements
