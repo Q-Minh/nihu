@@ -15,6 +15,6 @@ for k = 1 : n
         q(:,k) = q(:,k) .* corners(:,j).^base(k,j);
     end
 end
-N = simplify(s.' / q);
+N = simplify(sym(s.' / q));
 
 end
