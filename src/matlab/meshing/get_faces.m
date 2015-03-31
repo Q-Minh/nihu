@@ -13,6 +13,7 @@ function E = get_faces(elements)
 %   Dept. of Telecommunications
 
 faceRules = {
+    ShapeSet.LinearLine, ShapeSet.ConstantPoint, [1; 2]
     ShapeSet.LinearTria, ShapeSet.LinearLine, [1 2; 2 3; 3 1]
     ShapeSet.LinearQuad, ShapeSet.LinearLine, [1 2; 2 3; 3 4; 4 1]
     ShapeSet.LinearTetra, ShapeSet.LinearTria, [1 2 4; 2 3 4; 3 1 4; 1 3 2]
