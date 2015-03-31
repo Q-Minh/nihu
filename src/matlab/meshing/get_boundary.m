@@ -29,6 +29,7 @@ boundary.Properties = model.Properties;
 boundary.Nodes = model.Nodes;
 faces = get_faces(model.Elements);
 faces = get_free_faces(faces);
+boundary.Elements = zeros(size(faces,1),0);
 boundary.Elements(:,[2 4+(1:size(faces,2)-2)]) = faces(:,2:end);
 [~, elemind] = ismember(faces(:,1), model.Elements(:,1));
 if ~isempty(boundary.Elements)

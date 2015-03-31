@@ -18,7 +18,7 @@ narginchk(2,2);
 nPoints = size(points,1);   % number of points to check
 inside = false(nPoints, 1); % initializing indicators
 
-if any(mesh.Elements(:,2) == 12)
+if any(mesh.Elements(:,2) == ShapeSet.LinearLine.Id)
     dim = 2;                % mesh is 2D
 else
     dim = 3;                % mesh is 3D

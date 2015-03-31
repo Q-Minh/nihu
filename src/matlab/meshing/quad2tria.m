@@ -18,7 +18,7 @@ narginchk(1, 1);
 %% 
 q = model.Elements(:,2) == ShapeSet.LinearQuad.Id; % search for quad elements
 if ~any(q)
-    origind = model.Elements(:,1);
+    origind = (1:size(model.Elements,1))';
     return;
 end
 quad = model.Elements(q,:);
