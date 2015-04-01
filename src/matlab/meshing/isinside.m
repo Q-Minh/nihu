@@ -6,15 +6,15 @@ function inside = isinside(mesh, points)
 %
 % See also: CHIEFGEN
 
-%   Copyright 2008-2010 P. Fiala
+%   Copyright 2008-2015 P. Fiala
 %   Budapest University of Technology and Economics
 %   Dept. of Telecommunications
 
-% Last modified: 02.12.2009
-%% Parameter check
+% Last modified: 2015.03.31. PF: new ShapeSet system introduced
+
 narginchk(2,2);
 
-%% Initialization
+% Initialization
 nPoints = size(points,1);   % number of points to check
 inside = false(nPoints, 1); % initializing indicators
 
@@ -26,7 +26,7 @@ end
 
 switch dim
     case 2
-        %% Check for polygon
+        % Check for polygon
         elem = drop_IDs(mesh);
         x1 = mesh.Nodes(elem(:,5),2);
         y1 = mesh.Nodes(elem(:,5),3);
@@ -41,7 +41,7 @@ switch dim
                 2)==1;
         end
     case 3
-        %% Check for polyhedron
+        % Check for polyhedron
         elem = drop_IDs(quad2tria(mesh));
         xe = mesh.Nodes(:,2);
         xe = xe(elem(:,5:7));   % x coordinates of elements

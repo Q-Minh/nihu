@@ -1,4 +1,8 @@
 classdef ShapeSet < handle
+    %SHAPESET Shape function set representations
+    
+    % Last modified: 2015.03.31. FP. Introduced ConstantPoint shape set
+    
     properties (SetAccess = immutable)
         Id      % unique identifier of the shape function set
         
@@ -117,6 +121,7 @@ classdef ShapeSet < handle
     methods (Static = true)
         function obj = fromId(id)
             obj = ShapeSet.empty(size(id,1),0);
+            obj(id == 010, 1) = ShapeSet.ConstantPoint;
             obj(id == 120, 1) = ShapeSet.ConstantLine;
             obj(id == 121, 1) = ShapeSet.LinearLine;
             obj(id == 122, 1) = ShapeSet.QuadraticLine;

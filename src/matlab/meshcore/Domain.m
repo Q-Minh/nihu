@@ -1,4 +1,8 @@
 classdef Domain < handle
+    %DOMAIN Intrinsic domain representations
+    
+    % Last modified: 2015.03.31. FP. Point domain introduced
+    
     properties (SetAccess = immutable)
         Space
         CornerNodes

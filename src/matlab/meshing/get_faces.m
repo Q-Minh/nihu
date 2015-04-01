@@ -12,6 +12,8 @@ function E = get_faces(elements)
 %   Budapest University of Technology and Economics
 %   Dept. of Telecommunications
 
+% Last modified: 2015.03.31. PF: Introduced boundary of linear line
+
 faceRules = {
     ShapeSet.LinearLine, ShapeSet.ConstantPoint, [1; 2]
     ShapeSet.LinearTria, ShapeSet.LinearLine, [1 2; 2 3; 3 1]
@@ -25,7 +27,6 @@ faceRules = {
     };
 
 E = zeros(0,0);
-N = 0;
 
 for i = 1 : size(faceRules,1)
     srclset = faceRules{i,1};
@@ -48,10 +49,9 @@ for i = 1 : size(faceRules,1)
     
     ind = N + (1:size(parentid,1));
     
-%     E(max(ind), 2+size(e,2)) = 0;   % zero padding
     E(ind,1) = parentid;
     E(ind,2) = dstlset.Id;
     E(ind,2+(1:size(e,2))) = e;
 end
 
-end
+end % of function
