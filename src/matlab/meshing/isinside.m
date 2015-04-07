@@ -63,6 +63,8 @@ switch dim
             end
             inside(iPoints) = c;
         end
+    otherwise
+        error('NiHu:isinside:arg', 'unsupported mesh for isinside: %dD', dim);
 end
 
 end
