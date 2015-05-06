@@ -10,13 +10,16 @@ function [model, origind] = quad2tria(model)
 %  [s2, i] = quad2tria(s);
 %  plot_mesh(s2, 'elem', x(i))
 
-% last modified: 2015.03.14. FP
+% last modified: 2015.03.31. FP: trivial version bug fix
 
-%% Argument check
 narginchk(1, 1);
 
-%% 
+% 
 q = model.Elements(:,2) == ShapeSet.LinearQuad.Id; % search for quad elements
+if ~any(q)
+    origind = (1:size(model.Elements,1))';
+    return;
+end
 quad = model.Elements(q,:);
 elem = drop_IDs(model);
 % Calculate length of diagonals
@@ -38,4 +41,4 @@ origind = [find(~q); repmat(find(q),2,1)];
 model.Elements = model.Elements(~q,:);
 model.Elements(end+(1:size(tria,1)),1:7) = tria;
 model.Elements(:,1) = 1:size(model.Elements,1); % renumber elements
-end
+end % of function

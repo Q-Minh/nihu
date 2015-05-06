@@ -1,92 +1,68 @@
 classdef ShapeSet < handle
-    %SHAPESET Shape function set representations
-    
-    % Last modified: 2015.03.31. FP. Introduced ConstantPoint shape set
-    
     properties (SetAccess = immutable)
         Id      % unique identifier of the shape function set
         
         Domain  % the shape set's intrinsic domain
         Nodes   % the nodal locations of the shape set
         
-        ConstructionMethod
-        Args
-    end % of immutable properties
+        N       % symbolic expressions of the shape functions
+        dN      % symbolic expression of the shape function derivatives
+        ddN     % symbolic expression of the 2nd derivatives
+        
+        NFunc   % Matlab func evaluating the shape functions
+        dNFunc  % Matlab func evaluating the shape function derivatives
+        ddNFunc % Matlab func evaluating the shape function 2nd derivatives
+    end
     
-    methods (Access = private)
-        function res = compute_shape_functions(obj)
-            fprintf(1, 'Constructing shape functions for id %d\n', obj.Id);
-            
-            d = obj.Domain.Space.Dimension;
-            n = size(obj.Nodes,1);
-            
-            res.N = sym('N', [1, n]);
-            res.dN = sym('dN', [d, n]);
-            res.ddN = sym('ddN', [d*d, n]);
-
-            switch obj.ConstructionMethod
-                case 'lagrange'
-                    base = obj.Args{1};
-                    [res.N, g] = lagrangePoly(base, obj.Nodes);
-                case 'lagrange-infinite'
-                    base = obj.Args{1};
-                    [res.N, g] = infiniteLagrangePoly(base, obj.Nodes);
-                otherwise
-                    error('NiHu:ShapeSet:Arg',...
-                        'unknown construction method %s', obj.ConstructionMethod);
-            end
-            
-            for j = 1 : d
-                res.dN(j,:) = simplify(diff(res.N, g(j)));
-                for k = 1 : d
-                    res.ddN((j-1)*d+k,:) = simplify(diff(res.dN(j,:), g(k)));
-                end
-            end
-
-            res.NFunc = matlabFunction(res.N, 'vars', {g});
-            res.dNFunc = cell(n, d);
-            res.ddNFunc = cell(n, d, d);
-            for i = 1 : n
-                for j = 1 : d
-                    res.dNFunc{i,j} = matlabFunction(res.dN(j,i), 'vars', {g});
-                    for k = 1 : d
-                        res.ddNFunc{i,j,k} = matlabFunction(simplify(res.ddN((j-1)*d+k,i)), 'vars', {g});
-                    end
-                end
-            end
-        end % of function compute_shape_functions
-    end % of private methods
-    
-    methods (Access = public)
+    methods
         function obj = ShapeSet(id, domain, nodes, type, varargin)
+            fprintf(1, 'Constructing shape functions for id %d\n', id);
+            
             obj.Id = id;
             obj.Domain = domain;
             obj.Nodes = nodes;
-            obj.ConstructionMethod = type;
-            obj.Args = varargin;
+            d = domain.Space.Dimension;
+            n = size(nodes,1);
+            
+            obj.N = sym('N', [1, n]);
+            obj.dN = sym('dN', [d, n]);
+            obj.ddN = sym('ddN', [d*d, n]);
+
+            switch type
+                case 'lagrange'
+                    base = varargin{1};
+                    [obj.N, g] = lagrangePoly(base, nodes);
+                case 'lagrange-infinite'
+                    base = varargin{1};
+                    [obj.N, g] = infiniteLagrangePoly(base, nodes);
+            end
+            
+            for j = 1 : d
+                obj.dN(j,:) = simplify(diff(obj.N, g(j)));
+                for k = 1 : d
+                    obj.ddN((j-1)*d+k,:) = simplify(diff(obj.dN(j,:), g(k)));
+                end
+            end
+
+            obj.NFunc = matlabFunction(obj.N, 'vars', {g});
+            obj.dNFunc = cell(n, d);
+            obj.ddNFunc = cell(n, d, d);
+            for i = 1 : n
+                for j = 1 : d
+                    obj.dNFunc{i,j} = matlabFunction(obj.dN(j,i), 'vars', {g});
+                    for k = 1 : d
+                        obj.ddNFunc{i,j,k} = matlabFunction(simplify(obj.ddN((j-1)*d+k,i)), 'vars', {g});
+                    end
+                end
+            end
         end % of constructor
         
         function [N, dN, ddN] = eval(obj, xi)
+            q = size(xi,1);
+            d = size(xi,2);
+            n = size(obj.Nodes,1);
             
-            persistent ComputedShapeFunctions
-            
-            if isempty(ComputedShapeFunctions)
-                ComputedShapeFunctions = cell(obj.Id,1);
-            end
-            
-            if numel(ComputedShapeFunctions) < obj.Id ||...
-                    isempty(ComputedShapeFunctions{obj.Id})
-                shfun = obj.compute_shape_functions();
-                ComputedShapeFunctions{obj.Id,1} = shfun;
-            else
-                shfun = ComputedShapeFunctions{obj.Id,1};
-            end
-            
-            q = size(xi,1); % number of locations
-            d = size(xi,2); % number of dimensions
-            n = size(obj.Nodes,1);  % number of nodes
-            
-            N = shfun.NFunc(xi);
+            N = obj.NFunc(xi);
             if size(N,1) == 1 && q > 1
                 N = repmat(N, q, 1);
             end
@@ -98,7 +74,7 @@ classdef ShapeSet < handle
             dN = zeros(q, n, d);
             for i = 1 : n
                 for k = 1 : d
-                    dN(:,i,k) = shfun.dNFunc{i,k}(xi);
+                    dN(:,i,k) = obj.dNFunc{i,k}(xi);
                 end
             end
             
@@ -110,7 +86,7 @@ classdef ShapeSet < handle
             for i = 1 : n
                 for j = 1 : d
                     for k = 1 : d
-                        ddN(:,i,j,k) = shfun.ddNFunc{i,j,k}(xi);
+                        ddN(:,i,j,k) = obj.ddNFunc{i,j,k}(xi);
                     end
                 end
             end
@@ -121,7 +97,6 @@ classdef ShapeSet < handle
     methods (Static = true)
         function obj = fromId(id)
             obj = ShapeSet.empty(size(id,1),0);
-            obj(id == 010, 1) = ShapeSet.ConstantPoint;
             obj(id == 120, 1) = ShapeSet.ConstantLine;
             obj(id == 121, 1) = ShapeSet.LinearLine;
             obj(id == 122, 1) = ShapeSet.QuadraticLine;
@@ -169,15 +144,12 @@ classdef ShapeSet < handle
             end
             cid = data(n,2);
         end
-    end % of static methods
+    end
     
     enumeration
-        ConstantPoint(010, Domain.Point,...
-            Domain.Point.Center,...
-            'lagrange', [])
         ConstantLine(120, Domain.Line,...
             Domain.Line.Center,...
-            'lagrange', [0]) %#ok<NBRAK>
+            'lagrange', [0])
         LinearLine(121, Domain.Line,...
             Domain.Line.CornerNodes,...
             'lagrange', [0; 1])
@@ -185,7 +157,7 @@ classdef ShapeSet < handle
             [-1; 0; 1],...
             'lagrange', [0; 1; 2])
         InfiniteLine(1010, Domain.Line,...
-            [-1; 0], 'lagrange-infinite', [0]); %#ok<NBRAK>
+            [-1; 0], 'lagrange-infinite', [0]);
         ConstantTria(230, Domain.Tria,...
             Domain.Tria.Center,...
             'lagrange', [0 0])
@@ -234,5 +206,5 @@ classdef ShapeSet < handle
             [-1 -1 -1; 1 -1 -1; 1 1 -1; -1 1 -1;
             -1 -1 0; 1 -1 0; 1 1 0; -1 1 0], 'lagrange-infinite',...
             [0 0; 1 0; 0 1; 1 1]);
-    end % of enumeration
-end % of class
+    end
+end

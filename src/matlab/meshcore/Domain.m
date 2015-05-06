@@ -1,4 +1,8 @@
 classdef Domain < handle
+    %DOMAIN Intrinsic domain representations
+    
+    % Last modified: 2015.03.31. FP. Point domain introduced
+    
     properties (SetAccess = immutable)
         Space
         CornerNodes
@@ -16,6 +20,7 @@ classdef Domain < handle
     end
     
     enumeration
+        Point(Space.D0, zeros(1,0), 0, zeros(1,0));
         Line(Space.D1, [-1; +1], 2, 0);
         Tria(Space.D2, [0 0; 1 0; 0 1], .5, [1 1]/3);
         Quad(Space.D2, [-1 -1; 1 -1; 1 1; -1 1], 4, [0 0]);
