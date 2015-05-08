@@ -1,17 +1,19 @@
-function [N, vars] = bendingPoly(c)
+function [N, vars] = bendingPoly(domain)
 
 x = sym('x', 'real');
 y = sym('y', 'real');
 
-switch size(c,1)
-    case 3
+c = domain.CornerNodes;
+
+switch domain
+    case Domain.Tria
         L1 = 1-x-y;
         L2 = x;
         L3 = y;
         psi = [L1.^3, L2.^3, L3.^3,...
             L1.^2.*L2, L2.^2.*L3, L3.^2*L1,...
             L1.^2.*L3, L2.^2*L1, L3.^2.*L2];
-    case 4
+    case Domain.Quad
         % cubic polynomial base of shape functions
         psi = [1 x y x^2 x*y y^2 x^3 x^2*y x*y^2 y^3 x^3*y x*y^3];
     otherwise
@@ -24,7 +26,7 @@ betay = -diff(w,x); % rotation around y axis
 
 % nodal positions
 nNodes = size(c,1);
-nDofPerNode = 3;
+nDofPerNode = 1 + domain.Space.Dimension;
 
 G = zeros(nNodes*nDofPerNode,nNodes*nDofPerNode);
 for k = 1 : nNodes

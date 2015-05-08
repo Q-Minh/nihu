@@ -159,11 +159,13 @@ end
 %% Plot 3D elements
 % 3D elements are plotted by extracting their boundary and plotting the
 % bounday's 2D surfrace elements with plot_mesh.
-dims = zeros(size(mesh.Elements,1),1);
-for e = 1 : size(mesh.Elements,1)
-    lset = ShapeSet.fromId(mesh.Elements(e,2));
-    dims(e) = lset.Domain.Space.Dimension;
+[uniqueIds, ~, idx] = unique(mesh.Elements(:,2));
+uniqueLsets = ShapeSet.fromId(uniqueIds);
+uniqueDims = zeros(size(uniqueLsets,1),1);
+for e = 1 : length(uniqueLsets)
+    uniqueDims(e) = uniqueLsets(e).Domain.Space.Dimension;
 end
+dims = uniqueDims(idx);
 i3D = dims == 3;    % 3D selection
 if any(i3D)
     mesh.Elements = mesh.Elements(i3D,:);   % keep 3D elements

@@ -17,13 +17,6 @@ classdef ShapeSet < handle
         function res = compute_shape_functions(obj)
             fprintf(1, 'Constructing shape functions for id %d\n', obj.Id);
             
-            d = obj.Domain.Space.Dimension;
-            n = size(obj.Nodes,1);
-            
-            res.N = sym('N', [1, n]);
-            res.dN = sym('dN', [d, n]);
-            res.ddN = sym('ddN', [d*d, n]);
-
             switch obj.ConstructionMethod
                 case 'lagrange'
                     base = obj.Args{1};
@@ -32,16 +25,17 @@ classdef ShapeSet < handle
                     base = obj.Args{1};
                     [res.N, g] = infiniteLagrangePoly(base, obj.Nodes);
                 case 'plate_bending'
-                    n = 3*n;
-                    res.N = sym('N', [1, n]);
-                    res.dN = sym('dN', [d, n]);
-                    res.ddN = sym('ddN', [d*d, n]);
-                    [res.N, g] = bendingPoly(obj.Nodes);
+                    [res.N, g] = bendingPoly(obj.Domain);
                 otherwise
                     error('NiHu:ShapeSet:Arg',...
                         'unknown construction method %s', obj.ConstructionMethod);
             end
             
+            nSh = length(res.N);
+            d = obj.Domain.Space.Dimension;
+            
+            res.dN = sym('dN', [d, nSh]);
+            res.ddN = sym('ddN', [d*d, nSh]);
             for j = 1 : d
                 res.dN(j,:) = simplify(diff(res.N, g(j)));
                 for k = 1 : d
@@ -50,9 +44,9 @@ classdef ShapeSet < handle
             end
 
             res.NFunc = matlabFunction(res.N, 'vars', {g});
-            res.dNFunc = cell(n, d);
-            res.ddNFunc = cell(n, d, d);
-            for i = 1 : n
+            res.dNFunc = cell(nSh, d);
+            res.ddNFunc = cell(nSh, d, d);
+            for i = 1 : nSh
                 for j = 1 : d
                     res.dNFunc{i,j} = matlabFunction(res.dN(j,i), 'vars', {g});
                     for k = 1 : d
@@ -146,6 +140,8 @@ classdef ShapeSet < handle
             obj(id == 380, 1) = ShapeSet.ConstantHexa;
             obj(id == 381, 1) = ShapeSet.LinearHexa;
             obj(id == 1241, 1) = ShapeSet.InfiniteLinearHexa;
+            obj(id == 2333, 1) = ShapeSet.BendingTria;
+            obj(id == 2343, 1) = ShapeSet.BendingQuad;
         end
         
         function cid = constant(id)
