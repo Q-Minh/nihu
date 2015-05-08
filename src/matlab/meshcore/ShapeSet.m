@@ -31,6 +31,12 @@ classdef ShapeSet < handle
                 case 'lagrange-infinite'
                     base = obj.Args{1};
                     [res.N, g] = infiniteLagrangePoly(base, obj.Nodes);
+                case 'plate_bending'
+                    n = 3*n;
+                    res.N = sym('N', [1, n]);
+                    res.dN = sym('dN', [d, n]);
+                    res.ddN = sym('ddN', [d*d, n]);
+                    [res.N, g] = bendingPoly(obj.Nodes);
                 otherwise
                     error('NiHu:ShapeSet:Arg',...
                         'unknown construction method %s', obj.ConstructionMethod);
@@ -84,7 +90,7 @@ classdef ShapeSet < handle
             
             q = size(xi,1); % number of locations
             d = size(xi,2); % number of dimensions
-            n = size(obj.Nodes,1);  % number of nodes
+            nSh = length(shfun.N);  % number of shape functions
             
             N = shfun.NFunc(xi);
             if size(N,1) == 1 && q > 1
@@ -95,8 +101,8 @@ classdef ShapeSet < handle
                 return
             end
             
-            dN = zeros(q, n, d);
-            for i = 1 : n
+            dN = zeros(q, nSh, d);
+            for i = 1 : nSh
                 for k = 1 : d
                     dN(:,i,k) = shfun.dNFunc{i,k}(xi);
                 end
@@ -106,15 +112,14 @@ classdef ShapeSet < handle
                 return
             end
             
-            ddN = zeros(q, n, d, d);
-            for i = 1 : n
+            ddN = zeros(q, nSh, d, d);
+            for i = 1 : nSh
                 for j = 1 : d
                     for k = 1 : d
                         ddN(:,i,j,k) = shfun.ddNFunc{i,j,k}(xi);
                     end
                 end
             end
-            
         end % of function eval
     end % of public methods
     
@@ -234,5 +239,9 @@ classdef ShapeSet < handle
             [-1 -1 -1; 1 -1 -1; 1 1 -1; -1 1 -1;
             -1 -1 0; 1 -1 0; 1 1 0; -1 1 0], 'lagrange-infinite',...
             [0 0; 1 0; 0 1; 1 1]);
+        BendingQuad(2343, Domain.Quad,Domain.Quad.CornerNodes,...
+            'plate_bending');
+        BendingTria(2333, Domain.Tria,Domain.Tria.CornerNodes,...
+            'plate_bending');
     end % of enumeration
 end % of class
