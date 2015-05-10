@@ -17,13 +17,6 @@ classdef ShapeSet < handle
         function res = compute_shape_functions(obj)
             fprintf(1, 'Constructing shape functions for id %d\n', obj.Id);
             
-            d = obj.Domain.Space.Dimension;
-            n = size(obj.Nodes,1);
-            
-            res.N = sym('N', [1, n]);
-            res.dN = sym('dN', [d, n]);
-            res.ddN = sym('ddN', [d*d, n]);
-
             switch obj.ConstructionMethod
                 case 'lagrange'
                     base = obj.Args{1};
@@ -31,11 +24,18 @@ classdef ShapeSet < handle
                 case 'lagrange-infinite'
                     base = obj.Args{1};
                     [res.N, g] = infiniteLagrangePoly(base, obj.Nodes);
+                case 'plate_bending'
+                    [res.N, g] = bendingPoly(obj.Domain);
                 otherwise
                     error('NiHu:ShapeSet:Arg',...
                         'unknown construction method %s', obj.ConstructionMethod);
             end
             
+            nSh = length(res.N);
+            d = obj.Domain.Space.Dimension;
+            
+            res.dN = sym('dN', [d, nSh]);
+            res.ddN = sym('ddN', [d*d, nSh]);
             for j = 1 : d
                 res.dN(j,:) = simplify(diff(res.N, g(j)));
                 for k = 1 : d
@@ -44,9 +44,9 @@ classdef ShapeSet < handle
             end
 
             res.NFunc = matlabFunction(res.N, 'vars', {g});
-            res.dNFunc = cell(n, d);
-            res.ddNFunc = cell(n, d, d);
-            for i = 1 : n
+            res.dNFunc = cell(nSh, d);
+            res.ddNFunc = cell(nSh, d, d);
+            for i = 1 : nSh
                 for j = 1 : d
                     res.dNFunc{i,j} = matlabFunction(res.dN(j,i), 'vars', {g});
                     for k = 1 : d
@@ -84,7 +84,7 @@ classdef ShapeSet < handle
             
             q = size(xi,1); % number of locations
             d = size(xi,2); % number of dimensions
-            n = size(obj.Nodes,1);  % number of nodes
+            nSh = length(shfun.N);  % number of shape functions
             
             N = shfun.NFunc(xi);
             if size(N,1) == 1 && q > 1
@@ -95,8 +95,8 @@ classdef ShapeSet < handle
                 return
             end
             
-            dN = zeros(q, n, d);
-            for i = 1 : n
+            dN = zeros(q, nSh, d);
+            for i = 1 : nSh
                 for k = 1 : d
                     dN(:,i,k) = shfun.dNFunc{i,k}(xi);
                 end
@@ -106,15 +106,14 @@ classdef ShapeSet < handle
                 return
             end
             
-            ddN = zeros(q, n, d, d);
-            for i = 1 : n
+            ddN = zeros(q, nSh, d, d);
+            for i = 1 : nSh
                 for j = 1 : d
                     for k = 1 : d
                         ddN(:,i,j,k) = shfun.ddNFunc{i,j,k}(xi);
                     end
                 end
             end
-            
         end % of function eval
     end % of public methods
     
@@ -141,6 +140,8 @@ classdef ShapeSet < handle
             obj(id == 380, 1) = ShapeSet.ConstantHexa;
             obj(id == 381, 1) = ShapeSet.LinearHexa;
             obj(id == 1241, 1) = ShapeSet.InfiniteLinearHexa;
+            obj(id == 2333, 1) = ShapeSet.BendingTria;
+            obj(id == 2343, 1) = ShapeSet.BendingQuad;
         end
         
         function cid = constant(id)
@@ -234,5 +235,9 @@ classdef ShapeSet < handle
             [-1 -1 -1; 1 -1 -1; 1 1 -1; -1 1 -1;
             -1 -1 0; 1 -1 0; 1 1 0; -1 1 0], 'lagrange-infinite',...
             [0 0; 1 0; 0 1; 1 1]);
+        BendingQuad(2343, Domain.Quad,Domain.Quad.CornerNodes,...
+            'plate_bending');
+        BendingTria(2333, Domain.Tria,Domain.Tria.CornerNodes,...
+            'plate_bending');
     end % of enumeration
 end % of class
