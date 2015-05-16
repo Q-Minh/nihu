@@ -59,13 +59,13 @@ end
 
 %% Read element information
 ElementTypes = [
-    {'CROD    '}, {12}, {2}
-    {'CBAR    '}, {12}, {2}
-    {'CTRIA3  '}, {23}, {3}
-    {'CQUAD4  '}, {24}, {4}
-    {'CTETRA  '}, {34}, {4}
-    {'CPENTA  '}, {36}, {6}
-    {'CHEXA   '}, {38}, {8}
+    {'CROD    '}, {ShapeSet.LinearLine.Id}, {2}
+    {'CBAR    '}, {ShapeSet.LinearLine.Id}, {2}
+    {'CTRIA3  '}, {ShapeSet.LinearTria.Id}, {3}
+    {'CQUAD4  '}, {ShapeSet.LinearQuad.Id}, {4}
+    {'CTETRA  '}, {ShapeSet.LinearTetra.Id}, {4}
+    {'CPENTA  '}, {ShapeSet.LinearPenta.Id}, {6}
+    {'CHEXA   '}, {ShapeSet.LinearHexa.Id}, {8}
     ];
 ind = 0;
 for net = 1 : size(ElementTypes)
