@@ -25,10 +25,25 @@ else
     e2 = drop_IDs(mesh2);
     
     % Material and properties compatibility
+    s1 = size(mesh1.Materials,2);
+    s2 = size(mesh2.Materials,1);
+    if (s1 > s2)
+        mesh2.Materials(:,s1) = 0;
+    elseif s2 > s1
+        mesh1.Materials(:,s2) = 0;
+    end
     mesh.Materials = union(mesh1.Materials(:,2:end),mesh2.Materials(:,2:end),'rows');
     [~, matInd1, matOld1] = intersect(mesh.Materials,mesh1.Materials(:,2:end),'rows');
     [~, matInd2, matOld2] = intersect(mesh.Materials,mesh2.Materials(:,2:end),'rows');
     mesh.Materials = [(1:size(mesh.Materials,1)).',mesh.Materials];
+
+    s1 = size(mesh1.Properties,2);
+    s2 = size(mesh2.Properties,1);
+    if (s1 > s2)
+        mesh2.Properties(:,s1) = 0;
+    elseif s2 > s1
+        mesh1.Properties(:,s2) = 0;
+    end
     Prop = union(mesh1.Properties(:,2:end),mesh2.Properties(:,2:end),'rows');
     [~, propInd1, propOld1] = intersect(Prop,mesh1.Properties(:,2:end),'rows');
     [~, propInd2, propOld2] = intersect(Prop,mesh2.Properties(:,2:end),'rows');
