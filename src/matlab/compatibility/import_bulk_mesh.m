@@ -8,7 +8,7 @@ function mesh = import_bulk_mesh(fname)
 %   Budapest University of Technology and Economics
 %   Dept. of Telecommunications
 
-% Last modified: 2013.09.22.
+% Last modified: FP 2015.05.19.
 
 %% Open and read the file
 fid = fopen(fname, 'rt');
@@ -18,6 +18,63 @@ end
 file = textscan(fid, '%s', 'delimiter', '\n', 'whitespace', '');
 file = file{1};
 fclose(fid);
+
+%% Read material information
+Materials = [];
+name = 'MAT1    ';
+rows = find(strncmp(name, file, length(name)));
+if ~isempty(rows)
+    l = length(rows);
+    fprintf(1, 'Reading %d MAT1 entries...', l);
+    c = file(rows);
+    c = regexprep(c, '.{8}(.{8})(.{16})(.{8})(.{1,8}).*', '$1 $2 $3 $4 ');
+    c = regexprep(c, '(\d*\.\d*)([+-])(\d)', '$1E$2$3');
+    data = sscanf(cell2mat(c'), '%d%g%g%g', [4, l]);
+    Materials = [
+        Materials
+        data'
+        ];
+    file = file(setdiff(1:length(file), rows));
+    fprintf(1, 'Done\n');
+    
+    Materials(:,[1 3 4 5]) = Materials;
+    Materials(:,2) = 2; % isotropic elastic
+end
+
+
+%% Read properties information
+Properties = [];
+name = 'PSHELL  ';
+rows = find(strncmp(name, file, length(name)));
+if ~isempty(rows)
+    l = length(rows);
+    fprintf(1, 'Reading %d PSHELL property entries...', l);
+    c = file(rows);
+    c = regexprep(c, '.{8}(.{8})(.{8})(.{8}).*', '$1 $2 $3 ');
+    data = sscanf(cell2mat(c'), '%d%d%g', [3, l]);
+    Properties = [
+        Properties
+        data'
+        ];
+    file = file(setdiff(1:length(file), rows));
+    fprintf(1, 'Done\n');
+end
+
+name = 'PBAR    ';
+rows = find(strncmp(name, file, length(name)));
+if ~isempty(rows)
+    l = length(rows);
+    fprintf(1, 'Reading %d PBAR property entries...', l);
+    c = file(rows);
+    c = regexprep(c, '.{8}(.{8})(.{8})(.{1,8}).*', '$1 $2 $3 ');
+    data = sscanf(cell2mat(c'), '%d%d%g', [3, l]);
+    Properties = [
+        Properties
+        data'
+        ];
+    file = file(setdiff(1:length(file), rows));
+    fprintf(1, 'Done\n');
+end
 
 %% Read GRID* information
 Nodes = zeros(0,4);
@@ -59,13 +116,13 @@ end
 
 %% Read element information
 ElementTypes = [
-    {'CROD    '}, {12}, {2}
-    {'CBAR    '}, {12}, {2}
-    {'CTRIA3  '}, {23}, {3}
-    {'CQUAD4  '}, {24}, {4}
-    {'CTETRA  '}, {34}, {4}
-    {'CPENTA  '}, {36}, {6}
-    {'CHEXA   '}, {38}, {8}
+    {'CROD    '}, {ShapeSet.LinearLine.Id}, {2}
+    {'CBAR    '}, {ShapeSet.LinearLine.Id}, {2}
+    {'CTRIA3  '}, {ShapeSet.LinearTria.Id}, {3}
+    {'CQUAD4  '}, {ShapeSet.LinearQuad.Id}, {4}
+    {'CTETRA  '}, {ShapeSet.LinearTetra.Id}, {4}
+    {'CPENTA  '}, {ShapeSet.LinearPenta.Id}, {6}
+    {'CHEXA   '}, {ShapeSet.LinearHexa.Id}, {8}
     ];
 ind = 0;
 for net = 1 : size(ElementTypes)
@@ -86,7 +143,7 @@ for net = 1 : size(ElementTypes)
     end
     ind = max(ind) + (1:l);
     c = regexprep(file(rows),...
-        sprintf('.{8}(.{8}).{8}(.{%d})(.{1,8}).*', 8*(nnod-1)), '$1 $2 $3 ');
+        sprintf('.{8}(.{8})(.{8})(.{%d})(.{1,8}).*', 8*(nnod-1)), '$1 $2 $3 $4 ');
     if nnod2 ~= 0
         c2 = regexprep(file(rows+1),...
             sprintf('.{8}(.{%d})(.{1,8}).*', 8*(nnod2-1)), '$1 $2');
@@ -94,18 +151,16 @@ for net = 1 : size(ElementTypes)
         nnod = nnod + nnod2;
         rows = [rows; rows+1]; %#ok<AGROW>
     end
-    data = sscanf(cell2mat(c(:)'), repmat('%d', 1, nnod+1), [nnod+1,l]);
-    Elements(ind, [1 4+(1:nnod)]) = data'; %#ok<AGROW>
+    data = sscanf(cell2mat(c(:)'), repmat('%d', 1, nnod+2), [nnod+2,l]);
+    Elements(ind, [1 4 4+(1:nnod)]) = data'; %#ok<AGROW>
     Elements(ind, 2) = type; %#ok<AGROW>
-    Elements(ind, 3:4) = 1; %#ok<AGROW>
+    Elements(ind, 3) = 1; %#ok<AGROW> % default material
     file = file(setdiff(1:length(file), rows));
     fprintf(1, 'Done\n');
 end
 
 %% Properties and Materials
-Properties = unique(Elements(:,4));
-Materials = unique(Elements(:,3));
-
+Elements(:,3) = Properties(Elements(:,4));  % fill material ID's
 mesh.Properties = Properties;
 mesh.Materials = Materials;
 mesh.Nodes = Nodes;
