@@ -1,7 +1,6 @@
 clear;
-Z = 15;
-re = -Z:1e-1:Z;
-im = -Z:1e-1:Z;
+re = 0:1e-1:8;
+im = -8:1e-1:-1e-3;
 Z = bsxfun(@plus, re, 1i*im');
 tic;
 [J0, J1, Y0, Y1, H01, H11, H02, H12, K0, K1] = bessel(Z);
