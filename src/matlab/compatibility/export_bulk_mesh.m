@@ -38,10 +38,11 @@ ElementTypes = [
     {'CHEXA   '}, {38}, {8}
     ];
 for net = 1 : size(ElementTypes,1)
-    type = ElementTypes{net,2};
-    elem = model.Elements(:,2) == type;
+    LSetId = ElementTypes{net,2};
+    LSet = ShapeSet.fromId(LSetId);
+    elem = model.Elements(:,2) == LSetId;
     if any(elem)
-        nnod = ElementTypes{net,3};
+        nnod = size(LSet.Nodes,1);
         name = ElementTypes{net,1};
         if nnod > 6
             format = [name '%8d       1%8d%8d%8d%8d%8d%8d\n        '...
