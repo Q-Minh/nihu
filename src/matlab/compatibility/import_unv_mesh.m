@@ -1,0 +1,71 @@
+function mesh = import_unv_mesh(fname)
+%IMPOR_UNV_MESH Import mesh from UNV format
+%   MESH = IMPORT_UNV_MESH(FNAME) imports a mesh from unv format
+
+% 2411: nodes
+% 2412: elements
+
+fid = fopen(fname);
+data = textscan(fid, '%s', 'delimiter', '\n');
+fclose(fid);
+data = data{1};
+
+blocksep = find(strcmp('-1', data));
+blockind = [blocksep(1:2:end)+1 blocksep(2:2:end)-1];
+blockid = str2double(data(blockind(:,1)));
+
+nodeblock = find(blockid == 2411);
+elemblock = find(blockid == 2412);
+
+nodedef = data(blockind(nodeblock,1)+1 : blockind(nodeblock,2));
+nodedef = strrep(nodedef, 'D', 'E');
+elemdef = data(blockind(elemblock,1)+1 : blockind(elemblock,2));
+
+% read nodes
+nodid = zeros(0,1);
+coord = zeros(0,3);
+i = 0;
+line = 1;
+while line < length(nodedef)
+    [res1, count1] = sscanf(nodedef{line}, '%u', [4 1]);
+    if count1 ~= 4
+        break;
+    end
+    [res2, count2] = sscanf(nodedef{line+1}, '%g', [3 1]);
+    if count2 ~= 3
+        break;
+    end
+    i = i + 1;
+    nodid(i) = res1(1);
+    coord(i,:) = res2;
+    line = line + 2;
+end
+
+% read elements
+
+elems = zeros(0,3);
+i = 0;
+line = 1;
+while line < length(elemdef)
+    [res1, count1] = sscanf(elemdef{line}, '%u', [6 1]);
+    if count1 ~= 6 || res1(2) ~= 91 || res1(end) ~= 3
+        break;
+    end
+    [res2, count2] = sscanf(elemdef{line+1}, '%u', [3 1]);
+    if count2 ~= 3
+        break;
+    end
+    i = i + 1;
+    elems(i,:) = res2;
+    line = line + 2;
+end
+
+mesh = create_empty_mesh();
+mesh.Nodes = [nodid(:) coord];
+mesh.Elements = zeros(size(elems,1), 7);
+mesh.Elements(:,5:7) = elems;
+mesh.Elements(:,2) = ShapeSet.LinearTria.Id;
+mesh.Elements(:,3:4) = 1;
+mesh.Elements(:,1) = 1 : size(mesh.Elements,1);
+
+end % of function

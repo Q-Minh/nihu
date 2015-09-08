@@ -407,15 +407,54 @@ inline bool operator<(elem_id_t const &lhs, elem_id_t const &rhs)
 }
 
 
-
 // forward declaration
 template <class LSet, class scalar_t>
 class surface_element;
+
+// forward declaration
+template <class LSet, class scalar_t>
+class volume_element;
+
+
+/** \brief specialisation of element_traits for the volume element */
+namespace element_traits
+{
+	template <class LSet, class Scalar>
+	struct space_type<volume_element<LSet, Scalar> >
+		: space<Scalar, LSet::domain_t::dimension> {};
+
+	template <class LSet, class Scalar>
+	struct lset<volume_element<LSet, Scalar> >
+	{
+		typedef LSet type;
+	};
+
+	template <class LSet, class Scalar>
+	struct is_surface_element<volume_element<LSet, Scalar> > : std::false_type {};
+}
+
 
 
 /** \brief compute surface normal from location derivatives */
 template<class Derived, class enable = void>
 class normal_impl;
+
+/** \brief specialisation of element_traits for the surface element */
+namespace element_traits
+{
+	template <class LSet, class Scalar>
+	struct space_type<surface_element<LSet, Scalar> >
+		: space<Scalar, LSet::domain_t::dimension + 1> {};
+
+	template <class LSet, class Scalar>
+	struct lset<surface_element<LSet, Scalar> >
+	{
+		typedef LSet type;
+	};
+
+	template <class LSet, class Scalar>
+	struct is_surface_element<surface_element<LSet, Scalar> > : std::true_type {};
+}
 
 /** \brief specialisation of ::normal_impl for 3D */
 template <class Derived>
@@ -445,22 +484,8 @@ public:
 	}
 };
 
-/** \brief specialisation of element_traits for the surface element */
 namespace element_traits
 {
-	template <class LSet, class Scalar>
-	struct space_type<surface_element<LSet, Scalar> >
-        : space<Scalar, LSet::domain_t::dimension + 1> {};
-
-	template <class LSet, class Scalar>
-	struct lset<surface_element<LSet, Scalar> >
-	{
-		typedef LSet type;
-	};
-
-	template <class LSet, class Scalar>
-	struct is_surface_element<surface_element<LSet, Scalar> > : std::true_type {};
-
 	/** \brief Class that computes or stores the normals */
 	template <class Derived>
 	struct normal_factory_functor : conditional_precompute_instance<
@@ -537,27 +562,6 @@ public:
 };
 
 
-
-// forward declaration
-template <class LSet, class scalar_t>
-class volume_element;
-
-/** \brief specialisation of element_traits for the volume element */
-namespace element_traits
-{
-	template <class LSet, class Scalar>
-	struct space_type<volume_element<LSet, Scalar> >
-        : space<Scalar, LSet::domain_t::dimension> {};
-
-	template <class LSet, class Scalar>
-	struct lset<volume_element<LSet, Scalar> >
-	{
-		typedef LSet type;
-	};
-
-	template <class LSet, class Scalar>
-	struct is_surface_element<volume_element<LSet, Scalar> > : std::false_type {};
-}
 
 /** \brief class describing a volume element that has no normal vector
  * \tparam LSet type of the geometry shape set

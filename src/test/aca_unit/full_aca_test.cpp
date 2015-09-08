@@ -50,7 +50,7 @@ int main(void)
 #endif
 
 	Eigen::VectorXd input(Ny,1), output(Nx,1);
-	Eigen::Matrix<int, Eigen::Dynamic, 1> ranks(blocks.rows(),1);
+	Eigen::Matrix<int, Eigen::Dynamic, 1> ranks(blocks.rows(), 1);
 	input.setRandom();
 	output.setZero();
 
@@ -70,8 +70,6 @@ int main(void)
 		aca.get_matrixSize() << " : " << aca.get_sizeCompression() << std::endl;
 	// compute error
 	std::cout << "error: " << (output - output_full).norm()/output.norm() << std::endl;
-
-
 
 	auto decomposition = ACA::decompose(M, rowClusters, colClusters, blocks, 1e-3, 50);
 
