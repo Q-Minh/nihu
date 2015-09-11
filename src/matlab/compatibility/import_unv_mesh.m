@@ -48,23 +48,27 @@ i = 0;
 line = 1;
 while line < length(elemdef)
     [res1, count1] = sscanf(elemdef{line}, '%u', [6 1]);
-    if count1 ~= 6 || res1(2) ~= 91 || res1(end) ~= 3
+    if count1 ~= 6
         break;
     end
-    [res2, count2] = sscanf(elemdef{line+1}, '%u', [3 1]);
-    if count2 ~= 3
+    n = res1(6);
+    [res2, count2] = sscanf(elemdef{line+1}, '%u', [n 1]);
+    if count2 ~= n
         break;
     end
     i = i + 1;
-    elems(i,:) = res2;
+    elems(i,1:n) = res2;
     line = line + 2;
 end
 
 mesh = create_empty_mesh();
 mesh.Nodes = [nodid(:) coord];
 mesh.Elements = zeros(size(elems,1), 7);
-mesh.Elements(:,5:7) = elems;
-mesh.Elements(:,2) = ShapeSet.LinearTria.Id;
+mesh.Elements(:,4+(1:size(elems,2))) = elems;
+tri = sum(mesh.Elements ~= 0, 2) == 3;
+qua = sum(mesh.Elements ~= 0, 2) == 4;
+mesh.Elements(tri,2) = ShapeSet.LinearTria.Id;
+mesh.Elements(qua,2) = ShapeSet.LinearQuad.Id;
 mesh.Elements(:,3:4) = 1;
 mesh.Elements(:,1) = 1 : size(mesh.Elements,1);
 

@@ -196,6 +196,11 @@ for net = 1 : size(ElementTypes)
     fprintf(1, 'Done\n');
 end
 
+%%
+if isempty(Properties) || isempty(Materials)
+    [Properties, Materials] = default_mat_prop();
+end
+
 %% Properties and Materials
 Elements(:,3) = Properties(Elements(:,4));  % fill material ID's
 mesh.Properties = Properties;
