@@ -17,6 +17,13 @@ field = revolve_mesh(create_line([1.125, 0, 0; 3.625, 0, 0], 40), pi/100, 50, [0
 k = 4;
 [Ls, Ms, Lf, Mf] = helmholtz_bem_3d(r_nodes, r_elem, f_nodes, f_elem, k);
 
+
+v = zeros(size(Ls,1),1);
+v(300) = 1;
+p = Ms \ (Ls * v);
+
+pf = Mf * p - Lf * v;
+
 %// define the incident velocity field and analytical solutions
 x0 = [-.2 0 .3];
 [r_cent, r_norm] = centnorm(radiator);

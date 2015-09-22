@@ -1,6 +1,6 @@
 function res = import_unv_data(fname)
 
-% open file and read into memory
+% open file and read the whole into memory
 fid = fopen(fname, 'rt');
 data = textscan(fid, '%s', 'delimiter', '\n');
 fclose(fid);
@@ -14,15 +14,19 @@ blockid = str2double(data(blockind(:,1)));
 % filter 2414 blocks
 datablock = find(blockid == 2414);
 
+% traverese blocks and process them one-by-one
 for i = 1 : length(datablock)
     input = data(blockind(datablock(i),1)+1 : blockind(datablock(i),2));
     res(i) = read_unv_2414_block(input);
 end
 
-end
-
+end % of function IMPORT_UNV_DATA
 
 function block = read_unv_2414_block(input)
+%READ_UNV_2414_BLOCK
+
+block.dataset_label = sscanf(input{1}, '%u');
+block.dataset_name = input{2};
 
 dataset_locations = {
     1, 'Data at nodes'
@@ -30,6 +34,9 @@ dataset_locations = {
     3, 'Data at nodes on elements'
     5, 'Data at points'
     };
+
+rec3 = sscanf(input{3}, '%u');
+block.dataset_location = get_value_from_cell(rec3(1), dataset_locations);
 
 model_types = {
     0, 'Unknown'
@@ -65,6 +72,7 @@ data_characteristics = {
     };
 
 result_types = {
+    8, 'Displacement'
     11, 'Velocity'
     117, 'Pressure'
     303, 'Sound Intensity'
@@ -78,23 +86,19 @@ data_types = {
     6, 'Double precision complex'
     };
 
-block.dataset_label = sscanf(input{1}, '%u');
-block.dataset_name = input{2};
-rec3 = sscanf(input{3}, '%u');
-block.dataset_location = get_value_from_cell(rec3(1), dataset_locations);
 block.id = input(4:8);
 rec9 = sscanf(input{9}, '%u', 6);
 block.model_type = get_value_from_cell(rec9(1), model_types);
 block.analysis_type = get_value_from_cell(rec9(2), analysis_types);
-block.analysis_type = get_value_from_cell(rec9(2), analysis_types);
 block.data_characteristic = get_value_from_cell(rec9(3), data_characteristics);
 block.result_type = get_value_from_cell(rec9(4), result_types);
 block.data_type = get_value_from_cell(rec9(5), data_types);
+iscplx = ~isempty(strfind(block.data_type, 'complex'));
+
 block.nValDC = rec9(6);
 
 % rec10 = [sscanf(input{10}, '%u', 8); sscanf(input{11}, '%u', 2)];
 rec12 = [sscanf(input{12}, '%g', 6); sscanf(input{13}, '%g', 6)];
-
 block.frequency = rec12(2);
 
 input = input(14:end);
@@ -102,20 +106,19 @@ input = input(14:end);
 stream = strcat(input, {' '});
 stream = horzcat(stream{:});
 n = block.nValDC;
-iscplx = ~isempty(strfind(block.data_type, 'complex'));
 if iscplx
     n = n * 2;
 end
 format = ['%u' repmat('%g', 1, n)];
-[numbers, num] = sscanf(stream, format, [n+1 Inf]);
+numbers = sscanf(stream, format, [n+1 Inf]);
 block.node = numbers(1,:);
 block.data = numbers(2:end,:);
 if iscplx
     block.data = complex(block.data(1:2:end,:), block.data(2:2:end,:));
 end
 
-end
+end % of function READ_UNV_2414_BLOCK
 
 function value = get_value_from_cell(id, cell)
 value = cell{id == cell2mat(cell(:,1)),2};
-end
+end % of function GET_VALUE_FROM_CELL
