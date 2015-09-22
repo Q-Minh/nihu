@@ -1,7 +1,7 @@
 classdef ShapeSet < handle
     %SHAPESET Shape function set representations
     
-    % Last modified: 2015.03.31. FP. Introduced ConstantPoint shape set
+    % Last modified: 2015.05.10. FP. Introduced Bending shape sets
     
     properties (SetAccess = immutable)
         Id      % unique identifier of the shape function set
@@ -24,7 +24,7 @@ classdef ShapeSet < handle
                 case 'lagrange-infinite'
                     base = obj.Args{1};
                     [res.N, g] = infiniteLagrangePoly(base, obj.Nodes);
-                case 'plate_bending'
+                case 'bending'
                     [res.N, g] = bendingPoly(obj.Domain);
                 otherwise
                     error('NiHu:ShapeSet:Arg',...
@@ -140,6 +140,7 @@ classdef ShapeSet < handle
             obj(id == 380, 1) = ShapeSet.ConstantHexa;
             obj(id == 381, 1) = ShapeSet.LinearHexa;
             obj(id == 1241, 1) = ShapeSet.InfiniteLinearHexa;
+            obj(id == 2223, 1) = ShapeSet.BendingLine;
             obj(id == 2333, 1) = ShapeSet.BendingTria;
             obj(id == 2343, 1) = ShapeSet.BendingQuad;
         end
@@ -235,9 +236,11 @@ classdef ShapeSet < handle
             [-1 -1 -1; 1 -1 -1; 1 1 -1; -1 1 -1;
             -1 -1 0; 1 -1 0; 1 1 0; -1 1 0], 'lagrange-infinite',...
             [0 0; 1 0; 0 1; 1 1]);
+        BendingLine(2223, Domain.Quad,Domain.Quad.CornerNodes,...
+            'bending');
         BendingQuad(2343, Domain.Quad,Domain.Quad.CornerNodes,...
-            'plate_bending');
+            'bending');
         BendingTria(2333, Domain.Tria,Domain.Tria.CornerNodes,...
-            'plate_bending');
+            'bending');
     end % of enumeration
 end % of class
