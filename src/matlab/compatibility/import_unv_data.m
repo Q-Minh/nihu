@@ -1,4 +1,8 @@
 function res = import_unv_data(fname)
+%import_unv_data import field data from universal file
+%   res = import_unv_data(fname) imports all field data from the file
+%   fname. res is an array of structures, each containing all parameters
+%   of a field data.
 
 % open file and read the whole into memory
 fid = fopen(fname, 'rt');
