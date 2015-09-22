@@ -15,7 +15,11 @@ bem/mex_source/*.m
 *.mexw*
 *.mexa*
 
+# Matlab result files
+*.mtx
+
 # Ubuntu linux tmp files
+*~
 *.*~
 .fuse*
 

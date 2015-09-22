@@ -30,15 +30,36 @@ if ~isempty(rows)
     c = regexprep(c, '.{8}(.{8})(.{16})(.{8})(.{1,8}).*', '$1 $2 $3 $4 ');
     c = regexprep(c, '(\d*\.\d*)([+-])(\d)', '$1E$2$3');
     data = sscanf(cell2mat(c'), '%d%g%g%g', [4, l]);
+    mat = zeros(l,5);
+    mat(:,[1 3 4 5]) = data';
+    mat(:,2) = 2;
     Materials = [
         Materials
-        data'
+        mat
         ];
     file = file(setdiff(1:length(file), rows));
     fprintf(1, 'Done\n');
-    
-    Materials(:,[1 3 4 5]) = Materials;
-    Materials(:,2) = 2; % isotropic elastic
+end
+
+name = 'MAT10   ';
+rows = find(strncmp(name, file, length(name)));
+if ~isempty(rows)
+    l = length(rows);
+    fprintf(1, 'Reading %d MAT10 entries...', l);
+    c = file(rows);
+    c = regexprep(c, '.{8}(.{8})(.{8})(.{8})', '$1 $2 $3 ');
+    c = regexprep(c, '(\d*\.\d*)([+-])(\d)', '$1E$2$3');
+    data = sscanf(cell2mat(c'), '%d%g%g%g', [4, l]);
+    data(2,:) = sqrt(data(2,:)./data(3,:));
+    mat = zeros(l,5);
+    mat(:,[1 3 4]) = data(1:3,:)';
+    mat(:,2) = 1;
+    Materials = [
+        Materials
+        mat
+        ];
+    file = file(setdiff(1:length(file), rows));
+    fprintf(1, 'Done\n');
 end
 
 
@@ -52,6 +73,22 @@ if ~isempty(rows)
     c = file(rows);
     c = regexprep(c, '.{8}(.{8})(.{8})(.{8}).*', '$1 $2 $3 ');
     data = sscanf(cell2mat(c'), '%d%d%g', [3, l]);
+    Properties = [
+        Properties
+        data'
+        ];
+    file = file(setdiff(1:length(file), rows));
+    fprintf(1, 'Done\n');
+end
+
+name = 'PSOLID  ';
+rows = find(strncmp(name, file, length(name)));
+if ~isempty(rows)
+    l = length(rows);
+    fprintf(1, 'Reading %d PSOLID property entries...', l);
+    c = file(rows);
+    c = regexprep(c, '.{8}(.{8})(.{8}).*', '$1 $2 ');
+    data = sscanf(cell2mat(c'), '%d%d', [2, l]);
     Properties = [
         Properties
         data'
@@ -157,6 +194,11 @@ for net = 1 : size(ElementTypes)
     Elements(ind, 3) = 1; %#ok<AGROW> % default material
     file = file(setdiff(1:length(file), rows));
     fprintf(1, 'Done\n');
+end
+
+%%
+if isempty(Properties) || isempty(Materials)
+    [Properties, Materials] = default_mat_prop();
 end
 
 %% Properties and Materials

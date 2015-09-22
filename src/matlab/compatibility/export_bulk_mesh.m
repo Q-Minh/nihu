@@ -30,16 +30,19 @@ ElementTypes = [
     {'CROD    '}, {12}, {2}
     {'CBAR    '}, {12}, {2}
     {'CTRIA3  '}, {23}, {3}
+    {'CTRIA3  '}, {231}, {3}
     {'CQUAD4  '}, {24}, {4}
+    {'CQUAD4  '}, {241}, {4}
     {'CTETRA  '}, {34}, {4}
     {'CPENTA  '}, {36}, {6}
     {'CHEXA   '}, {38}, {8}
     ];
 for net = 1 : size(ElementTypes,1)
-    type = ElementTypes{net,2};
-    elem = model.Elements(:,2) == type;
+    LSetId = ElementTypes{net,2};
+    LSet = ShapeSet.fromId(LSetId);
+    elem = model.Elements(:,2) == LSetId;
     if any(elem)
-        nnod = ElementTypes{net,3};
+        nnod = size(LSet.Nodes,1);
         name = ElementTypes{net,1};
         if nnod > 6
             format = [name '%8d       1%8d%8d%8d%8d%8d%8d\n        '...

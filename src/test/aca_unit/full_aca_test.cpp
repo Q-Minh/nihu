@@ -50,21 +50,25 @@ int main(void)
 #endif
 
 	Eigen::VectorXd input(Ny,1), output(Nx,1);
-	Eigen::Matrix<int, Eigen::Dynamic, 1> ranks(blocks.rows(),1);
+	Eigen::Matrix<int, Eigen::Dynamic, 1> ranks(blocks.rows(), 1);
 	input.setRandom();
 	output.setZero();
 
+	// compute output with ACA
 	ACA aca;
 	aca.multiply(M, rowClusters, colClusters, blocks, input, output, 1e-3, 50, ranks);
 
+	// compute output with full matrix evaluation
 	Eigen::VectorXd output_full(Nx,1);
 	output_full.setZero();
 	for (int i = 0; i < Nx; ++i)
 		for (int j = 0; j < Ny; ++j)
 			output_full(i) += M(i,j) * input(j);
 
+	// compute compression
 	std::cout << "#elements: " << aca.get_nEval() << " / " <<
 		aca.get_matrixSize() << " : " << aca.get_sizeCompression() << std::endl;
+	// compute error
 	std::cout << "error: " << (output - output_full).norm()/output.norm() << std::endl;
 
 	auto decomposition = ACA::decompose(M, rowClusters, colClusters, blocks, 1e-3, 50);

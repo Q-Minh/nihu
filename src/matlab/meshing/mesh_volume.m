@@ -10,7 +10,7 @@ v = zeros(size(lsetid));
 iLine = lsetid == ShapeSet.LinearLine.Id;
 if any(iLine)
     line = elem(iLine,5:6);
-    dr = model.Nodes(line(:,2),2:4) - model.Nodes(line(:,5),2:4);
+    dr = model.Nodes(line(:,2),2:4) - model.Nodes(line(:,1),2:4);
     d = sqrt(dot(dr,dr,2));
     v(iLine) = d;
 end

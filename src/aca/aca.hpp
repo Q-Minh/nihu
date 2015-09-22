@@ -135,14 +135,14 @@ public:
 	static int low_rank_approx(Matrix const &M, int nRows, int nCols, double eps, int R,
 		Eigen::DenseBase<Result> &U, Eigen::DenseBase<Result> &V)
 	{
-		/// \brief the scalar type of the matrix
-		typedef typename std::decay<Matrix>::type::Scalar Scalar;
+		// /// \brief the scalar type of the matrix
+		// typedef typename std::decay<Matrix>::type::Scalar Scalar;
 	
 		// result counter
 		int r = 0;
 
 		// estimate typical matrix entry magnitude
-		Scalar magest = std::abs(M(nRows/2,nCols/2));
+		auto magest = std::abs(M(nRows/2,nCols/2));
 
 		// start row
 		int i = 0;

@@ -181,7 +181,7 @@ end
 xlabel('x');
 ylabel('y');
 zlabel('z');
-axis equal tight;
+% axis equal tight;
 grid on;
 if max(abs(mesh.Nodes(:,4))) > 0
     view(3);
