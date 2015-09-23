@@ -1,2 +1,0 @@
-mex_function_test
-clear mex

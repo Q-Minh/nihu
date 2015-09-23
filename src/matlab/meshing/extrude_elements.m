@@ -1,4 +1,8 @@
 function Elem = extrude_elements(Elements, nNod, nRep, opt)
+%EXTRUDE_ELEMENTS helper function for EXTRUDE_MESH and REVEOLVE_MESH
+%   ELEM = EXTRUDE_ELEMENTS(MESH, NNOD, NREP, REVERSE)
+
+% Create new elements
 
 if nargin < 4
     opt = 'finite';
