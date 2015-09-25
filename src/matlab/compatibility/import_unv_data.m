@@ -18,7 +18,7 @@ blockid = str2double(data(blockind(:,1)));
 % filter 2414 blocks
 datablock = find(blockid == 2414);
 
-% traverese blocks and process them one-by-one
+% traverese blocks
 for i = 1 : length(datablock)
     input = data(blockind(datablock(i),1)+1 : blockind(datablock(i),2));
     res(i) = unv_data();
@@ -26,10 +26,3 @@ for i = 1 : length(datablock)
 end
 
 end % of function IMPORT_UNV_DATA
-
-function block = read_unv_2414_block(input)
-end % of function READ_UNV_2414_BLOCK
-
-function value = get_value_from_cell(id, cell)
-value = cell{id == cell2mat(cell(:,1)),2};
-end % of function GET_VALUE_FROM_CELL

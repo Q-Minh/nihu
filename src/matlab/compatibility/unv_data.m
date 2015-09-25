@@ -1,18 +1,20 @@
 classdef unv_data < handle
+    %unv_data universal file data block object (2414)
+    
     properties
-        dataset_label
-        dataset_name
-        dataset_location
-        textual_id
-        model_type
-        analysis_type
-        analysis_data
-        data_characteristic
-        result_type
-        data_type
-        nvaldc
-        nodes
-        values
+        dataset_label       % integer
+        dataset_name        % string
+        dataset_location    % enum text
+        textual_id          % cellstr
+        model_type          % enum text
+        analysis_type       % enum text
+        analysis_data       % structure
+        data_characteristic     % enum text
+        result_type         % enum text
+        data_type           % enum text
+        nvaldc              % integer
+        nodes               % array of integers
+        values              % real matrix
     end
     
     properties (Constant, Access = private)
@@ -31,29 +33,29 @@ classdef unv_data < handle
             };
         
         analysis_types = {
-            0,   'Unknown'
-            1,   'Static'
-            2,   'Normal modes'
-            3,   'Complex eigenvalue first order'
-            4,   'Transient'
-            5,   'Frequency response'
-            6,   'Buckling'
-            7,   'Complex eigenvalue second order'
-            9,   'Static non-linear'
-            10,   'Craig-Bampton constraint modes'
-            11,   'Equivalent attachment modes'
-            12,   'Effective mass modes'
-            13,   'Effective mass matrix'
-            14,   'Effective mass matrix'
+            0, 'Unknown'
+            1, 'Static'
+            2, 'Normal modes'
+            3, 'Complex eigenvalue first order'
+            4, 'Transient'
+            5, 'Frequency response'
+            6, 'Buckling'
+            7, 'Complex eigenvalue second order'
+            9, 'Static non-linear'
+            10, 'Craig-Bampton constraint modes'
+            11, 'Equivalent attachment modes'
+            12, 'Effective mass modes'
+            13, 'Effective mass matrix'
+            14, 'Effective mass matrix'
             };
         
         data_characteristics = {
-            0,   'Unknown'
-            1,   'Scalar'
-            2,   '3 DOF global translation vector'
-            3,   '6 DOF global translation & rotation vector'
-            4,   'Symmetric global tensor'
-            6,   'Stress resultants'
+            0, 'Unknown'
+            1, 'Scalar'
+            2, '3 DOF global translation vector'
+            3, '6 DOF global translation & rotation vector'
+            4, 'Symmetric global tensor'
+            6, 'Stress resultants'
             };
         
         result_types = {
@@ -78,7 +80,20 @@ classdef unv_data < handle
     end
     
     methods (Access = public)
+        function obj = unv_data(other)
+            if nargin == 0
+                return;
+            end
+            if isa(other, 'unv_data') % copy constructor
+                f = fieldnames(other);
+                for i = 1 : length(f)
+                    obj.(f{i}) = other.(f{i});
+                end
+            end
+        end % of constructor
+        
         function read_from_cellstr(obj, input)
+            %read_from_cellstr read an unv block from a cell string
             
             obj.dataset_label = sscanf(input{1}, '%u');
             obj.dataset_name = input{2};
@@ -119,8 +134,10 @@ classdef unv_data < handle
         end
         
         function write_to_file(obj, fid)
-            fprintf(fid, '%6d\n', -1);                      % block start
-            fprintf(fid, '%6d\n', 2414);                    % data block
+            %write_to_file write an unv data to a file
+            
+            fprintf(fid, '%6d\n', -1); % block start
+            fprintf(fid, '%6d\n', 2414); % data block
             fprintf(fid, '%10d\n', obj.dataset_label);
             fprintf(fid, '%s\n', obj.dataset_name);
             fprintf(fid, '%10d\n', unv_data.text2id(obj.dataset_location, unv_data.dataset_locations));
@@ -144,84 +161,69 @@ classdef unv_data < handle
             end
             fprintf(fid, '%6d\n', -1);
         end
-    end
+    end % of public methods
     
     methods (Access = private)
         function get_analysis_data(obj, integer_data, real_data)
+            %get_analysis_data convert integer and real vectors to data structure
+            
+            d.design_set_id = integer_data(1);
+            d.solution_set_id = integer_data(3);
+            d.boundary_condition = integer_data(4);
+            d.creation_option = integer_data(9);
+            d.number_retained = integer_data(10);
             switch obj.analysis_type
                 case 'Normal modes'
-                    d.design_set_id = integer_data(1);
                     d.iteration_number = integer_data(2);
-                    d.solution_set_id = integer_data(3);
-                    d.boundary_condition = integer_data(4);
                     d.mode_number = integer_data(6);
-                    d.creation_option = integer_data(9);
-                    d.number_retained = integer_data(10);
                     d.frequency = real_data(2);
                     d.modal_mass = real_data(4);
                     d.viscous_damping_ratio = real_data(5);
                     d.hysteretic_damping_ratio = real_data(6);
                 case 'Frequency response'
-                    d.design_set_id = integer_data(1);
-                    d.solution_set_id = integer_data(3);
-                    d.boundary_condition = integer_data(4);
                     d.load_set = integer_data(5);
                     d.frequency_number = integer_data(8);
-                    d.creation_option = integer_data(9);
-                    d.number_retained = integer_data(10);
                     d.frequency = real_data(2);
                 case 'Complex eigenvalue first order'
-                    d.design_set_id = integer_data(1);
-                    d.solution_set_id = integer_data(3);
-                    d.boundary_condition = integer_data(4);
                     d.load_set = integer_data(5);
                     d.mode_number = integer_data(6);
-                    d.creation_option = integer_data(9);
-                    d.number_retained = integer_data(10);
                     d.eigenvalue = complex(real_data(7), real_data(8));
                     d.modal_A = complex(real_data(9), real_data(10));
                     d.modal_B = complex(real_data(11), real_data(12));
                 otherwise
-                    aaa = 3;
+                    error('bosch:runtime_error', ...
+                        'unimplemented unv analysis type: ''%s''', ...
+                        obj.analysis_type);
             end
             obj.analysis_data = d;
         end
         
-        
         function [integer_data, real_data] = get_analysis_vectors(obj)
+            %get_analysis_data convert data structure to integer and real vectors
+            
             d = obj.analysis_data;
-            integer_data = zeros(16,1);
+            integer_data = zeros(10,1);
             real_data = zeros(12,1);
+            integer_data(1) = d.design_set_id;
+            integer_data(3) = d.solution_set_id;
+            integer_data(4) = d.boundary_condition;
+            integer_data(9) = d.creation_option;
+            integer_data(10) = d.number_retained;
             switch obj.analysis_type
                 case 'Normal modes'
-                    integer_data(1) = d.design_set_id;
                     integer_data(2) = d.iteration_number;
-                    integer_data(3) = d.solution_set_id;
-                    integer_data(4) = d.boundary_condition;
                     integer_data(6) = d.mode_number;
-                    integer_data(9) = d.creation_option;
-                    integer_data(10) = d.number_retained;
                     real_data(2) = d.frequency;
                     real_data(4) = d.modal_mass;
                     real_data(5) = d.viscous_damping_ratio;
                     real_data(6) = d.hysteretic_damping_ratio;
                 case 'Frequency response'
-                    integer_data(1) = d.design_set_id;
-                    integer_data(3) = d.solution_set_id;
-                    integer_data(4) = d.boundary_condition;
                     integer_data(5) = d.load_set;
                     integer_data(8) = d.frequency_number;
-                    integer_data(9) = d.creation_option;
-                    integer_data(10) = d.number_retained;
                     real_data(2) = d.frequency;
                 case 'Complex eigenvalue first order'
-                    integer_data(1) = d.design_set_id;
-                    integer_data(3) = d.solution_set_id;
-                    integer_data(4) = d.boundary_condition;
                     integer_data(5) = d.load_set;
                     integer_data(6) = d.mode_number;
-                    integer_data(9) = d.creation_option;
-                    integer_data(10) = d.number_retained;
                     real_data(7) = real(d.eigenvalue);
                     real_data(8) = imag(d.eigenvalue);
                     real_data(9) = real(d.modal_A);
@@ -229,21 +231,32 @@ classdef unv_data < handle
                     real_data(11) = real(d.modal_B);
                     real_data(12) = imag(d.modal_B);
                 otherwise
-                    aaa = 3;
+                    error('bosch:runtime_error', ...
+                        'unimplemented unv analysis type: ''%s''', ...
+                        obj.analysis_type);
             end
-        end
-        
-    end
+        end % of function get_analysis_vectors
+    end % of private methods
     
     methods (Static = true, Access = private)
         function txt = id2text(id, cell)
             sel = id == cell2mat(cell(:,1));
+            if ~any(sel)
+                disp(cell)
+                error('bosch:invalid_argument', ...
+                    'did not find id %d in cell', id);
+            end
             txt = cell{sel,2};
         end
         
         function id = text2id(txt, cell)
             sel = strcmp(cell(:,2), txt);
+            if ~any(sel)
+                disp(cell)
+                error('bosch:invalid_argument', ...
+                    'did not find string %s in cell', txt);
+            end
             id = cell{sel,1};
         end
-    end
+    end % of private static methods
 end % of class
