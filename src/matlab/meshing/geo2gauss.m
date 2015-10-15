@@ -1,4 +1,4 @@
-function [GC, GN, W, GI] = geo2gauss(model, order)
+function [GC, GN, W, GI, A] = geo2gauss(model, order)
 %GEO2GAUSS Gaussian quadrature over a mesh
 %   [XG, NG, WG, IG] = GEO2GAUSS(MESH, ORDER) computes  Gaussian integration
 %   point coordinates XG, normal vectors NG and integration weights WG
@@ -10,6 +10,7 @@ function [GC, GN, W, GI] = geo2gauss(model, order)
 %   NG : M x 3 matrix, Unit normals in Gaussian points
 %   WG : M x 1 vector, Gaussian integration weights
 %   IG : M x 1 vector, element index of each Gaussian point
+%   A  : interpolation matrix interoplating from nodes to Gaussian points
 %
 % Example:
 %  sphere = create_sphere_boundary(1,10);
@@ -18,13 +19,19 @@ function [GC, GN, W, GI] = geo2gauss(model, order)
 %
 %  computes the area A of the unit sphere.
 %
+%  sphere = create_sphere_boundary(1,10);
+%  [xg, ~, ~, ~, A] = geo2gauss(sphere, 3);
+%  ox = A * mesh.Nodes(:,2)
+%
+%  interpolates function 'x' to Gaussian coordinates
+%
 % See also: gaussquad1, gaussquad2, gaussquad3, centnorm, vert2gauss
 
 %   Copyright 2008-2010 P. Fiala
 %   Budapest University of Technology and Economics
 %   Dept. of Telecommunications
 
-% Last modified: 2015.03.18.
+% Last modified: 2015.10.15.
 
 %% Initialization
 Elements = drop_IDs(model);
@@ -38,6 +45,10 @@ GI = zeros(0,1);
 
 % select unique lsets
 lSets = ShapeSet.fromId(unique(Elements(:,2)));
+I = [];
+J = [];
+V = [];
+maxi = 0;
 for iLset = 1 : length(lSets)
     lset = lSets(iLset);
     sel = Elements(:,2) == lset.Id;
@@ -47,6 +58,17 @@ for iLset = 1 : length(lSets)
     GN = [GN; gn];
     W = [W; w];
     GI = [GI; gi];
+    if nargout > 4
+        [i,j,v] = find(an);
+        I = [I; i+maxi];
+        maxi = max(I);
+        J = [J; j];
+        V = [V; v];
+    end
+end
+
+if nargout > 4
+    A = sparse(I, J, V);
 end
 
 end
