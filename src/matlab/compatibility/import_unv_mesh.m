@@ -44,6 +44,8 @@ end
 % read elements
 
 elems = zeros(0,3);
+elemids = zeros(0,1);
+elemtypes = zeros(0,1);
 i = 0;
 line = 1;
 while line < length(elemdef)
@@ -51,13 +53,15 @@ while line < length(elemdef)
     if count1 ~= 6
         break;
     end
-    n = res1(6);
-    [res2, count2] = sscanf(elemdef{line+1}, '%u', [n 1]);
-    if count2 ~= n
+    nnodes = res1(6);
+    [res2, count2] = sscanf(elemdef{line+1}, '%u', [nnodes 1]);
+    if count2 ~= nnodes
         break;
     end
     i = i + 1;
-    elems(i,1:n) = res2;
+    elemids(i,1) = res1(1);
+    elemtypes(i,1) = res1(2);
+    elems(i,1:nnodes) = res2;
     line = line + 2;
 end
 
@@ -67,9 +71,11 @@ mesh.Elements = zeros(size(elems,1), 7);
 mesh.Elements(:,4+(1:size(elems,2))) = elems;
 tri = sum(mesh.Elements ~= 0, 2) == 3;
 qua = sum(mesh.Elements ~= 0, 2) == 4;
+qtri = elemtypes == 92;
 mesh.Elements(tri,2) = ShapeSet.LinearTria.Id;
 mesh.Elements(qua,2) = ShapeSet.LinearQuad.Id;
+mesh.Elements(qtri,2) = ShapeSet.QuadraticTria.Id;
 mesh.Elements(:,3:4) = 1;
-mesh.Elements(:,1) = 1 : size(mesh.Elements,1);
+mesh.Elements(:,1) = elemids;
 
 end % of function

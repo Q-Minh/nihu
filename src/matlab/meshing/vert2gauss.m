@@ -1,4 +1,4 @@
-function [gcoord, gnorm, weight, gind] = vert2gauss(order, coords, lset, elem)
+function [gcoord, gnorm, weight, gind, An] = vert2gauss(order, coords, lset, elem)
 %VERT2GAUSS Gaussian quadrature from vertices and elements
 %  [XG, NG, W, IG] = VERT2GAUSS(ORDER, COORDS, TYPE, ELEM)
 %
@@ -64,4 +64,14 @@ weight = repmat(ww, nE, 1) .* j;
 %
 gind = repmat(1:nE,ng,1);
 gind = gind(:);
+% nodal interpolation matrix
+nNod = size(elem,2);
+i = repmat((1:ng)', 1, nNod);
+I = bsxfun(@plus, i(:), (0:nE-1)*ng);
+I = I(:);
+J = repmat(reshape(elem', 1, numel(elem)), ng, 1);
+J = J(:);
+N = repmat(N, 1, nE);
+N = N(:);
+An = sparse(I, J, N);
 end

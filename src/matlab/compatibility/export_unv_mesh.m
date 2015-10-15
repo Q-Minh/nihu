@@ -18,6 +18,8 @@ for i = 1 : size(model.Elements,1)
         fedesc = 91;
     elseif nNodes == 4
         fedesc = 94;
+    elseif nNodes == 2
+        fedesc = ;
     else
     end
     fprintf(fid, '%10d%10d%10d%10d%10d%10d\n', model.Elements(i,1), fedesc,...

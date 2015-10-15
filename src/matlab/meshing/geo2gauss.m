@@ -36,12 +36,13 @@ GN = zeros(0,3);
 W = zeros(0,1);
 GI = zeros(0,1);
 
+% select unique lsets
 lSets = ShapeSet.fromId(unique(Elements(:,2)));
 for iLset = 1 : length(lSets)
     lset = lSets(iLset);
     sel = Elements(:,2) == lset.Id;
     nNodes = size(lset.Nodes,1);
-    [gc, gn, w, gi] = vert2gauss(order, coords, lset, Elements(sel,4+(1:nNodes)));
+    [gc, gn, w, gi, an] = vert2gauss(order, coords, lset, Elements(sel,4+(1:nNodes)));
     GC = [GC; gc]; %#ok<*AGROW>
     GN = [GN; gn];
     W = [W; w];
