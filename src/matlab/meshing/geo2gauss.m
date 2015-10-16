@@ -10,7 +10,7 @@ function [GC, GN, W, GI, A] = geo2gauss(model, order)
 %   NG : M x 3 matrix, Unit normals in Gaussian points
 %   WG : M x 1 vector, Gaussian integration weights
 %   IG : M x 1 vector, element index of each Gaussian point
-%   A  : interpolation matrix interoplating from nodes to Gaussian points
+%   A  : matrix interpolating from nodes to Gaussian points
 %
 % Example:
 %  sphere = create_sphere_boundary(1,10);
@@ -21,7 +21,8 @@ function [GC, GN, W, GI, A] = geo2gauss(model, order)
 %
 %  sphere = create_sphere_boundary(1,10);
 %  [xg, ~, ~, ~, A] = geo2gauss(sphere, 3);
-%  ox = A * mesh.Nodes(:,2)
+%  f = sin(2*pi*sphere.Nodes(:,2));
+%  ox = A * f;
 %
 %  interpolates function 'x' to Gaussian coordinates
 %
@@ -33,11 +34,11 @@ function [GC, GN, W, GI, A] = geo2gauss(model, order)
 
 % Last modified: 2015.10.15.
 
-%% Initialization
+% Initialization
 Elements = drop_IDs(model);
 coords = model.Nodes(:,2:4);
 
-%%
+%
 GC = zeros(0,3);
 GN = zeros(0,3);
 W = zeros(0,1);
@@ -53,7 +54,8 @@ for iLset = 1 : length(lSets)
     lset = lSets(iLset);
     sel = Elements(:,2) == lset.Id;
     nNodes = size(lset.Nodes,1);
-    [gc, gn, w, gi, an] = vert2gauss(order, coords, lset, Elements(sel,4+(1:nNodes)));
+    [gc, gn, w, gi, an] = vert2gauss(order, coords, lset,...
+        Elements(sel,4+(1:nNodes)));
     GC = [GC; gc]; %#ok<*AGROW>
     GN = [GN; gn];
     W = [W; w];
@@ -67,8 +69,9 @@ for iLset = 1 : length(lSets)
     end
 end
 
+% generate sparse interpolation matrix
 if nargout > 4
     A = sparse(I, J, V);
 end
 
-end
+end  %of function

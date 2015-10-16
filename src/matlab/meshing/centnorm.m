@@ -19,7 +19,7 @@ function [cent, normal] = centnorm(model)
 
 % Last modified: 2012.12.12.
 
-%% Initialization
+% Initialization
 Elements = drop_IDs(model);
 coords = model.Nodes(:,2:4);
 
@@ -44,3 +44,5 @@ for lset = [ShapeSet.LinearTetra ShapeSet.LinearPenta ShapeSet.LinearHexa]
         normal(sel,:) = zeros(numel(sel),3);
     end
 end
+
+end % of function
