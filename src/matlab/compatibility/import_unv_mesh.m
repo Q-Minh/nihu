@@ -1,10 +1,10 @@
 function mesh = import_unv_mesh(fname)
-%IMPOR_UNV_MESH Import mesh from UNV format
+%IMPORT_UNV_MESH Import mesh from UNV format
 %   MESH = IMPORT_UNV_MESH(FNAME) imports a mesh from unv format
 
+% 163: units
 % 2411: nodes
 % 2412: elements
-
 fid = fopen(fname);
 data = textscan(fid, '%s', 'delimiter', '\n');
 fclose(fid);
@@ -14,6 +14,7 @@ blocksep = find(strcmp('-1', data));
 blockind = [blocksep(1:2:end)+1 blocksep(2:2:end)-1];
 blockid = str2double(data(blockind(:,1)));
 
+unitblock = find(blockid == 164);
 nodeblock = find(blockid == 2411);
 elemblock = find(blockid == 2412);
 
@@ -21,12 +22,20 @@ nodedef = data(blockind(nodeblock,1)+1 : blockind(nodeblock,2));
 nodedef = strrep(nodedef, 'D', 'E');
 elemdef = data(blockind(elemblock,1)+1 : blockind(elemblock,2));
 
+% read units
+if ~isempty(unitblock)
+    unitblock = unitblock(end);
+    units = process_units(data(blockind(unitblock,1)+1 : blockind(unitblock,2)));
+else
+    units = struct('length_ratio', 1, 'force_ratio', 1, 'temp_ratio', 1);
+end
+
 % read nodes
-nodid = zeros(0,1);
-coord = zeros(0,3);
-i = 0;
-line = 1;
-while line < length(nodedef)
+nNode = length(nodedef)/2;
+nodid = zeros(nNode,1);
+coord = zeros(nNode,3);
+for i = 1 : nNode
+    line = 2*i-1;
     [res1, count1] = sscanf(nodedef{line}, '%u', [4 1]);
     if count1 ~= 4
         break;
@@ -35,20 +44,20 @@ while line < length(nodedef)
     if count2 ~= 3
         break;
     end
-    i = i + 1;
     nodid(i) = res1(1);
     coord(i,:) = res2;
-    line = line + 2;
 end
 
-% read elements
+% apply units to coordinates
+coord = coord / units.length_ratio;
 
-elems = zeros(0,3);
-elemids = zeros(0,1);
-elemtypes = zeros(0,1);
-i = 0;
-line = 1;
-while line < length(elemdef)
+% read elements
+nElem = length(elemdef)/2;
+elems = zeros(nElem,3);
+elemids = zeros(nElem,1);
+elemtypes = zeros(nElem,1);
+for i = 1 : nElem
+    line = 2*i-1;
     [res1, count1] = sscanf(elemdef{line}, '%u', [6 1]);
     if count1 ~= 6
         break;
@@ -58,11 +67,9 @@ while line < length(elemdef)
     if count2 ~= nnodes
         break;
     end
-    i = i + 1;
     elemids(i,1) = res1(1);
     elemtypes(i,1) = res1(2);
     elems(i,1:nnodes) = res2;
-    line = line + 2;
 end
 
 mesh = create_empty_mesh();
@@ -79,3 +86,13 @@ mesh.Elements(:,3:4) = 1;
 mesh.Elements(:,1) = elemids;
 
 end % of function
+
+
+function units = process_units(data)
+code = sscanf(data{1}, '%u');
+ratios = sscanf(strrep(data{2}, 'D', 'E'), '%f');
+units.length_ratio = ratios(1);
+units.force_ratio = ratios(2);
+units.temp_ratio = ratios(3);
+units.temp_offset = sscanf(strrep(data{3}, 'D', 'E'), '%f');
+end
