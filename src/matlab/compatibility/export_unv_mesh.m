@@ -19,7 +19,7 @@ for i = 1 : size(model.Elements,1)
     elseif nNodes == 4
         fedesc = 94;
     elseif nNodes == 2
-        fedesc = ;
+        error('Not ready for handling two node elements');
     else
     end
     fprintf(fid, '%10d%10d%10d%10d%10d%10d\n', model.Elements(i,1), fedesc,...
