@@ -6,6 +6,10 @@ function res = import_unv_data(fname)
 
 % open file and read the whole into memory
 fid = fopen(fname, 'rt');
+if fid == -1
+    error('nihu:runtime_error',...
+        'Could not open unv file ''%s'' for reading', fname);
+end
 data = textscan(fid, '%s', 'delimiter', '\n');
 fclose(fid);
 data = data{1};

@@ -6,6 +6,9 @@ function mesh = import_unv_mesh(fname)
 % 2411: nodes
 % 2412: elements
 fid = fopen(fname);
+if fid == -1
+    error('nihu:runtime_error', 'Could not open unv file ''%s'' for reading', fname);
+end
 data = textscan(fid, '%s', 'delimiter', '\n');
 fclose(fid);
 data = data{1};
