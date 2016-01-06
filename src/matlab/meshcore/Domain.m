@@ -12,12 +12,15 @@ classdef Domain < handle
     
     methods
         function obj = Domain(space, cornernodes, volume, center)
+            % DOMAIN constructor
+            % obj = Domain(space, cornernodes, volume, center)
+            
             obj.Space = space;
             obj.CornerNodes = cornernodes;
             obj.Volume = volume;
             obj.Center = center;
         end
-    end
+    end % of public methods
     
     enumeration
         Point(Space.D0, zeros(1,0), 0, zeros(1,0));

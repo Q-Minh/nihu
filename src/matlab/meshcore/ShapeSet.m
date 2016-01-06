@@ -67,7 +67,11 @@ classdef ShapeSet < handle
         end % of constructor
         
         function [N, dN, ddN] = eval(obj, xi)
+            %EVAL evaluate shape functions
+            % [N, dN, ddN] = EVAL(obj, xi) evaluates the shape functions in
+            % the locations XI
             
+            % compute symbolic shape function expressions
             persistent ComputedShapeFunctions
             
             if isempty(ComputedShapeFunctions)
@@ -91,6 +95,7 @@ classdef ShapeSet < handle
                 N = repmat(N, q, 1);
             end
             
+            % evaluate shape function derivatives
             if nargout == 1
                 return
             end
@@ -102,6 +107,7 @@ classdef ShapeSet < handle
                 end
             end
             
+            % evaluate shape function second derivatives
             if nargout == 2
                 return
             end
