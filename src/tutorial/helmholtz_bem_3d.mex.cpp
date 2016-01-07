@@ -53,7 +53,7 @@ void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 //! [Integral operators]
 
 //! [System matrices]
-	Ls << surf_sp * I[surf_sp];
+	Ls << surf_sp * L[surf_sp]; 
 	Ms << surf_sp * M[surf_sp] + surf_sp * (-.5*I)[surf_sp];
 	Lf  << field_sp * L[surf_sp];
 	Mf  << field_sp * M[surf_sp];
