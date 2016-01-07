@@ -1,3 +1,6 @@
+/// \file test_domain
+/// Gtest file of class Domain
+
 #include <gtest/gtest.h>
 #include "library/lib_domain.hpp"
 
