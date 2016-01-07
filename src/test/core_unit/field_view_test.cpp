@@ -39,12 +39,17 @@ struct view_tester
 		{
 			std::cout << std::endl << "Elem type id:\t" << ElemType::id << std::endl;
 
-			ElemType e(ElemType::coords_t::Random());
+			typename ElemType::nodes_t nodes;
+			for (unsigned i = 0; i < ElemType::num_nodes; ++i)
+				nodes(i) = i;
 
-			auto fv = create_field_view(e, option());
+			ElemType e(ElemType::coords_t::Random(), 0, nodes);
+			std::cout << e.get_coords() << std::endl << e.get_id() << std::endl;
+
+			auto const &fv = create_field_view(e, option());
 			std::cout << "DOF:\t" << fv.get_dofs().transpose() << std::endl;
 
-			auto dfv = dirac(fv);
+			auto const &dfv = dirac(fv);
 			std::cout << "Dirac DOF:\t" << dfv.get_dofs().transpose() << std::endl;
 		}
 	};

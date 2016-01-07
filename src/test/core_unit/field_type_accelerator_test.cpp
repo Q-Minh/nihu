@@ -18,6 +18,7 @@
 
 #include "core/field_type_accelerator.hpp"
 #include "core/gaussian_quadrature.hpp"
+#include "util/store_pattern.hpp"
 #include "tmp/control.hpp"
 #include "tmp/vector.hpp"
 #include "library/lib_element.hpp"
@@ -116,7 +117,7 @@ struct test_dual_regular
 		void operator()(void)
 		{
 			auto dual_acc = create_dual_field_type_accelerator(
-				test_store_t::m_data[4], trial_store_t::m_data[4], iteration::diadic());
+				test_store_t::get_data()[4], trial_store_t::get_data()[4], iteration::diadic());
 			for (auto it = dual_acc.begin(); it != dual_acc.end(); ++it)
 			{
 				std::cout << it.get_first()->get_w() * it.get_second()->get_w() << std::endl;
@@ -128,13 +129,11 @@ struct test_dual_regular
 
 int main(void)
 {
-/*
 	tmp::d_call_each<
 		tmp::vector<field_view<quad_1_elem, field_option::constant> >,
 		tmp::vector<field_view<quad_1_elem, field_option::constant> >,
 		test_dual_regular<tmp::_1, tmp::_2>
 	>();
-*/
 
 	tmp::call_each<
 		tmp::vector<field_view<quad_1_elem, field_option::constant> >,

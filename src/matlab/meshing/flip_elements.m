@@ -1,6 +1,7 @@
 function Elements = flip_elements(Elements)
 %FLIP_ELEMENTS  Flip elements of a NiHu mesh
-%   MESH = FLIP_ELEMENTS(MESH) flips all the elements of a NiHu mesh
+%   Elements = FLIP_ELEMENTS(Elements) flips all the elements of a NiHu
+%   element matrix
 
 %   Copyright 2008-2010 P. Fiala
 %   Budapest University of Technology and Economics

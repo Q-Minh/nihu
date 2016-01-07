@@ -31,7 +31,6 @@
 #include "quadrature.hpp"
 #include "../util/casted_iterator.hpp"
 #include "../util/dual_range.hpp"
-#include "../util/store_pattern.hpp"
 #include "../util/pool_pattern.hpp"
 
 
