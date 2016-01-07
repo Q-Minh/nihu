@@ -88,7 +88,7 @@ public:
 	}
 
 	/** \brief return begin address of domain corners' array */
-	static xi_t const *get_corners(void)
+	static corners_t const &get_corners(void)
 	{
 		return Derived::get_corners_impl();
 	}

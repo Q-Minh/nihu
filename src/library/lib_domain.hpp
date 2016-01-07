@@ -54,7 +54,7 @@ class line_domain :
 {
 public:
 	/** \brief return domain corners */
-    static xi_t const *get_corners_impl(void) { return m_corners; }
+    static corners_t const &get_corners_impl(void) { return m_corners; }
 	/** \brief return domain center */
     static xi_t const &get_center_impl(void) { return m_center; }
 
@@ -69,7 +69,7 @@ class tria_domain :
 {
 public:
 	/** \brief return domain corners */
-    static xi_t const *get_corners_impl(void) { return m_corners; }
+    static corners_t const &get_corners_impl(void) { return m_corners; }
 	/** \brief return domain center */
     static xi_t const &get_center_impl(void) { return m_center; }
 
@@ -84,7 +84,7 @@ class quad_domain :
 {
 public:
 	/** \brief return domain corners */
-    static xi_t const *get_corners_impl(void) { return m_corners; }
+    static corners_t const &get_corners_impl(void) { return m_corners; }
 	/** \brief return domain center */
     static xi_t const &get_center_impl(void) { return m_center; }
 
@@ -99,7 +99,7 @@ class brick_domain :
 {
 public:
 	/** \brief return domain corners */
-    static xi_t const *get_corners_impl(void) { return m_corners; }
+    static corners_t const &get_corners_impl(void) { return m_corners; }
 	/** \brief return domain center */
     static xi_t const &get_center_impl(void) { return m_center; }
 
