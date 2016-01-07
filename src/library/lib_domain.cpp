@@ -16,6 +16,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * \file lib_domain.cpp
+ * \brief domain library
+ * \details
+ * This library contains the supported domain types and their constant properties.
+ */
+
 #include "lib_domain.hpp"
 
 namespace domain_traits
