@@ -43,6 +43,8 @@ line_domain::corners_t
 	line_domain::xi_t::Constant(1.)
 	};
 
+line_domain::edges_t const line_domain::m_edges = { {0, 1} };
+
 line_domain::xi_t const line_domain::m_center = line_domain::xi_t::Zero();
 
 tria_domain::corners_t
@@ -51,6 +53,8 @@ tria_domain::corners_t
 	tria_domain::xi_t(1.,0.),
 	tria_domain::xi_t(0.,1.)
 	};
+
+tria_domain::edges_t const tria_domain::m_edges = { {0, 1},  {1, 2},  {2, 0} };
 
 tria_domain::xi_t const tria_domain::m_center = tria_domain::xi_t::Constant(1./3.);
 
@@ -61,6 +65,8 @@ quad_domain::corners_t
 	quad_domain::xi_t( 1., 1.),
 	quad_domain::xi_t(-1., 1.)
 	};
+
+quad_domain::edges_t const quad_domain::m_edges = { {0, 1},  {1, 2},  {2, 3}, {3, 0} };
 
 quad_domain::xi_t const quad_domain::m_center = quad_domain::xi_t::Zero();
 
@@ -75,6 +81,12 @@ brick_domain::corners_t
 	brick_domain::xi_t( 1., 1., 1.),
 	brick_domain::xi_t(-1., 1., 1.)
 };
+
+brick_domain::edges_t const brick_domain::m_edges = {
+	{0, 1},  {1, 2},  {2, 3}, {3, 0},
+	{4+0, 4+1},  {4+1, 4+2},  {4+2, 4+3}, {4+3, 4+0},
+	{0, 4},  {1, 5},  {2, 6}, {3, 7}
+ };
 
 brick_domain::xi_t const brick_domain::m_center = brick_domain::xi_t::Zero();
 

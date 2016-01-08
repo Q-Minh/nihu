@@ -39,7 +39,7 @@ struct GeneralShapeTester
 			// sum of dL should be 0
 			auto dL = ShapeSet::template eval_shape<1>(xi);
 			EXPECT_NEAR(dL.sum(), 0., eps);
-			// sum of dL should be 0
+			// sum of ddL should be 0
 			auto ddL = ShapeSet::template eval_shape<2>(xi);
 			EXPECT_NEAR(ddL.sum(), 0., eps);
 		}
@@ -47,27 +47,27 @@ struct GeneralShapeTester
 };
 
 // testing line_0_shape_set
-static_assert(std::is_same<line_0_shape_set::domain_t, line_domain>::value, "Tria 2 shape set domain failure");
-static_assert(line_0_shape_set::num_nodes == 1, "Tria 2 shape set number of nodes failure");
-static_assert(line_0_shape_set::polynomial_order == 0, "Tria 2 shape set polynomial order failure");
-static_assert(line_0_shape_set::jacobian_order == 0, "Tria 2 shape set Jacobian order failure");
-static_assert(line_0_shape_set::id == 1201, "Tria 2 shape set id failure");
-static_assert(std::is_same<line_0_shape_set::scalar_t, double>::value, "Tria 2 shape set scalar failure");
-static_assert(std::is_same<line_0_shape_set::xi_t, Vector1d>::value, "Tria 2 shape set xi_t failure");
+static_assert(std::is_same<line_0_shape_set::domain_t, line_domain>::value, "Line 0 shape set domain failure");
+static_assert(line_0_shape_set::num_nodes == 1, "Line 0 shape set number of nodes failure");
+static_assert(line_0_shape_set::polynomial_order == 0, "Line 0 shape set polynomial order failure");
+static_assert(line_0_shape_set::jacobian_order == 0, "Line 0 shape set Jacobian order failure");
+static_assert(line_0_shape_set::id == 1201, "Line 0 shape set id failure");
+static_assert(std::is_same<line_0_shape_set::scalar_t, double>::value, "Line 0 shape set scalar failure");
+static_assert(std::is_same<line_0_shape_set::xi_t, Vector1d>::value, "Line 0 shape set xi_t failure");
 static_assert(std::is_same<line_0_shape_set::shape_t, Vector1d>::value,
-	"Tria 2 shape set shape value type failure");
+	"Line 0 shape set shape value type failure");
 static_assert(std::is_same<line_0_shape_set::dshape_t, Vector1d>::value,
-	"Tria 2 shape set shape derivative value type failure");
+	"Line 0 shape set shape derivative value type failure");
 static_assert(std::is_same<line_0_shape_set::ddshape_t, Vector1d>::value,
-	"Tria 2 shape set shape 2nd derivative value type failure");
+	"Line 0 shape set shape 2nd derivative value type failure");
 static_assert(std::is_same<decltype(line_0_shape_set::eval_shape<0>(xi1)), Vector1d const &>::value,
-	"Tria 2 shape set shape return type failure");
+	"Line 0 shape set shape return type failure");
 static_assert(std::is_same<decltype(line_0_shape_set::eval_shape<1>(xi1)), z1_t>::value,
-	"Tria 2 shape set shape derivative return type failure");
+	"Line 0 shape set shape derivative return type failure");
 static_assert(std::is_same<decltype(line_0_shape_set::eval_shape<2>(xi1)), z1_t>::value,
-	"Tria 2 shape set shape second derivative return type failure");
+	"Line 0 shape set shape second derivative return type failure");
 static_assert(std::is_same<line_0_shape_set::position_dof_vector, tmp::vector<dof1> >::value,
-		"Tria 2 shape set poisition DOF vector failure");
+		"Line 0 shape set poisition DOF vector failure");
 
 TEST(ShapeSet, Line0){
 	double corners[][1] = { {0.} };
@@ -134,27 +134,27 @@ TEST(ShapeSet, Line2){
 
 
 // testing tria_0_shape_set
-static_assert(std::is_same<tria_0_shape_set::domain_t, tria_domain>::value, "Tria 1 shape set domain failure");
-static_assert(tria_0_shape_set::num_nodes == 1, "Tria 1 shape set number of nodes failure");
-static_assert(tria_0_shape_set::polynomial_order == 0, "Tria 1 shape set polynomial order failure");
-static_assert(tria_0_shape_set::jacobian_order == 0, "Tria 1 shape set Jacobian order failure");
-static_assert(tria_0_shape_set::id == 2301, "Tria 1 shape set id failure");
-static_assert(std::is_same<tria_0_shape_set::scalar_t, double>::value, "Tria 1 shape set scalar failure");
-static_assert(std::is_same<tria_0_shape_set::xi_t, Vector2d>::value, "Tria 1 shape set xi_t failure");
+static_assert(std::is_same<tria_0_shape_set::domain_t, tria_domain>::value, "Tria 0 shape set domain failure");
+static_assert(tria_0_shape_set::num_nodes == 1, "Tria 0 shape set number of nodes failure");
+static_assert(tria_0_shape_set::polynomial_order == 0, "Tria 0 shape set polynomial order failure");
+static_assert(tria_0_shape_set::jacobian_order == 0, "Tria 0 shape set Jacobian order failure");
+static_assert(tria_0_shape_set::id == 2301, "Tria 0 shape set id failure");
+static_assert(std::is_same<tria_0_shape_set::scalar_t, double>::value, "Tria 0 shape set scalar failure");
+static_assert(std::is_same<tria_0_shape_set::xi_t, Vector2d>::value, "Tria 0 shape set xi_t failure");
 static_assert(std::is_same<tria_0_shape_set::shape_t, Vector1d>::value,
-	"Tria 1 shape set shape value type failure");
+	"Tria 0 shape set shape value type failure");
 static_assert(std::is_same<tria_0_shape_set::dshape_t, Matrix<double, 1, 2> >::value,
-	"Tria 1 shape set shape derivative value type failure");
+	"Tria 0 shape set shape derivative value type failure");
 static_assert(std::is_same<tria_0_shape_set::ddshape_t, Matrix<double, 1, 3> >::value,
-	"Tria 1 shape set shape 2nd derivative value type failure");
+	"Tria 0 shape set shape 2nd derivative value type failure");
 static_assert(std::is_same<decltype(tria_0_shape_set::eval_shape<0>(xi2)), Vector1d const &>::value,
-	"Tria 1 shape set shape return type failure");
+	"Tria 0 shape set shape return type failure");
 static_assert(std::is_same<decltype(tria_0_shape_set::eval_shape<1>(xi2)), decltype(Matrix<double, 1, 2>::Zero())>::value,
-	"Tria 1 shape set shape derivative return type failure");
+	"Tria 0 shape set shape derivative return type failure");
 static_assert(std::is_same<decltype(tria_0_shape_set::eval_shape<2>(xi2)), decltype(Matrix<double, 1, 3>::Zero())>::value,
-	"Tria 1 shape set shape second derivative return type failure");
+	"Tria 0 shape set shape second derivative return type failure");
 static_assert(std::is_same<tria_0_shape_set::position_dof_vector, tmp::vector<dof2> >::value,
-	"Tria 1 shape set poisition DOF vector failure");
+	"Tria 0 shape set poisition DOF vector failure");
 
 TEST(ShapeSet, Tria0){
 	double corners[][2] = { {1./3., 1./3.} };
