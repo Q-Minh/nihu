@@ -354,14 +354,7 @@ public:
 	{
 		return m_linear_size_estimate;
 	}
-
-	/** \brief print debug information on an element to standard output */
-	void print_debug(void) const
-	{
-		std::cout << "Element type id: " << id << std::endl;
-		std::cout << "Element id: " << m_id << std::endl;
-	}
-
+	
 	/**
 	 * \brief check overlapping state with other element
 	 * \tparam OtherElem type of the other element
