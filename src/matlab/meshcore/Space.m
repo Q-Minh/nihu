@@ -1,18 +1,22 @@
 classdef Space
-    properties
-        Dimension;
+    %SPACE Definition of spaces
+    
+    properties (SetAccess = immutable)
+        Dimension  % the space's dimensionality
     end
     
     methods
         function obj = Space(d)
+            %SPACE Constructor
+            % 
             obj.Dimension = d;
         end
     end
     
     enumeration
-        D0(0)
-        D1(1)
-        D2(2)
-        D3(3)
+        D0(0)   % point space
+        D1(1)   % 1D space
+        D2(2)   % 2D space
+        D3(3)   % 3D space
     end
-end
+end % of class

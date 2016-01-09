@@ -88,6 +88,7 @@ namespace element_traits
 	template <class Derived>
 	struct lset;
 
+	/** \brief indicates if the element is a surface element or not */
 	template <class Derived>
 	struct is_surface_element;
 
@@ -202,6 +203,7 @@ public:
 	enum {
 		/** \brief the element id */
 		id = element_traits::id<Derived>::value,
+		/** \brief the number of nodes */
 		num_nodes = lset_t::num_nodes,
 	};
 
@@ -265,6 +267,17 @@ public:
 		dx_computer(m_coords, xi_t()),
 		ddx_computer(m_coords, xi_t())
 	{
+		// compute linear size estimate (average edge length)
+		scalar_t d = 0.0;
+		for (unsigned e = 0; e < domain_t::num_edges; ++e)
+		{
+			auto const &edge = domain_t::get_edge(e);
+			x_t x0 = get_x(domain_t::get_corner(edge[0]));
+			x_t x1 = get_x(domain_t::get_corner(edge[1]));
+			d += (x1-x0).norm();
+		}
+		d /= domain_t::num_edges;
+		m_linear_size_estimate = d;
 	}
 
 	/**
@@ -341,14 +354,7 @@ public:
 	{
 		return m_linear_size_estimate;
 	}
-
-	/** \brief print debug information on an element to standard output */
-	void print_debug(void) const
-	{
-		std::cout << "Element type id: " << id << std::endl;
-		std::cout << "Element id: " << m_id << std::endl;
-	}
-
+	
 	/**
 	 * \brief check overlapping state with other element
 	 * \tparam OtherElem type of the other element
@@ -419,6 +425,7 @@ class volume_element;
 /** \brief specialisation of element_traits for the volume element */
 namespace element_traits
 {
+	/* the space dimension is computed from the Lset domain's dimension */
 	template <class LSet, class Scalar>
 	struct space_type<volume_element<LSet, Scalar> >
 		: space<Scalar, LSet::domain_t::dimension> {};
@@ -442,6 +449,7 @@ class normal_impl;
 /** \brief specialisation of element_traits for the surface element */
 namespace element_traits
 {
+	/* the space dimension is computed from the Lset domain's dimension (dL+1) */
 	template <class LSet, class Scalar>
 	struct space_type<surface_element<LSet, Scalar> >
 		: space<Scalar, LSet::domain_t::dimension + 1> {};
@@ -462,9 +470,10 @@ class normal_impl<Derived, typename std::enable_if<
 	element_traits::space_type<Derived>::type::dimension == 3
 >::type>
 {
+	typedef typename element_traits::location_value_type<Derived, 0>::type x_t;
+	typedef typename element_traits::location_value_type<Derived, 1>::type dx_t;
 public:
-	static typename element_traits::location_value_type<Derived, 0>::type
-	eval(typename element_traits::location_value_type<Derived, 1>::type const &m)
+	static x_t eval(dx_t const &m)
 	{
 		return m.col(shape_derivative_index::dXI).cross(m.col(shape_derivative_index::dETA));
 	}
@@ -476,9 +485,10 @@ class normal_impl<Derived, typename std::enable_if<
 	element_traits::space_type<Derived>::type::dimension == 2
 >::type>
 {
+	typedef typename element_traits::location_value_type<Derived, 0>::type x_t;
+	typedef typename element_traits::location_value_type<Derived, 1>::type dx_t;
 public:
-	static typename element_traits::location_value_type<Derived, 0>::type
-	eval(typename element_traits::location_value_type<Derived, 1>::type const &m)
+	static x_t eval(dx_t const &m)
 	{
 		return Eigen::Rotation2D<typename Derived::scalar_t>(-M_PI/2.0) * m;
 	}
@@ -547,7 +557,6 @@ public:
 		: base_t(coords, id, nodes),
 		normal_computer(get_dx(xi_t()))
 	{
-		base_t::m_linear_size_estimate = sqrt(get_normal(domain_t::get_center()).norm() * domain_t::get_volume());
 	}
 
 	/**
@@ -597,7 +606,6 @@ public:
 		nodes_t const &nodes = nodes_t())
 		: base_t(coords, id, nodes)
 	{
-		base_t::m_linear_size_estimate = sqrt(get_dx(domain_t::get_center()).determinant() * domain_t::get_volume());
 	}
 };
 

@@ -79,6 +79,7 @@ if(MATLABMEX_FOUND)
 		SET(MEX_SHARED_LINKER_FLAGS "-shared ${CMAKE_SHARED_LINKER_FLAGS} -m${NIHU_SYS_BITS} -L\"${MATLAB_ROOT}/bin/win${NIHU_SYS_BITS}\" -L\"${MATLAB_ROOT}/extern/lib/win${NIHU_SYS_BITS}/microsoft\" -L\"${CMAKE_BINARY_DIR}/lib\"  -lmex -lmx -lmat")
 	else(WIN32)
 		set(MEX_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -DMATLAB_MEX_FILE")
+		set(MEX_SHARED_LINKER_FLAGS "-L\"${CMAKE_BINARY_DIR}/lib\"")
 	endif(WIN32)
 	# Set the extension for mex files
 	set(MEX_SHARED_LIBRARY_SUFFIX "${MATLAB_MEXEXT}")
@@ -98,7 +99,8 @@ endif(NOT DEFINED NIHU_INSTALL_DIR)
 set(CMAKE_INSTALL_PREFIX ${NIHU_INSTALL_DIR})
 
 # setup compiler flags
-set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall -Wunused -pedantic -O3 -std=c++11")
+# Note: -Wno-deprecated-declarations is added for sake of Eigen
+set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall -Wno-deprecated-declarations -pedantic -O3 -std=c++11")
 
 # setup global include directories
 include_directories("${CMAKE_SOURCE_DIR}")
@@ -128,11 +130,15 @@ foreach(lib_source ${NIHU_COMMON_LIBRARIES})
 		PROPERTIES 
 		PREFIX "" 
 		SUFFIX ${NIHU_STATIC_LIB_SUFFIX}
-		LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
+		ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+		LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
 	)
 	# Set the link libraries
 	SET(NIHU_LINK_LIBRARIES ${NIHU_LINK_LIBRARIES}; ${lib_name})
 endforeach(lib_source)
+
+link_directories("${CMAKE_BINARY_DIR}/lib")
+#message(STATUS "NIHU link libraries: ${NIHU_LINK_LIBRARIES}")
 
 ### Subdirectories
 if(NOT NIHU_DISABLE_TUTORIALS)

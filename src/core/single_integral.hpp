@@ -26,6 +26,7 @@
 #define SINGLE_INTEGRAL_HPP_INCLUDED
 
 #include "global_definitions.hpp"
+#include "../util/store_pattern.hpp"
 #include "../util/plain_type.hpp"
 #include "../util/product_type.hpp"
 #include "gaussian_quadrature.hpp"

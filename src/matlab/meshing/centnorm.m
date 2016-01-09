@@ -26,7 +26,8 @@ coords = model.Nodes(:,2:4);
 cent = nan(size(Elements,1),3);
 normal = nan(size(Elements,1),3);
 
-for lset = [ShapeSet.LinearLine ShapeSet.LinearTria ShapeSet.LinearQuad] % these element types are processed
+for lset = [ShapeSet.LinearLine ShapeSet.LinearTria ShapeSet.LinearQuad, ...
+        ShapeSet.QuadraticTria] % these element types are processed
     sel = Elements(:,2) == lset.Id;
     if any(sel)
         n = size(lset.Nodes,1);

@@ -46,6 +46,11 @@ namespace domain_traits
     template <> struct num_corners<tria_domain> { enum { value = 3 }; };
     template <> struct num_corners<quad_domain> { enum { value = 4 }; };
     template <> struct num_corners<brick_domain> { enum { value = 8 }; };
+
+    template <> struct num_edges<line_domain> { enum { value = 1 }; };
+    template <> struct num_edges<tria_domain> { enum { value = 3 }; };
+    template <> struct num_edges<quad_domain> { enum { value = 4 }; };
+    template <> struct num_edges<brick_domain> { enum { value = 12 }; };
 }
 
 /** \brief a 1D line domain */
@@ -54,12 +59,15 @@ class line_domain :
 {
 public:
 	/** \brief return domain corners */
-    static xi_t const *get_corners_impl(void) { return m_corners; }
+    static corners_t const &get_corners_impl(void) { return m_corners; }
+	/** \brief return domain edges */
+    static edges_t const &get_edges_impl(void) { return m_edges; }
 	/** \brief return domain center */
     static xi_t const &get_center_impl(void) { return m_center; }
 
 private:
     static corners_t const m_corners;
+    static edges_t const m_edges;
     static xi_t const m_center;
 };
 
@@ -69,12 +77,15 @@ class tria_domain :
 {
 public:
 	/** \brief return domain corners */
-    static xi_t const *get_corners_impl(void) { return m_corners; }
+    static corners_t const &get_corners_impl(void) { return m_corners; }
+	/** \brief return domain edges */
+    static edges_t const &get_edges_impl(void) { return m_edges; }
 	/** \brief return domain center */
     static xi_t const &get_center_impl(void) { return m_center; }
 
 private:
     static corners_t const m_corners;
+    static edges_t const m_edges;
     static xi_t const m_center;
 };
 
@@ -84,12 +95,15 @@ class quad_domain :
 {
 public:
 	/** \brief return domain corners */
-    static xi_t const *get_corners_impl(void) { return m_corners; }
+    static corners_t const &get_corners_impl(void) { return m_corners; }
+	/** \brief return domain edges */
+    static edges_t const &get_edges_impl(void) { return m_edges; }
 	/** \brief return domain center */
     static xi_t const &get_center_impl(void) { return m_center; }
 
 private:
     static corners_t const m_corners;
+    static edges_t const m_edges;
     static xi_t const m_center;
 };
 
@@ -99,12 +113,15 @@ class brick_domain :
 {
 public:
 	/** \brief return domain corners */
-    static xi_t const *get_corners_impl(void) { return m_corners; }
+    static corners_t const &get_corners_impl(void) { return m_corners; }
+	/** \brief return domain edges */
+    static edges_t const &get_edges_impl(void) { return m_edges; }
 	/** \brief return domain center */
     static xi_t const &get_center_impl(void) { return m_center; }
 
 private:
     static corners_t const m_corners;
+    static edges_t const m_edges;
     static xi_t const m_center;
 };
 
