@@ -6,6 +6,10 @@ function mesh = import_unv_mesh(fname)
 % 2412: elements
 
 fid = fopen(fname);
+if fid == -1
+    error('NiHu:import_unv_mesh:invalid_file', ...
+        'cannot open unv file: %s', fname);
+end
 data = textscan(fid, '%s', 'delimiter', '\n');
 fclose(fid);
 data = data{1};
@@ -16,14 +20,20 @@ blockid = str2double(data(blockind(:,1)));
 
 nodeblock = find(blockid == 2411);
 elemblock = find(blockid == 2412);
+unusedblocks = setdiff(blockid, [2411 2412]);
+if ~isempty(unusedblocks)
+    warning('NiHu:read_unv_mesh', ...
+        sprintf('Block not imported: %g\n', unusedblocks)); %#ok<SPWRN>
+end
 
 nodedef = data(blockind(nodeblock,1)+1 : blockind(nodeblock,2));
 nodedef = strrep(nodedef, 'D', 'E');
 elemdef = data(blockind(elemblock,1)+1 : blockind(elemblock,2));
 
 % read nodes
-nodid = zeros(0,1);
-coord = zeros(0,3);
+nNodes = size(nodedef,1)/2;
+nodid = zeros(nNodes,1);
+coord = zeros(nNodes,3);
 i = 0;
 line = 1;
 while line < length(nodedef)
