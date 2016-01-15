@@ -558,6 +558,16 @@ public:
 		normal_computer(get_dx(xi_t()))
 	{
 	}
+	
+	void flip_inplace(void)
+	{
+		*this = flip();
+	}
+	
+	surface_element flip(void) const
+	{
+		return surface_element(this->get_coords().colwise().reverse(), this->get_id()(0), this->get_nodes().reverse());
+	}
 
 	/**
 	 * \brief return element normal
