@@ -39,7 +39,9 @@ foreach (test_source ${MEX_TEST_SOURCES})
 
 		if(NOT NIHU_MATLAB_FORCE_MEX_COMPILER)
 			# add the test as a shared library
-			add_library(${test_mex_name} SHARED ${local_source} ${NIHU_COMMON_LIBRARIES})
+			add_library(${test_mex_name} SHARED ${local_source})
+			target_link_libraries(${test_mex_name} ${NIHU_LINK_LIBRARIES_DYN}) 
+			
 			# remove the "lib" prefix
 			set_target_properties(${test_mex_name} PROPERTIES 
 				PREFIX "" 
