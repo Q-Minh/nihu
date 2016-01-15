@@ -1,5 +1,21 @@
-# If Eigen headers are set
-# (This is the default behaviour on windows.)
+# NiHuEigen.cmake
+# 
+# This file is used for setting up Eigen directories during NiHu install.
+# Two alternative ways of using Eigen are possible:
+# (1) If you have Eigen headers installed on your computer, then cmake will 
+#     autmatically look for the Eigen path, this is the default behavior on Unix
+#     systems. If you do not want to use your installed version, you can force
+#     cmake to install Eigen as a part of NiHu by setting the option
+#     -DNIHU_EIGEN_INSTALL=1
+# (2) If you do not have Eigen headers installed, Eigen is automatically 
+#     downloaded and installed as a part of NiHu. This is the default behavior
+#     on Windows systems.
+
+# Supported Eigen versions
+set(NIHU_SUPPORTED_EIGEN_VERSIONS "3.2.0" "3.2.7")
+
+# The default Eigen version
+set(NIHU_DEFAULT_EIGEN_VERSION "3.2.7")
 
 # Check for given eigen path
 if(DEFINED NIHU_EIGEN_PATH)
@@ -7,8 +23,10 @@ if(DEFINED NIHU_EIGEN_PATH)
 	if(NOT EXISTS "${NIHU_EIGEN_PATH}/Eigen")
 		message(FATAL_ERROR "Eigen can not be found at the specified path: ${NIHU_EIGEN_PATH}")
 	endif(NOT EXISTS "${NIHU_EIGEN_PATH}/Eigen")
+	# Eigen found successfully 
 	set(EIGEN_FOUND 1)
 	set(EIGEN_INCLUDE_DIRS NIHU_EIGEN_PATH)
+# If the path is not defined
 else(DEFINED NIHU_EIGEN_PATH)
 	if(UNIX)
 		if(NOT NIHU_EIGEN_INSTALL)
@@ -24,21 +42,39 @@ endif(DEFINED NIHU_EIGEN_PATH)
 
 # Check if eigen found
 if(NOT EIGEN_FOUND OR NIHU_EIGEN_INSTALL)
+	# Supported Eigen versions
+	if(DEFINED NIHU_EIGEN_VERSION)
+		# Check if the defined Eigen version is supported
+		list (FIND NIHU_SUPPORTED_EIGEN_VERSIONS ${NIHU_EIGEN_VERSION} _index)
+		if (${_index} GREATER -1)
+			message(STATUS "Selected Eigen version ${NIHU_EIGEN_VERSION} is supported")
+		else(${_index} GREATER -1)
+			message(FATAL_ERROR "Eigen version ${NIHU_EIGEN_VERSION} is unsupported, supported versions: ${NIHU_SUPPORTED_EIGEN_VERSIONS}")
+		endif(${_index} GREATER -1)
+	else(DEFINED NIHU_EIGEN_VERSION)
+		set(NIHU_EIGEN_VERSION "${NIHU_DEFAULT_EIGEN_VERSION}")
+	endif(DEFINED NIHU_EIGEN_VERSION)
+
 	# Configure Eigen directories
-	set(EIGEN_SOURCE_DIR "${CMAKE_SOURCE_DIR}/ThirdParty/eigen-3.2.0")
-	set(EIGEN_TEMP_DIR "eigen-eigen-ffa86ffb5570")
-	set(EIGEN_INSTALL_DIR "${CMAKE_BINARY_DIR}/include/eigen-3.2.0")
+	set(EIGEN_SOURCE_DIR "${CMAKE_SOURCE_DIR}/ThirdParty/eigen-${NIHU_EIGEN_VERSION}")
+	if (NIHU_EIGEN_VERSION STREQUAL "3.2.0")
+		set(EIGEN_TEMP_DIR "eigen-eigen-ffa86ffb5570")
+		set(EIGEN_MD5 "894381be5be65bb7099c6fd91d61b357") #3.2.0
+	elseif(NIHU_EIGEN_VERSION STREQUAL "3.2.7")
+		set(EIGEN_TEMP_DIR "eigen-eigen-b30b87236a1b")
+		set(EIGEN_MD5 "cc1bacbad97558b97da6b77c9644f184") #3.2.7
+	endif()
+	
+	set(EIGEN_INSTALL_DIR "${CMAKE_BINARY_DIR}/include/eigen-${NIHU_EIGEN_VERSION}")
 	
 	# Check if NIHU_EIGEN_TARBALL is set
 	if (NOT DEFINED NIHU_EIGEN_TARBALL)
 		# Eigen download path
-		set(EIGEN_URL "http://bitbucket.org/eigen/eigen/get/3.2.0.tar.bz2")
+		set(EIGEN_URL "http://bitbucket.org/eigen/eigen/get/${NIHU_EIGEN_VERSION}.tar.bz2")
 		# md5 checksum of the downloaded file tar.bz2
-		set(EIGEN_MD5 "894381be5be65bb7099c6fd91d61b357") #3.2.0
+		message(STATUS "Eigen ${NIHU_EIGEN_VERSION} headers will be installed as a part of NiHu")
 
-		message(STATUS "Eigen 3.2.0 headers will be installed as a part of NiHu")
-
-		set(EIGEN_DL_FILE "${CMAKE_SOURCE_DIR}/ThirdParty/eigen-3.2.0.tar.bz2")
+		set(EIGEN_DL_FILE "${CMAKE_SOURCE_DIR}/ThirdParty/eigen-${NIHU_EIGEN_VERSION}.tar.bz2")
 		
 		# Download
 		message(STATUS "Downloading Eigen3 from ${EIGEN_URL}")

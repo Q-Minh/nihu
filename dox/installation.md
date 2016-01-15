@@ -250,6 +250,7 @@ You can override the default behavior by the parameters listed below.
 - **NIHU_EIGEN_TARBALL** Specifies the full path to a downloaded `Eigen` tarball. NiHu will extract this archive instead of downloading the source from the predefined URL. This option only makes sense if the `NIHU_EIGEN_INSTALL` is set to non-zero.
 \note If you experience a `cmake` or other error when downloading from the official URL, you should try this option.
 - **NIHU_EIGEN_DISABLE_PATCH** When set to a non-zero value the patching of Eigen files are disabled. This option is only relevant when Eigen is installed as a part of NiHu, i.e. on Windows systems or when the `NIHU_EIGEN_INSTALL` parameter is to non-zero. (Note: The Eigen patch contains the removal of unnecessary `typedef`s in order to avoid compiler warnings of `gcc-4.8`.)
+- **NIHU_EIGEN_VERSION** When set and `Eigen` is installed as a part of NiHu (see above), you can specify which version to install. The default installation version is `3.2.7`. Please note that the currently supported versions are `3.2.0` and `3.2.7`.
 
 \note If you want to use Eigen as a stand-alone project, you can install it using cmake. Please consult the [Eigen website](http://eigen.tuxfamily.org) for further information.
 
