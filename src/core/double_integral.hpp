@@ -535,10 +535,8 @@ protected:
 
 		std::cout << "Second N: " << acc.begin().get_second()->get_N() << "\n";
 
-/*
 		return eval_on_accelerator(
 			result, kernel, test_field, trial_field, acc.begin(), acc.end());
-*/
 	}
 
 
