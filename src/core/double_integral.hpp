@@ -395,8 +395,8 @@ public:
 
     /** \todo these constants should be computed from the kernel */
 	enum {
-		kernel_rows = Kernel::result_dimension,
-		kernel_cols = Kernel::result_dimension
+		kernel_rows = Kernel::result_rows,
+		kernel_cols = Kernel::result_cols
 	};
 
 protected:
@@ -533,8 +533,12 @@ protected:
 		auto acc(create_dual_field_type_accelerator(
 			test_store_t::get_data()[degree], trial_store_t::get_data()[degree], iteration::diadic()));
 
+		std::cout << "Second N: " << acc.begin().get_second()->get_N() << "\n";
+
+/*
 		return eval_on_accelerator(
 			result, kernel, test_field, trial_field, acc.begin(), acc.end());
+*/
 	}
 
 

@@ -50,7 +50,7 @@ struct BDF<2>
  * \tparam KernelResult the result type of the kernel in the Laplace domain
  * \tparam Order the BDF order
  */
-template <unsigned Order>
+template <unsigned Order, class ExcTime, class ExcFreq, class RespTime, class RespFreq>
 class CQM
 {
 public:
@@ -68,9 +68,8 @@ public:
 		m_delta(delta),
 		m_rho(std::exp(std::log(m_delta) / (2.*m_N))),
 		m_svec(m_N / 2 + 1),
-		m_kernel_samples(m_N / 2 + 1),
 		m_scale(m_N, 0.),
-		m_scaled_excitation(m_N, 0.),
+		m_scaled_excitation(m_N),
 		m_laplace_excitation(m_N / 2 + 1),
 		m_laplace_response(m_N / 2 + 1),
 		m_time_response(m_N)
@@ -82,28 +81,31 @@ public:
 			m_svec[k] = BDF<BDF_order>::gamma(m_rho * std::complex<double>(cos(phi), -sin(phi)) ) / m_dt;
 
 		int n[] = {m_N};
-		int howmany = 1;
 		int rank = 1;
-		int istride = 1, ostride = 1;
-		int idist = 1, odist = 1;
+		int xstride = (double *)(m_scaled_excitation.data()+1) - (double *)m_scaled_excitation.data();
+		int rstride = (double *)(m_time_response.data()+1) - (double *)m_time_response.data();
+		int const xhowmany = xstride;	// this is the default only
+		int const rhowmany = rstride;
+		int xdist = 1, rdist = 1;
 
 		// design fft plan for ifft
 		m_ifftw_plan = fftw_plan_many_dft_r2c(
-			rank, n, howmany,
-			&m_scaled_excitation[0], NULL,
-			istride, idist,
-			reinterpret_cast<fftw_complex *>(&m_laplace_excitation[0]), NULL,
-			ostride, odist,
+			rank, n, xhowmany,
+			reinterpret_cast<double *>(m_scaled_excitation.data()), NULL,
+			xstride, xdist,
+			reinterpret_cast<fftw_complex *>(m_laplace_excitation.data()), NULL,
+			xstride, xdist,
 			FFTW_MEASURE);
 
 		m_fftw_plan = fftw_plan_many_dft_c2r(
-			rank, n, howmany,
-			reinterpret_cast<fftw_complex *>(&m_laplace_response[0]), NULL,
-			istride, idist,
-			&m_time_response[0], NULL,
-			ostride, odist,
+			rank, n, rhowmany,
+			reinterpret_cast<fftw_complex *>(m_laplace_response.data()), NULL,
+			rstride, rdist,
+			reinterpret_cast<double *>(m_time_response.data()), NULL,
+			rstride, rdist,
 			FFTW_MEASURE);
 
+		// compute samples of scaling function
 		double r = 1.;
 		for (auto it = m_scale.begin(); it != m_scale.end(); ++it, r *= m_rho)
 			*it = r;
@@ -132,32 +134,31 @@ public:
 	std::vector<std::complex<double> > const &get_svec(void) const { return m_svec; }
 	
 	/** \brief return discrete impulse response result */
-	std::vector<std::complex<double> > const &get_laplace_response(void) const { return m_laplace_response; }
+	std::vector<std::complex<RespFreq> > const &get_laplace_response(void) const { return m_laplace_response; }
 	
 	/** \brief return discrete impulse response result */
-	std::vector<double> const &get_time_response(void) const { return m_time_response; }
+	std::vector<RespTime> const &get_time_response(void) const { return m_time_response; }
 
 	template <class ExcIt, class Kernel>
 	void eval(ExcIt begin, ExcIt end, Kernel const &kernel)
 	{
-		// clear scaled excitation (zero padding if needed)
-		std::fill(m_scaled_excitation.begin(), m_scaled_excitation.end(), 0.0);
 		// scale-copy excitation to scaled excitation
-		std::transform(begin, end, m_scale.begin(), m_scaled_excitation.begin(), std::multiplies<double>());
+		for (int i = 0; i < m_N; ++i)
+			m_scaled_excitation[i] = m_scale[i] * *(begin+i);
 		// ifft of scaled excitation
 		fftw_execute(m_ifftw_plan);
-		// evaluate kernel
-		std::transform(m_svec.begin(), m_svec.end(), m_kernel_samples.begin(), kernel);
-		// multiply kernel and excitation
-		std::transform(m_laplace_excitation.begin(), m_laplace_excitation.end(), m_kernel_samples.begin(), m_laplace_response.begin(), std::multiplies<std::complex<double> >());
+		// evaluate kernel and multiply with excitation
+		for (int i = 0; i < m_N / 2 + 1; ++i)
+			m_laplace_response[i] = kernel(m_svec[i]).eval() * m_laplace_excitation[i];
 		// fft of result
 		fftw_execute(m_fftw_plan);
 		// rescale in time domain
-		std::transform(m_time_response.begin(), m_time_response.end(), m_scale.begin(), m_time_response.begin(), std::divides<double>());
+		for (int i = 0; i < m_N; ++i)
+			m_time_response[i] /= (m_N * m_scale[i]);
 	}
 
 private:
-	int m_N;			/** \brief convolution depth */
+	int m_N;				/** \brief convolution depth */
 	double m_dt;			/** \brief time step */
 	double m_delta;			/** \brief kernel accuracy */
 	double m_rho;			/** \brief radius of integration on s plane */
@@ -165,12 +166,11 @@ private:
 	fftw_plan m_ifftw_plan;	/** \brief DFT plan */
 
 	std::vector<std::complex<double> > m_svec;		/** \brief complex frequency samples */
-	std::vector<std::complex<double> > m_kernel_samples;	/** \brief kernel samples on s plane */
-	std::vector<double> m_scale;					/** \brief complex frequency samples */
-	std::vector<double> m_scaled_excitation;	/** \brief scaled excitation samples */
-	std::vector<std::complex<double> > m_laplace_excitation;	/** \brief s-domain excitation */
-	std::vector<std::complex<double> > m_laplace_response;		/** \brief s domain discrete response */
-	std::vector<double> m_time_response;		/** \brief time domain discrete response */
+	std::vector<double> m_scale;					/** \brief scale function */
+	std::vector<ExcTime> m_scaled_excitation;		/** \brief scaled excitation samples */
+	std::vector<ExcFreq> m_laplace_excitation;		/** \brief s-domain excitation */
+	std::vector<RespFreq> m_laplace_response;		/** \brief s domain discrete response */
+	std::vector<RespTime> m_time_response;			/** \brief time domain discrete response */
 };
 
 #endif // CQM_HPP_INCLUDED
