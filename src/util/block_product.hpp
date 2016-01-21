@@ -62,8 +62,8 @@ namespace internal
 
 
 	/** \brief specialisation of block_product for three Eigen matrices */
-	template <class left, class scalar2, int N2, class right>
-	class block_product_impl<left, Eigen::Matrix<scalar2, N2, N2>, right>
+	template <class left, class scalar2, int N21, int N22, class right>
+	class block_product_impl<left, Eigen::Matrix<scalar2, N21, N22>, right>
 	{
 		typedef typename left::Scalar scalar1;
 		typedef typename right::Scalar scalar3;
@@ -73,17 +73,17 @@ namespace internal
 			typename product_type<scalar2, scalar3>::type
 		>::type scalar;
 	public:
-		typedef Eigen::Matrix<scalar, N1*N2, N2*N3> result_type;
+		typedef Eigen::Matrix<scalar, N1*N21, N22*N3> result_type;
 
 		static result_type eval(
 			Eigen::MatrixBase<left> const &v1,
-			Eigen::MatrixBase<Eigen::Matrix<scalar2, N2, N2> > const &m,
+			Eigen::MatrixBase<Eigen::Matrix<scalar2, N21, N22> > const &m,
 			Eigen::MatrixBase<right> const &v2)
 		{
 			result_type result;
 			for (Index row = 0; row < N1; ++row)
 				for (Index col = 0; col < N3; ++col)
-					result.template block<N2, N2>(row*N2, col*N2) = static_cast<scalar>(v1(row)) * m * static_cast<scalar>(v2(col));
+					result.template block<N21, N22>(row*N21, col*N22) = static_cast<scalar>(v1(row)) * m * static_cast<scalar>(v2(col));
 			return result;
 		}
 	};

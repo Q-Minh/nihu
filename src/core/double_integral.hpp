@@ -533,12 +533,8 @@ protected:
 		auto acc(create_dual_field_type_accelerator(
 			test_store_t::get_data()[degree], trial_store_t::get_data()[degree], iteration::diadic()));
 
-		std::cout << "Second N: " << acc.begin().get_second()->get_N() << "\n";
-
-/*
 		return eval_on_accelerator(
 			result, kernel, test_field, trial_field, acc.begin(), acc.end());
-*/
 	}
 
 
