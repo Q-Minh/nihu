@@ -31,6 +31,9 @@ switch divtype
         divide_fun = @(C,x)get_svd_child_clusters(C, x);
     case 'oc'
         divide_fun = @(C,x)get_oc_child_clusters(C, x);
+    otherwise
+        error('build_cluster_tree:invalid_argument', ...
+            'Argument ''divtype'' must be ''svd'' or ''oc''');
 end
 
 bb = [min(x,[],1); max(x,[],1)];

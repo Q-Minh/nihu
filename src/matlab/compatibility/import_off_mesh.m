@@ -38,17 +38,23 @@ fclose(fid);
 % convert to NiHu format
 mesh.Nodes(:,2:4) = nodes;
 mesh.Nodes(:,1) = 1:nnodes;
+% process line elements
+li = elements(:,1) == 2;
+if any(li)
+    mesh.Elements(li,5:6) = elements(li,2:3);
+    mesh.Elements(li,2) = ShapeSet.LinearLine.Id;
+end
 % process tria elements
 tr = elements(:,1) == 3;
 if any(tr)
     mesh.Elements(tr,5:7) = elements(tr,2:4);
-    mesh.Elements(tr,2) = 23;
+    mesh.Elements(tr,2) = ShapeSet.LinearTria.Id;
 end
 % process quad elements
 qu = elements(:,1) == 4;
 if any(qu)
     mesh.Elements(qu,5:8) = elements(qu,2:5);
-    mesh.Elements(qu,2) = 24;
+    mesh.Elements(qu,2) = ShapeSet.LinearQuad.Id;
 end
 
 mesh.Elements(:,1) = 1:nelements;

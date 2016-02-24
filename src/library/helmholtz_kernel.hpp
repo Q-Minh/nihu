@@ -833,6 +833,8 @@ namespace kernel_traits_ns
 template <class scalar, unsigned i, unsigned j>
 struct helmholtz_2d_double_brick
 {
+	static_assert(i < 2 && j < 2, "Kernel indices must be between 0 and 1");
+
 	/** \brief the brick template
 	 * \tparam the wall the brick is placed on
 	 */

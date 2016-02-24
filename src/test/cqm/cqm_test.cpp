@@ -17,7 +17,8 @@ struct Kernel
 	Result operator()(std::complex<double> const &s) const
 	{
 		Result M = Result::Zero();
-		M(0,0) = M(1,0) = -(M(2,0) = om_d / ((s+a)*(s+a) + om_d*om_d) * std::exp(-s*tau));
+//		M(0,0) = M(1,0) = -(M(2,0) = om_d / ((s+a)*(s+a) + om_d*om_d) * std::exp(-s*tau));
+		M(0,0) = M(1,0) = -(M(2,0) = std::exp(-s*tau));
 		return M;
 	}
 
@@ -29,18 +30,20 @@ struct Kernel
 
 const double Kernel::om_d = 100.0 * 2. * M_PI;
 const double Kernel::a = 1.;
-const double Kernel::tau = 0;
+const double Kernel::tau = 1e-2;
 
 
 int main(void)
 {
-	unsigned N = 100;
-	double dt = 1e-3;
+	unsigned N = 1000;
+	double dt = 5e-4;
 	double delta = 1e-12;
 
 	std::vector<ExcType> excitation(N, ExcType::Zero());
-	excitation[0](0) = 1.0;
-	excitation[0](1) = 2.0;
+	int k = 0;
+	double f0 = 1e2;
+	for (auto it = excitation.begin(); it != excitation.end(); ++it, ++k)
+		(*it)(0) = sin(2*M_PI*f0*k*dt);
 
 	CQM<2, ExcType, LaplaceExcType, RespType, LaplaceRespType> cqm(N, dt, delta);
 	cqm.eval(excitation.begin(), excitation.end(), Kernel());
