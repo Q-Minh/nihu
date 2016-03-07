@@ -16,7 +16,7 @@ function Ctree = build_cluster_tree(x, Cleaf, divtype)
 %   m = create_sphere_boundary(1, 10);
 %   C = build_cluster_tree(m.Nodes(:,2:4));
 %
-% Copyright (C) 2014 Peter Fiala
+% Copyright (C) 2016 Peter Fiala
 
 if nargin < 3
     divtype = 'svd';
