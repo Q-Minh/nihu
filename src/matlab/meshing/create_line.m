@@ -61,7 +61,7 @@ end
 % Transformation
 model = create_line_base(N);            % Create base
 if exist('R', 'var')
-    phi = shapefun(model.Nodes(:,2), 12);   % Obtain shape values
+    phi = ShapeSet.LinearLine.eval(model.Nodes(:,2));   % Obtain shape values
     model.Nodes(:,2:4) = phi * R;           % Finish transformation
 elseif exist('Cx', 'var')
     model.Nodes(:,1+(1:size(Cx,2))) = Cx;   % replace coordinates

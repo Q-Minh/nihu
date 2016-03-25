@@ -9,7 +9,7 @@ function mesh = rotate_mesh(mesh, ang, dir, base)
 %   Budapest University of Technology and Economics
 %   Dept. of Telecommunications
 
-% Last modifed: 2012.12.14.
+% Last modified: 2012.12.14.
 
 if nargin < 3
     dir = eye(numel(ang));

@@ -39,21 +39,23 @@ mesh.Materials = [
 %
 % The matrix |mesh.Properties| describes the used properties. This matrix
 % is unused in the current phase of development, and has to be initialized
-% as
-mesh.Properties = 1;
+% as a default value returned by the toolbox function
+% <matlab:doc('default_mat_prop') default_mat_prop>
+[~, mesh.Properties] = default_mat_prop();
 %%
 % where the value is the identifier of the single property used in the
 % mesh.
 %
 % The mesh elements are stored in the matrix |mesh.Elements| as follows:
 mesh.Elements = [
-%   ID type MatID PropID node IDs
-    12 24   3     1      1 3 5 14
-    14 12   5     1      5 2 0 0
+%   ID LSetID                     MatID PropID node IDs
+    12 ShapeSet.LinearQuad.Id     3     1      1 3 5 14
+    14 ShapeSet.LinearLine.Id     5     1      5 2 0  0
     ];
 %%
 % The first column is the unique positive integer element identifier. The
-% second dolumn contains the element type, followed by the element's
+% second column contains the element's geometrical shape function's, the
+% so-called L-Set's ID, followed by the element's
 % material and property IDs and the node IDs. It is important to mention
 % that all IDs refer to elements in the first columns of the matrices
 % |mesh.Materials|, |mesh.Properties| and |mesh.Nodes|. If needed, trailing
@@ -63,17 +65,14 @@ mesh.Elements = [
 figure;
 plot_mesh(mesh)
 %%
-% The supported element types are the following
+% The supported element LSet types are the following
 %
-% * |12| - two noded 1D LINE element
-% * |23| - three noded 2D TRIA element
-% * |24| - four noded 2D QUAD element
-% * |34| - four noded 3D TETRA element
-% * |36| - six noded 3D PENTA element
-% * |38| - eight noded 3D HEXA element
-%
-% As can be seen, the first number refers to the dimensionality of the
-% element, and the second number describes the number of nodes.
+% * |ShapeSet.LinearLine| - two noded 1D LINE element
+% * |ShapeSet.LinearTria| - three noded 2D TRIA element
+% * |ShapeSet.LinearQuad| - four noded 2D QUAD element
+% * |ShapeSet.LinearTetra| - four noded 3D TETRA element
+% * |ShapeSet.LinearPenta| - six noded 3D PENTA element
+% * |ShapeSet.LinearHexa| - eight noded 3D HEXA element
 
 %%
 % In some cases it is useful to convert the IDs in the matrix

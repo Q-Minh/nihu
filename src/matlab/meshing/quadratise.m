@@ -5,12 +5,14 @@ elements = drop_IDs(mesh);
 
 elem_data = {
     %ID, num_new_elems, num_new_nod, refine_func
-    12, 2, 3, @quadratise_line
-    23, 4, 6, @quadratise_tria
-    24, 4, 9, @quadratise_quad
+    ShapeSet.LinearLine.Id, 2, 3, @quadratise_line
+    ShapeSet.LinearTria.Id, 4, 6, @quadratise_tria
+    ShapeSet.LinearQuad.Id, 4, 9, @quadratise_quad
 %     24, 4, 8, @quadratise_quad
     };
 
+newmesh.Properties = mesh.Properties;
+newmesh.Materials = mesh.Materials;
 newmesh.Elements = [];
 newmesh.Nodes = [];
 
@@ -19,9 +21,12 @@ for iType = 1 : size(elem_data,1)
     nelems = elem_data{iType,2};    % num of new elements
     nnodes = elem_data{iType,3};    % new of new nodes
     refine_fun = elem_data{iType,4};    % refine function
-    norignodes = mod(id,10);    % num of original nodes
+    norignodes = size(ShapeSet.fromId(id).Nodes,1);    % num of original nodes
     
     elems = elements(elements(:,2) == id, :); % select appropriate elements
+    if isempty(elems)
+        continue;
+    end
     nel = size(elems,1);
     newelemnodes = zeros(nnodes*nel,3);
     newelemelements = zeros(nel,norignodes);
@@ -38,9 +43,6 @@ end
 
 newmesh.Nodes(:,1) = 1 : size(newmesh.Nodes,1);
 newmesh.Elements(:,1) = 1 : size(newmesh.Elements,1);
-
-newmesh.Properties = mesh.Properties;
-newmesh.Materials = mesh.Materials;
 
 warning('TODO: merge coincident nodes does not work well with quadratic elements');
 newmesh = merge_coincident_nodes(newmesh, 1e-3);

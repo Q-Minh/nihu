@@ -78,7 +78,8 @@ if(MATLABMEX_FOUND)
 		SET(MEX_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMATLAB_MEX_FILE")
 		SET(MEX_SHARED_LINKER_FLAGS "-shared ${CMAKE_SHARED_LINKER_FLAGS} -m${NIHU_SYS_BITS} -L\"${MATLAB_ROOT}/bin/win${NIHU_SYS_BITS}\" -L\"${MATLAB_ROOT}/extern/lib/win${NIHU_SYS_BITS}/microsoft\" -L\"${CMAKE_BINARY_DIR}/lib\"  -lmex -lmx -lmat")
 	else(WIN32)
-		set(MEX_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -DMATLAB_MEX_FILE")
+		set(MEX_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMATLAB_MEX_FILE")
+		set(MEX_SHARED_LINKER_FLAGS "-L\"${CMAKE_BINARY_DIR}/lib\"")
 	endif(WIN32)
 	# Set the extension for mex files
 	set(MEX_SHARED_LIBRARY_SUFFIX "${MATLAB_MEXEXT}")
@@ -98,7 +99,8 @@ endif(NOT DEFINED NIHU_INSTALL_DIR)
 set(CMAKE_INSTALL_PREFIX ${NIHU_INSTALL_DIR})
 
 # setup compiler flags
-set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall -Wunused -pedantic -O3 -std=c++11")
+# Note: -Wno-deprecated-declarations is added for sake of Eigen
+set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall -Wno-deprecated-declarations -pedantic -O3 -std=c++11")
 
 # setup global include directories
 include_directories("${CMAKE_SOURCE_DIR}")
@@ -107,12 +109,13 @@ include_directories("${EIGEN_INCLUDE_DIRS}")
 ### Libraries
 if(WIN32)
 	set(NIHU_STATIC_LIB_SUFFIX ".lib")
-else()
+else(WIN32)
 	set(NIHU_STATIC_LIB_SUFFIX ".a")
-endif()
+endif(WIN32)
 	
 file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 
+# Look for common library source files
 FILE(GLOB NIHU_COMMON_LIBRARIES 
 	"${CMAKE_SOURCE_DIR}/library/lib_*.cpp")
 
@@ -121,18 +124,38 @@ foreach(lib_source ${NIHU_COMMON_LIBRARIES})
 	# Extract relative path
 	file(RELATIVE_PATH local_lib_source "${CMAKE_SOURCE_DIR}/library" ${lib_source})
 	string(REPLACE ".cpp" "" lib_name ${local_lib_source})
-	# Add the library
+	set(lib_name_dyn "${lib_name}_dyn")
+	# Add the static version of the library
 	add_library(${lib_name} STATIC ${lib_source})
 	# Set the target properties
 	set_target_properties(${lib_name}
 		PROPERTIES 
 		PREFIX "" 
 		SUFFIX ${NIHU_STATIC_LIB_SUFFIX}
-		LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
+		ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+		LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
 	)
+	
+	# Add also a dynamic library with the same name
+	# (Note: this is needed for faster MEX file compile)
+	add_library(${lib_name_dyn} STATIC ${lib_source})
+	# Set the target properties
+	set_target_properties(${lib_name_dyn}
+		PROPERTIES 
+		PREFIX "" 
+		COMPILE_FLAGS "-fPIC"
+		SUFFIX ${NIHU_STATIC_LIB_SUFFIX}
+		ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+		LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+	)
+	
 	# Set the link libraries
 	SET(NIHU_LINK_LIBRARIES ${NIHU_LINK_LIBRARIES}; ${lib_name})
+	SET(NIHU_LINK_LIBRARIES_DYN ${NIHU_LINK_LIBRARIES_DYN}; ${lib_name_dyn}) 
 endforeach(lib_source)
+
+link_directories("${CMAKE_BINARY_DIR}/lib")
+#message(STATUS "NIHU link libraries: ${NIHU_LINK_LIBRARIES}")
 
 ### Subdirectories
 if(NOT NIHU_DISABLE_TUTORIALS)

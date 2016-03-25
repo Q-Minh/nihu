@@ -4,13 +4,12 @@ function [U, V] = lowrank_approx(M, siz, eps, R)
 %   approximation of the matrix M.
 %   The low rank approximation is of the form
 %   M = U * V'
-%   Argument siz denotes the size of the matrix, eps is the required
-%   relative error of the approximation, and R is the maximal rank of the
-%   approximation.
+%   siz denotes the size of the matrix, eps is the required
+%   relative error and R is the maximal rank of the approximation.
 %
 % See also: LOWRANK_APPROX_BLOCK
 
-% Copyright (C) 2014-2014 Peter Fiala
+% Copyright (C) 2014-2015 Peter Fiala
 
 nRows = siz(1); % number of rows
 nCols = siz(2); % number of columns
@@ -70,9 +69,9 @@ for k = 1 : R   % max R iterations should be enough
     
     [~, idx] = max(abs(col(uncheckedrows)));
     i = uncheckedrows(idx);
-end
+end % of loop over iterations
 
 U = U(:, 1:r);
 V = V(:, 1:r);
 
-end
+end % of function

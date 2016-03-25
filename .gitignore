@@ -7,11 +7,19 @@ bem/mex_source/*.m
 # Matlab autosave files
 *.asv
 
+# executables
+*.o
+*.exe
+
 # Matlab mex binaries
 *.mexw*
 *.mexa*
 
+# Matlab result files
+*.mtx
+
 # Ubuntu linux tmp files
+*~
 *.*~
 .fuse*
 

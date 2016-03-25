@@ -17,11 +17,11 @@ function [boundary, elemind] = get_boundary(model)
 %
 % See also: GET_FACES, GET_FREE_FACES
 
-%   Copyright 2008-2010 P. Fiala
+%   Copyright 2008-2015 P. Fiala
 %   Budapest University of Technology and Economics
 %   Dept. of Telecommunications
 
-% Last modified 2012.12.19.
+% Last modified 2015.03.31. FP: Elements preallocation bug fix
 
 % Extract boundary
 boundary.Materials = model.Materials;
@@ -29,11 +29,11 @@ boundary.Properties = model.Properties;
 boundary.Nodes = model.Nodes;
 faces = get_faces(model.Elements);
 faces = get_free_faces(faces);
+boundary.Elements = zeros(size(faces,1),0);
 boundary.Elements(:,[2 4+(1:size(faces,2)-2)]) = faces(:,2:end);
 [~, elemind] = ismember(faces(:,1), model.Elements(:,1));
 if ~isempty(boundary.Elements)
     boundary.Elements(:,[3 4]) = model.Elements(elemind,[3 4]);
     boundary.Elements(:,1) = 1:size(boundary.Elements,1);
 end
-
-end
+end % of function

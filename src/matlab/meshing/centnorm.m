@@ -19,27 +19,31 @@ function [cent, normal] = centnorm(model)
 
 % Last modified: 2012.12.12.
 
-%% Initialization
+% Initialization
 Elements = drop_IDs(model);
 coords = model.Nodes(:,2:4);
 
 cent = nan(size(Elements,1),3);
 normal = nan(size(Elements,1),3);
 
-for t = [12 23 24] % these element types are processed
-    sel = Elements(:,2) == t;
+for lset = [ShapeSet.LinearLine ShapeSet.LinearTria ShapeSet.LinearQuad, ...
+        ShapeSet.QuadraticTria] % these element types are processed
+    sel = Elements(:,2) == lset.Id;
     if any(sel)
+        n = size(lset.Nodes,1);
         [cent(sel,:), normal(sel,:)] =...
-            vert2gauss(1, coords, t, Elements(sel,4+(1:mod(t,10))));
+            vert2gauss(1, coords, lset, Elements(sel,4+(1:n)));
     end
 end
 
 % Compute center for volume elements
-for t = [34 36 38]
-    sel = Elements(:,2) == t;
+for lset = [ShapeSet.LinearTetra ShapeSet.LinearPenta ShapeSet.LinearHexa]
+    sel = Elements(:,2) == lset.Id;
     if any(sel)
-        cent(sel,:) = vert2gauss(1, coords, t, Elements(sel, 4+(1:mod(t,10))));
+        n = size(lset.Nodes,1);
+        cent(sel,:) = vert2gauss(1, coords, lset, Elements(sel, 4+(1:n)));
         normal(sel,:) = zeros(numel(sel),3);
     end
-
 end
+
+end % of function

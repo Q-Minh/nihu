@@ -1,20 +1,23 @@
 function [times, res] = aca_tester(M, xr, xs, exc, nLeaf, Admit, eps)
 %ACA_TESTER general tester of the ACA algorithm
 
-Ns = size(xs,1);
-Nr = size(xr,1);
+Ns = size(xs,1);    % number of source points
+Nr = size(xr,1);    % number of receiver points
 
+% build cluster trees
 t0 = tic;
 SourceTree = build_cluster_tree(xs, nLeaf);
 ReceiverTree = build_cluster_tree(xr, nLeaf);
 times.tTree = toc(t0);
 
+% build blocks
 t0 = tic;
 [B_near, B_far] = build_dual_block_tree(ReceiverTree, SourceTree, Admit);
 times.tBtree = toc(t0);
 
 res.resp = zeros(Nr, 1);
 
+% direct evaluation of near contributions
 t0 = tic;
 for b = 1 : size(B_near,1)
     I = ReceiverTree(B_near(b,1)).ind;
@@ -23,6 +26,7 @@ for b = 1 : size(B_near,1)
 end
 times.tNear = toc(t0);
 
+% aca approximation of far blocks
 t0 = tic;
 for b = 1 : size(B_far,1)
     progbar(1, size(B_far,1), b);
@@ -33,6 +37,7 @@ for b = 1 : size(B_far,1)
 end
 times.tAca = toc(t0);
 
+% direct evaluation for comparison
 t0 = tic;
 res.resp0 = M(1:Nr,1:Ns) * exc;
 times.tFull = toc(t0);

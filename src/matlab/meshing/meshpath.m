@@ -10,7 +10,7 @@ function m = meshpath(path, Le)
 %   Budapest University of Technology and Economics
 %   Dept. of Telecommunications
 
-% Last updated: 2012.12.19.
+% Last updated: 2015.03.07.
 
 %
 nP = size(path,1);
@@ -24,7 +24,7 @@ for iP = 1 : nP
     n = size(r0,1);
     m0 = create_empty_mesh();
     m0.Nodes = [(1:n).', r0, zeros(n,1)];
-    m0.Elements = [(1:n-1).', repmat([12,1,1], n-1, 1), (1:n-1).' (2:n).'];
+    m0.Elements = [(1:n-1).', repmat([ShapeSet.LinearLine.Id,1,1], n-1, 1), (1:n-1).' (2:n).'];
     if iP == 1
         m = m0;
     else

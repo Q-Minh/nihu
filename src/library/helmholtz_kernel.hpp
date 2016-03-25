@@ -440,7 +440,9 @@ namespace kernel_traits_ns
 	struct output<helmholtz_kernel<Space, Layer, WaveNumber> > : helmholtz_wall<Space, Layer> {};
 
 	template <class Space, class Layer, class WaveNumber>
-	struct result_dimension<helmholtz_kernel<Space, Layer, WaveNumber> > : std::integral_constant<unsigned, 1> {};
+	struct result_rows<helmholtz_kernel<Space, Layer, WaveNumber> > : std::integral_constant<unsigned, 1> {};
+	template <class Space, class Layer, class WaveNumber>
+	struct result_cols<helmholtz_kernel<Space, Layer, WaveNumber> > : std::integral_constant<unsigned, 1> {};
 
 	template <class Space, class Layer, class WaveNumber>
 	struct quadrature_family<helmholtz_kernel<Space, Layer, WaveNumber> > : gauss_family_tag {};
@@ -916,7 +918,7 @@ struct kernel_traits<helmholtz_2d_double_kernel<wave_number_t, i, j> >
 	/** \brief the kernel output type */
 	typedef typename helmholtz_2d_double_wall<space_2d<>::scalar_t, i, j>::type output_t;
 	/** \brief the kernel result's dimension */
-	enum { result_dimension = 1 };
+	enum { result_rows = 1, result_cols = 1 };
 	/** \brief the quadrature family the kernel is integrated with */
 	typedef gauss_family_tag quadrature_family_t;
 	/** \brief indicates if K(x,y) = K(y,x) */

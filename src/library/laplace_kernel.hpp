@@ -200,7 +200,9 @@ namespace kernel_traits_ns
 	struct far_field_behaviour<laplace_kernel<space_3d<Scalar>, potential::SLP> > : asymptotic::inverse<1> {};
 
 	template <class Space, class Layer>
-	struct result_dimension<laplace_kernel<Space, Layer> > : std::integral_constant<unsigned, 1> {};
+	struct result_rows<laplace_kernel<Space, Layer> > : std::integral_constant<unsigned, 1> {};
+	template <class Space, class Layer>
+	struct result_cols<laplace_kernel<Space, Layer> > : std::integral_constant<unsigned, 1> {};
 
 	template <class Space>
 	struct is_symmetric<laplace_kernel<Space, potential::SLP> > : std::true_type {};

@@ -8,7 +8,7 @@ function mesh2 = extrude_mesh(mesh, dir, nRep)
 %   The geometry is repeated NREP times.
 %
 %   Parameters:
-%   MESH : AcouFEM mesh structure
+%   MESH : NiHu mesh structure
 %   DIR   : 1x3 vector corresponding to one segment of the extrudation
 %   NREP  : numer of repetitions
 %
@@ -19,7 +19,7 @@ function mesh2 = extrude_mesh(mesh, dir, nRep)
 %   Budapest University of Technology and Economics
 %   Dept. of Telecommunications
 
-% Last modifed: 2015.03.10.
+% Last modifed: 2015.03.16.
 
 dir = dir(:).'; % ensure that dir is a row vector
 
@@ -30,46 +30,15 @@ for iRep = 0 : nRep
     coord(iRep*nNod+(1:nNod),:) = bsxfun(@plus, mesh.Nodes(:,2:4), iRep*dir);
 end
 
-% Create new elements
-Elements = drop_IDs(mesh);
-% zero padding
-Elements = [Elements zeros(size(Elements,1), 8-size(Elements,2))];
-
-% Get cell normals
-[~, normal] = centnorm(mesh);
-
 % Select which elements to flip to conserve outward normals
-dim = floor(Elements(:,2)/10);
-flip = ((normal * dir.') > 0 & dim == 1) | ...
-    ((normal * dir.') < 0 & dim == 2);
+[~, normal] = centnorm(mesh);
+lsetid = mesh.Elements(:,2);
+reverse = lsetid ~= ShapeSet.LinearLine.Id & (normal * dir.') < 0 | ...
+    lsetid == ShapeSet.LinearLine.Id & (normal * dir.') > 0;
+mesh.Elements(reverse,:) = flip_elements(mesh.Elements(reverse,:));
 
-quads = Elements(:,2) == 24;
-quad = Elements(quads,:);
-nq = size(quad,1);
-trias = Elements(:,2) == 23;
-tria = Elements(trias,:);
-nt = size(tria,1);
-lines = Elements(:,2) == 12;
-line = Elements(lines,:);
-nl = size(line,1);
-nE = nq+nt+nl;
-
-flipquad = flip(quads);
-fliptria = flip(trias);
-flipline = flip(lines);
-
-quad(flipquad,5:8) = fliplr(quad(flipquad,5:8));
-tria(fliptria,5:7) = fliplr(tria(fliptria,5:7));
-line(flipline,5:6) = fliplr(line(flipline,5:6));
-
-Elem = zeros(nRep*nE,12);
-
-for iRep = 1 : nRep
-    Elem((iRep-1)*nE+(1:nq),1:12) = [repmat([0 38],nq,1) quad(:,3:4) quad(:,5:8)+(iRep-1)*nNod quad(:,5:8)+iRep*nNod];
-    Elem((iRep-1)*nE+nq+(1:nt),1:10) = [repmat([0 36],nt,1) tria(:,3:4) tria(:,5:7)+(iRep-1)*nNod tria(:,5:7)+iRep*nNod];
-    Elem((iRep-1)*nE+nq+nt+(1:nl),1:8) = [repmat([0 24],nl,1) line(:,3:4) line(:,[5 6])+(iRep-1)*nNod line(:,[6 5])+iRep*nNod];
-end
-
+Elem = drop_IDs(mesh);
+Elem = extrude_elements(Elem, nNod, nRep);
 
 % Assemble new mesh structure
 mesh2.Nodes(:,2:4) = coord;
@@ -78,4 +47,5 @@ mesh2.Elements = Elem;
 mesh2.Elements(:,1) = 1:size(mesh2.Elements,1);
 mesh2.Properties = mesh.Properties;
 mesh2.Materials = mesh.Materials;
+
 end

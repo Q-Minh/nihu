@@ -38,6 +38,10 @@ namespace domain_traits
     template <class Derived>
     struct num_corners;
 
+	/** \brief defines the number of edges */
+	template <class Derived>
+	struct num_edges;
+
 	/** \brief Defines the domain's size (volume) */
 	template <class Derived>
 	struct volume;
@@ -70,6 +74,8 @@ public:
 	typedef typename domain_traits::space_type<Derived>::type space_t;
 	/** \brief number of domain corners */
 	enum { num_corners = domain_traits::num_corners<Derived>::value };
+	/** \brief number of domain edges */
+	enum { num_edges = domain_traits::num_edges<Derived>::value };
 	/** \brief domain id as nested enum */
     enum { id = domain_traits::id<Derived>::value };
     /** \brief space dimensions */
@@ -80,6 +86,10 @@ public:
 	typedef typename space_t::location_t xi_t;
 	/** \brief type of corners array */
 	typedef xi_t corners_t[num_corners];
+	/** \brief type of a domain edge */
+	typedef unsigned domain_edge_t[2];
+	/** \brief type of edges array */
+	typedef domain_edge_t edges_t[num_edges];
 
 	/** \brief return domain center */
 	static xi_t const &get_center(void)
@@ -88,7 +98,7 @@ public:
 	}
 
 	/** \brief return begin address of domain corners' array */
-	static xi_t const *get_corners(void)
+	static corners_t const &get_corners(void)
 	{
 		return Derived::get_corners_impl();
 	}
@@ -97,6 +107,18 @@ public:
 	static xi_t const &get_corner(unsigned idx)
 	{
 		return get_corners()[idx];
+	}
+
+	/** \brief return edges of the domain */
+	static edges_t const &get_edges(void)
+	{
+		return Derived::get_edges_impl();
+	}
+
+	/** \brief return specified edge of domain */
+	static domain_edge_t const &get_edge(unsigned idx)
+	{
+		return get_edges()[idx];
 	}
 
 	/** \brief return domain volume */

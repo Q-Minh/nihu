@@ -18,7 +18,7 @@
 
 /**
  * \file eigen_utils.hpp
- * \brief Collection of include files needed by Boonen13
+ * \brief 
  */
 
 #ifndef EIGEN_UTILS_HPP_INCLUDED

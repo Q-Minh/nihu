@@ -16,6 +16,7 @@ switch nargin
         % Process corners
         R = varargin{1};
         switch size(R,1)
+            %TODO relate these arguments to the LSet info
             case 1
                 if isscalar(R)
                     R = [R R R];

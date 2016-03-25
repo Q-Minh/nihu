@@ -1,4 +1,4 @@
-function [gcoord, gnorm, weight, gind] = vert2gauss(order, coords, type, elem)
+function [gcoord, gnorm, weight, gind, An] = vert2gauss(order, coords, lset, elem)
 %VERT2GAUSS Gaussian quadrature from vertices and elements
 %  [XG, NG, W, IG] = VERT2GAUSS(ORDER, COORDS, TYPE, ELEM)
 %
@@ -10,7 +10,7 @@ function [gcoord, gnorm, weight, gind] = vert2gauss(order, coords, type, elem)
 %   Budapest University of Technology and Economics
 %   Dept. of Telecommunications
 
-% Last modified: 02.12.2009.
+% Last modified: 2015.03.05
 
 %%
 nE = size(elem,1);  % number of elements
@@ -29,23 +29,16 @@ if size(x,2) == 1
     z = z.';
 end
 % Gaussian quadrature over the standard element
-switch floor(type/10)
-    case 1
-        [xx, ww] = gaussquad1(order);
-    case 2
-        [xx, ww] = gaussquad2(order, size(elem,2));
-    case 3
-        [xx, ww] = gaussquad3(order, size(elem,2));
-end
+[xx, ww] = gaussian_quadrature(lset.Domain, order);
 ng = length(ww);
-[N, dN] = shapefun(xx, type);
+[N, dN] = lset.eval(xx);
 % Gaussian quadrature coordinates
 gx = N * x.';
 gy = N * y.';
 gz = N * z.';
 gcoord = [gx(:) gy(:) gz(:)];
 % Gaussian normals
-switch floor(type/10)
+switch lset.Domain.Space.Dimension
     case 1
         gxx = dN * x.';
         gxy = dN * y.';
@@ -71,4 +64,14 @@ weight = repmat(ww, nE, 1) .* j;
 %
 gind = repmat(1:nE,ng,1);
 gind = gind(:);
+% nodal interpolation matrix
+nNod = size(elem,2);
+i = repmat((1:ng)', 1, nNod);
+I = bsxfun(@plus, i(:), (0:nE-1)*ng);
+I = I(:);
+J = repmat(reshape(elem', 1, numel(elem)), ng, 1);
+J = J(:);
+N = repmat(N, 1, nE);
+N = N(:);
+An = sparse(I, J, N);
 end

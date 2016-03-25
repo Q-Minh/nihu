@@ -395,8 +395,8 @@ public:
 
     /** \todo these constants should be computed from the kernel */
 	enum {
-		kernel_rows = Kernel::result_dimension,
-		kernel_cols = Kernel::result_dimension
+		kernel_rows = Kernel::result_rows,
+		kernel_cols = Kernel::result_cols
 	};
 
 protected:

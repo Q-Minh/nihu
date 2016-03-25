@@ -58,7 +58,7 @@
 %   mesh_kmax                  - Maximal wave numbers of a NiHu mesh (NiHu / meshing)
 %   mesh_section               - Return a rectangular section of a mesh (NiHu / meshing)
 %   mesh_select                - Element and node selection
-%   mesh_volume                - Returns vector v, the volume for each element
+%   mesh_volume                - Returns vector v, the approximate volume for each element
 %   meshpath                   - Create line mesh from a path of lines and Bezier Curves
 %   node_normals               - calculate outward normal vectors in nodes
 %   node_partitions            - 

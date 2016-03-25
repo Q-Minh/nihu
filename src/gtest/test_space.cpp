@@ -1,3 +1,6 @@
+/// \file test_space.cpp
+/// GTest tester for class space
+
 #include "core/space.hpp"
 #include <gtest/gtest.h>
 
