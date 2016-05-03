@@ -70,7 +70,7 @@ struct kernel_traits<elastostatics_3d_U_kernel>
 	typedef location_input_3d trial_input_t;
 	typedef collect<poisson_ratio_data> data_t;
 	typedef single_brick_wall<Ukernel>::type output_t;
-	enum { result_dimension = 3 };
+	enum { result_rows = 3, result_cols = 3 };
 	typedef gauss_family_tag quadrature_family_t;
 	static bool const is_symmetric = true;
 	typedef asymptotic::inverse<1> far_field_behaviour_t;
@@ -129,7 +129,7 @@ struct kernel_traits<elastostatics_3d_T_kernel>
 	typedef location_normal_input_3d trial_input_t;
 	typedef collect<poisson_ratio_data> data_t;
 	typedef single_brick_wall<Tkernel>::type output_t;
-	enum { result_dimension = 3 };
+	enum { result_rows = 3, result_cols = 3 };
 	typedef gauss_family_tag quadrature_family_t;
 	static bool const is_symmetric = false;
 	typedef asymptotic::inverse<2> far_field_behaviour_t;

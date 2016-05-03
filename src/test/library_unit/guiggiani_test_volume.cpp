@@ -48,7 +48,7 @@ struct kernel_traits<MyKernel>
 	typedef location_input_2d trial_input_t;
 	typedef empty_data data_t;
 	typedef single_brick_wall<MyFunctor>::type output_t;
-	enum { result_dimension = 1 };
+	enum { result_rows = 1, result_cols = 1 };
 	typedef gauss_family_tag quadrature_family_t;
 	static bool const is_symmetric = true;
 	typedef asymptotic::inverse<2> far_field_behaviour_t;

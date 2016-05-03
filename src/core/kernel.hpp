@@ -58,7 +58,8 @@ namespace kernel_traits_ns
 	/** \brief return the kernel's result dimensionality
 	 * \todo this should be automatically deduced from the kernel result
 	 */
-	template <class Derived> struct result_dimension;
+	template <class Derived> struct result_rows;
+	template <class Derived> struct result_cols;
 	/** \brief return whether the kernel is symmetric or not */
 	template <class Derived> struct is_symmetric;
 	/** \brief return whether the kernel is singular or not */
@@ -99,7 +100,8 @@ struct kernel_traits
 		/** \brief the kernel result's dimension
 		 * \todo should be computed from the kernel result and not defined separately in traits
 		 */
-		result_dimension = kernel_traits_ns::result_dimension<Derived>::value,
+		result_rows = kernel_traits_ns::result_rows<Derived>::value,
+		result_cols = kernel_traits_ns::result_cols<Derived>::value,
 		/** \brief indicates if the kernel is symmetric */
 		is_symmetric = kernel_traits_ns::is_symmetric<Derived>::value,
 		/** \brief indicates if the kernel is singular */
@@ -167,7 +169,7 @@ public:
 	/** \brief kernel result type */
 	typedef typename output_t::result_t result_t;
 	/** \brief the kernel result's dimensionality */
-	enum { result_dimension = traits_t::result_dimension };
+	enum { result_rows = traits_t::result_rows, result_cols = traits_t::result_cols };
 
 	/** \brief type of the kernel's domain space */
 	typedef typename test_input_t::space_t space_t;
@@ -335,7 +337,7 @@ public:
 	/** \brief the kernel result's dimensionality
 	 * \todo update this, couple does not work with vector kernels with this definition
 	 */
-	enum { result_dimension = 1 };
+	enum { result_rows = 1, result_cols = 1 };
 	/** \brief the quadrature family the kernel is integrated with
 	 * \todo static assert here or something more clever
 	 */

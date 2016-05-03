@@ -7,7 +7,7 @@ function brick = create_brick_base(N)
 %
 % See also: CREATE_BRICK, CREATE_SLAB_BASE
 
-brick = translate_mesh(...
-    extrude_mesh(create_slab_base(N(1:2)), [0 0 2/N(3)], N(3)), [0 0 -1]);
+s = create_slab_base(N(1:2));
+brick = translate_mesh(extrude_mesh(s, [0 0 2/N(3)], N(3)), [0 0 -1]);
 
 end % create_brick_base

@@ -12,7 +12,9 @@ struct Stored<line_1_elem>
 {
 	Stored(void)
 	{
-		coords << 1.0, 2.0, 2.0, 4.0;
+		coords <<
+			1.0, 2.0,
+			2.0, 4.0;
 		center << 1.5, 3.0;
 		size_estimate = std::sqrt(5.0);
 		xi << .3;
@@ -25,6 +27,30 @@ struct Stored<line_1_elem>
 	line_1_elem::xi_t xi;
 	line_1_elem::x_t x;
 	line_1_elem::x_t normal;
+	double size_estimate;
+};
+
+
+template <>
+struct Stored<line_2_elem>
+{
+	Stored(void)
+	{
+		coords <<
+			0.0, 1.0, 2.0,
+			0.0, 1.0, 1.0;
+		center << 1.0, 1.0;
+		size_estimate = std::sqrt(5.0);
+		xi << .3;
+		x << 1.3, 1.105;
+		normal << .2, -1.0;
+	}
+
+	line_2_elem::coords_t coords;
+	line_2_elem::x_t center;
+	line_2_elem::xi_t xi;
+	line_2_elem::x_t x;
+	line_2_elem::x_t normal;
 	double size_estimate;
 };
 
@@ -46,5 +72,10 @@ void tester(void)
 TEST(Element, Line1Elem)
 {
 	tester<line_1_elem>();
+}
+
+TEST(Element, Line2Elem)
+{
+	tester<line_2_elem>();
 }
 

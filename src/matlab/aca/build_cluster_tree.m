@@ -16,7 +16,7 @@ function Ctree = build_cluster_tree(x, Cleaf, divtype)
 %   m = create_sphere_boundary(1, 10);
 %   C = build_cluster_tree(m.Nodes(:,2:4));
 %
-% Copyright (C) 2014 Peter Fiala
+% Copyright (C) 2016 Peter Fiala
 
 if nargin < 3
     divtype = 'svd';
@@ -31,6 +31,9 @@ switch divtype
         divide_fun = @(C,x)get_svd_child_clusters(C, x);
     case 'oc'
         divide_fun = @(C,x)get_oc_child_clusters(C, x);
+    otherwise
+        error('build_cluster_tree:invalid_argument', ...
+            'Argument ''divtype'' must be ''svd'' or ''oc''');
 end
 
 bb = [min(x,[],1); max(x,[],1)];
@@ -43,6 +46,7 @@ end
 Ctree(1).ind = 1 : size(x,1);
 Ctree(1).level = 0;
 Ctree(1).children = [];
+Ctree(1).child_idx = [];
 Ctree(1).bb = bb;
 
 Capacity = 100;
@@ -51,9 +55,10 @@ i = 1;
 S = 1;
 while i <= S
     if length(Ctree(i).ind) > Cleaf
-        Children = divide_fun(Ctree(i), x);
+        [Children, Idx] = divide_fun(Ctree(i), x);
         idx = S + (1 : length(Children));
         Ctree(i).children = idx; %#ok<AGROW>
+        Ctree(i).child_idx = Idx; %#ok<AGROW>
         if (max(idx) > Capacity)
             Capacity = 2*Capacity;
             Ctree(Capacity).level = 0; %#ok<AGROW>
@@ -65,9 +70,16 @@ while i <= S
 end
 Ctree = Ctree(1:S);
 
+for i = 1 : length(Ctree)
+    for j = 1 : length(Ctree(i).children)
+        Ctree(Ctree(i).children(j)).father = i;
+        Ctree(Ctree(i).children(j)).father_idx = Ctree(i).child_idx(j);
+    end
 end
 
-function CC = get_svd_child_clusters(C, x)
+end
+
+function [CC, Idx] = get_svd_child_clusters(C, x)
 
 x0 = x(C.ind,:);
 [~,~,V] = svd(x0, 0);
@@ -90,18 +102,20 @@ end
 
 end
 
-function CC = get_oc_child_clusters(C, x)
+function [CC, Idx] = get_oc_child_clusters(C, x)
 dim = size(x,2);
 c0 = mean(C.bb);
 D = diff(C.bb,1);
 D = D(1);
-d = ((dec2bin(0:2^dim-1)-'0')-.5) * D/2;
+Idx = (0 : 2^dim-1);
+d = ((dec2bin(Idx)-'0')-.5) * D/2;
 n = size(d,1);
 c = bsxfun(@plus, c0, d);
 CC = struct(...
     'ind', mat2cell(repmat(C.ind, n, 1), ones(n,1), length(C.ind)), ...
     'level', num2cell(repmat(C.level+1, n, 1)), ...
-    'children', mat2cell(zeros(n,0), ones(n,1), 0));
+    'children', mat2cell(zeros(n,0), ones(n,1), 0), ...
+    'child_idx', mat2cell(zeros(n,0), ones(n,1), 0));
 
 include = true(n,1);
 for i = 1 : length(CC)
@@ -113,4 +127,5 @@ for i = 1 : length(CC)
     include(i) = ~isempty(CC(i).ind);
 end
 CC = CC(include);
+Idx = Idx(include);
 end
