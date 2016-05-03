@@ -12,9 +12,9 @@ struct vol_quad_tag {};
 template <> struct tag2element<vol_quad_tag> { typedef vol_quad_elem type; };
 
 
-typedef helmholtz_2d_double_kernel<std::complex<double>, 1, 1> Q11Kernel;
-typedef helmholtz_2d_double_kernel<std::complex<double>, 1, 2> Q12Kernel;
-typedef helmholtz_2d_double_kernel<std::complex<double>, 2, 2> Q22Kernel;
+typedef helmholtz_2d_double_kernel<std::complex<double>, 0, 0> Q11Kernel;
+typedef helmholtz_2d_double_kernel<std::complex<double>, 0, 1> Q12Kernel;
+typedef helmholtz_2d_double_kernel<std::complex<double>, 1, 1> Q22Kernel;
 
 // main(volume_mesh.off, field_mesh.off, volume_excitation.ascii, wave_number_real, wave_number_imag
 int main(int argc, char *argv[])

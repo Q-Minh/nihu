@@ -345,7 +345,7 @@ public:
 				trial_corners.row(k) =
 				trial_domain_t::get_corner((i+1+n_trial_corners-k) % n_trial_corners);
 
-			// rotate but keel weights unadjusted
+			// rotate but keep weights unadjusted
 			m_edge_trial_quadrature[i] = trial_edge_q.template transform<isoparam_shape_set<trial_domain_t> >(trial_corners);
 			m_edge_trial_quadrature[i] *= -1.0;
 		}
