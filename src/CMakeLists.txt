@@ -100,7 +100,7 @@ set(CMAKE_INSTALL_PREFIX ${NIHU_INSTALL_DIR})
 
 # setup compiler flags
 # Note: -Wno-deprecated-declarations is added for sake of Eigen
-set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall -Wno-deprecated-declarations -pedantic -O3 -std=c++11")
+set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall -Wno-deprecated-declarations -pedantic -O3 -std=gnu++11")
 
 # setup global include directories
 include_directories("${CMAKE_SOURCE_DIR}")

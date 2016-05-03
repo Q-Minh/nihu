@@ -197,7 +197,7 @@ public:
 	}
 };
 
-/** \brief Collocational singular integral of the 3D Laplace HSP kernel over a planar element */
+/** \brief Collocational singular integral of the 3D Laplace HSP kernel over a constant planar element */
 class laplace_3d_HSP_collocation_constant_plane
 {
 public:
