@@ -42,7 +42,7 @@ classdef ShapeSet < handle
                     res.ddN((j-1)*d+k,:) = simplify(diff(res.dN(j,:), g(k)));
                 end
             end
-
+            
             res.NFunc = matlabFunction(res.N, 'vars', {g});
             res.dNFunc = cell(nSh, d);
             res.ddNFunc = cell(nSh, d, d);
@@ -75,15 +75,22 @@ classdef ShapeSet < handle
             persistent ComputedShapeFunctions
             
             if isempty(ComputedShapeFunctions)
-                ComputedShapeFunctions = cell(obj.Id,1);
+                try
+                    path = fileparts(mfilename('fullpath'));
+                    load(fullfile(path, 'ComputedShapeFunctions.mat'));
+                catch
+                    ComputedShapeFunctions = containers.Map('keyType', 'uint32', 'valueType', 'any');
+                end
             end
             
             if numel(ComputedShapeFunctions) < obj.Id ||...
                     isempty(ComputedShapeFunctions{obj.Id})
                 shfun = obj.compute_shape_functions();
-                ComputedShapeFunctions{obj.Id,1} = shfun;
+                ComputedShapeFunctions(obj.Id) = shfun;
+                path = fileparts(mfilename('fullpath'));
+                save(fullfile(path, 'ComputedShapeFunctions.mat'), 'ComputedShapeFunctions');
             else
-                shfun = ComputedShapeFunctions{obj.Id,1};
+                shfun = ComputedShapeFunctions(obj.Id);
             end
             
             q = size(xi,1); % number of locations
