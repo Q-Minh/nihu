@@ -4,12 +4,12 @@ classdef ShapeSet < handle
     % Last modified: 2015.05.10. FP. Introduced Bending shape sets
     
     properties (SetAccess = immutable)
+        Type
         Id      % unique identifier of the shape function set
         
         Domain  % the shape set's intrinsic domain
         Nodes   % the nodal locations of the shape set
         
-        ConstructionMethod
         Args
     end % of immutable properties
     
@@ -17,19 +17,7 @@ classdef ShapeSet < handle
         function res = compute_shape_functions(obj)
             fprintf(1, 'Constructing shape functions for id %d\n', obj.Id);
             
-            switch obj.ConstructionMethod
-                case 'lagrange'
-                    base = obj.Args{1};
-                    [res.N, g] = lagrangePoly(base, obj.Nodes);
-                case 'lagrange-infinite'
-                    base = obj.Args{1};
-                    [res.N, g] = infiniteLagrangePoly(base, obj.Nodes);
-                case 'bending'
-                    [res.N, g] = bendingPoly(obj.Domain);
-                otherwise
-                    error('NiHu:ShapeSet:Arg',...
-                        'unknown construction method %s', obj.ConstructionMethod);
-            end
+            [res.N, g] = obj.Type.construct(obj.Nodes);
             
             nSh = length(res.N);
             d = obj.Domain.Space.Dimension;
@@ -58,12 +46,11 @@ classdef ShapeSet < handle
     end % of private methods
     
     methods (Access = public)
-        function obj = ShapeSet(id, domain, nodes, type, varargin)
-            obj.Id = id;
+        function obj = ShapeSet(domain, nodes, type)
+            obj.Type = type;
+            obj.Id = uint32(type.Id * 100 + domain.Id);
             obj.Domain = domain;
             obj.Nodes = nodes;
-            obj.ConstructionMethod = type;
-            obj.Args = varargin;
         end % of constructor
         
         function [N, dN, ddN] = eval(obj, xi)
@@ -83,8 +70,7 @@ classdef ShapeSet < handle
                 end
             end
             
-            if numel(ComputedShapeFunctions) < obj.Id ||...
-                    isempty(ComputedShapeFunctions{obj.Id})
+            if ~ComputedShapeFunctions.isKey(obj.Id)
                 shfun = obj.compute_shape_functions();
                 ComputedShapeFunctions(obj.Id) = shfun;
                 path = fileparts(mfilename('fullpath'));
@@ -133,127 +119,127 @@ classdef ShapeSet < handle
     methods (Static = true)
         function obj = fromId(id)
             obj = ShapeSet.empty(size(id,1),0);
-            obj(id == 010, 1) = ShapeSet.ConstantPoint;
-            obj(id == 120, 1) = ShapeSet.ConstantLine;
-            obj(id == 121, 1) = ShapeSet.LinearLine;
-            obj(id == 122, 1) = ShapeSet.QuadraticLine;
-            obj(id == 1010, 1) = ShapeSet.InfiniteLine;
-            obj(id == 230, 1) = ShapeSet.ConstantTria;
-            obj(id == 231, 1) = ShapeSet.LinearTria;
-            obj(id == 232, 1) = ShapeSet.QuadraticTria;
-            obj(id == 240, 1) = ShapeSet.ConstantQuad;
-            obj(id == 241, 1) = ShapeSet.LinearQuad;
-            obj(id == 1121, 1) = ShapeSet.InfiniteLinearQuad;
-            obj(id == 242, 1) = ShapeSet.QuadraticQuad;
-            obj(id == 340, 1) = ShapeSet.ConstantTetra;
-            obj(id == 341, 1) = ShapeSet.LinearTetra;
-            obj(id == 360, 1) = ShapeSet.ConstantPenta;
-            obj(id == 361, 1) = ShapeSet.LinearPenta;
-            obj(id == 1231, 1) = ShapeSet.InfiniteLinearPenta;
-            obj(id == 380, 1) = ShapeSet.ConstantHexa;
-            obj(id == 381, 1) = ShapeSet.LinearHexa;
-            obj(id == 1241, 1) = ShapeSet.InfiniteLinearHexa;
-            obj(id == 2223, 1) = ShapeSet.BendingLine;
-            obj(id == 2333, 1) = ShapeSet.BendingTria;
-            obj(id == 2343, 1) = ShapeSet.BendingQuad;
+            obj(id == ShapeSet.ConstantPoint.Id, 1) = ShapeSet.ConstantPoint;
+            obj(id == ShapeSet.ConstantLine.Id, 1) = ShapeSet.ConstantLine;
+            obj(id == ShapeSet.LinearLine.Id, 1) = ShapeSet.LinearLine;
+            obj(id == ShapeSet.QuadraticLine.Id, 1) = ShapeSet.QuadraticLine;
+            obj(id == ShapeSet.InfiniteLine.Id, 1) = ShapeSet.InfiniteLine;
+            obj(id == ShapeSet.ConstantTria.Id, 1) = ShapeSet.ConstantTria;
+            obj(id == ShapeSet.LinearTria.Id, 1) = ShapeSet.LinearTria;
+            obj(id == ShapeSet.QuadraticTria.Id, 1) = ShapeSet.QuadraticTria;
+            obj(id == ShapeSet.ConstantQuad.Id, 1) = ShapeSet.ConstantQuad;
+            obj(id == ShapeSet.LinearQuad.Id, 1) = ShapeSet.LinearQuad;
+            obj(id == ShapeSet.InfiniteLinearQuad.Id, 1) = ShapeSet.InfiniteLinearQuad;
+            obj(id == ShapeSet.QuadraticQuad.Id, 1) = ShapeSet.QuadraticQuad;
+            obj(id == ShapeSet.ConstantTetra.Id, 1) = ShapeSet.ConstantTetra;
+            obj(id == ShapeSet.LinearTetra.Id, 1) = ShapeSet.LinearTetra;
+            obj(id == ShapeSet.ConstantPenta.Id, 1) = ShapeSet.ConstantPenta;
+            obj(id == ShapeSet.LinearPenta.Id, 1) = ShapeSet.LinearPenta;
+            obj(id == ShapeSet.InfiniteLinearPenta.Id, 1) = ShapeSet.InfiniteLinearPenta;
+            obj(id == ShapeSet.ConstantHexa.Id, 1) = ShapeSet.ConstantHexa;
+            obj(id == ShapeSet.LinearHexa.Id, 1) = ShapeSet.LinearHexa;
+            obj(id == ShapeSet.InfiniteLinearHexa.Id, 1) = ShapeSet.InfiniteLinearHexa;
+            obj(id == ShapeSet.BendingLine.Id, 1) = ShapeSet.BendingLine;
+            obj(id == ShapeSet.BendingTria.Id, 1) = ShapeSet.BendingTria;
+            obj(id == ShapeSet.BendingQuad.Id, 1) = ShapeSet.BendingQuad;
         end
         
-        function cid = constant(id)
-            data = [
-                120 120
-                121 120
-                122 120
-                230 230
-                231 230
-                232 230
-                240 240
-                241 240
-                242 240
-                340 340
-                341 340
-                342 340
-                360 360
-                361 360
-                380 380
-                381 380
-                ];
-            [a, n] = ismember(id,data(:,1));
-            if any(~a)
-                error('NiHu:ShapeSetconstant',...
-                    'Some shape set IDs could not be transformed to constant');
-            end
-            cid = data(n,2);
-        end
+%         function cid = constant(id)
+%             data = [
+%                 120 120
+%                 121 120
+%                 122 120
+%                 230 230
+%                 231 230
+%                 232 230
+%                 240 240
+%                 241 240
+%                 242 240
+%                 340 340
+%                 341 340
+%                 342 340
+%                 360 360
+%                 361 360
+%                 380 380
+%                 381 380
+%                 ];
+%             [a, n] = ismember(id,data(:,1));
+%             if any(~a)
+%                 error('NiHu:ShapeSetconstant',...
+%                     'Some shape set IDs could not be transformed to constant');
+%             end
+%             cid = data(n,2);
+%         end
     end % of static methods
     
     enumeration
-        ConstantPoint(010, Domain.Point,...
+        ConstantPoint(Domain.Point,...
             Domain.Point.Center,...
-            'lagrange', [])
-        ConstantLine(120, Domain.Line,...
+            LagrangeShapeSet(0, []))
+        ConstantLine(Domain.Line,...
             Domain.Line.Center,...
-            'lagrange', [0]) %#ok<NBRAK>
-        LinearLine(121, Domain.Line,...
+            LagrangeShapeSet(0, [0])) %#ok<NBRAK>
+        LinearLine(Domain.Line,...
             Domain.Line.CornerNodes,...
-            'lagrange', [0; 1])
-        QuadraticLine(122, Domain.Line,...
+            LagrangeShapeSet(1, [0; 1]))
+        QuadraticLine(Domain.Line,...
             [-1; 0; 1],...
-            'lagrange', [0; 1; 2])
-        InfiniteLine(1010, Domain.Line,...
-            [-1; 0], 'lagrange-infinite', [0]); %#ok<NBRAK>
-        ConstantTria(230, Domain.Tria,...
+            LagrangeShapeSet(2, [0; 1; 2]))
+        InfiniteLine(Domain.Line,...
+            [-1; 0], InfiniteLagrangeShapeSet(0, [0])); %#ok<NBRAK>
+        ConstantTria(Domain.Tria,...
             Domain.Tria.Center,...
-            'lagrange', [0 0])
-        LinearTria(231, Domain.Tria,...
+            LagrangeShapeSet(0, [0 0]))
+        LinearTria(Domain.Tria,...
             Domain.Tria.CornerNodes,...
-            'lagrange', [0 0; 1 0; 0 1])
-        QuadraticTria(232, Domain.Tria,...
+            LagrangeShapeSet(1, [0 0; 1 0; 0 1]))
+        QuadraticTria(Domain.Tria,...
             [0 0; .5 0; 1 0; .5 .5; 0 1; 0 .5],...
-            'lagrange', [0 0; 1 0; 0 1; 2 0; 1 1; 0 2])
-        ConstantQuad(240, Domain.Quad,...
+            LagrangeShapeSet(2, [0 0; 1 0; 0 1; 2 0; 1 1; 0 2]))
+        ConstantQuad(Domain.Quad,...
             Domain.Quad.Center,...
-            'lagrange', [0 0])
-        LinearQuad(241, Domain.Quad,...
+            LagrangeShapeSet(0, [0 0]))
+        LinearQuad(Domain.Quad,...
             Domain.Quad.CornerNodes,...
-            'lagrange', [0 0; 1 0; 0 1; 1 1])
-        QuadraticQuad(242, Domain.Quad,...
+            LagrangeShapeSet(1, [0 0; 1 0; 0 1; 1 1]))
+        QuadraticQuad(Domain.Quad,...
             [-1 -1; 0 -1; 1 -1; 1 0; 1 1; 0 1; -1 1; -1 0],...
-            'lagrange', [0 0; 1 0; 0 1; 2 0; 1 1; 0 2; 2 1; 1 2])
-        InfiniteLinearQuad(1121, Domain.Quad,...
-            [-1 -1; 1 -1; 1 0; -1 0], 'lagrange-infinite', [0; 1]);
-        ConstantTetra(360, Domain.Tetra,...
+            LagrangeShapeSet(2, [0 0; 1 0; 0 1; 2 0; 1 1; 0 2; 2 1; 1 2]))
+        InfiniteLinearQuad(Domain.Quad,...
+            [-1 -1; 1 -1; 1 0; -1 0], InfiniteLagrangeShapeSet(1, [0; 1]));
+        ConstantTetra(Domain.Tetra,...
             Domain.Tetra.Center,...
-            'lagrange', [0 0 0])
-        LinearTetra(341, Domain.Tetra,...
+            LagrangeShapeSet(0, [0 0 0]))
+        LinearTetra(Domain.Tetra,...
             Domain.Tetra.CornerNodes, ...
-            'lagrange', [0 0 0; 1 0 0; 0 1 0; 0 0 1]);
-        ConstantPenta(360, Domain.Penta,...
+            LagrangeShapeSet(1, [0 0 0; 1 0 0; 0 1 0; 0 0 1]));
+        ConstantPenta(Domain.Penta,...
             Domain.Penta.Center, ...
-            'lagrange', [0 0 0]);
-        LinearPenta(361, Domain.Penta,...
+            LagrangeShapeSet(0, [0 0 0]));
+        LinearPenta(Domain.Penta,...
             Domain.Penta.CornerNodes, ...
-            'lagrange', [0 0 0; 1 0 0; 0 1 0; 0 0 1; 0 1 1; 1 0 1]);
-        InfiniteLinearPenta(1231, Domain.Penta,...
+            LagrangeShapeSet(1, [0 0 0; 1 0 0; 0 1 0; 0 0 1; 0 1 1; 1 0 1]));
+        InfiniteLinearPenta(Domain.Penta,...
             [0 0 -1; 1 0 -1; 0 1 -1; 0 0 0; 1 0 0; 0 1 0],...
-            'lagrange-infinite', [0 0; 1 0; 0 1]);
-        ConstantHexa(380, Domain.Hexa,...
+            InfiniteLagrangeShapeSet(1, [0 0; 1 0; 0 1]));
+        ConstantHexa(Domain.Hexa,...
             Domain.Hexa.Center,...
-            'lagrange', [0 0 0])
-        LinearHexa(381, Domain.Hexa,...
+            LagrangeShapeSet(0, [0 0 0]))
+        LinearHexa(Domain.Hexa,...
             Domain.Hexa.CornerNodes,...
-            'lagrange', [
+            LagrangeShapeSet(1, [
             0 0 0; 1 0 0; 0 1 0; 0 0 1
             1 1 0; 0 1 1; 1 0 1; 1 1 1
-            ]);
-        InfiniteLinearHexa(1241, Domain.Hexa,...
+            ]));
+        InfiniteLinearHexa(Domain.Hexa,...
             [-1 -1 -1; 1 -1 -1; 1 1 -1; -1 1 -1;
-            -1 -1 0; 1 -1 0; 1 1 0; -1 1 0], 'lagrange-infinite',...
-            [0 0; 1 0; 0 1; 1 1]);
-        BendingLine(2223, Domain.Quad,Domain.Quad.CornerNodes,...
-            'bending');
-        BendingQuad(2343, Domain.Quad,Domain.Quad.CornerNodes,...
-            'bending');
-        BendingTria(2333, Domain.Tria,Domain.Tria.CornerNodes,...
-            'bending');
+            -1 -1 0; 1 -1 0; 1 1 0; -1 1 0], InfiniteLagrangeShapeSet(1,...
+            [0 0; 1 0; 0 1; 1 1]));
+        BendingLine(Domain.Line, Domain.Line.CornerNodes,...
+            BendingShapeSet(3, Domain.Line));
+        BendingTria(Domain.Tria, Domain.Tria.CornerNodes,...
+            BendingShapeSet(3, Domain.Tria));
+        BendingQuad(Domain.Quad, Domain.Quad.CornerNodes,...
+            BendingShapeSet(3, Domain.Quad));
     end % of enumeration
 end % of class

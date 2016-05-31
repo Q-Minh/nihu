@@ -73,5 +73,5 @@ J = repmat(reshape(elem', 1, numel(elem)), ng, 1);
 J = J(:);
 N = repmat(N, 1, nE);
 N = N(:);
-An = sparse(I, J, N);
+An = sparse(I, double(J), N);
 end
