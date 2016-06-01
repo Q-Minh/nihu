@@ -39,7 +39,7 @@ switch nvert
         xx = [xi(:) eta(:) zeta(:)];
         ww = w(:);
     case 6
-        [xi3, w3] = gaussquad2(order, 3);    % TRIA Gauss
+        [xi3, w3] = gaussquad2(order, 3);           % TRIA Gauss
         [xi2, w2] = gaussquad1(order);              % line Gauss
         x = repmat(xi3(:,1), 1, length(w2));        % merge the two
         y = repmat(xi3(:,2), 1, length(w2));
