@@ -5,6 +5,12 @@ classdef ElementSet < handle
         ElemMatrix % ElemId, ShapeSetId, node Ids ... 0 padding
     end
     
+    methods (Static = true)
+        function obj = createLine()
+            
+        end
+    end % of Static methods
+    
     methods
         function obj = ElementSet(pointSet, elemIds, elemMatrix)
             if nargin < 3
@@ -55,6 +61,10 @@ classdef ElementSet < handle
             idx = obj.id2idx(ids);
             elements = getElementsByIndex(obj, idx);
         end
+        
+        function translate(obj, v)
+            obj.PointSet.translate(v);
+        end % of function translate
     end
     
     methods (Access = private)

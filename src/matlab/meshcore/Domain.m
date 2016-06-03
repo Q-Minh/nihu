@@ -35,6 +35,22 @@ classdef Domain
         end
     end % of private methods
     
+    methods 
+        % TODO: this is not ready
+        function [xi, conn] = divide(obj, N)
+            switch obj
+                case Domain.Point
+                    disp('osztom a pontot');
+                case Domain.Line
+                    
+                case Domain.Tria
+            end
+        end
+    end
+    
+    methods (Static = true, Abstract = true)
+    end
+    
     enumeration
         Point(Space.D0, zeros(1,0), 0, zeros(1,0));
         Line(Space.D1, [-1; +1], 2, 0);

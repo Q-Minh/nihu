@@ -38,6 +38,10 @@ classdef CoordinateSystem < handle
         end
         
         function translate(obj, v)
+            if (~isnumeric(v) || any(size(v) ~= size(obj.Origin)))
+                error('NiHu:CoordinateSystem:invalid_argument', ...
+                    'Argument ''v'' must be a %dD vector', obj.Space.Dimension);
+            end
             obj.Origin = obj.Origin + v;
         end
         
@@ -50,4 +54,4 @@ classdef CoordinateSystem < handle
             loc = bsxfun(@minus, glob, obj.Origin) * obj.Orientation.';
         end
     end
-end
+end % of class CoordinateSystem
