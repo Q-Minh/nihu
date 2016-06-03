@@ -1,18 +1,24 @@
 classdef ElementSet < handle
     properties (SetAccess = private)
-        ElementSetId
         PointSet
         ElemIds
         ElemMatrix % ElemId, ShapeSetId, node Ids ... 0 padding
     end
     
     methods
-        function obj = ElementSet(id, pointSet)
+        function obj = ElementSet(pointSet, elemIds, elemMatrix)
+            if nargin < 3
+                elemMatrix = uint32(zeros(0,1));
+            end
+
+            if nargin < 2
+                elemIds = uint32(zeros(0,1));
+            end
+
             % error check
-            obj.ElementSetId = uint32(id);
             obj.PointSet = pointSet;
-            obj.ElemIds = uint32(zeros(0,1));
-            obj.ElemMatrix = uint32(zeros(0,1));
+            obj.ElemIds = elemIds;
+            obj.ElemMatrix = elemMatrix;
         end
         
         function newId = addElem(obj, elemMatrix, ids)

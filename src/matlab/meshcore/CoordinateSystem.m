@@ -25,6 +25,8 @@ classdef CoordinateSystem < handle
             if size(ori,2) ~= obj.Space.Dimension || size(ori,1) ~= obj.Space.Dimension-1
             end
             switch obj.Space
+                case Space.D1 %#ok<PROP>
+                    ori = 1;
                 case Space.D2 %#ok<PROP>
                 case Space.D3 %#ok<PROP>
                     ori(1,:) = ori(1,:) / norm(ori(1,:));

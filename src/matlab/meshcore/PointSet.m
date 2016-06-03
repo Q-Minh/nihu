@@ -1,13 +1,15 @@
 classdef PointSet < handle
+    %PointSet
+    %   class representing a set of coordinates
+    
     properties (SetAccess = private)
-        PointSetId
         CoordinateSystem
         PointIds
         Coordinates
     end
     
     methods
-        function obj = PointSet(id, coordSys)
+        function obj = PointSet(coordSys)
             %PointSet constructor
             % obj = PointSet(id, coordSys)
             
@@ -17,7 +19,6 @@ classdef PointSet < handle
             end
             
             % take Id and CS
-            obj.PointSetId = uint32(id);
             obj.CoordinateSystem = coordSys;
             
             % allocate PointIds and Coordinates
@@ -28,6 +29,8 @@ classdef PointSet < handle
         function newId = addPoints(obj, coordinates, ids, cSys)
             %addPoints add new points to the PointSet
             %   newId = addPoints(obj, coordinates, ids, cSys)
+            %    the points are transformed from the source to the local
+            %    coordinate system. Id coincidence causes an error.
             
             % default coord sys is local
             if nargin < 4
@@ -105,7 +108,7 @@ classdef PointSet < handle
             coords = getCoordinatesByIndex(obj, idx, cSys);
         end % of function getCoordinatesById
         
-        function newIds = merge(obj, otherSet)
+        function newIds = merge(obj, otherSet, tol)
             %merge merge other point set into this
             %newIds = merge(obj, otherSet)
             
@@ -121,18 +124,18 @@ classdef PointSet < handle
             
             % check coincident IDs
             [ism, dst] = ismember(newIds, obj.PointIds);
+            dst = dst(ism);
+            src = find(ism);
 
             % add nodes with new IDs
             obj.addPoints(coords(~ism,:), otherSet.PointIds(~ism));
+            
+            % skip close point pairs
+            diff = coords(src,:) - obj.Coordinates(dst,:);
+            skip = dot(diff,diff,2) < tol^2;
 
-            % compare nodes with the same ID
-            dst = dst(ism);
-            src = find(ism);
-            coinc = ismember(coords(src,:), obj.Coordinates(dst,:), 'rows');
-
-            % add noncoincident nodes and ask for a new ID
-            src = src(~coinc);
-            newIds(src) = obj.addPoints(coords(src,:));
+            % add far points and ask for new id
+            newIds(src(~skip)) = obj.addPoints(coords(src(~skip),:));
         end
     end
     

@@ -9,7 +9,7 @@ ps1.addPoints(rand(100,3));
 ps2 = PointSet(2, DefCoordinateSystem.C3);
 ps2.addPoints(rand(100, 3), uint32(11:110));
 
-newIds = ps1.merge(ps2);
+newIds = ps1.merge(ps2, 1e-1);
 
 ps1.addPoints([0 0 0], uint32(1000));
 newIds = ps1.addPoints(rand(100,3));
