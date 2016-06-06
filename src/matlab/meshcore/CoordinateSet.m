@@ -6,6 +6,15 @@ classdef CoordinateSet < handle
     end
     
     methods
+        function obj = CoordinateSet(varargin)
+            switch nargin
+                case 0
+                case 1
+                    xi = varargin{1};
+                    obj.coordinates = xi;
+            end
+        end
+        
         function nC = getNumCoordinates(obj)
             nC = size(obj.coordinates,1);
         end

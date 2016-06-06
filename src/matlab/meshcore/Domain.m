@@ -37,15 +37,15 @@ classdef Domain
     
     methods 
         % TODO: this is not ready
-        function [xi, conn] = divide(obj, N)
+        function [cs, conn] = divide(obj, N)
             switch obj
                 case Domain.Point
                     disp('osztom a pontot');
                 case Domain.Line
                     % N must be scalar
                     xi = linspace(obj.CornerNodes(1), obj.CornerNodes(2), N+1);
-                    
                     xi = xi(:);
+                    cs = CoordinateSet(xi);
                     conn = [(1 : N).', (2 : N+1).'];
                 case Domain.Tria
             end
