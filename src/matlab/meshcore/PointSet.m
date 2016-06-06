@@ -9,16 +9,22 @@ classdef PointSet < handle
     end % of private properties
     
     methods
-        function obj = PointSet(coordSys)
+        function obj = PointSet(varargin)
             %PointSet constructor
             % obj = PointSet(id, coordSys)
             
-            if ~isa(coordSys, 'CoordinateSystem')
+            if (isnumeric(varargin{1}))
+                % 
+                
+            
+            elseif isa(varargin{1}, 'CoordinateSystem')
+                % 
+                coordSys = varargin{1};
+            else
                 error('NiHu:PointSet:invalid_argument', ...
-                    'argument ''coordSys'' must be a ''CoordinateSystem'' instance');
+                    'First argument must be an array of coordinates or ''CoordinateSystem'' instance');
             end
             
-            % take Id and CS
             obj.CoordinateSystem = coordSys;
             
             % allocate PointIds and Coordinates
@@ -143,19 +149,6 @@ classdef PointSet < handle
                 newIds(src) = obj.addPoints(coords(src, :));
             end
         end % of function merge
-        
-        % TODO: map in PointSet?
-        function C = map(obj, shapeSet, corners)
-            if (~isa(shapeSet, 'ShapeSet'))
-                error('NiHu:PointSet:invalid_argument', ...
-                    'Argument ''shapeSet'' must be a ''ShapeSet'' instance');
-            end
-            
-            % TODO: check dimensions
-            
-            N = shapeSet.eval(obj.Coordinates);
-            C = N * corners;
-        end
         
         function translate(obj, v)
             % TRANSLATE Translate the coordinate system of the PointSet

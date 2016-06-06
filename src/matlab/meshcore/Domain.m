@@ -42,10 +42,16 @@ classdef Domain
                 case Domain.Point
                     disp('osztom a pontot');
                 case Domain.Line
+                    % N must be scalar
+                    xi = linspace(obj.CornerNodes(1), obj.CornerNodes(2), N+1);
                     
+                    xi = xi(:);
+                    conn = [(1 : N).', (2 : N+1).'];
                 case Domain.Tria
             end
-        end
+            
+            conn = uint32(conn);
+        end % of function divide
     end
     
     methods (Static = true, Abstract = true)
