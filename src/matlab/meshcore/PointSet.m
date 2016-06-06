@@ -6,19 +6,25 @@ classdef PointSet < handle
         CoordinateSystem
         PointIds
         Coordinates
-    end
+    end % of private properties
     
     methods
-        function obj = PointSet(coordSys)
+        function obj = PointSet(varargin)
             %PointSet constructor
             % obj = PointSet(id, coordSys)
             
-            if ~isa(coordSys, 'CoordinateSystem')
+            if (isnumeric(varargin{1}))
+                % 
+                
+            
+            elseif isa(varargin{1}, 'CoordinateSystem')
+                % 
+                coordSys = varargin{1};
+            else
                 error('NiHu:PointSet:invalid_argument', ...
-                    'argument ''coordSys'' must be a ''CoordinateSystem'' instance');
+                    'First argument must be an array of coordinates or ''CoordinateSystem'' instance');
             end
             
-            % take Id and CS
             obj.CoordinateSystem = coordSys;
             
             % allocate PointIds and Coordinates
@@ -87,7 +93,7 @@ classdef PointSet < handle
             if nargout > 1
                 ids = obj.PointIds(idx);
             end
-        end
+        end % of function getCoordinatesByIndex
         
         function [coords, idx] = getCoordinatesById(obj, ids, cSys)
             %getCoordinatesByIndex return coordinates by index
@@ -130,14 +136,27 @@ classdef PointSet < handle
             % add nodes with new IDs
             obj.addPoints(coords(~ism,:), otherSet.PointIds(~ism));
             
-            % skip close point pairs
-            diff = coords(src,:) - obj.Coordinates(dst,:);
-            skip = dot(diff,diff,2) < tol^2;
+            % If tolerance parameter was given
+            if nargin > 2 
+            
+                % skip close point pairs
+                diff = coords(src,:) - obj.Coordinates(dst,:);
+                skip = dot(diff,diff,2) < tol^2;
 
-            % add far points and ask for new id
-            newIds(src(~skip)) = obj.addPoints(coords(src(~skip),:));
+                % add far points and ask for new id
+                newIds(src(~skip)) = obj.addPoints(coords(src(~skip),:));
+            else
+                newIds(src) = obj.addPoints(coords(src, :));
+            end
+        end % of function merge
+        
+        function translate(obj, v)
+            % TRANSLATE Translate the coordinate system of the PointSet
+            obj.CoordinateSystem.translate(v);
         end
-    end
+        
+        
+    end % of methods
     
     methods (Access = private)
         function ids = generateIds(obj, n)
@@ -153,8 +172,8 @@ classdef PointSet < handle
             [ism, idx] = ismember(id, obj.PointIds);
             if ~all(ism)
                 error('NiHu:PointSet:invalid_argument', ...
-                    'Id cannot found in PointSet');
+                    'Some Ids not found in PointSet');
             end
         end
     end
-end
+end % of class PointSet

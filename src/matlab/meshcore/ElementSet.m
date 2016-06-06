@@ -1,22 +1,30 @@
 classdef ElementSet < handle
     properties (SetAccess = private)
         PointSet
+        ShapeSet
         ElemIds
-        ElemMatrix % ElemId, ShapeSetId, node Ids ... 0 padding
+        ElemMatrix % node Ids ... 
     end
     
+    methods (Static = true)
+        function obj = createLine()
+            
+        end
+    end % of Static methods
+    
     methods
-        function obj = ElementSet(pointSet, elemIds, elemMatrix)
-            if nargin < 3
+        function obj = ElementSet(pointSet, shapeSet, elemIds, elemMatrix)
+            if nargin < 4
                 elemMatrix = uint32(zeros(0,1));
             end
 
-            if nargin < 2
+            if nargin < 3
                 elemIds = uint32(zeros(0,1));
             end
 
             % error check
             obj.PointSet = pointSet;
+            obj.ShapeSet = shapeSet;
             obj.ElemIds = elemIds;
             obj.ElemMatrix = elemMatrix;
         end
@@ -55,6 +63,45 @@ classdef ElementSet < handle
             idx = obj.id2idx(ids);
             elements = getElementsByIndex(obj, idx);
         end
+        
+        function divide(obj, N)
+            [xi, N] = obj.ShapeSet.Domain.divide(N);
+            
+            xi = reshape(xi(N(:),:), size(N,1), size(N,2), []);
+            
+            Nc = obj.ShapeSet.eval(obj.ShapeSet.CornerNodes);
+            
+            for d = 1 : obj.ShapeSet.Domain.Dimension
+                x = xi(:, :, d);
+                xi_xi(d, :, :) = Nc * x.';
+            end
+            
+            coords = obj.map(xi_xi);
+            
+        end
+        
+        function coords = map(obj, xi)
+            % TODO: check dimensions
+            
+            N = obj.ShapeSet.eval(xi);
+            
+            xyz = obj.PointSet.getCoordinatesById(obj.ElemMatrix(:));
+            
+            xyz = reshape(xyz, size(obj.ElemMatrix, 1), size(obj.ElemMatrix, 2), []);
+            
+            coords = zeros(size(obj.PointSet.Coordinates, 2), size(xi, 1), size(obj.ElemMatrix, 1));
+            
+            for d = 1 : size(obj.PointSet.Coordinates, 2)
+                x = xyz(:, :, d);
+                coords(d, :, :) = N * x.';
+            end
+            
+        end
+        
+        
+        function translate(obj, v)
+            obj.PointSet.translate(v);
+        end % of function translate
     end
     
     methods (Access = private)

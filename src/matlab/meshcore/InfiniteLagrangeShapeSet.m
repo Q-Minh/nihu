@@ -29,6 +29,6 @@ classdef InfiniteLagrangeShapeSet < PolynomialShapeSet
             else
                 N = simplify([N * (2*xi/(xi-1)) N * (1+xi)/(1-xi)]);
             end
-        end
-    end
-end
+        end % of construct function
+    end % of Static methods
+end % of class InfiniteLagrangeShapeSet

@@ -3,7 +3,7 @@ function mesh = rotate_mesh(mesh, ang, dir, base)
 %   MESH = ROTATE_MESH(MESH, ANG, DIR, BASE) rotates the mesh MESH
 %
 % See also: TRANSLATE_MESH, SCALE_MESH, REVOLVE_MESH, EXTRUDE_MESH,
-% REPEAT_MESH, REFLECT_MESH
+% REPEAT_MESH, REFLECT_MESH, ROTATION_MATRIX
 
 %   Copyright 2008-2010 P. Fiala, P. Rucz
 %   Budapest University of Technology and Economics
@@ -31,4 +31,4 @@ if nargin > 3
     mesh = translate_mesh(mesh, base);
 end
 
-end
+end % of rotate_mesh function

@@ -15,5 +15,5 @@ classdef PolynomialShapeSet < GenericShapeSet
             obj.Base = base;
             obj.Id = 10 * obj.FamilyId + obj.Order;
         end
-    end
-end
+    end % of methods
+end % of PolynomialShapeSet class

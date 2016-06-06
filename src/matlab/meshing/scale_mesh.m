@@ -1,10 +1,10 @@
 function mesh = scale_mesh(mesh, scale, base)
 %SCALE_MESH Scale mesh (NiHu / meshing)
-%   MESH = SCALE_MESH(MESH, SCALE) scales the mesh MESH using the
-%   scale factor(s) given by the scalar or vector SCALE
+%   MESH = SCALE_MESH(MESH, SCALE) scales the mesh MESH using the scale 
+%       factor(s) given by the scalar or vector SCALE
 %
 %   MESH = SCALE_MESH(MESH, SCALE, BASE) scales with respect to the vector
-%   BASE
+%       BASE
 %
 % See also: TRANSLATE_MESH, ROTATE_MESH, REVOLVE_MESH, EXTRUDE_MESH,
 % REPEAT_MESH, REFLECT_MESH
