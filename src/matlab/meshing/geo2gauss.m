@@ -71,7 +71,7 @@ end
 
 % generate sparse interpolation matrix
 if nargout > 4
-    A = sparse(I, J, V);
+    A = sparse(I, J, V, size(GC,1), size(coords,1));
 end
 
 end  %of function

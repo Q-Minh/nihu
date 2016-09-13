@@ -121,8 +121,8 @@ if any(lin)
     line(x(elem.'), y(elem.'), z(elem.'), 'Color', 'black');
 end
 
-%% Plot TRIA elements
-tria = (lsetid == ShapeSet.LinearTria.Id | lsetid == 223);
+%% Plot Linear TRIA elements
+tria = (lsetid == ShapeSet.LinearTria.Id);
 if any(tria)
     elem = Elements(tria,5:7);
     if nodewise
@@ -138,9 +138,26 @@ if any(tria)
     end
 end
 
+%% plot Quadratic tria elements
+qtria = (lsetid == ShapeSet.QuadraticTria.Id);
+if any(qtria)
+    elem = Elements(qtria,[5 7 9]);
+    if nodewise
+        patch('Faces', elem,...
+            'Vertices', [x y z], ...
+            'FaceVertexCData', c,...
+            'FaceColor', 'interp');
+    else
+        patch('Faces', elem,...
+            'Vertices', [x y z], ...
+            'FaceVertexCData', c(qtria),...
+            'FaceColor', 'flat');
+    end
+end
+
 %% Plot QUAD elements
 quad = find(lsetid == ShapeSet.LinearQuad.Id |...
-    lsetid == ShapeSet.InfiniteLinearQuad.Id | lsetid == 224);
+    lsetid == ShapeSet.InfiniteLinearQuad.Id | lsetid == 224 | lsetid == 241);
 if any(quad)
     elem = Elements(quad,5:8);
     if nodewise
