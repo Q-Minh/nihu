@@ -78,6 +78,7 @@ struct singular_shortcut_switch
 			// if the parameter singularity is valid, evaluate shortcut
 			if (mtch.get_match_dimension() == Singularity::value)
 			{
+				
 				singular_integral_shortcut<Kernel, TestField, TrialField, Singularity>::eval(
 					result, kernel, test_field, trial_field, mtch
 				);
@@ -308,10 +309,12 @@ protected:
 		// if no match simple regular integral is computed
 		if (mtch.get_match_dimension() == -1)
 			return eval(WITHOUT_SINGULARITY_CHECK(), result, kernel, test_field, trial_field);
+		
+		typedef typename match_type_vector<TestField, TrialField>::type possible_match_types;
 
 		// traverse possible singular integral shortcuts with tmp::call_until
 		if (!tmp::call_until<
-			typename match_type_vector<TestField, TrialField>::type,
+			possible_match_types,
 			singular_shortcut_switch<tmp::_1>,
 			result_t &,
 			kernel_base<Kernel> const &,
@@ -552,12 +555,13 @@ protected:
 		field_base<TestField> const &test_field,
 		field_base<TrialField> const &trial_field)
 	{
+		
 		auto mtch(element_match_eval(test_field, trial_field));
 		if (mtch.get_match_dimension() == -1)
 			return eval(WITHOUT_SINGULARITY_CHECK(), result, kernel, test_field, trial_field);
 
 		typedef typename match_type_vector<TestField, TrialField>::type possible_match_types;
-
+		
 		if (!tmp::call_until<
 			possible_match_types,
 			singular_shortcut_switch<tmp::_1>,

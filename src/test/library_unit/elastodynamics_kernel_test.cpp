@@ -23,18 +23,23 @@
 template <class K, class E1, class E2>
 typename K::result_t tester(K const &k, E1 const &e1, E2 const &e2)
 {
-    typename K::test_input_t test_input(e1, E1::domain_t::get_center());
-    typename K::trial_input_t trial_input(e2, E2::domain_t::get_center());
-    return k(test_input, trial_input);
+	// instantiate a kernel input x1 in the center of elem e1
+	typename K::test_input_t x1(e1, E1::domain_t::get_center());
+	// instantiate a kernel input x2 in the center of elem e2
+    typename K::trial_input_t x2(e2, E2::domain_t::get_center());
+	// ealuate the kernel K(x1, x2)
+    return k(x1, x2);
 }
 
 
 template <class K, class E>
 typename K::result_t singular_integral_test(kernel_base<K> const &k, E const &e)
 {
+	// cast the element into a constant field view
 	typedef field_view<E, field_option::constant> F;
 	F const &field = static_cast<F const &>(e);
 
+	// compute collocational singular integral
 	typedef double_integral<K, dirac_field<F>, F> di_type;
 	return di_type::eval(k, dirac(field), field, std::true_type());
 }
@@ -59,10 +64,14 @@ int main(void)
 	elastodynamics_3d_U_kernel U(nu, rho, mu, om);
 	elastodynamics_3d_T_kernel T(nu, rho, mu, om);
 
+	std::cout << "Evaluating U kernel in the center of two different elements..." << std::endl;
     std::cout << tester(U, elem1, elem2) << std::endl;
+	std::cout << "Evaluating T kernel in the center of two different elements..." << std::endl;
     std::cout << tester(T, elem1, elem2) << std::endl;
 
+	std::cout << "Evaluating collocation singular integral over a constant quad element..." << std::endl;
 	std::cout << "U singular:\n" << singular_integral_test(U, elem1) << std::endl;
+	std::cout << "Evaluating collocation singular integral over a constant quad element..." << std::endl;
 	std::cout << "T singular:\n" << singular_integral_test(T, elem1) << std::endl;
 
     return 0;

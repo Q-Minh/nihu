@@ -450,6 +450,7 @@ public:
 	*/
 	singular_accelerator(void)
 	{
+		std::cout << "Generating singular accelerator " << std::endl;
 		if (face_match_possible)
 		{
 			for (unsigned idx = 0; idx < test_nset_t::num_nodes; ++idx)
