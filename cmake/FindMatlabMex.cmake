@@ -34,7 +34,7 @@ IF(WIN32)
 		set(MATLAB_MEX "${MATLAB_ROOT}/bin/mex.bat")
 	endif(EXISTS "${MATLAB_ROOT}/bin/mex.bat")
 
-ELSE(WIN32)
+ELSE(WIN32 OR MSYS)
 	SET(MATLAB_MEXEXT .maci)
 	# Check if this is a Mac.
 	IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
