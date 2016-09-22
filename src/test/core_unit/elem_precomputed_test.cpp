@@ -23,6 +23,7 @@
 #include "library/lib_element.hpp"
 
 #include <chrono>
+#include <vector>
 
 template <class ElemType>
 struct tester
