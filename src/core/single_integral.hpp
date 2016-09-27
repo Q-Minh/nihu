@@ -119,7 +119,7 @@ public:
 		{
 			auto jac = field.get_elem().get_normal(it.get_first()->get_xi()).norm();
 			result += block_product(it.get_first()->get_N(),
-				mat * it.get_first()->get_w()*jac,
+				(mat * it.get_first()->get_w()*jac).eval(),
 				it.get_second()->get_N());
 		}
 
