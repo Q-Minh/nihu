@@ -78,10 +78,8 @@ struct singular_shortcut_switch
 			// if the parameter singularity is valid, evaluate shortcut
 			if (mtch.get_match_dimension() == Singularity::value)
 			{
-				
 				singular_integral_shortcut<Kernel, TestField, TrialField, Singularity>::eval(
-					result, kernel, test_field, trial_field, mtch
-				);
+					result, kernel, test_field, trial_field, mtch);
 				return true;
 			}
 			return false;
@@ -333,7 +331,7 @@ protected:
 			field_base<TrialField> const &,
 			element_match const &
 		>(result, kernel, test_field, trial_field, mtch))
-			std::cerr << "UNHANDLED SINGULARITY TYPE: " << mtch.get_match_dimension() << std::endl;
+			std::cerr << "UNHANDLED GALERKIN SINGULARITY TYPE: " << mtch.get_match_dimension() << std::endl;
 
 		return result;
 }
@@ -568,7 +566,7 @@ protected:
 		auto mtch(element_match_eval(test_field, trial_field));
 		if (mtch.get_match_dimension() == -1)
 			return eval(WITHOUT_SINGULARITY_CHECK(), result, kernel, test_field, trial_field);
-
+		
 		typedef typename match_type_vector<TestField, TrialField>::type possible_match_types;
 		
 		if (!tmp::call_until<

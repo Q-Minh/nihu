@@ -30,6 +30,7 @@
 #include "field.hpp"
 #include "formalism.hpp"
 #include <type_traits>
+#include <iostream>
 
 /** \brief class describing the adjacency (match) state of two elements */
 class element_match
@@ -51,6 +52,16 @@ public:
 
 	/** \brief return overlapping state */
 	element_overlapping const &get_overlap(void) const { return m_overlap; }
+	
+	std::ostream &print_debug(std::ostream &os) const
+	{
+		os << "Element_match info:" << std::endl
+			<< "Match_dimension: " << m_match_dimension << std::endl;
+		if (m_match_dimension != 2)
+			m_overlap.print_debug(os);
+		
+		return os;
+	}
 
 private:
 	/** \brief the singularity type */

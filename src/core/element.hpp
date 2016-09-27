@@ -57,6 +57,13 @@ public:
 		m_num(num), m_ind1(ind1), m_ind2(ind2)
 	{
 	}
+	
+	std::ostream &print_debug(std::ostream &os) const
+	{
+		return os << "Element overlapping info: " << std::endl
+			<< "Number of coincident nodes: " << m_num << std::endl
+			<< "Start index on element 1 : " << m_ind1 << " and on element 2 " << m_ind2;
+	}
 
 private:
 	/** \brief number of coincident nodes */
