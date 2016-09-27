@@ -255,7 +255,7 @@ public:
 	/** \brief return DOF vector */
 	dofs_return_t get_dofs(void) const
 	{
-		enum { D = Dimension::value };
+	enum { D = Dimension::value };
 		dofs_t dofs;
 		for (unsigned n = 0; n < ElemType::num_nodes; ++n)
 			for (unsigned d = 0; d < D; ++d)

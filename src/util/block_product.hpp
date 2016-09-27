@@ -128,7 +128,7 @@ namespace internal
 			return result;
 		}
 	};
-}
+} // end of namespace internal
 
 /** \brief compute semi block product of a matrix and a vector m * v^T
  * \tparam left the left Eigen vector type

@@ -91,6 +91,19 @@ struct singular_shortcut_switch
 
 
 
+template <class Kernel, class TestField, class TrialField>
+struct double_integral_traits
+{
+	/** \brief result type of the weighted residual */
+	typedef typename block_product_result_type<
+		typename TestField::nset_t::shape_t,
+		typename Kernel::result_t,
+		typename TrialField::nset_t::shape_t
+	>::type result_t;
+};
+
+
+
 /**
  * \brief class evaluating double integrals of the weighted residual approach
  * \tparam Kernel type of the kernel to integrate
@@ -115,6 +128,8 @@ class double_integral<Kernel, TestField, TrialField, formalism::general>
 {
 	typedef std::true_type WITH_SINGULARITY_CHECK;
 	typedef std::false_type WITHOUT_SINGULARITY_CHECK;
+	
+	typedef double_integral_traits<Kernel, TestField, TrialField> traits_t;
 
 public:
 	/** \brief the test elem type */
@@ -140,11 +155,7 @@ public:
 	typedef typename kernel_traits<Kernel>::quadrature_family_t quadrature_family_t;
 
 	/** \brief result type of the weighted residual */
-	typedef typename block_product_result_type<
-		typename TestField::nset_t::shape_t,
-		typename Kernel::result_t,
-		typename TrialField::nset_t::shape_t
-	>::type result_t;
+	typedef typename traits_t::result_t result_t;
 
 protected:
 	/** \brief evaluate regular double integral with selected accelerators
@@ -367,6 +378,8 @@ class double_integral<Kernel, TestField, TrialField, formalism::collocational>
 	typedef std::true_type WITH_SINGULARITY_CHECK;
 	typedef std::false_type WITHOUT_SINGULARITY_CHECK;
 
+	typedef double_integral_traits<Kernel, TestField, TrialField> traits_t;
+
 public:
 	/** \brief type of the trial element */
 	typedef typename TrialField::elem_t trial_elem_t;
@@ -390,11 +403,7 @@ public:
 	typedef typename TrialField::nset_t trial_nset_t;
 
 	/** \brief result type of the weighted residual */
-	typedef typename block_product_result_type<
-		typename TestField::nset_t::shape_t,
-		typename Kernel::result_t,
-		typename TrialField::nset_t::shape_t
-	>::type result_t;
+	typedef typename traits_t::result_t result_t;
 
     /** \todo these constants should be computed from the kernel */
 	enum {

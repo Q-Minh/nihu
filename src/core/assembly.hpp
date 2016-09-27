@@ -67,8 +67,10 @@ private:
 					test_it != test_space.template field_end<TestField>(); ++test_it)
 					for (auto trial_it = trial_space.template field_begin<TrialField>();
 						trial_it != trial_space.template field_end<TrialField>(); ++trial_it)
+					{
 						block(result, test_it->get_dofs(), trial_it->get_dofs())
 							+= op.eval_on_fields(*test_it, *trial_it, OnSameMesh());
+					}
 			}
 			else	// local operator
 			{
@@ -83,8 +85,10 @@ private:
 					auto test_id = test_it->get_elem().get_id();
 					for (; trial_it != trial_end && trial_it->get_elem().get_id() < test_id; ++trial_it);
 					if (trial_it->get_elem().get_id() == test_id)
+					{
 						block(result, test_it->get_dofs(), trial_it->get_dofs())
 							+= op.eval_on_fields(*test_it, *trial_it, OnSameMesh());
+					}
 				}
 			}
 		}
@@ -135,7 +139,7 @@ public:
 	{
 		if(!OnSameMesh::value && integral_operator_traits<Operator>::is_local)
 			return result;
-
+		
 		tmp::d_call_each<
 			typename function_space_traits<TestSpace>::field_type_vector_t,
 			typename function_space_traits<TrialSpace>::field_type_vector_t,
