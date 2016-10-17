@@ -65,6 +65,11 @@ template <> struct tag2element<quad_28_tag> : quad_28_elem {};
 
 
 
+/** \brief A linear (2-noded) linear volume element in 1D space */
+typedef volume_element<line_1_shape_set, space_1d<>::scalar_t> line_1_volume_elem;
+struct line_1_volume_tag {};
+template <> struct tag2element<line_1_volume_tag> : line_1_volume_elem {};
+
 /** \brief A linear (3-noded) triangular volume element in 2D space */
 typedef volume_element<tria_1_shape_set, space_2d<>::scalar_t> tria_1_volume_elem;
 struct tria_1_volume_tag {};

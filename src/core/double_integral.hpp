@@ -39,6 +39,7 @@
 #include "field_type_accelerator.hpp"
 #include "singular_accelerator.hpp"
 #include "formalism.hpp"
+#include "../util/store_pattern.hpp"
 
 
 template <class Elem>
