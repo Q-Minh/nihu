@@ -67,4 +67,4 @@ elseif exist('Cx', 'var')
     model.Nodes(:,1+(1:size(Cx,2))) = Cx;   % replace coordinates
 end
 
-end
+end % of create_line

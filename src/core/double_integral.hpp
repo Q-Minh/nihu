@@ -39,6 +39,7 @@
 #include "field_type_accelerator.hpp"
 #include "singular_accelerator.hpp"
 #include "formalism.hpp"
+#include "../util/store_pattern.hpp"
 
 
 template <class Elem>
@@ -79,13 +80,25 @@ struct singular_shortcut_switch
 			if (mtch.get_match_dimension() == Singularity::value)
 			{
 				singular_integral_shortcut<Kernel, TestField, TrialField, Singularity>::eval(
-					result, kernel, test_field, trial_field, mtch
-				);
+					result, kernel, test_field, trial_field, mtch);
 				return true;
 			}
 			return false;
 		}
 	};
+};
+
+
+
+template <class Kernel, class TestField, class TrialField>
+struct double_integral_traits
+{
+	/** \brief result type of the weighted residual */
+	typedef typename block_product_result_type<
+		typename TestField::nset_t::shape_t,
+		typename Kernel::result_t,
+		typename TrialField::nset_t::shape_t
+	>::type result_t;
 };
 
 
@@ -114,6 +127,8 @@ class double_integral<Kernel, TestField, TrialField, formalism::general>
 {
 	typedef std::true_type WITH_SINGULARITY_CHECK;
 	typedef std::false_type WITHOUT_SINGULARITY_CHECK;
+	
+	typedef double_integral_traits<Kernel, TestField, TrialField> traits_t;
 
 public:
 	/** \brief the test elem type */
@@ -139,11 +154,7 @@ public:
 	typedef typename kernel_traits<Kernel>::quadrature_family_t quadrature_family_t;
 
 	/** \brief result type of the weighted residual */
-	typedef typename block_product_result_type<
-		typename TestField::nset_t::shape_t,
-		typename Kernel::result_t,
-		typename TrialField::nset_t::shape_t
-	>::type result_t;
+	typedef typename traits_t::result_t result_t;
 
 protected:
 	/** \brief evaluate regular double integral with selected accelerators
@@ -308,10 +319,12 @@ protected:
 		// if no match simple regular integral is computed
 		if (mtch.get_match_dimension() == -1)
 			return eval(WITHOUT_SINGULARITY_CHECK(), result, kernel, test_field, trial_field);
+		
+		typedef typename match_type_vector<TestField, TrialField>::type possible_match_types;
 
 		// traverse possible singular integral shortcuts with tmp::call_until
 		if (!tmp::call_until<
-			typename match_type_vector<TestField, TrialField>::type,
+			possible_match_types,
 			singular_shortcut_switch<tmp::_1>,
 			result_t &,
 			kernel_base<Kernel> const &,
@@ -319,7 +332,7 @@ protected:
 			field_base<TrialField> const &,
 			element_match const &
 		>(result, kernel, test_field, trial_field, mtch))
-			std::cerr << "UNHANDLED SINGULARITY TYPE: " << mtch.get_match_dimension() << std::endl;
+			std::cerr << "UNHANDLED GALERKIN SINGULARITY TYPE: " << mtch.get_match_dimension() << std::endl;
 
 		return result;
 }
@@ -364,6 +377,8 @@ class double_integral<Kernel, TestField, TrialField, formalism::collocational>
 	typedef std::true_type WITH_SINGULARITY_CHECK;
 	typedef std::false_type WITHOUT_SINGULARITY_CHECK;
 
+	typedef double_integral_traits<Kernel, TestField, TrialField> traits_t;
+
 public:
 	/** \brief type of the trial element */
 	typedef typename TrialField::elem_t trial_elem_t;
@@ -387,11 +402,7 @@ public:
 	typedef typename TrialField::nset_t trial_nset_t;
 
 	/** \brief result type of the weighted residual */
-	typedef typename block_product_result_type<
-		typename TestField::nset_t::shape_t,
-		typename Kernel::result_t,
-		typename TrialField::nset_t::shape_t
-	>::type result_t;
+	typedef typename traits_t::result_t result_t;
 
     /** \todo these constants should be computed from the kernel */
 	enum {
@@ -552,12 +563,13 @@ protected:
 		field_base<TestField> const &test_field,
 		field_base<TrialField> const &trial_field)
 	{
+		
 		auto mtch(element_match_eval(test_field, trial_field));
 		if (mtch.get_match_dimension() == -1)
 			return eval(WITHOUT_SINGULARITY_CHECK(), result, kernel, test_field, trial_field);
-
+		
 		typedef typename match_type_vector<TestField, TrialField>::type possible_match_types;
-
+		
 		if (!tmp::call_until<
 			possible_match_types,
 			singular_shortcut_switch<tmp::_1>,

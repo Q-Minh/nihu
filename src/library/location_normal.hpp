@@ -165,6 +165,7 @@ struct volume_jacobian
 	};
 };
 
+typedef build<location<space_1d<> > >::type location_input_1d;
 typedef build<location<space_2d<> > >::type location_input_2d;
 typedef build<location<space_3d<> > >::type location_input_3d;
 typedef build<location<space_2d<> >, normal_jacobian<space_2d<> > >::type location_normal_input_2d;

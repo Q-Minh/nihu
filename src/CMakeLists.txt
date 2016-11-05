@@ -1,7 +1,7 @@
 # cmake file for the NiHu project
 
 # Set the minimum 
-cmake_minimum_required (VERSION 2.6)
+cmake_minimum_required (VERSION 2.8.4)
 
 # Set the module path
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/../cmake)
@@ -100,7 +100,16 @@ set(CMAKE_INSTALL_PREFIX ${NIHU_INSTALL_DIR})
 
 # setup compiler flags
 # Note: -Wno-deprecated-declarations is added for sake of Eigen
-set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall -Wno-deprecated-declarations -pedantic -O3 -std=gnu++11")
+set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -pedantic -O3 -Wall -Wno-deprecated-declarations")
+# Note: -Wno-misleading-indentation is added for Eigen and gcc-6
+if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
+    if (GCC_VERSION VERSION_GREATER 6.0 OR GCC_VERSION VERSION_EQUAL 6.0)
+        set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wno-misleading-indentation")
+    endif ()
+	set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -std=gnu++11")
+else ()
+	set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -std=c++11")
+endif ()
 
 # setup global include directories
 include_directories("${CMAKE_SOURCE_DIR}")
@@ -138,12 +147,17 @@ foreach(lib_source ${NIHU_COMMON_LIBRARIES})
 	
 	# Add also a dynamic library with the same name
 	# (Note: this is needed for faster MEX file compile)
+	if (WIN32)
+		set(NIHU_FPIC_FLAG "")
+	else ()
+		set(NIHU_FPIC_FLAG "-fPIC")
+	endif ()
 	add_library(${lib_name_dyn} STATIC ${lib_source})
 	# Set the target properties
 	set_target_properties(${lib_name_dyn}
 		PROPERTIES 
 		PREFIX "" 
-		COMPILE_FLAGS "-fPIC"
+		COMPILE_FLAGS "${NIHU_FPIC_FLAG}"
 		SUFFIX ${NIHU_STATIC_LIB_SUFFIX}
 		ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
 		LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"

@@ -2,13 +2,15 @@ classdef Space
     %SPACE Definition of spaces
     
     properties (SetAccess = immutable)
+        Id          % the space identified
         Dimension  % the space's dimensionality
     end
     
-    methods
+    methods (Access = private)
         function obj = Space(d)
             %SPACE Constructor
             % 
+            obj.Id = uint32( d );
             obj.Dimension = d;
         end
     end

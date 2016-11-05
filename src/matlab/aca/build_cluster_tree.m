@@ -57,13 +57,13 @@ while i <= S
     if length(Ctree(i).ind) > Cleaf
         [Children, Idx] = divide_fun(Ctree(i), x);
         idx = S + (1 : length(Children));
-        Ctree(i).children = idx; %#ok<AGROW>
-        Ctree(i).child_idx = Idx; %#ok<AGROW>
+        Ctree(i).children = idx;
+        Ctree(i).child_idx = Idx;
         if (max(idx) > Capacity)
             Capacity = 2*Capacity;
-            Ctree(Capacity).level = 0; %#ok<AGROW>
+            Ctree(Capacity).level = 0;
         end
-        Ctree(idx) = Children; %#ok<AGROW>
+        Ctree(idx) = Children;
         S = S + length(Children);
     end
     i = i + 1;
@@ -95,9 +95,9 @@ CC(1).ind = C.ind(i(1:nhalf));
 CC(2).ind = C.ind(i(nhalf+1:end));
 
 for k = 1 : 2
-    CC(k).level = C.level+1; %#ok<AGROW>
-    CC(k).children = []; %#ok<AGROW>
-    CC(k).bb = [min(x(CC(k).ind,:)); max(x(CC(k).ind,:))]; %#ok<AGROW>
+    CC(k).level = C.level+1;
+    CC(k).children = [];
+    CC(k).bb = [min(x(CC(k).ind,:)); max(x(CC(k).ind,:))];
 end
 
 end

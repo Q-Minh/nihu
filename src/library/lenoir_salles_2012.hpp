@@ -27,6 +27,7 @@
 #include "laplace_kernel.hpp"
 #include "lib_element.hpp"
 
+#include <cmath>
 
 /** \brief Galerkin singular integral of the Laplace SLP kernel over a constant triangle
  * \tparam TestField the test field type
@@ -102,8 +103,8 @@ public:
 		// the famous integral expression from Lenoir-Salles
 		for (unsigned i = 0; i < N; ++i)
 			result(0,0) -= gamma[i] * (
-				std::asinh(splus[i]/gamma[i]) - std::asinh(sminus[i]/gamma[i])
-			);
+				std::asinh<double>(splus[i]/gamma[i]) - std::asinh<double>(sminus[i]/gamma[i])
+			).real();
 
 		result(0,0) *= 2.0/3.0 * S / (4.0*M_PI);
 

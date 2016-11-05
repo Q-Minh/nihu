@@ -2,23 +2,29 @@ clear;
 clc;
 
 shapes = [
+    ShapeSet.ConstantLine
     ShapeSet.LinearLine
     ShapeSet.QuadraticLine
     
+    ShapeSet.ConstantTria
     ShapeSet.LinearTria
     ShapeSet.QuadraticTria
     
+    ShapeSet.ConstantQuad
     ShapeSet.LinearQuad
     ShapeSet.QuadraticQuad
     
+    ShapeSet.ConstantTetra
     ShapeSet.LinearTetra
+    ShapeSet.ConstantPenta
     ShapeSet.LinearPenta
+    ShapeSet.ConstantHexa
     ShapeSet.LinearHexa
     ];
 
 for i = 1 : length(shapes)
     s = shapes(i);
-    fprintf('Testing Domain %s...\n', s.char());
+    fprintf('Testing ShapeSet %s...\n', s.char());
     
     %% check if nodal shape functions are identity matrix
     N = s.eval(s.Nodes);

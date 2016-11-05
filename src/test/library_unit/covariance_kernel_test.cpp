@@ -16,7 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "library/elastodynamics_kernel.hpp"
+#include "library/covariance_kernel.hpp"
 #include "library/lib_element.hpp"
 #include "core/double_integral.hpp"
 
@@ -30,7 +30,6 @@ typename K::result_t tester(K const &k, E1 const &e1, E2 const &e2)
 	// ealuate the kernel K(x1, x2)
     return k(x1, x2);
 }
-
 
 template <class K, class E>
 typename K::result_t singular_integral_test(kernel_base<K> const &k, E const &e)
@@ -47,32 +46,21 @@ typename K::result_t singular_integral_test(kernel_base<K> const &k, E const &e)
 int main(void)
 {
 	// two elements shifted (regular case)
-    quad_1_elem::coords_t coords1, coords2;
-    coords1 <<
-		-1.,  1,  1., -1.,
-		-1., -1., 1.,  1.,
-		 0.,  0., 0.,  0.;
-    coords2 = coords1;
-    coords2.row(1) += Eigen::Matrix<double, 1, 4>::Constant(2.0);
+    line_1_volume_elem::coords_t coords1, coords2;
+    coords1 << 	-1., 1.;
+    coords2 << 2., 3.;
+    line_1_volume_elem elem1(coords1), elem2(coords2);
 
-    quad_1_elem elem1(coords1), elem2(coords2);
-	double nu = 0.3;
-	double rho = 100;
-	double mu = 1.e8;
-	double om = 2.*M_PI*10.;
+	double sigma = 2;
+	double d = 2;
 
-	elastodynamics_3d_U_kernel U(nu, rho, mu, om);
-	elastodynamics_3d_T_kernel T(nu, rho, mu, om);
+	covariance_kernel C(sigma, d);
 
-	std::cout << "Evaluating U kernel in the center of two different elements..." << std::endl;
-    std::cout << tester(U, elem1, elem2) << std::endl;
-	std::cout << "Evaluating T kernel in the center of two different elements..." << std::endl;
-    std::cout << tester(T, elem1, elem2) << std::endl;
+	std::cout << "Evaluating C kernel in the center of two different elements..." << std::endl;
+    std::cout << tester(C, elem1, elem2) << std::endl;
 
-	std::cout << "Evaluating collocation singular integral over a constant quad element..." << std::endl;
-	std::cout << "U singular:\n" << singular_integral_test(U, elem1) << std::endl;
-	std::cout << "Evaluating collocation singular integral over a constant quad element..." << std::endl;
-	std::cout << "T singular:\n" << singular_integral_test(T, elem1) << std::endl;
+	std::cout << "Evaluating collocation singular integral over a constant line element..." << std::endl;
+	std::cout << "C singular:\n" << singular_integral_test(C, elem1) << std::endl;
 
     return 0;
 }

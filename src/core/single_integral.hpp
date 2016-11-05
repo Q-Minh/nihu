@@ -29,6 +29,7 @@
 #include "../util/store_pattern.hpp"
 #include "../util/plain_type.hpp"
 #include "../util/product_type.hpp"
+#include "../util/block_product.hpp"
 #include "gaussian_quadrature.hpp"
 #include "field_type_accelerator.hpp"
 #include "formalism.hpp"
@@ -41,17 +42,16 @@ template <class TestField, class TrialField>
 struct single_integral_traits
 {
 	/** \brief result type of the single integral residual */
-	typedef typename plain_type<
-		typename product_type<
-			typename TestField::nset_t::shape_t,
-			Eigen::Transpose<typename TrialField::nset_t::shape_t >
-		>::type
+	typedef typename block_product_result_type<
+		typename TestField::nset_t::shape_t,
+		Eigen::Matrix<double, TestField::quantity_dimension, TrialField::quantity_dimension>,
+		typename TrialField::nset_t::shape_t
 	>::type result_t;
 };
 
 
 /**
-* \brief single integral over an element
+* \brief single integral over an element for the general case
 * \tparam TestField type of the test field
 * \tparam TrialField type of the trial field
 */
@@ -110,13 +110,18 @@ public:
 			test_store_t::get_data()[degree],
 			trial_store_t::get_data()[degree],
 			iteration::diagonal());
+			
+		// identity matrix instance for block product integration
+		enum {Rows = TestField::quantity_dimension, Cols = TrialField::quantity_dimension};
+		auto mat = Eigen::Matrix<double, Rows, Cols>::Identity();
 
 		for (auto it = acc.begin(); it != acc.end(); ++it)
 		{
-			auto jac = field.get_elem().get_normal(it.get_first()->get_xi()).norm();
-			result += it.get_first()->get_N() *
-				(it.get_first()->get_w()*jac) *
-				it.get_second()->get_N().transpose();
+			auto jac = field.get_elem().get_dx(it.get_first()->get_xi()).determinant();
+			// auto jac = field.get_elem().get_normal(it.get_first()->get_xi()).norm();
+			result += block_product(it.get_first()->get_N(),
+				(mat * it.get_first()->get_w()*jac).eval(),
+				it.get_second()->get_N());
 		}
 
 		return result;
@@ -152,8 +157,17 @@ public:
 	{
 		result_t result;
 		result.setZero();
+		
+		enum {Rows = TestField::quantity_dimension, Cols = TrialField::quantity_dimension};
+		auto mat = Eigen::Matrix<double, Rows, Cols>::Identity();
+		
 		for (unsigned row = 0; row < test_nset_t::num_nodes; ++row)
-			result.row(row) += trial_nset_t::template eval_shape<0>(test_nset_t::corner_at(row));
+		{
+			auto N = trial_nset_t::template eval_shape<0>(test_nset_t::corner_at(row));
+			for (unsigned col = 0; col < trial_nset_t::num_nodes; ++col)
+				result.template block<Rows, Cols>(row*Rows, col*Cols) = mat * N(col);
+		}
+		
 		return result;
 	}
 };

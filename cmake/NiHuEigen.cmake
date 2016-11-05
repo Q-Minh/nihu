@@ -12,10 +12,10 @@
 #     on Windows systems.
 
 # Supported Eigen versions
-set(NIHU_SUPPORTED_EIGEN_VERSIONS "3.2.0" "3.2.7")
+set(NIHU_SUPPORTED_EIGEN_VERSIONS "3.2.0" "3.2.7" "3.2.9")
 
 # The default Eigen version
-set(NIHU_DEFAULT_EIGEN_VERSION "3.2.7")
+set(NIHU_DEFAULT_EIGEN_VERSION "3.2.9")
 
 # Check for given eigen path
 if(DEFINED NIHU_EIGEN_PATH)
@@ -63,6 +63,9 @@ if(NOT EIGEN_FOUND OR NIHU_EIGEN_INSTALL)
 	elseif(NIHU_EIGEN_VERSION STREQUAL "3.2.7")
 		set(EIGEN_TEMP_DIR "eigen-eigen-b30b87236a1b")
 		set(EIGEN_MD5 "cc1bacbad97558b97da6b77c9644f184") #3.2.7
+	elseif(NIHU_EIGEN_VERSION STREQUAL "3.2.9")
+		set(EIGEN_TEMP_DIR "eigen-eigen-dc6cfdf9bcec")
+		set(EIGEN_MD5 "de11bfbfe2fd2dc4b32e8f416f58ee98") #3.2.9
 	endif()
 	
 	set(EIGEN_INSTALL_DIR "${CMAKE_BINARY_DIR}/include/eigen-${NIHU_EIGEN_VERSION}")
