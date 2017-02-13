@@ -25,6 +25,9 @@
 
 #include "../core/domain.hpp"
 
+namespace NiHu
+{
+
 class line_domain;
 class tria_domain;
 class quad_domain;
@@ -124,6 +127,8 @@ private:
     static edges_t const m_edges;
     static xi_t const m_center;
 };
+
+}
 
 #endif // LIB_DOMAIN_HPP_INCLUDED
 

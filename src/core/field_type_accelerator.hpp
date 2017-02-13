@@ -33,6 +33,9 @@
 #include "../util/dual_range.hpp"
 #include "../util/pool_pattern.hpp"
 
+namespace NiHu
+{
+
 
 /** \brief Stores a quadrature point and a shape function vector
  * \tparam Field the field type to accelerate
@@ -418,6 +421,8 @@ dual_field_type_accelerator<TestAccelerator, TrialAccelerator, IterationMode>
 {
 	return dual_field_type_accelerator<TestAccelerator, TrialAccelerator, IterationMode>(
 		test_acc, trial_acc);
+}
+
 }
 
 

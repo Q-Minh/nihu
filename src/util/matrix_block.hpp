@@ -26,6 +26,9 @@
 
 #include "couple.hpp"
 
+namespace NiHu
+{
+
 /**
  * \brief proxy class to represent a block of a matrix
  * \details The class is used to represent a matrix block selected by two index vectors.
@@ -123,6 +126,8 @@ matrix_block<Matrix, RowIndex, ColIndex>
 	block(Matrix &matrix, RowIndex const &rows, ColIndex const &cols)
 {
 	return matrix_block<Matrix, RowIndex, ColIndex>(matrix, rows, cols);
+}
+
 }
 
 #endif // MATRIX_BLOCK_HPP_INCLUDED

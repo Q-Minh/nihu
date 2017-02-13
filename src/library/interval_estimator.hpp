@@ -27,6 +27,9 @@
 #include "../core/complexity_estimator.hpp"
 #include "../tmp/interval.hpp"
 
+namespace NiHu
+{
+
 /**
  * \brief specialisation of ::complexity_estimator for the interval case
  * \tparam Interval the intervals to use for the estimation
@@ -69,6 +72,8 @@ struct merge_kernel_complexity_estimators<
 > : interval_estimator<
 	typename merge_intervals<Interval1, Interval2>::type
 > {};
+
+}
 
 
 #endif // INTERVAL_ESTIMATOR_HPP_INCLUDED

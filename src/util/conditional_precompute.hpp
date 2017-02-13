@@ -26,6 +26,9 @@
 #include "core/global_definitions.hpp"
 #include <type_traits>
 
+namespace NiHu
+{
+
 /** \brief definition of complexity tags of functions returning matrices */
 namespace matrix_function_complexity
 {
@@ -181,6 +184,8 @@ public:
 		return functor_ret_type::Zero();
 	}
 };
+
+}
 
 #endif // CONDITIONAL_PRECOMPUTE_HPP_INCLUDED
 

@@ -29,6 +29,9 @@
 
 #include <cmath>
 
+namespace NiHu
+{
+
 /** \brief Galerkin singular integral of the Laplace SLP kernel over a constant triangle
  * \tparam TestField the test field type
  * \tparam TrialField the trial field type
@@ -111,5 +114,7 @@ public:
 		return result;
 	}
 };
+
+}
 
 #endif // LENOIR_SALLES_2012_HPP_INCLUDED

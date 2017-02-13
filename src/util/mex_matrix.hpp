@@ -37,6 +37,9 @@
 #include "eigen_utils.hpp"
 #include "../core/result_matrix.hpp"
 
+namespace NiHu
+{
+
 /**
  * \brief Matlab mex interface classes
  * \details The mex namespace contains classes and functions that provide an easy-to-use
@@ -320,6 +323,8 @@ struct is_result_matrix_impl<mex::real_matrix<T> > : std::true_type {};
 /** \brief declaring mex::complex_matrix as a result matrix type */
 template <class T>
 struct is_result_matrix_impl<mex::complex_matrix<T> > : std::true_type {};
+
+}
 
 #endif // MEX_MATRIX_HPP_INCLUDED
 

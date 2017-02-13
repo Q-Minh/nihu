@@ -30,6 +30,9 @@
 #include "integral_operator.hpp"
 #include "assembly.hpp"
 
+namespace NiHu
+{
+
 /** \brief CRTP base class of all integral_transform expressions
 * \tparam Derived CRTP derived class
 * \details a integral_transform is an integral operator multiplied by a function space.
@@ -194,6 +197,8 @@ private:
 	/** \brief the function space stored by reference */
 	TrialSpace m_trial_space;
 };
+
+}
 
 #endif
 

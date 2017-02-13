@@ -31,6 +31,9 @@
 #include <tuple>
 #include <iostream>
 
+namespace NiHu
+{
+
 /** \brief traits class of couple expressions */
 template <class C>
 struct couple_traits;
@@ -554,6 +557,8 @@ std::ostream &operator<<(std::ostream &os, couple_base<Derived> const &c)
 {
 	internal::print_impl<Derived, couple_traits<Derived>::tuple_size, 0>::eval(os, c);
 	return os;
+}
+
 }
 
 

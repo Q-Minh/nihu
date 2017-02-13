@@ -33,6 +33,9 @@
 #include "element.hpp"
 #include "../util/eigen_utils.hpp"
 
+namespace NiHu
+{
+
 /** \brief metafunction returning the iterator that traverses the homogeneous element vector of specified element type
  * \tparam ElemType the specified element type
  */
@@ -327,6 +330,8 @@ homogeneous_submesh<Mesh, typename tag2element<Tag>::type>
 create_homogeneous_submesh(Mesh const &mesh, Tag)
 {
 	return homogeneous_submesh<Mesh, typename tag2element<Tag>::type >(mesh);
+}
+
 }
 
 #endif

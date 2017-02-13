@@ -28,6 +28,9 @@
 #include <Eigen/Dense>
 #include <Eigen/StdVector>
 
+namespace NiHu
+{
+
 /** \brief metafunction converting a type into an std::vector<T> type with Eigen allocator */
 template <class T>
 struct EigenStdVector
@@ -46,6 +49,8 @@ struct is_eigen : std::is_base_of<
 
 template <class m1, class m2, int t>
 struct is_eigen<Eigen::GeneralProduct<m1, m2, t> > : std::true_type {};
+
+}
 
 #endif // EIGEN_UTILS_HPP_INCLUDED
 

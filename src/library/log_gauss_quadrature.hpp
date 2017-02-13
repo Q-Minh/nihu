@@ -28,6 +28,9 @@
 #include "../util/eigen_utils.hpp"
 #include <stdexcept>
 
+namespace NiHu
+{
+
 /**
  * \brief return 1D N-point log Gaussian quadrature
  * \tparam scalar_t the scalar type
@@ -131,6 +134,8 @@ Eigen::Matrix<scalar_t, Eigen::Dynamic, 2> log_gauss_impl(unsigned N)
 	}
 
 	return V;
+}
+
 }
 
 #endif // LOG_GAUSS_QUADRATURE_HPP_INCLUDED

@@ -40,6 +40,11 @@
 
 #include "laplace_kernel.hpp"
 
+namespace NiHu
+{
+	
+	class bubu {};
+
 /**
  * \brief kernel data that stores the wave number
  * \tparam wave_number_type the wave number type
@@ -987,6 +992,7 @@ using helmholtz_2d_HSP_kernel = helmholtz_kernel<space_2d<>, potential::HSP, Wav
 template <class WaveNumber>
 using helmholtz_3d_HSP_kernel = helmholtz_kernel<space_3d<>, potential::HSP, WaveNumber>;
 
+}
 
 #endif // HELMHOLTZ_KERNEL_HPP_INCLUDED
 

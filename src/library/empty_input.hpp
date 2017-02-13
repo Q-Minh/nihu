@@ -25,6 +25,9 @@
 #ifndef EMPTY_INPUT_HPP_INCLUDED
 #define EMPTY_INPUT_HPP_INCLUDED
 
+namespace NiHu
+{
+
 // forward declaration
 template <class space_t>
 class empty_input;
@@ -62,6 +65,8 @@ public:
 	{
 	}
 };
+
+}
 
 
 #endif // EMPTY_INPUT_HPP_INCLUDED

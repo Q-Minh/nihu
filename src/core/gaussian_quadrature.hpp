@@ -30,6 +30,9 @@
 
 #include <stdexcept>
 
+namespace NiHu
+{
+
 /**
  * \brief return 1D N-point Guassian quadrature
  * \tparam scalar_t the scalar type
@@ -504,5 +507,7 @@ struct quadrature_type<gauss_family_tag, Domain> :
 	gaussian_quadrature<Domain>
 {
 };
+
+}
 
 #endif // GAUSSIAN_QUADRATURE_HPP_INCLUDED

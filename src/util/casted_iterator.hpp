@@ -23,6 +23,9 @@
 #ifndef CASTED_ITERATOR_HPP_INCLUDED
 #define CASTED_ITERATOR_HPP_INCLUDED
 
+namespace NiHu
+{
+
 /** \brief iterator class provides access to its value_t after static cast
  * \tparam FromIt the original iterator type
  * \tparam To the new value type
@@ -65,6 +68,8 @@ public:
 		return &(*(*this));
 	}
 };
+
+}
 
 #endif // CASTED_ITERATOR_HPP_INCLUDED
 

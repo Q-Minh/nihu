@@ -23,6 +23,9 @@
 #ifndef PLANE_ELEMENT_HELPER_HPP_INCLUDED
 #define PLANE_ELEMENT_HELPER_HPP_INCLUDED
 
+namespace NiHu
+{
+
 /**
  * \brief compute angles and radii in a plane element
  * \param [in] elem the element
@@ -57,6 +60,8 @@ void plane_element_helper(
 		theta[i] = std::acos(R.col(i).dot(R.col((i+1) % N)));
 		alpha[i] = std::acos(R.col(i).dot(C.col(i)));
 	}
+}
+
 }
 
 #endif // PLANE_ELEMENT_HELPER_HPP_INCLUDED

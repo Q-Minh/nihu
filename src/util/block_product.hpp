@@ -29,6 +29,9 @@
 #include "plain_type.hpp"
 #include <iostream>
 
+namespace NiHu
+{
+
 namespace internal
 {
 	template <class left, class mat, class right>
@@ -173,6 +176,8 @@ struct semi_block_product_result_type
 {
 	typedef typename internal::semi_block_product_impl<mat, right>::result_type type;
 };
+
+}
 
 #endif // BLOCK_PRODUCT_HPP_INCLUDED
 

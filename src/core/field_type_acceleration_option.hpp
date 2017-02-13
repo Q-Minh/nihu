@@ -25,6 +25,9 @@
 #ifndef FIELD_TYPE_ACCELERATION_OPTIONS_HPP_INCLUDED
 #define FIELD_TYPE_ACCELERATION_OPTIONS_HPP_INCLUDED
 
+namespace NiHu
+{
+
 /** \brief collection of acceleration-types */
 namespace acceleration
 {
@@ -32,6 +35,8 @@ namespace acceleration
 	struct hard {};
 	/** \brief view-acceleration */
 	struct soft{};
+}
+
 }
 
 #endif // FIELD_TYPE_ACCELERATION_OPTIONS_HPP_INCLUDED

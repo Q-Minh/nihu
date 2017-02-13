@@ -31,6 +31,9 @@
 #include "../util/block_product.hpp"
 #include "location_normal.hpp"
 
+namespace NiHu
+{
+
 /** \brief store-wrapper of a statically stored line quadrature */
 template <unsigned order>
 struct line_quad_store
@@ -741,6 +744,8 @@ private:
 	trial_n_shape_t m_N_series[laurent_order];	/**< \brief series expansion of the the shape function vector */
 	laurent_coeff_t m_Fcoeffs[laurent_order];	/**< \brief the Laurent coefficient */
 };
+
+}
 
 
 

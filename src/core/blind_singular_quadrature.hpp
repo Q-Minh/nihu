@@ -27,6 +27,9 @@
 #include "blind_transform_selector.hpp"
 #include "duffy_quadrature.hpp"
 
+namespace NiHu
+{
+
 template <class BlindTransform, class RegularFamily, class LSet>
 struct blind_singular_quadrature;
 
@@ -35,5 +38,7 @@ struct blind_singular_quadrature<blind_transform::duffy, RegularFamily, LSet>
 {
 	typedef duffy_quadrature<RegularFamily, LSet> type;
 };
+
+}
 
 #endif // BLIND_SINGULAR_QUADRATURE_HPP_INCLUDED

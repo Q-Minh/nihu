@@ -29,6 +29,9 @@
 #include "field.hpp"
 #include "mesh.hpp"
 
+namespace NiHu
+{
+
 /** \brief traits class of function spaces */
 template <class Derived>
 struct function_space_traits;
@@ -608,6 +611,8 @@ struct is_function_space : std::is_base_of<
 	function_space_base<typename std::decay<FuncSpace>::type>,
 	typename std::decay<FuncSpace>::type
 > {};
+
+}
 
 #endif // FUNCTION_SPACE_HPP_INCLUDED
 

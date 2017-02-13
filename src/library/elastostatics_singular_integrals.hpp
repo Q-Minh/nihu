@@ -27,6 +27,9 @@
 #include "guiggiani_1992.hpp"
 
 
+namespace NiHu
+{
+
 /** \brief collocational singular integral of the T kernel
  * \tparam TestField the test field type
  * \tparam TrialField the trial field type
@@ -63,6 +66,8 @@ public:
 		return result;
 	}
 };
+
+}
 
 
 #endif // ELASTOSTATICS_SINGULAR_INTEGRALS_HPP_INCLUDED

@@ -32,6 +32,9 @@
 #include <type_traits>
 #include <iostream>
 
+namespace NiHu
+{
+
 /** \brief class describing the adjacency (match) state of two elements */
 class element_match
 {
@@ -106,6 +109,8 @@ element_match element_match_eval(
 
 	// no match
 	return element_match(-1);
+}
+
 }
 
 #endif // ELEMENT_MATCH_HPP_INCLUDED

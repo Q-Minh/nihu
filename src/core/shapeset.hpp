@@ -34,6 +34,10 @@
 #include "../tmp/algorithm.hpp"
 #include "../util/conditional_precompute.hpp"
 
+namespace NiHu
+{
+
+
 /** \brief shape function derivative indices
  * These indices are used to index the first and second derivatives of the
  * shape functions.
@@ -388,6 +392,8 @@ public:
 		return idx;
 	}
 };
+
+}
 
 #endif // SHAPESET_HPP_INCLUDED
 

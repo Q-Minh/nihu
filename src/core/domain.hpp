@@ -28,6 +28,11 @@
 #include "global_definitions.hpp"
 #include "space.hpp"
 
+namespace NiHu
+{
+
+
+
 namespace domain_traits
 {
 	/** \brief assigns a coordinate space to the domain */
@@ -139,6 +144,8 @@ public:
         return id;
 	}
 };
+
+}
 
 #endif
 

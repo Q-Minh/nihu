@@ -27,6 +27,9 @@
 #include "../tmp/vector.hpp"
 #include "../tmp/algorithm.hpp"
 
+namespace NiHu
+{
+
 /** \brief terminating type of wall types */
 struct empty_wall
 {
@@ -194,6 +197,8 @@ class single_brick_wall
 public:
 	typedef typename build<wrapped>::type type;
 };
+
+}
 
 
 #endif // BRICK_HPP_INCLUDED

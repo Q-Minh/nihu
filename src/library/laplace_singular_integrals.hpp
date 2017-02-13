@@ -30,6 +30,9 @@
 #include "lib_element.hpp"
 
 
+namespace NiHu
+{
+
 /** \brief Collocational singular integral of the 2D Laplace SLP kernel over a constant line element */
 class laplace_2d_SLP_collocation_constant_line
 {
@@ -651,6 +654,8 @@ public:
 		return result;
 	}
 };
+
+}
 
 
 #endif // LAPLACE_SINGULAR_INTEGRALS_HPP_INCLUDED

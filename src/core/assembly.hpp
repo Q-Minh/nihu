@@ -28,6 +28,9 @@
 #include "integral_operator.hpp"
 #include "function_space.hpp"
 
+namespace NiHu
+{
+
 /** \brief assemble result matrix from field wr submatrices
 * \tparam TestSpace the test function space
 * \tparam TrialSpace the trial function space
@@ -153,6 +156,8 @@ public:
 		return result;
 	}
 };
+
+}
 
 #endif // ASSEMBLY_HPP_INCLUDED
 

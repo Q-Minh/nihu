@@ -31,6 +31,9 @@
 #include "../util/crtp_base.hpp"
 #include "element.hpp"
 
+namespace NiHu
+{
+
 /** \brief collect options used to convert an element into a field view */
 namespace field_option
 {
@@ -463,6 +466,8 @@ dirac_field<Field> const &
 {
 	return static_cast<dirac_field<Field> const &>(
 		static_cast<field_impl<Field> const &>(f.derived()));
+}
+
 }
 
 #endif
