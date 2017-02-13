@@ -54,6 +54,11 @@ end
 %
 if ~isempty(Prolog)
     I = skipempty(regexp(Prolog, '/(?<token>\S+)\s*{\s*(?<command>.*)\s*}\s*bind\s*def', 'names'));
+    XX = find(strcmp({I.command}, 'bind def'));
+    if ~isempty(XX)
+        Prolog = strrep(Prolog, I(XX).token, I(XX).command);
+    end
+    I = skipempty(regexp(Prolog, '/(?<token>\S+)\s*{\s*(?<command>.*)\s*}\s*bind\s*def', 'names'));
     for l = 1 : length(I)
         % we replace ' l ' to ' lineto '
         Page = strrep(Page, [' ' I(l).token ' '], [' ' I(l).command ' ']);
