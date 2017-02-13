@@ -26,6 +26,9 @@
 #include "../core/shapeset.hpp"
 #include "lib_domain.hpp"
 
+namespace NiHu
+{
+
 /** \brief a constant line shape set */
 typedef constant_shape_set<line_domain> line_0_shape_set;
 /** \brief a constant triangle shape set */
@@ -1121,6 +1124,8 @@ public:
 			).finished();
 	}
 };
+
+}
 
 
 #endif // LIB_SHAPE_HPP_INCLUDED

@@ -25,6 +25,9 @@
 
 #include <stdexcept>
 
+namespace NiHu
+{
+
 /**
  * \brief a class storing a vector of class instances
  * \tparam C the stored class
@@ -62,5 +65,7 @@ public:
 private:
 	C *m_p_data[MaxOrder+1];
 };
+
+}
 
 #endif

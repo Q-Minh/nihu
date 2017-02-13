@@ -34,6 +34,9 @@
 #include "field_type_accelerator.hpp"
 #include "formalism.hpp"
 
+namespace NiHu
+{
+
 /** \brief traits class of ::single_integral
  * \tparam TestField the test field type
  * \tparam TrialField the trial field type
@@ -211,6 +214,8 @@ class single_integral<TestField, TrialField,
 		>::value
 	>::type
 > :	public single_integral_impl<TestField, TrialField> {};
+
+}
 
 #endif // SINGLE_INTEGRAL_HPP
 

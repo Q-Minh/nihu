@@ -29,6 +29,9 @@
 #include "../tmp/bool.hpp"
 #include "shapeset.hpp"
 
+namespace NiHu
+{
+
 /** \brief class describing the overlapping state of two elements */
 class element_overlapping
 {
@@ -625,6 +628,8 @@ public:
 	{
 	}
 };
+
+}
 
 
 #endif

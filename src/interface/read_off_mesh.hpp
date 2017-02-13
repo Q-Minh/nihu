@@ -24,11 +24,14 @@
 #ifndef READ_OFF_MESH_HPP_INCLUDED
 #define READ_OFF_MESH_HPP_INCLUDED
 
-#include "../core/mesh.hpp"
 #include "../library/lib_element.hpp"
+#include "../core/mesh.hpp"
 #include <string>
 #include <fstream>
 #include <stdexcept>
+
+namespace NiHu
+{
 
 namespace internal
 {
@@ -122,6 +125,8 @@ mesh<tmp::vector<typename tag2element<Tags>::type...> >
 
 	// create and return the mesh
 	return create_mesh(nodes, elements, tags...);
+}
+
 }
 
 #endif // READ_OFF_MESH_HPP_INCLUDED

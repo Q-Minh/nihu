@@ -29,6 +29,9 @@
 #include "../util/math_functions.hpp"
 #include "guiggiani_1992.hpp"
 
+namespace NiHu
+{
+
 /** \brief Collocational singular integral of the 2D Helmholtz SLP kernel over a constant line element */
 template <unsigned expansion_length>
 class helmholtz_2d_SLP_collocation_constant_line
@@ -421,6 +424,8 @@ public:
 		return result;
 	}
 };
+
+}
 
 
 #endif // HELMHOLTZ_SINGULAR_INTEGRALS_HPP_INCLUDED

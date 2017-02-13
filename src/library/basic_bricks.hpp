@@ -24,6 +24,9 @@
 #ifndef BASIC_BRICKS_HPP_INCLUDED
 #define BASIC_BRICKS_HPP_INCLUDED
 
+namespace NiHu
+{
+
 /** \brief a brick representing a distance vector \f${\bf r} = {\bf y} - {\bf x}\f$
  * \tparam space the coordinate space the distance is defined over
  */
@@ -202,6 +205,8 @@ struct rdnx_brick
 		scalar m_rdnx;
 	};
 };
+
+}
 
 
 #endif // BASIC_BRICKS_HPP_INCLUDED

@@ -26,6 +26,9 @@
 
 #include <Eigen/Dense>
 
+namespace NiHu
+{
+
 /** \brief class representing a coordinate space with a scalar variable and a dimension
  * \tparam Scalar the scalar variable
  * \tparam Dimension the space dimensionality
@@ -60,6 +63,8 @@ using space_2d = space<Scalar, 2>;
 /** \brief specialisation for a 3D space of double */
 template <class Scalar = double>
 using space_3d = space<Scalar, 3> ;
+
+}
 
 #endif // SPACE_HPP_INCLUDED
 

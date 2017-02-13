@@ -33,6 +33,9 @@
 #include "integral_transform.hpp"
 
 
+namespace NiHu
+{
+
 /** \brief base class of all weighted residual expressions
  * \tparam Derived the CRTP derived class
  */
@@ -218,6 +221,8 @@ operator << (CRes &&res, WR &&wr)
 {
 	wr.eval(res);
 	return res;
+}
+
 }
 
 #endif // ifndef WEIGHTED_RESIDUAL_HPP_INCLUDED

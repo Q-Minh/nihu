@@ -25,6 +25,9 @@
 #include "formalism.hpp"
 #include "../tmp/algorithm.hpp"
 
+namespace NiHu
+{
+
 /** \brief match types */
 namespace match
 {
@@ -111,6 +114,8 @@ public:
 		>::type, 2
 	>::type type;
 };
+
+}
 
 #endif // MATCH_TYPES_HPP_INCLUDED
 

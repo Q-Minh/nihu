@@ -28,6 +28,9 @@
 #include "../util/crtp_base.hpp"
 #include "../util/couple.hpp"
 
+namespace NiHu
+{
+
 template <class T>
 struct is_result_matrix_impl :
 	std::false_type {};
@@ -49,6 +52,8 @@ couple<
 operator,(A &&a, B &&b)
 {
 	return couple<A, B>(std::forward<A>(a), std::forward<B>(b));
+}
+
 }
 
 #endif // RESULT_MATRIX_HPP_INCLUDED

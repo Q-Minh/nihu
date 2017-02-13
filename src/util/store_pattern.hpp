@@ -23,6 +23,9 @@
 #ifndef STORE_PATTERN_HPP
 #define STORE_PATTERN_HPP
 
+namespace NiHu
+{
+
 /** \brief class with a static member */
 template <class C>
 struct store
@@ -34,5 +37,7 @@ struct store
         return m_data;
     }
 };
+
+}
 
 #endif // STORE_PATTERN_HPP

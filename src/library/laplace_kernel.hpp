@@ -35,6 +35,9 @@
 #include "location_normal.hpp"
 #include "basic_bricks.hpp"
 
+namespace NiHu
+{
+
 /** \brief a brick representing a Laplace kernel
  * \tparam Space the coordinate space the kernel is defined over
  */
@@ -716,8 +719,12 @@ typedef laplace_kernel<space_2d<>, potential::HSP> laplace_2d_HSP_kernel;
 /** \brief shorthand for the 3d laplace HSP kernel */
 typedef laplace_kernel<space_3d<>, potential::HSP> laplace_3d_HSP_kernel;
 
+}
 
 #include "guiggiani_1992.hpp"
+
+namespace NiHu
+{
 
 /** \brief specialisation of class ::polar_laurent_coeffs for the ::laplace_3d_HSP_kernel */
 template <class Scalar>
@@ -745,6 +752,8 @@ public:
 		obj.set_laurent_coeff(_m2(), -a0 / (4. * M_PI));
 	}
 };
+
+}
 
 #endif // LAPLACE_KERNEL_HPP_INCLUDED
 

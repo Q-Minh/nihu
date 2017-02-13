@@ -25,6 +25,9 @@
 
 #include "lib_domain.hpp"
 
+namespace NiHu
+{
+
 namespace domain_traits
 {
 	template <>
@@ -90,3 +93,4 @@ brick_domain::edges_t const brick_domain::m_edges = {
 
 brick_domain::xi_t const brick_domain::m_center = brick_domain::xi_t::Zero();
 
+}

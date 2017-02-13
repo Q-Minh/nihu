@@ -27,6 +27,9 @@
 #include "field.hpp"
 #include <type_traits>
 
+namespace NiHu
+{
+
 /** \brief definition of different weak form formalisms */
 namespace formalism
 {
@@ -58,6 +61,8 @@ struct get_formalism<TestField, TrialField,
 		!field_traits::is_dirac<TestField>::value && !field_traits::is_dirac<TrialField>::value
 	>::type
 > : formalism::general {};
+
+}
 
 
 #endif

@@ -31,6 +31,9 @@
 #include "lib_element.hpp"
 
 
+namespace NiHu
+{
+
 /** \brief internal namespace hiding the stored line quadrature */
 namespace matsumoto_internal
 {
@@ -205,6 +208,8 @@ private:
 	typedef typename tria_1_elem::x_t x_t;
 	typedef typename kernel_base<helmholtz_3d_SLP_kernel<WaveNumber> >::scalar_t scalar_t;
 };
+
+}
 
 #endif // MATSUMOTO_2010_HPP_INCLUDED
 

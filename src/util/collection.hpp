@@ -26,6 +26,9 @@
 
 #include <type_traits> // is_base_of
 
+namespace NiHu
+{
+
 /**
  * \brief collect a set of classes by multiple variadic inheritance
  * \tparam Args the classes that are collected into a container
@@ -162,6 +165,8 @@ typename merger<Collections...>::ret_type
 	merge_data(Collections const &...collections)
 {
 	return merger<Collections...>::eval(collections...);
+}
+
 }
 
 

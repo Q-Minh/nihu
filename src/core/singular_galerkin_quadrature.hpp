@@ -31,6 +31,9 @@
 
 #include "../library/lib_shape.hpp"
 
+namespace NiHu
+{
+
 /**
 * \brief class computing singular Galerkin type quadratures for different domains
 * \tparam quadrature_family_t the regular quadrature family
@@ -687,6 +690,8 @@ public:
 			template generate<match_type>(trial_quadrature, test_quadrature, singular_quadrature_order);
 	}
 };
+
+}
 
 
 #endif

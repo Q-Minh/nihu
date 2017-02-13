@@ -29,6 +29,9 @@
 #include "shapeset.hpp"
 #include "../library/lib_shape.hpp"
 
+namespace NiHu
+{
+
 /**
 * \brief a quadrature element is a base point and a weight
 * \tparam XiType the local coordinate type
@@ -303,6 +306,8 @@ std::ostream & operator << (std::ostream & os, const quadrature_base<Derived>& Q
 */
 template <class Family, class Domain>
 struct quadrature_type;
+
+}
 
 
 #endif

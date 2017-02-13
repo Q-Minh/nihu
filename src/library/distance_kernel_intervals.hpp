@@ -27,6 +27,9 @@
 #include "../tmp/interval.hpp"
 #include "../core/global_definitions.hpp"
 
+namespace NiHu
+{
+
 /** \brief define intervals for distance range and accuracy
  * \tparam Order the reciprocal order
  * \tparam Accuracy -log10(eps) as an integer
@@ -137,5 +140,7 @@ struct distance_kernel_interval<asymptotic::inverse<3>, 3>
 		break_point<ratio_infinite, tmp::integer<int, 0> >
 	> type;
 };
+
+}
 
 #endif // DISTANCE_KERNEL_INTERVALS_HPP_INCLUDED

@@ -35,6 +35,9 @@
 #define M_PI 3.141592653589793
 #endif
 
+namespace NiHu
+{
+
 /**
  * \brief \f$ sinc(x) = \sin(x) / x \f$ function
  * \tparam T type of x
@@ -349,6 +352,8 @@ namespace bessel
 	{
 		return -.5*M_PI * (std::imag(z) < 0. ? H<1, 1>(I*z) : H<1, 2>(-I*z));
 	}
+}
+
 }
 
 #endif // MATH_FUNCTIONS_HPP_INCLUDED

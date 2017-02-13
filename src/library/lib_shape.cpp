@@ -22,6 +22,9 @@
 
 #include "lib_shape.hpp"
 
+namespace NiHu
+{
+
 namespace shape_set_traits
 {
 	template <>
@@ -121,3 +124,4 @@ const quad_28_shape_set::m_corners[quad_28_shape_set::num_nodes] = {
 int const quad_28_shape_set::m_domain_corners[quad_28_shape_set::num_nodes] =
 { 0, -1, 1, -1, 2, -1, 3, -1 };
 
+}

@@ -29,6 +29,9 @@
 #include "../util/brick.hpp"
 #include "../core/gaussian_quadrature.hpp"
 
+namespace NiHu
+{
+
 /** \brief the unit kernel returning K(x,y) = 1 for all inputs */
 template <class Scalar>
 class unit_kernel;
@@ -90,6 +93,8 @@ public:
 		return 0;
 	}
 };
+
+}
 
 #endif // UNIT_KERNEL_HPP_INCLUDED
 

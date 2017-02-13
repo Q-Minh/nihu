@@ -27,6 +27,9 @@
 #include "../tmp/integer.hpp"
 #include "field.hpp"
 
+namespace NiHu
+{
+
 /** \brief clas to estimate kernel complexity between two fields
  * \tparam TestField the test field
  * \tparam TrialField the trial field
@@ -118,6 +121,8 @@ struct merge_kernel_complexity_estimators<Estim1, Estim2>
 		}
 	};
 };
+
+}
 
 #endif
 

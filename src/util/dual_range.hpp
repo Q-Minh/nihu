@@ -24,6 +24,9 @@
 
 #include <utility>
 
+namespace NiHu
+{
+
 /** \brief dual iteration options */
 namespace iteration
 {
@@ -231,6 +234,8 @@ dual_range<IterationMode, OutIt, InIt>
 	create_dual_range(IterationMode, OutIt obegin, OutIt oend, InIt ibegin, InIt iend)
 {
 	return dual_range<IterationMode, OutIt, InIt>(obegin, oend, ibegin, iend);
+}
+
 }
 
 #endif // DUAL_RANGE_HPP_INCLUDED

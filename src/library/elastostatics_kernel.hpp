@@ -33,6 +33,9 @@
 #include "location_normal.hpp"
 #include "basic_bricks.hpp"
 
+namespace NiHu
+{
+
 class elastostatics_data
 {
 public:
@@ -171,6 +174,8 @@ public:
 		obj.set_laurent_coeff(_m1(), semi_block_product(res, N0));
 	}
 };
+
+}
 
 #endif // ELASTOSTATICS_KERNEL_HPP_INCLUDED
 

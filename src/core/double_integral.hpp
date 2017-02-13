@@ -41,6 +41,9 @@
 #include "formalism.hpp"
 #include "../util/store_pattern.hpp"
 
+namespace NiHu
+{
+
 
 template <class Elem>
 struct weighted_brick;
@@ -672,6 +675,8 @@ public:
 		return eval_impl(formalism_t(), result, kernel, test_field, trial_field, match);
 	}
 };
+
+}
 
 
 #endif

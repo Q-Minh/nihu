@@ -28,6 +28,9 @@
 #include "field_type_acceleration_option.hpp"
 #include <cstddef>
 
+namespace NiHu
+{
+
 /** \brief acceleration::soft or acceleration::hard */
 typedef acceleration::hard GLOBAL_ACCELERATION;
 /**
@@ -40,6 +43,8 @@ unsigned const GLOBAL_MAX_ORDER = 14;
 enum { GLOBAL_ACCURACY = 3 };
 
 typedef std::ptrdiff_t Index;
+
+}
 
 #endif
 

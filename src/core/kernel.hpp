@@ -34,6 +34,9 @@
 #include "../library/interval_estimator.hpp"
 #include "../library/distance_kernel_intervals.hpp"
 
+namespace NiHu
+{
+
 /** \brief tag-class representing the empty (void) kernel data */
 class empty_data { typedef empty_data type; };
 
@@ -416,6 +419,8 @@ template <class...Args>
 couple_kernel<Args...> create_couple_kernel(kernel_base<Args> const &...args)
 {
 	return couple_kernel<Args...>(args...);
+}
+
 }
 
 #endif // KERNEL_HPP_INCLUDED

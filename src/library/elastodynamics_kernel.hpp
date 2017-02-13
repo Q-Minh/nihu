@@ -34,6 +34,9 @@
 #include "basic_bricks.hpp"
 #include "elastostatics_kernel.hpp"
 
+namespace NiHu
+{
+
 class elastodynamics_data
 {
 public:
@@ -225,5 +228,7 @@ public:
 	elastodynamics_3d_T_kernel(double nu, double rho, double mu, double omega) :
 		kernel_base<elastodynamics_3d_T_kernel>(elastodynamics_data(nu, rho, mu, omega)) {}
 };
+
+}
 
 #endif // ELASTODYNAMICS_KERNEL_HPP_INCLUDED

@@ -24,6 +24,9 @@
 #ifndef POTENTIAL_KERNEL_HPP_INCLUDED
 #define POTENTIAL_KERNEL_HPP_INCLUDED
 
+namespace NiHu
+{
+
 namespace potential
 {
 	/** \brief tag type to identify the Single Layer Potential */
@@ -34,6 +37,8 @@ namespace potential
 	struct DLPt { typedef DLPt type; };
 	/** \brief tag type to identify the Hypersingular Potential */
 	struct HSP { typedef HSP type; };
+}
+
 }
 
 #endif // POTENTIAL_KERNEL_HPP_INCLUDED

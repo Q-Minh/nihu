@@ -33,6 +33,9 @@
 #include "location_normal.hpp"
 #include "basic_bricks.hpp"
 
+namespace NiHu
+{
+
 class covariance_data
 {
 public:
@@ -102,5 +105,7 @@ public:
 	covariance_kernel(double sigma, double length) :
 		kernel_base<covariance_kernel>(covariance_data(sigma, length)) {}
 };
+
+}
 
 #endif // COVARIANCE_KERNEL_HPP_INCLUDED

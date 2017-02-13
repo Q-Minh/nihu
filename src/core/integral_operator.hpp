@@ -29,6 +29,9 @@
 #include "single_integral.hpp"
 #include "double_integral.hpp"
 
+namespace NiHu
+{
+
 // forward declaration
 template <class Operator, class TrialSpace>
 class integral_transform;
@@ -344,6 +347,8 @@ integral_operator<couple_kernel<K1, Kernels...> >
 	return integral_operator<couple_kernel<K1, Kernels...> >(
 		create_couple_kernel(std::forward<K1>(k1), std::forward<Kernels>(kernels)...)
 	);
+}
+
 }
 
 #endif

@@ -25,6 +25,9 @@
 
 #include "../tmp/relation.hpp"
 
+namespace NiHu
+{
+
 /** \brief namespace encapsulating singularity type classes */
 namespace asymptotic
 {
@@ -73,40 +76,42 @@ struct minimal_reference_dimension<asymptotic::inverse<order> >
 	static unsigned const value = order+1;
 };
 
+}
+
 
 
 namespace tmp
 {
 	template <unsigned o1, unsigned o2>
-	struct less<asymptotic::log<o1>, asymptotic::log<o2> >
+	struct less<NiHu::asymptotic::log<o1>, NiHu::asymptotic::log<o2> >
 		: std::integral_constant<bool, (o1 < o2) > {};
 
 	template <unsigned o1, unsigned o2>
-	struct greater<asymptotic::log<o1>, asymptotic::log<o2> >
+	struct greater<NiHu::asymptotic::log<o1>, NiHu::asymptotic::log<o2> >
 		: std::integral_constant<bool, (o1 > o2) > {};
 
 	template <unsigned o1, unsigned o2>
-	struct less<asymptotic::inverse<o1>, asymptotic::inverse<o2> >
+	struct less<NiHu::asymptotic::inverse<o1>, NiHu::asymptotic::inverse<o2> >
 		: std::integral_constant<bool, (o1 < o2) > {};
 
 	template <unsigned o1, unsigned o2>
-	struct greater<asymptotic::inverse<o1>, asymptotic::inverse<o2> >
+	struct greater<NiHu::asymptotic::inverse<o1>, NiHu::asymptotic::inverse<o2> >
 		: std::integral_constant<bool, (o1 > o2) > {};
 
 	template <unsigned o1, unsigned o2>
-	struct less<asymptotic::log<o1>, asymptotic::inverse<o2> >
+	struct less<NiHu::asymptotic::log<o1>, NiHu::asymptotic::inverse<o2> >
 		: std::true_type {};
 
 	template <unsigned o1, unsigned o2>
-	struct less<asymptotic::inverse<o1>, asymptotic::log<o2> >
+	struct less<NiHu::asymptotic::inverse<o1>, NiHu::asymptotic::log<o2> >
 		: std::false_type {};
 
 	template <unsigned o1, unsigned o2>
-	struct greater<asymptotic::log<o1>, asymptotic::inverse<o2> >
+	struct greater<NiHu::asymptotic::log<o1>, NiHu::asymptotic::inverse<o2> >
 		: std::false_type {};
 
 	template <unsigned o1, unsigned o2>
-	struct greater<asymptotic::inverse<o1>, asymptotic::log<o2> >
+	struct greater<NiHu::asymptotic::inverse<o1>, NiHu::asymptotic::log<o2> >
 		: std::true_type {};
 }
 

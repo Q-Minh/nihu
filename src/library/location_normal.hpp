@@ -28,6 +28,9 @@
 #include "../util/brick.hpp"
 #include "../core/element.hpp"
 
+namespace NiHu
+{
+
 /** \brief a class representing a simple location brick
  * \tparam Space the coordinate space
  */
@@ -170,6 +173,8 @@ typedef build<location<space_2d<> > >::type location_input_2d;
 typedef build<location<space_3d<> > >::type location_input_3d;
 typedef build<location<space_2d<> >, normal_jacobian<space_2d<> > >::type location_normal_input_2d;
 typedef build<location<space_3d<> >, normal_jacobian<space_3d<> > >::type location_normal_input_3d;
+
+}
 
 #endif // LOCATION_NORMAL_HPP_INCLUDED
 

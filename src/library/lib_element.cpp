@@ -18,6 +18,9 @@
 
 #include "lib_element.hpp"
 
+namespace NiHu
+{
+
 namespace element_traits
 {
 	template <>
@@ -38,6 +41,8 @@ namespace element_traits
 	const std::string name<quad_2_elem>::value = "Quad 2 elem";
 	template <>
 	const std::string name<quad_28_elem>::value = "Quad 28 elem";
+}
+
 }
 
 

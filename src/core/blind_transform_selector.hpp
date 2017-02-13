@@ -28,6 +28,9 @@
 #include "domain.hpp"
 #include "library/lib_domain.hpp"
 
+namespace NiHu
+{
+
 /** \brief defining blind transform algorithms */
 namespace blind_transform
 {
@@ -55,6 +58,8 @@ struct blind_transform_selector<asymptotic::inverse<1>, quad_domain>
 {
 	typedef blind_transform::duffy type;
 };
+
+}
 
 
 #endif // BLIND_TRANSFORM_SELECTOR_INCLUDED

@@ -28,6 +28,9 @@
 #include "couple.hpp"
 #include "eigen_utils.hpp"
 
+namespace NiHu
+{
+
 /** \brief plain object type of a class
  * \tparam T the class to convert to plain type
  * \details this is the general case where the class is not an expression
@@ -76,6 +79,8 @@ struct plain_type<T, false, true> : couple<
 	>::type
 > {};
 */
+
+}
 
 #endif // PLAIN_TYPE_HPP_INCLUDED
 

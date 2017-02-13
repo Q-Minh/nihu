@@ -36,6 +36,9 @@
 
 #include <stdexcept>
 
+namespace NiHu
+{
+
 /**
 * \brief a dual iterator to point to a test and a trial quadrature element
 * \tparam test_iterator_t the iterator type of the test quadrature
@@ -490,6 +493,8 @@ struct select_singular_accelerator <Kernel, TestField, TrialField, typename std:
 {
 	typedef singular_accelerator<Kernel, TestField, TrialField> type;
 };
+
+}
 
 #endif // SINGULAR_ACCELERATOR_HPP_INCLUDED
 

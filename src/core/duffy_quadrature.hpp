@@ -28,6 +28,9 @@
 #include "quadrature.hpp"
 #include "../library/lib_shape.hpp"
 
+namespace NiHu
+{
+
 /** \brief Traits class of a Duffy quadrature */
 template <class LSet>
 struct duffy_traits;
@@ -208,6 +211,8 @@ unsigned const duffy_traits<quad_2_shape_set>::duffy_corner_indices[9][5+1] = {
 	{3, /*|*/ 0, 1, 2, 3},
 	{4, /*|*/ 0, 1, 2, 3, 0}
 };
+
+}
 
 #endif // DUFFY_QUADRATURE_HPP_INCLUDED
 
