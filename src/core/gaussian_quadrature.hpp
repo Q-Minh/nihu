@@ -203,8 +203,23 @@ public:
 /**
  * \brief number of quadrature points for different Dunavant orders
  */
-static unsigned const dunavant_num[] = {1 /*0*/, 1 /*1*/, 3 /*2*/, 4 /*3*/, 6 /*4*/,
-	7/*5*/, 12 /*6*/, 13 /*7*/, 16 /*8*/, 19 /*9*/, 23 /*10*/, 33 /*11*/, 33 /*12*/, 37 /*13*/, 42 /*14*/};
+static unsigned const dunavant_num[] = {
+	1 /*0*/,
+	1 /*1*/,
+	3 /*2*/,
+	4 /*3*/,
+	6 /*4*/,
+	7 /*5*/,
+	12 /*6*/,
+	13 /*7*/,
+	16 /*8*/,
+	19 /*9*/,
+	23 /*10*/,
+	33 /*11*/,
+	33 /*12*/,
+	37 /*13*/,
+	42 /*14*/
+	};
 
 /**
  * \brief specialisation of gauss_quadrature for a triangle domain
@@ -232,8 +247,6 @@ public:
 		base_t(0)
 	{
 	}
-
-
 
 	/**
 	 * \brief constructor for a given polynomial order
