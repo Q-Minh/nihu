@@ -39,7 +39,7 @@ void tester(func_space const &w)
 	I.setZero();
 
 	// create integral operator from kernel and perform weighted double integral
-	auto K = create_integral_operator(laplace_3d_SLP_kernel());
+	auto K = NiHu::create_integral_operator(NiHu::laplace_3d_SLP_kernel());
 	I <<  w * K[w];
 
 	// Display matrix elements and their sum
@@ -66,20 +66,20 @@ int main(void)
 
 	// element nodal indices
 	uMatrix elements(1, 1+4);
-	elements << quad_1_elem::id, 0, 1, 3, 2;
+	elements << NiHu::quad_1_elem::id, 0, 1, 3, 2;
 
 	// create the mesh
-	auto msh = create_mesh(nodes, elements, tria_1_tag(), quad_1_tag());
+	auto msh = NiHu::create_mesh(nodes, elements, NiHu::tria_1_tag(), NiHu::quad_1_tag());
 //! [Mesh]
 
 //! [Operators]
 	// create a piecewise constant function space and call the tester
 	std::cout << "Testing with constant field" << std::endl;
-	tester(constant_view(msh));
+	tester(NiHu::constant_view(msh));
 
 	// create a piecewise linear function space and call the tester
 	std::cout << "Testing with isoparametric field" << std::endl;
-	tester(isoparametric_view(msh));
+	tester(NiHu::isoparametric_view(msh));
 //! [Operators]
 
 	return 0;

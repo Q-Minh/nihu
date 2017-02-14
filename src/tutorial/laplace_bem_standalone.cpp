@@ -36,22 +36,22 @@ int main(void)
 
 	uMatrix surf_elem(2,5);
 	surf_elem <<
-	quad_1_elem::id, 0, 1, 4, 3,
-	quad_1_elem::id, 1, 2, 5, 4;
+	NiHu::quad_1_elem::id, 0, 1, 4, 3,
+	NiHu::quad_1_elem::id, 1, 2, 5, 4;
 
-	auto surf_mesh = create_mesh(surf_nodes, surf_elem, quad_1_tag());
+	auto surf_mesh = NiHu::create_mesh(surf_nodes, surf_elem, NiHu::quad_1_tag());
 
-	auto const &surf_sp = constant_view(surf_mesh);
+	auto const &surf_sp = NiHu::constant_view(surf_mesh);
 
 	int n = surf_sp.get_num_dofs();
 	dMatrix L_surf(n, n), M_surf(n, n), Mt_surf(n, n), N_surf(n, n);
 	L_surf.setZero();
 
-	auto I = identity_integral_operator();
-	auto L = create_integral_operator(laplace_3d_SLP_kernel());
-	auto M = create_integral_operator(laplace_3d_DLP_kernel());
-	auto Mt = create_integral_operator(laplace_3d_DLPt_kernel());
-	auto N = create_integral_operator(laplace_3d_HSP_kernel());
+	auto I = NiHu::identity_integral_operator();
+	auto L = NiHu::create_integral_operator(NiHu::laplace_3d_SLP_kernel());
+	auto M = NiHu::create_integral_operator(NiHu::laplace_3d_DLP_kernel());
+	auto Mt = NiHu::create_integral_operator(NiHu::laplace_3d_DLPt_kernel());
+	auto N = NiHu::create_integral_operator(NiHu::laplace_3d_HSP_kernel());
 
 	// conventional equations
 	L_surf << dirac(surf_sp) * L[surf_sp];

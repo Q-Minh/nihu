@@ -22,21 +22,21 @@
 #include "library/helmholtz_kernel.hpp"
 #include "library/lib_element.hpp"
 
-typedef mex::real_matrix<double> dMatrix;
-typedef mex::complex_matrix<double> cMatrix;
+typedef NiHu::mex::real_matrix<double> dMatrix;
+typedef NiHu::mex::complex_matrix<double> cMatrix;
 //![Header]
 
 //![Mex and mesh]
 void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 {
 	dMatrix surf_nodes(rhs[0]), surf_elem(rhs[1]), field_nodes(rhs[2]), field_elem(rhs[3]);
-	auto surf_mesh = create_mesh(surf_nodes, surf_elem, quad_1_tag(), tria_1_tag());
-	auto field_mesh = create_mesh(field_nodes, field_elem, quad_1_tag());
+	auto surf_mesh = NiHu::create_mesh(surf_nodes, surf_elem, NiHu::quad_1_tag(), NiHu::tria_1_tag());
+	auto field_mesh = NiHu::create_mesh(field_nodes, field_elem, NiHu::quad_1_tag());
 //![Mex and mesh]
 
 //! [Function spaces]
-	auto const &surf_sp = constant_view(surf_mesh);
-	auto const &field_sp = dirac(constant_view(field_mesh));
+	auto const &surf_sp = NiHu::constant_view(surf_mesh);
+	auto const &field_sp = NiHu::dirac(NiHu::constant_view(field_mesh));
 //! [Function spaces]
 
 //! [Matrices]
@@ -47,8 +47,8 @@ void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 
 //! [Integral operators]
 	double k = *mxGetPr(rhs[4]);
-	auto L = create_integral_operator(helmholtz_3d_SLP_kernel<double>(k));
-	auto M = create_integral_operator(helmholtz_3d_DLP_kernel<double>(k));
+	auto L = NiHu::create_integral_operator(NiHu::helmholtz_3d_SLP_kernel<double>(k));
+	auto M = NiHu::create_integral_operator(NiHu::helmholtz_3d_DLP_kernel<double>(k));
 //! [Integral operators]
 
 //! [System matrices]

@@ -23,18 +23,18 @@
 #include "library/elastostatics_singular_integrals.hpp"
 #include "library/lib_element.hpp"
 
-typedef mex::real_matrix<double> dMatrix;
+typedef NiHu::mex::real_matrix<double> dMatrix;
 //![Header]
 
 //![Mesh]
 void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 {
 	dMatrix surf_nodes(rhs[0]), surf_elem(rhs[1]);
-	auto surf_mesh = create_mesh(surf_nodes, surf_elem, quad_2_tag());
+	auto surf_mesh = NiHu::create_mesh(surf_nodes, surf_elem, NiHu::quad_2_tag());
 //![Mesh]
 
 //! [Function spaces]
-	auto const &surf_sp = constant_view(surf_mesh, _3d());
+	auto const &surf_sp = NiHu::constant_view(surf_mesh, NiHu::_3d());
 //! [Function spaces]
 
 //! [Matrices]
@@ -45,13 +45,13 @@ void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 //! [Integral operators]
 	double nu = *mxGetPr(rhs[2]);
 	double mu = *mxGetPr(rhs[3]);
-	auto U = create_integral_operator(elastostatics_3d_U_kernel(nu, mu));
-	auto T = create_integral_operator(elastostatics_3d_T_kernel(nu, mu));
+	auto U = NiHu::create_integral_operator(NiHu::elastostatics_3d_U_kernel(nu, mu));
+	auto T = NiHu::create_integral_operator(NiHu::elastostatics_3d_T_kernel(nu, mu));
 //! [Integral operators]
 
 //! [System matrices]
-	Us << dirac(surf_sp) * U[surf_sp];
-	Ts << dirac(surf_sp) * T[surf_sp];
+	Us << NiHu::dirac(surf_sp) * U[surf_sp];
+	Ts << NiHu::dirac(surf_sp) * T[surf_sp];
 }
 //! [System matrices]
 

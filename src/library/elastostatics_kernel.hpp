@@ -32,6 +32,8 @@
 #include "../util/collection.hpp"
 #include "location_normal.hpp"
 #include "basic_bricks.hpp"
+#include "guiggiani_1992.hpp"
+
 
 namespace NiHu
 {
@@ -156,7 +158,6 @@ public:
 	}
 };
 
-#include "guiggiani_1992.hpp"
 
 template <>
 class polar_laurent_coeffs<elastostatics_3d_T_kernel>

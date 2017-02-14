@@ -22,18 +22,18 @@
 #include "library/laplace_kernel.hpp"
 #include "library/laplace_singular_integrals.hpp"
 
-typedef mex::real_matrix<double> dMatrix;
+typedef NiHu::mex::real_matrix<double> dMatrix;
 //![Header]
 
 void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 {
 //![Mesh]
 	dMatrix surf_nodes(rhs[0]), surf_elem(rhs[1]);
-	auto surf_mesh = create_mesh(surf_nodes, surf_elem, tria_1_tag(), quad_1_tag());
+	auto surf_mesh = NiHu::create_mesh(surf_nodes, surf_elem, NiHu::tria_1_tag(), NiHu::quad_1_tag());
 //![Mesh]
 
 //! [Function spaces]
-	auto const &surf_sp = constant_view(surf_mesh);
+	auto const &surf_sp = NiHu::constant_view(surf_mesh);
 //! [Function spaces]
 
 //! [Matrices]
@@ -44,11 +44,11 @@ void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 //! [Matrices]
 
 //! [Integral operators]
-	auto I = identity_integral_operator();
-	auto L = create_integral_operator(laplace_3d_SLP_kernel());
-	auto M = create_integral_operator(laplace_3d_DLP_kernel());
-	auto Mt = create_integral_operator(laplace_3d_DLPt_kernel());
-	auto N = create_integral_operator(laplace_3d_HSP_kernel());
+	auto I = NiHu::identity_integral_operator();
+	auto L = NiHu::create_integral_operator(NiHu::laplace_3d_SLP_kernel());
+	auto M = NiHu::create_integral_operator(NiHu::laplace_3d_DLP_kernel());
+	auto Mt = NiHu::create_integral_operator(NiHu::laplace_3d_DLPt_kernel());
+	auto N = NiHu::create_integral_operator(NiHu::laplace_3d_HSP_kernel());
 //! [Integral operators]
 
 //! [System matrices]

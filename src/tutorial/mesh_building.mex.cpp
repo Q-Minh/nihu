@@ -38,13 +38,13 @@ void test1()
 
 	uMatrix elements(3,5);
 	elements <<
-		quad_1_elem::id, 0, 1, 4, 3,
-		tria_1_elem::id, 1, 2, 5, 0,
-		tria_1_elem::id, 1, 5, 4, 0;
+		NiHu::quad_1_elem::id, 0, 1, 4, 3,
+		NiHu::tria_1_elem::id, 1, 2, 5, 0,
+		NiHu::tria_1_elem::id, 1, 5, 4, 0;
 //! [Matrices]
 
 //! [Creation]
-	auto my_mesh = create_mesh(nodes, elements, quad_1_tag(), tria_1_tag());
+	auto my_mesh = NiHu::create_mesh(nodes, elements, NiHu::quad_1_tag(), NiHu::tria_1_tag());
 //! [Creation]
 }
 
@@ -65,12 +65,12 @@ void test2(void)
 	uMatrix elements(N,3);		// element connections
 	for (unsigned i = 0; i < N; ++i)
 	{
-		elements(i,0) = line_1_elem::id;
+		elements(i,0) = NiHu::line_1_elem::id;
 		elements(i,1) = i;
 		elements(i,2) = (i+1)%N;
 	}
 
-	auto mesh = create_mesh(nodes, elements, line_1_tag());	// homogeneous mesh
+	auto mesh = NiHu::create_mesh(nodes, elements, NiHu::line_1_tag());	// homogeneous mesh
 //! [2D Circle]
 }
 
@@ -83,9 +83,9 @@ void test2(void)
 void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 {
 	// matrix import
-	mex::real_matrix<double> nodes(rhs[0]), elements(rhs[1]);
+	NiHu::mex::real_matrix<double> nodes(rhs[0]), elements(rhs[1]);
 	// create the mesh from Matlab
-	auto surf_mesh = create_mesh(nodes, elements, tria_1_tag(), quad_1_tag());
+	auto surf_mesh = NiHu::create_mesh(nodes, elements, NiHu::tria_1_tag(), NiHu::quad_1_tag());
 }
 //! [Matlab example]
 

@@ -29,20 +29,20 @@ int main(void)
 	dMatrix nodes(4,3);
 	nodes << 0., 0., 0., /*|*/ 1., 0., 0., /*|*/ 1., 1., 0., /*|*/ 0., 1., 0.;
 	uMatrix elements(1, 1+4);
-	elements <<	quad_1_elem::id, 0, 1, 2, 3;
-	auto msh = create_mesh(nodes, elements, quad_1_tag());
+	elements <<	NiHu::quad_1_elem::id, 0, 1, 2, 3;
+	auto msh = NiHu::create_mesh(nodes, elements, NiHu::quad_1_tag());
 //! [Mesh]
 
 //! [Function spaces]
-	auto const &trial = constant_view(msh);
-	auto const &test = dirac(trial);
+	auto const &trial = NiHu::constant_view(msh);
+	auto const &test = NiHu::dirac(trial);
 //! [Function spaces]
 
 //! [Weighted residual]
 	dMatrix A(1, 1);
 	A.setZero();
 
-	auto K = create_integral_operator(laplace_3d_SLP_kernel());
+	auto K = NiHu::create_integral_operator(NiHu::laplace_3d_SLP_kernel());
 	A << test * K[trial];
 //! [Weighted residual]
 

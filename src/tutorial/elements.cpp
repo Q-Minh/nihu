@@ -5,7 +5,7 @@
 void volume(void)
 {
 //! [Elem type]
-	typedef volume_element<quad_1_shape_set, double> Element;
+	typedef NiHu::volume_element<NiHu::quad_1_shape_set, double> Element;
 //! [Elem type]
 
 //! [Elem coordinates]
@@ -40,7 +40,7 @@ void volume(void)
 void surface(void)
 {
 //! [surface elem type]
-	typedef surface_element<quad_1_shape_set, double> Element;
+	typedef NiHu::surface_element<NiHu::quad_1_shape_set, double> Element;
 
 	Element::coords_t coords;
 	coords <<

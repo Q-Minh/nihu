@@ -7,7 +7,7 @@
 void Quad()
 {
 //! [define]
-	gaussian_quadrature<line_domain> quadrature(7);
+	NiHu::gaussian_quadrature<NiHu::line_domain> quadrature(7);
 //! [define]
 
 //! [traverse]
@@ -21,7 +21,7 @@ void Quad()
 //! [traverse 2]
 
 //! [3D quad]
-	gaussian_quadrature<quad_domain> quad2(7);
+	NiHu::gaussian_quadrature<NiHu::quad_domain> quad2(7);
 	for (auto q : quad2)
 		std::cout << q.get_xi().transpose() << '\t' << q.get_w() << '\n';
 //! [3D quad]
@@ -29,9 +29,9 @@ void Quad()
 
 void ElemInt()
 {
-	typedef volume_element<quad_1_shape_set, double> Element;
+	typedef NiHu::volume_element<NiHu::quad_1_shape_set, double> Element;
 	typedef Element::domain_t Domain;
-	typedef gaussian_quadrature<Domain> Quadrature;
+	typedef NiHu::gaussian_quadrature<Domain> Quadrature;
 
 	Element::coords_t coords;
 	coords <<
