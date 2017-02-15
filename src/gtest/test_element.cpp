@@ -8,7 +8,7 @@ template <class ElemType>
 struct Stored;
 
 template <>
-struct Stored<line_1_elem>
+struct Stored<NiHu::line_1_elem>
 {
 	Stored(void)
 	{
@@ -22,17 +22,17 @@ struct Stored<line_1_elem>
 		normal << 2.0/2.0, -1.0/2.0;
 	}
 
-	line_1_elem::coords_t coords;
-	line_1_elem::x_t center;
-	line_1_elem::xi_t xi;
-	line_1_elem::x_t x;
-	line_1_elem::x_t normal;
+	NiHu::line_1_elem::coords_t coords;
+	NiHu::line_1_elem::x_t center;
+	NiHu::line_1_elem::xi_t xi;
+	NiHu::line_1_elem::x_t x;
+	NiHu::line_1_elem::x_t normal;
 	double size_estimate;
 };
 
 
 template <>
-struct Stored<line_2_elem>
+struct Stored<NiHu::line_2_elem>
 {
 	Stored(void)
 	{
@@ -46,11 +46,11 @@ struct Stored<line_2_elem>
 		normal << .2, -1.0;
 	}
 
-	line_2_elem::coords_t coords;
-	line_2_elem::x_t center;
-	line_2_elem::xi_t xi;
-	line_2_elem::x_t x;
-	line_2_elem::x_t normal;
+	NiHu::line_2_elem::coords_t coords;
+	NiHu::line_2_elem::x_t center;
+	NiHu::line_2_elem::xi_t xi;
+	NiHu::line_2_elem::x_t x;
+	NiHu::line_2_elem::x_t normal;
 	double size_estimate;
 };
 
@@ -71,11 +71,11 @@ void tester(void)
 
 TEST(Element, Line1Elem)
 {
-	tester<line_1_elem>();
+	tester<NiHu::line_1_elem>();
 }
 
 TEST(Element, Line2Elem)
 {
-	tester<line_2_elem>();
+	tester<NiHu::line_2_elem>();
 }
 

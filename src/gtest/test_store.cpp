@@ -15,9 +15,9 @@ unsigned Dummy::n_constr = 0;
 
 
 TEST(Store, Store1){
-	auto d = store<Dummy>::get_data();
+	auto d = NiHu::store<Dummy>::get_data();
 	EXPECT_EQ(d.get_n_constr(), 1);
-	auto d2 = store<Dummy>::get_data();
+	auto d2 = NiHu::store<Dummy>::get_data();
 	EXPECT_EQ(d2.get_n_constr(), 1);
 }
 
