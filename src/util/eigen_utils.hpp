@@ -47,8 +47,10 @@ struct is_eigen : std::is_base_of<
 	typename std::decay<T>::type
 > {};
 
+/*
 template <class m1, class m2, int t>
 struct is_eigen<Eigen::GeneralProduct<m1, m2, t> > : std::true_type {};
+*/
 
 }
 
