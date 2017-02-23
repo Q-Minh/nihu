@@ -58,10 +58,6 @@ int main(void)
 
     std::cout << tester(NiHu::elastostatics_3d_U_kernel(nu, mu), elem1, elem2) << std::endl;
 	std::cout << tester(NiHu::elastostatics_3d_T_kernel(nu, mu), elem1, elem2) << std::endl;
-    std::cout << tester(
-		create_couple_kernel(NiHu::elastostatics_3d_U_kernel(nu, mu), NiHu::elastostatics_3d_T_kernel(nu, mu)),
-		elem1, elem2
-	) << std::endl;
 
 	std::cout << "U singular:\n" << singular_integral_test(NiHu::elastostatics_3d_U_kernel(nu, mu), elem1) << std::endl;
 	std::cout << "T singular:\n" << singular_integral_test(NiHu::elastostatics_3d_T_kernel(nu, mu), elem1) << std::endl;

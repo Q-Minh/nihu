@@ -72,19 +72,5 @@ void mexFunction(int nlhs, mxArray *lhs[],
 	auto stop = std::chrono::steady_clock::now();	// stop timer
 	dMatrix dur_separate(1, 1, lhs[6]);
 	dur_separate(0,0) = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count();
-
-	// evaluate radiation matrices again with couple kernel evaluation
-
-	auto CoupleOp = NiHu::create_integral_operator(
-		NiHu::laplace_3d_SLP_kernel(),
-		NiHu::laplace_3d_DLP_kernel(),
-		NiHu::laplace_3d_DLPt_kernel(),
-		NiHu::laplace_3d_HSP_kernel()
-	);
-	start = std::chrono::steady_clock::now();	// start timer
-	NiHu::create_couple(Lf, Mf, Mtf, Nf)  << ( field_sp * CoupleOp [trial_sp] );
-	stop = std::chrono::steady_clock::now();	// stop timer
-	dMatrix dur_couple(1, 1, lhs[7]);
-	dur_couple(0,0) = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count();
 }
 

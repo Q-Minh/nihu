@@ -205,25 +205,7 @@ operator << (Res &res, WR &&wr)
 	return res;
 }
 
-/** \brief operator to evaluate a couple weighted residual into a result matrix
- * \tparam WR the weighted residual
- * \tparam Res the result matrix
- * \param [in] wr the weighted residual instance
- * \param [in, out] res the result matrix instance
- * \return (reference to) the result matrix
- */
-template <class WR, class CRes>
-typename std::enable_if<
-	is_weighted_residual<WR>::value && is_couple<CRes>::value,
-	CRes
->::type
-operator << (CRes &&res, WR &&wr)
-{
-	wr.eval(res);
-	return res;
-}
-
-}
+} // end of namespace NiHu
 
 #endif // ifndef WEIGHTED_RESIDUAL_HPP_INCLUDED
 

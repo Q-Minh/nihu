@@ -24,8 +24,6 @@
 #ifndef MATRIX_BLOCK_HPP_INCLUDED
 #define MATRIX_BLOCK_HPP_INCLUDED
 
-#include "couple.hpp"
-
 namespace NiHu
 {
 
@@ -62,44 +60,6 @@ public:
 		for (int i = 0; i < m_rows.size(); ++i)
 			for (int j = 0; j < m_cols.size(); ++j)
 				m_matrix(m_rows(i), m_cols(j)) += rhs(i, j);
-	}
-
-private:
-	template <class C, int idx>
-	struct increase_couple
-	{
-		static void eval(C const &rhs, matrix_block const &mb)
-		{
-			for (int i = 0; i < mb.m_rows.size(); ++i)
-				for (int j = 0; j < mb.m_cols.size(); ++j)
-					mb.m_matrix.template get<idx-1>()(mb.m_rows(i), mb.m_cols(j))
-						+= rhs.template get<idx-1>()(i, j);
-
-			increase_couple<C, idx-1>::eval(rhs, mb);
-		}
-	};
-
-	template <class C>
-	struct increase_couple<C, 0>
-	{
-		static void eval(C const &, matrix_block const &)
-		{
-		}
-	};
-
-public:
-	/**
-	 * \brief increment the block with a subcouple
-	 * \tparam MA the first submatrix type in the couple
-	 * \tparam MB the second submatrix type in the couple
-	 * \details in this specialisation we assume that the block itself is a
-	 * block of couples
-	 * \param [in] rhs the submatrix to add to the block
-	 */
-	template <class...Args>
-	void operator +=(couple<Args...> const &rhs) const
-	{
-		increase_couple<couple<Args...>, couple_traits<couple<Args...> >::tuple_size>::eval(rhs, *this);
 	}
 
 protected:

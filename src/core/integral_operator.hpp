@@ -332,23 +332,6 @@ integral_operator<Kernel>
 	return integral_operator<Kernel>(std::forward<Kernel>(kernel));
 }
 
-
-/** \brief factory function of an integral operator with couple kernels
- * \tparam K1 the kernel type
- * \tparam Kernels the remaining kernels' type
- * \param [in] k1 the first kernel
- * \param [in] kernels the remaining kernels
- * \return the integral operator object
- */
-template <class K1, class...Kernels>
-integral_operator<couple_kernel<K1, Kernels...> >
-	create_integral_operator(K1 &&k1, Kernels &&...kernels)
-{
-	return integral_operator<couple_kernel<K1, Kernels...> >(
-		create_couple_kernel(std::forward<K1>(k1), std::forward<Kernels>(kernels)...)
-	);
-}
-
 }
 
 #endif
