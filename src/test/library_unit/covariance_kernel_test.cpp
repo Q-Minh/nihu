@@ -32,29 +32,29 @@ typename K::result_t tester(K const &k, E1 const &e1, E2 const &e2)
 }
 
 template <class K, class E>
-typename K::result_t singular_integral_test(kernel_base<K> const &k, E const &e)
+typename K::result_t singular_integral_test(NiHu::kernel_base<K> const &k, E const &e)
 {
 	// cast the element into a constant field view
-	typedef field_view<E, field_option::constant> F;
+	typedef NiHu::field_view<E, NiHu::field_option::constant> F;
 	F const &field = static_cast<F const &>(e);
 
 	// compute collocational singular integral
-	typedef double_integral<K, dirac_field<F>, F> di_type;
-	return di_type::eval(k, dirac(field), field, std::true_type());
+	typedef NiHu::double_integral<K, NiHu::dirac_field<F>, F> di_type;
+	return di_type::eval(k, NiHu::dirac(field), field, std::true_type());
 }
 
 int main(void)
 {
 	// two elements shifted (regular case)
-    line_1_volume_elem::coords_t coords1, coords2;
+    NiHu::line_1_volume_elem::coords_t coords1, coords2;
     coords1 << 	-1., 1.;
     coords2 << 2., 3.;
-    line_1_volume_elem elem1(coords1), elem2(coords2);
+    NiHu::line_1_volume_elem elem1(coords1), elem2(coords2);
 
 	double sigma = 2;
 	double d = 2;
 
-	covariance_kernel C(sigma, d);
+	NiHu::covariance_kernel<NiHu::line_1_volume_elem::space_t> C(sigma, d);
 
 	std::cout << "Evaluating C kernel in the center of two different elements..." << std::endl;
     std::cout << tester(C, elem1, elem2) << std::endl;

@@ -32,7 +32,7 @@ struct tester
 	{
 		void operator()(void)
 		{
-			std::cout << "\n" << element_traits::name<ElemType>::value << " (" << ElemType::id << ")\n"
+			std::cout << "\n" << NiHu::element_traits::name<ElemType>::value << " (" << ElemType::id << ")\n"
 				<< "==========" << std::endl;
 			const unsigned  N = 1e6;
 			std::vector<ElemType> elements;
@@ -66,9 +66,9 @@ int main(void)
 {
 	tmp::call_each<
 		tmp::vector<
-			line_1_elem, line_2_elem,
-			tria_1_elem, quad_1_elem,
-			tria_2_elem, quad_2_elem, quad_28_elem
+			NiHu::line_1_elem, NiHu::line_2_elem,
+			NiHu::tria_1_elem, NiHu::quad_1_elem,
+			NiHu::tria_2_elem, NiHu::quad_2_elem, NiHu::quad_28_elem
 		>,
 		tester<tmp::_1>
 	>();

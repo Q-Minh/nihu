@@ -25,7 +25,7 @@ if(DEFINED NIHU_EIGEN_PATH)
 	endif(NOT EXISTS "${NIHU_EIGEN_PATH}/Eigen")
 	# Eigen found successfully 
 	set(EIGEN_FOUND 1)
-	set(EIGEN_INCLUDE_DIRS NIHU_EIGEN_PATH)
+	set(EIGEN_INCLUDE_DIRS "${NIHU_EIGEN_PATH}")
 # If the path is not defined
 else(DEFINED NIHU_EIGEN_PATH)
 	if(UNIX)

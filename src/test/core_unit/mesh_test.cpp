@@ -23,8 +23,8 @@
 
 typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> dMatrix;
 typedef Eigen::Matrix<unsigned, Eigen::Dynamic, Eigen::Dynamic> uMatrix;
-typedef tmp::vector<tria_1_elem, quad_1_elem, tria_2_elem, quad_2_elem> elem_type_vector_t;
-typedef mesh<elem_type_vector_t> mesh_t;
+typedef tmp::vector<NiHu::tria_1_elem, NiHu::quad_1_elem, NiHu::tria_2_elem, NiHu::quad_2_elem> elem_type_vector_t;
+typedef NiHu::mesh<elem_type_vector_t> mesh_t;
 
 template <class ElemType>
 struct tester
@@ -71,11 +71,11 @@ int main(void)
 	// Definition of elements
 	uMatrix elements(5, 1+4);
 	elements <<
-		quad_1_elem::id, 0, 1, 4, 3,
-		tria_1_elem::id, 1, 2, 5, 0,
-		quad_1_elem::id, 3, 4, 7, 6,
-		tria_1_elem::id, 4, 5, 8, 0,
-		tria_1_elem::id, 4, 8, 7, 0;
+		NiHu::quad_1_elem::id, 0, 1, 4, 3,
+		NiHu::tria_1_elem::id, 1, 2, 5, 0,
+		NiHu::quad_1_elem::id, 3, 4, 7, 6,
+		NiHu::tria_1_elem::id, 4, 5, 8, 0,
+		NiHu::tria_1_elem::id, 4, 8, 7, 0;
 
 	// Create a mesh
 	mesh_t msh(nodes, elements);

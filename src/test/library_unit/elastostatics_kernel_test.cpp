@@ -32,19 +32,19 @@ typename K::result_t tester(K const &k, E1 const &e1, E2 const &e2)
 
 
 template <class K, class E>
-typename K::result_t singular_integral_test(kernel_base<K> const &k, E const &e)
+typename K::result_t singular_integral_test(NiHu::kernel_base<K> const &k, E const &e)
 {
-	typedef field_view<E, field_option::constant> F;
+	typedef NiHu::field_view<E, NiHu::field_option::constant> F;
 	F const &field = static_cast<F const &>(e);
 
-	typedef double_integral<K, dirac_field<F>, F> di_type;
+	typedef NiHu::double_integral<K, NiHu::dirac_field<F>, F> di_type;
 	return di_type::eval(k, dirac(field), field, std::true_type());
 }
 
 int main(void)
 {
 	// two elements shifted (regular case)
-    quad_1_elem::coords_t coords1, coords2;
+    NiHu::quad_1_elem::coords_t coords1, coords2;
     coords1 <<
 		-.5,  1, 1., -1.,
 		-1., -1., 1.,  1.,
@@ -52,19 +52,19 @@ int main(void)
     coords2 = coords1;
     coords2.row(1) += Eigen::Matrix<double, 1, 4>::Constant(2.0);
 
-    quad_1_elem elem1(coords1), elem2(coords2);
+    NiHu::quad_1_elem elem1(coords1), elem2(coords2);
 	double nu = 1./3.;
 	double mu = 1e8;
 
-    std::cout << tester(elastostatics_3d_U_kernel(nu, mu), elem1, elem2) << std::endl;
-	std::cout << tester(elastostatics_3d_T_kernel(nu, mu), elem1, elem2) << std::endl;
+    std::cout << tester(NiHu::elastostatics_3d_U_kernel(nu, mu), elem1, elem2) << std::endl;
+	std::cout << tester(NiHu::elastostatics_3d_T_kernel(nu, mu), elem1, elem2) << std::endl;
     std::cout << tester(
-		create_couple_kernel(elastostatics_3d_U_kernel(nu, mu), elastostatics_3d_T_kernel(nu, mu)),
+		create_couple_kernel(NiHu::elastostatics_3d_U_kernel(nu, mu), NiHu::elastostatics_3d_T_kernel(nu, mu)),
 		elem1, elem2
 	) << std::endl;
 
-	std::cout << "U singular:\n" << singular_integral_test(elastostatics_3d_U_kernel(nu, mu), elem1) << std::endl;
-	std::cout << "T singular:\n" << singular_integral_test(elastostatics_3d_T_kernel(nu, mu), elem1) << std::endl;
+	std::cout << "U singular:\n" << singular_integral_test(NiHu::elastostatics_3d_U_kernel(nu, mu), elem1) << std::endl;
+	std::cout << "T singular:\n" << singular_integral_test(NiHu::elastostatics_3d_T_kernel(nu, mu), elem1) << std::endl;
 
     return 0;
 }

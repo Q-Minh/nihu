@@ -23,21 +23,21 @@
 
 #include <iostream>
 
-typedef select_singular_accelerator<
-	laplace_3d_HSP_kernel,
-	field<quad_1_elem, quad_1_shape_set>,
-	field<quad_1_elem, quad_1_shape_set>
+typedef NiHu::select_singular_accelerator<
+	NiHu::laplace_3d_HSP_kernel,
+	NiHu::field<NiHu::quad_1_elem, NiHu::quad_1_shape_set>,
+	NiHu::field<NiHu::quad_1_elem, NiHu::quad_1_shape_set>
 >::type acc_t;
 
 int main(void)
 {
-	std::cout << std::is_same<acc_t, invalid_singular_accelerator>::value << std::endl;
+	std::cout << std::is_same<acc_t, NiHu::invalid_singular_accelerator>::value << std::endl;
 
 	std::cout << std::is_same<
-		blind_transform::duffy,
-		blind_transform_selector<
-            asymptotic::inverse<1>,
-            tria_domain
+		NiHu::blind_transform::duffy,
+		NiHu::blind_transform_selector<
+            NiHu::asymptotic::inverse<1>,
+            NiHu::tria_domain
 		>::type
 	>::value;
 
