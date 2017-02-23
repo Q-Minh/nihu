@@ -27,21 +27,21 @@ int main(void)
 	Eigen::Matrix<double, 1, 1> v;
 
 	std::cout << "block product:\n"
-		<< block_product(Eigen::Matrix<double, 2, 1>::Constant(1.0),
+		<< NiHu::block_product(Eigen::Matrix<double, 2, 1>::Constant(1.0),
 		m,
 		Eigen::Matrix<double, 2, 1>::Constant(3.0)) << std::endl;
 
 	std::cout << "semi block product:\n"
-		<< semi_block_product(m, Eigen::Matrix<double, 2, 1>::Constant(3.0)) << std::endl;
+		<< NiHu::semi_block_product(m, Eigen::Matrix<double, 2, 1>::Constant(3.0)) << std::endl;
 
 	std::cout << "semi block product:\n"
-		<< semi_block_product(m, v) << std::endl;
+		<< NiHu::semi_block_product(m, v) << std::endl;
 
 	// testing a pseudo block product
 	std::cout << "block product:\n"
-		<< block_product(Eigen::Matrix<double, 2, 1>::Constant(1.0), 2.0, Eigen::Matrix<double, 2, 1>::Constant(3.0)) << std::endl;
+		<< NiHu::block_product(Eigen::Matrix<double, 2, 1>::Constant(1.0), 2.0, Eigen::Matrix<double, 2, 1>::Constant(3.0)) << std::endl;
 
 	std::cout << "semi block product:\n"
-		<< semi_block_product(2.0, Eigen::Matrix<double, 2, 1>::Constant(3.0)) << std::endl;
+		<< NiHu::semi_block_product(2.0, Eigen::Matrix<double, 2, 1>::Constant(3.0)) << std::endl;
 }
 

@@ -22,17 +22,16 @@
 #include "library/matsumoto_2010.hpp"
 //#include "library/helmholtz_singular_integrals.hpp"
 
-typedef mex::real_matrix<double> dMatrix;
-typedef mex::complex_matrix<double> cMatrix;
+typedef NiHu::mex::real_matrix<double> dMatrix;
+typedef NiHu::mex::complex_matrix<double> cMatrix;
 
 void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 {
-
 	dMatrix surf_nodes(rhs[0]), surf_elem(rhs[1]);
 
-	auto surf_mesh = create_mesh(surf_nodes, surf_elem, tria_1_tag());
+	auto surf_mesh = NiHu::create_mesh(surf_nodes, surf_elem, NiHu::tria_1_tag());
 	
-	auto const &surf_sp = constant_view(surf_mesh);
+	auto const &surf_sp = NiHu::constant_view(surf_mesh);
 
 	int n = surf_sp.get_num_dofs();
 	cMatrix
@@ -41,17 +40,19 @@ void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 
 	// Retrieve wave number
 	double k = *mxGetPr(rhs[2]);
-	auto I = identity_integral_operator();
-	auto L = create_integral_operator(helmholtz_3d_SLP_kernel<double>(k));
-	auto M = create_integral_operator(helmholtz_3d_DLP_kernel<double>(k));
-	auto Mt = create_integral_operator(helmholtz_3d_DLPt_kernel<double>(k));
-	auto N = create_integral_operator(helmholtz_3d_HSP_kernel<double>(k));
+	auto I = NiHu::identity_integral_operator();
+	auto L = NiHu::create_integral_operator(NiHu::helmholtz_3d_SLP_kernel<double>(k));
+	auto M = NiHu::create_integral_operator(NiHu::helmholtz_3d_DLP_kernel<double>(k));
+	auto Mt = NiHu::create_integral_operator(NiHu::helmholtz_3d_DLPt_kernel<double>(k));
+	auto N = NiHu::create_integral_operator(NiHu::helmholtz_3d_HSP_kernel<double>(k));
 
 	// conventional equations
-	L_surf << dirac(surf_sp) * L[surf_sp];
-	M_surf << dirac(surf_sp) * M[surf_sp]  +  dirac(surf_sp) * (-.5*I)[surf_sp];
+	L_surf << NiHu::dirac(surf_sp) * L[surf_sp];
+	M_surf << NiHu::dirac(surf_sp) * M[surf_sp]
+		+  NiHu::dirac(surf_sp) * (-.5*I)[surf_sp];
 
 	// Burton-Miller equations
-	Mt_surf  << dirac(surf_sp) * Mt[surf_sp] +  dirac(surf_sp) * (.5*I)[surf_sp];
-	N_surf  << dirac(surf_sp) * N[surf_sp];
+	Mt_surf  << NiHu::dirac(surf_sp) * Mt[surf_sp]
+		+ NiHu::dirac(surf_sp) * (.5*I)[surf_sp];
+	N_surf  << NiHu::dirac(surf_sp) * N[surf_sp];
 }

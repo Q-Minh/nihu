@@ -43,9 +43,9 @@ private:
 
 int main(void)
 {
-	typedef collect<empty> empty_collection_t;
-	typedef collect<A, empty> A_collection_t;
-	typedef collect<B> B_collection_t;
+	typedef NiHu::collect<empty> empty_collection_t;
+	typedef NiHu::collect<A, empty> A_collection_t;
+	typedef NiHu::collect<B> B_collection_t;
 
 	empty_collection_t ec;
 	A_collection_t ac(A(3), empty());
@@ -53,6 +53,6 @@ int main(void)
 
 	std::cout << ac.A::get_data() << std::endl;
 
-	auto m = merge_data(ac, bc);
+	auto m = NiHu::merge_data(ac, bc);
 	std::cout << m.A::get_data() << std::endl;
 }

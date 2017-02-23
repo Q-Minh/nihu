@@ -32,16 +32,16 @@ int main(void)
 	char b[] = {'a', 'b', 'c', 'd'};
 	
 	std::cout << "diagonal iteration" << std::endl;
-	iterate(create_dual_range(iteration::diagonal(), a, a+4, b, b+4));
+	iterate(NiHu::create_dual_range(NiHu::iteration::diagonal(), a, a+4, b, b+4));
 
 	std::cout << "matrix iteration" << std::endl;
-	iterate(create_dual_range(iteration::diadic(), a, a+4, b, b+4));
+	iterate(NiHu::create_dual_range(NiHu::iteration::diadic(), a, a+4, b, b+4));
 
 	std::cout << "matrix iteration with empty inner" << std::endl;
-	iterate(create_dual_range(iteration::diadic(), a, a+4, b, b));
+	iterate(NiHu::create_dual_range(NiHu::iteration::diadic(), a, a+4, b, b));
 
 	std::cout << "matrix iteration with empty outer" << std::endl;
-	iterate(create_dual_range(iteration::diadic(), a, a, b, b+4));
+	iterate(NiHu::create_dual_range(NiHu::iteration::diadic(), a, a, b, b+4));
 	
 	return 0;
 }

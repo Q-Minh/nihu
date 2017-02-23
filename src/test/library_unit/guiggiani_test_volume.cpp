@@ -23,8 +23,8 @@
 #include "library/location_normal.hpp"
 #include "library/laplace_kernel.hpp"
 
-typedef quad_1_volume_elem Elem;
-typedef field_view<Elem, field_option::constant> Field;
+typedef NiHu::quad_1_volume_elem Elem;
+typedef NiHu::field_view<Elem, NiHu::field_option::constant> Field;
 
 
 struct MyFunctor
@@ -32,8 +32,8 @@ struct MyFunctor
 	typedef double return_type;
 
 	return_type operator()(
-		location_input_2d const &x, location_input_2d const &y,
-		empty_data const &data)
+		NiHu::location_input_2d const &x, NiHu::location_input_2d const &y,
+		NiHu::empty_data const &data)
 	{
 		return 1./(x.get_x()-y.get_x()).squaredNorm();
 	}
@@ -41,6 +41,8 @@ struct MyFunctor
 
 class MyKernel;
 
+namespace NiHu
+{
 template <>
 struct kernel_traits<MyKernel>
 {
@@ -63,15 +65,18 @@ struct singular_kernel_traits<MyKernel>
 	static unsigned const singular_quadrature_order = 7;
 	typedef MyKernel singular_core_t;
 };
+}
 
-class MyKernel : public kernel_base<MyKernel>
+class MyKernel : public NiHu::kernel_base<MyKernel>
 {
 public:
 	MyKernel(void) :
-		kernel_base<MyKernel>(empty_data()) {}
+		NiHu::kernel_base<MyKernel>(NiHu::empty_data()) {}
 };
 
 
+namespace NiHu
+{
 template <>
 class polar_laurent_coeffs<MyKernel>
 {
@@ -87,6 +92,7 @@ public:
 		obj.set_laurent_coeff(_m1(), semi_block_product(res, N0*J0));
 	}
 };
+}
 
 
 int main(void)
@@ -98,7 +104,7 @@ int main(void)
 
 	MyKernel kernel;
 
-	guiggiani<Field, MyKernel, 5> gui(elem, kernel);
+	NiHu::guiggiani<Field, MyKernel, 5> gui(elem, kernel);
 	Eigen::Matrix<double, 1, 1> Res;
 	gui.integrate(Res, Elem::domain_t::get_center());
 

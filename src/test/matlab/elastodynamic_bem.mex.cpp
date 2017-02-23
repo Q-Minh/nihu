@@ -22,19 +22,19 @@
 #include "library/elastodynamics_singular_integrals.hpp"
 #include "library/lib_element.hpp"
 
-typedef mex::real_matrix<double> dMatrix;
-typedef mex::complex_matrix<double> cMatrix;
+typedef NiHu::mex::real_matrix<double> dMatrix;
+typedef NiHu::mex::complex_matrix<double> cMatrix;
 
 void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 {
 	dMatrix surf_nodes(rhs[0]), surf_elem(rhs[1]);
-	auto surf_mesh = create_mesh(surf_nodes, surf_elem, quad_1_tag());
-	auto const &surf_sp = constant_view(surf_mesh, _3d());
+	auto surf_mesh = NiHu::create_mesh(surf_nodes, surf_elem, NiHu::quad_1_tag());
+	auto const &surf_sp = NiHu::constant_view(surf_mesh, NiHu::_3d());
 	int n = surf_sp.get_num_dofs();
 
 	dMatrix field_nodes(rhs[2]), field_elem(rhs[3]);
-	auto field_mesh = create_mesh(field_nodes, field_elem, quad_1_tag());
-	auto const &field_sp = dirac(constant_view(field_mesh, _3d()));
+	auto field_mesh = NiHu::create_mesh(field_nodes, field_elem, NiHu::quad_1_tag());
+	auto const &field_sp = NiHu::dirac(NiHu::constant_view(field_mesh, NiHu::_3d()));
 	int m = field_sp.get_num_dofs();
 
 	cMatrix Us(n, n, lhs[0]), Ts(n, n, lhs[1]), Uf(m, n, lhs[2]), Tf(m, n, lhs[3]);
@@ -44,8 +44,8 @@ void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 	double mu = *mxGetPr(rhs[6]);
 	double freq = *mxGetPr(rhs[7]);
 
-	auto U_op = create_integral_operator(elastodynamics_3d_U_kernel(nu, rho, mu, 2.*M_PI*freq));
-	auto T_op = create_integral_operator(elastodynamics_3d_T_kernel(nu, rho, mu, 2.*M_PI*freq));
+	auto U_op = NiHu::create_integral_operator(NiHu::elastodynamics_3d_U_kernel(nu, rho, mu, 2.*M_PI*freq));
+	auto T_op = NiHu::create_integral_operator(NiHu::elastodynamics_3d_T_kernel(nu, rho, mu, 2.*M_PI*freq));
 
 	Us << dirac(surf_sp) * U_op[surf_sp];
 	Ts << dirac(surf_sp) * T_op[surf_sp];

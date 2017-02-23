@@ -4,22 +4,22 @@
 #include "library/laplace_kernel.hpp"
 #include "core/weighted_residual.hpp"
 
-typedef mex::real_matrix<double> dMatrix;
+typedef NiHu::mex::real_matrix<double> dMatrix;
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, mxArray const *prhs[])
 // D = domain_integral_test(nodes, delements, belements)
 {
 	dMatrix nodes(prhs[0]), dElements(prhs[1]), bElements(prhs[2]);
-	auto domain = create_mesh(nodes, dElements, tria_1_volume_tag());
-	auto boundary = create_mesh(nodes, bElements, line_1_tag());
+	auto domain = NiHu::create_mesh(nodes, dElements, NiHu::tria_1_volume_tag());
+	auto boundary = NiHu::create_mesh(nodes, bElements, NiHu::line_1_tag());
 
-	auto const &dspace = constant_view(domain);
-	auto const &bspace = constant_view(boundary);
+	auto const &dspace = NiHu::constant_view(domain);
+	auto const &bspace = NiHu::constant_view(boundary);
 
-	auto K = create_integral_operator(laplace_2d_SLP_kernel());
+	auto K = NiHu::create_integral_operator(NiHu::laplace_2d_SLP_kernel());
 
 	dMatrix D(boundary.get_num_elements(), domain.get_num_elements(), plhs[0]);
 
-	D << dirac(bspace) * K[dspace];
+	D << NiHu::dirac(bspace) * K[dspace];
 }
 

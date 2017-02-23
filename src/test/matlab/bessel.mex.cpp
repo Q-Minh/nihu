@@ -21,7 +21,7 @@
 #include <iostream>
 #include <stdexcept>
 
-typedef mex::complex_matrix<double> cMatrix;
+typedef NiHu::mex::complex_matrix<double> cMatrix;
 
 void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 {
@@ -38,16 +38,16 @@ void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 	for (unsigned i = 0; i < z.rows(); ++i)
 		for (unsigned j = 0; j < z.cols(); ++j)
 		{
-			J0(i,j) = bessel::J<0, std::complex<double> >(z(i,j));
-			J1(i,j) = bessel::J<1, std::complex<double> >(z(i,j));
-			Y0(i,j) = bessel::Y<0>(z(i,j));
-			Y1(i,j) = bessel::Y<1>(z(i,j));
-			H01(i,j) = bessel::H<0, 1, std::complex<double> >(z(i,j));
-			H11(i,j) = bessel::H<1, 1, std::complex<double> >(z(i,j));
-			H02(i,j) = bessel::H<0, 2, std::complex<double> >(z(i,j));
-			H12(i,j) = bessel::H<1, 2, std::complex<double> >(z(i,j));
-			K0(i,j) = bessel::K<0, std::complex<double> >(z(i,j));
-			K1(i,j) = bessel::K<1, std::complex<double> >(z(i,j));
+			J0(i,j) = NiHu::bessel::J<0, std::complex<double> >(z(i,j));
+			J1(i,j) = NiHu::bessel::J<1, std::complex<double> >(z(i,j));
+			Y0(i,j) = NiHu::bessel::Y<0>(z(i,j));
+			Y1(i,j) = NiHu::bessel::Y<1>(z(i,j));
+			H01(i,j) = NiHu::bessel::H<0, 1, std::complex<double> >(z(i,j));
+			H11(i,j) = NiHu::bessel::H<1, 1, std::complex<double> >(z(i,j));
+			H02(i,j) = NiHu::bessel::H<0, 2, std::complex<double> >(z(i,j));
+			H12(i,j) = NiHu::bessel::H<1, 2, std::complex<double> >(z(i,j));
+			K0(i,j) = NiHu::bessel::K<0, std::complex<double> >(z(i,j));
+			K1(i,j) = NiHu::bessel::K<1, std::complex<double> >(z(i,j));
 		}
 }
 

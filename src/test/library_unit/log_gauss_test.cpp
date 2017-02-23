@@ -32,7 +32,7 @@ double func(double x, unsigned n)
 int main(void)
 {
 	unsigned N = 7;
-	auto quadrature = log_gauss_impl<double>(N);
+	auto quadrature = NiHu::log_gauss_impl<double>(N);
 
 	for (unsigned n = 0; n < 2 * N + 5; ++n)
 	{

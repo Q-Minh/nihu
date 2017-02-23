@@ -23,7 +23,7 @@
 int main(void)
 {
 	// testing couple constructor and get functions
-	couple<int, float, char, Eigen::Matrix<double, 3, 3> > a(3, 3.14, 'b', Eigen::Matrix<double, 3, 3>::Constant(2.0));
+	NiHu::couple<int, float, char, Eigen::Matrix<double, 3, 3> > a(3, 3.14, 'b', Eigen::Matrix<double, 3, 3>::Constant(2.0));
 	std::cout << a << std::endl;
 	
 	// testing eval_to_tuple
@@ -43,8 +43,8 @@ int main(void)
 
 	// testing couple block
 	Eigen::Matrix<double, 3, 3> m1 = Eigen::Matrix<double, 3, 3>::Zero(), m2 = Eigen::Matrix<double, 3, 3>::Zero();
-	auto C = create_couple(m1, m2);
-	C.block<2,2>(1,1) += create_couple(Eigen::Matrix<double,2,2>::Constant(1.0), Eigen::Matrix<double, 2, 2>::Constant(1.0));
+	auto C = NiHu::create_couple(m1, m2);
+	C.block<2,2>(1,1) += NiHu::create_couple(Eigen::Matrix<double,2,2>::Constant(1.0), Eigen::Matrix<double, 2, 2>::Constant(1.0));
 	std::cout << C << std::endl;
 }
 

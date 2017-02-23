@@ -24,7 +24,7 @@
 unsigned const N = 1000000;
 
 template <class kernel>
-void tester(kernel_base<kernel> const &k)
+void tester(NiHu::kernel_base<kernel> const &k)
 {
 	NiHu::quad_1_elem::coords_t coords;
 	coords <<

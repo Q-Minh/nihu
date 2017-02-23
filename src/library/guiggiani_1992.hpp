@@ -555,30 +555,30 @@ private:
 
 		typename elem_t::dx_return_type dx = m_elem.get_dx(m_xi0);
 
-		m_rvec_series[0] = dx.col(shape_derivative_index::dXI) * xi(shape_derivative_index::dXI)
-			+ dx.col(shape_derivative_index::dETA) * xi(shape_derivative_index::dETA);
+		m_rvec_series[0] = dx.col(shape_derivative_index::dXI) * xi(shape_derivative_index::dXI, 0)
+			+ dx.col(shape_derivative_index::dETA) * xi(shape_derivative_index::dETA, 0);
 		if (laurent_order > 1) // compile_time IF
 		{
 			typename elem_t::ddx_return_type ddx = m_elem.get_ddx(m_xi0);
 
 			m_rvec_series[1] =
 				ddx.col(shape_derivative_index::dXIXI)*
-				xi(shape_derivative_index::dXI)*xi(shape_derivative_index::dXI) / 2.0
+				xi(shape_derivative_index::dXI, 0)*xi(shape_derivative_index::dXI, 0) / 2.0
 				+
 				ddx.col(shape_derivative_index::dXIETA)*
-				xi(shape_derivative_index::dXI)*xi(shape_derivative_index::dETA)
+				xi(shape_derivative_index::dXI, 0)*xi(shape_derivative_index::dETA, 0)
 				+
 				ddx.col(shape_derivative_index::dETAETA)*
-				xi(shape_derivative_index::dETA)*xi(shape_derivative_index::dETA) / 2.0;
+				xi(shape_derivative_index::dETA, 0)*xi(shape_derivative_index::dETA, 0) / 2.0;
 
 			m_J_series[1] = (
-				xi(0) *
+				xi(0, 0) *
 				(
 				detvectors(ddx.col(shape_derivative_index::dXIXI), dx.col(shape_derivative_index::dETA)) +
 				detvectors(dx.col(shape_derivative_index::dXI), ddx.col(shape_derivative_index::dXIETA))
 				)
 				+
-				xi(1) *
+				xi(1, 0) *
 				(
 				detvectors(ddx.col(shape_derivative_index::dETAXI), dx.col(shape_derivative_index::dETA))+
 				detvectors(dx.col(shape_derivative_index::dXI), ddx.col(shape_derivative_index::dETAETA))
@@ -586,8 +586,8 @@ private:
 				) / m_T.determinant();
 
 			auto dN = trial_nset_t::template eval_shape<1>(m_xi0);
-			m_N_series[1] = dN.col(shape_derivative_index::dXI)*xi(shape_derivative_index::dXI)
-				+ dN.col(shape_derivative_index::dETA)*xi(shape_derivative_index::dETA);
+			m_N_series[1] = dN.col(shape_derivative_index::dXI)*xi(shape_derivative_index::dXI, 0)
+				+ dN.col(shape_derivative_index::dETA)*xi(shape_derivative_index::dETA, 0);
 		}
 	}
 

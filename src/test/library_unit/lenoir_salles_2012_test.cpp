@@ -48,11 +48,11 @@ int main(void)
 	// element nodal indices
 	uMatrix elements(5, 1+4);
 	elements <<
-		quad_1_elem::id, 0, 1, 4, 3,
-		quad_1_elem::id, 1, 2, 5, 4,
-		quad_1_elem::id, 3, 4, 7, 6,
-		tria_1_elem::id, 4, 5, 8, 0,
-		tria_1_elem::id, 4, 8, 7, 0;
+		NiHu::quad_1_elem::id, 0, 1, 4, 3,
+		NiHu::quad_1_elem::id, 1, 2, 5, 4,
+		NiHu::quad_1_elem::id, 3, 4, 7, 6,
+		NiHu::tria_1_elem::id, 4, 5, 8, 0,
+		NiHu::tria_1_elem::id, 4, 8, 7, 0;
 
 	// create the mesh
 	auto msh = NiHu::create_mesh(nodes, elements, NiHu::tria_1_tag(), NiHu::quad_1_tag());

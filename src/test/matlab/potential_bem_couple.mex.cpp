@@ -21,7 +21,7 @@
 #include "library/laplace_kernel.hpp"
 #include "library/lib_element.hpp"
 
-typedef mex::real_matrix<double> dMatrix;
+typedef NiHu::mex::real_matrix<double> dMatrix;
 
 void mexFunction(
 	int nlhs, mxArray *lhs[],
@@ -34,20 +34,20 @@ void mexFunction(
 
 	dMatrix surf_nodes(rhs[0]);
 	dMatrix surf_elements(rhs[1]);
-	auto surf_mesh = create_mesh(surf_nodes, surf_elements, quad_1_tag());
-	auto const &surf_sp = constant_view(surf_mesh);
+	auto surf_mesh = NiHu::create_mesh(surf_nodes, surf_elements, NiHu::quad_1_tag());
+	auto const &surf_sp = NiHu::constant_view(surf_mesh);
 
 	dMatrix field_nodes(rhs[2]);
 	dMatrix field_elements(rhs[3]);
-	auto field_mesh = create_mesh(field_nodes, field_elements, quad_1_tag());
-	auto const &field_sp = dirac(constant_view(field_mesh));
+	auto field_mesh = NiHu::create_mesh(field_nodes, field_elements, NiHu::quad_1_tag());
+	auto const &field_sp = NiHu::dirac(NiHu::constant_view(field_mesh));
 
 	// generating integral operators
 
-	auto LM = create_integral_operator(
-			laplace_3d_SLP_kernel(),
-			laplace_3d_DLP_kernel());
-	auto I = identity_integral_operator();
+	auto LM = NiHu::create_integral_operator(
+			NiHu::laplace_3d_SLP_kernel(),
+			NiHu::laplace_3d_DLP_kernel());
+	auto I = NiHu::identity_integral_operator();
 
 	// surface system matrices
 
@@ -55,7 +55,7 @@ void mexFunction(
 	dMatrix Ls(n, n, lhs[0]);
 	dMatrix Ms(n, n, lhs[1]);
 
-	(Ls, Ms) << ( surf_sp * LM[surf_sp] );
+	NiHu::create_couple(Ls, Ms) << ( surf_sp * LM[surf_sp] );
 	Ms << ( surf_sp * (-.5*I)[surf_sp] );
 
 	// field point system matrices
@@ -64,6 +64,6 @@ void mexFunction(
 	dMatrix Lf(m, n, lhs[2]);
 	dMatrix Mf(m, n, lhs[3]);
 
-	(Lf, Mf) << ( field_sp * LM[surf_sp] );
+	NiHu::create_couple(Lf, Mf) << ( field_sp * LM[surf_sp] );
 }
 

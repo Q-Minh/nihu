@@ -23,7 +23,7 @@
 
 #include <chrono>
 
-typedef mex::real_matrix<double> dMatrix;
+typedef NiHu::mex::real_matrix<double> dMatrix;
 
 
 void mexFunction(int nlhs, mxArray *lhs[],
@@ -34,18 +34,18 @@ void mexFunction(int nlhs, mxArray *lhs[],
 
 	// create used integral operators
 
-	auto L = create_integral_operator(laplace_3d_SLP_kernel());
-	auto M = create_integral_operator(laplace_3d_DLP_kernel());
-	auto Mt = create_integral_operator(laplace_3d_DLPt_kernel());
-	auto N = create_integral_operator(laplace_3d_HSP_kernel());
-	auto I = identity_integral_operator();
+	auto L = NiHu::create_integral_operator(NiHu::laplace_3d_SLP_kernel());
+	auto M = NiHu::create_integral_operator(NiHu::laplace_3d_DLP_kernel());
+	auto Mt = NiHu::create_integral_operator(NiHu::laplace_3d_DLPt_kernel());
+	auto N = NiHu::create_integral_operator(NiHu::laplace_3d_HSP_kernel());
+	auto I = NiHu::identity_integral_operator();
 
 	// create surface mesh and test and trial function spaces
 
 	dMatrix surf_nodes(rhs[0]), surf_elements(rhs[1]);
-	auto surf_mesh = create_mesh(surf_nodes, surf_elements, quad_1_tag(), tria_1_tag());
-	auto const &trial_sp = constant_view(surf_mesh);	// constant
-	auto const &test_sp = dirac(trial_sp);				// collocation
+	auto surf_mesh = NiHu::create_mesh(surf_nodes, surf_elements, NiHu::quad_1_tag(), NiHu::tria_1_tag());
+	auto const &trial_sp = NiHu::constant_view(surf_mesh);	// constant
+	auto const &test_sp = NiHu::dirac(trial_sp);				// collocation
 
 	auto n = trial_sp.get_num_dofs();
 	dMatrix Ls(n, n, lhs[0]), Ms(n, n, lhs[1]);
@@ -56,8 +56,8 @@ void mexFunction(int nlhs, mxArray *lhs[],
 	// create field point mesh
 
 	dMatrix field_nodes(rhs[2]), field_elements(rhs[3]);
-	auto field_mesh = create_mesh(field_nodes, field_elements, quad_1_tag());
-	auto const &field_sp = dirac(constant_view(field_mesh));
+	auto field_mesh = NiHu::create_mesh(field_nodes, field_elements, NiHu::quad_1_tag());
+	auto const &field_sp = NiHu::dirac(NiHu::constant_view(field_mesh));
 
 	auto m = field_sp.get_num_dofs();
 	dMatrix Lf(m, n, lhs[2]), Mf(m, n, lhs[3]), Mtf(m, n, lhs[4]), Nf(m, n, lhs[5]);
@@ -75,14 +75,14 @@ void mexFunction(int nlhs, mxArray *lhs[],
 
 	// evaluate radiation matrices again with couple kernel evaluation
 
-	auto CoupleOp = create_integral_operator(
-		laplace_3d_SLP_kernel(),
-		laplace_3d_DLP_kernel(),
-		laplace_3d_DLPt_kernel(),
-		laplace_3d_HSP_kernel()
+	auto CoupleOp = NiHu::create_integral_operator(
+		NiHu::laplace_3d_SLP_kernel(),
+		NiHu::laplace_3d_DLP_kernel(),
+		NiHu::laplace_3d_DLPt_kernel(),
+		NiHu::laplace_3d_HSP_kernel()
 	);
 	start = std::chrono::steady_clock::now();	// start timer
-	create_couple(Lf, Mf, Mtf, Nf)  << ( field_sp * CoupleOp [trial_sp] );
+	NiHu::create_couple(Lf, Mf, Mtf, Nf)  << ( field_sp * CoupleOp [trial_sp] );
 	stop = std::chrono::steady_clock::now();	// stop timer
 	dMatrix dur_couple(1, 1, lhs[7]);
 	dur_couple(0,0) = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count();
