@@ -20,29 +20,33 @@
 #include "library/covariance_kernel.hpp"
 #include "util/mex_matrix.hpp"
 #include "library/lib_element.hpp"
+/*
 #include <Eigen/Eigenvalues>
+*/
 
 typedef NiHu::mex::real_matrix<double> dMatrix;
 
 void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 {
 	dMatrix nodes(rhs[0]), elem(rhs[1]);
-	auto mesh = NiHu::create_mesh(nodes, elem, NiHu::line_1_volume_tag());
+	auto mesh = NiHu::create_mesh(nodes, elem, NiHu::tria_1_volume_tag());
 
 	auto const &w = NiHu::constant_view(mesh);
 
 	double sigma = *mxGetPr(rhs[2]);
 	double d = *mxGetPr(rhs[3]);
-	auto C = NiHu::create_integral_operator(NiHu::covariance_kernel<NiHu::space_1d<> >(sigma, d));
+	auto C = NiHu::create_integral_operator(NiHu::covariance_kernel<NiHu::space_2d<> >(sigma, d));
 	auto I = NiHu::identity_integral_operator();
 
-	Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> D(w.get_num_dofs(), w.get_num_dofs()), B(w.get_num_dofs(), w.get_num_dofs());
+	dMatrix D(w.get_num_dofs(), w.get_num_dofs(), lhs[0]);
+	dMatrix B(w.get_num_dofs(), w.get_num_dofs(), lhs[1]);
 	D.setZero();
 	B.setZero();
 	
 	D << (w * C[w]);
 	B << (w * I[w]);
 	
+/*
 	Eigen::GeneralizedSelfAdjointEigenSolver<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> > es(D, B);
 
 	dMatrix G(D.rows(), D.rows(), lhs[0]);
@@ -54,5 +58,7 @@ void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 		for (int j = 0; j < D.rows(); ++j)
 			G(i,j) = es.eigenvectors()(i,j);
 	}
+}
+*/
 }
 
