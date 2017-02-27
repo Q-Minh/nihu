@@ -32,17 +32,17 @@ private:
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, mxArray const *prhs[])
 {
 	// read input arguments from Matlab
-	mex::real_matrix<double> xs(prhs[0]), xr(prhs[1]);
-	mex::real_matrix<int> source_clusters(prhs[2]), receiver_clusters(prhs[3]), blocks(prhs[4]);
-	mex::real_matrix<double> input(prhs[5]);
+	NiHu::mex::real_matrix<double> xs(prhs[0]), xr(prhs[1]);
+	NiHu::mex::real_matrix<int> source_clusters(prhs[2]), receiver_clusters(prhs[3]), blocks(prhs[4]);
+	NiHu::mex::real_matrix<double> input(prhs[5]);
 
 	// allocate Matlab output
-	mex::real_matrix<double> output(input.rows(), 1, plhs[0]);
-	mex::real_matrix<int> ranks(blocks.rows(), 1, plhs[1]);
+	NiHu::mex::real_matrix<double> output(input.rows(), 1, plhs[0]);
+	NiHu::mex::real_matrix<int> ranks(blocks.rows(), 1, plhs[1]);
 	output.setZero();
 
 	// instantiate Newton kernel matrix
-	Newton<mex::real_matrix<double> > M(xr, xs);
+	Newton<NiHu::mex::real_matrix<double> > M(xr, xs);
 
 	ACA aca;
 	aca.multiply(M, receiver_clusters, source_clusters, blocks, input, output, 1e-3, 50, ranks);

@@ -28,11 +28,11 @@ void comparison()
 	std::complex<double> s(1., -1.);
 	std::complex<double>k(-I*s);
 	
-	std::complex<double> krH0((k*r)*bessel::H<0,2>(k*r));
-	std::complex<double> H1(bessel::H<1,2>(k*r));
+	std::complex<double> krH0((k*r)*NiHu::bessel::H<0,2>(k*r));
+	std::complex<double> H1(NiHu::bessel::H<1,2>(k*r));
 	
-	std::complex<double> rsK0(r*s*bessel::K<0>(r*s));
-	std::complex<double> K1(bessel::K<1>(r*s));
+	std::complex<double> rsK0(r*s*NiHu::bessel::K<0>(r*s));
+	std::complex<double> K1(NiHu::bessel::K<1>(r*s));
 
 	std::complex<double> Ker1 = I*k/r * (x/r*x/r*(krH0-2.*H1) + H1) / 4.;
 	std::complex<double> Ker2 = s/r * (x/r*x/r*(2.*K1+rsK0) - K1) / (2.*M_PI);
@@ -41,25 +41,25 @@ void comparison()
 }
 
 template <class kernel>
-void tester(kernel_base<kernel> const &k)
+void tester(NiHu::kernel_base<kernel> const &k)
 {
-	line_1_elem::coords_t coords1;
+	NiHu::line_1_elem::coords_t coords1;
 	coords1 <<
 		0, 1,
 		0, 0;
 
-	line_1_elem::coords_t coords2;
+	NiHu::line_1_elem::coords_t coords2;
 	coords2 <<
 		1, 2,
 		1, 1;
 
-	line_1_elem elem1(coords1);
-	line_1_elem elem2(coords2);
-	auto xi1 = line_1_elem::domain_t::get_center();
-	auto xi2 = line_1_elem::domain_t::get_center();
+	NiHu::line_1_elem elem1(coords1);
+	NiHu::line_1_elem elem2(coords2);
+	auto xi1 = NiHu::line_1_elem::domain_t::get_center();
+	auto xi2 = NiHu::line_1_elem::domain_t::get_center();
 
-	typename kernel_traits<kernel>::test_input_t x(elem1, xi1);
-	typename kernel_traits<kernel>::trial_input_t y(elem2, xi2);
+	typename NiHu::kernel_traits<kernel>::test_input_t x(elem1, xi1);
+	typename NiHu::kernel_traits<kernel>::trial_input_t y(elem2, xi2);
 
 	std::cout << k(x,y) << std::endl;
 }
@@ -69,13 +69,13 @@ int main(void)
 	std::complex<double> wave_number(-1., -1.);
 
 	std::cout << "helmholtz G kernel";
-	tester(helmholtz_2d_SLP_kernel<std::complex<double> >(wave_number));
+	tester(NiHu::helmholtz_2d_SLP_kernel<std::complex<double> >(wave_number));
 
 	std::cout << "helmholtz H kernel";
-	tester(helmholtz_2d_DLP_kernel<std::complex<double> >(wave_number));
+	tester(NiHu::helmholtz_2d_DLP_kernel<std::complex<double> >(wave_number));
 	
 	std::cout << "helmholtz double kernel";
-	tester(helmholtz_2d_double_kernel<std::complex<double>, 0, 0>(wave_number));
+	tester(NiHu::helmholtz_2d_double_kernel<std::complex<double>, 0, 0>(wave_number));
 	
 	comparison();
 

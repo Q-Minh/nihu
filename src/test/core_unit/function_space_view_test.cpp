@@ -20,8 +20,8 @@
 #include "core/function_space.hpp"
 #include "library/lib_element.hpp"
 
-typedef tmp::vector<tria_1_elem, quad_1_elem> elem_type_vector_t;
-typedef mesh<elem_type_vector_t> mesh_t;
+typedef tmp::vector<NiHu::tria_1_elem, NiHu::quad_1_elem> elem_type_vector_t;
+typedef NiHu::mesh<elem_type_vector_t> mesh_t;
 
 template <class ElemType, class Option>
 struct view_tester
@@ -30,10 +30,10 @@ struct view_tester
 	{
 		void operator() (mesh_t const& mesh)
 		{
-			auto& fsp_view  = create_function_space_view(mesh, Option());
+			auto& fsp_view  = NiHu::create_function_space_view(mesh, Option());
 			std::cout << "# DOFS: " << fsp_view.get_num_dofs() << std::endl;
 			
-			typedef field_view<ElemType, Option> field_view_t;
+			typedef NiHu::field_view<ElemType, Option> field_view_t;
 			
 			auto b = fsp_view.template field_begin<field_view_t>();
 			auto e = fsp_view.template field_end<field_view_t>();
@@ -49,7 +49,7 @@ struct view_tester
 	};
 };
 
-typedef tmp::vector<field_option::constant, field_option::isoparametric> option_vector;
+typedef tmp::vector<NiHu::field_option::constant, NiHu::field_option::isoparametric> option_vector;
 
 typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> dMatrix;
 typedef Eigen::Matrix<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic> cMatrix;
@@ -76,11 +76,11 @@ int main(void)
 	// Definition of elements
 	uMatrix elements(5, 1+4);
 	elements <<
-		quad_1_elem::id, 0, 1, 4, 3,
-		quad_1_elem::id, 1, 2, 5, 4,
-		quad_1_elem::id, 3, 4, 7, 6,
-		tria_1_elem::id, 4, 5, 8, 0,
-		tria_1_elem::id, 4, 8, 7, 0;
+		NiHu::quad_1_elem::id, 0, 1, 4, 3,
+		NiHu::quad_1_elem::id, 1, 2, 5, 4,
+		NiHu::quad_1_elem::id, 3, 4, 7, 6,
+		NiHu::tria_1_elem::id, 4, 5, 8, 0,
+		NiHu::tria_1_elem::id, 4, 8, 7, 0;
 
 	// Create a mesh
 	mesh_t msh(nodes, elements);

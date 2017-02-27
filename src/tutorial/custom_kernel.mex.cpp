@@ -45,8 +45,8 @@ struct Ukernel
 	typedef Eigen::Matrix<double, 3, 3> return_type;
 
 	return_type operator()(
-		location_input_3d const &x,
-		location_input_3d const &y,
+		NiHu::location_input_3d const &x,
+		NiHu::location_input_3d const &y,
 		poisson_ratio_data const &data)
 	{
 		auto nu = data.get_poisson_ratio();
@@ -63,6 +63,8 @@ class elastostatics_3d_U_kernel;
 //![udeclare]
 
 //![utraits]
+namespace NiHu
+{
 template <>
 struct kernel_traits<elastostatics_3d_U_kernel>
 {
@@ -76,23 +78,27 @@ struct kernel_traits<elastostatics_3d_U_kernel>
 	typedef asymptotic::inverse<1> far_field_behaviour_t;
 	static bool const is_singular = true;
 };
+}
 //![utraits]
 
 //![usingtraits]
+namespace NiHu
+{
 template <>
 struct singular_kernel_traits<elastostatics_3d_U_kernel>
 {
 	typedef asymptotic::inverse<1> singularity_type_t;
 	static unsigned const singular_quadrature_order = 7;
 };
+}
 //![usingtraits]
 
 //![udefine]
-class elastostatics_3d_U_kernel : public kernel_base<elastostatics_3d_U_kernel>
+class elastostatics_3d_U_kernel : public NiHu::kernel_base<elastostatics_3d_U_kernel>
 {
 public:
 	elastostatics_3d_U_kernel(double nu) :
-		kernel_base<elastostatics_3d_U_kernel>(poisson_ratio_data(nu))
+		NiHu::kernel_base<elastostatics_3d_U_kernel>(poisson_ratio_data(nu))
 	{
 	}
 };
@@ -104,8 +110,8 @@ struct Tkernel
 	typedef Eigen::Matrix<double, 3, 3> return_type;
 
 	return_type operator()(
-		location_input_3d const &x,
-		location_normal_input_3d const &y,
+		NiHu::location_input_3d const &x,
+		NiHu::location_normal_input_3d const &y,
 		poisson_ratio_data const &data)
 	{
 		auto nu = data.get_poisson_ratio();
@@ -122,6 +128,8 @@ struct Tkernel
 
 class elastostatics_3d_T_kernel;
 
+namespace NiHu
+{
 template <>
 struct kernel_traits<elastostatics_3d_T_kernel>
 {
@@ -135,7 +143,10 @@ struct kernel_traits<elastostatics_3d_T_kernel>
 	typedef asymptotic::inverse<2> far_field_behaviour_t;
 	static bool const is_singular = true;
 };
+}
 
+namespace NiHu
+{
 template <>
 struct singular_kernel_traits<elastostatics_3d_T_kernel>
 {
@@ -143,13 +154,14 @@ struct singular_kernel_traits<elastostatics_3d_T_kernel>
 	static unsigned const singular_quadrature_order = 7;
 	typedef elastostatics_3d_T_kernel singular_kernel_ancestor_t;
 };
+}
 
 class elastostatics_3d_T_kernel :
-	public kernel_base<elastostatics_3d_T_kernel>
+	public NiHu::kernel_base<elastostatics_3d_T_kernel>
 {
 public:
 	elastostatics_3d_T_kernel(double nu) :
-		kernel_base<elastostatics_3d_T_kernel>(poisson_ratio_data(nu))
+		NiHu::kernel_base<elastostatics_3d_T_kernel>(poisson_ratio_data(nu))
 	{
 	}
 };
@@ -158,6 +170,8 @@ public:
 
 #include "../library/guiggiani_1992.hpp"
 
+namespace NiHu
+{
 template <>
 class polar_laurent_coeffs<elastostatics_3d_T_kernel>
 {
@@ -174,7 +188,7 @@ public:
 		obj.set_laurent_coeff(_m1(), semi_block_product(res, N0));
 	}
 };
-
+}
 
 #endif // ELASTOSTATICS_KERNEL_HPP_INCLUDED
 

@@ -64,13 +64,16 @@ private:
 	double m_length;	/**< \brief Correlation length */
 };
 
+template <class Space>
 struct CKernel
 {
 	typedef Eigen::Matrix<double, 1, 1> return_type;
 	
+	typedef typename build<location<Space> >::type location_input;
+	
 	return_type operator()(
-		location_input_1d const &x,
-		location_input_1d const &y,
+		location_input const &x,
+		location_input const &y,
 		covariance_data const &data)
 	{
 		auto rvec = y.get_x() - x.get_x();
@@ -81,16 +84,17 @@ struct CKernel
 	}
 };
 
+template <class Space>
 class covariance_kernel;
 
 /** \brief the properties of the covariance kernel */
-template <>
-struct kernel_traits<covariance_kernel>
+template <class Space>
+struct kernel_traits<covariance_kernel<Space> >
 {
-	typedef location_input_1d test_input_t;
-	typedef location_input_1d trial_input_t;
+	typedef typename build<location<Space> >::type test_input_t;
+	typedef typename build<location<Space> >::type trial_input_t;
 	typedef collect<covariance_data> data_t;
-	typedef single_brick_wall<CKernel>::type output_t;
+	typedef typename single_brick_wall<CKernel<Space> >::type output_t;
 	enum { result_rows = 1, result_cols = 1 };
 	typedef gauss_family_tag quadrature_family_t;
 	static bool const is_symmetric = true;
@@ -98,8 +102,9 @@ struct kernel_traits<covariance_kernel>
 	static bool const is_singular = false;
 };
 
+template <class Space>
 class covariance_kernel :
-	public kernel_base<covariance_kernel>
+	public kernel_base<covariance_kernel<Space> >
 {
 public:
 	covariance_kernel(double sigma, double length) :

@@ -65,9 +65,9 @@ int field_test(void)
 {
 	tmp::call_each<
 		tmp::vector<
-			line_1_elem, line_2_elem,
-			tria_1_elem, quad_1_elem,
-			tria_2_elem, quad_2_elem, quad_28_elem
+			NiHu::line_1_elem, NiHu::line_2_elem,
+			NiHu::tria_1_elem, NiHu::quad_1_elem,
+			NiHu::tria_2_elem, NiHu::quad_2_elem, NiHu::quad_28_elem
 		>,
 		tester<tmp::_1>
 	>();

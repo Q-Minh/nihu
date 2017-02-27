@@ -25,6 +25,8 @@ class quad_1_gauss_shape_set;
 //! [Forward declaration]
 
 //! [Shape traits]
+namespace NiHu
+{
 namespace shape_set_traits
 {
 	template <>
@@ -60,12 +62,13 @@ namespace shape_set_traits
 		typedef tmp::vector<dof2, dof2, dof2, dof2> type;
 	};
 }
+}
 //! [Shape traits]
 
 
 //! [Shape class]
 class quad_1_gauss_shape_set
-	: public shape_set_base<quad_1_gauss_shape_set>
+	: public NiHu::shape_set_base<quad_1_gauss_shape_set>
 {
 public:
 	static xi_t const *corner_begin(void)
@@ -87,6 +90,8 @@ quad_1_gauss_shape_set::xi_t
 //! [Shape class]
 
 //! [Shape lsets]
+namespace NiHu
+{
 template <>
 class shape_function<quad_1_gauss_shape_set, 0>
 {
@@ -123,13 +128,16 @@ public:
 		).finished() / 4.0;
 	}
 };
+}
 //! [Shape lsets]
 
 //! [Field typedef]
-typedef field<quad_1_elem, quad_1_gauss_shape_set, _1d> quad_1_gauss_field;
+typedef NiHu::field<NiHu::quad_1_elem, quad_1_gauss_shape_set, NiHu::_1d> quad_1_gauss_field;
 //! [Field typedef]
 
 //! [Field id]
+namespace NiHu
+{
 namespace field_traits
 {
 	template <>
@@ -138,14 +146,18 @@ namespace field_traits
 		enum {value = 666};
 	};
 }
+}
 //! [Field id]
 
 //! [Field tag]
 struct gauss_field_tag {};
 
+namespace NiHu
+{
 template <>
 struct tag2field<gauss_field_tag> :
 	quad_1_gauss_field {};
+}
 //! [Field tag]
 
 
@@ -181,14 +193,14 @@ int main(void)
 		quad_1_gauss_field::id, 4, 5, 8, 7,  12, 13, 14, 15;
 
 	// create function space using the factory function
-	auto fsp = create_function_space(nodes, fields, gauss_field_tag());
+	auto fsp = NiHu::create_function_space(nodes, fields, gauss_field_tag());
 
 	// allocate and clear the result matrix
 	dMatrix A(fsp.get_num_dofs(), fsp.get_num_dofs());
 	A.setZero();
 
 	// and evaluate the weighed residual into our result matrix
-	auto L = create_integral_operator(laplace_3d_SLP_kernel());
+	auto L = NiHu::create_integral_operator(NiHu::laplace_3d_SLP_kernel());
 	A << fsp * L[fsp];
 
 	// print the result matrix

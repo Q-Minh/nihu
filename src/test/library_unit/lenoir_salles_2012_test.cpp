@@ -48,17 +48,17 @@ int main(void)
 	// element nodal indices
 	uMatrix elements(5, 1+4);
 	elements <<
-		quad_1_elem::id, 0, 1, 4, 3,
-		quad_1_elem::id, 1, 2, 5, 4,
-		quad_1_elem::id, 3, 4, 7, 6,
-		tria_1_elem::id, 4, 5, 8, 0,
-		tria_1_elem::id, 4, 8, 7, 0;
+		NiHu::quad_1_elem::id, 0, 1, 4, 3,
+		NiHu::quad_1_elem::id, 1, 2, 5, 4,
+		NiHu::quad_1_elem::id, 3, 4, 7, 6,
+		NiHu::tria_1_elem::id, 4, 5, 8, 0,
+		NiHu::tria_1_elem::id, 4, 8, 7, 0;
 
 	// create the mesh
-	auto msh = create_mesh(nodes, elements, tria_1_tag(), quad_1_tag());
+	auto msh = NiHu::create_mesh(nodes, elements, NiHu::tria_1_tag(), NiHu::quad_1_tag());
 
 	// create a piecewise constant function space
-	auto const &w = constant_view(msh);
+	auto const &w = NiHu::constant_view(msh);
 
 	// compute number of DOF and allocate result matrix
 	int nDOF = w.get_num_dofs();
@@ -66,7 +66,7 @@ int main(void)
 	I.setZero();
 
 	// create integral operator from kernel and perform weighted double integral
-	auto K = create_integral_operator(laplace_3d_SLP_kernel());
+	auto K = NiHu::create_integral_operator(NiHu::laplace_3d_SLP_kernel());
 	I <<  w * K[w];
 
 	// Display matrix elements and their sum

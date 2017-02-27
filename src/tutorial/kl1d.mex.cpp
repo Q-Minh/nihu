@@ -22,19 +22,19 @@
 #include "library/lib_element.hpp"
 #include <Eigen/Eigenvalues>
 
-typedef mex::real_matrix<double> dMatrix;
+typedef NiHu::mex::real_matrix<double> dMatrix;
 
 void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 {
 	dMatrix nodes(rhs[0]), elem(rhs[1]);
-	auto mesh = create_mesh(nodes, elem, line_1_volume_tag());
+	auto mesh = NiHu::create_mesh(nodes, elem, NiHu::line_1_volume_tag());
 
-	auto const &w = constant_view(mesh);
+	auto const &w = NiHu::constant_view(mesh);
 
 	double sigma = *mxGetPr(rhs[2]);
 	double d = *mxGetPr(rhs[3]);
-	auto C = create_integral_operator(covariance_kernel(sigma, d));
-	auto I = identity_integral_operator();
+	auto C = NiHu::create_integral_operator(NiHu::covariance_kernel<NiHu::space_1d<> >(sigma, d));
+	auto I = NiHu::identity_integral_operator();
 
 	Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> D(w.get_num_dofs(), w.get_num_dofs()), B(w.get_num_dofs(), w.get_num_dofs());
 	D.setZero();

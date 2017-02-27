@@ -257,7 +257,7 @@ struct integral_operator_traits<integral_operator<Kernel> >
 	template <class TestField, class TrialField>
 	struct wr_result_type
 	{
-		typedef typename double_integral<Kernel, TestField, TrialField>::result_t type;
+		typedef typename double_integral<typename std::decay<Kernel>::type, TestField, TrialField>::result_t type;
 	};
 
 	/** \brief indicates if the operator is to be evaluated only on the same element */

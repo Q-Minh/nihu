@@ -16,42 +16,49 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-//![Header]
 #include "core/weighted_residual.hpp"
+#include "library/covariance_kernel.hpp"
 #include "util/mex_matrix.hpp"
-#include "library/elastostatics_kernel.hpp"
-#include "library/elastostatics_singular_integrals.hpp"
 #include "library/lib_element.hpp"
+/*
+#include <Eigen/Eigenvalues>
+*/
 
 typedef NiHu::mex::real_matrix<double> dMatrix;
-//![Header]
 
-//![Mesh]
 void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 {
-	dMatrix surf_nodes(rhs[0]), surf_elem(rhs[1]);
-	auto surf_mesh = NiHu::create_mesh(surf_nodes, surf_elem, NiHu::quad_2_tag());
-//![Mesh]
+	dMatrix nodes(rhs[0]), elem(rhs[1]);
+	auto mesh = NiHu::create_mesh(nodes, elem, NiHu::tria_1_volume_tag());
 
-//! [Function spaces]
-	auto const &surf_sp = NiHu::constant_view(surf_mesh, NiHu::_3d());
-//! [Function spaces]
+	auto const &w = NiHu::constant_view(mesh);
 
-//! [Matrices]
-	int n = surf_sp.get_num_dofs();
-	dMatrix Us(n, n, lhs[0]), Ts(n, n, lhs[1]);
-//! [Matrices]
+	double sigma = *mxGetPr(rhs[2]);
+	double d = *mxGetPr(rhs[3]);
+	auto C = NiHu::create_integral_operator(NiHu::covariance_kernel<NiHu::space_2d<> >(sigma, d));
+	auto I = NiHu::identity_integral_operator();
 
-//! [Integral operators]
-	double nu = *mxGetPr(rhs[2]);
-	double mu = *mxGetPr(rhs[3]);
-	auto U = NiHu::create_integral_operator(NiHu::elastostatics_3d_U_kernel(nu, mu));
-	auto T = NiHu::create_integral_operator(NiHu::elastostatics_3d_T_kernel(nu, mu));
-//! [Integral operators]
+	dMatrix D(w.get_num_dofs(), w.get_num_dofs(), lhs[0]);
+	dMatrix B(w.get_num_dofs(), w.get_num_dofs(), lhs[1]);
+	D.setZero();
+	B.setZero();
+	
+	D << (w * C[w]);
+	B << (w * I[w]);
+	
+/*
+	Eigen::GeneralizedSelfAdjointEigenSolver<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> > es(D, B);
 
-//! [System matrices]
-	Us << NiHu::dirac(surf_sp) * U[surf_sp];
-	Ts << NiHu::dirac(surf_sp) * T[surf_sp];
+	dMatrix G(D.rows(), D.rows(), lhs[0]);
+	dMatrix lambda(D.rows(), 1, lhs[1]);
+	
+	for (int i = 0; i < D.rows(); ++i)
+	{
+		lambda(i) = es.eigenvalues()(i);
+		for (int j = 0; j < D.rows(); ++j)
+			G(i,j) = es.eigenvectors()(i,j);
+	}
 }
-//! [System matrices]
+*/
+}
 

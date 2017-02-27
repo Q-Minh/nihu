@@ -26,7 +26,7 @@ typedef Eigen::Matrix<unsigned, Eigen::Dynamic, Eigen::Dynamic> uMatrix;
 template <class test_space_t, class trial_space_t>
 void test(test_space_t const &test_space, trial_space_t const &trial_space)
 {
-	auto I = identity_integral_operator();
+	auto I = NiHu::identity_integral_operator();
 
 	unsigned m = test_space.get_num_dofs();
 	unsigned n = trial_space.get_num_dofs();
@@ -44,21 +44,21 @@ void test(test_space_t const &test_space, trial_space_t const &trial_space)
 template <class mesh_t>
 void isoparam_galerkin_test(mesh_t const &mesh)
 {
-	auto const &f_sp = isoparametric_view(mesh);
+	auto const &f_sp = NiHu::isoparametric_view(mesh);
 	test(f_sp, f_sp);
 }
 
 template <class mesh_t>
 void constant_galerkin_test(mesh_t const &mesh)
 {
-	auto const &f_sp = constant_view(mesh);
+	auto const &f_sp = NiHu::constant_view(mesh);
 	test(f_sp, f_sp);
 }
 
 template <class mesh_t>
 void constant_collocational_test(mesh_t const &mesh)
 {
-	auto const &f_sp = constant_view(mesh);
+	auto const &f_sp = NiHu::constant_view(mesh);
 	test(dirac(f_sp), f_sp);
 }
 
@@ -84,13 +84,13 @@ int main(void)
 		cx, cy, 0.;
 
     elements <<
-		quad_1_elem::id, 0, 1, 4, 3,
-		quad_1_elem::id, 1, 2, 5, 4,
-		quad_1_elem::id, 3, 4, 7, 6,
-		quad_1_elem::id, 4, 5, 8, 7;
+		NiHu::quad_1_elem::id, 0, 1, 4, 3,
+		NiHu::quad_1_elem::id, 1, 2, 5, 4,
+		NiHu::quad_1_elem::id, 3, 4, 7, 6,
+		NiHu::quad_1_elem::id, 4, 5, 8, 7;
 
 
-	auto mesh = create_mesh(nodes, elements, quad_1_tag());
+	auto mesh = NiHu::create_mesh(nodes, elements, NiHu::quad_1_tag());
 
 	std::cout << std::endl << "testing isoparametric galerkin case" << std::endl;
 	isoparam_galerkin_test(mesh);

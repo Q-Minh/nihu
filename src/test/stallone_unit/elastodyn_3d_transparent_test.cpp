@@ -29,18 +29,18 @@ typedef Eigen::Matrix<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic> cMat
 
 int main(int argc, char *argv[])
 {
-	auto mesh = read_off_mesh(argv[1], tria_1_tag(), quad_1_tag());
-	auto const &v = constant_view(mesh, _3d());
+	auto mesh = NiHu::read_off_mesh(argv[1], NiHu::tria_1_tag(), NiHu::quad_1_tag());
+	auto const &v = NiHu::constant_view(mesh, NiHu::_3d());
 
-	auto field = read_off_mesh(argv[2], quad_1_tag());
-	auto const &w = constant_view(field, _3d());
+	auto field = NiHu::read_off_mesh(argv[2], NiHu::quad_1_tag());
+	auto const &w = NiHu::constant_view(field, NiHu::_3d());
 
 	double nu = .33;
 	double rho = 100;
 	double mu = 1e8;
 	double omega = 2.0*M_PI*50.0;
-	auto U_op = create_integral_operator(elastodynamics_3d_U_kernel(nu, rho, mu, omega));
-	auto T_op = create_integral_operator(elastodynamics_3d_T_kernel(nu, rho, mu, omega));
+	auto U_op = NiHu::create_integral_operator(NiHu::elastodynamics_3d_U_kernel(nu, rho, mu, omega));
+	auto T_op = NiHu::create_integral_operator(NiHu::elastodynamics_3d_T_kernel(nu, rho, mu, omega));
 
 	cMatrix Us(v.get_num_dofs(), v.get_num_dofs());
 	Us.setZero();

@@ -24,7 +24,7 @@
 #include "library/lib_element.hpp"
 
 template <class FieldType>
-void eval_tester(field_base<FieldType> const &field)
+void eval_tester(NiHu::field_base<FieldType> const &field)
 {
 	std::cout << "DOFs:\t" << field.get_dofs().transpose() << std::endl;
 	std::cout << "N(xi0):\t" << FieldType::nset_t::template eval_shape<0>(FieldType::elem_t::domain_t::get_center()).transpose() << std::endl;
@@ -57,8 +57,8 @@ struct view_tester
 
 int main(void)
 {
-	typedef tmp::vector<tria_1_elem, quad_1_elem, tria_2_elem, quad_2_elem> elem_vector;
-	typedef tmp::vector<field_option::constant, field_option::isoparametric> option_vector;
+	typedef tmp::vector<NiHu::tria_1_elem, NiHu::quad_1_elem, NiHu::tria_2_elem, NiHu::quad_2_elem> elem_vector;
+	typedef tmp::vector<NiHu::field_option::constant, NiHu::field_option::isoparametric> option_vector;
 
 	tmp::d_call_each<
 		elem_vector,
@@ -66,12 +66,12 @@ int main(void)
 		view_tester<tmp::_1, tmp::_2>
 	>();
 
-	quad_1_elem e(quad_1_elem::coords_t::Random());
+	NiHu::quad_1_elem e(NiHu::quad_1_elem::coords_t::Random());
 
-	auto const &ifield = isoparametric_view(e);
+	auto const &ifield = NiHu::isoparametric_view(e);
 	eval_tester(ifield);
 
-	auto const &cfield = constant_view(e);
+	auto const &cfield = NiHu::constant_view(e);
 	eval_tester(cfield);
 
 	return 0;

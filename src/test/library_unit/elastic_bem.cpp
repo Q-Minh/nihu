@@ -34,20 +34,20 @@ int main(void)
 		1.0, 1.0, 0.0,
 		0.0, 1.0, 0.0;
 	uMatrix elements(1, 5);
-	elements << quad_1_elem::id, 0, 1, 2, 3;
-	auto mesh = create_mesh(nodes, elements, quad_1_tag());
+	elements << NiHu::quad_1_elem::id, 0, 1, 2, 3;
+	auto mesh = NiHu::create_mesh(nodes, elements, NiHu::quad_1_tag());
 	
 	nodes <<
 		0.0, 0.0, 2.0,
 		1.0, 0.0, 2.0,
 		1.0, 1.0, 2.0,
 		0.0, 1.0, 2.0;
-	auto field = create_mesh(nodes, elements, quad_1_tag());
+	auto field = NiHu::create_mesh(nodes, elements, NiHu::quad_1_tag());
 	
-	auto K = create_integral_operator(elastostatics_3d_U_kernel(.33, 1e8));
+	auto K = NiHu::create_integral_operator(NiHu::elastostatics_3d_U_kernel(.33, 1e8));
 	
-	auto const &w = isoparametric_view(field, _3d());
-	auto const &v = constant_view(mesh, _3d());
+	auto const &w = NiHu::isoparametric_view(field, NiHu::_3d());
+	auto const &v = NiHu::constant_view(mesh, NiHu::_3d());
 	
 	dMatrix res(w.get_num_dofs(), v.get_num_dofs());
 
@@ -57,4 +57,5 @@ int main(void)
 	
 	return 0;
 }
+
 

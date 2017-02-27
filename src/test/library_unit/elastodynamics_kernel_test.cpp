@@ -33,21 +33,21 @@ typename K::result_t tester(K const &k, E1 const &e1, E2 const &e2)
 
 
 template <class K, class E>
-typename K::result_t singular_integral_test(kernel_base<K> const &k, E const &e)
+typename K::result_t singular_integral_test(NiHu::kernel_base<K> const &k, E const &e)
 {
 	// cast the element into a constant field view
-	typedef field_view<E, field_option::constant> F;
+	typedef NiHu::field_view<E, NiHu::field_option::constant> F;
 	F const &field = static_cast<F const &>(e);
 
 	// compute collocational singular integral
-	typedef double_integral<K, dirac_field<F>, F> di_type;
-	return di_type::eval(k, dirac(field), field, std::true_type());
+	typedef NiHu::double_integral<K, NiHu::dirac_field<F>, F> di_type;
+	return di_type::eval(k, NiHu::dirac(field), field, std::true_type());
 }
 
 int main(void)
 {
 	// two elements shifted (regular case)
-    quad_1_elem::coords_t coords1, coords2;
+    NiHu::quad_1_elem::coords_t coords1, coords2;
     coords1 <<
 		-1.,  1,  1., -1.,
 		-1., -1., 1.,  1.,
@@ -55,14 +55,14 @@ int main(void)
     coords2 = coords1;
     coords2.row(1) += Eigen::Matrix<double, 1, 4>::Constant(2.0);
 
-    quad_1_elem elem1(coords1), elem2(coords2);
+    NiHu::quad_1_elem elem1(coords1), elem2(coords2);
 	double nu = 0.3;
 	double rho = 100;
 	double mu = 1.e8;
 	double om = 2.*M_PI*10.;
 
-	elastodynamics_3d_U_kernel U(nu, rho, mu, om);
-	elastodynamics_3d_T_kernel T(nu, rho, mu, om);
+	NiHu::elastodynamics_3d_U_kernel U(nu, rho, mu, om);
+	NiHu::elastodynamics_3d_T_kernel T(nu, rho, mu, om);
 
 	std::cout << "Evaluating U kernel in the center of two different elements..." << std::endl;
     std::cout << tester(U, elem1, elem2) << std::endl;

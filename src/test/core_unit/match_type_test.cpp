@@ -22,13 +22,13 @@
 #include "tmp/control.hpp"
 #include <iostream>
 
-typedef tria_1_elem test_elem_t;
-typedef tria_1_elem trial_elem_t;
+typedef NiHu::tria_1_elem test_elem_t;
+typedef NiHu::tria_1_elem trial_elem_t;
 
-typedef field_view<test_elem_t, field_option::isoparametric, _1d> test_field_t;
-typedef field_view<trial_elem_t, field_option::isoparametric, _1d> trial_field_t;
+typedef NiHu::field_view<test_elem_t, NiHu::field_option::isoparametric, NiHu::_1d> test_field_t;
+typedef NiHu::field_view<trial_elem_t, NiHu::field_option::isoparametric, NiHu::_1d> trial_field_t;
 
-typedef match_type_vector<test_field_t, trial_field_t>::type match_vector_t;
+typedef NiHu::match_type_vector<test_field_t, trial_field_t>::type match_vector_t;
 
 template <class T> struct printer { struct type {
 	void operator()(void) { std::cout << T::value << ' '; }

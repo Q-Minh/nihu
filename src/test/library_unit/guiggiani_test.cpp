@@ -27,24 +27,24 @@ template <class kernel_t>
 struct planar_analytic;
 
 template <class wavenumber_t>
-struct planar_analytic<helmholtz_3d_HSP_kernel<wavenumber_t> >
+struct planar_analytic<NiHu::helmholtz_3d_HSP_kernel<wavenumber_t> >
 {
 	template <class elem_t>
-	static typename helmholtz_3d_HSP_kernel<wavenumber_t>::result_t
-	eval(helmholtz_3d_HSP_kernel<wavenumber_t> const &kernel, elem_t const &elem, typename elem_t::x_t const &x0)
+	static typename NiHu::helmholtz_3d_HSP_kernel<wavenumber_t>::result_t
+	eval(NiHu::helmholtz_3d_HSP_kernel<wavenumber_t> const &kernel, elem_t const &elem, typename elem_t::x_t const &x0)
 	{
-		return helmholtz_3d_HSP_collocation_constant_plane<40>::eval(elem, x0, kernel.get_data().get_wave_number());
+		return NiHu::helmholtz_3d_HSP_collocation_constant_plane<40>::eval(elem, x0, kernel.get_data().get_wave_number());
 	}
 };
 
 template <>
-struct planar_analytic<laplace_3d_HSP_kernel>
+struct planar_analytic<NiHu::laplace_3d_HSP_kernel>
 {
 	template <class elem_t>
-	static typename laplace_3d_HSP_kernel::result_t
-		eval(kernel_base<laplace_3d_HSP_kernel> const &kernel, elem_t const &elem, typename elem_t::x_t const &x0)
+	static typename NiHu::laplace_3d_HSP_kernel::result_t
+		eval(NiHu::kernel_base<NiHu::laplace_3d_HSP_kernel> const &kernel, elem_t const &elem, typename elem_t::x_t const &x0)
 	{
-		return laplace_3d_HSP_collocation_constant_plane::eval(elem, x0);
+		return NiHu::laplace_3d_HSP_collocation_constant_plane::eval(elem, x0);
 	}
 };
 
@@ -53,11 +53,11 @@ template <class Kernel, class Elem, unsigned order>
 struct tester
 {
 	static typename Kernel::result_t
-	eval(kernel_base<Kernel> const &kernel, typename Elem::coords_t const &coords, typename Elem::xi_t const &xi0)
+	eval(NiHu::kernel_base<Kernel> const &kernel, typename Elem::coords_t const &coords, typename Elem::xi_t const &xi0)
 	{
 		Elem elem(coords);
-		guiggiani<
-			field_view<Elem, field_option::constant>,
+		NiHu::guiggiani<
+			NiHu::field_view<Elem, NiHu::field_option::constant>,
 			Kernel,
 			2 * order - 1
 		> gui(elem, kernel);
@@ -72,13 +72,13 @@ struct tester
 #define TEST \
 	for (unsigned i = 0; i < sizeof(xi0) / sizeof(xi0[0]); ++i) \
 {\
-	quad_1_elem elem(coords); \
-	quad_1_elem elem0 = elem; \
+	NiHu::quad_1_elem elem(coords); \
+	NiHu::quad_1_elem elem0 = elem; \
 	I0[i] = planar_analytic<kernel_t>::eval(kernel, elem0, elem0.get_x(xi0[i])); \
-	I[i][0] = tester<kernel_t, quad_1_elem, 3>::eval(kernel, coords, xi0[i]);\
-	I[i][1] = tester<kernel_t, quad_1_elem, 5>::eval(kernel, coords, xi0[i]);\
-	I[i][2] = tester<kernel_t, quad_1_elem, 7>::eval(kernel, coords, xi0[i]);\
-	I[i][3] = tester<kernel_t, quad_1_elem, 9>::eval(kernel, coords, xi0[i]);\
+	I[i][0] = tester<kernel_t, NiHu::quad_1_elem, 3>::eval(kernel, coords, xi0[i]);\
+	I[i][1] = tester<kernel_t, NiHu::quad_1_elem, 5>::eval(kernel, coords, xi0[i]);\
+	I[i][2] = tester<kernel_t, NiHu::quad_1_elem, 7>::eval(kernel, coords, xi0[i]);\
+	I[i][3] = tester<kernel_t, NiHu::quad_1_elem, 9>::eval(kernel, coords, xi0[i]);\
 }\
 std::cout << "xi0:";\
 for (unsigned i = 0; i < sizeof(xi0) / sizeof(xi0[0]); ++i)\
@@ -96,8 +96,8 @@ for (unsigned j = 0; j < 4; ++j)\
 template <class kernel_t>
 void test_plane_linear(kernel_t const &kernel)
 {
-	quad_1_elem::coords_t coords;
-	quad_1_elem::xi_t xi0[3];
+	NiHu::quad_1_elem::coords_t coords;
+	NiHu::quad_1_elem::xi_t xi0[3];
 	xi0[0] << 0.0, 0.0;
 	xi0[1] << 0.57, 0.0;
 	xi0[2] << 0.9, 0.923;
@@ -159,13 +159,13 @@ void test_plane_linear(kernel_t const &kernel)
 #define TEST \
 	for (unsigned i = 0; i < sizeof(xi0) / sizeof(xi0[0]); ++i) \
 {\
-	quad_2_elem elem(coords); \
-	quad_1_elem elem0(coords0); \
+	NiHu::quad_2_elem elem(coords); \
+	NiHu::quad_1_elem elem0(coords0); \
 	I0[i] = planar_analytic<kernel_t>::eval(kernel, elem0, elem.get_x(xi0[i])); \
-	I[i][0] = tester<kernel_t, quad_2_elem, 3>::eval(kernel, coords, xi0[i]); \
-	I[i][1] = tester<kernel_t, quad_2_elem, 5>::eval(kernel, coords, xi0[i]); \
-	I[i][2] = tester<kernel_t, quad_2_elem, 7>::eval(kernel, coords, xi0[i]); \
-	I[i][3] = tester<kernel_t, quad_2_elem, 9>::eval(kernel, coords, xi0[i]); \
+	I[i][0] = tester<kernel_t, NiHu::quad_2_elem, 3>::eval(kernel, coords, xi0[i]); \
+	I[i][1] = tester<kernel_t, NiHu::quad_2_elem, 5>::eval(kernel, coords, xi0[i]); \
+	I[i][2] = tester<kernel_t, NiHu::quad_2_elem, 7>::eval(kernel, coords, xi0[i]); \
+	I[i][3] = tester<kernel_t, NiHu::quad_2_elem, 9>::eval(kernel, coords, xi0[i]); \
 	}\
 	std::cout << "xi0:"; \
 for (unsigned i = 0; i < sizeof(xi0) / sizeof(xi0[0]); ++i)\
@@ -184,9 +184,9 @@ for (unsigned i = 0; i < sizeof(xi0) / sizeof(xi0[0]); ++i)\
 template <class kernel_t>
 void test_plane_quadratic(kernel_t const &kernel)
 {
-	quad_2_elem::coords_t coords;
-	quad_1_elem::coords_t coords0;
-	quad_2_elem::xi_t xi0[3];
+	NiHu::quad_2_elem::coords_t coords;
+	NiHu::quad_1_elem::coords_t coords0;
+	NiHu::quad_2_elem::xi_t xi0[3];
 	xi0[0] << 0.0, 0.0;
 	xi0[1] << 0.57, 0.0;
 	xi0[2] << 0.9, 0.923;
@@ -250,13 +250,13 @@ int main(void)
 {
 	std::cout << "\n\nTesting with Laplace kernel\n";
 
-	laplace_3d_HSP_kernel l_kernel;
+	NiHu::laplace_3d_HSP_kernel l_kernel;
 	test_plane_linear(l_kernel);
 	test_plane_quadratic(l_kernel);
 
 	std::cout << "\n\nTesting with Helmholtz kernel\n";
 
-	helmholtz_3d_HSP_kernel<double> h_kernel(.2);
+	NiHu::helmholtz_3d_HSP_kernel<double> h_kernel(.2);
 	test_plane_linear(h_kernel);
 	test_plane_quadratic(h_kernel);
 

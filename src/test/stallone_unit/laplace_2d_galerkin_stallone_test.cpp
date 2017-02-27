@@ -34,20 +34,20 @@ int main(void)
 		1.0, 1.0,
 		0.0, 1.0;
 	elements <<
-		line_1_elem::id, 0, 1,
-		line_1_elem::id, 1, 2,
-		line_1_elem::id, 2, 3,
-		line_1_elem::id, 3, 0;
+		NiHu::line_1_elem::id, 0, 1,
+		NiHu::line_1_elem::id, 1, 2,
+		NiHu::line_1_elem::id, 2, 3,
+		NiHu::line_1_elem::id, 3, 0;
 
-	auto mesh = create_mesh(nodes, elements, line_1_tag());
-	auto const &fspace = constant_view(mesh, _1d());
+	auto mesh = NiHu::create_mesh(nodes, elements, NiHu::line_1_tag());
+	auto const &fspace = NiHu::constant_view(mesh, NiHu::_1d());
 	auto nDof = fspace.get_num_dofs();
 
 	dMatrix L(nDof, nDof), M(nDof, nDof);
 	L.setZero(); M.setZero();
 
-	auto L_op = create_integral_operator(laplace_2d_SLP_kernel());
-	auto M_op = create_integral_operator(laplace_2d_DLP_kernel());
+	auto L_op = NiHu::create_integral_operator(NiHu::laplace_2d_SLP_kernel());
+	auto M_op = NiHu::create_integral_operator(NiHu::laplace_2d_DLP_kernel());
 
 	L << fspace * L_op[fspace];
 	M << fspace * M_op[fspace];

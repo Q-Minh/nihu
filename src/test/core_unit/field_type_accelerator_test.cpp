@@ -30,24 +30,24 @@ struct tester
 	{
 		typedef typename Field::domain_t domain_t;
 
-		typedef quadrature_elem<
+		typedef NiHu::quadrature_elem<
 			typename domain_t::xi_t, typename domain_t::scalar_t
 		> qe_t;
 
-		typedef field_type_accelerator_elem<
-			Field, gauss_family_tag, acceleration::soft
+		typedef NiHu::field_type_accelerator_elem<
+			Field, NiHu::gauss_family_tag, NiHu::acceleration::soft
 		> soft_accel_t;
 
-		typedef field_type_accelerator_elem<
-			Field, gauss_family_tag, acceleration::hard
+		typedef NiHu::field_type_accelerator_elem<
+			Field, NiHu::gauss_family_tag, NiHu::acceleration::hard
 		> hard_accel_t;
 
 		void operator() (void)
 		{
-			field_type_accelerator<Field, gauss_family_tag, acceleration::hard> ha(5);
+			NiHu::field_type_accelerator<Field, NiHu::gauss_family_tag, NiHu::acceleration::hard> ha(5);
 
 			// instantiate a quadrature
-			typename quadrature_type<gauss_family_tag, domain_t>::type q(5);
+			typename NiHu::quadrature_type<NiHu::gauss_family_tag, domain_t>::type q(5);
 
 			std::cout << "soft accelerator:\n";
 
@@ -63,13 +63,13 @@ struct tester
 				a_hard.get_w() << '\t' <<
 				a_hard.get_N().transpose() << '\n';
 
-			field_type_accelerator<Field, gauss_family_tag, acceleration::hard> acc_hard(q);
+			NiHu::field_type_accelerator<Field, NiHu::gauss_family_tag, NiHu::acceleration::hard> acc_hard(q);
 			for (auto it = acc_hard.begin(); it != acc_hard.end(); ++it)
 				std::cout << it->get_w() << std::endl;
 
 			std::cout << std::endl;
 
-			auto const &acc_soft = static_cast<field_type_accelerator<Field, gauss_family_tag, acceleration::soft> const &>(q);
+			auto const &acc_soft = static_cast<NiHu::field_type_accelerator<Field, NiHu::gauss_family_tag, NiHu::acceleration::soft> const &>(q);
 			for (auto it = acc_soft.begin(); it != acc_soft.end(); ++it)
 				std::cout << it->get_w() << std::endl;
 		}
@@ -81,13 +81,13 @@ struct tester
 template <class Field>
 struct test_dirac
 {
-	typedef dirac_field<Field> dfield_t;
+	typedef NiHu::dirac_field<Field> dfield_t;
 	struct type
 	{
 		void operator() (void)
 		{
 			// test field type accelerator
-			field_type_accelerator<dfield_t, gauss_family_tag, acceleration::soft> dirac_acc(0);
+			NiHu::field_type_accelerator<dfield_t, NiHu::gauss_family_tag, NiHu::acceleration::soft> dirac_acc(0);
 
 			for (auto it = dirac_acc.begin(); it != dirac_acc.end(); ++it)
 				std::cout << it->get_w() << '\t'
@@ -104,20 +104,20 @@ struct test_dual_regular
 {
 	static unsigned const MAX_ORDER = 10;
 
-	typedef store<field_type_accelerator_pool<
-		TestField, gauss_family_tag, acceleration::soft, MAX_ORDER
+	typedef NiHu::store<NiHu::field_type_accelerator_pool<
+		TestField, NiHu::gauss_family_tag, NiHu::acceleration::soft, MAX_ORDER
 	> > test_store_t;
 
-	typedef store<field_type_accelerator_pool<
-		TrialField, gauss_family_tag, acceleration::soft, MAX_ORDER
+	typedef NiHu::store<NiHu::field_type_accelerator_pool<
+		TrialField, NiHu::gauss_family_tag, NiHu::acceleration::soft, MAX_ORDER
 	> > trial_store_t;
 
 	struct type
 	{
 		void operator()(void)
 		{
-			auto dual_acc = create_dual_field_type_accelerator(
-				test_store_t::get_data()[4], trial_store_t::get_data()[4], iteration::diadic());
+			auto dual_acc = NiHu::create_dual_field_type_accelerator(
+				test_store_t::get_data()[4], trial_store_t::get_data()[4], NiHu::iteration::diadic());
 			for (auto it = dual_acc.begin(); it != dual_acc.end(); ++it)
 			{
 				std::cout << it.get_first()->get_w() * it.get_second()->get_w() << std::endl;
@@ -130,13 +130,13 @@ struct test_dual_regular
 int main(void)
 {
 	tmp::d_call_each<
-		tmp::vector<field_view<quad_1_elem, field_option::constant> >,
-		tmp::vector<field_view<quad_1_elem, field_option::constant> >,
+		tmp::vector<NiHu::field_view<NiHu::quad_1_elem, NiHu::field_option::constant> >,
+		tmp::vector<NiHu::field_view<NiHu::quad_1_elem, NiHu::field_option::constant> >,
 		test_dual_regular<tmp::_1, tmp::_2>
 	>();
 
 	tmp::call_each<
-		tmp::vector<field_view<quad_1_elem, field_option::constant> >,
+		tmp::vector<NiHu::field_view<NiHu::quad_1_elem, NiHu::field_option::constant> >,
 		test_dirac<tmp::_1>
 	>();
 

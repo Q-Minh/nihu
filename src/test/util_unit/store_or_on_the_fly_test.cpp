@@ -31,11 +31,11 @@ struct Func
 	}
 };
 
-typedef conditional_precompute<matrix_function_complexity::general, Func, char> fly_t;
-typedef conditional_precompute<matrix_function_complexity::constant, Func, char> store_t;
+typedef NiHu::conditional_precompute<NiHu::matrix_function_complexity::general, Func, char> fly_t;
+typedef NiHu::conditional_precompute<NiHu::matrix_function_complexity::constant, Func, char> store_t;
 
-typedef conditional_precompute_instance<matrix_function_complexity::general, Func, char> fly_inst_t;
-typedef conditional_precompute_instance<matrix_function_complexity::constant, Func, char> store_inst_t;
+typedef NiHu::conditional_precompute_instance<NiHu::matrix_function_complexity::general, Func, char> fly_inst_t;
+typedef NiHu::conditional_precompute_instance<NiHu::matrix_function_complexity::constant, Func, char> store_inst_t;
 
 int main(void)
 {

@@ -23,8 +23,8 @@
 
 typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> dMatrix;
 
-typedef laplace_2d_SLP_kernel kernel_t;
-typedef line_1_elem elem_t;
+typedef NiHu::laplace_2d_SLP_kernel kernel_t;
+typedef NiHu::line_1_elem elem_t;
 typedef elem_t::coords_t coords_t;
 
 auto kernel = kernel_t();
