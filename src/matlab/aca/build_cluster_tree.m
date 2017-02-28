@@ -95,10 +95,13 @@ CC(1).ind = C.ind(i(1:nhalf));
 CC(2).ind = C.ind(i(nhalf+1:end));
 
 for k = 1 : 2
+    CC(k).child_idx = [];
     CC(k).level = C.level+1;
     CC(k).children = [];
     CC(k).bb = [min(x(CC(k).ind,:)); max(x(CC(k).ind,:))];
 end
+
+Idx = 1:2;
 
 end
 
