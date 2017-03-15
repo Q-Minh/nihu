@@ -27,18 +27,6 @@ typedef NiHu::quad_1_volume_elem Elem;
 typedef NiHu::field_view<Elem, NiHu::field_option::constant> Field;
 
 
-struct MyFunctor
-{
-	typedef double return_type;
-
-	return_type operator()(
-		NiHu::location_input_2d const &x, NiHu::location_input_2d const &y,
-		NiHu::empty_data const &data)
-	{
-		return 1./(x.get_x()-y.get_x()).squaredNorm();
-	}
-};
-
 class MyKernel;
 
 namespace NiHu
@@ -49,7 +37,7 @@ struct kernel_traits<MyKernel>
 	typedef location_input_2d test_input_t;
 	typedef location_input_2d trial_input_t;
 	typedef empty_data data_t;
-	typedef single_brick_wall<MyFunctor>::type output_t;
+	typedef double result_t;
 	enum { result_rows = 1, result_cols = 1 };
 	typedef gauss_family_tag quadrature_family_t;
 	static bool const is_symmetric = true;
@@ -66,14 +54,6 @@ struct singular_kernel_traits<MyKernel>
 	typedef MyKernel singular_core_t;
 };
 }
-
-class MyKernel : public NiHu::kernel_base<MyKernel>
-{
-public:
-	MyKernel(void) :
-		NiHu::kernel_base<MyKernel>(NiHu::empty_data()) {}
-};
-
 
 namespace NiHu
 {
@@ -94,6 +74,18 @@ public:
 };
 }
 
+class MyKernel : public NiHu::kernel_base<MyKernel>
+{
+public:
+	MyKernel(void) :
+		NiHu::kernel_base<MyKernel>(NiHu::empty_data()) {}
+
+	double operator()(
+		NiHu::location_input_2d const &x, NiHu::location_input_2d const &y) const
+	{
+		return 1./(x.get_x()-y.get_x()).squaredNorm();
+	}
+};
 
 int main(void)
 {

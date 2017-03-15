@@ -37,141 +37,12 @@
 
 namespace NiHu
 {
-
-/** \brief a brick representing a Laplace kernel
- * \tparam Space the coordinate space the kernel is defined over
- */
-template <class Space, class Layer>
-struct laplace_brick;
-
-/** \brief combination of several bricks into a Laplace wall
- * \tparam Space the coordinate space the Laplace kernel is defined over
- */
-template <class Space, class Layer>
-struct laplace_wall;
-
 /** \brief kernel of the Laplace equation
  * \tparam Space the coordinate space the kernel is defined over
  */
 template <class Space, class Layer>
-class laplace_kernel : public kernel_base<laplace_kernel<Space, Layer> >
-{
-};
+class laplace_kernel;
 
-
-/** \brief specialisation of ::laplace_brick for the 2D SLP case */
-template <class Scalar>
-struct laplace_brick<space_2d<Scalar>, potential::SLP>
-{
-	/** \brief the brick template
-	 * \tparam wall the wall the brick is placed on
-	 */
-	template <class wall>
-	class brick : public wall
-	{
-	public:
-		/** \brief the result type */
-		typedef Scalar result_t;
-
-		/** \brief templated constructor
-		 * \tparam test_input_t the test input type
-		 * \tparam trial_input_t the trial input type
-		 * \tparam kernel_data_t the kernel type
-		 * \param [in] test_input the test input
-		 * \param [in] trial_input the trial input
-		 * \param [in] kernel_data the kernel data instance
-		 */
-		template <class test_input_t, class trial_input_t, class kernel_data_t>
-		brick(
-			test_input_t const &test_input,
-			trial_input_t const &trial_input,
-			kernel_data_t const &kernel_data) :
-			wall(test_input, trial_input, kernel_data),
-			m_laplace_g(-std::log(wall::get_distance()) / (2. * M_PI))
-		{
-		}
-
-		/** \brief return Laplace g kernel
-		 * \return Laplace g kernel
-		 */
-		result_t const & get_laplace_g(void) const
-		{
-			return m_laplace_g;
-		}
-
-		/** \brief return Laplace g kernel
-		 * \return Laplace g kernel
-		 */
-		result_t const & get_result(void) const
-		{
-			return m_laplace_g;
-		}
-
-	private:
-		result_t m_laplace_g;
-	};
-};
-
-/** \brief specialisation of ::laplace_brick for the 3D SLP case */
-template <class Scalar>
-struct laplace_brick<space_3d<Scalar>, potential::SLP>
-{
-	/** \brief the brick template
-	 * \tparam wall the wall the brick is placed on
-	 */
-	template <class wall>
-	class brick : public wall
-	{
-	public:
-		/** \brief the result type */
-		typedef Scalar result_t;
-
-		/** \brief templated constructor
-		 * \tparam test_input_t the test input type
-		 * \tparam trial_input_t the trial input type
-		 * \tparam kernel_data_t the kernel type
-		 * \param [in] test_input the test input
-		 * \param [in] trial_input the trial input
-		 * \param [in] kernel_data the kernel data instance
-		 */
-		template <class test_input_t, class trial_input_t, class kernel_data_t>
-		brick(
-			test_input_t const &test_input,
-			trial_input_t const &trial_input,
-			kernel_data_t const &kernel_data) :
-			wall(test_input, trial_input, kernel_data),
-			m_laplace_g(1. / wall::get_distance() / (4. * M_PI))
-		{
-		}
-
-		/** \brief return Laplace g kernel
-		 * \return Laplace g kernel
-		 */
-		result_t const & get_laplace_g(void) const
-		{
-			return m_laplace_g;
-		}
-
-		/** \brief return Laplace g kernel
-		 * \return Laplace g kernel
-		 */
-		result_t const & get_result(void) const
-		{
-			return m_laplace_g;
-		}
-
-	private:
-		result_t m_laplace_g;
-	};
-};
-
-/** \brief specialisation of ::laplace_wall for the SLP case */
-template <class Space>
-struct laplace_wall<Space, potential::SLP> : build<
-	distance_vector_brick<Space>,
-	distance_brick<typename Space::scalar_t>,
-	laplace_brick<Space, potential::SLP>
-> {};
 
 namespace kernel_traits_ns
 {
@@ -191,7 +62,10 @@ namespace kernel_traits_ns
 	};
 
 	template <class Space, class Layer>
-	struct output<laplace_kernel<Space, Layer> > : laplace_wall<Space, Layer> {};
+	struct result<laplace_kernel<Space, Layer> >
+	{
+		typedef typename Space::scalar_t type;
+	};
 
 	template <class Space, class Layer>
 	struct quadrature_family<laplace_kernel<Space, Layer> > : gauss_family_tag {};
@@ -231,131 +105,6 @@ namespace kernel_traits_ns
 	};
 }
 
-/** \brief specialisation of ::laplace_brick for the 2D DLP case */
-template <class Scalar>
-struct laplace_brick<space_2d<Scalar>, potential::DLP>
-{
-	/** \brief the brick template
-	 * \tparam wall the wall the brick is placed on
-	 */
-	template <class wall>
-	class brick : public wall
-	{
-	public:
-		/** \brief the result type */
-		typedef Scalar result_t;
-
-		/** \brief templated constructor
-		 * \tparam test_input_t the test input type
-		 * \tparam trial_input_t the trial input type
-		 * \tparam kernel_data_t the kernel type
-		 * \param [in] test_input the test input
-		 * \param [in] trial_input the trial input
-		 * \param [in] kernel_data the kernel data instance
-		 */
-		template <class test_input_t, class trial_input_t, class kernel_data_t>
-		brick(
-			test_input_t const &test_input,
-			trial_input_t const &trial_input,
-			kernel_data_t const &kernel_data) :
-			wall(test_input, trial_input, kernel_data),
-			m_laplace_h(-wall::get_rdny()/wall::get_distance() / (2. * M_PI))
-		{
-		}
-
-		/** \brief return Laplace h kernel
-		 * \return Laplace h kernel
-		 */
-		result_t const & get_laplace_h(void) const
-		{
-			return m_laplace_h;
-		}
-
-		/** \brief return Laplace h kernel
-		 * \return Laplace h kernel
-		 */
-		result_t const & get_result(void) const
-		{
-			return m_laplace_h;
-		}
-
-	private:
-		result_t m_laplace_h;
-	};
-};
-
-/** \brief specialisation of ::laplace_brick for the 3D DLP case */
-template <class Scalar>
-struct laplace_brick<space_3d<Scalar>, potential::DLP>
-{
-	/** \brief the brick template
-	 * \tparam wall the wall the brick is placed on
-	 */
-	template <class wall>
-	class brick : public wall
-	{
-	public:
-		/** \brief the result type */
-		typedef Scalar result_t;
-
-		/** \brief templated constructor
-		 * \tparam test_input_t the test input type
-		 * \tparam trial_input_t the trial input type
-		 * \tparam kernel_data_t the kernel type
-		 * \param [in] test_input the test input
-		 * \param [in] trial_input the trial input
-		 * \param [in] kernel_data the kernel data instance
-		 */
-		template <class test_input_t, class trial_input_t, class kernel_data_t>
-		brick(
-			test_input_t const &test_input,
-			trial_input_t const &trial_input,
-			kernel_data_t const &kernel_data) :
-			wall(test_input, trial_input, kernel_data),
-			m_laplace_h(-wall::get_laplace_g() * wall::get_rdny() / wall::get_distance())
-		{
-		}
-
-		/** \brief return Laplace h kernel
-		 * \return Laplace h kernel
-		 */
-		result_t const &get_laplace_h(void) const
-		{
-			return m_laplace_h;
-		}
-
-		/** \brief return Laplace h kernel
-		 * \return Laplace h kernel
-		 */
-		result_t const & get_result(void) const
-		{
-			return get_laplace_h();
-		}
-
-	private:
-		result_t m_laplace_h;
-	};
-};
-
-/** \brief specialisation of ::laplace_wall for the 2D DLP case */
-template <class Scalar>
-struct laplace_wall<space_2d<Scalar>, potential::DLP> : build<
-	distance_vector_brick<space_2d<Scalar>>,
-	distance_brick<Scalar>,
-	rdny_brick<Scalar>,
-	laplace_brick<space_2d<Scalar>, potential::DLP>
-> {};
-
-/** \brief specialisation of ::laplace_wall for the 3D DLP case */
-template <class Scalar>
-struct laplace_wall<space_3d<Scalar>, potential::DLP> : build<
-	distance_vector_brick<space_3d<Scalar> >,
-	distance_brick<Scalar>,
-	rdny_brick<Scalar>,
-	laplace_brick<space_3d<Scalar>, potential::SLP>,
-	laplace_brick<space_3d<Scalar>, potential::DLP>
-> {};
-
 namespace kernel_traits_ns
 {
 	template <class Space>
@@ -385,131 +134,6 @@ namespace kernel_traits_ns
 	template <class Space>
 	struct singular_quadrature_order<laplace_kernel<Space, potential::DLP> > : std::integral_constant<unsigned, 7> {};
 }
-
-/** \brief specialisation of ::laplace_brick for the 2D DLPt case */
-template <class Scalar>
-struct laplace_brick<space_2d<Scalar>, potential::DLPt>
-{
-	/** \brief the brick template
-	 * \tparam wall the wall the brick is placed on
-	 */
-	template <class wall>
-	class brick : public wall
-	{
-	public:
-		/** \brief the result type */
-		typedef Scalar result_t;
-
-		/** \brief templated constructor
-		 * \tparam test_input_t the test input type
-		 * \tparam trial_input_t the trial input type
-		 * \tparam kernel_data_t the kernel type
-		 * \param [in] test_input the test input
-		 * \param [in] trial_input the trial input
-		 * \param [in] kernel_data the kernel data instance
-		 */
-		template <class test_input_t, class trial_input_t, class kernel_data_t>
-		brick(
-			test_input_t const &test_input,
-			trial_input_t const &trial_input,
-			kernel_data_t const &kernel_data) :
-			wall(test_input, trial_input, kernel_data),
-			m_laplace_ht(-wall::get_rdnx()/wall::get_distance() / (2. * M_PI))
-		{
-		}
-
-		/** \brief return Laplace h kernel
-		 * \return Laplace ht kernel
-		 */
-		result_t const & get_laplace_ht(void) const
-		{
-			return m_laplace_ht;
-		}
-
-		/** \brief return Laplace ht kernel
-		 * \return Laplace ht kernel
-		 */
-		result_t const & get_result(void) const
-		{
-			return m_laplace_ht;
-		}
-
-	private:
-		result_t m_laplace_ht;
-	};
-};
-
-/** \brief specialisation of ::laplace_brick for the 3D DLPt case */
-template <class Scalar>
-struct laplace_brick<space_3d<Scalar>, potential::DLPt>
-{
-	/** \brief the brick template
-	 * \tparam wall the wall the brick is placed on
-	 */
-	template <class wall>
-	class brick : public wall
-	{
-	public:
-		/** \brief the result type */
-		typedef Scalar result_t;
-
-		/** \brief templated constructor
-		 * \tparam test_input_t the test input type
-		 * \tparam trial_input_t the trial input type
-		 * \tparam kernel_data_t the kernel type
-		 * \param [in] test_input the test input
-		 * \param [in] trial_input the trial input
-		 * \param [in] kernel_data the kernel data instance
-		 */
-		template <class test_input_t, class trial_input_t, class kernel_data_t>
-		brick(
-			test_input_t const &test_input,
-			trial_input_t const &trial_input,
-			kernel_data_t const &kernel_data) :
-			wall(test_input, trial_input, kernel_data),
-			m_laplace_ht(-wall::get_laplace_g() * wall::get_rdnx() / wall::get_distance())
-		{
-		}
-
-		/** \brief return Laplace ht kernel
-		 * \return Laplace ht kernel
-		 */
-		result_t const &get_laplace_ht(void) const
-		{
-			return m_laplace_ht;
-		}
-
-		/** \brief return Laplace ht kernel
-		 * \return Laplace ht kernel
-		 */
-		result_t const & get_result(void) const
-		{
-			return get_laplace_ht();
-		}
-
-	private:
-		result_t m_laplace_ht;
-	};
-};
-
-/** \brief specialsation of ::laplace_wall for the 2D DLPt case */
-template <class Scalar>
-struct laplace_wall<space_2d<Scalar>, potential::DLPt> : build<
-	distance_vector_brick<space_2d<Scalar> >,
-	distance_brick<Scalar>,
-	rdnx_brick<Scalar>,
-	laplace_brick<space_2d<Scalar>, potential::DLPt>
-> {};
-
-/** \brief specialsation of ::laplace_wall for the 3D DLPt case */
-template <class Scalar>
-struct laplace_wall<space_3d<Scalar>, potential::DLPt> : build<
-	distance_vector_brick<space_3d<Scalar> >,
-	distance_brick<Scalar>,
-	rdnx_brick<Scalar>,
-	laplace_brick<space_3d<Scalar>, potential::SLP>,
-	laplace_brick<space_3d<Scalar>, potential::DLPt>
-> {};
 
 namespace kernel_traits_ns
 {
@@ -541,140 +165,6 @@ namespace kernel_traits_ns
 	struct singular_quadrature_order<laplace_kernel<Space, potential::DLPt> > : std::integral_constant<unsigned, 7> {};
 }
 
-/** \brief specialisation of ::laplace_brick for the 2D HSP case */
-template <class Scalar>
-struct laplace_brick<space_2d<Scalar>, potential::HSP>
-{
-	/** \brief the brick template
-	 * \tparam wall the wall the brick is placed on
-	 */
-	template <class wall>
-	class brick : public wall
-	{
-	public:
-		/** \brief the result type */
-		typedef Scalar result_t;
-
-		/** \brief templated constructor
-		 * \tparam test_input_t the test input type
-		 * \tparam trial_input_t the trial input type
-		 * \tparam kernel_data_t the kernel type
-		 * \param [in] test_input the test input
-		 * \param [in] trial_input the trial input
-		 * \param [in] kernel_data the kernel data instance
-		 */
-		template <class test_input_t, class trial_input_t, class kernel_data_t>
-		brick(
-			test_input_t const &test_input,
-			trial_input_t const &trial_input,
-			kernel_data_t const &kernel_data) :
-			wall(test_input, trial_input, kernel_data),
-			m_laplace_hyper(
-				1./(2. * M_PI)/wall::get_distance()/wall::get_distance() * (
-					test_input.get_unit_normal().dot(trial_input.get_unit_normal()) +
-					2. * wall::get_rdny()*wall::get_rdnx()))
-		{
-		}
-
-		/** \brief return Laplace hypersingular kernel
-		 * \return Laplace hypersingular kernel
-		 */
-		result_t const & get_laplace_hyper(void) const
-		{
-			return m_laplace_hyper;
-		}
-
-		/** \brief return Laplace hypersingular kernel
-		 * \return Laplace hypersingular kernel
-		 */
-		result_t const & get_result(void) const
-		{
-			return m_laplace_hyper;
-		}
-
-	private:
-		result_t m_laplace_hyper;
-	};
-};
-
-/** \brief specialisation of ::laplace_brick for the 3D HSP case */
-template <class Scalar>
-struct laplace_brick<space_3d<Scalar>, potential::HSP>
-{
-	/** \brief the brick template
-	 * \tparam wall the wall the brick is placed on
-	 */
-	template <class wall>
-	class brick : public wall
-	{
-	public:
-		/** \brief the result type */
-		typedef Scalar result_t;
-
-		/** \brief templated constructor
-		 * \tparam test_input_t the test input type
-		 * \tparam trial_input_t the trial input type
-		 * \tparam kernel_data_t the kernel type
-		 * \param [in] test_input the test input
-		 * \param [in] trial_input the trial input
-		 * \param [in] kernel_data the kernel data instance
-		 */
-		template <class test_input_t, class trial_input_t, class kernel_data_t>
-		brick(
-			test_input_t const &test_input,
-			trial_input_t const &trial_input,
-			kernel_data_t const &kernel_data) :
-			wall(test_input, trial_input, kernel_data),
-			m_laplace_hyper(
-				wall::get_laplace_g() / wall::get_distance() / wall::get_distance() * (
-					test_input.get_unit_normal().dot(trial_input.get_unit_normal()) +
-					3. * wall::get_rdnx() * wall::get_rdny()
-				))
-		{
-		}
-
-		/** \brief return Laplace hypersingular kernel
-		 * \return Laplace hypersingular kernel
-		 */
-		result_t const &get_laplace_hyper(void) const
-		{
-			return m_laplace_hyper;
-		}
-
-		/** \brief return Laplace hypersingular kernel
-		 * \return Laplace hypersingular kernel
-		 */
-		result_t const & get_result(void) const
-		{
-			return get_laplace_hyper();
-		}
-
-	private:
-		result_t m_laplace_hyper;
-	};
-};
-
-/** \brief specialisation of ::laplace_wall for the 2D HSP case */
-template <class Scalar>
-struct laplace_wall<space_2d<Scalar>, potential::HSP> : build<
-	distance_vector_brick<space_2d<Scalar> >,
-	distance_brick<Scalar>,
-	rdny_brick<Scalar>,
-	rdnx_brick<Scalar>,
-	laplace_brick<space_2d<Scalar>, potential::HSP>
-> {};
-
-/** \brief specialisation of ::laplace_wall for the 3D HSP case */
-template <class Scalar>
-struct laplace_wall<space_3d<Scalar>, potential::HSP> : build<
-	distance_vector_brick<space_3d<Scalar>>,
-	distance_brick<Scalar>,
-	rdnx_brick<Scalar>,
-	rdny_brick<Scalar>,
-	laplace_brick<space_3d<Scalar>, potential::SLP>,
-	laplace_brick<space_3d<Scalar>, potential::HSP>
-> {};
-
 namespace kernel_traits_ns
 {
 	template <class Space>
@@ -702,6 +192,178 @@ namespace kernel_traits_ns
 	struct singular_quadrature_order<laplace_kernel<Space, potential::HSP> > : std::integral_constant<unsigned, 7> {};
 }
 
+template <class Scalar>
+class laplace_kernel<space_2d<Scalar>, potential::SLP> : public kernel_base<laplace_kernel<space_2d<Scalar>, potential::SLP> >
+{
+public:
+	typedef kernel_base<laplace_kernel<space_2d<Scalar>, potential::SLP> > base_t;
+	typedef typename base_t::test_input_t test_input_t;
+	typedef typename base_t::trial_input_t trial_input_t;
+	typedef typename base_t::result_t result_t;
+
+	result_t operator()(test_input_t const &test_input, trial_input_t const &trial_input) const
+	{
+		auto y = trial_input.get_x();
+		auto x = test_input.get_x();
+		auto rvec = y - x;
+		auto r = rvec.norm();
+		return -std::log(r) / (2. * M_PI);
+	}
+};
+
+template <class Scalar>
+class laplace_kernel<space_3d<Scalar>, potential::SLP> : public kernel_base<laplace_kernel<space_3d<Scalar>, potential::SLP> >
+{
+public:
+	typedef kernel_base<laplace_kernel<space_3d<Scalar>, potential::SLP> > base_t;
+	typedef typename base_t::test_input_t test_input_t;
+	typedef typename base_t::trial_input_t trial_input_t;
+	typedef typename base_t::result_t result_t;
+
+	result_t operator()(test_input_t const &test_input, trial_input_t const &trial_input) const
+	{
+		auto y = trial_input.get_x();
+		auto x = test_input.get_x();
+		auto rvec = y - x;
+		auto r = rvec.norm();
+		return 1. / r / (4. * M_PI);
+	}
+};
+
+
+template <class Scalar>
+class laplace_kernel<space_2d<Scalar>, potential::DLP> : public kernel_base<laplace_kernel<space_2d<Scalar>, potential::DLP> >
+{
+public:
+	typedef kernel_base<laplace_kernel<space_2d<Scalar>, potential::DLP> > base_t;
+	typedef typename base_t::test_input_t test_input_t;
+	typedef typename base_t::trial_input_t trial_input_t;
+	typedef typename base_t::result_t result_t;
+
+	result_t operator()(test_input_t const &test_input, trial_input_t const &trial_input) const
+	{
+		auto y = trial_input.get_x();
+		auto x = test_input.get_x();
+		auto rvec = y - x;
+		auto r = rvec.norm();
+		auto rdny = rvec.dot(trial_input.get_unit_normal()) / r;
+		return -rdny / r / (2. * M_PI);
+	}
+};
+
+
+template <class Scalar>
+class laplace_kernel<space_3d<Scalar>, potential::DLP> : public kernel_base<laplace_kernel<space_3d<Scalar>, potential::DLP> >
+{
+public:
+	typedef kernel_base<laplace_kernel<space_3d<Scalar>, potential::DLP> > base_t;
+	typedef typename base_t::test_input_t test_input_t;
+	typedef typename base_t::trial_input_t trial_input_t;
+	typedef typename base_t::result_t result_t;
+
+	result_t operator()(test_input_t const &test_input, trial_input_t const &trial_input) const
+	{
+		auto y = trial_input.get_x();
+		auto x = test_input.get_x();
+		auto rvec = y - x;
+		auto r = rvec.norm();
+		auto g = 1. / r / (4. * M_PI);
+		auto rdny = rvec.dot(trial_input.get_unit_normal()) / r;
+		return -g * rdny / r;
+	}
+};
+
+template <class Scalar>
+class laplace_kernel<space_2d<Scalar>, potential::DLPt> : public kernel_base<laplace_kernel<space_2d<Scalar>, potential::DLPt> >
+{
+public:
+	typedef kernel_base<laplace_kernel<space_2d<Scalar>, potential::DLPt> > base_t;
+	typedef typename base_t::test_input_t test_input_t;
+	typedef typename base_t::trial_input_t trial_input_t;
+	typedef typename base_t::result_t result_t;
+
+	result_t operator()(test_input_t const &test_input, trial_input_t const &trial_input) const
+	{
+		auto y = trial_input.get_x();
+		auto x = test_input.get_x();
+		auto rvec = y - x;
+		auto r = rvec.norm();
+		auto rdnx = -rvec.dot(test_input.get_unit_normal()) / r;
+		return -rdnx / r / (2. * M_PI);
+	}
+};
+
+template <class Scalar>
+class laplace_kernel<space_3d<Scalar>, potential::DLPt> : public kernel_base<laplace_kernel<space_3d<Scalar>, potential::DLPt> >
+{
+public:
+	typedef kernel_base<laplace_kernel<space_3d<Scalar>, potential::DLPt> > base_t;
+	typedef typename base_t::test_input_t test_input_t;
+	typedef typename base_t::trial_input_t trial_input_t;
+	typedef typename base_t::result_t result_t;
+
+	result_t operator()(test_input_t const &test_input, trial_input_t const &trial_input) const
+	{
+		auto y = trial_input.get_x();
+		auto x = test_input.get_x();
+		auto rvec = y - x;
+		auto r = rvec.norm();
+		auto g = 1. / r / (4. * M_PI);
+		auto rdnx = -rvec.dot(test_input.get_unit_normal()) / r;
+		return -g * rdnx / r;
+	}
+};
+
+template <class Scalar>
+class laplace_kernel<space_2d<Scalar>, potential::HSP> : public kernel_base<laplace_kernel<space_2d<Scalar>, potential::HSP> >
+{
+public:
+	typedef kernel_base<laplace_kernel<space_2d<Scalar>, potential::HSP> > base_t;
+	typedef typename base_t::test_input_t test_input_t;
+	typedef typename base_t::trial_input_t trial_input_t;
+	typedef typename base_t::result_t result_t;
+
+	result_t operator()(test_input_t const &test_input, trial_input_t const &trial_input) const
+	{
+		auto y = trial_input.get_x();
+		auto x = test_input.get_x();
+		auto rvec = y - x;
+		auto r = rvec.norm();
+		auto rdny = rvec.dot(trial_input.get_unit_normal()) / r;
+		auto rdnx = -rvec.dot(trial_input.get_unit_normal()) / r;
+		return 	1./(2. * M_PI)/r/r * (
+		test_input.get_unit_normal().dot(trial_input.get_unit_normal()) +
+		2. * rdny*rdnx);
+	}
+};
+
+template <class Scalar>
+class laplace_kernel<space_3d<Scalar>, potential::HSP> : public kernel_base<laplace_kernel<space_3d<Scalar>, potential::HSP> >
+{
+public:
+	typedef kernel_base<laplace_kernel<space_3d<Scalar>, potential::HSP> > base_t;
+	typedef typename base_t::test_input_t test_input_t;
+	typedef typename base_t::trial_input_t trial_input_t;
+	typedef typename base_t::result_t result_t;
+
+	result_t operator()(test_input_t const &test_input, trial_input_t const &trial_input) const
+	{
+		auto y = trial_input.get_x();
+		auto x = test_input.get_x();
+		auto rvec = y - x;
+		auto r = rvec.norm();
+		auto rdny = rvec.dot(trial_input.get_unit_normal()) / r;
+		auto rdnx = -rvec.dot(trial_input.get_unit_normal()) / r;
+		auto g = 1. / r / (4. * M_PI);
+		return 	g / r / r *
+		(
+		test_input.get_unit_normal().dot(trial_input.get_unit_normal()) +
+		3. * rdnx * rdny
+		);
+	}
+};
+
+
 /** \brief shorthand for the 2d laplace SLP kernel */
 typedef laplace_kernel<space_2d<>, potential::SLP> laplace_2d_SLP_kernel;
 /** \brief shorthand for the 3d laplace SLP kernel */
@@ -719,7 +381,7 @@ typedef laplace_kernel<space_2d<>, potential::HSP> laplace_2d_HSP_kernel;
 /** \brief shorthand for the 3d laplace HSP kernel */
 typedef laplace_kernel<space_3d<>, potential::HSP> laplace_3d_HSP_kernel;
 
-}
+} // end of namespace NiHu
 
 #include "guiggiani_1992.hpp"
 

@@ -39,25 +39,6 @@ private:
 };
 //![parameter]
 
-//![ufunctor]
-struct Ukernel
-{
-	typedef Eigen::Matrix<double, 3, 3> return_type;
-
-	return_type operator()(
-		NiHu::location_input_3d const &x,
-		NiHu::location_input_3d const &y,
-		poisson_ratio_data const &data)
-	{
-		auto nu = data.get_poisson_ratio();
-		auto rvec = y.get_x() - x.get_x();
-		auto r = rvec.norm();
-		auto gradr = rvec.normalized();
-		return ( (3.-4.*nu) * return_type::Identity() + (gradr * gradr.transpose()) ) / (16.*M_PI*(1.-nu)*r);
-	}
-};
-//![ufunctor]
-
 //![udeclare]
 class elastostatics_3d_U_kernel;
 //![udeclare]
@@ -71,7 +52,7 @@ struct kernel_traits<elastostatics_3d_U_kernel>
 	typedef location_input_3d test_input_t;
 	typedef location_input_3d trial_input_t;
 	typedef collect<poisson_ratio_data> data_t;
-	typedef single_brick_wall<Ukernel>::type output_t;
+	typedef Eigen::Matrix<double, 3, 3> result_t;
 	enum { result_rows = 3, result_cols = 3 };
 	typedef gauss_family_tag quadrature_family_t;
 	static bool const is_symmetric = true;
@@ -101,31 +82,21 @@ public:
 		NiHu::kernel_base<elastostatics_3d_U_kernel>(poisson_ratio_data(nu))
 	{
 	}
+	
+	result_t operator()(
+		NiHu::location_input_3d const &x,
+		NiHu::location_input_3d const &y) const
+	{
+		auto nu = get_data().get_poisson_ratio();
+		auto rvec = y.get_x() - x.get_x();
+		auto r = rvec.norm();
+		auto gradr = rvec.normalized();
+		return ( (3.-4.*nu) * result_t::Identity() + (gradr * gradr.transpose()) ) / (16.*M_PI*(1.-nu)*r);
+	}
 };
 //![udefine]
 
 //![tkernel]
-struct Tkernel
-{
-	typedef Eigen::Matrix<double, 3, 3> return_type;
-
-	return_type operator()(
-		NiHu::location_input_3d const &x,
-		NiHu::location_normal_input_3d const &y,
-		poisson_ratio_data const &data)
-	{
-		auto nu = data.get_poisson_ratio();
-		auto rvec = y.get_x() - x.get_x();
-		auto r = rvec.norm();
-		auto gradr = rvec.normalized();
-		auto const &n = y.get_unit_normal();
-		auto rdny = gradr.dot(n);
-		return (-rdny * ( (1.-2.*nu)*return_type::Identity() + 3.*(gradr*gradr.transpose()) )
-			+ (1.-2.*nu) * (gradr*n.transpose()-n*gradr.transpose())
-			) / (8.*M_PI*(1.-nu)*r*r);
-	}
-};
-
 class elastostatics_3d_T_kernel;
 
 namespace NiHu
@@ -136,7 +107,7 @@ struct kernel_traits<elastostatics_3d_T_kernel>
 	typedef location_input_3d test_input_t;
 	typedef location_normal_input_3d trial_input_t;
 	typedef collect<poisson_ratio_data> data_t;
-	typedef single_brick_wall<Tkernel>::type output_t;
+	typedef Eigen::Matrix<double, 3, 3> result_t;
 	enum { result_rows = 3, result_cols = 3 };
 	typedef gauss_family_tag quadrature_family_t;
 	static bool const is_symmetric = false;
@@ -163,6 +134,21 @@ public:
 	elastostatics_3d_T_kernel(double nu) :
 		NiHu::kernel_base<elastostatics_3d_T_kernel>(poisson_ratio_data(nu))
 	{
+	}
+
+	result_t operator()(
+		NiHu::location_input_3d const &x,
+		NiHu::location_normal_input_3d const &y) const
+	{
+		auto nu = get_data().get_poisson_ratio();
+		auto rvec = y.get_x() - x.get_x();
+		auto r = rvec.norm();
+		auto gradr = rvec.normalized();
+		auto const &n = y.get_unit_normal();
+		auto rdny = gradr.dot(n);
+		return (-rdny * ( (1.-2.*nu)*result_t::Identity() + 3.*(gradr*gradr.transpose()) )
+			+ (1.-2.*nu) * (gradr*n.transpose()-n*gradr.transpose())
+			) / (8.*M_PI*(1.-nu)*r*r);
 	}
 };
 //![tkernel]

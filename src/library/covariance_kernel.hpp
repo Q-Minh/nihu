@@ -19,7 +19,7 @@
 /**
  * \file covariance_kernel.hpp
  * \ingroup library
- * \brief implementation of kernels used to represente covariance function of stochastic processes
+ * \brief implementation of kernels used to represent covariance function of stochastic processes
  * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
  */
 
@@ -65,26 +65,6 @@ private:
 };
 
 template <class Space>
-struct CKernel
-{
-	typedef Eigen::Matrix<double, 1, 1> return_type;
-	
-	typedef typename build<location<Space> >::type location_input;
-	
-	return_type operator()(
-		location_input const &x,
-		location_input const &y,
-		covariance_data const &data)
-	{
-		auto rvec = y.get_x() - x.get_x();
-		auto r = rvec.norm();
-		return_type ret;
-		ret(0,0) = data.get_variance() * std::exp(-r/data.get_correlation_length());
-		return ret;
-	}
-};
-
-template <class Space>
 class covariance_kernel;
 
 /** \brief the properties of the covariance kernel */
@@ -94,11 +74,14 @@ struct kernel_traits<covariance_kernel<Space> >
 	typedef typename build<location<Space> >::type test_input_t;
 	typedef typename build<location<Space> >::type trial_input_t;
 	typedef collect<covariance_data> data_t;
-	typedef typename single_brick_wall<CKernel<Space> >::type output_t;
+	typedef double result_t;
 	enum { result_rows = 1, result_cols = 1 };
 	typedef gauss_family_tag quadrature_family_t;
 	static bool const is_symmetric = true;
+	
+	/** \todo this is incorrect but */
 	typedef asymptotic::inverse<1> far_field_behaviour_t;
+	
 	static bool const is_singular = false;
 };
 
@@ -107,8 +90,22 @@ class covariance_kernel :
 	public kernel_base<covariance_kernel<Space> >
 {
 public:
+	typedef kernel_base<covariance_kernel<Space> > base_t;
+	typedef typename base_t::test_input_t test_input_t;
+	typedef typename base_t::trial_input_t trial_input_t;
+	typedef typename base_t::result_t result_t;
+	
 	covariance_kernel(double sigma, double length) :
 		kernel_base<covariance_kernel>(covariance_data(sigma, length)) {}
+
+	result_t operator()(
+		test_input_t const &x,
+		trial_input_t const &y) const
+	{
+		auto rvec = y.get_x() - x.get_x();
+		auto r = rvec.norm();
+		return this->get_data().get_variance() * std::exp(-r/this->get_data().get_correlation_length());
+	}
 };
 
 }

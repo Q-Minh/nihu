@@ -50,8 +50,8 @@ namespace kernel_traits_ns
 	template <class Derived> struct trial_input;
 	/** \brief return the kernel's data type */
 	template <class Derived> struct data;
-	/** \brief return the kernel's output type */
-	template <class Derived> struct output;
+	/** \brief return the kernel's result type */
+	template <class Derived> struct result;
 	/** \brief return the quadrature family the kernel is integrated with */
 	template <class Derived> struct quadrature_family;
 	/** \brief return the far field asymptotic behaviour of the kernel */
@@ -90,8 +90,8 @@ struct kernel_traits
 	typedef typename kernel_traits_ns::trial_input<Derived>::type trial_input_t;
 	/** \brief the data type */
 	typedef typename kernel_traits_ns::data<Derived>::type data_t;
-	/** \brief the kernel output type */
-	typedef typename kernel_traits_ns::output<Derived>::type output_t;
+	/** \brief the kernel result type */
+	typedef typename kernel_traits_ns::result<Derived>::type result_t;
 	/** \brief the far field asymptotic behaviour of the kernel */
 	typedef typename kernel_traits_ns::far_field_behaviour<Derived>::type far_field_behaviour_t;
 	/** \brief the far field asymptotic behaviour of the kernel */
@@ -166,10 +166,8 @@ public:
 		"The test and trial kernel inputs must define the same coordinate space");
 	/** \brief the kernel data type */
 	typedef typename traits_t::data_t data_t;
-	/** \brief type of the kernel output (not the result) */
-	typedef typename traits_t::output_t output_t;
-	/** \brief kernel result type */
-	typedef typename output_t::result_t result_t;
+	/** \brief type of the kernel result */
+	typedef typename traits_t::result_t result_t;
 	/** \brief the kernel result's dimensionality */
 	enum { result_rows = traits_t::result_rows, result_cols = traits_t::result_cols };
 
@@ -247,10 +245,7 @@ public:
 	 */
 	result_t operator()(test_input_t const &x, trial_input_t const &y) const
 	{
-		// instantiate output
-		output_t output(x, y, m_data);
-		// select result from output
-		return output.get_result();
+		return derived()(x, y);
 	}
 
 	/** \brief return kernel data

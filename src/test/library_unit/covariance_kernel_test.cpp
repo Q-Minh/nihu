@@ -32,7 +32,7 @@ typename K::result_t tester(K const &k, E1 const &e1, E2 const &e2)
 }
 
 template <class K, class E>
-typename K::result_t singular_integral_test(NiHu::kernel_base<K> const &k, E const &e)
+Eigen::Matrix<typename K::result_t, 1, 1> singular_integral_test(NiHu::kernel_base<K> const &k, E const &e)
 {
 	// cast the element into a constant field view
 	typedef NiHu::field_view<E, NiHu::field_option::constant> F;

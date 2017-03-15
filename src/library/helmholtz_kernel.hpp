@@ -42,9 +42,6 @@
 
 namespace NiHu
 {
-	
-	class bubu {};
-
 /**
  * \brief kernel data that stores the wave number
  * \tparam wave_number_type the wave number type
@@ -442,7 +439,10 @@ namespace kernel_traits_ns
 	};
 
 	template <class Space, class Layer, class WaveNumber>
-	struct output<helmholtz_kernel<Space, Layer, WaveNumber> > : helmholtz_wall<Space, Layer> {};
+	struct result<helmholtz_kernel<Space, Layer, WaveNumber> >
+	{
+		typedef std::complex<typename Space::scalar_t> type;
+	};
 
 	template <class Space, class Layer, class WaveNumber>
 	struct result_rows<helmholtz_kernel<Space, Layer, WaveNumber> > : std::integral_constant<unsigned, 1> {};
@@ -923,7 +923,7 @@ struct kernel_traits<helmholtz_2d_double_kernel<wave_number_t, i, j> >
 	/** \brief kernel data type */
 	typedef collect<wave_number_data<wave_number_t> > data_t;
 	/** \brief the kernel output type */
-	typedef typename helmholtz_2d_double_wall<space_2d<>::scalar_t, i, j>::type output_t;
+	typedef std::complex<space_2d<>::scalar_t> result_t;
 	/** \brief the kernel result's dimension */
 	enum { result_rows = 1, result_cols = 1 };
 	/** \brief the quadrature family the kernel is integrated with */
@@ -957,6 +957,9 @@ class helmholtz_2d_double_kernel :
 	public kernel_base<helmholtz_2d_double_kernel<wave_number_t, i, j> >
 {
 public:
+	typedef kernel_base<helmholtz_2d_double_kernel<wave_number_t, i, j> > base_t;
+	typedef typename base_t::result_t result_t;
+	
 	/** \brief constructor
 	 * \param [in] wave_number the wave number
 	 */
