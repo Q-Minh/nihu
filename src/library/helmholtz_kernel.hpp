@@ -42,6 +42,7 @@
 
 namespace NiHu
 {
+
 /**
  * \brief kernel data that stores the wave number
  * \tparam wave_number_type the wave number type
@@ -69,103 +70,6 @@ public:
 private:
 	wave_number_type m_wave_number;
 };
-
-/** \brief a brick representing the expression \f$ i k r \f$
- * \tparam scalar scalar type of the coordinate space the distance is defined over
- */
-template <class scalar>
-struct ikr_brick
-{
-	/** \brief the brick template
-	 * \tparam the wall the brick is placed on
-	 */
-	template <class wall>
-	class brick : public wall
-	{
-	public:
-		/** \brief the result type */
-		typedef std::complex<scalar> result_t;
-
-		/** \brief templated constructor
-		 * \tparam test_input_t the test input type
-		 * \tparam trial_input_t the trial input type
-		 * \tparam kernel_data_t the kernel data type
-		 * \param [in] test_input the test input
-		 * \param [in] trial_input the trial input
-		 * \param [in] kernel_data the kernel data instance
-		 */
-		template <class test_input_t, class trial_input_t, class kernel_data_t>
-		brick(
-			test_input_t const &test_input,
-			trial_input_t const &trial_input,
-			kernel_data_t const &kernel_data) :
-			wall(test_input, trial_input, kernel_data),
-			m_ikr(std::complex<scalar>(0.,1.) * kernel_data.get_wave_number() * wall::get_distance())
-		{
-		}
-
-		/** \brief return ikr
-		 * \return ikr
-		 */
-		result_t const &get_ikr(void) const
-		{
-			return m_ikr;
-		}
-
-	private:
-		result_t m_ikr;
-	};
-};
-
-
-
-/** \brief a brick representing the expression \f$ k r \f$
- * \tparam scalar scalar type of the coordinate space the distance is defined over
- */
-template <class scalar>
-struct kr_brick
-{
-	/** \brief the brick template
-	 * \tparam the wall the brick is placed on
-	 */
-	template <class wall>
-	class brick : public wall
-	{
-	public:
-		/** \brief the result type */
-		typedef std::complex<scalar> result_t;
-
-		/** \brief templated constructor
-		 * \tparam test_input_t the test input type
-		 * \tparam trial_input_t the trial input type
-		 * \tparam kernel_data_t the kernel data type
-		 * \param [in] test_input the test input
-		 * \param [in] trial_input the trial input
-		 * \param [in] kernel_data the kernel data instance
-		 */
-		template <class test_input_t, class trial_input_t, class kernel_data_t>
-		brick(
-			test_input_t const &test_input,
-			trial_input_t const &trial_input,
-			kernel_data_t const &kernel_data) :
-			wall(test_input, trial_input, kernel_data),
-			m_kr(kernel_data.get_wave_number() * wall::get_distance())
-		{
-		}
-
-		/** \brief return kr
-		 * \return kr
-		 */
-		result_t const &get_kr(void) const
-		{
-			return m_kr;
-		}
-
-	private:
-		result_t m_kr;
-	};
-};
-
 
 /** \brief a brick representing the expression \f$ k r H_0^(2)(kr) \f$
  * \tparam scalar scalar type of the coordinate space the distance is defined over
@@ -245,7 +149,7 @@ struct H1_brick
 			trial_input_t const &trial_input,
 			kernel_data_t const &kernel_data) :
 			wall(test_input, trial_input, kernel_data),
-			m_H1(bessel::H<1,2>(wall::get_kr()))
+			m_H1()
 		{
 		}
 
@@ -283,144 +187,111 @@ struct helmholtz_wall;
  * \tparam WaveNumber the wave number type
  */
 template <class Space, class Layer, class WaveNumber>
-class helmholtz_kernel :
-	public kernel_base<helmholtz_kernel<Space, Layer, WaveNumber> >
+class helmholtz_kernel;
+
+
+template <class Scalar, class WaveNumber>
+class helmholtz_kernel<space_2d<Scalar>, potential::SLP, WaveNumber> :
+	public kernel_base<helmholtz_kernel<space_2d<Scalar>, potential::SLP, WaveNumber> >
 {
 public:
+	typedef kernel_base<helmholtz_kernel<space_2d<Scalar>, potential::SLP, WaveNumber> > base_t;
+	typedef typename base_t::test_input_t test_input_t;
+	typedef typename base_t::trial_input_t trial_input_t;
+	typedef typename base_t::result_t result_t;
+	
 	/** \brief constructor
 	 * \param [in] wave_number the wave number
 	 */
-	helmholtz_kernel(WaveNumber const &wave_number) :
-		kernel_base<helmholtz_kernel<Space, Layer, WaveNumber> >(wave_number_data<WaveNumber>(wave_number))
+	helmholtz_kernel(WaveNumber const &wave_number) : base_t(wave_number_data<WaveNumber>(wave_number))
 	{
+	}
+	
+	result_t operator()(test_input_t const &x, trial_input_t const &y) const
+	{
+		auto r = (y.get_x() - x.get_x()).norm();
+		auto kr = this->get_data().get_wave_number() * r;
+		return result_t(0., -.25) * bessel::H<0, 2>(result_t(kr));
 	}
 };
 
-/** \brief specialisation of ::helmholtz_brick for the 2D SLP case */
-template <class Scalar>
-struct helmholtz_brick<space_2d<Scalar>, potential::SLP>
+
+template <class Scalar, class WaveNumber>
+class helmholtz_kernel<space_3d<Scalar>, potential::SLP, WaveNumber> :
+	public kernel_base<helmholtz_kernel<space_3d<Scalar>, potential::SLP, WaveNumber> >
 {
-	/** \brief the brick template
-	 * \tparam the wall the brick is placed on
-	 */
-	template <class wall>
-	class brick : public wall
+public:
+	typedef kernel_base<helmholtz_kernel<space_3d<Scalar>, potential::SLP, WaveNumber> > base_t;
+	typedef typename base_t::test_input_t test_input_t;
+	typedef typename base_t::trial_input_t trial_input_t;
+	typedef typename base_t::result_t result_t;
+	
+	helmholtz_kernel(WaveNumber const &wave_number) : base_t(wave_number_data<WaveNumber>(wave_number))
 	{
-	public:
-		/** \brief the result type */
-		typedef std::complex<Scalar> result_t;
-
-		/** \brief templated constructor
-		 * \tparam test_input_t the test input type
-		 * \tparam trial_input_t the trial input type
-		 * \tparam kernel_data_t the kernel data type
-		 * \param [in] test_input the test input
-		 * \param [in] trial_input the trial input
-		 * \param [in] kernel_data the kernel data instance
-		 */
-		template <class test_input_t, class trial_input_t, class kernel_data_t>
-		brick(
-			test_input_t const &test_input,
-			trial_input_t const &trial_input,
-			kernel_data_t const &kernel_data) :
-			wall(test_input, trial_input, kernel_data),
-			m_helmholtz_g(result_t(0., -.25) * bessel::H<0, 2>(wall::get_kr()))
-		{
-		}
-
-		/** \brief return Helmholtz g kernel
-		 * \return Helmholtz g kernel
-		 */
-		result_t const &get_helmholtz_g(void) const
-		{
-			return m_helmholtz_g;
-		}
-
-		/** \brief return Helmholtz g kernel
-		 * \return Helmholtz g kernel
-		 */
-		result_t const &get_result(void) const
-		{
-			return m_helmholtz_g;
-		}
-
-	private:
-		result_t m_helmholtz_g;
-	};
+	}
+	
+	result_t operator()(test_input_t const &x, trial_input_t const &y) const
+	{
+		auto r = (y.get_x() - x.get_x()).norm();
+		auto jkr = std::complex<Scalar>(0,1) * (this->get_data().get_wave_number() * r);
+		return std::exp(-jkr) / r / (4. * M_PI);
+	}
 };
 
 
-/** \brief specialisation of ::helmholtz_brick for the 3D SLP case */
-template <class Scalar>
-struct helmholtz_brick<space_3d<Scalar>, potential::SLP>
+template <class Scalar, class WaveNumber>
+class helmholtz_kernel<space_3d<Scalar>, potential::DLP, WaveNumber> :
+	public kernel_base<helmholtz_kernel<space_3d<Scalar>, potential::DLP, WaveNumber> >
 {
-	/** \brief the brick template
-	 * \tparam the wall the brick is placed on
-	 */
-	template <class wall>
-	class brick : public wall
+public:
+	typedef kernel_base<helmholtz_kernel<space_3d<Scalar>, potential::DLP, WaveNumber> > base_t;
+	typedef typename base_t::test_input_t test_input_t;
+	typedef typename base_t::trial_input_t trial_input_t;
+	typedef typename base_t::result_t result_t;
+	
+	helmholtz_kernel(WaveNumber const &wave_number) : base_t(wave_number_data<WaveNumber>(wave_number))
 	{
-	public:
-		/** \brief the result type */
-		typedef std::complex<Scalar> result_t;
-
-		/** \brief templated constructor
-		 * \tparam test_input_t the test input type
-		 * \tparam trial_input_t the trial input type
-		 * \tparam kernel_data_t the kernel data type
-		 * \param [in] test_input the test input
-		 * \param [in] trial_input the trial input
-		 * \param [in] kernel_data the kernel data instance
-		 */
-		template <class test_input_t, class trial_input_t, class kernel_data_t>
-		brick(
-			test_input_t const &test_input,
-			trial_input_t const &trial_input,
-			kernel_data_t const &kernel_data) :
-			wall(test_input, trial_input, kernel_data),
-			m_helmholtz_g(std::exp(-wall::get_ikr()) / wall::get_distance() / (4. * M_PI))
-		{
-		}
-
-		/** \brief return Helmholtz g kernel
-		 * \return Helmholtz g kernel
-		 */
-		result_t const &get_helmholtz_g(void) const
-		{
-			return m_helmholtz_g;
-		}
-
-		/** \brief return Helmholtz g kernel
-		 * \return Helmholtz g kernel
-		 */
-		result_t const &get_result(void) const
-		{
-			return m_helmholtz_g;
-		}
-
-	private:
-		result_t m_helmholtz_g;
-	};
+	}
+	
+	result_t operator()(test_input_t const &x, trial_input_t const &y) const
+	{
+		auto rvec = y.get_x() - x.get_x();
+		auto r = (rvec).norm();
+		auto rdny = rvec.dot(y.get_unit_normal()) / r;
+		auto ikr = std::complex<Scalar>(0,1) * (this->get_data().get_wave_number() * r);
+		auto g = std::exp(-ikr) / r / (4. * M_PI);
+		return -(1.+ikr) * g / r * rdny;
+	}
 };
 
 
-/** \brief specialisation of ::helmholtz_wall for the 2D SLP case */
-template <class Scalar>
-struct helmholtz_wall<space_2d<Scalar>, potential::SLP> : build<
-	distance_vector_brick<space_2d<Scalar> >,
-	distance_brick<Scalar>,
-	kr_brick<Scalar>,
-	helmholtz_brick<space_2d<Scalar>, potential::SLP>
-> {};
+template <class Scalar, class WaveNumber>
+class helmholtz_kernel<space_3d<Scalar>, potential::DLPt, WaveNumber> :
+	public kernel_base<helmholtz_kernel<space_3d<Scalar>, potential::DLPt, WaveNumber> >
+{
+public:
+	typedef kernel_base<helmholtz_kernel<space_3d<Scalar>, potential::DLPt, WaveNumber> > base_t;
+	typedef typename base_t::test_input_t test_input_t;
+	typedef typename base_t::trial_input_t trial_input_t;
+	typedef typename base_t::result_t result_t;
+	
+	helmholtz_kernel(WaveNumber const &wave_number) : base_t(wave_number_data<WaveNumber>(wave_number))
+	{
+	}
+	
+	result_t operator()(test_input_t const &x, trial_input_t const &y) const
+	{
+		auto rvec = y.get_x() - x.get_x();
+		auto r = (rvec).norm();
+		auto rdnx = -rvec.dot(x.get_unit_normal()) / r;
+		auto ikr = std::complex<Scalar>(0,1) * (this->get_data().get_wave_number() * r);
+		auto g = std::exp(-ikr) / r / (4. * M_PI);
+		return -(1.+ikr) * g / r * rdnx;
+	}
+};
 
-/** \brief specialisation of ::helmholtz_wall for the 3D SLP case */
-template <class Scalar>
-struct helmholtz_wall<space_3d<Scalar>, potential::SLP> : build<
-	distance_vector_brick<space_3d<Scalar> >,
-	distance_brick<Scalar>,
-	ikr_brick<Scalar>,
-	helmholtz_brick<space_3d<Scalar>, potential::SLP>
-> {};
+
+
 
 namespace kernel_traits_ns
 {
@@ -480,138 +351,38 @@ namespace kernel_traits_ns
 }
 
 
-/** \brief specialisation of ::helmholtz_brick for the 2d DLP case */
-template <class Scalar>
-struct helmholtz_brick<space_2d<Scalar>, potential::DLP>
+/** \brief kernel of the Helmholtz equation
+ * \tparam Space the coordinate space
+ * \tparam Layer the potential type tag
+ * \tparam WaveNumber the wave number type
+ */
+template <class Scalar, class WaveNumber>
+class helmholtz_kernel<space_2d<Scalar>, potential::DLP, WaveNumber> :
+	public kernel_base<helmholtz_kernel<space_2d<Scalar>, potential::DLP, WaveNumber> >
 {
-	/** \brief the brick template
-	* \tparam the wall the brick is placed on
-	*/
-	template <class wall>
-	class brick : public wall
-	{
-	public:
-		/** \brief the result type */
-		typedef std::complex<Scalar> result_t;
-
-		/** \brief templated constructor
-		* \tparam test_input_t the test input type
-		* \tparam trial_input_t the trial input type
-		* \tparam kernel_data_t the kernel data type
-		* \param [in] test_input the test input
-		* \param [in] trial_input the trial input
-		* \param [in] kernel_data the kernel data instance
-		*/
-		template <class test_input_t, class trial_input_t, class kernel_data_t>
-		brick(
-			test_input_t const &test_input,
-			trial_input_t const &trial_input,
-			kernel_data_t const &kernel_data) :
-			wall(test_input, trial_input, kernel_data),
-			m_helmholtz_h(result_t(0., .25) * kernel_data.get_wave_number() *
-			wall::get_H1() * wall::get_rdny())
-		{
-		}
-
-		/** \brief return Helmholtz h kernel
-		* \return Helmholtz h kernel
-		*/
-		result_t const &get_helmholtz_h(void) const
-		{
-			return m_helmholtz_h;
-		}
-
-		/** \brief return Helmholtz h kernel
-		* \return Helmholtz h kernel
-		*/
-		result_t const &get_result(void) const
-		{
-			return m_helmholtz_h;
-		}
-
-	private:
-		result_t m_helmholtz_h;
-	};
-};
-
-
-/** \brief specialisation of ::helmholtz_brick for the 3d DLP case */
-template <class Scalar>
-struct helmholtz_brick<space_3d<Scalar>, potential::DLP>
-{
-	/** \brief the brick template
-	 * \tparam the wall the brick is placed on
+public:
+	typedef kernel_base<helmholtz_kernel<space_2d<Scalar>, potential::DLP, WaveNumber> > base_t;
+	typedef typename base_t::test_input_t test_input_t;
+	typedef typename base_t::trial_input_t trial_input_t;
+	typedef typename base_t::result_t result_t;
+	
+	/** \brief constructor
+	 * \param [in] wave_number the wave number
 	 */
-	template <class wall>
-	class brick : public wall
+	helmholtz_kernel(WaveNumber const &wave_number) : base_t(wave_number_data<WaveNumber>(wave_number))
 	{
-	public:
-		/** \brief the result type */
-		typedef std::complex<Scalar> result_t;
-
-		/** \brief templated constructor
-		 * \tparam test_input_t the test input type
-		 * \tparam trial_input_t the trial input type
-		 * \tparam kernel_data_t the kernel data type
-		 * \param [in] test_input the test input
-		 * \param [in] trial_input the trial input
-		 * \param [in] kernel_data the kernel data instance
-		 */
-		template <class test_input_t, class trial_input_t, class kernel_data_t>
-		brick(
-			test_input_t const &test_input,
-			trial_input_t const &trial_input,
-			kernel_data_t const &kernel_data) :
-			wall(test_input, trial_input, kernel_data),
-			m_helmholtz_h(-(1.+wall::get_ikr()) * wall::get_helmholtz_g() / wall::get_distance() * wall::get_rdny())
-		{
-		}
-
-		/** \brief return Helmholtz DLP kernel
-		 * \return Helmholtz DLP kernel
-		 */
-		result_t const &get_helmholtz_h(void) const
-		{
-			return m_helmholtz_h;
-		}
-
-		/** \brief return Helmholtz DLP kernel
-		 * \return Helmholtz DLP kernel
-		 */
-		result_t const &get_result(void) const
-		{
-			return m_helmholtz_h;
-		}
-
-	private:
-		result_t m_helmholtz_h;
-	};
+	}
+	
+	result_t operator()(test_input_t const &x, trial_input_t const &y) const
+	{
+		auto rvec = y.get_x() - x.get_x();
+		auto r = rvec.norm();
+		auto rdny = rvec.dot(y.get_unit_normal()) / r;
+		auto kr = this->get_data().get_wave_number() * r;
+		auto H1 = bessel::H<1,2>(result_t(kr));
+		return result_t(0., .25) * this->get_data().get_wave_number() * H1 * rdny;
+	}
 };
-
-
-/** \brief specialisation of ::helmholtz_wall for the 2D DLP case */
-template <class Scalar>
-struct helmholtz_wall<space_2d<Scalar>, potential::DLP> : build<
-	distance_vector_brick<space_2d<Scalar> >,
-	distance_brick<Scalar>,
-	kr_brick<Scalar>,
-	H1_brick<Scalar>,
-	rdny_brick<Scalar>,
-	helmholtz_brick<space_2d<Scalar>, potential::DLP>
-> {};
-
-
-/** \brief specialisation of ::helmholtz_wall for the 3D DLP case */
-template <class Scalar>
-struct helmholtz_wall<space_3d<Scalar>, potential::DLP> : build<
-	distance_vector_brick<space_3d<Scalar> >,
-	distance_brick<Scalar>,
-	ikr_brick<Scalar>,
-	helmholtz_brick<space_3d<Scalar>, potential::SLP>,
-	rdny_brick<Scalar>,
-	helmholtz_brick<space_3d<Scalar>, potential::DLP>
-> {};
-
 
 namespace kernel_traits_ns
 {
@@ -640,70 +411,6 @@ namespace kernel_traits_ns
 	template <class Space, class WaveNumber>
 	struct singular_quadrature_order<helmholtz_kernel<Space, potential::DLP, WaveNumber> > : std::integral_constant<unsigned, 7> {};
 }
-
-/** \brief specialisation og ::helmholtz_brick for the 3D DLPt case */
-template <class Scalar>
-struct helmholtz_brick<space_3d<Scalar>, potential::DLPt>
-{
-	/** \brief the brick template
-	 * \tparam the wall the brick is placed on
-	 */
-	template <class wall>
-	class brick : public wall
-	{
-	public:
-		/** \brief the result type */
-		typedef std::complex<Scalar> result_t;
-
-		/** \brief templated constructor
-		 * \tparam test_input_t the test input type
-		 * \tparam trial_input_t the trial input type
-		 * \tparam kernel_data_t the kernel data type
-		 * \param [in] test_input the test input
-		 * \param [in] trial_input the trial input
-		 * \param [in] kernel_data the kernel data instance
-		 */
-		template <class test_input_t, class trial_input_t, class kernel_data_t>
-		brick(
-			test_input_t const &test_input,
-			trial_input_t const &trial_input,
-			kernel_data_t const &kernel_data) :
-			wall(test_input, trial_input, kernel_data),
-			m_helmholtz_ht(-(1.+wall::get_ikr()) * wall::get_helmholtz_g() / wall::get_distance() * wall::get_rdnx())
-		{
-		}
-
-		/** \brief return Helmholtz Ht kernel
-		 * \return Helmholtz Ht kernel
-		 */
-		result_t const &get_helmholtz_ht(void) const
-		{
-			return m_helmholtz_ht;
-		}
-
-		/** \brief return Helmholtz h kernel
-		 * \return Helmholtz h kernel
-		 */
-		result_t const &get_result(void) const
-		{
-			return m_helmholtz_ht;
-		}
-
-	private:
-		result_t m_helmholtz_ht;
-	};
-};
-
-/** \brief specialisation of ::helmholtz_wall for the 3D DLPt case */
-template <class Scalar>
-struct helmholtz_wall<space_3d<Scalar>, potential::DLPt> : build<
-	distance_vector_brick<space_3d<Scalar> >,
-	distance_brick<Scalar>,
-	ikr_brick<Scalar>,
-	helmholtz_brick<space_3d<Scalar>, potential::SLP>,
-	rdnx_brick<Scalar>,
-	helmholtz_brick<space_3d<Scalar>, potential::DLPt>
-> {};
 
 namespace kernel_traits_ns
 {
@@ -995,7 +702,7 @@ using helmholtz_2d_HSP_kernel = helmholtz_kernel<space_2d<>, potential::HSP, Wav
 template <class WaveNumber>
 using helmholtz_3d_HSP_kernel = helmholtz_kernel<space_3d<>, potential::HSP, WaveNumber>;
 
-}
+} 	// end of namespace NiHu
 
 #endif // HELMHOLTZ_KERNEL_HPP_INCLUDED
 
