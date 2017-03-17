@@ -19,7 +19,7 @@
 /**
  * \file kernel.hpp
  * \ingroup kernel
- * \brief implementation of class kernel and its traits, as well as couple kernels
+ * \brief implementation of class kernel and its traits
  */
 
 #ifndef KERNEL_HPP_INCLUDED
@@ -29,16 +29,11 @@
 #include "asymptotic_types.hpp"
 #include "../util/crtp_base.hpp"
 #include "../util/brick.hpp"
-#include "../util/collection.hpp"
-#include "../util/couple.hpp"
 #include "../library/interval_estimator.hpp"
 #include "../library/distance_kernel_intervals.hpp"
 
 namespace NiHu
 {
-
-/** \brief tag-class representing the empty (void) kernel data */
-class empty_data { typedef empty_data type; };
 
 /** \brief metafunctions returning regular and singular kernel traits */
 namespace kernel_traits_ns
@@ -49,10 +44,8 @@ namespace kernel_traits_ns
 	template <class Derived> struct test_input;
 	/** \brief return the kernel's trial input */
 	template <class Derived> struct trial_input;
-	/** \brief return the kernel's data type */
-	template <class Derived> struct data;
-	/** \brief return the kernel's output type */
-	template <class Derived> struct output;
+	/** \brief return the kernel's result type */
+	template <class Derived> struct result;
 	/** \brief return the quadrature family the kernel is integrated with */
 	template <class Derived> struct quadrature_family;
 	/** \brief return the far field asymptotic behaviour of the kernel */
@@ -89,10 +82,8 @@ struct kernel_traits
 	typedef typename kernel_traits_ns::test_input<Derived>::type test_input_t;
 	/** \brief kernel trial input type */
 	typedef typename kernel_traits_ns::trial_input<Derived>::type trial_input_t;
-	/** \brief the data type */
-	typedef typename kernel_traits_ns::data<Derived>::type data_t;
-	/** \brief the kernel output type */
-	typedef typename kernel_traits_ns::output<Derived>::type output_t;
+	/** \brief the kernel result type */
+	typedef typename kernel_traits_ns::result<Derived>::type result_t;
 	/** \brief the far field asymptotic behaviour of the kernel */
 	typedef typename kernel_traits_ns::far_field_behaviour<Derived>::type far_field_behaviour_t;
 	/** \brief the far field asymptotic behaviour of the kernel */
@@ -165,12 +156,8 @@ public:
 	/** \brief compile time check if the two kernel inputs are compatible */
 	static_assert(std::is_same<typename test_input_t::space_t, typename trial_input_t::space_t>::value,
 		"The test and trial kernel inputs must define the same coordinate space");
-	/** \brief the kernel data type */
-	typedef typename traits_t::data_t data_t;
-	/** \brief type of the kernel output (not the result) */
-	typedef typename traits_t::output_t output_t;
-	/** \brief kernel result type */
-	typedef typename output_t::result_t result_t;
+	/** \brief type of the kernel result */
+	typedef typename traits_t::result_t result_t;
 	/** \brief the kernel result's dimensionality */
 	enum { result_rows = traits_t::result_rows, result_cols = traits_t::result_cols };
 
@@ -195,12 +182,6 @@ public:
 
 	/** \brief the kernel complexity estimator class */
 	typedef typename kernel_compl_estimator<Derived>::type estimator_t;
-
-	/** \brief constructor initialising the kernel data */
-	kernel_base(data_t const &data = data_t()) :
-		m_data(data)
-	{
-	}
 
 	/** \brief the kernel bound at the test kernel input */
 	class kernel_bind
@@ -248,180 +229,11 @@ public:
 	 */
 	result_t operator()(test_input_t const &x, trial_input_t const &y) const
 	{
-		// instantiate output
-		output_t output(x, y, m_data);
-		// select result from output
-		return output.get_result();
-	}
-
-	/** \brief return kernel data
-	 * \return kernel data
-	 */
-	data_t const &get_data(void) const
-	{
-		return m_data;
-	}
-
-private:
-	/** \brief the kernel data */
-	data_t m_data;
-};
-
-
-/** \brief a set of kernel outputs gathered in a couple
- * \tparam outputs the output classes
- */
-template <class...outputs>
-class couple_output :
-	public merge<outputs...>::type
-{
-private:
-	/** \brief this metafunction is an msvc workaround for variadic templates */
-	template <class T>
-	struct result_mf
-	{
-		typedef typename T::result_t type;
-	};
-
-public:
-	/** \brief the base type */
-	typedef typename merge<outputs...>::type base_t;
-	/** \brief the merged output type */
-	typedef couple<typename result_mf<outputs>::type...> result_t;
-
-	/** \brief constructor
-	 * \tparam test_input_t the test input type
-	 * \tparam trial_input_t the trial input type
-	 * \tparam kernel_t the kernel type
-	 * \param [in] test_input the test input
-	 * \param [in] trial_input the trial input
-	 * qparam [in] kernel the kernel instance
-	 */
-	template <class test_input_t, class trial_input_t, class kernel_t>
-	couple_output(
-		test_input_t const &test_input,
-		trial_input_t const &trial_input,
-		kernel_t const &kernel) :
-		base_t(test_input, trial_input, kernel)
-	{
-	}
-
-	/** \brief return result
-	 * \return couple result
-	 */
-	result_t get_result(void) const
-	{
-		return result_t(
-			static_cast<typename find_in_wall<outputs, base_t>::type const &>(*this).get_result()...
-			);
+		return derived()(x, y);
 	}
 };
 
-
-// forward declaration
-template <class...Kernels>
-class couple_kernel;
-
-/** \brief specialisation of ::kernel_traits for the ::couple_kernel class */
-template <class...Kernels>
-struct kernel_traits<couple_kernel<Kernels...> >
-{
-public:
-	/** \brief type of the first (test) kernel input */
-	typedef typename merge<typename kernel_traits<Kernels>::test_input_t...>::type test_input_t;
-	/** \brief type of the second (trial) kernel input */
-	typedef typename merge<typename kernel_traits<Kernels>::trial_input_t...>::type trial_input_t;
-	/** \brief the data type */
-	typedef typename merger<typename kernel_traits<Kernels>::data_t...>::ret_type data_t;
-	/** \brief type of the kernel output (not the result) */
-	typedef couple_output<typename kernel_traits<Kernels>::output_t...> output_t;
-	/** \brief type of the kernel's result */
-	typedef typename output_t::result_t result_t;
-	/** \brief the kernel result's dimensionality
-	 * \todo update this, couple does not work with vector kernels with this definition
-	 */
-	enum { result_rows = 1, result_cols = 1 };
-	/** \brief the quadrature family the kernel is integrated with
-	 * \todo static assert here or something more clever
-	 */
-	typedef typename kernel_traits<
-		typename std::tuple_element<0, std::tuple<Kernels...> >::type
-	>::quadrature_family_t quadrature_family_t;
-	/** \brief true if K(x,y) = K(y,x) */
-	static bool const is_symmetric = tmp::and_<
-		std::integral_constant<bool, kernel_traits<Kernels>::is_symmetric>...
-	>::value;
-	/** \brief true if any of the kernels is singular */
-	static bool const is_singular = tmp::or_<
-		std::integral_constant<bool, kernel_traits<Kernels>::is_singular>...
-	>::value;
-	/** \brief the combined far field behaviour order */
-	typedef typename tmp::max_<
-		typename kernel_traits<Kernels>::far_field_behaviour_t...
-	>::type far_field_behaviour_t;
-};
-
-template <class...Kernels>
-struct kernel_compl_estimator<couple_kernel<Kernels...> >
-{
-	typedef typename merge_kernel_complexity_estimators<
-		typename kernel_compl_estimator<Kernels>::type...
-	>::type type;
-};
-
-/** \brief specialisation of ::singular_kernel_traits for the ::couple_kernel class */
-template <class...Kernels>
-struct singular_kernel_traits<couple_kernel<Kernels...> >
-{
-private:
-	template <class K>
-	struct sing_quad_order_constant : tmp::integer<unsigned, singular_kernel_traits<K>::singular_quadrature_order> {};
-
-public:
-	/** \brief the combined singularity order */
-	typedef typename tmp::max_<
-		typename singular_kernel_traits<Kernels>::singularity_type_t...
-	>::type singularity_type_t;
-	/** \brief the quadrature order used for the generation of blind singular quadratures */
-	static unsigned const singular_quadrature_order = tmp::max_<
-		typename sing_quad_order_constant<Kernels>::type...
-	>::type::value;
-};
-
-
-/** \brief a kernel consisting of a set of kernels
- * \tparam Kernels the type list of kernels
- */
-template <class...Kernels>
-class couple_kernel :
-	public kernel_base<couple_kernel<Kernels...> >
-{
-public:
-	/** \brief the traits class */
-	typedef kernel_base<couple_kernel<Kernels...> > base_t;
-
-	/** \brief constructor from list of constant references
-	 * \param [in] kernels references to kernel instances
-	 */
-	couple_kernel(kernel_base<Kernels> const &...kernels) :
-		base_t(merge_data(kernels.get_data()...))
-	{
-	}
-};
-
-
-/** \brief factory function to create a couple kernel instance
- * \tparam Args type list of kernels
- * \param [in] args the kernel instances
- * \return a couple kernel instance
- */
-template <class...Args>
-couple_kernel<Args...> create_couple_kernel(kernel_base<Args> const &...args)
-{
-	return couple_kernel<Args...>(args...);
-}
-
-}
+} // end of namespace NiHu
 
 #endif // KERNEL_HPP_INCLUDED
 

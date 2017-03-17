@@ -84,8 +84,8 @@ namespace internal
 			Eigen::MatrixBase<right> const &v2)
 		{
 			result_type result;
-			for (Index row = 0; row < N1; ++row)
-				for (Index col = 0; col < N3; ++col)
+			for (Eigen::Index row = 0; row < N1; ++row)
+				for (Eigen::Index col = 0; col < N3; ++col)
 					result.template block<N21, N22>(row*N21, col*N22) = static_cast<scalar>(v1(row)) * m * static_cast<scalar>(v2(col));
 			return result;
 		}

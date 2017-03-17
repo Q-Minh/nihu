@@ -301,7 +301,7 @@ public:
 		result(0, 0) = helmholtz_2d_SLP_collocation_constant_line<5>::eval(
 			trial_field.get_elem(),
 			trial_field.get_elem().get_center(),
-			kernel.get_data().get_wave_number());
+			kernel.derived().get_wave_number());
 
 		return result;
 	}
@@ -341,7 +341,7 @@ public:
 		result(0, 0) = helmholtz_3d_SLP_collocation_constant_plane<7>::eval(
 			trial_field.get_elem(),
 			trial_field.get_elem().get_center(),
-			kernel.get_data().get_wave_number());
+			kernel.derived().get_wave_number());
 		return result;
 	}
 };
@@ -380,7 +380,7 @@ public:
 		result(0, 0) = helmholtz_3d_HSP_collocation_constant_plane<7>::eval(
 			trial_field.get_elem(),
 			trial_field.get_elem().get_center(),
-			kernel.get_data().get_wave_number());
+			kernel.derived().get_wave_number());
 		return result;
 	}
 };

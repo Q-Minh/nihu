@@ -29,9 +29,7 @@
 #include "../core/global_definitions.hpp"
 #include "../core/kernel.hpp"
 #include "../core/gaussian_quadrature.hpp"
-#include "../util/collection.hpp"
 #include "location_normal.hpp"
-#include "basic_bricks.hpp"
 #include "elastostatics_kernel.hpp"
 
 namespace NiHu
@@ -54,48 +52,6 @@ private:
 	double m_omega;	/**< \brief angular frequency */
 };
 
-struct DynamicUkernel
-{
-	typedef Eigen::Matrix<std::complex<double>, 3, 3> return_type;
-	
-	return_type operator()(
-		location_input_3d const &x,
-		location_input_3d const &y,
-		elastodynamics_data const &data)
-	{
-		// compute distance and its gradient
-		auto rvec = y.get_x() - x.get_x();
-		auto r = rvec.norm();
-		auto gradr = rvec.normalized();
-
-		// material properties and Helmholtz numbers
-		auto nu = data.get_poisson_ratio();
-		auto a2 = (1.-2.*nu)/2./(1.-nu);
-		auto a = std::sqrt(a2);
-		auto mu = data.get_shear_modulus();
-		auto rho = data.get_mass_density();
-		auto cS = std::sqrt(mu/rho);
-
-		auto om = data.get_frequency();
-		auto kSr = om / cS * r;
-		auto kPr = a * kSr;
-
-		// scalar complex helpers
-		std::complex<double> const I(0.0, 1.0);
-
-		std::complex<double> psi =
-			std::exp(-I*kPr) * a2 * (I/kPr + 1./(kPr*kPr)) +
-			std::exp(-I*kSr) * (1. - I/kSr - 1./(kSr*kSr));
-
-		std::complex<double> chi =
-			std::exp(-I*kPr) * a2 * (1. - 3.*I/kPr - 3./(kPr*kPr)) -
-			std::exp(-I*kSr) * (1. - 3.*I/kSr - 3./(kSr*kSr));
-
-		// matrix valued result
-		return ( psi * return_type::Identity() + chi * (gradr * gradr.transpose()) ) / (4.*M_PI*mu*r);
-	}
-};
-
 class elastodynamics_3d_U_kernel;
 
 /** \brief the properties of the elastodynamics U kernel */
@@ -104,8 +60,7 @@ struct kernel_traits<elastodynamics_3d_U_kernel>
 {
 	typedef location_input_3d test_input_t;
 	typedef location_input_3d trial_input_t;
-	typedef collect<elastodynamics_data> data_t;
-	typedef single_brick_wall<DynamicUkernel>::type output_t;
+	typedef Eigen::Matrix<std::complex<double>, 3, 3> result_t;
 	enum { result_rows = 3, result_cols = 3 };
 	typedef gauss_family_tag quadrature_family_t;
 	static bool const is_symmetric = true;
@@ -124,22 +79,88 @@ struct singular_kernel_traits<elastodynamics_3d_U_kernel>
 
 class elastodynamics_3d_U_kernel :
 	public kernel_base<elastodynamics_3d_U_kernel>
+	, public elastodynamics_data
 {
 public:
 	elastodynamics_3d_U_kernel(double nu, double rho, double mu, double omega) :
-		kernel_base<elastodynamics_3d_U_kernel>(elastodynamics_data(nu, rho, mu, omega)) {}
+		elastodynamics_data(nu, rho, mu, omega) {}
+
+	result_t operator()(
+		location_input_3d const &x,
+		location_input_3d const &y) const
+	{
+		// compute distance and its gradient
+		auto rvec = y.get_x() - x.get_x();
+		auto r = rvec.norm();
+		auto gradr = rvec.normalized();
+
+		// material properties and Helmholtz numbers
+		auto nu = get_poisson_ratio();
+		auto a2 = (1.-2.*nu)/2./(1.-nu);
+		auto a = std::sqrt(a2);
+		auto mu = get_shear_modulus();
+		auto rho = get_mass_density();
+		auto cS = std::sqrt(mu/rho);
+
+		auto om = get_frequency();
+		auto kSr = om / cS * r;
+		auto kPr = a * kSr;
+
+		// scalar complex helpers
+		std::complex<double> const I(0.0, 1.0);
+
+		std::complex<double> psi =
+			std::exp(-I*kPr) * a2 * (I/kPr + 1./(kPr*kPr)) +
+			std::exp(-I*kSr) * (1. - I/kSr - 1./(kSr*kSr));
+
+		std::complex<double> chi =
+			std::exp(-I*kPr) * a2 * (1. - 3.*I/kPr - 3./(kPr*kPr)) -
+			std::exp(-I*kSr) * (1. - 3.*I/kSr - 3./(kSr*kSr));
+
+		// matrix valued result
+		return ( psi * result_t::Identity() + chi * (gradr * gradr.transpose()) ) / (4.*M_PI*mu*r);
+	}
 };
 
 
 
-struct DynamicTkernel
+class elastodynamics_3d_T_kernel;
+
+/** \brief the properties of the elastodynamics T kernel */
+template <>
+struct kernel_traits<elastodynamics_3d_T_kernel>
 {
-	typedef Eigen::Matrix<std::complex<double>, 3, 3> return_type;
-	
-	return_type operator()(
+	typedef location_input_3d test_input_t;
+	typedef location_normal_input_3d trial_input_t;
+	typedef Eigen::Matrix<std::complex<double>, 3, 3> result_t;
+	enum { result_rows = 3, result_cols = 3 };
+	typedef gauss_family_tag quadrature_family_t;
+	static bool const is_symmetric = false;
+	typedef asymptotic::inverse<2> far_field_behaviour_t;
+	static bool const is_singular = true;
+};
+
+/** \brief the singular properties of the elastodynamics T kernel */
+template <>
+struct singular_kernel_traits<elastodynamics_3d_T_kernel>
+{
+	typedef asymptotic::inverse<2> singularity_type_t;
+	static unsigned const singular_quadrature_order = 7;
+	typedef elastostatics_3d_T_kernel singular_core_t;
+};
+
+class elastodynamics_3d_T_kernel :
+	public kernel_base<elastodynamics_3d_T_kernel>
+	, public elastodynamics_data
+{
+public:
+	elastodynamics_3d_T_kernel(double nu, double rho, double mu, double omega) :
+		elastodynamics_data(nu, rho, mu, omega) {}
+		
+		
+	result_t operator()(
 		location_input_3d const &x,
-		location_normal_input_3d const &y,
-		elastodynamics_data const &data)
+		location_normal_input_3d const &y) const
 	{
 		// compute distance and its gradient
 		auto rvec = y.get_x() - x.get_x();
@@ -149,15 +170,15 @@ struct DynamicTkernel
 		double rdn = gradr.dot(n);
 
 		// material properties and Helmholtz numbers
-		auto nu = data.get_poisson_ratio();
+		auto nu = get_poisson_ratio();
 		auto a2 = (1.-2.*nu)/2./(1.-nu);
 		auto a = std::sqrt(a2);
-		auto mu = data.get_shear_modulus();
+		auto mu = get_shear_modulus();
 		auto lambdapermu = (1./a2 - 2.);
-		auto rho = data.get_mass_density();
+		auto rho = get_mass_density();
 		auto cS = std::sqrt(mu/rho);
 
-		auto om = data.get_frequency();
+		auto om = get_frequency();
 		auto kSr = om / cS * r;
 		auto kPr = a * kSr;
 
@@ -186,47 +207,13 @@ struct DynamicTkernel
 
 		// matrix valued result
 		return (
-			rdn * (return_type::Identity() * (A+C) + 2.*B*(gradr * gradr.transpose()))
+			rdn * (result_t::Identity() * (A+C) + 2.*B*(gradr * gradr.transpose()))
 			+
 			(2.*C + lambdapermu*(A+B+4.*C)) * (gradr * n.transpose())
 			+
 			(A+C) * (n * gradr.transpose())
 		) / (4.*M_PI*r*r);
 	}
-};
-
-class elastodynamics_3d_T_kernel;
-
-/** \brief the properties of the elastodynamics T kernel */
-template <>
-struct kernel_traits<elastodynamics_3d_T_kernel>
-{
-	typedef location_input_3d test_input_t;
-	typedef location_normal_input_3d trial_input_t;
-	typedef collect<elastodynamics_data> data_t;
-	typedef single_brick_wall<DynamicTkernel>::type output_t;
-	enum { result_rows = 3, result_cols = 3 };
-	typedef gauss_family_tag quadrature_family_t;
-	static bool const is_symmetric = false;
-	typedef asymptotic::inverse<2> far_field_behaviour_t;
-	static bool const is_singular = true;
-};
-
-/** \brief the singular properties of the elastodynamics T kernel */
-template <>
-struct singular_kernel_traits<elastodynamics_3d_T_kernel>
-{
-	typedef asymptotic::inverse<2> singularity_type_t;
-	static unsigned const singular_quadrature_order = 7;
-	typedef elastostatics_3d_T_kernel singular_core_t;
-};
-
-class elastodynamics_3d_T_kernel :
-	public kernel_base<elastodynamics_3d_T_kernel>
-{
-public:
-	elastodynamics_3d_T_kernel(double nu, double rho, double mu, double omega) :
-		kernel_base<elastodynamics_3d_T_kernel>(elastodynamics_data(nu, rho, mu, omega)) {}
 };
 
 }

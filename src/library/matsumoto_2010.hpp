@@ -85,7 +85,7 @@ public:
 		// Define the imaginary unit
 		std::complex<scalar_t> const I(0.0, 1.0);
 		// Get wave number from the kernel
-		auto const &k = kernel.get_data().get_wave_number();
+		auto const &k = kernel.derived().get_wave_number();
 
 		// Obtain the element
 		auto const &tr_elem = trial_field.get_elem();
@@ -163,7 +163,7 @@ public:
 		// Define the imaginary unit
 		std::complex<scalar_t> const I(0.0, 1.0);
 		// Get wavenumber from the kernel
-		auto const &k = kernel.get_data().get_wave_number();
+		auto const &k = kernel.derived().get_wave_number();
 
 		// Obtain the element
 		auto const &tr_elem = trial_field.get_elem();

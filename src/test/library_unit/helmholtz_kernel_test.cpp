@@ -74,9 +74,6 @@ int main(void)
 	std::cout << "helmholtz H kernel";
 	tester(NiHu::helmholtz_2d_DLP_kernel<std::complex<double> >(wave_number));
 	
-	std::cout << "helmholtz double kernel";
-	tester(NiHu::helmholtz_2d_double_kernel<std::complex<double>, 0, 0>(wave_number));
-	
 	comparison();
 
 	return 0;

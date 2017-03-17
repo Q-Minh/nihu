@@ -29,43 +29,23 @@
 #include "../core/global_definitions.hpp"
 #include "../core/kernel.hpp"
 #include "../core/gaussian_quadrature.hpp"
-#include "../util/collection.hpp"
 #include "location_normal.hpp"
-#include "basic_bricks.hpp"
 #include "guiggiani_1992.hpp"
 
 
 namespace NiHu
 {
 
-class elastostatics_data
+class elastostatics_kernel
 {
 public:
-	elastostatics_data(double nu, double mu) :	m_nu(nu), m_mu(mu) {}
+	elastostatics_kernel(double nu, double mu) :	m_nu(nu), m_mu(mu) {}
 	double get_poisson_ratio(void) const { return m_nu; }
 	double get_shear_modulus(void) const { return m_mu; }
 
 private:
 	double m_nu;
 	double m_mu;
-};
-
-struct Ukernel
-{
-	typedef Eigen::Matrix<double, 3, 3> return_type;
-
-	return_type operator()(
-		location_input_3d const &x,
-		location_input_3d const &y,
-		elastostatics_data const &data)
-	{
-		auto nu = data.get_poisson_ratio();
-		auto mu = data.get_shear_modulus();
-		auto rvec = y.get_x() - x.get_x();
-		auto r = rvec.norm();
-		auto gradr = rvec.normalized();
-		return ( (3.-4.*nu) * return_type::Identity() + (gradr * gradr.transpose()) ) / (16.*M_PI*(1.-nu)*r*mu);
-	}
 };
 
 class elastostatics_3d_U_kernel;
@@ -76,8 +56,7 @@ struct kernel_traits<elastostatics_3d_U_kernel>
 {
 	typedef location_input_3d test_input_t;
 	typedef location_input_3d trial_input_t;
-	typedef collect<elastostatics_data> data_t;
-	typedef single_brick_wall<Ukernel>::type output_t;
+	typedef Eigen::Matrix<double, 3, 3> result_t;
 	enum { result_rows = 3, result_cols = 3 };
 	typedef gauss_family_tag quadrature_family_t;
 	static bool const is_symmetric = true;
@@ -94,32 +73,26 @@ struct singular_kernel_traits<elastostatics_3d_U_kernel>
 	typedef elastostatics_3d_U_kernel singular_core_t;
 };
 
-class elastostatics_3d_U_kernel :
-	public kernel_base<elastostatics_3d_U_kernel>
+class elastostatics_3d_U_kernel
+	: public kernel_base<elastostatics_3d_U_kernel>
+	, public elastostatics_kernel
 {
 public:
-	elastostatics_3d_U_kernel(double nu, double mu) :
-		kernel_base<elastostatics_3d_U_kernel>(elastostatics_data(nu, mu)) {}
-};
-
-struct Tkernel
-{
-	typedef Eigen::Matrix<double, 3, 3> return_type;
-
-	return_type operator()(
-		location_input_3d const &x,
-		location_normal_input_3d const &y,
-		elastostatics_data const &data)
+	elastostatics_3d_U_kernel(double nu, double mu)
+		: elastostatics_kernel(nu, mu)
 	{
-		auto nu = data.get_poisson_ratio();
+	}
+
+	result_t operator()(
+		location_input_3d const &x,
+		location_input_3d const &y) const
+	{
+		auto nu = get_poisson_ratio();
+		auto mu = get_shear_modulus();
 		auto rvec = y.get_x() - x.get_x();
 		auto r = rvec.norm();
 		auto gradr = rvec.normalized();
-		auto const &n = y.get_unit_normal();
-		auto rdny = gradr.dot(n);
-		return (-rdny * ( (1.-2.*nu)*return_type::Identity() + 3.*(gradr*gradr.transpose()) )
-			+ (1.-2.*nu) * (gradr*n.transpose()-n*gradr.transpose())
-			) / (8.*M_PI*(1.-nu)*r*r);
+		return ( (3.-4.*nu) * result_t::Identity() + (gradr * gradr.transpose()) ) / (16.*M_PI*(1.-nu)*r*mu);
 	}
 };
 
@@ -130,8 +103,7 @@ struct kernel_traits<elastostatics_3d_T_kernel>
 {
 	typedef location_input_3d test_input_t;
 	typedef location_normal_input_3d trial_input_t;
-	typedef collect<elastostatics_data> data_t;
-	typedef single_brick_wall<Tkernel>::type output_t;
+	typedef Eigen::Matrix<double, 3, 3> result_t;
 	enum { result_rows = 3, result_cols = 3 };
 	typedef gauss_family_tag quadrature_family_t;
 	static bool const is_symmetric = false;
@@ -148,14 +120,30 @@ struct singular_kernel_traits<elastostatics_3d_T_kernel>
 	typedef elastostatics_3d_T_kernel singular_core_t;
 };
 
-class elastostatics_3d_T_kernel :
-	public kernel_base<elastostatics_3d_T_kernel>
+class elastostatics_3d_T_kernel
+	: public kernel_base<elastostatics_3d_T_kernel>
+	, public elastostatics_kernel
 {
 public:
-	elastostatics_3d_T_kernel(double nu, double mu) :
-		kernel_base<elastostatics_3d_T_kernel>(elastostatics_data(nu, mu))
+	elastostatics_3d_T_kernel(double nu, double mu)
+		: elastostatics_kernel(nu, mu)
 	{
 	}
+	
+	result_t operator()(
+		location_input_3d const &x,
+		location_normal_input_3d const &y) const
+	{
+		auto nu = get_poisson_ratio();
+		auto rvec = y.get_x() - x.get_x();
+		auto r = rvec.norm();
+		auto gradr = rvec.normalized();
+		auto const &n = y.get_unit_normal();
+		auto rdny = gradr.dot(n);
+		return (-rdny * ( (1.-2.*nu)*result_t::Identity() + 3.*(gradr*gradr.transpose()) )
+			+ (1.-2.*nu) * (gradr*n.transpose()-n*gradr.transpose())
+			) / (8.*M_PI*(1.-nu)*r*r);
+	}	
 };
 
 
@@ -169,7 +157,7 @@ public:
         auto const &r1 = obj.get_rvec_series(_1());
         auto const &j0 = obj.get_Jvec_series(_0());
         auto const &N0 = obj.get_shape_series(_0());
-        auto nu = obj.get_kernel_data().get_poisson_ratio();
+        auto nu = obj.get_kernel().get_poisson_ratio();
         Eigen::Matrix<double, 3, 3> res = ((r1*j0.transpose())-(j0*r1.transpose()))
 			* (1.-2.*nu)/(1.-nu)/(8.*M_PI);
 		obj.set_laurent_coeff(_m1(), semi_block_product(res, N0));

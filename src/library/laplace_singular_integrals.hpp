@@ -655,8 +655,7 @@ public:
 	}
 };
 
-}
-
+} // namespace NiHu
 
 #endif // LAPLACE_SINGULAR_INTEGRALS_HPP_INCLUDED
 

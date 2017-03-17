@@ -33,7 +33,7 @@ struct planar_analytic<NiHu::helmholtz_3d_HSP_kernel<wavenumber_t> >
 	static typename NiHu::helmholtz_3d_HSP_kernel<wavenumber_t>::result_t
 	eval(NiHu::helmholtz_3d_HSP_kernel<wavenumber_t> const &kernel, elem_t const &elem, typename elem_t::x_t const &x0)
 	{
-		return NiHu::helmholtz_3d_HSP_collocation_constant_plane<40>::eval(elem, x0, kernel.get_data().get_wave_number());
+		return NiHu::helmholtz_3d_HSP_collocation_constant_plane<40>::eval(elem, x0, kernel.get_wave_number());
 	}
 };
 

@@ -61,9 +61,6 @@ int main(void)
 	std::cout << "laplace H kernel with wall output:      | ";
 	tester(NiHu::laplace_3d_DLPt_kernel());
 
-	std::cout << "couple G H Ht kernel with wall output:     | ";
-	tester(NiHu::create_couple_kernel(NiHu::laplace_3d_SLP_kernel(), NiHu::laplace_3d_DLP_kernel(), NiHu::laplace_3d_DLPt_kernel()));
-
 	return 0;
 }
 
