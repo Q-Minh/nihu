@@ -42,16 +42,11 @@ template <class Space, class Layer>
 class laplace_kernel;
 
 
+/// GENERAL TRAITS
 namespace kernel_traits_ns
 {
 	template <class Space, class Layer>
 	struct space<laplace_kernel<Space, Layer> > : Space {};
-
-	template <class Space>
-	struct test_input<laplace_kernel<Space, potential::SLP> > : build<location<Space> > {};
-
-	template <class Space>
-	struct trial_input<laplace_kernel<Space, potential::SLP> > : build<location<Space> > {};
 
 	template <class Space, class Layer>
 	struct result<laplace_kernel<Space, Layer> >
@@ -62,34 +57,13 @@ namespace kernel_traits_ns
 	template <class Space, class Layer>
 	struct quadrature_family<laplace_kernel<Space, Layer> > : gauss_family_tag {};
 
-	template <class Scalar>
-	struct far_field_behaviour<laplace_kernel<space_2d<Scalar>, potential::SLP> > : asymptotic::log<1> {};
-
-	template <class Scalar>
-	struct far_field_behaviour<laplace_kernel<space_3d<Scalar>, potential::SLP> > : asymptotic::inverse<1> {};
-
 	template <class Space, class Layer>
 	struct result_rows<laplace_kernel<Space, Layer> > : std::integral_constant<unsigned, 1> {};
 	template <class Space, class Layer>
 	struct result_cols<laplace_kernel<Space, Layer> > : std::integral_constant<unsigned, 1> {};
 
-	template <class Space>
-	struct is_symmetric<laplace_kernel<Space, potential::SLP> > : std::true_type {};
-
 	template <class Space, class Layer>
 	struct is_singular<laplace_kernel<Space, Layer> > : std::true_type {};
-
-	template <class Scalar>
-	struct singularity_type<laplace_kernel<space_2d<Scalar>, potential::SLP> > : asymptotic::log<1> {};
-
-	template <class Scalar>
-	struct singularity_type<laplace_kernel<space_3d<Scalar>, potential::SLP> > : asymptotic::inverse<1> {};
-
-	/** \brief the singular quadrature order of the laplace SLP kernel
-	 * \todo check if the same value can be used for the 2D and 3D case
-	 */
-	template <class Space>
-	struct singular_quadrature_order<laplace_kernel<Space, potential::SLP> > : std::integral_constant<unsigned, 7> {};
 
 	template <class Space, class Layer>
 	struct singular_core<laplace_kernel<Space, Layer> > {
@@ -97,95 +71,39 @@ namespace kernel_traits_ns
 	};
 }
 
+/// SLP TRAITS
 namespace kernel_traits_ns
 {
 	template <class Space>
-	struct test_input<laplace_kernel<Space, potential::DLP> > : build<location<Space> > {};
+	struct test_input<laplace_kernel<Space, potential::SLP> > : build<location<Space> > {};
 
 	template <class Space>
-	struct trial_input<laplace_kernel<Space, potential::DLP> > : build<location<Space>, normal_jacobian<Space> > {};
+	struct trial_input<laplace_kernel<Space, potential::SLP> > : build<location<Space> > {};
 
 	template <class Space>
-	struct is_symmetric<laplace_kernel<Space, potential::DLP> > : std::false_type {};
+	struct is_symmetric<laplace_kernel<Space, potential::SLP> > : std::true_type {};
 
-	template <class Scalar>
-	struct far_field_behaviour<laplace_kernel<space_2d<Scalar>, potential::DLP> > : asymptotic::inverse<1> {};
-
-	template <class Scalar>
-	struct far_field_behaviour<laplace_kernel<space_3d<Scalar>, potential::DLP> > : asymptotic::inverse<2> {};
-
-	/** \brief kernel singularity type
-	 * \todo check this!
+	/** \brief the singular quadrature order of the laplace SLP kernel
+	 * \todo check if the same value can be used for the 2D and 3D case
 	 */
-	template <class Scalar>
-	struct singularity_type<laplace_kernel<space_2d<Scalar>, potential::DLP> > : asymptotic::log<1> {};
-
-	template <class Scalar>
-	struct singularity_type<laplace_kernel<space_3d<Scalar>, potential::DLP> > : asymptotic::inverse<1> {};
-
 	template <class Space>
-	struct singular_quadrature_order<laplace_kernel<Space, potential::DLP> > : std::integral_constant<unsigned, 7> {};
+	struct singular_quadrature_order<laplace_kernel<Space, potential::SLP> > : std::integral_constant<unsigned, 7> {};
 }
 
+/// 2D SLP
 namespace kernel_traits_ns
 {
-	template <class Space>
-	struct test_input<laplace_kernel<Space, potential::DLPt> > : build<location<Space>, normal_jacobian<Space> > {};
-
-	template <class Space>
-	struct trial_input<laplace_kernel<Space, potential::DLPt> > : build<location<Space> > {};
-
-	template <class Space>
-	struct is_symmetric<laplace_kernel<Space, potential::DLPt> > : std::false_type {};
+	template <class Scalar>
+	struct far_field_behaviour<laplace_kernel<space_2d<Scalar>, potential::SLP> > : asymptotic::log<1> {};
 
 	template <class Scalar>
-	struct far_field_behaviour<laplace_kernel<space_2d<Scalar>, potential::DLPt> > : asymptotic::inverse<1> {};
-
-	template <class Scalar>
-	struct far_field_behaviour<laplace_kernel<space_3d<Scalar>, potential::DLPt> > : asymptotic::inverse<2> {};
-
-	/** \brief the singularity type
-	 * \todo check this just like the plain DLP kernel
-	 */
-	template <class Scalar>
-	struct singularity_type<laplace_kernel<space_2d<Scalar>, potential::DLPt> > : asymptotic::log<1> {};
-
-	template <class Scalar>
-	struct singularity_type<laplace_kernel<space_3d<Scalar>, potential::DLPt> > : asymptotic::inverse<1> {};
-
-	template <class Space>
-	struct singular_quadrature_order<laplace_kernel<Space, potential::DLPt> > : std::integral_constant<unsigned, 7> {};
+	struct singularity_type<laplace_kernel<space_2d<Scalar>, potential::SLP> > : asymptotic::log<1> {};
 }
 
-namespace kernel_traits_ns
-{
-	template <class Space>
-	struct test_input<laplace_kernel<Space, potential::HSP> > : build<location<Space>, normal_jacobian<Space > > {};
-
-	template <class Space>
-	struct trial_input<laplace_kernel<Space, potential::HSP> > : build<location<Space>, normal_jacobian<Space> > {};
-
-	template <class Space>
-	struct is_symmetric<laplace_kernel<Space, potential::HSP> > : std::true_type {};
-
-	template <class Scalar>
-	struct far_field_behaviour<laplace_kernel<space_2d<Scalar>, potential::HSP> > : asymptotic::inverse<2> {};
-
-	template <class Scalar>
-	struct far_field_behaviour<laplace_kernel<space_3d<Scalar>, potential::HSP> > : asymptotic::inverse<3> {};
-
-	template <class Scalar>
-	struct singularity_type<laplace_kernel<space_2d<Scalar>, potential::HSP> > : asymptotic::inverse<2> {};
-
-	template <class Scalar>
-	struct singularity_type<laplace_kernel<space_3d<Scalar>, potential::HSP> > : asymptotic::inverse<3> {};
-
-	template <class Space>
-	struct singular_quadrature_order<laplace_kernel<Space, potential::HSP> > : std::integral_constant<unsigned, 7> {};
-}
 
 template <class Scalar>
-class laplace_kernel<space_2d<Scalar>, potential::SLP> : public kernel_base<laplace_kernel<space_2d<Scalar>, potential::SLP> >
+class laplace_kernel<space_2d<Scalar>, potential::SLP>
+	: public kernel_base<laplace_kernel<space_2d<Scalar>, potential::SLP> >
 {
 public:
 	typedef kernel_base<laplace_kernel<space_2d<Scalar>, potential::SLP> > base_t;
@@ -203,8 +121,20 @@ public:
 	}
 };
 
+
+/// 3D SLP TRAITS
+namespace kernel_traits_ns
+{
+	template <class Scalar>
+	struct far_field_behaviour<laplace_kernel<space_3d<Scalar>, potential::SLP> > : asymptotic::inverse<1> {};
+
+	template <class Scalar>
+	struct singularity_type<laplace_kernel<space_3d<Scalar>, potential::SLP> > : asymptotic::inverse<1> {};
+}
+
 template <class Scalar>
-class laplace_kernel<space_3d<Scalar>, potential::SLP> : public kernel_base<laplace_kernel<space_3d<Scalar>, potential::SLP> >
+class laplace_kernel<space_3d<Scalar>, potential::SLP>
+	: public kernel_base<laplace_kernel<space_3d<Scalar>, potential::SLP> >
 {
 public:
 	typedef kernel_base<laplace_kernel<space_3d<Scalar>, potential::SLP> > base_t;
@@ -222,9 +152,38 @@ public:
 	}
 };
 
+/// GENERAL DLP
+namespace kernel_traits_ns
+{
+	template <class Space>
+	struct test_input<laplace_kernel<Space, potential::DLP> > : build<location<Space> > {};
+
+	template <class Space>
+	struct trial_input<laplace_kernel<Space, potential::DLP> > : build<location<Space>, normal_jacobian<Space> > {};
+
+	template <class Space>
+	struct is_symmetric<laplace_kernel<Space, potential::DLP> > : std::false_type {};
+
+	template <class Space>
+	struct singular_quadrature_order<laplace_kernel<Space, potential::DLP> > : std::integral_constant<unsigned, 7> {};
+}
+
+/// 2D DLP
+namespace kernel_traits_ns
+{
+	template <class Scalar>
+	struct far_field_behaviour<laplace_kernel<space_2d<Scalar>, potential::DLP> > : asymptotic::inverse<1> {};
+
+	/** \brief kernel singularity type
+	 * \todo check this!
+	 */
+	template <class Scalar>
+	struct singularity_type<laplace_kernel<space_2d<Scalar>, potential::DLP> > : asymptotic::log<1> {};
+}
 
 template <class Scalar>
-class laplace_kernel<space_2d<Scalar>, potential::DLP> : public kernel_base<laplace_kernel<space_2d<Scalar>, potential::DLP> >
+class laplace_kernel<space_2d<Scalar>, potential::DLP>
+	: public kernel_base<laplace_kernel<space_2d<Scalar>, potential::DLP> >
 {
 public:
 	typedef kernel_base<laplace_kernel<space_2d<Scalar>, potential::DLP> > base_t;
@@ -243,9 +202,20 @@ public:
 	}
 };
 
+/// 3D DLP
+namespace kernel_traits_ns
+{
+	template <class Scalar>
+	struct far_field_behaviour<laplace_kernel<space_3d<Scalar>, potential::DLP> > : asymptotic::inverse<2> {};
+
+	template <class Scalar>
+	struct singularity_type<laplace_kernel<space_3d<Scalar>, potential::DLP> > : asymptotic::inverse<1> {};
+}
+
 
 template <class Scalar>
-class laplace_kernel<space_3d<Scalar>, potential::DLP> : public kernel_base<laplace_kernel<space_3d<Scalar>, potential::DLP> >
+class laplace_kernel<space_3d<Scalar>, potential::DLP>
+	: public kernel_base<laplace_kernel<space_3d<Scalar>, potential::DLP> >
 {
 public:
 	typedef kernel_base<laplace_kernel<space_3d<Scalar>, potential::DLP> > base_t;
@@ -265,8 +235,39 @@ public:
 	}
 };
 
+/// GENERAL DLPt
+namespace kernel_traits_ns
+{
+	template <class Space>
+	struct test_input<laplace_kernel<Space, potential::DLPt> > : build<location<Space>, normal_jacobian<Space> > {};
+
+	template <class Space>
+	struct trial_input<laplace_kernel<Space, potential::DLPt> > : build<location<Space> > {};
+
+	template <class Space>
+	struct is_symmetric<laplace_kernel<Space, potential::DLPt> > : std::false_type {};
+
+	template <class Space>
+	struct singular_quadrature_order<laplace_kernel<Space, potential::DLPt> > : std::integral_constant<unsigned, 7> {};
+}
+
+/// 2D DLPt
+
+namespace kernel_traits_ns
+{
+	template <class Scalar>
+	struct far_field_behaviour<laplace_kernel<space_2d<Scalar>, potential::DLPt> > : asymptotic::inverse<1> {};
+
+	/** \brief the singularity type
+	 * \todo check this just like the plain DLP kernel
+	 */
+	template <class Scalar>
+	struct singularity_type<laplace_kernel<space_2d<Scalar>, potential::DLPt> > : asymptotic::log<1> {};
+}
+
 template <class Scalar>
-class laplace_kernel<space_2d<Scalar>, potential::DLPt> : public kernel_base<laplace_kernel<space_2d<Scalar>, potential::DLPt> >
+class laplace_kernel<space_2d<Scalar>, potential::DLPt>
+	: public kernel_base<laplace_kernel<space_2d<Scalar>, potential::DLPt> >
 {
 public:
 	typedef kernel_base<laplace_kernel<space_2d<Scalar>, potential::DLPt> > base_t;
@@ -285,8 +286,20 @@ public:
 	}
 };
 
+/// 3D DLPt
+
+namespace kernel_traits_ns
+{
+	template <class Scalar>
+	struct far_field_behaviour<laplace_kernel<space_3d<Scalar>, potential::DLPt> > : asymptotic::inverse<2> {};
+	
+	template <class Scalar>
+	struct singularity_type<laplace_kernel<space_3d<Scalar>, potential::DLPt> > : asymptotic::inverse<1> {};
+}
+
 template <class Scalar>
-class laplace_kernel<space_3d<Scalar>, potential::DLPt> : public kernel_base<laplace_kernel<space_3d<Scalar>, potential::DLPt> >
+class laplace_kernel<space_3d<Scalar>, potential::DLPt>
+	: public kernel_base<laplace_kernel<space_3d<Scalar>, potential::DLPt> >
 {
 public:
 	typedef kernel_base<laplace_kernel<space_3d<Scalar>, potential::DLPt> > base_t;
@@ -306,8 +319,35 @@ public:
 	}
 };
 
+/// GENERAL HSP
+namespace kernel_traits_ns
+{
+	template <class Space>
+	struct test_input<laplace_kernel<Space, potential::HSP> > : build<location<Space>, normal_jacobian<Space > > {};
+
+	template <class Space>
+	struct trial_input<laplace_kernel<Space, potential::HSP> > : build<location<Space>, normal_jacobian<Space> > {};
+
+	template <class Space>
+	struct is_symmetric<laplace_kernel<Space, potential::HSP> > : std::true_type {};
+
+	template <class Space>
+	struct singular_quadrature_order<laplace_kernel<Space, potential::HSP> > : std::integral_constant<unsigned, 7> {};
+}
+
+/// 2D HSP
+namespace kernel_traits_ns
+{
+	template <class Scalar>
+	struct far_field_behaviour<laplace_kernel<space_2d<Scalar>, potential::HSP> > : asymptotic::inverse<2> {};
+
+	template <class Scalar>
+	struct singularity_type<laplace_kernel<space_2d<Scalar>, potential::HSP> > : asymptotic::inverse<2> {};
+}
+
 template <class Scalar>
-class laplace_kernel<space_2d<Scalar>, potential::HSP> : public kernel_base<laplace_kernel<space_2d<Scalar>, potential::HSP> >
+class laplace_kernel<space_2d<Scalar>, potential::HSP>
+	: public kernel_base<laplace_kernel<space_2d<Scalar>, potential::HSP> >
 {
 public:
 	typedef kernel_base<laplace_kernel<space_2d<Scalar>, potential::HSP> > base_t;
@@ -329,8 +369,20 @@ public:
 	}
 };
 
+/// 3D HSP
+
+namespace kernel_traits_ns
+{
+	template <class Scalar>
+	struct far_field_behaviour<laplace_kernel<space_3d<Scalar>, potential::HSP> > : asymptotic::inverse<3> {};
+
+	template <class Scalar>
+	struct singularity_type<laplace_kernel<space_3d<Scalar>, potential::HSP> > : asymptotic::inverse<3> {};
+}
+
 template <class Scalar>
-class laplace_kernel<space_3d<Scalar>, potential::HSP> : public kernel_base<laplace_kernel<space_3d<Scalar>, potential::HSP> >
+class laplace_kernel<space_3d<Scalar>, potential::HSP>
+	: public kernel_base<laplace_kernel<space_3d<Scalar>, potential::HSP> >
 {
 public:
 	typedef kernel_base<laplace_kernel<space_3d<Scalar>, potential::HSP> > base_t;
@@ -407,7 +459,7 @@ public:
 	}
 };
 
-}
+} // end of namespace NiHu
 
 #endif // LAPLACE_KERNEL_HPP_INCLUDED
 
