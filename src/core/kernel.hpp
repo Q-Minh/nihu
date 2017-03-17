@@ -36,9 +36,6 @@
 namespace NiHu
 {
 
-/** \brief tag-class representing the empty (void) kernel data */
-class empty_data { typedef empty_data type; };
-
 /** \brief metafunctions returning regular and singular kernel traits */
 namespace kernel_traits_ns
 {
@@ -48,8 +45,6 @@ namespace kernel_traits_ns
 	template <class Derived> struct test_input;
 	/** \brief return the kernel's trial input */
 	template <class Derived> struct trial_input;
-	/** \brief return the kernel's data type */
-	template <class Derived> struct data;
 	/** \brief return the kernel's result type */
 	template <class Derived> struct result;
 	/** \brief return the quadrature family the kernel is integrated with */
@@ -88,8 +83,6 @@ struct kernel_traits
 	typedef typename kernel_traits_ns::test_input<Derived>::type test_input_t;
 	/** \brief kernel trial input type */
 	typedef typename kernel_traits_ns::trial_input<Derived>::type trial_input_t;
-	/** \brief the data type */
-	typedef typename kernel_traits_ns::data<Derived>::type data_t;
 	/** \brief the kernel result type */
 	typedef typename kernel_traits_ns::result<Derived>::type result_t;
 	/** \brief the far field asymptotic behaviour of the kernel */
@@ -164,8 +157,6 @@ public:
 	/** \brief compile time check if the two kernel inputs are compatible */
 	static_assert(std::is_same<typename test_input_t::space_t, typename trial_input_t::space_t>::value,
 		"The test and trial kernel inputs must define the same coordinate space");
-	/** \brief the kernel data type */
-	typedef typename traits_t::data_t data_t;
 	/** \brief type of the kernel result */
 	typedef typename traits_t::result_t result_t;
 	/** \brief the kernel result's dimensionality */
@@ -192,12 +183,6 @@ public:
 
 	/** \brief the kernel complexity estimator class */
 	typedef typename kernel_compl_estimator<Derived>::type estimator_t;
-
-	/** \brief constructor initialising the kernel data */
-	kernel_base(data_t const &data = data_t()) :
-		m_data(data)
-	{
-	}
 
 	/** \brief the kernel bound at the test kernel input */
 	class kernel_bind
@@ -247,18 +232,6 @@ public:
 	{
 		return derived()(x, y);
 	}
-
-	/** \brief return kernel data
-	 * \return kernel data
-	 */
-	data_t const &get_data(void) const
-	{
-		return m_data;
-	}
-
-private:
-	/** \brief the kernel data */
-	data_t m_data;
 };
 
 } // end of namespace NiHu

@@ -56,12 +56,6 @@ namespace kernel_traits_ns
 	struct trial_input<laplace_kernel<Space, potential::SLP> > : build<location<Space> > {};
 
 	template <class Space, class Layer>
-	struct data<laplace_kernel<Space, Layer> >
-	{
-		typedef collect<empty_data> type;
-	};
-
-	template <class Space, class Layer>
 	struct result<laplace_kernel<Space, Layer> >
 	{
 		typedef typename Space::scalar_t type;

@@ -384,13 +384,12 @@ public:
 	{
 		return m_n0;
 	}
-
-	/** \brief return the kernel data */
-	typename kernel_t::data_t const &get_kernel_data(void) const
+	
+	kernel_t const &get_kernel(void) const
 	{
-		return m_kernel.get_data();
+		return m_kernel.derived();
 	}
-
+	
 private:
 	elem_t const &m_elem;		/**< \brief the element reference */
 	kernel_base<kernel_t> const &m_kernel;	/**< \brief the kernel reference */
@@ -722,12 +721,13 @@ public:
 		static_assert(-(order+1) >= 0, "Required Laurent coefficient too low");
 		m_Fcoeffs[-(order+1)] = v;
 	}
-
-	/** \brief return the kernel data */
-	typename kernel_traits<kernel_t>::data_t const &get_kernel_data(void) const
+	
+	
+	kernel_t const &get_kernel(void) const
 	{
-		return m_kernel.get_data();
+		return m_kernel.derived();
 	}
+	
 
 private:
 	elem_t const &m_elem;		/**< \brief the element reference */

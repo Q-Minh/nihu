@@ -62,7 +62,6 @@ struct kernel_traits<elastodynamics_3d_U_kernel>
 {
 	typedef location_input_3d test_input_t;
 	typedef location_input_3d trial_input_t;
-	typedef collect<elastodynamics_data> data_t;
 	typedef Eigen::Matrix<std::complex<double>, 3, 3> result_t;
 	enum { result_rows = 3, result_cols = 3 };
 	typedef gauss_family_tag quadrature_family_t;
@@ -82,10 +81,11 @@ struct singular_kernel_traits<elastodynamics_3d_U_kernel>
 
 class elastodynamics_3d_U_kernel :
 	public kernel_base<elastodynamics_3d_U_kernel>
+	, public elastodynamics_data
 {
 public:
 	elastodynamics_3d_U_kernel(double nu, double rho, double mu, double omega) :
-		kernel_base<elastodynamics_3d_U_kernel>(elastodynamics_data(nu, rho, mu, omega)) {}
+		elastodynamics_data(nu, rho, mu, omega) {}
 
 	result_t operator()(
 		location_input_3d const &x,
@@ -97,14 +97,14 @@ public:
 		auto gradr = rvec.normalized();
 
 		// material properties and Helmholtz numbers
-		auto nu = get_data().get_poisson_ratio();
+		auto nu = get_poisson_ratio();
 		auto a2 = (1.-2.*nu)/2./(1.-nu);
 		auto a = std::sqrt(a2);
-		auto mu = get_data().get_shear_modulus();
-		auto rho = get_data().get_mass_density();
+		auto mu = get_shear_modulus();
+		auto rho = get_mass_density();
 		auto cS = std::sqrt(mu/rho);
 
-		auto om = get_data().get_frequency();
+		auto om = get_frequency();
 		auto kSr = om / cS * r;
 		auto kPr = a * kSr;
 
@@ -134,7 +134,6 @@ struct kernel_traits<elastodynamics_3d_T_kernel>
 {
 	typedef location_input_3d test_input_t;
 	typedef location_normal_input_3d trial_input_t;
-	typedef collect<elastodynamics_data> data_t;
 	typedef Eigen::Matrix<std::complex<double>, 3, 3> result_t;
 	enum { result_rows = 3, result_cols = 3 };
 	typedef gauss_family_tag quadrature_family_t;
@@ -154,10 +153,11 @@ struct singular_kernel_traits<elastodynamics_3d_T_kernel>
 
 class elastodynamics_3d_T_kernel :
 	public kernel_base<elastodynamics_3d_T_kernel>
+	, public elastodynamics_data
 {
 public:
 	elastodynamics_3d_T_kernel(double nu, double rho, double mu, double omega) :
-		kernel_base<elastodynamics_3d_T_kernel>(elastodynamics_data(nu, rho, mu, omega)) {}
+		elastodynamics_data(nu, rho, mu, omega) {}
 		
 		
 	result_t operator()(
@@ -172,15 +172,15 @@ public:
 		double rdn = gradr.dot(n);
 
 		// material properties and Helmholtz numbers
-		auto nu = get_data().get_poisson_ratio();
+		auto nu = get_poisson_ratio();
 		auto a2 = (1.-2.*nu)/2./(1.-nu);
 		auto a = std::sqrt(a2);
-		auto mu = get_data().get_shear_modulus();
+		auto mu = get_shear_modulus();
 		auto lambdapermu = (1./a2 - 2.);
-		auto rho = get_data().get_mass_density();
+		auto rho = get_mass_density();
 		auto cS = std::sqrt(mu/rho);
 
-		auto om = get_data().get_frequency();
+		auto om = get_frequency();
 		auto kSr = om / cS * r;
 		auto kPr = a * kSr;
 

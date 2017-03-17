@@ -197,11 +197,6 @@ namespace kernel_traits_ns
 	struct trial_input<helmholtz_kernel<Space, potential::SLP, WaveNumber> > : build<location<Space> > {};
 
 	template <class Space, class Layer, class WaveNumber>
-	struct data<helmholtz_kernel<Space, Layer, WaveNumber> > {
-		typedef collect<empty_data> type;
-	};
-
-	template <class Space, class Layer, class WaveNumber>
 	struct result<helmholtz_kernel<Space, Layer, WaveNumber> >
 	{
 		typedef std::complex<typename Space::scalar_t> type;

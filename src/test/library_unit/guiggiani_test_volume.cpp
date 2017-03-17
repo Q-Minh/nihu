@@ -36,7 +36,6 @@ struct kernel_traits<MyKernel>
 {
 	typedef location_input_2d test_input_t;
 	typedef location_input_2d trial_input_t;
-	typedef empty_data data_t;
 	typedef double result_t;
 	enum { result_rows = 1, result_cols = 1 };
 	typedef gauss_family_tag quadrature_family_t;
@@ -77,9 +76,6 @@ public:
 class MyKernel : public NiHu::kernel_base<MyKernel>
 {
 public:
-	MyKernel(void) :
-		NiHu::kernel_base<MyKernel>(NiHu::empty_data()) {}
-
 	double operator()(
 		NiHu::location_input_2d const &x, NiHu::location_input_2d const &y) const
 	{
