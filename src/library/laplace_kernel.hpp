@@ -30,10 +30,8 @@
 #include "../core/global_definitions.hpp"
 #include "../core/kernel.hpp"
 #include "../core/gaussian_quadrature.hpp"
-#include "../util/collection.hpp"
 #include "potential_kernel.hpp"
 #include "location_normal.hpp"
-#include "basic_bricks.hpp"
 
 namespace NiHu
 {

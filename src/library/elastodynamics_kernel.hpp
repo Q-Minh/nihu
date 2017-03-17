@@ -29,9 +29,7 @@
 #include "../core/global_definitions.hpp"
 #include "../core/kernel.hpp"
 #include "../core/gaussian_quadrature.hpp"
-#include "../util/collection.hpp"
 #include "location_normal.hpp"
-#include "basic_bricks.hpp"
 #include "elastostatics_kernel.hpp"
 
 namespace NiHu

@@ -22,9 +22,7 @@
 #include "../core/global_definitions.hpp"
 #include "../core/kernel.hpp"
 #include "../core/gaussian_quadrature.hpp"
-#include "../util/collection.hpp"
 #include "../library/location_normal.hpp"
-#include "../library/basic_bricks.hpp"
 
 
 //![parameter]
