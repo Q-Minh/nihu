@@ -37,6 +37,7 @@ namespace NiHu
 {
 /** \brief kernel of the Laplace equation
  * \tparam Space the coordinate space the kernel is defined over
+ * \tparam Layer the potential layer tag that can be potential::SLP, potential::DLP, potential::DLPt and potential::HSP
  */
 template <class Space, class Layer>
 class laplace_kernel;
@@ -101,6 +102,9 @@ namespace kernel_traits_ns
 }
 
 
+/** \brief the 2D SLP kernel of the Laplace equation: \f$ -\ln r / 2\pi \f$
+ * \tparam Scalar the scalar type
+ */
 template <class Scalar>
 class laplace_kernel<space_2d<Scalar>, potential::SLP>
 	: public kernel_base<laplace_kernel<space_2d<Scalar>, potential::SLP> >
@@ -111,12 +115,9 @@ public:
 	typedef typename base_t::trial_input_t trial_input_t;
 	typedef typename base_t::result_t result_t;
 
-	result_t operator()(test_input_t const &test_input, trial_input_t const &trial_input) const
+	result_t operator()(test_input_t const &x, trial_input_t const &y) const
 	{
-		auto y = trial_input.get_x();
-		auto x = test_input.get_x();
-		auto rvec = y - x;
-		auto r = rvec.norm();
+		Scalar r = (y.get_x() - x.get_x()).norm();
 		return -std::log(r) / (2. * M_PI);
 	}
 };
@@ -132,6 +133,9 @@ namespace kernel_traits_ns
 	struct singularity_type<laplace_kernel<space_3d<Scalar>, potential::SLP> > : asymptotic::inverse<1> {};
 }
 
+/** \brief the 3D SLP kernel of the Laplace equation: \f$ 1 / 4 \pi r \f$
+ * \tparam Scalar the scalar type
+ */
 template <class Scalar>
 class laplace_kernel<space_3d<Scalar>, potential::SLP>
 	: public kernel_base<laplace_kernel<space_3d<Scalar>, potential::SLP> >
@@ -142,12 +146,9 @@ public:
 	typedef typename base_t::trial_input_t trial_input_t;
 	typedef typename base_t::result_t result_t;
 
-	result_t operator()(test_input_t const &test_input, trial_input_t const &trial_input) const
+	result_t operator()(test_input_t const &x, trial_input_t const &y) const
 	{
-		auto y = trial_input.get_x();
-		auto x = test_input.get_x();
-		auto rvec = y - x;
-		auto r = rvec.norm();
+		Scalar r = (y.get_x() - x.get_x()).norm();
 		return 1. / r / (4. * M_PI);
 	}
 };
@@ -191,13 +192,11 @@ public:
 	typedef typename base_t::trial_input_t trial_input_t;
 	typedef typename base_t::result_t result_t;
 
-	result_t operator()(test_input_t const &test_input, trial_input_t const &trial_input) const
+	result_t operator()(test_input_t const &x, trial_input_t const &y) const
 	{
-		auto y = trial_input.get_x();
-		auto x = test_input.get_x();
-		auto rvec = y - x;
-		auto r = rvec.norm();
-		auto rdny = rvec.dot(trial_input.get_unit_normal()) / r;
+		typename base_t::x_t rvec = y.get_x() - x.get_x();
+		Scalar r = rvec.norm();
+		Scalar rdny = rvec.dot(y.get_unit_normal()) / r;
 		return -rdny / r / (2. * M_PI);
 	}
 };
@@ -223,14 +222,12 @@ public:
 	typedef typename base_t::trial_input_t trial_input_t;
 	typedef typename base_t::result_t result_t;
 
-	result_t operator()(test_input_t const &test_input, trial_input_t const &trial_input) const
+	result_t operator()(test_input_t const &x, trial_input_t const &y) const
 	{
-		auto y = trial_input.get_x();
-		auto x = test_input.get_x();
-		auto rvec = y - x;
-		auto r = rvec.norm();
+		typename base_t::x_t rvec = y.get_x() - x.get_x();
+		Scalar r = rvec.norm();
 		auto g = 1. / r / (4. * M_PI);
-		auto rdny = rvec.dot(trial_input.get_unit_normal()) / r;
+		Scalar rdny = rvec.dot(y.get_unit_normal()) / r;
 		return -g * rdny / r;
 	}
 };
@@ -277,11 +274,9 @@ public:
 
 	result_t operator()(test_input_t const &test_input, trial_input_t const &trial_input) const
 	{
-		auto y = trial_input.get_x();
-		auto x = test_input.get_x();
-		auto rvec = y - x;
-		auto r = rvec.norm();
-		auto rdnx = -rvec.dot(test_input.get_unit_normal()) / r;
+		typename base_t::x_t rvec = trial_input.get_x() - test_input.get_x();
+		Scalar r = rvec.norm();
+		Scalar rdnx = -rvec.dot(test_input.get_unit_normal()) / r;
 		return -rdnx / r / (2. * M_PI);
 	}
 };
@@ -309,12 +304,10 @@ public:
 
 	result_t operator()(test_input_t const &test_input, trial_input_t const &trial_input) const
 	{
-		auto y = trial_input.get_x();
-		auto x = test_input.get_x();
-		auto rvec = y - x;
-		auto r = rvec.norm();
+		typename base_t::x_t rvec = trial_input.get_x() - test_input.get_x();
+		Scalar r = rvec.norm();
 		auto g = 1. / r / (4. * M_PI);
-		auto rdnx = -rvec.dot(test_input.get_unit_normal()) / r;
+		Scalar rdnx = -rvec.dot(test_input.get_unit_normal()) / r;
 		return -g * rdnx / r;
 	}
 };
@@ -357,12 +350,10 @@ public:
 
 	result_t operator()(test_input_t const &test_input, trial_input_t const &trial_input) const
 	{
-		auto y = trial_input.get_x();
-		auto x = test_input.get_x();
-		auto rvec = y - x;
-		auto r = rvec.norm();
-		auto rdny = rvec.dot(trial_input.get_unit_normal()) / r;
-		auto rdnx = -rvec.dot(trial_input.get_unit_normal()) / r;
+		typename base_t::x_t rvec = trial_input.get_x() - test_input.get_x();
+		Scalar r = rvec.norm();
+		Scalar rdny = rvec.dot(trial_input.get_unit_normal()) / r;
+		Scalar rdnx = -rvec.dot(test_input.get_unit_normal()) / r;
 		return 	1./(2. * M_PI)/r/r * (
 		test_input.get_unit_normal().dot(trial_input.get_unit_normal()) +
 		2. * rdny*rdnx);
@@ -392,12 +383,10 @@ public:
 
 	result_t operator()(test_input_t const &test_input, trial_input_t const &trial_input) const
 	{
-		auto y = trial_input.get_x();
-		auto x = test_input.get_x();
-		auto rvec = y - x;
-		auto r = rvec.norm();
-		auto rdny = rvec.dot(trial_input.get_unit_normal()) / r;
-		auto rdnx = -rvec.dot(trial_input.get_unit_normal()) / r;
+		typename base_t::x_t rvec = trial_input.get_x() - test_input.get_x();
+		Scalar r = rvec.norm();
+		Scalar rdny = rvec.dot(trial_input.get_unit_normal()) / r;
+		Scalar rdnx = -rvec.dot(test_input.get_unit_normal()) / r;
 		auto g = 1. / r / (4. * M_PI);
 		return 	g / r / r *
 		(
