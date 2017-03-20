@@ -37,22 +37,43 @@ namespace NiHu
 template <class Space>
 class covariance_kernel;
 
-/** \brief the properties of the covariance kernel */
-template <class Space>
-struct kernel_traits<covariance_kernel<Space> >
+/// GENERAL TRAITS
+namespace kernel_traits_ns
 {
-	typedef typename build<location<Space> >::type test_input_t;
-	typedef typename build<location<Space> >::type trial_input_t;
-	typedef double result_t;
-	enum { result_rows = 1, result_cols = 1 };
-	typedef gauss_family_tag quadrature_family_t;
-	static bool const is_symmetric = true;
-	
-	/** \todo this is incorrect but */
-	typedef asymptotic::inverse<1> far_field_behaviour_t;
-	
-	static bool const is_singular = false;
-};
+	template <class Space>
+	struct space<covariance_kernel<Space> > : Space {};
+
+	template<class Space>
+	struct result<covariance_kernel<Space> >
+	{
+		typedef typename Space::scalar_t type;
+	};
+
+	template <class Space>
+	struct quadrature_family<covariance_kernel<Space> > : gauss_family_tag {};
+
+	template <class Space>
+	struct result_rows<covariance_kernel<Space> > : std::integral_constant<unsigned, 1> {};
+	template <class Space>
+	struct result_cols<covariance_kernel<Space> > : std::integral_constant<unsigned, 1> {};
+
+	template <class Space>
+	struct is_singular<covariance_kernel<Space> > : std::false_type {};
+
+	template <class Space>
+	struct test_input<covariance_kernel<Space> > : build<location<Space> > {};
+
+	template <class Space>
+	struct trial_input<covariance_kernel<Space> > : build<location<Space> > {};
+
+	template <class Space>
+	struct is_symmetric<covariance_kernel<Space> > : std::true_type {};
+
+	/** \todo this is incorrect but works :) */
+	template <class Space>
+	struct far_field_behaviour<covariance_kernel<Space> > : asymptotic::inverse<1> {};
+}
+
 
 template <class Space>
 class covariance_kernel :
@@ -63,19 +84,37 @@ public:
 	typedef typename base_t::test_input_t test_input_t;
 	typedef typename base_t::trial_input_t trial_input_t;
 	typedef typename base_t::result_t result_t;
+	typedef typename base_t::x_t location_t;
 	
 	covariance_kernel(double sigma, double length) :
 		m_sigma(sigma), m_length(length)
 	{
+	}
+	
+	static result_t distance(location_t const &x, location_t const &y)
+	{
+		return (x-y).norm();
+	}
+	
+	static result_t distance_sph(location_t const &x, location_t const &y)
+	{
+		result_t v = x.normalized().dot(y.normalized());
+		v = std::min(v, 1.0);
+		v = std::max(v, -1.0);
+		return std::acos(v);
+	}
+	
+	result_t operator()(location_t const &x, location_t const &y) const
+	{
+		auto r = distance_sph(x, y);
+		return get_variance() * std::exp(-r / get_correlation_length());
 	}
 
 	result_t operator()(
 		test_input_t const &x,
 		trial_input_t const &y) const
 	{
-		auto rvec = y.get_x() - x.get_x();
-		auto r = rvec.norm();
-		return get_variance() * std::exp(-r/get_correlation_length());
+		return (*this)(x.get_x(), y.get_x());
 	}
 	
 	double get_stddev(void) const
@@ -96,9 +135,8 @@ public:
 private:
 	double m_sigma;		/**< \brief Standard deviation */
 	double m_length;	/**< \brief Correlation length */
-	
 };
 
-}
+} // end of namespace NiHu
 
 #endif // COVARIANCE_KERNEL_HPP_INCLUDED

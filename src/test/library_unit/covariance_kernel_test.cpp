@@ -1,7 +1,7 @@
 // This file is a part of NiHu, a C++ BEM template library.
 //
-// Copyright (C) 2012-2014  Peter Fiala <fiala@hit.bme.hu>
-// Copyright (C) 2012-2014  Peter Rucz <rucz@hit.bme.hu>
+// Copyright (C) 2012-2017  Peter Fiala <fiala@hit.bme.hu>
+// Copyright (C) 2012-2017  Peter Rucz <rucz@hit.bme.hu>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -58,9 +58,13 @@ int main(void)
 
 	std::cout << "Evaluating C kernel in the center of two different elements..." << std::endl;
     std::cout << tester(C, elem1, elem2) << std::endl;
+	std::cout << "Analytic: " << std::endl;
+	std::cout << sigma * sigma * std::exp(-2.5/2.) << std::endl;
 
 	std::cout << "Evaluating collocation singular integral over a constant line element..." << std::endl;
 	std::cout << "C singular:\n" << singular_integral_test(C, elem1) << std::endl;
+	std::cout << "Analytic: " << std::endl;
+	std::cout << 2. * d * sigma * sigma * (1. - std::exp(-1./2.)) << std::endl;
 
     return 0;
 }
