@@ -44,9 +44,7 @@ void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 	mexPrintf("Matrices initialised\n");
 	D << (w * C[w]);
 	mexPrintf("D matrix ready\n");
-	/*
 	B << (w * I[w]);
 	mexPrintf("B matrix ready\n");
-	*/
 }
 

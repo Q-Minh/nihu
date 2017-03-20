@@ -120,8 +120,12 @@ public:
 
 		for (auto it = acc.begin(); it != acc.end(); ++it)
 		{
-			auto jac = field.get_elem().get_dx(it.get_first()->get_xi()).determinant();
-			// auto jac = field.get_elem().get_normal(it.get_first()->get_xi()).norm();
+			/** \todo this works for volume single integrals */
+			// auto jac = field.get_elem().get_dx(it.get_first()->get_xi()).determinant();
+
+			/** \todo this works for the surface single integrals */
+			auto jac = field.get_elem().get_normal(it.get_first()->get_xi()).norm();
+			
 			result += block_product(it.get_first()->get_N(),
 				(mat * it.get_first()->get_w()*jac).eval(),
 				it.get_second()->get_N());
