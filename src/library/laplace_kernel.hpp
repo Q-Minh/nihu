@@ -114,11 +114,17 @@ public:
 	typedef typename base_t::test_input_t test_input_t;
 	typedef typename base_t::trial_input_t trial_input_t;
 	typedef typename base_t::result_t result_t;
-
-	result_t operator()(test_input_t const &x, trial_input_t const &y) const
+	
+	result_t operator()(typename base_t::x_t const &x, typename base_t::x_t const &y) const
 	{
-		Scalar r = (y.get_x() - x.get_x()).norm();
+		typename base_t::x_t rvec = y - x;
+		auto r = rvec.norm();
 		return -std::log(r) / (2. * M_PI);
+	}
+
+	result_t operator()(test_input_t const &test_input, trial_input_t const &trial_input) const
+	{
+		return (*this)(test_input.get_x(), trial_input.get_x());
 	}
 };
 
@@ -145,11 +151,17 @@ public:
 	typedef typename base_t::test_input_t test_input_t;
 	typedef typename base_t::trial_input_t trial_input_t;
 	typedef typename base_t::result_t result_t;
-
-	result_t operator()(test_input_t const &x, trial_input_t const &y) const
+	
+	result_t operator()(typename base_t::x_t const &x, typename base_t::x_t const &y) const
 	{
-		Scalar r = (y.get_x() - x.get_x()).norm();
+		typename base_t::x_t rvec = y - x;
+		auto r = rvec.norm();
 		return 1. / r / (4. * M_PI);
+	}
+
+	result_t operator()(test_input_t const &test_input, trial_input_t const &trial_input) const
+	{
+		return (*this)(test_input.get_x(), trial_input.get_x());
 	}
 };
 
