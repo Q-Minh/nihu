@@ -26,8 +26,9 @@ typedef NiHu::mex::real_matrix<double> dMatrix;
 // [D, B] = mex(nodes, elements, sigma, d);
 void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 {
+	mexPrintf("%d \n", NiHu::line_1_elem::id);
 	dMatrix nodes(rhs[0]), elem(rhs[1]);
-	auto mesh = NiHu::create_mesh(nodes, elem, NiHu::tria_1_volume_tag());
+	auto mesh = NiHu::create_mesh(nodes, elem, NiHu::line_1_tag());
 	auto const &w = NiHu::constant_view(mesh);
 
 	double sigma = *mxGetPr(rhs[2]);
@@ -36,12 +37,15 @@ void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 	auto I = NiHu::identity_integral_operator();
 	
 	unsigned N = w.get_num_dofs();
+	mexPrintf("Number of DOFs: %d\n", N);
 
 	dMatrix D(N, N, lhs[0]), B(N, N, lhs[1]);
 	D.setZero();
 	B.setZero();
-	
+	mexPrintf("Matrices initialised\n");
 	D << (w * C[w]);
+	mexPrintf("D matrix ready\n");
 	B << (w * I[w]);
+	mexPrintf("B matrix ready\n");
 }
 
