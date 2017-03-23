@@ -138,25 +138,29 @@ class helmholtz_kernel<space_2d<Scalar>, potential::SLP, WaveNumber>
 	: public kernel_base<helmholtz_kernel<space_2d<Scalar>, potential::SLP, WaveNumber> >
 	, public wave_number_kernel<WaveNumber>
 {
-public:
 	typedef kernel_base<helmholtz_kernel<space_2d<Scalar>, potential::SLP, WaveNumber> > base_t;
+	
+public:
 	typedef typename base_t::test_input_t test_input_t;
 	typedef typename base_t::trial_input_t trial_input_t;
 	typedef typename base_t::result_t result_t;
+	typedef typename base_t::x_t x_t;
 	
-	/** \brief constructor
-	 * \param [in] wave_number the wave number
-	 */
 	helmholtz_kernel(WaveNumber const &wave_number)
 		: wave_number_kernel<WaveNumber>(wave_number)
 	{
 	}
 	
-	result_t operator()(test_input_t const &x, trial_input_t const &y) const
+	result_t operator()(x_t const &x, x_t const &y) const
 	{
-		auto r = (y.get_x() - x.get_x()).norm();
+		auto r = (y - x).norm();
 		auto kr = this->get_wave_number() * r;
 		return result_t(0., -.25) * bessel::H<0, 2>(result_t(kr));
+	}
+	
+	result_t operator()(test_input_t const &x, trial_input_t const &y) const
+	{
+		return (*this)(x.get_x(), y.get_x());
 	}
 };
 
@@ -176,22 +180,29 @@ class helmholtz_kernel<space_3d<Scalar>, potential::SLP, WaveNumber>
 	: public kernel_base<helmholtz_kernel<space_3d<Scalar>, potential::SLP, WaveNumber> >
 	, public wave_number_kernel<WaveNumber>
 {
-public:
 	typedef kernel_base<helmholtz_kernel<space_3d<Scalar>, potential::SLP, WaveNumber> > base_t;
+	
+public:
 	typedef typename base_t::test_input_t test_input_t;
 	typedef typename base_t::trial_input_t trial_input_t;
 	typedef typename base_t::result_t result_t;
+	typedef typename base_t::x_t x_t;
 	
 	helmholtz_kernel(WaveNumber const &wave_number)
 		: wave_number_kernel<WaveNumber>(wave_number)
 	{
 	}
 	
-	result_t operator()(test_input_t const &x, trial_input_t const &y) const
+	result_t operator()(x_t const &x, x_t const &y) const
 	{
-		auto r = (y.get_x() - x.get_x()).norm();
+		auto r = (y - x).norm();
 		auto ikr = std::complex<Scalar>(0,1) * (this->get_wave_number() * r);
 		return std::exp(-ikr) / r / (4. * M_PI);
+	}
+	
+	result_t operator()(test_input_t const &x, trial_input_t const &y) const
+	{
+		return (*this)(x.get_x(), y.get_x());
 	}
 };
 
