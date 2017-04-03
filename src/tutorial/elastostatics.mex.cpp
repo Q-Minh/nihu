@@ -17,11 +17,11 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //![Header]
-#include "core/weighted_residual.hpp"
-#include "util/mex_matrix.hpp"
+#include "library/lib_element.hpp"
 #include "library/elastostatics_kernel.hpp"
 #include "library/elastostatics_singular_integrals.hpp"
-#include "library/lib_element.hpp"
+#include "core/weighted_residual.hpp"
+#include "util/mex_matrix.hpp"
 
 typedef NiHu::mex::real_matrix<double> dMatrix;
 //![Header]

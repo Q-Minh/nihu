@@ -22,6 +22,7 @@
 #ifndef ELASTOSTATICS_SINGULAR_INTEGRALS_HPP_INCLUDED
 #define ELASTOSTATICS_SINGULAR_INTEGRALS_HPP_INCLUDED
 
+#include "lib_element.hpp"
 #include "../core/integral_operator.hpp"
 #include "elastostatics_kernel.hpp"
 #include "guiggiani_1992.hpp"

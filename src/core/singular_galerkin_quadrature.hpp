@@ -129,7 +129,7 @@ struct tria_helper<match::match_2d_type>
 };
 
 /**
-* \brief specialisation of ::tria_helper for the 0d match case
+* \brief specialisation of ::tria_helper for the 1d match case
 */
 template <>
 struct tria_helper<match::match_1d_type>

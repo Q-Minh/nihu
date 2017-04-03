@@ -152,6 +152,12 @@ public:
 	typedef typename test_field_t::elem_t::domain_t test_domain_t;
 	/** \brief trial domain */
 	typedef typename trial_field_t::elem_t::domain_t trial_domain_t;
+	
+	/** \brief the domain dimension */
+	static unsigned const domain_dimension = test_domain_t::dimension;
+	// report compiler error if test and trial domain dimensions do not match
+	static_assert(domain_dimension == trial_domain_t::dimension,
+		"The test and trial domain dimensions must match");
 
 	/** \brief number of test domain corners */
 	static unsigned const n_test_corners = test_domain_t::num_corners;
@@ -298,7 +304,7 @@ public:
 	singular_accelerator(void)
 	{
 		// generate face quadratures with separate function
-		// so that it does not compile of not needed (different domains)
+		// so that it does not compile if not needed (different domains)
 		generate_face(std::integral_constant<bool, face_match_possible>());
 
 		// create temporary quadratures for rotating
@@ -316,7 +322,7 @@ public:
 		for	(unsigned i = 0; i < n_test_corners; ++i)
 		{
 			// fill transform coordinates
-			Eigen::Matrix<scalar_t, n_test_corners, test_domain_t::dimension> test_corners;
+			Eigen::Matrix<scalar_t, n_test_corners, domain_dimension> test_corners;
 			for (unsigned k = 0; k < n_test_corners; ++k)
 				test_corners.row(k) = test_domain_t::get_corner((i+k) % n_test_corners);
 
@@ -330,7 +336,7 @@ public:
 		for (unsigned i = 0; i < n_trial_corners; ++i)
 		{
 			// fill transform coordinates
-			Eigen::Matrix<scalar_t, n_trial_corners, trial_domain_t::dimension> trial_corners;
+			Eigen::Matrix<scalar_t, n_trial_corners, domain_dimension> trial_corners;
 			for (unsigned k = 0; k < n_trial_corners; ++k)
 				trial_corners.row(k) = trial_domain_t::get_corner((i+k) % n_trial_corners);
 

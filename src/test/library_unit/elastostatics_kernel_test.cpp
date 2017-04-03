@@ -16,9 +16,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#include "library/lib_element.hpp"
 #include "library/elastostatics_kernel.hpp"
 #include "library/elastostatics_singular_integrals.hpp"
-#include "library/lib_element.hpp"
 #include "core/double_integral.hpp"
 
 template <class K, class E1, class E2>
