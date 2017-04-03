@@ -79,13 +79,22 @@ struct singular_shortcut_switch
 			field_base<TrialField> const &trial_field,
 			element_match const &mtch)
 		{
+
 			// if the parameter singularity is valid, evaluate shortcut
 			if (mtch.get_match_dimension() == Singularity::value)
 			{
+				
+				/*
+				std::cout << "Requesting singular_shortcut_switch with "
+				<< "match: " << mtch.get_match_dimension() << std::endl;
+				*/
+				
 				singular_integral_shortcut<Kernel, TestField, TrialField, Singularity>::eval(
 					result, kernel, test_field, trial_field, mtch);
+
 				return true;
 			}
+			
 			return false;
 		}
 	};
@@ -324,7 +333,7 @@ protected:
 			return eval(WITHOUT_SINGULARITY_CHECK(), result, kernel, test_field, trial_field);
 		
 		typedef typename match_type_vector<TestField, TrialField>::type possible_match_types;
-
+		
 		// traverse possible singular integral shortcuts with tmp::call_until
 		if (!tmp::call_until<
 			possible_match_types,

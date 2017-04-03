@@ -28,7 +28,7 @@ void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 {
 	dMatrix nodes(rhs[0]), elem(rhs[1]);
 	auto mesh = NiHu::create_mesh(nodes, elem, NiHu::tria_1_tag());
-	auto const &w = NiHu::constant_view(mesh);
+	auto const &w = NiHu::isoparametric_view(mesh);
 
 	double sigma = *mxGetPr(rhs[2]);
 	double d = *mxGetPr(rhs[3]);
