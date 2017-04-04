@@ -19,6 +19,34 @@
 #include "core/gaussian_quadrature.hpp"
 #include "core/singular_galerkin_quadrature.hpp"
 
+struct func_straight
+{
+	double operator()(double x, double y)
+	{
+		return std::log((x+1) + (y+1));
+	}
+
+	double anal()
+	{
+		return 12. * std::log(2.0) - 6;
+	}
+};
+
+
+struct func_rect
+{
+	double operator()(double x, double y)
+	{
+		return std::log(std::sqrt((x+1)*(x+1) + (y+1)*(y+1)));
+	}
+
+	double anal()
+	{
+		return M_PI + std::log(64) - 6;
+	}
+};
+
+
 int main(void)
 {
 	std::cout << "Testing singular Gaussian quadratures" << std::endl << std::endl;
@@ -27,16 +55,23 @@ int main(void)
 		NiHu::gauss_family_tag,
 		NiHu::line_domain, NiHu::line_domain
 		> generator_t;
-	generator_t::quadrature_t trial_quad, test_quad;
-	generator_t::template generate<NiHu::match::match_0d_type>(test_quad, trial_quad, 1);
-	
-	for (unsigned i = 0; i < trial_quad.size(); ++i)
+	func_rect f;
+	for (int order = 1; order < 15; ++order)
 	{
-		std::cout
-			<< trial_quad[i].get_xi() << '\t'
-			<< test_quad[i].get_xi() << '\t'
-			<< test_quad[i].get_w() << '\t'
-			<< std::endl;
+		generator_t::quadrature_t trial_quad, test_quad;
+		generator_t::template generate<NiHu::match::match_0d_type>(test_quad, trial_quad, order);
+		
+		double I = 0;
+		for (unsigned i = 0; i < trial_quad.size(); ++i)
+		{
+			auto y = trial_quad[i].get_xi()(0);
+			auto x = test_quad[i].get_xi()(0);
+			auto w = trial_quad[i].get_w() * test_quad[i].get_w();
+			
+			I += f(x, y) * w;
+		}
+		
+		std::cout << order << '\t' << I << '\t' << f.anal() << '\t' << std::log10(std::abs(I/f.anal() - 1)) << std::endl;
 	}
 	
 	return 0;

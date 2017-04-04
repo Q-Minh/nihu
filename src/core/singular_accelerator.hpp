@@ -25,6 +25,7 @@
 #ifndef SINGULAR_ACCELERATOR_HPP_INCLUDED
 #define SINGULAR_ACCELERATOR_HPP_INCLUDED
 
+#include "asymptotic_types.hpp"
 #include "kernel.hpp"	// for the galerkin case
 #include "singular_galerkin_quadrature.hpp"	// for the galerkin case
 #include "blind_transform_selector.hpp"	// for the collocation case

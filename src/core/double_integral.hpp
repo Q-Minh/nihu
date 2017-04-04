@@ -83,15 +83,8 @@ struct singular_shortcut_switch
 			// if the parameter singularity is valid, evaluate shortcut
 			if (mtch.get_match_dimension() == Singularity::value)
 			{
-				
-				/*
-				std::cout << "Requesting singular_shortcut_switch with "
-				<< "match: " << mtch.get_match_dimension() << std::endl;
-				*/
-				
 				singular_integral_shortcut<Kernel, TestField, TrialField, Singularity>::eval(
 					result, kernel, test_field, trial_field, mtch);
-
 				return true;
 			}
 			

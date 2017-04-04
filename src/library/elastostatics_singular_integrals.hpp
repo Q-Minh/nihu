@@ -94,42 +94,42 @@ public:
 };
 
 
-/** \brief Galerkin face-match singular integral of the 2D U kernel over a constant line
- * \tparam TestField the test field type
- * \tparam TrialField the trial field type
- */
-template <class TestField, class TrialField>
-class singular_integral_shortcut<
-	elastostatics_2d_U_kernel, TestField, TrialField, match::match_0d_type,
-	typename std::enable_if<
-	std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::general>::value &&
-	std::is_same<typename TrialField::lset_t, line_1_shape_set>::value &&
-	std::is_same<typename TestField::nset_t, line_0_shape_set>::value &&
-	std::is_same<typename TrialField::nset_t, line_0_shape_set>::value
-	>::type
->
-{
-public:
-	/** \brief evaluate singular integral
-	 * \tparam result_t the result matrix type
-	 * \param [in, out] result reference to the result
-	 * \param [in] kernel the kernel instance
-	 * \param [in] trial_field the test and trial fields
-	 * \return reference to the result matrix
-	 * \todo this is cheating now !!!
-	 */
-	template <class result_t>
-	static result_t &eval(
-		result_t &result,
-		kernel_base<elastostatics_2d_U_kernel> const &,
-		field_base<TestField> const &,
-		field_base<TrialField> const &,
-		element_match const &)
-	{
-		result.setZero();
-		return result;
-	}
-};
+// /** \brief Galerkin face-match singular integral of the 2D U kernel over a constant line
+ // * \tparam TestField the test field type
+ // * \tparam TrialField the trial field type
+ // */
+// template <class TestField, class TrialField>
+// class singular_integral_shortcut<
+	// elastostatics_2d_U_kernel, TestField, TrialField, match::match_0d_type,
+	// typename std::enable_if<
+	// std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::general>::value &&
+	// std::is_same<typename TrialField::lset_t, line_1_shape_set>::value &&
+	// std::is_same<typename TestField::nset_t, line_0_shape_set>::value &&
+	// std::is_same<typename TrialField::nset_t, line_0_shape_set>::value
+	// >::type
+// >
+// {
+// public:
+	// /** \brief evaluate singular integral
+	 // * \tparam result_t the result matrix type
+	 // * \param [in, out] result reference to the result
+	 // * \param [in] kernel the kernel instance
+	 // * \param [in] trial_field the test and trial fields
+	 // * \return reference to the result matrix
+	 // * \todo this is cheating now !!!
+	 // */
+	// template <class result_t>
+	// static result_t &eval(
+		// result_t &result,
+		// kernel_base<elastostatics_2d_U_kernel> const &,
+		// field_base<TestField> const &,
+		// field_base<TrialField> const &,
+		// element_match const &)
+	// {
+		// result.setZero();
+		// return result;
+	// }
+// };
 
 
 
