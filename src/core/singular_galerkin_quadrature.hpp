@@ -23,12 +23,11 @@
  * \details This file implements class ::singular_galerkin_quadrature that generates
  * quadratures integrating weakly singular (1/r) kernels in the Galerkin BEM context.
  */
-#ifndef SINGULAR_GALERKIN_QUADRATURE_HPP_INCLUDED
-#define SINGULAR_GALERKIN_QUADRATURE_HPP_INCLUDED
+#ifndef NIHU_SINGULAR_GALERKIN_QUADRATURE_HPP_INCLUDED
+#define NIHU_SINGULAR_GALERKIN_QUADRATURE_HPP_INCLUDED
 
 #include "quadrature.hpp"
 #include "element_match.hpp"
-
 #include "../library/lib_shape.hpp"
 
 namespace NiHu
@@ -50,7 +49,6 @@ namespace NiHu
 template <class quadrature_family_t, class test_domain_t, class trial_domain_t>
 class singular_galerkin_quadrature;
 
-
 /**
 * \brief base structure for quadrature helpers
 * \tparam test_domain_t type of the test domain
@@ -65,6 +63,130 @@ struct helper_base
 	typedef Eigen::Matrix<scalar_t,
 		test_domain_t::dimension + trial_domain_t::dimension, 1> descartes_quad_t;
 };
+
+
+
+/**
+* \brief helper structure for the line-line case
+* \tparam match_type the type of singulartiy
+*/
+template <class match_type>
+struct line_helper;
+
+/**
+ * \brief specialisation of ::line_helper for the 0d match case
+ */
+template <>
+struct line_helper<match::match_0d_type>
+	: public helper_base<line_domain, line_domain>
+{
+	/** \brief indicates whether the quadrature described below is symmetric or not */
+	static bool const is_symmetric = true;
+	/** \brief the number of subdomains of the present singular quadrature */
+	static unsigned const num_domains = 1;
+
+	/**
+	 * \brief transform the 2d quadrature into a singular Duffy one
+	 * \param [in,out] x the quadrature points
+	 * \param [in,out] w the quadrature weight
+	 * \param [in] idx the subdomain id
+	 */
+	static void transform_inplace(descartes_quad_t &x, scalar_t &w, unsigned idx)
+	{
+		switch (idx)
+		{
+		case 0:
+			x(1) *= x(0);
+			w *= x(0);
+			break;
+		default:
+			throw std::logic_error("invalid domain index for singular Galerkin quadrature on lines with 0d match ");
+		}
+	}
+};
+
+
+/**
+ * \brief specialisation of ::singular_galerkin_quadrature for the line-line case
+ * \tparam quadrature_family_t the regular quadrature family
+ */
+template <class quadrature_family_t>
+class singular_galerkin_quadrature<quadrature_family_t, line_domain, line_domain>
+{
+public:
+	/** \brief the (regular) quadrature type */
+	typedef typename quadrature_type<quadrature_family_t, line_domain>::type quadrature_t;
+	/** \brief the quadrature element type */
+	typedef typename quadrature_t::quadrature_elem_t quadrature_elem_t;
+
+	/**
+	 * \brief generate a singular quadrature for a given singularity type
+	 * \tparam match_type the singularity type
+	 * \param [out] test_quadrature the test quadrature to be extended
+	 * \param [out] trial_quadrature the trial quadrature to be extended
+	 * \param [in] singular_quadrature_order polynomial order of the underlying regular quadrature
+	 * \todo singularity type should use singularity type and template instantiation from parameter
+	 */
+	template <class match_type>
+	static void generate(
+		quadrature_t &test_quadrature,
+		quadrature_t &trial_quadrature,
+		unsigned singular_quadrature_order)
+	{
+		/** \brief the helper class type */
+		typedef line_helper<match_type> hlp_t;
+		/** \brief the scalar type */
+		typedef typename hlp_t::scalar_t scalar_t;
+		/** \brief the double quadrature element type */
+		typedef typename hlp_t::descartes_quad_t descartes_quad_t;
+
+		/** \brief the regular line quadrature type */
+		typename quadrature_type<quadrature_family_t, line_domain>::type base_quad(singular_quadrature_order);
+		// transform the regular line quadrature into the (0,1) domain
+		Eigen::Matrix<scalar_t, 2, 1> c(0.0, 1.0);
+		base_quad.template transform_inplace<line_1_shape_set>(c);
+
+		// traversing the two dimensional regular quadrature elements
+		for (unsigned i1 = 0; i1 < base_quad.size(); ++i1)
+		{
+			scalar_t x1 = base_quad[i1].get_xi()(0);
+			scalar_t w1 = base_quad[i1].get_w();
+			for (unsigned i2 = 0; i2 < base_quad.size(); ++i2)
+			{
+				scalar_t x2 = base_quad[i2].get_xi()(0);
+				scalar_t w2 = base_quad[i2].get_w();
+
+				for (unsigned idx = 0; idx < hlp_t::num_domains; ++idx)
+				{
+					// generate the descartes quadrature element
+					descartes_quad_t x(x1, x2);
+					scalar_t w = w1 * w2;
+
+					// transform the 2d quadrature into the desired singular one
+					hlp_t::transform_inplace(x, w, idx);
+
+					// transform back to standard lines
+					x = (2. * x).array() - 1.0;
+					w *= 4.0;
+
+					// separate into test and trial quadratures
+					test_quadrature.push_back(quadrature_elem_t(x.topRows(1), w));
+					trial_quadrature.push_back(quadrature_elem_t(x.bottomRows(1), 1.0));
+
+					// and vica versa if symmetry requires
+					if (hlp_t::is_symmetric)
+					{
+						test_quadrature.push_back(quadrature_elem_t(x.bottomRows(1), w));
+						trial_quadrature.push_back(quadrature_elem_t(x.topRows(1), 1.0));
+					}
+				}
+			} // for loop for i2
+		} // for loop for i1
+	} // function generate
+};
+
+
+
 
 /**
 * \brief helper structure for the tria-tria case
@@ -691,8 +813,7 @@ public:
 	}
 };
 
-}
+} // end of namespace NiHu
 
-
-#endif
+#endif // NIHU_SINGULAR_GALERKIN_QUADRATURE_HPP_INCLUDED
 
