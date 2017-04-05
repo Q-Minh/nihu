@@ -116,7 +116,12 @@ public:
 * \tparam TestField the test field over which integration is performed
 * \tparam TrialField the trial field over which integration is performed
 */
-template <class Kernel, class TestField, class TrialField, class = typename get_formalism<TestField, TrialField>::type >
+template <
+	class Kernel,
+	class TestField,
+	class TrialField,
+	class = typename get_formalism<TestField, TrialField>::type
+>
 class singular_accelerator;
 
 
@@ -126,7 +131,11 @@ class singular_accelerator;
 * \tparam TestField the test field over which integration is performed
 * \tparam TrialField the trial field over which integration is performed
 */
-template <class Kernel, class TestField, class TrialField>
+template <
+	class Kernel,
+	class TestField,
+	class TrialField
+>
 class singular_accelerator<Kernel, TestField, TrialField, formalism::general>
 {
 	// CRTP check
@@ -261,107 +270,76 @@ public:
 	}
 
 private:
-	void generate_face(std::false_type)
+	template <class Match>
+	void generate(Match)
 	{
+		int d = Match::value;
+		if (d == domain_dimension) 	// face (only one)
+		{
+			m_test_quadratures[d].push_back(test_quadrature_t());
+			m_trial_quadratures[d].push_back(trial_quadrature_t());
+			quad_factory_t::template generate<Match>(
+				m_test_quadratures[d][0],
+				m_trial_quadratures[d][0],
+				singular_quadrature_order);
+		}
+		else // corner or edge, lots of
+		{
+			test_quadrature_t test_q;
+			trial_quadrature_t trial_q;
+			quad_factory_t::template generate<Match>(
+				test_q, trial_q, singular_quadrature_order);
+				
+			for	(unsigned i = 0; i < n_test_corners; ++i)
+			{
+				Eigen::Matrix<scalar_t, n_test_corners, domain_dimension> test_corners;
+				for (unsigned k = 0; k < n_test_corners; ++k)
+					test_corners.row(k) = test_domain_t::get_corner((i+k) % n_test_corners);
+				m_test_quadratures[d].push_back(
+					test_q.template transform<isoparam_shape_set<test_domain_t>, !is_surface>(test_corners)
+					);
+			}
+			
+			for (unsigned i = 0; i < n_trial_corners; ++i)
+			{
+				Eigen::Matrix<scalar_t, n_trial_corners, domain_dimension> trial_corners;
+				for (unsigned k = 0; k < n_trial_corners; ++k)
+				{
+					unsigned idx;
+					if (domain_dimension == 2 && d == 1) // quad or tria edge match
+						idx = (i+1+n_trial_corners-k) % n_trial_corners;
+					else
+						idx = (i+k) % n_trial_corners;
+					trial_corners.row(k) = trial_domain_t::get_corner(idx);
+				}
+				m_trial_quadratures[d].push_back(
+					trial_q.template transform<isoparam_shape_set<trial_domain_t>, !is_surface>(trial_corners)
+					);
+			}
+		}
 	}
-
-	void generate_face(std::true_type)
-	{
-		m_test_quadratures[domain_dimension].push_back(test_quadrature_t());
-		m_trial_quadratures[domain_dimension].push_back(trial_quadrature_t());
-		// construct facials
-		quad_factory_t::template generate<std::integral_constant<int, domain_dimension> >(
-			m_test_quadratures[domain_dimension][0],
-			m_trial_quadratures[domain_dimension][0],
-			singular_quadrature_order);
-	}
-
+	
 public:
-	/**
-	* \brief constructor allocating space for the quadratures
-	*/
+	/** \brief constructor allocating and generating the quadratures */
 	singular_accelerator(void)
 	{
-		// generate face quadratures with separate function
-		// so that it does not compile if not needed (different domains)
-		generate_face(std::integral_constant<bool, face_match_possible>());
-
-		// create temporary quadratures for rotating
-		test_quadrature_t test_edge_q, test_corner_q;
-		trial_quadrature_t trial_edge_q, trial_corner_q;
-
-		// create test quadrature singular on the first corner
-		quad_factory_t::template generate<match::match_0d_type>(
-			test_corner_q, trial_corner_q, singular_quadrature_order);
-
-		// create test quadrature singular on the first edge
-		quad_factory_t::template generate<match::match_1d_type>(
-			test_edge_q, trial_edge_q, singular_quadrature_order);
-
-		// rotate test quadratures
-		for	(unsigned i = 0; i < n_test_corners; ++i)
-		{
-			// fill transform coordinates
-			Eigen::Matrix<scalar_t, n_test_corners, domain_dimension> test_corners;
-			for (unsigned k = 0; k < n_test_corners; ++k)
-				test_corners.row(k) = test_domain_t::get_corner((i+k) % n_test_corners);
-
-			// rotate
-			m_test_quadratures[0][i] =
-				test_corner_q.template transform<isoparam_shape_set<test_domain_t>, !is_surface>(test_corners);
-			m_test_quadratures[1][i] =
-				test_edge_q.template transform<isoparam_shape_set<test_domain_t>, !is_surface>(test_corners);
-		}
-		// rotate trial quads
-		for (unsigned i = 0; i < n_trial_corners; ++i)
-		{
-			// fill transform coordinates
-			Eigen::Matrix<scalar_t, n_trial_corners, domain_dimension> trial_corners;
-			for (unsigned k = 0; k < n_trial_corners; ++k)
-				trial_corners.row(k) = trial_domain_t::get_corner((i+k) % n_trial_corners);
-
-			// rotate
-			m_trial_quadratures[0][i] =
-				trial_corner_q.template transform<isoparam_shape_set<trial_domain_t>, !is_surface>(trial_corners);
-
-			// fill transform coordinates
-			for (unsigned k = 0; k < n_trial_corners; ++k)
-				trial_corners.row(k) =
-				trial_domain_t::get_corner((i+1+n_trial_corners-k) % n_trial_corners);
-
-			// rotate but keep weights unadjusted
-			m_trial_quadratures[1][i] = trial_edge_q.template transform<isoparam_shape_set<trial_domain_t>, !is_surface>(trial_corners);
-		}
+		// generate(match::match_2d_type());
+		// generate(match::match_1d_type());
+		generate(match::match_0d_type());
 	}
 
-protected:
+private:
 	std::vector<test_quadrature_t> m_test_quadratures[domain_dimension + 1];
 	std::vector<trial_quadrature_t> m_trial_quadratures[domain_dimension + 1];
-	
-	// /**\brief singular quadrature on the test elem for FACE_MATCH case */
-	// test_quadrature_t m_face_test_quadrature;
-	// /**\brief singular quadrature on the trial elem for FACE_MATCH case */
-	// trial_quadrature_t m_face_trial_quadrature;
-
-	// /**\brief singular quadratures on the test elem for CORNER_MATCH case */
-	// test_quadrature_t m_corner_test_quadrature[test_domain_t::num_corners];
-	// /**\brief singular quadratures on the trial elem for CORNER_MATCH case */
-	// trial_quadrature_t m_corner_trial_quadrature[trial_domain_t::num_corners];
-
-	// /**\brief singular quadratures on the test elem for EDGE_MATCH case */
-	// test_quadrature_t m_edge_test_quadrature[test_domain_t::num_corners];
-	// /**\brief singular quadratures on the trial elem for EDGE_MATCH case */
-	// trial_quadrature_t m_edge_trial_quadrature[trial_domain_t::num_corners];
 };
 
 
-
 /**
-* \brief specialisation the singular accelerator for the collocational case
-* \tparam Kernel the kernel to integrate
-* \tparam TestElem the test element type
-* \tparam TrialField the trial field type
-*/
+ * \brief specialisation the singular accelerator for the collocational case
+ * \tparam Kernel the kernel to integrate
+ * \tparam TestElem the test element type
+ * \tparam TrialField the trial field type
+ */
 template <class Kernel, class TestField, class TrialField>
 class singular_accelerator<Kernel, TestField, TrialField, formalism::collocational>
 {
