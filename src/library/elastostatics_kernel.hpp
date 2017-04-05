@@ -51,7 +51,7 @@ private:
 
 class elastostatics_2d_U_kernel;
 
-/** \brief the properties of the elastostatics U kernel */
+/** \brief the properties of the elastostatics 2d U kernel */
 template <>
 struct kernel_traits<elastostatics_2d_U_kernel>
 {
@@ -68,7 +68,7 @@ struct kernel_traits<elastostatics_2d_U_kernel>
 };
 
 
-/** \brief the singular properties of the elastostatics U kernel */
+/** \brief the singular properties of the elastostatics 2d U kernel */
 template <>
 struct singular_kernel_traits<elastostatics_2d_U_kernel>
 {
@@ -92,11 +92,73 @@ public:
 		location_input_2d const &y) const
 	{
 		auto nu = get_poisson_ratio();
-//		auto mu = get_shear_modulus();
+		auto mu = get_shear_modulus();
 		auto rvec = y.get_x() - x.get_x();
 		auto r = rvec.norm();
 		auto gradr = rvec.normalized();
-		return ( - (3.-4.*nu) * result_t::Identity() * std::log(r) + (gradr * gradr.transpose()) ) / (8.*M_PI*(1.-nu));
+		return ( - (3.-4.*nu) * result_t::Identity() * std::log(r) + (gradr * gradr.transpose()) ) / (8.*M_PI*mu*(1.-nu));
+	}
+};
+
+
+
+
+class elastostatics_2d_T_kernel;
+
+/** \brief the properties of the elastostatics 2d T kernel */
+template <>
+struct kernel_traits<elastostatics_2d_T_kernel>
+{
+	typedef location_input_2d test_input_t;
+	typedef location_normal_input_2d trial_input_t;
+	typedef Eigen::Matrix<double, 2, 2> result_t;
+	enum { result_rows = 2, result_cols = 2 };
+	typedef gauss_family_tag quadrature_family_t;
+	static bool const is_symmetric = true;
+	
+	typedef asymptotic::inverse<1> far_field_behaviour_t;
+	
+	static bool const is_singular = true;
+};
+
+
+/** \brief the singular properties of the elastostatics 2d T kernel */
+template <>
+struct singular_kernel_traits<elastostatics_2d_T_kernel>
+{
+	typedef asymptotic::inverse<1> singularity_type_t;
+	static unsigned const singular_quadrature_order = 7;
+	typedef elastostatics_2d_T_kernel singular_core_t;
+};
+
+class elastostatics_2d_T_kernel
+	: public kernel_base<elastostatics_2d_T_kernel>
+	, public elastostatics_kernel
+{
+public:
+	elastostatics_2d_T_kernel(double nu, double mu)
+		: elastostatics_kernel(nu, mu)
+	{
+	}
+
+	result_t operator()(
+		location_input_2d const &x,
+		location_normal_input_2d const &y) const
+	{
+	auto nu = this->get_poisson_ratio();
+	auto mu = this->get_shear_modulus();
+	auto rvec = y.get_x() - x.get_x();
+	auto r = rvec.norm();
+	auto gradr = rvec.normalized();
+	auto const &n = y.get_unit_normal(); 
+	auto rdny = gradr.dot(n);
+	return
+	  -1.0 *
+	  (rdny * ( (1.-2.*nu)*result_t::Identity() + 2.*(gradr*gradr.transpose()) )
+	   -
+	   (1.-2.*nu) * (gradr*n.transpose()-n*gradr.transpose()) )
+	  /
+	  (4.*M_PI*(1.-nu)*mu*r);
 	}
 };
 
@@ -116,6 +178,7 @@ struct kernel_traits<elastostatics_3d_U_kernel>
 	typedef asymptotic::inverse<1> far_field_behaviour_t;
 	static bool const is_singular = true;
 };
+
 
 /** \brief the singular properties of the elastostatics U kernel */
 template <>

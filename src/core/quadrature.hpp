@@ -96,10 +96,11 @@ public:
 	/**
 	* \brief transform a quadrature element according to a shape function set and corner nodes
 	* \tparam LSet the shape function set
+	* \tparam Signed indicates if the sign of the Jacobian needs to be taken into ancount
 	* \param [in] coords transformation corners
 	* \return reference to the transformed object
 	*/
-	template <class LSet>
+	template <class LSet, bool Signed = true>
 	quadrature_elem &transform_inplace(
 		Eigen::Matrix<scalar_t, LSet::num_nodes, LSet::domain_t::dimension> const &coords)
 	{
@@ -107,7 +108,11 @@ public:
 		static_assert(std::is_base_of<shape_set_base<LSet>, LSet>::value,
 			"LSet must be derived from shape_set_base<LSet>");
 		// compute Jacobian and multiply with original weight
-		m_w *= (LSet::template eval_shape<1>(m_xi).transpose() * coords).determinant();
+		auto j = (LSet::template eval_shape<1>(m_xi).transpose() * coords).determinant();
+		if (Signed)
+			m_w *= j;
+		else
+			m_w *= std::abs(j);
 		// compute new quadrature location
 		m_xi = LSet::template eval_shape<0>(m_xi).transpose() * coords;
 		return *this;
@@ -213,11 +218,12 @@ public:
 	/**
 	* \brief transform the domain of the quadrature with a given shape set and corner points
 	* \tparam LSet shape set type of transformation
+	* \tparam Signed indicates if the sign of the Jacobian needs to be taken into ancount
 	* \param [in] coords corner coordinates of transformed domain
 	* \return transformed quadrature
 	* \todo this transformation is sick, does not fit into our quadrature scheme conceptually
 	*/
-	template <class LSet>
+	template <class LSet, bool Signed = true>
 	Derived transform(
 		Eigen::Matrix<scalar_t, LSet::num_nodes, LSet::domain_t::dimension> const &coords) const
 	{
@@ -228,16 +234,17 @@ public:
 		static_assert(std::is_same<xi_t, typename LSet::xi_t>::value,
 			"Quadrature and shape set dimensions must match");
 		Derived result(derived());
-		return result.transform_inplace<LSet>(coords);
+		return result.transform_inplace<LSet, Signed>(coords);
 	}
 
 	/**
 	* \brief transform the domain of the quadrature in place
 	* \tparam LSet shape set type of transformation
+	* \tparam Signed indicates if the sign of the Jacobian needs to be taken into ancount
 	* \param [in] coords corner coordinates of transformed domain
 	* \return reference to the transformed quadrature
 	*/
-	template <class LSet>
+	template <class LSet, bool Signed = true>
 	Derived &transform_inplace(
 		const Eigen::Matrix<scalar_t, LSet::num_nodes, LSet::domain_t::dimension> &coords)
 	{
@@ -248,7 +255,7 @@ public:
 		static_assert(std::is_same<xi_t, typename LSet::xi_t>::value,
 			"Quadrature and shape set dimensions must match");
 		for (auto it = base_t::begin(); it != base_t::end(); ++it)
-			it->transform_inplace<LSet>(coords);
+			it->transform_inplace<LSet, Signed>(coords);
 		return derived();
 	}
 

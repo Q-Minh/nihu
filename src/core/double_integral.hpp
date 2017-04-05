@@ -627,7 +627,7 @@ template <class Kernel, class TestField, class TrialField, class Singularity, cl
 class singular_integral_shortcut
 {
 	typedef typename get_formalism<TestField, TrialField>::type formalism_t;
-	typedef typename select_singular_accelerator<Kernel, TestField, TrialField>::type singular_accelerator_t;
+	typedef typename select_singular_accelerator<Kernel, TestField, TrialField, Singularity>::type singular_accelerator_t;
 	typedef store<singular_accelerator_t> store_t;
 
 	template <class result_t>

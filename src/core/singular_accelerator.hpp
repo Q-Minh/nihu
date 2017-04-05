@@ -143,6 +143,12 @@ public:
 	typedef TestField test_field_t;
 	/** \brief template argument as nested type */
 	typedef TrialField trial_field_t;
+	
+	/** \brief the test eleme type */
+	typedef typename test_field_t::elem_t test_elem_t;
+	
+	/** \brief indicates if the elements are surface elements or not */
+	static bool const is_surface = element_traits::is_surface_element<test_elem_t>::type::value;
 
 	/** \brief the L-set of the test domain */
 	typedef typename test_field_t::elem_t::lset_t test_lset_t;
@@ -193,7 +199,7 @@ public:
 		typename test_quadrature_t::const_iterator,
 		typename trial_quadrature_t::const_iterator> iterator;
 
-	/** \brief indicates whether 2d match is possible */
+	/** \brief indicates whether face match is possible */
 	static const bool face_match_possible = std::is_same<test_field_t, trial_field_t>::value;
 	/** \brief the singular quadrature order required by the kernel */
 	static unsigned const singular_quadrature_order = singular_kernel_traits<kernel_t>::singular_quadrature_order;
@@ -206,38 +212,23 @@ public:
 	{
 		switch (elem_match.get_match_dimension())
 		{
-		case 2:
+		case domain_dimension:
 			return iterator(
-				m_face_test_quadrature.begin(),
-				m_face_trial_quadrature.begin());
+				m_test_quadratures[domain_dimension][0].begin(),
+				m_trial_quadratures[domain_dimension][0].begin());
 			break;
-		case 1:
-		{
-			unsigned test_domain_corner =
-				test_lset_t::node_to_domain_corner(elem_match.get_overlap().get_ind1());
-			unsigned trial_domain_corner =
-				trial_lset_t::node_to_domain_corner(elem_match.get_overlap().get_ind2());
-			return iterator(
-				m_edge_test_quadrature[test_domain_corner].begin(),
-				m_edge_trial_quadrature[trial_domain_corner].begin());
-			break;
-		}
-		case 0:
-		{
-			unsigned test_domain_corner =
-				test_lset_t::node_to_domain_corner(elem_match.get_overlap().get_ind1());
-			unsigned trial_domain_corner =
-				trial_lset_t::node_to_domain_corner(elem_match.get_overlap().get_ind2());
-			return iterator(
-				m_corner_test_quadrature[test_domain_corner].begin(),
-				m_corner_trial_quadrature[trial_domain_corner].begin());
-			break;
-		}
 		case -1:
-			throw std::logic_error("Cannot return singular quadrature for regular type");
+			throw std::logic_error("Cannot return singular quadrature for NO_MATCH type");
 			break;
 		default:
-			throw std::invalid_argument("Unknown singularity type");
+			unsigned test_domain_corner =
+				test_lset_t::node_to_domain_corner(elem_match.get_overlap().get_ind1());
+			unsigned trial_domain_corner =
+				trial_lset_t::node_to_domain_corner(elem_match.get_overlap().get_ind2());
+			return iterator(
+				m_test_quadratures[elem_match.get_match_dimension()][test_domain_corner].begin(),
+				m_trial_quadratures[elem_match.get_match_dimension()][trial_domain_corner].begin());
+			break;
 		}
 	}
 
@@ -249,38 +240,23 @@ public:
 	{
 		switch (elem_match.get_match_dimension())
 		{
-		case 2:
+		case domain_dimension:
 			return iterator(
-				m_face_test_quadrature.end(),
-				m_face_trial_quadrature.end());
+				m_test_quadratures[domain_dimension][0].end(),
+				m_trial_quadratures[domain_dimension][0].end());
 			break;
-		case 1:
-		{
-			unsigned test_domain_corner =
-				test_lset_t::node_to_domain_corner(elem_match.get_overlap().get_ind1());
-			unsigned trial_domain_corner =
-				trial_lset_t::node_to_domain_corner(elem_match.get_overlap().get_ind2());
-			return iterator(
-				m_edge_test_quadrature[test_domain_corner].end(),
-				m_edge_trial_quadrature[trial_domain_corner].end());
-			break;
-		}
-		case 0:
-		{
-			unsigned test_domain_corner =
-				test_lset_t::node_to_domain_corner(elem_match.get_overlap().get_ind1());
-			unsigned trial_domain_corner =
-				trial_lset_t::node_to_domain_corner(elem_match.get_overlap().get_ind2());
-			return iterator(
-				m_corner_test_quadrature[test_domain_corner].end(),
-				m_corner_trial_quadrature[trial_domain_corner].end());
-			break;
-		}
 		case -1:
 			throw std::logic_error("Cannot return singular quadrature for NO_MATCH type");
 			break;
 		default:
-			throw std::invalid_argument("Unknown singularity type");
+			unsigned test_domain_corner =
+				test_lset_t::node_to_domain_corner(elem_match.get_overlap().get_ind1());
+			unsigned trial_domain_corner =
+				trial_lset_t::node_to_domain_corner(elem_match.get_overlap().get_ind2());
+			return iterator(
+				m_test_quadratures[elem_match.get_match_dimension()][test_domain_corner].end(),
+				m_trial_quadratures[elem_match.get_match_dimension()][trial_domain_corner].end());
+			break;
 		}
 	}
 
@@ -291,10 +267,12 @@ private:
 
 	void generate_face(std::true_type)
 	{
+		m_test_quadratures[domain_dimension].push_back(test_quadrature_t());
+		m_trial_quadratures[domain_dimension].push_back(trial_quadrature_t());
 		// construct facials
-		quad_factory_t::template generate<match::match_2d_type>(
-			m_face_test_quadrature,
-			m_face_trial_quadrature,
+		quad_factory_t::template generate<std::integral_constant<int, domain_dimension> >(
+			m_test_quadratures[domain_dimension][0],
+			m_trial_quadratures[domain_dimension][0],
 			singular_quadrature_order);
 	}
 
@@ -315,6 +293,7 @@ public:
 		// create test quadrature singular on the first corner
 		quad_factory_t::template generate<match::match_0d_type>(
 			test_corner_q, trial_corner_q, singular_quadrature_order);
+
 		// create test quadrature singular on the first edge
 		quad_factory_t::template generate<match::match_1d_type>(
 			test_edge_q, trial_edge_q, singular_quadrature_order);
@@ -328,10 +307,10 @@ public:
 				test_corners.row(k) = test_domain_t::get_corner((i+k) % n_test_corners);
 
 			// rotate
-			m_corner_test_quadrature[i] =
-				test_corner_q.template transform<isoparam_shape_set<test_domain_t> >(test_corners);
-			m_edge_test_quadrature[i] =
-				test_edge_q.template transform<isoparam_shape_set<test_domain_t> >(test_corners);
+			m_test_quadratures[0][i] =
+				test_corner_q.template transform<isoparam_shape_set<test_domain_t>, !is_surface>(test_corners);
+			m_test_quadratures[1][i] =
+				test_edge_q.template transform<isoparam_shape_set<test_domain_t>, !is_surface>(test_corners);
 		}
 		// rotate trial quads
 		for (unsigned i = 0; i < n_trial_corners; ++i)
@@ -342,13 +321,8 @@ public:
 				trial_corners.row(k) = trial_domain_t::get_corner((i+k) % n_trial_corners);
 
 			// rotate
-			m_corner_trial_quadrature[i] =
-				trial_corner_q.template transform<isoparam_shape_set<trial_domain_t> >(trial_corners);
-
-			// when dealing with the EDGE_MATCH case, we need to take into consideration that the test and
-			// trial elements contain the singular edge in opposite nodal order. Therefore, if the
-			// test element's singular edge is 0-1, then the trial element's singular edge should be 1-0
-			// this numbering is implemented below: i+1-k instead of i+k
+			m_trial_quadratures[0][i] =
+				trial_corner_q.template transform<isoparam_shape_set<trial_domain_t>, !is_surface>(trial_corners);
 
 			// fill transform coordinates
 			for (unsigned k = 0; k < n_trial_corners; ++k)
@@ -356,26 +330,28 @@ public:
 				trial_domain_t::get_corner((i+1+n_trial_corners-k) % n_trial_corners);
 
 			// rotate but keep weights unadjusted
-			m_edge_trial_quadrature[i] = trial_edge_q.template transform<isoparam_shape_set<trial_domain_t> >(trial_corners);
-			m_edge_trial_quadrature[i] *= -1.0;
+			m_trial_quadratures[1][i] = trial_edge_q.template transform<isoparam_shape_set<trial_domain_t>, !is_surface>(trial_corners);
 		}
 	}
 
 protected:
-	/**\brief singular quadrature on the test elem for FACE_MATCH case */
-	test_quadrature_t m_face_test_quadrature;
-	/**\brief singular quadrature on the trial elem for FACE_MATCH case */
-	trial_quadrature_t m_face_trial_quadrature;
+	std::vector<test_quadrature_t> m_test_quadratures[domain_dimension + 1];
+	std::vector<trial_quadrature_t> m_trial_quadratures[domain_dimension + 1];
+	
+	// /**\brief singular quadrature on the test elem for FACE_MATCH case */
+	// test_quadrature_t m_face_test_quadrature;
+	// /**\brief singular quadrature on the trial elem for FACE_MATCH case */
+	// trial_quadrature_t m_face_trial_quadrature;
 
-	/**\brief singular quadratures on the test elem for CORNER_MATCH case */
-	test_quadrature_t m_corner_test_quadrature[test_domain_t::num_corners];
-	/**\brief singular quadratures on the trial elem for CORNER_MATCH case */
-	trial_quadrature_t m_corner_trial_quadrature[trial_domain_t::num_corners];
+	// /**\brief singular quadratures on the test elem for CORNER_MATCH case */
+	// test_quadrature_t m_corner_test_quadrature[test_domain_t::num_corners];
+	// /**\brief singular quadratures on the trial elem for CORNER_MATCH case */
+	// trial_quadrature_t m_corner_trial_quadrature[trial_domain_t::num_corners];
 
-	/**\brief singular quadratures on the test elem for EDGE_MATCH case */
-	test_quadrature_t m_edge_test_quadrature[test_domain_t::num_corners];
-	/**\brief singular quadratures on the trial elem for EDGE_MATCH case */
-	trial_quadrature_t m_edge_trial_quadrature[trial_domain_t::num_corners];
+	// /**\brief singular quadratures on the test elem for EDGE_MATCH case */
+	// test_quadrature_t m_edge_test_quadrature[test_domain_t::num_corners];
+	// /**\brief singular quadratures on the trial elem for EDGE_MATCH case */
+	// trial_quadrature_t m_edge_trial_quadrature[trial_domain_t::num_corners];
 };
 
 
@@ -474,12 +450,29 @@ protected:
 };
 
 
+template <class TestField, class TrialField, class = typename get_formalism<TestField, TrialField>::type>
+struct double_integral_dimension;
+
+template <class TestField, class TrialField>
+struct double_integral_dimension<TestField, TrialField, formalism::general>
+	: std::integral_constant<unsigned,
+	TestField::elem_t::domain_t::dimension + TrialField::elem_t::domain_t::dimension
+> {};
+
+
+template <class TestField, class TrialField>
+struct double_integral_dimension<TestField, TrialField, formalism::collocational>
+	: std::integral_constant<unsigned,
+	TrialField::elem_t::domain_t::dimension
+> {};
+
+
 /** \brief select a singular accelerator for a kernel and test and trial fields
  * \tparam Kernel the kernel type
  * \tparam TestField the test field type
  * \tparam TrialField the trial field tpye
  */
-template <class Kernel, class TestField, class TrialField, class = void>
+template <class Kernel, class TestField, class TrialField, class Singularity, class = void>
 struct select_singular_accelerator
 {
 	typedef invalid_singular_accelerator type;
@@ -489,12 +482,13 @@ struct select_singular_accelerator
  * \tparam Kernel the kernel type
  * \tparam TestField the test field type
  * \tparam TrialField the trial field tpye
+ * \todo Check the enable if relation
  */
-template <class Kernel, class TestField, class TrialField>
-struct select_singular_accelerator <Kernel, TestField, TrialField, typename std::enable_if<
+template <class Kernel, class TestField, class TrialField, class Singularity>
+struct select_singular_accelerator <Kernel, TestField, TrialField, Singularity, typename std::enable_if<
 	minimal_reference_dimension<
 		typename singular_kernel_traits<Kernel>::singularity_type_t
-	>::value <= TrialField::elem_t::domain_t::dimension
+	>::value <= double_integral_dimension<TestField, TrialField>::value - Singularity::value
 >::type>
 {
 	typedef singular_accelerator<Kernel, TestField, TrialField> type;

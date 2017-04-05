@@ -19,6 +19,32 @@
 #include "core/gaussian_quadrature.hpp"
 #include "core/singular_galerkin_quadrature.hpp"
 
+struct gunc_straight
+{
+	double operator()(double x, double y)
+	{
+		return 1.0 / ((x+1) + (y+1));
+	}
+
+	double anal()
+	{
+		return std::log(16.);
+	}
+};
+
+struct gunc_rect
+{
+	double operator()(double x, double y)
+	{
+		return 1.0 / std::sqrt((x+1)*(x+1) + (y+1)*(y+1));
+	}
+
+	double anal()
+	{
+		return 4. * std::asinh(1.);
+	}
+};
+
 struct func_straight
 {
 	double operator()(double x, double y)
@@ -55,7 +81,7 @@ int main(void)
 		NiHu::gauss_family_tag,
 		NiHu::line_domain, NiHu::line_domain
 		> generator_t;
-	func_rect f;
+	gunc_rect f;
 	for (int order = 1; order < 15; ++order)
 	{
 		generator_t::quadrature_t trial_quad, test_quad;

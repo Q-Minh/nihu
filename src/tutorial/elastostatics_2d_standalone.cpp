@@ -43,22 +43,25 @@ int main(void)
   std::cout << "number of DOFs: " << n << std::endl;
   dMatrix II(n, n);
   dMatrix LL(n, n);
-//  dMatrix MM(n, n);
+  dMatrix MM(n, n);
   II.setZero();
   LL.setZero();
-//  MM.setZero();
+  MM.setZero();
 
   auto I = NiHu::identity_integral_operator();
   float nu = .3, mu = 1.0;
   auto L = NiHu::create_integral_operator(NiHu::elastostatics_2d_U_kernel(nu, mu));
-//  auto M = create_integral_operator(elastostatics_2d_T_kernel(nu));
+  auto M = create_integral_operator(NiHu::elastostatics_2d_T_kernel(nu, mu));
 
   II << tst_space * I[space];
   std::cout << II(0,0) << std::endl;
   LL << tst_space * L[space];
-//  MM << tst_space * M[space];
+  MM << tst_space * M[space];
 
 	std::cout << LL.topLeftCorner(10, 10) << std::endl;
-  
+	std::cout << std::endl;
+	std::cout << MM.topLeftCorner(10, 10) << std::endl;
+
+	
   return 0;
 }
