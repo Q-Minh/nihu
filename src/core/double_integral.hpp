@@ -623,7 +623,10 @@ public:
 template <class Kernel, class TestField, class TrialField, class Singularity, class Enable>
 class singular_integral_shortcut
 {
+public:
 	typedef void unspecialised;
+	
+private:
 	
 	typedef typename get_formalism<TestField, TrialField>::type formalism_t;
 	typedef typename select_singular_accelerator<Kernel, TestField, TrialField, Singularity>::type singular_accelerator_t;
@@ -681,4 +684,3 @@ public:
 
 
 #endif
-

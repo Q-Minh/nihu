@@ -28,6 +28,7 @@
 #include "plane_element_helper.hpp"
 #include "../util/math_functions.hpp"
 #include "guiggiani_1992.hpp"
+#include "../core/singular_integral_shortcut.hpp"
 
 namespace NiHu
 {

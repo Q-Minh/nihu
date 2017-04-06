@@ -26,6 +26,7 @@
 #include "../core/integral_operator.hpp"
 #include "elastostatics_kernel.hpp"
 #include "guiggiani_1992.hpp"
+#include "../core/singular_integral_shortcut.hpp"
 
 
 namespace NiHu
@@ -132,9 +133,6 @@ public:
 		return result;
 	}
 };
-
-
-
 
 
 /** \brief collocational singular integral of the T kernel

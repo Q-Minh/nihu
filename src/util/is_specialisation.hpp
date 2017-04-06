@@ -28,12 +28,12 @@ template<class T>
 struct enable_if_type { typedef void type; };
 
 template<class T, class Enable = void>
-struct is_specialisation : std::true_type {};
+struct is_specialisation
+	: std::true_type {};
 
 template<class T>
-struct is_specialisation<T, typename enable_if_type<typename T::unspecialised>::type> : std::false_type
-{};
-
+struct is_specialisation<T, typename enable_if_type<typename T::unspecialised>::type>
+	: std::false_type {};
 
 }
 

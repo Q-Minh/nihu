@@ -25,6 +25,7 @@
 #include "../core/integral_operator.hpp"
 #include "elastodynamics_kernel.hpp"
 #include "guiggiani_1992.hpp"
+#include "../core/singular_integral_shortcut.hpp"
 
 
 namespace NiHu
