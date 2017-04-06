@@ -277,6 +277,8 @@ private:
 	template <class Match>
 	void generate(Match, std::false_type)
 	{
+		std::cout << "Generating quadrature for singularity " << Match::value << std::endl;
+		
 		int d = Match::value;
 		if (d == domain_dimension) 	// face (only one)
 		{
@@ -326,6 +328,7 @@ private:
 	template <class Match>
 	void generate(Match, std::true_type)
 	{
+		std::cout << "Not generating quadrature for singularity " << Match::value << std::endl;
 	}
 	
 	
