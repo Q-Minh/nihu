@@ -31,6 +31,10 @@
 #include "blind_transform_selector.hpp"	// for the collocation case
 #include "blind_singular_quadrature.hpp"	// for the collocation case
 #include "field.hpp"
+#include "../tmp/control.hpp"
+#include "../util/is_specialisation.hpp"
+
+#include "singular_integral_shortcut.hpp"
 
 #include "../util/dual_range.hpp"
 #include "formalism.hpp"
@@ -271,7 +275,7 @@ public:
 
 private:
 	template <class Match>
-	void generate(Match)
+	void generate(Match, std::false_type)
 	{
 		int d = Match::value;
 		if (d == domain_dimension) 	// face (only one)
@@ -319,13 +323,35 @@ private:
 		}
 	}
 	
+	template <class Match>
+	void generate(Match, std::true_type)
+	{
+	}
+	
+	
+private:
+	template <class Match>
+	struct generate_wrapper { struct type
+	{
+		typedef typename is_specialisation<
+			singular_integral_shortcut<Kernel, TestField, TrialField, Match>
+		>::type spec;
+		
+		void operator()(singular_accelerator &obj)
+		{
+			obj.generate(Match(), spec());
+		}
+	}; };
+	
 public:
 	/** \brief constructor allocating and generating the quadratures */
 	singular_accelerator(void)
 	{
-		// generate(match::match_2d_type());
-		// generate(match::match_1d_type());
-		generate(match::match_0d_type());
+		tmp::call_each<
+			typename match_type_vector<TestField, TrialField>::type,
+			generate_wrapper<tmp::_1>,
+			singular_accelerator &
+		>(*this);
 	}
 
 private:

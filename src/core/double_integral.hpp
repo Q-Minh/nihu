@@ -37,9 +37,10 @@
 #include "element_match.hpp"
 #include "match_types.hpp"
 #include "field_type_accelerator.hpp"
-#include "singular_accelerator.hpp"
 #include "formalism.hpp"
 #include "../util/store_pattern.hpp"
+#include "singular_accelerator.hpp"
+#include "singular_integral_shortcut.hpp"
 
 namespace NiHu
 {
@@ -60,10 +61,6 @@ struct weighted_brick<surface_element<LSet, Scalar> >
 	typedef normal_jacobian<typename surface_element<LSet, Scalar>::space_t> type;
 };
 
-
-// forward declaration
-template <class Kernel, class TestField, class TrialField, class Singularity, class Enable = void>
-class singular_integral_shortcut;
 
 /** Helper class for tmp::call_until to select singular shortcuts based on singularity type */
 template <class Singularity>
@@ -626,6 +623,8 @@ public:
 template <class Kernel, class TestField, class TrialField, class Singularity, class Enable>
 class singular_integral_shortcut
 {
+	typedef void unspecialised;
+	
 	typedef typename get_formalism<TestField, TrialField>::type formalism_t;
 	typedef typename select_singular_accelerator<Kernel, TestField, TrialField, Singularity>::type singular_accelerator_t;
 	typedef store<singular_accelerator_t> store_t;

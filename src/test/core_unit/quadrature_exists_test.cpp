@@ -26,7 +26,8 @@
 typedef NiHu::select_singular_accelerator<
 	NiHu::laplace_3d_HSP_kernel,
 	NiHu::field<NiHu::quad_1_elem, NiHu::quad_1_shape_set>,
-	NiHu::field<NiHu::quad_1_elem, NiHu::quad_1_shape_set>
+	NiHu::field<NiHu::quad_1_elem, NiHu::quad_1_shape_set>,
+	NiHu::match::match_0d_type
 >::type acc_t;
 
 int main(void)
