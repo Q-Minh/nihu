@@ -277,8 +277,6 @@ private:
 	template <class Match>
 	void generate(Match, std::false_type)
 	{
-		std::cout << "Generating quadrature for singularity " << Match::value << std::endl;
-		
 		int d = Match::value;
 		if (d == domain_dimension) 	// face (only one)
 		{
@@ -328,7 +326,6 @@ private:
 	template <class Match>
 	void generate(Match, std::true_type)
 	{
-		std::cout << "Not generating quadrature for singularity " << Match::value << std::endl;
 	}
 	
 	
@@ -457,18 +454,23 @@ protected:
 };
 
 
-template <class TestField, class TrialField, class = typename get_formalism<TestField, TrialField>::type>
-struct double_integral_dimension;
+template <
+	class TestField, 
+	class TrialField, 
+	class Singularity, 
+	class = typename get_formalism<TestField, TrialField>::type
+>
+struct double_integral_free_dimensions;
 
-template <class TestField, class TrialField>
-struct double_integral_dimension<TestField, TrialField, formalism::general>
-	: std::integral_constant<unsigned,
-	TestField::elem_t::domain_t::dimension + TrialField::elem_t::domain_t::dimension
+template <class TestField, class TrialField, class Singularity>
+struct double_integral_free_dimensions<TestField, TrialField, Singularity, formalism::general>
+	: std::integral_constant<int,
+	TestField::elem_t::domain_t::dimension + TrialField::elem_t::domain_t::dimension - Singularity::value
 > {};
 
 
-template <class TestField, class TrialField>
-struct double_integral_dimension<TestField, TrialField, formalism::collocational>
+template <class TestField, class TrialField, class Singularity>
+struct double_integral_free_dimensions<TestField, TrialField, Singularity, formalism::collocational>
 	: std::integral_constant<unsigned,
 	TrialField::elem_t::domain_t::dimension
 > {};
@@ -495,7 +497,7 @@ template <class Kernel, class TestField, class TrialField, class Singularity>
 struct select_singular_accelerator <Kernel, TestField, TrialField, Singularity, typename std::enable_if<
 	minimal_reference_dimension<
 		typename singular_kernel_traits<Kernel>::singularity_type_t
-	>::value <= double_integral_dimension<TestField, TrialField>::value - Singularity::value
+	>::value <= double_integral_free_dimensions<TestField, TrialField, Singularity>::value
 >::type>
 {
 	typedef singular_accelerator<Kernel, TestField, TrialField> type;
