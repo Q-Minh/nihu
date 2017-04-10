@@ -76,6 +76,43 @@ public:
 };
 
 
+
+/** \brief Collocational singular integral of the 2D Helmholtz SLP kernel over a constant line element */
+template <unsigned expansion_length>
+class helmholtz_2d_SLP_galerkin_constant_line
+{
+public:
+	template <class wavenumber_t>
+	static std::complex<double> eval(double R, wavenumber_t const &k)
+	{
+		double const gamma = 0.57721566490153286060;
+		double D = 2. * R;
+		wavenumber_t kR = k * R; 
+		wavenumber_t logkR = std::log(kR);
+		
+		std::complex<double> I = 1. - std::complex<double>(0., 2./M_PI) * (logkR - 1.5 + gamma);
+		
+		wavenumber_t q = -kR * kR;
+		wavenumber_t pow = 1.0;
+		double Cn = 0.0;
+		
+		for (unsigned n = 1; n <= expansion_length; ++n)
+		{
+			unsigned d = (n+1) * (2*n+1);
+			double Fn = 1/d;
+			wavenumber_t Gn = logkR/d - (4*n + 3)/2.0/(d*d);
+			pow *= q/(n*n);
+			Cn += 1./n;
+			I += (Fn-std::complex<double>(0., 2./M_PI)*(Gn+(gamma - Cn)*Fn)) * pow;
+		}
+		
+		return I * (D*D) * std::complex<double>(0, -.25);
+	}
+};
+
+
+
+
 /** \brief store-wrapper of a statically stored quadrature */
 template <class domain_t, unsigned order>
 struct domain_quad_store
@@ -303,6 +340,48 @@ public:
 			trial_field.get_elem(),
 			trial_field.get_elem().get_center(),
 			kernel.derived().get_wave_number());
+
+		return result;
+	}
+};
+
+
+/** \brief Galerkin singular integral of the 2d SLP kernel over a constant line
+ * \tparam TestField the test field type
+ * \tparam TrialField the trial field type
+ */
+template <class WaveNumber, class TestField, class TrialField>
+class singular_integral_shortcut<
+	helmholtz_2d_SLP_kernel<WaveNumber>, TestField, TrialField, match::match_1d_type,
+	typename std::enable_if<
+	std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::general>::value &&
+	std::is_same<typename TrialField::lset_t, line_1_shape_set>::value &&
+	std::is_same<typename TrialField::nset_t, line_0_shape_set>::value &&
+	std::is_same<typename TestField::lset_t, line_1_shape_set>::value &&
+	std::is_same<typename TestField::nset_t, line_0_shape_set>::value
+	>::type
+>
+{
+public:
+	/** \brief evaluate singular integral
+	 * \tparam result_t the result matrix type
+	 * \param [in, out] result reference to the result
+	 * \param [in] kernel the kernel instance
+	 * \param [in] trial_field the test and trial fields
+	 * \return reference to the result matrix
+	 */
+	template <class result_t>
+	static result_t &eval(
+		result_t &result,
+		kernel_base<helmholtz_2d_SLP_kernel<WaveNumber> > const &kernel,
+		field_base<TestField> const &,
+		field_base<TrialField> const &trial_field,
+		element_match const &)
+	{
+		auto const &elem = trial_field.get_elem();
+		double R = (elem.get_coords().col(1) - elem.get_coords().col(0)).norm()/2.;
+		result(0, 0) = helmholtz_2d_SLP_galerkin_constant_line<8>::eval(
+			R, kernel.derived().get_wave_number());
 
 		return result;
 	}

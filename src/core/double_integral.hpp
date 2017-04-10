@@ -629,8 +629,11 @@ public:
 private:
 	
 	typedef typename get_formalism<TestField, TrialField>::type formalism_t;
-	typedef typename select_singular_accelerator<Kernel, TestField, TrialField, Singularity>::type singular_accelerator_t;
+	typedef typename select_singular_accelerator<
+		Kernel, TestField, TrialField, Singularity
+		>::type singular_accelerator_t;
 	typedef store<singular_accelerator_t> store_t;
+	typedef double_integral<Kernel, TestField, TrialField> double_integral_t;
 
 	template <class result_t>
 	static result_t &eval_impl(
@@ -641,8 +644,10 @@ private:
 		field_base<TrialField> const &trial_field,
 		element_match const &match)
 	{
-		return double_integral<Kernel, TestField, TrialField>::template eval_singular_on_accelerator<singular_accelerator_t, void>::eval(
-			result, kernel, test_field, trial_field, store_t::get_data().begin(match), store_t::get_data().end(match));
+		return double_integral_t::template eval_singular_on_accelerator<singular_accelerator_t, void>::eval(
+			result, kernel, test_field, trial_field,
+			store_t::get_data().begin(match),
+			store_t::get_data().end(match));
 	}
 
 	template <class result_t>
@@ -654,7 +659,7 @@ private:
 		field_base<TrialField> const &trial_field,
 		element_match const &)
 	{
-		return double_integral<Kernel, TestField, TrialField>::template eval_singular_on_accelerator<singular_accelerator_t, void>::eval(
+		return double_integral_t::template eval_singular_on_accelerator<singular_accelerator_t, void>::eval(
 			result, kernel, test_field, trial_field, store_t::get_data());
 	}
 
