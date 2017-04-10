@@ -19,8 +19,8 @@
 /** \file helmholtz_singular_integrals.hpp
  * \brief (Semi)analytical expressions for the singular integrals of Helmholtz kernels over plane elements
  */
-#ifndef HELMHOLTZ_SINGULAR_INTEGRALS_HPP_INCLUDED
-#define HELMHOLTZ_SINGULAR_INTEGRALS_HPP_INCLUDED
+#ifndef NIHU_HELMHOLTZ_SINGULAR_INTEGRALS_HPP_INCLUDED
+#define NIHU_HELMHOLTZ_SINGULAR_INTEGRALS_HPP_INCLUDED
 
 #include "library/lib_element.hpp"
 #include "../core/integral_operator.hpp"
@@ -77,7 +77,7 @@ public:
 
 
 
-/** \brief Collocational singular integral of the 2D Helmholtz SLP kernel over a constant line element */
+/** \brief Galerkin singular integral of the 2D Helmholtz SLP kernel over a constant line element */
 template <unsigned expansion_length>
 class helmholtz_2d_SLP_galerkin_constant_line
 {
@@ -380,7 +380,7 @@ public:
 	{
 		auto const &elem = trial_field.get_elem();
 		double R = (elem.get_coords().col(1) - elem.get_coords().col(0)).norm()/2.;
-		result(0, 0) = helmholtz_2d_SLP_galerkin_constant_line<8>::eval(
+		result(0, 0) = helmholtz_2d_SLP_galerkin_constant_line<5>::eval(
 			R, kernel.derived().get_wave_number());
 
 		return result;
@@ -508,5 +508,5 @@ public:
 }
 
 
-#endif // HELMHOLTZ_SINGULAR_INTEGRALS_HPP_INCLUDED
+#endif // NIHU_HELMHOLTZ_SINGULAR_INTEGRALS_HPP_INCLUDED
 

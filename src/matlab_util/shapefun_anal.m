@@ -1,5 +1,5 @@
 function [N, dN] = shapefun_anal
-%HAPEFUN_ANAL symbolic computation of shape functions
+%SHAPEFUN_ANAL symbolic computation of shape functions
 
 syms xi eta
 
