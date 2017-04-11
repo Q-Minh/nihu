@@ -324,19 +324,27 @@ C_0 = 0, C_n = C_{n-1} + \frac{1}{n}
 The integral to evaluate can be simplified to the form
 %
 \begin{equation}
-I = \frac{-\ti}{4} \int_{-R}^R  H_0^{(2)}(k|y|)  \td y
+I = \frac{-\ti}{4} \int_{-R}^R  H_0^{(2)}(kr)  \td y
 \end{equation}
 %
 where $R$ denotes the element's half length.
 
-From the above series expansions, the integral $I$ may be expressed in terms of the following integral elements ($r=|y-x|$, $D = 2R$):
+From the above series expansions, the integral $I$ may be expressed in terms of the following integral elements ($D = 2R$):
 %
 \begin{align}
-\int_{-R}^R  \left(\frac{k|y|}{2}\right)^{2n}  \td y
-= D \cdot (kR)^{2n} F_n
-\\
-\int_{-R}^R  \log \frac{k|y|}{2} \cdot \left(\frac{kr}{2}\right)^{2n}  \td y
-= D \cdot (kR)^{2n} G_n
+\int_{-R}^R
+\left(\frac{kr}{2}\right)^{2n} \td y
+= D \left( \frac{kR}{2} \right)^{2n} F_n \\
+\int_{-R}^R
+\log \frac{kr}{2} \cdot \left(\frac{kr}{2}\right)^{2n} \td y
+= D \left(\frac{kR}{2}\right)^{2 n} G_n
+\end{align}
+%
+where
+%
+\begin{align}
+F_n &= \frac{1}{2n+1} \\
+G_n &= \frac{\log\frac{kR}{2}} {2 n + 1} - \frac{1}{(2 n + 1)^2}
 \end{align}
 
 
