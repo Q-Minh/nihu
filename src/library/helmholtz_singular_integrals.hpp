@@ -86,7 +86,6 @@ public:
 	static std::complex<double> eval(double R, wavenumber_t const &k)
 	{
 		double const gamma = 0.57721566490153286060;
-		double D = 2. * R;
 		wavenumber_t kR = k * R; 
 		wavenumber_t logkR = std::log(kR);
 		
@@ -99,14 +98,14 @@ public:
 		for (unsigned n = 1; n <= expansion_length; ++n)
 		{
 			unsigned d = (n+1) * (2*n+1);
-			double Fn = 1/d;
+			double Fn = 1./d;
 			wavenumber_t Gn = logkR/d - (4*n + 3)/2.0/(d*d);
 			pow *= q/(n*n);
 			Cn += 1./n;
 			I += (Fn-std::complex<double>(0., 2./M_PI)*(Gn+(gamma - Cn)*Fn)) * pow;
 		}
 		
-		return I * (D*D) * std::complex<double>(0, -.25);
+		return I * (R*R) * std::complex<double>(0, -1.);
 	}
 };
 

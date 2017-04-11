@@ -60,6 +60,9 @@ Helmholtz equation
 Linear isotropic elastostatics
 ------------------------------
 
+- ::elastostatics_2d_U_kernel
+- ::elastostatics_2d_T_kernel
+
 - ::elastostatics_3d_U_kernel
 - ::elastostatics_3d_T_kernel
 
@@ -74,9 +77,9 @@ Singular integrals implemented in library/laplace_singular_integrals.hpp
 - Singular collocational and Galerkin integrals of the normal derivative kernels over constant lines and triangles
 
 - Collocational integral of the Laplace 2D SLP kernel over a constant line
+- Collocational integral of the Laplace 2D HSP kernel over a constant line
 - Galerkin integral of the Laplace 2D SLP kernel over a constant line
 - Galerkin integral of the Laplace 2D SLP kernel over a linear line
-- Collocational integral of the Laplace 2D HSP kernel over a constant line
 
 - Collocational integral of the Laplace 3D SLP kernel over a constant triangle
 - Collocational integral of the Laplace 3D HSP kernel over a constant triangle
@@ -88,6 +91,13 @@ Singular integrals implemented in library/helmholtz_singular_integrals.hpp
 - Collocational integral of the Helmholtz 2D SLP kernel over a constant line
 - Collocational integral of the Helmholtz 3D SLP kernel over a constant triangle
 - Collocational integral of the Helmholtz 3D HSP kernel over a constant triangle
+
+- Galerkin integral of the Helmholtz 2D SLP kernel over a constant line
+
+Singular integrals implemented in library/elastostatics_singular_integrals.hpp
+
+- Galerkin integral of 2D elastostatics U kernel over a constant line
+- Galerkin integral of 2D elastostatics T kernel over a constant line
 
 Singular integrals implemented in library/lenoir_salles_2012.hpp
 
