@@ -52,23 +52,23 @@ public:
 		line_1_elem::x_t const &x0,
 		wavenumber_t const &k)
 	{
-		double const EulerMascheroni = 0.57721566490153286060;
-		std::complex<double> const c(EulerMascheroni, M_PI / 2.0);
+		double const gamma = 0.57721566490153286060;
+		std::complex<double> const c(gamma, M_PI / 2.);
 
 		// compute elem radius
 		auto R = (x0 - elem.get_coords().col(0)).norm();
 
-		auto Q = k * R / 2.0;
+		auto Q = k * R / 2.;
 		auto clnq = c + std::log(Q);
 
-		auto res(clnq - 1.0);		// initial (k=0) value of the result
-		decltype(Q) B(1.0);		// the power term in the series
-		double bn = 0.0;		// the harmonic series up to n = 0
-		for (unsigned n = 1; n < expansion_length; ++n)
+		auto res(clnq - 1.);	// initial (k=0) value of the result
+		decltype(Q) B(1.);		// the power term in the series
+		double Cn = 0.0;		// the harmonic series up to n = 0
+		for (unsigned n = 1; n <= expansion_length; ++n)
 		{
 			B *= -Q*Q / n / n;		// the actual power term
-			bn += 1.0 / n;		// the actual harmonic term
-			res += B / (2 * n + 1) * (clnq - bn - 1.0 / (2 * n + 1));
+			Cn += 1. / n;		// the actual harmonic term
+			res += B / (2 * n + 1) * (clnq - Cn - 1. / (2 * n + 1));
 		}
 
 		return -R / M_PI * res;
@@ -92,20 +92,20 @@ public:
 		std::complex<double> I = 1. - std::complex<double>(0., 2./M_PI) * (logkR - 1.5 + gamma);
 		
 		wavenumber_t q = -kR * kR;
-		wavenumber_t pow = 1.0;
-		double Cn = 0.0;
+		wavenumber_t pow = 1.;
+		double Cn = 0.;
 		
 		for (unsigned n = 1; n <= expansion_length; ++n)
 		{
 			unsigned d = (n+1) * (2*n+1);
 			double Fn = 1./d;
-			wavenumber_t Gn = logkR/d - (4*n + 3)/2.0/(d*d);
+			wavenumber_t Gn = logkR/d - (4*n + 3)/2./(d*d);
 			pow *= q/(n*n);
 			Cn += 1./n;
 			I += (Fn-std::complex<double>(0., 2./M_PI)*(Gn+(gamma - Cn)*Fn)) * pow;
 		}
 		
-		return I * (R*R) * std::complex<double>(0, -1.);
+		return I * (R*R) * std::complex<double>(0., -1.);
 	}
 };
 

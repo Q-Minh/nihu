@@ -1,7 +1,7 @@
 \documentclass[a4paper,11pt]{article}
 
 \usepackage{a4wide}
-\usepackage{tikz}
+\usepackage{hyperref}
 
 \usepackage{amsmath,bm}
 \newcommand{\td}{\mathrm{d}}
@@ -12,13 +12,15 @@
 \newcommand{\atan}{\mathrm{atan}}
 \usepackage{tikz}
 
-\title {Analytical integrals of the 2D Laplace kernel}
+\title {Analytical integrals of kernels}
 
 \begin{document}
 
 \maketitle
 
-\section{Introduction}
+\tableofcontents
+
+\section{Analytical integrals of the Laplace kernel}
 
 This document describes the analytical formulae used to integrate the kernel of the Laplace equation in two dimensions over straight lines.
 
@@ -45,7 +47,7 @@ G''_{n_x n_y}({\bf x}, {\bf y}) = \frac{{\bf n}_x \cdot {\bf n}_y}{2\pi r^2} = \
 \end{equation}
 
 
-\section{Collocation}
+\subsection{Collocation}
 
 The following parts describe the case of collocation where ${\bf x}={\bf x}_0$ is a fixed location and integration is performed with respect to the variable ${\bf y}$. In general, the integrals are written in the form
 %
@@ -55,7 +57,7 @@ The following parts describe the case of collocation where ${\bf x}={\bf x}_0$ i
 %
 where $K$ denotes one of the kernels introduced above, and $N({\bf y})$ denotes (polynomial) weighting functions over the element.
 
-\subsection{Regular integrals}
+\subsubsection{Regular integrals}
 
 \begin{figure}
 \center
@@ -83,7 +85,7 @@ The straight line element lies in the $\eta = 0$ line. The nodal locations ${\bf
 The regularity of the integrals is ensured if $\eta \ne 0$ or $\sign \xi_1 = \sign \xi_2$
 
 
-\subsubsection{SLP kernel}
+\paragraph{SLP kernel}
 
 The regular integral of the single layer potential kernel can be now written in the general form
 %
@@ -100,7 +102,7 @@ I &= \frac{-1}{2\pi} \int_{\xi_2}^{\xi_1} \ln\left(\sqrt{\xi^2+\eta^2}\right) \l
 %
 where $\rho = r = \sqrt{\xi^2+\eta^2}$.
 
-\subsubsection{DLP kernel}
+\paragraph{DLP kernel}
 
 For the case of the double layer potential kernel, the integral is transformed as
 %
@@ -111,7 +113,7 @@ I = \frac{-1}{2\pi} \int_{\xi_2}^{\xi_1} \frac{-\eta \left(a_0 + a_1 \xi + a_2 \
 \right]_{\xi_2}^{\xi_1}
 \end{equation}
 
-\subsection{Constant line SLP}
+\subsubsection{Constant line SLP}
 
 \begin{align}
 \int_{S} G({\bf y}, {\bf x}) \td y
@@ -123,7 +125,7 @@ I = \frac{-1}{2\pi} \int_{\xi_2}^{\xi_1} \frac{-\eta \left(a_0 + a_1 \xi + a_2 \
 \frac{d_1(1-\ln d_1) + d_2(1-\ln d_2)}{2\pi}
 \end{align}
 
-\subsection{Constant line DLP}
+\subsubsection{Constant line DLP}
 
 \begin{equation}
 \int_{S} G'_{n_y}({\bf y}, {\bf x}) \td y = 0
@@ -131,7 +133,7 @@ I = \frac{-1}{2\pi} \int_{\xi_2}^{\xi_1} \frac{-\eta \left(a_0 + a_1 \xi + a_2 \
 %
 as the element normal is perpendicular to the distance ${\bf y}-{\bf x}$.
 
-\subsection{Constant line HSP}
+\subsubsection{Constant line HSP}
 
 First approach: finite part integral
 %
@@ -190,11 +192,11 @@ Second approach: approaching the boundary:
 \end{align}
 
 
-\section{Galerkin}
+\subsection{Galerkin}
 
-\subsection{Face match}
+\subsubsection{Face match}
 
-\subsubsection{Constant line SLP}
+\paragraph{Constant line SLP}
 
 \begin{equation}
 \int_{0}^{d}
@@ -209,7 +211,7 @@ Second approach: approaching the boundary:
 d^2\frac{3-2\ln d}{4\pi}
 \end{equation}
 
-\subsubsection{Linear line SLP}
+\paragraph{Linear line SLP}
 
 \begin{equation}
 \int_{0}^{d} N_i(x) \int_{0}^{d} G(x-y) N_j(y) \td y \td x
@@ -220,7 +222,7 @@ d^2\frac{3-2\ln d}{4\pi}
 \end{bmatrix}
 \end{equation}
 
-\subsection{Edge match}
+\subsubsection{Edge match}
 
 The local coordinate system used for the calculation of edge-match type singular integrals is shown in Fig.~\ref{fig:local_galerkin_edge}. The lengths of the elements are denoted with $d_1$ and $d_2$, and the second element defines the direction of the normal vector. The angle between the two elements is denoted by $\phi$.
 
@@ -239,7 +241,7 @@ The local coordinate system used for the calculation of edge-match type singular
 \label{fig:local_galerkin_edge}
 \end{figure}
 
-\subsubsection{Constant line SLP}
+\paragraph{Constant line SLP}
 
 \begin{multline}
 \int_{S_{x}} \int_{S_{y}} G(r) \td S_y \td S_x =
@@ -261,7 +263,7 @@ where
 q(a, \phi) = \atan\left(\frac{a}{\sin\phi} + \cot\phi\right) - \atan\left(\cot\phi\right)
 \end{equation}
 
-\subsubsection{Constant line DLP}
+\paragraph{Constant line DLP}
 
 \begin{align}
 \int_{S_{x}} \int_{S_{y}} G'(r) r'_{n_{y}} \td S_y \td S_x
@@ -276,6 +278,115 @@ q(a, \phi) = \atan\left(\frac{a}{\sin\phi} + \cot\phi\right) - \atan\left(\cot\p
 	+ d_2 \sin\phi \ln \frac{d_2}{d_3}
 \right]
 \end{align}
+
+
+
+\section {Analytical integrals of the 2D Helmholtz kernel}
+
+\subsection{Introduction}
+
+The kernel is defined as
+%
+\begin{equation}
+G({\bf y}, {\bf x}) = \frac{-\ti}{4} H_0^{(2)}(kr), \quad r = |{\bf y} - {\bf x}|
+\end{equation}
+%
+where ${\bf x}$ is the source point. The kernel exhibits a weak (integrable) singularity when $r \to 0$.
+
+\subsection{Basic properties}
+
+The Hankel function may be written as
+%
+\begin{equation}
+H_0^{(2)}(z) = J_0(z) - \ti Y_0(z)
+\end{equation}
+%
+and the small argument series expansion of the involved Bessel functions around $z=0$ are
+%
+\begin{align}
+J_0(z) &= \sum_{n=0}^{\infty} (-1)^n \frac{\left(\frac{z}{2}\right)^{2n}}{\left(n!\right)^2} \\
+Y_0(z) &= \frac{2}{\pi}
+\sum_{n=0}^{\infty} (-1)^n \left(\log \frac{z}{2} + \gamma - C_n \right) \frac{\left(\frac{z}{2}\right)^{2n}}{\left(n!\right)^2}
+\end{align}
+%
+where $\gamma$ denotes Euler's constant and $C_n$ denotes the harmonic sum
+%
+\begin{equation}
+C_0 = 0, C_n = C_{n-1} + \frac{1}{n}
+\end{equation}
+
+
+
+\subsection{Collocation}
+
+\paragraph{Constant line SLP}
+
+The integral to evaluate can be simplified to the form
+%
+\begin{equation}
+I = \frac{-\ti}{4} \int_{-R}^R  H_0^{(2)}(k|y|)  \td y
+\end{equation}
+%
+where $R$ denotes the element's half length.
+
+From the above series expansions, the integral $I$ may be expressed in terms of the following integral elements ($r=|y-x|$, $D = 2R$):
+%
+\begin{align}
+\int_{-R}^R  \left(\frac{k|y|}{2}\right)^{2n}  \td y
+= D \cdot (kR)^{2n} F_n
+\\
+\int_{-R}^R  \log \frac{k|y|}{2} \cdot \left(\frac{kr}{2}\right)^{2n}  \td y
+= D \cdot (kR)^{2n} G_n
+\end{align}
+
+
+\subsection{Galerkin}
+
+\subsubsection{Face match}
+
+\paragraph{Constant line SLP}
+
+The integral to evaluate can be simplified to the form
+%
+\begin{equation}
+I = \frac{-\ti}{4} \int_{-R}^{R} \int_{-R}^R  H_0^{(2)}(k|y-x|)  \td y \td x
+\end{equation}
+%
+where $R$ denotes the element's half length.
+
+From the above series expansions, the integral $I$ may be expressed in terms of the following integral elements ($r=|y-x|$, $D = 2R$):
+%
+\begin{align}
+\int_{-R}^{R} \int_{-R}^R  \left(\frac{kr}{2}\right)^{2n}  \td y \td x
+= D^2 \cdot (kR)^{2n} F_n
+\\
+\int_{-R}^{R} \int_{-R}^R  \log \frac{kr}{2} \cdot \left(\frac{kr}{2}\right)^{2n}  \td y \td x
+= D^2 \cdot (kR)^{2n} G_n
+\end{align}
+%
+where
+%
+\begin{align}
+F_n &= \frac{1}{(n+1)(2n+1)}
+\\
+G_n &= \begin{cases}
+\log kR - \frac{2}{3} & n = 0 \\
+\frac{\log kR}{(n+1)(2n+1)} - \frac{4n+3}{2(n+1)^2(2n+1)^2}& n > 0
+\end{cases}
+\end{align}
+
+As a result, the total integral is expressed as
+%
+\begin{equation}
+I = -\ti R^2
+\sum_{n=0}^{\infty} (-1)^n \frac{(kR)^{2n}}{\left(n!\right)^2}
+\left(
+F_n
+- \frac{2 \ti}{\pi}
+\left(G_n + \left(\gamma - C_n \right) F_n \right)
+\right)
+\end{equation}
+
 
 \end{document}
 
