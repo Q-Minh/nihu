@@ -2,6 +2,8 @@
 #include "library/helmholtz_kernel.hpp"
 #include "library/helmholtz_singular_integrals.hpp"
 
+#include <gtest/gtest.h>
+
 typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> dMatrix;
 typedef Eigen::Matrix<unsigned, Eigen::Dynamic, Eigen::Dynamic> uMatrix;
 typedef Eigen::Matrix<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic> cMatrix;
@@ -23,7 +25,7 @@ NiHu::mesh<tmp::vector<NiHu::line_1_elem> > create_mesh(double r, int N)
 }
 
 template <class TestSpace, class TrialSpace>
-void tester(TestSpace const &test_space, TrialSpace const &trial_space)
+double tester(TestSpace const &test_space, TrialSpace const &trial_space)
 {
 	// select wave number
 	double k = 1.;
@@ -57,24 +59,25 @@ void tester(TestSpace const &test_space, TrialSpace const &trial_space)
 
 	cMatrix p = (M - .5 * I).colPivHouseholderQr().solve(L * q);
 
-	std::cout << "Analytic: " << p0 << std::endl;
-	std::cout << "Mean: " << p.mean() << std::endl;
-	std::cout << "log10 Error: " << std::log10((p.array()-p0).matrix().norm() / std::abs(p0) / std::sqrt(N)) << std::endl;
+	return (p.array()-p0).matrix().norm() / std::abs(p0) / std::sqrt(N);
 }
 
-int main()
+TEST(Helmholtz2dPulsating, LinearLine_Constant_Collocation)
 {
 	int N = 20;
 	double r = 1.;
 	auto mesh = create_mesh(r, N);
 	auto const &trial_space = NiHu::constant_view(mesh);
 	
-	// test with Galerkin
-	std::cout << std::endl << "Testing with Galerkin discretization" << std::endl;
-	tester(trial_space, trial_space);
-	// test with Collocation
-	std::cout << std::endl << "Testing with Collocation discretization" << std::endl;
-	tester(NiHu::dirac(trial_space), trial_space);
+	EXPECT_LE(tester(NiHu::dirac(trial_space), trial_space), 1e-2);
+}
 
-	return 0;
+TEST(Helmholtz2dPulsating, LinearLine_Constant_Galerkin)
+{
+	int N = 20;
+	double r = 1.;
+	auto mesh = create_mesh(r, N);
+	auto const &trial_space = NiHu::constant_view(mesh);
+	
+	EXPECT_LE(tester(trial_space, trial_space), 1e-2);
 }
