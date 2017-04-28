@@ -17,5 +17,5 @@ narginchk(1, 1);
 
 %%
 n = ceil((order+1)/2);
-[xx, ww] = gaussquad(n); % Linear Gauss quad over (-1, +1)
+[xx, ww] = gaussquad(double(n)); % Linear Gauss quad over (-1, +1)
 end
