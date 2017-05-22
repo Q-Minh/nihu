@@ -42,7 +42,11 @@ for net = 1 : size(ElementTypes,1)
     LSet = ShapeSet.fromId(LSetId);
     elem = model.Elements(:,2) == LSetId;
     if any(elem)
-        nnod = size(LSet.Nodes,1);
+        if (LSetId < 100)
+            nnod = mod(LSetId, 10);
+        else
+            nnod = size(LSet.Nodes,1);
+        end
         name = ElementTypes{net,1};
         if nnod > 6
             format = [name '%8d       1%8d%8d%8d%8d%8d%8d\n        '...

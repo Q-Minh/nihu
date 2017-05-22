@@ -4,7 +4,8 @@ function wireframe = surface2wireframe(mesh, angletol)
 %   Dept. of Telecommunications
 
 % Extract surface TRIA and QUAD elements
-mesh.Elements = mesh.Elements(floor(mesh.Elements(:,2)/10) == 2,:);
+% mesh.Elements = mesh.Elements(floor(mesh.Elements(:,2)/10) == 2,:);
+
 wireframe = get_boundary(mesh);
 
 % Compute element normals
@@ -31,7 +32,7 @@ wf.Elements(:,5:6) = edg(bind(angles > 1-cos(angletol)),:);
 wf.Nodes = mesh.Nodes;
 nEl = size(wf.Elements,1);
 wf.Elements(:,1) = 1:size(wf.Elements,1);
-wf.Elements(:,2:4) = repmat([12 1 1], nEl,1);
+wf.Elements(:,2:4) = repmat([ShapeSet.LinearLine.Id 1 1], nEl,1);
 [wf.Materials, wf.Properties] = default_mat_prop();
 
 %
