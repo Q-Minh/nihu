@@ -144,32 +144,23 @@ classdef ShapeSet < handle
             obj(id == ShapeSet.BendingQuad.Id, 1) = ShapeSet.BendingQuad;
         end
         
-%         function cid = constant(id)
-%             data = [
-%                 120 120
-%                 121 120
-%                 122 120
-%                 230 230
-%                 231 230
-%                 232 230
-%                 240 240
-%                 241 240
-%                 242 240
-%                 340 340
-%                 341 340
-%                 342 340
-%                 360 360
-%                 361 360
-%                 380 380
-%                 381 380
-%                 ];
-%             [a, n] = ismember(id,data(:,1));
-%             if any(~a)
-%                 error('NiHu:ShapeSetconstant',...
-%                     'Some shape set IDs could not be transformed to constant');
-%             end
-%             cid = data(n,2);
-%         end
+        function nsetId = constant(domainId)
+            %CONSTANT assign constant shape set to a domain
+            data = [
+                Domain.Line.Id ShapeSet.ConstantLine.Id
+                Domain.Tria.Id ShapeSet.ConstantTria.Id
+                Domain.Quad.Id ShapeSet.ConstantQuad.Id
+                Domain.Tetra.Id ShapeSet.ConstantTetra.Id
+                Domain.Penta.Id ShapeSet.ConstantPenta.Id
+                Domain.Hexa.Id ShapeSet.ConstantHexa.Id
+                ];
+            [a, n] = ismember(domainId, data(:,1));
+            if any(~a)
+                error('NiHu:ShapeSetconstant',...
+                    'Some shape set IDs could not be transformed to constant');
+            end
+            nsetId = data(n,2);
+        end
     end % of static methods
     
     enumeration
