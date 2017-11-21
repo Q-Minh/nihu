@@ -14,9 +14,9 @@ elements = drop_IDs(mesh);
 
 elem_data = {
     %ID, num_new_elems, num_new_nod, refine_func
-    12, 2, 3, @refine_line
-    23, 4, 6, @refine_tria
-    24, 4, 9, @refine_quad
+    ShapeSet.LinearLine.Id, 2, 3, @refine_line
+    ShapeSet.LinearTria.Id, 4, 6, @refine_tria
+    ShapeSet.LinearQuad.Id, 4, 9, @refine_quad
     };
 
 newmesh.Elements = [];
