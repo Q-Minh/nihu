@@ -9,7 +9,7 @@ function export_bulk_mesh(model, fname)
 %   Budapest University of Technology and Economics
 %   Dept. of Telecommunications
 
-% Last modified: 2012.12.14.
+% Last modified: 2017.06.23.
 
 %% Open the file
 fid = fopen(fname, 'w');
@@ -26,21 +26,17 @@ fprintf(fid, 'GRID*   %16d                % 16G% 16G\n*       % 16G\n',...
     model.Nodes.');
 
 %% Write Element data
-ElementTypes = [
-    {'CROD    '}, {12}, {2}
-    {'CBAR    '}, {12}, {2}
-    {'CTRIA3  '}, {23}, {3}
-    {'CTRIA3  '}, {231}, {3}
-    {'CQUAD4  '}, {24}, {4}
-    {'CQUAD4  '}, {241}, {4}
-    {'CTETRA  '}, {34}, {4}
-    {'CPENTA  '}, {36}, {6}
-    {'CHEXA   '}, {38}, {8}
-    ];
+ElementTypes = {
+    'CBAR    ', ShapeSet.LinearLine
+    'CTRIA3  ', ShapeSet.LinearTria
+    'CQUAD4  ', ShapeSet.LinearQuad
+    'CTETRA  ', ShapeSet.LinearTetra
+    'CPENTA  ', ShapeSet.LinearPenta
+    'CHEXA   ', ShapeSet.LinearHexa
+    };
 for net = 1 : size(ElementTypes,1)
-    LSetId = ElementTypes{net,2};
-    LSet = ShapeSet.fromId(LSetId);
-    elem = model.Elements(:,2) == LSetId;
+    LSet = ElementTypes{net, 2};
+    elem = model.Elements(:,2) == LSet.Id;
     if any(elem)
         nnod = size(LSet.Nodes,1);
         name = ElementTypes{net,1};

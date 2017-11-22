@@ -106,7 +106,7 @@ public:
 	
 	result_t operator()(location_t const &x, location_t const &y) const
 	{
-		auto r = distance_sph(x, y);
+		auto r = distance(x, y);
 		return get_variance() * std::exp(-r / get_correlation_length());
 	}
 

@@ -234,7 +234,7 @@ public:
 		static_assert(std::is_same<xi_t, typename LSet::xi_t>::value,
 			"Quadrature and shape set dimensions must match");
 		Derived result(derived());
-		return result.transform_inplace<LSet, Signed>(coords);
+		return result.template transform_inplace<LSet, Signed>(coords);
 	}
 
 	/**
@@ -255,7 +255,7 @@ public:
 		static_assert(std::is_same<xi_t, typename LSet::xi_t>::value,
 			"Quadrature and shape set dimensions must match");
 		for (auto it = base_t::begin(); it != base_t::end(); ++it)
-			it->transform_inplace<LSet, Signed>(coords);
+			it->template transform_inplace<LSet, Signed>(coords);
 		return derived();
 	}
 
