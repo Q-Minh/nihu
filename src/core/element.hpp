@@ -102,7 +102,7 @@ namespace element_traits
 	template <class Derived>
 	struct lset;
 
-	/** \brief indicates if the element is a surface element or not */
+	/** \brief Indicates if the element is a surface element or not */
 	template <class Derived>
 	struct is_surface_element;
 

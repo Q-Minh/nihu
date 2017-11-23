@@ -61,7 +61,7 @@ struct tester
 	};
 };
 
-int element_test(void)
+int main(void)
 {
 	tmp::call_each<
 		tmp::vector<

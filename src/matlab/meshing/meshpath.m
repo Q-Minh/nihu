@@ -10,13 +10,19 @@ function m = meshpath(path, Le)
 %   Budapest University of Technology and Economics
 %   Dept. of Telecommunications
 
-% Last updated: 2015.03.07.
+% Last updated: 2017.11.22.
 
 %
 nP = size(path,1);
 for iP = 1 : nP
     switch path(iP,1)
         case 1
+            % check for lines of zero length
+            len = path(iP, 4:5) - path(iP, 2:3);
+            len = dot(len, len, 2);
+            if len < Le/100
+                continue;
+            end
             r0 = bezier(reshape(path(iP,[2 3 2 3 4 5 4 5]).',2,4).', Le);
         case 2
             r0 = bezier(reshape(path(iP,2:9).',2,4).', Le);
@@ -53,5 +59,9 @@ ds = [0; cumsum(sqrt(dot(dr, dr, 2)))]; % element lengths
 L = ds(end);        % length of the Bezier curve
 N = ceil(L / Le);   % number of segments
 l = (0:N)*L/N;      % divide into equal long segments
+try
 r = interp1(ds, r(n,:), l, 'linear', 'extrap');
+catch E
+    aaa = 8;
+end
 end
