@@ -292,7 +292,7 @@ protected:
 			TestField, TrialField,
 			typename Kernel::estimator_t
 		>::eval(test_field, trial_field);
-
+		
 		auto acc(create_dual_field_type_accelerator(
 			test_store_t::get_data()[degree], trial_store_t::get_data()[degree], iteration::diadic()));
 
@@ -531,7 +531,7 @@ protected:
 			TestField, TrialField,
 			typename Kernel::estimator_t
 		>::eval(test_field, trial_field);
-
+		
 		if (degree > GLOBAL_MAX_ORDER)
 			throw std::out_of_range("Too high quadrature degree selected for collocational integration");
 

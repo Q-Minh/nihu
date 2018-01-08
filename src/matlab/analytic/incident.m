@@ -48,11 +48,11 @@ switch lower(type)
             q = zeros(N,M);
         end
         for m = 1 : size(r0,1)
-            dvec = r - repmat(r0(m,:), N, 1);
+            dvec = r(:,1:2) - repmat(r0(m,1:2), N, 1);
             d = sqrt(dot(dvec, dvec, 2));
             p(:,m) = p(:,m) -1i/4 * besselh(0,2,k*d);
             if nargout == 2
-                rdn = dot(dvec, n, 2) ./ d;
+                rdn = dot(dvec, n(:,1:2), 2) ./ d;
                 q(:,m) = q(:,m) + 1i*k/4 * besselh(1,2,k*d) .* rdn;
             end
         end

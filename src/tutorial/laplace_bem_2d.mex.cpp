@@ -12,6 +12,7 @@ void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 	auto const &surf_sp = NiHu::constant_view(surf_mesh);
 	int n = surf_sp.get_num_dofs();
 	dMatrix L_surf(n, n, lhs[0]);
+	L_surf.setZero();
 	auto L = NiHu::create_integral_operator(NiHu::laplace_2d_SLP_kernel());
 	L_surf << dirac(surf_sp) * L[surf_sp];
 }

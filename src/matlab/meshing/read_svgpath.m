@@ -1,4 +1,4 @@
-function [path pathcell] = read_svgpath(fname)
+function [path, pathcell] = read_svgpath(fname)
 
 str = parseXML(fname);
 
@@ -91,11 +91,11 @@ for p = 1 : length(pathcell)
                     c2 = [str2double(split{6*k+4}) str2double(split{6*k+5})];
                     dst = [str2double(split{6*k+6}) str2double(split{6*k+7})];
                     path(end+1,1:9) = [2 actpos c1 c2 dst];
+                    actpos = dst;
                     if isnan(str2double(split{6*k+8}))
                         break;
                     end
                     k = k+1;
-                    actpos = dst;
                 end
                 split = split(6*k+8:end);
                 
@@ -113,11 +113,11 @@ for p = 1 : length(pathcell)
                     c2 = c1 + dc2;
                     dst = c2 + ddst;
                     path(end+1,1:9) = [2 actpos c1 c2 dst];
+                    actpos = dst;
                     if (6*k+8 > length(split) || isnan(str2double(split{6*k+8})))
                         break;
                     end
                     k = k+1;
-                    actpos = dst;
                 end
                 split = split(6*k+8:end);
             case {'Z', 'z'}

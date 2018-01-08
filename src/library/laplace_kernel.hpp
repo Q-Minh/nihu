@@ -84,7 +84,7 @@ namespace kernel_traits_ns
 	template <class Space>
 	struct is_symmetric<laplace_kernel<Space, potential::SLP> > : std::true_type {};
 
-	/** \brief the singular quadrature order of the laplace SLP kernel
+	/** \brief the singular quadrature order of the Laplace SLP kernel
 	 * \todo check if the same value can be used for the 2D and 3D case
 	 */
 	template <class Space>
