@@ -52,7 +52,7 @@ switch lower(type)
             d = sqrt(dot(dvec, dvec, 2));
             p(:,m) = p(:,m) -1i/4 * besselh(0,2,k*d);
             if nargout == 2
-                rdn = dot(dvec, n(:,1:2), 2) ./ d;
+                rdn = dot(dvec(:,1:2), n(:,1:2), 2) ./ d;
                 q(:,m) = q(:,m) + 1i*k/4 * besselh(1,2,k*d) .* rdn;
             end
         end
