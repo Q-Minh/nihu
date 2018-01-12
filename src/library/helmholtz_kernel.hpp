@@ -420,13 +420,19 @@ namespace kernel_traits_ns
 
 template <class Scalar, class WaveNumber>
 class helmholtz_kernel<space_2d<Scalar>, potential::HSP, WaveNumber>
-	: public kernel_base<laplace_kernel<space_2d<Scalar>, potential::HSP, WaveNumber> >
+	: public kernel_base<helmholtz_kernel<space_2d<Scalar>, potential::HSP, WaveNumber> >
+	, public wave_number_kernel<WaveNumber>
 {
 public:
 	typedef kernel_base<helmholtz_kernel<space_2d<Scalar>, potential::HSP, WaveNumber> > base_t;
 	typedef typename base_t::test_input_t test_input_t;
 	typedef typename base_t::trial_input_t trial_input_t;
 	typedef typename base_t::result_t result_t;
+	
+	helmholtz_kernel(WaveNumber const &k)
+		: wave_number_kernel<WaveNumber>(k)
+	{
+	}
 
 	result_t operator()(test_input_t const &test_input, trial_input_t const &trial_input) const
 	{
@@ -441,12 +447,14 @@ public:
 		auto kr = k * r;
 		
 		auto H0 = bessel::H<0,2>(result_t(kr));
-		auto H1 = bessel::H<0,1>(result_t(kr)) / kr;
-		auto H2 = bessel::H<0,2>(result_t(kr));
-
-		return 	result_t(0, k*k/4) * (
+		auto H1 = bessel::H<1,2>(result_t(kr)) / kr;
+		auto H2 = bessel::H<2,2>(result_t(kr));
+		
+		return 	result_t(0, k*k/4.) * (
 			(H0 / 2. - H1 - H2 / 2.) * rdnx * rdny - H1 * ny.dot(nx)
 		);
+		
+		return result_t(0., k*k/4.);
 	}
 };
 

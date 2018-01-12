@@ -75,12 +75,12 @@ namespace bessel
 	 * \param [in] nu the Bessel function order
 	 * \param [in] z the Bessel argument
 	 * \param [out] u the magnitude approximation
-	 * \param [out] u the phase approximation
+	 * \param [out] phi the phase approximation
 	 */
 	template <class T>
 	void mag_arg_large(int nu, T const &z, T &u, T &phi)
 	{
-		double mag[2][7] = {
+		double mag[3][7] = {
 			{
 				1.,
 				-6.25e-2,
@@ -98,9 +98,18 @@ namespace bessel
 				-7.7399539947509765625,
 				1.32761824250221252441e2,
 				-3.54330366536602377892e3
+			},
+			{
+				1,
+				9.3750000000e-01,
+				7.9101562500e-01,
+				-3.0487060547e+00,
+				1.9199895859e+01,
+				-2.5916166008e+02,
+				6.0841126316e+03
 			}
 		};
-		double arg[2][7] = {
+		double arg[3][7] = {
 			{
 				-1.25e-1,
 				6.51041666666666712926e-2,
@@ -118,6 +127,15 @@ namespace bessel
 				3.06240119934082031250e1,
 				-6.59185221823778988437e2,
 				2.11563140455278044101e4
+			},
+			{
+				1.8750000000e0,
+				-3.5156250000e-1,
+				-1.4501953125e0,
+				8.3074297224e0,
+				-7.1739864349e1,
+				1.2458673851e3,
+				-3.5571449717e4				
 			}
 		};
 
@@ -140,16 +158,16 @@ namespace bessel
 	template <int nu, class T>
 	T J_small(T const &z)
 	{
-		static_assert(nu == 0 || nu == 1, "unimplemented Bessel J order");
-
 		// upper limit for 1e-8 error
 		int N = (int)(3+2.*std::abs(z));
 
-		T res(1.), q(z*z/4.);
-		for (int n = N; n > 0; --n)
-			res = 1. - q*(1./(n*(n+nu)))*res;
-		if (nu == 1)
-			res *= z/2.;
+		T b = z/2.;
+
+		T res(1.), q(b*b);
+		for (int k = N; k > 0; --k)
+			res = 1. - q*(1./(k*(k+nu)))*res;
+		for (int k = 0; k < nu; ++k)
+			res *= b;
 		return res;
 	}
 
@@ -207,6 +225,8 @@ namespace bessel
 	template <int nu>
 	std::complex<double> Y_large(std::complex<double> const &z)
 	{
+		static_assert(nu == 0 || nu == 1, "unimplemented Bessel Y order");
+		
 		std::complex<double> mag, arg;
 		if (std::real(z) < 0)
 		{
@@ -225,7 +245,7 @@ namespace bessel
 	}
 
 
-	/** \brief Bessel function Y_nu(z) for nu = 0, 1
+	/** \brief Bessel function Y_nu(z)
 	 * \tparam nu the Bessel function's order
 	 * \param [in] z the argument
 	 * \return Y_nu(z)

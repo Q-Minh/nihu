@@ -28,24 +28,68 @@ namespace bessel
 	template <>
 	std::complex<double> Y_small<1>(std::complex<double> const &z)
 	{
+		enum {nu = 1};
+		
 		// upper limit for 1e-8 error
 		int const N = (int)(4+2.*std::abs(z));
 
 		std::complex<double> q(z/2.0), q2(q*q);
-		std::complex<double> first(2.0*J_small<1>(z)*(std::log(q)+gamma));
+		std::complex<double> first(2.0*J_small<nu>(z)*(std::log(q)+gamma));
 		std::complex<double> second(-1.0/q);
 
 		std::complex<double> third(0.0);
-		std::complex<double> q2pow(-q);
-		double a(1.);
+		std::complex<double> q2pow(-std::pow(q, nu));
+		
+		double a(0.);
+		for (int k = 1; k <= nu; ++k)
+			a += 1./k;
+		
 		double div = 1.;
+		for (int k = 1; k <= nu; ++k)
+			div *= k;
+		
 		for (int k = 0; k < N; ++k)
 		{
 			third += div*q2pow*a;
 
-			div /= -(k+1)*(k+2);
+			div /= -(k+1)*(k+nu+1);
 			q2pow *= q2;
-			a += 1./(k+1.) + 1./(k+2.);
+			a += 1./(k+1.) + 1./(k+nu+1.);
+		}
+
+		return 1./M_PI * (first + second + third);
+	}
+
+	template <>
+	std::complex<double> Y_small<2>(std::complex<double> const &z)
+	{
+		enum {nu = 2};
+		
+		// upper limit for 1e-8 error
+		int const N = (int)(4+2.*std::abs(z));
+
+		std::complex<double> q(z/2.0), q2(q*q);
+		std::complex<double> first(2.0*J_small<nu>(z)*(std::log(q)+gamma));
+		std::complex<double> second(-1. -1./q2);
+
+		std::complex<double> third(0.0);
+		std::complex<double> q2pow(-std::pow(q, nu));
+		
+		double a(0.);
+		for (int k = 1; k <= nu; ++k)
+			a += 1./k;
+		
+		double div = 1.;
+		for (int k = 1; k <= nu; ++k)
+			div *= k;
+		
+		for (int k = 0; k < N; ++k)
+		{
+			third += div*q2pow*a;
+
+			div /= -(k+1)*(k+nu+1);
+			q2pow *= q2;
+			a += 1./(k+1.) + 1./(k+nu+1.);
 		}
 
 		return 1./M_PI * (first + second + third);
