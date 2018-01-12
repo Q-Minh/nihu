@@ -27,7 +27,7 @@ This section describes the analytical formulae used to integrate the kernel of t
 The kernel is defined as
 %
 \begin{equation}
-G({\bf y}, {\bf x}) = -\frac{\ln |{\bf y}-{\bf x}|}{2\pi} = -\frac{\ln r}{2\pi}
+	G({\bf y}, {\bf x}) = -\frac{\ln |{\bf y}-{\bf x}|}{2\pi} = -\frac{\ln r}{2\pi}
 \end{equation}
 %
 where ${\bf x}$ is the source point. The kernel exhibits a weak (integrable) singularity when $r \to 0$.
@@ -35,7 +35,7 @@ where ${\bf x}$ is the source point. The kernel exhibits a weak (integrable) sin
 The kernel's normal derivative with respect to the normal  ${\bf n}_y$ at coordinate ${\bf y}$ can be formulated as
 %
 \begin{equation}
-G'_{n_y}({\bf y}, {\bf x}) = \frac{\td G(r)}{\td r} \frac{\partial r}{\partial n_y} = -\frac{1}{2\pi r} \frac{{\bf r} \cdot {\bf n}_y}{r} = -\frac{({\bf y}-{\bf x}) \cdot {\bf n}_y}{2\pi r^2}
+	G'_{n_y}({\bf y}, {\bf x}) = \frac{\td G(r)}{\td r} \frac{\partial r}{\partial n_y} = -\frac{1}{2\pi r} \frac{{\bf r} \cdot {\bf n}_y}{r} = -\frac{({\bf y}-{\bf x}) \cdot {\bf n}_y}{2\pi r^2}
 \end{equation}
 %
 this derivative kernel contains a strong singularity and can be integrated in a CPV sense.
@@ -308,33 +308,57 @@ q(a, \phi) = \atan\left(\frac{a}{\sin\phi} + \cot\phi\right) - \atan\left(\cot\p
 The kernel is defined as
 %
 \begin{equation}
-G({\bf y}, {\bf x}) = \frac{-\ti}{4} H_0^{(2)}(kr), \quad r = |{\bf y} - {\bf x}|
+	G({\bf y}, {\bf x}) = \frac{-\ti}{4} H_0^{(2)}(kr), \quad r = |{\bf y} - {\bf x}|
 \end{equation}
 %
 where ${\bf x}$ is the source point. The kernel exhibits a weak (integrable) singularity when $r \to 0$.
 
-\subsection{Basic properties}
-
 The Hankel function may be written as
 %
 \begin{equation}
-H_0^{(2)}(z) = J_0(z) - \ti Y_0(z)
+	H_0^{(2)}(z) = J_0(z) - \ti Y_0(z)
 \end{equation}
 %
 and the small argument series expansion of the involved Bessel functions around $z=0$ are
 %
 \begin{align}
-J_0(z) &= \sum_{n=0}^{\infty} (-1)^n \frac{\left(\frac{z}{2}\right)^{2n}}{\left(n!\right)^2} \\
-Y_0(z) &= \frac{2}{\pi}
-\sum_{n=0}^{\infty} (-1)^n \left(\log \frac{z}{2} + \gamma - C_n \right) \frac{\left(\frac{z}{2}\right)^{2n}}{\left(n!\right)^2}
+	J_0(z) &= \sum_{n=0}^{\infty} (-1)^n \frac{\left(\frac{z}{2}\right)^{2n}}{\left(n!\right)^2} \\
+	Y_0(z) &= \frac{2}{\pi}
+	\sum_{n=0}^{\infty} (-1)^n \left(\log \frac{z}{2} + \gamma - C_n \right) \frac{\left(\frac{z}{2}\right)^{2n}}{\left(n!\right)^2}
 \end{align}
 %
 where $\gamma$ denotes Euler's constant and $C_n$ denotes the harmonic sum
 %
 \begin{equation}
-C_0 = 0, C_n = C_{n-1} + \frac{1}{n}
+	C_0 = 0, C_n = C_{n-1} + \frac{1}{n}
 \end{equation}
 
+The kernel's gradient is expressed as
+%
+\begin{equation}
+	G'_i = -\frac{\ti k}{4} H_0^{,(2)}(kr) r'_i
+	= \frac{\ti k}{4} H_1^{(2)}(kr) \frac{r_i}{r}
+\end{equation}
+
+
+The kernel's second derivative tensor is expressed as
+%
+\begin{multline}
+	G''_{ij}
+	= -\frac{\ti k}{4} \left( H_0^{,(2)}(kr) r'_j \right)'_i
+	= -\frac{\ti k}{4} \left( H_0^{,,(2)}(kr) k r'_i r'_j + H_0^{,(2)}(kr) \left(\frac{\delta_{ij}}{r} - \frac{r_i r_j}{r^3}\right)\right) \\
+	= -\frac{\ti k}{4} \left( \frac{1}{2} \left(H_2(kr) - H_0(kr) \right) k \frac{r_i r_j}{r^2} - \frac{H_1^{(2)}(kr)}{r} \left(\delta_{ij} - \frac{r_i r_j}{r^2}\right)\right) \\
+	= \frac{\ti k^2}{4} \left( \left( \frac{1}{2} H_0(kr) - \frac{H_1^{(2)}(kr)}{kr} -\frac{1}{2} H_2(kr) \right) \frac{r_i r_j}{r^2} + \frac{H_1^{(2)}(kr)}{kr} \delta_{ij} \right)
+\end{multline}
+
+As a consequence, the second normal derivative is expressed as
+
+\begin{equation}
+	G''_{n_{x} n_{y}}
+	= \frac{\ti k^2}{4} \left( \left( \frac{1}{2} H_0(kr) - \frac{H_1^{(2)}(kr)}{kr} -\frac{1}{2} H_2(kr) \right)
+	r'_{nx} r'_{ny}
+	- \frac{H_1^{(2)}(kr)}{kr} n_{xi} n_{yi}\right)
+\end{equation}
 
 
 \subsection{Collocation}

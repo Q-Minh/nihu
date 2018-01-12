@@ -409,15 +409,48 @@ namespace kernel_traits_ns
 
 
 /// 2D HSP
-
 namespace kernel_traits_ns
 {
 	template <class Scalar, class WaveNumber>
 	struct far_field_behaviour<helmholtz_kernel<space_2d<Scalar>, potential::HSP, WaveNumber> > : asymptotic::inverse<2> {};
 
 	template <class Scalar, class WaveNumber>
-	struct singularity_type<helmholtz_kernel<space_2d<Scalar>, potential::HSP, WaveNumber> > : asymptotic::log<2> {};
+	struct singularity_type<helmholtz_kernel<space_2d<Scalar>, potential::HSP, WaveNumber> > : asymptotic::inverse<2> {};
 }
+
+template <class Scalar, class WaveNumber>
+class helmholtz_kernel<space_2d<Scalar>, potential::HSP, WaveNumber>
+	: public kernel_base<laplace_kernel<space_2d<Scalar>, potential::HSP, WaveNumber> >
+{
+public:
+	typedef kernel_base<helmholtz_kernel<space_2d<Scalar>, potential::HSP, WaveNumber> > base_t;
+	typedef typename base_t::test_input_t test_input_t;
+	typedef typename base_t::trial_input_t trial_input_t;
+	typedef typename base_t::result_t result_t;
+
+	result_t operator()(test_input_t const &test_input, trial_input_t const &trial_input) const
+	{
+		typename base_t::x_t rvec = trial_input.get_x() - test_input.get_x();
+		Scalar r = rvec.norm();
+		auto const &ny = trial_input.get_unit_normal();
+		auto const &nx = test_input.get_unit_normal();
+		Scalar rdny = rvec.dot(ny) / r;
+		Scalar rdnx = -rvec.dot(nx) / r;
+		
+		auto const &k = this->get_wave_number();
+		auto kr = k * r;
+		
+		auto H0 = bessel::H<0,2>(result_t(kr));
+		auto H1 = bessel::H<0,1>(result_t(kr)) / kr;
+		auto H2 = bessel::H<0,2>(result_t(kr));
+
+		return 	result_t(0, k*k/4) * (
+			(H0 / 2. - H1 - H2 / 2.) * rdnx * rdny - H1 * ny.dot(nx)
+		);
+	}
+};
+
+
 
 
 
