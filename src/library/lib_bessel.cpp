@@ -35,7 +35,7 @@ namespace bessel
 
 		std::complex<double> q(z/2.0), q2(q*q);
 		std::complex<double> first(2.0*J_small<nu>(z)*(std::log(q)+gamma));
-		std::complex<double> second(-1.0/q);
+		std::complex<double> second(-1./q);
 
 		std::complex<double> third(0.0);
 		std::complex<double> q2pow(-std::pow(q, nu));
@@ -46,7 +46,7 @@ namespace bessel
 		
 		double div = 1.;
 		for (int k = 1; k <= nu; ++k)
-			div *= k;
+			div /= k;
 		
 		for (int k = 0; k < N; ++k)
 		{
@@ -81,7 +81,7 @@ namespace bessel
 		
 		double div = 1.;
 		for (int k = 1; k <= nu; ++k)
-			div *= k;
+			div /= k;
 		
 		for (int k = 0; k < N; ++k)
 		{

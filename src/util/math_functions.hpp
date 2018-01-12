@@ -161,13 +161,13 @@ namespace bessel
 		// upper limit for 1e-8 error
 		int N = (int)(3+2.*std::abs(z));
 
-		T b = z/2.;
+		T q = z/2.;
 
-		T res(1.), q(b*b);
+		T res(1.), q2(q*q);
 		for (int k = N; k > 0; --k)
-			res = 1. - q*(1./(k*(k+nu)))*res;
-		for (int k = 0; k < nu; ++k)
-			res *= b;
+			res = 1. - q2*(1./(k*(k+nu)))*res;
+		for (int k = 1; k <= nu; ++k)
+			res *= q/T(k);
 		return res;
 	}
 
@@ -180,12 +180,12 @@ namespace bessel
 	template <int nu, class T>
 	T J_large(T const &z)
 	{
-		static_assert(nu == 0 || nu == 1, "unimplemented Bessel J order");
+		static_assert(nu >= 0 && nu <= 2 , "unimplemented Bessel J order");
 
 		T mag, arg;
 		if (std::real(z) < 0)
 		{
-			double const C(nu==0 ? 1. : -1);
+			double const C(nu%2==0 ? 1. : -1);
 			mag_arg_large(nu, -z, mag, arg);
 			return std::sqrt(2./(M_PI * -z)) * mag * std::cos(arg) * C;
 		}
@@ -272,7 +272,7 @@ namespace bessel
 
 		if (std::real(z) < 0 && std::abs(std::imag(z)) < 8.)
 		{
-			double const C1(nu == 0 ? 1. : -1.);
+			double const C1(nu%2 == 0 ? 1. : -1.);
 
 			mag_arg_large(nu, -z, mag, arg);
 
