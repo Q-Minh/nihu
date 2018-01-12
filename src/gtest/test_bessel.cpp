@@ -43,6 +43,11 @@ TEST(Bessel, Y1) {
 	bessel_tester(besselY1, sizeof(besselY1)/sizeof(besselY1[0]), NiHu::bessel::Y<1>);
 }
 
+TEST(Bessel, Y2) {
+	#include "data/besselY2.dat"
+	bessel_tester(besselY2, sizeof(besselY2)/sizeof(besselY2[0]), NiHu::bessel::Y<2>);
+}
+
 TEST(Bessel, H01) {
 	#include "data/besselH01.dat"
 	bessel_tester(besselH01, sizeof(besselH01)/sizeof(besselH01[0]), NiHu::bessel::H<0,1>);
