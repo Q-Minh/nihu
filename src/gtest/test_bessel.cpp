@@ -28,6 +28,11 @@ TEST(Bessel, J1) {
 	bessel_tester(besselJ1, sizeof(besselJ1)/sizeof(besselJ1[0]), NiHu::bessel::J<1>);
 }
 
+TEST(Bessel, J2) {
+	#include "data/besselJ2.dat"
+	bessel_tester(besselJ2, sizeof(besselJ2)/sizeof(besselJ2[0]), NiHu::bessel::J<2>);
+}
+
 TEST(Bessel, Y0) {
 	#include "data/besselY0.dat"
 	bessel_tester(besselY0, sizeof(besselY0)/sizeof(besselY0[0]), NiHu::bessel::Y<0>);
@@ -36,6 +41,11 @@ TEST(Bessel, Y0) {
 TEST(Bessel, Y1) {
 	#include "data/besselY1.dat"
 	bessel_tester(besselY1, sizeof(besselY1)/sizeof(besselY1[0]), NiHu::bessel::Y<1>);
+}
+
+TEST(Bessel, Y2) {
+	#include "data/besselY2.dat"
+	bessel_tester(besselY2, sizeof(besselY2)/sizeof(besselY2[0]), NiHu::bessel::Y<2>);
 }
 
 TEST(Bessel, H01) {
@@ -56,6 +66,11 @@ TEST(Bessel, H11) {
 TEST(Bessel, H12) {
 	#include "data/besselH12.dat"
 	bessel_tester(besselH12, sizeof(besselH12)/sizeof(besselH12[0]), NiHu::bessel::H<1,2>);
+}
+
+TEST(Bessel, H22) {
+	#include "data/besselH22.dat"
+	bessel_tester(besselH22, sizeof(besselH22)/sizeof(besselH22[0]), NiHu::bessel::H<2,2>);
 }
 
 TEST(Bessel, K0) {
