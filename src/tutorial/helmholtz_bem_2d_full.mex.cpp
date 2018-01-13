@@ -27,7 +27,7 @@ void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 
 	Ls << dirac(surf_sp) * L[surf_sp]; 
 	Ms << dirac(surf_sp) * M[surf_sp];
-	//Ws << dirac(surf_sp) * W[surf_sp];
+	Ws << dirac(surf_sp) * W[surf_sp];
 	Lf  << field_sp * L[surf_sp];
 	Mf  << field_sp * M[surf_sp];
 }
