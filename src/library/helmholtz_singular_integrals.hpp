@@ -24,6 +24,7 @@
 
 #include "library/lib_element.hpp"
 #include "../core/integral_operator.hpp"
+#include "laplace_singular_integrals.hpp"
 #include "helmholtz_kernel.hpp"
 #include "plane_element_helper.hpp"
 #include "../util/math_functions.hpp"
@@ -110,8 +111,6 @@ public:
 };
 
 
-
-
 /** \brief store-wrapper of a statically stored quadrature */
 template <class domain_t, unsigned order>
 struct domain_quad_store
@@ -123,6 +122,59 @@ struct domain_quad_store
 /** \brief definition of the statically stored quadrature member */
 template <class domain_t, unsigned order>
 gaussian_quadrature<domain_t> const domain_quad_store<domain_t, order>::quadrature(order);
+
+
+
+
+
+
+
+/** \brief Collocational singular integral of the 2D Helmholtz HSP kernel over a constant line element */
+template <unsigned order>
+class helmholtz_2d_HSP_collocation_constant_line
+{
+public:
+	template <class wavenumber_t>
+	static std::complex<double> dynamic_part(double r, wavenumber_t const &k)
+	{
+		auto z = std::complex<double>(k*r);
+		return -std::complex<double>(0.0, .25) * k*k * bessel::H<1,2>(z)/z - 1/(2*M_PI*r*r);
+	}
+	
+    /**
+     * \brief Evaluate the integral
+     * \tparam wavenumber_t the wave number type
+     * \param [in] elem the line element
+     * \param [in] x0 the singular point
+     * \param [in] k the wave number
+     * \return the integral value
+     */
+	template <class elem_t, class wavenumber_t>
+	static std::complex<double> eval(
+		elem_t const &elem,
+		typename elem_t::x_t const &x0,
+		wavenumber_t const &k)
+	{
+		typedef domain_quad_store<typename elem_t::domain_t, order> quadr_t;		
+		
+		std::complex<double> res = laplace_2d_HSP_collocation_constant_line::eval(elem, x0);
+		
+		// integrate dynamic part
+		std::complex<double> I_dyn = 0.0;
+		for (auto it = quadr_t::quadrature.begin(); it != quadr_t::quadrature.end(); ++it)
+		{
+			auto xi = it->get_xi();
+			double w = it->get_w();
+			xi(0) = (1. + xi(0)) / 2.0;
+			w *= (2 * xi(0));
+			xi(0) *= xi(0);
+			double r = (elem.get_x(xi) - x0).norm();
+			I_dyn += dynamic_part(r, k) * w * elem.get_normal(it->get_xi()).norm();
+		}
+		
+		return res + I_dyn;
+	}
+};
 
 
 /** \brief Collocational singular integral of the 3D Helmholtz SLP kernel over a constant planar element */
@@ -385,6 +437,49 @@ public:
 		return result;
 	}
 };
+
+
+
+/** \brief Collocational singular integral of the 2D HSP kernel over a constant line
+ * \tparam TestField the test field type
+ * \tparam TrialField the trial field type
+ */
+template <class WaveNumber, class TestField, class TrialField>
+class singular_integral_shortcut<
+	helmholtz_2d_HSP_kernel<WaveNumber>, TestField, TrialField, match::match_1d_type,
+	typename std::enable_if<
+	std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
+	std::is_same<typename TrialField::lset_t, line_1_shape_set>::value &&
+	std::is_same<typename TrialField::nset_t, line_0_shape_set>::value
+	>::type
+>
+{
+public:
+	/** \brief evaluate singular integral
+	 * \tparam result_t the result matrix type
+	 * \param [in, out] result reference to the result
+	 * \param [in] kernel the kernel instance
+	 * \param [in] trial_field the test and trial fields
+	 * \return reference to the result matrix
+	 */
+	template <class result_t>
+	static result_t &eval(
+		result_t &result,
+		kernel_base<helmholtz_2d_HSP_kernel<WaveNumber> > const &kernel,
+		field_base<TestField> const &,
+		field_base<TrialField> const &trial_field,
+		element_match const &)
+	{
+		result(0, 0) = helmholtz_2d_HSP_collocation_constant_line<9>::eval(
+			trial_field.get_elem(),
+			trial_field.get_elem().get_center(),
+			kernel.derived().get_wave_number());
+			
+		return result;
+	}
+};
+
+
 
 
 /** \brief Collocational singular integral of the 3D SLP kernel over a constant triangle

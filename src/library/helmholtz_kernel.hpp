@@ -450,11 +450,11 @@ public:
 		auto H1 = bessel::H<1,2>(result_t(kr)) / kr;
 		auto H2 = bessel::H<2,2>(result_t(kr));
 		
-		return 	result_t(0, k*k/4.) * (
+		result_t result = result_t(0, k*k/4.) * (
 			(H0 / 2. - H1 - H2 / 2.) * rdnx * rdny - H1 * ny.dot(nx)
 		);
 		
-		return result_t(0., k*k/4.);
+		return 	result;
 	}
 };
 
