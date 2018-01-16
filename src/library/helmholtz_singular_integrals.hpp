@@ -124,23 +124,19 @@ template <class domain_t, unsigned order>
 gaussian_quadrature<domain_t> const domain_quad_store<domain_t, order>::quadrature(order);
 
 
-
-
-
-
-
 /** \brief Collocational singular integral of the 2D Helmholtz HSP kernel over a constant line element */
 template <unsigned order>
 class helmholtz_2d_HSP_collocation_constant_line
 {
-public:
+private:
 	template <class wavenumber_t>
 	static std::complex<double> dynamic_part(double r, wavenumber_t const &k)
 	{
 		auto z = std::complex<double>(k*r);
-		return -std::complex<double>(0.0, .25) * k*k * bessel::H<1,2>(z)/z - 1/(2*M_PI*r*r);
+		return std::complex<double>(0., -.25) * k*k * bessel::H<1,2>(z)/z - 1/(2*M_PI*r*r);
 	}
 	
+public:
     /**
      * \brief Evaluate the integral
      * \tparam wavenumber_t the wave number type
@@ -155,24 +151,29 @@ public:
 		typename elem_t::x_t const &x0,
 		wavenumber_t const &k)
 	{
-		typedef domain_quad_store<typename elem_t::domain_t, order> quadr_t;		
+		typedef domain_quad_store<typename elem_t::domain_t, order> quadr_t;
 		
-		std::complex<double> res = laplace_2d_HSP_collocation_constant_line::eval(elem, x0);
+		// get analytical integral of static part 
+		double I_stat = laplace_2d_HSP_collocation_constant_line::eval(elem, x0);
 		
 		// integrate dynamic part
 		std::complex<double> I_dyn = 0.0;
 		for (auto it = quadr_t::quadrature.begin(); it != quadr_t::quadrature.end(); ++it)
 		{
+			// get quadrature location and weight
 			auto xi = it->get_xi();
 			double w = it->get_w();
+			// transform from (-1 +1) to (0 +1) with double weight (symmetric)
 			xi(0) = (1. + xi(0)) / 2.0;
+			// transform xi -> xi^2 for singularity cancellation
 			w *= (2 * xi(0));
 			xi(0) *= xi(0);
-			double r = (elem.get_x(xi) - x0).norm();
-			I_dyn += dynamic_part(r, k) * w * elem.get_normal(it->get_xi()).norm();
+			// evaluate difference kernel
+			I_dyn += dynamic_part((elem.get_x(xi) - x0).norm(), k) * w;
 		}
+		I_dyn *= elem.get_normal().norm();
 		
-		return res + I_dyn;
+		return I_stat + I_dyn;
 	}
 };
 
