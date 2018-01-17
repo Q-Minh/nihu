@@ -32,29 +32,64 @@ The kernel is defined as
 %
 where ${\bf x}$ is the source point. The kernel exhibits a weak (integrable) singularity when $r \to 0$.
 
-The kernel's normal derivative with respect to the normal  ${\bf n}_y$ at coordinate ${\bf y}$ can be formulated as
+\subsection{Derivatives}
+
+The kernel's gradient (w.r.t. $y_i$) is expressed as
 %
 \begin{equation}
-	G'_{n_y}({\bf y}, {\bf x}) = \frac{\td G(r)}{\td r} \frac{\partial r}{\partial n_y} = -\frac{1}{2\pi r} \frac{{\bf r} \cdot {\bf n}_y}{r} = -\frac{({\bf y}-{\bf x}) \cdot {\bf n}_y}{2\pi r^2}
+	G'_i = -\frac{1}{2\pi r} \frac{r_i}{r}
+	\label{eq:laplace_gradient}
 \end{equation}
 %
-this derivative kernel contains a strong singularity and can be integrated in a CPV sense.
-
 The kernel's second derivative tensor is expressed as
 %
 \begin{equation}
-	G''_{ij} = \left(G'_j\right)'_i
-	= \frac{-1}{2\pi}\left(\frac{r_j}{r^2}\right)'_i
-	= \frac{-1}{2\pi r^2}\left( \delta_{ij} - 2\frac{r_j}{r} \frac{r_i}{r}\right)
+	G''_{ij} = \frac{-1}{2\pi r^2}\left( \delta_{ij} - 2\frac{r_j}{r} \frac{r_i}{r}\right)
 \end{equation}
-
-As a consequence, the second normal derivative is expressed as
+%
+The kernel's third derivative tensor is expressed as
 %
 \begin{equation}
-	G''_{n_x n_y}({\bf x}, {\bf y})
-	= -n_{xi} G''_{ij} n_{yj}
-	=  \frac{1}{2\pi r^2} \left( n_{xi} n_{yi} - 2\frac{n_{xi} r_i}{r} \frac{r_j n_{yj}}{r}\right)
+	G'''_{ijk} =
+	\frac{1}{\pi r^3}\left( \frac{\delta_{ij}r_k + \delta_{jk}r_i + \delta_{ki}r_j}{r} - 4\frac{r_i}{r} \frac{r_j}{r} \frac{r_k}{r}\right)
 \end{equation}
+
+\subsection{Normal derivatives}
+
+The kernel's normal derivative with respect to the normal  ${\bf n}_y$ is expressed as
+%
+\begin{equation}
+	G'_{n_y}
+	= G'_i n_{yi}
+	= -\frac{1}{2\pi r} \frac{r_i n_{yi}}{r} = -\frac{1}{2\pi r} r'_{n_y}
+\end{equation}
+
+The second normal derivative w.r.t $n_x$ and $n_y$ is expressed as
+%
+\begin{equation}
+	G''_{n_x n_y}
+	= - G''_{ij} n_{xi} n_{yj}
+	= \frac{1}{2\pi r^2} \left( n_{xi} n_{yi} - 2\frac{n_{xi} r_i}{r} \frac{r_j n_{yj}}{r}\right)
+	= \frac{1}{2\pi r^2} \left( n_{xi} n_{yi} + 2 r'_{n_x} r'_{n_y} \right)
+\end{equation}
+%
+and the second normal derivative w.r.t. ${\bf n}_x$ is expressed as
+%
+\begin{equation}
+	G''_{n_x n_x}
+	= G''_{ij} n_{xi} n_{xj}
+	=  \frac{-1}{2\pi r^2} \left( 1 - 2 \left(r'_{n_x}\right)^2 \right)
+\end{equation}
+
+As a consequence, the third normal derivative is expressed as
+%
+\begin{equation}
+	G'''_{n_x n_x n_y}({\bf x}, {\bf y})
+	= n_{xi} n_{xj} n_{yk} G''_{ijk}
+	= \frac{r'_{n_y}}{\pi r^3}\left( 1 - r'_{n_x} ({\bf n}_{x} {\bf n}_{y})
+	- 4 (r'_{n_x})^2  \right)
+\end{equation}
+
 
 
 \subsection{Collocation}
