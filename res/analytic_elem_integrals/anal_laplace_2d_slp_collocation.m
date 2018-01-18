@@ -1,4 +1,4 @@
-clear all;
+clear;
 
 y = sym('y', 'real');
 z = sym('z', 'positive');
