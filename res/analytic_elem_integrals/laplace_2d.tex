@@ -32,34 +32,26 @@ The kernel is defined as
 
 \subsection{Derivatives}
 
-<<<<<<< HEAD
-The kernel's gradient can be formulated as
+The kernel's first, second and third derivatives can be formulated as
 %
-\begin{equation}
+\begin{align}
 	G'_{i}
-	= -\frac{1}{2\pi r} \frac{r_i}{r}
+	&= -\frac{1}{2\pi r} \frac{r_i}{r}
 	\label{eq:laplace_gradient}
-\end{equation}
-%
-The kernel's second derivative is expressed as
-%
-\begin{equation}
+	\\
 	G''_{ij}
-	= \frac{-1}{2\pi r^2}\left( \delta_{ij} - 2\frac{r_j}{r} \frac{r_i}{r}\right)
+	&= \frac{-1}{2\pi r^2}\left( \delta_{ij} - 2\frac{r_j}{r} \frac{r_i}{r}\right)
 	\label{eq:laplace_second_derivative}
-\end{equation}
-%
-The kernel's third derivative is expressed as
-%
-\begin{equation}
-	G'''_{ijk} = \frac{1}{\pi r^3} \left(
+	\\
+	G'''_{ijk}
+	&= \frac{1}{\pi r^3} \left(
 	\delta_{ij} \frac{r_k}{r}
 	+ \delta_{jk} \frac{r_i}{r}
 	+ \delta_{ki} \frac{r_j}{r}
 	-4 \frac{r_i}{r} \frac{r_j}{r} \frac{r_k}{r}
 	\right)
 	\label{eq:laplace_third_derivative}
-\end{equation}
+\end{align}
 
 \subsection{Normal derivatives}
 
@@ -67,37 +59,35 @@ The bivariate kernel is defined as $G({\bf x}, {\bf y}) = G({\bf y}-{\bf x})$.
 As a consequence, the normal derivative w.r.t $n_y$ is computed as $G'_i n_{yi}$, while the normal derivative w.r.t. $n_x$ is computed as $-G'_i n_{xi}$.
 This yields the following normal derivatives:
 %
-\begin{equation}
+\begin{align}
 	\frac{\partial G}{\partial n_y} 
-	= n_{yi} G'_i
-	= -\frac{1}{2\pi r} \frac{n_{yi} r_i}{r}
+	&= n_{yi} G'_i
+	&&
+	%= -\frac{1}{2\pi r} \frac{n_{yi} r_i}{r}
 	= -\frac{1}{2\pi r} r'_{n_y}
-\end{equation}
-
-\begin{equation}
+	\\
 	\frac{\partial^2 G}{\partial n_x \partial n_y}
-	= -n_{xi} n_{yj} G''_{ij}
-	= \frac{1}{2\pi r^2}\left( n_{xi} n_{yi} - 2\frac{r_j n_{yj}}{r} \frac{r_i n_{xi}}{r}\right)
+	&= -n_{xi} n_{yj} G''_{ij}
+	&&
+	%= \frac{1}{2\pi r^2}\left( n_{xi} n_{yi} - 2\frac{r_j n_{yj}}{r} \frac{r_i n_{xi}}{r}\right)
 	= \frac{1}{2\pi r^2}\left( n_{xi} n_{yi} + 2 r'_{n_x} r'_{n_y}\right)
-\end{equation}
-
-\begin{equation}
+	\\
 	\frac{\partial^2 G}{\partial n_x^2}
-	= n_{xi} n_{xj} G''_{ij}
-	= \frac{1}{2\pi r^2}\left( -1 + 2 \left(\frac{r_j n_{xj}}{r}\right)^2 \right)
+	&= n_{xi} n_{xj} G''_{ij}
+	&&
+	%= \frac{1}{2\pi r^2}\left( -1 + 2 \left(\frac{r_j n_{xj}}{r}\right)^2 \right)
 	= \frac{1}{2\pi r^2}\left( -1 + 2 \left(r'_{n_x}\right)^2 \right)
-\end{equation}
-
-\begin{equation}
+	\\
 	\frac{\partial^3 G}{\partial n_x^2 \partial n_y}
-	= n_{xi} n_{xj} n_{yk} G'''_{ijk}
+	&= n_{xi} n_{xj} n_{yk} G'''_{ijk}
+	&&
 	= \frac{1}{\pi r^3} 
 	 \left(
 	r'_{n_y}
 	- 2 r'_{n_x} \left(n_{xk} n_{yk}\right)
 	-4 \left(r'_{n_x}\right)^2 r'_{n_y}
 	\right)
-\end{equation}
+\end{align}
 
 \subsection{Collocation}
 
