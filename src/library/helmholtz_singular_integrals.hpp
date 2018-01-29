@@ -327,7 +327,7 @@ public:
 	}
 };
 
-/** \brief Trivial integrals of various 2d kernels over plane surfaces
+/** \brief Trivial integrals of various 2d DLP kernels over plane surfaces
  * \tparam Kernel the kernel type
  * \tparam TestField the test field type
  * \tparam TrialField the trial field type
@@ -350,6 +350,37 @@ public:
 	static constexpr result_t &eval(
 		result_t &result,
 		kernel_base<helmholtz_2d_DLP_kernel<WaveNumber> > const &,
+		field_base<TestField> const &,
+		field_base<TrialField> const &,
+		element_match const &)
+	{
+		return result;
+	}
+};
+
+/** \brief Trivial integrals of various 2d DLPt kernels over plane surfaces
+ * \tparam Kernel the kernel type
+ * \tparam TestField the test field type
+ * \tparam TrialField the trial field type
+ */
+template <class WaveNumber, class TestField, class TrialField>
+class singular_integral_shortcut<
+	helmholtz_2d_DLPt_kernel<WaveNumber>, TestField, TrialField, match::match_1d_type,
+	typename std::enable_if<
+		std::is_same<typename TrialField::lset_t, line_1_shape_set>::value
+	>::type
+>
+{
+public:
+	/** \brief evaluate the kernel (zero)
+	 * \tparam result_t the result's type
+	 * \param [in] result the result reference
+	 * \return the result reference
+	 */
+	template <class result_t>
+	static constexpr result_t &eval(
+		result_t &result,
+		kernel_base<helmholtz_2d_DLPt_kernel<WaveNumber> > const &,
 		field_base<TestField> const &,
 		field_base<TrialField> const &,
 		element_match const &)

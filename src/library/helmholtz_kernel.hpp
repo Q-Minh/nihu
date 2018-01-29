@@ -349,6 +349,43 @@ namespace kernel_traits_ns
 	struct singularity_type<helmholtz_kernel<space_2d<Scalar>, potential::DLPt, WaveNumber> > : asymptotic::log<1> {};
 }
 
+/** \brief kernel of the Helmholtz equation
+ * \tparam Scalar
+ * \tparam WaveNumber the wave number type
+ */
+template <class Scalar, class WaveNumber>
+class helmholtz_kernel<space_2d<Scalar>, potential::DLPt, WaveNumber>
+	: public kernel_base<helmholtz_kernel<space_2d<Scalar>, potential::DLPt, WaveNumber> >
+	, public wave_number_kernel<WaveNumber>
+{
+public:
+	typedef kernel_base<helmholtz_kernel<space_2d<Scalar>, potential::DLPt, WaveNumber> > base_t;
+	typedef typename base_t::test_input_t test_input_t;
+	typedef typename base_t::trial_input_t trial_input_t;
+	typedef typename base_t::result_t result_t;
+	
+	/** \brief constructor
+	 * \param [in] wave_number the wave number
+	 */
+	helmholtz_kernel(WaveNumber const &wave_number)
+		: wave_number_kernel<WaveNumber>(wave_number)
+	{
+	}
+	
+	result_t operator()(test_input_t const &x, trial_input_t const &y) const
+	{
+		auto rvec = y.get_x() - x.get_x();
+		auto r = rvec.norm();
+		auto rdnx = -rvec.dot(x.get_unit_normal()) / r;
+		auto kr = this->get_wave_number() * r;
+		auto H1 = bessel::H<1,2>(result_t(kr));
+		return result_t(0., .25) * this->get_wave_number() * H1 * rdnx;
+	}
+};
+
+
+
+
 
 /// 3D DLPt
 

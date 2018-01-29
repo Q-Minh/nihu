@@ -35,6 +35,45 @@
 
 namespace NiHu
 {
+	
+template <class Space>
+class laplace_helper;
+
+template <class scalar>
+class laplace_helper<space_2d<scalar> >
+{
+public:
+	static void eval(int n, scalar r, scalar *f)
+	{
+		f[0] = -std::log(r) / (2. * M_PI);
+		if (n == 0) return;
+		f[1] = -1./r / (2. * M_PI);
+		if (n == 1) return;
+		f[2] = -f[1]/r;
+		if (n == 2) return;
+		f[3] = -2. * f[2] / r;
+	}
+};
+	
+	
+template <class scalar>
+class laplace_helper<space_3d<scalar> >
+{
+public:
+	static void eval(int n, scalar r, scalar *f)
+	{
+		f[0] = 1. / r / (4. * M_PI);
+		if (n == 0) return;
+		f[1] = -1. * f[0] / r;
+		if (n == 1) return;
+		f[2] = -2. * f[1] / r;
+		if (n == 2) return;
+		f[3] = -3. * f[2] / r;
+	}
+};
+	
+	
+	
 /** \brief kernel of the Laplace equation
  * \tparam Space the coordinate space the kernel is defined over
  * \tparam Layer the potential layer tag that can be potential::SLP, potential::DLP, potential::DLPt and potential::HSP
@@ -102,33 +141,6 @@ namespace kernel_traits_ns
 }
 
 
-/** \brief the 2D SLP kernel of the Laplace equation: \f$ -\ln r / 2\pi \f$
- * \tparam Scalar the scalar type
- */
-template <class Scalar>
-class laplace_kernel<space_2d<Scalar>, potential::SLP>
-	: public kernel_base<laplace_kernel<space_2d<Scalar>, potential::SLP> >
-{
-public:
-	typedef kernel_base<laplace_kernel<space_2d<Scalar>, potential::SLP> > base_t;
-	typedef typename base_t::test_input_t test_input_t;
-	typedef typename base_t::trial_input_t trial_input_t;
-	typedef typename base_t::result_t result_t;
-	
-	result_t operator()(typename base_t::x_t const &x, typename base_t::x_t const &y) const
-	{
-		typename base_t::x_t rvec = y - x;
-		auto r = rvec.norm();
-		return -std::log(r) / (2. * M_PI);
-	}
-
-	result_t operator()(test_input_t const &test_input, trial_input_t const &trial_input) const
-	{
-		return (*this)(test_input.get_x(), trial_input.get_x());
-	}
-};
-
-
 /// 3D SLP TRAITS
 namespace kernel_traits_ns
 {
@@ -142,21 +154,23 @@ namespace kernel_traits_ns
 /** \brief the 3D SLP kernel of the Laplace equation: \f$ 1 / 4 \pi r \f$
  * \tparam Scalar the scalar type
  */
-template <class Scalar>
-class laplace_kernel<space_3d<Scalar>, potential::SLP>
-	: public kernel_base<laplace_kernel<space_3d<Scalar>, potential::SLP> >
+template <class Space>
+class laplace_kernel<Space, potential::SLP>
+	: public kernel_base<laplace_kernel<Space, potential::SLP> >
 {
 public:
-	typedef kernel_base<laplace_kernel<space_3d<Scalar>, potential::SLP> > base_t;
+	typedef kernel_base<laplace_kernel<Space, potential::SLP> > base_t;
 	typedef typename base_t::test_input_t test_input_t;
 	typedef typename base_t::trial_input_t trial_input_t;
 	typedef typename base_t::result_t result_t;
+	typedef typename Space::scalar_t scalar_t;
 	
 	result_t operator()(typename base_t::x_t const &x, typename base_t::x_t const &y) const
 	{
 		typename base_t::x_t rvec = y - x;
-		auto r = rvec.norm();
-		return 1. / r / (4. * M_PI);
+		double g;
+		laplace_helper<Space>::eval(0, rvec.norm(), &g);
+		return g;
 	}
 
 	result_t operator()(test_input_t const &test_input, trial_input_t const &trial_input) const
@@ -194,25 +208,6 @@ namespace kernel_traits_ns
 	struct singularity_type<laplace_kernel<space_2d<Scalar>, potential::DLP> > : asymptotic::log<1> {};
 }
 
-template <class Scalar>
-class laplace_kernel<space_2d<Scalar>, potential::DLP>
-	: public kernel_base<laplace_kernel<space_2d<Scalar>, potential::DLP> >
-{
-public:
-	typedef kernel_base<laplace_kernel<space_2d<Scalar>, potential::DLP> > base_t;
-	typedef typename base_t::test_input_t test_input_t;
-	typedef typename base_t::trial_input_t trial_input_t;
-	typedef typename base_t::result_t result_t;
-
-	result_t operator()(test_input_t const &x, trial_input_t const &y) const
-	{
-		typename base_t::x_t rvec = y.get_x() - x.get_x();
-		Scalar r = rvec.norm();
-		Scalar rdny = rvec.dot(y.get_unit_normal()) / r;
-		return -rdny / r / (2. * M_PI);
-	}
-};
-
 /// 3D DLP
 namespace kernel_traits_ns
 {
@@ -224,23 +219,25 @@ namespace kernel_traits_ns
 }
 
 
-template <class Scalar>
-class laplace_kernel<space_3d<Scalar>, potential::DLP>
-	: public kernel_base<laplace_kernel<space_3d<Scalar>, potential::DLP> >
+template <class Space>
+class laplace_kernel<Space, potential::DLP>
+	: public kernel_base<laplace_kernel<Space, potential::DLP> >
 {
 public:
-	typedef kernel_base<laplace_kernel<space_3d<Scalar>, potential::DLP> > base_t;
+	typedef kernel_base<laplace_kernel<Space, potential::DLP> > base_t;
 	typedef typename base_t::test_input_t test_input_t;
 	typedef typename base_t::trial_input_t trial_input_t;
 	typedef typename base_t::result_t result_t;
+	typedef typename Space::scalar_t scalar_t;
 
 	result_t operator()(test_input_t const &x, trial_input_t const &y) const
 	{
 		typename base_t::x_t rvec = y.get_x() - x.get_x();
-		Scalar r = rvec.norm();
-		auto g = 1. / r / (4. * M_PI);
-		Scalar rdny = rvec.dot(y.get_unit_normal()) / r;
-		return -g * rdny / r;
+		scalar_t r = rvec.norm();
+		scalar_t rdny = rvec.dot(y.get_unit_normal()) / r;
+		double f[2];
+		laplace_helper<Space>::eval(1, r, f);
+		return f[1] * rdny;
 	}
 };
 
@@ -261,7 +258,6 @@ namespace kernel_traits_ns
 }
 
 /// 2D DLPt
-
 namespace kernel_traits_ns
 {
 	template <class Scalar>
@@ -274,27 +270,7 @@ namespace kernel_traits_ns
 	struct singularity_type<laplace_kernel<space_2d<Scalar>, potential::DLPt> > : asymptotic::log<1> {};
 }
 
-template <class Scalar>
-class laplace_kernel<space_2d<Scalar>, potential::DLPt>
-	: public kernel_base<laplace_kernel<space_2d<Scalar>, potential::DLPt> >
-{
-public:
-	typedef kernel_base<laplace_kernel<space_2d<Scalar>, potential::DLPt> > base_t;
-	typedef typename base_t::test_input_t test_input_t;
-	typedef typename base_t::trial_input_t trial_input_t;
-	typedef typename base_t::result_t result_t;
-
-	result_t operator()(test_input_t const &test_input, trial_input_t const &trial_input) const
-	{
-		typename base_t::x_t rvec = trial_input.get_x() - test_input.get_x();
-		Scalar r = rvec.norm();
-		Scalar rdnx = -rvec.dot(test_input.get_unit_normal()) / r;
-		return -rdnx / r / (2. * M_PI);
-	}
-};
-
 /// 3D DLPt
-
 namespace kernel_traits_ns
 {
 	template <class Scalar>
@@ -304,23 +280,25 @@ namespace kernel_traits_ns
 	struct singularity_type<laplace_kernel<space_3d<Scalar>, potential::DLPt> > : asymptotic::inverse<1> {};
 }
 
-template <class Scalar>
-class laplace_kernel<space_3d<Scalar>, potential::DLPt>
-	: public kernel_base<laplace_kernel<space_3d<Scalar>, potential::DLPt> >
+template <class Space>
+class laplace_kernel<Space, potential::DLPt>
+	: public kernel_base<laplace_kernel<Space, potential::DLPt> >
 {
 public:
-	typedef kernel_base<laplace_kernel<space_3d<Scalar>, potential::DLPt> > base_t;
+	typedef kernel_base<laplace_kernel<Space, potential::DLPt> > base_t;
 	typedef typename base_t::test_input_t test_input_t;
 	typedef typename base_t::trial_input_t trial_input_t;
 	typedef typename base_t::result_t result_t;
+	typedef typename Space::scalar_t scalar_t;
 
 	result_t operator()(test_input_t const &test_input, trial_input_t const &trial_input) const
 	{
 		typename base_t::x_t rvec = trial_input.get_x() - test_input.get_x();
-		Scalar r = rvec.norm();
-		auto g = 1. / r / (4. * M_PI);
-		Scalar rdnx = -rvec.dot(test_input.get_unit_normal()) / r;
-		return -g * rdnx / r;
+		scalar_t r = rvec.norm();
+		scalar_t rdnx = -rvec.dot(test_input.get_unit_normal()) / r;
+		scalar_t f[2];
+		laplace_helper<Space>::eval(1, r, f);
+		return rdnx * f[1];
 	}
 };
 
@@ -350,28 +328,6 @@ namespace kernel_traits_ns
 	struct singularity_type<laplace_kernel<space_2d<Scalar>, potential::HSP> > : asymptotic::inverse<2> {};
 }
 
-template <class Scalar>
-class laplace_kernel<space_2d<Scalar>, potential::HSP>
-	: public kernel_base<laplace_kernel<space_2d<Scalar>, potential::HSP> >
-{
-public:
-	typedef kernel_base<laplace_kernel<space_2d<Scalar>, potential::HSP> > base_t;
-	typedef typename base_t::test_input_t test_input_t;
-	typedef typename base_t::trial_input_t trial_input_t;
-	typedef typename base_t::result_t result_t;
-
-	result_t operator()(test_input_t const &test_input, trial_input_t const &trial_input) const
-	{
-		typename base_t::x_t rvec = trial_input.get_x() - test_input.get_x();
-		Scalar r = rvec.norm();
-		Scalar rdny = rvec.dot(trial_input.get_unit_normal()) / r;
-		Scalar rdnx = -rvec.dot(test_input.get_unit_normal()) / r;
-		return 	1./(2. * M_PI)/r/r * (
-		test_input.get_unit_normal().dot(trial_input.get_unit_normal()) +
-		2. * rdny*rdnx);
-	}
-};
-
 /// 3D HSP
 
 namespace kernel_traits_ns
@@ -383,28 +339,30 @@ namespace kernel_traits_ns
 	struct singularity_type<laplace_kernel<space_3d<Scalar>, potential::HSP> > : asymptotic::inverse<3> {};
 }
 
-template <class Scalar>
-class laplace_kernel<space_3d<Scalar>, potential::HSP>
-	: public kernel_base<laplace_kernel<space_3d<Scalar>, potential::HSP> >
+template <class Space>
+class laplace_kernel<Space, potential::HSP>
+	: public kernel_base<laplace_kernel<Space, potential::HSP> >
 {
 public:
-	typedef kernel_base<laplace_kernel<space_3d<Scalar>, potential::HSP> > base_t;
+	typedef kernel_base<laplace_kernel<Space, potential::HSP> > base_t;
 	typedef typename base_t::test_input_t test_input_t;
 	typedef typename base_t::trial_input_t trial_input_t;
 	typedef typename base_t::result_t result_t;
+	typedef typename Space::scalar_t scalar_t;
 
 	result_t operator()(test_input_t const &test_input, trial_input_t const &trial_input) const
 	{
 		typename base_t::x_t rvec = trial_input.get_x() - test_input.get_x();
-		Scalar r = rvec.norm();
-		Scalar rdny = rvec.dot(trial_input.get_unit_normal()) / r;
-		Scalar rdnx = -rvec.dot(test_input.get_unit_normal()) / r;
-		auto g = 1. / r / (4. * M_PI);
-		return 	g / r / r *
-		(
-		test_input.get_unit_normal().dot(trial_input.get_unit_normal()) +
-		3. * rdnx * rdny
-		);
+		scalar_t r = rvec.norm();
+		auto const &nx = test_input.get_unit_normal();
+		auto const &ny = trial_input.get_unit_normal();
+		scalar_t rdny = rvec.dot(ny) / r;
+		scalar_t rdnx = -rvec.dot(nx) / r;
+		scalar_t f[3];
+		laplace_helper<Space>::eval(2, r, f);
+		scalar_t g1 = f[1] / r;
+		scalar_t g2 = f[2] - g1;
+		return 	g2 * rdny*rdnx - g1 * nx.dot(ny);
 	}
 };
 

@@ -20,6 +20,33 @@
 
 \tableofcontents
 
+\section{Derivatives of kernels depending on the source-receiver distance}
+
+Derivatives of the distance
+%
+\begin{align}
+	r &= |{\bf r}| \\
+	r'_i &= \frac{r_i}{r} \\
+	r''_{ij} &= \frac{1}{r} \left( \delta_{ij} - r'_i r'_j \right) \\
+	r'''_{ijk} &= -\frac{1}{r^2} \left(
+		\delta_{ij} r'_k + \delta_{jk} r'_i + \delta_{ki} r'_j - 3 r'_i r'_j r'_k
+	\right)
+\end{align}
+
+Derivatives of the kernel depending on the distance
+%
+\begin{align}
+	G'_i &= G'_r r'_i \\
+	G''_{ij} &= \left(G''_r - \frac{G'_r}{r} \right) r'_i r'_j +  \frac{G'_r}{r} \delta_{ij} \\
+	G'''_{ijk} &=
+	\left(G'''_r -\frac{3}{r} \left(G''_r  - \frac{G'_r}{r} \right) \right) r'_i r'_j r'_k
+	+  \frac{1}{r} \left( G''_r  - \frac{G'_r}{r} \right)\left(
+	   r'_j \delta_{ki}
+	+  r'_i \delta_{jk}
+	+  r'_k \delta_{ij}
+	\right)
+\end{align}
+
 \section{Analytical integrals of the Laplace kernel}
 
 This section describes the analytical formulae used to integrate the kernel of the Laplace equation in two dimensions over straight lines.
