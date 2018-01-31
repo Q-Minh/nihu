@@ -90,7 +90,7 @@ public:
 	}
 };
 
-/** \brief Galerkin integral of the 2D slp kernel over a constant line with edge match */
+/** \brief Galerkin integral of the 2D SLP kernel over a constant line with edge match */
 class laplace_2d_SLP_galerkin_edge_constant_line
 {
     static double qfunc(double a, double phi)
@@ -124,7 +124,7 @@ public:
     }
 };
 
-/** \brief Galerkin integral of the 2D dlp kernel over a constant line with edge match */
+/** \brief Galerkin integral of the 2D DLP kernel over a constant line with edge match */
 class laplace_2d_DLP_galerkin_edge_constant_line
 {
     static double qfunc(double a, double phi)
@@ -150,11 +150,16 @@ public:
         double phi = std::asin(r1vec(0)*r2vec(1)-r2vec(0)*r1vec(1))/(r1*r2);
 		// general expression
 		double r3 = std::sqrt(r1*r1 + 2*r1*r2*std::cos(phi) + r2*r2);
-		return (
+		double res = (
 			r2*std::cos(phi) * qfunc(r1/r2, phi)
 			- r1 * qfunc(r2/r1, phi)
 			+ r2*std::sin(phi) * std::log(r2/r3)
 		) / (2.*M_PI);
+		
+		if (elem1.get_nodes()(0) == elem2.get_nodes()(1))
+			res *= -1;
+		
+		return res;
     }
 };
 
@@ -294,6 +299,9 @@ public:
 		return result;
 	}
 };
+
+
+
 
 
 /** \brief collocational singular integral of the 2D SLP kernel over a constant line

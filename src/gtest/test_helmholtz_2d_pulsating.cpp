@@ -25,7 +25,7 @@ NiHu::mesh<tmp::vector<NiHu::line_1_elem> > create_mesh(double r, int N)
 }
 
 template <class TestSpace, class TrialSpace>
-double tester(TestSpace const &test_space, TrialSpace const &trial_space)
+static double tester(TestSpace const &test_space, TrialSpace const &trial_space)
 {
 	// select wave number
 	double k = 1.;

@@ -38,11 +38,12 @@
 
 namespace NiHu
 {
-template <class Space, class WaveNumber>
+template <class Space>
 class helmholtz_helper;
 
-template <class Scalar, class WaveNumber>
-class helmholtz_helper<space_2d<Scalar>, WaveNumber>
+/*
+template <class Scalar>
+class helmholtz_helper<space_2d<Scalar> >
 {
 	typedef typename std::complex<Scalar> result_t;
 public:
@@ -62,10 +63,9 @@ public:
 		f[3] = k * k * k * result_t(0., 1./16.) * (H3 - 3. * H1);
 	}
 };
-	
-	
+
 template <class Scalar, class WaveNumber>
-class helmholtz_helper<space_3d<Scalar>, WaveNumber>
+class helmholtz_helper<space_3d<Scalar> >
 {
 public:
 	static void eval(int n, Scalar r, WaveNumber const &k, std::complex<Scalar> *f)
@@ -81,8 +81,93 @@ public:
 		f[3] = 0;
 	}
 };
-	
+*/
 
+
+template <class scalar>
+class helmholtz_helper<space_2d<scalar> >
+{
+	typedef std::complex<scalar> result_t;
+	
+	template <class WaveNumber>
+	static void eval_impl(std::integral_constant<unsigned, 0>, scalar r, result_t *f, WaveNumber const &k)
+	{
+		*f = result_t(0);
+	}
+	
+	template <class WaveNumber>
+	static void eval_impl(std::integral_constant<unsigned, 1>, scalar r, result_t *f, WaveNumber const &k)
+	{
+		*f = result_t(0);
+	}
+	
+	template <class WaveNumber>
+	static void eval_impl(std::integral_constant<unsigned, 2>, scalar r, result_t *f, WaveNumber const &k)
+	{
+		f[0] = f[1] = result_t(0);
+	}
+	
+	template <class WaveNumber>
+	static void eval_impl(std::integral_constant<unsigned, 3>, scalar r, result_t *f, WaveNumber const &k)
+	{
+		f[0] = f[1] = result_t(0);
+	}
+	
+public:
+	template <unsigned order, class WaveNumber>
+	static void eval(scalar r, std::complex<scalar> *f, WaveNumber const &k)
+	{
+		eval_impl(std::integral_constant<unsigned, order>(), r, f, k);
+	}
+};
+	
+	
+	
+template <class scalar>
+class helmholtz_helper<space_3d<scalar> >
+{
+	typedef std::complex<scalar> result_t;
+	
+	template <class WaveNumber>
+	static void eval_impl(std::integral_constant<unsigned, 0>, scalar r, result_t *f, WaveNumber const &k)
+	{
+		auto kr = k * r;
+		auto ikr = result_t(0,1) * kr;
+		f[0] = std::exp(-ikr) / r / (4. * M_PI);
+	}
+	
+	template <class WaveNumber>
+	static void eval_impl(std::integral_constant<unsigned, 1>, scalar r, result_t *f, WaveNumber const &k)
+	{
+		auto kr = k * r;
+		auto ikr = result_t(0,1) * kr;
+		f[0] = std::exp(-ikr) / r/r / (4. * M_PI) * (-ikr - 1.);
+	}
+	
+	template <class WaveNumber>
+	static void eval_impl(std::integral_constant<unsigned, 2>, scalar r, result_t *f, WaveNumber const &k)
+	{
+		auto kr = k * r;
+		auto ikr = result_t(0,1) * kr;
+		f[1] = std::exp(-ikr) / r/r/r / (4. * M_PI) * (-ikr - 1.);
+		f[0] = std::exp(-ikr) / r/r/r / (4. * M_PI) * (2. + 2. * ikr - kr * kr) - f[1];
+	}
+	
+	template <class WaveNumber>
+	static void eval_impl(std::integral_constant<unsigned, 3>, scalar r, result_t *f, WaveNumber const &k)
+	{
+		f[0] = f[1] = result_t(0);
+	}
+	
+public:
+	template <unsigned order, class WaveNumber>
+	static void eval(scalar r, result_t *f, WaveNumber const &k)
+	{
+		eval_impl(std::integral_constant<unsigned, order>(), r, f, k);
+	}
+};
+	
+	
 template <class wave_number_type>
 class wave_number_kernel
 {
@@ -231,7 +316,7 @@ public:
 		auto r = (y - x).norm();
 		auto const &k = this->get_wave_number();
 		result_t g;
-		helmholtz_helper<Space, WaveNumber>::eval(0, r, k, &g);
+		helmholtz_helper<Space>::template eval<0>(r, &g, k);
 		return g;
 	}
 	
@@ -327,9 +412,9 @@ public:
 		auto rdny = rvec.dot(y.get_unit_normal()) / r;
 		auto const &k = this->get_wave_number();
 		
-		result_t f[2];
-		helmholtz_helper<Space, WaveNumber>::eval(1, r, k, f);
-		return f[1] * rdny;
+		result_t f[1];
+		helmholtz_helper<Space>::template eval<1>(r, f, k);
+		return f[0] * rdny;
 	}
 };
 
@@ -402,9 +487,9 @@ public:
 		auto rdnx = -rvec.dot(x.get_unit_normal()) / r;
 		auto const &k = this->get_wave_number();
 		
-		result_t f[2];
-		helmholtz_helper<Space, WaveNumber>::eval(1, r, k, f);
-		return f[1] * rdnx;
+		result_t f[1];
+		helmholtz_helper<Space>::template eval<1>(r, f, k);
+		return f[0] * rdnx;
 	}
 };
 
@@ -476,11 +561,9 @@ public:
 		scalar_t rdny = rvec.dot(ny) / r;
 		scalar_t rdnx = -rvec.dot(nx) / r;
 
-		result_t f[3];
-		helmholtz_helper<Space, WaveNumber>::eval(2, r, k, f);
-		result_t g1 = f[1] / r;
-		result_t g2 = f[2] - g1;
-		return 	g2 * rdny*rdnx - g1 * nx.dot(ny);
+		result_t f[2];
+		helmholtz_helper<Space>::template eval<2>(r, f, k);
+		return 	f[0] * rdny*rdnx - f[1] * nx.dot(ny);
 	}
 };
 

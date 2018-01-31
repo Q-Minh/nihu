@@ -42,16 +42,33 @@ class laplace_helper;
 template <class scalar>
 class laplace_helper<space_2d<scalar> >
 {
-public:
-	static void eval(int n, scalar r, scalar *f)
+	static void eval_impl(std::integral_constant<unsigned, 0>, scalar r, scalar *f)
 	{
-		f[0] = -std::log(r) / (2. * M_PI);
-		if (n == 0) return;
-		f[1] = -1./r / (2. * M_PI);
-		if (n == 1) return;
-		f[2] = -f[1]/r;
-		if (n == 2) return;
-		f[3] = -2. * f[2] / r;
+		*f = -std::log(r) / (2.0 * M_PI);
+	}
+	
+	static void eval_impl(std::integral_constant<unsigned, 1>, scalar r, scalar *f)
+	{
+		*f = -1.0 / r / (2.0 * M_PI);
+	}
+	
+	static void eval_impl(std::integral_constant<unsigned, 2>, scalar r, scalar *f)
+	{
+		f[1] = -1.0 / r / r / (2.0 * M_PI);
+		f[0] = -2.0  * f[1];
+	}
+	
+	static void eval_impl(std::integral_constant<unsigned, 3>, scalar r, scalar *f)
+	{
+		f[1] = 2.0 / (r*r*r) / (2.0 * M_PI);
+		f[0] = -4.0 * f[1];
+	}
+	
+public:
+	template <unsigned order>
+	static void eval(scalar r, scalar *f)
+	{
+		eval_impl(std::integral_constant<unsigned, order>(), r, f);
 	}
 };
 	
@@ -59,16 +76,33 @@ public:
 template <class scalar>
 class laplace_helper<space_3d<scalar> >
 {
-public:
-	static void eval(int n, scalar r, scalar *f)
+	static void eval_impl(std::integral_constant<unsigned, 0>, scalar r, scalar *f)
 	{
-		f[0] = 1. / r / (4. * M_PI);
-		if (n == 0) return;
-		f[1] = -1. * f[0] / r;
-		if (n == 1) return;
-		f[2] = -2. * f[1] / r;
-		if (n == 2) return;
-		f[3] = -3. * f[2] / r;
+		*f = 1.0 / r / (4.0 * M_PI);
+	}
+	
+	static void eval_impl(std::integral_constant<unsigned, 1>, scalar r, scalar *f)
+	{
+		*f = -1.0 / r/r / (4.0 * M_PI);
+	}
+	
+	static void eval_impl(std::integral_constant<unsigned, 2>, scalar r, scalar *f)
+	{
+		f[1] = -1.0 / r/r/r / (4.0 * M_PI);
+		f[0] = -3.0 * f[1];
+	}
+	
+	static void eval_impl(std::integral_constant<unsigned, 3>, scalar r, scalar *f)
+	{
+		f[1] = 3.0 / r/r/r/r / (4.0 * M_PI);
+		f[0] = -5 * f[1];
+	}
+	
+public:
+	template <unsigned order>
+	static void eval(scalar r, scalar *f)
+	{
+		eval_impl(std::integral_constant<unsigned, order>(), r, f);
 	}
 };
 	
@@ -169,7 +203,7 @@ public:
 	{
 		typename base_t::x_t rvec = y - x;
 		double g;
-		laplace_helper<Space>::eval(0, rvec.norm(), &g);
+		laplace_helper<Space>::template eval<0>(rvec.norm(), &g);
 		return g;
 	}
 
@@ -235,9 +269,9 @@ public:
 		typename base_t::x_t rvec = y.get_x() - x.get_x();
 		scalar_t r = rvec.norm();
 		scalar_t rdny = rvec.dot(y.get_unit_normal()) / r;
-		double f[2];
-		laplace_helper<Space>::eval(1, r, f);
-		return f[1] * rdny;
+		double f;
+		laplace_helper<Space>::template eval<1>(r, &f);
+		return f * rdny;
 	}
 };
 
@@ -296,9 +330,9 @@ public:
 		typename base_t::x_t rvec = trial_input.get_x() - test_input.get_x();
 		scalar_t r = rvec.norm();
 		scalar_t rdnx = -rvec.dot(test_input.get_unit_normal()) / r;
-		scalar_t f[2];
-		laplace_helper<Space>::eval(1, r, f);
-		return rdnx * f[1];
+		scalar_t f;
+		laplace_helper<Space>::template eval<1>(r, &f);
+		return rdnx * f;
 	}
 };
 
@@ -358,11 +392,9 @@ public:
 		auto const &ny = trial_input.get_unit_normal();
 		scalar_t rdny = rvec.dot(ny) / r;
 		scalar_t rdnx = -rvec.dot(nx) / r;
-		scalar_t f[3];
-		laplace_helper<Space>::eval(2, r, f);
-		scalar_t g1 = f[1] / r;
-		scalar_t g2 = f[2] - g1;
-		return 	g2 * rdny*rdnx - g1 * nx.dot(ny);
+		scalar_t f[2];
+		laplace_helper<Space>::template eval<2>(r, f);
+		return 	f[0] * rdny*rdnx - f[1] * nx.dot(ny);
 	}
 };
 

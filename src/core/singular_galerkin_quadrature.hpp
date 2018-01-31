@@ -475,14 +475,6 @@ struct quad_helper<match::match_2d_type> : helper_base<quad_domain, quad_domain>
 	}
 };
 
-quad_domain::scalar_t
-	const quad_helper<match::match_2d_type>::corners[4][4][2] = {
-		{{0.0, 0.0}, {0.0, 0.0}, { 2.0, -2.0}, { 2.0,  0.0}},
-		{{0.0, 0.0}, {0.0, 0.0}, { 2.0,  0.0}, { 2.0,  2.0}},
-		{{0.0, 0.0}, {0.0, 0.0}, { 2.0,  2.0}, { 0.0,  2.0}},
-		{{0.0, 0.0}, {0.0, 0.0}, { 0.0,  2.0}, {-2.0,  2.0}}
-};
-
 /** \brief specialisation of ::quad_helper for the 1d match case */
 template <>
 struct quad_helper<match::match_1d_type> : helper_base<quad_domain, quad_domain>
@@ -502,16 +494,6 @@ struct quad_helper<match::match_1d_type> : helper_base<quad_domain, quad_domain>
 	{
 		return xi_t(eta(0), -2.0-eta(1));
 	}
-};
-
-quad_domain::scalar_t
-	const quad_helper<match::match_1d_type>::corners[6][4][2] = {
-		{{ 0.0,  0.0}, { 0.0,  0.0}, {-2.0,  0.0}, {-2.0, -2.0}},
-		{{ 0.0,  0.0}, { 0.0,  0.0}, {-2.0, -2.0}, { 0.0, -2.0}},
-		{{ 0.0,  0.0}, { 0.0,  0.0}, { 0.0, -2.0}, { 2.0, -2.0}},
-		{{ 0.0,  0.0}, { 0.0,  0.0}, { 2.0, -2.0}, { 2.0,  0.0}},
-		{{-2.0, -2.0}, {-2.0, -4.0}, { 0.0, -4.0}, { 0.0, -2.0}},
-		{{ 0.0, -2.0}, { 0.0, -4.0}, { 2.0, -4.0}, { 2.0, -2.0}},
 };
 
 /** \brief specialisation of ::quad_helper for the 0d match case */
@@ -534,17 +516,6 @@ struct quad_helper<match::match_0d_type> : helper_base<quad_domain, quad_domain>
 		return -2.0 * xi_t::Ones() - eta;
 	}
 };
-
-quad_domain::scalar_t
-	const quad_helper<match::match_0d_type>::corners[5][4][2] = {
-		{{ 0.0,  0.0}, { 0.0,  0.0}, {-2.0,  0.0}, {-2.0, -2.0}},
-		{{ 0.0,  0.0}, { 0.0,  0.0}, {-2.0, -2.0}, { 0.0, -2.0}},
-		{{-4.0,  0.0}, {-4.0, -2.0}, {-2.0, -2.0}, {-2.0,  0.0}},
-		{{-4.0, -2.0}, {-4.0, -4.0}, {-2.0, -4.0}, {-2.0, -2.0}},
-		{{-2.0, -2.0}, {-2.0, -4.0}, { 0.0, -4.0}, { 0.0, -2.0}}
-};
-
-
 
 /**
 * \brief specialisation of ::singular_galerkin_quadrature for the quad-quad case
@@ -759,7 +730,7 @@ private:
 			trial_quadrature.push_back(trial_base[i]);
 		}
 
-		// clear the quadrautres before filling them again
+		// clear the quadratures before filling them again
 		test_base.clear();
 		trial_base.clear();
 

@@ -149,13 +149,6 @@ struct duffy_traits<tria_1_shape_set>
 	static unsigned const duffy_corner_indices[3][2+1];
 };
 
-unsigned const duffy_traits<tria_1_shape_set>::duffy_corner_indices[3][2+1] = {
-	{1, /*|*/ 1, 2},
-	{1, /*|*/ 2, 0},
-	{1, /*|*/ 0, 1}
-};
-
-
 /** \brief Specialisation of ::duffy_traits for ::quad_1_shape_set */
 template <>
 struct duffy_traits<quad_1_shape_set>
@@ -166,14 +159,6 @@ struct duffy_traits<quad_1_shape_set>
 	static unsigned const duffy_face_indices[5+1];
 };
 
-unsigned const duffy_traits<quad_1_shape_set>::duffy_corner_indices[4][3+1] = {
-	{2, /*|*/ 1, 2, 3},
-	{2, /*|*/ 2, 3, 0},
-	{2, /*|*/ 3, 0, 1},
-	{2, /*|*/ 0, 1, 2}
-};
-
-
 /** \brief Specialisation of ::duffy_traits for ::tria_2_shape_set */
 template <>
 struct duffy_traits<tria_2_shape_set>
@@ -182,34 +167,12 @@ struct duffy_traits<tria_2_shape_set>
 	static unsigned const duffy_corner_indices[6][3+1];
 };
 
-unsigned const duffy_traits<tria_2_shape_set>::duffy_corner_indices[6][3+1] = {
-	{1, /*|*/ 1, 2},
-	{2, /*|*/ 1, 2, 0},
-	{1, /*|*/ 2, 0},
-	{2, /*|*/ 2, 0, 1},
-	{1, /*|*/ 0, 1},
-	{2, /*|*/ 0, 1, 2}
-};
-
-
 /** \brief Specialisation of ::duffy_traits for ::quad_2_shape_set */
 template <>
 struct duffy_traits<quad_2_shape_set>
 {
 	/** \brief indices of the Duffy corners for singular corners */
 	static unsigned const duffy_corner_indices[9][5+1];
-};
-
-unsigned const duffy_traits<quad_2_shape_set>::duffy_corner_indices[9][5+1] = {
-	{2, /*|*/ 1, 2, 3},
-	{3, /*|*/ 1, 2, 3, 0},
-	{2, /*|*/ 2, 3, 0},
-	{3, /*|*/ 2, 3, 0, 1},
-	{2, /*|*/ 3, 0, 1},
-	{3, /*|*/ 3, 0, 1, 2},
-	{2, /*|*/ 0, 1, 2},
-	{3, /*|*/ 0, 1, 2, 3},
-	{4, /*|*/ 0, 1, 2, 3, 0}
 };
 
 }
