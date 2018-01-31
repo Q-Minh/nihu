@@ -51,7 +51,16 @@ namespace asymptotic
 	{
         typedef inverse type;
 	};
-}
+	
+	/** \brief power low type singularity with specified order \f$ r^o \f$
+	 * \tparam order the singularity order
+	 */
+	template <int order>
+	struct power : std::integral_constant<int, order>
+	{
+		typedef power type;
+	};
+} // end of namespace asymptotic
 
 /** \brief returns the minimal reference domain dimension where the singularity can be integrated
  * \tparam SingularityType the singularity type
@@ -67,7 +76,7 @@ struct minimal_reference_dimension<asymptotic::log<1> >
 };
 
 
-/** \brief specialisation of ::minimal_reference_dimension to the log<o> singularity
+/** \brief specialisation of ::minimal_reference_dimension to the 1/r^o singularity
  * \tparam order the inverse singularity order
  */
 template <unsigned order>
@@ -76,7 +85,16 @@ struct minimal_reference_dimension<asymptotic::inverse<order> >
 	static unsigned const value = order+1;
 };
 
-}
+/** \brief specialisation of ::minimal_reference_dimension to the r^o singularity
+ * \tparam order the inverse singularity order
+ */
+template <int order>
+struct minimal_reference_dimension<asymptotic::power<order> >
+{
+	static unsigned const value = -order+1;
+};
+
+} // end of namespace NiHu
 
 
 
