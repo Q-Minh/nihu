@@ -2,7 +2,6 @@
 
 namespace NiHu
 {
-	
 
 /** \brief error terminating case of eval_interval */
 template <>

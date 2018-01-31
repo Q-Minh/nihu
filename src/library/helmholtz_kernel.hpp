@@ -41,49 +41,6 @@ namespace NiHu
 template <class Space>
 class helmholtz_helper;
 
-/*
-template <class Scalar>
-class helmholtz_helper<space_2d<Scalar> >
-{
-	typedef typename std::complex<Scalar> result_t;
-public:
-	static void eval(int n, Scalar r, WaveNumber const &k,  result_t *f)
-	{
-		auto z = k * r;
-		auto H0 = bessel::H<0, 2>(std::complex<Scalar>(z));
-		f[0] = result_t(0., -1./4.) * H0;
-		if (n == 0) return;
-		auto H1 = bessel::H<1, 2>(std::complex<Scalar>(z));
-		f[1] = k * result_t(0., 1./4.) * H1;
-		if (n == 1) return;
-		auto H2 = bessel::H<2, 2>(std::complex<Scalar>(z));
-		f[2] = k * k * result_t(0., -1./8.) * (H2 - H0);
-		if (n == 2) return;
-		auto H3 = bessel::H<3, 2>(std::complex<Scalar>(z));
-		f[3] = k * k * k * result_t(0., 1./16.) * (H3 - 3. * H1);
-	}
-};
-
-template <class Scalar, class WaveNumber>
-class helmholtz_helper<space_3d<Scalar> >
-{
-public:
-	static void eval(int n, Scalar r, WaveNumber const &k, std::complex<Scalar> *f)
-	{
-		auto kr = k * r;
-		auto ikr = std::complex<Scalar>(0,1) * kr;
-		f[0] = std::exp(-ikr) / r / (4. * M_PI);
-		if (n == 0) return;
-		f[1] = f[0] * (-ikr - 1.) / r;
-		if (n == 1) return;
-		f[2] = f[0] * (2. + 2. * ikr - kr * kr) / r / r;
-		if (n == 2) return;
-		f[3] = 0;
-	}
-};
-*/
-
-
 template <class scalar>
 class helmholtz_helper<space_2d<scalar> >
 {
@@ -92,19 +49,28 @@ class helmholtz_helper<space_2d<scalar> >
 	template <class WaveNumber>
 	static void eval_impl(std::integral_constant<unsigned, 0>, scalar r, result_t *f, WaveNumber const &k)
 	{
-		*f = result_t(0);
+		auto z = k * r;
+		auto H0 = bessel::H<0, 2>(std::complex<scalar>(z));
+		*f = std::complex<scalar>(0, -.25) * H0;
 	}
 	
 	template <class WaveNumber>
 	static void eval_impl(std::integral_constant<unsigned, 1>, scalar r, result_t *f, WaveNumber const &k)
 	{
-		*f = result_t(0);
+		auto z = k * r;
+		auto H1 = bessel::H<1, 2>(std::complex<scalar>(z));
+		*f = std::complex<scalar>(0, .25) * k * H1;
 	}
 	
 	template <class WaveNumber>
 	static void eval_impl(std::integral_constant<unsigned, 2>, scalar r, result_t *f, WaveNumber const &k)
 	{
-		f[0] = f[1] = result_t(0);
+		auto z = k * r;
+		auto H0 = bessel::H<0, 2>(std::complex<scalar>(z));
+		auto H1 = bessel::H<1, 2>(std::complex<scalar>(z));
+		auto H2 = bessel::H<2, 2>(std::complex<scalar>(z));
+		f[1] = std::complex<scalar>(0, .25) * k*k * (H1/z);
+		f[0] = std::complex<scalar>(0, -.25) * k*k * (.5 * H2 - .5 * H0 + H1/z);
 	}
 	
 	template <class WaveNumber>
@@ -120,7 +86,6 @@ public:
 		eval_impl(std::integral_constant<unsigned, order>(), r, f, k);
 	}
 };
-	
 	
 	
 template <class scalar>
@@ -197,7 +162,6 @@ private:
  */
 template <class Space, class Layer, class WaveNumber>
 class helmholtz_kernel;
-
 
 
 /// GENERAL DEFINITIONS VALID FOR ALL HELMHOLTZ KERNELS
@@ -377,9 +341,8 @@ namespace kernel_traits_ns
 	// singular behaviour is o(1) constant on smooth surfaces
 	// singular behaviour is o(1/r^2) on a corner
 	template <class Scalar, class WaveNumber>
-	struct singularity_type<helmholtz_kernel<space_3d<Scalar>, potential::DLP, WaveNumber> > : asymptotic::inverse<2> {};
+	struct singularity_type<helmholtz_kernel<space_3d<Scalar>, potential::DLP, WaveNumber> > : asymptotic::inverse<1> {};
 }
-
 
 
 /** \brief kernel of the Helmholtz equation
@@ -445,7 +408,7 @@ namespace kernel_traits_ns
 
 	// singular behaviour is o(1) constant on a smooth surface
 	template <class Scalar, class WaveNumber>
-	struct singularity_type<helmholtz_kernel<space_2d<Scalar>, potential::DLPt, WaveNumber> > : asymptotic::log<1> {};
+	struct singularity_type<helmholtz_kernel<space_2d<Scalar>, potential::DLPt, WaveNumber> > : asymptotic::inverse<1> {};
 }
 
 
@@ -456,7 +419,7 @@ namespace kernel_traits_ns
 	struct far_field_behaviour<helmholtz_kernel<space_3d<Scalar>, potential::DLPt, WaveNumber> > : asymptotic::inverse<2> {};
 	
 	template <class Scalar, class WaveNumber>
-	struct singularity_type<helmholtz_kernel<space_3d<Scalar>, potential::DLPt, WaveNumber> > : asymptotic::inverse<1> {};
+	struct singularity_type<helmholtz_kernel<space_3d<Scalar>, potential::DLPt, WaveNumber> > : asymptotic::inverse<2> {};
 }
 
 

@@ -26,7 +26,7 @@ void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 	auto D = NiHu::create_integral_operator(NiHu::helmholtz_3d_HSP_kernel<double>(k));
 
 	Ls << NiHu::dirac(surf_sp) * L[surf_sp];
-	//Ms << NiHu::dirac(surf_sp) * M[surf_sp];
+	Ms << NiHu::dirac(surf_sp) * M[surf_sp];
 	Ds << NiHu::dirac(surf_sp) * D[surf_sp];
 	Lf << NiHu::dirac(field_sp) * L[surf_sp];
 	Mf << NiHu::dirac(field_sp) * M[surf_sp];

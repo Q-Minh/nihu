@@ -44,23 +44,23 @@ class laplace_helper<space_2d<scalar> >
 {
 	static void eval_impl(std::integral_constant<unsigned, 0>, scalar r, scalar *f)
 	{
-		*f = -std::log(r) / (2.0 * M_PI);
+		*f = -std::log(r) / (2. * M_PI);
 	}
 	
 	static void eval_impl(std::integral_constant<unsigned, 1>, scalar r, scalar *f)
 	{
-		*f = -1.0 / r / (2.0 * M_PI);
+		*f = -1.0 / r / (2. * M_PI);
 	}
 	
 	static void eval_impl(std::integral_constant<unsigned, 2>, scalar r, scalar *f)
 	{
-		f[1] = -1.0 / r / r / (2.0 * M_PI);
+		f[1] = -1.0 / (r*r) / (2. * M_PI);
 		f[0] = -2.0  * f[1];
 	}
 	
 	static void eval_impl(std::integral_constant<unsigned, 3>, scalar r, scalar *f)
 	{
-		f[1] = 2.0 / (r*r*r) / (2.0 * M_PI);
+		f[1] = 2.0 / (r*r*r) / (2. * M_PI);
 		f[0] = -4.0 * f[1];
 	}
 	
