@@ -30,83 +30,12 @@
 #include "../core/global_definitions.hpp"
 #include "../core/kernel.hpp"
 #include "../core/gaussian_quadrature.hpp"
+#include "laplace_base_kernel.hpp"
 #include "potential_kernel.hpp"
 #include "location_normal.hpp"
 
 namespace NiHu
 {
-	
-template <class Space>
-class laplace_helper;
-
-template <class scalar>
-class laplace_helper<space_2d<scalar> >
-{
-	static void eval_impl(std::integral_constant<unsigned, 0>, scalar r, scalar *f)
-	{
-		*f = -std::log(r) / (2. * M_PI);
-	}
-	
-	static void eval_impl(std::integral_constant<unsigned, 1>, scalar r, scalar *f)
-	{
-		*f = -1.0 / r / (2. * M_PI);
-	}
-	
-	static void eval_impl(std::integral_constant<unsigned, 2>, scalar r, scalar *f)
-	{
-		f[1] = -1.0 / (r*r) / (2. * M_PI);
-		f[0] = -2.0  * f[1];
-	}
-	
-	static void eval_impl(std::integral_constant<unsigned, 3>, scalar r, scalar *f)
-	{
-		f[1] = 2.0 / (r*r*r) / (2. * M_PI);
-		f[0] = -4.0 * f[1];
-	}
-	
-public:
-	template <unsigned order>
-	static void eval(scalar r, scalar *f)
-	{
-		eval_impl(std::integral_constant<unsigned, order>(), r, f);
-	}
-};
-	
-	
-template <class scalar>
-class laplace_helper<space_3d<scalar> >
-{
-	static void eval_impl(std::integral_constant<unsigned, 0>, scalar r, scalar *f)
-	{
-		*f = 1.0 / r / (4.0 * M_PI);
-	}
-	
-	static void eval_impl(std::integral_constant<unsigned, 1>, scalar r, scalar *f)
-	{
-		*f = -1.0 / r/r / (4.0 * M_PI);
-	}
-	
-	static void eval_impl(std::integral_constant<unsigned, 2>, scalar r, scalar *f)
-	{
-		f[1] = -1.0 / r/r/r / (4.0 * M_PI);
-		f[0] = -3.0 * f[1];
-	}
-	
-	static void eval_impl(std::integral_constant<unsigned, 3>, scalar r, scalar *f)
-	{
-		f[1] = 3.0 / r/r/r/r / (4.0 * M_PI);
-		f[0] = -5 * f[1];
-	}
-	
-public:
-	template <unsigned order>
-	static void eval(scalar r, scalar *f)
-	{
-		eval_impl(std::integral_constant<unsigned, order>(), r, f);
-	}
-};
-	
-	
 	
 /** \brief kernel of the Laplace equation
  * \tparam Space the coordinate space the kernel is defined over
@@ -114,7 +43,6 @@ public:
  */
 template <class Space, class Layer>
 class laplace_kernel;
-
 
 /// GENERAL TRAITS
 namespace kernel_traits_ns
@@ -192,6 +120,9 @@ template <class Space>
 class laplace_kernel<Space, potential::SLP>
 	: public kernel_base<laplace_kernel<Space, potential::SLP> >
 {
+private:
+	laplace_helper<Space> hlp;
+	
 public:
 	typedef kernel_base<laplace_kernel<Space, potential::SLP> > base_t;
 	typedef typename base_t::test_input_t test_input_t;
@@ -203,7 +134,7 @@ public:
 	{
 		typename base_t::x_t rvec = y - x;
 		double g;
-		laplace_helper<Space>::template eval<0>(rvec.norm(), &g);
+		this->hlp.template eval<0>(rvec.norm(), &g);
 		return g;
 	}
 
@@ -235,8 +166,8 @@ namespace kernel_traits_ns
 	template <class Scalar>
 	struct far_field_behaviour<laplace_kernel<space_2d<Scalar>, potential::DLP> > : asymptotic::inverse<1> {};
 
-	/** \brief kernel singularity type
-	 * \todo check this!
+	/** \brief the singularity type
+	 * \todo check this just like the plain DLP kernel
 	 */
 	template <class Scalar>
 	struct singularity_type<laplace_kernel<space_2d<Scalar>, potential::DLP> > : asymptotic::log<1> {};
@@ -257,6 +188,9 @@ template <class Space>
 class laplace_kernel<Space, potential::DLP>
 	: public kernel_base<laplace_kernel<Space, potential::DLP> >
 {
+private:
+	laplace_helper<Space> hlp;
+
 public:
 	typedef kernel_base<laplace_kernel<Space, potential::DLP> > base_t;
 	typedef typename base_t::test_input_t test_input_t;
@@ -270,7 +204,7 @@ public:
 		scalar_t r = rvec.norm();
 		scalar_t rdny = rvec.dot(y.get_unit_normal()) / r;
 		double f;
-		laplace_helper<Space>::template eval<1>(r, &f);
+		this->hlp.template eval<1>(r, &f);
 		return f * rdny;
 	}
 };
@@ -318,6 +252,9 @@ template <class Space>
 class laplace_kernel<Space, potential::DLPt>
 	: public kernel_base<laplace_kernel<Space, potential::DLPt> >
 {
+private:
+	laplace_helper<Space> hlp;
+
 public:
 	typedef kernel_base<laplace_kernel<Space, potential::DLPt> > base_t;
 	typedef typename base_t::test_input_t test_input_t;
@@ -331,7 +268,7 @@ public:
 		scalar_t r = rvec.norm();
 		scalar_t rdnx = -rvec.dot(test_input.get_unit_normal()) / r;
 		scalar_t f;
-		laplace_helper<Space>::template eval<1>(r, &f);
+		this->hlp.template eval<1>(r, &f);
 		return rdnx * f;
 	}
 };
@@ -377,6 +314,9 @@ template <class Space>
 class laplace_kernel<Space, potential::HSP>
 	: public kernel_base<laplace_kernel<Space, potential::HSP> >
 {
+private:
+	laplace_helper<Space> hlp;
+
 public:
 	typedef kernel_base<laplace_kernel<Space, potential::HSP> > base_t;
 	typedef typename base_t::test_input_t test_input_t;
@@ -393,7 +333,7 @@ public:
 		scalar_t rdny = rvec.dot(ny) / r;
 		scalar_t rdnx = -rvec.dot(nx) / r;
 		scalar_t f[2];
-		laplace_helper<Space>::template eval<2>(r, f);
+		this->hlp.template eval<2>(r, f);
 		return 	f[0] * rdny*rdnx - f[1] * nx.dot(ny);
 	}
 };
