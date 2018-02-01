@@ -56,11 +56,9 @@ static double tester(TestSpace const &test_space, TrialSpace const &trial_space)
 	cMatrix L(N, N), M(N, N), I(N,N);
 	L.setZero(); M.setZero(); I.setZero();
 
-	M << test_space * M_op[trial_space];
-	/*
 	I << test_space * I_op[trial_space];
 	L << test_space * L_op[trial_space];
-	
+	M << test_space * M_op[trial_space];
 	
 	std::cout << I.block(0, 0, 5, 5) << std::endl << std::endl;
 	std::cout << L.block(0, 0, 5, 5) << std::endl << std::endl;
@@ -69,8 +67,6 @@ static double tester(TestSpace const &test_space, TrialSpace const &trial_space)
 	cMatrix p = (M - .5 * I).colPivHouseholderQr().solve(L * q0);
 	
 	return (p-p0).norm() / p0.norm();
-	*/
-	return 1e-3;
 }
 
 int main(int argc, char *argv[])
@@ -89,9 +85,9 @@ int main(int argc, char *argv[])
 	double coll_error = tester(NiHu::dirac(trial_space), trial_space);
 	std::cout << coll_error << std::endl;
 	
-//	std::cout << "Galerkin" << std::endl;
-//	double gal_error = tester(trial_space, trial_space);
-//	std::cout << gal_error << std::endl;
+	std::cout << "Galerkin" << std::endl;
+	double gal_error = tester(trial_space, trial_space);
+	std::cout << gal_error << std::endl;
 	
 	return 0;
 }

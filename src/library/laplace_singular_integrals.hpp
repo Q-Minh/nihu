@@ -263,7 +263,6 @@ public:
 		field_base<TrialField> const &,
 		element_match const &)
 	{
-		//std::cout << "Laplace DLP/DLPt kernel integrated with shortcut" << std::endl;
 		return result;
 	}
 };
