@@ -293,13 +293,12 @@ public:
 	}
 };
 
-
 /** \brief Trivial integrals of various 3d kernels over plane surfaces
  * \tparam Kernel the kernel type
  * \tparam TestField the test field type
  * \tparam TrialField the trial field type
  */
-template <template<class WaveNumber> class Kernel, class WaveNumber, class TestField, class TrialField>
+template <template<typename> class Kernel, class WaveNumber, class TestField, class TrialField>
 class singular_integral_shortcut<
 	Kernel<WaveNumber>, TestField, TrialField, match::match_2d_type,
 	typename std::enable_if<
@@ -323,9 +322,79 @@ public:
 		field_base<TrialField> const &,
 		element_match const &)
 	{
+		static_assert(!std::is_same<WaveNumber, WaveNumber>::value, "Rameccselt");
 		return result;
 	}
 };
+
+
+
+
+/** \brief Trivial integrals of various 3d kernels over plane surfaces
+ * \tparam Kernel the kernel type
+ * \tparam TestField the test field type
+ * \tparam TrialField the trial field type
+ */
+template <template<class WaveNumber> class Kernel, class TestField, class TrialField>
+class singular_integral_shortcut<
+	Kernel<double>, TestField, TrialField, match::match_2d_type,
+	typename std::enable_if<
+		( std::is_same<Kernel<double>, helmholtz_3d_DLP_kernel<double> >::value ||
+		  std::is_same<Kernel<double>, helmholtz_3d_DLPt_kernel<double> >::value
+		) && std::is_same<typename TrialField::lset_t, tria_1_shape_set>::value
+	>::type
+>
+{
+public:
+	/** \brief evaluate the kernel (zero)
+	 * \tparam result_t the result's type
+	 * \param [in] result the result reference
+	 * \return the result reference
+	 */
+	template <class result_t>
+	static constexpr result_t &eval(
+		result_t &result,
+		kernel_base<Kernel<double> > const &,
+		field_base<TestField> const &,
+		field_base<TrialField> const &,
+		element_match const &)
+	{
+		static_assert(!std::is_same<Kernel<double>, Kernel<double> >::value, "Mival");
+		return result;
+	}
+};
+
+
+
+#if 0
+template <class WaveNumber, class TestField, class TrialField>
+class singular_integral_shortcut<
+	helmholtz_3d_DLP_kernel<WaveNumber>, TestField, TrialField, match::match_2d_type,
+	typename std::enable_if<
+		std::is_same<typename TrialField::lset_t, tria_1_shape_set>::value
+	>::type
+>
+{
+public:
+	/** \brief evaluate the kernel (zero)
+	 * \tparam result_t the result's type
+	 * \param [in] result the result reference
+	 * \return the result reference
+	 */
+	template <class result_t>
+	static constexpr result_t &eval(
+		result_t &result,
+		kernel_base<helmholtz_3d_DLP_kernel<WaveNumber> > const &,
+		field_base<TestField> const &,
+		field_base<TrialField> const &,
+		element_match const &)
+	{
+		return result;
+	}
+};
+#endif
+
+
 
 /** \brief Trivial integrals of various 2d DLP kernels over plane surfaces
  * \tparam Kernel the kernel type

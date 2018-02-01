@@ -30,6 +30,8 @@
 #include "lib_element.hpp"
 #include "../core/singular_integral_shortcut.hpp"
 
+#include <iostream>
+
 
 namespace NiHu
 {
@@ -254,13 +256,14 @@ public:
 	 * \return the result reference
 	 */
 	template <class result_t>
-	constexpr static result_t &eval(
+	static constexpr result_t &eval(
 		result_t &result,
 		kernel_base<Kernel> const &,
 		field_base<TestField> const &,
 		field_base<TrialField> const &,
 		element_match const &)
 	{
+		//std::cout << "Laplace DLP/DLPt kernel integrated with shortcut" << std::endl;
 		return result;
 	}
 };

@@ -249,7 +249,7 @@ namespace kernel_traits_ns
 	struct far_field_behaviour<laplace_kernel<space_3d<Scalar>, potential::DLP> > : asymptotic::inverse<2> {};
 
 	template <class Scalar>
-	struct singularity_type<laplace_kernel<space_3d<Scalar>, potential::DLP> > : asymptotic::inverse<1> {};
+	struct singularity_type<laplace_kernel<space_3d<Scalar>, potential::DLP> > : asymptotic::inverse<2> {};
 }
 
 

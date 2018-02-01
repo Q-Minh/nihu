@@ -76,6 +76,9 @@ struct singular_shortcut_switch
 			field_base<TrialField> const &trial_field,
 			element_match const &mtch)
 		{
+			
+			std::cout << "Match dimension: " << mtch.get_match_dimension() << std::endl;
+			std::cout << "Singularity value: " << Singularity::value << std::endl;
 
 			// if the parameter singularity is valid, evaluate shortcut
 			if (mtch.get_match_dimension() == Singularity::value)
@@ -572,6 +575,8 @@ protected:
 		
 		typedef typename match_type_vector<TestField, TrialField>::type possible_match_types;
 		
+		std::cout << "Now checking singular shortcuts" << std::endl;
+		
 		if (!tmp::call_until<
 			possible_match_types,
 			singular_shortcut_switch<tmp::_1>,
@@ -659,6 +664,7 @@ private:
 		field_base<TrialField> const &trial_field,
 		element_match const &)
 	{
+		std::cout << "General version of singular_integral_shortcut called" << std::endl;
 		return double_integral_t::template eval_singular_on_accelerator<singular_accelerator_t, void>::eval(
 			result, kernel, test_field, trial_field, store_t::get_data());
 	}

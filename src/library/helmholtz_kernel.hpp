@@ -341,7 +341,7 @@ namespace kernel_traits_ns
 	// singular behaviour is o(1) constant on smooth surfaces
 	// singular behaviour is o(1/r^2) on a corner
 	template <class Scalar, class WaveNumber>
-	struct singularity_type<helmholtz_kernel<space_3d<Scalar>, potential::DLP, WaveNumber> > : asymptotic::inverse<1> {};
+	struct singularity_type<helmholtz_kernel<space_3d<Scalar>, potential::DLP, WaveNumber> > : asymptotic::inverse<2> {};
 }
 
 
