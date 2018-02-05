@@ -1,17 +1,23 @@
+/** \file normal_derivative_kernel.hpp
+ * \brief declaration of class normal_derivative_kernel
+ * \author Peter Fiala
+ */
+
 #ifndef NORMAL_DERIVATIVE_KERNEL_HPP_INCLUDED
 #define NORMAL_DERIVATIVE_KERNEL_HPP_INCLUDED
 
 #include "../util/brick.hpp"
 #include "../core/kernel.hpp"
-#include "../library/location_normal.hpp"
-
+#include "location_normal.hpp"
+#include "distance_dependent_kernel.hpp"
 
 namespace NiHu
 {
 	
-/** \brief kernel of the Laplace equation
- * \tparam Space the coordinate space the kernel is defined over
- * \tparam Layer the potential layer tag that can be potential::SLP, potential::DLP, potential::DLPt and potential::HSP
+/** \brief normal derivative of a distance dependent kernel
+ * \tparam DistanceKernel the distance dependent kernel
+ * \tparam Nx the order of normal derivative w.r.t. n(x)
+ * \tparam Ny the order of normal derivative w.r.t. n(y)
  */
 template <class DistanceKernel, int Nx, int Ny>
 class normal_derivative_kernel;
@@ -21,36 +27,43 @@ namespace kernel_traits_ns
 {
 	// the space is inherited
 	template <class DK, int Nx, int Ny>
-	struct space<normal_derivative_kernel<DK, Nx, Ny> > : space<DK> {};
+	struct space<normal_derivative_kernel<DK, Nx, Ny> >
+		: distance_dependent_kernel_traits_ns::space<DK> {};
 
 	// the result is inherited
 	template <class DK, int Nx, int Ny>
-	struct result<normal_derivative_kernel<DK, Nx, Ny> > : result<DK> {};
+	struct result<normal_derivative_kernel<DK, Nx, Ny> >
+		: distance_dependent_kernel_traits_ns::result<DK> {};
 	// the number of result rows is inherited
 	template <class DK, int Nx, int Ny>
-	struct result_rows<normal_derivative_kernel<DK, Nx, Ny> > : result_rows<DK> {};
+	struct result_rows<normal_derivative_kernel<DK, Nx, Ny> >
+		: distance_dependent_kernel_traits_ns::result_rows<DK> {};
 	// the number of result columns is inherited
 	template <class DK, int Nx, int Ny>
-	struct result_cols<normal_derivative_kernel<DK, Nx, Ny> > : result_cols<DK> {};
+	struct result_cols<normal_derivative_kernel<DK, Nx, Ny> >
+		: distance_dependent_kernel_traits_ns::result_cols<DK> {};
 
 	// the quadrature family is inherited
 	template <class DK, int Nx, int Ny>
-	struct quadrature_family<normal_derivative_kernel<DK, Nx, Ny> > : quadrature_family<DK> {};
+	struct quadrature_family<normal_derivative_kernel<DK, Nx, Ny> >
+		: distance_dependent_kernel_traits_ns::quadrature_family<DK> {};
 
 	// singularity is inherited
 	template <class DK, int Nx, int Ny>
-	struct is_singular<normal_derivative_kernel<DK, Nx, Ny> > : is_singular<DK> {};
+	struct is_singular<normal_derivative_kernel<DK, Nx, Ny> >
+		: distance_dependent_kernel_traits_ns::is_singular<DK> {};
 
 	// singular quadrature order is inherited
 	template <class DK, int Nx, int Ny>
 	struct singular_quadrature_order<normal_derivative_kernel<DK, Nx, Ny> >
-		: singular_quadrature_order<DK>  {};
+		: distance_dependent_kernel_traits_ns::singular_quadrature_order<DK>  {};
 
 	// singular core is normal derivative of the singular core
 	template <class DK, int Nx, int Ny>
 	struct singular_core<normal_derivative_kernel<DK, Nx, Ny> > {
 		typedef normal_derivative_kernel<
-			typename singular_core<DK>::type, Nx, Ny
+			typename distance_dependent_kernel_traits_ns::singular_core<DK>::type,
+			Nx, Ny
 		> type;
 	};
 
@@ -61,34 +74,43 @@ namespace kernel_traits_ns
 
 	// in the general case, the test input is normal_jacobian
 	template <class DK, int Nx, int Ny>
-	struct test_input<normal_derivative_kernel<DK, Nx, Ny> >
-		: build<location<typename space<DK>::type >, normal_jacobian<typename space<DK>::type > > {};
+	struct test_input<normal_derivative_kernel<DK, Nx, Ny> > : build<
+		location<typename distance_dependent_kernel_traits_ns::space<DK>::type>,
+		normal_jacobian<typename distance_dependent_kernel_traits_ns::space<DK>::type>
+	> {};
 
 	// for the Nx = 0 case the test input is location
 	template <class DK, int Ny>
-	struct test_input<normal_derivative_kernel<DK, 0, Ny> >
-		: build<location<typename space<DK>::type> > {};
+	struct test_input<normal_derivative_kernel<DK, 0, Ny> > : build<
+		location<typename distance_dependent_kernel_traits_ns::space<DK>::type>
+	> {};
 
 	// in the general case, the trial input is normal_jacobian
 	template <class DK, int Nx, int Ny>
-	struct trial_input<normal_derivative_kernel<DK, Nx, Ny> >
-		: build<location<typename space<DK>::type >, normal_jacobian<typename space<DK>::type > > {};
+	struct trial_input<normal_derivative_kernel<DK, Nx, Ny> > : build<
+		location<typename distance_dependent_kernel_traits_ns::space<DK>::type>,
+		normal_jacobian<typename distance_dependent_kernel_traits_ns::space<DK>::type>
+	> {};
 
 	// for the Ny = 0 case the trial input is location
 	template <class DK, int Nx>
-	struct trial_input<normal_derivative_kernel<DK, Nx, 0> >
-		: build<location<typename space<DK>::type> > {};
+	struct trial_input<normal_derivative_kernel<DK, Nx, 0> > : build<
+		location<typename distance_dependent_kernel_traits_ns::space<DK>::type>
+	> {};
 
 	template <class DK>
 	struct far_field_behaviour<normal_derivative_kernel<DK, 0, 0> >
-		: far_field_behaviour<DK> {};
+		: distance_dependent_kernel_traits_ns::far_field_behaviour<DK> {};
 
 	template <class DK>
 	struct singularity_type<normal_derivative_kernel<DK, 0, 0> >
-		: singularity_type<DK> {};
+		: distance_dependent_kernel_traits_ns::singularity_type<DK> {};
 }
 
 
+/** \brief zero order normal derivative of a distance dependent kernel
+ * \tparam DistanceKernel the distance dependent kernel
+ */
 template <class DistanceKernel>
 class normal_derivative_kernel<DistanceKernel, 0, 0>
 	: public kernel_base<normal_derivative_kernel<DistanceKernel, 0, 0> >
@@ -102,7 +124,7 @@ public:
 	typedef typename base_t::x_t x_t;
 	
 	normal_derivative_kernel(DistanceKernel const &dk = DistanceKernel())
-		: DistanceKernel(dk)
+		: DistanceKernel(dk.derived())
 	{
 	}
 	
@@ -121,6 +143,9 @@ public:
 };
 
 
+/** \brief first y-derivative of a distance dependent kernel
+ * \tparam DistanceKernel the distance dependent kernel
+ */
 template <class DistanceKernel>
 class normal_derivative_kernel<DistanceKernel, 0, 1>
 	: public kernel_base<normal_derivative_kernel<DistanceKernel, 0, 1> >
@@ -135,7 +160,7 @@ public:
 	typedef typename base_t::x_t x_t;
 	
 	normal_derivative_kernel(DistanceKernel const &dk = DistanceKernel())
-		: DistanceKernel(dk)
+		: DistanceKernel(dk.derived())
 	{
 	}
 	
@@ -155,6 +180,9 @@ public:
 	}
 };
 
+/** \brief first x-derivative of a distance dependent kernel
+ * \tparam DistanceKernel the distance dependent kernel
+ */
 template <class DistanceKernel>
 class normal_derivative_kernel<DistanceKernel, 1, 0>
 	: public kernel_base<normal_derivative_kernel<DistanceKernel, 1, 0> >
@@ -169,7 +197,7 @@ public:
 	typedef typename base_t::x_t x_t;
 	
 	normal_derivative_kernel(DistanceKernel const &dk = DistanceKernel())
-		: DistanceKernel(dk)
+		: DistanceKernel(dk.derived())
 	{
 	}
 	
@@ -190,6 +218,9 @@ public:
 };
 
 
+/** \brief second xy derivative of a distance dependent kernel
+ * \tparam DistanceKernel the distance dependent kernel
+ */
 template <class DistanceKernel>
 class normal_derivative_kernel<DistanceKernel, 1, 1>
 	: public kernel_base<normal_derivative_kernel<DistanceKernel, 1, 1> >
@@ -204,7 +235,7 @@ public:
 	typedef typename base_t::x_t x_t;
 	
 	normal_derivative_kernel(DistanceKernel const &dk = DistanceKernel())
-		: DistanceKernel(dk)
+		: DistanceKernel(dk.derived())
 	{
 	}
 	
@@ -226,6 +257,5 @@ public:
 };
 
 }
-
 
 #endif

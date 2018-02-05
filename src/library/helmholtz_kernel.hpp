@@ -30,7 +30,8 @@
 #include "../core/global_definitions.hpp"
 #include "../core/gaussian_quadrature.hpp"
 #include "../util/math_functions.hpp"
-#include "../library/normal_derivative_kernel.hpp"
+#include "library/normal_derivative_kernel.hpp"
+#include "distance_dependent_kernel.hpp"
 
 #include "laplace_kernel.hpp"
 
@@ -40,7 +41,7 @@ template <class Space, class WaveNumber>
 class helmholtz_kernel;
 
 /// GENERAL TRAITS
-namespace kernel_traits_ns
+namespace distance_dependent_kernel_traits_ns
 {
 	template <class Space, class WaveNumber>
 	struct space<helmholtz_kernel<Space, WaveNumber> > : Space {};
@@ -90,7 +91,7 @@ namespace kernel_traits_ns
 	template <class Scalar, class WaveNumber>
 	struct singularity_type<helmholtz_kernel<space_3d<Scalar>, WaveNumber> >
 		: asymptotic::inverse<1> {};
-}
+} // distance_dependent_kernel_traits_ns
 
 
 template <class wave_number_type>
@@ -118,9 +119,10 @@ private:
 template <class scalar, class WaveNumber>
 class helmholtz_kernel<space_2d<scalar>, WaveNumber>
 	: public wave_number_kernel<WaveNumber>
+	, public distance_dependent_kernel<helmholtz_kernel<space_2d<scalar>, WaveNumber> >
 {
 public:
-	typedef typename kernel_traits_ns::result<
+	typedef typename distance_dependent_kernel_traits_ns::result<
 		helmholtz_kernel<space_2d<scalar>, WaveNumber>
 	>::type result_t;
 	
@@ -173,9 +175,10 @@ public:
 template <class scalar, class WaveNumber>
 class helmholtz_kernel<space_3d<scalar>, WaveNumber>
 	: public wave_number_kernel<WaveNumber>
+	, public distance_dependent_kernel<helmholtz_kernel<space_3d<scalar>, WaveNumber> >
 {
 public:
-	typedef typename kernel_traits_ns::result<
+	typedef typename distance_dependent_kernel_traits_ns::result<
 		helmholtz_kernel<space_3d<scalar>, WaveNumber>
 	>::type result_t;
 	

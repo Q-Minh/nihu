@@ -30,6 +30,7 @@
 #include "../core/global_definitions.hpp"
 #include "../core/gaussian_quadrature.hpp"
 #include "normal_derivative_kernel.hpp"
+#include "distance_dependent_kernel.hpp"
 
 namespace NiHu
 {
@@ -37,8 +38,7 @@ namespace NiHu
 template <class Space>
 class laplace_kernel;
 
-/// GENERAL TRAITS
-namespace kernel_traits_ns
+namespace distance_dependent_kernel_traits_ns
 {
 	template <class Space>
 	struct space<laplace_kernel<Space> > : Space {};
@@ -85,10 +85,11 @@ namespace kernel_traits_ns
 	template <class Scalar>
 	struct singularity_type<laplace_kernel<space_3d<Scalar> > >
 		: asymptotic::inverse<1> {};
-}
+} // end of distance_dependent_kernel_traits_ns
 
 template <class scalar>
 class laplace_kernel<space_2d<scalar> >
+	: public distance_dependent_kernel<laplace_kernel<space_2d<scalar> > >
 {
 private:
 	void eval_impl(std::integral_constant<unsigned, 0>, scalar r, scalar *f) const
@@ -124,6 +125,7 @@ public:
 	
 template <class scalar>
 class laplace_kernel<space_3d<scalar> >
+	: public distance_dependent_kernel<laplace_kernel<space_3d<scalar> > >
 {
 	void eval_impl(std::integral_constant<unsigned, 0>, scalar r, scalar *f) const
 	{
