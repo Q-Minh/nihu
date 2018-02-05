@@ -24,11 +24,12 @@
 #define LAPLACE_SINGULAR_INTEGRALS_HPP_INCLUDED
 
 #include "../core/integral_operator.hpp"
+#include "../core/singular_integral_shortcut.hpp"
 #include "laplace_kernel.hpp"
+#include "normal_derivative_singular_integrals.hpp"
 #include "plane_element_helper.hpp"
 #include "guiggiani_1992.hpp"
 #include "lib_element.hpp"
-#include "../core/singular_integral_shortcut.hpp"
 
 #include <iostream>
 
@@ -231,79 +232,6 @@ public:
 		return result / (4.*M_PI);
 	}
 };
-
-
-/** \brief Singular integrals of the 3d DLP and DLPt kernels over plane triangles
- * \tparam Formalism the integration formalism (collocational or general)
- * \tparam Kernel the kernel type the test field type
- * \tparam TestField the test field type
- * \tparam TrialField the trial field type
- */
-template <class Kernel, class TestField, class TrialField>
-class singular_integral_shortcut<
-	Kernel, TestField, TrialField, match::match_2d_type,
-	typename std::enable_if<
-		( std::is_same<Kernel, laplace_3d_DLP_kernel>::value ||
-		  std::is_same<Kernel, laplace_3d_DLPt_kernel>::value
-		) && std::is_same<typename TrialField::lset_t, tria_1_shape_set>::value
-	>::type
->
-{
-public:
-	/** \brief evaluate the kernel (zero)
-	 * \tparam result_t the result's type
-	 * \param [in] result the result reference
-	 * \return the result reference
-	 */
-	template <class result_t>
-	static constexpr result_t &eval(
-		result_t &result,
-		kernel_base<Kernel> const &,
-		field_base<TestField> const &,
-		field_base<TrialField> const &,
-		element_match const &)
-	{
-		return result;
-	}
-};
-
-
-/** \brief Singular integrals of the 2d DLP and DLPt kernels over plane line elements
- * \tparam Formalism the integration formalism (collocational or general)
- * \tparam Kernel the kernel type the test field type
- * \tparam TestField the test field type
- * \tparam TrialField the trial field type
- */
-template <class Kernel, class TestField, class TrialField>
-class singular_integral_shortcut<
-	Kernel, TestField, TrialField, match::match_1d_type,
-	typename std::enable_if<
-		( std::is_same<Kernel, laplace_2d_DLP_kernel>::value ||
-		  std::is_same<Kernel, laplace_2d_DLPt_kernel>::value
-		) && std::is_same<typename TrialField::lset_t, line_1_shape_set>::value
-	>::type
->
-{
-public:
-	/** \brief evaluate the kernel (zero)
-	 * \tparam result_t the result's type
-	 * \param [in] result the result reference
-	 * \return the result reference
-	 */
-	template <class result_t>
-	constexpr static result_t &eval(
-		result_t &result,
-		kernel_base<Kernel> const &,
-		field_base<TestField> const &,
-		field_base<TrialField> const &,
-		element_match const &)
-	{
-		return result;
-	}
-};
-
-
-
 
 
 /** \brief collocational singular integral of the 2D SLP kernel over a constant line
@@ -548,9 +476,16 @@ class singular_integral_shortcut<
 >
 {
 public:
-	// the condition always evaluates to false
-	static_assert(!std::is_same<typename TestField::nset_t, typename TrialField::nset_t>::value,
-		"\n\nThe 2D HSP kernel of the Laplace equation can not be integrated over a constant line element in a Galerkin sense.\n\n");
+	template <class result_t>
+	static result_t &eval(
+		result_t &result,
+		kernel_base<laplace_2d_HSP_kernel> const &,
+		field_base<TestField> const &,
+		field_base<TrialField> const &,
+		element_match const &)
+	{
+		return result;
+	}
 };
 
 /** \brief collocational singular integral of the 3D SLP kernel over a constant triangle

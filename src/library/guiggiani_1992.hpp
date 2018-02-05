@@ -147,7 +147,7 @@ public:
 		typename kernel_t::result_t, trial_n_shape_t
 	>::type total_result_t;
 
-	/** \todo these compuations are only valid for the 3D case */
+	/** \todo these calculations are only valid for the 3D case */
 	enum {
 		/** \brief the required Laurent expansion order */
 		laurent_order = singular_kernel_traits<kernel_t>::singularity_type_t::value - 1,
@@ -165,12 +165,15 @@ public:
 private:
 	/** \brief store xi0-related quantities for acceleration
 	 * \param [in] xi0 the singular point in the reference domain
+	 * \param [in] normal the normal in the singular point
 	 */
 	void compute_xi0(xi_t const &xi0, x_t const &normal)
 	{
+		// store the singular point and the unit normal vector
 		m_xi0 = xi0;
 		m_n0 = normal.normalized();
 
+		// get the physical location and its gradient
 		m_x0 = m_elem.get_x(m_xi0);
 		typename elem_t::dx_return_type dx = m_elem.get_dx(m_xi0);
 
@@ -332,7 +335,7 @@ public:
 				} // rho loop
 			} // theta loop
 		} // element sides
-	}
+	} // end of function integrate
 
 	/** \brief return Taylor coefficient of the distance measured from the collocation point */
 	template <class T, T order>
@@ -480,7 +483,7 @@ public:
 		typename kernel_t::result_t, trial_n_shape_t
 	>::type total_result_t;
 
-	/** \todo these compuations are only valid for the 2D volume case */
+	/** \todo these calculations are only valid for the 2D volume case */
 	enum {
 		/** \brief the required Laurent expansion order */
 		laurent_order = singular_kernel_traits<kernel_t>::singularity_type_t::value - 1,
