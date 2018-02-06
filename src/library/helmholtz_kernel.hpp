@@ -201,16 +201,19 @@ private:
 
 	void eval_impl(std::integral_constant<unsigned, 2>, scalar r, result_t *f) const
 	{
-		auto kr = this->get_wave_number() * r;
-		auto ikr = result_t(0,1) * kr;
-		f[1] = std::exp(-ikr) / (r*r*r) / (4. * M_PI) * (-ikr - 1.);
-		f[0] = std::exp(-ikr) / (r*r*r) / (4. * M_PI) * (2. + 2. * ikr - kr * kr) - f[1];
+		auto ikr = result_t(0,1) * (this->get_wave_number() * r);
+		auto g = std::exp(-ikr) / (r*r*r) / (4. * M_PI);
+		f[1] = -g * (1. + ikr);
+		f[0] = g * (3. + ikr * (3. + ikr));
 	}
 	
 
 	void eval_impl(std::integral_constant<unsigned, 3>, scalar r, result_t *f) const
 	{
-		f[0] = f[1] = result_t(0);
+		auto ikr = result_t(0,1) * (this->get_wave_number() * r);
+		auto g = std::exp(-ikr)/(r*r*r*r) / (4.*M_PI);
+		f[1] = g * (3. + ikr * (3. + ikr));
+		f[0] = -g * (15. + ikr * (15 + ikr * (6 + ikr)));
 	}
 	
 public:
@@ -226,7 +229,7 @@ public:
 	}
 };
 
-/// Laplace Helper Behaviour
+/// Helmholtz normal derivative kernel behaviors
 namespace kernel_traits_ns
 {
 	/// \todo check this
@@ -241,16 +244,6 @@ namespace kernel_traits_ns
 		normal_derivative_kernel<helmholtz_kernel<space_2d<Scalar>, WaveNumber>, 0, 1>
 	> : asymptotic::inverse<1> {};
 
-	template <class Scalar, class WaveNumber>
-	struct far_field_behaviour<
-		normal_derivative_kernel<helmholtz_kernel<space_3d<Scalar>, WaveNumber>, 0, 1>
-	> : asymptotic::inverse<2> {};
-
-	template <class Scalar, class WaveNumber>
-	struct singularity_type<
-		normal_derivative_kernel<helmholtz_kernel<space_3d<Scalar>, WaveNumber>, 0, 1>
-	> : asymptotic::inverse<2> {};
-
 	/// \todo check this
 	template <class Scalar, class WaveNumber>
 	struct far_field_behaviour<
@@ -263,16 +256,6 @@ namespace kernel_traits_ns
 		normal_derivative_kernel<helmholtz_kernel<space_2d<Scalar>, WaveNumber>, 1, 0>
 	> : asymptotic::inverse<1> {};
 
-	template <class Scalar, class WaveNumber>
-	struct far_field_behaviour<
-		normal_derivative_kernel<helmholtz_kernel<space_3d<Scalar>, WaveNumber>, 1, 0>
-	> : asymptotic::inverse<2> {};
-
-	template <class Scalar, class WaveNumber>
-	struct singularity_type<
-		normal_derivative_kernel<helmholtz_kernel<space_3d<Scalar>, WaveNumber>, 1, 0>
-	> : asymptotic::inverse<2> {};
-
 	/// \todo check this
 	template <class Scalar, class WaveNumber>
 	struct far_field_behaviour<
@@ -284,16 +267,35 @@ namespace kernel_traits_ns
 	struct singularity_type<
 		normal_derivative_kernel<helmholtz_kernel<space_2d<Scalar>, WaveNumber>, 1, 1>
 	> : asymptotic::inverse<2> {};
+	
+}
 
-	template <class Scalar, class WaveNumber>
+/// Helmholtz normal derivative kernel behaviors
+namespace kernel_traits_ns
+{
+	template <class Scalar, class WaveNumber, int Nx, int Ny>
 	struct far_field_behaviour<
-		normal_derivative_kernel<helmholtz_kernel<space_3d<Scalar>, WaveNumber>, 1, 1>
-	> : asymptotic::inverse<3> {};
+		normal_derivative_kernel<helmholtz_kernel<space_3d<Scalar>, WaveNumber>, Nx, Ny>
+	> : asymptotic::inverse<1 + Nx + Ny> {};
 
+	template <class Scalar, class WaveNumber, int Nx, int Ny>
+	struct singularity_type<
+		normal_derivative_kernel<helmholtz_kernel<space_3d<Scalar>, WaveNumber>, Nx, Ny>
+	> : asymptotic::inverse<1 + Nx + Ny> {};
+
+	// the normal derivative on the smooth boundary cancels the 1/r^2
+	// singularity of the kernel's derivative
 	template <class Scalar, class WaveNumber>
 	struct singularity_type<
-		normal_derivative_kernel<helmholtz_kernel<space_3d<Scalar>, WaveNumber>, 1, 1>
-	> : asymptotic::inverse<3> {};
+		normal_derivative_kernel<helmholtz_kernel<space_3d<Scalar>, WaveNumber>, 0, 1>
+	> : asymptotic::inverse<1> {};
+
+	// the normal derivative on the smooth boundary cancels the 1/r^2
+	// singularity of the kernel's derivative
+	template <class Scalar, class WaveNumber>
+	struct singularity_type<
+		normal_derivative_kernel<helmholtz_kernel<space_3d<Scalar>, WaveNumber>, 1, 0>
+	> : asymptotic::inverse<1> {};
 } // end of namespace kernel_traits_ns
 
 
@@ -322,6 +324,9 @@ using helmholtz_2d_HSP_kernel = normal_derivative_kernel<helmholtz_kernel<space_
 /** \brief shorthand for the 3d Helmholtz HSP kernel */
 template <class WaveNumber>
 using helmholtz_3d_HSP_kernel = normal_derivative_kernel<helmholtz_kernel<space_3d<>, WaveNumber>, 1, 1>;
+/** \brief shorthand for the 3d Helmholtz xx kernel */
+template <class WaveNumber>
+using helmholtz_3d_xx_kernel = normal_derivative_kernel<helmholtz_kernel<space_3d<>, WaveNumber>, 2, 0>;
 
 } 	// end of namespace NiHu
 

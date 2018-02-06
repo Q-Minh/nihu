@@ -110,8 +110,9 @@ private:
 	
 	void eval_impl(std::integral_constant<unsigned, 3>, scalar r, scalar *f) const
 	{
-		f[1] = 2.0 / (r*r*r) / (2. * M_PI);
-		f[0] = -4.0 * f[1];
+		auto g = 1. / (r*r*r) / (2. * M_PI);
+		f[1] = 2.0 * g; 
+		f[0] = -8.0 * g;
 	}
 	
 public:
@@ -129,24 +130,26 @@ class laplace_kernel<space_3d<scalar> >
 {
 	void eval_impl(std::integral_constant<unsigned, 0>, scalar r, scalar *f) const
 	{
-		*f = 1.0 / r / (4.0 * M_PI);
+		*f = 1. / r / (4. * M_PI);
 	}
 	
 	void eval_impl(std::integral_constant<unsigned, 1>, scalar r, scalar *f) const
 	{
-		*f = -1.0 / (r*r) / (4.0 * M_PI);
+		*f = -1. / (r*r) / (4. * M_PI);
 	}
 	
 	void eval_impl(std::integral_constant<unsigned, 2>, scalar r, scalar *f) const
 	{
-		f[1] = -1.0 / (r*r*r) / (4.0 * M_PI);
-		f[0] = -3.0 * f[1];
+		auto g = 1./(r*r*r)/(4.*M_PI);
+		f[1] = -1. * g;
+		f[0] = 3. * g;
 	}
 	
 	void eval_impl(std::integral_constant<unsigned, 3>, scalar r, scalar *f) const
 	{
-		f[1] = 3.0 / (r*r*r*r) / (4.0 * M_PI);
-		f[0] = -5 * f[1];
+		auto g = 1. / (r*r*r*r) / (4. * M_PI);
+		f[1] = 3. * g;
+		f[0] = -15. * g;
 	}
 	
 public:
@@ -158,7 +161,7 @@ public:
 };
 
 
-/// Laplace Helper Behaviour
+/// Laplace Helper Behavior
 namespace kernel_traits_ns
 {
 	template <class Scalar>
@@ -173,16 +176,6 @@ namespace kernel_traits_ns
 
 	template <class Scalar>
 	struct far_field_behaviour<
-		normal_derivative_kernel<laplace_kernel<space_3d<Scalar> >, 0, 1>
-	> : asymptotic::inverse<2> {};
-
-	template <class Scalar>
-	struct singularity_type<
-		normal_derivative_kernel<laplace_kernel<space_3d<Scalar> >, 0, 1>
-	> : asymptotic::inverse<2> {};
-
-	template <class Scalar>
-	struct far_field_behaviour<
 		normal_derivative_kernel<laplace_kernel<space_2d<Scalar> >, 1, 0>
 	> : asymptotic::inverse<1> {};
 
@@ -193,16 +186,6 @@ namespace kernel_traits_ns
 
 	template <class Scalar>
 	struct far_field_behaviour<
-		normal_derivative_kernel<laplace_kernel<space_3d<Scalar> >, 1, 0>
-	> : asymptotic::inverse<2> {};
-
-	template <class Scalar>
-	struct singularity_type<
-		normal_derivative_kernel<laplace_kernel<space_3d<Scalar> >, 1, 0>
-	> : asymptotic::inverse<2> {};
-
-	template <class Scalar>
-	struct far_field_behaviour<
 		normal_derivative_kernel<laplace_kernel<space_2d<Scalar> >, 1, 1>
 	> : asymptotic::inverse<2> {};
 
@@ -210,16 +193,31 @@ namespace kernel_traits_ns
 	struct singularity_type<
 		normal_derivative_kernel<laplace_kernel<space_2d<Scalar> >, 1, 1>
 	> : asymptotic::inverse<2> {};
+}
 
-	template <class Scalar>
+namespace kernel_traits_ns
+{
+	template <class Scalar, int Nx, int Ny>
 	struct far_field_behaviour<
-		normal_derivative_kernel<laplace_kernel<space_3d<Scalar> >, 1, 1>
-	> : asymptotic::inverse<3> {};
+		normal_derivative_kernel<laplace_kernel<space_3d<Scalar> >, Nx, Ny>
+	> : asymptotic::inverse<1 + Nx + Ny> {};
 
+	template <class Scalar, int Nx, int Ny>
+	struct singularity_type<
+		normal_derivative_kernel<laplace_kernel<space_3d<Scalar> >, Nx, Ny>
+	> : asymptotic::inverse<1 + Nx + Ny> {};
+
+	// the normal derivative cancels the -2 singularity on a smooth boundary
 	template <class Scalar>
 	struct singularity_type<
-		normal_derivative_kernel<laplace_kernel<space_3d<Scalar> >, 1, 1>
-	> : asymptotic::inverse<3> {};
+		normal_derivative_kernel<laplace_kernel<space_3d<Scalar> >, 0, 1>
+	> : asymptotic::inverse<1> {};
+
+	// the normal derivative cancels the -2 singularity on a smooth boundary
+	template <class Scalar>
+	struct singularity_type<
+		normal_derivative_kernel<laplace_kernel<space_3d<Scalar> >, 1, 0>
+	> : asymptotic::inverse<1> {};
 }
 	
 

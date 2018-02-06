@@ -98,9 +98,11 @@ namespace kernel_traits_ns
 		location<typename distance_dependent_kernel_traits_ns::space<DK>::type>
 	> {};
 
+/*
 	template <class DK>
 	struct far_field_behaviour<normal_derivative_kernel<DK, 0, 0> >
 		: distance_dependent_kernel_traits_ns::far_field_behaviour<DK> {};
+*/
 
 	template <class DK>
 	struct singularity_type<normal_derivative_kernel<DK, 0, 0> >
@@ -253,6 +255,43 @@ public:
 	result_t operator()(test_input_t const &x, trial_input_t const &y) const
 	{
 		return (*this)(x.get_x(), y.get_x(), x.get_unit_normal(), y.get_unit_normal());
+	}
+};
+
+/** \brief second xx derivative of a distance dependent kernel
+ * \tparam DistanceKernel the distance dependent kernel
+ */
+template <class DistanceKernel>
+class normal_derivative_kernel<DistanceKernel, 2, 0>
+	: public kernel_base<normal_derivative_kernel<DistanceKernel, 2, 0> >
+	, public DistanceKernel
+{
+public:
+	typedef kernel_base<normal_derivative_kernel<DistanceKernel, 2, 0> > base_t;
+	typedef typename base_t::test_input_t test_input_t;
+	typedef typename base_t::trial_input_t trial_input_t;
+	typedef typename base_t::result_t result_t;
+	typedef typename base_t::scalar_t scalar_t;
+	typedef typename base_t::x_t x_t;
+	
+	normal_derivative_kernel(DistanceKernel const &dk = DistanceKernel())
+		: DistanceKernel(dk.derived())
+	{
+	}
+	
+	result_t operator()(x_t const &x, x_t const &y, x_t const &nx) const
+	{
+		x_t rvec = y - x;
+		scalar_t r = rvec.norm();
+		scalar_t rdnx = -rvec.dot(nx) / r;
+		result_t f[2];
+		DistanceKernel::template eval<2>(r, f);
+		return f[0] * rdnx * rdnx + f[1] /* * nx.dot(nx) */;
+	}
+
+	result_t operator()(test_input_t const &x, trial_input_t const &y) const
+	{
+		return (*this)(x.get_x(), y.get_x(), x.get_unit_normal());
 	}
 };
 
