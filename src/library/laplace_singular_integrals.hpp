@@ -583,15 +583,15 @@ public:
 	template <class result_t>
 	static result_t &eval(
 		result_t &result,
-		kernel_base<laplace_3d_HSP_kernel> const &,
+		kernel_base<laplace_3d_Gxx_kernel> const &,
 		field_base<TestField> const &,
 		field_base<TrialField> const &trial_field,
 		element_match const &)
 	{
-		result(0, 0) = laplace_3d_HSP_collocation_constant_plane::eval(
+		result(0, 0) = -1. * laplace_3d_HSP_collocation_constant_plane::eval(
 			trial_field.get_elem(),
 			trial_field.get_elem().get_center());
-		return -1. * result;
+		return result;
 	}
 };
 
