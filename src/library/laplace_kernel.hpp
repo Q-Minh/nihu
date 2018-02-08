@@ -237,6 +237,8 @@ typedef normal_derivative_kernel<laplace_kernel<space_3d<> >, 1, 0> laplace_3d_D
 typedef normal_derivative_kernel<laplace_kernel<space_2d<> >, 1, 1> laplace_2d_HSP_kernel;
 /** \brief shorthand for the 3d Laplace HSP kernel */
 typedef normal_derivative_kernel<laplace_kernel<space_3d<> >, 1, 1> laplace_3d_HSP_kernel;
+/** \brief shorthand for the 3d Laplace Gxx kernel */
+typedef normal_derivative_kernel<laplace_kernel<space_3d<> >, 2, 0> laplace_3d_Gxx_kernel;
 
 } // end of namespace NiHu
 
