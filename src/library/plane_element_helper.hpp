@@ -30,8 +30,8 @@ namespace NiHu
  * \brief compute angles and radii in a plane element
  * \param [in] elem the element
  * \param [out] r the radii from the collocation point
- * \param [out] theta the angles between the radii and the sides
- * \param [out] alpha the angles between the radii
+ * \param [out] theta the angles between the radii
+ * \param [out] alpha the angles between the radii and the sides
  */
 template <class elem_t>
 void plane_element_helper(
