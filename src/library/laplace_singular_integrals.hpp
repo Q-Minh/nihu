@@ -560,6 +560,42 @@ public:
 };
 
 
+/** \brief collocational singular integral of the 3d Gxx kernel over a constant triangle
+ * \tparam TestField the test field type
+ * \tparam TrialField the trial field type
+ */
+template <class TestField, class TrialField>
+class singular_integral_shortcut<
+	laplace_3d_Gxx_kernel, TestField, TrialField, match::match_2d_type,
+	typename std::enable_if<
+		std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
+		std::is_same<typename TrialField::lset_t, tria_1_shape_set>::value &&
+		std::is_same<typename TrialField::nset_t, tria_0_shape_set>::value
+	>::type
+>
+{
+public:
+	/** \brief evaluate singular integral
+	 * \tparam result_t the result matrix type
+	 * \param [in, out] result reference to the result
+	 * \param [in] trial_field the trial and test field
+	 */
+	template <class result_t>
+	static result_t &eval(
+		result_t &result,
+		kernel_base<laplace_3d_HSP_kernel> const &,
+		field_base<TestField> const &,
+		field_base<TrialField> const &trial_field,
+		element_match const &)
+	{
+		result(0, 0) = laplace_3d_HSP_collocation_constant_plane::eval(
+			trial_field.get_elem(),
+			trial_field.get_elem().get_center());
+		return -1. * result;
+	}
+};
+
+
 /** \brief collocational singular integral of the HSP kernel not over a constant triangle
  * \tparam TestField the test field type
  * \tparam TrialField the trial field type
