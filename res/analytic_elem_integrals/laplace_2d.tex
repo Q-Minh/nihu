@@ -22,7 +22,10 @@
 
 \section{Derivatives of kernels depending on the source-receiver distance}
 
-Derivatives of the distance
+In lots of useful cases (homogeneous and isotropic media) the kernel is distance-dependent: $K({\bf x}, {\bf y}) = G(|{\bf y} - {\bf x}|)$.
+In these cases the kernel's normal derivatives can be expressed in a unified way.
+
+Derivatives of the distance vector are given as
 %
 \begin{align}
 	r &= |{\bf r}| \\
@@ -33,7 +36,7 @@ Derivatives of the distance
 	\right)
 \end{align}
 
-Derivatives of the kernel depending on the distance
+Derivatives of the kernel depending on the distance are
 %
 \begin{align}
 	G'_i &= G'_r r'_i \\

@@ -25,15 +25,18 @@ N = N0 + rho * N1;
 
 assume(r1.'*J0 == 0);
 
-rdny = gradr.'*J;
+ny = J;
+
+rdny = gradr.'*ny;
 rdnx = -gradr.'*nx;
 
-rn = rho^n * A^n * (1+n*rho*dot(r1,r2)/A^2);
+rn = rho^n * A^n * (1+n*rho*(r1.' * r2)/A^2);
 
 if (ndim == 3)
     G = subs(rn, n, -1) * N;
     dG = -subs(rn, n, -2) * rdny * N;
-    ddG = subs(rn, n, -3) * (3 * rdny * rdnx + (J.' *  nx)) * N;
+    ddG = subs(rn, n, -3) * (3 * rdny * rdnx + (ny.' *  nx)) * N;
+    ddGxx = subs(rn, n, -3) * (3 * rdnx * rdnx + (nx.' *  nx)) * N * sqrt(J.' * J);
 
     G = G * rho;
     dG = dG * rho;

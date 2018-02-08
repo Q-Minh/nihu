@@ -96,12 +96,16 @@ for (unsigned j = 0; j < 4; ++j)\
 template <class kernel_t>
 void test_plane_linear(kernel_t const &kernel)
 {
+	// corner coordinates of the element
 	NiHu::quad_1_elem::coords_t coords;
+	
+	// intrinsic coordinates of the singular points
 	NiHu::quad_1_elem::xi_t xi0[3];
 	xi0[0] << 0.0, 0.0;
 	xi0[1] << 0.57, 0.0;
 	xi0[2] << 0.9, 0.923;
 
+	// I0 is the analytic solution, I contains the numerical solutions
 	typename kernel_t::result_t I0[3], I[3][4];
 
 	std::cout << "\nLinear quad element:\n===================\n";
@@ -151,7 +155,6 @@ void test_plane_linear(kernel_t const &kernel)
 		0.0, 0.0, 0.0, 0.0;
 
 	TEST
-
 }
 
 #undef TEST
