@@ -1,5 +1,5 @@
 function ps = planewave_cyl2d(x, a, k, m)
-%PLANEWAVE_CYL2D scattering of an acoustic plane wave from a cylinder
+%PLANEWAVE_CYL2D scattering of an acoustic plane wave from a rigid cylinder
 %   ps = PLANEWAVE_CYL2D(X, A, K, M) computes the acoustic wave field
 %   scattered from a rigid cylinder of radius A at a wave number K. The
 %   scattered field is computed in points described by the rows of matrix X

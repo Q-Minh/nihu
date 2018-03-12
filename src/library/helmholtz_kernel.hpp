@@ -232,6 +232,11 @@ public:
 /// Helmholtz normal derivative kernel behaviors
 namespace kernel_traits_ns
 {
+	template <class Scalar, class WaveNumber>
+	struct far_field_behaviour<
+		normal_derivative_kernel<helmholtz_kernel<space_2d<Scalar>, WaveNumber>, 0, 0>
+	> : asymptotic::log<1> {};
+
 	/// \todo check this
 	template <class Scalar, class WaveNumber>
 	struct far_field_behaviour<

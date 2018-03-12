@@ -166,6 +166,13 @@ namespace kernel_traits_ns
 {
 	template <class Scalar>
 	struct far_field_behaviour<
+		normal_derivative_kernel<laplace_kernel<space_2d<Scalar> >, 0, 0>
+	> : distance_dependent_kernel_traits_ns::far_field_behaviour<
+		laplace_kernel<space_2d<Scalar> >
+	> {};
+
+	template <class Scalar>
+	struct far_field_behaviour<
 		normal_derivative_kernel<laplace_kernel<space_2d<Scalar> >, 0, 1>
 	> : asymptotic::inverse<1> {};
 
