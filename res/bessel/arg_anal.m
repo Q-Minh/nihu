@@ -1,6 +1,6 @@
 syms z
 N = 14;
-nu = 0;
+nu = 2;
 Pnu = P(nu,z,N);
 Qnu = Q(nu,z,N);
 
@@ -18,3 +18,5 @@ for n = 0 : N
     Unum(n+1) = limit(diff(U,x,n)/factorial(n), x, 0);
     Phinum(n+1) = limit(diff(Phi,x,n)/factorial(n), x, 0);
 end
+
+fprintf(1, "%.10x\n", double(Phinum(2:2:end)'))

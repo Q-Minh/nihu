@@ -42,6 +42,8 @@
 #include "singular_accelerator.hpp"
 #include "singular_integral_shortcut.hpp"
 
+#define NIHU_DEBUGGING 0
+
 namespace NiHu
 {
 
@@ -76,6 +78,10 @@ struct singular_shortcut_switch
 			field_base<TrialField> const &trial_field,
 			element_match const &mtch)
 		{
+#if NIHU_DEBUGGING
+			std::cout << "Match dimension: " << mtch.get_match_dimension() << std::endl;
+			std::cout << "Singularity value: " << Singularity::value << std::endl;
+#endif
 
 			// if the parameter singularity is valid, evaluate shortcut
 			if (mtch.get_match_dimension() == Singularity::value)
@@ -292,7 +298,7 @@ protected:
 			TestField, TrialField,
 			typename Kernel::estimator_t
 		>::eval(test_field, trial_field);
-
+		
 		auto acc(create_dual_field_type_accelerator(
 			test_store_t::get_data()[degree], trial_store_t::get_data()[degree], iteration::diadic()));
 
@@ -531,7 +537,7 @@ protected:
 			TestField, TrialField,
 			typename Kernel::estimator_t
 		>::eval(test_field, trial_field);
-
+		
 		if (degree > GLOBAL_MAX_ORDER)
 			throw std::out_of_range("Too high quadrature degree selected for collocational integration");
 
@@ -571,6 +577,10 @@ protected:
 			return eval(WITHOUT_SINGULARITY_CHECK(), result, kernel, test_field, trial_field);
 		
 		typedef typename match_type_vector<TestField, TrialField>::type possible_match_types;
+		
+#if NIHU_DEBUGGING
+		std::cout << "Now checking singular shortcuts" << std::endl;
+#endif
 		
 		if (!tmp::call_until<
 			possible_match_types,
@@ -659,6 +669,9 @@ private:
 		field_base<TrialField> const &trial_field,
 		element_match const &)
 	{
+#if NIHU_DEBUGGING
+		std::cout << "General version of singular_integral_shortcut called" << std::endl;
+#endif
 		return double_integral_t::template eval_singular_on_accelerator<singular_accelerator_t, void>::eval(
 			result, kernel, test_field, trial_field, store_t::get_data());
 	}

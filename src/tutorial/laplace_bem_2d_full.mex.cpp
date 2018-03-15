@@ -15,13 +15,16 @@ void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 	int n = surf_sp.get_num_dofs();
 	dMatrix L_surf(n, n, lhs[0]);
 	dMatrix M_surf(n, n, lhs[1]);
+	dMatrix W_surf(n, n, lhs[2]);
 	int m = field_sp.get_num_dofs();
-	dMatrix L_field(m, n, lhs[2]);
-	dMatrix M_field(m, n, lhs[3]);
+	dMatrix L_field(m, n, lhs[3]);
+	dMatrix M_field(m, n, lhs[4]);
 	auto L = NiHu::create_integral_operator(NiHu::laplace_2d_SLP_kernel());
 	auto M = NiHu::create_integral_operator(NiHu::laplace_2d_DLP_kernel());
+	auto W = NiHu::create_integral_operator(NiHu::laplace_2d_HSP_kernel());
 	L_surf << dirac(surf_sp) * L[surf_sp];
 	M_surf << dirac(surf_sp) * M[surf_sp];
+	W_surf << dirac(surf_sp) * W[surf_sp];
 	L_field << dirac(field_sp) * L[surf_sp];
 	M_field << dirac(field_sp) * M[surf_sp];
 }

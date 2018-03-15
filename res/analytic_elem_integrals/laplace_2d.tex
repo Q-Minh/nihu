@@ -20,32 +20,104 @@
 
 \tableofcontents
 
+\section{Derivatives of kernels depending on the source-receiver distance}
+
+In lots of useful cases (homogeneous and isotropic media) the kernel is distance-dependent: $K({\bf x}, {\bf y}) = G(|{\bf y} - {\bf x}|)$.
+In these cases the kernel's normal derivatives can be expressed in a unified way.
+
+Derivatives of the distance vector are given as
+%
+\begin{align}
+	r &= |{\bf r}| \\
+	r'_i &= \frac{r_i}{r} \\
+	r''_{ij} &= \frac{1}{r} \left( \delta_{ij} - r'_i r'_j \right) \\
+	r'''_{ijk} &= -\frac{1}{r^2} \left(
+		\delta_{ij} r'_k + \delta_{jk} r'_i + \delta_{ki} r'_j - 3 r'_i r'_j r'_k
+	\right)
+\end{align}
+
+Derivatives of the kernel depending on the distance are
+%
+\begin{align}
+	G'_i &= G'_r r'_i \\
+	G''_{ij} &= \left(G''_r - \frac{G'_r}{r} \right) r'_i r'_j +  \frac{G'_r}{r} \delta_{ij} \\
+	G'''_{ijk} &=
+	\left(G'''_r -\frac{3}{r} \left(G''_r  - \frac{G'_r}{r} \right) \right) r'_i r'_j r'_k
+	+  \frac{1}{r} \left( G''_r  - \frac{G'_r}{r} \right)\left(
+	   r'_j \delta_{ki}
+	+  r'_i \delta_{jk}
+	+  r'_k \delta_{ij}
+	\right)
+\end{align}
+
 \section{Analytical integrals of the Laplace kernel}
 
-This document describes the analytical formulae used to integrate the kernel of the Laplace equation in two dimensions over straight lines.
+This section describes the analytical formulae used to integrate the kernel of the Laplace equation in two dimensions over straight lines.
 
 The kernel is defined as
 %
 \begin{equation}
-G({\bf y}, {\bf x}) = -\frac{\ln |{\bf y}-{\bf x}|}{2\pi} = -\frac{\ln r}{2\pi}
-\end{equation}
-%
-where ${\bf x}$ is the source point. The kernel exhibits a weak (integrable) singularity when $r \to 0$.
-
-The kernel's normal derivative with respect to the normal  ${\bf n}$ at coordinate ${\bf y}$ can be formulated as
-%
-\begin{equation}
-G'_{n_y}({\bf y}, {\bf x}) = \frac{\td G(r)}{\td r} \frac{\partial r}{\partial n_y} = -\frac{1}{2\pi r} \frac{{\bf r} \cdot {\bf n}_y}{r} = -\frac{({\bf y}-{\bf x}) \cdot {\bf n}_y}{2\pi r^2}
-\end{equation}
-%
-this derivative kernel contains a strong singularity and can be integrated in a CPV sense.
-
-The kernel's second derivative (on a plane element) is computed as
-%
-\begin{equation}
-G''_{n_x n_y}({\bf x}, {\bf y}) = \frac{{\bf n}_x \cdot {\bf n}_y}{2\pi r^2} = \frac{1}{2\pi r^2}
+	G({\bf r}) = -\frac{\ln |{\bf r}|}{2\pi} = -\frac{\ln r}{2\pi}
 \end{equation}
 
+\subsection{Derivatives}
+
+The kernel's first, second and third derivatives can be formulated as
+%
+\begin{align}
+	G'_{i}
+	&= -\frac{1}{2\pi r} \frac{r_i}{r}
+	\label{eq:laplace_gradient}
+	\\
+	G''_{ij}
+	&= \frac{-1}{2\pi r^2}\left( \delta_{ij} - 2\frac{r_j}{r} \frac{r_i}{r}\right)
+	\label{eq:laplace_second_derivative}
+	\\
+	G'''_{ijk}
+	&= \frac{1}{\pi r^3} \left(
+	\delta_{ij} \frac{r_k}{r}
+	+ \delta_{jk} \frac{r_i}{r}
+	+ \delta_{ki} \frac{r_j}{r}
+	-4 \frac{r_i}{r} \frac{r_j}{r} \frac{r_k}{r}
+	\right)
+	\label{eq:laplace_third_derivative}
+\end{align}
+
+\subsection{Normal derivatives}
+
+The bivariate kernel is defined as $G({\bf x}, {\bf y}) = G({\bf y}-{\bf x})$.
+As a consequence, the normal derivative w.r.t $n_y$ is computed as $G'_i n_{yi}$, while the normal derivative w.r.t. $n_x$ is computed as $-G'_i n_{xi}$.
+This yields the following normal derivatives:
+%
+\begin{align}
+	\frac{\partial G}{\partial n_y} 
+	&= n_{yi} G'_i
+	&&
+	%= -\frac{1}{2\pi r} \frac{n_{yi} r_i}{r}
+	= -\frac{1}{2\pi r} r'_{n_y}
+	\\
+	\frac{\partial^2 G}{\partial n_x \partial n_y}
+	&= -n_{xi} n_{yj} G''_{ij}
+	&&
+	%= \frac{1}{2\pi r^2}\left( n_{xi} n_{yi} - 2\frac{r_j n_{yj}}{r} \frac{r_i n_{xi}}{r}\right)
+	= \frac{1}{2\pi r^2}\left( n_{xi} n_{yi} + 2 r'_{n_x} r'_{n_y}\right)
+	\\
+	\frac{\partial^2 G}{\partial n_x^2}
+	&= n_{xi} n_{xj} G''_{ij}
+	&&
+	%= \frac{1}{2\pi r^2}\left( -1 + 2 \left(\frac{r_j n_{xj}}{r}\right)^2 \right)
+	= \frac{1}{2\pi r^2}\left( -1 + 2 \left(r'_{n_x}\right)^2 \right)
+	\\
+	\frac{\partial^3 G}{\partial n_x^2 \partial n_y}
+	&= n_{xi} n_{xj} n_{yk} G'''_{ijk}
+	&&
+	= \frac{1}{\pi r^3} 
+	 \left(
+	r'_{n_y}
+	- 2 r'_{n_x} \left(n_{xk} n_{yk}\right)
+	-4 \left(r'_{n_x}\right)^2 r'_{n_y}
+	\right)
+\end{align}
 
 \subsection{Collocation}
 
@@ -111,6 +183,16 @@ I = \frac{-1}{2\pi} \int_{\xi_2}^{\xi_1} \frac{-\eta \left(a_0 + a_1 \xi + a_2 \
 = \frac{1}{2\pi} \left[
 \left( a_0 - a_2 \eta^2\right) \atan \frac{\xi}{\eta} + \left(a_2 \xi + a_1 \ln r\right) \eta
 \right]_{\xi_2}^{\xi_1}
+\end{equation}
+
+\paragraph{HSP kernel}
+
+For the case of the HSP kernel, let $n_{\xi}$ and $n_{\eta}$ denote the normal at $x_0$ in the local frame of reference. In this case the integral is expressed as
+%
+\begin{equation}
+I
+= \int_{\xi_2}^{\xi_1} G''_{n_x n_y} \td \xi
+= -\frac{1}{2\pi} \left[ \frac{ \eta n_{\xi} + \xi n_{\eta} }{\rho^2} \right]_{\xi_2}^{\xi_1}
 \end{equation}
 
 \subsubsection{Constant line SLP}
@@ -288,33 +370,57 @@ q(a, \phi) = \atan\left(\frac{a}{\sin\phi} + \cot\phi\right) - \atan\left(\cot\p
 The kernel is defined as
 %
 \begin{equation}
-G({\bf y}, {\bf x}) = \frac{-\ti}{4} H_0^{(2)}(kr), \quad r = |{\bf y} - {\bf x}|
+	G({\bf y}, {\bf x}) = \frac{-\ti}{4} H_0^{(2)}(kr), \quad r = |{\bf y} - {\bf x}|
 \end{equation}
 %
 where ${\bf x}$ is the source point. The kernel exhibits a weak (integrable) singularity when $r \to 0$.
 
-\subsection{Basic properties}
-
 The Hankel function may be written as
 %
 \begin{equation}
-H_0^{(2)}(z) = J_0(z) - \ti Y_0(z)
+	H_0^{(2)}(z) = J_0(z) - \ti Y_0(z)
 \end{equation}
 %
 and the small argument series expansion of the involved Bessel functions around $z=0$ are
 %
 \begin{align}
-J_0(z) &= \sum_{n=0}^{\infty} (-1)^n \frac{\left(\frac{z}{2}\right)^{2n}}{\left(n!\right)^2} \\
-Y_0(z) &= \frac{2}{\pi}
-\sum_{n=0}^{\infty} (-1)^n \left(\log \frac{z}{2} + \gamma - C_n \right) \frac{\left(\frac{z}{2}\right)^{2n}}{\left(n!\right)^2}
+	J_0(z) &= \sum_{n=0}^{\infty} (-1)^n \frac{\left(\frac{z}{2}\right)^{2n}}{\left(n!\right)^2} \\
+	Y_0(z) &= \frac{2}{\pi}
+	\sum_{n=0}^{\infty} (-1)^n \left(\log \frac{z}{2} + \gamma - C_n \right) \frac{\left(\frac{z}{2}\right)^{2n}}{\left(n!\right)^2}
 \end{align}
 %
 where $\gamma$ denotes Euler's constant and $C_n$ denotes the harmonic sum
 %
 \begin{equation}
-C_0 = 0, C_n = C_{n-1} + \frac{1}{n}
+	C_0 = 0, C_n = C_{n-1} + \frac{1}{n}
 \end{equation}
 
+The kernel's gradient is expressed as
+%
+\begin{equation}
+	G'_i = -\frac{\ti k}{4} H_0^{,(2)}(kr) r'_i
+	= \frac{\ti k}{4} H_1^{(2)}(kr) \frac{r_i}{r}
+\end{equation}
+
+
+The kernel's second derivative tensor is expressed as
+%
+\begin{multline}
+	G''_{ij}
+	= -\frac{\ti k}{4} \left( H_0^{,(2)}(kr) r'_j \right)'_i
+	= -\frac{\ti k}{4} \left( H_0^{,,(2)}(kr) k r'_i r'_j + H_0^{,(2)}(kr) \left(\frac{\delta_{ij}}{r} - \frac{r_i r_j}{r^3}\right)\right) \\
+	= -\frac{\ti k}{4} \left( \frac{1}{2} \left(H_2(kr) - H_0(kr) \right) k \frac{r_i r_j}{r^2} - \frac{H_1^{(2)}(kr)}{r} \left(\delta_{ij} - \frac{r_i r_j}{r^2}\right)\right) \\
+	= \frac{\ti k^2}{4} \left( \left( \frac{1}{2} H_0(kr) - \frac{H_1^{(2)}(kr)}{kr} -\frac{1}{2} H_2(kr) \right) \frac{r_i r_j}{r^2} + \frac{H_1^{(2)}(kr)}{kr} \delta_{ij} \right)
+\end{multline}
+
+As a consequence, the second normal derivative is expressed as
+
+\begin{equation}
+	G''_{n_{x} n_{y}}
+	= \frac{\ti k^2}{4} \left( \left( \frac{1}{2} H_0(kr) - \frac{H_1^{(2)}(kr)}{kr} -\frac{1}{2} H_2(kr) \right)
+	r'_{nx} r'_{ny}
+	- \frac{H_1^{(2)}(kr)}{kr} n_{xi} n_{yi}\right)
+\end{equation}
 
 
 \subsection{Collocation}

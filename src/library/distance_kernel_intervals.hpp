@@ -56,8 +56,8 @@ struct distance_kernel_interval<asymptotic::log<1>, 3>
 	typedef tmp::vector<
 		break_point<std::ratio<12,10>, tmp::integer<int, 8> >,
 		break_point<std::ratio<17,10>, tmp::integer<int, 4> >,
-		break_point<std::ratio<51,10>, tmp::integer<int, 2> >,
-		break_point<ratio_infinite, tmp::integer<int, 0> >
+		// break_point<std::ratio<51,10>, tmp::integer<int, 2> >,
+		break_point<ratio_infinite, tmp::integer<int, 2> >
 	> type;
 };
 

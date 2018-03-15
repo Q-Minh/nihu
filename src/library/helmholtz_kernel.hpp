@@ -26,18 +26,73 @@
 #define HELMHOLTZ_KERNEL_HPP_INCLUDED
 
 #include <cmath>
-#include <complex>
 
 #include "../core/global_definitions.hpp"
-#include "../core/kernel.hpp"
 #include "../core/gaussian_quadrature.hpp"
-#include "location_normal.hpp"
 #include "../util/math_functions.hpp"
+#include "library/normal_derivative_kernel.hpp"
+#include "distance_dependent_kernel.hpp"
 
 #include "laplace_kernel.hpp"
 
 namespace NiHu
 {
+template <class Space, class WaveNumber>
+class helmholtz_kernel;
+
+/// GENERAL TRAITS
+namespace distance_dependent_kernel_traits_ns
+{
+	template <class Space, class WaveNumber>
+	struct space<helmholtz_kernel<Space, WaveNumber> > : Space {};
+
+	template <class Space, class WaveNumber>
+	struct result<helmholtz_kernel<Space, WaveNumber> >
+	{
+		typedef std::complex<typename Space::scalar_t> type;
+	};
+
+	template <class Space, class WaveNumber>
+	struct result_rows<helmholtz_kernel<Space, WaveNumber> >
+		: std::integral_constant<unsigned, 1> {};
+	
+	template <class Space, class WaveNumber>
+	struct result_cols<helmholtz_kernel<Space, WaveNumber> >
+		: std::integral_constant<unsigned, 1> {};
+
+	template <class Space, class WaveNumber>
+	struct quadrature_family<helmholtz_kernel<Space, WaveNumber> >
+		: gauss_family_tag {};
+
+	template <class Space, class WaveNumber>
+	struct is_singular<helmholtz_kernel<Space, WaveNumber> > : std::true_type {};
+
+	template <class Space, class WaveNumber>
+	struct singular_core<helmholtz_kernel<Space, WaveNumber> > {
+		typedef laplace_kernel<Space>  type;
+	};
+
+	template <class Space, class WaveNumber>
+	struct singular_quadrature_order<helmholtz_kernel<Space, WaveNumber> >
+		: std::integral_constant<unsigned, 7> {};
+
+	template <class Scalar, class WaveNumber>
+	struct far_field_behaviour<helmholtz_kernel<space_2d<Scalar>, WaveNumber> >
+		: asymptotic::log<1> {};
+
+	template <class Scalar, class WaveNumber>
+	struct singularity_type<helmholtz_kernel<space_2d<Scalar>, WaveNumber> >
+		: asymptotic::log<1> {};
+
+	template <class Scalar, class WaveNumber>
+	struct far_field_behaviour<helmholtz_kernel<space_3d<Scalar>, WaveNumber> >
+		: asymptotic::inverse<1> {};
+
+	template <class Scalar, class WaveNumber>
+	struct singularity_type<helmholtz_kernel<space_3d<Scalar>, WaveNumber> >
+		: asymptotic::inverse<1> {};
+} // distance_dependent_kernel_traits_ns
+
 
 template <class wave_number_type>
 class wave_number_kernel
@@ -61,441 +116,222 @@ private:
 };
 
 
-/** \brief kernel of the Helmholtz equation
- * \tparam Space the coordinate space
- * \tparam Layer the potential type tag
- * \tparam WaveNumber the wave number type
- */
-template <class Space, class Layer, class WaveNumber>
-class helmholtz_kernel;
-
-
-
-/// GENERAL DEFINITIONS VALID FOR ALL HELMHOLTZ KERNELS
-namespace kernel_traits_ns
+template <class scalar, class WaveNumber>
+class helmholtz_kernel<space_2d<scalar>, WaveNumber>
+	: public wave_number_kernel<WaveNumber>
+	, public distance_dependent_kernel<helmholtz_kernel<space_2d<scalar>, WaveNumber> >
 {
-	template <class Space, class Layer, class WaveNumber>
-	struct space<helmholtz_kernel<Space, Layer, WaveNumber> > : Space {};
-
-	template <class Space, class Layer, class WaveNumber>
-	struct result<helmholtz_kernel<Space, Layer, WaveNumber> >
-	{
-		typedef std::complex<typename Space::scalar_t> type;
-	};
-
-	template <class Space, class Layer, class WaveNumber>
-	struct result_rows<helmholtz_kernel<Space, Layer, WaveNumber> > : std::integral_constant<unsigned, 1> {};
-
-	template <class Space, class Layer, class WaveNumber>
-	struct result_cols<helmholtz_kernel<Space, Layer, WaveNumber> > : std::integral_constant<unsigned, 1> {};
-
-	template <class Space, class Layer, class WaveNumber>
-	struct quadrature_family<helmholtz_kernel<Space, Layer, WaveNumber> > : gauss_family_tag {};
-
-	template <class Space, class Layer, class WaveNumber>
-	struct is_singular<helmholtz_kernel<Space, Layer, WaveNumber> > : std::true_type {};
+public:
+	typedef typename distance_dependent_kernel_traits_ns::result<
+		helmholtz_kernel<space_2d<scalar>, WaveNumber>
+	>::type result_t;
 	
-	template <class Space, class Layer, class WaveNumber>
-	struct singular_core<helmholtz_kernel<Space, Layer, WaveNumber> > {
-		typedef laplace_kernel<Space, Layer> type;
-	};
-}
-
-
-
-/// GENERAL SLP
-
-namespace kernel_traits_ns
-{
-	template <class Space, class WaveNumber>
-	struct test_input<helmholtz_kernel<Space, potential::SLP, WaveNumber> > : build<location<Space> > {};
-
-	template <class Space, class WaveNumber>
-	struct trial_input<helmholtz_kernel<Space, potential::SLP, WaveNumber> > : build<location<Space> > {};
-
-	template <class Space, class WaveNumber>
-	struct is_symmetric<helmholtz_kernel<Space, potential::SLP, WaveNumber> > : std::true_type {};
-
-	template <class Space, class WaveNumber>
-	struct singular_quadrature_order<helmholtz_kernel<Space, potential::SLP, WaveNumber> > : std::integral_constant<unsigned, 7> {};
-}
-
-
-/// 2D SLP
-
-namespace kernel_traits_ns
-{
-	template <class Scalar, class WaveNumber>
-	struct far_field_behaviour<helmholtz_kernel<space_2d<Scalar>, potential::SLP, WaveNumber> > : asymptotic::log<1> {};
-
-	template <class Scalar, class WaveNumber>
-	struct singularity_type<helmholtz_kernel<space_2d<Scalar>, potential::SLP, WaveNumber> > : asymptotic::log<1> {};
-}
-
-
-template <class Scalar, class WaveNumber>
-class helmholtz_kernel<space_2d<Scalar>, potential::SLP, WaveNumber>
-	: public kernel_base<helmholtz_kernel<space_2d<Scalar>, potential::SLP, WaveNumber> >
-	, public wave_number_kernel<WaveNumber>
-{
-	typedef kernel_base<helmholtz_kernel<space_2d<Scalar>, potential::SLP, WaveNumber> > base_t;
+private:
+	void eval_impl(std::integral_constant<unsigned, 0>, scalar r, result_t *f) const
+	{
+		auto z = this->get_wave_number() * r;
+		auto H0 = bessel::H<0, 2>(std::complex<scalar>(z));
+		*f = std::complex<scalar>(0, -.25) * H0;
+	}
+	
+	void eval_impl(std::integral_constant<unsigned, 1>, scalar r, result_t *f) const
+	{
+		auto const &k = this->get_wave_number();
+		auto z = k * r;
+		auto H1 = bessel::H<1, 2>(std::complex<scalar>(z));
+		*f = std::complex<scalar>(0, .25) * this->get_wave_number() * H1;
+	}
+	
+	void eval_impl(std::integral_constant<unsigned, 2>, scalar r, result_t *f) const
+	{
+		auto const &k = this->get_wave_number();
+		auto z = k * r;
+		auto H0 = bessel::H<0, 2>(std::complex<scalar>(z));
+		auto H1 = bessel::H<1, 2>(std::complex<scalar>(z));
+		auto H2 = bessel::H<2, 2>(std::complex<scalar>(z));
+		f[1] = std::complex<scalar>(0, .25) * k*k * (H1/z);
+		f[0] = std::complex<scalar>(0, -.25) * k*k * (.5 * H2 - .5 * H0 + H1/z);
+	}
+	
+	void eval_impl(std::integral_constant<unsigned, 3>, scalar r, result_t *f) const
+	{
+		f[0] = f[1] = result_t(0);
+	}
 	
 public:
-	typedef typename base_t::test_input_t test_input_t;
-	typedef typename base_t::trial_input_t trial_input_t;
-	typedef typename base_t::result_t result_t;
-	typedef typename base_t::x_t x_t;
-	
-	helmholtz_kernel(WaveNumber const &wave_number)
-		: wave_number_kernel<WaveNumber>(wave_number)
+	helmholtz_kernel(WaveNumber const &k)
+		: wave_number_kernel<WaveNumber>(k)
 	{
 	}
 	
-	result_t operator()(x_t const &x, x_t const &y) const
+	template <unsigned order>
+	void eval(scalar r, std::complex<scalar> *f) const
 	{
-		auto r = (y - x).norm();
+		eval_impl(std::integral_constant<unsigned, order>(), r, f);
+	}
+};
+	
+	
+template <class scalar, class WaveNumber>
+class helmholtz_kernel<space_3d<scalar>, WaveNumber>
+	: public wave_number_kernel<WaveNumber>
+	, public distance_dependent_kernel<helmholtz_kernel<space_3d<scalar>, WaveNumber> >
+{
+public:
+	typedef typename distance_dependent_kernel_traits_ns::result<
+		helmholtz_kernel<space_3d<scalar>, WaveNumber>
+	>::type result_t;
+	
+private:
+	void eval_impl(std::integral_constant<unsigned, 0>, scalar r, result_t *f) const
+	{
 		auto kr = this->get_wave_number() * r;
-		return result_t(0., -.25) * bessel::H<0, 2>(result_t(kr));
+		auto ikr = result_t(0,1) * kr;
+		f[0] = std::exp(-ikr) / r / (4. * M_PI);
 	}
 	
-	result_t operator()(test_input_t const &x, trial_input_t const &y) const
+
+	void eval_impl(std::integral_constant<unsigned, 1>, scalar r, result_t *f) const
 	{
-		return (*this)(x.get_x(), y.get_x());
-	}
-};
-
-/// 3D SLP
-
-namespace kernel_traits_ns
-{
-	template <class Scalar, class WaveNumber>
-	struct far_field_behaviour<helmholtz_kernel<space_3d<Scalar>, potential::SLP, WaveNumber> > : asymptotic::inverse<1> {};
-
-	template <class Scalar, class WaveNumber>
-	struct singularity_type<helmholtz_kernel<space_3d<Scalar>, potential::SLP, WaveNumber> > : asymptotic::inverse<1> {};
-}
-
-template <class Scalar, class WaveNumber>
-class helmholtz_kernel<space_3d<Scalar>, potential::SLP, WaveNumber>
-	: public kernel_base<helmholtz_kernel<space_3d<Scalar>, potential::SLP, WaveNumber> >
-	, public wave_number_kernel<WaveNumber>
-{
-	typedef kernel_base<helmholtz_kernel<space_3d<Scalar>, potential::SLP, WaveNumber> > base_t;
-	
-public:
-	typedef typename base_t::test_input_t test_input_t;
-	typedef typename base_t::trial_input_t trial_input_t;
-	typedef typename base_t::result_t result_t;
-	typedef typename base_t::x_t x_t;
-	
-	helmholtz_kernel(WaveNumber const &wave_number)
-		: wave_number_kernel<WaveNumber>(wave_number)
-	{
-	}
-	
-	result_t operator()(x_t const &x, x_t const &y) const
-	{
-		auto r = (y - x).norm();
-		auto ikr = std::complex<Scalar>(0,1) * (this->get_wave_number() * r);
-		return std::exp(-ikr) / r / (4. * M_PI);
-	}
-	
-	result_t operator()(test_input_t const &x, trial_input_t const &y) const
-	{
-		return (*this)(x.get_x(), y.get_x());
-	}
-};
-
-
-
-/// GENERAL DLP
-
-namespace kernel_traits_ns
-{
-	template <class Space, class WaveNumber>
-	struct test_input<helmholtz_kernel<Space, potential::DLP, WaveNumber> > : build<location<Space> > {};
-
-	template <class Space, class WaveNumber>
-	struct trial_input<helmholtz_kernel<Space, potential::DLP, WaveNumber> > : build<location<Space>, normal_jacobian<Space>  > {};
-
-	template <class Space, class WaveNumber>
-	struct is_symmetric<helmholtz_kernel<Space, potential::DLP, WaveNumber> > : std::false_type {};
-
-	template <class Space, class WaveNumber>
-	struct singular_quadrature_order<helmholtz_kernel<Space, potential::DLP, WaveNumber> > : std::integral_constant<unsigned, 7> {};
-}
-
-
-
-/// 2D DLP
-
-namespace kernel_traits_ns
-{
-	template <class Scalar, class WaveNumber>
-	struct far_field_behaviour<helmholtz_kernel<space_2d<Scalar>, potential::DLP, WaveNumber> > : asymptotic::inverse<1> {};
-
-	/** \todo check this */
-	template <class Scalar, class WaveNumber>
-	struct singularity_type<helmholtz_kernel<space_2d<Scalar>, potential::DLP, WaveNumber> > : asymptotic::log<1> {};
-}
-
-
-
-/** \brief kernel of the Helmholtz equation
- * \tparam Scalar
- * \tparam WaveNumber the wave number type
- */
-template <class Scalar, class WaveNumber>
-class helmholtz_kernel<space_2d<Scalar>, potential::DLP, WaveNumber>
-	: public kernel_base<helmholtz_kernel<space_2d<Scalar>, potential::DLP, WaveNumber> >
-	, public wave_number_kernel<WaveNumber>
-{
-public:
-	typedef kernel_base<helmholtz_kernel<space_2d<Scalar>, potential::DLP, WaveNumber> > base_t;
-	typedef typename base_t::test_input_t test_input_t;
-	typedef typename base_t::trial_input_t trial_input_t;
-	typedef typename base_t::result_t result_t;
-	
-	/** \brief constructor
-	 * \param [in] wave_number the wave number
-	 */
-	helmholtz_kernel(WaveNumber const &wave_number)
-		: wave_number_kernel<WaveNumber>(wave_number)
-	{
-	}
-	
-	result_t operator()(test_input_t const &x, trial_input_t const &y) const
-	{
-		auto rvec = y.get_x() - x.get_x();
-		auto r = rvec.norm();
-		auto rdny = rvec.dot(y.get_unit_normal()) / r;
 		auto kr = this->get_wave_number() * r;
-		auto H1 = bessel::H<1,2>(result_t(kr));
-		return result_t(0., .25) * this->get_wave_number() * H1 * rdny;
+		auto ikr = result_t(0,1) * kr;
+		f[0] = std::exp(-ikr) / (r*r) / (4. * M_PI) * (-ikr - 1.);
 	}
-};
+	
 
+	void eval_impl(std::integral_constant<unsigned, 2>, scalar r, result_t *f) const
+	{
+		auto ikr = result_t(0,1) * (this->get_wave_number() * r);
+		auto g = std::exp(-ikr) / (r*r*r) / (4. * M_PI);
+		f[1] = -g * (1. + ikr);
+		f[0] = g * (3. + ikr * (3. + ikr));
+	}
+	
 
-/// 3D DLP
-
-namespace kernel_traits_ns
-{
-	template <class Scalar, class WaveNumber>
-	struct far_field_behaviour<helmholtz_kernel<space_3d<Scalar>, potential::DLP, WaveNumber> > : asymptotic::inverse<2> {};
-
-	template <class Scalar, class WaveNumber>
-	struct singularity_type<helmholtz_kernel<space_3d<Scalar>, potential::DLP, WaveNumber> > : asymptotic::inverse<1> {};
-}
-
-
-
-template <class Scalar, class WaveNumber>
-class helmholtz_kernel<space_3d<Scalar>, potential::DLP, WaveNumber>
-	: public kernel_base<helmholtz_kernel<space_3d<Scalar>, potential::DLP, WaveNumber> >
-	, public wave_number_kernel<WaveNumber>
-{
+	void eval_impl(std::integral_constant<unsigned, 3>, scalar r, result_t *f) const
+	{
+		auto ikr = result_t(0,1) * (this->get_wave_number() * r);
+		auto g = std::exp(-ikr)/(r*r*r*r) / (4.*M_PI);
+		f[1] = g * (3. + ikr * (3. + ikr));
+		f[0] = -g * (15. + ikr * (15 + ikr * (6 + ikr)));
+	}
+	
 public:
-	typedef kernel_base<helmholtz_kernel<space_3d<Scalar>, potential::DLP, WaveNumber> > base_t;
-	typedef typename base_t::test_input_t test_input_t;
-	typedef typename base_t::trial_input_t trial_input_t;
-	typedef typename base_t::result_t result_t;
-	
-	helmholtz_kernel(WaveNumber const &wave_number)
-		: wave_number_kernel<WaveNumber>(wave_number)
+	helmholtz_kernel(WaveNumber const &k)
+		: wave_number_kernel<WaveNumber>(k)
 	{
 	}
 	
-	result_t operator()(test_input_t const &x, trial_input_t const &y) const
+	template <unsigned order>
+	void eval(scalar r, result_t *f) const
 	{
-		auto rvec = y.get_x() - x.get_x();
-		auto r = (rvec).norm();
-		auto rdny = rvec.dot(y.get_unit_normal()) / r;
-		auto ikr = std::complex<Scalar>(0,1) * (this->get_wave_number() * r);
-		auto g = std::exp(-ikr) / r / (4. * M_PI);
-		return -(1.+ikr) * g / r * rdny;
+		this->eval_impl(std::integral_constant<unsigned, order>(), r, f);
 	}
 };
 
-
-
-/// GENERAL DLPt
-
-namespace kernel_traits_ns
-{
-	template <class Space, class WaveNumber>
-	struct test_input<helmholtz_kernel<Space, potential::DLPt, WaveNumber> > : build<location<Space>, normal_jacobian<Space>  > {};
-
-	template <class Space, class WaveNumber>
-	struct trial_input<helmholtz_kernel<Space, potential::DLPt, WaveNumber> > : build<location<Space> > {};
-
-	template <class Space, class WaveNumber>
-	struct is_symmetric<helmholtz_kernel<Space, potential::DLPt, WaveNumber> > : std::false_type {};
-
-	template <class Space, class WaveNumber>
-	struct singular_quadrature_order<helmholtz_kernel<Space, potential::DLPt, WaveNumber> > : std::integral_constant<unsigned, 7> {};
-}
-
-
-
-/// 2D DLPt
-
+/// Helmholtz normal derivative kernel behaviors
 namespace kernel_traits_ns
 {
 	template <class Scalar, class WaveNumber>
-	struct far_field_behaviour<helmholtz_kernel<space_2d<Scalar>, potential::DLPt, WaveNumber> > : asymptotic::inverse<1> {};
+	struct far_field_behaviour<
+		normal_derivative_kernel<helmholtz_kernel<space_2d<Scalar>, WaveNumber>, 0, 0>
+	> : asymptotic::log<1> {};
 
-	/** \todo check this */
+	/// \todo check this
 	template <class Scalar, class WaveNumber>
-	struct singularity_type<helmholtz_kernel<space_2d<Scalar>, potential::DLPt, WaveNumber> > : asymptotic::log<1> {};
+	struct far_field_behaviour<
+		normal_derivative_kernel<helmholtz_kernel<space_2d<Scalar>, WaveNumber>, 0, 1>
+	> : asymptotic::inverse<1> {};
+
+	/// \todo check this
+	template <class Scalar, class WaveNumber>
+	struct singularity_type<
+		normal_derivative_kernel<helmholtz_kernel<space_2d<Scalar>, WaveNumber>, 0, 1>
+	> : asymptotic::inverse<1> {};
+
+	/// \todo check this
+	template <class Scalar, class WaveNumber>
+	struct far_field_behaviour<
+		normal_derivative_kernel<helmholtz_kernel<space_2d<Scalar>, WaveNumber>, 1, 0>
+	> : asymptotic::inverse<1> {};
+
+	/// \todo check this
+	template <class Scalar, class WaveNumber>
+	struct singularity_type<
+		normal_derivative_kernel<helmholtz_kernel<space_2d<Scalar>, WaveNumber>, 1, 0>
+	> : asymptotic::inverse<1> {};
+
+	/// \todo check this
+	template <class Scalar, class WaveNumber>
+	struct far_field_behaviour<
+		normal_derivative_kernel<helmholtz_kernel<space_2d<Scalar>, WaveNumber>, 1, 1>
+	> : asymptotic::inverse<2> {};
+
+	/// \todo check this
+	template <class Scalar, class WaveNumber>
+	struct singularity_type<
+		normal_derivative_kernel<helmholtz_kernel<space_2d<Scalar>, WaveNumber>, 1, 1>
+	> : asymptotic::inverse<2> {};
+	
 }
 
-
-/// 3D DLPt
-
+/// Helmholtz normal derivative kernel behaviors
 namespace kernel_traits_ns
 {
+	template <class Scalar, class WaveNumber, int Nx, int Ny>
+	struct far_field_behaviour<
+		normal_derivative_kernel<helmholtz_kernel<space_3d<Scalar>, WaveNumber>, Nx, Ny>
+	> : asymptotic::inverse<1 + Nx + Ny> {};
+
+	template <class Scalar, class WaveNumber, int Nx, int Ny>
+	struct singularity_type<
+		normal_derivative_kernel<helmholtz_kernel<space_3d<Scalar>, WaveNumber>, Nx, Ny>
+	> : asymptotic::inverse<1 + Nx + Ny> {};
+
+	// the normal derivative on the smooth boundary cancels the 1/r^2
+	// singularity of the kernel's derivative
 	template <class Scalar, class WaveNumber>
-	struct far_field_behaviour<helmholtz_kernel<space_3d<Scalar>, potential::DLPt, WaveNumber> > : asymptotic::inverse<2> {};
-	
+	struct singularity_type<
+		normal_derivative_kernel<helmholtz_kernel<space_3d<Scalar>, WaveNumber>, 0, 1>
+	> : asymptotic::inverse<1> {};
+
+	// the normal derivative on the smooth boundary cancels the 1/r^2
+	// singularity of the kernel's derivative
 	template <class Scalar, class WaveNumber>
-	struct singularity_type<helmholtz_kernel<space_3d<Scalar>, potential::DLPt, WaveNumber> > : asymptotic::inverse<1> {};
-}
-
-
-template <class Scalar, class WaveNumber>
-class helmholtz_kernel<space_3d<Scalar>, potential::DLPt, WaveNumber>
-	: public kernel_base<helmholtz_kernel<space_3d<Scalar>, potential::DLPt, WaveNumber> >
-	, public wave_number_kernel<WaveNumber>
-{
-public:
-	typedef kernel_base<helmholtz_kernel<space_3d<Scalar>, potential::DLPt, WaveNumber> > base_t;
-	typedef typename base_t::test_input_t test_input_t;
-	typedef typename base_t::trial_input_t trial_input_t;
-	typedef typename base_t::result_t result_t;
-	
-	helmholtz_kernel(WaveNumber const &wave_number)
-		: wave_number_kernel<WaveNumber>(wave_number)
-	{
-	}
-	
-	result_t operator()(test_input_t const &x, trial_input_t const &y) const
-	{
-		auto rvec = y.get_x() - x.get_x();
-		auto r = (rvec).norm();
-		auto rdnx = -rvec.dot(x.get_unit_normal()) / r;
-		auto ikr = std::complex<Scalar>(0,1) * (this->get_wave_number() * r);
-		auto g = std::exp(-ikr) / r / (4. * M_PI);
-		return -(1.+ikr) * g / r * rdnx;
-	}
-};
-
-
-/// GENERAL HSP
-
-namespace kernel_traits_ns
-{
-	template <class Space, class WaveNumber>
-	struct test_input<helmholtz_kernel<Space, potential::HSP, WaveNumber> > : build<location<Space>, normal_jacobian<Space>  > {};
-
-	template <class Space, class WaveNumber>
-	struct trial_input<helmholtz_kernel<Space, potential::HSP, WaveNumber> > : build<location<Space>, normal_jacobian<Space>  > {};
-
-	template <class Space, class WaveNumber>
-	struct is_symmetric<helmholtz_kernel<Space, potential::HSP, WaveNumber> > : std::true_type {};
-	
-	template <class Space, class WaveNumber>
-	struct singular_quadrature_order<helmholtz_kernel<Space, potential::HSP, WaveNumber> > : std::integral_constant<unsigned, 9> {};
-}
-
-
-/// 2D HSP
-
-namespace kernel_traits_ns
-{
-	template <class Scalar, class WaveNumber>
-	struct far_field_behaviour<helmholtz_kernel<space_2d<Scalar>, potential::HSP, WaveNumber> > : asymptotic::inverse<2> {};
-
-	template <class Scalar, class WaveNumber>
-	struct singularity_type<helmholtz_kernel<space_2d<Scalar>, potential::HSP, WaveNumber> > : asymptotic::log<2> {};
-}
+	struct singularity_type<
+		normal_derivative_kernel<helmholtz_kernel<space_3d<Scalar>, WaveNumber>, 1, 0>
+	> : asymptotic::inverse<1> {};
+} // end of namespace kernel_traits_ns
 
 
 
-/// 3D HSP
-
-namespace kernel_traits_ns
-{
-	template <class Scalar, class WaveNumber>
-	struct far_field_behaviour<helmholtz_kernel<space_3d<Scalar>, potential::HSP, WaveNumber> > : asymptotic::inverse<3> {};
-
-	template <class Scalar, class WaveNumber>
-	struct singularity_type<helmholtz_kernel<space_3d<Scalar>, potential::HSP, WaveNumber> > : asymptotic::inverse<3> {};
-}
-
-
-template <class Scalar, class WaveNumber>
-class helmholtz_kernel<space_3d<Scalar>, potential::HSP, WaveNumber>
-	: public kernel_base<helmholtz_kernel<space_3d<Scalar>, potential::HSP, WaveNumber> >
-	, public wave_number_kernel<WaveNumber>
-{
-public:
-	typedef kernel_base<helmholtz_kernel<space_3d<Scalar>, potential::HSP, WaveNumber> > base_t;
-	typedef typename base_t::test_input_t test_input_t;
-	typedef typename base_t::trial_input_t trial_input_t;
-	typedef typename base_t::result_t result_t;
-	
-	/** \brief constructor
-	 * \param [in] wave_number the wave number
-	 */
-	helmholtz_kernel(WaveNumber const &wave_number)
-		: wave_number_kernel<WaveNumber>(wave_number)
-	{
-	}
-	
-	result_t operator()(test_input_t const &x, trial_input_t const &y) const
-	{
-		auto rvec = y.get_x() - x.get_x();
-		auto r = rvec.norm();
-		auto ikr = std::complex<Scalar>(0,1) * this->get_wave_number() * r;
-		auto rdny = rvec.dot(y.get_unit_normal()) / r;
-		auto rdnx = -rvec.dot(x.get_unit_normal()) / r;
-		auto g = std::exp(-ikr) / r / (4. * M_PI);
-		
-		return g / r / r * (
-					(1. + ikr)*x.get_unit_normal().dot(y.get_unit_normal()) +
-					(3. + 3.*ikr + ikr*ikr)*rdny*rdnx
-				);
-	}
-};
-
-
-/// USEFUL SHORTHANDS
-
-
-/** \brief shorthand for the 2d helmholtz SLP kernel */
+/** \brief shorthand for the 2d Helmholtz SLP kernel */
 template <class WaveNumber>
-using helmholtz_2d_SLP_kernel = helmholtz_kernel<space_2d<>, potential::SLP, WaveNumber>;
-/** \brief shorthand for the 3d helmholtz SLP kernel */
+using helmholtz_2d_SLP_kernel = normal_derivative_kernel<helmholtz_kernel<space_2d<>, WaveNumber>, 0, 0>;
+/** \brief shorthand for the 3d Helmholtz SLP kernel */
 template <class WaveNumber>
-using helmholtz_3d_SLP_kernel = helmholtz_kernel<space_3d<>, potential::SLP, WaveNumber>;
-/** \brief shorthand for the 2d helmholtz DLP kernel */
+using helmholtz_3d_SLP_kernel = normal_derivative_kernel<helmholtz_kernel<space_3d<>, WaveNumber>, 0, 0>;
+/** \brief shorthand for the 2d Helmholtz DLP kernel */
 template <class WaveNumber>
-using helmholtz_2d_DLP_kernel = helmholtz_kernel<space_2d<>, potential::DLP, WaveNumber>;
-/** \brief shorthand for the 3d helmholtz DLP kernel */
+using helmholtz_2d_DLP_kernel = normal_derivative_kernel<helmholtz_kernel<space_2d<>, WaveNumber>, 0, 1>;
+/** \brief shorthand for the 3d Helmholtz DLP kernel */
 template <class WaveNumber>
-using helmholtz_3d_DLP_kernel = helmholtz_kernel<space_3d<>, potential::DLP, WaveNumber>;
-/** \brief shorthand for the 2d helmholtz DLPt kernel */
+using helmholtz_3d_DLP_kernel = normal_derivative_kernel<helmholtz_kernel<space_3d<>, WaveNumber>, 0, 1>;
+/** \brief shorthand for the 2d Helmholtz DLPt kernel */
 template <class WaveNumber>
-using helmholtz_2d_DLPt_kernel = helmholtz_kernel<space_2d<>, potential::DLPt, WaveNumber>;
-/** \brief shorthand for the 3d helmholtz DLPt kernel */
+using helmholtz_2d_DLPt_kernel = normal_derivative_kernel<helmholtz_kernel<space_2d<>, WaveNumber>, 1, 0>;
+/** \brief shorthand for the 3d Helmholtz DLPt kernel */
 template <class WaveNumber>
-using helmholtz_3d_DLPt_kernel = helmholtz_kernel<space_3d<>, potential::DLPt, WaveNumber>;
-/** \brief shorthand for the 2d helmholtz HSP kernel */
+using helmholtz_3d_DLPt_kernel = normal_derivative_kernel<helmholtz_kernel<space_3d<>, WaveNumber>, 1, 0>;
+/** \brief shorthand for the 2d Helmholtz HSP kernel */
 template <class WaveNumber>
-using helmholtz_2d_HSP_kernel = helmholtz_kernel<space_2d<>, potential::HSP, WaveNumber>;
-/** \brief shorthand for the 3d helmholtz HSP kernel */
+using helmholtz_2d_HSP_kernel = normal_derivative_kernel<helmholtz_kernel<space_2d<>, WaveNumber>, 1, 1>;
+/** \brief shorthand for the 3d Helmholtz HSP kernel */
 template <class WaveNumber>
-using helmholtz_3d_HSP_kernel = helmholtz_kernel<space_3d<>, potential::HSP, WaveNumber>;
+using helmholtz_3d_HSP_kernel = normal_derivative_kernel<helmholtz_kernel<space_3d<>, WaveNumber>, 1, 1>;
+/** \brief shorthand for the 3d Helmholtz xx kernel */
+template <class WaveNumber>
+using helmholtz_3d_xx_kernel = normal_derivative_kernel<helmholtz_kernel<space_3d<>, WaveNumber>, 2, 0>;
 
 } 	// end of namespace NiHu
 

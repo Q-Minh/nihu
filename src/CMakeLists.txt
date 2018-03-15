@@ -23,7 +23,7 @@ message(STATUS "${NIHU_SYS_BITS}-bit system detected")
 
 # COMPILER PROPERTIES
 # Compiler-specific C++11 activation.
-if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
+if (${CMAKE_CXX_COMPILER_ID} MATCHES "GNU")
     execute_process(
         COMMAND ${CMAKE_CXX_COMPILER} -dumpversion OUTPUT_VARIABLE GCC_VERSION)
     if (NOT (GCC_VERSION VERSION_GREATER 4.7 OR GCC_VERSION VERSION_EQUAL 4.7))
@@ -31,10 +31,10 @@ if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
 	else ()
 		message(STATUS "Compiler supports C++11 - OK")
     endif ()
-elseif ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
+elseif (${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
 	message(STATUS "Setting up additional flags for Clang")
 else ()
-    message(FATAL_ERROR "Your C++ compiler does not support C++11.")
+    message(FATAL_ERROR "Your C++ compiler (" ${CMAKE_CXX_COMPILER_ID} ") does not support C++11.")
 endif ()
 
 	

@@ -28,403 +28,224 @@
 
 #include <cmath>
 #include "../core/global_definitions.hpp"
-#include "../core/kernel.hpp"
 #include "../core/gaussian_quadrature.hpp"
-#include "potential_kernel.hpp"
-#include "location_normal.hpp"
+#include "normal_derivative_kernel.hpp"
+#include "distance_dependent_kernel.hpp"
 
 namespace NiHu
 {
-/** \brief kernel of the Laplace equation
- * \tparam Space the coordinate space the kernel is defined over
- * \tparam Layer the potential layer tag that can be potential::SLP, potential::DLP, potential::DLPt and potential::HSP
- */
-template <class Space, class Layer>
+	
+template <class Space>
 class laplace_kernel;
 
-
-/// GENERAL TRAITS
-namespace kernel_traits_ns
+namespace distance_dependent_kernel_traits_ns
 {
-	template <class Space, class Layer>
-	struct space<laplace_kernel<Space, Layer> > : Space {};
+	template <class Space>
+	struct space<laplace_kernel<Space> > : Space {};
 
-	template <class Space, class Layer>
-	struct result<laplace_kernel<Space, Layer> >
+	template <class Space>
+	struct result<laplace_kernel<Space> >
 	{
 		typedef typename Space::scalar_t type;
 	};
 
-	template <class Space, class Layer>
-	struct quadrature_family<laplace_kernel<Space, Layer> > : gauss_family_tag {};
+	template <class Space>
+	struct quadrature_family<laplace_kernel<Space> > : gauss_family_tag {};
 
-	template <class Space, class Layer>
-	struct result_rows<laplace_kernel<Space, Layer> > : std::integral_constant<unsigned, 1> {};
-	template <class Space, class Layer>
-	struct result_cols<laplace_kernel<Space, Layer> > : std::integral_constant<unsigned, 1> {};
+	template <class Space>
+	struct result_rows<laplace_kernel<Space> > : std::integral_constant<unsigned, 1> {};
+	
+	template <class Space>
+	struct result_cols<laplace_kernel<Space> > : std::integral_constant<unsigned, 1> {};
 
-	template <class Space, class Layer>
-	struct is_singular<laplace_kernel<Space, Layer> > : std::true_type {};
+	template <class Space>
+	struct is_singular<laplace_kernel<Space> > : std::true_type {};
 
-	template <class Space, class Layer>
-	struct singular_core<laplace_kernel<Space, Layer> > {
-		typedef  laplace_kernel<Space, Layer>  type;
+	template <class Space>
+	struct singular_core<laplace_kernel<Space> > {
+		typedef  laplace_kernel<Space>  type;
 	};
-}
-
-/// SLP TRAITS
-namespace kernel_traits_ns
-{
-	template <class Space>
-	struct test_input<laplace_kernel<Space, potential::SLP> > : build<location<Space> > {};
 
 	template <class Space>
-	struct trial_input<laplace_kernel<Space, potential::SLP> > : build<location<Space> > {};
-
-	template <class Space>
-	struct is_symmetric<laplace_kernel<Space, potential::SLP> > : std::true_type {};
-
-	/** \brief the singular quadrature order of the laplace SLP kernel
-	 * \todo check if the same value can be used for the 2D and 3D case
-	 */
-	template <class Space>
-	struct singular_quadrature_order<laplace_kernel<Space, potential::SLP> > : std::integral_constant<unsigned, 7> {};
-}
-
-/// 2D SLP
-namespace kernel_traits_ns
-{
-	template <class Scalar>
-	struct far_field_behaviour<laplace_kernel<space_2d<Scalar>, potential::SLP> > : asymptotic::log<1> {};
+	struct singular_quadrature_order<laplace_kernel<Space> >
+		: std::integral_constant<unsigned, 7> {};
 
 	template <class Scalar>
-	struct singularity_type<laplace_kernel<space_2d<Scalar>, potential::SLP> > : asymptotic::log<1> {};
-}
+	struct far_field_behaviour<laplace_kernel<space_2d<Scalar> > >
+		: asymptotic::log<1> {};
 
+	template <class Scalar>
+	struct singularity_type<laplace_kernel<space_2d<Scalar> > >
+		: asymptotic::log<1> {};
 
-/** \brief the 2D SLP kernel of the Laplace equation: \f$ -\ln r / 2\pi \f$
- * \tparam Scalar the scalar type
- */
-template <class Scalar>
-class laplace_kernel<space_2d<Scalar>, potential::SLP>
-	: public kernel_base<laplace_kernel<space_2d<Scalar>, potential::SLP> >
+	template <class Scalar>
+	struct far_field_behaviour<laplace_kernel<space_3d<Scalar> > >
+		: asymptotic::inverse<1> {};
+
+	template <class Scalar>
+	struct singularity_type<laplace_kernel<space_3d<Scalar> > >
+		: asymptotic::inverse<1> {};
+} // end of distance_dependent_kernel_traits_ns
+
+template <class scalar>
+class laplace_kernel<space_2d<scalar> >
+	: public distance_dependent_kernel<laplace_kernel<space_2d<scalar> > >
 {
-public:
-	typedef kernel_base<laplace_kernel<space_2d<Scalar>, potential::SLP> > base_t;
-	typedef typename base_t::test_input_t test_input_t;
-	typedef typename base_t::trial_input_t trial_input_t;
-	typedef typename base_t::result_t result_t;
+private:
+	void eval_impl(std::integral_constant<unsigned, 0>, scalar r, scalar *f) const
+	{
+		*f = -std::log(r) / (2. * M_PI);
+	}
 	
-	result_t operator()(typename base_t::x_t const &x, typename base_t::x_t const &y) const
+	void eval_impl(std::integral_constant<unsigned, 1>, scalar r, scalar *f) const
 	{
-		typename base_t::x_t rvec = y - x;
-		auto r = rvec.norm();
-		return -std::log(r) / (2. * M_PI);
+		*f = -1.0 / r / (2. * M_PI);
 	}
-
-	result_t operator()(test_input_t const &test_input, trial_input_t const &trial_input) const
-	{
-		return (*this)(test_input.get_x(), trial_input.get_x());
-	}
-};
-
-
-/// 3D SLP TRAITS
-namespace kernel_traits_ns
-{
-	template <class Scalar>
-	struct far_field_behaviour<laplace_kernel<space_3d<Scalar>, potential::SLP> > : asymptotic::inverse<1> {};
-
-	template <class Scalar>
-	struct singularity_type<laplace_kernel<space_3d<Scalar>, potential::SLP> > : asymptotic::inverse<1> {};
-}
-
-/** \brief the 3D SLP kernel of the Laplace equation: \f$ 1 / 4 \pi r \f$
- * \tparam Scalar the scalar type
- */
-template <class Scalar>
-class laplace_kernel<space_3d<Scalar>, potential::SLP>
-	: public kernel_base<laplace_kernel<space_3d<Scalar>, potential::SLP> >
-{
-public:
-	typedef kernel_base<laplace_kernel<space_3d<Scalar>, potential::SLP> > base_t;
-	typedef typename base_t::test_input_t test_input_t;
-	typedef typename base_t::trial_input_t trial_input_t;
-	typedef typename base_t::result_t result_t;
 	
-	result_t operator()(typename base_t::x_t const &x, typename base_t::x_t const &y) const
+	void eval_impl(std::integral_constant<unsigned, 2>, scalar r, scalar *f) const
 	{
-		typename base_t::x_t rvec = y - x;
-		auto r = rvec.norm();
-		return 1. / r / (4. * M_PI);
+		f[1] = -1.0 / (r*r) / (2. * M_PI);
+		f[0] = -2.0  * f[1];
 	}
-
-	result_t operator()(test_input_t const &test_input, trial_input_t const &trial_input) const
-	{
-		return (*this)(test_input.get_x(), trial_input.get_x());
-	}
-};
-
-/// GENERAL DLP
-namespace kernel_traits_ns
-{
-	template <class Space>
-	struct test_input<laplace_kernel<Space, potential::DLP> > : build<location<Space> > {};
-
-	template <class Space>
-	struct trial_input<laplace_kernel<Space, potential::DLP> > : build<location<Space>, normal_jacobian<Space> > {};
-
-	template <class Space>
-	struct is_symmetric<laplace_kernel<Space, potential::DLP> > : std::false_type {};
-
-	template <class Space>
-	struct singular_quadrature_order<laplace_kernel<Space, potential::DLP> > : std::integral_constant<unsigned, 7> {};
-}
-
-/// 2D DLP
-namespace kernel_traits_ns
-{
-	template <class Scalar>
-	struct far_field_behaviour<laplace_kernel<space_2d<Scalar>, potential::DLP> > : asymptotic::inverse<1> {};
-
-	/** \brief kernel singularity type
-	 * \todo check this!
-	 */
-	template <class Scalar>
-	struct singularity_type<laplace_kernel<space_2d<Scalar>, potential::DLP> > : asymptotic::log<1> {};
-}
-
-template <class Scalar>
-class laplace_kernel<space_2d<Scalar>, potential::DLP>
-	: public kernel_base<laplace_kernel<space_2d<Scalar>, potential::DLP> >
-{
-public:
-	typedef kernel_base<laplace_kernel<space_2d<Scalar>, potential::DLP> > base_t;
-	typedef typename base_t::test_input_t test_input_t;
-	typedef typename base_t::trial_input_t trial_input_t;
-	typedef typename base_t::result_t result_t;
-
-	result_t operator()(test_input_t const &x, trial_input_t const &y) const
-	{
-		typename base_t::x_t rvec = y.get_x() - x.get_x();
-		Scalar r = rvec.norm();
-		Scalar rdny = rvec.dot(y.get_unit_normal()) / r;
-		return -rdny / r / (2. * M_PI);
-	}
-};
-
-/// 3D DLP
-namespace kernel_traits_ns
-{
-	template <class Scalar>
-	struct far_field_behaviour<laplace_kernel<space_3d<Scalar>, potential::DLP> > : asymptotic::inverse<2> {};
-
-	template <class Scalar>
-	struct singularity_type<laplace_kernel<space_3d<Scalar>, potential::DLP> > : asymptotic::inverse<1> {};
-}
-
-
-template <class Scalar>
-class laplace_kernel<space_3d<Scalar>, potential::DLP>
-	: public kernel_base<laplace_kernel<space_3d<Scalar>, potential::DLP> >
-{
-public:
-	typedef kernel_base<laplace_kernel<space_3d<Scalar>, potential::DLP> > base_t;
-	typedef typename base_t::test_input_t test_input_t;
-	typedef typename base_t::trial_input_t trial_input_t;
-	typedef typename base_t::result_t result_t;
-
-	result_t operator()(test_input_t const &x, trial_input_t const &y) const
-	{
-		typename base_t::x_t rvec = y.get_x() - x.get_x();
-		Scalar r = rvec.norm();
-		auto g = 1. / r / (4. * M_PI);
-		Scalar rdny = rvec.dot(y.get_unit_normal()) / r;
-		return -g * rdny / r;
-	}
-};
-
-/// GENERAL DLPt
-namespace kernel_traits_ns
-{
-	template <class Space>
-	struct test_input<laplace_kernel<Space, potential::DLPt> > : build<location<Space>, normal_jacobian<Space> > {};
-
-	template <class Space>
-	struct trial_input<laplace_kernel<Space, potential::DLPt> > : build<location<Space> > {};
-
-	template <class Space>
-	struct is_symmetric<laplace_kernel<Space, potential::DLPt> > : std::false_type {};
-
-	template <class Space>
-	struct singular_quadrature_order<laplace_kernel<Space, potential::DLPt> > : std::integral_constant<unsigned, 7> {};
-}
-
-/// 2D DLPt
-
-namespace kernel_traits_ns
-{
-	template <class Scalar>
-	struct far_field_behaviour<laplace_kernel<space_2d<Scalar>, potential::DLPt> > : asymptotic::inverse<1> {};
-
-	/** \brief the singularity type
-	 * \todo check this just like the plain DLP kernel
-	 */
-	template <class Scalar>
-	struct singularity_type<laplace_kernel<space_2d<Scalar>, potential::DLPt> > : asymptotic::log<1> {};
-}
-
-template <class Scalar>
-class laplace_kernel<space_2d<Scalar>, potential::DLPt>
-	: public kernel_base<laplace_kernel<space_2d<Scalar>, potential::DLPt> >
-{
-public:
-	typedef kernel_base<laplace_kernel<space_2d<Scalar>, potential::DLPt> > base_t;
-	typedef typename base_t::test_input_t test_input_t;
-	typedef typename base_t::trial_input_t trial_input_t;
-	typedef typename base_t::result_t result_t;
-
-	result_t operator()(test_input_t const &test_input, trial_input_t const &trial_input) const
-	{
-		typename base_t::x_t rvec = trial_input.get_x() - test_input.get_x();
-		Scalar r = rvec.norm();
-		Scalar rdnx = -rvec.dot(test_input.get_unit_normal()) / r;
-		return -rdnx / r / (2. * M_PI);
-	}
-};
-
-/// 3D DLPt
-
-namespace kernel_traits_ns
-{
-	template <class Scalar>
-	struct far_field_behaviour<laplace_kernel<space_3d<Scalar>, potential::DLPt> > : asymptotic::inverse<2> {};
 	
-	template <class Scalar>
-	struct singularity_type<laplace_kernel<space_3d<Scalar>, potential::DLPt> > : asymptotic::inverse<1> {};
-}
-
-template <class Scalar>
-class laplace_kernel<space_3d<Scalar>, potential::DLPt>
-	: public kernel_base<laplace_kernel<space_3d<Scalar>, potential::DLPt> >
-{
-public:
-	typedef kernel_base<laplace_kernel<space_3d<Scalar>, potential::DLPt> > base_t;
-	typedef typename base_t::test_input_t test_input_t;
-	typedef typename base_t::trial_input_t trial_input_t;
-	typedef typename base_t::result_t result_t;
-
-	result_t operator()(test_input_t const &test_input, trial_input_t const &trial_input) const
+	void eval_impl(std::integral_constant<unsigned, 3>, scalar r, scalar *f) const
 	{
-		typename base_t::x_t rvec = trial_input.get_x() - test_input.get_x();
-		Scalar r = rvec.norm();
-		auto g = 1. / r / (4. * M_PI);
-		Scalar rdnx = -rvec.dot(test_input.get_unit_normal()) / r;
-		return -g * rdnx / r;
+		auto g = 1. / (r*r*r) / (2. * M_PI);
+		f[1] = 2.0 * g; 
+		f[0] = -8.0 * g;
+	}
+	
+public:
+	template <unsigned order>
+	void eval(scalar r, scalar *f) const
+	{
+		this->eval_impl(std::integral_constant<unsigned, order>(), r, f);
 	}
 };
-
-/// GENERAL HSP
-namespace kernel_traits_ns
+	
+	
+template <class scalar>
+class laplace_kernel<space_3d<scalar> >
+	: public distance_dependent_kernel<laplace_kernel<space_3d<scalar> > >
 {
-	template <class Space>
-	struct test_input<laplace_kernel<Space, potential::HSP> > : build<location<Space>, normal_jacobian<Space > > {};
-
-	template <class Space>
-	struct trial_input<laplace_kernel<Space, potential::HSP> > : build<location<Space>, normal_jacobian<Space> > {};
-
-	template <class Space>
-	struct is_symmetric<laplace_kernel<Space, potential::HSP> > : std::true_type {};
-
-	template <class Space>
-	struct singular_quadrature_order<laplace_kernel<Space, potential::HSP> > : std::integral_constant<unsigned, 7> {};
-}
-
-/// 2D HSP
-namespace kernel_traits_ns
-{
-	template <class Scalar>
-	struct far_field_behaviour<laplace_kernel<space_2d<Scalar>, potential::HSP> > : asymptotic::inverse<2> {};
-
-	template <class Scalar>
-	struct singularity_type<laplace_kernel<space_2d<Scalar>, potential::HSP> > : asymptotic::inverse<2> {};
-}
-
-template <class Scalar>
-class laplace_kernel<space_2d<Scalar>, potential::HSP>
-	: public kernel_base<laplace_kernel<space_2d<Scalar>, potential::HSP> >
-{
-public:
-	typedef kernel_base<laplace_kernel<space_2d<Scalar>, potential::HSP> > base_t;
-	typedef typename base_t::test_input_t test_input_t;
-	typedef typename base_t::trial_input_t trial_input_t;
-	typedef typename base_t::result_t result_t;
-
-	result_t operator()(test_input_t const &test_input, trial_input_t const &trial_input) const
+	void eval_impl(std::integral_constant<unsigned, 0>, scalar r, scalar *f) const
 	{
-		typename base_t::x_t rvec = trial_input.get_x() - test_input.get_x();
-		Scalar r = rvec.norm();
-		Scalar rdny = rvec.dot(trial_input.get_unit_normal()) / r;
-		Scalar rdnx = -rvec.dot(test_input.get_unit_normal()) / r;
-		return 	1./(2. * M_PI)/r/r * (
-		test_input.get_unit_normal().dot(trial_input.get_unit_normal()) +
-		2. * rdny*rdnx);
+		*f = 1. / r / (4. * M_PI);
 	}
-};
-
-/// 3D HSP
-
-namespace kernel_traits_ns
-{
-	template <class Scalar>
-	struct far_field_behaviour<laplace_kernel<space_3d<Scalar>, potential::HSP> > : asymptotic::inverse<3> {};
-
-	template <class Scalar>
-	struct singularity_type<laplace_kernel<space_3d<Scalar>, potential::HSP> > : asymptotic::inverse<3> {};
-}
-
-template <class Scalar>
-class laplace_kernel<space_3d<Scalar>, potential::HSP>
-	: public kernel_base<laplace_kernel<space_3d<Scalar>, potential::HSP> >
-{
-public:
-	typedef kernel_base<laplace_kernel<space_3d<Scalar>, potential::HSP> > base_t;
-	typedef typename base_t::test_input_t test_input_t;
-	typedef typename base_t::trial_input_t trial_input_t;
-	typedef typename base_t::result_t result_t;
-
-	result_t operator()(test_input_t const &test_input, trial_input_t const &trial_input) const
+	
+	void eval_impl(std::integral_constant<unsigned, 1>, scalar r, scalar *f) const
 	{
-		typename base_t::x_t rvec = trial_input.get_x() - test_input.get_x();
-		Scalar r = rvec.norm();
-		Scalar rdny = rvec.dot(trial_input.get_unit_normal()) / r;
-		Scalar rdnx = -rvec.dot(test_input.get_unit_normal()) / r;
-		auto g = 1. / r / (4. * M_PI);
-		return 	g / r / r *
-		(
-		test_input.get_unit_normal().dot(trial_input.get_unit_normal()) +
-		3. * rdnx * rdny
-		);
+		*f = -1. / (r*r) / (4. * M_PI);
+	}
+	
+	void eval_impl(std::integral_constant<unsigned, 2>, scalar r, scalar *f) const
+	{
+		auto g = 1./(r*r*r)/(4.*M_PI);
+		f[1] = -1. * g;
+		f[0] = 3. * g;
+	}
+	
+	void eval_impl(std::integral_constant<unsigned, 3>, scalar r, scalar *f) const
+	{
+		auto g = 1. / (r*r*r*r) / (4. * M_PI);
+		f[1] = 3. * g;
+		f[0] = -15. * g;
+	}
+	
+public:
+	template <unsigned order>
+	void eval(scalar r, scalar *f) const
+	{
+		this->eval_impl(std::integral_constant<unsigned, order>(), r, f);
 	}
 };
 
 
-/** \brief shorthand for the 2d laplace SLP kernel */
-typedef laplace_kernel<space_2d<>, potential::SLP> laplace_2d_SLP_kernel;
-/** \brief shorthand for the 3d laplace SLP kernel */
-typedef laplace_kernel<space_3d<>, potential::SLP> laplace_3d_SLP_kernel;
-/** \brief shorthand for the 2d laplace DLP kernel */
-typedef laplace_kernel<space_2d<>, potential::DLP> laplace_2d_DLP_kernel;
-/** \brief shorthand for the 3d laplace DLP kernel */
-typedef laplace_kernel<space_3d<>, potential::DLP> laplace_3d_DLP_kernel;
-/** \brief shorthand for the 2d laplace DLPt kernel */
-typedef laplace_kernel<space_2d<>, potential::DLPt> laplace_2d_DLPt_kernel;
-/** \brief shorthand for the 3d laplace DLPt kernel */
-typedef laplace_kernel<space_3d<>, potential::DLPt> laplace_3d_DLPt_kernel;
-/** \brief shorthand for the 2d laplace HSP kernel */
-typedef laplace_kernel<space_2d<>, potential::HSP> laplace_2d_HSP_kernel;
-/** \brief shorthand for the 3d laplace HSP kernel */
-typedef laplace_kernel<space_3d<>, potential::HSP> laplace_3d_HSP_kernel;
+/// Laplace Helper Behavior
+namespace kernel_traits_ns
+{
+	template <class Scalar>
+	struct far_field_behaviour<
+		normal_derivative_kernel<laplace_kernel<space_2d<Scalar> >, 0, 0>
+	> : distance_dependent_kernel_traits_ns::far_field_behaviour<
+		laplace_kernel<space_2d<Scalar> >
+	> {};
+
+	template <class Scalar>
+	struct far_field_behaviour<
+		normal_derivative_kernel<laplace_kernel<space_2d<Scalar> >, 0, 1>
+	> : asymptotic::inverse<1> {};
+
+	template <class Scalar>
+	struct singularity_type<
+		normal_derivative_kernel<laplace_kernel<space_2d<Scalar> >, 0, 1>
+	> : asymptotic::inverse<1> {};
+
+	template <class Scalar>
+	struct far_field_behaviour<
+		normal_derivative_kernel<laplace_kernel<space_2d<Scalar> >, 1, 0>
+	> : asymptotic::inverse<1> {};
+
+	template <class Scalar>
+	struct singularity_type<
+		normal_derivative_kernel<laplace_kernel<space_2d<Scalar> >, 1, 0>
+	> : asymptotic::inverse<1> {};
+
+	template <class Scalar>
+	struct far_field_behaviour<
+		normal_derivative_kernel<laplace_kernel<space_2d<Scalar> >, 1, 1>
+	> : asymptotic::inverse<2> {};
+
+	template <class Scalar>
+	struct singularity_type<
+		normal_derivative_kernel<laplace_kernel<space_2d<Scalar> >, 1, 1>
+	> : asymptotic::inverse<2> {};
+}
+
+namespace kernel_traits_ns
+{
+	template <class Scalar, int Nx, int Ny>
+	struct far_field_behaviour<
+		normal_derivative_kernel<laplace_kernel<space_3d<Scalar> >, Nx, Ny>
+	> : asymptotic::inverse<1 + Nx + Ny> {};
+
+	template <class Scalar, int Nx, int Ny>
+	struct singularity_type<
+		normal_derivative_kernel<laplace_kernel<space_3d<Scalar> >, Nx, Ny>
+	> : asymptotic::inverse<1 + Nx + Ny> {};
+
+	// the normal derivative cancels the -2 singularity on a smooth boundary
+	template <class Scalar>
+	struct singularity_type<
+		normal_derivative_kernel<laplace_kernel<space_3d<Scalar> >, 0, 1>
+	> : asymptotic::inverse<1> {};
+
+	// the normal derivative cancels the -2 singularity on a smooth boundary
+	template <class Scalar>
+	struct singularity_type<
+		normal_derivative_kernel<laplace_kernel<space_3d<Scalar> >, 1, 0>
+	> : asymptotic::inverse<1> {};
+}
+	
+
+/** \brief shorthand for the 2d Laplace SLP kernel */
+typedef normal_derivative_kernel<laplace_kernel<space_2d<> >, 0, 0> laplace_2d_SLP_kernel;
+/** \brief shorthand for the 3d Laplace SLP kernel */
+typedef normal_derivative_kernel<laplace_kernel<space_3d<> >, 0, 0> laplace_3d_SLP_kernel;
+/** \brief shorthand for the 2d Laplace DLP kernel */
+typedef normal_derivative_kernel<laplace_kernel<space_2d<> >, 0, 1> laplace_2d_DLP_kernel;
+/** \brief shorthand for the 3d Laplace DLP kernel */
+typedef normal_derivative_kernel<laplace_kernel<space_3d<> >, 0, 1> laplace_3d_DLP_kernel;
+/** \brief shorthand for the 2d Laplace DLPt kernel */
+typedef normal_derivative_kernel<laplace_kernel<space_2d<> >, 1, 0> laplace_2d_DLPt_kernel;
+/** \brief shorthand for the 3d Laplace DLPt kernel */
+typedef normal_derivative_kernel<laplace_kernel<space_3d<> >, 1, 0> laplace_3d_DLPt_kernel;
+/** \brief shorthand for the 2d Laplace HSP kernel */
+typedef normal_derivative_kernel<laplace_kernel<space_2d<> >, 1, 1> laplace_2d_HSP_kernel;
+/** \brief shorthand for the 3d Laplace HSP kernel */
+typedef normal_derivative_kernel<laplace_kernel<space_3d<> >, 1, 1> laplace_3d_HSP_kernel;
+/** \brief shorthand for the 3d Laplace Gxx kernel */
+typedef normal_derivative_kernel<laplace_kernel<space_3d<> >, 2, 0> laplace_3d_Gxx_kernel;
 
 } // end of namespace NiHu
 
@@ -435,7 +256,9 @@ namespace NiHu
 
 /** \brief specialisation of class ::polar_laurent_coeffs for the ::laplace_3d_HSP_kernel */
 template <class Scalar>
-class polar_laurent_coeffs<laplace_kernel<space_3d<Scalar>, potential::HSP> >
+class polar_laurent_coeffs<
+	normal_derivative_kernel<laplace_kernel<space_3d<Scalar> >, 1, 1>
+>
 {
 public:
 	template <class guiggiani>
