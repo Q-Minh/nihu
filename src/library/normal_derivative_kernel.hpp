@@ -102,11 +102,11 @@ namespace kernel_traits_ns
 	template <class DK>
 	struct far_field_behaviour<normal_derivative_kernel<DK, 0, 0> >
 		: distance_dependent_kernel_traits_ns::far_field_behaviour<DK> {};
-*/
 
 	template <class DK>
 	struct singularity_type<normal_derivative_kernel<DK, 0, 0> >
 		: distance_dependent_kernel_traits_ns::singularity_type<DK> {};
+*/
 }
 
 

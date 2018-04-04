@@ -28,13 +28,11 @@
 #include "function_space.hpp"
 #include "single_integral.hpp"
 #include "double_integral.hpp"
+#include "integral_transform_forward.hpp"
 
 namespace NiHu
 {
 
-// forward declaration
-template <class Operator, class TrialSpace>
-class integral_transform;
 
 /** \brief traits class for an integral operator
  * \tparam Derived the CRTP derived class
