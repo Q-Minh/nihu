@@ -233,6 +233,11 @@ public:
 namespace kernel_traits_ns
 {
 	template <class Scalar, class WaveNumber>
+	struct singularity_type<
+		normal_derivative_kernel<helmholtz_kernel<space_2d<Scalar>, WaveNumber>, 0, 0>
+	> : asymptotic::log<1> {};
+
+	template <class Scalar, class WaveNumber>
 	struct far_field_behaviour<
 		normal_derivative_kernel<helmholtz_kernel<space_2d<Scalar>, WaveNumber>, 0, 0>
 	> : asymptotic::log<1> {};

@@ -1,7 +1,7 @@
 %EXPORT_BESSEL export Bessel function values in C arrays for testing
 
 r = logspace(-5, 4, 15);				% modulus
-phi = (0 : 1 : 360) / 180* pi;	% angle
+phi = (0 : 1 : 360) / 180* pi;          % angle
 Z = bsxfun(@times, r, exp(1i*phi'));	% complex arguments
 
 functions = {
