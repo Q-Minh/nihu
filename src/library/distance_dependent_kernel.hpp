@@ -54,7 +54,6 @@ public:
 	NIHU_CRTP_HELPERS
 };
 
-
-}
+} // end of namespace NiHu
 
 #endif // DISTANCE_DEPENDENT_KERNEL_HPP_INCLUDED
