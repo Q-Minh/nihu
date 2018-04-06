@@ -25,6 +25,8 @@
 #ifndef PROJECTION_HPP_INCLUDED
 #define PROJECTION_HPP_INCLUDED
 
+#include "integral_transform_forward.hpp"
+
 #include "../util/crtp_base.hpp"
 #include "function_space.hpp"
 #include "integral_operator.hpp"
