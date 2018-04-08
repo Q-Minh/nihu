@@ -74,17 +74,21 @@ void solve(TestSpace const &test, TrialSpace const &trial, FieldSpace const &fie
 	std::complex<double> const J(0., 1.);
 	
 	size_t nFreqs = 2000;
+	size_t nProc = 4;
+	size_t nBlock = nFreqs / nProc;
 	
-	dMatrix fvec(500,4);
-	for (size_t i = 0; i < 500; ++i)
-		for (size_t j = 0; j < 4; ++j)
-			fvec(i,j) = (4*i+j) * .5;
+	dMatrix fvec(nBlock,nProc);
+	for (size_t i = 0; i < nBlock; ++i)
+		for (size_t j = 0; j < nProc; ++j)
+			fvec(i,j) = (nProc*i+j) * .5;
 	
 	
 #pragma omp parallel for
 	for (size_t i = 0; i < nFreqs; ++i)
 	{
 		double f = fvec(i);
+		if (f <= 440.0)
+			continue;
 		double om = 2.*M_PI*f;
 		double k = om / c;
 		
@@ -126,14 +130,18 @@ void solve(TestSpace const &test, TrialSpace const &trial, FieldSpace const &fie
 			
 			// solve linear system
 			std::cout << "Solving linear system" << std::endl;
+#if 0
 			Eigen::BiCGSTAB<cMatrix> solver(Hs);
 			solver.setTolerance(1e-8);
 			ps = solver.solve(rhs);
 			num_iters = solver.iterations();
 			
-			std::cout << "k:               " << k << '\n';
+			std::cout << "f:               " << f << '\n';
 			std::cout << "#iterations:     " << solver.iterations() << '\n';
 			std::cout << "estimated error: " << solver.error()      << std::endl;
+#endif
+			ps = Hs.colPivHouseholderQr().solve(rhs);
+			std::cout << "f:               " << f << '\n';
 		}
 		
 		{

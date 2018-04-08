@@ -3,7 +3,7 @@ clear;
 %%
 directory = 'data';
 meshname = 'radiatterer_10cm_quad.off';
-pattern = 'quad_gauss';
+pattern = 'quad_const';
 
 %% read mesh
 mesh = import_off_mesh(fullfile(directory, meshname));
@@ -46,6 +46,7 @@ grid;
 % legend(num2str((1:size(pf,1))'));
 xlabel('Frequency [Hz]');
 ylabel('Sound pressure level [dB]');
+legend(num2str((1:size(pf,1))'));
 
 %%
 [~, idx] = max(abs(pf(1,:)));
