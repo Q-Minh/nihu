@@ -496,7 +496,7 @@ public:
 	}
 };
 
-/** \brief Collocational singular integral of the 3D HSP kernel not over a constant triangle
+/** \brief Collocational singular integral of the 3D HSP kernel NOT over a constant triangle
  * \tparam TestField the test field type
  * \tparam TrialField the trial field type
  */

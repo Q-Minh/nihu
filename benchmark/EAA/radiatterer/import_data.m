@@ -3,7 +3,7 @@ clear;
 %%
 directory = 'data';
 meshname = 'radiatterer_10cm_quad.off';
-pattern = 'quad_const';
+pattern = 'quad_gauss';
 
 %% read mesh
 mesh = import_off_mesh(fullfile(directory, meshname));
