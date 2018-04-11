@@ -260,6 +260,15 @@ public:
 	template <class result_t>
 	void integrate(result_t &&I, xi_t const &xi0, x_t const &normal)
 	{
+#if NIHU_MEX_DEBUGGING
+		static bool printed = false;
+		if (!printed)
+		{
+			mexPrintf("Computing integral with Guiggiani.\nRadial_order: %d\nTangential order: %d\n", RadialOrder, TangentialOrder);
+			printed = true;
+		}
+#endif
+		
 		// compute the xi0-related quantities
 		compute_xi0(xi0, normal);
 
@@ -603,6 +612,15 @@ public:
 	template <class result_t>
 	void integrate(result_t &&I, xi_t const &xi0)
 	{
+#if NIHU_MEX_DEBUGGING
+		static bool printed = false;
+		if (!printed)
+		{
+			mexPrintf("Computing integral with Guiggiani.\nRadial_order: %d\nTangential order: %d\n", RadialOrder, TangentialOrder);
+			printed = true;
+		}
+#endif
+		
 		// compute the xi0-related quantities
 		compute_xi0(xi0);
 

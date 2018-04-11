@@ -74,14 +74,13 @@ void solve(TestSpace const &test, TrialSpace const &trial, FieldSpace const &fie
 	std::complex<double> const J(0., 1.);
 	
 	size_t nFreqs = 2000;
-	size_t nProc = 4;
+	size_t nProc = 10;
 	size_t nBlock = nFreqs / nProc;
 	
 	dMatrix fvec(nBlock,nProc);
 	for (size_t i = 0; i < nBlock; ++i)
 		for (size_t j = 0; j < nProc; ++j)
 			fvec(i,j) = (nProc*i+j) * .5;
-	
 	
 #pragma omp parallel for
 	for (size_t i = 0; i < nFreqs; ++i)
@@ -92,10 +91,18 @@ void solve(TestSpace const &test, TrialSpace const &trial, FieldSpace const &fie
 		double om = 2.*M_PI*f;
 		double k = om / c;
 		
+#ifdef BM
+		std::complex<double> alpha(0., 1./k);
+#endif		
+		
 		// create integral operators
 		auto Gop = NiHu::create_integral_operator(NiHu::helmholtz_3d_SLP_kernel<double>(k));
 		auto Hop = NiHu::create_integral_operator(NiHu::helmholtz_3d_DLP_kernel<double>(k));
 		auto Iop = NiHu::identity_integral_operator();
+#ifdef BM
+		auto Htop = NiHu::create_integral_operator(NiHu::helmholtz_3d_DLPt_kernel<double>(k));
+		auto Dop = NiHu::create_integral_operator(NiHu::helmholtz_3d_HSP_kernel<double>(k));
+#endif
 		
 		// create excitation
 		cVector qs(nDof, 1);
@@ -108,10 +115,14 @@ void solve(TestSpace const &test, TrialSpace const &trial, FieldSpace const &fie
 		{
 			cMatrix Gs(nDof, nDof);
 			Gs.setZero();
-
-			// evaluate boundary integrals
 			std::cout << "Integrating Gs at f = " << f << std::endl;
 			Gs << test * Gop[trial];
+			
+#ifdef BM
+			std::cout << "Integrating Hts at f = " << f << std::endl;
+			Gs << test * (alpha * Htop)[trial];
+			Gs << test * (alpha/2. * Iop)[trial];
+#endif			
 			
 			rhs = Gs * qs;
 		}
@@ -128,9 +139,15 @@ void solve(TestSpace const &test, TrialSpace const &trial, FieldSpace const &fie
 			Hs << test * (-.5 * Iop)[trial];
 			Hs << test * Hop[trial];
 			
+#ifdef BM
+			std::cout << "Integrating Ds at f = " << f << std::endl;
+			Hs << test * (alpha * Dop)[trial];
+#endif
+			
+			
 			// solve linear system
 			std::cout << "Solving linear system" << std::endl;
-#if 0
+#ifdef ITERATIVE
 			Eigen::BiCGSTAB<cMatrix> solver(Hs);
 			solver.setTolerance(1e-8);
 			ps = solver.solve(rhs);
@@ -139,9 +156,10 @@ void solve(TestSpace const &test, TrialSpace const &trial, FieldSpace const &fie
 			std::cout << "f:               " << f << '\n';
 			std::cout << "#iterations:     " << solver.iterations() << '\n';
 			std::cout << "estimated error: " << solver.error()      << std::endl;
-#endif
+#else
 			ps = Hs.colPivHouseholderQr().solve(rhs);
 			std::cout << "f:               " << f << '\n';
+#endif
 		}
 		
 		{
@@ -212,12 +230,11 @@ int main(int argc, char **argv)
 	
 	// create function space
 	auto trial = NiHu::create_function_space(nodes, fields, gauss_field_tag());
-	auto const &test = trial;
 #else
 	auto mesh = NiHu::read_off_mesh(meshname, NiHu::quad_1_tag(), NiHu::tria_1_tag());
 	auto const &trial = NiHu::constant_view(mesh);
-	auto const &test = NiHu::dirac(trial);
 #endif
+	auto const &test = NiHu::dirac(trial);
 	
 	// read mesh files
 	auto field = NiHu::read_off_mesh(fieldname, NiHu::quad_1_tag(), NiHu::tria_1_tag());

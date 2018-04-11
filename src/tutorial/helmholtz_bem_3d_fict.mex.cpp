@@ -17,6 +17,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //![Header]
+#include <mex.h>
+
 #include "core/weighted_residual.hpp"
 #include "util/mex_matrix.hpp"
 #include "library/helmholtz_kernel.hpp"
@@ -67,7 +69,9 @@ void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 	L_chief << chief_sp * L[surf_sp];
 	M_chief << chief_sp * M[surf_sp];
 	// Burton-Miller equations
+	mexPrintf("Integrating transposed kernel\n");
 	Mt_surf  << dirac(surf_sp) * Mt[surf_sp] +  dirac(surf_sp) * (.5*I)[surf_sp];
+	mexPrintf("Integrating hypersingular kernel\n");
 	N_surf  << dirac(surf_sp) * N[surf_sp];
 //! [System matrices]
 }

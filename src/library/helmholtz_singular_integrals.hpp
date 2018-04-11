@@ -179,7 +179,9 @@ public:
 };
 
 
-/** \brief Collocational singular integral of the 3D Helmholtz SLP kernel over a constant planar element */
+/** \brief Collocational singular integral of the 3D Helmholtz SLP kernel over a constant planar element
+ * \tparam order the quadrature order of the regular part
+ */
 template <unsigned order>
 class helmholtz_3d_SLP_collocation_constant_plane
 {
@@ -525,6 +527,14 @@ public:
 		field_base<TrialField> const &trial_field,
 		element_match const &)
 	{
+#if NIHU_MEX_DEBUGGING
+		static bool printed = false;
+		if (!printed)
+		{
+			mexPrintf("Calling Guiggiani now\n");
+			printed = true;
+		}
+#endif
 		typedef guiggiani<TrialField, helmholtz_3d_HSP_kernel<WaveNumber>, 5, 9> guiggiani_t;
 		auto const &elem = trial_field.get_elem();
 		guiggiani_t gui(elem, kernel.derived());

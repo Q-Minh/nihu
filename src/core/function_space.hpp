@@ -312,6 +312,9 @@ public:
 	typedef function_space_traits<dirac_space<FuncSpace> > traits_t;
 	/** \brief the implementation class */
 	typedef function_space_impl<FuncSpace> impl_t;
+	
+	// explicitly define mesh_t because it would be ambiguous otherwise
+	typedef typename traits_t::mesh_t mesh_t;
 
 	using impl_t::get_mesh;
 	using impl_t::get_num_dofs;

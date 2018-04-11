@@ -3,7 +3,7 @@ clear;
 %%
 directory = 'data';
 meshname = 'radiatterer_10cm_quad.off';
-pattern = 'quad_gauss';
+pattern = 'quad_const_bm';
 
 %% read mesh
 mesh = import_off_mesh(fullfile(directory, meshname));
@@ -35,6 +35,9 @@ end
 [freqs_ps, i] = sort(frqs_ps);
 ps = ps(:,i);
 iters = iters(i);
+
+%%
+save(fullfile('data', sprintf('results_%s', pattern)), 'freqs_pf', 'pf', 'freqs_ps', 'ps');
 
 %%
 figure(1);

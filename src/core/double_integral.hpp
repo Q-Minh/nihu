@@ -83,6 +83,15 @@ struct singular_shortcut_switch
 			std::cout << "Singularity value: " << Singularity::value << std::endl;
 #endif
 
+#if NIHU_MEX_DEBUGGING
+			static bool printed = false;
+			if (!printed)
+			{
+				mexPrintf("Singular shortcut switch called for mtch dim: %d, sing val: %d\n", mtch.get_match_dimension(), Singularity::value);
+				printed = true;
+			}
+#endif
+
 			// if the parameter singularity is valid, evaluate shortcut
 			if (mtch.get_match_dimension() == Singularity::value)
 			{
@@ -283,6 +292,15 @@ protected:
 		field_base<TestField> const &test_field,
 		field_base<TrialField> const &trial_field)
 	{
+#if NIHU_MEX_DEBUGGING
+		static bool printed = false;
+		if (!printed)
+		{
+			mexPrintf("double_integral::eval without singularity chech called on elements %d <- %d\n",
+				test_field.get_dofs()(0), trial_field.get_dofs()(0));
+			printed = true;
+		}
+#endif
 		// store type of the regular test quadratures
 		typedef store<field_type_accelerator_pool<
 			TestField, quadrature_family_t, GLOBAL_ACCELERATION, GLOBAL_MAX_ORDER
@@ -538,6 +556,17 @@ protected:
 			typename Kernel::estimator_t
 		>::eval(test_field, trial_field);
 		
+#if NIHU_MEX_DEBUGGING
+		static bool printed = false;
+		if (!printed)
+		{
+			mexPrintf("double_integral::eval without singularity check called on elements %d <- %d\n",
+				test_field.get_dofs()(0), trial_field.get_dofs()(0));
+				mexPrintf("Regular integral with degree %d\n", degree);
+			printed = true;
+		}
+#endif
+		
 		if (degree > GLOBAL_MAX_ORDER)
 			throw std::out_of_range("Too high quadrature degree selected for collocational integration");
 
@@ -572,6 +601,15 @@ protected:
 		field_base<TrialField> const &trial_field)
 	{
 		
+#if NIHU_MEX_DEBUGGING
+		static bool printed = false;
+		if (!printed)
+		{
+			mexPrintf("double_integral<Collocation>::eval_with_sing_check called.\n");
+			printed = true;
+		}
+#endif
+		
 		auto mtch(element_match_eval(test_field, trial_field));
 		if (mtch.get_match_dimension() == -1)
 			return eval(WITHOUT_SINGULARITY_CHECK(), result, kernel, test_field, trial_field);
@@ -591,7 +629,13 @@ protected:
 			field_base<TrialField> const &,
 			element_match const &
 		>(result, kernel, test_field, trial_field, mtch))
+		{
 			std::cerr << "UNHANDLED COLLOCATIONAL SINGULARITY TYPE: " << mtch.get_match_dimension() << std::endl;
+#if NIHU_MEX_DEBUGGING
+			mexPrintf("UNHANDLED COLLOCATIONAL SINGULARITY TYPE %d", mtch.get_match_dimension());
+#endif
+
+			}
 		return result;
 	}
 
@@ -613,6 +657,15 @@ public:
 		static bool const sing_check_needed =
 			kernel_traits<Kernel>::is_singular && std::is_same<OnSameMesh, std::true_type>::value;
 
+#if NIHU_MEX_DEBUGGING
+		static bool printed = false;
+		if (!printed)
+		{
+			mexPrintf("double_integral<collocation>::eval called\nSing needed: %d\n", sing_check_needed);
+			printed = true;
+		}
+#endif
+		
 		result_t result;
 		result.setZero();
 
@@ -672,6 +725,14 @@ private:
 #if NIHU_DEBUGGING
 		std::cout << "General version of singular_integral_shortcut called" << std::endl;
 #endif
+#if NIHU_MEX_DEBUGGING
+		static bool printed = false;
+		if (!printed)
+		{
+			mexPrintf("General singular integral shortcut for collocation called\n");
+			printed = true;
+		}
+#endif
 		return double_integral_t::template eval_singular_on_accelerator<singular_accelerator_t, void>::eval(
 			result, kernel, test_field, trial_field, store_t::get_data());
 	}
@@ -694,6 +755,14 @@ public:
 		field_base<TrialField> const &trial_field,
 		element_match const &match)
 	{
+#if NIHU_MEX_DEBUGGING
+		static bool printed = false;
+		if (!printed)
+		{
+			mexPrintf("General singular integral shortcut called\n");
+			printed = true;
+		}
+#endif
 		return eval_impl(formalism_t(), result, kernel, test_field, trial_field, match);
 	}
 };
