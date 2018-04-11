@@ -203,7 +203,8 @@ public:
 		plane_element_helper(elem, x0, r, theta, alpha);
 
 		for (unsigned i = 0; i < N; ++i)
-			result += r[i] * std::sin(alpha[i]) * std::log(std::tan((alpha[i] + theta[i]) / 2.) / std::tan(alpha[i] / 2.));
+			result += r[i] * std::sin(alpha[i]) *
+			std::log(std::tan((alpha[i] + theta[i]) / 2.) / std::tan(alpha[i] / 2.));
 
 		return result / (4.*M_PI);
 	}

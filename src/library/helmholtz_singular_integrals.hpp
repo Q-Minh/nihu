@@ -213,7 +213,7 @@ public:
 		double r[N], theta[N], alpha[N];
 		plane_element_helper(elem, x0, r, theta, alpha);
 
-		// integrate dynamic part
+		// integrate static part analytically
 		double I_stat = 0.0;
 		for (unsigned i = 0; i < N; ++i)
 			I_stat += r[i] * std::sin(alpha[i]) *
@@ -225,7 +225,8 @@ public:
 		for (auto it = quadr_t::quadrature.begin(); it != quadr_t::quadrature.end(); ++it)
 		{
 			double r = (elem.get_x(it->get_xi()) - x0).norm();
-			I_dyn += dynamic_part(r, k) * it->get_w() * elem.get_normal(it->get_xi()).norm();
+			double jac = elem.get_normal(it->get_xi()).norm();
+			I_dyn += dynamic_part(r, k) * it->get_w() * jac;
 		}
 
 		// assemble result from static and dynamic parts
