@@ -42,8 +42,6 @@
 #include "singular_accelerator.hpp"
 #include "singular_integral_shortcut.hpp"
 
-#define NIHU_DEBUGGING 0
-
 namespace NiHu
 {
 

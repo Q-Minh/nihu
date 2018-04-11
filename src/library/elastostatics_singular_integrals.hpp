@@ -66,7 +66,7 @@ class singular_integral_shortcut<
 	elastostatics_2d_U_kernel, TestField, TrialField, match::match_1d_type,
 	typename std::enable_if<
 	std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::general>::value &&
-	std::is_same<typename TrialField::lset_t, line_1_shape_set>::value &&
+	std::is_same<typename TrialField::elem_t::lset_t, line_1_shape_set>::value &&
 	std::is_same<typename TestField::nset_t, line_0_shape_set>::value &&
 	std::is_same<typename TrialField::nset_t, line_0_shape_set>::value
 	>::type
@@ -106,8 +106,8 @@ class singular_integral_shortcut<
 	elastostatics_2d_T_kernel, TestField, TrialField, match::match_1d_type,
 	typename std::enable_if<
 	std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::general>::value &&
-	std::is_same<typename TestField::lset_t, line_1_shape_set>::value &&
-	std::is_same<typename TrialField::lset_t, line_1_shape_set>::value &&
+	std::is_same<typename TestField::elem_t::lset_t, line_1_shape_set>::value &&
+	std::is_same<typename TrialField::elem_t::lset_t, line_1_shape_set>::value &&
 	std::is_same<typename TestField::nset_t, line_0_shape_set>::value &&
 	std::is_same<typename TrialField::nset_t, line_0_shape_set>::value
 	>::type

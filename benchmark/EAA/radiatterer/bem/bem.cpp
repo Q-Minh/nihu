@@ -82,11 +82,11 @@ void solve(TestSpace const &test, TrialSpace const &trial, FieldSpace const &fie
 		for (size_t j = 0; j < nProc; ++j)
 			fvec(i,j) = (nProc*i+j) * .5;
 	
-#pragma omp parallel for
+#pragma omp parallel for num_threads(10)
 	for (size_t i = 0; i < nFreqs; ++i)
 	{
 		double f = fvec(i);
-		if (f <= 440.0)
+		if (f <= 15.0)
 			continue;
 		double om = 2.*M_PI*f;
 		double k = om / c;
@@ -135,15 +135,14 @@ void solve(TestSpace const &test, TrialSpace const &trial, FieldSpace const &fie
 			cMatrix Hs(nDof, nDof);
 			Hs.setZero();
 			
-			std::cout << "Integrating Hs at f = " << f << std::endl;
-			Hs << test * (-.5 * Iop)[trial];
-			Hs << test * Hop[trial];
-			
 #ifdef BM
 			std::cout << "Integrating Ds at f = " << f << std::endl;
 			Hs << test * (alpha * Dop)[trial];
 #endif
-			
+
+			std::cout << "Integrating Hs at f = " << f << std::endl;
+			Hs << test * (-.5 * Iop)[trial];
+			Hs << test * Hop[trial];
 			
 			// solve linear system
 			std::cout << "Solving linear system" << std::endl;
