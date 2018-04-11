@@ -23,7 +23,7 @@
 #ifndef LAPLACE_SINGULAR_INTEGRALS_HPP_INCLUDED
 #define LAPLACE_SINGULAR_INTEGRALS_HPP_INCLUDED
 
-#include "../core/integral_operator.hpp"
+//#include "../core/integral_operator.hpp"
 #include "../core/singular_integral_shortcut.hpp"
 #include "laplace_kernel.hpp"
 #include "normal_derivative_singular_integrals.hpp"

@@ -23,7 +23,6 @@
 #define NIHU_HELMHOLTZ_SINGULAR_INTEGRALS_HPP_INCLUDED
 
 #include "library/lib_element.hpp"
-#include "../core/integral_operator.hpp"
 #include "laplace_singular_integrals.hpp"
 #include "normal_derivative_singular_integrals.hpp"
 #include "helmholtz_kernel.hpp"

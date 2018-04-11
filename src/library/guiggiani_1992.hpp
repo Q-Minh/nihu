@@ -268,7 +268,7 @@ public:
 			printed = true;
 		}
 #endif
-		
+
 		// compute the xi0-related quantities
 		compute_xi0(xi0, normal);
 

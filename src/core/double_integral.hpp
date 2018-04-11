@@ -294,7 +294,7 @@ protected:
 		static bool printed = false;
 		if (!printed)
 		{
-			mexPrintf("double_integral::eval without singularity chech called on elements %d <- %d\n",
+			mexPrintf("double_integral::eval without singularity check called on elements %d <- %d\n",
 				test_field.get_dofs()(0), trial_field.get_dofs()(0));
 			printed = true;
 		}
