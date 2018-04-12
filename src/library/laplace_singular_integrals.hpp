@@ -23,6 +23,7 @@
 #ifndef LAPLACE_SINGULAR_INTEGRALS_HPP_INCLUDED
 #define LAPLACE_SINGULAR_INTEGRALS_HPP_INCLUDED
 
+#include "../core/match_types.hpp"
 #include "../core/singular_integral_shortcut.hpp"
 #include "lib_element.hpp"
 #include "laplace_kernel.hpp"

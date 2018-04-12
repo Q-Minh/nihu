@@ -3,6 +3,7 @@
 
 #include "normal_derivative_kernel.hpp"
 #include "../core/singular_integral_shortcut.hpp"
+#include "../core/element_match.hpp"
 
 namespace NiHu
 {

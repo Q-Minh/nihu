@@ -24,6 +24,7 @@
 
 #include "../util/math_functions.hpp"
 #include "../core/singular_integral_shortcut.hpp"
+#include "../core/match_types.hpp"
 #include "lib_element.hpp"
 #include "laplace_singular_integrals.hpp"
 #include "normal_derivative_singular_integrals.hpp"

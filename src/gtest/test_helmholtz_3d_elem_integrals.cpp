@@ -1,12 +1,13 @@
 #include <gtest/gtest.h>
 
+#include "library/helmholtz_kernel.hpp"
+#include "library/helmholtz_singular_integrals.hpp"
+
 #include "library/lib_element.hpp"
 #include "core/field.hpp"
-#include "library/helmholtz_kernel.hpp"
 #include "core/double_integral.hpp"
 #include "../benchmark/EAA/radiatterer/bem/quad_1_gauss_elem.hpp"
 
-#include "library/helmholtz_singular_integrals.hpp"
 
 
 typedef Eigen::Matrix<std::complex<double>, Eigen::Dynamic, 1> cVector;
