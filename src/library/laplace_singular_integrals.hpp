@@ -23,8 +23,8 @@
 #ifndef LAPLACE_SINGULAR_INTEGRALS_HPP_INCLUDED
 #define LAPLACE_SINGULAR_INTEGRALS_HPP_INCLUDED
 
-//#include "../core/integral_operator.hpp"
 #include "../core/singular_integral_shortcut.hpp"
+#include "lib_element.hpp"
 #include "laplace_kernel.hpp"
 #include "normal_derivative_singular_integrals.hpp"
 #include "plane_element_helper.hpp"
