@@ -60,33 +60,20 @@ void read_off_data(std::string const &fname, dMatrix &nodes, uMatrix &elements)
 }
 
 
-
-
 template <class TestSpace, class TrialSpace, class FieldSpace>
 void solve(TestSpace const &test, TrialSpace const &trial, FieldSpace const &field_sp,
-	char const *pattern)
+	dVector const &freqs, cMatrix const &exc, cMatrix &ps, cMatrix &pf)
 {
 	size_t nDof = trial.get_num_dofs();
 	size_t M = field_sp.get_num_dofs();
+	size_t nFreqs = freqs.rows();
 	
 	double const c = 340.;
-	double const rho = 1.3;
-	std::complex<double> const J(0., 1.);
 	
-	size_t nFreqs = 100;
-	double df = .5;
-	size_t nProc = 10;
-	size_t nBlock = nFreqs / nProc;
-	
-	dMatrix fvec(nBlock,nProc);
-	for (size_t i = 0; i < nBlock; ++i)
-		for (size_t j = 0; j < nProc; ++j)
-			fvec(i,j) = (nProc*i+j+1) * df;
-	
-#pragma omp parallel for num_threads(10)
+#pragma omp parallel for
 	for (size_t i = 0; i < nFreqs; ++i)
 	{
-		double f = fvec(i);
+		double f = freqs(i);
 		double om = 2.*M_PI*f;
 		double k = om / c;
 		
@@ -103,12 +90,8 @@ void solve(TestSpace const &test, TrialSpace const &trial, FieldSpace const &fie
 		auto Dop = NiHu::create_integral_operator(NiHu::helmholtz_3d_HSP_kernel<double>(k));
 #endif
 		
-		// create excitation
-		cVector qs(nDof, 1);
-		double v0 = 1e-3;
-		qs.setConstant(-J*om*rho*v0);
-		
 		// compute rhs
+		cVector _exc = exc.col(i);
 		cVector rhs;
 		
 		{
@@ -122,11 +105,11 @@ void solve(TestSpace const &test, TrialSpace const &trial, FieldSpace const &fie
 			Gs << test * (alpha * Htop)[trial];
 			Gs << test * (alpha/2. * Iop)[trial];
 #endif			
-			
-			rhs = Gs * qs;
+
+			rhs = Gs * _exc;
 		}
 		
-		cVector ps;
+		cVector _ps;
 		size_t num_iters = 0;
 		
 		{
@@ -145,33 +128,16 @@ void solve(TestSpace const &test, TrialSpace const &trial, FieldSpace const &fie
 			
 			// solve linear system
 			std::cout << "Solving linear system" << std::endl;
-#ifdef ITERATIVE
 			Eigen::BiCGSTAB<cMatrix> solver(Hs);
 			solver.setTolerance(1e-8);
-			ps = solver.solve(rhs);
+			_ps = solver.solve(rhs);
 			num_iters = solver.iterations();
 			
 			std::cout << "f:               " << f << '\n';
-			std::cout << "#iterations:     " << solver.iterations() << '\n';
+			std::cout << "#iterations:     " << num_iters << '\n';
 			std::cout << "estimated error: " << solver.error()      << std::endl;
-#else
-			ps = Hs.colPivHouseholderQr().solve(rhs);
-			std::cout << "f:               " << f << '\n';
-#endif
 		}
-		
-		{
-			// export ps
-			std::stringstream ss;
-			ss << pattern << "_" << f << "ps.res";
-			std::ofstream os(ss.str().c_str());
-			os << f << ' ' << num_iters << std::endl;
-			for (size_t i = 0; i < nDof; ++i)
-				os << ps(i).real() << ' ' << ps(i).imag() << std::endl;
-			os.close();
-		}
-		
-		cVector pf;
+		ps.col(i) = _ps;
 		
 		{
 			cMatrix Gf(M, nDof), Hf(M, nDof);
@@ -183,30 +149,24 @@ void solve(TestSpace const &test, TrialSpace const &trial, FieldSpace const &fie
 			std::cout << "Integrating Hf" << std::endl;
 			Hf << field_sp * Hop[trial];
 			
-			pf = Hf * ps - Gf * qs;
-		}
-		
-		{
-			// export pf
-			std::stringstream ss;
-			ss << pattern << "_" << f << "pf.res";
-			std::ofstream os(ss.str().c_str());
-			os << f << std::endl;
-			for (size_t i = 0; i < M; ++i)
-				os << pf(i).real() << ' ' << pf(i).imag() << std::endl;
-			os.close();
+			pf.col(i) = Hf * _ps - Gf * _exc;
 		}
 	}
 }
 
 int main(int argc, char **argv)
 {
-	if (argc < 4)
-		std::cerr << "usage: prog meshname fieldname pattern" << std::endl;
+	if (argc < 6)
+	{
+		std::cerr << "usage: prog meshname fieldname excname psname pfname" << std::endl;
+		return 0;
+	}
 	
 	char const *meshname = argv[1];
 	char const *fieldname = argv[2];
-	char const *pattern = argv[3];
+	char const *excname = argv[3];
+	char const *psname = argv[4];
+	char const *pfname = argv[5];
 	
 #ifdef GAUSS
 	// read mesh file
@@ -234,13 +194,57 @@ int main(int argc, char **argv)
 #endif
 	auto const &test = NiHu::dirac(trial);
 	
-	// read mesh files
+	// read field files
 	auto field = NiHu::read_off_mesh(fieldname, NiHu::quad_1_tag(), NiHu::tria_1_tag());
 	
-	// create function space
+	// create field function space
 	auto const &field_sp = NiHu::dirac(NiHu::constant_view(field));
 	
-	solve(test, trial, field_sp, pattern);
+	// read excitation
+	std::ifstream is(excname);
+	size_t nDofs, nFreqs;
+	is >> nDofs >> nFreqs;
+	
+	dMatrix freqs(nFreqs, 1);
+	cMatrix exc(nDofs, nFreqs);
+	
+	for (size_t i = 0; i < nFreqs; ++i)
+	{
+		is >> freqs(i);
+		for (size_t j = 0; j < nDofs; ++j)
+		{
+			double re, im;
+			is >> re >> im;
+			exc(j,i) = std::complex<double>(re, im);
+		}
+	}
+	is.close();
+	
+	size_t nPoints = field_sp.get_num_dofs();
+	
+	cMatrix ps(nDofs, nFreqs), pf(nPoints, nFreqs);
+	
+	solve(test, trial, field_sp, freqs, exc, ps, pf);
+	
+	// export ps
+	std::ofstream osps(psname);
+	for (size_t i = 0; i < nFreqs; ++i)
+	{
+		for (size_t j = 0; j < nDofs; ++j)
+			osps << ps(j,i).real() << ' ' << ps(j,i).imag() << ' ';
+		osps << '\n';
+	}
+	osps.close();
+	
+	// export pf
+	std::ofstream ospf(pfname);
+	for (size_t i = 0; i < nFreqs; ++i)
+	{
+		for (size_t j = 0; j < nPoints; ++j)
+			ospf << pf(j,i).real() << ' ' << pf(j,i).imag() << ' ';
+		ospf << '\n';
+	}
+	ospf.close();
 	
 	return 0;
 }

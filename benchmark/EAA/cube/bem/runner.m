@@ -4,31 +4,41 @@ clear;
 generate_problem;
 
 %% run
-system('bem_const.exe data/cube_quad.off data/points.off data/quad_const');
-system('bem_gauss.exe data/cube_quad.off data/points.off data/quad_gauss');
-system('bem_const_bm.exe data/cube_quad.off data/points.off data/quad_const_bm');
-system('bem_gauss_bm.exe data/cube_quad.off data/points.off data/quad_gauss_bm');
+system('bem_const.exe data/cube_quad.off data/points.off data/quad_const.xct data/quad_const_ps_0.res data/quad_const_pf_0.res');
+system('bem_gauss.exe data/cube_quad.off data/points.off data/quad_gauss.xct data/quad_gauss_ps_0.res data/quad_gauss_pf_0.res');
+system('bem_const_bm.exe data/cube_quad.off data/points.off data/quad_const.xct data/quad_const_ps_bm.res data/quad_const_pf_bm.res');
+system('bem_gauss_bm.exe data/cube_quad.off data/points.off data/quad_gauss.xct data/quad_gauss_ps_bm.res data/quad_gauss_pf_bm.res');
 
 %% import
-[freqs_cb, pf_cb, ps_cb, iters_cb] = import_data('quad_const_bm');
-[freqs_gb, pf_gb, ps_gb, iters_gb] = import_data('quad_gauss_bm');
-[freqs_c0, pf_c0, ps_c0, iters_c0] = import_data('quad_const_0');
-[freqs_g0, pf_g0, ps_g0, iters_g0] = import_data('quad_gauss_0');
-ps_gb = squeeze(mean(reshape(ps_gb, 4, [], size(ps_gb,2)), 1));
-ps_g0 = squeeze(mean(reshape(ps_g0, 4, [], size(ps_gb,2)), 1));
+freqs = .5 : .5 : 100;
+
+data = load('data/quad_const_ps_0.res', '-ascii');
+ps_c0 = complex(data(:,1:2:end), data(:,2:2:end)).';
+data = load('data/quad_const_pf_0.res', '-ascii');
+pf_c0 = complex(data(:,1:2:end), data(:,2:2:end)).';
+
+data = load('data/quad_gauss_ps_0.res', '-ascii');
+ps_g0 = complex(data(:,1:2:end), data(:,2:2:end)).';
+data = load('data/quad_gauss_pf_0.res', '-ascii');
+pf_g0 = complex(data(:,1:2:end), data(:,2:2:end)).';
+
+data = load('data/quad_const_ps_bm.res', '-ascii');
+ps_cb = complex(data(:,1:2:end), data(:,2:2:end)).';
+data = load('data/quad_const_pf_bm.res', '-ascii');
+pf_cb = complex(data(:,1:2:end), data(:,2:2:end)).';
 
 %%
 figure;
 formatfig();
 idx = 2;
-plot(freqs_cb, 20*log10(abs(pf_cb(idx,:)/2e-5)), ...
-    freqs_gb, 20*log10(abs(pf_gb(idx,:)/2e-5)), ...
-    freqs_c0, 20*log10(abs(pf_c0(idx,:)/2e-5)), ...
-    freqs_g0, 20*log10(abs(pf_g0(idx,:)/2e-5)));
+plot(freqs, 20*log10(abs(pf_cb(idx,:)/2e-5)), ...
+    freqs, 20*log10(abs(pf_g0(idx,:)/2e-5)), ...
+    freqs, 20*log10(abs(pf_c0(idx,:)/2e-5)));
 xlabel('Frequency [Hz]');
 ylabel('Sound pressure [dB]');
-legend('constant burton', 'linear burton', 'constant', 'linear', 'location', 'SouthEast');
+legend('constant burton', 'gauss', 'constant', 'location', 'SouthEast');
 setfig('FontSize', 12, 'LineWidth', 1);
+title(sprintf('Field Point Pressure in point %d', idx));
 
 %%
 figure;
@@ -42,6 +52,7 @@ xlabel('Frequency [Hz]');
 ylabel('Sound pressure [dB]');
 legend('constant burton', 'linear burton', 'constant', 'linear', 'location', 'SouthEast');
 setfig('FontSize', 12, 'LineWidth', 1);
+title(sprintf('Surface Pressure in point %d', idx));
 
 %%
 figure;
