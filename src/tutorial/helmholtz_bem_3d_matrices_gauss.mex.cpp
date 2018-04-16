@@ -1,8 +1,6 @@
 #include <mex.h>
 
 #include "../benchmark/EAA/radiatterer/bem/quad_1_gauss_elem.hpp"
-
-
 #include "core/weighted_residual.hpp"
 #include "util/mex_matrix.hpp"
 #include "library/helmholtz_kernel.hpp"
@@ -54,12 +52,34 @@ void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 	auto Mt = NiHu::create_integral_operator(NiHu::helmholtz_3d_DLPt_kernel<double>(k));
 	auto D = NiHu::create_integral_operator(NiHu::helmholtz_3d_HSP_kernel<double>(k));
 	
-	L_surf << NiHu::dirac(surf_sp) * L[surf_sp];
+// #pragma omp parallel sections
+// {
+	// #pragma omp section
+	// {
+		L_surf << NiHu::dirac(surf_sp) * L[surf_sp];
+	// }
+	// #pragma omp section
+	// {
 	M_surf << NiHu::dirac(surf_sp) * M[surf_sp];
+	// }
+	// #pragma omp section
+	// {
 	Mt_surf << NiHu::dirac(surf_sp) * Mt[surf_sp];
+	// }
+	// #pragma omp section
+	// {
 	D_surf << NiHu::dirac(surf_sp) * D[surf_sp];
+	// }
 
+	// #pragma omp section
+	// {
 	L_field << field_sp * L[surf_sp];
+	// }
+	// #pragma omp section
+	// {
 	M_field << field_sp * M[surf_sp];
+	// }
+// }
+
 }
 
