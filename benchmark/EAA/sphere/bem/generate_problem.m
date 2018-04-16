@@ -1,16 +1,15 @@
 clear;
 
 %% Create and export geometry
-L = 5*3*[.3 .4 .5];
+R = 3;
 Le = 5*1e-1;
-mesh = create_brick_boundary(L, ceil(L/Le));
-mesh = translate_mesh(mesh, -L/2);
-export_off_mesh(mesh, 'data/cube_quad.off');
+mesh = create_sphere_boundary(R, ceil(R/Le));
+export_off_mesh(mesh, 'data/sphere_quad.off');
 mesh_tr = quad2tria(mesh);
-export_off_mesh(mesh_tr, 'data/cube_tria.off');
+export_off_mesh(mesh_tr, 'data/sphere_tria.off');
 
 %% Create and export field points
-points = create_sphere_boundary(1.5*max(L/2), 4);
+points = create_sphere_boundary(1.5*R, 4);
 points = points.Nodes(:,2:4);
 
 fid = fopen('data/points.off', 'w');
@@ -23,10 +22,10 @@ end
 fclose(fid);
 
 %% Create and export excitations
-freqvec = 5 : 5 : 100;
-freqvec = union(freqvec, 52-2 : .2 : 52+2);
-freqvec = union(freqvec, 82.5-2 : .2 : 82.5+2);
-freqvec = union(freqvec, 95.5-2 : .2 : 95.5+2);
+freqvec = .5 : .5 : 100;
+% freqvec = union(freqvec, 52-2 : .2 : 52+2);
+% freqvec = union(freqvec, 82.5-2 : .2 : 82.5+2);
+% freqvec = union(freqvec, 95.5-2 : .2 : 95.5+2);
 nFreqs = length(freqvec);
 
 save data/freqs freqvec
