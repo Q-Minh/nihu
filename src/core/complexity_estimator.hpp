@@ -30,7 +30,7 @@
 namespace NiHu
 {
 
-/** \brief clas to estimate kernel complexity between two fields
+/** \brief class to estimate kernel complexity between two fields
  * \tparam TestField the test field
  * \tparam TrialField the trial field
  * \tparam KernelEstimator the kernel's complexity estimator
