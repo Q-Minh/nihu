@@ -1,12 +1,13 @@
 clear;
 
 xi0 = [0 0];
-[L, dL, ddL] = shapefun(xi0, 242);
+id = ShapeSet.QuadraticQuad.Id;
+[L, dL, ddL] = shapefun(xi0, id);
 m = sqrt(2)/2;
 X = [
-    1 1 1 m 0 0 0 m m
-    0 1 2 2 2 1 0 0 1
-    0 0 0 m 1 1 1 m m
+    1 1 1 m 0 0 0 m %m
+    0 1 2 2 2 1 0 0 %1
+    0 0 0 m 1 1 1 m %m
     ];
 N0 = 1;
 N1 = 0;
@@ -15,7 +16,7 @@ theta = sym('theta', 'real');
 
 x0 = X * squeeze(L)';
 dx0 = X * squeeze(dL);
-ddx0 = X * squeeze(ddL);
+% ddx0(:,1) = X * squeeze(ddL(:);
 
 Avec = dx0(:,1) * cos(theta) + dx0(:,2) * sin(theta);
 A = norm(Avec);

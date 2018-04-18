@@ -1,12 +1,14 @@
-function [Fm2, Fm1] = guiggiani_series_expansion_3d(theta, xi0, id, X)
+function [Fm2, Fm1] = guiggiani_series_expansion_3d(theta, xi0, shape, X)
+
+id = shape.Id;
 
 % location and its derivatives at the collocation point
 [~, dL, ddL] = shapefun(xi0, id);
 dx0_xi = dL(:,:,1) * X;
 dx0_eta = dL(:,:,2) * X;
-ddx0_xixi = ddL(:,:,1) * X;
-ddx0_xieta = ddL(:,:,2) * X;
-ddx0_etaeta = ddL(:,:,3) * X;
+ddx0_xixi = ddL(:,:,1,1) * X;
+ddx0_xieta = ddL(:,:,1,2) * X;
+ddx0_etaeta = ddL(:,:,2,2) * X;
 
 % jacobian and its derivatives at the collocation point
 J0vec = cross(dx0_xi, dx0_eta);
@@ -22,7 +24,7 @@ Bvec = cos(theta).^2/2 * ddx0_xixi +...
 A = sqrt(dot(Avec, Avec, 2));
 
 % field shape functions
-[N0, dN] = shapefun(xi0, 21);
+[N0, dN] = shapefun(xi0, id);
 N1 = cos(theta) * dN(:,:,1) + sin(theta) * dN(:,:,2);
 
 Fm2 = (1./(4*pi*A.^3)) * (J0 .* N0);

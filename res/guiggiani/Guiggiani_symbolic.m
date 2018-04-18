@@ -46,6 +46,7 @@ end
 
 Fm2_ddG = simplify(limit(ddG * rho^2, rho, 0));
 Fm1_ddG = simplify(limit(diff(ddG * rho^2, rho, 1), rho, 0));
+Fm0_ddG = simplify(limit(diff(ddG * rho^2, rho, 2)/2, rho, 0));
 
 Fm2_dG = simplify(limit(dG * rho^2, rho, 0));
 Fm1_dG = simplify(limit(diff(dG * rho^2, rho, 1), rho, 0));
@@ -53,4 +54,15 @@ Fm0_dG = simplify(limit(diff(dG * rho^2, rho, 2)/2, rho, 0));
 
 Fm2_G = simplify(limit(G * rho^2, rho, 0));
 Fm1_G = simplify(limit(diff(G * rho^2, rho, 1), rho, 0));
+
+%% check
+g1vec = r1 * (r2.' * J0 + r1.' * J1);
+b0vec = - J0;
+b1vec = 3*g1vec - J1;
+a0 = b0vec.' * nx * N0;
+a1 = b1vec.' * nx * N0 + b0vec.' * nx * N1;
+Sm2 = -3*r1.'*r2;
+Fm1 = -(Sm2*a0+a1);
+Fm2 = -a0;
 end
+

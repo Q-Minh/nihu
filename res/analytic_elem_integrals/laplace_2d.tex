@@ -50,9 +50,9 @@ Derivatives of the kernel depending on the distance are
 	\right)
 \end{align}
 
-\section{Analytical integrals of the Laplace kernel}
+\section{Analytical integrals of the 2D Laplace kernel}
 
-This section describes the analytical formulae used to integrate the kernel of the Laplace equation in two dimensions over straight lines.
+This section describes the analytical formulas used to integrate the kernel of the Laplace equation in two dimensions over straight lines.
 
 The kernel is defined as
 %
@@ -501,6 +501,106 @@ F_n
 \right)
 \end{equation}
 
+
+\section{Analytical integrals of the 3D Laplace kernel}
+
+The kernel is defined as
+%
+\begin{equation}
+	G({\bf r}) = \frac{1}{4\pi|{\bf r}|} = -\frac{1}{4\pi r}
+\end{equation}
+
+\subsection{Derivatives}
+
+The kernel's first, second and third derivatives can be formulated as
+%
+\begin{align}
+	G'_{i}
+	&= -\frac{1}{4\pi r^2} \frac{r_i}{r}
+	\label{eq:laplace_3d_gradient}
+	% \\
+	% G''_{ij}
+	% &= \frac{-1}{2\pi r^2}\left( \delta_{ij} - 2\frac{r_j}{r} \frac{r_i}{r}\right)
+	% \label{eq:laplace_3d_second_derivative}
+	% \\
+	% G'''_{ijk}
+	% &= \frac{1}{\pi r^3} \left(
+	% \delta_{ij} \frac{r_k}{r}
+	% + \delta_{jk} \frac{r_i}{r}
+	% + \delta_{ki} \frac{r_j}{r}
+	% -4 \frac{r_i}{r} \frac{r_j}{r} \frac{r_k}{r}
+	% \right)
+	% \label{eq:laplace_3d_third_derivative}
+\end{align}
+
+
+
+\subsection{Normal derivatives}
+
+
+\subsection{Collocation}
+
+For the collocational singular integrals over plane surfaces, the following geometry is used, as shown in Figure \ref{fig:tria_angles}.
+The plane polygon is split up into triangles by connecting the collocational point ${\bf x}_0$ with the corners.
+The polar coordinates $\rho, \theta$ are defined separately for each triangle, as shown in the figure.
+
+From the law of sines, $R(\theta)$ is expressed as
+%
+\begin{equation}
+	R(\theta) = \frac{R \sin(\alpha)}{\sin(\theta+\alpha)}
+\end{equation}
+
+
+\begin{figure}
+	\center
+	\begin{tikzpicture}[scale=2]
+	\path [draw] (0,0) node [anchor = north east] {${\bf x}_0$} -- node [anchor = north] {$R$} (2,0) -- (.7, 1) -- cycle;
+	\path [draw] (0,0) -- node [anchor = east] {$R(\theta)$} (1.8,.8);
+	\path (.25,-.05) node [anchor = south west] {$\theta$};
+	\path (1.8,0) node [anchor = south east] {$\alpha$};
+	\end{tikzpicture}
+	\caption{The plane polygon is split up into triangles}
+	\label{fig:tria_angles}
+\end{figure}
+
+
+
+\subsubsection{Regular integrals}
+
+\subsubsection{Plane constant SLP}
+
+The collocational singular integral of the SLP kernel with constant shape function is written in polar coordinates as
+%
+\begin{equation}
+\int_0^{\theta_0} \int_0^{R(\theta)} \frac{r \td r \td \theta}{4\pi r}
+=
+\frac{1}{4\pi}\int_0^{\theta_0} R(\theta) \td \theta
+=
+\frac{R \sin(\alpha)}{4\pi}\int_0^{\theta_0} \frac{1}{\sin(\theta+\alpha)} \td \theta
+\end{equation}
+
+%
+using the identity
+%
+\begin{equation}
+\int \frac{\td x}{\sin x} = \log \tan (x/2)
+\end{equation}
+%
+the integral can be expressed (by summing for $n$ triangles) as follows:
+%
+\begin{equation}
+I = \frac{1}{4\pi} \sum_{i = 1}^n
+R_i \sin\alpha_i \left[ \log \left( \frac{\tan\left(\frac{\phi_i+\alpha_i}{2}\right)}{\tan\left(\frac{\alpha_i}{2}\right)}\right)\right]
+\end{equation}
+
+\subsubsection{Plane constant HSP}
+
+\begin{equation}
+	\int \frac{1}{4\pi r^3} \td S
+	= \frac{1}{4\pi}\int \int_{0}^{R(\theta)} \frac{r \td r}{r^3} \td \theta
+	= \frac{-1}{4\pi}\int \frac{1}{R(\theta)} \td \theta
+	= \frac{\cos(\theta+\alpha)}{4\pi R \sin(\alpha)}
+\end{equation}
 
 \end{document}
 

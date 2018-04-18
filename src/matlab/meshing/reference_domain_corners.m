@@ -1,6 +1,6 @@
 function C = reference_domain_corners(id)
 switch id
-    case 23
+    case ShapeSet.LinearL
         C = [
             0 0
             1 0
