@@ -245,7 +245,7 @@ class singular_integral_shortcut<
 	laplace_2d_SLP_kernel, TestField, TrialField, match::match_1d_type,
 	typename std::enable_if<
 		std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
-		std::is_same<typename TrialField::lset_t, line_1_shape_set>::value &&
+		std::is_same<typename TrialField::elem_t::lset_t, line_1_shape_set>::value &&
 		std::is_same<typename TrialField::nset_t, line_0_shape_set>::value
 	>::type
 >
@@ -282,7 +282,7 @@ class singular_integral_shortcut<
 	laplace_2d_SLP_kernel, TestField, TrialField, match::match_1d_type,
 	typename std::enable_if<
 	std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::general>::value &&
-	std::is_same<typename TrialField::lset_t, line_1_shape_set>::value &&
+	std::is_same<typename TrialField::elem_t::lset_t, line_1_shape_set>::value &&
 	std::is_same<typename TestField::nset_t, line_0_shape_set>::value &&
 	std::is_same<typename TrialField::nset_t, line_0_shape_set>::value
 	>::type
@@ -318,7 +318,7 @@ class singular_integral_shortcut<
 	laplace_2d_SLP_kernel, TestField, TrialField, match::match_1d_type,
 	typename std::enable_if<
 	std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::general>::value &&
-	std::is_same<typename TrialField::lset_t, line_1_shape_set>::value &&
+	std::is_same<typename TrialField::elem_t::lset_t, line_1_shape_set>::value &&
 	std::is_same<typename TestField::nset_t, line_1_shape_set>::value &&
 	std::is_same<typename TrialField::nset_t, line_1_shape_set>::value
 	>::type
@@ -354,9 +354,9 @@ class singular_integral_shortcut<
 	laplace_2d_SLP_kernel, TestField, TrialField, match::match_0d_type,
 	typename std::enable_if<
 	std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::general>::value &&
-	std::is_same<typename TrialField::lset_t, line_1_shape_set>::value &&
+	std::is_same<typename TrialField::elem_t::lset_t, line_1_shape_set>::value &&
 	std::is_same<typename TrialField::nset_t, line_0_shape_set>::value &&
-	std::is_same<typename TestField::lset_t, line_1_shape_set>::value &&
+	std::is_same<typename TestField::elem_t::lset_t, line_1_shape_set>::value &&
 	std::is_same<typename TestField::nset_t, line_0_shape_set>::value
 	>::type
 >
@@ -394,9 +394,9 @@ class singular_integral_shortcut<
 	laplace_2d_DLP_kernel, TestField, TrialField, match::match_0d_type,
 	typename std::enable_if<
 	std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::general>::value &&
-	std::is_same<typename TrialField::lset_t, line_1_shape_set>::value &&
+	std::is_same<typename TrialField::elem_t::lset_t, line_1_shape_set>::value &&
 	std::is_same<typename TrialField::nset_t, line_0_shape_set>::value &&
-	std::is_same<typename TestField::lset_t, line_1_shape_set>::value &&
+	std::is_same<typename TestField::elem_t::lset_t, line_1_shape_set>::value &&
 	std::is_same<typename TestField::nset_t, line_0_shape_set>::value
 	>::type
 >
@@ -434,7 +434,7 @@ class singular_integral_shortcut<
 	laplace_2d_HSP_kernel, TestField, TrialField, match::match_1d_type,
 	typename std::enable_if<
 		std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
-		std::is_same<typename TrialField::lset_t, line_1_shape_set>::value &&
+		std::is_same<typename TrialField::elem_t::lset_t, line_1_shape_set>::value &&
 		std::is_same<typename TrialField::nset_t, line_0_shape_set>::value
 	>::type
 >
@@ -471,7 +471,7 @@ class singular_integral_shortcut<
 	laplace_2d_HSP_kernel, TestField, TrialField, match::match_1d_type,
 	typename std::enable_if<
 	std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::general>::value &&
-	std::is_same<typename TrialField::lset_t, line_1_shape_set>::value &&
+	std::is_same<typename TrialField::elem_t::lset_t, line_1_shape_set>::value &&
 	std::is_same<typename TestField::nset_t, line_0_shape_set>::value &&
 	std::is_same<typename TrialField::nset_t, line_0_shape_set>::value
 	>::type
@@ -499,7 +499,7 @@ class singular_integral_shortcut<
 	laplace_3d_SLP_kernel, TestField, TrialField, match::match_2d_type,
 	typename std::enable_if<
 		std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
-		std::is_same<typename TrialField::lset_t, tria_1_shape_set>::value &&
+		std::is_same<typename TrialField::elem_t::lset_t, tria_1_shape_set>::value &&
 		std::is_same<typename TrialField::nset_t, tria_0_shape_set>::value
 	>::type
 >
@@ -535,7 +535,7 @@ class singular_integral_shortcut<
 	laplace_3d_HSP_kernel, TestField, TrialField, match::match_2d_type,
 	typename std::enable_if<
 		std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
-		std::is_same<typename TrialField::lset_t, tria_1_shape_set>::value &&
+		std::is_same<typename TrialField::elem_t::lset_t, tria_1_shape_set>::value &&
 		std::is_same<typename TrialField::nset_t, tria_0_shape_set>::value
 	>::type
 >
@@ -571,7 +571,7 @@ class singular_integral_shortcut<
 	laplace_3d_Gxx_kernel, TestField, TrialField, match::match_2d_type,
 	typename std::enable_if<
 		std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
-		std::is_same<typename TrialField::lset_t, tria_1_shape_set>::value &&
+		std::is_same<typename TrialField::elem_t::lset_t, tria_1_shape_set>::value &&
 		std::is_same<typename TrialField::nset_t, tria_0_shape_set>::value
 	>::type
 >
@@ -607,7 +607,7 @@ class singular_integral_shortcut<
 	laplace_3d_HSP_kernel, TestField, TrialField, match::match_2d_type,
 	typename std::enable_if<
 		std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
-		!(std::is_same<typename TrialField::lset_t, tria_1_shape_set>::value &&
+		!(std::is_same<typename TrialField::elem_t::lset_t, tria_1_shape_set>::value &&
 		std::is_same<typename TrialField::nset_t, tria_0_shape_set>::value)
 	>::type
 >

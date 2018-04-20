@@ -4,8 +4,7 @@
 
 #include <omp.h>
 
-#include "quad_1_gauss_elem.hpp"
-
+#include "library/quad_1_gauss_field.hpp"
 #include "core/weighted_residual.hpp"
 #include "interface/read_off_mesh.hpp"
 #include "library/lib_element.hpp"
@@ -220,7 +219,7 @@ int main(int argc, char **argv)
 	uMatrix fields(nElements, 1+4+4);
 	for (size_t e = 0; e < nElements; ++e)
 	{
-		fields(e,0) = quad_1_gauss_field::id;
+		fields(e,0) = NiHu::quad_1_gauss_field::id;
 		for (size_t c = 0; c < 4; ++c)
 			fields(e,c+1) = elements(e,c+1);
 		for (size_t c = 0; c < 4; ++c)
@@ -228,7 +227,7 @@ int main(int argc, char **argv)
 	}
 	
 	// create function space
-	auto trial = NiHu::create_function_space(nodes, fields, gauss_field_tag());
+	auto trial = NiHu::create_function_space(nodes, fields, NiHu::quad_1_gauss_field_tag());
 #else
 	auto mesh = NiHu::read_off_mesh(meshname, NiHu::quad_1_tag(), NiHu::tria_1_tag());
 	auto const &trial = NiHu::constant_view(mesh);
