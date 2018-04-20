@@ -1,6 +1,6 @@
 #include <mex.h>
 
-#include "../benchmark/EAA/radiatterer/bem/quad_1_gauss_elem.hpp"
+#include "library/quad_1_gauss_field.hpp"
 #include "core/weighted_residual.hpp"
 #include "util/mex_matrix.hpp"
 #include "library/helmholtz_kernel.hpp"
@@ -25,7 +25,7 @@ void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 	uMatrix fields(nElements, 1+4+4);
 	for (size_t e = 0; e < nElements; ++e)
 	{
-		fields(e,0) = quad_1_gauss_field::id;
+		fields(e,0) = NiHu::quad_1_gauss_field::id;
 		for (size_t c = 0; c < 4; ++c)
 			fields(e,c+1) = surf_elem(e,c+1);
 		for (size_t c = 0; c < 4; ++c)
@@ -33,7 +33,7 @@ void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 	}
 	
 	// create function space
-	auto surf_sp = NiHu::create_function_space(surf_nodes, fields, gauss_field_tag());
+	auto surf_sp = NiHu::create_function_space(surf_nodes, fields, NiHu::quad_1_gauss_field_tag());
 		
 	auto field_mesh = NiHu::create_mesh(field_nodes, field_elem,
 		NiHu::tria_1_tag(), NiHu::quad_1_tag());

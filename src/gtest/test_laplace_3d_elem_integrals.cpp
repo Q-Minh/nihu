@@ -6,87 +6,39 @@
 #include "library/lib_element.hpp"
 #include "core/field.hpp"
 #include "core/double_integral.hpp"
-#include "library/quad_1_gauss_field.hpp"
+#include "library/quad_1_gauss_shape_set.hpp"
 
 
 typedef Eigen::Matrix<double, Eigen::Dynamic, 1> dVector;
 
 TEST(LaplaceElemIntegrals, Regular)
 {
-	typedef NiHu::quad_1_elem elem_t;
-
-	// create test_elem
-	elem_t::coords_t test_coords;
-	test_coords <<
-		0.0, 1.0, 1.0, 0.0,
-		0.0, 0.0, 1.0, 1.0,
-		0.0, 0.0, 0.0, 0.0;
-	elem_t test_elem(test_coords);
-
-	// create trial_elem
-	elem_t::coords_t trial_coords;
-	trial_coords <<
-		5.0, 6.0, 6.0, 5.0,
-		0.0, 0.0, 1.0, 1.0,
-		0.0, 0.0, 0.0, 0.0;
-	elem_t trial_elem(trial_coords);
-
-	// create test_field
-	typedef NiHu::field_view<elem_t, NiHu::field_option::constant> base_field_t;
-	typedef NiHu::dirac_field<base_field_t> test_field_t;
-	test_field_t const &test_field = NiHu::dirac(NiHu::constant_view(test_elem));
-
-	// instantiate kernel
-	typedef NiHu::laplace_3d_HSP_kernel kernel_t;
-	kernel_t kernel;
-
-	{
-		// create trial_field
-		typedef NiHu::quad_2_shape_set trial_shape_set;
-		typedef NiHu::field<elem_t, trial_shape_set> trial_field_t;
-		trial_field_t::dofs_t dofs;
-		trial_field_t trial_field(trial_elem, dofs);
-
-		auto res =  NiHu::double_integral<kernel_t, test_field_t, trial_field_t>::eval(
-			kernel, test_field, trial_field,
-			std::integral_constant<bool, false>());
-		auto I = res * dVector::Constant(9, 1, 1.0);
-	}
-
-	{
-		// create trial_field
-		typedef NiHu::quad_1_shape_set trial_shape_set;
-		typedef NiHu::field<elem_t, trial_shape_set> trial_field_t;
-		trial_field_t::dofs_t dofs;
-		trial_field_t trial_field(trial_elem, dofs);
-
-		auto res =  NiHu::double_integral<kernel_t, test_field_t, trial_field_t>::eval(
-			kernel, test_field, trial_field,
-			std::integral_constant<bool, false>());
-		auto I = res * dVector::Constant(4, 1, 1.0);
-	}
-
-
-	{
-		// create trial_field
-		typedef NiHu::quad_0_shape_set trial_shape_set;
-		typedef NiHu::field<elem_t, trial_shape_set> trial_field_t;
-		trial_field_t::dofs_t dofs;
-		trial_field_t trial_field(trial_elem, dofs);
-
-		auto res =  NiHu::double_integral<kernel_t, test_field_t, trial_field_t>::eval(
-			kernel, test_field, trial_field,
-			std::integral_constant<bool, false>());
-		auto I = res * dVector::Constant(1, 1, 1.0);
-	}
-
 }
 
 
+static double helper(double x, double t0, double a, double b, double const *c)
+{
+	return (c[0] * cos(a + x)) / b 
+		+ 2. * ( c[1] * sin(a + t0) + c[2] * cos(a + t0)) * atanh(cos(a) - sin(a) * tan(x/2.)) 
+		- (c[1] * sin(t0 - x) + c[2] * cos(t0 - x)) * (log(b / sin(a + x)) + 1.) 
+		+ c[3] / 2. * b * (sin(2. * (a + t0)) * log(1./tan((a + x)/2.)) - 2. * sin(a + 2. * t0 - x));
+}
 
-TEST(LaplaceElemIntegrals, Singular)
+
+TEST(LaplaceElemIntegrals, Singular_HSP_Linear_NSet)
 {
 	typedef NiHu::quad_1_elem elem_t;
+	
+	typedef NiHu::quad_1_gauss_shape_set test_shape_set_t;
+	typedef NiHu::field<elem_t, test_shape_set_t> base_field_t;
+	typedef NiHu::dirac_field<base_field_t> test_field_t;
+	
+	typedef NiHu::quad_1_gauss_shape_set trial_shape_set_t;
+	typedef NiHu::field<elem_t, trial_shape_set_t> trial_field_t;
+	
+	typedef NiHu::laplace_3d_HSP_kernel kernel_t;
+	
+	typedef NiHu::double_integral<kernel_t, test_field_t, trial_field_t> integrator_t;
 
 	// create two overlapping elements
 	elem_t::coords_t coords;
@@ -94,88 +46,58 @@ TEST(LaplaceElemIntegrals, Singular)
 		0.0, 1.0, 1.0, 0.0,
 		0.0, 0.0, 1.0, 1.0,
 		0.0, 0.0, 0.0, 0.0;
-	elem_t test_elem(coords), trial_elem(coords);
-
-	// create test_field
-	typedef NiHu::quad_1_gauss_shape_set test_shape_set;
-	typedef NiHu::field<elem_t, test_shape_set> base_field_t;
-	typedef NiHu::dirac_field<base_field_t> test_field_t;
-		base_field_t::dofs_t dofs;
-		base_field_t base_field(test_elem, dofs);
+	elem_t elem(coords);
 	
+	// create test field
+	base_field_t base_field(elem, base_field_t::dofs_t());
 	test_field_t const &test_field = NiHu::dirac(base_field);
+	
+	// create trial_field
+	trial_field_t trial_field(elem, trial_field_t::dofs_t());
 
 	// instantiate kernel
-	typedef NiHu::laplace_3d_HSP_kernel kernel_t;
 	kernel_t kernel;
 
-	auto x0 = test_elem.get_center();
-	double I0 = NiHu::laplace_3d_HSP_collocation_constant_plane::eval(test_elem, x0);
-
-	double eps = 1e-3;
-
-
+	auto res = integrator_t::eval(
+		kernel, test_field, trial_field, std::true_type());
+	std::cout << res.row(0) << std::endl;
+	
+	
+	// compute analytically
+	
+	// location of collocation point in physical coordinates
+	double q = .5 / sqrt(3.);
+	Eigen::Matrix<double, 3, 1> x0;
+	x0 << .5-q, .5-q, 0.;
+	
+	// divide the element into triangles
+	double R[4], theta[4], alpha[4], t0[4];
+	plane_element_helper(elem, x0, R, theta, alpha);
+	for (int i = 0; i < 4; ++i)
+		t0[i] = atan2(coords(1,i)-x0(0), coords(0,i)-x0(0));
+	
+	// shape function coefficients
+	double coeffs[4][4] = {
+	// const,      x,        y,              xy
+		{1, -1/(2*q), -1/(2*q),  1/(2*q)/(2*q)},
+		{0,  1/(2*q),        0, -1/(2*q)/(2*q)},
+		{0,        0,  1/(2*q), -1/(2*q)/(2*q)},
+		{0,        0,        0,  1/(2*q)/(2*q)}
+	};
+	
+	Eigen::Matrix<double, 1, 4> res0;
+	res0.setZero();
+		
+	for (int tr = 0; tr < 4; ++tr)
 	{
-		// create trial_field
-		typedef NiHu::quad_2_shape_set trial_shape_set;
-		typedef NiHu::field<elem_t, trial_shape_set> trial_field_t;
-		trial_field_t::dofs_t dofs;
-		trial_field_t trial_field(trial_elem, dofs);
-
-		auto res =  NiHu::double_integral<kernel_t, test_field_t, trial_field_t>::eval(
-			kernel, test_field, trial_field,
-			std::integral_constant<bool, true>());
-		//double I = (res * dVector::Constant(9, 1, 1.0))(0);
-		//double err = std::abs(I-I0) / std::abs(I0);
-		//EXPECT_LE(err, eps);
-
+		double b = R[tr] * sin(alpha[tr]);
+		for (int c = 0; c < 4; ++c)
+			res0(c) += helper(theta[tr], -t0[tr], alpha[tr], b, coeffs[c])
+				- helper(0, -t0[tr], alpha[tr], b, coeffs[c]);
 	}
-
-	{
-		// create trial_field
-		typedef NiHu::quad_1_gauss_shape_set trial_shape_set;
-		typedef NiHu::field<elem_t, trial_shape_set> trial_field_t;
-		trial_field_t::dofs_t dofs;
-		trial_field_t trial_field(trial_elem, dofs);
-
-		auto res =  NiHu::double_integral<kernel_t, test_field_t, trial_field_t>::eval(
-			kernel, test_field, trial_field,
-			std::integral_constant<bool, true>());
-		std::cout << res << std::endl;
-		std::cout << (res * dVector::Constant(4, 1, 1.0)) << std::endl;
-		//double err = std::abs(I-I0) / std::abs(I0);
-		//EXPECT_LE(err, eps);
-	}
-
-	{
-		// create trial_field
-		typedef NiHu::quad_1_shape_set trial_shape_set;
-		typedef NiHu::field<elem_t, trial_shape_set> trial_field_t;
-		trial_field_t::dofs_t dofs;
-		trial_field_t trial_field(trial_elem, dofs);
-
-		auto res =  NiHu::double_integral<kernel_t, test_field_t, trial_field_t>::eval(
-			kernel, test_field, trial_field,
-			std::integral_constant<bool, true>());
-		//double I = (res * dVector::Constant(4, 1, 1.0))(0);
-		//double err = std::abs(I-I0) / std::abs(I0);
-		//EXPECT_LE(err, eps);
-	}
-
-
-	{
-		// create trial_field
-		typedef NiHu::quad_0_shape_set trial_shape_set;
-		typedef NiHu::field<elem_t, trial_shape_set> trial_field_t;
-		trial_field_t::dofs_t dofs;
-		trial_field_t trial_field(trial_elem, dofs);
-
-		auto res =  NiHu::double_integral<kernel_t, test_field_t, trial_field_t>::eval(
-			kernel, test_field, trial_field,
-			std::integral_constant<bool, true>());
-		//double I = (res * dVector::Constant(1, 1, 1.0))(0);
-		//double err = std::abs(I-I0) / std::abs(I0);
-		//EXPECT_LE(err, eps);
-	}
+	res0 /= (4. * M_PI);
+	
+	// compare numerical and analytical solutions
+	double rel_error = (res0 - res.row(0)).norm() / res0.norm();
+	EXPECT_LE(rel_error, 1e-4);
 }
-

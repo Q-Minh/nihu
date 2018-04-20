@@ -8,6 +8,8 @@
 namespace NiHu
 {
 
+// The integral of any d/dy normal derivative kernel over a plane triangle
+// is zero, if the singular point is inside the triangle
 template <class DK, class TestField, class TrialField>
 class singular_integral_shortcut<
 	normal_derivative_kernel<DK, 0, 1>,
@@ -31,6 +33,8 @@ public:
 };
 
 
+// The integral of any d/dx normal derivative kernel over a plane triangle
+// is zero, if the singular point is inside the triangle
 template <class DK, class TestField, class TrialField>
 class singular_integral_shortcut<
 	normal_derivative_kernel<DK, 1, 0>,
@@ -54,6 +58,8 @@ public:
 };
 
 
+// The integral of any d/dy normal derivative kernel over a line
+// is zero, if the singular point is inside the line
 template <class DK, class TestField, class TrialField>
 class singular_integral_shortcut<
 	normal_derivative_kernel<DK, 0, 1>,
@@ -77,6 +83,8 @@ public:
 };
 
 
+// The integral of any d/dx normal derivative kernel over a line
+// is zero, if the singular point is inside the line
 template <class DK, class TestField, class TrialField>
 class singular_integral_shortcut<
 	normal_derivative_kernel<DK, 1, 0>,
@@ -90,7 +98,7 @@ public:
 	template <class result_t>
 	static constexpr result_t &eval(
 		result_t &result,
-		kernel_base<normal_derivative_kernel<DK, 0, 1> > const &,
+		kernel_base<normal_derivative_kernel<DK, 1, 0> > const &,
 		field_base<TestField> const &,
 		field_base<TrialField> const &,
 		element_match const &)
