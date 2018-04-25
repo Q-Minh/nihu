@@ -26,6 +26,10 @@
 #include "../core/shapeset.hpp"
 #include "lib_domain.hpp"
 
+#include "line_1_gauss_shape_set.hpp"
+#include "quad_1_gauss_shape_set.hpp"
+
+
 namespace NiHu
 {
 

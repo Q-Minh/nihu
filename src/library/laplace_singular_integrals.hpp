@@ -25,6 +25,7 @@
 
 #include "../core/match_types.hpp"
 #include "../core/singular_integral_shortcut.hpp"
+#include "../core/quadrature.hpp"
 #include "lib_element.hpp"
 #include "laplace_kernel.hpp"
 #include "normal_derivative_singular_integrals.hpp"
@@ -34,9 +35,135 @@
 
 #include <iostream>
 
-
 namespace NiHu
 {
+	
+/** \brief store-wrapper of a statically stored quadrature */
+template <class domain_t, size_t order>
+struct regular_quad_store
+{
+	/** \brief the stored static quadrature member */
+	static gaussian_quadrature<domain_t> const quadrature;
+};
+
+/** \brief definition of the statically stored quadrature member */
+template <class domain_t, size_t order>
+gaussian_quadrature<domain_t> const regular_quad_store<domain_t, order>::quadrature(order);
+
+class log_gauss_quadrature
+	: public std::vector<quadrature_elem<Eigen::Matrix<double, 1, 1>, double> >
+{
+	typedef Eigen::Matrix<double, 1, 1> xi_t;
+	typedef double w_t;
+	typedef quadrature_elem<xi_t, w_t> quadrature_elem_t;
+	typedef std::vector<quadrature_elem_t> base_t;
+	
+public:
+	log_gauss_quadrature(size_t points)
+	{
+		base_t::reserve(points);
+		
+		switch (points)
+		{
+		case 1:
+			push_back(quadrature_elem_t(xi_t::Constant(0.25), 1.));
+			break;
+		case 2:
+			push_back(quadrature_elem_t(xi_t::Constant(0.602276908118738), 0.281460680969616));
+			push_back(quadrature_elem_t(xi_t::Constant(0.112008806166976), 0.718539319030385));
+			break;
+		case 3:
+			push_back(quadrature_elem_t(xi_t::Constant(0.766880303938942), 0.094615406566148));
+			push_back(quadrature_elem_t(xi_t::Constant(0.368997063715618), 0.391980041201488));
+			push_back(quadrature_elem_t(xi_t::Constant(0.063890793087325), 0.513404552232364));
+			break;
+		default:
+			throw std::out_of_range("unsupported log gauss degree");
+			break;
+		}
+	}
+};
+
+
+template <unsigned points>
+struct singular_quad_store
+{
+	static log_gauss_quadrature const quadrature;
+};
+
+template <unsigned points>
+log_gauss_quadrature const singular_quad_store<points>::quadrature(points);
+	
+
+template <class TestField, class TrialField>
+class laplace_2d_SLP_collocation_line
+{
+	typedef TestField test_field_t;
+	typedef TrialField trial_field_t;
+	
+	typedef typename test_field_t::nset_t test_shape_set_t;
+	typedef typename trial_field_t::nset_t trial_shape_set_t;
+	
+	typedef typename test_field_t::elem_t elem_t;
+	
+	typedef typename test_shape_set_t::xi_t xi_t;
+	
+	static size_t const rows = test_shape_set_t::num_nodes;
+	static size_t const cols = trial_shape_set_t::num_nodes;
+	static size_t const order = trial_shape_set_t::polynomial_order;
+	
+	typedef Eigen::Matrix<double, rows, cols> result_t;
+	
+	typedef regular_quad_store<typename elem_t::domain_t, order> reg_t;
+	typedef singular_quad_store<(order + 1 + 1)/2> sing_t;
+		
+public:
+	static result_t eval(elem_t const &elem)
+	{
+		// get Jacobian
+		double jac = elem.get_normal().norm();
+		
+		result_t result;
+		result.setZero();
+		
+		
+		// traverse collocational points
+		for (size_t i = 0; i < rows; ++i)
+		{
+			xi_t xi0 = test_shape_set_t::corner_at(i);
+			double rho1 = (1. + xi0(0));
+			double rho2 = (1. - xi0(0));
+			
+			for (auto it = reg_t::quadrature.begin(); it != reg_t::quadrature.end(); ++it)
+			{
+				// get quadrature location and weight
+				xi_t const &zeta = it->get_xi();
+				double w = it->get_w();
+				
+				xi_t eta = (xi_t::Constant(1.0) + zeta)/2.;
+				
+				result.row(i) +=
+				(trial_shape_set_t::template eval_shape<0>(xi0 - rho1*eta) * rho1/2. * std::log(1./rho1) +
+				trial_shape_set_t::template eval_shape<0>(xi0 + rho2*eta) * rho2/2. * std::log(1./rho2) +
+				trial_shape_set_t::template eval_shape<0>(zeta) * std::log(1./jac)).transpose() * w;
+			}
+			
+			for (auto it = sing_t::quadrature.begin(); it != sing_t::quadrature.end(); ++it)
+			{
+				// get quadrature location and weight
+				xi_t const &eta = it->get_xi();
+				double w = it->get_w();
+				
+				result.row(i) +=
+				(trial_shape_set_t::template eval_shape<0>(xi0 - rho1*eta) * rho1 +
+				trial_shape_set_t::template eval_shape<0>(xi0 + rho2*eta) * rho2).transpose() * w;
+			}
+		}
+		
+		return result * jac / (2. *M_PI);
+	}
+};
+
 
 /** \brief Collocational singular integral of the 2D Laplace SLP kernel over a constant line element */
 class laplace_2d_SLP_collocation_constant_line
@@ -268,6 +395,42 @@ public:
 		result(0,0) = laplace_2d_SLP_collocation_constant_line::eval(
 			trial_field.get_elem(),
 			trial_field.get_elem().get_center());
+		return result;
+	}
+};
+
+
+/** \brief collocational singular integral of the 2D SLP kernel over a nonconstant line
+ * \tparam TestField the test field type
+ * \tparam TrialField the trial field type
+ */
+template <class TestField, class TrialField>
+class singular_integral_shortcut<
+	laplace_2d_SLP_kernel, TestField, TrialField, match::match_1d_type,
+	typename std::enable_if<
+		std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
+		std::is_same<typename TrialField::elem_t::lset_t, line_1_shape_set>::value &&
+		!std::is_same<typename TrialField::nset_t, line_0_shape_set>::value
+	>::type
+>
+{
+public:
+	/** \brief evaluate singular integral
+	 * \tparam result_t the result matrix type
+	 * \param [in, out] result reference to the result
+	 * \param [in] trial_field the test and trial fields
+	 * \return reference to the result matrix
+	 */
+	template <class result_t>
+	static result_t &eval(
+		result_t &result,
+		kernel_base<laplace_2d_SLP_kernel> const &,
+		field_base<TestField> const &test_field,
+		field_base<TrialField> const &trial_field,
+		element_match const &)
+	{
+		result = laplace_2d_SLP_collocation_line<TestField, TrialField>::eval(
+			test_field.get_elem());
 		return result;
 	}
 };

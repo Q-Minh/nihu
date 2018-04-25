@@ -21,8 +21,6 @@
  */
 
 #include "lib_shape.hpp"
-#include "quad_1_gauss_shape_set.hpp"
-#include "line_1_gauss_shape_set.hpp"
 
 namespace NiHu
 {
@@ -135,11 +133,10 @@ quad_1_gauss_shape_set::xi_t
 		quad_1_gauss_shape_set::xi_t(+std::sqrt(3.0)/3.0, +std::sqrt(3.0)/3.0)
 };
 
-
 line_1_gauss_shape_set::xi_t
 	const line_1_gauss_shape_set::m_corners[line_1_gauss_shape_set::num_nodes] = {
-		line_1_gauss_shape_set::xi_t(-std::sqrt(3.0)/3.0),
-		line_1_gauss_shape_set::xi_t(+std::sqrt(3.0)/3.0)
+		line_1_gauss_shape_set::xi_t::Constant(-std::sqrt(3.0)/3.0),
+		line_1_gauss_shape_set::xi_t::Constant(+std::sqrt(3.0)/3.0)
 };
 
 
