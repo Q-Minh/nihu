@@ -30,4 +30,12 @@ TEST(LaplaceElemIntegrals, Singular_2d_SLP)
 	
 	auto res = NiHu::laplace_2d_SLP_collocation_line<test_field_t, trial_field_t>::eval(elem);
 	std::cout << res << std::endl;
+
+	
+	res = NiHu::laplace_2d_HSP_collocation_line<test_field_t, trial_field_t>::eval(elem);
+	std::cout << res << std::endl;
+
+	double d = NiHu::laplace_2d_HSP_collocation_constant_line::eval(elem, elem.get_x(test_shape_set_t::corner_at(0)));
+	std::cout << d << std::endl;
 }
+

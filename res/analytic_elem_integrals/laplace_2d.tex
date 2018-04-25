@@ -2,15 +2,15 @@
 
 \usepackage{a4wide}
 \usepackage{hyperref}
+\usepackage{amsmath,bm,cancel}
+\usepackage{tikz}
 
-\usepackage{amsmath,bm}
 \newcommand{\td}{\mathrm{d}}
 \newcommand{\te}{\mathrm{e}}
 \newcommand{\ti}{\mathrm{i}}
 \newcommand{\sinc}{\mathrm{sinc}}
 \newcommand{\sign}{\mathrm{sign}}
 \newcommand{\atan}{\mathrm{atan}}
-\usepackage{tikz}
 
 \title {Analytical integrals of kernels}
 
@@ -217,15 +217,36 @@ as the element normal is perpendicular to the distance ${\bf y}-{\bf x}$.
 
 \subsubsection{Constant line HSP}
 
-First approach: finite part integral
-%
+
+Finite part integral with general shape function $N(y)$
+
 \begin{align}
-\int_{S} G''_{n_x n_y}({\bf y}, {\bf x}) \td y
-&= \frac{1}{2\pi} \lim_{\epsilon \to 0} \left(\int_{-d_1}^{-\epsilon} \frac{1}{y^2}\td y + \int_{\epsilon}^{d_2} \frac{1}{y^2} \td y\right) \nonumber \\
-&= \frac{1}{2\pi} \lim_{\epsilon \to 0} \left(\left[\frac{-1}{y}\right]_{-d_1}^{-\epsilon} +  \left[\frac{-1}{y}\right]_{\epsilon}^{d_2} \right)
-\nonumber \\
-&= \frac{-1}{2\pi} \left(\frac{1}{d_1} +  \frac{1}{d_2} \right) + \lim_{\epsilon \to 0} \frac{1}{\pi\epsilon}
+	I = \int_S G''_{n_x n_y}({\bf y}, {\bf x}) N({\bf y}) \td y
+	&= \frac{1}{2\pi} \int_S \frac{1}{(y-x)^2} N(y) \td y \\
+	&= \frac{1}{2\pi} \int_\Sigma \frac{1}{J^2 (\eta-\xi)^2} N(\eta) J \td \eta \\
+	&= \frac{1}{2\pi J} \left(
+		\int_a^{\xi-\epsilon} \frac{1}{(\eta-\xi)^2} N(\eta) \td \eta
+		+ \int_{\xi+\epsilon}^{b} \frac{1}{(\eta-\xi)^2} N(\eta) \td \eta
+	\right)
 \end{align}
+
+The shape function is written with its Taylor series around the singular point
+%
+\begin{equation}
+	N(\eta) = N(\xi) + N'(\xi) (\eta-\xi) + \sum_{k=2}^{\infty} \frac{N^{(k)}(\xi)}{k!}(\eta-\xi)^k
+\end{equation}
+
+Substitution yields
+
+\begin{equation}
+	I = \frac{N(\xi)}{2\pi J} \left(
+		\cancel{\frac{1}{2\epsilon}} + \left[ \frac{-1}{\eta-\xi} \right]_{a}^{b} 
+	\right)
+	+
+	\frac{N'(\xi)}{2\pi J} \log \frac{|b-\xi|}{|a-\xi|}
+	+ \sum_{k=2}^{\infty} \frac{N^{(k)}(\xi)}{2\pi J k! (k-1)}
+		\left[ (\eta-\xi)^{k-1} \right]_{a}^{b} 
+\end{equation}
 
 
 Second approach: approaching the boundary:

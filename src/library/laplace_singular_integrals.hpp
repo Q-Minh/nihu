@@ -294,6 +294,50 @@ public:
     }
 };
 
+
+/** \brief Collocational integral of the 2D HSP kernel over a line with max. linear Nset */
+template <class TestField, class TrialField>
+class laplace_2d_HSP_collocation_line
+{
+	typedef TestField test_field_t;
+	typedef TrialField trial_field_t;
+	
+	typedef typename test_field_t::nset_t test_shape_set_t;
+	typedef typename trial_field_t::nset_t trial_shape_set_t;
+	
+	typedef typename test_field_t::elem_t elem_t;
+	
+	typedef typename test_shape_set_t::xi_t xi_t;
+	
+	static size_t const rows = test_shape_set_t::num_nodes;
+	static size_t const cols = trial_shape_set_t::num_nodes;
+	
+	typedef Eigen::Matrix<double, rows, cols> result_t;
+	
+public:
+	static result_t eval(elem_t const &elem)
+	{
+		double jac = elem.get_normal().norm();
+		
+		result_t result;
+		result.setZero();
+
+		double a = -1., b = +1.;
+		
+		for (size_t i = 0; i < rows; ++i)
+		{
+			xi_t xi0 = test_shape_set_t::corner_at(i);
+			auto N = trial_shape_set_t::template eval_shape<0>(xi0);
+			auto dN = trial_shape_set_t::template eval_shape<1>(xi0);
+			result.row(i) = N * (-1./(b-xi0(0)) - -1./(a-xi0(0)) ) +
+				dN * std::log( std::abs( (b-xi0(0))/(a-xi0(0)) ) );
+		}
+		
+		return result / (2. *M_PI * jac);
+	}
+};
+
+
 /** \brief Collocational singular integral of the 2D Laplace HSP kernel over a constant line element */
 class laplace_2d_HSP_collocation_constant_line
 {
@@ -620,6 +664,42 @@ public:
 		result(0,0) = laplace_2d_HSP_collocation_constant_line::eval(
 			trial_field.get_elem(),
 			trial_field.get_elem().get_center());
+		return result;
+	}
+};
+
+
+/** \brief collocational singular integral of the 2D HSP kernel over a linear line
+ * \tparam TestField the test field type
+ * \tparam TrialField the trial field type
+ */
+template <class TestField, class TrialField>
+class singular_integral_shortcut<
+	laplace_2d_HSP_kernel, TestField, TrialField, match::match_1d_type,
+	typename std::enable_if<
+		std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
+		std::is_same<typename TrialField::elem_t::lset_t, line_1_shape_set>::value &&
+		TrialField::nset_t::polynomial_degree == 1
+	>::type
+>
+{
+public:
+	/** \brief evaluate singular integral
+	 * \tparam result_t the result matrix type
+	 * \param [in, out] result reference to the result
+	 * \param [in] trial_field the test and trial fields
+	 * \return reference to the result matrix
+	 */
+	template <class result_t>
+	static result_t &eval(
+		result_t &result,
+		kernel_base<laplace_2d_HSP_kernel> const &,
+		field_base<TestField> const &,
+		field_base<TrialField> const &trial_field,
+		element_match const &)
+	{
+		result = laplace_2d_HSP_collocation_line<TestField, TrialField>::eval(
+			trial_field.get_elem());
 		return result;
 	}
 };

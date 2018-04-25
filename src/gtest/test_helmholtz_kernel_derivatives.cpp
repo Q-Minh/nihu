@@ -7,9 +7,9 @@ TEST(Helmholtz3dKernel, NormalDerivative)
 {
 	x_t x, y, nx, ny;
 	x << 0., 0., 0.;
-	y << 1., 0., 0.;
-	nx << 1., 0., 0.;
-	ny << 1., 0., 0.;
+	y << 1., 1., 1.;
+	nx << 1., 0., 1.;
+	ny << 1., 1., 0.;
 	nx = nx.normalized();
 	ny = ny.normalized();
 	
@@ -27,7 +27,7 @@ TEST(Helmholtz3dKernel, NormalDerivative)
 	std::complex<double> gxy = Gxy(x, y, nx, ny);
 	
 	// approximate kernels
-	double eps = 1e-3;
+	double eps = 1e-5;
 	std::complex<double> gy_num = (G(x, y+eps*ny) - G(x, y)) / eps;
 	std::complex<double> gx_num = (G(x+eps*nx, y) - G(x, y)) / eps;
 	std::complex<double> gxy_num = (G(x+eps*nx, x_t(y + eps*ny)) - G(x+eps*nx, y)
@@ -37,8 +37,10 @@ TEST(Helmholtz3dKernel, NormalDerivative)
 	double err_y = std::abs(gy_num - gy) / std::abs(gy);
 	double err_x = std::abs(gx_num - gx) / std::abs(gx);
 	double err_xy = std::abs(gxy_num - gxy) / std::abs(gxy);
+
+	std::cout << err_y << '\n' << err_x << '\n' << err_xy << '\n';
 	
-	EXPECT_LE(err_y, 1e-2);
-	EXPECT_LE(err_x, 1e-2);
-	EXPECT_LE(err_xy, 1e-2);
+	EXPECT_LE(err_y, 1e-4);
+	EXPECT_LE(err_x, 1e-4);
+	EXPECT_LE(err_xy, 1e-4);
 }

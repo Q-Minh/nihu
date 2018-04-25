@@ -180,12 +180,17 @@ public:
 
 
 /** \brief Collocational singular integral of the 3D Helmholtz SLP kernel over a constant planar element
- * \tparam order the quadrature order of the regular part
+ * \tparam order the quadrature order of the regular (dynamic) part
  */
 template <unsigned order>
 class helmholtz_3d_SLP_collocation_constant_plane
 {
 private:
+	/** \brief the Dynamic part of the SLP Green's function
+	 * This function returns the regular (dynamic) part of the Green's function
+	 * defined as exp(-ikr)/r - 1/r
+	 * note that the factor 1/(4pi) is not computed for simplification
+	 */
 	template <class wavenumber_t>
 	static std::complex<double> dynamic_part(double const &r, wavenumber_t const &k)
 	{
@@ -198,7 +203,7 @@ public:
      * \brief Evaluate the integral
      * \tparam wavenumber_t the wave number type
      * \param [in] elem the line element
-     * \param [in] x0 the singular point
+     * \param [in] x0 the singular point ( must be internal ! )
      * \param [in] k the wave number
      * \return the integral value
      */
@@ -280,7 +285,8 @@ public:
 		double IG0 = 0.0, IddG0 = 0.0;
 		for (unsigned i = 0; i < N; ++i)
 		{
-			IG0 += r[i] * std::sin(alpha[i]) * std::log(std::tan((alpha[i] + theta[i]) / 2.0) / tan(alpha[i] / 2.0));
+			IG0 += r[i] * std::sin(alpha[i]) *
+				std::log(std::tan((alpha[i] + theta[i]) / 2.0) / tan(alpha[i] / 2.0));
 			IddG0 += (std::cos(alpha[i] + theta[i]) - std::cos(alpha[i])) / (r[i] * std::sin(alpha[i]));
 		}
 
@@ -289,7 +295,8 @@ public:
 		for (auto it = quadr_t::quadrature.begin(); it != quadr_t::quadrature.end(); ++it)
 		{
 			double r = (elem.get_x(it->get_xi()) - x0).norm();
-			I_acc += dynamic_part(r, k) * it->get_w() * elem.get_normal(it->get_xi()).norm();
+			double jac = elem.get_normal(it->get_xi()).norm();
+			I_acc += dynamic_part(r, k) * it->get_w() * jac;
 		}
 
 		// assemble result from static and dynamic parts
