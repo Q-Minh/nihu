@@ -227,57 +227,55 @@ First approach: finite part integral
 &= \frac{-1}{2\pi} \left(\frac{1}{d_1} +  \frac{1}{d_2} \right) + \lim_{\epsilon \to 0} \frac{1}{\pi\epsilon}
 \end{align}
 
+\subsubsection{General element HSP}
 
 General approach for curved elements
 %
 \begin{align}
-	\int_S G''_{n_x n_y}({\bf y}, {\bf x}) \td y
+	I = \int_S G''_{n_x n_y}({\bf y}, {\bf x}) N({\bf y}) \td y
+\end{align}
+%
+Transform to local coordinates
+\begin{align}
+	I = \int_a^b G''_{n_x n_y}(\rho) N(\rho) J(\rho) \td \rho
+\end{align}
+%
+where $\rho = \xi - \xi_0$ denotes the signed distance from the singular point in the reference domain.
+
+In order evaluate the singular part of the integral analytically, the following Taylor series expansions are introduced:
+\begin{align}
+	{\bf r} &= {\bf y} - {\bf x} = \rho {\bf r_1} + \frac{\rho^2}{2} {\bf r}_2 \\
+	{\bf d} &= \frac{\td {\bf r}}{\td \rho} = {\bf r_1} + \rho {\bf r}_2 \\
+	{\bf J} &= {\bf T} {\bf d} = {\bf J}_0 + \rho {\bf J}_1 \\
+	r^2 &= \rho^2 r_1^2 \left( 1 + A \rho + B \rho^2 \right)
+	,\quad A = \frac{{\bf r}_1 {\bf r}_2}{r_1^2}
+	,\quad B = \frac{r_2^2}{4 r_1^2} \\
+	\frac{1}{r^2} &\approx \frac{1 - A \rho}{\rho^2 r_1^2}
 \end{align}
 
-Second approach: approaching the boundary:
+The Green's function $G''$, multiplied with the Jacobian $J$ in the local frame of reference is approximated as (replacing $n_y$ by $J$)
 %
-\begin{align}
-\frac{\partial}{\partial n_x}
-\int_{-d_1}^{d_2} 
-\frac{\partial}{\partial n_y}
-\frac{-\ln |r|}{2\pi}
-\td y 
-&=
-\frac{\partial}{\partial z}
-\int_{-d_1}^{d_2} 
-\frac{-1}{2\pi r} \frac{(y, -z) \cdot (0,1)}{r}
-\td y \nonumber \\
-&=
-\frac{1}{2\pi} \frac{\partial}{\partial z}
-\int_{-d_1}^{d_2} 
-\frac{z}{\left(y^2+z^2\right)}
-\td y \nonumber \\
-&=
-\frac{1}{2\pi} \frac{\partial}{\partial z}
-\left[
-\tan^{-1}\left(d_2/z\right)
--
-\tan^{-1}\left(-d_1/z\right)
-\right]
-\nonumber \\
-&=
-\frac{1}{2\pi} \frac{\partial}{\partial z}
-\left[
-\tan^{-1}\left(d_2/z\right) + \tan^{-1}\left(d_1/z\right)
-\right]
-\nonumber \\
-&=
-\frac{1}{2\pi} 
-\left[
-\frac{-d_2}{d_2^2+z^2} + \frac{-d_1}{d_1^2+z^2}
-\right]
-\nonumber \\
-& \to
-\frac{-1}{2\pi} 
-\left[
-\frac{1}{d_2} + \frac{1}{d_1}
-\right]
-\end{align}
+\begin{equation}
+	G'' J = \frac{1}{2\pi r^2} \left( {\bf n}_x {\bf J} - 2 \frac{{\bf r} {\bf n}_x}{r} \frac{{\bf r} {\bf J}}{r}\right)
+\end{equation}
+%
+The second term in the bracketed part is $O(\rho^2)$. The Taylor series approximation of the first part is
+%
+\begin{equation}
+	G'' J \approx \frac{1 - A \rho}{2\pi \rho^2 r_1^2} {\bf n}_x \left({\bf J}_0 + \rho {\bf J}_1\right) 
+\end{equation}
+%
+Exploiting that ${\bf n}_x \left({\bf J}_0 + \rho {\bf J}_1\right) = J_0 (1 + \rho A)$, and $r_1^2 = J_0^2$, the final first order Taylor series expansion of the kernel is
+%
+\begin{equation}
+	G'' J \approx \frac{1}{2\pi \rho^2 J_0}
+\end{equation}
+%
+and the Laurent series expansion of the integrand is
+%
+\begin{equation}
+	G'' N J \approx \frac{1}{2\pi J_0} \left( \frac{N_0}{\rho^2} +  \frac{N_1}{\rho} + O(1)\right)
+\end{equation}
 
 
 \subsection{Galerkin}
