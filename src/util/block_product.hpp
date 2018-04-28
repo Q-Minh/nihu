@@ -84,8 +84,8 @@ namespace internal
 			Eigen::MatrixBase<right> const &v2)
 		{
 			result_type result;
-			for (NiHu::Index row = 0; row < N1; ++row)
-				for (NiHu::Index col = 0; col < N3; ++col)
+			for (size_t row = 0; row < N1; ++row)
+				for (size_t col = 0; col < N3; ++col)
 					result.template block<N21, N22>(row*N21, col*N22) = static_cast<scalar>(v1(row)) * m * static_cast<scalar>(v2(col));
 			return result;
 		}

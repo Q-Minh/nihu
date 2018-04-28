@@ -219,7 +219,7 @@ as the element normal is perpendicular to the distance ${\bf y}-{\bf x}$.
 
 
 Finite part integral with general shape function $N(y)$
-
+%
 \begin{align}
 	I = \int_S G''_{n_x n_y}({\bf y}, {\bf x}) N({\bf y}) \td y
 	&= \frac{1}{2\pi} \int_S \frac{1}{(y-x)^2} N(y) \td y \\
@@ -248,51 +248,52 @@ Substitution yields
 		\left[ (\eta-\xi)^{k-1} \right]_{a}^{b} 
 \end{equation}
 
+\subsubsection{General element HSP}
 
-Second approach: approaching the boundary:
+General approach for curved elements
 %
 \begin{align}
-\frac{\partial}{\partial n_x}
-\int_{-d_1}^{d_2} 
-\frac{\partial}{\partial n_y}
-\frac{-\ln |r|}{2\pi}
-\td y 
-&=
-\frac{\partial}{\partial z}
-\int_{-d_1}^{d_2} 
-\frac{-1}{2\pi r} \frac{(y, -z) \cdot (0,1)}{r}
-\td y \nonumber \\
-&=
-\frac{1}{2\pi} \frac{\partial}{\partial z}
-\int_{-d_1}^{d_2} 
-\frac{z}{\left(y^2+z^2\right)}
-\td y \nonumber \\
-&=
-\frac{1}{2\pi} \frac{\partial}{\partial z}
-\left[
-\tan^{-1}\left(d_2/z\right)
--
-\tan^{-1}\left(-d_1/z\right)
-\right]
-\nonumber \\
-&=
-\frac{1}{2\pi} \frac{\partial}{\partial z}
-\left[
-\tan^{-1}\left(d_2/z\right) + \tan^{-1}\left(d_1/z\right)
-\right]
-\nonumber \\
-&=
-\frac{1}{2\pi} 
-\left[
-\frac{-d_2}{d_2^2+z^2} + \frac{-d_1}{d_1^2+z^2}
-\right]
-\nonumber \\
-& \to
-\frac{-1}{2\pi} 
-\left[
-\frac{1}{d_2} + \frac{1}{d_1}
-\right]
+	I = \int_S G''_{n_x n_y}({\bf y}, {\bf x}) N({\bf y}) \td y
+	= \int_a^b G''_{n_x n_y}(\rho) N(\rho) J(\rho) \td \rho
 \end{align}
+%
+where $\rho = \eta - \xi$ denotes the signed distance from the singular point in the reference domain.
+
+In order evaluate the singular part of the integral analytically, the following Taylor series expansions are introduced:
+\begin{align}
+	{\bf r}(\rho) &= {\bf y} - {\bf x} = \rho {\bf r_1} + \frac{\rho^2}{2} {\bf r}_2 + O(\rho^3) \\
+	{\bf d}(\rho) &= \frac{\td {\bf r}(\rho)}{\td \rho} = {\bf r_1} + \rho {\bf r}_2 + O(\rho^2)\\
+	{\bf J}(\rho) &= {\bf T} {\bf d}(\rho) = {\bf J}_0 + \rho {\bf J}_1 + O(\rho^2) \\
+	r^2 &= \rho^2 r_1^2 \left( 1 + A \rho + O(\rho^2) \right)
+	,\quad A = \frac{{\bf r}_1 {\bf r}_2}{r_1^2} \\
+	\frac{1}{r^2(\rho)} &\approx \frac{1 - A \rho + O(\rho^2)}{\rho^2 r_1^2}
+\end{align}
+
+The Green's function $G''$, multiplied with the Jacobian $J$ in the local frame of reference is approximated as (replacing $n_y$ by $J$)
+%
+\begin{equation}
+	G''(\rho) J(\rho)
+	= \frac{1}{2\pi r^2(\rho)} \left( {\bf n}_x {\bf J}(\rho) - 2 \frac{{\bf r}(\rho) {\bf n}_x}{r(\rho)} \frac{{\bf r}(\rho) {\bf J}(\rho)}{r(\rho)}\right)
+\end{equation}
+%
+The second term in the bracketed part is $O(\rho^2)$.
+The first order Taylor series approximation of the first term is
+%
+\begin{equation}
+	G''(\rho) J(\rho) \approx \frac{1 - A \rho}{2\pi \rho^2 r_1^2} {\bf n}_x \left({\bf J}_0 + \rho {\bf J}_1\right) 
+\end{equation}
+%
+Exploiting that ${\bf n}_x \left({\bf J}_0 + \rho {\bf J}_1\right) = J_0 (1 + \rho A)$, and $r_1^2 = J_0^2$, the final first order Taylor series expansion of the kernel is
+%
+\begin{equation}
+	G''(\rho) J(\rho) \approx \frac{1}{2\pi \rho^2 J_0}
+\end{equation}
+%
+and the singular part of the integrand is
+%
+\begin{equation}
+	G''(\rho) N(\rho) J(\rho) \approx \frac{1}{2\pi J_0} \left( \frac{N_0}{\rho^2} +  \frac{N_1}{\rho} \right)
+\end{equation}
 
 
 \subsection{Galerkin}

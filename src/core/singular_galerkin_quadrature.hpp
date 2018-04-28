@@ -309,6 +309,8 @@ struct tria_helper<match::match_1d_type>
 			xi1 = (1.0-x(0)) * x(3) + x(0) * (1.0-x(1)*x(2));
 			xi2 = x(0) * (1.0-x(1));
 			break;
+		default:
+			throw std::runtime_error("Invalid idx argument in tria_helper::transform_inplace");
 		}
 		double J = x(1) * x(0)*x(0) * (1.0-x(0));
 		w *= J;
