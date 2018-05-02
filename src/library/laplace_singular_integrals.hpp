@@ -116,14 +116,12 @@ class laplace_2d_SLP_collocation_general
 	typedef typename domain_t::xi_t xi_t;
 	typedef typename elem_t::x_t x_t;
 	
-	typedef regular_quad_store<domain_t, 5> quadrature_t;
+	typedef regular_quad_store<domain_t, 9> quadrature_t;
 	
 public:
-	static result_t &eval(elem_t const &elem, result_t &result)
+	static result_t eval(elem_t const &elem)
 	{
-		// instantiate quadrature for regular integration
-		size_t const order = 9;
-		gaussian_quadrature<domain_t> const quadr(order);
+		result_t result = result_t::Zero();
 		
 		xi_t const &a = domain_t::get_corner(0);
 		xi_t const &b = domain_t::get_corner(1);
@@ -147,7 +145,6 @@ public:
 				// transform quadrature to [xi0 b];
 				xi_t xi = it->get_xi() * ((b(0)-xi0(0))/2.) + (xi0+b)/2.;
 				double w = it->get_w() * ((b(0)-xi0(0))/2.);
-				double rho = xi(0) - xi0(0);
 				
 				// get trial location, jacobian and normal
 				x_t y = elem.get_x(xi);
@@ -156,11 +153,12 @@ public:
 				
 				// evaluate Green's function
 				double G = laplace_2d_SLP_kernel()(x, y);
-				// multiply by Shape function and Jacobian
+				// multiply Shape function
 				auto N = trial_shape_t::template eval_shape<0>(xi);
+				// evaluate integrand
 				auto F = G * N * jac;
-				// evaluate singular part
-				auto F0 = -N0 * jac0 / (2. * M_PI) * std::log(std::abs(rho) * jac0);
+				// evaluate integrand's singular part
+				auto F0 = -N0 * jac0 / (2. * M_PI) * std::log(std::abs(xi(0) - xi0(0)) * jac0);
 				
 				// integrate difference numerically
 				result.row(i) += (F - F0) * w;
@@ -172,7 +170,6 @@ public:
 				// transform quadrature to  [a xi0]
 				xi_t xi = it->get_xi() * ((xi0(0)-a(0))/2.) + (xi0+a)/2.;
 				double w = it->get_w() * ((xi0(0)-a(0))/2.);
-				double rho = xi(0) - xi0(0);
 				
 				// get trial location, jacobian and normal
 				x_t y = elem.get_x(xi);
@@ -181,22 +178,25 @@ public:
 				
 				// evaluate Green's function
 				double G = laplace_2d_SLP_kernel()(x, y);
-				// multiply by Shape function and Jacobian
+				// Shape function
 				auto N = trial_shape_t::template eval_shape<0>(xi);
+				// evaluate integrand
 				auto F = G * N * jac;
 				// evaluate singular part
-				auto F0 = -N0 * jac0 / (2. * M_PI) * std::log(std::abs(rho) * jac0);
+				auto F0 = -N0 * jac0 / (2. * M_PI) * std::log(std::abs(xi(0) - xi0(0)) * jac0);
 				
 				// integrate difference numerically
 				result.row(i) += (F - F0) * w;
 			}
 			
 			// add analytic integral of singular part
-			result.row(i) += -N0 * jac0 / (2. * M_PI) * (
-				std::abs(b(0)) * (std::log(std::abs(b(0))*jac0) - 1.)
-				+ std::abs(a(0)) * (std::log(std::abs(a(0))*jac0) - 1.)
+			double d1 = std::abs(a(0) - xi0(0)) * jac0;
+			double d2 = std::abs(b(0) - xi0(0)) * jac0;
+			result.row(i) += -N0 / (2. * M_PI) * (
+				d1 * (std::log(d1) - 1.) + d2 * (std::log(d2) - 1.)
 			);
 		}
+		
 		return result;
 	}
 };
@@ -424,15 +424,13 @@ class laplace_2d_HSP_collocation_general
 	typedef typename domain_t::xi_t xi_t;
 	typedef typename elem_t::x_t x_t;
 	
-	typedef regular_quad_store<domain_t, 5> quadrature_t;
+	typedef regular_quad_store<domain_t, 9> quadrature_t;
 	
 public:
 	
-	static result_t &eval(elem_t const &elem, result_t &result)
+	static result_t eval(elem_t const &elem)
 	{
-		// instantiate quadrature for regular integration
-		size_t const order = 9;
-		gaussian_quadrature<domain_t> const quadr(order);
+		result_t result = result_t::Zero();
 		
 		xi_t const &a = domain_t::get_corner(0);
 		xi_t const &b = domain_t::get_corner(1);
@@ -625,7 +623,7 @@ public:
 };
 
 
-/** \brief collocational singular integral of the 2D SLP kernel over a constant line
+/** \brief collocational singular integral of the 2D SLP kernel over a straight line with constant shape set
  * \tparam TestField the test field type
  * \tparam TrialField the trial field type
  */
@@ -662,7 +660,7 @@ public:
 };
 
 
-/** \brief collocational singular integral of the 2D SLP kernel over a nonconstant line
+/** \brief collocational singular integral of the 2D SLP kernel over a straight line with nonconstant shape set
  * \tparam TestField the test field type
  * \tparam TrialField the trial field type
  */
@@ -680,6 +678,40 @@ public:
 	/** \brief evaluate singular integral
 	 * \tparam result_t the result matrix type
 	 * \param [in, out] result reference to the result
+	 * \return reference to the result matrix
+	 */
+	template <class result_t>
+	static result_t &eval(
+		result_t &result,
+		kernel_base<laplace_2d_SLP_kernel> const &,
+		field_base<TestField> const &test_field,
+		field_base<TrialField> const &,
+		element_match const &)
+	{
+		result = laplace_2d_SLP_collocation_line<TestField, TrialField>::eval(
+			test_field.get_elem());
+		return result;
+	}
+};
+
+
+/** \brief collocational singular integral of the 2D SLP kernel over a curved line
+ * \tparam TestField the test field type
+ * \tparam TrialField the trial field type
+ */
+template <class TestField, class TrialField>
+class singular_integral_shortcut<
+	laplace_2d_SLP_kernel, TestField, TrialField, match::match_1d_type,
+	typename std::enable_if<
+		std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
+		!std::is_same<typename TrialField::elem_t::lset_t, line_1_shape_set>::value
+	>::type
+>
+{
+public:
+	/** \brief evaluate singular integral
+	 * \tparam result_t the result matrix type
+	 * \param [in, out] result reference to the result
 	 * \param [in] trial_field the test and trial fields
 	 * \return reference to the result matrix
 	 */
@@ -688,10 +720,10 @@ public:
 		result_t &result,
 		kernel_base<laplace_2d_SLP_kernel> const &,
 		field_base<TestField> const &test_field,
-		field_base<TrialField> const &trial_field,
+		field_base<TrialField> const &,
 		element_match const &)
 	{
-		result = laplace_2d_SLP_collocation_line<TestField, TrialField>::eval(
+		result = laplace_2d_SLP_collocation_general<TestField, TrialField>::eval(
 			test_field.get_elem());
 		return result;
 	}

@@ -214,28 +214,28 @@ Taylor expansion of the scalar squared distance:
 %
 \begin{align}
 	r^2 &= \rho^2 r_1^2 (1 + \rho A + O(\rho^2)), \qquad A = \frac{{\bf r}_1 {\bf r}_2}{r_1^2} \\
-	r &= \rho r_1 \left(1 + \frac{\rho A}{2} + O(\rho^2)\right)
+	r &= |\rho| r_1 \left(1 + \frac{\rho A}{2} + O(\rho^2)\right)
 \end{align}
 %
 Taylor expansion of the Green's function around the singular point
 %
 \begin{equation}
 	G(r) = -\frac{1}{2\pi} \left(
-		\log (\rho r_1) + \rho \frac{A}{2} + O(\rho^2)
+		\log (|\rho| r_1) + \rho \frac{A}{2} + O(\rho^2)
 		\right)
 \end{equation}
 %
 The singular part of the integral is
 %
 \begin{equation}
-	F_0 = -\frac{1}{2\pi} \log \left(\rho r_1\right) N_0 J_0
+	F_0 = -\frac{1}{2\pi} \log \left(|\rho| r_1\right) N_0 J_0
 \end{equation}
 %
 and its integral over the element is computed as
 %
 \begin{equation}
 	\int_{a}^b F_0 \td\rho
-	= \frac{-N_0 J_0}{2\pi} \left(b(\log(b J_0) - 1) + a(\log(a J_0) - 1) \right)
+	= \frac{-N_0 J_0}{2\pi} \left(|b|(\log(|b| J_0) - 1) + |a|(\log(|a| J_0) - 1) \right)
 \end{equation}
 
 \paragraph{Constant line SLP}
