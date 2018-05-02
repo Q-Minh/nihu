@@ -95,6 +95,114 @@ template <unsigned points>
 log_gauss_quadrature const singular_quad_store<points>::quadrature(points);
 	
 
+/** \brief Collocational integral of the 2D SLP kernel over a general curved line with general shape sets */
+template <class TestField, class TrialField>
+class laplace_2d_SLP_collocation_general
+{
+	typedef TestField test_field_t;
+	typedef TrialField trial_field_t;
+	
+	typedef typename test_field_t::nset_t test_shape_t;
+	typedef typename trial_field_t::nset_t trial_shape_t;
+	
+	static size_t const nTest = test_shape_t::num_nodes;
+	static size_t const nTrial = trial_shape_t::num_nodes;
+	
+	typedef Eigen::Matrix<double, nTest, nTrial> result_t;
+	
+	typedef typename trial_field_t::elem_t elem_t;
+	typedef typename elem_t::domain_t domain_t;
+	
+	typedef typename domain_t::xi_t xi_t;
+	typedef typename elem_t::x_t x_t;
+	
+	typedef regular_quad_store<domain_t, 5> quadrature_t;
+	
+public:
+	static result_t &eval(elem_t const &elem, result_t &result)
+	{
+		// instantiate quadrature for regular integration
+		size_t const order = 9;
+		gaussian_quadrature<domain_t> const quadr(order);
+		
+		xi_t const &a = domain_t::get_corner(0);
+		xi_t const &b = domain_t::get_corner(1);
+		
+		// traverse collocation points
+		for (size_t i = 0; i < nTest; ++i)
+		{
+			xi_t xi0 = test_shape_t::corner_at(i);
+			
+			// trial shape function at the singular point
+			auto N0 = trial_shape_t::template eval_shape<0>(xi0);
+			
+			// singular point and normal at singular point
+			x_t x = elem.get_x(xi0);
+			x_t Jxvec = elem.get_normal(xi0);
+			double jac0 = Jxvec.norm();
+			
+			// traverse quadrature points
+			for (auto it = quadrature_t::quadrature.begin(); it != quadrature_t::quadrature.end(); ++it)
+			{
+				// transform quadrature to [xi0 b];
+				xi_t xi = it->get_xi() * ((b(0)-xi0(0))/2.) + (xi0+b)/2.;
+				double w = it->get_w() * ((b(0)-xi0(0))/2.);
+				double rho = xi(0) - xi0(0);
+				
+				// get trial location, jacobian and normal
+				x_t y = elem.get_x(xi);
+				x_t Jyvec = elem.get_normal(xi);
+				double jac = Jyvec.norm();
+				
+				// evaluate Green's function
+				double G = laplace_2d_SLP_kernel()(x, y);
+				// multiply by Shape function and Jacobian
+				auto N = trial_shape_t::template eval_shape<0>(xi);
+				auto F = G * N * jac;
+				// evaluate singular part
+				auto F0 = -N0 * jac0 / (2. * M_PI) * std::log(std::abs(rho) * jac0);
+				
+				// integrate difference numerically
+				result.row(i) += (F - F0) * w;
+			}
+			
+			// traverse quadrature points
+			for (auto it = quadrature_t::quadrature.begin(); it != quadrature_t::quadrature.end(); ++it)
+			{
+				// transform quadrature to  [a xi0]
+				xi_t xi = it->get_xi() * ((xi0(0)-a(0))/2.) + (xi0+a)/2.;
+				double w = it->get_w() * ((xi0(0)-a(0))/2.);
+				double rho = xi(0) - xi0(0);
+				
+				// get trial location, jacobian and normal
+				x_t y = elem.get_x(xi);
+				x_t Jyvec = elem.get_normal(xi);
+				double jac = Jyvec.norm();
+				
+				// evaluate Green's function
+				double G = laplace_2d_SLP_kernel()(x, y);
+				// multiply by Shape function and Jacobian
+				auto N = trial_shape_t::template eval_shape<0>(xi);
+				auto F = G * N * jac;
+				// evaluate singular part
+				auto F0 = -N0 * jac0 / (2. * M_PI) * std::log(std::abs(rho) * jac0);
+				
+				// integrate difference numerically
+				result.row(i) += (F - F0) * w;
+			}
+			
+			// add analytic integral of singular part
+			result.row(i) += -N0 * jac0 / (2. * M_PI) * (
+				std::abs(b(0)) * (std::log(std::abs(b(0))*jac0) - 1.)
+				+ std::abs(a(0)) * (std::log(std::abs(a(0))*jac0) - 1.)
+			);
+		}
+		return result;
+	}
+};
+
+
+	
 template <class TestField, class TrialField>
 class laplace_2d_SLP_collocation_line
 {
@@ -295,7 +403,117 @@ public:
 };
 
 
-/** \brief Collocational integral of the 2D HSP kernel over a line with max. linear Nset */
+/** \brief Collocational integral of the 2D HSP kernel over a general curved line with general shape sets */
+template <class TestField, class TrialField>
+class laplace_2d_HSP_collocation_general
+{
+	typedef TestField test_field_t;
+	typedef TrialField trial_field_t;
+	
+	typedef typename test_field_t::nset_t test_shape_t;
+	typedef typename trial_field_t::nset_t trial_shape_t;
+	
+	static size_t const nTest = test_shape_t::num_nodes;
+	static size_t const nTrial = trial_shape_t::num_nodes;
+	
+	typedef Eigen::Matrix<double, nTest, nTrial> result_t;
+	
+	typedef typename trial_field_t::elem_t elem_t;
+	typedef typename elem_t::domain_t domain_t;
+	
+	typedef typename domain_t::xi_t xi_t;
+	typedef typename elem_t::x_t x_t;
+	
+	typedef regular_quad_store<domain_t, 5> quadrature_t;
+	
+public:
+	
+	static result_t &eval(elem_t const &elem, result_t &result)
+	{
+		// instantiate quadrature for regular integration
+		size_t const order = 9;
+		gaussian_quadrature<domain_t> const quadr(order);
+		
+		xi_t const &a = domain_t::get_corner(0);
+		xi_t const &b = domain_t::get_corner(1);
+		
+		// traverse collocation points
+		for (size_t i = 0; i < nTest; ++i)
+		{
+			xi_t xi0 = test_shape_t::corner_at(i);
+			
+			// trial shape function and its derivative at singular point
+			auto N0 = trial_shape_t::template eval_shape<0>(xi0);
+			auto N1 = trial_shape_t::template eval_shape<1>(xi0);
+			
+			// singular point and normal at singular point
+			x_t x = elem.get_x(xi0);
+			x_t Jxvec = elem.get_normal(xi0);
+			x_t nx = Jxvec.normalized();
+			double jac0 = Jxvec.norm();
+			double twopiJ0 = 2.*M_PI * jac0;
+			
+			// traverse quadrature points
+			for (auto it = quadrature_t::quadrature.begin(); it != quadrature_t::quadrature.end(); ++it)
+			{
+				// transform quadrature to [xi0 b];
+				xi_t xi = it->get_xi() * ((b(0)-xi0(0))/2.) + (xi0+b)/2.;
+				double w = it->get_w() * ((b(0)-xi0(0))/2.);
+				double rho = xi(0) - xi0(0);
+				
+				// get trial location, jacobian and normal
+				x_t y = elem.get_x(xi);
+				x_t Jyvec = elem.get_normal(xi);
+				x_t ny = Jyvec.normalized();
+				double jac = Jyvec.norm();
+				
+				// evaluate Green's function
+				double G = laplace_2d_HSP_kernel()(x, y, nx, ny);
+				// multiply by Shape function and Jacobian
+				auto N = trial_shape_t::template eval_shape<0>(xi);
+				auto F = G * N * jac;
+				// evaluate singular part
+				auto F0 = (N0/rho + N1)/rho / twopiJ0;
+				
+				// integrate difference numerically
+				result.row(i) += (F - F0) * w;
+			}
+			
+			// traverse quadrature points
+			for (auto it = quadrature_t::quadrature.begin(); it != quadrature_t::quadrature.end(); ++it)
+			{
+				// transform quadrature to  [a xi0]
+				xi_t xi = it->get_xi() * ((xi0(0)-a(0))/2.) + (xi0+a)/2.;
+				double w = it->get_w() * ((xi0(0)-a(0))/2.);
+				double rho = xi(0) - xi0(0);
+				
+				// get trial location, jacobian and normal
+				x_t y = elem.get_x(xi);
+				x_t Jyvec = elem.get_normal(xi);
+				x_t ny = Jyvec.normalized();
+				double jac = Jyvec.norm();
+				
+				// evaluate Green's function
+				double G = laplace_2d_HSP_kernel()(x, y, nx, ny);
+				// multiply by Shape function and Jacobian
+				auto N = trial_shape_t::template eval_shape<0>(xi);
+				auto F = G * N * jac;
+				// evaluate singular part
+				auto F0 = (N0/rho + N1)/rho / twopiJ0;
+				
+				// integrate difference numerically
+				result.row(i) += (F - F0) * w;
+			}
+			
+			// add analytic integral of singular part
+			result.row(i) += ((1./(a(0)-xi0(0)) - 1./(b(0)-xi0(0))) * N0 +
+				std::log(std::abs((b(0)-xi0(0)) / (a(0)-xi0(0)))) * N1) / twopiJ0;
+		}
+		return result;
+	}
+};
+
+/** \brief Collocational integral of the 2D HSP kernel over a straight line with max. linear Nset */
 template <class TestField, class TrialField>
 class laplace_2d_HSP_collocation_line
 {
@@ -338,7 +556,7 @@ public:
 };
 
 
-/** \brief Collocational singular integral of the 2D Laplace HSP kernel over a constant line element */
+/** \brief Collocational singular integral of the 2D Laplace HSP kernel over a straight line with constant shape set */
 class laplace_2d_HSP_collocation_constant_line
 {
 public:

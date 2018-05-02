@@ -25,7 +25,7 @@
 In lots of useful cases (homogeneous and isotropic media) the kernel is distance-dependent: $K({\bf x}, {\bf y}) = G(|{\bf y} - {\bf x}|)$.
 In these cases the kernel's normal derivatives can be expressed in a unified way.
 
-Derivatives of the distance vector are given as
+Derivatives of the distance vector are given by the following formulas
 %
 \begin{align}
 	r &= |{\bf r}| \\
@@ -36,7 +36,7 @@ Derivatives of the distance vector are given as
 	\right)
 \end{align}
 
-Derivatives of the kernel depending on the distance are
+Derivatives of the kernel depending on the distance are formulated as
 %
 \begin{align}
 	G'_i &= G'_r r'_i \\
@@ -50,21 +50,18 @@ Derivatives of the kernel depending on the distance are
 	\right)
 \end{align}
 
+
 \section{Analytical integrals of the 2D Laplace kernel}
 
-This section describes the analytical formulas used to integrate the kernel of the Laplace equation in two dimensions over straight lines.
+This section describes the analytical formulas used to integrate the kernel of the Laplace equation in two dimensions.
 
-The kernel is defined as
-%
-\begin{equation}
-	G({\bf r}) = -\frac{\ln |{\bf r}|}{2\pi} = -\frac{\ln r}{2\pi}
-\end{equation}
+\subsection{Kernel expressions and derivatives}
 
-\subsection{Derivatives}
-
-The kernel's first, second and third derivatives can be formulated as
+The kernel and its derivatives are given as
 %
 \begin{align}
+	G(r)
+	&= -\frac{\ln r}{2\pi} \\
 	G'_{i}
 	&= -\frac{1}{2\pi r} \frac{r_i}{r}
 	\label{eq:laplace_gradient}
@@ -83,11 +80,7 @@ The kernel's first, second and third derivatives can be formulated as
 	\label{eq:laplace_third_derivative}
 \end{align}
 
-\subsection{Normal derivatives}
-
-The bivariate kernel is defined as $G({\bf x}, {\bf y}) = G({\bf y}-{\bf x})$.
-As a consequence, the normal derivative w.r.t $n_y$ is computed as $G'_i n_{yi}$, while the normal derivative w.r.t. $n_x$ is computed as $-G'_i n_{xi}$.
-This yields the following normal derivatives:
+The normal derivative w.r.t $n_y$ is computed as $G'_i n_{yi}$, while the normal derivative w.r.t. $n_x$ is computed as $-G'_i n_{xi}$:
 %
 \begin{align}
 	\frac{\partial G}{\partial n_y} 
@@ -195,7 +188,57 @@ I
 = -\frac{1}{2\pi} \left[ \frac{ \eta n_{\xi} + \xi n_{\eta} }{\rho^2} \right]_{\xi_2}^{\xi_1}
 \end{equation}
 
-\subsubsection{Constant line SLP}
+\subsubsection{Singular integrals}
+
+\paragraph{General SLP}
+
+\begin{equation}
+	I = \int_S G(r) N(y) \td S
+\end{equation}
+%
+In the reference domain
+%
+\begin{equation}
+	I = \int_a^b G(\rho) N(\rho) J(\rho) \td \rho
+\end{equation}
+%
+where $\rho = \eta - \xi$ denotes the signed distance from the singular point in the reference domain.
+
+Taylor expansion of the distance
+%
+\begin{equation}
+	{\bf r} = \rho {\bf r}_1 + \frac{\rho^2}{2} {\bf r}_2 + O(\rho^3)
+\end{equation}
+%
+Taylor expansion of the scalar squared distance:
+%
+\begin{align}
+	r^2 &= \rho^2 r_1^2 (1 + \rho A + O(\rho^2)), \qquad A = \frac{{\bf r}_1 {\bf r}_2}{r_1^2} \\
+	r &= \rho r_1 \left(1 + \frac{\rho A}{2} + O(\rho^2)\right)
+\end{align}
+%
+Taylor expansion of the Green's function around the singular point
+%
+\begin{equation}
+	G(r) = -\frac{1}{2\pi} \left(
+		\log (\rho r_1) + \rho \frac{A}{2} + O(\rho^2)
+		\right)
+\end{equation}
+%
+The singular part of the integral is
+%
+\begin{equation}
+	F_0 = -\frac{1}{2\pi} \log \left(\rho r_1\right) N_0 J_0
+\end{equation}
+%
+and its integral over the element is computed as
+%
+\begin{equation}
+	\int_{a}^b F_0 \td\rho
+	= \frac{-N_0 J_0}{2\pi} \left(b(\log(b J_0) - 1) + a(\log(a J_0) - 1) \right)
+\end{equation}
+
+\paragraph{Constant line SLP}
 
 \begin{align}
 \int_{S} G({\bf y}, {\bf x}) \td y
@@ -207,7 +250,7 @@ I
 \frac{d_1(1-\ln d_1) + d_2(1-\ln d_2)}{2\pi}
 \end{align}
 
-\subsubsection{Constant line DLP}
+\paragraph{Constant line DLP}
 
 \begin{equation}
 \int_{S} G'_{n_y}({\bf y}, {\bf x}) \td y = 0
@@ -215,8 +258,7 @@ I
 %
 as the element normal is perpendicular to the distance ${\bf y}-{\bf x}$.
 
-\subsubsection{Constant line HSP}
-
+\paragraph{Constant line HSP}
 
 Finite part integral with general shape function $N(y)$
 %
@@ -248,7 +290,7 @@ Substitution yields
 		\left[ (\eta-\xi)^{k-1} \right]_{a}^{b} 
 \end{equation}
 
-\subsubsection{General element HSP}
+\paragraph{General element HSP}
 
 General approach for curved elements
 %

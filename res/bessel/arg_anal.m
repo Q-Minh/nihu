@@ -19,4 +19,4 @@ for n = 0 : N
     Phinum(n+1) = limit(diff(Phi,x,n)/factorial(n), x, 0);
 end
 
-fprintf(1, "%.10x\n", double(Phinum(2:2:end)'))
+fprintf(1, '%.10x\n', double(Phinum(2:2:end)));
