@@ -8,14 +8,14 @@ for n = 0 : N
     for k = 0 : n-1
         p(n+1) = p(n+1) - inner(p(k+1), p(n+1), weight_fun, a, b)*p(k+1);
     end
-    p(n+1) = simple(normalise(p(n+1), weight_fun, a, b));
+    p(n+1) = simplify(normalise(p(n+1), weight_fun, a, b));
     
     if (n == 0)
         continue;
     end
     
     [r, L] = lagrange(p(n+1));
-    w = int(L*weight_fun, a, b) ./ subs(weight_fun, x, r);
+    w = int(L*weight_fun, a, b);
 
     [roots{n+1}, i] = sort(double(r));
     weights{n+1} = double(w(i));
