@@ -27,6 +27,7 @@
 #define ELASTODYNAMICS_KERNEL_HPP_INCLUDED
 
 #include "../core/global_definitions.hpp"
+#include "../util/math_constants.hpp"
 #include "../core/kernel.hpp"
 #include "../core/gaussian_quadrature.hpp"
 #include "location_normal.hpp"

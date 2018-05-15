@@ -23,6 +23,7 @@
 #ifndef GUIGGIANI_1992_HPP_INCLUDED
 #define GUIGGIANI_1992_HPP_INCLUDED
 
+#include "../util/math_constants.hpp"
 #include <cmath>
 #include "../util/store_pattern.hpp"
 #include "../core/shapeset.hpp"

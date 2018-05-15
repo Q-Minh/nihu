@@ -25,6 +25,7 @@
 #ifndef HELMHOLTZ_KERNEL_HPP_INCLUDED
 #define HELMHOLTZ_KERNEL_HPP_INCLUDED
 
+#include "../util/math_constants.hpp"
 #include <cmath>
 
 #include "../core/global_definitions.hpp"

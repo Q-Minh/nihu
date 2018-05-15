@@ -6,10 +6,9 @@
 #ifndef CQM_HPP_INCLUDED
 #define CQM_HPP_INCLUDED
 
+#include "../util/math_constants.hpp"
+
 #include <complex>
-#ifndef M_PI
-#define M_PI 3.141592653589793
-#endif
 #include <vector>
 #include <algorithm>	// for std::transform
 #include <fftw3.h>

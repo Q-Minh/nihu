@@ -24,14 +24,12 @@
 #ifndef ELEMENT_HPP_INCLUDED
 #define ELEMENT_HPP_INCLUDED
 
-#include <iostream>
+#include "../util/math_constants.hpp"
 #include "../util/crtp_base.hpp"
 #include "../tmp/bool.hpp"
 #include "shapeset.hpp"
 
-#ifndef M_PI
-#define M_PI 3.1415926535897932384626433832795028841971693993751058209749445
-#endif
+#include <iostream>
 
 namespace NiHu
 {

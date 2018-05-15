@@ -23,17 +23,11 @@
 #ifndef MATH_FUNCTIONS_HPP_INCLUDED
 #define MATH_FUNCTIONS_HPP_INCLUDED
 
-#ifdef _MSC_VER
-#define _USE_MATH_DEFINES
-#endif
+#include "math_constants.hpp"
 #include <cmath>
 #include <complex>
 #include <stdexcept>
 #include <iostream>
-
-#ifndef M_PI
-#define M_PI 3.141592653589793
-#endif
 
 namespace NiHu
 {
@@ -67,8 +61,6 @@ namespace bessel
 	double const large_lim(7.);
 	/** \brief imaginary unit */
 	std::complex<double> const I(0., 1.);
-	/** \brief Euler's constant */
-	double const gamma(0.57721566490153286060);
 
 	/** \brief large argument Bessel function Taylor series coefficients
 	 * \tparam T the argument type
@@ -221,7 +213,7 @@ namespace bessel
 		int const N = (int)(4+2.*std::abs(z));
 
 		std::complex<double> q(z/2.0), q2(q*q);
-		std::complex<double> first(2.0*J_small<nu>(z)*(std::log(q)+gamma));
+		std::complex<double> first(2.0*J_small<nu>(z)*(std::log(q)+M_EULER_GAMMA));
 		std::complex<double> second;
 		switch (nu)
 		{
