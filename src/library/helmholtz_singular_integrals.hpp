@@ -35,6 +35,119 @@
 namespace NiHu
 {
 
+/** \brief Collocational integral of the 2D SLP kernel over a general curved line with general shape sets
+ * Singularity subtraction technique is used.
+ * The singularty is subtracted in the reference domain, and is integrated analytically.
+ * The remaining regular part is integrated numerically with standard Gaussian quadratures
+ */
+template <class TestField, class TrialField, size_t order>
+class helmholtz_2d_SLP_collocation_general
+{
+	typedef TestField test_field_t;
+	typedef TrialField trial_field_t;
+	
+	typedef typename test_field_t::nset_t test_shape_t;
+	typedef typename trial_field_t::nset_t trial_shape_t;
+	
+	static size_t const nTest = test_shape_t::num_nodes;
+	static size_t const nTrial = trial_shape_t::num_nodes;
+	
+	typedef Eigen::Matrix<std::complex<double>, nTest, nTrial> result_t;
+	
+	typedef typename trial_field_t::elem_t elem_t;
+	typedef typename elem_t::domain_t domain_t;
+	
+	typedef typename domain_t::xi_t xi_t;
+	typedef typename elem_t::x_t x_t;
+	
+	typedef regular_quad_store<domain_t, order> quadr_t;
+	
+public:
+	template <class WaveNumber>
+	static result_t eval(elem_t const &elem, WaveNumber const &k)
+	{
+		result_t result = result_t::Zero();
+		
+		helmholtz_2d_SLP_kernel<WaveNumber> kernel(k);
+		
+		xi_t const &a = domain_t::get_corner(0);
+		xi_t const &b = domain_t::get_corner(1);
+		
+		// traverse collocation points
+		for (size_t i = 0; i < nTest; ++i)
+		{
+			xi_t const &xi0 = test_shape_t::corner_at(i);
+			
+			// trial shape function at the singular point
+			auto N0 = trial_shape_t::template eval_shape<0>(xi0);
+			
+			// singular point and normal at singular point
+			x_t x = elem.get_x(xi0);
+			x_t Jxvec = elem.get_normal(xi0);
+			double jac0 = Jxvec.norm();
+			
+			// traverse quadrature points
+			for (auto it = quadr_t::quadrature.begin(); it != quadr_t::quadrature.end(); ++it)
+			{
+				// transform quadrature to  [a xi0]
+				xi_t xi = it->get_xi() * ((xi0(0)-a(0))/2.) + (xi0+a)/2.;
+				double w = it->get_w() * ((xi0(0)-a(0))/2.);
+				
+				// get trial location, jacobian and normal
+				x_t y = elem.get_x(xi);
+				x_t Jyvec = elem.get_normal(xi);
+				double jac = Jyvec.norm();
+				
+				// evaluate Green's function
+				std::complex<double> G = kernel(x, y);
+				// Shape function
+				auto N = trial_shape_t::template eval_shape<0>(xi);
+				// evaluate integrand
+				auto F = G * N * jac;
+				// evaluate singular part
+				auto F0 = -N0 * jac0 / (2. * M_PI) * std::log(std::abs(xi(0) - xi0(0)) * jac0);
+				
+				// integrate difference numerically
+				result.row(i) += (F - F0) * w;
+			}
+			
+			// traverse quadrature points
+			for (auto it = quadr_t::quadrature.begin(); it != quadr_t::quadrature.end(); ++it)
+			{
+				// transform quadrature to [xi0 b];
+				xi_t xi = it->get_xi() * ((b(0)-xi0(0))/2.) + (xi0+b)/2.;
+				double w = it->get_w() * ((b(0)-xi0(0))/2.);
+				
+				// get trial location, jacobian and normal
+				x_t y = elem.get_x(xi);
+				x_t Jyvec = elem.get_normal(xi);
+				double jac = Jyvec.norm();
+				
+				// evaluate Green's function
+				std::complex<double> G = kernel(x, y);
+				// multiply Shape function
+				auto N = trial_shape_t::template eval_shape<0>(xi);
+				// evaluate integrand
+				auto F = G * N * jac;
+				// evaluate integrand's singular part
+				auto F0 = -N0 * jac0 / (2. * M_PI) * std::log(std::abs(xi(0) - xi0(0)) * jac0);
+				
+				result.row(i) += (F - F0) * w;
+			}
+			
+			// add analytic integral of singular part
+			double d1 = std::abs(a(0) - xi0(0)) * jac0;
+			double d2 = std::abs(b(0) - xi0(0)) * jac0;
+			result.row(i) += -N0 / (2. * M_PI) * (
+				d1 * (std::log(d1) - 1.) + d2 * (std::log(d2) - 1.)
+			);
+		}
+		
+		return result;
+	}
+};
+
+
 /** \brief Collocational singular integral of the 2D Helmholtz SLP kernel over a constant line element */
 template <unsigned expansion_length>
 class helmholtz_2d_SLP_collocation_constant_line
@@ -54,8 +167,8 @@ public:
 		line_1_elem::x_t const &x0,
 		wavenumber_t const &k)
 	{
-		double const gamma = 0.57721566490153286060;
-		std::complex<double> const c(gamma, M_PI / 2.);
+		double const eulergamma = 0.57721566490153286060;
+		std::complex<double> const c(eulergamma, M_PI / 2.);
 
 		// compute elem radius
 		auto R = (x0 - elem.get_coords().col(0)).norm();
@@ -87,11 +200,11 @@ public:
 	template <class wavenumber_t>
 	static std::complex<double> eval(double R, wavenumber_t const &k)
 	{
-		double const gamma = 0.57721566490153286060;
+		double const eulergamma = 0.57721566490153286060;
 		wavenumber_t kR = k * R; 
 		wavenumber_t logkR = std::log(kR);
 		
-		std::complex<double> I = 1. - std::complex<double>(0., 2./M_PI) * (logkR - 1.5 + gamma);
+		std::complex<double> I = 1. - std::complex<double>(0., 2./M_PI) * (logkR - 1.5 + eulergamma);
 		
 		wavenumber_t q = -kR * kR;
 		wavenumber_t pow = 1.;
@@ -104,7 +217,7 @@ public:
 			wavenumber_t Gn = logkR/d - (4*n + 3)/2./(d*d);
 			pow *= q/(n*n);
 			Cn += 1./n;
-			I += (Fn-std::complex<double>(0., 2./M_PI)*(Gn+(gamma - Cn)*Fn)) * pow;
+			I += (Fn-std::complex<double>(0., 2./M_PI)*(Gn+(eulergamma - Cn)*Fn)) * pow;
 		}
 		
 		return I * (R*R) * std::complex<double>(0., -1.);
@@ -112,80 +225,475 @@ public:
 };
 
 
-/** \brief store-wrapper of a statically stored quadrature */
-template <class domain_t, unsigned order>
-struct domain_quad_store
+/** \brief Collocational integral of the 2D DLP kernel over a general curved line with general shape sets */
+template <class TestField, class TrialField, size_t order>
+class helmholtz_2d_DLP_collocation_general
 {
-	/** \brief the stored static quadrature member */
-	static gaussian_quadrature<domain_t> const quadrature;
-};
-
-/** \brief definition of the statically stored quadrature member */
-template <class domain_t, unsigned order>
-gaussian_quadrature<domain_t> const domain_quad_store<domain_t, order>::quadrature(order);
-
-
-/** \brief Collocational singular integral of the 2D Helmholtz HSP kernel over a constant line element */
-template <unsigned order>
-class helmholtz_2d_HSP_collocation_constant_line
-{
-private:
-	template <class wavenumber_t>
-	static std::complex<double> dynamic_part(double r, wavenumber_t const &k)
-	{
-		auto z = std::complex<double>(k*r);
-		return std::complex<double>(0., -.25) * k*k * bessel::H<1,2>(z)/z - 1/(2*M_PI*r*r);
-	}
+	typedef TestField test_field_t;
+	typedef TrialField trial_field_t;
+	
+	typedef typename test_field_t::nset_t test_shape_t;
+	typedef typename trial_field_t::nset_t trial_shape_t;
+	
+	static size_t const nTest = test_shape_t::num_nodes;
+	static size_t const nTrial = trial_shape_t::num_nodes;
+	
+	typedef Eigen::Matrix<std::complex<double>, nTest, nTrial> result_t;
+	
+	typedef typename trial_field_t::elem_t elem_t;
+	typedef typename elem_t::domain_t domain_t;
+	
+	typedef typename domain_t::xi_t xi_t;
+	typedef typename elem_t::x_t x_t;
+	
+	typedef regular_quad_store<domain_t, order> quadr_t;
 	
 public:
-    /**
-     * \brief Evaluate the integral
-     * \tparam wavenumber_t the wave number type
-     * \param [in] elem the line element
-     * \param [in] x0 the singular point
-     * \param [in] k the wave number
-     * \return the integral value
-     */
-	template <class elem_t, class wavenumber_t>
-	static std::complex<double> eval(
-		elem_t const &elem,
-		typename elem_t::x_t const &x0,
-		wavenumber_t const &k)
+	
+	template <class wave_number_t>
+	static result_t eval(elem_t const &elem, wave_number_t const &k)
 	{
-		typedef domain_quad_store<typename elem_t::domain_t, order> quadr_t;
+		result_t result = result_t::Zero();
 		
-		// get analytical integral of static part 
-		double I_stat = laplace_2d_HSP_collocation_constant_line::eval(elem, x0);
+		helmholtz_2d_DLP_kernel<wave_number_t> kernel(k);
 		
-		// integrate dynamic part
-		std::complex<double> I_dyn = 0.0;
-		for (auto it = quadr_t::quadrature.begin(); it != quadr_t::quadrature.end(); ++it)
+		xi_t const &a = domain_t::get_corner(0);
+		xi_t const &b = domain_t::get_corner(1);
+		
+		// traverse collocation points
+		for (size_t i = 0; i < nTest; ++i)
 		{
-			// get quadrature location and weight
-			auto xi = it->get_xi();
-			double w = it->get_w();
-			// transform from (-1 +1) to (0 +1) with double weight (symmetric)
-			xi(0) = (1. + xi(0)) / 2.0;
-			// transform xi -> xi^2 for singularity cancellation
-			w *= (2 * xi(0));
-			xi(0) *= xi(0);
-			// evaluate difference kernel
-			I_dyn += dynamic_part((elem.get_x(xi) - x0).norm(), k) * w;
+			xi_t xi0 = test_shape_t::corner_at(i);
+			
+			// singular point and normal at singular point
+			x_t x = elem.get_x(xi0);
+			x_t Jxvec = elem.get_normal(xi0);
+			x_t nx = Jxvec.normalized();
+			
+			// traverse quadrature points
+			for (auto it = quadr_t::quadrature.begin(); it != quadr_t::quadrature.end(); ++it)
+			{
+				// transform quadrature to  [a xi0]
+				xi_t xi = it->get_xi() * ((xi0(0)-a(0))/2.) + (xi0+a)/2.;
+				double w = it->get_w() * ((xi0(0)-a(0))/2.);
+				double rho = xi(0) - xi0(0);
+				
+				// get trial location, jacobian and normal
+				x_t y = elem.get_x(xi);
+				x_t Jyvec = elem.get_normal(xi);
+				x_t ny = Jyvec.normalized();
+				double jac = Jyvec.norm();
+				
+				// evaluate Green's function
+				std::complex<double> G = kernel(x, y, nx, ny);
+				// multiply by Shape function and Jacobian
+				auto N = trial_shape_t::template eval_shape<0>(xi);
+				auto F = (G * jac) * N;
+				
+				// integrate difference numerically
+				result.row(i) += F * w;
+			}
+			
+			// traverse quadrature points
+			for (auto it = quadr_t::quadrature.begin(); it != quadr_t::quadrature.end(); ++it)
+			{
+				// transform quadrature to [xi0 b];
+				xi_t xi = it->get_xi() * ((b(0)-xi0(0))/2.) + (xi0+b)/2.;
+				double w = it->get_w() * ((b(0)-xi0(0))/2.);
+				double rho = xi(0) - xi0(0);
+				
+				// get trial location, jacobian and normal
+				x_t y = elem.get_x(xi);
+				x_t Jyvec = elem.get_normal(xi);
+				x_t ny = Jyvec.normalized();
+				double jac = Jyvec.norm();
+				
+				// evaluate Green's function
+				std::complex<double> G = kernel(x, y, nx, ny);
+				// multiply by Shape function and Jacobian
+				auto N = trial_shape_t::template eval_shape<0>(xi);
+				auto F = (G * jac) * N;
+				
+				// integrate difference numerically
+				result.row(i) += F * w;
+			}
 		}
-		I_dyn *= elem.get_normal().norm();
-		
-		return I_stat + I_dyn;
+		return result;
 	}
 };
+
+
+/** \brief Collocational integral of the 2D DLP kernel over a general curved line with general shape sets */
+template <class TestField, class TrialField, size_t order>
+class helmholtz_2d_DLPt_collocation_general
+{
+	typedef TestField test_field_t;
+	typedef TrialField trial_field_t;
+	
+	typedef typename test_field_t::nset_t test_shape_t;
+	typedef typename trial_field_t::nset_t trial_shape_t;
+	
+	static size_t const nTest = test_shape_t::num_nodes;
+	static size_t const nTrial = trial_shape_t::num_nodes;
+	
+	typedef Eigen::Matrix<std::complex<double>, nTest, nTrial> result_t;
+	
+	typedef typename trial_field_t::elem_t elem_t;
+	typedef typename elem_t::domain_t domain_t;
+	
+	typedef typename domain_t::xi_t xi_t;
+	typedef typename elem_t::x_t x_t;
+	
+	typedef regular_quad_store<domain_t, order> quadr_t;
+	
+public:
+	template <class wave_number_t>
+	static result_t eval(elem_t const &elem, wave_number_t const &k)
+	{
+		result_t result = result_t::Zero();
+		
+		helmholtz_2d_DLPt_kernel<wave_number_t> kernel(k);
+		
+		xi_t const &a = domain_t::get_corner(0);
+		xi_t const &b = domain_t::get_corner(1);
+		
+		// traverse collocation points
+		for (size_t i = 0; i < nTest; ++i)
+		{
+			xi_t xi0 = test_shape_t::corner_at(i);
+			
+			// singular point and normal at singular point
+			x_t x = elem.get_x(xi0);
+			x_t Jxvec = elem.get_normal(xi0);
+			x_t nx = Jxvec.normalized();
+			
+			// traverse quadrature points
+			for (auto it = quadr_t::quadrature.begin(); it != quadr_t::quadrature.end(); ++it)
+			{
+				// transform quadrature to  [a xi0]
+				xi_t xi = it->get_xi() * ((xi0(0)-a(0))/2.) + (xi0+a)/2.;
+				double w = it->get_w() * ((xi0(0)-a(0))/2.);
+				double rho = xi(0) - xi0(0);
+				
+				// get trial location, jacobian and normal
+				x_t y = elem.get_x(xi);
+				x_t Jyvec = elem.get_normal(xi);
+				x_t ny = Jyvec.normalized();
+				double jac = Jyvec.norm();
+				
+				// evaluate Green's function
+				std::complex<double> G = kernel(x, y, nx, ny);
+				// multiply by Shape function and Jacobian
+				auto N = trial_shape_t::template eval_shape<0>(xi);
+				auto F = (G * jac) * N;
+				
+				// integrate difference numerically
+				result.row(i) += F * w;
+			}
+			
+			// traverse quadrature points
+			for (auto it = quadr_t::quadrature.begin(); it != quadr_t::quadrature.end(); ++it)
+			{
+				// transform quadrature to [xi0 b];
+				xi_t xi = it->get_xi() * ((b(0)-xi0(0))/2.) + (xi0+b)/2.;
+				double w = it->get_w() * ((b(0)-xi0(0))/2.);
+				double rho = xi(0) - xi0(0);
+				
+				// get trial location, jacobian and normal
+				x_t y = elem.get_x(xi);
+				x_t Jyvec = elem.get_normal(xi);
+				x_t ny = Jyvec.normalized();
+				double jac = Jyvec.norm();
+				
+				// evaluate Green's function
+				std::complex<double> G = kernel(x, y, nx, ny);
+				// multiply by Shape function and Jacobian
+				auto N = trial_shape_t::template eval_shape<0>(xi);
+				auto F = (G * jac) * N;
+				
+				// integrate difference numerically
+				result.row(i) += F * w;
+			}
+		}
+		return result;
+	}
+};
+
+
+/** \brief Collocational integral of the 2D HSP kernel over a general curved line with general shape sets
+ * Full singularity subtraction in the reference coordinate system.
+ * The singularpart is integrated analytically in HFP sense.
+ * The regular part is integrated numerically with standard Gaussian quadrature.
+ */
+template <class TestField, class TrialField, size_t order>
+class helmholtz_2d_HSP_collocation_general
+{
+	typedef TestField test_field_t;
+	typedef TrialField trial_field_t;
+	
+	typedef typename test_field_t::nset_t test_shape_t;
+	typedef typename trial_field_t::nset_t trial_shape_t;
+	
+	static size_t const nTest = test_shape_t::num_nodes;
+	static size_t const nTrial = trial_shape_t::num_nodes;
+	
+	typedef Eigen::Matrix<std::complex<double>, nTest, nTrial> result_t;
+	
+	typedef typename trial_field_t::elem_t elem_t;
+	typedef typename elem_t::domain_t domain_t;
+	
+	typedef typename domain_t::xi_t xi_t;
+	typedef typename elem_t::x_t x_t;
+	
+	typedef regular_quad_store<domain_t, order> quadr_t;
+	
+public:
+	
+	/** \brief evaluate the singular integral
+	 * \param [in] elem the element
+	 * \param [in] k the wave number
+	 */
+	template <class WaveNumber>
+	static result_t eval(elem_t const &elem, WaveNumber  const &k)
+	{
+		// instantiate and clear result matrix
+		result_t result = result_t::Zero();
+		
+		// instantiate the kernel
+		helmholtz_2d_HSP_kernel<WaveNumber> kernel(k);
+		
+		// integration limits in the reference domain
+		xi_t const &a = domain_t::get_corner(0);
+		xi_t const &b = domain_t::get_corner(1);
+		
+		// traverse collocation points
+		for (size_t i = 0; i < nTest; ++i)
+		{
+			// the collocation point
+			xi_t const &xi0 = test_shape_t::corner_at(i);
+			
+			// trial shape function and its derivative at the singular point
+			auto N0 = trial_shape_t::template eval_shape<0>(xi0);
+			auto N1 = trial_shape_t::template eval_shape<1>(xi0);
+			
+			// singular point and normal at singular point in physical domain
+			x_t x = elem.get_x(xi0);
+			x_t Jxvec = elem.get_normal(xi0);
+			x_t nx = Jxvec.normalized();
+			double jac0 = Jxvec.norm();
+			
+			// traverse quadrature points
+			for (auto it = quadr_t::quadrature.begin(); it != quadr_t::quadrature.end(); ++it)
+			{
+				// transform quadrature to  [a xi0]
+				xi_t xi = it->get_xi() * ((xi0(0)-a(0))/2.) + (xi0+a)/2.;
+				double w = it->get_w() * ((xi0(0)-a(0))/2.);
+				double rho = xi(0) - xi0(0);
+				
+				// get trial location, jacobian and normal
+				x_t y = elem.get_x(xi);
+				x_t Jyvec = elem.get_normal(xi);
+				x_t ny = Jyvec.normalized();
+				double jac = Jyvec.norm();
+				
+				// evaluate Green's function
+				std::complex<double> G = kernel(x, y, nx, ny);
+				// multiply by Shape function and Jacobian
+				auto N = trial_shape_t::template eval_shape<0>(xi);
+				auto F = (G * jac) * N;
+				// evaluate singular part
+				auto F0 = (
+					(N0/rho + N1)/rho/jac0
+					- k*k/2. * N0 * jac0 * std::log(std::abs(rho) * jac0)
+				) / (2. * M_PI);
+				
+				// integrate difference numerically
+				result.row(i) += (F - F0) * w;
+			}
+			
+			// traverse quadrature points
+			for (auto it = quadr_t::quadrature.begin(); it != quadr_t::quadrature.end(); ++it)
+			{
+				// transform quadrature to [xi0 b];
+				xi_t xi = it->get_xi() * ((b(0)-xi0(0))/2.) + (xi0+b)/2.;
+				double w = it->get_w() * ((b(0)-xi0(0))/2.);
+				double rho = xi(0) - xi0(0);
+				
+				// get trial location, jacobian and normal
+				x_t y = elem.get_x(xi);
+				x_t Jyvec = elem.get_normal(xi);
+				x_t ny = Jyvec.normalized();
+				double jac = Jyvec.norm();
+				
+				// evaluate Green's function
+				std::complex<double> G = kernel(x, y, nx, ny);
+				// multiply by Shape function and Jacobian
+				auto N = trial_shape_t::template eval_shape<0>(xi);
+				auto F = (G * jac) * N;
+				// evaluate singular part
+				auto F0 = (
+					(N0/rho + N1)/rho/jac0
+					- k*k/2. * N0 * jac0 * std::log(std::abs(rho) * jac0)
+				) / (2. * M_PI);
+				
+				// integrate difference numerically
+				result.row(i) += (F - F0) * w;
+			}
+			
+			// add analytic integral of singular part
+			double d1 = std::abs(a(0) - xi0(0)) * jac0;
+			double d2 = std::abs(b(0) - xi0(0)) * jac0;
+			result.row(i) += (
+				((1./(a(0)-xi0(0)) - 1./(b(0)-xi0(0))) * N0 +
+				std::log(std::abs((b(0)-xi0(0)) / (a(0)-xi0(0)))) * N1) / jac0
+				- k*k/2. *
+				N0 * (d1 * (std::log(d1) - 1.) + d2 * (std::log(d2) - 1.))
+				) / (2. * M_PI);
+		}
+		return result;
+	}
+};
+
+
+
+/** \brief Collocational singular integral of the 2D Helmholtz HSP kernel over a straight line element */
+template <class TestField, class TrialField, size_t order>
+class helmholtz_2d_HSP_collocation_straight_line
+{
+	typedef TestField test_field_t;
+	typedef TrialField trial_field_t;
+	
+	typedef typename test_field_t::nset_t test_shape_t;
+	typedef typename trial_field_t::nset_t trial_shape_t;
+	
+	static size_t const nTest = test_shape_t::num_nodes;
+	static size_t const nTrial = trial_shape_t::num_nodes;
+	
+	typedef Eigen::Matrix<std::complex<double>, nTest, nTrial> result_t;
+	
+	typedef NiHu::line_1_elem elem_t;
+	typedef typename elem_t::domain_t domain_t;
+	
+	typedef typename domain_t::xi_t xi_t;
+	typedef typename elem_t::x_t x_t;
+	
+	typedef regular_quad_store<domain_t, order> quadr_t;
+	
+public:
+	
+	/** \brief evaluate the singular integral
+	 * \param [in] elem the element
+	 * \param [in] k the wave number
+	 */
+	template <class WaveNumber>
+	static result_t eval(elem_t const &elem, WaveNumber  const &k)
+	{
+		// instantiate and clear result matrix
+		result_t result = result_t::Zero();
+		
+		// instantiate the kernel
+		helmholtz_2d_HSP_kernel<WaveNumber> kernel(k);
+		
+		// integration limits in the reference domain
+		xi_t const &a = domain_t::get_corner(0);
+		xi_t const &b = domain_t::get_corner(1);
+		
+		// traverse collocation points
+		for (size_t i = 0; i < nTest; ++i)
+		{
+			// the collocation point
+			xi_t const &xi0 = test_shape_t::corner_at(i);
+			
+			// trial shape function and its derivative at the singular point
+			auto N0 = trial_shape_t::template eval_shape<0>(xi0);
+			auto N1 = trial_shape_t::template eval_shape<1>(xi0);
+			
+			// singular point and normal in physical domain
+			x_t x = elem.get_x(xi0);
+			x_t Jvec = elem.get_normal(xi0);
+			x_t n = Jvec.normalized();
+			double jac = Jvec.norm();
+			
+			// traverse quadrature points
+			for (auto it = quadr_t::quadrature.begin(); it != quadr_t::quadrature.end(); ++it)
+			{
+				// transform quadrature to  [a xi0]
+				xi_t xi = it->get_xi() * ((xi0(0)-a(0))/2.) + (xi0+a)/2.;
+				double w = it->get_w() * ((xi0(0)-a(0))/2.);
+				double rho = xi(0) - xi0(0);
+				
+				// get trial location, jacobian and normal
+				x_t y = elem.get_x(xi);
+				
+				// evaluate Green's function
+				std::complex<double> G = kernel(x, y, n, n);
+				// multiply by Shape function and Jacobian
+				auto N = trial_shape_t::template eval_shape<0>(xi);
+				auto F = (G * jac) * N;
+				// evaluate singular part
+				auto F0 = (
+					(N0/rho + N1)/rho/jac
+					- k*k/2. * N0 * jac * std::log(std::abs(rho) * jac)
+				) / (2. * M_PI);
+				
+				// integrate difference numerically
+				result.row(i) += (F - F0) * w;
+			}
+			
+			// traverse quadrature points
+			for (auto it = quadr_t::quadrature.begin(); it != quadr_t::quadrature.end(); ++it)
+			{
+				// transform quadrature to [xi0 b];
+				xi_t xi = it->get_xi() * ((b(0)-xi0(0))/2.) + (xi0+b)/2.;
+				double w = it->get_w() * ((b(0)-xi0(0))/2.);
+				double rho = xi(0) - xi0(0);
+				
+				// get trial location, jacobian and normal
+				x_t y = elem.get_x(xi);
+				
+				// evaluate Green's function
+				std::complex<double> G = kernel(x, y, n, n);
+				// multiply by Shape function and Jacobian
+				auto N = trial_shape_t::template eval_shape<0>(xi);
+				auto F = (G * jac) * N;
+				// evaluate singular part
+				auto F0 = (
+					(N0/rho + N1)/rho/jac
+					- k*k/2. * N0 * jac * std::log(std::abs(rho) * jac)
+				) / (2. * M_PI);
+				
+				// integrate difference numerically
+				result.row(i) += (F - F0) * w;
+			}
+			
+			// add analytic integral of singular part
+			double d1 = std::abs(a(0) - xi0(0)) * jac;
+			double d2 = std::abs(b(0) - xi0(0)) * jac;
+			result.row(i) += (
+				((1./(a(0)-xi0(0)) - 1./(b(0)-xi0(0))) * N0 +
+				std::log(std::abs((b(0)-xi0(0)) / (a(0)-xi0(0)))) * N1) / jac
+				- k*k/2. *
+				N0 * (d1 * (std::log(d1) - 1.) + d2 * (std::log(d2) - 1.))
+				) / (2. * M_PI);
+		}
+		return result;
+	}
+};
+
 
 
 /** \brief Collocational singular integral of the 3D Helmholtz SLP kernel over a constant planar element
- * \tparam order the quadrature order of the regular part
+ * \tparam order the quadrature order of the regular (dynamic) part
  */
 template <unsigned order>
 class helmholtz_3d_SLP_collocation_constant_plane
 {
 private:
+	/** \brief the Dynamic part of the SLP Green's function
+	 * This function returns the regular (dynamic) part of the Green's function
+	 * defined as exp(-ikr)/r - 1/r
+	 * note that the factor 1/(4pi) is not computed for simplification
+	 */
 	template <class wavenumber_t>
 	static std::complex<double> dynamic_part(double const &r, wavenumber_t const &k)
 	{
@@ -198,7 +706,7 @@ public:
      * \brief Evaluate the integral
      * \tparam wavenumber_t the wave number type
      * \param [in] elem the line element
-     * \param [in] x0 the singular point
+     * \param [in] x0 the singular point ( must be internal ! )
      * \param [in] k the wave number
      * \return the integral value
      */
@@ -208,7 +716,7 @@ public:
 		typename elem_t::x_t const &x0,
 		wavenumber_t const &k)
 	{
-		typedef domain_quad_store<typename elem_t::domain_t, order> quadr_t;
+		typedef regular_quad_store<typename elem_t::domain_t, order> quadr_t;
 
 		enum { N = elem_t::domain_t::num_corners };
 
@@ -270,7 +778,7 @@ public:
 		typename elem_t::x_t const &x0,
 		wavenumber_t const &k)
 	{
-		typedef domain_quad_store<typename elem_t::domain_t, order> quadr_t;
+		typedef regular_quad_store<typename elem_t::domain_t, order> quadr_t;
 		enum { N = elem_t::domain_t::num_corners };
 
 		double r[N], theta[N], alpha[N];
@@ -280,7 +788,8 @@ public:
 		double IG0 = 0.0, IddG0 = 0.0;
 		for (unsigned i = 0; i < N; ++i)
 		{
-			IG0 += r[i] * std::sin(alpha[i]) * std::log(std::tan((alpha[i] + theta[i]) / 2.0) / tan(alpha[i] / 2.0));
+			IG0 += r[i] * std::sin(alpha[i]) *
+				std::log(std::tan((alpha[i] + theta[i]) / 2.0) / tan(alpha[i] / 2.0));
 			IddG0 += (std::cos(alpha[i] + theta[i]) - std::cos(alpha[i])) / (r[i] * std::sin(alpha[i]));
 		}
 
@@ -289,7 +798,8 @@ public:
 		for (auto it = quadr_t::quadrature.begin(); it != quadr_t::quadrature.end(); ++it)
 		{
 			double r = (elem.get_x(it->get_xi()) - x0).norm();
-			I_acc += dynamic_part(r, k) * it->get_w() * elem.get_normal(it->get_xi()).norm();
+			double jac = elem.get_normal(it->get_xi()).norm();
+			I_acc += dynamic_part(r, k) * it->get_w() * jac;
 		}
 
 		// assemble result from static and dynamic parts
@@ -327,9 +837,48 @@ public:
 		field_base<TrialField> const &trial_field,
 		element_match const &)
 	{
-		result(0, 0) = helmholtz_2d_SLP_collocation_constant_line<5>::eval(
+		result(0, 0) = helmholtz_2d_SLP_collocation_constant_line<9>::eval(
 			trial_field.get_elem(),
 			trial_field.get_elem().get_center(),
+			kernel.derived().get_wave_number());
+
+		return result;
+	}
+};
+
+
+/** \brief Collocational singular integral of the 2d SLP kernel over not a constant line
+ * \tparam TestField the test field type
+ * \tparam TrialField the trial field type
+ */
+template <class WaveNumber, class TestField, class TrialField>
+class singular_integral_shortcut<
+	helmholtz_2d_SLP_kernel<WaveNumber>, TestField, TrialField, match::match_1d_type,
+	typename std::enable_if<
+	std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
+	!(std::is_same<typename TrialField::elem_t::lset_t, line_1_shape_set>::value &&
+	std::is_same<typename TrialField::nset_t, line_0_shape_set>::value)
+	>::type
+>
+{
+public:
+	/** \brief evaluate singular integral
+	 * \tparam result_t the result matrix type
+	 * \param [in, out] result reference to the result
+	 * \param [in] kernel the kernel instance
+	 * \param [in] trial_field the test and trial fields
+	 * \return reference to the result matrix
+	 */
+	template <class result_t>
+	static result_t &eval(
+		result_t &result,
+		kernel_base<helmholtz_2d_SLP_kernel<WaveNumber> > const &kernel,
+		field_base<TestField> const &,
+		field_base<TrialField> const &trial_field,
+		element_match const &)
+	{
+		result = helmholtz_2d_SLP_collocation_general<TestField, TrialField, 30>::eval(
+			trial_field.get_elem(),
 			kernel.derived().get_wave_number());
 
 		return result;
@@ -380,7 +929,85 @@ public:
 
 
 
-/** \brief Collocational singular integral of the 2D HSP kernel over a constant line
+/** \brief Collocational singular integral of the 2D DLP kernel over a curved line
+ * \tparam TestField the test field type
+ * \tparam TrialField the trial field type
+ */
+template <class WaveNumber, class TestField, class TrialField>
+class singular_integral_shortcut<
+	helmholtz_2d_DLP_kernel<WaveNumber>, TestField, TrialField, match::match_1d_type,
+	typename std::enable_if<
+	std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
+	!(std::is_same<typename TrialField::elem_t::lset_t, line_1_shape_set>::value)
+	>::type
+>
+{
+public:
+	/** \brief evaluate singular integral
+	 * \tparam result_t the result matrix type
+	 * \param [in, out] result reference to the result
+	 * \param [in] kernel the kernel instance
+	 * \param [in] trial_field the test and trial fields
+	 * \return reference to the result matrix
+	 */
+	template <class result_t>
+	static result_t &eval(
+		result_t &result,
+		kernel_base<helmholtz_2d_DLP_kernel<WaveNumber> > const &kernel,
+		field_base<TestField> const &,
+		field_base<TrialField> const &trial_field,
+		element_match const &)
+	{
+		result = helmholtz_2d_DLP_collocation_general<TestField, TrialField, 30>::eval(
+			trial_field.get_elem(),
+			kernel.derived().get_wave_number());
+			
+		return result;
+	}
+};
+
+
+/** \brief Collocational singular integral of the 2D DLPt kernel over a curved line
+ * \tparam TestField the test field type
+ * \tparam TrialField the trial field type
+ */
+template <class WaveNumber, class TestField, class TrialField>
+class singular_integral_shortcut<
+	helmholtz_2d_DLPt_kernel<WaveNumber>, TestField, TrialField, match::match_1d_type,
+	typename std::enable_if<
+	std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
+	!(std::is_same<typename TrialField::elem_t::lset_t, line_1_shape_set>::value)
+	>::type
+>
+{
+public:
+	/** \brief evaluate singular integral
+	 * \tparam result_t the result matrix type
+	 * \param [in, out] result reference to the result
+	 * \param [in] kernel the kernel instance
+	 * \param [in] trial_field the test and trial fields
+	 * \return reference to the result matrix
+	 */
+	template <class result_t>
+	static result_t &eval(
+		result_t &result,
+		kernel_base<helmholtz_2d_DLPt_kernel<WaveNumber> > const &kernel,
+		field_base<TestField> const &,
+		field_base<TrialField> const &trial_field,
+		element_match const &)
+	{
+		result = helmholtz_2d_DLPt_collocation_general<TestField, TrialField, 30>::eval(
+			trial_field.get_elem(),
+			kernel.derived().get_wave_number());
+			
+		return result;
+	}
+};
+
+
+
+
+/** \brief Collocational singular integral of the 2D HSP kernel over a straight line
  * \tparam TestField the test field type
  * \tparam TrialField the trial field type
  */
@@ -389,8 +1016,7 @@ class singular_integral_shortcut<
 	helmholtz_2d_HSP_kernel<WaveNumber>, TestField, TrialField, match::match_1d_type,
 	typename std::enable_if<
 	std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
-	std::is_same<typename TrialField::elem_t::lset_t, line_1_shape_set>::value &&
-	std::is_same<typename TrialField::nset_t, line_0_shape_set>::value
+	std::is_same<typename TrialField::elem_t::lset_t, line_1_shape_set>::value
 	>::type
 >
 {
@@ -410,15 +1036,51 @@ public:
 		field_base<TrialField> const &trial_field,
 		element_match const &)
 	{
-		result(0, 0) = helmholtz_2d_HSP_collocation_constant_line<9>::eval(
+		result = helmholtz_2d_HSP_collocation_straight_line<TestField, TrialField, 30>::eval(
 			trial_field.get_elem(),
-			trial_field.get_elem().get_center(),
 			kernel.derived().get_wave_number());
 			
 		return result;
 	}
 };
 
+
+/** \brief Collocational singular integral of the 2D HSP kernel over a curved line
+ * \tparam TestField the test field type
+ * \tparam TrialField the trial field type
+ */
+template <class WaveNumber, class TestField, class TrialField>
+class singular_integral_shortcut<
+	helmholtz_2d_HSP_kernel<WaveNumber>, TestField, TrialField, match::match_1d_type,
+	typename std::enable_if<
+	std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
+	!std::is_same<typename TrialField::elem_t::lset_t, line_1_shape_set>::value
+	>::type
+>
+{
+public:
+	/** \brief evaluate singular integral
+	 * \tparam result_t the result matrix type
+	 * \param [in, out] result reference to the result
+	 * \param [in] kernel the kernel instance
+	 * \param [in] trial_field the test and trial fields
+	 * \return reference to the result matrix
+	 */
+	template <class result_t>
+	static result_t &eval(
+		result_t &result,
+		kernel_base<helmholtz_2d_HSP_kernel<WaveNumber> > const &kernel,
+		field_base<TestField> const &,
+		field_base<TrialField> const &trial_field,
+		element_match const &)
+	{
+		result = helmholtz_2d_HSP_collocation_general<TestField, TrialField, 30>::eval(
+			trial_field.get_elem(),
+			kernel.derived().get_wave_number());
+			
+		return result;
+	}
+};
 
 
 
