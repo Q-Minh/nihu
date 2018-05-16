@@ -59,14 +59,14 @@ namespace NiHu
  * and therefore the quadrature locations are the eigenvalues of \f$J\f$
  */
 template <class scalar_t>
-Eigen::Matrix<scalar_t, Eigen::Dynamic, 2> gauss_impl(unsigned N)
+Eigen::Matrix<scalar_t, Eigen::Dynamic, 2> gauss_impl(size_t N)
 {
 	typedef Eigen::Matrix<scalar_t, Eigen::Dynamic, Eigen::Dynamic> mat_t;
 	mat_t J(N, N);
 	J.setZero();
 
 	// Fill the diagonals of the matrix
-	for (unsigned n = 0; n < N-1; ++n)
+	for (size_t n = 0; n < N-1; ++n)
 	{
 		scalar_t v = scalar_t(n+1);
 		scalar_t u = v / sqrt(4.0*v*v - 1);
@@ -130,15 +130,15 @@ public:
 	 * \brief constructor for a given polynomial degree
 	 * \param [in] degree polynomial degree of the quadrature
 	 */
-	gaussian_quadrature(unsigned degree) :
+	gaussian_quadrature(size_t degree) :
 		base_t(degree/2+1)
 	{
-		unsigned N = degree/2+1;
+		size_t N = degree/2+1;
 		// compute 1D Gaussian locations and weights
 		auto V = gauss_impl<scalar_t>(N);
 
 		// Fill the points and weights
-		for(unsigned i = 0; i < N; ++i)
+		for(size_t i = 0; i < N; ++i)
 		{
 			xi_t xi;
 			xi << V(i,0);
@@ -180,16 +180,16 @@ public:
 	 * \brief constructor for a given polynomial order
 	 * \param degree polynomial order
 	 */
-	gaussian_quadrature(unsigned degree) :
+	gaussian_quadrature(size_t degree) :
 		base_t((degree/2+1) * (degree/2+1))
 	{
-		unsigned N = degree/2+1;
+		size_t N = degree/2+1;
 		auto V = gauss_impl<scalar_t>(N);
 
 		// Fill the points and weights
-		for(unsigned i = 0; i < N; ++i)
+		for(size_t i = 0; i < N; ++i)
 		{
-			for(unsigned j = 0; j < N; ++j)
+			for(size_t j = 0; j < N; ++j)
 			{
 				xi_t xi;
 				xi << V(i,0), V(j,0);
@@ -203,7 +203,7 @@ public:
 /**
  * \brief number of quadrature points for different Dunavant orders
  */
-static unsigned const dunavant_num[] = {
+static size_t const dunavant_num[] = {
 	1 /*0*/,
 	1 /*1*/,
 	3 /*2*/,
@@ -252,7 +252,7 @@ public:
 	 * \brief constructor for a given polynomial order
 	 * \param degree polynomial order
 	 */
-	gaussian_quadrature(unsigned degree) :
+	gaussian_quadrature(size_t degree) :
 		base_t(dunavant_num[degree])
 	{
 		switch(degree)

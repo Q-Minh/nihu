@@ -173,7 +173,7 @@ public:
 	* \brief constructor allocating space for the quadrature elements
 	* \param N number of quadrature elements
 	*/
-	quadrature_base(unsigned N = 0)
+	quadrature_base(size_t N = 0)
 	{
 		base_t::reserve(N);
 	}
@@ -210,7 +210,7 @@ public:
 	*/
 	Derived &operator *=(scalar_t const &c)
 	{
-		for (unsigned i = 0; i < base_t::size(); ++i)
+		for (size_t i = 0; i < base_t::size(); ++i)
 			(*this)[i] *= c;
 		return derived();
 	}
