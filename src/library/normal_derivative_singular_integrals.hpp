@@ -40,7 +40,7 @@ class singular_integral_shortcut<
 	normal_derivative_kernel<DK, 1, 0>,
 	TestField, TrialField, match::match_2d_type,
 	typename std::enable_if<
-		std::is_same<typename TrialField::elem_t::lset_t, tria_1_shape_set>::value
+		std::is_same<typename TrialField::elem_t::lset_t, tria_1_shape_set>::value 
 	>::type
 >
 {

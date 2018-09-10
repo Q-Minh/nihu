@@ -28,7 +28,7 @@ d1 = dot(d1, d1, 2);
 d2 = model.Nodes(elem(q,6),2:4) - model.Nodes(elem(q,8),2:4);
 d2 = dot(d2, d2, 2);
 
-dd = d2 > d1;
+dd = d2 > (1+1e-3)*d1;
 
 tria = [                        % convert to TRIA
     quad(dd,[1:4, 5 6 7]);
