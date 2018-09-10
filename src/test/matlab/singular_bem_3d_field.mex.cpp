@@ -24,6 +24,7 @@
 typedef NiHu::mex::real_matrix<double> dMatrix;
 typedef NiHu::mex::complex_matrix<double> cMatrix;
 
+// [Ls, Ms, Mts, Ns, Lf, Mf, Mtf, Nf] = mex(s_nodes, s_elements, f_nodes, f_elements, k);
 void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 {
 	dMatrix surf_nodes(rhs[0]), surf_elem(rhs[1]);
@@ -41,7 +42,8 @@ void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 	cMatrix
 		L_surf(n, n, lhs[0]), M_surf(n, n, lhs[1]),
 		Mt_surf(n, n, lhs[2]), N_surf(n, n, lhs[3]),
-		L_field(m, n, lhs[4]), M_field(m, n, lhs[5]);
+		L_field(m, n, lhs[4]), M_field(m, n, lhs[5]),
+		Mt_field(m, n, lhs[6]), N_field(m, n, lhs[7]);
 
 	// Retrieve wave number
 	double k = *mxGetPr(rhs[4]);
@@ -61,7 +63,11 @@ void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 		+ NiHu::dirac(surf_sp) * (.5*I)[surf_sp];
 	N_surf  << NiHu::dirac(surf_sp) * N[surf_sp];
 	
-	// Field
+	// Field matrices
 	L_field << NiHu::dirac(field_sp) * L[surf_sp];
 	M_field << NiHu::dirac(field_sp) * M[surf_sp];
+	
+	// normal derived Field matrices
+	Mt_field << NiHu::dirac(field_sp) * Mt[surf_sp];
+	N_field << NiHu::dirac(field_sp) * N[surf_sp];
 }
