@@ -798,7 +798,7 @@ public:
 		{
 			IG0 += r[i] * std::sin(alpha[i]) *
 				std::log(std::tan((alpha[i] + theta[i]) / 2.0) / tan(alpha[i] / 2.0));
-			IddG0 += (std::cos(alpha[i] + theta[(i+1)%N]) - std::cos(alpha[i]) + theta[i]) / (r[i] * std::sin(alpha[i]));
+			IddG0 += (std::cos(alpha[i] + theta[i]) - std::cos(alpha[i])) / (r[i] * std::sin(alpha[i]));
 		}
 
 		// integrate dynamic part
@@ -1139,7 +1139,6 @@ template <class WaveNumber, class TestField, class TrialField>
 class singular_integral_shortcut<
 	helmholtz_3d_HSP_kernel<WaveNumber>, TestField, TrialField, match::match_2d_type,
 	typename std::enable_if<
-		false &&
 		std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
 		std::is_same<typename TrialField::elem_t::lset_t, tria_1_shape_set>::value &&
 		std::is_same<typename TrialField::nset_t, tria_0_shape_set>::value
@@ -1179,7 +1178,7 @@ class singular_integral_shortcut<
 	helmholtz_3d_HSP_kernel<WaveNumber>, TestField, TrialField, match::match_2d_type,
 	typename std::enable_if<
 		std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
-		!(false && std::is_same<typename TrialField::elem_t::lset_t, tria_1_shape_set>::value &&
+		!(std::is_same<typename TrialField::elem_t::lset_t, tria_1_shape_set>::value &&
 		std::is_same<typename TrialField::nset_t, tria_0_shape_set>::value)
 	>::type
 >
