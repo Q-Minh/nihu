@@ -4,12 +4,13 @@ clear;
 R = 3;
 Le = 5*1e-1;
 mesh = create_sphere_boundary(R, ceil(R/Le));
+mesh = flip_mesh(mesh);
 export_off_mesh(mesh, 'data/sphere_quad.off');
 mesh_tr = quad2tria(mesh);
 export_off_mesh(mesh_tr, 'data/sphere_tria.off');
 
 %% Create and export field points
-points = create_sphere_boundary(1.5*R, 4);
+points = create_sphere_boundary(0.5*R, 4);
 points = points.Nodes(:,2:4);
 
 fid = fopen('data/points.off', 'w');

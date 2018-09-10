@@ -42,7 +42,7 @@ plot(freqvec, 20*log10(abs(pf_c0(idx,:)/2e-5)), ...
     freqvec, 20*log10(abs(pf_gb(idx,:)/2e-5)));
 xlabel('Frequency [Hz]');
 ylabel('Sound pressure [dB]');
-legend('constant', 'constan bm', 'gauss', 'gauss bm', 'location', 'SouthEast');
+legend('constant', 'constant bm', 'gauss', 'gauss bm', 'location', 'SouthEast');
 setfig('FontSize', 12, 'LineWidth', 1);
 title(sprintf('Field Point Pressure in point %d', idx));
 
@@ -56,6 +56,10 @@ plot(freqvec, 20*log10(abs(ps_c0(idx,:)/2e-5)), ...
     freqvec, 20*log10(abs(mean(ps_gb(4*idx-3:4*idx,:),1)/2e-5)));
 xlabel('Frequency [Hz]');
 ylabel('Sound pressure [dB]');
-legend('constant', 'constan bm', 'gauss', 'gauss bm', 'location', 'SouthEast');
+legend('constant', 'constant bm', 'gauss', 'gauss bm', 'location', 'SouthEast');
 setfig('FontSize', 12, 'LineWidth', 1);
 title(sprintf('Surface Pressure in point %d', idx));
+
+%%
+c = 340;
+c/2/pi * sqrt((sum([1 1 1]./L*pi).^2))

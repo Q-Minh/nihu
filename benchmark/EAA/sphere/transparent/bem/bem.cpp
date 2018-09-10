@@ -10,9 +10,18 @@
 #include "interface/read_off_mesh.hpp"
 #include "library/lib_element.hpp"
 #include "library/helmholtz_kernel.hpp"
-#include "library/helmholtz_singular_integrals.hpp"
+//#include "library/helmholtz_singular_integrals.hpp"
+//#include "helmholtz_kernel.hpp"
+#include "library/matsumoto_2010.hpp"
 
 #include<Eigen/IterativeLinearSolvers>
+
+
+#ifdef BM
+	#define KHIE
+	#define HSIE
+#endif
+
 
 typedef Eigen::Matrix<unsigned, Eigen::Dynamic, Eigen::Dynamic> uMatrix;
 typedef Eigen::Matrix<std::complex<double>, Eigen::Dynamic, 1> cVector;
@@ -53,7 +62,17 @@ void read_off_data(std::string const &fname, dMatrix &nodes, uMatrix &elements)
 		for (unsigned c = 0; c < nvert; ++c)
 			if (!(is >> elements(i,c+1)))
 				throw std::runtime_error("Error reading mesh elements");
-		elements(i,0) = NiHu::quad_1_elem::id;
+		switch (nvert) {
+			case 3:
+				elements(i,0) = NiHu::line_1_elem::id;
+				break;
+			case 4:
+				elements(i,0) = NiHu::quad_1_elem::id;
+				break;
+			default:
+				throw std::runtime_error("Invalid number of vertices");
+				break;
+		}
 	}
 
 	is.close();
@@ -77,15 +96,21 @@ void solve(TestSpace const &test, TrialSpace const &trial, FieldSpace const &fie
 		double om = 2.*M_PI*f;
 		double k = om / c;
 		
-#ifdef BM
-		std::complex<double> alpha(0., 1./k);
+#if defined(HSIE)
+	#if !defined(KHIE) 
+		double alpha = 1.0;
+	#else
+		std::complex<double> alpha(0., -1./k);
+	#endif
 #endif		
 		
 		// create integral operators
 		auto Gop = NiHu::create_integral_operator(NiHu::helmholtz_3d_SLP_kernel<double>(k));
 		auto Hop = NiHu::create_integral_operator(NiHu::helmholtz_3d_DLP_kernel<double>(k));
+
 		auto Iop = NiHu::identity_integral_operator();
-#ifdef BM
+		
+#ifdef HSIE
 		auto Htop = NiHu::create_integral_operator(NiHu::helmholtz_3d_DLPt_kernel<double>(k));
 		auto Dop = NiHu::create_integral_operator(NiHu::helmholtz_3d_HSP_kernel<double>(k));
 #endif
@@ -97,10 +122,13 @@ void solve(TestSpace const &test, TrialSpace const &trial, FieldSpace const &fie
 		{
 			cMatrix Gs(nDof, nDof);
 			Gs.setZero();
+			
+#ifdef KHIE			
 			std::cout << "Integrating Gs at f = " << f << std::endl;
 			Gs << test * Gop[trial];
+#endif
 			
-#ifdef BM
+#ifdef HSIE
 			std::cout << "Integrating Hts at f = " << f << std::endl;
 			Gs << test * (alpha * Htop)[trial];
 			Gs << test * (alpha/2. * Iop)[trial];
@@ -110,32 +138,37 @@ void solve(TestSpace const &test, TrialSpace const &trial, FieldSpace const &fie
 		}
 		
 		cVector _ps;
-		size_t num_iters = 0;
 		
 		{
 			// create matrices
 			cMatrix Hs(nDof, nDof);
 			Hs.setZero();
 			
-#ifdef BM
+#ifdef HSIE
 			std::cout << "Integrating Ds at f = " << f << std::endl;
 			Hs << test * (alpha * Dop)[trial];
 #endif
 
+#ifdef KHIE
 			std::cout << "Integrating Hs at f = " << f << std::endl;
 			Hs << test * (-.5 * Iop)[trial];
 			Hs << test * Hop[trial];
+#endif
 			
 			// solve linear system
 			std::cout << "Solving linear system" << std::endl;
+#ifdef ITERATIVE
 			Eigen::BiCGSTAB<cMatrix> solver(Hs);
 			solver.setTolerance(1e-8);
 			_ps = solver.solve(rhs);
-			num_iters = solver.iterations();
 			
 			std::cout << "f:               " << f << '\n';
-			std::cout << "#iterations:     " << num_iters << '\n';
+			std::cout << "#iterations:     " << solver.iterations() << '\n';
 			std::cout << "estimated error: " << solver.error()      << std::endl;
+#else
+			_ps = Hs.colPivHouseholderQr().solve(rhs);
+			std::cout << "f:               " << f << '\n';
+#endif
 		}
 		ps.col(i) = _ps;
 		

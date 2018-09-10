@@ -4,41 +4,34 @@ clear;
 generate_problem;
 
 %% run
-% system('bem_const.exe data/sphere_quad.off data/points.off data/quad_const.xct data/quad_const_ps_0.res data/quad_const_pf_0.res');
+system('bem_const.exe data/sphere_tria.off data/points.off data/tria_const.xct data/tria_const_ps_0.res data/tria_const_pf_0.res');
+system('bem_const_hs.exe data/sphere_tria.off data/points.off data/tria_const.xct data/tria_const_ps_hs.res data/tria_const_pf_hs.res');
+
+system('bem_const.exe data/sphere_quad.off data/points.off data/quad_const.xct data/quad_const_ps_0.res data/quad_const_pf_0.res');
+system('bem_const_hs.exe data/sphere_quad.off data/points.off data/quad_const.xct data/quad_const_ps_hs.res data/quad_const_pf_hs.res');
+
 % system('bem_gauss.exe data/sphere_quad.off data/points.off data/quad_gauss.xct data/quad_gauss_ps_0.res data/quad_gauss_pf_0.res');
-system('bem_const_bm.exe data/sphere_quad.off data/points.off data/quad_const.xct data/quad_const_ps_bm.res data/quad_const_pf_bm.res');
-system('bem_gauss_bm.exe data/sphere_quad.off data/points.off data/quad_gauss.xct data/quad_gauss_ps_bm.res data/quad_gauss_pf_bm.res');
+% system('bem_const_bm.exe data/sphere_quad.off data/points.off data/quad_const.xct data/quad_const_ps_bm.res data/quad_const_pf_bm.res');
+% system('bem_gauss_bm.exe data/sphere_quad.off data/points.off data/quad_gauss.xct data/quad_gauss_ps_bm.res data/quad_gauss_pf_bm.res');
 
 %% import
 R = 3;
-r = 4.5;
+r = 1.5;
 load data/freqs
 
 data = load('data/quad_const_ps_0.res', '-ascii');
-ps_c0 = complex(data(:,1:2:end), data(:,2:2:end)).';
+ps_q = complex(data(:,1:2:end), data(:,2:2:end)).';
+data = load('data/tria_const_ps_0.res', '-ascii');
+ps_t = complex(data(:,1:2:end), data(:,2:2:end)).';
+
 data = load('data/quad_const_pf_0.res', '-ascii');
-pf_c0 = complex(data(:,1:2:end), data(:,2:2:end)).';
-
-data = load('data/quad_gauss_ps_0.res', '-ascii');
-ps_g0 = complex(data(:,1:2:end), data(:,2:2:end)).';
-data = load('data/quad_gauss_pf_0.res', '-ascii');
-pf_g0 = complex(data(:,1:2:end), data(:,2:2:end)).';
-
-data = load('data/quad_const_ps_bm.res', '-ascii');
-ps_cb = complex(data(:,1:2:end), data(:,2:2:end)).';
-data = load('data/quad_const_pf_bm.res', '-ascii');
-pf_cb = complex(data(:,1:2:end), data(:,2:2:end)).';
-
-data = load('data/quad_gauss_ps_bm.res', '-ascii');
-ps_gb = complex(data(:,1:2:end), data(:,2:2:end)).';
-data = load('data/quad_gauss_pf_bm.res', '-ascii');
-pf_gb = complex(data(:,1:2:end), data(:,2:2:end)).';
+pf_q = complex(data(:,1:2:end), data(:,2:2:end)).';
+data = load('data/tria_const_pf_0.res', '-ascii');
+pf_t = complex(data(:,1:2:end), data(:,2:2:end)).';
 
 c = 340;
 om = 2*pi*freqvec;
 k = om/c;
-ps_anal = -R ./ (1 + 1i*k*R);
-pf_anal = ps_anal .* exp(-1i*k*(r-R))/r*R;
 
 %%
 figure;

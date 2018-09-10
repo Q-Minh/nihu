@@ -27,6 +27,8 @@
 
 #include "../core/element_match.hpp"
 #include "../core/integral_operator.hpp"
+#include "../core/singular_integral_shortcut.hpp"
+#include "../core/match_types.hpp"
 #include "helmholtz_kernel.hpp"
 #include "lib_element.hpp"
 
