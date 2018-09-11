@@ -782,12 +782,13 @@ public:
 		typedef regular_quad_store<typename elem_t::domain_t, order> quadr_t;
 		enum { N = elem_t::domain_t::num_corners };
 
+#if NIHU_MEX_DEBUGGING
 		static bool printed = false;
-		
 		if (!printed) {
 			mexPrintf("Helmholtz HSP integral called, N = %d\n", N);
 			printed = true;
 		}
+#endif
 
 		double r[N], theta[N], alpha[N];
 		plane_element_helper(elem, x0, r, theta, alpha);

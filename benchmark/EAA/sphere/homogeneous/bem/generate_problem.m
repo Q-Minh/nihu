@@ -35,6 +35,10 @@ nElem = size(mesh.Elements,1);
 exc_const = ones(nElem, nFreqs);
 export_excitation(freqvec, exc_const, 'data/quad_const.xct');
 
+nElem = size(mesh_tr.Elements,1);
+exc_const = ones(nElem, nFreqs);
+export_excitation(freqvec, exc_const, 'data/tria_const.xct');
+
 nDof = 4 * nElem;
 exc_gauss = ones(nDof, nFreqs);
 export_excitation(freqvec, exc_gauss, 'data/quad_gauss.xct');

@@ -20,14 +20,24 @@ r = 1.5;
 load data/freqs
 
 data = load('data/quad_const_ps_0.res', '-ascii');
-ps_q = complex(data(:,1:2:end), data(:,2:2:end)).';
+ps_q0 = complex(data(:,1:2:end), data(:,2:2:end)).';
 data = load('data/tria_const_ps_0.res', '-ascii');
-ps_t = complex(data(:,1:2:end), data(:,2:2:end)).';
+ps_t0 = complex(data(:,1:2:end), data(:,2:2:end)).';
 
 data = load('data/quad_const_pf_0.res', '-ascii');
-pf_q = complex(data(:,1:2:end), data(:,2:2:end)).';
+pf_q0 = complex(data(:,1:2:end), data(:,2:2:end)).';
 data = load('data/tria_const_pf_0.res', '-ascii');
-pf_t = complex(data(:,1:2:end), data(:,2:2:end)).';
+pf_t0 = complex(data(:,1:2:end), data(:,2:2:end)).';
+
+data = load('data/quad_const_ps_hs.res', '-ascii');
+ps_q_hs = complex(data(:,1:2:end), data(:,2:2:end)).';
+data = load('data/tria_const_ps_hs.res', '-ascii');
+ps_t_hs = complex(data(:,1:2:end), data(:,2:2:end)).';
+
+data = load('data/quad_const_pf_hs.res', '-ascii');
+pf_q_hs = complex(data(:,1:2:end), data(:,2:2:end)).';
+data = load('data/tria_const_pf_hs.res', '-ascii');
+pf_t_hs = complex(data(:,1:2:end), data(:,2:2:end)).';
 
 c = 340;
 om = 2*pi*freqvec;
@@ -37,61 +47,60 @@ k = om/c;
 figure;
 formatfig();
 idx = 2;
-plot(k*R, 20*log10(abs(pf_c0(idx,:)/2e-5)), ...
-    k*R, 20*log10(abs(pf_cb(idx,:)/2e-5)), ...
-    k*R, 20*log10(abs(pf_g0(idx,:)/2e-5)), ...
-    k*R, 20*log10(abs(pf_gb(idx,:)/2e-5)), ...
-    k*R, 20*log10(abs(pf_anal/2e-5)));
+plot(k*R, 20*log10(abs(pf_q0(idx,:)/2e-5)), ...
+    k*R, 20*log10(abs(pf_t0(idx,:)/2e-5)), ...
+    k*R, 20*log10(abs(pf_q_hs(idx,:)/2e-5)), ...
+    k*R, 20*log10(abs(pf_t_hs(idx,:)/2e-5)));
 xlabel('Helmholtz number [Hz]');
 ylabel('Sound pressure [dB]');
-legend('constant', 'constan bm', 'gauss', 'gauss bm', 'anal', 'location', 'SouthEast');
+legend('regular quad', 'regular tria', 'hyper quad', 'hyper tria');
 setfig('FontSize', 12, 'LineWidth', 1);
 title(sprintf('Field Point Pressure in point %d', idx));
 
-%%
-figure;
-formatfig();
-idx = 2;
-plot(k*R, 20*log10(abs(pf_c0(idx,:)./pf_anal)), ...
-    k*R, 20*log10(abs(pf_cb(idx,:)./pf_anal)), ...
-    k*R, 20*log10(abs(pf_g0(idx,:)./pf_anal)), ...
-    k*R, 20*log10(abs(pf_gb(idx,:)./pf_anal)));
-xlabel('Helmholtz number [-]');
-ylabel('Error [dB]');
-legend('constant', 'constan bm', 'gauss', 'gauss bm', 'location', 'SouthEast');
-setfig('FontSize', 12, 'LineWidth', 1);
-title(sprintf('Field Point Pressure in point %d', idx));
-ylim([-1 1]);
-grid;
-
-%%
-figure;
-formatfig();
-idx = 2;
-plot(freqvec, 20*log10(abs(pf_c0(idx,:)/2e-5)), ...
-    freqvec, 20*log10(abs(pf_cb(idx,:)/2e-5)), ...
-    freqvec, 20*log10(abs(pf_g0(idx,:)/2e-5)), ...
-    freqvec, 20*log10(abs(pf_gb(idx,:)/2e-5)), ...
-    freqvec, 20*log10(abs(pf_anal/2e-5)));
-xlabel('Frequency [Hz]');
-ylabel('Sound pressure [dB]');
-legend('constant', 'constan bm', 'gauss', 'gauss bm', 'anal', 'location', 'SouthEast');
-setfig('FontSize', 12, 'LineWidth', 1);
-title(sprintf('Field Point Pressure in point %d', idx));
-
-
-%%
-figure;
-formatfig();
-idx = 100;
-plot(freqvec, 20*log10(abs(ps_c0(idx,:)./ps_anal)), ...
-    freqvec, 20*log10(abs(ps_cb(idx,:)./ps_anal)), ...
-    freqvec, 20*log10(abs(mean(ps_g0(4*idx-3:4*idx,:),1)./ps_anal)), ...
-    freqvec, 20*log10(abs(mean(ps_gb(4*idx-3:4*idx,:),1)./ps_anal)));
-xlabel('Frequency [Hz]');
-ylabel('Error [dB]');
-legend('constant', 'constan bm', 'gauss', 'gauss bm', 'location', 'SouthEast');
-setfig('FontSize', 12, 'LineWidth', 1);
-title(sprintf('Surface Pressure in point %d', idx));
-ylim([-1 1]);
-grid;
+% %%
+% figure;
+% formatfig();
+% idx = 2;
+% plot(k*R, 20*log10(abs(pf_c0(idx,:)./pf_anal)), ...
+%     k*R, 20*log10(abs(pf_cb(idx,:)./pf_anal)), ...
+%     k*R, 20*log10(abs(pf_g0(idx,:)./pf_anal)), ...
+%     k*R, 20*log10(abs(pf_gb(idx,:)./pf_anal)));
+% xlabel('Helmholtz number [-]');
+% ylabel('Error [dB]');
+% legend('constant', 'constan bm', 'gauss', 'gauss bm', 'location', 'SouthEast');
+% setfig('FontSize', 12, 'LineWidth', 1);
+% title(sprintf('Field Point Pressure in point %d', idx));
+% ylim([-1 1]);
+% grid;
+% 
+% %%
+% figure;
+% formatfig();
+% idx = 2;
+% plot(freqvec, 20*log10(abs(pf_c0(idx,:)/2e-5)), ...
+%     freqvec, 20*log10(abs(pf_cb(idx,:)/2e-5)), ...
+%     freqvec, 20*log10(abs(pf_g0(idx,:)/2e-5)), ...
+%     freqvec, 20*log10(abs(pf_gb(idx,:)/2e-5)), ...
+%     freqvec, 20*log10(abs(pf_anal/2e-5)));
+% xlabel('Frequency [Hz]');
+% ylabel('Sound pressure [dB]');
+% legend('constant', 'constan bm', 'gauss', 'gauss bm', 'anal', 'location', 'SouthEast');
+% setfig('FontSize', 12, 'LineWidth', 1);
+% title(sprintf('Field Point Pressure in point %d', idx));
+% 
+% 
+% %%
+% figure;
+% formatfig();
+% idx = 100;
+% plot(freqvec, 20*log10(abs(ps_c0(idx,:)./ps_anal)), ...
+%     freqvec, 20*log10(abs(ps_cb(idx,:)./ps_anal)), ...
+%     freqvec, 20*log10(abs(mean(ps_g0(4*idx-3:4*idx,:),1)./ps_anal)), ...
+%     freqvec, 20*log10(abs(mean(ps_gb(4*idx-3:4*idx,:),1)./ps_anal)));
+% xlabel('Frequency [Hz]');
+% ylabel('Error [dB]');
+% legend('constant', 'constan bm', 'gauss', 'gauss bm', 'location', 'SouthEast');
+% setfig('FontSize', 12, 'LineWidth', 1);
+% title(sprintf('Surface Pressure in point %d', idx));
+% ylim([-1 1]);
+% grid;
