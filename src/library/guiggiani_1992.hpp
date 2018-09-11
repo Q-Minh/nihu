@@ -23,15 +23,20 @@
 #ifndef GUIGGIANI_1992_HPP_INCLUDED
 #define GUIGGIANI_1992_HPP_INCLUDED
 
-#include "../util/math_constants.hpp"
-#include <cmath>
-#include "../util/store_pattern.hpp"
-#include "../core/shapeset.hpp"
-#include "../core/field.hpp"
-#include "../core/kernel.hpp"
-#include "../core/gaussian_quadrature.hpp"
-#include "../util/block_product.hpp"
 #include "location_normal.hpp"
+#include "../core/field.hpp"
+#include "../core/gaussian_quadrature.hpp"
+#include "../core/kernel.hpp"
+#include "../core/shapeset.hpp"
+#include "../util/math_constants.hpp"
+#include "../util/block_product.hpp"
+#include "../util/store_pattern.hpp"
+
+#include <cmath>
+#if NIHU_MEX_DEBUGGING
+#include <mex.h>
+#endif
+
 
 namespace NiHu
 {

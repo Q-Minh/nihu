@@ -17,20 +17,24 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /** \file helmholtz_singular_integrals.hpp
- * \brief (Semi)analytical expressions for the singular integrals of Helmholtz kernels over plane elements
+ * \brief (Semi)analytical expressions for the singular integrals of Helmholtz kernels
  */
 #ifndef NIHU_HELMHOLTZ_SINGULAR_INTEGRALS_HPP_INCLUDED
 #define NIHU_HELMHOLTZ_SINGULAR_INTEGRALS_HPP_INCLUDED
 
-#include "../util/math_functions.hpp"
-#include "../core/singular_integral_shortcut.hpp"
-#include "../core/match_types.hpp"
+#include "helmholtz_kernel.hpp"
+#include "guiggiani_1992.hpp"
 #include "lib_element.hpp"
 #include "laplace_singular_integrals.hpp"
 #include "normal_derivative_singular_integrals.hpp"
-#include "helmholtz_kernel.hpp"
 #include "plane_element_helper.hpp"
-#include "guiggiani_1992.hpp"
+#include "../core/match_types.hpp"
+#include "../core/singular_integral_shortcut.hpp"
+#include "../util/math_functions.hpp"
+
+#if NIHU_MEX_DEBUGGING
+#include <mex.h>
+#endif
 
 namespace NiHu
 {
@@ -782,12 +786,13 @@ public:
 		typedef regular_quad_store<typename elem_t::domain_t, order> quadr_t;
 		enum { N = elem_t::domain_t::num_corners };
 
+#if NIHU_MEX_DEBUGGING
 		static bool printed = false;
-		
 		if (!printed) {
 			mexPrintf("Helmholtz HSP integral called, N = %d\n", N);
 			printed = true;
 		}
+#endif
 
 		double r[N], theta[N], alpha[N];
 		plane_element_helper(elem, x0, r, theta, alpha);
