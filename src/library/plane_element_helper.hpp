@@ -57,11 +57,15 @@ void plane_element_helper(
 
 	for (unsigned i = 0; i < N; ++i)
 	{
-		theta[i] = std::acos(R.col(i).dot(R.col((i+1) % N)));
+		double cs = R.col(i).dot(R.col((i+1) % N));
+		if (cs >= 1.)
+			theta[i] = 0.;
+		else
+			theta[i] = std::acos(cs);
 		alpha[i] = std::acos(R.col(i).dot(C.col(i)));
 	}
 }
 
-}
+} // end of namespace NiHu
 
 #endif // PLANE_ELEMENT_HELPER_HPP_INCLUDED

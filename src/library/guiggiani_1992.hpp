@@ -90,6 +90,7 @@ template <class TrialField, class Kernel, unsigned RadialOrder, unsigned Tangent
 class guiggiani;
 
 
+/** brief specialisation of Guiggiani's method for surface elements */
 template <class TrialField, class Kernel, unsigned RadialOrder, unsigned TangentialOrder>
 class guiggiani<TrialField, Kernel, RadialOrder, TangentialOrder, typename std::enable_if<
 	element_traits::is_surface_element<typename TrialField::elem_t>::value
@@ -204,7 +205,10 @@ private:
 		{
 			xi_t c1 = m_T * domain_t::get_corner(n);			// corner
 			xi_t c2 = m_T * domain_t::get_corner((n + 1) % N);	// next corner
-			xi_t l = (c2 - c1).normalized();					// side vector
+			xi_t l = xi_t::Zero();
+			l(0) = 1.0;
+			if ((c2-c1).norm() > 1e-3)
+				l = (c2 - c1).normalized();					// side unit vector
 
 			xi_t d1 = c1 - m_eta0;			// vector to corners
 			xi_t d0 = d1 - l*d1.dot(l);		// perpendicular to side
@@ -289,6 +293,11 @@ public:
 			// get angular integration limits
 			scalar_t t1 = m_theta_lim[n];
 			scalar_t t2 = m_theta_lim[(n + 1) % N];
+			
+			/** todo this is for highly distorted elements */
+			if (std::abs(t2-t1) < 1e-3)
+				continue;
+			
 			if (t2 < t1)
 				t2 += 2.0 * M_PI;
 

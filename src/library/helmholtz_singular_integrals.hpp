@@ -1,7 +1,7 @@
 // This file is a part of NiHu, a C++ BEM template library.
 //
-// Copyright (C) 2012-2014  Peter Fiala <fiala@hit.bme.hu>
-// Copyright (C) 2012-2014  Peter Rucz <rucz@hit.bme.hu>
+// Copyright (C) 2012-2018  Peter Fiala <fiala@hit.bme.hu>
+// Copyright (C) 2012-2018  Peter Rucz <rucz@hit.bme.hu>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -93,7 +93,7 @@ public:
 			// traverse quadrature points
 			for (auto it = quadr_t::quadrature.begin(); it != quadr_t::quadrature.end(); ++it)
 			{
-				// transform quadrature to  [a xi0]
+				// transform quadrature to [a xi0]
 				xi_t xi = it->get_xi() * ((xi0(0)-a(0))/2.) + (xi0+a)/2.;
 				double w = it->get_w() * ((xi0(0)-a(0))/2.);
 				
@@ -277,7 +277,7 @@ public:
 			// traverse quadrature points
 			for (auto it = quadr_t::quadrature.begin(); it != quadr_t::quadrature.end(); ++it)
 			{
-				// transform quadrature to  [a xi0]
+				// transform quadrature to [a xi0]
 				xi_t xi = it->get_xi() * ((xi0(0)-a(0))/2.) + (xi0+a)/2.;
 				double w = it->get_w() * ((xi0(0)-a(0))/2.);
 				double rho = xi(0) - xi0(0);
@@ -327,7 +327,7 @@ public:
 };
 
 
-/** \brief Collocational integral of the 2D DLP kernel over a general curved line with general shape sets */
+/** \brief Collocational integral of the 2D DLPt kernel over a general curved line with general shape sets */
 template <class TestField, class TrialField, size_t order>
 class helmholtz_2d_DLPt_collocation_general
 {
@@ -374,7 +374,7 @@ public:
 			// traverse quadrature points
 			for (auto it = quadr_t::quadrature.begin(); it != quadr_t::quadrature.end(); ++it)
 			{
-				// transform quadrature to  [a xi0]
+				// transform quadrature to [a xi0]
 				xi_t xi = it->get_xi() * ((xi0(0)-a(0))/2.) + (xi0+a)/2.;
 				double w = it->get_w() * ((xi0(0)-a(0))/2.);
 				double rho = xi(0) - xi0(0);
@@ -489,7 +489,7 @@ public:
 			// traverse quadrature points
 			for (auto it = quadr_t::quadrature.begin(); it != quadr_t::quadrature.end(); ++it)
 			{
-				// transform quadrature to  [a xi0]
+				// transform quadrature to [a xi0]
 				xi_t xi = it->get_xi() * ((xi0(0)-a(0))/2.) + (xi0+a)/2.;
 				double w = it->get_w() * ((xi0(0)-a(0))/2.);
 				double rho = xi(0) - xi0(0);
@@ -621,7 +621,7 @@ public:
 			// traverse quadrature points
 			for (auto it = quadr_t::quadrature.begin(); it != quadr_t::quadrature.end(); ++it)
 			{
-				// transform quadrature to  [a xi0]
+				// transform quadrature to [a xi0]
 				xi_t xi = it->get_xi() * ((xi0(0)-a(0))/2.) + (xi0+a)/2.;
 				double w = it->get_w() * ((xi0(0)-a(0))/2.);
 				double rho = xi(0) - xi0(0);
@@ -748,7 +748,6 @@ public:
 	}
 };
 
-
 /** \brief Collocational singular integral of the 3D Helmholtz HSP kernel over a constant planar element */
 template <unsigned order>
 class helmholtz_3d_HSP_collocation_constant_plane
@@ -788,8 +787,9 @@ public:
 
 #if NIHU_MEX_DEBUGGING
 		static bool printed = false;
-		if (!printed) {
-			mexPrintf("Helmholtz HSP integral called, N = %d\n", N);
+		if (!printed)
+		{
+			mexPrintf("Integrating Helmholtz HSP over constant plane, N = %d\n", N);
 			printed = true;
 		}
 #endif
@@ -801,6 +801,10 @@ public:
 		double IG0 = 0.0, IddG0 = 0.0;
 		for (unsigned i = 0; i < N; ++i)
 		{
+			// integral is zero for highly distorted elements
+			/** \todo replace with Taylor series expansion */
+			if (theta[i] < 1e-3)
+				continue;
 			IG0 += r[i] * std::sin(alpha[i]) *
 				std::log(std::tan((alpha[i] + theta[i]) / 2.0) / tan(alpha[i] / 2.0));
 			IddG0 += (std::cos(alpha[i] + theta[i]) - std::cos(alpha[i])) / (r[i] * std::sin(alpha[i]));
@@ -814,7 +818,7 @@ public:
 			double jac = elem.get_normal(it->get_xi()).norm();
 			I_acc += dynamic_part(r, k) * it->get_w() * jac;
 		}
-
+		
 		// assemble result from static and dynamic parts
 		return (IddG0 + k*k / 2.0 * IG0 + I_acc) / (4.0 * M_PI);
 	}
@@ -1218,11 +1222,12 @@ public:
 			auto const &xi0 = TestField::nset_t::corner_at(r);
 			gui.integrate(result.row(r), xi0, elem.get_normal(xi0));
 		}
+		
 		return result;
 	}
 };
 
-}
+} // end of namespace NiHu
 
 
 #endif // NIHU_HELMHOLTZ_SINGULAR_INTEGRALS_HPP_INCLUDED
