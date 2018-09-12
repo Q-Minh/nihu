@@ -57,7 +57,8 @@ public:
 		auto x = test_field.get_elem().get_center();
 		auto y = trial_field.get_elem().get_center();
 		auto D = trial_field.get_elem().get_linear_size_estimate();
-		return eval_interval<Interval>((y - x).norm()/D);
+		auto distance = (y - x).norm();
+		return eval_interval<Interval>(distance/D);
 	}
 };
 
