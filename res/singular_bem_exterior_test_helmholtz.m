@@ -1,17 +1,20 @@
 clear;
 close all;
 
-Lout = [.2 .2 1];
-Le = 5e-2/1;
-eps = 1e-3;
-
-tria = true;
-
+Lout = [1 1 1];
+Lin = [.6 .6 .6];
+Lop = .2;
+Le = 1e-1;
 mesh = create_brick(Lout, ceil(Lout/Le));
 mesh = translate_mesh(mesh, -Lout/2);
 
+eps = 1e-3;
+mesh = mesh_section(mesh, [-1-eps; 1+eps] * Lin/2, 'nall');
+mesh = mesh_section(mesh, [-Lop/2 -Lop/2 0; Lop/2 Lop/2 Inf]*(1+eps), 'nall');
+
 mesh = drop_mesh_IDs(drop_unused_nodes(get_boundary(mesh)));
-mesh = flip_mesh(mesh);
+
+tria = true;
 
 if (tria)
     mesh = quad2tria(mesh);
@@ -23,10 +26,9 @@ kmax = min(mesh_kmax(mesh, 8));
 fmax = kmax * c / (2*pi);
 fprintf('Max mesh freq: %.1f Hz\n', fmax);
 
-[~, exc_sel] = mesh_select(mesh, sprintf('abs(z) > %f', Lout(3)/2-eps), 'ind', 'all');
 %%
-%// call C++ code at wave number k \approx pi
-fvec = 100;
+%// call Matlab code at wave number k \approx pi
+fvec = 30 : 45;
 nFreq = length(fvec);
 
 nElem = size(mesh.Elements, 1);
@@ -37,10 +39,7 @@ ps_bm = zeros(nElem, nFreq);
 
 ps_hs = zeros(nElem, nFreq);
 
-qs_ana = zeros(nElem, 1);
-qs_ana(exc_sel) = 1;
-
-ps_ana = zeros(nElem, nFreq);
+qs_ana = ones(nElem, 1);
 
 r_c = centnorm(mesh);
 
@@ -49,12 +48,18 @@ err_s_conv = zeros(1, nFreq);
 err_s_hs = zeros(1, nFreq);
 err_s_bm = zeros(1, nFreq);
 
+[r_nodes, r_elem] = extract_core_mesh(mesh);
+
 
 for iFreq = 1 : nFreq
     
-    progbar(1, nFreq, iFreq);
+    fprintf(1, 'Freq %d from %d\n', iFreq, nFreq);
+    
     f = fvec(iFreq);
     k = 2*pi*f/c;
+    
+    [G, H, Ht, D, ~, ~] =...
+        singular_bem_3d_field(r_nodes, r_elem, [], [], k);
     
     gkernel = @(x, nx, y, ny)helmholtz_3d_slp_kernel(x, nx, y, ny, k);
     gsing = @(x, nx, corners)helmholtz_3d_slp_singular(x, nx, corners, k);
@@ -67,14 +72,14 @@ for iFreq = 1 : nFreq
     
     dkernel = @(x, nx, y, ny)helmholtz_3d_hsp_kernel(x, nx, y, ny, k);
     dsing = @(x, nx, corners)helmholtz_3d_hsp_singular(x, nx, corners, k);
-
-    G = bem_matrix(mesh, gkernel, gsing);
-    H = bem_matrix(mesh, hkernel, hsing);
-    Ht = bem_matrix(mesh, htkernel, htsing);
-    D = bem_matrix(mesh, dkernel, dsing);
     
-    H = H - 0.5*eye(nElem);
-    Ht = Ht + 0.5*eye(nElem);
+    G = bem_matrix(mesh, gkernel, gsing, G);
+    H = bem_matrix(mesh, hkernel, hsing, H);
+    Ht = bem_matrix(mesh, htkernel, htsing, Ht);
+    D = bem_matrix(mesh, dkernel, dsing, D);
+    
+%     H = H - 0.5*eye(nElem);
+%     Ht = Ht + 0.5*eye(nElem);
     
     %// acoustic pressure on the surface and in the field points
     ps_conv(:, iFreq) = H \ (G * qs_ana);               %// conventional
@@ -88,13 +93,6 @@ for iFreq = 1 : nFreq
         -1i*k*exp(-1i*k*(-Lout(3)/2)), (1i*k)*exp(1i*k*(-Lout(3)/2)) ];
     sol = A \ [1; 1];
     pp = sol(1); pm = sol(2);
-    
-    ps_ana(:, iFreq) = pp*exp(-1i*k*r_c(:,3)) + pm*exp(1i*k*r_c(:,3));
-    
-    err_s_conv(:, iFreq) = norm(ps_conv(:, iFreq) - ps_ana(:, iFreq)) / norm(ps_ana(:, iFreq));
-    err_s_hs(:, iFreq) = norm(ps_hs(:, iFreq) - ps_ana(:, iFreq)) / norm(ps_ana(:, iFreq));
-    err_s_bm(:, iFreq) = norm(ps_bm(:, iFreq) - ps_ana(:, iFreq)) / norm(ps_ana(:, iFreq));
-    
     
 end
 %%
@@ -128,37 +126,29 @@ xlabel('Frequency [Hz]');
 ylabel('Relative error');
 %%
 if (1)
-    f_sel = 100;
+    f_sel = 36;
     f_idx = find(fvec == f_sel, 1, 'first');
     figure;
     subplot(2,2,1);
-    plot_mesh(mesh, real(ps_conv(:,f_idx)));
+    plot_mesh(mesh, abs(ps_conv(:,f_idx)));
     axis equal;
     colorbar;
-    caxis([-1 1]*max(abs(ps_ana(:, f_idx))));
     title('Conventional');
     subplot(2,2,2);
-    plot_mesh(mesh, real(ps_bm(:,f_idx)));
+    plot_mesh(mesh, abs(ps_bm(:,f_idx)));
     axis equal;
     colorbar;
-    caxis([-1 1]*max(abs(ps_ana(:, f_idx))));
     title('Burton');
     subplot(2,2,3);
-    plot_mesh(mesh, real(ps_hs(:,f_idx)));
+    plot_mesh(mesh, abs(ps_hs(:,f_idx)));
     axis equal;
     colorbar;
-    caxis([-1 1]*max(abs(ps_ana(:, f_idx))));
     title('Hyper');
-    subplot(2,2,4);
-    plot_mesh(mesh, real(ps_ana(:,f_idx)));
-    axis equal;
-    colorbar;
-    caxis([-1 1]*max(abs(ps_ana(:, f_idx))));
-    title(sprintf('Analytical f = %g Hz', f_sel));
 end
 
 %%
-figure
-plot(r_c(:, 3), real(ps_conv(:, f_idx)), '*'); hold on;
-plot(r_c(:, 3), real(ps_ana(:, f_idx)), 'r*');
-grid on;
+figure;
+plot(fvec, 20*log10(max(abs(ps_hs), [], 1)), ...
+    fvec, 20*log10(max(abs(ps_bm), [], 1)), ...
+    fvec, 20*log10(max(abs(ps_conv), [], 1)));
+legend('Hypersingular', 'BM', 'conventional');

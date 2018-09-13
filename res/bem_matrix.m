@@ -1,4 +1,4 @@
-function G = bem_matrix(mesh, kernel, singular)
+function G = bem_matrix(mesh, kernel, singular, G)
 
 nodes = mesh.Nodes(:,2:4);
 
@@ -12,7 +12,9 @@ nodes = mesh.Nodes(:,2:4);
 
 nDof = size(mesh.Elements,1);
 
-G = zeros(nDof, nDof);
+if nargin < 4
+    G = zeros(nDof, nDof);
+end
 
 for e = 1 : nDof
     
@@ -24,37 +26,31 @@ for e = 1 : nDof
         yelem = mesh.Elements(f, 5:7);
         
         if (e == f) % face match singular
-            y = nodes(yelem,:);
-            
-            G(e,e) = singular(x(e,:), nx(e,:), y);
+%             y = nodes(yelem,:);
+%             
+%             G(e,e) = singular(x(e,:), nx(e,:), y);
         elseif (any(ismember(yelem, xelem))) % nearly singular
-            order = 40;
-            
-            
             y = Nns * nodes(yelem([1 2 3 3]),:);
             xgxi = dNns(:,:,1) * nodes(yelem([1 2 3 3]),:);
             xgeta = dNns(:,:,2) * nodes(yelem([1 2 3 3]),:);
             jvec = cross(xgxi, xgeta, 2);
             jac = sqrt(dot(jvec, jvec, 2));
             ny = bsxfun(@times, jvec, 1./jac);
-            
             g = kernel(x(e,:), nx(e,:), y, ny);
-            
             G(e,f) = wns.' * diag(jac) * g;
         else % regular integral
-            order = 8;
-            
-            
-            y = Nr * nodes(yelem,:);
-            xgxi = dNr(:,:,1) * nodes(yelem,:);
-            xgeta = dNr(:,:,2) * nodes(yelem,:);
-            jvec = cross(xgxi, xgeta, 2);
-            jac = sqrt(dot(jvec, jvec, 2));
-            ny = bsxfun(@times, jvec, 1./jac);
-            
-            g = kernel(x(e,:), nx(e,:), y, ny);
-            
-            G(e,f) = wr.' * diag(jac) * g;
+%             order = 8;
+%             
+%             y = Nr * nodes(yelem,:);
+%             xgxi = dNr(:,:,1) * nodes(yelem,:);
+%             xgeta = dNr(:,:,2) * nodes(yelem,:);
+%             jvec = cross(xgxi, xgeta, 2);
+%             jac = sqrt(dot(jvec, jvec, 2));
+%             ny = bsxfun(@times, jvec, 1./jac);
+%             
+%             g = kernel(x(e,:), nx(e,:), y, ny);
+%             
+%             G(e,f) = wr.' * diag(jac) * g;
         end % of regular case
     end % of loop over cols
 end % of loop over rows
