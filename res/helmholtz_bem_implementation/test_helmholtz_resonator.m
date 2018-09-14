@@ -1,6 +1,8 @@
 clear;
 close all;
 
+%% Create mesh of Helmholtz resonator
+
 Lout = [1 1 1];
 Lin = [.6 .6 .6];
 Lop = .2;
@@ -11,45 +13,30 @@ mesh = translate_mesh(mesh, -Lout/2);
 eps = 1e-3;
 mesh = mesh_section(mesh, [-1-eps; 1+eps] * Lin/2, 'nall');
 mesh = mesh_section(mesh, [-Lop/2 -Lop/2 0; Lop/2 Lop/2 Inf]*(1+eps), 'nall');
-
 mesh = drop_mesh_IDs(drop_unused_nodes(get_boundary(mesh)));
+mesh = quad2tria(mesh);
 
-tria = true;
+[r_nodes, r_elem] = extract_core_mesh(mesh);
 
-if (tria)
-    mesh = quad2tria(mesh);
-end
-
+%% Frequency range
 c = 340;
 kmax = min(mesh_kmax(mesh, 8));
-
 fmax = kmax * c / (2*pi);
 fprintf('Max mesh freq: %.1f Hz\n', fmax);
-
-%%
-%// call Matlab code at wave number k \approx pi
 fvec = 30 : 45;
 nFreq = length(fvec);
+
+%%
 
 nElem = size(mesh.Elements, 1);
 
 ps_conv = zeros(nElem, nFreq);
-
 ps_bm = zeros(nElem, nFreq);
-
 ps_hs = zeros(nElem, nFreq);
 
 qs_ana = ones(nElem, 1);
 
 r_c = centnorm(mesh);
-
-err_s_conv = zeros(1, nFreq);
-
-err_s_hs = zeros(1, nFreq);
-err_s_bm = zeros(1, nFreq);
-
-[r_nodes, r_elem] = extract_core_mesh(mesh);
-
 
 for iFreq = 1 : nFreq
     
@@ -63,10 +50,10 @@ for iFreq = 1 : nFreq
     
     gkernel = @(x, nx, y, ny)helmholtz_3d_slp_kernel(x, nx, y, ny, k);
     gsing = @(x, nx, corners)helmholtz_3d_slp_singular(x, nx, corners, k);
-
+    
     hkernel = @(x, nx, y, ny)helmholtz_3d_dlp_kernel(x, nx, y, ny, k);
     hsing = @(x, nx, corners)helmholtz_3d_dlp_singular(x, nx, corners, k);
-
+    
     htkernel = @(x, nx, y, ny)helmholtz_3d_dlpt_kernel(x, nx, y, ny, k);
     htsing = @(x, nx, corners)helmholtz_3d_dlpt_singular(x, nx, corners, k);
     
@@ -78,46 +65,13 @@ for iFreq = 1 : nFreq
     Ht = bem_matrix(mesh, htkernel, htsing, Ht);
     D = bem_matrix(mesh, dkernel, dsing, D);
     
-%     H = H - 0.5*eye(nElem);
-%     Ht = Ht + 0.5*eye(nElem);
-    
     %// acoustic pressure on the surface and in the field points
     ps_conv(:, iFreq) = H \ (G * qs_ana);               %// conventional
+    ps_hs(:, iFreq) = D \ (Ht * qs_ana);
     coup = 1i/k;   %// coupling constant
     ps_bm(:, iFreq) = (H + coup * D) \ (G * qs_ana + coup * Ht * qs_ana);
-    
-    ps_hs(:, iFreq) = (D) \ (Ht * qs_ana);
-    
-    % Solve analytically
-    A = [ 1i*k*exp(-1i*k*Lout(3)/2), -(1i*k)*exp(1i*k*Lout(3)/2);
-        -1i*k*exp(-1i*k*(-Lout(3)/2)), (1i*k)*exp(1i*k*(-Lout(3)/2)) ];
-    sol = A \ [1; 1];
-    pp = sol(1); pm = sol(2);
-    
 end
-%%
-if (0)
-    figure;
-    subplot(3, 1, 1);
-    plot(fvec, real(pf_conv(1, :)), ...
-        fvec, real(pf_bm(1, :)), ...
-        fvec, real(pf_hs(1, :)));
-    hold on;
-    plot(fvec, real(pf_ana(1,:)), 'k');
-    subplot(3, 1, 2);
-    plot(fvec, imag(pf_conv(1, :)), ...
-        fvec, imag(pf_bm(1, :)), ...
-        fvec, imag(pf_hs(1, :)));
-    hold on;
-    plot(fvec, imag(pf_ana(1,:)), 'k');
-    subplot(3, 1, 3);
-    plot(fvec, log10(abs(pf_conv(1, :))), ...
-        fvec, log10(abs(pf_bm(1, :))), ...
-        fvec, log10(abs(pf_hs(1, :))));
-    hold on;
-    plot(fvec, log10(abs(pf_ana(1,:))), 'k');
-    % // plot results
-end
+
 %%
 figure;
 semilogy(fvec, err_s_conv, fvec, err_s_bm, fvec, err_s_hs, 'LineWidth', 1.2);
@@ -125,26 +79,24 @@ legend({'Conventional', 'Burton-Miller', 'Hypersingular'});
 xlabel('Frequency [Hz]');
 ylabel('Relative error');
 %%
-if (1)
-    f_sel = 36;
-    f_idx = find(fvec == f_sel, 1, 'first');
-    figure;
-    subplot(2,2,1);
-    plot_mesh(mesh, abs(ps_conv(:,f_idx)));
-    axis equal;
-    colorbar;
-    title('Conventional');
-    subplot(2,2,2);
-    plot_mesh(mesh, abs(ps_bm(:,f_idx)));
-    axis equal;
-    colorbar;
-    title('Burton');
-    subplot(2,2,3);
-    plot_mesh(mesh, abs(ps_hs(:,f_idx)));
-    axis equal;
-    colorbar;
-    title('Hyper');
-end
+f_sel = 36;
+f_idx = find(fvec == f_sel, 1, 'first');
+figure;
+subplot(2,2,1);
+plot_mesh(mesh, abs(ps_conv(:,f_idx)));
+axis equal;
+colorbar;
+title('Conventional');
+subplot(2,2,2);
+plot_mesh(mesh, abs(ps_bm(:,f_idx)));
+axis equal;
+colorbar;
+title('Burton');
+subplot(2,2,3);
+plot_mesh(mesh, abs(ps_hs(:,f_idx)));
+axis equal;
+colorbar;
+title('Hyper');
 
 %%
 figure;
