@@ -9,11 +9,14 @@ dG = diff(G, r);
 ddG = diff(dG, r);
 
 rdny = (r1*ny1 + r2*ny2 + r3*ny3) / r;
+% rdny = -z/r;
 rdnx = -(r1*nx1 + r2*nx2 + r3*nx3) / r;
 nxny = nx1*ny1 + nx2*ny2 + nx3*ny3;
 
-K = (ddG - dG/r) * rdnx * rdny - dG / r * nxny;
-% K = - dG / r * nxny;
+% K = (ddG - dG/r) * rdnx * rdny - dG / r * nxny;
+% K = G;
+% K = dG * rdny;
+K = dG * rdnx;
 
 K = subs(K, ny1, 0);
 K = subs(K, ny2, 0);
