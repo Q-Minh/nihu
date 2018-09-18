@@ -31,5 +31,9 @@ integral = int(integrand, R);
 % pretty(simplify(integral))
 
 syms eps
-pretty(simplify(limit(integral - subs(integral, R, eps), eps, 0)))
+integral = simplify(limit(integral - subs(integral, R, eps), eps, 0));
+pretty(integral)
+
+syms D theta0
+int(simplify(subs(integral, R, D/cos(theta0-theta))), theta)
 

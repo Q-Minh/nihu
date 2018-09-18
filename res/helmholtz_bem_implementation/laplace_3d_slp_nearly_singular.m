@@ -1,4 +1,9 @@
-function g = laplace_3d_slp_nearly_singular(x, ~, corners)
+function g = laplace_3d_slp_nearly_singular(x, ~, corners, order)
+
+if nargin < 4
+    order = 20;
+end
+
 
 g = 0;
 
@@ -14,12 +19,12 @@ end
 corners = (T \ corners.').';
 x = (T \ x.').';
 
-order = 20;
 [xi, w] = gaussquad1(order);
 [N, dN] = ShapeSet.LinearLine.eval(xi);
 
-for i = 1 : 3
-    idx = [i, mod(i, 3)+1 ];
+C = size(corners,1);
+for i = 1 : C
+    idx = [i, mod(i, C)+1 ];
     
     y = N * corners(idx,:);
     dyxi = dN * corners(idx,:);

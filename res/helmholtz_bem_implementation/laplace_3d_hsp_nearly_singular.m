@@ -1,4 +1,8 @@
-function g = laplace_3d_hsp_nearly_singular(x, nx, corners)
+function g = laplace_3d_hsp_nearly_singular(x, nx, corners, order)
+
+if nargin < 4
+    order = 20;
+end
 
 g = 0;
 
@@ -15,7 +19,6 @@ corners = (T \ corners.').';
 x = (T \ x.').';
 nx = (T \ nx.').';
 
-order = 20;
 [xi, w] = gaussquad1(order);
 [N, dN] = ShapeSet.LinearLine.eval(xi);
 
