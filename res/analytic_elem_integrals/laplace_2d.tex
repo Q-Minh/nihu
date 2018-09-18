@@ -48,6 +48,7 @@ Derivatives of the kernel depending on the distance are formulated as
 	+  r'_i \delta_{jk}
 	+  r'_k \delta_{ij}
 	\right)
+	\label{eq:derivatives_wrt_ij}
 \end{align}
 
 
@@ -571,36 +572,36 @@ F_n
 The kernel is defined as
 %
 \begin{equation}
-	G({\bf r}) = \frac{1}{4\pi|{\bf r}|} = -\frac{1}{4\pi r}
+	G({\bf r}) = \frac{1}{4\pi|{\bf r}|} = \frac{1}{4\pi r}
 \end{equation}
 
 \subsection{Derivatives}
 
-The kernel's first, second and third derivatives can be formulated as
+The kernel's first, second and third derivatives w.r.t $r$ are defined as
 %
 \begin{align}
-	G'_{i}
-	&= -\frac{1}{4\pi r^2} \frac{r_i}{r}
-	\label{eq:laplace_3d_gradient}
-	% \\
-	% G''_{ij}
-	% &= \frac{-1}{2\pi r^2}\left( \delta_{ij} - 2\frac{r_j}{r} \frac{r_i}{r}\right)
-	% \label{eq:laplace_3d_second_derivative}
-	% \\
-	% G'''_{ijk}
-	% &= \frac{1}{\pi r^3} \left(
-	% \delta_{ij} \frac{r_k}{r}
-	% + \delta_{jk} \frac{r_i}{r}
-	% + \delta_{ki} \frac{r_j}{r}
-	% -4 \frac{r_i}{r} \frac{r_j}{r} \frac{r_k}{r}
-	% \right)
-	% \label{eq:laplace_3d_third_derivative}
+	G'(r) &= -\frac{1}{4\pi r^2} \\
+	G''(r) &= \frac{2}{4\pi r^3}
 \end{align}
-
-
-
-\subsection{Normal derivatives}
-
+%
+The derivatives w.r.t $r_i$ are given as
+%
+\begin{align}
+	G'_i &= -\frac{1}{4\pi r^2} r'_i \\
+	G''_{ij} &= \frac{1}{4\pi} \left[
+	\frac{3}{r^3} r'_i r'_j - \frac{1}{r^3} \delta_{ij}
+	\right]
+\end{align}
+%
+The derivatives w.r.t. $n_x$ and $n_y$ are given as
+%
+\begin{align}
+	G'_{n_x} &= \frac{1}{4\pi r^2} \frac{r_i n_{xi}}{r} \\
+	G'_{n_y} &= -\frac{1}{4\pi r^2} \frac{r_j n_{yj}}{r} \\
+	G''_{n_{x} n_{y}} &= \frac{1}{4\pi} \left[
+	\frac{3}{r^3} \frac{-r_i n_{xi}}{r} \frac{r_j n_{yj}}{r} + \frac{1}{r^3} n_{xi} n_{yi}
+	\right]
+\end{align}
 
 \subsection{Collocation}
 
@@ -614,7 +615,6 @@ From the law of sines, $R(\theta)$ is expressed as
 	R(\theta) = \frac{R \sin(\alpha)}{\sin(\theta+\alpha)}
 \end{equation}
 
-
 \begin{figure}
 	\center
 	\begin{tikzpicture}[scale=2]
@@ -627,9 +627,93 @@ From the law of sines, $R(\theta)$ is expressed as
 	\label{fig:tria_angles}
 \end{figure}
 
-
-
 \subsubsection{Regular integrals}
+
+\paragraph {Plane surface SLP kenel}
+
+\begin{align}
+		\int_{S} G(r) \td S
+		=
+		\oint_{\phi}
+		\int_{\epsilon}^{R}
+			\frac{1}{4\pi} \frac{1}{\sqrt{R^2 + z^2}} R
+		\td R
+		\td \phi
+		=
+		\frac{1}{4\pi}
+		\oint_{\phi}
+		(r - |z|)
+		\td \phi
+\end{align}
+
+
+\paragraph {Plane surface DLP kenel}
+
+\begin{align}
+		\int_{S} G'_{n_y}(r) \td S
+		=
+		\frac{1}{4\pi}
+		\oint_{\phi}
+		\int_{\epsilon}^{R}
+			\frac{z R}{\sqrt{R^2 + z^2}^3}
+		\td R
+		\td \phi
+		=
+		\frac{1}{4\pi}
+		\oint_{\phi}
+		\left(\frac{z}{|z|} - \frac{z}{r}\right)
+		\td \phi
+\end{align}
+
+
+\paragraph {Plane surface DLPt kenel}
+
+\begin{align}
+		\int_{S}
+			G'_{n_x}(r)
+		\td S
+		&=
+		\oint_{\phi}
+		\int_{\epsilon}^{R}
+			G'_{n_x}(R, \phi, z) R
+		\td R
+		\td \phi \\
+		&=
+		\frac{1}{4\pi}
+		\oint_{\phi}
+		\left(
+		-\frac{r_i n_{xi}}{r}
+		+
+		(n_{x1} \cos\phi + n_{x2} \sin\phi) \log\frac{R + r}{|z|}
+        - n_{x3} \frac{z}{|z|}
+		\right)
+\end{align}
+
+\paragraph {Plane surface HSP kenel}
+
+\begin{equation}
+		\int_{S}
+			G''_{n_x n_y}(r)
+		\td S
+		=
+		\oint_{\phi}
+		\int_{\epsilon}^{R}
+			G''_{n_x n_y}(R, \phi, z) R
+		\td R
+		\td \phi
+		=
+		\begin{cases}
+		\frac{1}{4\pi}
+		\oint_{\phi}
+			\frac{R^2}{z r^2} \frac{r_i n_{xi}}{r}
+		\td \phi  & z \ne 0 \\
+				\frac{1}{4\pi}
+		\oint_{\phi}
+			\frac{-n_{x3}}{R}
+		\td \phi &z = 0
+		\end{cases}
+\end{equation}
+
 
 \subsubsection{Plane constant SLP}
 

@@ -27,13 +27,19 @@ for i = 1 : 3
     
     rvec = bsxfun(@minus, y, x);
     r = sqrt(dot(rvec, rvec, 2));
+    z = -rvec(:,3);
     
     Rvec = rvec(:,1:2);
+    theta = atan2(Rvec(:,2), Rvec(:,1));
+    c = cos(theta);
+    s = sin(theta);
     R = sqrt(dot(Rvec, Rvec, 2));
     
-    integrand = -(rvec * nx.') ./ r +...
-        (nx(1) * Rvec(1) + nx(2) * Rvec(2)) .*...
-        (log(R + r) ./ R);
+    integrand = (nx(1) * c + nx(2) * s) .* (log(R + r) - log(abs(z)) - R ./ r)...
+        + nx(3) * (z./r - z./abs(z));
+    
+    integrand = (-rvec * nx.') ./ r + (nx(1) * c + nx(2) * s) .* log((R + r) ./ abs(z)) ...
+        - nx(3) * z./abs(z);
     
     dtheta = (Rvec(:,1) .* dyxi(:,2) - Rvec(:,2) .* dyxi(:,1)) ./ R.^2;
     

@@ -32,7 +32,7 @@ for i = 1 : 3
     Rvec = rvec(:,1:2);
     R = sqrt(dot(Rvec, Rvec, 2));
     
-    integrand = -z ./ r;
+    integrand = z./abs(z) -z./r;
     
     dtheta = (Rvec(:,1) .* dyxi(:,2) - Rvec(:,2) .* dyxi(:,1)) ./ R.^2;
     

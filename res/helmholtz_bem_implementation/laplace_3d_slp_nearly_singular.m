@@ -13,7 +13,6 @@ end
 
 corners = (T \ corners.').';
 x = (T \ x.').';
-% nx = (T \ nx.').';
 
 order = 20;
 [xi, w] = gaussquad1(order);
@@ -26,12 +25,13 @@ for i = 1 : 3
     dyxi = dN * corners(idx,:);
     
     rvec = bsxfun(@minus, y, x);
+    z = -rvec(:,3);
     r = sqrt(dot(rvec, rvec, 2));
     
     Rvec = rvec(:,1:2);
     R = sqrt(dot(Rvec, Rvec, 2));
     
-    integrand = r;
+    integrand = r - abs(z);
     
     dtheta = (Rvec(:,1) .* dyxi(:,2) - Rvec(:,2) .* dyxi(:,1)) ./ R.^2;
     
