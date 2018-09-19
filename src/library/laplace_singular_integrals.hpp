@@ -25,7 +25,7 @@
 
 #include "../core/match_types.hpp"
 #include "../core/singular_integral_shortcut.hpp"
-#include "../core/quadrature.hpp"
+#include "quadrature_store_helper.hpp"
 #include "lib_element.hpp"
 #include "laplace_kernel.hpp"
 #include "normal_derivative_singular_integrals.hpp"
@@ -38,18 +38,6 @@
 namespace NiHu
 {
 	
-/** \brief store-wrapper of a statically stored quadrature */
-template <class domain_t, size_t order>
-struct regular_quad_store
-{
-	/** \brief the stored static quadrature member */
-	static gaussian_quadrature<domain_t> const quadrature;
-};
-
-/** \brief definition of the statically stored quadrature member */
-template <class domain_t, size_t order>
-gaussian_quadrature<domain_t> const regular_quad_store<domain_t, order>::quadrature(order);
-
 
 #if 0
 class log_gauss_quadrature

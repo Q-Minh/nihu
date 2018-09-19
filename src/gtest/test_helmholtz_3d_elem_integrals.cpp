@@ -2,6 +2,7 @@
 
 #include "library/helmholtz_kernel.hpp"
 #include "library/helmholtz_singular_integrals.hpp"
+#include "library/helmholtz_nearly_singular_integrals.hpp"
 
 #include "library/lib_element.hpp"
 #include "core/field.hpp"
@@ -11,7 +12,33 @@
 
 typedef Eigen::Matrix<std::complex<double>, Eigen::Dynamic, 1> cVector;
 
-TEST(HelmholtzElemIntegrals, Regular)
+TEST(HelmholtzElemIntegrals, NearlySingular)
+{
+	typedef NiHu::tria_1_elem elem_t;
+	
+	elem_t::coords_t coords;
+	coords << 0.0, 1.0, 0.0,
+			0.0, 0.0, 0.7,
+			0.0, 0.0, 0.0;
+	elem_t elem(coords);
+			
+	elem_t::x_t x0;
+	x0 << .3, .3, .3;
+	
+	double k = 1.0;
+	std::complex<double> g = NiHu::helmholtz_3d_SLP_collocation_constant_plane_nearly_singular::eval(elem, x0, k);
+	
+	// from Matlab with 160-th order quadrature
+	std::complex<double> g0(0.064758532993227, -0.027033418101773);
+	
+	double rel_error = std::abs(g0 - g) / std::abs(g0);
+	EXPECT_LE(rel_error, 1e-8);
+}
+
+
+
+
+TEST(HelmholtzElemIntegrals, RegularHSP)
 {
 	typedef NiHu::quad_1_elem elem_t;
 

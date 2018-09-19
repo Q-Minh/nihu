@@ -25,8 +25,10 @@
 #define EIGEN_UTILS_HPP_INCLUDED
 
 #include <type_traits>
+#include <Eigen/Geometry>
 #include <Eigen/Dense>
 #include <Eigen/StdVector>
+
 
 namespace NiHu
 {

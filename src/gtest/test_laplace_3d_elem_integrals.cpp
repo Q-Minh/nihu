@@ -2,6 +2,7 @@
 
 #include "library/laplace_kernel.hpp"
 #include "library/laplace_singular_integrals.hpp"
+#include "library/laplace_nearly_singular_integrals.hpp"
 
 #include "library/lib_element.hpp"
 #include "core/field.hpp"
@@ -13,6 +14,24 @@ typedef Eigen::Matrix<double, Eigen::Dynamic, 1> dVector;
 
 TEST(LaplaceElemIntegrals, Regular)
 {
+	typedef NiHu::tria_1_elem elem_t;
+	
+	elem_t::coords_t coords;
+	coords << 0.0, 1.0, 0.0,
+			0.0, 0.0, 0.7,
+			0.0, 0.0, 0.0;
+	elem_t elem(coords);
+			
+	elem_t::x_t x0;
+	x0 << .3, .3, .3;
+	
+	double g = NiHu::laplace_3d_SLP_collocation_constant_plane_nearly_singular::eval(elem, x0);
+	
+	// from Matlab with 160-th order quadrature
+	double g0 = 0.070405172409714;
+	
+	double rel_error = std::abs(g0 - g) / std::abs(g0);
+	EXPECT_LE(rel_error, 1e-6);
 }
 
 

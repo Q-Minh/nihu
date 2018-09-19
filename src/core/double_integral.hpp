@@ -25,20 +25,21 @@
 #ifndef DOUBLE_INTEGRAL_HPP_INCLUDED
 #define DOUBLE_INTEGRAL_HPP_INCLUDED
 
-#include "global_definitions.hpp"
 #include "../util/product_type.hpp"
 #include "../util/plain_type.hpp"
 #include "../util/brick.hpp"
 #include "../util/block_product.hpp"
 #include "../library/location_normal.hpp"
 #include "../tmp/control.hpp"
-#include "kernel.hpp"
+#include "../util/store_pattern.hpp"
 #include "complexity_estimator.hpp"
 #include "element_match.hpp"
-#include "match_types.hpp"
 #include "field_type_accelerator.hpp"
 #include "formalism.hpp"
-#include "../util/store_pattern.hpp"
+#include "global_definitions.hpp"
+#include "kernel.hpp"
+#include "match_types.hpp"
+#include "nearly_singular_integral.hpp"
 #include "singular_accelerator.hpp"
 #include "singular_integral_shortcut.hpp"
 
@@ -549,6 +550,14 @@ protected:
 		field_base<TestField> const &test_field,
 		field_base<TrialField> const &trial_field)
 	{
+		if (nearly_singular_integral<Kernel, TestField, TrialField>::needed(kernel, test_field, trial_field))
+		{
+			return nearly_singular_integral<Kernel, TestField, TrialField>::eval(
+				result, kernel, test_field, trial_field);
+		}
+		else
+		{
+		
 		unsigned degree = complexity_estimator<
 			TestField, TrialField,
 			typename Kernel::estimator_t
@@ -581,6 +590,8 @@ protected:
 
 		return eval_on_accelerator(
 			result, kernel, test_field, trial_field, acc.begin(), acc.end());
+			
+		}
 	}
 
 

@@ -23,6 +23,7 @@
 #ifndef PLANE_ELEMENT_HELPER_HPP_INCLUDED
 #define PLANE_ELEMENT_HELPER_HPP_INCLUDED
 
+
 namespace NiHu
 {
 
@@ -64,6 +65,23 @@ void plane_element_helper(
 			theta[i] = std::acos(cs);
 		alpha[i] = std::acos(R.col(i).dot(C.col(i)));
 	}
+}
+
+template <class V>
+Eigen::Matrix<double, 3, 3> plane_elem_transform(
+		Eigen::DenseBase<V> const &v1_in, 
+		Eigen::DenseBase<V> const &v2_in)
+{
+	// \todo optimize out these instantiations please
+	Eigen::Matrix<double, 3, 1> v1 = v1_in;
+	Eigen::Matrix<double, 3, 1> v2 = v2_in;
+	
+	Eigen::Matrix<double, 3, 3> T;
+	T.col(0) = v1.normalized();
+	T.col(2) = v1.cross(v2).normalized();
+	T.col(1) = T.col(2).cross(T.col(0)).normalized();
+	
+	return T;
 }
 
 } // end of namespace NiHu

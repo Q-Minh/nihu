@@ -1,10 +1,14 @@
-function g = helmholtz_3d_slp_nearly_singular(x, ~, corners, k)
+function g = helmholtz_3d_slp_nearly_singular(x, ~, corners, k, order)
+
+if nargin < 5
+    order = 20;
+end
 
 % integrate static part analytically
 g_stat = laplace_3d_slp_nearly_singular(x, [], corners);
 
 % integrate difference Duffyly
-[xi, wns] = gaussquad2(20, 4);
+[xi, wns] = gaussquad2(order, 4);
 [Nns, dNns] = ShapeSet.LinearQuad.eval(xi);
 
 y = Nns * corners([1 2 3 3],:);
