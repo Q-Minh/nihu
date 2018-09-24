@@ -13,9 +13,9 @@ rdnx = -(r1*nx1 + r2*nx2 + r3*nx3) / r;
 nxny = nx1*ny1 + nx2*ny2 + nx3*ny3;
 
 % K = G;
-% K = dG * rdny;
+K = dG * rdny;
 % K = dG * rdnx;
-K = (ddG - dG/r) * rdnx * rdny - dG / r * nxny;
+% K = (ddG - dG/r) * rdnx * rdny - dG / r * nxny;
 
 K = subs(K, ny1, 0);
 K = subs(K, ny2, 0);

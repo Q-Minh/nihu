@@ -1,5 +1,6 @@
 #include "core/weighted_residual.hpp"
 #include "library/helmholtz_kernel.hpp"
+#include "library/helmholtz_nearly_singular_integrals.hpp"
 #include "library/helmholtz_singular_integrals.hpp"
 
 #include <gtest/gtest.h>
