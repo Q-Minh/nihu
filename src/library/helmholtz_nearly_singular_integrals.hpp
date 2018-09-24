@@ -70,6 +70,8 @@ public:
 		
 		std::complex<double> res_dynamic = 0.0;
 		
+		x_t ny = elem.get_normal().normalized();
+		
 		for (auto it = quadrature_t::quadrature.begin(); it != quadrature_t::quadrature.end(); ++it)
 		{
 			auto const &xi = it->get_xi();
@@ -79,7 +81,7 @@ public:
 			double jac = elem.get_normal(xi).norm();
 			
 			res_dynamic += (
-				ktotal(x0, y) - kstatic(x0, y)
+				ktotal(x0, y, ny) - kstatic(x0, y, ny)
 			) * w * jac;
 		}
 

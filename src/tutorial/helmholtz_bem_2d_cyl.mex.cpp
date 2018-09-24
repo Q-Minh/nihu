@@ -20,6 +20,7 @@
 #include "core/weighted_residual.hpp"
 #include "util/mex_matrix.hpp"
 #include "library/helmholtz_kernel.hpp"
+#include "library/helmholtz_nearly_singular_integrals.hpp"
 #include "library/helmholtz_singular_integrals.hpp"
 
 typedef NiHu::mex::real_matrix<double> dMatrix;

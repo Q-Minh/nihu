@@ -320,7 +320,7 @@ public:
 		result(0) = laplace_3d_HSP_collocation_constant_plane_nearly_singular::eval(
 			trial_field.get_elem(),
 			test_field.get_elem().get_center(),
-			test_field.get_elem().get_unit_normal());
+			test_field.get_elem().get_normal().normalized());
 		return result;
 	}
 };

@@ -19,7 +19,9 @@
 #include <iostream>
 
 #include "library/guiggiani_1992.hpp"
+#include "library/laplace_nearly_singular_integrals.hpp"
 #include "library/laplace_singular_integrals.hpp"
+#include "library/helmholtz_nearly_singular_integrals.hpp"
 #include "library/helmholtz_singular_integrals.hpp"
 #include "library/lib_element.hpp"
 

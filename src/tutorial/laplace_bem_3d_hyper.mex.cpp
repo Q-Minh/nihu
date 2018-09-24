@@ -20,6 +20,7 @@
 #include "util/mex_matrix.hpp"
 #include "core/weighted_residual.hpp"
 #include "library/laplace_kernel.hpp"
+#include "library/laplace_nearly_singular_integrals.hpp"
 #include "library/laplace_singular_integrals.hpp"
 
 typedef NiHu::mex::real_matrix<double> dMatrix;
