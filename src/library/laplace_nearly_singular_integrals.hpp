@@ -3,6 +3,7 @@
 
 #include "../core/formalism.hpp"
 #include "../core/nearly_singular_integral.hpp"
+#include "laplace_kernel.hpp"
 #include "plane_element_helper.hpp"
 #include "quadrature_store_helper.hpp"
 
