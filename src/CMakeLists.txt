@@ -33,12 +33,11 @@ if (${CMAKE_CXX_COMPILER_ID} MATCHES "GNU")
     endif ()
 elseif (${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
 	message(STATUS "Setting up additional flags for Clang")
+elseif (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+	message(STATUS "Setting up additional flags for MSVC")
 else ()
     message(FATAL_ERROR "Your C++ compiler (" ${CMAKE_CXX_COMPILER_ID} ") does not support C++11.")
 endif ()
-
-	
-# endif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 
 ### Linker configuration
 if(WIN32)
@@ -100,9 +99,9 @@ set(CMAKE_INSTALL_PREFIX ${NIHU_INSTALL_DIR})
 
 # setup compiler flags
 # Note: -Wno-deprecated-declarations is added for sake of Eigen
-set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -pedantic -O3 -Wall -Wno-deprecated-declarations")
 # Note: -Wno-misleading-indentation is added for Eigen and gcc-6
 if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
+	set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -pedantic -O3 -Wall -Wno-deprecated-declarations")
     if (GCC_VERSION VERSION_GREATER 6.0 OR GCC_VERSION VERSION_EQUAL 6.0)
         set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wno-misleading-indentation")
     endif ()
