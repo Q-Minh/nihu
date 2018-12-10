@@ -86,7 +86,7 @@ public:
 	* \brief return number of degrees of freedom
 	* \return number of degrees of freedom
 	*/
-	unsigned get_num_dofs(void) const
+	size_t get_num_dofs(void) const
 	{
 		return derived().get_num_dofs();
 	}
@@ -151,13 +151,13 @@ public:
 
 private:
 	/** \brief specialisation of number of dofs for the constant case */
-	unsigned get_num_dofs_impl(field_option::constant) const
+	size_t get_num_dofs_impl(field_option::constant) const
 	{
 		return Mesh::get_num_elements() * traits_t::quantity_dimension;
 	}
 
 	/** \brief specialisation of number of dofs for the isoparametric case */
-	unsigned get_num_dofs_impl(field_option::isoparametric) const
+	size_t get_num_dofs_impl(field_option::isoparametric) const
 	{
 		return Mesh::get_num_points() * traits_t::quantity_dimension;
 	}
@@ -195,7 +195,7 @@ public:
 	* \brief return number of degrees of freedom
 	* \return number of degrees of freedom
 	*/
-	unsigned get_num_dofs(void) const
+	size_t get_num_dofs(void) const
 	{
 		return get_num_dofs_impl(FieldOption());
 	}

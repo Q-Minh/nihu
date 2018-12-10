@@ -72,7 +72,7 @@ public:
 	 * \brief return number of points
 	 * \return number of points
 	 */
-	unsigned get_num_points(void) const
+	size_t get_num_points(void) const
 	{
 		return points.size();
 	}
