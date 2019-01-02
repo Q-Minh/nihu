@@ -9,7 +9,7 @@ coords = [
     0 1 0
     ];
 
-x = [.5 .5 1];
+x = [.5 .5 .1];
 
 order = 20;
 [xi, w] = gaussquad2(order, 4);
