@@ -48,7 +48,6 @@ public:
 };
 
 
-
 class helmholtz_3d_DLP_collocation_constant_plane_nearly_singular
 {
 public:
@@ -90,7 +89,6 @@ public:
 };
 
 
-
 class helmholtz_3d_HSP_collocation_constant_plane_nearly_singular
 {
 public:
@@ -130,8 +128,6 @@ public:
 		return res_static + res_dynamic;
 	}
 };
-
-
 
 
 

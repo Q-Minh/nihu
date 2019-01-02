@@ -126,8 +126,6 @@ public:
 };
 
 
-
-
 class laplace_3d_HSP_collocation_constant_plane_nearly_singular
 {
 	typedef line_domain quadrature_domain_t;
@@ -196,8 +194,6 @@ public:
 		return result / (4.*M_PI);
 	}
 };
-
-
 
 
 template <class TestField, class TrialField>
