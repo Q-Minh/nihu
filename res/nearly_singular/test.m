@@ -5,13 +5,13 @@ shapeset = ShapeSet.LinearQuad;
 coords = [
     0 0 0
     1 0 0
-    .8 1 0
-    0 1 0
+    1 1 0
+    0 .5 .5
     ];
 
-x = [.5 .5 1];
+x = [.5 .5 .1];
 
-order = 20;
+order = 40;
 [xi, w] = gaussquad2(order, 4);
 [N, dN, ddN] = shapeset.eval(xi);
 
@@ -52,5 +52,5 @@ r = sqrt(dot(rvec, rvec, 2));
 rappr = sqrt((d* J0)^2 + rho.^2 .* (dot(A1, A1, 2) - 2*d*(A2 * J0vec.')));
 
 figure;
-plot3(xi(:,1), xi(:,2), 1./r, '.',...
-    xi(:,1), xi(:,2), 1./rappr, '.');
+plot3(xi(:,1), xi(:,2), 1./r, 'b.',...
+    xi(:,1), xi(:,2), 1./rappr, 'r.');

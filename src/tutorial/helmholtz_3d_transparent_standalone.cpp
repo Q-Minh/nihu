@@ -21,7 +21,7 @@ static double tester(TestSpace const &test_space, TrialSpace const &trial_space)
 	auto L_op = NiHu::create_integral_operator(NiHu::helmholtz_3d_SLP_kernel<double>(wn));
 	auto M_op = NiHu::create_integral_operator(NiHu::helmholtz_3d_DLP_kernel<double>(wn));
 	
-	unsigned N = test_space.get_num_dofs();
+	size_t N = test_space.get_num_dofs();
 	
 	// excitation and response
 	cMatrix q0(N, 1), p0(N,1);
@@ -37,7 +37,7 @@ static double tester(TestSpace const &test_space, TrialSpace const &trial_space)
 	A << 1.0, -1.0, -2.0;
 	
 	auto const &mesh = trial_space.get_mesh();
-	for (unsigned k = 0; k < N; ++k)
+	for (size_t k = 0; k < N; ++k)
 	{
 		auto const &elem = mesh.template get_elem<NiHu::tria_1_elem>(k);
 		auto y = elem.get_center();

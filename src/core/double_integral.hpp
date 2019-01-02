@@ -550,14 +550,13 @@ protected:
 		field_base<TestField> const &test_field,
 		field_base<TrialField> const &trial_field)
 	{
-		if (nearly_singular_integral<Kernel, TestField, TrialField>::needed(kernel, test_field, trial_field))
-		{
+		// evaluate nearly with nearly singular shortcut if needed
+		if (nearly_singular_integral<Kernel, TestField, TrialField>::needed(
+			kernel, test_field, trial_field))
 			return nearly_singular_integral<Kernel, TestField, TrialField>::eval(
 				result, kernel, test_field, trial_field);
-		}
-		else
-		{
 		
+		// evaluate regular integral
 		unsigned degree = complexity_estimator<
 			TestField, TrialField,
 			typename Kernel::estimator_t
@@ -590,8 +589,6 @@ protected:
 
 		return eval_on_accelerator(
 			result, kernel, test_field, trial_field, acc.begin(), acc.end());
-			
-		}
 	}
 
 
