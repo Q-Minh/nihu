@@ -23,9 +23,9 @@
 #ifndef GUIGGIANI_1992_HPP_INCLUDED
 #define GUIGGIANI_1992_HPP_INCLUDED
 
+#include "line_quad_store.hpp"
 #include "location_normal.hpp"
 #include "../core/field.hpp"
-#include "../core/gaussian_quadrature.hpp"
 #include "../core/kernel.hpp"
 #include "../core/shapeset.hpp"
 #include "../util/math_constants.hpp"
@@ -40,19 +40,6 @@
 
 namespace NiHu
 {
-
-/** \brief store-wrapper of a statically stored line quadrature */
-template <unsigned order>
-struct line_quad_store
-{
-	/** \brief the stored static quadrature member */
-	static gaussian_quadrature<line_domain> const quadrature;
-};
-
-/** \brief definition of the statically stored line quadrature member */
-template <unsigned order>
-gaussian_quadrature<line_domain> const line_quad_store<order>::quadrature(order);
-
 
 /** \brief definition of Laurent coefficients of singularities
  * \tparam singuarity_type the singularity type
@@ -134,10 +121,7 @@ public:
 	typedef typename kernel_traits<kernel_t>::trial_input_t trial_input_t;
 
 	/** \brief the kernel's weighted trial input type */
-	typedef typename merge<
-		trial_input_t,
-		typename build<normal_jacobian<typename trial_input_t::space_t> >::type
-	>::type w_trial_input_t;
+	typedef typename weighted_input<trial_input_t, elem_t>::type w_trial_input_t;
 
 	/** \brief the singular core type */
 	typedef typename singular_kernel_traits<kernel_t>::singular_core_t singular_core_t;
@@ -487,10 +471,7 @@ public:
 	typedef typename kernel_traits<kernel_t>::trial_input_t trial_input_t;
 
 	/** \brief the kernel's weighted trial input type */
-	typedef typename merge<
-		trial_input_t,
-		typename build<volume_jacobian<typename trial_input_t::space_t> >::type
-	>::type w_trial_input_t;
+	typedef typename weighted_input<trial_input_t, elem_t>::type w_trial_input_t;
 
 	/** \brief the singular core type */
 	typedef typename singular_kernel_traits<kernel_t>::singular_core_t singular_core_t;

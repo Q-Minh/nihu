@@ -2,6 +2,7 @@
 
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath,bm}
+\usepackage[margin=2cm]{geometry}
 
 \newcommand{\td}{\mathrm{d}}
 
@@ -35,12 +36,12 @@ where
 \end{equation}
 %
 where ${\bf x}_0 = {\bf y}(\bm{\xi}_0)$,
-and ${\bf x} - {\bf x}_0 = d {\bf J}_0$, 
+and ${\bf x} - {\bf x}_0 = \zeta {\bf J}_0$, 
 where ${\bf J}_0 = {\bf J}({\bm{\xi}_0})$
 %
 \begin{equation}
 	\int_{\Sigma}
-	G({\bf y(\bm{\xi})} - {\bf y}(\bm{\xi}_0) - d {\bf J}({\bm{\xi}_0})) N(\bm{\xi}) J(\bm{\xi}) \td \Sigma(\bm{\xi})
+	G({\bf y(\bm{\xi})} - {\bf y}(\bm{\xi}_0) - \zeta {\bf J}({\bm{\xi}_0})) N(\bm{\xi}) J(\bm{\xi}) \td \Sigma(\bm{\xi})
 \end{equation}
 %
 Reparametrization in local coordinate system:
@@ -54,7 +55,7 @@ Reparametrization in local coordinate system:
 \begin{equation}
 	\int_{0}^{2\pi}
 	\int_{0}^{\rho(\theta)}
-	G({\bf y}(\rho, \theta) - {\bf y}(0, 0) - d {\bf J}_0)
+	G({\bf y}(\rho, \theta) - {\bf y}(0, 0) - \zeta {\bf J}_0)
 	N(\rho, \theta)
 	J(\rho, \theta)
 	\rho
@@ -73,7 +74,7 @@ The integral is regularized as follows:
 \begin{multline}
 	\int_{0}^{2\pi}
 	\int_{0}^{\rho(\theta)}
-		G({\bf A}_1(\theta) \rho - d {\bf J}_0)
+		G({\bf A}_1(\theta) \rho - \zeta {\bf J}_0)
 		N(0, 0)
 		J(0, 0)
 	\rho
@@ -83,11 +84,11 @@ The integral is regularized as follows:
 	\int_{0}^{2\pi}
 	\int_{0}^{\rho(\theta)}
 	\left[
-		G({\bf y}(\rho, \theta) - {\bf y}(0, 0) - d {\bf J}_0)
+		G({\bf y}(\rho, \theta) - {\bf y}(0, 0) - \zeta {\bf J}_0)
 		N(\rho, \theta)
 		J(\rho, \theta)
 		-
-		G({\bf A}_1(\theta) \rho - d {\bf J}_0)
+		G({\bf A}_1(\theta) \rho - \zeta {\bf J}_0)
 		N(0, 0)
 		J(0, 0)
 	\right]
@@ -102,19 +103,19 @@ The integral is regularized as follows:
 	=
 	\sqrt{
 		\left(
-			\sum_{k=1}^{\infty} {\bf A}_k(\theta) \rho^k - d {\bf J}_0
+			\sum_{k=1}^{\infty} {\bf A}_k(\theta) \rho^k - \zeta {\bf J}_0
 		\right)^2
 	}
 	\\
 	=
 	\sqrt{
-		d^2 J_0^2 + \sum_{k=1}\sum_{l=1} {\bf A}_k(\theta) {\bf A}_l(\theta) \rho^{k+l}
-		-2d\sum_{k=2}^{\infty} {\bf A}_k(\theta) {\bf J}_0 \rho^k
+		\zeta^2 J_0^2 + \sum_{k=1}\sum_{l=1} {\bf A}_k(\theta) {\bf A}_l(\theta) \rho^{k+l}
+		-2\zeta\sum_{k=2}^{\infty} {\bf A}_k(\theta) {\bf J}_0 \rho^k
 	}
 	\\
 	=
 	\sqrt{
-		d^2 J_0^2 + \rho^2 \left(A_1^2(\theta) - 2d {\bf A}_2(\theta) {\bf J}_0\right) + O(\rho^3)
+		\zeta^2 J_0^2 + \rho^2 \left(A_1^2(\theta) - 2\zeta {\bf A}_2(\theta) {\bf J}_0\right) + O(\rho^3)
 	}
 \end{multline}
 \end{document}

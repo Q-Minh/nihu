@@ -61,10 +61,16 @@ namespace kernel_traits_ns
 	struct is_singular<covariance_kernel<Space> > : std::false_type {};
 
 	template <class Space>
-	struct test_input<covariance_kernel<Space> > : build<location<Space> > {};
+	struct test_input<covariance_kernel<Space> >
+	{
+		typedef location_input<Space> type;
+	};
 
 	template <class Space>
-	struct trial_input<covariance_kernel<Space> > : build<location<Space> > {};
+	struct trial_input<covariance_kernel<Space> >
+	{
+		typedef location_input<Space> type;
+	};
 
 	template <class Space>
 	struct is_symmetric<covariance_kernel<Space> > : std::true_type {};
