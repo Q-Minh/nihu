@@ -74,29 +74,31 @@ namespace kernel_traits_ns
 
 	// in the general case, the test input is normal_jacobian
 	template <class DK, int Nx, int Ny>
-	struct test_input<normal_derivative_kernel<DK, Nx, Ny> > : build<
-		location<typename distance_dependent_kernel_traits_ns::space<DK>::type>,
-		normal_jacobian<typename distance_dependent_kernel_traits_ns::space<DK>::type>
-	> {};
+	struct test_input<normal_derivative_kernel<DK, Nx, Ny> >
+	{
+		typedef location_normal_jacobian_input<typename distance_dependent_kernel_traits_ns::space<DK>::type> type;
+	};
 
 	// for the Nx = 0 case the test input is location
 	template <class DK, int Ny>
-	struct test_input<normal_derivative_kernel<DK, 0, Ny> > : build<
-		location<typename distance_dependent_kernel_traits_ns::space<DK>::type>
-	> {};
+	struct test_input<normal_derivative_kernel<DK, 0, Ny> >
+	{
+		typedef location_input<typename distance_dependent_kernel_traits_ns::space<DK>::type> type;
+	};
 
 	// in the general case, the trial input is normal_jacobian
 	template <class DK, int Nx, int Ny>
-	struct trial_input<normal_derivative_kernel<DK, Nx, Ny> > : build<
-		location<typename distance_dependent_kernel_traits_ns::space<DK>::type>,
-		normal_jacobian<typename distance_dependent_kernel_traits_ns::space<DK>::type>
-	> {};
+	struct trial_input<normal_derivative_kernel<DK, Nx, Ny> >
+	{
+		typedef location_normal_jacobian_input<typename distance_dependent_kernel_traits_ns::space<DK>::type> type;
+	};
 
 	// for the Ny = 0 case the trial input is location
 	template <class DK, int Nx>
-	struct trial_input<normal_derivative_kernel<DK, Nx, 0> > : build<
-		location<typename distance_dependent_kernel_traits_ns::space<DK>::type>
-	> {};
+	struct trial_input<normal_derivative_kernel<DK, Nx, 0> >
+	{
+		typedef location_input<typename distance_dependent_kernel_traits_ns::space<DK>::type> type;
+	};
 
 /*
 	template <class DK>

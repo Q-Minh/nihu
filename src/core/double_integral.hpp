@@ -47,6 +47,7 @@ namespace NiHu
 {
 
 
+/*
 template <class Elem>
 struct weighted_brick;
 
@@ -61,6 +62,7 @@ struct weighted_brick<surface_element<LSet, Scalar> >
 {
 	typedef normal_jacobian<typename surface_element<LSet, Scalar>::space_t> type;
 };
+*/
 
 
 /** Helper class for tmp::call_until to select singular shortcuts based on singularity type */
@@ -156,15 +158,9 @@ public:
 	/** \brief trial input type of kernel */
 	typedef typename kernel_traits<Kernel>::trial_input_t trial_input_t;
 	/** \brief weighted test input type of kernel */
-	typedef typename merge<
-		test_input_t,
-		typename build<typename weighted_brick<test_elem_t>::type >::type
-	>::type w_test_input_t;
+	typedef typename weighted_input<test_input_t, test_elem_t>::type w_test_input_t;
 	/** \brief weighted trial input type of kernel */
-	typedef typename merge<
-		trial_input_t,
-		typename build<typename weighted_brick<trial_elem_t>::type >::type
-	>::type w_trial_input_t;
+	typedef typename weighted_input<trial_input_t, trial_elem_t>::type w_trial_input_t;
 
 	/** \brief the quadrature family the kernel requires */
 	typedef typename kernel_traits<Kernel>::quadrature_family_t quadrature_family_t;
@@ -413,10 +409,7 @@ public:
 	typedef typename kernel_traits<Kernel>::trial_input_t trial_input_t;
 
 	/** \brief weighted trial input type */
-	typedef typename merge<
-		trial_input_t,
-		typename build<typename weighted_brick<trial_elem_t>::type >::type
-	>::type w_trial_input_t;
+	typedef typename weighted_input<trial_input_t, trial_elem_t>::type w_trial_input_t;
 
 	/** \brief the quadrature family the kernel requires */
 	typedef typename kernel_traits<Kernel>::quadrature_family_t quadrature_family_t;

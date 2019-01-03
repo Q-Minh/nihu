@@ -18,11 +18,19 @@ int main(void)
 	elem_t::x_t x;
 	x << .2, .2, .3;
 
-	auto res = NiHu::inverse_mapping<elem_t>::eval(elem, x, 200, 1e-5);
+	NiHu::inverse_mapping<elem_t> im(elem);
 
-	elem_t::x_t y = elem.get_x(res.topRows(2));
-	elem_t::x_t n = elem.get_normal(res.topRows(2));
-	elem_t::x_t x0 = y + n * res(2);
+	if (im.eval(x, 1e-5, 200))
+	{
+		std::cout << "Inverse mapping succeeded" << std::endl;
+		std::cout << im.get_iter() << " iterations" << std::endl;
+		std::cout << "Absolute error: " << im.get_error() << std::endl;
+		std::cout << im.get_result() << std::endl;
+	}
+	else
+	{
+		std::cout << "Inverse mapping failed" << std::endl;
+	}
 
 	return 0;
 }
