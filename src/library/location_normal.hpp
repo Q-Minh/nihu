@@ -93,16 +93,16 @@ public:
 	template <class elem_t>
 	location_normal_jacobian_input(elem_t const &elem, typename elem_t::xi_t const &xi)
 		: location_input<Space>(elem, xi)
-		, m_norm(elem.get_normal(xi))
-		, m_jac(m_norm.norm())
+		, m_jac_vector(elem.get_normal(xi))
+		, m_jac(m_jac_vector.norm())
+		, m_unit_normal(m_jac_vector / m_jac)
 	{
-		m_norm /= m_jac;
 	}
 
 	/** \brief return the normal */
 	x_t const &get_unit_normal(void) const
 	{
-		return m_norm;
+		return m_unit_normal;
 	}
 
 	/** \brief return the Jacobian */
@@ -110,10 +110,16 @@ public:
 	{
 		return m_jac;
 	}
+	
+	x_t const &get_jacobian_vector() const
+	{
+		return m_jac_vector;
+	}
 
 private:
-	x_t m_norm;
+	x_t m_jac_vector;
 	scalar_t m_jac;
+	x_t m_unit_normal;
 };
 
 /** \brief a class representing a Jacobian brick used for volume elements

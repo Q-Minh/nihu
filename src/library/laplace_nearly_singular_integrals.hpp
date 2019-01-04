@@ -3,6 +3,7 @@
 
 #include "../core/formalism.hpp"
 #include "../core/nearly_singular_integral.hpp"
+#include "../core/nearly_singular_planar_constant_collocation_shortcut.hpp"
 #include "laplace_kernel.hpp"
 #include "plane_element_helper.hpp"
 #include "quadrature_store_helper.hpp"
@@ -23,8 +24,14 @@ public:
 		typedef typename elem_t::x_t x_t;
 		
 		enum { N = elem_t::domain_t::num_corners  };
-		auto corners = elem.get_coords();
-		
+
+		Eigen::Matrix<double, 3, N> corners;
+		for (unsigned i = 0; i < N; ++i)
+		{
+			auto xi = elem_t::domain_t::get_corner(i);
+			corners.col(i) = elem.get_x(xi);
+		}
+
 		auto T = plane_elem_transform(corners.col(1)-corners.col(0), corners.col(2)-corners.col(0));
 		auto Tdec = T.partialPivLu();
 		corners = Tdec.solve(corners);
@@ -319,6 +326,22 @@ public:
 			test_field.get_elem().get_center(),
 			test_field.get_elem().get_normal().normalized());
 		return result;
+	}
+};
+
+template <class Elem>
+class nearly_singular_planar_constant_collocation_shortcut<laplace_3d_SLP_kernel, Elem>
+{
+public:
+	typedef Elem elem_t;
+	typedef laplace_3d_SLP_kernel::result_t res_t;
+
+	static res_t eval(
+		laplace_3d_SLP_kernel::test_input_t const &test_input,
+		elem_t const &elem)
+	{
+		return laplace_3d_SLP_collocation_constant_plane_nearly_singular::eval(
+			elem, test_input.get_x());
 	}
 };
 

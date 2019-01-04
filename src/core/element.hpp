@@ -412,6 +412,30 @@ public:
 			return element_overlapping();
 		return element_overlapping(num_coinc, start_ind1, start_ind2);
 	}
+	
+	/** \brief construct linearized elem around an intrinsic coordinate
+	 * \param [in] xi0 reference point
+	 */
+	Derived get_linearized_elem(xi_t const &xi0) const
+	{
+		// coordinates of the linearized elem
+		coords_t coords;
+
+		// phyisical location and its derivative at the reference point
+		x_t x0 = get_x(xi0);
+		auto dx0 = get_dx(xi0);
+
+		// compute corners of linearized elem
+		for (size_t i = 0; i < num_nodes; ++i)
+		{
+			xi_t const &xi = lset_t::corner_at(i);
+			xi_t dxi = xi - xi0;
+			coords.col(i) = x0 + dx0 * dxi;
+		}
+
+		// construct linearized elem
+		return Derived(coords);
+	}
 };
 
 /** \brief compare two element id's by value

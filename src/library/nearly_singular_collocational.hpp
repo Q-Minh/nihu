@@ -7,21 +7,20 @@
 #include "../core/field.hpp"
 #include "../core/inverse_mapping.hpp"
 #include "../core/kernel.hpp"
+#include "../core/nearly_singular_planar_constant_collocation_shortcut.hpp"
 #include "../core/shapeset.hpp"
 #include "../util/block_product.hpp"
 
 namespace NiHu
 {
-
 template <class TrialField, class Kernel, 
 	unsigned RadialOrder, unsigned TangentialOrder, 
 	class Enable = void>
-class nearly_singular_generic;
-
+class nearly_singular_collocational;
 
 template <class TrialField, class Kernel,
 	unsigned RadialOrder, unsigned TangentialOrder>
-class nearly_singular_generic<TrialField, Kernel, RadialOrder, TangentialOrder,
+class nearly_singular_collocational<TrialField, Kernel, RadialOrder, TangentialOrder,
 	typename std::enable_if<
 	element_traits::is_surface_element<typename TrialField::elem_t>::value
 	>::type>
@@ -29,8 +28,8 @@ class nearly_singular_generic<TrialField, Kernel, RadialOrder, TangentialOrder,
 public:
 	/** \brief quadrature orders stored as internal constants */
 	enum {
-		radial_order = RadialOrder,	/**< \brief quadrature order in radial direction */
-		tangential_order = TangentialOrder	/**< \brief quadrature order in tangential direction */
+		radial_order = RadialOrder,			/**< \brief radial quadr. order */
+		tangential_order = TangentialOrder	/**< \brief tangential quadr order */
 	};
 
 	/** \brief the trial field type */
@@ -73,35 +72,35 @@ public:
 	 * \param [in] elem the element
 	 * \param [in] kernel the kernel
 	 */
-	nearly_singular_generic(elem_t const &elem,
+	nearly_singular_collocational(
+		field_base<trial_field_t> const &trial_field,
 		kernel_base<kernel_t> const &kernel)
-		: m_elem(elem)
+		: m_elem(trial_field.get_elem())
 		, m_kernel(kernel)
 	{
 	}
-	
 
 	template <class result_t>
 	void integrate(result_t &&I, test_input_t const &tsi)
 	{
+		// the reference point
 		x_t x0 = tsi.get_x();
 
-		// perform inverse mapping
-		inverse_mapping<elem_t> im(m_elem);
-
+		// perform inverse mapping to obtain image of reference point on element
 		double tol = 1e-5;
 		unsigned max_iter = 100;
-
+		inverse_mapping<elem_t> im(m_elem);
 		if (!im.eval(x0, tol, max_iter))
 			throw std::runtime_error("Could not perform inverse mapping");
-
 		auto res = im.get_result();
 		m_xi0 = res.topRows(xi_t::RowsAtCompileTime);
 		m_zeta = res(xi_t::RowsAtCompileTime);
 
+		// compute linearized element
+		elem_t lin_elem = m_elem.get_linearized_elem(m_xi0);
+
+		// get jacobian at the reference image
 		auto N0 = trial_nset_t::template eval_shape<0>(m_xi0);
-		w_trial_input_t tri0(m_elem, m_xi0);
-		auto J0 = tri0.get_jacobian();
 
 		// geometrical parameters (planar helpers)
 		unsigned const N = domain_t::num_corners;
@@ -118,8 +117,8 @@ public:
 			xi_t d0 = d1 - l * d1.dot(l);		// perpendicular to side
 
 			m_theta_lim[n] = std::atan2(d1(1), d1(0));	// corner angle
-			m_theta0[n] = std::atan2(d0(1), d0(0));		// mid angle
-			m_ref_distance[n] = d0.norm();				// distance to side
+			m_theta0[n] = std::atan2(d0(1), d0(0));	// mid angle
+			m_ref_distance[n] = d0.norm();			// distance to side
 		}
 
 		// iterate through triangles
@@ -133,7 +132,8 @@ public:
 			if (std::abs(t2 - t1) < 1e-3)
 				continue;
 
-			if (t2 < t1)
+			// we assume that the domain's corners are listed in positive order */
+			if (std::abs(t2 - t1) > M_PI)
 				t2 += 2.0 * M_PI;
 
 			// theta integration
@@ -160,18 +160,31 @@ public:
 
 					// evaluate weighted trial input
 					w_trial_input_t tri(m_elem, xi);
+					w_trial_input_t tri_lin(lin_elem, xi);
 
 					// evaluate kernel
-					typename kernel_t::result_t GJ = m_kernel(tsi, tri) * tri.get_jacobian();
+					typename kernel_t::result_t GJ = m_kernel(tsi, tri)
+						* tri.get_jacobian();
+					typename kernel_t::result_t GJ_lin = m_kernel(tsi, tri_lin)
+						* tri_lin.get_jacobian();
 
 					// get shape function
 					auto N = trial_nset_t::template eval_shape<0>(xi);
 					total_result_t F = semi_block_product(GJ, N);
+					total_result_t F_lin = semi_block_product(GJ_lin, N0);
 
-					I += w_theta * w_rho * rho * F;
+					I += w_theta * w_rho * rho * (F - F_lin );
 				} // end of loop over radial nodes
 			} // end of loop over tangential nodes
 		} // end of loop over triangles
+
+		typename kernel_t::result_t anal_res = 
+			nearly_singular_planar_constant_collocation_shortcut<kernel_t, elem_t>::eval(
+			tsi, lin_elem
+		);
+
+		I += semi_block_product(anal_res, N0);
+
 	} // end of function integrate
 
 private:
@@ -185,6 +198,6 @@ private:
 	double m_ref_distance[domain_t::num_corners];
 };
 
-}
+} // end of namespace NiHu
 
 #endif // NEARLY_SINGULAR_GENERIC_HPP_INCLUDED

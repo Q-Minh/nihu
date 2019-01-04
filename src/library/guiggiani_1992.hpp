@@ -282,7 +282,8 @@ public:
 			if (std::abs(t2-t1) < 1e-3)
 				continue;
 			
-			if (t2 < t1)
+			// we assume that the domain's corners are listed in positive order */
+			if (std::abs(t2 - t1) > M_PI)
 				t2 += 2.0 * M_PI;
 
 			// theta integration
@@ -631,7 +632,9 @@ public:
 			// get angular integration limits
 			scalar_t t1 = m_theta_lim[n];
 			scalar_t t2 = m_theta_lim[(n + 1) % N];
-			if (t2 < t1)
+	
+			// we assume that the domain's corners are listed in positive order */
+			if (std::abs(t2 - t1) > M_PI)
 				t2 += 2.0 * M_PI;
 
 			// theta integration
