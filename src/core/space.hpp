@@ -1,7 +1,7 @@
 // This file is a part of NiHu, a C++ BEM template library.
 //
-// Copyright (C) 2012-2014  Peter Fiala <fiala@hit.bme.hu>
-// Copyright (C) 2012-2014  Peter Rucz <rucz@hit.bme.hu>
+// Copyright (C) 2012-2019  Peter Fiala <fiala@hit.bme.hu>
+// Copyright (C) 2012-2019  Peter Rucz <rucz@hit.bme.hu>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@
 namespace NiHu
 {
 
-/** \brief class representing a coordinate space with a scalar variable and a dimension
+/** \brief class representing a coordinate space with a scalar and a dimension
  * \tparam Scalar the scalar variable
  * \tparam Dimension the space dimensionality
  */
@@ -52,19 +52,19 @@ struct space
 	typedef Eigen::Matrix<scalar_t, Dimension, 1> location_t;
 };
 
-/** \brief specialisation for a 1D space of double */
+/** \brief specialisation for a 1D space */
 template <class Scalar = double>
 using space_1d = space<Scalar, 1>;
 
-/** \brief specialisation for a 2D space of double */
+/** \brief specialisation for a 2D space */
 template <class Scalar = double>
 using space_2d = space<Scalar, 2>;
 
-/** \brief specialisation for a 3D space of double */
+/** \brief specialisation for a 3D space */
 template <class Scalar = double>
-using space_3d = space<Scalar, 3> ;
+using space_3d = space<Scalar, 3>;
 
-}
+} // end of namespace NiHu
 
 #endif // SPACE_HPP_INCLUDED
 

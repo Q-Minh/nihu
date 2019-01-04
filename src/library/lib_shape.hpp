@@ -1,7 +1,7 @@
 // This file is a part of NiHu, a C++ BEM template library.
 //
-// Copyright (C) 2012-2014  Peter Fiala <fiala@hit.bme.hu>
-// Copyright (C) 2012-2014  Peter Rucz <rucz@hit.bme.hu>
+// Copyright (C) 2012-2019  Peter Fiala <fiala@hit.bme.hu>
+// Copyright (C) 2012-2019  Peter Rucz <rucz@hit.bme.hu>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -178,7 +178,7 @@ public:
 
 /**
 * \brief linear 3-noded tria elem shape function derivative matrix
-* \return sape function derivative matrix
+* \return shape function derivative matrix
 */
 template<>
 class shape_function<tria_1_shape_set, 1>
@@ -1129,7 +1129,7 @@ public:
 	}
 };
 
-}
+} // namespace NiHu
 
 
 #endif // LIB_SHAPE_HPP_INCLUDED

@@ -1,7 +1,7 @@
 // This file is a part of NiHu, a C++ BEM template library.
 //
-// Copyright (C) 2012-2014  Peter Fiala <fiala@hit.bme.hu>
-// Copyright (C) 2012-2014  Peter Rucz <rucz@hit.bme.hu>
+// Copyright (C) 2012-2019  Peter Fiala <fiala@hit.bme.hu>
+// Copyright (C) 2012-2019  Peter Rucz <rucz@hit.bme.hu>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -36,7 +36,6 @@
 
 namespace NiHu
 {
-
 
 /** \brief shape function derivative indices
  * These indices are used to index the first and second derivatives of the
@@ -364,7 +363,8 @@ namespace shape_set_traits
 * \brief Isoparametric shape sets
 */
 template <class Domain>
-class isoparam_shape_set : public shape_set_base<isoparam_shape_set<Domain> >
+class isoparam_shape_set
+	: public shape_set_base<isoparam_shape_set<Domain> >
 {
 public:
 	/** \brief the CRTP base class */
