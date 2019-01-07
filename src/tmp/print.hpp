@@ -19,14 +19,15 @@
 /**
  * \file print.hpp
  * \ingroup tmp
- * \brief print compile time sequences (debug)
+ * \brief Print compile time sequences (debug)
  */
 #ifndef PRINT_HPP_INCLUDED
 #define PRINT_HPP_INCLUDED
 
+#include "sequence.hpp"
+
 #include <iostream>
 #include <type_traits>
-#include "sequence.hpp"
 
 /** \brief print elements of a compile time sequence */
 template <class Seq, bool = std::is_same<Seq, typename tmp::empty<Seq>::type>::value>
@@ -51,4 +52,4 @@ struct print<Seq, true>
 	}
 };
 
-#endif // PRINT_HPP_INCLUDED
+#endif /* PRINT_HPP_INCLUDED */

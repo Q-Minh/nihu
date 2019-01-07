@@ -19,6 +19,7 @@
 /**
  * \file lambda.hpp
  * \brief implementation of placeholders and lambda functions
+ * \ingroup tmp
  */
 
 #ifndef LAMBDA_HPP_INCLUDED

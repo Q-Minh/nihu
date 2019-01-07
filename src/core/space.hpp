@@ -16,7 +16,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-/** \file space.hpp
+/** 
+ * \file space.hpp
  * \ingroup funcspace
  * \brief declaration of class ::space
  */
@@ -36,7 +37,7 @@ namespace NiHu
 template <class Scalar, unsigned Dimension>
 struct space
 {
-    /** self-returning */
+    /** \brief self-returning */
     typedef space type;
 
 	/** \brief template parameter as nested type */
@@ -44,7 +45,7 @@ struct space
 
 	/** \brief integral constants */
 	enum {
-		/** \brief template parameter as nested type */
+		/** \brief template parameter as nested value */
 		dimension = Dimension
 	};
 
@@ -66,5 +67,5 @@ using space_3d = space<Scalar, 3>;
 
 } // end of namespace NiHu
 
-#endif // SPACE_HPP_INCLUDED
+#endif /* SPACE_HPP_INCLUDED */
 

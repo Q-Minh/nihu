@@ -54,6 +54,7 @@ int main(void)
 	std::cout << "false & false = " << tmp::and_<_f, _f>::type::value << std::endl;
 	std::cout << std::endl;
 	
+#if 0
 	std::cout << std::noboolalpha;
 	
 	std::cout << "Testing IF" << std::endl;
@@ -61,6 +62,7 @@ int main(void)
 	std::cout << "if_(true , 0, 1) = " << tmp::if_<_t, _f, _t >::type::value << std::endl;
 	std::cout << "if_(false, 0, 1) = " << tmp::if_<_f, _f, _t >::type::value << std::endl;
 	std::cout << std::endl;
+#endif
 	
 	
 	

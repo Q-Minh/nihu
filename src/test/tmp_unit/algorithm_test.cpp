@@ -18,8 +18,8 @@
 
 #include "tmp/algorithm.hpp"
 #include "tmp/integer.hpp"
-#include "tmp/vector.hpp"
 #include "tmp/print.hpp"
+#include "tmp/vector.hpp"
 
 #include <iostream>
 

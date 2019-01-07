@@ -36,14 +36,14 @@
 /**
  * \file integer.hpp
  * \brief integer type representation and basic integer arithmetics
+ * \ingroup tmp
  */
 
-#ifndef INTEGER_HPP
-#define INTEGER_HPP
+#ifndef INTEGER_HPP_INCLUDED
+#define INTEGER_HPP_INCLUDED
 
-#include "relation.hpp"
 #include "operator.hpp"
-//#include "bool.hpp"
+#include "relation.hpp"
 
 namespace tmp
 {
@@ -62,41 +62,73 @@ namespace tmp
 	};
 
 	/**
-	 * \brief metafunction returning next integer
+	 * \brief Metafunction returning next integer
+	 * \tparam T Integer type
+	 * \tparam N Integer value
+	 * \returns Integer value of \c N + 1
 	 */
 	template <class T, T N>
 	struct next<integer<T, N> > : integer<T, integer<T, N>::next> {};
 
 	/**
-	 * \brief metafunction returning previous integer
+	 * \brief Metafunction returning previous integer
+	 * \tparam T Integer type
+	 * \tparam N Integer value
+	 * \returns Integer value of \c N - 1
 	 */
 	template <class T, T N>
 	struct prev<integer<T, N> > : integer<T, integer<T, N>::prev> {};
 
 	/**
-	 * \brief metafunction returning sum of two integers
+	 * \brief metafunction returning the sum of two integers
+	 * \tparam T Integer type
+	 * \tparam N First operand
+	 * \tparam M Second operand
+	 * \returns Integer value of \c N + \c M
 	 */
 	template <class T, T N, T M>
 	struct plus<integer<T, N>, integer<T, M> > : integer<T, N+M> {};
 
 	/**
-	 * \brief metafunction returning difference of two integers
+	 * \brief Metafunction returning the difference of two integers
+	 * \tparam T Integer type
+	 * \tparam N First operand
+	 * \tparam M Second operand
+	 * \returns Integer value of \c N - \c M
 	 */
 	template <class T, T N, T M>
 	struct minus<integer<T, N>, integer<T, M> > : integer<T, N-M> {};
 
 	/**
-	 * \brief metafunction returning difference of two integers
+	 * \brief Metafunction returning the multiplicate of two integers
+	 * \tparam T Integer type
+	 * \tparam N First operand
+	 * \tparam M Second operand
+	 * \returns Integer value of \c N * \c M
 	 */
 	template <class T, T N, T M>
 	struct mul<integer<T, N>, integer<T, M> > : integer<T, N*M> {};
 
+	/**
+	 * \brief Metafunction comparing to integers
+	 * \tparam T Integer type
+	 * \tparam N Left hand side integer value
+	 * \tparam M Right hand side integer value
+	 * \returns True if \c N < \c M
+	 */ 
 	template <class T, T N, T M>
 	struct less<integer<T, N>, integer<T, M> > : std::integral_constant<bool, (N<M) > {};
 
+	/**
+	 * \brief Metafunction comparing to integers
+	 * \tparam T Integer type
+	 * \tparam N Left hand side integer value
+	 * \tparam M Right hand side integer value
+	 * \returns True if \c N > \c M
+	 */ 
 	template <class T, T N, T M>
 	struct greater<integer<T, N>, integer<T, M> > : std::integral_constant<bool, (N>M) > {};
 }
 
-#endif
+#endif /* INTEGER_HPP_INCLUDED */
 

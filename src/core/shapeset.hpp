@@ -25,14 +25,15 @@
 #ifndef SHAPESET_HPP_INCLUDED
 #define SHAPESET_HPP_INCLUDED
 
-#include <iostream>
-#include <type_traits>
-#include <stdexcept>
+#include "../tmp/algorithm.hpp"
+#include "../tmp/vector.hpp"
+#include "../util/conditional_precompute.hpp"
 
 #include "domain.hpp"
-#include "../tmp/vector.hpp"
-#include "../tmp/algorithm.hpp"
-#include "../util/conditional_precompute.hpp"
+
+#include <iostream>
+#include <stdexcept>
+#include <type_traits>
 
 namespace NiHu
 {

@@ -24,15 +24,16 @@
 #ifndef CONTROL_HPP_INCLUDED
 #define CONTROL_HPP_INCLUDED
 
-#include <type_traits>
-
-#include "sequence.hpp"
-#include "lambda.hpp"
 #include "algorithm.hpp"
+#include "lambda.hpp"
+#include "sequence.hpp"
+
+#include <type_traits>
 
 /** \brief template metaprogramming functions */
 namespace tmp
 {
+
 	/** \brief implementation namespace */
 	namespace internal
 	{
@@ -68,7 +69,7 @@ namespace tmp
 		{
 			static void eval(Args...) { }
 		};
-	}
+	} // namespace internal
 
 	/**
 	* \brief Call Transform<x>::type(Args...) for each element x of the sequence Seq
@@ -208,5 +209,4 @@ namespace tmp
 	}
 }
 
-#endif // CONTROL_HPP_INCLUDED
-
+#endif /* CONTROL_HPP_INCLUDED */

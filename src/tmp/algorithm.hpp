@@ -25,13 +25,14 @@
 #ifndef ALGORITHM_HPP_INCLUDED
 #define ALGORITHM_HPP_INCLUDED
 
-#include <type_traits>
-
-#include "integer.hpp"
 #include "bool.hpp"
+#include "if.hpp"
+#include "integer.hpp"
 #include "lambda.hpp"
-#include "sequence.hpp"
 #include "operator.hpp"
+#include "sequence.hpp"
+
+#include <type_traits>
 
 namespace tmp
 {
@@ -421,4 +422,4 @@ namespace tmp
 	> {};
 }
 
-#endif // ALGORITHM_HPP_INCLUDED
+#endif /* ALGORITHM_HPP_INCLUDED */

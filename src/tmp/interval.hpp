@@ -20,29 +20,41 @@
  * \file interval.hpp
  * \brief A compile time interval
  * \ingroup tmp
+ * \details
+ * Intervals are used for evaluating qudrature orders when integrating 
+ * distance dependent kernels.
+ * \todo No namespaces used here!
  */
 #ifndef INTERVAL_HPP_INCLUDED
 #define INTERVAL_HPP_INCLUDED
 
 #include "../core/global_definitions.hpp"
-#include <ratio>
-#include <stdexcept>
+
+#include "algorithm.hpp"
 #include "integer.hpp"
 #include "vector.hpp"
-#include "algorithm.hpp"
+
+#include <ratio>
+#include <stdexcept>
 
 /** \brief define giga as the infinite as it fits into 32 bits */
 typedef std::giga ratio_infinite;
 
 /**
- * \brief a break point consisting of a X and a Y value
+ * \brief A break point consisting of a X and a Y value
  * \tparam X the x value type
  * \tparam Y the y value type
+ * \details 
+ * A break point can represent a non-dimensionalized distance limit 
+ * where the number of quadrature base points needed for the  precise evalution 
+ * of the integral changes. A list of break points make up the interval. The x 
+ * value of the break point is non-dimensional distance limit, and the y value 
+ * is the number of base points required.
  */
 template <class X, class Y>
 struct break_point
 {
-	/** \brief self-returning */
+	/** \brief Self-returning */
 	typedef break_point type;
 	/** \brief the x data */
 	typedef X x;
@@ -50,9 +62,9 @@ struct break_point
 	typedef Y y;
 
 	/**
-	 * \brief convert rational x value to scalar(double)
-	 * \tparam scalar_t the conversion type (double is default)
-	 * \return the rational number converted to scalar_t
+	 * \brief Convert rational x value to scalar(double)
+	 * \tparam scalar_t The conversion type (double is default)
+	 * \return The rational number converted to scalar_t
 	 */
 	template<class scalar_t = double>
 	constexpr static scalar_t x_value(void)
@@ -63,17 +75,22 @@ struct break_point
 
 
 /**
- * \brief merge two intervals
+ * \brief Merge two intervals
  * \tparam Inter1 the first interval
  * \tparam Inter2 the second interval
+ * \details 
+ * The result of the merge is a new interval containing all the breakpoints
+ * of both intervals. The x values are unique-sorted. If an x value appears
+ * in both intervals, the merged interval will contain the higher y value
+ * for that x value.
  */
 template <class Inter1, class Inter2>
 struct merge_intervals
 {
 	/**
-	 * \brief copy condition when zipping an interval
-	 * \tparam Iter the iterator pointing to the source element
-	 * \tparam Begin iterator pointing to the first element
+	 * \brief Copy condition when zipping an interval
+	 * \tparam Iter The iterator pointing to the source element
+	 * \tparam Begin Tterator pointing to the first element
 	 */
 	template <class Iter, class Begin>
 	struct copy_cond
@@ -97,7 +114,11 @@ struct merge_intervals
 		> type;
 	};
 
-	/** \brief specialisation for the first element */
+	/** 
+	 * \brief Copy condition when zipping an interval
+	 * \details 
+	 * Specialisation for the first element (always copy)
+	 */
 	template <class Begin>
 	struct copy_cond<Begin, Begin> : std::true_type {};
 
@@ -108,7 +129,7 @@ struct merge_intervals
 		typename BP2::y
 	> {};
 
-	/** \brief comparison condition to sort in descending order by x */
+	/** \brief comparison condition to sort in ascending order by x */
 	template <class BP1, class BP2>
 	struct compare_by_x_asc : std::ratio_less<
 		typename BP1::x,
@@ -138,10 +159,14 @@ struct merge_intervals
 	>::type type;
 };
 
-/** \brief evaluate an interval at a given distance
+/** 
+ * \brief Evaluate an interval at a given distance
  * \tparam interval the interval to evaluate
  * \param [in] r the scalar distance
  * \return the appropriate interval limit
+ * \details 
+ * Returns the y value of the first breakpoint of the interval whose x value
+ * is greater than the non-dimensional distance \c r.
  */
 template <class interval>
 int eval_interval(double r)
@@ -161,5 +186,5 @@ int eval_interval(double r)
 template <>
 int eval_interval<tmp::vector<> >(double);
 
-#endif // INTERVAL_HPP_INCLUDED
+#endif /* INTERVAL_HPP_INCLUDED */
 

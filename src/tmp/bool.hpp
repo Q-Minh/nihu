@@ -46,41 +46,74 @@ namespace tmp
 	/** 
 	 * \brief Disjunction of Boolean constants 
 	 * \tparam Args Boolean values to disjunct
-	 * \retruns Arg1 OR Arg2 OR ... OR ArgN 
+	 * \returns Arg1 OR Arg2 OR ... OR ArgN 
 	 * \details
-	 * This is the generic implementation
+	 * This is the general case
 	 */
 	template <class...Args>
 	struct or_ : std::false_type {};
 
+	/**
+	 * \brief Disjunction of Boolean constants
+	 * \tparam Args Booen values to disjunct
+	 * \returns Arg1 OR Arg2 OR ... OR ArgN
+	 * \details 
+	 * This partial specialisation covers the case False OR Arg2 ...
+	 */
 	template <class...Args>
 	struct or_<std::false_type, Args...> : or_<Args...> {};
 
+	/**
+	 * \brief Disjunction of Boolean constants
+	 * \tparam Args Booen values to disjunct
+	 * \returns Arg1 OR Arg2 OR ... OR ArgN
+	 * \details 
+	 * This partial specialisation covers the case True OR Arg2 ...
+	 */
 	template <class...Args>
 	struct or_<std::true_type, Args...> : std::true_type {};
 
-	/** \brief conjunction of boolean constants */
+	/** 
+	 * \brief Conjunction of boolean constants
+	 * \tparam Args Boolen values to conjugate
+	 * \returns Arg1 AND Arg2 AND ... AND ArgN
+	 * \details 
+	 * This is the general case
+	 */ 
 	template <class...Args>
 	struct and_ : std::false_type {};
 
+	/** 
+	 * \brief Conjunction of boolean constants (recursion terminator)
+	 * \returns True
+	 * \details 
+	 * This partial specialisation covers the case True to terminate the 
+	 * the recursion used in the metafunction. 
+	 */ 
+	template <>
+	struct and_<std::true_type> : std::true_type {};
+	
+	/** 
+	 * \brief Conjunction of boolean constants
+	 * \tparam Args Boolen values to conjugate
+	 * \returns Arg1 AND Arg2 AND ... AND ArgN
+	 * \details 
+	 * This partial specialisation covers the case True AND Arg2 ...
+	 */ 
 	template <class...Args>
 	struct and_<std::true_type, Args...> : and_<Args...> {};
 
+	/** 
+	 * \brief Conjunction of boolean constants
+	 * \tparam Args Boolen values to conjugate
+	 * \returns Arg1 AND Arg2 AND ... AND ArgN
+	 * \details 
+	 * This partial specialisation covers the case False AND Arg2 ...
+	 */ 
 	template <class...Args>
 	struct and_<std::false_type, Args...> : std::false_type {};
-
-	template <>
-	struct and_<std::true_type> : std::true_type {};
-
-	/**
-	 * \brief IF control structure
-	 * \tparam Choice a choice evaluated to a logical type
-	 * \tparam T the type returned when Choice is true_type
-	 * \tparam F the type returned when Choice is false_type
-	 */
-	template <class Cond, class T, class F>
-	struct if_ : std::conditional<Cond::value, T, F> {};
+	
 }
 
-#endif
+#endif /* BOOL_HPP_INCLUDED */
 

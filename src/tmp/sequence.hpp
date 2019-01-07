@@ -124,5 +124,5 @@ namespace tmp
 	};
 }
 
-#endif // SEQUENCE_HPP_INCLUDED
+#endif /* SEQUENCE_HPP_INCLUDED */
 

@@ -18,7 +18,8 @@
 
 /**
  * \file stack.hpp
- * \brief implementation of tmp::stack
+ * \brief Implementation of tmp::stack
+ * \ingroup tmp
  */
 #ifndef STACK_HPP_INCLUDED
 #define STACK_HPP_INCLUDED
@@ -119,8 +120,8 @@ namespace tmp
 			template <class Stack>
 			struct apply : Stack::tail {};
 		};
-	}
-}
+	} // namespace internal
+} // namespace tmp
 
 #endif
 

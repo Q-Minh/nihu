@@ -26,6 +26,7 @@
 
 #include "integer.hpp"
 #include "sequence.hpp"
+
 #include <tuple>
 
 namespace tmp
@@ -33,9 +34,10 @@ namespace tmp
 	/** \brief the vector tag used for the selection of algorithms */
 	struct vector_tag;
 
-	/** \brief a compile time vector with an arbitrary number of arguments
-	* \details the implementation is now based on std::tuple
-	*/
+	/** 
+	 * \brief Compile time vector with an arbitrary number of arguments
+	 * \details the implementation is now based on std::tuple
+	 */
 	template <class...Args>
 	struct vector
 	{
@@ -52,17 +54,14 @@ namespace tmp
 	{
 		template <>
 		struct empty_impl<vector_tag> : vector<> {};
-	}
-
-	namespace internal
-	{
+	
 		template <>
 		struct at_impl<vector_tag>
 		{
 			template <class Seq, class Pos>
 			struct apply : std::tuple_element<Pos::value, typename Seq::impl> {};
 		};
-	}
+	} // namespace internal
 
 	/** \brief the vector iterator type used by tmp::begin, tmp::end and tmp::deref */
 	template <class Seq, class Pos>
@@ -186,8 +185,8 @@ namespace tmp
 			struct apply : vector_pop_back<Seq> {};
 		};
 */
-	}
-}
+	} // namespace internal
+} // namespace tmp
 
-#endif
+#endif /* VECTOR_HPP_INCLUDED */
 

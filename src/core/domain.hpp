@@ -62,7 +62,7 @@ namespace domain_traits
 	{
 		static std::string const value;
 	};
-}
+} // end of namespace domain_traits
 
 /** \brief Polygonal subset of the \f$ \xi \f$ space. All elements are defined on a domain. */
 template <class Derived>

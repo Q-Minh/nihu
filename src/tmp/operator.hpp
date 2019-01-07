@@ -19,11 +19,14 @@
 /**
  * \file operator.hpp
  * \brief declaration of operator metafunctions
- * \details This file only declares the binary operators so that they can be overloaded in specific applications
+ * \ingroup tmp
+ * \details
+ * This file only declares the binary operators so that they can be 
+ * overloaded in specific applications.
  */
  
-#ifndef OPERATOR_HPP
-#define OPERATOR_HPP
+#ifndef OPERATOR_HPP_INCLUDED
+#define OPERATOR_HPP_INCLUDED
 
 namespace tmp
 {
@@ -46,13 +49,6 @@ namespace tmp
 	/** \brief binary multiply */
 	template <class A, class B>
 	struct mul;
-
-#if 0
-	/** \brief binary less than */
-	template <class A, class B>
-	struct less;
-#endif
 }
 
-#endif
-
+#endif /* OPERATOR_HPP_INCLUDED */
