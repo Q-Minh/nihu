@@ -49,7 +49,7 @@ struct is_eigen : std::is_base_of<
 	typename std::decay<T>::type
 > {};
 
-}
+} // end of namespace NiHu
 
 #endif // EIGEN_UTILS_HPP_INCLUDED
 

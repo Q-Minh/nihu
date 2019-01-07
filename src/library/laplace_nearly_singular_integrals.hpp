@@ -7,6 +7,7 @@
 #include "laplace_kernel.hpp"
 #include "plane_element_helper.hpp"
 #include "quadrature_store_helper.hpp"
+#include "nearly_singular_collocational.hpp"
 
 namespace NiHu
 {
@@ -202,7 +203,6 @@ public:
 	}
 };
 
-
 template <class TestField, class TrialField>
 class nearly_singular_integral<
 	laplace_3d_SLP_kernel, TestField, TrialField,
@@ -239,6 +239,47 @@ public:
 		result(0) = laplace_3d_SLP_collocation_constant_plane_nearly_singular::eval(
 			trial_field.get_elem(),
 			test_field.get_elem().get_center());
+		return result;
+	}
+};
+
+template <class TestField, class TrialField>
+class nearly_singular_integral<
+	laplace_3d_SLP_kernel, TestField, TrialField,
+	typename std::enable_if<
+	std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
+	! (
+	(std::is_same<typename TrialField::elem_t::lset_t, tria_1_shape_set>::value &&
+		std::is_same<typename TrialField::nset_t, tria_0_shape_set>::value) )
+	>::type
+>
+{
+public:
+	static bool needed(
+		kernel_base<laplace_3d_SLP_kernel> const &kernel,
+		field_base<TestField> const &test_field,
+		field_base<TrialField> const &trial_field
+	)
+	{
+		double const limit = 1.5;
+
+		// distance between element centres
+		double d = (test_field.get_elem().get_center() - trial_field.get_elem().get_center()).norm();
+		double R = trial_field.get_elem().get_linear_size_estimate();
+		return d / R < limit;
+	}
+
+	template <class result_t>
+	static result_t &eval(
+		result_t &result,
+		kernel_base<laplace_3d_SLP_kernel> const &kernel,
+		field_base<TestField> const &test_field,
+		field_base<TrialField> const &trial_field
+	)
+	{
+		nearly_singular_collocational<TrialField, laplace_3d_SLP_kernel, 5, 5> nsg(trial_field, kernel);
+		laplace_3d_SLP_kernel::test_input_t tsi(test_field.get_elem(), TestField::elem_t::domain_t::get_center());
+		nsg.integrate(result, tsi);
 		return result;
 	}
 };
