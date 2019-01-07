@@ -116,8 +116,19 @@ public:
 	}
 };
 
-/** \todo why are the second derivatives not computed? They should. */
 
+// define expression for computing the first order derivative N(xi)
+template <>
+class shape_function<line_1_gauss_shape_set, 2>
+{
+	typedef shape_set_traits::shape_value_type<line_1_gauss_shape_set, 2>::type shape_t;
+	typedef shape_set_traits::domain<line_1_gauss_shape_set>::type::xi_t xi_t;
+public:
+	static shape_t eval(xi_t const &)
+	{
+		return shape_t::Zero();
+	}
+};
 
 } // end of namespace NiHu
 

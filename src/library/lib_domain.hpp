@@ -28,89 +28,129 @@
 namespace NiHu
 {
 
+/** \brief a 1D line domain */
 class line_domain;
-class tria_domain;
-class quad_domain;
-class brick_domain;
 
 namespace domain_traits
 {
-    template <> struct space_type<line_domain> : space_1d<> {};
-    template <> struct space_type<tria_domain> : space_2d<> {};
-    template <> struct space_type<quad_domain> : space_2d<> {};
-    template <> struct space_type<brick_domain> : space_3d<> {};
+template <>
+struct space_type<line_domain> : space_1d<> {};
 
-    template <> struct volume<line_domain> { static constexpr double value = 2.0; };
-    template <> struct volume<tria_domain> { static constexpr double value = 0.5; };
-    template <> struct volume<quad_domain> { static constexpr double value = 4.0; };
-    template <> struct volume<brick_domain> { static constexpr double value = 8.0; };
+template <>
+struct volume<line_domain> { static constexpr double value = 2.0; };
 
-    template <> struct num_corners<line_domain> { enum { value = 2 }; };
-    template <> struct num_corners<tria_domain> { enum { value = 3 }; };
-    template <> struct num_corners<quad_domain> { enum { value = 4 }; };
-    template <> struct num_corners<brick_domain> { enum { value = 8 }; };
+template <>
+struct num_corners<line_domain> { enum { value = 2 }; };
 
-    template <> struct num_edges<line_domain> { enum { value = 1 }; };
-    template <> struct num_edges<tria_domain> { enum { value = 3 }; };
-    template <> struct num_edges<quad_domain> { enum { value = 4 }; };
-    template <> struct num_edges<brick_domain> { enum { value = 12 }; };
+template <>
+struct num_edges<line_domain> { enum { value = 1 }; };
 }
 
-/** \brief a 1D line domain */
 class line_domain :
 	public domain_base<line_domain>
 {
 public:
 	/** \brief return domain corners */
-    static corners_t const &get_corners_impl(void) { return m_corners; }
+	static corners_t const &get_corners_impl(void) { return m_corners; }
 	/** \brief return domain edges */
-    static edges_t const &get_edges_impl(void) { return m_edges; }
+	static edges_t const &get_edges_impl(void) { return m_edges; }
 	/** \brief return domain center */
-    static xi_t const &get_center_impl(void) { return m_center; }
+	static xi_t const &get_center_impl(void) { return m_center; }
 
 private:
-    static corners_t const m_corners;
-    static edges_t const m_edges;
-    static xi_t const m_center;
+	static corners_t const m_corners;
+	static edges_t const m_edges;
+	static xi_t const m_center;
 };
 
 /** \brief a 2D triangle domain */
+class tria_domain;
+
+namespace domain_traits
+{
+template <>
+struct space_type<tria_domain> : space_2d<> {};
+
+template <>
+struct volume<tria_domain> { static constexpr double value = 0.5; };
+
+template <>
+struct num_corners<tria_domain> { enum { value = 3 }; };
+
+template <> 
+struct num_edges<tria_domain> { enum { value = 3 }; };
+}
+
 class tria_domain :
 	public domain_base<tria_domain>
 {
 public:
 	/** \brief return domain corners */
-    static corners_t const &get_corners_impl(void) { return m_corners; }
+	static corners_t const &get_corners_impl(void) { return m_corners; }
 	/** \brief return domain edges */
-    static edges_t const &get_edges_impl(void) { return m_edges; }
+	static edges_t const &get_edges_impl(void) { return m_edges; }
 	/** \brief return domain center */
-    static xi_t const &get_center_impl(void) { return m_center; }
+	static xi_t const &get_center_impl(void) { return m_center; }
 
 private:
-    static corners_t const m_corners;
-    static edges_t const m_edges;
-    static xi_t const m_center;
+	static corners_t const m_corners;
+	static edges_t const m_edges;
+	static xi_t const m_center;
 };
 
 /** \brief a 2D quad domain */
+class quad_domain;
+
+namespace domain_traits
+{
+template <>
+struct space_type<quad_domain> : space_2d<> {};
+
+template <> 
+struct volume<quad_domain> { static constexpr double value = 4.0; };
+
+template <> 
+struct num_corners<quad_domain> { enum { value = 4 }; };
+
+template <>
+struct num_edges<quad_domain> { enum { value = 4 }; };
+}
+
 class quad_domain :
 	public domain_base<quad_domain>
 {
 public:
 	/** \brief return domain corners */
-    static corners_t const &get_corners_impl(void) { return m_corners; }
+	static corners_t const &get_corners_impl(void) { return m_corners; }
 	/** \brief return domain edges */
-    static edges_t const &get_edges_impl(void) { return m_edges; }
+	static edges_t const &get_edges_impl(void) { return m_edges; }
 	/** \brief return domain center */
-    static xi_t const &get_center_impl(void) { return m_center; }
+	static xi_t const &get_center_impl(void) { return m_center; }
 
 private:
-    static corners_t const m_corners;
-    static edges_t const m_edges;
-    static xi_t const m_center;
+	static corners_t const m_corners;
+	static edges_t const m_edges;
+	static xi_t const m_center;
 };
 
 /** \brief a 3D brick domain */
+class brick_domain;
+
+namespace domain_traits
+{
+template <>
+struct space_type<brick_domain> : space_3d<> {};
+
+template <>
+struct volume<brick_domain> { static constexpr double value = 8.0; };
+
+template <>
+struct num_corners<brick_domain> { enum { value = 8 }; };
+
+template <>
+struct num_edges<brick_domain> { enum { value = 12 }; };
+}
+
 class brick_domain :
 	public domain_base<brick_domain>
 {
@@ -128,7 +168,7 @@ private:
     static xi_t const m_center;
 };
 
-}
+} // end of namespace NiHu
 
 #endif // LIB_DOMAIN_HPP_INCLUDED
 

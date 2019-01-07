@@ -20,7 +20,8 @@
  * \file lib_domain.cpp
  * \brief domain library
  * \details
- * This library contains the supported domain types and their constant properties.
+ * This library contains the supported domain types and their constant
+ * properties.
  */
 
 #include "lib_domain.hpp"
@@ -28,61 +29,85 @@
 namespace NiHu
 {
 
+// definition of line_domain
+
 namespace domain_traits
 {
-	template <>
-	const std::string name<line_domain>::value = "Line domain";
-	template <>
-	std::string const name<tria_domain>::value = "Tria domain";
-	template <>
-	std::string const name<quad_domain>::value = "Quad domain";
-	template <>
-	std::string const name<brick_domain>::value = "Brick domain";
+template <>
+const std::string name<line_domain>::value = "Line domain";
 }
 
 line_domain::corners_t
-	const line_domain::m_corners = {
-	line_domain::xi_t::Constant(-1.),
-	line_domain::xi_t::Constant(1.)
-	};
+const line_domain::m_corners = {
+line_domain::xi_t::Constant(-1.),
+line_domain::xi_t::Constant(1.)
+};
 
 line_domain::edges_t const line_domain::m_edges = { {0, 1} };
 
 line_domain::xi_t const line_domain::m_center = line_domain::xi_t::Zero();
 
+
+// definition of tria_domain
+
+namespace domain_traits
+{
+template <>
+std::string const name<tria_domain>::value = "Tria domain";
+}
+
 tria_domain::corners_t
-    const tria_domain::m_corners = {
-	tria_domain::xi_t(0.,0.),
-	tria_domain::xi_t(1.,0.),
-	tria_domain::xi_t(0.,1.)
-	};
+const tria_domain::m_corners = {
+tria_domain::xi_t(0.,0.),
+tria_domain::xi_t(1.,0.),
+tria_domain::xi_t(0.,1.)
+};
 
-tria_domain::edges_t const tria_domain::m_edges = { {0, 1},  {1, 2},  {2, 0} };
+tria_domain::edges_t const tria_domain::m_edges = {
+	{0, 1},  {1, 2},  {2, 0}
+};
 
-tria_domain::xi_t const tria_domain::m_center = tria_domain::xi_t::Constant(1./3.);
+tria_domain::xi_t const tria_domain::m_center
+= tria_domain::xi_t::Constant(1. / 3.);
+
+
+// definition of quad_domain
+
+namespace domain_traits
+{
+template <>
+std::string const name<quad_domain>::value = "Quad domain";
+}
 
 quad_domain::corners_t
-    const quad_domain::m_corners = {
-	quad_domain::xi_t(-1.,-1.),
-	quad_domain::xi_t( 1.,-1.),
-	quad_domain::xi_t( 1., 1.),
-	quad_domain::xi_t(-1., 1.)
-	};
+const quad_domain::m_corners = {
+quad_domain::xi_t(-1.,-1.),
+quad_domain::xi_t(1.,-1.),
+quad_domain::xi_t(1., 1.),
+quad_domain::xi_t(-1., 1.)
+};
 
-quad_domain::edges_t const quad_domain::m_edges = { {0, 1},  {1, 2},  {2, 3}, {3, 0} };
+quad_domain::edges_t const quad_domain::m_edges = {
+	{0, 1},  {1, 2},  {2, 3}, {3, 0}
+};
 
 quad_domain::xi_t const quad_domain::m_center = quad_domain::xi_t::Zero();
 
+
+// definition of brick_domain
+
+namespace domain_traits
+{
+template <>
+std::string const name<brick_domain>::value = "Brick domain";
+}
+
 brick_domain::corners_t
 	const brick_domain::m_corners = {
-	brick_domain::xi_t(-1.,-1.,-1.),
-	brick_domain::xi_t( 1.,-1.,-1.),
-	brick_domain::xi_t( 1., 1.,-1.),
-	brick_domain::xi_t(-1., 1.,-1.),
-	brick_domain::xi_t(-1.,-1., 1.),
-	brick_domain::xi_t( 1.,-1., 1.),
-	brick_domain::xi_t( 1., 1., 1.),
-	brick_domain::xi_t(-1., 1., 1.)
+	brick_domain::xi_t(-1.,-1.,-1.), brick_domain::xi_t( 1.,-1.,-1.),
+	brick_domain::xi_t( 1., 1.,-1.), brick_domain::xi_t(-1., 1.,-1.),
+	brick_domain::xi_t(-1.,-1., 1.), brick_domain::xi_t( 1.,-1., 1.),
+	brick_domain::xi_t( 1., 1., 1.), brick_domain::xi_t(-1., 1., 1.)
 };
 
 brick_domain::edges_t const brick_domain::m_edges = {
@@ -93,4 +118,4 @@ brick_domain::edges_t const brick_domain::m_edges = {
 
 brick_domain::xi_t const brick_domain::m_center = brick_domain::xi_t::Zero();
 
-}
+} // end of namespace NiHu

@@ -16,8 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * \file domain.hpp
+/**	\file domain.hpp
  * \ingroup funcspace
  * \brief declaration of CRTP base class ::domain_base
  */
@@ -140,9 +139,9 @@ public:
 	{
         return id;
 	}
-};
+}; // end of class domain_base
 
-}
+} // end of namesapce NiHu
 
 #endif
 
