@@ -16,6 +16,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * \file relation.hpp 
+ * \ingroup tmp
+ * \brief Template metaprograms for comparison
+ * \details
+ * These comparisons are used in comparing asymptotic singularity types, e.g.
+ */ 
+
 #ifndef RELATION_HPP_INCLUDED
 #define RELATION_HPP_INCLUDED
 
@@ -23,29 +31,69 @@
 
 namespace tmp
 {
-	/** \brief return true_type if first is less than second */
+	/** 
+	 * \brief General declaration of the less oparation 
+	 * \tparam N Left hand side of comparison
+	 * \tparam M Right hand side of comparison
+	 * \details 
+	 * Return \c std::true_type if first is less than second, i.e., \c N < \c M
+	 */
 	template <class N, class M> struct less;
 
-	/** \brief return true_type if first is greater than second */
+	/** 
+	 * \brief General declaration of the greater oparation 
+	 * \tparam N Left hand side of comparison
+	 * \tparam M Right hand side of comparison
+	 * \details 
+	 * Return \c std::true_type if first is greater than second, i.e.,
+	 * \c N > \c M
+	 */
 	template <class N, class M> struct greater;
 
-
-	/** \brief compute maximum of types */
+	/** 
+	 * \brief Compute maximum of types
+	 * \tparam Val First value in the list
+	 * \tparam Args Other values in the list
+	 * \details
+	 * This is the general recursive branch of the template metaprogram.
+	 * The recursion is implemented by taking the maximum of first value and the
+	 * maximum of the other values in the list.
+	 */
 	template <class Val, class...Args>
 	struct max_ : max_<Val, typename max_<Args...>::type> {};
 
-	/** \brief specialisation of max_ for the two parameter case */
+	/** 
+	 * \brief Compute maximum of type, specialisation for two parameters
+	 * \tparam Val1 Left hand side of the comparison
+	 * \tparam Val2 Right hand side of the comparison
+	 * \details
+	 * Returns the greater (see \ref greater) of the two parameters.
+	 */
 	template <class Val1, class Val2>
 	struct max_<Val1, Val2> : std::conditional<
 		greater<Val1, Val2>::value,
 		Val1, Val2
 	> {};
 
-	/** \brief compute minimum of types */
+	/** 
+	 * \brief Compute minimum of types 
+	 * \tparam Val First value in the list
+	 * \tparam Args Other values in the list
+	 * \details
+	 * This is the general recursive branch of the template metaprogram.
+	 * The recursion is implemented by taking the minimum of first value and the
+	 * minimum of the other values in the list.
+	 */
 	template <class Val, class...Args>
 	struct min_ : min_<Val, typename min_<Args...>::type> {};
 
-	/** \brief specialisation of min_ for the two parameter case */
+	/** 
+	 * \brief Compute minimum of types, specialisation for two parameters 
+	 * \tparam Val1 Left hand side of comparison
+	 * \tparam Val2 Right hand side of comparison
+	 * \details
+	 * Returns the smaller (see \ref less) of the two parameters.
+	 */
 	template <class Val1, class Val2>
 	struct min_<Val1, Val2> : std::conditional<
 		less<Val1, Val2>::value,
@@ -53,5 +101,4 @@ namespace tmp
 	> {};
 }
 
-
-#endif // RELATION_HPP_INCLUDED
+#endif /* RELATION_HPP_INCLUDED */

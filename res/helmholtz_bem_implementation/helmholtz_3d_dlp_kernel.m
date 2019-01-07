@@ -1,4 +1,5 @@
 function g = helmholtz_3d_dlp_kernel(x, ~, y, ny, k)
+% HELMHOLTZ_3D_DLP_KERNEL Helmholtz Double layer potential kernel in 3D
 
 rvec = bsxfun(@minus, y, x);
 r = sqrt(dot(rvec, rvec, 2));

@@ -975,7 +975,7 @@ public:
 		field_base<TrialField> const &trial_field,
 		element_match const &)
 	{
-		result = helmholtz_2d_DLP_collocation_general<TestField, TrialField, 30>::eval(
+		result(0, 0) = helmholtz_2d_DLP_collocation_general<TestField, TrialField, 30>::eval(
 			trial_field.get_elem(),
 			kernel.derived().get_wave_number());
 			
@@ -1013,7 +1013,7 @@ public:
 		field_base<TrialField> const &trial_field,
 		element_match const &)
 	{
-		result = helmholtz_2d_DLPt_collocation_general<TestField, TrialField, 30>::eval(
+		result(0, 0) = helmholtz_2d_DLPt_collocation_general<TestField, TrialField, 30>::eval(
 			trial_field.get_elem(),
 			kernel.derived().get_wave_number());
 			
@@ -1053,7 +1053,7 @@ public:
 		field_base<TrialField> const &trial_field,
 		element_match const &)
 	{
-		result = helmholtz_2d_HSP_collocation_straight_line<TestField, TrialField, 30>::eval(
+		result(0, 0) = helmholtz_2d_HSP_collocation_straight_line<TestField, TrialField, 30>::eval(
 			trial_field.get_elem(),
 			kernel.derived().get_wave_number());
 			
@@ -1091,7 +1091,7 @@ public:
 		field_base<TrialField> const &trial_field,
 		element_match const &)
 	{
-		result = helmholtz_2d_HSP_collocation_general<TestField, TrialField, 30>::eval(
+		result(0, 0) = helmholtz_2d_HSP_collocation_general<TestField, TrialField, 30>::eval(
 			trial_field.get_elem(),
 			kernel.derived().get_wave_number());
 			

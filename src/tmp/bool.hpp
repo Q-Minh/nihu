@@ -20,8 +20,12 @@
  * \file bool.hpp
  * \ingroup tmp
  * \brief implementation of Boolean functions
- * \details The boolean type is already contained in type_traits as std::integral_constant<bool, x>.
- * This file implements some Boolean functions and the compile time if_ control structure
+ * \details 
+ * The boolean type is already contained in the standard \c type_traits library 
+ * as std::integral_constant<bool, x>.
+ * 
+ * This file implements some Boolean functions and the compile time \c if_ 
+ * control structure.
  */
 
 #ifndef BOOL_HPP_INCLUDED
@@ -39,7 +43,13 @@ namespace tmp
 	template <class A>
 	struct not_ : std::integral_constant<bool, !A::value> {};
 
-	/** \brief disjunction of boolean constants */
+	/** 
+	 * \brief Disjunction of Boolean constants 
+	 * \tparam Args Boolean values to disjunct
+	 * \retruns Arg1 OR Arg2 OR ... OR ArgN 
+	 * \details
+	 * This is the generic implementation
+	 */
 	template <class...Args>
 	struct or_ : std::false_type {};
 

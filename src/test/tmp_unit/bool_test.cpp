@@ -26,7 +26,11 @@ int main(void)
 	typedef std::true_type _t;
 	typedef std::false_type _f;
 	
+	typedef double error_t;
+	
 	std::cout << std::boolalpha;
+	
+	std::cout << tmp::or_<error_t>::type::value << std::endl;
 	
 	std::cout << "Testing negation" << std::endl;
 	std::cout << "================" << std::endl;
@@ -57,6 +61,8 @@ int main(void)
 	std::cout << "if_(true , 0, 1) = " << tmp::if_<_t, _f, _t >::type::value << std::endl;
 	std::cout << "if_(false, 0, 1) = " << tmp::if_<_f, _f, _t >::type::value << std::endl;
 	std::cout << std::endl;
+	
+	
 	
 	return 0;
 }

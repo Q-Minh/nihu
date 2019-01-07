@@ -47,9 +47,11 @@ namespace tmp
 	template <class A, class B>
 	struct mul;
 
+#if 0
 	/** \brief binary less than */
 	template <class A, class B>
 	struct less;
+#endif
 }
 
 #endif

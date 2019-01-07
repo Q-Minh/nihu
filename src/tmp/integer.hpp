@@ -43,7 +43,7 @@
 
 #include "relation.hpp"
 #include "operator.hpp"
-#include "bool.hpp"
+//#include "bool.hpp"
 
 namespace tmp
 {
