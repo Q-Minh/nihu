@@ -18,7 +18,7 @@ static double tester(TestSpace const &test_space, TrialSpace const &trial_space)
 	auto L_op = NiHu::create_integral_operator(NiHu::laplace_3d_SLP_kernel());
 	auto M_op = NiHu::create_integral_operator(NiHu::laplace_3d_DLP_kernel());
 	
-	unsigned N = test_space.get_num_dofs();
+	size_t N = test_space.get_num_dofs();
 	
 	// excitation and response
 	dMatrix q0(N, 1), p0(N,1);
@@ -30,8 +30,8 @@ static double tester(TestSpace const &test_space, TrialSpace const &trial_space)
 		.2, .3,
 		.3, .2,
 		.1, .2;
-	dMatrix A(1, 3);
-	A << 1.0, -1.0, -2.0;
+	dMatrix A(1, 2);
+	A << 1.0, -1.0;
 	
 	auto const &mesh = trial_space.get_mesh();
 	for (unsigned k = 0; k < N; ++k)

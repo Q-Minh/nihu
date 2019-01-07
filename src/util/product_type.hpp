@@ -24,8 +24,6 @@
 #ifndef PRODUCT_TYPE_HPP_INCLUDED
 #define PRODUCT_TYPE_HPP_INCLUDED
 
-#include "eigen_utils.hpp"
-
 namespace NiHu
 {
 
@@ -33,7 +31,7 @@ namespace NiHu
  * \tparam Lhs the left hand side expression type
  * \tparam Rhs the right hand side expression type
  */
-template<class Lhs, class Rhs> // , bool isBothEigen = is_eigen<Lhs>::value && is_eigen<Rhs>::value>
+template<class Lhs, class Rhs>
 struct product_type
 {
 	/** \brief the return type computed by decltype */
@@ -44,18 +42,6 @@ struct product_type
 	) type;
 };
 
+} // end of namespace NiHu
 
-// /** \brief specialisation of ::product_type for the case of two eigen expressions
- // * \tparam Lhs the left hand side eigen expression type
- // * \tparam Rhs the right hand side eigen expression type
- // */
-// template<class Lhs, class Rhs>
-// struct product_type<Lhs, Rhs, true>
-// {
-	// typedef typename Eigen::ProductReturnType<Lhs, Rhs>::Type type;
-// };
-
-}
-
-#endif // PRODUCT_TYPE_HPP_INCLUDED
-
+#endif /* PRODUCT_TYPE_HPP_INCLUDED */
