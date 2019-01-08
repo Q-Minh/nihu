@@ -18,19 +18,24 @@
 
 /**
  * \file store_pattern.hpp
- * \brief store static template specialisations
+ * \brief Store static template specialisations
+ * \ingroup util
  */
-#ifndef STORE_PATTERN_HPP
-#define STORE_PATTERN_HPP
+#ifndef STORE_PATTERN_HPP_INCLUDED
+#define STORE_PATTERN_HPP_INCLUDED
 
 namespace NiHu
 {
 
-/** \brief class with a static member */
+/** 
+ * \brief Storage class with a static member
+ */
 template <class C>
 struct store
 {
-    /** \brief return reference to stored data */
+    /** 
+	 * \brief Return reference to stored data 
+	 */
     static C const &get_data(void)
     {
         static const C m_data;
@@ -38,6 +43,6 @@ struct store
     }
 };
 
-}
+} // end of namespace NiHu
 
-#endif // STORE_PATTERN_HPP
+#endif /* STORE_PATTERN_HPP_INCLUDED */

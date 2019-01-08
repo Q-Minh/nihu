@@ -19,6 +19,7 @@
 /**
  * \file matrix_block.hpp
  * \brief implementation of a block matrix
+ * \ingroup util
  */
 
 #ifndef MATRIX_BLOCK_HPP_INCLUDED
@@ -28,11 +29,12 @@ namespace NiHu
 {
 
 /**
- * \brief proxy class to represent a block of a matrix
- * \details The class is used to represent a matrix block selected by two index vectors.
+ * \brief Proxy class to represent a block of a matrix
  * \tparam Matrix the matrix type that is indexed
  * \tparam RowIndex the row index vector type
  * \tparam ColIndex the column index vector type
+ * \details
+ * The class represents a matrix block selected by two index vectors.
  */
 template <class Matrix, class RowIndex, class ColIndex = RowIndex>
 class matrix_block
@@ -70,16 +72,18 @@ protected:
 
 
 /**
- * \brief factory function of matrix_block
- * \details The function allows easy creation of block instances of an
- * arbitrary matrix object
- * \tparam Matrix the matrix type
- * \tparam RowIndex the row index vector type
- * \tparam ColIndex the column index vector type
- * \param matrix [in] the matrix object to index
- * \param rows [in] the rows to be selected
- * \param cols [in] the columns to be selected
- * \return the block proxy
+ * \brief Factory function of matrix_block
+ * \tparam Matrix The matrix type
+ * \tparam RowIndex Row index vector type
+ * \tparam ColIndex Column index vector type
+ * \param[in] matrix The matrix object to index
+ * \param[in] rows Rows to be selected
+ * \param[in] cols Columns to be selected
+ * \return Block proxy to the referenced block
+ * 
+ * \details 
+ * The function allows easy creation of block instances of an arbitrary matrix 
+ * object.
  */
 template <class Matrix, class RowIndex, class ColIndex>
 matrix_block<Matrix, RowIndex, ColIndex>
@@ -88,7 +92,6 @@ matrix_block<Matrix, RowIndex, ColIndex>
 	return matrix_block<Matrix, RowIndex, ColIndex>(matrix, rows, cols);
 }
 
-}
+} // end of namespace NiHu
 
-#endif // MATRIX_BLOCK_HPP_INCLUDED
-
+#endif /* MATRIX_BLOCK_HPP_INCLUDED */

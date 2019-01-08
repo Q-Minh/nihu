@@ -24,9 +24,9 @@
 #ifndef ASSEMBLY_HPP_INCLUDED
 #define ASSEMBLY_HPP_INCLUDED
 
-#include "../util/matrix_block.hpp"
-#include "integral_operator.hpp"
 #include "function_space.hpp"
+#include "integral_operator.hpp"
+#include "../util/matrix_block.hpp"
 
 namespace NiHu
 {

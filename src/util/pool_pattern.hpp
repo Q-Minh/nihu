@@ -18,10 +18,11 @@
 
 /**
  * \file pool_pattern.hpp
- * \brief store an array of instances
+ * \brief Store an array of instances
+ * \ingroup util
  */
-#ifndef POOL_PATTERN_HPP
-#define POOL_PATTERN_HPP
+#ifndef POOL_PATTERN_HPP_INCLUDED
+#define POOL_PATTERN_HPP_INCLUDED
 
 #include <stdexcept>
 
@@ -29,9 +30,12 @@ namespace NiHu
 {
 
 /**
- * \brief a class storing a vector of class instances
+ * \brief Class storing a vector of class instances
  * \tparam C the stored class
  * \tparam MaxOrder the array size
+ * \details 
+ * In order to create a pool, the stored type \c C must have a constructor that 
+ * can take one integer as a parameter.
  */
 template <class C, unsigned MaxOrder>
 class pool
@@ -51,9 +55,10 @@ public:
 			delete m_p_data[i];
 	}
 
-	/** \brief index operator
-	 * \param [in] idx the element index
-	 * \return the indexed element
+	/** 
+	 * \brief Index operator
+	 * \param [in] idx Element index
+	 * \returns The indexed element
 	 */
 	C const &operator[](unsigned idx) const
 	{
@@ -66,6 +71,6 @@ private:
 	C *m_p_data[MaxOrder+1];
 };
 
-}
+} // end of namespace NiHu
 
-#endif
+#endif /* POOL_PATTERN_HPP_INCLUDED */

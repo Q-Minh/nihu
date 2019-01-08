@@ -13,5 +13,9 @@ int main(void)
 	
 	auto f2 = e2.flip();
 	
+	(void)L1;
+	(void)L2;
+	(void)f2;
+	
 	return 0;
 }

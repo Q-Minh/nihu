@@ -121,7 +121,7 @@ class field_type_accelerator<
 	Field, Family, acceleration::hard,
 	typename std::enable_if<!field_traits::is_dirac<Field>::value>::type
 	> :
-	public EigenStdVector<
+	public eigen_std_vector<
 		field_type_accelerator_elem<Field, Family, acceleration::hard>
 	>::type
 {
@@ -131,7 +131,7 @@ public:
 		Field, Family, acceleration::hard
 	> accelerator_elem_t;
 	/** \brief the base type */
-	typedef typename EigenStdVector<accelerator_elem_t>::type base_t;
+	typedef typename eigen_std_vector<accelerator_elem_t>::type base_t;
 
 	/** \brief the quadrature type */
 	typedef typename quadrature_type<

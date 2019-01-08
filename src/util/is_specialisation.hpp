@@ -16,26 +16,61 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef TYPE_INFO_HPP_INCLUDED
-#define TYPE_INFO_HPP_INCLUDED
+/**
+ * \file is_specialisation.hpp 
+ * \brief Definition of the metafunction \ref is_specialisation
+ * \ingroup util
+ */
+
+#ifndef IS_SPECIALISATION_HPP_INCLUDED
+#define IS_SPECIALISATION_HPP_INCLUDED
 
 #include <type_traits>
 
 namespace NiHu
 {
 
-template<class T>
-struct enable_if_type { typedef void type; };
-
+namespace internal
+{
+	/**
+	 * \brief Helper metafunction for detecting specialisation 
+	 * \details 
+	 * The specialised case of the metafunction \ref is_specialisation tries to 
+	 * instantiate this metafunction.
+	 */
+	template<class T>
+	struct enable_if_type
+	{ 
+		typedef void type;
+	};
+} // end of namespace internal
+	
+/**
+ * \brief Metafunction that determines if a type is a specialisation 
+ * \returns True in the general case 
+ * \details 
+ * This is the general case, which is instantiated as a fallback when the 
+ * specialised case below results in a substitution error,
+ */
 template<class T, class Enable = void>
 struct is_specialisation
 	: std::true_type {};
 
+
+/**
+ * \brief Metafunction that determines if a type is a specialisation 
+ * \returns False in the case if T is not a specialisation
+ * \details 
+ * The specialised case tries to instantiate \ref internal::enable_if_type using
+ * the type named as \c unspecialised in \c T. If the instantiation is 
+ * successful, then \c T is not a specialisation.
+ */
 template<class T>
-struct is_specialisation<T, typename enable_if_type<typename T::unspecialised>::type>
+struct is_specialisation<T, 
+	typename internal::enable_if_type<typename T::unspecialised>::type
+>
 	: std::false_type {};
 
-}
+} // end of namespace NiHu
 
-#endif // TYPE_INFO_HPP_INCLUDED
-
+#endif /* IS_SPECIALISATION_HPP_INCLUDED */

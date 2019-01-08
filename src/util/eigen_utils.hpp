@@ -18,29 +18,33 @@
 
 /**
  * \file eigen_utils.hpp
- * \brief 
+ * \ingroup util
+ * \brief Implementation of Eigen related utility classes
  */
 
 #ifndef EIGEN_UTILS_HPP_INCLUDED
 #define EIGEN_UTILS_HPP_INCLUDED
 
-#include <type_traits>
 #include <Eigen/Geometry>
 #include <Eigen/Dense>
 #include <Eigen/StdVector>
 
+#include <type_traits>
 
 namespace NiHu
 {
 
-/** \brief metafunction converting a type into an std::vector<T> type with Eigen allocator */
+/** 
+ * \brief Convert T to an std::vector<T> with Eigen allocator 
+ */
 template <class T>
-struct EigenStdVector
+struct eigen_std_vector
 {
 	typedef std::vector<T, Eigen::aligned_allocator<T> > type;
 };
 
-/** \brief metafunction determining if its argument is an Eigen expression or not
+/** 
+ * \brief metafunction determining if its argument is an Eigen expression or not
  * \tparam T the class to investigate
  */
 template <class T>

@@ -18,7 +18,16 @@
 
 /**
  * \file distance_kernel_intervals.hpp
- * \brief quadrature intervals for distance based complexities
+ * \brief Quadrature intervals for distance based complexities
+ * \ingroup library
+ * \details
+ * These intervals are used for selecting the quadrature order for integration
+ * based on the non-dimensional distance. The distance can be 
+ * non-dimensionalized using the linear size estimate of the elements.
+ * 
+ * The intervals are specified for different accuracy paramaters, the default 
+ * accuracy is given by \ref GLOBAL_ACCURACY. Naturally, higher accuracy takes
+ * a higher number of quadrature base points.
  */
 
 #ifndef DISTANCE_KERNEL_INTERVALS_HPP_INCLUDED
@@ -30,9 +39,13 @@
 namespace NiHu
 {
 
-/** \brief define intervals for distance range and accuracy
+/** 
+ * \brief define intervals for distance range and accuracy
  * \tparam Order the reciprocal order
  * \tparam Accuracy -log10(eps) as an integer
+ * \details 
+ * This is the general base class that can be specialised for different
+ * asymptotic orders and accuracy parameters.
  */
 template <class asymptotic, unsigned Accuracy = GLOBAL_ACCURACY>
 struct distance_kernel_interval;
@@ -42,9 +55,9 @@ template <>
 struct distance_kernel_interval<asymptotic::log<1>, 2>
 {
 	typedef tmp::vector<
-		break_point<std::ratio<13,10>, tmp::integer<int, 4> >,
-		break_point<std::ratio<23,10>, tmp::integer<int, 2> >,
-		break_point<ratio_infinite, tmp::integer<int, 0> >
+		tmp::break_point<std::ratio<13,10>, tmp::integer<int, 4> >,
+		tmp::break_point<std::ratio<23,10>, tmp::integer<int, 2> >,
+		tmp::break_point<tmp::ratio_infinite, tmp::integer<int, 0> >
 	> type;
 };
 
@@ -54,10 +67,10 @@ template <>
 struct distance_kernel_interval<asymptotic::log<1>, 3>
 {
 	typedef tmp::vector<
-		break_point<std::ratio<12,10>, tmp::integer<int, 8> >,
-		break_point<std::ratio<17,10>, tmp::integer<int, 4> >,
+		tmp::break_point<std::ratio<12,10>, tmp::integer<int, 8> >,
+		tmp::break_point<std::ratio<17,10>, tmp::integer<int, 4> >,
 		// break_point<std::ratio<51,10>, tmp::integer<int, 2> >,
-		break_point<ratio_infinite, tmp::integer<int, 2> >
+		tmp::break_point<tmp::ratio_infinite, tmp::integer<int, 2> >
 	> type;
 };
 
@@ -67,9 +80,9 @@ template <>
 struct distance_kernel_interval<asymptotic::inverse<1>, 2>
 {
 	typedef tmp::vector<
-		break_point<std::ratio<10,10>, tmp::integer<int, 4> >,
-		break_point<std::ratio<28,10>, tmp::integer<int, 2> >,
-		break_point<ratio_infinite, tmp::integer<int, 0> >
+		tmp::break_point<std::ratio<10,10>, tmp::integer<int, 4> >,
+		tmp::break_point<std::ratio<28,10>, tmp::integer<int, 2> >,
+		tmp::break_point<tmp::ratio_infinite, tmp::integer<int, 0> >
 	> type;
 };
 
@@ -79,10 +92,10 @@ template <>
 struct distance_kernel_interval<asymptotic::inverse<2>, 2>
 {
 	typedef tmp::vector<
-		break_point<std::ratio<10,10>, tmp::integer<int, 6> >,
-		break_point<std::ratio<15,10>, tmp::integer<int, 4> >,
-		break_point<std::ratio<50,10>, tmp::integer<int, 2> >,
-		break_point<ratio_infinite, tmp::integer<int, 0> >
+		tmp::break_point<std::ratio<10,10>, tmp::integer<int, 6> >,
+		tmp::break_point<std::ratio<15,10>, tmp::integer<int, 4> >,
+		tmp::break_point<std::ratio<50,10>, tmp::integer<int, 2> >,
+		tmp::break_point<tmp::ratio_infinite, tmp::integer<int, 0> >
 	> type;
 };
 
@@ -92,11 +105,11 @@ template <>
 struct distance_kernel_interval<asymptotic::inverse<3>, 2>
 {
 	typedef tmp::vector<
-		break_point<std::ratio<10,10>, tmp::integer<int, 8> >,
-		break_point<std::ratio<13,10>, tmp::integer<int, 6> >,
-		break_point<std::ratio<20,10>, tmp::integer<int, 4> >,
-		break_point<std::ratio<70,10>, tmp::integer<int, 2> >,
-		break_point<ratio_infinite, tmp::integer<int, 0> >
+		tmp::break_point<std::ratio<10,10>, tmp::integer<int, 8> >,
+		tmp::break_point<std::ratio<13,10>, tmp::integer<int, 6> >,
+		tmp::break_point<std::ratio<20,10>, tmp::integer<int, 4> >,
+		tmp::break_point<std::ratio<70,10>, tmp::integer<int, 2> >,
+		tmp::break_point<tmp::ratio_infinite, tmp::integer<int, 0> >
 	> type;
 };
 
@@ -105,10 +118,10 @@ template <>
 struct distance_kernel_interval<asymptotic::inverse<1>, 3>
 {
 	typedef tmp::vector<
-		break_point<std::ratio<11,10>, tmp::integer<int, 6> >,
-		break_point<std::ratio<18,10>, tmp::integer<int, 4> >,
-		break_point<std::ratio<91,10>, tmp::integer<int, 2> >,
-		break_point<ratio_infinite, tmp::integer<int, 0> >
+		tmp::break_point<std::ratio<11,10>, tmp::integer<int, 6> >,
+		tmp::break_point<std::ratio<18,10>, tmp::integer<int, 4> >,
+		tmp::break_point<std::ratio<91,10>, tmp::integer<int, 2> >,
+		tmp::break_point<tmp::ratio_infinite, tmp::integer<int, 0> >
 	> type;
 };
 
@@ -117,11 +130,11 @@ template <>
 struct distance_kernel_interval<asymptotic::inverse<2>, 3>
 {
 	typedef tmp::vector<
-		break_point<std::ratio< 11,10>, tmp::integer<int, 8> >,
-		break_point<std::ratio< 15,10>, tmp::integer<int, 6> >,
-		break_point<std::ratio< 28,10>, tmp::integer<int, 4> >,
-		break_point<std::ratio<158,10>, tmp::integer<int, 2> >,
-		break_point<ratio_infinite, tmp::integer<int, 0> >
+		tmp::break_point<std::ratio< 11,10>, tmp::integer<int, 8> >,
+		tmp::break_point<std::ratio< 15,10>, tmp::integer<int, 6> >,
+		tmp::break_point<std::ratio< 28,10>, tmp::integer<int, 4> >,
+		tmp::break_point<std::ratio<158,10>, tmp::integer<int, 2> >,
+		tmp::break_point<tmp::ratio_infinite, tmp::integer<int, 0> >
 	> type;
 };
 
@@ -131,16 +144,16 @@ template <>
 struct distance_kernel_interval<asymptotic::inverse<3>, 3>
 {
 	typedef tmp::vector<
-		break_point<std::ratio< 10,10>, tmp::integer<int,  9> >, // should be 12
-		break_point<std::ratio< 11,10>, tmp::integer<int,  9> >, // should be 10
-		break_point<std::ratio< 14,10>, tmp::integer<int,  8> >,
-		break_point<std::ratio< 19,10>, tmp::integer<int,  6> >,
-		break_point<std::ratio< 36,10>, tmp::integer<int,  4> >,
-		break_point<std::ratio<223,10>, tmp::integer<int,  2> >,
-		break_point<ratio_infinite, tmp::integer<int, 0> >
+		tmp::break_point<std::ratio< 10,10>, tmp::integer<int,  9> >, // should be 12
+		tmp::break_point<std::ratio< 11,10>, tmp::integer<int,  9> >, // should be 10
+		tmp::break_point<std::ratio< 14,10>, tmp::integer<int,  8> >,
+		tmp::break_point<std::ratio< 19,10>, tmp::integer<int,  6> >,
+		tmp::break_point<std::ratio< 36,10>, tmp::integer<int,  4> >,
+		tmp::break_point<std::ratio<223,10>, tmp::integer<int,  2> >,
+		tmp::break_point<tmp::ratio_infinite, tmp::integer<int, 0> >
 	> type;
 };
 
 }
 
-#endif // DISTANCE_KERNEL_INTERVALS_HPP_INCLUDED
+#endif /* DISTANCE_KERNEL_INTERVALS_HPP_INCLUDED */

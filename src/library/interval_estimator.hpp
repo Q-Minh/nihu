@@ -58,7 +58,7 @@ public:
 		auto y = trial_field.get_elem().get_center();
 		auto D = trial_field.get_elem().get_linear_size_estimate();
 		auto distance = (y - x).norm();
-		return eval_interval<Interval>(distance/D);
+		return tmp::eval_interval<Interval>(distance/D);
 	}
 };
 
@@ -71,7 +71,7 @@ struct merge_kernel_complexity_estimators<
 	interval_estimator<Interval1>,
 	interval_estimator<Interval2>
 > : interval_estimator<
-	typename merge_intervals<Interval1, Interval2>::type
+	typename tmp::merge_intervals<Interval1, Interval2>::type
 > {};
 
 }

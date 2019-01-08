@@ -43,7 +43,7 @@ template <class ElemType>
 struct mesh_elem_iterator_t
 {
 	/** \brief the iterator that traverses a submesh's element container */
-	typedef typename EigenStdVector<ElemType>::type::const_iterator type;
+	typedef typename eigen_std_vector<ElemType>::type::const_iterator type;
 };
 
 
@@ -57,7 +57,7 @@ class field_points
 public:
 	typedef xType x_t; /**< \brief template parameter as nested type */
 	static unsigned const nDim = x_t::SizeAtCompileTime; /**< \brief number of dimensions */
-	typedef typename EigenStdVector<x_t>::type::const_iterator iterator_t;	/**< \brief node iterator type */
+	typedef typename eigen_std_vector<x_t>::type::const_iterator iterator_t;	/**< \brief node iterator type */
 
 	/**
 	 * \brief add a point to the field point mesh
@@ -78,7 +78,7 @@ public:
 	}
 
 protected:
-	typename EigenStdVector<x_t>::type points;	/**< \brief nodal coordinates */
+	typename eigen_std_vector<x_t>::type points;	/**< \brief nodal coordinates */
 };
 
 /** \brief metafunction computing the first element's x_t in a vector of elements */
@@ -116,7 +116,7 @@ public:
 				typename tmp::empty<elem_type_vector_t>::type,
 				tmp::push_back<tmp::_1,tmp::_2>
 			>,
-			EigenStdVector<tmp::_1>
+			eigen_std_vector<tmp::_1>
 		>::type
 	>::type elem_container_t;
 
@@ -196,7 +196,7 @@ public:
 	template <class ElemType>
 	typename elem_iterator_t<ElemType>::type begin(void) const
 	{
-		return m_elements.EigenStdVector<ElemType>::type::begin();
+		return m_elements.eigen_std_vector<ElemType>::type::begin();
 	}
 
 	/**
@@ -205,7 +205,7 @@ public:
 	template <class ElemType>
 	typename elem_iterator_t<ElemType>::type end(void) const
 	{
-		return m_elements.EigenStdVector<ElemType>::type::end();
+		return m_elements.eigen_std_vector<ElemType>::type::end();
 	}
 
 	/**
@@ -214,7 +214,7 @@ public:
 	template <class ElemType>
 	ElemType const &get_elem(int i) const 
 	{
-		return m_elements.EigenStdVector<ElemType>::type::operator[](i);
+		return m_elements.eigen_std_vector<ElemType>::type::operator[](i);
 	}
 
 	/**
@@ -253,8 +253,8 @@ public:
 	template <class elem_t>
 	elem_t const &push_element(element_base<elem_t> const &e)
 	{
-		m_elements.EigenStdVector<elem_t>::type::push_back(e.derived());
-		return *(m_elements.EigenStdVector<elem_t>::type::rbegin());
+		m_elements.eigen_std_vector<elem_t>::type::push_back(e.derived());
+		return *(m_elements.eigen_std_vector<elem_t>::type::rbegin());
 	}
 
 	/**

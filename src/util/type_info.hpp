@@ -16,15 +16,27 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * \file type_info.hpp 
+ * \brief Utility functions for attaining type informations
+ * \ingroup util
+ */
+
 #ifndef TYPE_INFO_HPP_INCLUDED
 #define TYPE_INFO_HPP_INCLUDED
 
-#include <type_traits>
 #include <iostream>
+#include <type_traits>
 
 namespace NiHu
 {
 
+/**
+ * \brief Print type information 
+ * \tparam T The requested type 
+ * \param os Output stream to print to, default is \c std::cout
+ * \return The output stream
+ */
 template <class T>
 std::ostream & print_type_info(std::ostream &os = std::cout)
 {
@@ -36,7 +48,6 @@ std::ostream & print_type_info(std::ostream &os = std::cout)
 	return os;
 }
 
-}
+} // end of namespace NiHu
 
-#endif // TYPE_INFO_HPP_INCLUDED
-
+#endif /* TYPE_INFO_HPP_INCLUDED */

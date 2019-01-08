@@ -81,7 +81,8 @@ public:
 				
 				x_t rvec = y - x0; 		// 3d distance
 				double r = rvec.norm();
-				double z = -rvec(2);
+				
+				//double z = -rvec(2);
 				// square of lateral radius
 				double R2 = rvec(0)*rvec(0) + rvec(1)*rvec(1);
 				double dtheta = (rvec(0) * dyxi(1) - rvec(1) * dyxi(0)) / R2;
