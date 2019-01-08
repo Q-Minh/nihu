@@ -145,13 +145,6 @@ public:
 				
 				double integrand;
 				
-#if 0
-				if (std::abs(z) < 1e-12)
-					integrand = 0.0;
-				else
-					integrand = z / std::abs(z) - z / r;
-#endif
-				
 				integrand = sgn(z) - z / r;
 				
 				double dtheta = (rvec(0) * dyxi(1) - rvec(1) * dyxi(0)) / R2;
