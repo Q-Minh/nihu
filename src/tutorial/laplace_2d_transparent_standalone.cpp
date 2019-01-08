@@ -35,7 +35,7 @@ static void tester(TestSpace const &test_space, TrialSpace const &trial_space)
 	auto Ht_op = NiHu::create_integral_operator(NiHu::laplace_2d_DLPt_kernel());
 	auto D_op = NiHu::create_integral_operator(NiHu::laplace_2d_HSP_kernel());
 	
-	unsigned N = test_space.get_num_dofs();
+	size_t N = test_space.get_num_dofs();
 	
 	// excitation and response
 	dMatrix q0(N, 1), p0(N,1);
