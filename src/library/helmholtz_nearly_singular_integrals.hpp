@@ -1,3 +1,25 @@
+// This file is a part of NiHu, a C++ BEM template library.
+//
+// Copyright (C) 2012-2019  Peter Fiala <fiala@hit.bme.hu>
+// Copyright (C) 2012-2019  Peter Rucz <rucz@hit.bme.hu>
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+/** \file helmholtz_nearly_singular_integrals.hpp
+ *
+ */
+
 #ifndef HELMHOLTZ_NEARLY_SINGULAR_INTEGRALS_HPP_INCLUDED
 #define HELMHOLTZ_NEARLY_SINGULAR_INTEGRALS_HPP_INCLUDED
 
@@ -9,6 +31,10 @@
 namespace NiHu
 {
 
+/** \brief nearly singular collocational integral of the 3D Helmholtz SLP kernel over planes
+ * The singular static part is redirected to the corresponding laplace kernel
+ * The regular dynamic part is integrated numerically using a regular quadrature
+ */
 class helmholtz_3d_SLP_collocation_constant_plane_nearly_singular
 {
 public:
@@ -48,6 +74,10 @@ public:
 };
 
 
+/** \brief nearly singular collocational integral of the 3D Helmholtz DLP kernel over planes
+ * The singular static part is redirected to the corresponding Laplace kernel
+ * The regular dynamic part is integrated numerically using a regular quadrature
+ */
 class helmholtz_3d_DLP_collocation_constant_plane_nearly_singular
 {
 public:
@@ -89,6 +119,10 @@ public:
 };
 
 
+/** \brief nearly singular collocational integral of the 3D Helmholtz HSP kernel over planes
+ * The singular static part is redirected to the corresponding Laplace kernel
+ * The regular dynamic part is integrated numerically using a regular quadrature
+ */
 class helmholtz_3d_HSP_collocation_constant_plane_nearly_singular
 {
 public:
@@ -260,6 +294,6 @@ public:
 	}
 };
 
-}
+} // end of namespace NiHu
 
 #endif

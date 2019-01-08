@@ -4,14 +4,17 @@
 
 #include <omp.h>
 
-#include "library/quad_1_gauss_field.hpp"
 #include "core/weighted_residual.hpp"
 #include "interface/read_off_mesh.hpp"
 #include "library/lib_element.hpp"
 #include "library/helmholtz_kernel.hpp"
+#include "library/helmholtz_nearly_singular_integrals.hpp"
 #include "library/helmholtz_singular_integrals.hpp"
+#include "library/quad_1_gauss_field.hpp"
 
 #include<Eigen/IterativeLinearSolvers>
+
+#define NUM_PROCESSORS 1
 
 typedef Eigen::Matrix<unsigned, Eigen::Dynamic, Eigen::Dynamic> uMatrix;
 typedef Eigen::Matrix<std::complex<double>, Eigen::Dynamic, 1> cVector;
@@ -72,21 +75,18 @@ void solve(TestSpace const &test, TrialSpace const &trial, FieldSpace const &fie
 	double const rho = 1.3;
 	std::complex<double> const J(0., 1.);
 	
-	size_t nFreqs = 2000;
-	size_t nProc = 10;
-	size_t nBlock = nFreqs / nProc;
+	size_t nFreqs = 1;
+	size_t nBlock = nFreqs / NUM_PROCESSORS;
 	
-	dMatrix fvec(nBlock,nProc);
+	dMatrix fvec(nBlock, NUM_PROCESSORS);
 	for (size_t i = 0; i < nBlock; ++i)
-		for (size_t j = 0; j < nProc; ++j)
-			fvec(i,j) = (nProc*i+j) * .5;
+		for (size_t j = 0; j < NUM_PROCESSORS; ++j)
+			fvec(i,j) = (NUM_PROCESSORS*i+j) * .5;
 	
-#pragma omp parallel for num_threads(10)
+#pragma omp parallel for num_threads(NUM_PROCESSORS)
 	for (size_t i = 0; i < nFreqs; ++i)
 	{
 		double f = fvec(i);
-		if (f <= 15.0)
-			continue;
 		double om = 2.*M_PI*f;
 		double k = om / c;
 		

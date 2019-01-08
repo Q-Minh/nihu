@@ -16,7 +16,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
 /** \file laplace_nearly_singular_integrals.hpp
  *
  */
@@ -35,7 +34,7 @@
 namespace NiHu
 {
 
-/** \brief collocational nearly singular integral of the laplace SLP kernel over a constant planar element */
+/** \brief nearly singular collocational integral of the 3D Laplace SLP kernel over planes */
 class laplace_3d_SLP_collocation_constant_plane_nearly_singular
 {
 	typedef line_domain quadrature_domain_t;
@@ -82,17 +81,17 @@ public:
 				x_t rvec = y - x0; 		// 3d distance
 				double r = rvec.norm();
 				
-				//double z = -rvec(2);
 				// square of lateral radius
 				double R2 = rvec(0)*rvec(0) + rvec(1)*rvec(1);
 				double dtheta = (rvec(0) * dyxi(1) - rvec(1) * dyxi(0)) / R2;
 				
-				result += r * dtheta * w;
+				// although z is constant, it can not be extracted from the 
+				// numerical integration, as int dtheta is 2pi or 0
+				result += (r - std::abs(z)) * dtheta * w;
 			}
 		}
 		
-		result /= (4. * M_PI);
-		return result - std::abs(z) / 2.0;
+		return result /= (4. * M_PI);
 	}
 };
 
