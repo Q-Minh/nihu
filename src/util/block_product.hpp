@@ -98,43 +98,49 @@ public:
 };
 
 
-template <class mat, class right>
+template <class mat, class rightDerived,
+	bool isEigen = is_eigen<mat>::value>
 class semi_block_product_impl;
 
-template <class mat, class right>
-class semi_block_product_impl
+template <class mat, class rightDerived>
+class semi_block_product_impl<mat, rightDerived, false>
 {
 public:
 	typedef typename plain_type<
 		typename product_type<
 		mat,
-		Eigen::Transpose<right>
+		Eigen::Transpose<rightDerived>
 		>::type
 	>::type result_type;
 
-	static result_type eval(mat const &m, Eigen::MatrixBase<right> const &v2)
+	static result_type eval(mat const &m, Eigen::MatrixBase<rightDerived> const &v2)
 	{
 		return m * v2.transpose();
 	}
 };
 
 
-template <class scalar2, int N2, class right>
-class semi_block_product_impl<Eigen::Matrix<scalar2, N2, N2>, right>
+template <class mat, class rightDerived>
+class semi_block_product_impl<mat, rightDerived, true>
 {
-	typedef typename right::Scalar scalar3;
-	enum { N3 = right::RowsAtCompileTime };
+	typedef typename mat::Scalar scalar2;
+	typedef typename rightDerived::Scalar scalar3;
+	enum {
+		N21 = mat::RowsAtCompileTime,
+		N22 = mat::ColsAtCompileTime,
+		N3 = rightDerived::RowsAtCompileTime
+	};
 	typedef typename product_type<scalar2, scalar3>::type scalar;
 public:
-	typedef Eigen::Matrix<scalar, N2, N2*N3> result_type;
+	typedef Eigen::Matrix<scalar, N21, N22*N3> result_type;
 
 	static result_type eval(
-		Eigen::MatrixBase<Eigen::Matrix<scalar2, N2, N2> > const &m,
-		Eigen::MatrixBase<right> const &v2)
+		Eigen::MatrixBase<Eigen::Matrix<scalar2, N21, N22> > const &m,
+		Eigen::MatrixBase<rightDerived> const &v2)
 	{
 		result_type result;
 		for (int col = 0; col < N3; ++col)
-			result.template block<N2, N2>(0, col*N2) = m * v2(col);
+			result.template block<N21, N22>(0, col*N22) = m * v2(col, 0);
 		return result;
 	}
 };
@@ -169,6 +175,13 @@ block_product(
 	return internal::block_product_impl<leftDerived, mat, rightDerived>::eval(l, m, r);
 }
 
+/** \brief metafunction returning the value type of a semi block product */
+template <class mat, class rightDerived>
+struct semi_block_product_result_type
+{
+	typedef typename internal::semi_block_product_impl<mat, rightDerived>::result_type type;
+};
+
 /** \brief compute semi block product of a matrix and a vector m * v^T
  * \tparam mat the matrix type
  * \tparam right the Eigen vector type
@@ -176,19 +189,14 @@ block_product(
  * \param [in] r the Eigen vector
  * \return the block product m * r^T
  */
-template <class mat, class right>
-auto semi_block_product(mat const &m, Eigen::MatrixBase<right> const &r)
--> decltype(internal::semi_block_product_impl<mat, right>::eval(m, r))
+template <class mat, class rightDerived>
+typename semi_block_product_result_type<mat, rightDerived>::type
+semi_block_product(
+	mat const &m,
+	Eigen::MatrixBase<rightDerived> const &r)
 {
-	return internal::semi_block_product_impl<mat, right>::eval(m, r);
+	return internal::semi_block_product_impl<mat, rightDerived>::eval(m, r);
 }
-
-/** \brief metafunction returning the value type of a semi block product */
-template <class mat, class right>
-struct semi_block_product_result_type
-{
-	typedef typename internal::semi_block_product_impl<mat, right>::result_type type;
-};
 
 } // end of namespace NiHu
 

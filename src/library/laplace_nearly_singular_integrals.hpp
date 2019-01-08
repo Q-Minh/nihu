@@ -1,3 +1,26 @@
+// This file is a part of NiHu, a C++ BEM template library.
+//
+// Copyright (C) 2012-2019  Peter Fiala <fiala@hit.bme.hu>
+// Copyright (C) 2012-2019  Peter Rucz <rucz@hit.bme.hu>
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+/** \file laplace_nearly_singular_integrals.hpp
+ *
+ */
+
 #ifndef LAPLACE_NEARLY_SINGULAR_INTEGRALS_HPP_INCLUDED
 #define LAPLACE_NEARLY_SINGULAR_INTEGRALS_HPP_INCLUDED
 
@@ -12,6 +35,7 @@
 namespace NiHu
 {
 
+/** \brief collocational nearly singular integral of the laplace SLP kernel over a constant planar element */
 class laplace_3d_SLP_collocation_constant_plane_nearly_singular
 {
 	typedef line_domain quadrature_domain_t;
@@ -28,48 +52,46 @@ public:
 
 		Eigen::Matrix<double, 3, N> corners;
 		for (unsigned i = 0; i < N; ++i)
-		{
-			auto xi = elem_t::domain_t::get_corner(i);
-			corners.col(i) = elem.get_x(xi);
-		}
+			corners.col(i) = elem.get_x(elem_t::domain_t::get_corner(i));
 
 		auto T = plane_elem_transform(corners.col(1)-corners.col(0), corners.col(2)-corners.col(0));
 		auto Tdec = T.partialPivLu();
 		corners = Tdec.solve(corners);
 		x_t x0 = Tdec.solve(x0_in);
 		
-		double result = 0;
+		double z = x0(2) - corners(2, 0);
+		
+		double result = 0.0;
 
+		// loop over triange sides
 		for (unsigned i = 0; i < N; ++i)
 		{
 			auto const &c1 = corners.col(i);
 			auto const &c2 = corners.col((i+1) % N);
-			
 			x_t dyxi = (c2-c1)/2.;
 			
-			for (auto it = quadrature_t::quadrature.begin(); it != quadrature_t::quadrature.end(); ++it)
+			// loop over quadrature points
+			for (auto it = quadrature_t::quadrature.begin();
+				it != quadrature_t::quadrature.end(); ++it)
 			{
 				double xi = it->get_xi()(0);
 				double w = it->get_w();
 				
 				x_t y = c1 * (1.-xi)/2. + c2 * (1.+xi)/2.;
 				
-				x_t rvec = y - x0;
+				x_t rvec = y - x0; 		// 3d distance
 				double r = rvec.norm();
 				double z = -rvec(2);
 				// square of lateral radius
 				double R2 = rvec(0)*rvec(0) + rvec(1)*rvec(1);
-				
-				double integrand = r-std::abs(z);
-				
 				double dtheta = (rvec(0) * dyxi(1) - rvec(1) * dyxi(0)) / R2;
 				
-				result += integrand * dtheta * w;
+				result += r * dtheta * w;
 			}
-			
 		}
-
-		return result / (4.*M_PI);
+		
+		result /= (4. * M_PI);
+		return result - std::abs(z) / 2.0;
 	}
 };
 
