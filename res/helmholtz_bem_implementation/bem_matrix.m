@@ -34,16 +34,22 @@ for e = 1 : nDof
             
             Gns = nearlysingular(x0, nx(e,:), nodes(yelem,:));
             
-            y = Nns * nodes(yelem([1 2 3 3]),:);
-            ygxi = dNns(:,:,1) * nodes(yelem([1 2 3 3]),:);
-            ygeta = dNns(:,:,2) * nodes(yelem([1 2 3 3]),:);
-            jvec = cross(ygxi, ygeta, 2);
-            jac = sqrt(dot(jvec, jvec, 2));
-            ny = bsxfun(@times, jvec, 1./jac);
-            g = kernel(x0, nx(e,:), y, ny);
-            Gquad = wns.' * diag(jac) * g;
+%             if (abs(Gns) > 1e-8 && abs(G(e,f) - Gns) / abs(Gns) > 1e-2)
+%                 aaa = 8;
+%             end
             
-            G(e,f) = Gquad;
+            G(e,f) = Gns;
+            
+%             y = Nns * nodes(yelem([1 2 3 3]),:);
+%             ygxi = dNns(:,:,1) * nodes(yelem([1 2 3 3]),:);
+%             ygeta = dNns(:,:,2) * nodes(yelem([1 2 3 3]),:);
+%             jvec = cross(ygxi, ygeta, 2);
+%             jac = sqrt(dot(jvec, jvec, 2));
+%             ny = bsxfun(@times, jvec, 1./jac);
+%             g = kernel(x0, nx(e,:), y, ny);
+%             Gquad = wns.' * diag(jac) * g;
+            
+%            G(e,f) = Gquad;
         else % regular integral
 %             order = 8;
 %             

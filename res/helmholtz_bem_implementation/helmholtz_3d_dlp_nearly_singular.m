@@ -19,4 +19,8 @@ g_dyn = wns.' * diag(jac) * ker;
 
 g = g_stat + g_dyn;
 
+if isnan(g)
+    aaa = 7;
+end
+
 end

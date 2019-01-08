@@ -6,7 +6,7 @@ close all;
 Lout = [1 1 1];
 Lin = [.6 .6 .6];
 Lop = .2;
-Le = 1e-1;
+Le = 2e-1;
 mesh = create_brick(Lout, ceil(Lout/Le));
 mesh = translate_mesh(mesh, -Lout/2);
 
@@ -23,7 +23,7 @@ c = 340;
 kmax = min(mesh_kmax(mesh, 8));
 fmax = kmax * c / (2*pi);
 fprintf('Max mesh freq: %.1f Hz\n', fmax);
-fvec = 30 : 45;
+fvec = 20 : 1 : 50;
 nFreq = length(fvec);
 
 %%
@@ -50,20 +50,30 @@ for iFreq = 1 : nFreq
     
     gkernel = @(x, nx, y, ny)helmholtz_3d_slp_kernel(x, nx, y, ny, k);
     gsing = @(x, nx, corners)helmholtz_3d_slp_singular(x, nx, corners, k);
+    gnsing = @(x, nx, corners)helmholtz_3d_slp_nearly_singular(x, nx, corners, k);
     
     hkernel = @(x, nx, y, ny)helmholtz_3d_dlp_kernel(x, nx, y, ny, k);
     hsing = @(x, nx, corners)helmholtz_3d_dlp_singular(x, nx, corners, k);
+    hnsing = @(x, nx, corners)helmholtz_3d_dlp_nearly_singular(x, nx, corners, k);
     
     htkernel = @(x, nx, y, ny)helmholtz_3d_dlpt_kernel(x, nx, y, ny, k);
     htsing = @(x, nx, corners)helmholtz_3d_dlpt_singular(x, nx, corners, k);
+    htnsing = @(x, nx, corners)helmholtz_3d_dlpt_nearly_singular(x, nx, corners, k);
     
     dkernel = @(x, nx, y, ny)helmholtz_3d_hsp_kernel(x, nx, y, ny, k);
     dsing = @(x, nx, corners)helmholtz_3d_hsp_singular(x, nx, corners, k);
+    dnsing = @(x, nx, corners)helmholtz_3d_hsp_nearly_singular(x, nx, corners, k);
     
-    G = bem_matrix(mesh, gkernel, gsing, G);
-    H = bem_matrix(mesh, hkernel, hsing, H);
-    Ht = bem_matrix(mesh, htkernel, htsing, Ht);
-    D = bem_matrix(mesh, dkernel, dsing, D);
+    if 0
+    G = bem_matrix(mesh, gkernel, gsing, gnsing, G);
+    end
+    if 0
+    H = bem_matrix(mesh, hkernel, hsing, hnsing, H);
+    end
+    if 0
+    Ht = bem_matrix(mesh, htkernel, htsing, htnsing, Ht);
+    D = bem_matrix(mesh, dkernel, dsing, dnsing, D);
+    end
     
     %// acoustic pressure on the surface and in the field points
     ps_conv(:, iFreq) = H \ (G * qs_ana);               %// conventional
@@ -73,11 +83,11 @@ for iFreq = 1 : nFreq
 end
 
 %%
-figure;
-semilogy(fvec, err_s_conv, fvec, err_s_bm, fvec, err_s_hs, 'LineWidth', 1.2);
-legend({'Conventional', 'Burton-Miller', 'Hypersingular'});
-xlabel('Frequency [Hz]');
-ylabel('Relative error');
+%figure;
+%semilogy(fvec, err_s_conv, fvec, err_s_bm, fvec, err_s_hs, 'LineWidth', 1.2);
+%legend({'Conventional', 'Burton-Miller', 'Hypersingular'});
+%xlabel('Frequency [Hz]');
+%ylabel('Relative error');
 %%
 f_sel = 36;
 f_idx = find(fvec == f_sel, 1, 'first');

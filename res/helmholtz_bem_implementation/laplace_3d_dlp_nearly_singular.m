@@ -34,7 +34,11 @@ for i = 1 : 3
     Rvec = rvec(:,1:2);
     R = sqrt(dot(Rvec, Rvec, 2));
     
-    integrand = z./abs(z) -z./r;
+    if (abs(z) < 1e-12)
+        integrand = 0;
+    else
+        integrand = z./abs(z) -z./r;
+    end
     
     dtheta = (Rvec(:,1) .* dyxi(:,2) - Rvec(:,2) .* dyxi(:,1)) ./ R.^2;
     

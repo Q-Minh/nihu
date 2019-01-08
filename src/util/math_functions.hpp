@@ -34,6 +34,12 @@
 namespace NiHu
 {
 
+template <typename T> 
+int sgn(T val) 
+{
+    return (T(0) < val) - (val < T(0));
+}
+	
 /**
  * \brief \f$ sinc(x) = \sin(x) / x \f$ function
  * \tparam T type of x

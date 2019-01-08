@@ -26,10 +26,11 @@
 #include "../core/formalism.hpp"
 #include "../core/nearly_singular_integral.hpp"
 #include "../core/nearly_singular_planar_constant_collocation_shortcut.hpp"
+#include "../util/math_functions.hpp"
 #include "laplace_kernel.hpp"
 #include "plane_element_helper.hpp"
-#include "quadrature_store_helper.hpp"
 #include "nearly_singular_collocational.hpp"
+#include "quadrature_store_helper.hpp"
 
 namespace NiHu
 {
@@ -115,9 +116,13 @@ public:
 		auto Tdec = T.partialPivLu();
 		corners = Tdec.solve(corners);
 		x_t x0 = Tdec.solve(x0_in);
+		double z = x0(2) - corners(2,0);
 		
 		double result = 0;
 
+		if (std::abs(z) < 1e-12)
+			return result;
+		
 		for (unsigned i = 0; i < N; ++i)
 		{
 			auto const &c1 = corners.col(i);
@@ -134,16 +139,20 @@ public:
 				
 				x_t rvec = y - x0;
 				double r = rvec.norm();
-				double z = -rvec(2);
+				//double z = -rvec(2);
 				// square of lateral radius
 				double R2 = rvec(0)*rvec(0) + rvec(1)*rvec(1);
 				
 				double integrand;
-				/** \todo this decision could be made outside the loop over triangles */
-				if (z == 0.0)
+				
+#if 0
+				if (std::abs(z) < 1e-12)
 					integrand = 0.0;
 				else
 					integrand = z / std::abs(z) - z / r;
+#endif
+				
+				integrand = sgn(z) - z / r;
 				
 				double dtheta = (rvec(0) * dyxi(1) - rvec(1) * dyxi(0)) / R2;
 				
@@ -181,6 +190,9 @@ public:
 		x_t x0 = Tdec.solve(x0_in);
 		x_t nx = Tdec.solve(nx_in);
 
+		double z = x0(2) - corners(2,0);
+		double absz = std::abs(z);
+		
 		double result = 0;
 
 		for (unsigned i = 0; i < N; ++i)
@@ -199,17 +211,23 @@ public:
 
 				x_t rvec = y - x0;
 				double r = rvec.norm();
-				double z = -rvec(2);
-				double absz = std::abs(z);
+				
 				// square of lateral radius
 				double R2 = rvec(0)*rvec(0) + rvec(1)*rvec(1);
 				double R = std::sqrt(R2);
 				double theta = std::atan2(rvec(1), rvec(0));
 
-				double integrand =
+				double integrand;
+				if (absz < 1e-12)
+					integrand =
+					-nx.dot(rvec) / r +
+					(nx(0) * std::cos(theta) + nx(1) * std::sin(theta)) * std::log((R + r))
+					- nx(2) * sgn(z);
+				else 
+					integrand =
 					-nx.dot(rvec) / r +
 					(nx(0) * std::cos(theta) + nx(1) * std::sin(theta)) * std::log((R + r) / absz)
-					- nx(2) * z / absz;
+					- nx(2) * sgn(z);
 				/** \todo check z appr 0 case */
 
 				double dtheta = (rvec(0) * dyxi(1) - rvec(1) * dyxi(0)) / R2;
