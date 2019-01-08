@@ -19,15 +19,17 @@
 /**
  * \file math_functions.hpp
  * \brief general mathematical functions
+ * \ingroup util
  */
 #ifndef MATH_FUNCTIONS_HPP_INCLUDED
 #define MATH_FUNCTIONS_HPP_INCLUDED
 
 #include "math_constants.hpp"
+
 #include <cmath>
 #include <complex>
-#include <stdexcept>
 #include <iostream>
+#include <stdexcept>
 
 namespace NiHu
 {
@@ -62,7 +64,8 @@ namespace bessel
 	/** \brief imaginary unit */
 	std::complex<double> const I(0., 1.);
 
-	/** \brief large argument Bessel function Taylor series coefficients
+	/** 
+	 * \brief large argument Bessel function Taylor series coefficients
 	 * \tparam T the argument type
 	 * \param [in] nu the Bessel function order
 	 * \param [in] z the Bessel argument
@@ -141,7 +144,8 @@ namespace bessel
 		phi = phi/z + z - (nu/2.+.25)*M_PI;
 	}
 
-	/** \brief small argument expansion of J_nu(z) for nu = 0, 1, 2
+	/** 
+	 * \brief small argument expansion of J_nu(z) for nu = 0, 1, 2
 	 * \tparam nu the Bessel function's order
 	 * \tparam T the Bessel argument type
 	 * \param [in] z the argument
@@ -163,7 +167,8 @@ namespace bessel
 		return res;
 	}
 
-	/** \brief large argument expansion of J_nu(z) for nu = 0, 1, 2
+	/** 
+	 * \brief large argument expansion of J_nu(z) for nu = 0, 1, 2
 	 * \tparam nu the Bessel function's order
 	 * \tparam T the Bessel argument type
 	 * \param [in] z the argument
@@ -188,7 +193,8 @@ namespace bessel
 		}
 	}
 
-	/** \brief Bessel function J_nu(z)
+	/**
+	 * \brief Bessel function J_nu(z)
 	 * \tparam nu the Bessel function's order
 	 * \tparam T the Bessel argument type
 	 * \param [in] z the argument
@@ -201,7 +207,8 @@ namespace bessel
 	}
 
 
-	/** \brief small argument expansion of Y_nu(z)
+	/** 
+	 * \brief small argument expansion of Y_nu(z)
 	 * \tparam nu the Bessel function's order
 	 * \param [in] z the argument
 	 * \return Y_nu(z)
@@ -245,7 +252,8 @@ namespace bessel
 		return 1./M_PI * (first + second + third);
 	}
 
-	/** \brief large argument expansion of Y_nu(z) for nu = 0, 1, 2
+	/** 
+	 * \brief large argument expansion of Y_nu(z) for nu = 0, 1, 2
 	 * \tparam nu the Bessel function's order
 	 * \param [in] z the argument
 	 * \return Y_nu(z)
@@ -273,7 +281,8 @@ namespace bessel
 	}
 
 
-	/** \brief Bessel function Y_nu(z)
+	/** 
+	 * \brief Bessel function Y_nu(z)
 	 * \tparam nu the Bessel function's order
 	 * \param [in] z the argument
 	 * \return Y_nu(z)
@@ -284,7 +293,8 @@ namespace bessel
 		return std::abs(z) < large_lim ? Y_small<nu>(z) : Y_large<nu>(z);
 	}
 
-	/** \brief large argument expansion of H^(K)_nu(z)
+	/** 
+	 * \brief large argument expansion of H^(K)_nu(z)
 	 * \tparam nu the Bessel function's order
 	 * \tparam T the Bessel argument type
 	 * \param [in] z the argument
@@ -316,7 +326,8 @@ namespace bessel
 		return std::sqrt(2./M_PI/z) * mag * std::exp(C*I*arg);
 	}
 
-	/** \brief H^(K)_nu(z) Bessel function
+	/** 
+	 * \brief H^(K)_nu(z) Bessel function
 	 * \tparam nu the Bessel function's order
 	 * \tparam kind the Bessel function's kind
 	 * \tparam T the Bessel argument type
@@ -334,7 +345,8 @@ namespace bessel
 			return H_large<nu, kind>(z);
 	}
 
-	/** \brief K_nu(z) modified Bessel function
+	/** 
+	 * \brief K_nu(z) modified Bessel function
 	 * \tparam nu the Bessel function's order
 	 * \tparam T the Bessel argument type
 	 * \param [in] z the argument
@@ -342,9 +354,9 @@ namespace bessel
 	 */
 	template <int nu, class T>
 	typename make_complex<T>::type K(T const &z);
-}
+} // end of namespace bessel
 
-}
+} // end of namespace NiHu
 
-#endif // MATH_FUNCTIONS_HPP_INCLUDED
+#endif /* MATH_FUNCTIONS_HPP_INCLUDED */
 

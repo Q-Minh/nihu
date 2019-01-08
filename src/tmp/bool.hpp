@@ -52,7 +52,7 @@ namespace tmp
 	 */
 	template <class...Args>
 	struct or_ : std::false_type {};
-
+	
 	/**
 	 * \brief Disjunction of Boolean constants
 	 * \tparam Args Booen values to disjunct

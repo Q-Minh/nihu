@@ -149,11 +149,11 @@ struct quadr_elem
 */
 template <class Derived>
 class quadrature_base :
-	public EigenStdVector<typename quadr_elem<Derived>::type>::type
+	public eigen_std_vector<typename quadr_elem<Derived>::type>::type
 {
 public:
 	/** \brief the base vector class of the quadrature */
-	typedef typename EigenStdVector<typename quadr_elem<Derived>::type>::type base_t;
+	typedef typename eigen_std_vector<typename quadr_elem<Derived>::type>::type base_t;
 
 	NIHU_CRTP_HELPERS
 

@@ -20,22 +20,24 @@
  * \file mex_matrix.hpp
  * \brief A Matlab mex matrix interface
  * \ingroup matlab
- * \details The interface makes it possible to use Matlab-borne matrices in C++
- * and to create Matlab matrices in C++. The interface handles real and complex
+ * \details 
+ * The interface makes it possible to use Matlab-borne matrices in C++ and to 
+ * create Matlab matrices in C++. The interface handles real and complex
  * matrices in a convenient manner, hiding mex implementation details from the
  * C++ programmer.
  */
+
 #ifndef MEX_MATRIX_HPP_INCLUDED
 #define MEX_MATRIX_HPP_INCLUDED
 
-#include <type_traits>
-#include <cstddef>
-#include <complex>
-#include <mex.h>
-#include <matrix.h>
-
 #include "eigen_utils.hpp"
 #include "../core/result_matrix.hpp"
+
+#include <complex>
+#include <cstddef>
+#include <mex.h>
+#include <matrix.h>
+#include <type_traits>
 
 namespace NiHu
 {
@@ -313,7 +315,7 @@ protected:
 };
 
 
-} // namespace mex
+} // end of namespace mex
 
 
 /** \brief declaring mex::real_matrix as a result matrix type */
@@ -324,7 +326,7 @@ struct is_result_matrix_impl<mex::real_matrix<T> > : std::true_type {};
 template <class T>
 struct is_result_matrix_impl<mex::complex_matrix<T> > : std::true_type {};
 
-}
+} // end of namespace NiHu
 
-#endif // MEX_MATRIX_HPP_INCLUDED
+#endif /* MEX_MATRIX_HPP_INCLUDED */
 

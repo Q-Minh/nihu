@@ -22,6 +22,7 @@ TEST(Helmholtz3dKernel, NormalDerivative)
 	
 	// evaluate kernels
 	std::complex<double> g = G(x, y);
+	(void)g;
 	std::complex<double> gy = Gy(x, y, ny);
 	std::complex<double> gx = Gx(x, y, nx);
 	std::complex<double> gxy = Gxy(x, y, nx, ny);

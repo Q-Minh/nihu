@@ -1,3 +1,9 @@
+/**
+ * \file math_constants.hpp 
+ * \brief Math constant definitions
+ * \ingroup util 
+ */
+
 #ifndef MATH_CONSTANTS_HPP_INCLUDED
 #define MATH_CONSTANTS_HPP_INCLUDED
 
@@ -14,4 +20,4 @@
 
 #define M_EULER_GAMMA 0.57721566490153286060
 
-#endif // MATH_CONSTANTS_HPP_INCLUDED
+#endif /* MATH_CONSTANTS_HPP_INCLUDED */

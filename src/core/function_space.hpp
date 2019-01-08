@@ -395,7 +395,7 @@ struct function_space_traits<function_space<FieldTypeVector> >
 	template <class field_t>
 	struct iterator
 	{
-		typedef typename EigenStdVector<field_t>::type::const_iterator type;
+		typedef typename eigen_std_vector<field_t>::type::const_iterator type;
 	};
 };
 
@@ -425,7 +425,7 @@ public:
 				typename tmp::empty<field_type_vector_t>::type,
 				tmp::push_back<tmp::_1,tmp::_2>
 			>,
-			EigenStdVector<tmp::_1>
+			eigen_std_vector<tmp::_1>
 		>::type
 	>::type field_container_t;
 
@@ -504,7 +504,7 @@ public:
 	typename traits_t::template iterator<FieldType>::type
 		field_begin(void) const
 	{
-		return m_fields.EigenStdVector<FieldType>::type::begin();
+		return m_fields.eigen_std_vector<FieldType>::type::begin();
 	}
 
 	/** \brief return end iterator of a subspace */
@@ -512,7 +512,7 @@ public:
 	typename traits_t::template iterator<FieldType>::type
 		field_end(void) const
 	{
-		return m_fields.EigenStdVector<FieldType>::type::end();
+		return m_fields.eigen_std_vector<FieldType>::type::end();
 	}
 
 	/** \brief add a field to the function space */
@@ -530,8 +530,8 @@ public:
 	template <class field_t>
 	field_t const &push_field(field_base<field_t> const &f)
 	{
-		m_fields.EigenStdVector<field_t>::type::push_back(f.derived());
-		return *(m_fields.EigenStdVector<field_t>::type::rbegin());
+		m_fields.eigen_std_vector<field_t>::type::push_back(f.derived());
+		return *(m_fields.eigen_std_vector<field_t>::type::rbegin());
 	}
 
 	/**

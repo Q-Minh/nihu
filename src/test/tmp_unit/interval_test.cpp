@@ -21,17 +21,17 @@
 #include <iostream>
 
 typedef tmp::vector<
-	break_point<std::ratio<2>, tmp::integer<int, 8> >,
-	break_point<ratio_infinite, tmp::integer<int, 1> >
+	tmp::break_point<std::ratio<2>, tmp::integer<int, 8> >,
+	tmp::break_point<tmp::ratio_infinite, tmp::integer<int, 1> >
 > inter1_t;
 
 typedef tmp::vector<
-	break_point<std::ratio<3>, tmp::integer<int, 6> >,
-	break_point<std::ratio<5>, tmp::integer<int, 4> >,
-	break_point<ratio_infinite, tmp::integer<int, 2> >
+	tmp::break_point<std::ratio<3>, tmp::integer<int, 6> >,
+	tmp::break_point<std::ratio<5>, tmp::integer<int, 4> >,
+	tmp::break_point<tmp::ratio_infinite, tmp::integer<int, 2> >
 > inter2_t;
 
-typedef merge_intervals<inter1_t, inter2_t>::type merged_t;
+typedef tmp::merge_intervals<inter1_t, inter2_t>::type merged_t;
 
 template <class BP>
 struct print_break_point
@@ -65,10 +65,10 @@ int main(void)
 	std::cout << "Testing interval evaluation" << std::endl;
 	std::cout << "===========================" << std::endl;
 	std::cout << "  x : I1, I2, Merged " << std::endl;
-	std::cout <<  .2 << " : " <<' ' << eval_interval<inter1_t>( .2) << ' ' << eval_interval<inter2_t>( .2) << ' ' << eval_interval<merged_t>( .2) << std::endl;
-	std::cout << 2.2 << " : " <<' ' << eval_interval<inter1_t>(2.2) << ' ' << eval_interval<inter2_t>(2.2) << ' ' << eval_interval<merged_t>(2.2) << std::endl;
-	std::cout << 4.2 << " : " <<' ' << eval_interval<inter1_t>(4.2) << ' ' << eval_interval<inter2_t>(4.2) << ' ' << eval_interval<merged_t>(4.2) << std::endl;
-	std::cout << 9.8 << " : " <<' ' << eval_interval<inter1_t>(9.8) << ' ' << eval_interval<inter2_t>(9.8) << ' ' << eval_interval<merged_t>(9.8) << std::endl;
+	std::cout <<  .2 << " : " <<' ' << tmp::eval_interval<inter1_t>( .2) << ' ' << tmp::eval_interval<inter2_t>( .2) << ' ' << tmp::eval_interval<merged_t>( .2) << std::endl;
+	std::cout << 2.2 << " : " <<' ' << tmp::eval_interval<inter1_t>(2.2) << ' ' << tmp::eval_interval<inter2_t>(2.2) << ' ' << tmp::eval_interval<merged_t>(2.2) << std::endl;
+	std::cout << 4.2 << " : " <<' ' << tmp::eval_interval<inter1_t>(4.2) << ' ' << tmp::eval_interval<inter2_t>(4.2) << ' ' << tmp::eval_interval<merged_t>(4.2) << std::endl;
+	std::cout << 9.8 << " : " <<' ' << tmp::eval_interval<inter1_t>(9.8) << ' ' << tmp::eval_interval<inter2_t>(9.8) << ' ' << tmp::eval_interval<merged_t>(9.8) << std::endl;
 	std::cout << std::endl;
 
 	return 0;

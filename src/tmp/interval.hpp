@@ -23,7 +23,6 @@
  * \details
  * Intervals are used for evaluating qudrature orders when integrating 
  * distance dependent kernels.
- * \todo No namespaces used here!
  */
 #ifndef INTERVAL_HPP_INCLUDED
 #define INTERVAL_HPP_INCLUDED
@@ -36,6 +35,9 @@
 
 #include <ratio>
 #include <stdexcept>
+
+namespace tmp
+{
 
 /** \brief define giga as the infinite as it fits into 32 bits */
 typedef std::giga ratio_infinite;
@@ -185,6 +187,8 @@ int eval_interval(double r)
 /** \brief error terminating case of eval_interval */
 template <>
 int eval_interval<tmp::vector<> >(double);
+
+} // end of namespace tmp
 
 #endif /* INTERVAL_HPP_INCLUDED */
 

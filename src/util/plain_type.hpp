@@ -18,31 +18,41 @@
 
 /**
  * \file plain_type.hpp
- * \brief plain type calculations
+ * \brief Plain type calculations
+ * \ingroup util
  */
 
 #ifndef PLAIN_TYPE_HPP_INCLUDED
 #define PLAIN_TYPE_HPP_INCLUDED
 
-#include <type_traits>
 #include "eigen_utils.hpp"
+
+#include <type_traits>
 
 namespace NiHu
 {
 
-/** \brief plain object type of a class
+/** 
+ * \brief Plain object type of a class
  * \tparam T the class to convert to plain type
- * \details this is the general case where the class is not an expression
+ * \details
+ * This is the general case where the class is not an Eigen expression
  */
 template <
 	class T,
-	bool isEigen = is_eigen<typename std::decay<T>::type>::value
+	bool isEigen = is_eigen<T>::value
 >
-struct plain_type : std::decay<T> {};
+struct plain_type 
+	: std::decay<T>
+{
+};
 
 
-/** \brief specialisation of ::plain_type for the case of eigen expressions
+/** 
+ * \brief Plain object type of a class
  * \tparam T the expression class to convert to plain type
+ * \details
+ * Specialisation for the case of Eigen expressions
  */
 template <class T>
 struct plain_type<T, true>
@@ -52,5 +62,5 @@ struct plain_type<T, true>
 
 } // end of namespace NiHu
 
-#endif // PLAIN_TYPE_HPP_INCLUDED
+#endif /* PLAIN_TYPE_HPP_INCLUDED */
 

@@ -26,9 +26,14 @@
 
 /** \brief define CRTP helper function */
 #define NIHU_CRTP_HELPERS \
-	Derived const &derived() const { return static_cast<Derived const &>(*this); } \
-	Derived &derived() { return static_cast<Derived &>(*this); }
-
+	Derived const &derived() const \
+	{ \
+		return static_cast<Derived const &>(*this); \
+	} \
+	Derived &derived() \
+	{ \
+		return static_cast<Derived &>(*this); \
+	}
 
 /** \brief metafunction returning its first argument and ignoring all subsequent
  * \details used for CRTP decltype

@@ -9,5 +9,7 @@ int main(void)
 	auto intop = NiHu::create_integral_operator(NiHu::laplace_3d_SLP_kernel());
 	auto k = intop.get_kernel();
 	
+	(void)k;
+	
 	return 0;
 }
