@@ -9,7 +9,7 @@ if ~isdir('data')
 end
 
 %% Create the mesh and export it
-Le = 1e-1;
+Le = 2e-1;
 [mesh, points] = create_helmholtz_bem(Le);
 export_off_mesh(mesh, sprintf('data/helmholtz_%02dcm_quad.off', Le*100));
 mesh = quad2tria(mesh);

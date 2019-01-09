@@ -59,6 +59,13 @@ public:
 		corners = Tdec.solve(corners);
 		x_t x0 = Tdec.solve(x0_in);
 		
+		double theta_lim[N];
+		double ref_distance[N];
+		double theta0[N];
+		
+		plane_elem_helper_mid(corners, x0, ref_distance, theta_lim, theta0);
+		
+		
 		double z = x0(2) - corners(2, 0);
 		
 		double result = 0.0;
@@ -66,9 +73,17 @@ public:
 		// loop over triange sides
 		for (unsigned i = 0; i < N; ++i)
 		{
-			auto const &c1 = corners.col(i);
-			auto const &c2 = corners.col((i+1) % N);
-			x_t dyxi = (c2-c1)/2.;
+			double th1 = theta_lim[i];
+			double th2 = theta_lim[(i+1)%N];
+
+			// angle check
+			if (std::abs(th2 - th1) > M_PI)
+			{
+				if (th2 > th1) th1 += 2 * M_PI;
+				else th2 += 2*M_PI;
+			}
+				
+			double jac = (th2 - th1)/2.;
 			
 			// loop over quadrature points
 			for (auto it = quadrature_t::quadrature.begin();
@@ -77,22 +92,19 @@ public:
 				double xi = it->get_xi()(0);
 				double w = it->get_w();
 				
-				x_t y = c1 * (1.-xi)/2. + c2 * (1.+xi)/2.;
+				// apply shape function to get angle
+				double theta = th1 * (1.-xi)/2. + th2 * (1.+xi)/2.;
 				
-				x_t rvec = y - x0; 		// 3d distance
-				double r = rvec.norm();
-				
-				// square of lateral radius
-				double R2 = rvec(0)*rvec(0) + rvec(1)*rvec(1);
-				double dtheta = (rvec(0) * dyxi(1) - rvec(1) * dyxi(0)) / R2;
+				double R = ref_distance[i] / std::cos(theta - theta0[i]);
+				double r = std::sqrt(R*R + z*z);
 				
 				// although z is constant, it can not be extracted from the 
 				// numerical integration, as int dtheta is 2pi or 0
-				result += (r - std::abs(z)) * dtheta * w;
+				result += (r - std::abs(z)) * jac * w;
 			}
 		}
 		
-		return result /= (4. * M_PI);
+		return result / (4. * M_PI);
 	}
 };
 
@@ -118,42 +130,49 @@ public:
 		x_t x0 = Tdec.solve(x0_in);
 		double z = x0(2) - corners(2,0);
 		
-		double result = 0;
-
-		if (std::abs(z) < 1e-12)
-			return result;
+		double theta_lim[N];
+		double ref_distance[N];
+		double theta0[N];
 		
+		plane_elem_helper_mid(corners, x0, ref_distance, theta_lim, theta0);
+		
+		double result = 0.0;
+
+		// loop over triange sides
 		for (unsigned i = 0; i < N; ++i)
 		{
-			auto const &c1 = corners.col(i);
-			auto const &c2 = corners.col((i+1) % N);
+			double th1 = theta_lim[i];
+			double th2 = theta_lim[(i+1)%N];
+
+			// angle check
+			if (std::abs(th2 - th1) > M_PI)
+			{
+				if (th2 > th1) th1 += 2 * M_PI;
+				else th2 += 2*M_PI;
+			}
+				
+			double jac = (th2 - th1)/2.;
 			
-			x_t dyxi = (c2-c1)/2.;
-			
-			for (auto it = quadrature_t::quadrature.begin(); it != quadrature_t::quadrature.end(); ++it)
+			// loop over quadrature points
+			for (auto it = quadrature_t::quadrature.begin();
+				it != quadrature_t::quadrature.end(); ++it)
 			{
 				double xi = it->get_xi()(0);
 				double w = it->get_w();
 				
-				x_t y = c1 * (1.-xi)/2. + c2 * (1.+xi)/2.;
+				// apply shape function to get angle
+				double theta = th1 * (1.-xi)/2. + th2 * (1.+xi)/2.;
 				
-				x_t rvec = y - x0;
-				double r = rvec.norm();
-				//double z = -rvec(2);
-				// square of lateral radius
-				double R2 = rvec(0)*rvec(0) + rvec(1)*rvec(1);
+				double R = ref_distance[i] / std::cos(theta - theta0[i]);
+				double r = std::sqrt(R*R + z*z);
 				
-				double integrand;
-				
-				integrand = sgn(z) - z / r;
-				
-				double dtheta = (rvec(0) * dyxi(1) - rvec(1) * dyxi(0)) / R2;
-				
-				result += integrand * dtheta * w;
-			} // loop over quadrature points
-		} // end of loop over (triangles)
-
-		return result / (4.*M_PI);
+				// although z is constant, it can not be extracted from the 
+				// numerical integration, as int dtheta is 2pi or 0
+				result += (1 - std::abs(z) / r) * jac * w;
+			}
+		}
+		
+		return sgn(z) * result / (4. * M_PI);
 	}
 };
 
@@ -184,50 +203,57 @@ public:
 		x_t nx = Tdec.solve(nx_in);
 
 		double z = x0(2) - corners(2,0);
-		double absz = std::abs(z);
 		
-		double result = 0;
+		double theta_lim[N];
+		double ref_distance[N];
+		double theta0[N];
+		
+		plane_elem_helper_mid(corners, x0, ref_distance, theta_lim, theta0);
+		
+		double result = 0.0;
 
+		// loop over triange sides
 		for (unsigned i = 0; i < N; ++i)
 		{
-			auto const &c1 = corners.col(i);
-			auto const &c2 = corners.col((i + 1) % N);
+			double th1 = theta_lim[i];
+			double th2 = theta_lim[(i+1)%N];
 
-			x_t dyxi = (c2 - c1) / 2.;
-
-			for (auto it = quadrature_t::quadrature.begin(); it != quadrature_t::quadrature.end(); ++it)
+			// angle check
+			if (std::abs(th2 - th1) > M_PI)
+			{
+				if (th2 > th1) th1 += 2 * M_PI;
+				else th2 += 2*M_PI;
+			}
+				
+			double jac = (th2 - th1)/2.;
+			
+			// loop over quadrature points
+			for (auto it = quadrature_t::quadrature.begin();
+				it != quadrature_t::quadrature.end(); ++it)
 			{
 				double xi = it->get_xi()(0);
 				double w = it->get_w();
-
-				x_t y = c1 * (1. - xi) / 2. + c2 * (1. + xi) / 2.;
-
-				x_t rvec = y - x0;
-				double r = rvec.norm();
 				
-				// square of lateral radius
-				double R2 = rvec(0)*rvec(0) + rvec(1)*rvec(1);
-				double R = std::sqrt(R2);
-				double theta = std::atan2(rvec(1), rvec(0));
-
-				double integrand;
-				if (absz < 1e-12)
-					integrand =
+				// apply shape function to get angle
+				double theta = th1 * (1.-xi)/2. + th2 * (1.+xi)/2.;
+				
+				double R = ref_distance[i] / std::cos(theta - theta0[i]);
+				double r = std::sqrt(R*R + z*z);
+				
+				x_t rvec;
+				rvec(0) = R * std::cos(theta);
+				rvec(1) = R * std::sin(theta);
+				rvec(2) = -z;
+				
+				// although z is constant, it can not be extracted from the 
+				// numerical integration, as int dtheta is 2pi or 0
+				result += (
 					-nx.dot(rvec) / r +
 					(nx(0) * std::cos(theta) + nx(1) * std::sin(theta)) * std::log((R + r))
-					- nx(2) * sgn(z);
-				else 
-					integrand =
-					-nx.dot(rvec) / r +
-					(nx(0) * std::cos(theta) + nx(1) * std::sin(theta)) * std::log((R + r) / absz)
-					- nx(2) * sgn(z);
-				/** \todo check z appr 0 case */
-
-				double dtheta = (rvec(0) * dyxi(1) - rvec(1) * dyxi(0)) / R2;
-
-				result += integrand * dtheta * w;
-			} // loop over quadrature points
-		} // end of loop over (triangles)
+					- nx(2) * sgn(z)
+				) * jac * w;
+			}
+		}
 
 		return result / (4.*M_PI);
 	}
@@ -258,44 +284,59 @@ public:
 		x_t x0 = Tdec.solve(x0_in);
 		x_t nx = Tdec.solve(nx_in);
 		
-		double result = 0;
+		double theta_lim[N];
+		double ref_distance[N];
+		double theta0[N];
+	
+		
+		plane_elem_helper_mid(corners, x0, ref_distance, theta_lim, theta0);
+		
+		double result = 0.0;
+		double z = x0(2) - corners(2,0);
 
+		// loop over triange sides
 		for (unsigned i = 0; i < N; ++i)
 		{
-			auto const &c1 = corners.col(i);
-			auto const &c2 = corners.col((i+1) % N);
+			double th1 = theta_lim[i];
+			double th2 = theta_lim[(i+1)%N];
+
+			// angle check
+			if (std::abs(th2 - th1) > M_PI)
+			{
+				if (th2 > th1) th1 += 2 * M_PI;
+				else th2 += 2*M_PI;
+			}
+				
+			double jac = (th2 - th1)/2.;
 			
-			x_t dyxi = (c2-c1)/2.;
-			
-			for (auto it = quadrature_t::quadrature.begin(); it != quadrature_t::quadrature.end(); ++it)
+			// loop over quadrature points
+			for (auto it = quadrature_t::quadrature.begin();
+				it != quadrature_t::quadrature.end(); ++it)
 			{
 				double xi = it->get_xi()(0);
 				double w = it->get_w();
 				
-				x_t y = c1 * (1.-xi)/2. + c2 * (1.+xi)/2.;
+				// apply shape function to get angle
+				double theta = th1 * (1.-xi)/2. + th2 * (1.+xi)/2.;
 				
-				x_t rvec = y - x0;
-				double r = rvec.norm();
-				double r2 = r * r;
-				double z = -rvec(2);
-				// square of lateral radius
-				double R2 = rvec(0)*rvec(0) + rvec(1)*rvec(1);
-				double R = std::sqrt(R2);
+				double R = ref_distance[i] / std::cos(theta - theta0[i]);
+				double r = std::sqrt(R*R + z*z);
 				
+				x_t rvec;
+				rvec(0) = R * std::cos(theta);
+				rvec(1) = R * std::sin(theta);
+				rvec(2) = -z;
+				
+				double rdnx = -rvec.dot(nx) / r;
 				double integrand;
-				if (std::abs(z) > 1e-3)
-				{
-					double rdnx = -rvec.dot(nx) / r;
-					integrand = -R2 / r2 / z * rdnx;
-				}
-				else
-				{
-					integrand = -nx(2) / R;
-				}
-    
-				double dtheta = (rvec(0) * dyxi(1) - rvec(1) * dyxi(0)) / R2;
 				
-				result += integrand * dtheta * w;
+				/** \todo Check z->0 limiting case */
+				if (std::abs(z) > 1e-12)
+					integrand = -R*R / (r*r) / z * rdnx;
+				else
+					integrand = -nx(2) / R;
+				
+				result += integrand * jac * w;
 			}
 		}
 
@@ -303,6 +344,14 @@ public:
 	}
 };
 
+/**
+ * \brief Class enabling the specialisation for 3D SLP Laplace kernel
+ * \tparam TestField Test field type
+ * \tparam TrialField trial field type
+ * \details
+ * The specialisation is enabled for the collocational formalism if the element 
+ * is a linear triangle and the field is constant.
+ */
 template <class TestField, class TrialField>
 class nearly_singular_integral<
 	laplace_3d_SLP_kernel, TestField, TrialField,
@@ -314,6 +363,10 @@ class nearly_singular_integral<
 >
 {
 public:
+	/**
+	 * \brief Check if singular evaluation is needed 
+	 * \todo needed function should be implemented in a base class
+	 */
 	static bool needed(
 		kernel_base<laplace_3d_SLP_kernel> const &kernel,
 		field_base<TestField> const &test_field,

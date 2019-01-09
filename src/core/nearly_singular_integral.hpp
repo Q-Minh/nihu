@@ -1,3 +1,8 @@
+/**
+ * \file nearly_singular_integral.hpp 
+ * \brief Nearly singular integral general case
+ */
+
 #ifndef NIHU_NEARLY_SINGULAR_INTEGRAL_HPP_INCLUDED
 #define NIHU_NEARLY_SINGULAR_INTEGRAL_HPP_INCLUDED
 
@@ -7,6 +12,17 @@
 namespace NiHu
 {
 
+#if 0
+template <class Kernel, class TestField, class TrialField>	
+class nearly_singular_distance_needed
+{
+	static bool needed(
+		kernel_base<Kernel> const &kernel,
+		field_base<TestField> const &test_field,
+		field_base<TrialField> const &trial_field)
+};
+#endif
+	
 template <class Kernel, class TestField, class TrialField, class Enable = void>
 class nearly_singular_integral
 {
@@ -32,4 +48,4 @@ public:
 
 } // end of namespace
 
-#endif // NIHU_NEARLY_SINGULAR_INTEGRAL_HPP_INCLUDED
+#endif /* NIHU_NEARLY_SINGULAR_INTEGRAL_HPP_INCLUDED */

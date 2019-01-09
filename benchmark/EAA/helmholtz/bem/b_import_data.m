@@ -2,8 +2,8 @@ clear;
 
 %%
 directory = 'data';
-meshname = 'helmholtz_10cm_tria.off';
-pattern = 'helmholtz_10cm_tria_0_bm';
+meshname = 'helmholtz_20cm_quad.off';
+pattern = 'helmholtz_20cm_quad_gauss_conv';
 
 %% read mesh
 mesh = import_off_mesh(fullfile(directory, meshname));
