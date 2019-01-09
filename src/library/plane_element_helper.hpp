@@ -42,6 +42,7 @@ void plane_element_helper(
 	typename elem_t::scalar_t theta[],
 	typename elem_t::scalar_t alpha[])
 {
+	/** \todo check if elem_t::num_corners here */
 	enum{ N = elem_t::domain_t::num_corners };
 
 	auto const &C_old = elem.get_coords();
