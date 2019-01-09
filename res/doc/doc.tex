@@ -1,0 +1,41 @@
+\documentclass{report}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{a4wide}
+
+\usepackage{amsmath, bm, amssymb}
+
+\usepackage{listings}
+
+\usepackage{hyperref}
+
+\usepackage{makeidx}
+\makeindex
+
+\newcommand{\td}{\mathrm{d}}
+\newcommand{\te}{\mathrm{e}}
+\newcommand{\ti}{\mathrm{i}}
+\newcommand{\code}[1]{\texttt{#1}}
+
+\newcommand{\NiHu}{\texttt{NiHu}}
+
+\title{\NiHu{} documentation}
+\author{P. Fiala, P. Rucz}
+
+\begin{document}
+\lstset{language=C++}
+
+\maketitle
+
+\tableofcontents
+
+\input{geometry}
+
+\input{kernels}
+
+\input{nearly_singular}
+
+\printindex
+
+\end{document}

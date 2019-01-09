@@ -1,0 +1,55 @@
+\chapter{Nearly singular integrals}
+\label{sec:nearly_singular}
+
+\section{Collocational nearly singular integrals}
+
+\subsection{3D Laplace kernel}
+
+\subsubsection{Planar elements with constant $N$-set}
+
+\paragraph{SLP kernel}
+
+\begin{multline}
+	\int_E G({\bf x}, {\bf y}) \td {\bf y}
+	= \int_E \frac{1}{4\pi |{\bf x} - {\bf y}|} \td {\bf y}
+	= \frac{1}{4\pi} \oint_{\theta} \int_{0}^{\bar{R}(\theta)} \frac{1}{\sqrt{z^2 + R^2}} R \td R \td \theta
+	\\
+	= \frac{1}{4\pi} \oint_{\theta} \left[ \sqrt{z^2 + R^2} \right]_{0}^{\bar{R}(\theta)} \td \theta
+	= \frac{1}{4\pi} \oint_{\theta} \left( \bar{r}(\theta) - |z| \right) \td \theta
+\end{multline}
+
+\paragraph{DLP kernel}
+
+\begin{multline}
+	\int_E G'_{n_y}({\bf x}, {\bf y}) \td {\bf y}
+	= \frac{1}{4\pi} \int_E \frac{-1}{r^2} \frac{{\bf r} \cdot {\bf n}_y}{r} \td {\bf y}
+	= \frac{1}{4\pi} \int_E \frac{z}{r^3} \td {\bf y}
+	\\
+	= \frac{1}{4\pi} \oint_{\theta} \int_{0}^{\bar{R}(\theta)} \frac{1}{4\pi} \int_E \frac{z}{\sqrt{z^2 + R^2}^3} R \td R \td \theta
+	= \frac{1}{4\pi} \oint_{\theta} \left[ \frac{-z}{\sqrt{z^2 + R^2}} \right]_{0}^{\bar{R}(\theta)} \td \theta \\
+	= \frac{1}{4\pi} \oint_{\theta} \left( \frac{-z}{\bar{r}} + \frac{z}{|z|} \right) \td \theta
+\end{multline}
+
+\paragraph{DLPt kernel}
+
+\begin{multline}
+	\int_E G'_{n_x}({\bf x}, {\bf y}) \td {\bf y}
+	= \frac{1}{4\pi} \int_{E} \frac{-1}{r^2} \frac{-{\bf r} \cdot {\bf n}_x }{r} \td {\bf y} \\
+	= \frac{1}{4\pi} \oint_{\theta} \int_{0}^{\bar{R}(\theta)} \frac{R^2 (\cos\theta n_x + \sin\theta n_y) - R z n_z }{\sqrt{R^2 + z^2}^3}
+	\td R \td \theta
+	\\
+	= \frac{1}{4\pi} \oint_{\theta} \left\{
+	\left[ \log (r + R) - \frac{R}{r}\right]_{0}^{\bar{R}} (\cos\theta n_x + \sin\theta n_y)
+	+ \left[ \frac{z n_z}{r} \right]_{0}^{\bar{R}}
+	\right\} \td \theta
+	\\
+	= \frac{1}{4\pi} \oint_{\theta} \left\{
+	\left(\log \frac{\bar{r} + \bar{R}}{|z|} - \frac{\bar{R}}{\bar{r}} \right) (\cos\theta n_x + \sin\theta n_y)
+	+ (\frac{z n_z}{\bar{r}} - \frac{z n_z}{|z|})
+	\right\} \td \theta
+	\\
+	= \frac{1}{4\pi} \oint_{\theta} \left\{
+	\log \frac{\bar{r} + \bar{R}}{|z|}(\cos\theta n_x + \sin\theta n_y) - \frac{\bar{\bf r} \cdot {\bf n}_x}{\bar{r}} 
+	- \frac{z n_z}{|z|}
+	\right\} \td \theta
+\end{multline}

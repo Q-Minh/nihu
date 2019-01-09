@@ -22,6 +22,8 @@ nx = (T \ nx.').';
 [xi, w] = gaussquad1(order);
 [N, dN] = ShapeSet.LinearLine.eval(xi);
 
+g0 = 0;
+
 for i = 1 : 3
     idx = [i, mod(i, 3)+1 ];
     
@@ -38,15 +40,14 @@ for i = 1 : 3
     s = sin(theta);
     R = sqrt(dot(Rvec, Rvec, 2));
     
-    integrand = (nx(1) * c + nx(2) * s) .* (log(R + r) - log(abs(z)) - R ./ r)...
-        + nx(3) * (z./r - z./abs(z));
-    
-    integrand = (-rvec * nx.') ./ r + (nx(1) * c + nx(2) * s) .* log((R + r) ./ abs(z)) ...
+    integrand = (-rvec * nx.') ./ r ...
+        + (nx(1) * c + nx(2) * s) .* log((R + r) ./ abs(z)     ) ...
         - nx(3) * z./abs(z);
     
     dtheta = (Rvec(:,1) .* dyxi(:,2) - Rvec(:,2) .* dyxi(:,1)) ./ R.^2;
     
     g = g + sum(integrand .* dtheta .* w);
+    g0 = g0 + sum(c .* dtheta .* w);
 end
 
 g = g / (4*pi);

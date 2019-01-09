@@ -1,0 +1,50 @@
+\chapter{Kernel functions}
+
+\section{Derivatives of kernels depending on the source-receiver distance}
+
+In lots of useful cases (homogeneous and isotropic media) the kernel is distance-dependent: $K({\bf x}, {\bf y}) = G(|{\bf y} - {\bf x}|)$.
+In these cases the kernel's normal derivatives can be expressed in a unified way.
+
+Derivatives of the distance vector are given by the following formulas
+%
+\begin{align}
+	r &= |{\bf r}| \\
+	r'_i &= \frac{r_i}{r} \\
+	r''_{ij} &= \frac{1}{r} \left( \delta_{ij} - r'_i r'_j \right) \\
+	r'''_{ijk} &= -\frac{1}{r^2} \left(
+		\delta_{ij} r'_k + \delta_{jk} r'_i + \delta_{ki} r'_j - 3 r'_i r'_j r'_k
+	\right)
+\end{align}
+
+Derivatives of the kernel depending on the distance are formulated as
+%
+\begin{align}
+	G'_i &= G'_r r'_i \\
+	G''_{ij} &= \left(G''_r - \frac{G'_r}{r} \right) r'_i r'_j +  \frac{G'_r}{r} \delta_{ij} \\
+	G'''_{ijk} &=
+	\left(G'''_r -\frac{3}{r} \left(G''_r  - \frac{G'_r}{r} \right) \right) r'_i r'_j r'_k
+	+  \frac{1}{r} \left( G''_r  - \frac{G'_r}{r} \right)\left(
+	   r'_j \delta_{ki}
+	+  r'_i \delta_{jk}
+	+  r'_k \delta_{ij}
+	\right)
+	\label{eq:derivatives_wrt_ij}
+\end{align}
+
+
+The normal derivative w.r.t $n_y$ is computed as $G'_i n_{yi}$, while the normal derivative w.r.t. $n_x$ is computed as $-G'_i n_{xi}$:
+%
+\begin{align}
+	\frac{\partial G}{\partial n_y} 
+	&= n_{yi} G'_i
+	\\
+	\frac{\partial^2 G}{\partial n_x \partial n_y}
+	&= -n_{xi} n_{yj} G''_{ij}
+	\\
+	\frac{\partial^2 G}{\partial n_x^2}
+	&= n_{xi} n_{xj} G''_{ij}
+	\\
+	\frac{\partial^3 G}{\partial n_x^2 \partial n_y}
+	&= n_{xi} n_{xj} n_{yk} G'''_{ijk}
+\end{align}
+
