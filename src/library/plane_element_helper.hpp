@@ -42,6 +42,7 @@ void plane_element_helper(
 	typename elem_t::scalar_t theta[],
 	typename elem_t::scalar_t alpha[])
 {
+	/** \todo check if elem_t::num_corners here */
 	enum{ N = elem_t::domain_t::num_corners };
 
 	auto const &C_old = elem.get_coords();
@@ -64,6 +65,33 @@ void plane_element_helper(
 		else
 			theta[i] = std::acos(cs);
 		alpha[i] = std::acos(R.col(i).dot(C.col(i)));
+	}
+}
+
+template <class matrixDerived, class vectorDerived>
+void plane_elem_helper_mid(
+	Eigen::DenseBase<matrixDerived> const &coords,
+	Eigen::DenseBase<vectorDerived> const &x0,
+	double ref_distance[],
+	double theta_lim[],
+	double theta0[]
+)
+{
+	// geometrical parameters (planar helpers)
+	unsigned const N = coords.cols();
+	for (unsigned n = 0; n < N; ++n)
+	{
+		Eigen::Matrix<double, 2, 1> c1 = coords.topRows(2).col(n);			// corner
+		Eigen::Matrix<double, 2, 1> c2 = coords.topRows(2).col((n + 1) % N);	// next corner
+		
+		Eigen::Matrix<double, 2, 1> l = (c2 - c1).normalized();					// side unit vector
+
+		Eigen::Matrix<double, 2, 1> d1 = c1 - x0.topRows(2);			// vector to corners
+		Eigen::Matrix<double, 2, 1> d0 = d1 - l * d1.dot(l);		// perpendicular to side
+
+		theta_lim[n] = std::atan2(d1(1), d1(0));	// corner angle
+		theta0[n] = std::atan2(d0(1), d0(0));	// mid angle
+		ref_distance[n] = d0.norm();			// distance to side
 	}
 }
 

@@ -1,5 +1,5 @@
-#ifndef NEARLY_SINGULAR_GENERIC_HPP_INCLUDED
-#define NEARLY_SINGULAR_GENERIC_HPP_INCLUDED
+#ifndef NIHU_NEARLY_SINGULAR_COLLOCATIONAL_HPP_INCLUDED
+#define NIHU_NEARLY_SINGULAR_COLLOCATIONAL_HPP_INCLUDED
 
 #include "line_quad_store.hpp"
 #include "location_normal.hpp"
@@ -102,6 +102,7 @@ public:
 		// get jacobian at the reference image
 		auto N0 = trial_nset_t::template eval_shape<0>(m_xi0);
 
+		/** \todo check if plane_elem_helper_mid can be used here */
 		// geometrical parameters (planar helpers)
 		unsigned const N = domain_t::num_corners;
 		for (unsigned n = 0; n < N; ++n)
@@ -200,4 +201,4 @@ private:
 
 } // end of namespace NiHu
 
-#endif // NEARLY_SINGULAR_GENERIC_HPP_INCLUDED
+#endif /* NIHU_NEARLY_SINGULAR_COLLOCATIONAL_HPP_INCLUDED */
