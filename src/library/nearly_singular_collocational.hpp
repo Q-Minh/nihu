@@ -132,7 +132,7 @@ public:
 			if (std::abs(t2 - t1) < 1e-3)
 				continue;
 
-			// we assume that the domain's corners are listed in positive order */
+			// we assume that the domain's corners are listed in positive order
 			if (std::abs(t2 - t1) > M_PI)
 				t2 += 2.0 * M_PI;
 

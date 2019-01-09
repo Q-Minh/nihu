@@ -19,22 +19,35 @@ corners = (T \ corners.').';
 x = (T \ x.').';
 nx = (T \ nx.').';
 
-[xi, w] = gaussquad1(order);
-[N, dN] = ShapeSet.LinearLine.eval(xi);
+z = x(3) - corners(1,3);
 
-for i = 1 : 3
-    idx = [i, mod(i, 3)+1 ];
+[theta_lim, theta_0, ref_distance] = plane_elem_helper_mid(...
+    bsxfun(@times, corners, [1 1 0]), ...
+    x .* [1 1 0]);
+
+[xi, w] = gaussquad1(order);
+N = ShapeSet.LinearLine.eval(xi);
+
+nC = size(corners, 1);
+for i = 1 : nC
+    idx = [i, mod(i, nC)+1 ];
     
-    y = N * corners(idx,:);
-    dyxi = dN * corners(idx,:);
+    th = theta_lim(idx);
+    if (abs(th(2) - th(1)) > pi)
+        [~, j] = min(th);
+        th(j) = th(j) + 2*pi;
+    end
     
-    rvec = bsxfun(@minus, y, x);
-    r = sqrt(dot(rvec, rvec, 2));
+    theta = N * th;
+    w_theta = w * diff(th)/2;
     
-    z = -rvec(:,3);
+    R = ref_distance(i) ./ cos(theta - theta_0(i));
+    r = sqrt(R.^2 + z^2);
     
-    Rvec = rvec(:,1:2);
-    R = sqrt(dot(Rvec, Rvec, 2));
+    c = cos(theta);
+    s = sin(theta);
+    rvec = [R.*c R.*s];
+    rvec(:,3) = -z;
     
     rdnx = -(rvec * nx.') ./ r;
     
@@ -44,11 +57,13 @@ for i = 1 : 3
         integrand = -nx(3) ./ R;
     end
     
-    dtheta = (Rvec(:,1) .* dyxi(:,2) - Rvec(:,2) .* dyxi(:,1)) ./ R.^2;
-    
-    g = g + sum(integrand .* dtheta .* w);
+    g = g + sum(integrand .* w_theta);
 end
 
 g = g / (4*pi);
 
-end
+end % of function
+
+
+
+

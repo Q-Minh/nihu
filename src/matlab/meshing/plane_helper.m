@@ -1,5 +1,9 @@
 function [R, alpha, theta, theta0] = plane_helper(coords, x0)
 
+if any(coords(:,3) ~= 0) || x0(3) ~= 0
+    error('Baj');
+end
+
 nc = size(coords,1);
 
 theta = nan(nc,1);
