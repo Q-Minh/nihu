@@ -570,11 +570,13 @@ class nearly_singular_planar_constant_collocation_shortcut<laplace_3d_SLP_kernel
 {
 public:
 	typedef Elem elem_t;
-	typedef laplace_3d_SLP_kernel::result_t res_t;
+	typedef laplace_3d_SLP_kernel kernel_t;
+	typedef kernel_t::result_t res_t;
 
 	static res_t eval(
 		laplace_3d_SLP_kernel::test_input_t const &test_input,
-		elem_t const &elem)
+		elem_t const &elem,
+		kernel_t const &)
 	{
 		return laplace_3d_SLP_collocation_constant_plane_nearly_singular::eval(
 			elem, test_input.get_x());

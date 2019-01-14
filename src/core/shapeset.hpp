@@ -394,7 +394,7 @@ public:
 	}
 };
 
-}
+} // end of namespace NiHu
 
 #endif // SHAPESET_HPP_INCLUDED
 

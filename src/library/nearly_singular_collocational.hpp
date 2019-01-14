@@ -181,7 +181,7 @@ public:
 
 		typename kernel_t::result_t anal_res = 
 			nearly_singular_planar_constant_collocation_shortcut<kernel_t, elem_t>::eval(
-			tsi, lin_elem
+			tsi, lin_elem, m_kernel
 		);
 
 		I += semi_block_product(anal_res, N0);
