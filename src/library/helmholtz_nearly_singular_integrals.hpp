@@ -359,6 +359,62 @@ public:
 	}
 };
 
+
+template <class TestField, class TrialField, class WaveNumber>
+class nearly_singular_integral<
+	helmholtz_3d_DLP_kernel<WaveNumber>, TestField, TrialField,
+	typename std::enable_if<
+		is_collocational<TestField, TrialField>::value 
+		&&
+		!(is_constant_tria<TestField, TrialField>::value)
+	>::type
+>
+{
+	typedef helmholtz_3d_DLP_kernel<WaveNumber> kernel_t;
+	typedef typename kernel_t::test_input_t test_input_t;
+	typedef TestField test_field_t;
+	typedef typename test_field_t::nset_t test_nset_t;
+	static unsigned const num_test_nodes = test_nset_t::num_nodes;
+	
+public:
+	static bool needed(
+		kernel_base<kernel_t> const &kernel,
+		field_base<TestField> const &test_field,
+		field_base<TrialField> const &trial_field
+		)
+	{
+		double const limit = 1.5;
+		
+		// distance between element centres
+		double d = (test_field.get_elem().get_center() - trial_field.get_elem().get_center()).norm();
+		double R = trial_field.get_elem().get_linear_size_estimate();
+		return d/R < limit;
+	}
+
+	template <class result_t>
+	static result_t &eval(
+		result_t &result,
+		kernel_base<kernel_t> const &kernel,
+		field_base<TestField> const &test_field,
+		field_base<TrialField> const &trial_field
+		)
+	{
+		typedef nearly_singular_collocational<TrialField, kernel_t, 15, 15> nsc_t;
+		nsc_t nsc(trial_field, kernel);
+		
+		for (unsigned i = 0; i < num_test_nodes; ++i)
+		{
+			test_input_t tsti(test_field.get_elem(), test_nset_t::corner_at(i));
+			nsc.integrate(result.row(i), tsti);
+		}
+		
+		return result;
+	}
+};
+
+
+
+
 template <class TestField, class TrialField, class WaveNumber>
 class nearly_singular_integral<
 	helmholtz_3d_DLPt_kernel<WaveNumber>, TestField, TrialField,
@@ -405,6 +461,63 @@ public:
 
 template <class TestField, class TrialField, class WaveNumber>
 class nearly_singular_integral<
+	helmholtz_3d_DLPt_kernel<WaveNumber>, TestField, TrialField,
+	typename std::enable_if<
+		is_collocational<TestField, TrialField>::value 
+		&&
+		!(is_constant_tria<TestField, TrialField>::value)
+	>::type
+>
+{
+	typedef helmholtz_3d_DLPt_kernel<WaveNumber> kernel_t;
+	typedef typename kernel_t::test_input_t test_input_t;
+	typedef TestField test_field_t;
+	typedef typename test_field_t::nset_t test_nset_t;
+	static unsigned const num_test_nodes = test_nset_t::num_nodes;
+	
+public:
+	static bool needed(
+		kernel_base<kernel_t> const &kernel,
+		field_base<TestField> const &test_field,
+		field_base<TrialField> const &trial_field
+		)
+	{
+		double const limit = 1.5;
+		
+		// distance between element centres
+		double d = (test_field.get_elem().get_center() - trial_field.get_elem().get_center()).norm();
+		double R = trial_field.get_elem().get_linear_size_estimate();
+		return d/R < limit;
+	}
+
+	template <class result_t>
+	static result_t &eval(
+		result_t &result,
+		kernel_base<kernel_t> const &kernel,
+		field_base<TestField> const &test_field,
+		field_base<TrialField> const &trial_field
+		)
+	{
+		typedef nearly_singular_collocational<TrialField, kernel_t, 15, 15> nsc_t;
+		nsc_t nsc(trial_field, kernel);
+		
+		for (unsigned i = 0; i < num_test_nodes; ++i)
+		{
+			test_input_t tsti(test_field.get_elem(), test_nset_t::corner_at(i));
+			nsc.integrate(result.row(i), tsti);
+		}
+		
+		return result;
+	}
+};
+
+
+
+
+
+
+template <class TestField, class TrialField, class WaveNumber>
+class nearly_singular_integral<
 	helmholtz_3d_HSP_kernel<WaveNumber>, TestField, TrialField,
 	typename std::enable_if<
 		is_collocational<TestField, TrialField>::value 
@@ -447,6 +560,59 @@ public:
 };
 
 
+template <class TestField, class TrialField, class WaveNumber>
+class nearly_singular_integral<
+	helmholtz_3d_HSP_kernel<WaveNumber>, TestField, TrialField,
+	typename std::enable_if<
+		is_collocational<TestField, TrialField>::value 
+		&&
+		!(is_constant_tria<TestField, TrialField>::value)
+	>::type
+>
+{
+	typedef helmholtz_3d_HSP_kernel<WaveNumber> kernel_t;
+	typedef typename kernel_t::test_input_t test_input_t;
+	typedef TestField test_field_t;
+	typedef typename test_field_t::nset_t test_nset_t;
+	static unsigned const num_test_nodes = test_nset_t::num_nodes;
+	
+public:
+	static bool needed(
+		kernel_base<kernel_t> const &kernel,
+		field_base<TestField> const &test_field,
+		field_base<TrialField> const &trial_field
+		)
+	{
+		double const limit = 1.5;
+		
+		// distance between element centres
+		double d = (test_field.get_elem().get_center() - trial_field.get_elem().get_center()).norm();
+		double R = trial_field.get_elem().get_linear_size_estimate();
+		return d/R < limit;
+	}
+
+	template <class result_t>
+	static result_t &eval(
+		result_t &result,
+		kernel_base<kernel_t> const &kernel,
+		field_base<TestField> const &test_field,
+		field_base<TrialField> const &trial_field
+		)
+	{
+		typedef nearly_singular_collocational<TrialField, kernel_t, 15, 15> nsc_t;
+		nsc_t nsc(trial_field, kernel);
+		
+		for (unsigned i = 0; i < num_test_nodes; ++i)
+		{
+			test_input_t tsti(test_field.get_elem(), test_nset_t::corner_at(i));
+			nsc.integrate(result.row(i), tsti);
+		}
+		
+		return result;
+	}
+};
+
+
 template <class Elem, class WaveNumber>
 class nearly_singular_planar_constant_collocation_shortcut<helmholtz_3d_SLP_kernel<WaveNumber>, Elem>
 {
@@ -467,6 +633,74 @@ public:
 			kernel.derived().get_wave_number());
 	}
 };
+
+template <class Elem, class WaveNumber>
+class nearly_singular_planar_constant_collocation_shortcut<helmholtz_3d_DLP_kernel<WaveNumber>, Elem>
+{
+public:
+	typedef Elem elem_t;
+	typedef helmholtz_3d_DLP_kernel<WaveNumber> kernel_t;
+	typedef typename kernel_t::test_input_t test_input_t;
+	typedef typename kernel_t::result_t res_t;
+
+	static res_t eval(
+		test_input_t const &test_input,
+		elem_t const &elem,
+		kernel_base<kernel_t> const &kernel)
+	{
+		return helmholtz_3d_DLP_collocation_constant_plane_nearly_singular::eval(
+			elem,
+			test_input.get_x(),
+			kernel.derived().get_wave_number());
+	}
+};
+
+
+template <class Elem, class WaveNumber>
+class nearly_singular_planar_constant_collocation_shortcut<helmholtz_3d_DLPt_kernel<WaveNumber>, Elem>
+{
+public:
+	typedef Elem elem_t;
+	typedef helmholtz_3d_DLPt_kernel<WaveNumber> kernel_t;
+	typedef typename kernel_t::test_input_t test_input_t;
+	typedef typename kernel_t::result_t res_t;
+
+	static res_t eval(
+		test_input_t const &test_input,
+		elem_t const &elem,
+		kernel_base<kernel_t> const &kernel)
+	{
+		return helmholtz_3d_DLPt_collocation_constant_plane_nearly_singular::eval(
+			elem,
+			test_input.get_x(),
+			test_input.get_unit_normal(),
+			kernel.derived().get_wave_number());
+	}
+};
+
+
+template <class Elem, class WaveNumber>
+class nearly_singular_planar_constant_collocation_shortcut<helmholtz_3d_HSP_kernel<WaveNumber>, Elem>
+{
+public:
+	typedef Elem elem_t;
+	typedef helmholtz_3d_HSP_kernel<WaveNumber> kernel_t;
+	typedef typename kernel_t::test_input_t test_input_t;
+	typedef typename kernel_t::result_t res_t;
+
+	static res_t eval(
+		test_input_t const &test_input,
+		elem_t const &elem,
+		kernel_base<kernel_t> const &kernel)
+	{
+		return helmholtz_3d_HSP_collocation_constant_plane_nearly_singular::eval(
+			elem,
+			test_input.get_x(),
+			test_input.get_unit_normal(),
+			kernel.derived().get_wave_number());
+	}
+};
+
 
 
 
