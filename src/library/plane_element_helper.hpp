@@ -16,13 +16,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-/** \file plane_element_helper.hpp
+/** 
+ * \file plane_element_helper.hpp
  * \brief helper functions to compute analytical integrals over plane elements
+ * \ingroup library
  */
 
-#ifndef PLANE_ELEMENT_HELPER_HPP_INCLUDED
-#define PLANE_ELEMENT_HELPER_HPP_INCLUDED
-
+#ifndef NIHU_PLANE_ELEMENT_HELPER_HPP_INCLUDED
+#define NIHU_PLANE_ELEMENT_HELPER_HPP_INCLUDED
 
 namespace NiHu
 {
@@ -95,12 +96,22 @@ void plane_elem_helper_mid(
 	}
 }
 
+/**
+ * \brief Transformation matrix to get planar element parallel to the x-y plane
+ * \tparam V Vector type, must be an Eigen vector
+ * \returns Transformation matrix of 3x3 type
+ * \details
+ * Using the transformation matrix, the element can be projected such that it 
+ * becomes parallel with the x-y plane. Note that as there is no translation in 
+ * the transform, the element will not necessarily be shifted into the z=0 
+ * plane.
+ */
 template <class V>
 Eigen::Matrix<double, 3, 3> plane_elem_transform(
 		Eigen::DenseBase<V> const &v1_in, 
 		Eigen::DenseBase<V> const &v2_in)
 {
-	// \todo optimize out these instantiations please
+	/** \todo optimize out these instantiations please */
 	Eigen::Matrix<double, 3, 1> v1 = v1_in;
 	Eigen::Matrix<double, 3, 1> v2 = v2_in;
 	
@@ -114,4 +125,4 @@ Eigen::Matrix<double, 3, 3> plane_elem_transform(
 
 } // end of namespace NiHu
 
-#endif // PLANE_ELEMENT_HELPER_HPP_INCLUDED
+#endif /* NIHU_PLANE_ELEMENT_HELPER_HPP_INCLUDED */

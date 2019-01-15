@@ -16,28 +16,48 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-/** \file laplace_nearly_singular_integrals.hpp
- *
+/** 
+ * \file laplace_nearly_singular_integrals.hpp
+ * \brief Nearly singular integrals for the Laplace kernels
+ * \ingroup library 
+ * \details 
+ * This file contains the specialised implementations of some nearly singular 
+ * integrals for the Laplace kernel and its normal derivatives. These include 
+ * SLP, DLP, DLPt, and HSP kernels.
+ * 
+ * For planar elements, the method of integration generally relies on a planar
+ * transformation that transforms the element to plane parallel with the x-y
+ * plane. Then, a semi-analytical integration is performed in polar coordinates.
+ * The integration along the radius is evaluated analytically, while the 
+ * integration with respect to the angle is performed using quadratures. The 
+ * latter integration is performed by subdividing the planar element into 
+ * plane triangular domains of integration.
+ * 
+ * The file also contains the shortcut classes that enable the specialised
+ * implementations for different kernels and element types.
  */
 
-#ifndef LAPLACE_NEARLY_SINGULAR_INTEGRALS_HPP_INCLUDED
-#define LAPLACE_NEARLY_SINGULAR_INTEGRALS_HPP_INCLUDED
+#ifndef NIHU_LAPLACE_NEARLY_SINGULAR_INTEGRALS_HPP_INCLUDED
+#define NIHU_LAPLACE_NEARLY_SINGULAR_INTEGRALS_HPP_INCLUDED
 
 #include "../core/formalism.hpp"
 #include "../core/nearly_singular_integral.hpp"
 #include "../core/nearly_singular_planar_constant_collocation_shortcut.hpp"
 #include "../util/math_functions.hpp"
 #include "laplace_kernel.hpp"
-#include "plane_element_helper.hpp"
 #include "nearly_singular_collocational.hpp"
+#include "plane_element_helper.hpp"
 #include "quadrature_store_helper.hpp"
 
 namespace NiHu
 {
 
-/** \brief nearly singular collocational integral of the 3D Laplace SLP kernel over planes */
+/** 
+ * \brief Nearly singular collocational integral of the 3D Laplace SLP kernel over planes
+ */
 class laplace_3d_SLP_collocation_constant_plane_nearly_singular
 {
+	/** \brief Domain type for numerical integration */
 	typedef line_domain quadrature_domain_t;
 	enum { quadrature_order = 10 };
 	typedef regular_quad_store<quadrature_domain_t, quadrature_order> quadrature_t;
@@ -584,4 +604,4 @@ public:
 
 } // end of namespace NiHu
 
-#endif
+#endif /* NIHU_LAPLACE_NEARLY_SINGULAR_INTEGRALS_HPP_INCLUDED */
