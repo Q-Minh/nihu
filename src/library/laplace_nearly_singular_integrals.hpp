@@ -122,8 +122,11 @@ public:
 		typedef typename elem_t::x_t x_t;
 		
 		enum { N = elem_t::domain_t::num_corners  };
-		auto corners = elem.get_coords();
-		
+
+		Eigen::Matrix<double, 3, N> corners;
+		for (unsigned i = 0; i < N; ++i)
+			corners.col(i) = elem.get_x(elem_t::domain_t::get_corner(i));
+
 		auto T = plane_elem_transform(corners.col(1)-corners.col(0), corners.col(2)-corners.col(0));
 		auto Tdec = T.partialPivLu();
 		corners = Tdec.solve(corners);
@@ -193,7 +196,10 @@ public:
 		typedef typename elem_t::x_t x_t;
 
 		enum { N = elem_t::domain_t::num_corners };
-		auto corners = elem.get_coords();
+
+		Eigen::Matrix<double, 3, N> corners;
+		for (unsigned i = 0; i < N; ++i)
+			corners.col(i) = elem.get_x(elem_t::domain_t::get_corner(i));
 
 		auto T = plane_elem_transform(corners.col(1) - corners.col(0),
 			corners.col(2) - corners.col(0));
@@ -276,8 +282,11 @@ public:
 		typedef typename elem_t::x_t x_t;
 		
 		enum { N = elem_t::domain_t::num_corners  };
-		auto corners = elem.get_coords();
-		
+
+		Eigen::Matrix<double, 3, N> corners;
+		for (unsigned i = 0; i < N; ++i)
+			corners.col(i) = elem.get_x(elem_t::domain_t::get_corner(i));
+
 		auto T = plane_elem_transform(corners.col(1)-corners.col(0), corners.col(2)-corners.col(0));
 		auto Tdec = T.partialPivLu();
 		corners = Tdec.solve(corners);
@@ -574,11 +583,30 @@ public:
 	typedef kernel_t::result_t res_t;
 
 	static res_t eval(
-		laplace_3d_SLP_kernel::test_input_t const &test_input,
+		kernel_t::test_input_t const &test_input,
 		elem_t const &elem,
-		kernel_t const &)
+		kernel_base<kernel_t> const &)
 	{
 		return laplace_3d_SLP_collocation_constant_plane_nearly_singular::eval(
+			elem, test_input.get_x());
+	}
+};
+
+
+template <class Elem>
+class nearly_singular_planar_constant_collocation_shortcut<laplace_3d_DLP_kernel, Elem>
+{
+public:
+	typedef Elem elem_t;
+	typedef laplace_3d_DLP_kernel kernel_t;
+	typedef kernel_t::result_t res_t;
+
+	static res_t eval(
+		kernel_t::test_input_t const &test_input,
+		elem_t const &elem,
+		kernel_base<kernel_t> const &)
+	{
+		return laplace_3d_DLP_collocation_constant_plane_nearly_singular::eval(
 			elem, test_input.get_x());
 	}
 };

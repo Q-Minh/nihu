@@ -174,7 +174,7 @@ public:
 					total_result_t F = semi_block_product(GJ, N);
 					total_result_t F_lin = semi_block_product(GJ_lin, N0);
 
-					I += w_theta * w_rho * rho * (F - F_lin );
+					I += w_theta * w_rho * rho * (F - F_lin);
 				} // end of loop over radial nodes
 			} // end of loop over tangential nodes
 		} // end of loop over triangles
