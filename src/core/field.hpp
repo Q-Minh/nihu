@@ -468,7 +468,7 @@ dirac_field<Field> const &
 		static_cast<field_impl<Field> const &>(f.derived()));
 }
 
-}
+} // end of namespace NiHu
 
 #endif
 

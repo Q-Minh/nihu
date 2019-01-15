@@ -51,10 +51,10 @@ for i = 1 : nC
     
     rdnx = -(rvec * nx.') ./ r;
     
-    if abs(z) > eps
+    if abs(z) > 1e-12
         integrand = -R.^2 ./ r.^2 ./ z .* rdnx;
     else
-        integrand = -nx(3) ./ R;
+        integrand = -nx(3)./R;
     end
     
     g = g + sum(integrand .* w_theta);

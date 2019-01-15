@@ -62,7 +62,16 @@ struct get_formalism<TestField, TrialField,
 	>::type
 > : formalism::general {};
 
-}
+
+
+/** \brief metafunction to determine if formalism is collocational */
+template <class TestField, class TrialField>
+struct is_collocational : std::is_same<
+	typename get_formalism<TestField, TrialField>::type,
+	formalism::collocational
+> {};
+
+} // end of namespace NiHu
 
 
 #endif

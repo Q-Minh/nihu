@@ -47,9 +47,13 @@ namespace shape_set_traits
 
 // define the new shape set class
 class quad_1_gauss_shape_set
-	: public NiHu::shape_set_base<quad_1_gauss_shape_set>
+	: public shape_set_base<quad_1_gauss_shape_set>
 {
+	typedef shape_set_base<quad_1_gauss_shape_set> base_t;
 public:
+
+	using base_t::corner_at;
+	
 	// return iterator to corners
 	static xi_t const *corner_begin_impl(void)
 	{

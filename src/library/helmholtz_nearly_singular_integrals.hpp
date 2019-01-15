@@ -26,10 +26,21 @@
 #include "helmholtz_kernel.hpp"
 #include "laplace_kernel.hpp"
 #include "laplace_nearly_singular_integrals.hpp"
+#include "nearly_singular_collocational.hpp"
 #include "quadrature_store_helper.hpp"
+
+#include "../core/nearly_singular_planar_constant_collocation_shortcut.hpp"
 
 namespace NiHu
 {
+
+template <class TestField, class TrialField>
+struct is_constant_tria : std::integral_constant<
+	bool,
+	std::is_same<typename TrialField::elem_t::lset_t, tria_1_shape_set>::value
+	&&
+	std::is_same<typename TrialField::nset_t, tria_0_shape_set>::value
+> {};
 
 /** \brief nearly singular collocational integral of the 3D Helmholtz SLP kernel over planes
  * The singular static part is redirected to the corresponding laplace kernel
@@ -214,10 +225,9 @@ template <class TestField, class TrialField, class WaveNumber>
 class nearly_singular_integral<
 	helmholtz_3d_SLP_kernel<WaveNumber>, TestField, TrialField,
 	typename std::enable_if<
-		std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value 
+		is_collocational<TestField, TrialField>::value 
 		&&
-		(std::is_same<typename TrialField::elem_t::lset_t, tria_1_shape_set>::value &&
-		std::is_same<typename TrialField::nset_t, tria_0_shape_set>::value)
+		is_constant_tria<TestField, TrialField>::value
 	>::type
 >
 {
@@ -256,12 +266,64 @@ public:
 
 template <class TestField, class TrialField, class WaveNumber>
 class nearly_singular_integral<
+	helmholtz_3d_SLP_kernel<WaveNumber>, TestField, TrialField,
+	typename std::enable_if<
+		is_collocational<TestField, TrialField>::value 
+		&&
+		!(is_constant_tria<TestField, TrialField>::value)
+	>::type
+>
+{
+	typedef helmholtz_3d_SLP_kernel<WaveNumber> kernel_t;
+	typedef typename kernel_t::test_input_t test_input_t;
+	typedef TestField test_field_t;
+	typedef typename test_field_t::nset_t test_nset_t;
+	static unsigned const num_test_nodes = test_nset_t::num_nodes;
+	
+public:
+	static bool needed(
+		kernel_base<kernel_t> const &kernel,
+		field_base<TestField> const &test_field,
+		field_base<TrialField> const &trial_field
+		)
+	{
+		double const limit = 1.5;
+		
+		// distance between element centres
+		double d = (test_field.get_elem().get_center() - trial_field.get_elem().get_center()).norm();
+		double R = trial_field.get_elem().get_linear_size_estimate();
+		return d/R < limit;
+	}
+
+	template <class result_t>
+	static result_t &eval(
+		result_t &result,
+		kernel_base<kernel_t> const &kernel,
+		field_base<TestField> const &test_field,
+		field_base<TrialField> const &trial_field
+		)
+	{
+		typedef nearly_singular_collocational<TrialField, kernel_t, 15, 15> nsc_t;
+		nsc_t nsc(trial_field, kernel);
+		
+		for (unsigned i = 0; i < num_test_nodes; ++i)
+		{
+			test_input_t tsti(test_field.get_elem(), test_nset_t::corner_at(i));
+			nsc.integrate(result.row(i), tsti);
+		}
+		
+		return result;
+	}
+};
+
+
+template <class TestField, class TrialField, class WaveNumber>
+class nearly_singular_integral<
 	helmholtz_3d_DLP_kernel<WaveNumber>, TestField, TrialField,
 	typename std::enable_if<
-		std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value
+		is_collocational<TestField, TrialField>::value 
 		&&
-		(std::is_same<typename TrialField::elem_t::lset_t, tria_1_shape_set>::value &&
-		std::is_same<typename TrialField::nset_t, tria_0_shape_set>::value)
+		is_constant_tria<TestField, TrialField>::value
 	>::type
 >
 {
@@ -301,10 +363,9 @@ template <class TestField, class TrialField, class WaveNumber>
 class nearly_singular_integral<
 	helmholtz_3d_DLPt_kernel<WaveNumber>, TestField, TrialField,
 	typename std::enable_if<
-		std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value 
+		is_collocational<TestField, TrialField>::value 
 		&&
-		(std::is_same<typename TrialField::elem_t::lset_t, tria_1_shape_set>::value &&
-		std::is_same<typename TrialField::nset_t, tria_0_shape_set>::value)
+		is_constant_tria<TestField, TrialField>::value
 	>::type
 >
 {
@@ -346,10 +407,9 @@ template <class TestField, class TrialField, class WaveNumber>
 class nearly_singular_integral<
 	helmholtz_3d_HSP_kernel<WaveNumber>, TestField, TrialField,
 	typename std::enable_if<
-		std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value
+		is_collocational<TestField, TrialField>::value 
 		&&
-		(std::is_same<typename TrialField::elem_t::lset_t, tria_1_shape_set>::value &&
-		std::is_same<typename TrialField::nset_t, tria_0_shape_set>::value)
+		is_constant_tria<TestField, TrialField>::value
 	>::type
 >
 {
@@ -385,6 +445,32 @@ public:
 		return result;
 	}
 };
+
+
+template <class Elem, class WaveNumber>
+class nearly_singular_planar_constant_collocation_shortcut<helmholtz_3d_SLP_kernel<WaveNumber>, Elem>
+{
+public:
+	typedef Elem elem_t;
+	typedef helmholtz_3d_SLP_kernel<WaveNumber> kernel_t;
+	typedef typename kernel_t::test_input_t test_input_t;
+	typedef typename kernel_t::result_t res_t;
+
+	static res_t eval(
+		test_input_t const &test_input,
+		elem_t const &elem,
+		kernel_base<kernel_t> const &kernel)
+	{
+		return helmholtz_3d_SLP_collocation_constant_plane_nearly_singular::eval(
+			elem,
+			test_input.get_x(),
+			kernel.derived().get_wave_number());
+	}
+};
+
+
+
+
 
 } // end of namespace NiHu
 
