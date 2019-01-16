@@ -16,8 +16,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-/** \file helmholtz_nearly_singular_integrals.hpp
- *
+/** 
+ * \file helmholtz_nearly_singular_integrals.hpp
+ * \brief Nearly singular integrals for Helmholtz kernels
  */
 
 #ifndef HELMHOLTZ_NEARLY_SINGULAR_INTEGRALS_HPP_INCLUDED
@@ -42,9 +43,12 @@ struct is_constant_tria : std::integral_constant<
 	std::is_same<typename TrialField::nset_t, tria_0_shape_set>::value
 > {};
 
-/** \brief nearly singular collocational integral of the 3D Helmholtz SLP kernel over planes
- * The singular static part is redirected to the corresponding laplace kernel
- * The regular dynamic part is integrated numerically using a regular quadrature
+/** 
+ * \brief Nearly singular collocational integral of the 3D Helmholtz SLP kernel over planes
+ * \details
+ * The singular static part is redirected to the corresponding Laplace kernel-
+ * The regular dynamic part is integrated numerically using a high-order regular
+ * quadrature.
  */
 class helmholtz_3d_SLP_collocation_constant_plane_nearly_singular
 {

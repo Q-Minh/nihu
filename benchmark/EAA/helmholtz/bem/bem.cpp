@@ -220,8 +220,10 @@ int main(int argc, char **argv)
 	for (size_t e = 0; e < nElements; ++e)
 	{
 		fields(e,0) = NiHu::quad_1_gauss_field::id;
+		// assign nodes
 		for (size_t c = 0; c < 4; ++c)
 			fields(e,c+1) = elements(e,c+1);
+		// assign DOF
 		for (size_t c = 0; c < 4; ++c)
 			fields(e,c+1+4) = 4*e+c;
 	}

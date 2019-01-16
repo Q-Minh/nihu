@@ -129,13 +129,22 @@ public:
 			scalar_t t1 = m_theta_lim[n];
 			scalar_t t2 = m_theta_lim[(n + 1) % N];
 
-			/** todo this is for highly distorted elements */
-			if (std::abs(t2 - t1) < 1e-3)
-				continue;
-
+			/*
 			// we assume that the domain's corners are listed in positive order
 			if (std::abs(t2 - t1) > M_PI)
 				t2 += 2.0 * M_PI;
+			*/
+			
+			// angle check
+			if (std::abs(t2 - t1) > M_PI)
+			{
+				if (t2 > t1) t1 += 2 * M_PI;
+				else t2 += 2*M_PI;
+			}
+			
+			/** todo this is for highly distorted elements */
+			if (std::abs(t2 - t1) < 1e-3)
+				continue;
 
 			// theta integration
 			for (auto const &q_theta : line_quad_store<tangential_order>::quadrature)
