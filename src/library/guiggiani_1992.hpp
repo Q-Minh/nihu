@@ -306,9 +306,13 @@ public:
 					toadd -= m_Fcoeffs[1] / rho_lim;
 				toadd *= w_theta;
 
+				I += toadd;
+
+/* this was for old Eigen versions (scalar casting)
 				for (int r = 0; r < I.rows(); ++r)	// loop needed for scalar casting
 					for (int c = 0; c < I.cols(); ++c)
 						I(r,c) += toadd(r,c);
+*/
 
 				// radial part of surface integration
 				for (auto const &q_rho : line_quad_store<radial_order>::quadrature)
