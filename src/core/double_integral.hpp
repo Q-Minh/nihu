@@ -100,7 +100,7 @@ struct singular_shortcut_switch
 					result, kernel, test_field, trial_field, mtch);
 				return true;
 			}
-			
+
 			return false;
 		}
 	};
@@ -145,7 +145,7 @@ class double_integral<Kernel, TestField, TrialField, formalism::general>
 {
 	typedef std::true_type WITH_SINGULARITY_CHECK;
 	typedef std::false_type WITHOUT_SINGULARITY_CHECK;
-	
+
 	typedef double_integral_traits<Kernel, TestField, TrialField> traits_t;
 
 public:
@@ -186,7 +186,7 @@ protected:
 		field_base<TrialField> const &trial_field,
 		dual_iterator_t it,
 		dual_iterator_t end
-		)
+	)
 	{
 		for (; it != end; ++it)
 		{
@@ -199,7 +199,7 @@ protected:
 				kernel(test_input, trial_input),
 				TrialField::nset_t::template eval_shape<0>(it.get_second()->get_xi()) *
 				(trial_input.get_jacobian() * it.get_second()->get_w())
-				);
+			);
 		}
 
 		return result;
@@ -237,12 +237,12 @@ public:
 				w_trial_input_t trial_input(trial_field.get_elem(), begin.get_trial_quadrature_elem().get_xi());
 
 				result += block_product(
-					TestField::nset_t::template eval_shape<0>(begin.get_test_quadrature_elem().get_xi()) * 
+					TestField::nset_t::template eval_shape<0>(begin.get_test_quadrature_elem().get_xi()) *
 					(test_input.get_jacobian() * begin.get_test_quadrature_elem().get_w()),
 					kernel(test_input, trial_input),
-					TrialField::nset_t::template eval_shape<0>(begin.get_trial_quadrature_elem().get_xi()) * 
+					TrialField::nset_t::template eval_shape<0>(begin.get_trial_quadrature_elem().get_xi()) *
 					(trial_input.get_jacobian() * begin.get_trial_quadrature_elem().get_w())
-					);
+				);
 			}
 
 			return result;
@@ -311,7 +311,7 @@ protected:
 			TestField, TrialField,
 			typename Kernel::estimator_t
 		>::eval(test_field, trial_field);
-		
+
 		auto acc(create_dual_field_type_accelerator(
 			test_store_t::get_data()[degree], trial_store_t::get_data()[degree], iteration::diadic()));
 
@@ -340,9 +340,9 @@ protected:
 		// if no match simple regular integral is computed
 		if (mtch.get_match_dimension() == -1)
 			return eval(WITHOUT_SINGULARITY_CHECK(), result, kernel, test_field, trial_field);
-		
+
 		typedef typename match_type_vector<TestField, TrialField>::type possible_match_types;
-		
+
 		// traverse possible singular integral shortcuts with tmp::call_until
 		if (!tmp::call_until<
 			possible_match_types,
@@ -356,7 +356,7 @@ protected:
 			std::cerr << "UNHANDLED GALERKIN SINGULARITY TYPE: " << mtch.get_match_dimension() << std::endl;
 
 		return result;
-}
+	}
 
 public:
 	/** \brief evaluate double integral on given fields
@@ -422,7 +422,7 @@ public:
 	/** \brief result type of the weighted residual */
 	typedef typename traits_t::result_t result_t;
 
-    /** \todo these constants should be computed from the kernel */
+	/** \todo these constants should be computed from the kernel */
 	enum {
 		kernel_rows = Kernel::result_rows,
 		kernel_cols = Kernel::result_cols
@@ -494,10 +494,10 @@ public:
 					w_trial_input_t trial_input(trial_field.get_elem(), q.get_xi());
 
 					result.template block<kernel_rows, kernel_cols*trial_nset_t::num_nodes>(idx*kernel_rows, 0)
-					+= semi_block_product(
-						kernel(collocation_point, trial_input),
-						trial_nset_t::template eval_shape<0>(q.get_xi()) * trial_input.get_jacobian() * q.get_w()
-					);
+						+= semi_block_product(
+							kernel(collocation_point, trial_input),
+							trial_nset_t::template eval_shape<0>(q.get_xi()) * trial_input.get_jacobian() * q.get_w()
+						);
 				}
 			}
 
@@ -548,24 +548,24 @@ protected:
 			kernel, test_field, trial_field))
 			return nearly_singular_integral<Kernel, TestField, TrialField>::eval(
 				result, kernel, test_field, trial_field);
-		
+
 		// evaluate regular integral
 		unsigned degree = complexity_estimator<
 			TestField, TrialField,
 			typename Kernel::estimator_t
 		>::eval(test_field, trial_field);
-		
+
 #if NIHU_MEX_DEBUGGING
 		static bool printed = false;
 		if (!printed)
 		{
 			mexPrintf("double_integral::eval without singularity check called on elements %d <- %d\n",
 				test_field.get_dofs()(0), trial_field.get_dofs()(0));
-				mexPrintf("Regular integral with degree %d\n", degree);
+			mexPrintf("Regular integral with degree %d\n", degree);
 			printed = true;
 		}
 #endif
-		
+
 		if (degree > GLOBAL_MAX_ORDER)
 			throw std::out_of_range("Too high quadrature degree selected for collocational integration");
 
@@ -599,7 +599,7 @@ protected:
 		field_base<TestField> const &test_field,
 		field_base<TrialField> const &trial_field)
 	{
-		
+
 #if NIHU_MEX_DEBUGGING
 		static bool printed = false;
 		if (!printed)
@@ -608,17 +608,17 @@ protected:
 			printed = true;
 		}
 #endif
-		
+
 		auto mtch(element_match_eval(test_field, trial_field));
 		if (mtch.get_match_dimension() == -1)
 			return eval(WITHOUT_SINGULARITY_CHECK(), result, kernel, test_field, trial_field);
-		
+
 		typedef typename match_type_vector<TestField, TrialField>::type possible_match_types;
-		
+
 #if NIHU_DEBUGGING
 		std::cout << "Now checking singular shortcuts" << std::endl;
 #endif
-		
+
 		if (!tmp::call_until<
 			possible_match_types,
 			singular_shortcut_switch<tmp::_1>,
@@ -634,7 +634,7 @@ protected:
 			mexPrintf("UNHANDLED COLLOCATIONAL SINGULARITY TYPE %d", mtch.get_match_dimension());
 #endif
 
-			}
+		}
 		return result;
 	}
 
@@ -664,9 +664,8 @@ public:
 			printed = true;
 		}
 #endif
-		
-		result_t result;
-		result.setZero();
+
+		result_t result = result_t::Zero();
 
 		return eval(
 			std::integral_constant<bool, sing_check_needed>(),
@@ -687,13 +686,13 @@ class singular_integral_shortcut
 {
 public:
 	typedef void unspecialised;
-	
+
 private:
-	
+
 	typedef typename get_formalism<TestField, TrialField>::type formalism_t;
 	typedef typename select_singular_accelerator<
 		Kernel, TestField, TrialField, Singularity
-		>::type singular_accelerator_t;
+	>::type singular_accelerator_t;
 	typedef store<singular_accelerator_t> store_t;
 	typedef double_integral<Kernel, TestField, TrialField> double_integral_t;
 
