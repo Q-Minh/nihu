@@ -22,12 +22,12 @@ N = 1;
 % element coordinates
 X = [
     0 0 0
-    1 0 0
-    1.2 1 0
-    0 1 0
+    2 0 0
+    2 0 0
+    0 2 0
     ];
 
-% collocation point (x0 eta0)
+% collocation point (xi0 eta0)
 xi0 = 0;
 eta0 = 0;
 
@@ -51,15 +51,15 @@ Jac = cross(dx(1,:), dx(2,:));
 x0 = subs(x, {xi, eta}, {xi0, eta0});
 
 % distance
-rvec = simple(x - x0);
-r = simple(sqrt(dot(rvec, rvec)));
+rvec = simplify(x - x0);
+r = simplify(sqrt(dot(rvec, rvec)));
 
 % unit normal at collocation point
 nx0 = subs(Jac, {xi, eta}, {xi0, eta0});
 nx0 = nx0 / sqrt(dot(nx0, nx0));
 
 % gradient of distance
-gradr = simple(rvec / r);
+gradr = simplify(rvec / r);
 
 % Green's function
 G = N/r^3 * (dot(Jac, nx0) + 3 * dot(Jac, gradr)*dot(gradr, -nx0)) * rho;
@@ -82,11 +82,11 @@ J1vec = Trig * subs([
     ], {xi, eta}, {xi0, eta0});
 
 J0 = sqrt(dot(J0vec, J0vec));
-Fm2 = simple(J0 * N0 / (A^3));
-Fm1 = simple(((N1 * J0vec  + N0 * J1vec) / (A^3) - (3*N0*J0vec*dot(Avec, Bvec))/(A^5)) * nx0.');
+Fm2 = simplify(J0 * N0 / (A^3));
+Fm1 = simplify(((N1 * J0vec  + N0 * J1vec) / (A^3) - (3*N0*J0vec*dot(Avec, Bvec))/(A^5)) * nx0.');
 
 %% Regularisation
-Reg = simple(G - Fm2/rho^2 - Fm1/rho);
+Reg = simplify(G - Fm2/rho^2 - Fm1/rho);
 
 Rho = 1e-1 : 1e-1 : 1;
 Theta = linspace(-pi, pi, 1e2);
