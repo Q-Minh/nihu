@@ -54,3 +54,58 @@
 	- \frac{z n_z}{|z|}
 	\right\} \td \theta
 \end{multline}
+
+\paragraph{HSP kernel}
+
+\begin{multline}
+	\int_E
+		G''_{n_x n_y}({\bf x}, {\bf y})
+	\td {\bf y}
+	=
+	\frac{1}{4\pi}
+	\int_E 
+	\left(
+		\frac{-{\bf n}_x {\bf r}}{r} \frac{{\bf n}_y {\bf r}}{r} \frac{3}{r^3}
+		+
+		\frac{{\bf n}_x {\bf n}_y}{r^3}
+	\right) \td{\bf y}
+	= \\
+	\frac{1}{4\pi}
+	\oint_\theta \int_0^{\bar{R}} 
+	\left(
+		\frac{-n_x R \cos\theta - n_y R \sin\theta + n_z z}{r} \frac{-z}{r} \frac{3}{r^3}
+		+
+		\frac{n_z}{r^3}
+	\right) R \td R \td\theta
+	= \\
+	\frac{1}{4\pi}
+	\oint_\theta
+		\frac{R^2 {\bf n}_x {\bf r}}{z r^3}
+	\td\theta
+	=
+	\frac{1}{4\pi}
+	\oint_\theta
+		-\left(\frac{R}{r}\right)^2 \frac{r'_{n_x}}{z}
+	\td\theta
+\end{multline}
+%
+For the $z=0$ case
+%
+\begin{equation}
+	\int_E
+		G''_{n_x n_y}({\bf x}, {\bf y})
+	\td {\bf y}
+	=
+	\frac{1}{4\pi}
+	\oint_\theta \int_0^{\bar{R}} 
+	\left(
+		\frac{n_z}{R^3}
+	\right) R \td R \td\theta
+	= 
+	\frac{1}{4\pi}
+	\oint_\theta
+	\left(
+		\frac{-n_z}{R}
+	\right)
+	\td\theta
+\end{equation}

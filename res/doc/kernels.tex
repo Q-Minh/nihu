@@ -48,3 +48,37 @@ The normal derivative w.r.t $n_y$ is computed as $G'_i n_{yi}$, while the normal
 	&= n_{xi} n_{xj} n_{yk} G'''_{ijk}
 \end{align}
 
+\section{Laplace kernel in three dimensions}
+
+The kernel expression is
+%
+\begin{equation}
+	G({\bf x}, {\bf y}) = \frac{1}{4\pi r}
+\end{equation}
+%
+The normal derivative w.r.t the normal at ${\bf y}$ is
+%
+\begin{equation}
+	G'_{n_y} = \frac{-1}{4\pi r^2} \frac{{\bf r} \cdot {\bf n}_y}{r}
+\end{equation}
+%
+The normal derivative w.r.t the normal at ${\bf x}$ is
+%
+\begin{equation}
+	G'_{n_x} = \frac{-1}{4\pi r^2} \frac{-{\bf r} \cdot {\bf n}_x}{r}
+\end{equation}
+%
+The second normal derivative is
+%
+\begin{multline}
+	G''_{n_x n_y} = -n_{xi} n_{yj} G''_{ij}
+	=-n_{xi} n_{yj} \left( \left(G''_r - \frac{G'_r}{r} \right) r'_i r'_j +  \frac{G'_r}{r} \delta_{ij} \right) \\
+	=\frac{1}{4\pi} \cdot -n_{xi} n_{yj} \left( \frac{3}{r^3} r'_i r'_j - \frac{1}{r^3} \delta_{ij} \right)
+	\\
+	=\frac{1}{4\pi} \left(
+		\frac{-n_{xi} r_i}{r} \frac{n_{yj} r_j}{r} \frac{3}{r^3}
+		+
+		\frac{n_{xk} n_{yk}}{r^3}
+	\right)
+\end{multline}
+

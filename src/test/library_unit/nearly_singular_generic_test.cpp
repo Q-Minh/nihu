@@ -7,7 +7,7 @@
 #include "library/lib_shape.hpp"
 #include "core/double_integral.hpp"
 
-typedef NiHu::helmholtz_3d_SLP_kernel<double> kernel_t;
+typedef NiHu::helmholtz_3d_DLP_kernel<double> kernel_t;
 double wave_number = 1;
 kernel_t kernel(wave_number);
 typedef kernel_t::result_t Scalar_t;
@@ -66,13 +66,12 @@ void test_fields()
 
 	std::cout << std::endl;
 
-
 	result_t res3;
 	res3.setZero();
 	for (unsigned i = 0; i < 4; ++i)
 	{
 		elem_t::x_t x = test_elem.get_x(test_field_t::nset_t::corner_at(i));
-		res3(i,0) = NiHu::helmholtz_3d_SLP_collocation_constant_plane_nearly_singular::eval(
+		res3(i,0) = NiHu::helmholtz_3d_DLP_collocation_constant_plane_nearly_singular::eval(
 			trial_elem, x, wave_number
 		);
 	}
