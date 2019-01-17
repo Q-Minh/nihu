@@ -17,20 +17,24 @@ L = [
     ] / 4;
 
 % the field shape set
-N = 1;
+N = [
+    (1.0 - sqrt(3.0)*xi) * (1.0 - sqrt(3.0)*eta)
+    (1.0 + sqrt(3.0)*xi) * (1.0 - sqrt(3.0)*eta)
+    (1.0 - sqrt(3.0)*xi) * (1.0 + sqrt(3.0)*eta)
+    (1.0 + sqrt(3.0)*xi) * (1.0 + sqrt(3.0)*eta)
+    ] / 4;
 
 % element coordinates
 X = [
     0 0 0
     2 0 0
-    2 0 0
+    2 2 0
     0 2 0
     ];
 
 % collocation point (xi0 eta0)
-xi0 = 0;
-eta0 = 0;
-
+xi0 = -1/sqrt(3);
+eta0 = -1/sqrt(3);
 
 %% first and second derivatives
 % shape functions
@@ -43,8 +47,8 @@ x = L.' * X;
 dx = dL.' * X;
 ddx = ddL.' * X;
 
-% Jacobian
-Jac = cross(dx(1,:), dx(2,:));
+% Jacobian vector
+Jvec = cross(dx(1,:), dx(2,:));
 
 %% The Green's function
 % collocation point
@@ -55,14 +59,14 @@ rvec = simplify(x - x0);
 r = simplify(sqrt(dot(rvec, rvec)));
 
 % unit normal at collocation point
-nx0 = subs(Jac, {xi, eta}, {xi0, eta0});
-nx0 = nx0 / sqrt(dot(nx0, nx0));
+J0vec = subs(Jvec, {xi, eta}, {xi0, eta0});
+nx0 = J0vec / sqrt(dot(J0vec, J0vec));
 
 % gradient of distance
 gradr = simplify(rvec / r);
 
 % Green's function
-G = N/r^3 * (dot(Jac, nx0) + 3 * dot(Jac, gradr)*dot(gradr, -nx0)) * rho;
+G = N/r^3 * (dot(Jvec, nx0) + 3 * dot(Jvec, gradr)*dot(gradr, -nx0)) * rho;
 G = subs(G, {xi, eta}, {xi0+rho*cos(theta), eta0+rho*sin(theta)});
 
 %% Series expansion
@@ -75,10 +79,9 @@ Avec = Trig * subs(dx, {xi, eta}, {xi0, eta0});
 Bvec = [cos(theta)^2/2 cos(theta)*sin(theta), sin(theta)^2/2] * subs(ddx, {xi, eta}, {xi0, eta0});
 A = sqrt(Avec * Avec.');
 
-J0vec = subs(Jac, {xi, eta}, {xi0, eta0});
 J1vec = Trig * subs([
-    diff(Jac, xi, 1)
-    diff(Jac, eta, 1)
+    diff(Jvec, xi, 1)
+    diff(Jvec, eta, 1)
     ], {xi, eta}, {xi0, eta0});
 
 J0 = sqrt(dot(J0vec, J0vec));
