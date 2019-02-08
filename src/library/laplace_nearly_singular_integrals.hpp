@@ -323,7 +323,7 @@ public:
 		double result = 0.0;
 		double z = x0(2) - corners(2, 0);
 
-		// loop over triange sides
+		// loop over triangle sides
 		for (unsigned i = 0; i < N; ++i)
 		{
 			double th1 = theta_lim[i];
@@ -763,7 +763,7 @@ public:
 		field_base<TrialField> const &trial_field
 	)
 	{
-		typedef nearly_singular_collocational<TrialField, kernel_t, 15, 15> nsc_t;
+		typedef nearly_singular_collocational<TrialField, kernel_t, 100, 100> nsc_t;
 		nsc_t nsc(trial_field, kernel);
 
 		for (unsigned i = 0; i < num_test_nodes; ++i)

@@ -339,9 +339,12 @@ public:
 						singular_part += m_Fcoeffs[1] / rho;
 					singular_part /= rho;
 
-					for (int r = 0; r < F.rows(); ++r)	// loop needed for scalar casting
+					F -= singular_part;
+/* this loop was needed for casting from Matrix<double> to Matrix<complex>
+					for (int r = 0; r < F.rows(); ++r)
 						for (int c = 0; c < F.cols(); ++c)
 							F(r,c) -= singular_part(r,c);
+*/
 
 					// surface integral accumulation
 					I += w_theta * w_rho * F;

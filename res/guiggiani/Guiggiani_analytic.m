@@ -5,6 +5,9 @@ xi = sym('xi', 'real');
 eta = sym('eta', 'real');
 rho = sym('rho', 'positive');
 theta = sym('theta', 'real');
+Lx = sym('Lx', 'positive');
+% Ly = sym('Ly', 'positive');
+Ly = Lx;
 
 %% parameters
 
@@ -27,9 +30,9 @@ N = [
 % element coordinates
 X = [
     0 0 0
-    2 0 0
-    2 2 0
-    0 2 0
+    Lx 0 0
+    Lx Ly 0
+    0 Ly 0
     ];
 
 % collocation point (xi0 eta0)
@@ -65,9 +68,10 @@ nx0 = J0vec / sqrt(dot(J0vec, J0vec));
 % gradient of distance
 gradr = simplify(rvec / r);
 
-% Green's function
-G = N/r^3 * (dot(Jvec, nx0) + 3 * dot(Jvec, gradr)*dot(gradr, -nx0)) * rho;
-G = subs(G, {xi, eta}, {xi0+rho*cos(theta), eta0+rho*sin(theta)});
+% integrand
+F = N/r^3 * (dot(Jvec, nx0) + 3 * dot(Jvec, gradr)*dot(gradr, -nx0));
+% integrand
+F = subs(F, {xi, eta}, {xi0+rho*cos(theta), eta0+rho*sin(theta)}) * rho;
 
 %% Series expansion
 Trig = [cos(theta), sin(theta)];
@@ -89,34 +93,38 @@ Fm2 = simplify(J0 * N0 / (A^3));
 Fm1 = simplify(((N1 * J0vec  + N0 * J1vec) / (A^3) - (3*N0*J0vec*dot(Avec, Bvec))/(A^5)) * nx0.');
 
 %% Regularisation
-Reg = simplify(G - Fm2/rho^2 - Fm1/rho);
+FReg = simplify(F - Fm2/rho^2 - Fm1/rho);
 
-Rho = 1e-1 : 1e-1 : 1;
-Theta = linspace(-pi, pi, 1e2);
-[Rho, Theta] = meshgrid(Rho, Theta);
 
-RReg = double(subs(Reg(1), {rho, theta}, {Rho, Theta}));
+%% numerical integral
+Im2 = 0;
+Im1 = 0;
+Ir = 0;
+[theta_lim, theta0, rho0] = plane_elem_helper_mid([-1 -1; 1 -1; 1 1; -1 1], [xi0 eta0]);
+order = 100;
+for i = 1 : 4
+    t1 = theta_lim(i);
+    t2 = theta_lim(mod(i,4)+1);
+    if (abs(t2-t1) > pi)
+        if (t2 < t1)
+            t2 = t2 + 2*pi;
+        else
+            t1 = t1 + 2*pi;
+        end
+    end
+    
+    [th, w_th] = gaussquad(order, t1, t2);
+    th = th(:).';
+    rholim = rho0(i)./cos(th-theta0(i));
+    
+    im2 = double(subs(-Fm2/rho, {rho, theta, Lx}, {rholim, th, 1}));
+    im1 = double(subs(Fm1*log(abs(rho)), {rho, theta, Lx}, {rholim, th, 1}));
+    ir = double(subs(int(FReg, rho), {rho, theta, Lx}, {rholim, th, 1}));
+    
+    Im2 = Im2 + im2 * w_th;
+    Im1 = Im1 + im1 * w_th;
+    Ir = Ir + ir * w_th;
+end
 
-%% plot Taylor expansion functions and regular part
-th = (-pi:1e-2:pi);
-F2 = subs(Fm2, theta, th);
-F1 = subs(Fm1, theta, th);
+I = Im2 + Im1 + Ir;
 
-figure;
-formatfig([31 8], [1 1]);
-
-a1 = subplot(1,3,1);
-plot(th, F2);
-xlabel('\theta');
-ylabel('F_{-2}(\theta)');
-
-a2 = subplot(1,3,2);
-plot(th, F1);
-xlabel('\theta');
-ylabel('F_{-1}(\theta)');
-
-a3 = subplot(1,3,3);
-surf(Theta, Rho, RReg); shading interp;
-xlabel('\theta');
-ylabel('\rho');
-zlabel('The regular part');

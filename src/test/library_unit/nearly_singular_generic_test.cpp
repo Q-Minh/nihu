@@ -23,21 +23,54 @@ void test_fields()
 {
 	typedef NiHu::quad_1_elem elem_t;
 	elem_t::coords_t trial_coords;
+	double L = 2;
 	trial_coords <<
-		0.0, 2.0, 2.0, 0.0,
-		0.0, 0.0, 2.0, 2.0,
+		0.0, L, L, 0.0,
+		0.0, 0.0, L, L,
 		0.0, 0.0, 0.0, 0.0;
 	elem_t trial_elem(trial_coords, 0);
 	typedef NiHu::field<elem_t, NiHu::quad_1_gauss_shape_set> trial_field_t;
 	trial_field_t trial_field(trial_elem, trial_field_t::dofs_t::Constant(0));
 
-	elem_t::coords_t test_coords;
-	double zeps = 1e-3;
-	test_coords <<
-		0.0, 2.0, 2.0, 0.0,
-		0.0, 0.0, 2.0, 2.0,
-		zeps, zeps, zeps, zeps;
-//	elem_t test_elem(test_coords, 1);
+#if 0
+	double zeps = 1;
+
+	for (unsigned i = 0; i < 5; ++i)
+	{
+
+#endif
+		elem_t::coords_t test_coords;
+		test_coords <<
+			-L, 0, 0, -L,
+			0.0, 0.0, L, L,
+			0.0, 0.0, 0.0, 0.0;
+		elem_t test_elem(test_coords, 1);
+		//	elem_t test_elem = trial_elem;
+		typedef NiHu::field<elem_t, NiHu::quad_1_gauss_shape_set> test_field_orig_t;
+		test_field_orig_t test_field_orig(test_elem, test_field_orig_t::dofs_t::Constant(10));
+		typedef NiHu::dirac_field<test_field_orig_t> test_field_t;
+		test_field_t test_field = NiHu::dirac(test_field_orig);
+
+		typedef Eigen::Matrix<Scalar_t, 4, 4> result_t;
+
+		std::cout << "nearly singular integral shortcut" << std::endl;
+
+		result_t result;
+		result.setZero();
+		NiHu::nearly_singular_integral<kernel_t, test_field_t, trial_field_t>::eval(
+			result, kernel, test_field, trial_field
+		);
+
+#if 0
+		std::cout << "zeps: " << zeps << std::endl;
+#endif
+		std::cout << result << std::endl;
+		std::cout << std::endl;
+
+#if 0
+		zeps = zeps / 5;
+	}
+
 	elem_t test_elem = trial_elem;
 	typedef NiHu::field<elem_t, NiHu::quad_1_gauss_shape_set> test_field_orig_t;
 	test_field_orig_t test_field_orig(test_elem, test_field_orig_t::dofs_t::Constant(10));
@@ -45,18 +78,20 @@ void test_fields()
 	test_field_t test_field = NiHu::dirac(test_field_orig);
 
 	typedef Eigen::Matrix<Scalar_t, 4, 4> result_t;
+	std::cout << "double integral (Guiggiani)" << std::endl;
 
-	std::cout << "nearly singular integral shortcut" << std::endl;
-
-	result_t result;
-	result.setZero();
-	NiHu::nearly_singular_integral<kernel_t, test_field_t, trial_field_t>::eval(
-		result, kernel, test_field, trial_field
+	result_t result4;
+	result4 = NiHu::double_integral<kernel_t, test_field_t, trial_field_t>::eval(
+		kernel, test_field, trial_field, std::true_type()
 	);
-	std::cout << result << std::endl;
+	std::cout << result4 << std::endl;
 
-	std::cout << std::endl;
+	std::cout << "sum of Guiggiani" << std::endl;
+	std::cout << result4.rowwise().sum() << std::endl;
+#endif
 
+
+#if 0
 	std::cout << "nearly singular collocational in cycles" << std::endl;
 
 	result_t res2;
@@ -94,16 +129,8 @@ void test_fields()
 
 	std::cout << std::endl;
 
-	std::cout << "double integral (Guiggiani)" << std::endl;
+#endif
 
-	result_t result4;
-	result4 = NiHu::double_integral<kernel_t, test_field_t, trial_field_t>::eval(
-		kernel, test_field, trial_field, std::true_type()
-	);
-	std::cout << result4 << std::endl;
-
-	std::cout << "sum of Guiggiani" << std::endl;
-	std::cout << result4.rowwise().sum() << std::endl;
 }
 
 
