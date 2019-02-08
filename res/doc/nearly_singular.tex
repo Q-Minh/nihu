@@ -124,8 +124,8 @@ The integral is split up into three parts as follows:
 %
 \begin{multline}
 	I = \underbrace{\int_E G''_{n_x n_y}({\bf x}, {\bf y})
-	\left( N({\bf y}) - N({\bf x}_c) - \nabla N({\bf x}_c) ({\bf y} - {\bf x}_c)\right)
-	\td {\bf y}}_{\text{nearly singular}} \\
+	\left[ N({\bf y}) - N({\bf x}_c) - \nabla N({\bf x}_c) ({\bf y} - {\bf x}_c)\right]
+	\td {\bf y}}_{\text{weakly singular}} \\
 	+
 	N({\bf x}_c)
 	\underbrace{\int_E G''_{n_x n_y}({\bf x}, {\bf y})
@@ -137,7 +137,8 @@ The integral is split up into three parts as follows:
 	\td {\bf y}}_{I_1}
 \end{multline}
 %
-The nearly singular part is computed using a standard polar coordinate transform (Duffy quadratures).
+The bracketed term in the first integral is $O(\rho^2)$.
+As a consequence, the first integral is weakly singular, and can be computed using a standard polar coordinate transform (Duffy quadratures).
 The remaining integrals $I_0$ and $I_1$ are transformed into contour integrals using Stokes' theorem.
 
 Stokes theorem, in index notation, is written as follows:
@@ -146,8 +147,10 @@ Stokes theorem, in index notation, is written as follows:
 	\int_E \Psi({\bf y}),_j n_i({\bf y}) - \Psi({\bf y}),_i n_j({\bf y}) \td S({\bf y}) = \epsilon_{ijk} \oint_C \Psi({\bf y}) \td y_k
 \end{equation}
 %
-where the notation $,_i$ stands for $\partial/\partial y_i$, and $C$ denotes the contour of $E$.
+where the notation $,_i$ stands for $\partial/\partial y_i$, $C$ denotes the contour of $E$, and $\epsilon_{ijk}$ is the permutation symbol.
 
+Integral $I_0$ is converted as follows:
+%
 \begin{multline}
 	I_0
 	= \int_E G''_{x_i y_j}({\bf x}, {\bf y}) n_i({\bf x}) n_j({\bf y}) \td S({\bf y}) \\
@@ -176,6 +179,8 @@ The second integral can be simplified by taking into account the definition of t
 %
 For the case of the nearly singular integrals, the singular point is outside the integration element, so the second term vanishes.
 
+The second integeral $I_1$ is converted as follows:
+%
 \begin{multline}
 	I_1
 	= n_i({\bf x}) \int_E -G,_{ij}({\bf x}, {\bf y}) 
@@ -286,4 +291,29 @@ Combinig the results, the final integral is written as
 	\td S({\bf y})
 	-
 	n_p({\bf x}) \frac{\Omega({\bf x})}{4\pi}
+\end{multline}
+%
+or, using vector notation:
+%
+\begin{multline}
+	I_{1} = 
+	\oint_C
+	\left( \nabla N({\bf x}_c) \cdot ({\bf y} - {\bf x}_c) \right)
+	\left( {\bf n}({\bf x}) , \nabla G({\bf x}, {\bf y}) , \td {\bf y} \right)
+	-
+	\oint_C
+	G({\bf x}, {\bf y})
+	\left(
+	{\bf n}({\bf x}),
+	\nabla N({\bf x}_c),
+	\td {\bf y}
+	\right)
+	\\
+	+
+	\int_E
+	G'_{n_x}({\bf x}, {\bf y})
+	\left(\nabla N({\bf x}_c) \cdot {\bf n}({\bf y})\right)
+	\td S({\bf y})
+	-
+	\left( \nabla N({\bf x}_c) {\bf n}({\bf x}) \right) \frac{\Omega({\bf x})}{4\pi}
 \end{multline}
