@@ -2,25 +2,23 @@ function  I = stokes_hsp_integral(corners, lset, x, nx,...
     y0, N0, gradN0, ...
     slp_kernel, grad_kernel)
 
-domain = lset.Domain;
-domain_corners = domain.CornerNodes;
-nCorners = size(domain_corners, 1);
+domain_corners = lset.Domain.CornerNodes;
+nVert = size(domain_corners, 1);
+
+I = zeros(nVert,1);
 
 % perform contour integrals
-
 line_order = 40;
-nG = ceil((line_order+1) / 2);
-[eta, w] = gaussquad(nG);
+nG = ceil((line_order+1) / 2);  % num of Gaussian points
+[eta, w] = gaussquad(nG);       % line quadrature
 
-I = 0;
-
-for i = 1 : nCorners
+for i = 1 : nVert
+    % line limits in intrinsic coordinates
     xi1 = domain_corners(i,:);
-    xi2 = domain_corners(mod(i,nCorners)+1,:);
-    
-    xi = (1-eta)/2 * xi1 + (1+eta)/2 * xi2;
+    xi2 = domain_corners(mod(i,nVert)+1,:);
     dxi_eta = (xi2 - xi1) / 2;
     
+    xi = (1-eta)/2 * xi1 + (1+eta)/2 * xi2;
     [L, dL] = lset.eval(xi);
     y = L * corners;
     dy = dL(:,:,1) * corners * dxi_eta(1) + ...
@@ -29,21 +27,18 @@ for i = 1 : nCorners
     G = slp_kernel(x, y);
     gradG = grad_kernel(x, y);
     
-    J = N0 * dot(nx, w.' * cross(gradG, dy, 2)) + ...
-        gradN0 * bsxfun(@minus, y, y0).' * diag(w) * cross(gradG, dy, 2) * nx.' + ...
-        - gradN0 * cross(dy, repmat(nx, nG, 1), 2).' * diag(w) * G;
-    
-    I = I + J;
+    I = I + N0 * dot(nx, w.' * cross(gradG, dy, 2)) ...
+        + gradN0 * (...
+        bsxfun(@minus, y, y0).' * diag(w) * cross(gradG, dy, 2) * nx.' ...
+        - cross(dy, repmat(nx, nG, 1), 2).' * diag(w) * G);
 end
 
 % compute surface integral term (assuming full regularity)
 order = 40;
-[xi, w] = gaussquad2(order, nCorners);
+[xi, w] = gaussquad2(order, nVert);
 [L, dL] = lset.eval(xi);
 y = L* corners;
-dyxi = dL(:,:,1) * corners;
-dyeta = dL(:,:,2) * corners;
-jvec = cross(dyxi, dyeta, 2);
+jvec = cross(dL(:,:,1) * corners, dL(:,:,2) * corners, 2);
 jac = sqrt(dot(jvec, jvec, 2));
 ny = bsxfun(@times, jvec, 1./jac);
 gradG = grad_kernel(x, y);

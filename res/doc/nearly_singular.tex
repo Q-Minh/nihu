@@ -111,7 +111,7 @@ For the $z=0$ case
 \end{equation}
 
 
-\subsubsection{General method with Stokes theorem}
+\subsubsection{General method with Stokes' theorem}
 
 \paragraph{HSP kernel}
 
@@ -120,7 +120,7 @@ For the $z=0$ case
 \end{equation}
 %
 Let ${\bf x}_c$ denote the projection of the singular point ${\bf x}$ on the boundary surface.
-The shape function ${\bf N}({\bf y})$ is expanded into a Taylor series around the prokection point:
+The shape function ${\bf N}({\bf y})$ is expanded into a Taylor series around the projection point:
 %
 \begin{equation}
 	N({\bf y}) = N({\bf x}_c) - \nabla N({\bf x}_c) ({\bf y} - {\bf x}_c) + O(\rho^2)
@@ -146,185 +146,34 @@ By adding and subtracting the linear Taylor series to the shape function, the in
 The bracketed term in the first integral is $O(\rho^2)$.
 As a consequence, the first integral is weakly singular, and can be computed using a standard polar coordinate transform (Duffy quadratures).
 The remaining integrals $I_0$ and ${\bf I}_1$ are transformed into contour integrals using Stokes' theorem.
-
-Stokes theorem, in index notation, is written as follows:
+The resulting formulas read as (see their derivation in the appendix \ref{sec:stokes_laplace_hsp})
 %
-\begin{equation}
-	\int_E \Psi({\bf y}),_j n_i({\bf y}) - \Psi({\bf y}),_i n_j({\bf y}) \td S({\bf y}) = \epsilon_{ijk} \oint_C \Psi({\bf y}) \td y_k
-\end{equation}
-%
-where the notation $,_i$ stands for $\partial/\partial y_i$, $C$ denotes the contour of $E$, and $\epsilon_{ijk}$ is the permutation symbol.
-Using vector notation, application of the permutation symbol is alternatively interpreted as
-%
-\begin{equation}
-	\epsilon_{ijk} a_i b_j c_k = \left({\bf a} \cdot \left({\bf b} \times {\bf c}\right)\right)
-\end{equation}
-
-Integral $I_0$ is converted as follows:
-%
-\begin{multline}
-	I_0
-	= \int_E G''_{x_i y_j}({\bf x}, {\bf y}) n_i({\bf x}) n_j({\bf y}) \td S({\bf y}) \\
-	= -\int_E G''_{y_i y_j}({\bf x}, {\bf y}) n_i({\bf x}) n_j({\bf y}) \td S({\bf y}) \\
-	= \int_E \left[ -G,_j({\bf x}, {\bf y}) n_i({\bf x}) \right],_{i} n_j({\bf y}) \td S({\bf y}) \\
-	= \int_E \left\{
-		\left[G,_j({\bf x}, {\bf y}) n_i({\bf x}) \right],_{j} n_i({\bf y})
-		-\left[G,_j({\bf x}, {\bf y}) n_i({\bf x}) \right],_{i} n_j({\bf y})
-	\right\} \td S({\bf y})
-	- \int_E \left[G,_j({\bf x}, {\bf y}) n_i({\bf x}) \right],_{j} n_i({\bf y}) \td S({\bf y}).
-\end{multline}
-%
-Stokes' theorem can be directly applied to the first integral:
-%
-\begin{equation}
-	I_0 = \epsilon_{ijk} \oint_C G,_j({\bf x}, {\bf y}) n_i({\bf x}) \td y_k
-	- \int_E G,_{jj}({\bf x}, {\bf y}) n_i({\bf x}) n_i({\bf y}) \td S({\bf y})
-\end{equation}
-%
-The second integral can be simplified by taking into account the definition of the Green's function: $G,_{jj} = -\delta({\bf x} - {\bf y})$
-%
-\begin{equation}
-	I_0 = n_i({\bf x}) \epsilon_{ijk} \oint_C G,_j({\bf x}, {\bf y}) \td x_k
-	+ \int_E \delta({\bf x} - {\bf y}) n_i({\bf x}) n_i({\bf y}) \td S({\bf y})
-\end{equation}
-%
-For the case of the nearly singular integrals, the singular point is outside the integration element. As a consequence, the surface integral over $E$ vanishes.
-
-The second integeral ${\bf I}_1$ is converted as follows:
-%
-\begin{multline}
-	I_{1p}
-	= n_i({\bf x}) \int_E -G,_{ij}({\bf x}, {\bf y}) 
-	(y - x_c)_p
-	n_j({\bf y})
-	\td S({\bf y}) \\
-	= n_i({\bf x})
-	\left\{ \int_E \left[-G,_{j}({\bf x}, {\bf y}) 
-	(y - x_c)_p\right]_i
-	n_j({\bf y})
-	\td S({\bf y})
-	+
-	\delta_{pi}
-	\int_E G,_{j}({\bf x}, {\bf y}) 
-	n_j({\bf y})
-	\td S({\bf y})
-	\right\}
-\end{multline}
-%
-As the second integral is $\int G_{n_y} \td y$, which equals $-\Omega({\bf x})/4\pi$, where $\Omega({\bf x})$ is the solid angle subtended by element $E$ from the source point, ${\bf I}_1$ simplifies to
-%
-\begin{equation}
-	I_{1p}
-	= 
-	n_i({\bf x})
-	\underbrace{\int_E
-	\left[-G,_{j}({\bf x}, {\bf y}) 
-	(y - x_c)_p\right]_i
-	n_j({\bf y})
-	\td S({\bf y})}_{I'_{1p}}
-	-
-	n_p({\bf x})
-	\frac{\Omega({\bf x})}{4\pi}
-\end{equation}
-%
-${\bf I}'_1$ is further elaborated as follows: The term $\left[G,_{j}({\bf x}, {\bf y}) (y - x_c)_p\right]_j n_i({\bf y})$ is added and subtracted to yield
-%
-\begin{multline}
-	I'_{1p} = 
-	\int_E
-		\left[G,_{j}({\bf x}, {\bf y}) (y - x_c)_p\right]_j
-		n_i({\bf y})
-		-
-		\left[G,_{j}({\bf x}, {\bf y}) (y - x_c)_p\right]_i
-		n_j({\bf y})
-	\td S({\bf y}) \\
-	-
-	\int_E
-	\left[G,_{j}({\bf x}, {\bf y}) (y - x_c)_p\right]_j
-	n_i({\bf y})
-	\td S({\bf y})
-\end{multline}
-%
-The first integral is simplified using Stokes' theorem. The second integral is simplified using the definition of the Green's function
-%
-\begin{equation}
-	I'_{1p} = 
-	\epsilon_{ijk}
-	\oint_C
-	G,_{j}({\bf x}, {\bf y}) (y - x_c)_p
-	\td y_k
-	-
-	\delta_{pj}
-	\int_E
-		G,_{j}({\bf x}, {\bf y})
-		n_i({\bf y})
-	\td S({\bf y})
-\end{equation}
-%
-Finally, the last integral is further simplified by subtracting and adding $G,_{i}({\bf x}, {\bf y}) n_j({\bf y})$, and applying Stokes' theorem:
-%
-\begin{equation}
-	I'_{1p} = 
-	\epsilon_{ijk}
-	\oint_C
-	G,_{j}({\bf x}, {\bf y}) (y - x_c)_p
-	\td y_k
-	-
-	\epsilon_{ipk}
-	\oint_C
-		G({\bf x}, {\bf y})
-	\td y_k
-	-
-	\int_E
-		G,_{i}({\bf x}, {\bf y}) n_p({\bf y})
-	\td S({\bf y})
-\end{equation}
-%
-Combinig the results, the final integral is written as
-%
-\begin{multline}
-	I_{1p} = 
-	n_i({\bf x})
-	\epsilon_{ijk}
-	\oint_C
-	G,_{j}({\bf x}, {\bf y}) (y - x_c)_p
-	\td y_k
-	-
-	n_i({\bf x})
-	\epsilon_{ipk}
-	\oint_C
-		G({\bf x}, {\bf y})
-	\td y_k \\
-	-
-	n_i({\bf x})
-	\int_E
-		G,_{i}({\bf x}, {\bf y}) n_p({\bf y})
-	\td S({\bf y})
-	-
-	n_p({\bf x}) \frac{\Omega({\bf x})}{4\pi}
-\end{multline}
-%
-or, using vector notation:
-%
-\begin{multline}
-	{\nabla N}({\bf x}_c) \cdot {\bf I}_{1} = 
+\begin{align}
+	N({\bf x}_c) I_0 =
+	&
+	N({\bf x}_c) \oint_C
+	\left< {\bf n}({\bf x}), \nabla G({\bf x}, {\bf y}) , \td {\bf y} \right> \\
+	{\nabla N}({\bf x}_c) \cdot {\bf I}_{1} =
+	& 
 	\oint_C
 	\left( \nabla N({\bf x}_c) \cdot ({\bf y} - {\bf x}_c) \right)
-	\left( {\bf n}({\bf x}) , \nabla G({\bf x}, {\bf y}) , \td {\bf y} \right)
+	\left< {\bf n}({\bf x}) , \nabla G({\bf x}, {\bf y}) , \td {\bf y} \right> \\
+	&
 	-
 	\oint_C
 	G({\bf x}, {\bf y})
-	\left(
-	{\bf n}({\bf x}),
-	\nabla N({\bf x}_c),
-	\td {\bf y}
-	\right)
+	\left< {\bf n}({\bf x}), \nabla N({\bf x}_c), \td {\bf y} \right>
 	\\
+	&
 	+
 	\int_E
 	G'_{n_x}({\bf x}, {\bf y})
 	\left(\nabla N({\bf x}_c) \cdot {\bf n}({\bf y})\right)
-	\td S({\bf y})
+	\td S({\bf y}) \\
+	&
 	-
-	\left( \nabla N({\bf x}_c) {\bf n}({\bf x}) \right) \frac{\Omega({\bf x})}{4\pi}
-\end{multline}
+	\left( \nabla N({\bf x}_c) {\bf n}({\bf x}) \right)
+	\frac{\Omega({\bf x})}{4\pi}
+\end{align}
+%
+where $C$ denotes the contour of $E$, and $<{\bf a}, {\bf b}, {\bf c}>$ denotes the triple product ${\bf a} \cdot {\bf b} \times {\bf c}$, and $\Omega({\bf x})$ is the solid angle subtended by element $E$ from the source point.

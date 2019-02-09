@@ -59,11 +59,19 @@ ny = bsxfun(@times, jvec, 1./jac);
 G = hsp_kernel(x, nx, y, ny);
 N = nset.eval(xi);
 Nlin = bsxfun(@plus, N0, gradN0 * bsxfun(@minus, y, y0).').';
-Isurf = Nlin.' * diag(w) * (G .* jac);
+Ilin = Nlin.' * diag(w) * (G .* jac);
+Nrem = N - Nlin;
+Irem = Nrem.' * diag(w) * (G .* jac);
+
 
 %%
-fprintf(1, 'Error: %g\n', norm(Isurf-Istokes) / norm(Isurf));
+fprintf(1, 'Error: %g\n', norm(Ilin-Istokes) / norm(Ilin));
 
 figure;
+subplot(1,2,1);
 plot3(xi(:,1), xi(:,2), bsxfun(@times, Nlin, (G .* jac)), '.');
-title('Surface integral in numerical method');
+title('Surface integral numerically');
+
+subplot(1,2,2);
+plot3(xi(:,1), xi(:,2), bsxfun(@times, Nrem, (G .* jac)), '.');
+title('Weakly singular term');
