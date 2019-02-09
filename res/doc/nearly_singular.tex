@@ -120,7 +120,13 @@ For the $z=0$ case
 \end{equation}
 %
 Let ${\bf x}_c$ denote the projection of the singular point ${\bf x}$ on the boundary surface.
-The integral is split up into three parts as follows:
+The shape function ${\bf N}({\bf y})$ is expanded into a Taylor series around the prokection point:
+%
+\begin{equation}
+	N({\bf y}) = N({\bf x}_c) - \nabla N({\bf x}_c) ({\bf y} - {\bf x}_c) + O(\rho^2)
+\end{equation}
+%
+By adding and subtracting the linear Taylor series to the shape function, the integral is split up into three parts as follows:
 %
 \begin{multline}
 	I = \underbrace{\int_E G''_{n_x n_y}({\bf x}, {\bf y})
@@ -134,12 +140,12 @@ The integral is split up into three parts as follows:
 	\nabla N({\bf x}_c)
 	\underbrace{\int_E G''_{n_x n_y}({\bf x}, {\bf y})
 	({\bf y} - {\bf x}_c)
-	\td {\bf y}}_{I_1}
+	\td {\bf y}}_{{\bf I}_1}
 \end{multline}
 %
 The bracketed term in the first integral is $O(\rho^2)$.
 As a consequence, the first integral is weakly singular, and can be computed using a standard polar coordinate transform (Duffy quadratures).
-The remaining integrals $I_0$ and $I_1$ are transformed into contour integrals using Stokes' theorem.
+The remaining integrals $I_0$ and ${\bf I}_1$ are transformed into contour integrals using Stokes' theorem.
 
 Stokes theorem, in index notation, is written as follows:
 %
@@ -148,6 +154,11 @@ Stokes theorem, in index notation, is written as follows:
 \end{equation}
 %
 where the notation $,_i$ stands for $\partial/\partial y_i$, $C$ denotes the contour of $E$, and $\epsilon_{ijk}$ is the permutation symbol.
+Using vector notation, application of the permutation symbol is alternatively interpreted as
+%
+\begin{equation}
+	\epsilon_{ijk} a_i b_j c_k = \left({\bf a} \cdot \left({\bf b} \times {\bf c}\right)\right)
+\end{equation}
 
 Integral $I_0$ is converted as follows:
 %
@@ -177,12 +188,12 @@ The second integral can be simplified by taking into account the definition of t
 	+ \int_E \delta({\bf x} - {\bf y}) n_i({\bf x}) n_i({\bf y}) \td S({\bf y})
 \end{equation}
 %
-For the case of the nearly singular integrals, the singular point is outside the integration element, so the second term vanishes.
+For the case of the nearly singular integrals, the singular point is outside the integration element. As a consequence, the surface integral over $E$ vanishes.
 
-The second integeral $I_1$ is converted as follows:
+The second integeral ${\bf I}_1$ is converted as follows:
 %
 \begin{multline}
-	I_1
+	I_{1p}
 	= n_i({\bf x}) \int_E -G,_{ij}({\bf x}, {\bf y}) 
 	(y - x_c)_p
 	n_j({\bf y})
@@ -200,44 +211,44 @@ The second integeral $I_1$ is converted as follows:
 	\right\}
 \end{multline}
 %
-As the last integral is $\int G_{n_y} \td y$, which equals $-\Omega({\bf x})/4\pi$, where $\Omega({\bf x})$ is the solid angle made by element $E$ from the source point, $I_1$ simplifies to
+As the second integral is $\int G_{n_y} \td y$, which equals $-\Omega({\bf x})/4\pi$, where $\Omega({\bf x})$ is the solid angle subtended by element $E$ from the source point, ${\bf I}_1$ simplifies to
 %
 \begin{equation}
-	I_1
+	I_{1p}
 	= 
 	n_i({\bf x})
 	\underbrace{\int_E
 	\left[-G,_{j}({\bf x}, {\bf y}) 
 	(y - x_c)_p\right]_i
 	n_j({\bf y})
-	\td S({\bf y})}_{I'_1}
+	\td S({\bf y})}_{I'_{1p}}
 	-
 	n_p({\bf x})
 	\frac{\Omega({\bf x})}{4\pi}
 \end{equation}
 %
-$I'_1$ is further elaborated as follows: The term $\left[G,_{j}({\bf x}, {\bf y}) (y - x_c)_p\right]_j n_i({\bf y})$ is added and subtracted to yield
+${\bf I}'_1$ is further elaborated as follows: The term $\left[G,_{j}({\bf x}, {\bf y}) (y - x_c)_p\right]_j n_i({\bf y})$ is added and subtracted to yield
 %
-\begin{equation}
-	I'_1 = 
+\begin{multline}
+	I'_{1p} = 
+	\int_E
+		\left[G,_{j}({\bf x}, {\bf y}) (y - x_c)_p\right]_j
+		n_i({\bf y})
+		-
+		\left[G,_{j}({\bf x}, {\bf y}) (y - x_c)_p\right]_i
+		n_j({\bf y})
+	\td S({\bf y}) \\
+	-
 	\int_E
 	\left[G,_{j}({\bf x}, {\bf y}) (y - x_c)_p\right]_j
 	n_i({\bf y})
-	-
-	\left[G,_{j}({\bf x}, {\bf y}) (y - x_c)_p\right]_i
-	n_j({\bf y})
 	\td S({\bf y})
-	-
-	\int_E
-	\left[G,_{j}({\bf x}, {\bf y}) (y - x_c)_p\right]_j
-	n_i({\bf y})
-	\td S({\bf y})
-\end{equation}
+\end{multline}
 %
 The first integral is simplified using Stokes' theorem. The second integral is simplified using the definition of the Green's function
 %
 \begin{equation}
-	I'_1 = 
+	I'_{1p} = 
 	\epsilon_{ijk}
 	\oint_C
 	G,_{j}({\bf x}, {\bf y}) (y - x_c)_p
@@ -253,7 +264,7 @@ The first integral is simplified using Stokes' theorem. The second integral is s
 Finally, the last integral is further simplified by subtracting and adding $G,_{i}({\bf x}, {\bf y}) n_j({\bf y})$, and applying Stokes' theorem:
 %
 \begin{equation}
-	I'_1 = 
+	I'_{1p} = 
 	\epsilon_{ijk}
 	\oint_C
 	G,_{j}({\bf x}, {\bf y}) (y - x_c)_p
@@ -296,7 +307,7 @@ Combinig the results, the final integral is written as
 or, using vector notation:
 %
 \begin{multline}
-	I_{1} = 
+	{\nabla N}({\bf x}_c) \cdot {\bf I}_{1} = 
 	\oint_C
 	\left( \nabla N({\bf x}_c) \cdot ({\bf y} - {\bf x}_c) \right)
 	\left( {\bf n}({\bf x}) , \nabla G({\bf x}, {\bf y}) , \td {\bf y} \right)
