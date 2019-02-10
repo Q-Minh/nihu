@@ -5,11 +5,11 @@ function  I = stokes_hsp_integral(corners, lset, x, nx,...
 domain_corners = lset.Domain.CornerNodes;
 nVert = size(domain_corners, 1);
 
-I = zeros(nVert,1);
+I = zeros(size(gradN0,1),1);
 
 % perform contour integrals
-line_order = 40;
-nG = ceil((line_order+1) / 2);  % num of Gaussian points
+order = 40;
+nG = ceil((order+1) / 2);  % num of Gaussian points
 [eta, w] = gaussquad(nG);       % line quadrature
 
 for i = 1 : nVert
@@ -34,7 +34,6 @@ for i = 1 : nVert
 end
 
 % compute surface integral term (assuming full regularity)
-order = 40;
 [xi, w] = gaussquad2(order, nVert);
 [L, dL] = lset.eval(xi);
 y = L* corners;
