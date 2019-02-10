@@ -57,6 +57,14 @@ public:
 	}
 
 	/**
+	 * \brief return reference to base point
+	 */
+	xi_t &get_xi(void)
+	{
+		return m_xi;
+	}
+	
+	/**
 	* \brief return constant reference to base point
 	* \return reference to base point
 	*/
