@@ -2,6 +2,11 @@
 % Test Telles quadrature transform for singular and nearly singular
 % integrals
 
+% Some examples from:
+% L. Jun, G. Beer, J.L. Meek: Efficient evaluation of integrals of order 
+%   1/r 1/r^2, 1/r^3 using Gauss quadrature. Engineering Analysis Vol. 2,
+%   Issue 3, pp. 118-128 (1985) DOI: 10.1016/0264-682X(85)90014-0
+
 %% Test1 - singular line integral with logarithmic singularity
 n_gauss = 10;
 [xi, w] = gaussquad(n_gauss);
@@ -125,7 +130,7 @@ w = wx(:) .* wy(:);
 n_gauss = size(xi, 1);
 
 f = @(x)(1./((1.2-x(:,1)).^2 + (1.2 - x(:,2)).^2).^(3/2));
-xi_0 = [1.0, 1.2];
+xi_0 = [1.2, 1.2];
 [xi_t, w_t] = telles_transform(xi, w, xi_0);
 
 I_ana = 2.327344790;
@@ -154,13 +159,13 @@ f = @(x)(1./((0.7-x(:,1)).^2 + (0.5 - x(:,2)).^2 + z^2).^(3/2));
 xi_0 = [0.7, 0.5];
 [xi_t, w_t] = telles_transform(xi, w, xi_0, z);
 
-[XI, W] = gaussquad2(60);
+[XI, W] = gaussquad2(100);
 I_ana = W.' * f(XI);
 I_gau = w.' * f(xi);
 I_tel = w_t.' * f(xi_t);
 
-fprintf('Test 6: int(1/((1.2-x)^2 + (1.2-y)^2)^(3/2) dxdy, x,y = -1 .. 1\n');
-fprintf('\tAnalytical: %.12f\n', I_ana);
+fprintf('Test 7: int(1/((0.7-x)^2 + (0.5-y)^2 + 0.25^2)^(3/2) dxdy, x,y = -1 .. 1\n');
+fprintf('\tBrute force quadrature: %.12f\n', I_ana);
 fprintf('\tGauss  (%d points): %.12f (rel. err.: %g)\n', ...
     n_gauss, I_gau, (I_gau - I_ana) / abs(I_ana));
 fprintf('\tTelles (%d points): %.12f (rel. err.: %g)\n', ...
