@@ -13,12 +13,13 @@
 
 #include "core/double_integral.hpp"
 
-typedef NiHu::laplace_3d_HSP_kernel kernel_t;
+typedef NiHu::helmholtz_3d_HSP_kernel<double> kernel_t;
 double wave_number = 1;
-kernel_t kernel;
+kernel_t kernel(wave_number);
 typedef kernel_t::result_t Scalar_t;
 typedef NiHu::quad_1_gauss_shape_set nset_t;
 
+#if 0
 void test_fields()
 {
 	typedef NiHu::quad_1_elem elem_t;
@@ -116,7 +117,7 @@ void test_fields()
 	for (unsigned i = 0; i < 4; ++i)
 	{
 		kernel_t::test_input_t tsi(test_elem, test_field_t::nset_t::corner_at(i));
-		res3(i,0) = NiHu::laplace_3d_HSP_collocation_constant_plane_nearly_singular::eval(
+		res3(i, 0) = NiHu::laplace_3d_HSP_collocation_constant_plane_nearly_singular::eval(
 			trial_elem, tsi.get_x(), tsi.get_unit_normal()
 		);
 	}
@@ -201,18 +202,60 @@ void test_linear()
 
 #endif
 
+#endif
+
+int test_helmholtz_3d_HSP_telles()
+{
+	typedef NiHu::quad_1_elem elem_t;
+	elem_t::coords_t trial_coords;
+	double L = 2;
+	trial_coords <<
+		0.0, L, L, 0.0,
+		0.0, 0.0, L, L,
+		0.0, 0.0, 0.0, 0.0;
+	elem_t trial_elem(trial_coords, 0);
+	typedef NiHu::field<elem_t, NiHu::quad_1_gauss_shape_set> trial_field_t;
+	trial_field_t trial_field(trial_elem, trial_field_t::dofs_t::Constant(0));
+
+	elem_t::coords_t test_coords;
+	test_coords <<
+		-L, 0, 0, -L,
+		0.0, 0.0, L, L,
+		0.0, 0.0, 0.0, 0.0;
+	elem_t test_elem(test_coords, 1);
+	//	elem_t test_elem = trial_elem;
+	typedef NiHu::field<elem_t, NiHu::quad_1_gauss_shape_set> test_field_orig_t;
+	test_field_orig_t test_field_orig(test_elem, test_field_orig_t::dofs_t::Constant(10));
+	typedef NiHu::dirac_field<test_field_orig_t> test_field_t;
+	test_field_t test_field = NiHu::dirac(test_field_orig);
+
+	typedef Eigen::Matrix<Scalar_t, 4, 4> result_t;
+
+	std::cout << "nearly singular integral shortcut" << std::endl;
+
+	result_t result;
+	result.setZero();
+	NiHu::nearly_singular_integral<kernel_t, test_field_t, trial_field_t>::eval(
+		result, kernel, test_field, trial_field
+	);
+
+	return 0;
+}
+
 
 int main(void)
 {
+	test_helmholtz_3d_HSP_telles();
+
 #if 0
 	std::cout << "quadratic" << std::endl;
 	test_quadratic();
 	std::cout << std::endl;
 	std::cout << "linear" << std::endl;
 	test_linear();
-#endif
 
 	test_fields();
+#endif
 
 	return 0;
 }

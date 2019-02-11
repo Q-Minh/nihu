@@ -38,11 +38,13 @@ for niter = 1 : maxiter
         dxxi = dN(:,:,1) * coords;
         dxeta = dN(:,:,2) * coords;
         n = cross(dxxi, dxeta, 2);
+        sqrtjac = sqrt(sqrt(dot(n,n,2)));
+        n = n / sqrtjac;
         dxxixi = ddN(:,:,1,1) * coords;
         dxxieta = ddN(:,:,1,2) * coords;
         dxetaeta = ddN(:,:,2,2) * coords;
-        dnxi = cross(dxxixi, dxeta, 2) + cross(dxxi, dxxieta, 2);
-        dneta = cross(dxxieta, dxeta, 2) + cross(dxxi, dxetaeta, 2);
+        dnxi = (cross(dxxixi, dxeta, 2) + cross(dxxi, dxxieta, 2)) / sqrtjac;
+        dneta = (cross(dxxieta, dxeta, 2) + cross(dxxi, dxetaeta, 2)) / sqrtjac;
     end
     
     f = (x + n*zeta) - x0;

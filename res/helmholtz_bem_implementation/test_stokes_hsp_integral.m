@@ -18,8 +18,8 @@ corners = [
     ];
 
 % singular point in physical domain
-x = [.5 .5 .2];
-nx = [1 0 0];
+x = [.5 .7 .2];
+nx = [0 0 1];
 
 %% Local Taylor series expansion of the shape function
 % determine xi0 and shape functions in xi0
@@ -46,6 +46,8 @@ gradN0 = dN0.' / dy0.';
 Istokes = stokes_hsp_integral(corners, lset, x, nx, ...
     y0, N0, gradN0, ...
     slp_kernel, grad_kernel);
+
+fprintf(1, 'Istokes: %.12g\n', Istokes);
 
 %% compute linear term numerically
 order = 60;
@@ -75,3 +77,5 @@ title('Surface integral numerically');
 subplot(1,2,2);
 plot3(xi(:,1), xi(:,2), bsxfun(@times, Nrem, (G .* jac)), '.');
 title('Weakly singular term');
+
+disp(Ilin + Irem);

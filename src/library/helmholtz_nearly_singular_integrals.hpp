@@ -28,6 +28,7 @@
 #include "laplace_kernel.hpp"
 #include "laplace_nearly_singular_integrals.hpp"
 #include "nearly_singular_collocational.hpp"
+#include "nearly_singular_collocational_telles.hpp"
 #include "quadrature_store_helper.hpp"
 
 #include "../core/nearly_singular_planar_constant_collocation_shortcut.hpp"
@@ -603,7 +604,7 @@ public:
 		field_base<TrialField> const &trial_field
 		)
 	{
-		typedef nearly_singular_collocational<TrialField, kernel_t, 15, 15> nsc_t;
+		typedef nearly_singular_collocational_telles<TrialField, kernel_t, 30> nsc_t;
 		nsc_t nsc(trial_field, kernel);
 		
 		for (unsigned i = 0; i < num_test_nodes; ++i)

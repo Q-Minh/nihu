@@ -2,6 +2,8 @@
 #include "library/lib_element.hpp"
 #include "core/inverse_mapping.hpp"
 
+#include <iomanip>
+
 template <class elem_t, class nset_t>
 Eigen::Matrix<double, 4, 1>
 stokes_hsp_integral(
@@ -51,8 +53,7 @@ stokes_hsp_integral(
 			double G = 1.0 / (4.0  * M_PI * r);
 			x_t gradG = -1.0 / (4.0  * M_PI * r * r) * rvec.normalized();
 
-			result += N0 * w * nx.dot(gradG.cross(dy));
-			result += (gradN0 * (y - y0)) * w * nx.dot(gradG.cross(dy));
+			result += (N0 + (gradN0 * (y - y0))) * w * nx.dot(gradG.cross(dy));
 			result -= G * w * gradN0 * dy.cross(nx);
 		}
 
@@ -94,20 +95,20 @@ int main()
 
 	elem_t::coords_t coords;
 	coords <<
-		0.0, 1.0, 1.0, 0.0,
-		0.0, 0.0, 0.5, 1.0,
-		0.0, 0.0, 0.0, 0.2;
+		-1.0, 1.0, 1.0, -1.0,
+		-1.0, -1.0, 1.0, 1.0,
+		0.0, 0.0, 0.0, 0.0;
 
 	elem_t elem(coords);
 	x_t x;
-	x << 0.5, 0.5, 0.2;
+	x << .5, .5, .2;
 
 	x_t nx;
-	nx << 1.0, 0.0, 0.0;
+	nx << 0.0, 0.0, 1.0;
 
 	// inverse mapping
 	NiHu::inverse_mapping<elem_t> invmap(elem);
-	invmap.eval(x, 1e-5, 100);
+	invmap.eval(x, 1e-6, 100);
 	xi_t xi0 = invmap.get_result().topRows(2);
 
 	// local Taylor series expansion
@@ -130,6 +131,12 @@ int main()
 
 	Eigen::Matrix<double, 4, 1> Istokes = stokes_hsp_integral<elem_t, nset_t>(
 		elem, x, nx, y0, N0, gradN0);
+
+	std::cout << std::setprecision(10) << Istokes(0, 0) / N0(0, 0) << std::endl;
+
+	std::cout << std::endl;
+
+	std::cout << std::setprecision(10) << Istokes.sum() * (4.0 * M_PI) << std::endl;
 
 	return 0;
 }

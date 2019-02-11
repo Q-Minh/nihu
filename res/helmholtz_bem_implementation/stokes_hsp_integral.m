@@ -8,9 +8,8 @@ nVert = size(domain_corners, 1);
 I = zeros(size(gradN0,1),1);
 
 % perform contour integrals
-order = 40;
-nG = ceil((order+1) / 2);  % num of Gaussian points
-[eta, w] = gaussquad(nG);       % line quadrature
+order = 80;
+[eta, w] = gaussquad1(order);       % line quadrature
 
 for i = 1 : nVert
     % line limits in intrinsic coordinates
@@ -27,16 +26,16 @@ for i = 1 : nVert
     G = slp_kernel(x, y);
     gradG = grad_kernel(x, y);
     
-    I = I + N0 * dot(nx, w.' * cross(gradG, dy, 2)) ...
-        + gradN0 * (...
-        bsxfun(@minus, y, y0).' * diag(w) * cross(gradG, dy, 2) * nx.' ...
-        - cross(dy, repmat(nx, nG, 1), 2).' * diag(w) * G);
+    Nlin = bsxfun(@plus, N0, + gradN0 * bsxfun(@minus, y, y0).');
+    
+    I = I + Nlin * (w.*(cross(gradG, dy, 2) * nx.'));
+    I = I - (gradN0 * cross(dy, repmat(nx, size(dy,1), 1), 2).') * (w .* G);
 end
 
 % compute surface integral term (assuming full regularity)
 [xi, w] = gaussquad2(order, nVert);
 [L, dL] = lset.eval(xi);
-y = L* corners;
+y = L * corners;
 jvec = cross(dL(:,:,1) * corners, dL(:,:,2) * corners, 2);
 jac = sqrt(dot(jvec, jvec, 2));
 ny = bsxfun(@times, jvec, 1./jac);

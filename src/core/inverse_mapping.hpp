@@ -63,6 +63,11 @@ public:
 			// compute physical coordinates of guess
 			auto y = m_elem.get_x(xi);
 			x_t n = m_elem.get_normal(xi);
+
+			double sqrtjac = std::sqrt(n.norm());
+
+			n /= sqrtjac;
+
 			auto x_guess = y + n * zeta;
 
 			// check if converged
@@ -87,8 +92,8 @@ public:
 				auto const &ddyxieta = ddy.col(shape_derivative_index::dXIETA);
 				auto const &ddyetaeta = ddy.col(shape_derivative_index::dETAETA);
 
-				x_t dnxi = ddyxixi.cross(dyeta) + dyxi.cross(ddyxieta);
-				x_t dneta = ddyxieta.cross(dyeta) + dyxi.cross(ddyetaeta);
+				x_t dnxi = (ddyxixi.cross(dyeta) + dyxi.cross(ddyxieta)) / sqrtjac;
+				x_t dneta = (ddyxieta.cross(dyeta) + dyxi.cross(ddyetaeta)) / sqrtjac;
 
 				df.col(0) = dyxi + dnxi * zeta;
 				df.col(1) = dyeta + dneta * zeta;

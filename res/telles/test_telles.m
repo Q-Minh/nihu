@@ -154,10 +154,10 @@ xi = [x(:) y(:)];
 w = wx(:) .* wy(:);
 n_gauss = size(xi, 1);
 
-z = .25;
-f = @(x)(1./((0.7-x(:,1)).^2 + (0.5 - x(:,2)).^2 + z^2).^(3/2));
+zeta = .25;
+f = @(x)(1./((0.7-x(:,1)).^2 + (0.5 - x(:,2)).^2 + zeta^2).^(3/2));
 xi_0 = [0.7, 0.5];
-[xi_t, w_t] = telles_transform(xi, w, xi_0, z);
+[xi_t, w_t] = telles_transform(xi, w, xi_0, zeta);
 
 [XI, W] = gaussquad2(100);
 I_ana = W.' * f(XI);
@@ -171,3 +171,49 @@ fprintf('\tGauss  (%d points): %.12f (rel. err.: %g)\n', ...
 fprintf('\tTelles (%d points): %.12f (rel. err.: %g)\n', ...
     n_gauss, I_tel, (I_tel - I_ana) / abs(I_ana));
 fprintf('\n');
+
+%% Test8 - laplace_3d_HSP_kernel in nearly singular at some distance
+clear;
+
+n_gauss = 18;
+[xi, w] = gaussquad2(2*n_gauss-1, 4);
+n_gauss = size(xi, 1);
+
+coords = [
+    0 0 0
+    1 0 0
+    1 .5 0
+    0 1 .2
+    ];
+x = [.5 .7 .2];
+
+nx = [0 0 1];
+
+lset = ShapeSet.LinearQuad;
+nset = ShapeSet.LinearQuad;
+
+xi0 = be_invmap(coords.', x, lset);
+zeta = xi0(3);
+xi0 = xi0(1:2);
+
+[xi_t, w_t] = telles_transform(xi, w, xi0, zeta);
+
+figure;
+plot3(xi(:,1), xi(:,2), w, '.', ...
+    xi_t(:,1), xi_t(:,2), w_t, '.');
+
+[L, dL] = lset.eval(xi_t);
+y = L * coords;
+jvec = cross(dL(:,:,1) * coords, dL(:,:,2) * coords, 2);
+jac = sqrt(dot(jvec, jvec, 2));
+ny = bsxfun(@times, jvec, 1./jac);
+
+addpath(fullfile(pwd(), '../helmholtz_bem_implementation'));
+
+f = laplace_3d_hsp_kernel(x, nx, y, ny);
+N = nset.eval(xi_t);
+
+I_tel = (w_t.*jac).' * bsxfun(@times, f, N);
+
+fprintf('\tTelles (%d points): \n%.12f\n%.12f\n%.12f\n%.12f\n', ...
+    n_gauss, I_tel);
