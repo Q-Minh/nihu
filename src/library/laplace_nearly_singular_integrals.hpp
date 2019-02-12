@@ -44,6 +44,7 @@
 #include "../core/nearly_singular_integral.hpp"
 #include "../core/nearly_singular_planar_constant_collocation_shortcut.hpp"
 #include "../util/math_functions.hpp"
+#include "field_type_helpers.hpp"
 #include "laplace_kernel.hpp"
 #include "nearly_singular_collocational.hpp"
 #include "plane_element_helper.hpp"
@@ -387,8 +388,7 @@ class nearly_singular_integral<
 	typename std::enable_if<
 	is_collocational<TestField, TrialField>::value
 	&&
-	(std::is_same<typename TrialField::elem_t::lset_t, tria_1_shape_set>::value &&
-		std::is_same<typename TrialField::nset_t, tria_0_shape_set>::value)
+	is_constant_tria<TrialField>::value
 	>::type
 >
 {
@@ -432,9 +432,7 @@ class nearly_singular_integral<
 	typename std::enable_if<
 	is_collocational<TestField, TrialField>::value
 	&&
-	!(
-	(std::is_same<typename TrialField::elem_t::lset_t, tria_1_shape_set>::value &&
-		std::is_same<typename TrialField::nset_t, tria_0_shape_set>::value))
+	!is_constant_tria<TrialField>::value
 	>::type
 >
 {
@@ -489,8 +487,7 @@ class nearly_singular_integral<
 	typename std::enable_if<
 	is_collocational<TestField, TrialField>::value
 	&&
-	(std::is_same<typename TrialField::elem_t::lset_t, tria_1_shape_set>::value &&
-		std::is_same<typename TrialField::nset_t, tria_0_shape_set>::value)
+	is_constant_tria<TrialField>::value
 	>::type
 >
 {
@@ -531,9 +528,7 @@ class nearly_singular_integral<
 	typename std::enable_if<
 	is_collocational<TestField, TrialField>::value
 	&&
-	!(
-	(std::is_same<typename TrialField::elem_t::lset_t, tria_1_shape_set>::value &&
-		std::is_same<typename TrialField::nset_t, tria_0_shape_set>::value))
+	!is_constant_tria<TrialField>::value
 	>::type
 >
 {
@@ -586,8 +581,7 @@ class nearly_singular_integral<
 	typename std::enable_if<
 	is_collocational<TestField, TrialField>::value
 	&&
-	(std::is_same<typename TrialField::elem_t::lset_t, tria_1_shape_set>::value &&
-		std::is_same<typename TrialField::nset_t, tria_0_shape_set>::value)
+	is_constant_tria<TrialField>::value
 	>::type
 >
 {
@@ -629,9 +623,7 @@ class nearly_singular_integral<
 	typename std::enable_if<
 	is_collocational<TestField, TrialField>::value
 	&&
-	!(
-	(std::is_same<typename TrialField::elem_t::lset_t, tria_1_shape_set>::value &&
-		std::is_same<typename TrialField::nset_t, tria_0_shape_set>::value))
+	!is_constant_tria<TrialField>::value
 	>::type
 >
 {
@@ -685,8 +677,7 @@ class nearly_singular_integral<
 	typename std::enable_if<
 	is_collocational<TestField, TrialField>::value
 	&&
-	(std::is_same<typename TrialField::elem_t::lset_t, tria_1_shape_set>::value &&
-		std::is_same<typename TrialField::nset_t, tria_0_shape_set>::value)
+	is_constant_tria<TrialField>::value
 	>::type
 >
 {
@@ -728,9 +719,7 @@ class nearly_singular_integral<
 	typename std::enable_if<
 	is_collocational<TestField, TrialField>::value
 	&&
-	!(
-	(std::is_same<typename TrialField::elem_t::lset_t, tria_1_shape_set>::value &&
-		std::is_same<typename TrialField::nset_t, tria_0_shape_set>::value))
+	!is_constant_tria<TrialField>::value
 	>::type
 >
 {

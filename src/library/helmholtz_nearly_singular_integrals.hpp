@@ -24,6 +24,7 @@
 #ifndef HELMHOLTZ_NEARLY_SINGULAR_INTEGRALS_HPP_INCLUDED
 #define HELMHOLTZ_NEARLY_SINGULAR_INTEGRALS_HPP_INCLUDED
 
+#include "field_type_helpers.hpp"
 #include "helmholtz_kernel.hpp"
 #include "laplace_kernel.hpp"
 #include "laplace_nearly_singular_integrals.hpp"
@@ -35,14 +36,6 @@
 
 namespace NiHu
 {
-
-template <class TestField, class TrialField>
-struct is_constant_tria : std::integral_constant<
-	bool,
-	std::is_same<typename TrialField::elem_t::lset_t, tria_1_shape_set>::value
-	&&
-	std::is_same<typename TrialField::nset_t, tria_0_shape_set>::value
-> {};
 
 /** 
  * \brief Nearly singular collocational integral of the 3D Helmholtz SLP kernel over planes
