@@ -564,6 +564,10 @@ public:
 	}
 };
 
+#define DEBUG_TELLES_PRINT
+#ifdef DEBUG_TELLES_PRINT
+#include <iostream>
+#endif
 
 template <class TestField, class TrialField, class WaveNumber>
 class nearly_singular_integral<
@@ -604,6 +608,15 @@ public:
 		field_base<TrialField> const &trial_field
 		)
 	{
+		static bool is_printed = false;
+		
+		#ifdef DEBUG_TELLES_PRINT
+		if (!is_printed) {
+			is_printed = true;
+			std::cout << "Using telles for Helmholtz HSP nearly singular!" << std::endl;
+		}
+		#endif
+		
 		typedef nearly_singular_collocational_telles<TrialField, kernel_t, 30> nsc_t;
 		nsc_t nsc(trial_field, kernel);
 		
