@@ -225,7 +225,7 @@ class nearly_singular_integral<
 	typename std::enable_if<
 		is_collocational<TestField, TrialField>::value 
 		&&
-		is_constant_tria<TestField, TrialField>::value
+		is_constant_tria<TrialField>::value
 	>::type
 >
 {
@@ -268,7 +268,7 @@ class nearly_singular_integral<
 	typename std::enable_if<
 		is_collocational<TestField, TrialField>::value 
 		&&
-		!(is_constant_tria<TestField, TrialField>::value)
+		!(is_constant_tria<TrialField>::value)
 	>::type
 >
 {
@@ -321,7 +321,7 @@ class nearly_singular_integral<
 	typename std::enable_if<
 		is_collocational<TestField, TrialField>::value 
 		&&
-		is_constant_tria<TestField, TrialField>::value
+		is_constant_tria<TrialField>::value
 	>::type
 >
 {
@@ -364,7 +364,7 @@ class nearly_singular_integral<
 	typename std::enable_if<
 		is_collocational<TestField, TrialField>::value 
 		&&
-		!(is_constant_tria<TestField, TrialField>::value)
+		!(is_constant_tria<TrialField>::value)
 	>::type
 >
 {
@@ -419,7 +419,7 @@ class nearly_singular_integral<
 	typename std::enable_if<
 		is_collocational<TestField, TrialField>::value 
 		&&
-		is_constant_tria<TestField, TrialField>::value
+		is_constant_tria<TrialField>::value
 	>::type
 >
 {
@@ -463,7 +463,7 @@ class nearly_singular_integral<
 	typename std::enable_if<
 		is_collocational<TestField, TrialField>::value 
 		&&
-		!(is_constant_tria<TestField, TrialField>::value)
+		!(is_constant_tria<TrialField>::value)
 	>::type
 >
 {
@@ -520,7 +520,7 @@ class nearly_singular_integral<
 	typename std::enable_if<
 		is_collocational<TestField, TrialField>::value 
 		&&
-		is_constant_tria<TestField, TrialField>::value
+		is_constant_tria<TrialField>::value
 	>::type
 >
 {
@@ -568,7 +568,7 @@ class nearly_singular_integral<
 	typename std::enable_if<
 		is_collocational<TestField, TrialField>::value 
 		&&
-		!(is_constant_tria<TestField, TrialField>::value)
+		!(is_constant_tria<TrialField>::value)
 	>::type
 >
 {
