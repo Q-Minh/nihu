@@ -62,27 +62,28 @@ void read_off_data(std::string const &fname, dMatrix &nodes, uMatrix &elements)
 }
 
 
-
-
 template <class TestSpace, class TrialSpace, class FieldSpace>
-void solve(TestSpace const &test, TrialSpace const &trial, FieldSpace const &field_sp,
-	char const *pattern)
+void solve(TestSpace const &test, TrialSpace const &trial,
+	FieldSpace const &field_sp, char const *pattern)
 {
 	size_t nDof = trial.get_num_dofs();
 	size_t M = field_sp.get_num_dofs();
 	
-	double const c = 340.;
-	double const rho = 1.3;
+	double const c = 340.;				// constant defined in the EAA test
+	double const rho = 1.3; 			// constant defined in the EAA test
+	double dfreq = .5; 					// constant defined in the EAA test
 	std::complex<double> const J(0., 1.);
 	
 	size_t nFreqs = 1;
 	size_t nBlock = nFreqs / NUM_PROCESSORS;
 	
+	// generate frequency vector
 	dMatrix fvec(nBlock, NUM_PROCESSORS);
 	for (size_t i = 0; i < nBlock; ++i)
 		for (size_t j = 0; j < NUM_PROCESSORS; ++j)
-			fvec(i,j) = (NUM_PROCESSORS*i+j) * .5;
+			fvec(i,j) = (NUM_PROCESSORS*i+j+1) * dfreq;
 	
+	// frequency-wise parallel processing
 #pragma omp parallel for num_threads(NUM_PROCESSORS)
 	for (size_t i = 0; i < nFreqs; ++i)
 	{
@@ -105,7 +106,7 @@ void solve(TestSpace const &test, TrialSpace const &trial, FieldSpace const &fie
 		
 		// create excitation
 		cVector qs(nDof, 1);
-		double v0 = 1e-3;
+		double v0 = 1e-3; 				// constant defined from EAA test
 		qs.setConstant(-J*om*rho*v0);
 		
 		// compute rhs
@@ -196,13 +197,13 @@ void solve(TestSpace const &test, TrialSpace const &trial, FieldSpace const &fie
 				os << pf(i).real() << ' ' << pf(i).imag() << std::endl;
 			os.close();
 		}
-	}
-}
+	} // loop over frequencies
+} // function solve
 
 int main(int argc, char **argv)
 {
 	if (argc < 4)
-		std::cerr << "usage: prog meshname fieldname pattern" << std::endl;
+		std::cerr << "usage: " << argv[0] << " " << "<meshname> <fieldname> <pattern>" << std::endl;
 	
 	char const *meshname = argv[1];
 	char const *fieldname = argv[2];

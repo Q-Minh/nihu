@@ -104,7 +104,7 @@ public:
 			xi_t xi = q.get_xi();
 			double w = q.get_w();
 			w_trial_input_t wtri(m_elem, xi);
-			auto N = trial_nset_t::eval_shape<0>(xi);
+			auto N = trial_nset_t::template eval_shape<0>(xi);
 			I += semi_block_product(m_kernel(tsi, wtri) * wtri.get_jacobian() * w, N);
 		}
 
