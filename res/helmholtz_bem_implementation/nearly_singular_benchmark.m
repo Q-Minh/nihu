@@ -6,7 +6,7 @@ corners = [
     0 1 0
     ];
 
-thetavec = pi * [1 .75 .5 .25];
+thetavec = pi * [1 .75 .5 .25] + pi/180;
 kernelvec = {'SLP', 'DLP', 'DLPt', 'HSP'};
 rvec = [5e-1 2e-1 5e-2 2e-2 5e-3];
 ordervec = 5 : 2 : 40;
