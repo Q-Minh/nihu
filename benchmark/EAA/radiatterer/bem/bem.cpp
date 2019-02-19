@@ -12,9 +12,12 @@
 #include "library/helmholtz_singular_integrals.hpp"
 #include "library/quad_1_gauss_field.hpp"
 
-#include<Eigen/IterativeLinearSolvers>
+#include <Eigen/IterativeLinearSolvers>
+#include <unsupported/Eigen/IterativeSolvers>
 
+#ifndef NUM_PROCESSORS
 #define NUM_PROCESSORS 1
+#endif
 
 typedef Eigen::Matrix<unsigned, Eigen::Dynamic, Eigen::Dynamic> uMatrix;
 typedef Eigen::Matrix<std::complex<double>, Eigen::Dynamic, 1> cVector;
@@ -71,10 +74,15 @@ void solve(TestSpace const &test, TrialSpace const &trial,
 	
 	double const c = 340.;				// constant defined in the EAA test
 	double const rho = 1.3; 			// constant defined in the EAA test
-	double dfreq = .5; 					// constant defined in the EAA test
+	//double dfreq = .5; 					// constant defined in the EAA test
 	std::complex<double> const J(0., 1.);
 	
+	//size_t nFreqs = 1;
+	
+	// TODO: For testing only!!!
+	double dfreq = 500;
 	size_t nFreqs = 1;
+
 	size_t nBlock = nFreqs / NUM_PROCESSORS;
 	
 	// generate frequency vector
@@ -91,7 +99,7 @@ void solve(TestSpace const &test, TrialSpace const &trial,
 		double om = 2.*M_PI*f;
 		double k = om / c;
 		
-#ifdef BM
+#ifdef BURTON_MILLER
 		std::complex<double> alpha(0., 1./k);
 #endif		
 		
@@ -99,7 +107,7 @@ void solve(TestSpace const &test, TrialSpace const &trial,
 		auto Gop = NiHu::create_integral_operator(NiHu::helmholtz_3d_SLP_kernel<double>(k));
 		auto Hop = NiHu::create_integral_operator(NiHu::helmholtz_3d_DLP_kernel<double>(k));
 		auto Iop = NiHu::identity_integral_operator();
-#ifdef BM
+#ifdef BURTON_MILLER
 		auto Htop = NiHu::create_integral_operator(NiHu::helmholtz_3d_DLPt_kernel<double>(k));
 		auto Dop = NiHu::create_integral_operator(NiHu::helmholtz_3d_HSP_kernel<double>(k));
 #endif
@@ -118,7 +126,7 @@ void solve(TestSpace const &test, TrialSpace const &trial,
 			std::cout << "Integrating Gs at f = " << f << std::endl;
 			Gs << test * Gop[trial];
 			
-#ifdef BM
+#ifdef BURTON_MILLER
 			std::cout << "Integrating Hts at f = " << f << std::endl;
 			Gs << test * (alpha * Htop)[trial];
 			Gs << test * (alpha/2. * Iop)[trial];
@@ -135,7 +143,7 @@ void solve(TestSpace const &test, TrialSpace const &trial,
 			cMatrix Hs(nDof, nDof);
 			Hs.setZero();
 			
-#ifdef BM
+#ifdef BURTON_MILLER
 			std::cout << "Integrating Ds at f = " << f << std::endl;
 			Hs << test * (alpha * Dop)[trial];
 #endif
@@ -147,10 +155,18 @@ void solve(TestSpace const &test, TrialSpace const &trial,
 			// solve linear system
 			std::cout << "Solving linear system" << std::endl;
 #ifdef ITERATIVE
+#ifdef USE_GMRES
+			Eigen::GMRES<cMatrix> solver(Hs);
+			solver.setTolerance(1e-8);
+			solver.set_restart(3000);
+			ps = solver.solve(rhs);
+			num_iters = solver.iterations();
+#else
 			Eigen::BiCGSTAB<cMatrix> solver(Hs);
 			solver.setTolerance(1e-8);
 			ps = solver.solve(rhs);
 			num_iters = solver.iterations();
+#endif
 			
 			std::cout << "f:               " << f << '\n';
 			std::cout << "#iterations:     " << solver.iterations() << '\n';
