@@ -60,6 +60,16 @@ public:
 				FromIt::operator*()));
 	}
 
+	/** \brief index operator converts indexed element to casted type
+	* \return the referred casted type class
+	*/
+	value_t const &operator[] (size_t idx) const
+	{
+		return static_cast<value_t const &>(
+			static_cast<Through const &>(
+				FromIt::operator[](idx)));
+	}
+
 	/** \brief dereference operator converts dereferenced element to casted type
 	* \return the referred casted type pointer
 	*/

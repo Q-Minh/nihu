@@ -217,3 +217,22 @@ I_tel = (w_t.*jac).' * bsxfun(@times, f, N);
 
 fprintf('\tTelles (%d points): \n%.12f\n%.12f\n%.12f\n%.12f\n', ...
     n_gauss, I_tel);
+%% Test 9 - Tria
+order = 1000;
+n_gauss = ceil((order+1)/2);
+[xi, w] = duffy_gaussian_quadrature(Domain.Tria, order, 1);
+
+n_telles = 20;
+xi_0 = [-0.15, 0.15];
+[xi_t, w_t] = telles_tria(n_telles, xi_0, 0);
+
+
+f = @(x)(1./sqrt((xi_0(1)-x(:,1)).^3 + (xi_0(2) - x(:,2)).^2));
+
+I_duffy = w.' * f(xi);
+I_telles = w_t.' * f(xi_t);
+
+fprintf('Test 9: 1/r^2 over a triangle\n');
+fprintf('\tDuffy  (%d points):\t%.12f\n', size(xi, 1), I_duffy);
+fprintf('\tTelles (%d points):\t%.12f (rel.diff.: %.3g)\n', size(xi_t, 1), I_telles, (I_telles-I_duffy)/abs(I_duffy));
+

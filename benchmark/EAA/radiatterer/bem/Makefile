@@ -1,8 +1,7 @@
+include make.inc
+
 CXX:=g++
-TOOLBOX_DIR:=../../../../..
-NIHU_DIR:=$(TOOLBOX_DIR)/nihu/src
-EIGEN_DIR:=$(TOOLBOX_DIR)/eigen
-CFLAGS := -fopenmp -std=c++11 -Wall -c -I$(NIHU_DIR) -I$(EIGEN_DIR) -O4 -DITERATIVE
+CFLAGS := -fopenmp -std=c++11 -Wall -c -I$(NIHU_DIR) -I$(EIGEN_DIR) -O4 -DITERATIVE -DUSE_GMRES -DNUM_PROCESSORS=1
 LFLAGS := -fopenmp
 
 %.obj: $(NIHU_DIR)/library/%.cpp
@@ -12,28 +11,28 @@ nihu.lib: lib_domain.obj lib_shape.obj lib_element.obj lib_tmp.obj lib_singular_
 	ar rcs nihu.lib lib_domain.obj lib_shape.obj lib_element.obj lib_tmp.obj lib_singular_galerkin_quadrature.obj
 
 bem_const.obj: bem.cpp
-	$(CXX) $(CFLAGS) bem.cpp -o bem_const.obj
+	$(CXX) $(CFLAGS) bem.cpp -o $@
 	
 bem_const_bm.obj: bem.cpp
-	$(CXX) $(CFLAGS) bem.cpp -DBM -o bem_const_bm.obj
+	$(CXX) $(CFLAGS) bem.cpp -DBURTON_MILLER -o $@
 	
 bem_gauss.obj: bem.cpp
-	$(CXX) $(CFLAGS) -DGAUSS bem.cpp -o bem_gauss.obj
+	$(CXX) $(CFLAGS) -DGAUSS bem.cpp -o $@
 	
 bem_gauss_bm.obj: bem.cpp
-	$(CXX) $(CFLAGS) -DGAUSS -DBM bem.cpp -o bem_gauss_bm.obj
+	$(CXX) $(CFLAGS) -DGAUSS -DBURTON_MILLER bem.cpp -o $@
 	
 bem_const.exe: bem_const.obj nihu.lib
-	$(CXX) $(LFLAGS) bem_const.obj nihu.lib -o bem_const.exe
+	$(CXX) $(LFLAGS) bem_const.obj nihu.lib -o $@
 
 bem_gauss.exe: bem_gauss.obj nihu.lib
-	$(CXX) $(LFLAGS) bem_gauss.obj nihu.lib -o bem_gauss.exe
+	$(CXX) $(LFLAGS) bem_gauss.obj nihu.lib -o $@
 
 bem_const_bm.exe: bem_const_bm.obj nihu.lib
-	$(CXX) $(LFLAGS) bem_const_bm.obj nihu.lib -o bem_const_bm.exe
+	$(CXX) $(LFLAGS) bem_const_bm.obj nihu.lib -o $@
 
 bem_gauss_bm.exe: bem_gauss_bm.obj nihu.lib
-	$(CXX) $(LFLAGS) bem_gauss_bm.obj nihu.lib -o bem_gauss_bm.exe
+	$(CXX) $(LFLAGS) bem_gauss_bm.obj nihu.lib -o $@
 
 all: bem_const.exe bem_gauss.exe bem_const_bm.exe bem_gauss_bm.exe
 
