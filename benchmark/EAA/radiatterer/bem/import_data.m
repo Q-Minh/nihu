@@ -37,11 +37,10 @@ ps = ps(:,i);
 iters = iters(i);
 
 %%
-save(fullfile('data', sprintf('results_%s', pattern)), 'freqs_pf', 'pf', 'freqs_ps', 'ps');
+save(fullfile(directory, sprintf('results_%s', pattern)), 'freqs_pf', 'pf', 'freqs_ps', 'ps', 'iters');
 
 %%
-figure(1);
-hold on;
+figure;
 formatfig();
 plot(freqs_pf, 20*log10(abs(pf)/2e-5), '-');
 setfig('LineWidth', 1);
@@ -52,6 +51,25 @@ ylabel('Sound pressure level [dB]');
 legend(num2str((1:size(pf,1))'));
 
 %%
+figure;
+formatfig();
+plot(freqs_ps, real(sum(ps, 1)));
+setfig('LineWidth', 1);
+grid;
+xlabel('Frequency [Hz]');
+ylabel('Radiated sound power Re(P)');
+
+%%
+figure;
+formatfig();
+plot(freqs_ps, iters);
+grid;
+xlabel('Frequency [Hz]');
+ylabel('#iteratoins');
+
+
+%%
+if (0)
 [~, idx] = max(abs(pf(1,:)));
 f = freqs_pf(idx);
 f = 79;
@@ -61,3 +79,4 @@ plot_mesh(mesh, 20*log10(abs(ps(:,idx)/2e-5)));
 shading flat;
 plot_mesh(surface2wireframe(mesh, pi/6));
 axis equal tight;
+end

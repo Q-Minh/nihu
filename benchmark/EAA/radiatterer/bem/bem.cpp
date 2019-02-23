@@ -80,7 +80,7 @@ void solve(TestSpace const &test, TrialSpace const &trial,
 	//size_t nFreqs = 1;
 	
 	// TODO: For testing only!!!
-	double dfreq = 500;
+	double dfreq = 569; //500;
 	size_t nFreqs = 1;
 
 	size_t nBlock = nFreqs / NUM_PROCESSORS;
@@ -100,7 +100,7 @@ void solve(TestSpace const &test, TrialSpace const &trial,
 		double k = om / c;
 		
 #ifdef BURTON_MILLER
-		std::complex<double> alpha(0., 1./k);
+		std::complex<double> alpha(0., -1./k);
 #endif		
 		
 		// create integral operators
