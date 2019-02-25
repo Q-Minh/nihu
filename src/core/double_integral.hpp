@@ -143,12 +143,12 @@ class double_integral;
 template <class Kernel, class TestField, class TrialField>
 class double_integral<Kernel, TestField, TrialField, formalism::general>
 {
-	typedef std::true_type WITH_SINGULARITY_CHECK;
-	typedef std::false_type WITHOUT_SINGULARITY_CHECK;
-
 	typedef double_integral_traits<Kernel, TestField, TrialField> traits_t;
 
 public:
+	typedef std::true_type WITH_SINGULARITY_CHECK;
+	typedef std::false_type WITHOUT_SINGULARITY_CHECK;
+
 	/** \brief the test elem type */
 	typedef typename TestField::elem_t test_elem_t;
 	/** \brief the trial elem type */
@@ -395,12 +395,13 @@ public:
 template <class Kernel, class TestField, class TrialField>
 class double_integral<Kernel, TestField, TrialField, formalism::collocational>
 {
-	typedef std::true_type WITH_SINGULARITY_CHECK;
-	typedef std::false_type WITHOUT_SINGULARITY_CHECK;
 
 	typedef double_integral_traits<Kernel, TestField, TrialField> traits_t;
 
 public:
+	typedef std::true_type WITH_SINGULARITY_CHECK;
+	typedef std::false_type WITHOUT_SINGULARITY_CHECK;
+
 	/** \brief type of the trial element */
 	typedef typename TrialField::elem_t trial_elem_t;
 	/** \brief test input type of kernel */
