@@ -131,7 +131,7 @@ n_gauss = size(xi, 1);
 
 f = @(x)(1./((1.2-x(:,1)).^2 + (1.2 - x(:,2)).^2).^(3/2));
 xi_0 = [1.2, 1.2];
-[xi_t, w_t] = telles_transform(xi, w, xi_0);
+[xi_t, w_t] = telles_transform(xi, w, xi_0, 0, 3);
 
 I_ana = 2.327344790;
 I_gau = w.' * f(xi);
@@ -157,7 +157,7 @@ n_gauss = size(xi, 1);
 zeta = .25;
 f = @(x)(1./((0.7-x(:,1)).^2 + (0.5 - x(:,2)).^2 + zeta^2).^(3/2));
 xi_0 = [0.7, 0.5];
-[xi_t, w_t] = telles_transform(xi, w, xi_0, zeta);
+[xi_t, w_t] = telles_transform(xi, w, xi_0, zeta, 3);
 
 [XI, W] = gaussquad2(100);
 I_ana = W.' * f(XI);
