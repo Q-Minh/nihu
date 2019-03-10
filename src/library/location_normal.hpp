@@ -99,6 +99,14 @@ public:
 	{
 	}
 
+	location_normal_jacobian_input(x_t const &x, x_t const &jac_vector)
+		: location_input<Space>(x)
+		, m_jac_vector(jac_vector)
+		, m_jac(m_jac_vector.norm())
+		, m_unit_normal(m_jac_vector / m_jac)
+	{
+	}
+
 	/** \brief return the normal */
 	x_t const &get_unit_normal(void) const
 	{

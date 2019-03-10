@@ -37,10 +37,10 @@ namespace NiHu
 /** \brief collect options used to convert an element into a field view */
 namespace field_option
 {
-	/** \brief tag to describe an isoparametric field */
-	struct isoparametric {};
-	/** \brief tag to describe a constant field */
-	struct constant {};
+/** \brief tag to describe an isoparametric field */
+struct isoparametric {};
+/** \brief tag to describe a constant field */
+struct constant {};
 }
 
 /** \brief type indicating a 1D valued function space */
@@ -59,54 +59,55 @@ struct tag2field;
 
 namespace field_traits
 {
-    /** \brief assigns the element type to the field */
-	template <class Derived>
-	struct elem_type;
+/** \brief assigns the element type to the field */
+template <class Derived>
+struct elem_type;
 
-    /** \brief assigns the N-set type to the field */
-	template <class Derived>
-	struct nset_type;
+/** \brief assigns the N-set type to the field */
+template <class Derived>
+struct nset_type;
 
-    /** \brief assigns the dimensionality of the interpolated physical quantity */
-	template <class Derived>
-	struct quantity_dimension;
+/** \brief assigns the dimensionality of the interpolated physical quantity */
+template <class Derived>
+struct quantity_dimension;
 
-    /** \brief indicate if the field stores its DOF vector or computes it on the fly */
-	template <class Derived>
-	struct is_dof_vector_stored : std::false_type {};
+/** \brief indicate if the field stores its DOF vector or computes it on the fly */
+template <class Derived>
+struct is_dof_vector_stored : std::false_type {};
 
-    /** \brief indicate if the field is a Dirac field or not */
-	template <class Derived>
-	struct is_dirac : std::false_type {};
+/** \brief indicate if the field is a Dirac field or not */
+template <class Derived>
+struct is_dirac : std::false_type {};
 
-	/** \brief assign a numeric ID to the field */
-	template <class Derived>
-	struct id
-	{
-		/** \brief the default field id */
-		enum { value =
-			elem_type<Derived>::type::id * 100 + nset_type<Derived>::type::num_nodes
-		};
+/** \brief assign a numeric ID to the field */
+template <class Derived>
+struct id
+{
+	/** \brief the default field id */
+	enum {
+		value =
+		elem_type<Derived>::type::id * 100 + nset_type<Derived>::type::num_nodes
 	};
+};
 
-    /** \brief assign the DOF vector value type to the field type */
-	template <class Derived>
-	struct dof_vector_type
-	{
-		typedef Eigen::Matrix<
-			unsigned,
-			quantity_dimension<Derived>::value * nset_type<Derived>::type::num_nodes,
-			1
-		> type;
-	};
+/** \brief assign the DOF vector value type to the field type */
+template <class Derived>
+struct dof_vector_type
+{
+	typedef Eigen::Matrix<
+		unsigned,
+		quantity_dimension<Derived>::value * nset_type<Derived>::type::num_nodes,
+		1
+	> type;
+};
 
-    /** \brief assign the DOF vector return type to the field type */
-	template <class Derived>
-	struct dof_vector_return_type : std::conditional<
-		is_dof_vector_stored<Derived>::value,
-		typename dof_vector_type<Derived>::type const &,
-		typename dof_vector_type<Derived>::type
-	> {};
+/** \brief assign the DOF vector return type to the field type */
+template <class Derived>
+struct dof_vector_return_type : std::conditional<
+	is_dof_vector_stored<Derived>::value,
+	typename dof_vector_type<Derived>::type const &,
+	typename dof_vector_type<Derived>::type
+> {};
 }
 
 
@@ -120,8 +121,8 @@ class field_base
 public:
 	NIHU_CRTP_HELPERS
 
-	/** \brief self returning metafunction */
-	typedef Derived type;
+		/** \brief self returning metafunction */
+		typedef Derived type;
 
 	/** \brief the element type */
 	typedef typename field_traits::elem_type<Derived>::type elem_t;
@@ -167,17 +168,17 @@ class dirac_field;
 
 namespace field_traits
 {
-	template <class Derived>
-	struct elem_type<dirac_field<Derived> > : elem_type<Derived> {};
+template <class Derived>
+struct elem_type<dirac_field<Derived> > : elem_type<Derived> {};
 
-	template <class Derived>
-	struct nset_type<dirac_field<Derived> > : nset_type<Derived> {};
+template <class Derived>
+struct nset_type<dirac_field<Derived> > : nset_type<Derived> {};
 
-	template <class Derived>
-	struct quantity_dimension<dirac_field<Derived> > : quantity_dimension<Derived> {};
+template <class Derived>
+struct quantity_dimension<dirac_field<Derived> > : quantity_dimension<Derived> {};
 
-	template <class Derived>
-	struct is_dirac<dirac_field<Derived> > : std::true_type {};
+template <class Derived>
+struct is_dirac<dirac_field<Derived> > : std::true_type {};
 }
 
 
@@ -212,27 +213,27 @@ class field_view;
 
 namespace field_traits
 {
-    /** \brief assign an element type to a field view */
-	template <class ElemType, class FieldOption, class Dimension>
-	struct elem_type<field_view<ElemType, FieldOption, Dimension> > : ElemType {};
+/** \brief assign an element type to a field view */
+template <class ElemType, class FieldOption, class Dimension>
+struct elem_type<field_view<ElemType, FieldOption, Dimension> > : ElemType {};
 
-    /** \brief assign an N-set type to a field view */
-	template <class ElemType, class Dimension>
-	struct nset_type<field_view<ElemType, field_option::isoparametric, Dimension> >
-	{
-		typedef  typename ElemType::lset_t type;
-	};
+/** \brief assign an N-set type to a field view */
+template <class ElemType, class Dimension>
+struct nset_type<field_view<ElemType, field_option::isoparametric, Dimension> >
+{
+	typedef  typename ElemType::lset_t type;
+};
 
-    /** \brief assign an N-set type to a constant field view */
-	template <class ElemType, class Dimension>
-	struct nset_type<field_view<ElemType, field_option::constant, Dimension> >
-	{
-		typedef constant_shape_set<typename ElemType::domain_t> type;
-	};
+/** \brief assign an N-set type to a constant field view */
+template <class ElemType, class Dimension>
+struct nset_type<field_view<ElemType, field_option::constant, Dimension> >
+{
+	typedef constant_shape_set<typename ElemType::domain_t> type;
+};
 
-    /** \brief assign the dimension of the interpolated quantity to a field view */
-	template <class ElemType, class FieldOption, class Dimension>
-	struct quantity_dimension<field_view<ElemType, FieldOption, Dimension> > : Dimension {};
+/** \brief assign the dimension of the interpolated quantity to a field view */
+template <class ElemType, class FieldOption, class Dimension>
+struct quantity_dimension<field_view<ElemType, FieldOption, Dimension> > : Dimension {};
 }
 
 
@@ -258,11 +259,11 @@ public:
 	/** \brief return DOF vector */
 	dofs_return_t get_dofs(void) const
 	{
-	enum { D = Dimension::value };
+		enum { D = Dimension::value };
 		dofs_t dofs;
 		for (unsigned n = 0; n < ElemType::num_nodes; ++n)
 			for (unsigned d = 0; d < D; ++d)
-				dofs(n*D+d) = ElemType::get_nodes()(n)*D + d;
+				dofs(n*D + d) = ElemType::get_nodes()(n)*D + d;
 		return dofs;
 	}
 };
@@ -273,7 +274,7 @@ public:
  * \tparam ElemType the element type the field is associated with
  */
 template <class ElemType, class Dimension>
-class field_impl<field_view< ElemType, field_option::constant, Dimension> >:
+class field_impl<field_view< ElemType, field_option::constant, Dimension> > :
 	public ElemType
 {
 private:
@@ -292,7 +293,7 @@ public:
 	dofs_return_t get_dofs(void) const
 	{
 		enum { D = Dimension::value };
-		return dofs_t::LinSpaced(D, ElemType::get_id()(0)*D, ElemType::get_id()(0)*D+D-1);
+		return dofs_t::LinSpaced(D, ElemType::get_id()(0)*D, ElemType::get_id()(0)*D + D - 1);
 	}
 };
 
@@ -335,20 +336,20 @@ class field;
 
 namespace field_traits
 {
-    /** \brief assign an element type to a field */
-	template <class ElemType, class NSet, class Dimension>
-	struct elem_type<field<ElemType, NSet, Dimension> > : ElemType {};
+/** \brief assign an element type to a field */
+template <class ElemType, class NSet, class Dimension>
+struct elem_type<field<ElemType, NSet, Dimension> > : ElemType {};
 
-    /** \brief assign an N-set type to a field */
-	template <class ElemType, class NSet, class Dimension>
-	struct nset_type<field<ElemType, NSet, Dimension> >
-	{
-		typedef NSet type;
-	};
+/** \brief assign an N-set type to a field */
+template <class ElemType, class NSet, class Dimension>
+struct nset_type<field<ElemType, NSet, Dimension> >
+{
+	typedef NSet type;
+};
 
-    /** \brief assign the dimension of the interpolated quantity to a field */
-	template <class ElemType, class NSet, class Dimension>
-	struct quantity_dimension<field<ElemType, NSet, Dimension> > : Dimension {};
+/** \brief assign the dimension of the interpolated quantity to a field */
+template <class ElemType, class NSet, class Dimension>
+struct quantity_dimension<field<ElemType, NSet, Dimension> > : Dimension {};
 }
 
 
@@ -361,7 +362,7 @@ template <class ElemType, class NSet, class Dimension>
 class field_impl<field<ElemType, NSet, Dimension> >
 {
 public:
-    /** \brief the derived field type */
+	/** \brief the derived field type */
 	typedef field<ElemType, NSet, Dimension> Derived;
 	/** \brief the element type */
 	typedef ElemType elem_t;
@@ -437,7 +438,7 @@ public:
 /** \brief field view factory */
 template <class Elem, class Option, class Dimension = _1d>
 field_view<Elem, Option, Dimension> const &
-	create_field_view(element_base<Elem> const & e, Option, Dimension dim = Dimension())
+create_field_view(element_base<Elem> const & e, Option, Dimension dim = Dimension())
 {
 	return static_cast<field_view<Elem, Option, Dimension> const &>(e.derived());
 }
@@ -446,7 +447,7 @@ field_view<Elem, Option, Dimension> const &
 /** \brief constant field view factory */
 template <class Elem, class Dimension = _1d>
 field_view<Elem, field_option::constant, Dimension> const &
-	constant_view(element_base<Elem> const & e, Dimension dim = Dimension())
+constant_view(element_base<Elem> const & e, Dimension dim = Dimension())
 {
 	return create_field_view(e, field_option::constant(), dim);
 }
@@ -454,7 +455,7 @@ field_view<Elem, field_option::constant, Dimension> const &
 /** \brief isoparametric field view factory */
 template <class Elem, class Dimension = _1d>
 field_view<Elem, field_option::isoparametric, Dimension> const &
-	isoparametric_view(element_base<Elem> const & e, Dimension dim = Dimension())
+isoparametric_view(element_base<Elem> const & e, Dimension dim = Dimension())
 {
 	return create_field_view(e, field_option::isoparametric(), dim);
 }
@@ -462,7 +463,7 @@ field_view<Elem, field_option::isoparametric, Dimension> const &
 /** \brief dirac field view factory */
 template <class Field>
 dirac_field<Field> const &
-	dirac(field_base<Field> const & f)
+dirac(field_base<Field> const & f)
 {
 	return static_cast<dirac_field<Field> const &>(
 		static_cast<field_impl<Field> const &>(f.derived()));
