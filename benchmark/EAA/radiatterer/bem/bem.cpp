@@ -74,14 +74,12 @@ void solve(TestSpace const &test, TrialSpace const &trial,
 	
 	double const c = 340.;				// constant defined in the EAA test
 	double const rho = 1.3; 			// constant defined in the EAA test
-	//double dfreq = .5; 					// constant defined in the EAA test
+
+	double dfreq = .5; 					// constant defined in the EAA test
+	size_t nFreqs = 1000;
 	std::complex<double> const J(0., 1.);
 	
-	//size_t nFreqs = 1;
-	
 	// TODO: For testing only!!!
-	double dfreq = 569; //500;
-	size_t nFreqs = 1;
 
 	size_t nBlock = nFreqs / NUM_PROCESSORS;
 	
