@@ -103,34 +103,34 @@ void read_excitation(std::string fname, cvector_t &xct, double &k)
 	ifs.close();
 }
 
-void export_response(std::string fname, cvector_t const &res, double k)
+void export_response(std::string fname, cvector_t const &res, double k, int iter = 1)
 {
 	std::ofstream ofs(fname);
 	ofs << k << '\n';
 	ofs << res.rows() << '\n';
 	for (size_t i = 0; i < res.rows(); ++i)
 		ofs << res(i, 0).real() << '\t' << res(i, 0).imag() << '\n';
+	ofs << iter << '\n';
 	ofs.close();
 }
 
 
 int main(int argc, char *argv[])
 {
-	if (argc < 5)
+	if (argc < 4)
 	{
-		std::cerr << "Use: " << argv[0] << " meshname fieldname frequency pattern" << std::endl;
+		std::cerr << "Use: " << argv[0] << " meshname fieldname pattern fstart" << std::endl;
 		return 1;
 	}
 
 	// read parameters
 	std::string surf_mesh_name(argv[1]);
 	std::string field_mesh_name(argv[2]);
-	double freq = std::atoi(argv[3]);
-	std::string pattern(argv[4]);
+	std::string pattern(argv[3]);
+	double fstart = std::atof(argv[4]);
 
 	std::cout << "mesh: " << surf_mesh_name << std::endl;
 	std::cout << "field: " << field_mesh_name << std::endl;
-	std::cout << "frequency: " << freq << std::endl;
 	std::cout << "pattern: " << pattern << std::endl;
 
 	// read mesh file
@@ -159,24 +159,15 @@ int main(int argc, char *argv[])
 	double v0 = 1e-3;
 	double z0 = rho * c;
 
-	double dfreq = .5; 					// constant defined in the EAA test
-	size_t nFreqs = 1000;
+	double dfreq = 5.0; 					// constant defined in the EAA test
+	size_t nFreqs = 2400;
 	std::complex<double> const J(0., 1.);
-	size_t nBlock = nFreqs / NUM_PROCESSORS;
-
-	dMatrix fvec(nBlock, NUM_PROCESSORS);
-	for (size_t i = 0; i < nBlock; ++i)
-		for (size_t j = 0; j < NUM_PROCESSORS; ++j)
-			fvec(i, j) = 800.0 + (NUM_PROCESSORS*i + j + 1) * dfreq;
 
 	// loop over frequencies
-#pragma omp parallel for num_threads(NUM_PROCESSORS)
-	for (size_t i = 0; i < nFreqs; ++i)
+	for (double f = fstart; f < 2000.0; f += dfreq)
 	{
-		double f = fvec(i);
 		double om = 2. * M_PI * f;
 		double k = om / c;
-
 
 		cvector_t xct, p_surf;
 		xct.resize(trial_space.get_num_dofs());
@@ -184,6 +175,7 @@ int main(int argc, char *argv[])
 		p_surf.resize(trial_space.get_num_dofs());
 		p_surf.setConstant(1.0);
 
+		std::cout << "freq: " << f << std::endl;
 		std::cout << "wave number: " << k << std::endl;
 		// create kernel, fmm and fmbem objects
 		fmm_t fmm(k);
@@ -212,7 +204,7 @@ int main(int argc, char *argv[])
 		auto p2p_op_11 = fmm.create_p2p<1, 1>();
 
 		// integrate operators over fields
-		size_t quadrature_order = 6;
+		size_t quadrature_order = 10;
 
 		// p2x operators
 		fmm::p2x_integral<decltype(p2m_op_0), trial_field_t> ip2m_op_0(p2m_op_0, quadrature_order);
@@ -323,7 +315,14 @@ int main(int argc, char *argv[])
 			// export ps
 			std::stringstream ss;
 			ss << pattern << "_" << f << "ps.res";
-			export_response(ss.str().c_str(), p_surf, k);
+			export_response(ss.str().c_str(), p_surf, k, solver.iterations());
+
+			ss << pattern << "_" << f << "ps.time";
+			std::ofstream ofs(ss.str().c_str());
+			dlp_matrix.get_timer().print(ofs);
+			ofs << std::endl;
+			ofs << tree << std::endl;
+			ofs.close();
 		}
 
 		// evaluate field pressure
@@ -415,7 +414,6 @@ int main(int argc, char *argv[])
 			ss << pattern << "_" << f << "pf.res";
 			export_response(ss.str().c_str(), p_field, k);
 		}
-
 	}
 
 	return 0;
