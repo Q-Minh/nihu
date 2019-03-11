@@ -1,11 +1,12 @@
+clear;
 %%
-Le = 5e-2;
-[mesh, points] = create_radiatterer(Le);
-export_off_mesh(mesh, 'data/radiatterer_05cm_quad.off');
-mesh = quad2tria(mesh);
-export_off_mesh(mesh, 'data/radiatterer_05cm_tria.off');
+Le = 1e-1;
+[qmesh, points] = create_radiatterer(Le);
+export_off_mesh(qmesh, 'data/radiatterer_10cm_quad.off');
+tmesh = quad2tria(qmesh);
+export_off_mesh(tmesh, 'data/radiatterer_10cm_tria.off');
 
-fid = fopen('data/points.off', 'w');
+fid = fopen('data/radiatterer_points_tria.off', 'w');
 fprintf(fid, 'OFF\n');
 fprintf(fid, '%d %d 0\n', size(points,1), size(points,1));
 fprintf(fid, '%g %g %g\n', points.');
@@ -15,7 +16,7 @@ end
 fclose(fid);
 
 
-fid = fopen('data/points_quad.off', 'w');
+fid = fopen('data/radiatterer_points_quad.off', 'w');
 fprintf(fid, 'OFF\n');
 fprintf(fid, '%d %d 0\n', size(points,1), size(points,1));
 fprintf(fid, '%g %g %g\n', points.');
