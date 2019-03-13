@@ -16,6 +16,7 @@
 #include "library/lib_element.hpp"
 
 #include <Eigen/IterativeLinearSolvers>
+#include "GMRES.h"
 
 // basic type parameter inputs
 typedef NiHu::line_1_tag tag_t;
@@ -215,7 +216,7 @@ int main(int argc, char *argv[])
 
 		// compute solution iteratively
 		fmm::matrix_free<decltype(dlp_matrix)> M(dlp_matrix);
-		Eigen::BiCGSTAB<fmm::matrix_free<decltype(dlp_matrix)>, Eigen::IdentityPreconditioner> solver(M);
+		Eigen::GMRES<fmm::matrix_free<decltype(dlp_matrix)>, Eigen::IdentityPreconditioner> solver(M);
 		solver.setTolerance(1e-8);
 		p_surf = solver.solve(rhs);
 
@@ -345,6 +346,8 @@ int main(int argc, char *argv[])
 			std::cout << "Computing MVP " << std::endl;
 			p_field -= slp_matrix * xct;
 			std::cout << "MVP ready" << std::endl;
+
+			slp_matrix.get_timer().print(std::cout);
 		}
 
 		export_response(field_res_name, p_field, k);
