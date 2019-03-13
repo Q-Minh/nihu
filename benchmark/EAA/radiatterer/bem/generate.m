@@ -1,11 +1,13 @@
 clear;
-%%
-Le = 1e-1;
-[qmesh, points] = create_radiatterer(Le);
-export_off_mesh(qmesh, 'data/radiatterer_10cm_quad.off');
-tmesh = quad2tria(qmesh);
-export_off_mesh(tmesh, 'data/radiatterer_10cm_tria.off');
 
+%%
+Le = 2e-2;
+[qmesh, points] = create_radiatterer(Le);
+export_off_mesh(qmesh, sprintf('data/radiatterer_%gcm_quad.off', 100*Le));
+tmesh = quad2tria(qmesh);
+export_off_mesh(tmesh, sprintf('data/radiatterer_%gcm_tria.off', 100*Le));
+
+% print field points with quad semantics
 fid = fopen('data/radiatterer_points_tria.off', 'w');
 fprintf(fid, 'OFF\n');
 fprintf(fid, '%d %d 0\n', size(points,1), size(points,1));
@@ -15,7 +17,7 @@ for e = 1 : size(points,1)
 end
 fclose(fid);
 
-
+% print field points with tria semantics
 fid = fopen('data/radiatterer_points_quad.off', 'w');
 fprintf(fid, 'OFF\n');
 fprintf(fid, '%d %d 0\n', size(points,1), size(points,1));
@@ -25,3 +27,42 @@ for e = 1 : size(points,1)
 end
 fclose(fid);
 
+field = translate_mesh(create_slab([4 4], [4 4]/Le), [-.75, -1 .5]);
+hold on;
+plot_mesh(field);
+x = centnorm(field);
+
+bricks = {
+    [0.2, 1.4], [0.0, 1.2], [0.4, 1.2]
+    [2.3, 2.5], [0.2, 0.4], [0.5, 0.7]
+    [2.3, 2.5], [0.7, 0.8], [1.0, 1.1]
+    [1.6, 2.3], [0.1, 1.2], [0.2, 1.5]
+    [0.2, 1.0], [1.4, 1.8], [0.0, 1.7]
+    [1.2, 1.4], [1.4, 2.0], [1.6, 1.7]
+    [1.6, 1.8], [1.4, 2.0], [1.6, 1.7]
+    [2.0, 2.2], [1.4, 2.0], [1.6, 1.7]
+    [2.4, 2.5], [1.4, 2.0], [1.6, 1.7]
+    [1.2, 1.4], [1.4, 2.0], [1.2, 1.4]
+    [1.6, 1.8], [1.4, 2.0], [1.2, 1.4]
+    [2.0, 2.2], [1.4, 2.0], [1.2, 1.4]
+    [2.4, 2.5], [1.4, 2.0], [1.2, 1.4]
+    [1.2, 1.4], [1.4, 2.0], [0.6, 1.0]
+    [1.6, 1.8], [1.4, 2.0], [0.6, 1.0]
+    [2.0, 2.2], [1.4, 2.0], [0.6, 1.0]
+    [2.4, 2.5], [1.4, 2.0], [0.6, 1.0]
+    [1.2, 1.4], [1.4, 2.0], [0.0, 0.4]
+    [1.6, 1.8], [1.4, 2.0], [0.0, 0.4]
+    [2.0, 2.2], [1.4, 2.0], [0.0, 0.4]
+    [2.4, 2.5], [1.4, 2.0], [0.0, 0.4]
+    };
+
+L = [2.5 2.0 1.7];
+outside = any(x < 0, 2) | x(:,1) > L(1) | x(:,2) > L(2) | x(:,3) > L(3);
+for ib = 1 : length(bricks)
+    outside = outside |...
+        (x(:,1) > bricks{ib,1}(1) & x(:,1) < bricks{ib,1}(2) & ...
+        x(:,2) > bricks{ib,2}(1) & x(:,2) < bricks{ib,2}(2) & ...
+        x(:,3) > bricks{ib,3}(1) & x(:,3) < bricks{ib,3}(2));
+end
+
+export_off_mesh(field, sprintf('data/radi_plane_%gcm_quad.off', Le*100));
