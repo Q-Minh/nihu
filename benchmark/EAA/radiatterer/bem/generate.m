@@ -1,7 +1,11 @@
 clear;
 
 %%
+<<<<<<< HEAD
 Le = 1e-2;
+=======
+Le = 2e-2;
+>>>>>>> origin/fiala
 [qmesh, points] = create_radiatterer(Le);
 export_off_mesh(qmesh, sprintf('data/radiatterer_%gcm_quad.off', 100*Le));
 tmesh = quad2tria(qmesh);
