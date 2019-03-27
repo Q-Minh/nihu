@@ -23,12 +23,15 @@
 #define NUM_PROCESSORS 1
 #endif
 
+//#define GAUSS
+
 typedef Eigen::Matrix<unsigned, Eigen::Dynamic, Eigen::Dynamic> uMatrix;
 typedef Eigen::Matrix<std::complex<double>, Eigen::Dynamic, 1> cVector;
 typedef Eigen::Matrix<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic> cMatrix;
 typedef Eigen::Matrix<double, Eigen::Dynamic, 1> dVector;
 typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> dMatrix;
 
+#ifdef GAUSS
 void read_off_data(std::string const &fname, dMatrix &nodes, uMatrix &elements)
 {
 	// open mesh file for reading
@@ -67,6 +70,7 @@ void read_off_data(std::string const &fname, dMatrix &nodes, uMatrix &elements)
 
 	is.close();
 }
+#endif
 
 
 // basic type parameter inputs
@@ -76,7 +80,11 @@ typedef double wave_number_t;
 typedef fmm::helmholtz_3d_hf_fmm<wave_number_t> fmm_t;
 
 // computing the fmbem type
+#ifdef GAUSS
 typedef NiHu::quad_1_gauss_field trial_field_t;
+#else
+typedef NiHu::field_view<NiHu::quad_1_elem, NiHu::field_option::constant> trial_field_t;
+#endif
 typedef trial_field_t::elem_t elem_t;
 typedef elem_t::x_t location_t;
 
@@ -117,6 +125,7 @@ void export_response(std::string fname, cvector_t const &res, double k, int iter
 
 int main(int argc, char *argv[])
 {
+<<<<<<< HEAD
 	if (argc < 4)
 	{
 		std::cerr << "Use: " << argv[0] << " meshname fieldname pattern fstart" << std::endl;
@@ -149,16 +158,47 @@ int main(int argc, char *argv[])
 		for (size_t c = 0; c < 4; ++c)
 			fields(e, c + 1 + 4) = 4 * e + c;
 	}
+=======
+	try
+	{
 
-	// create function space
-	auto trial_space = NiHu::create_function_space(nodes, fields, NiHu::quad_1_gauss_field_tag());
+>>>>>>> b63e3875ba3f91b381c8f1a382bd429c9e8224e2
 
-	// generate excitation
-	double rho = 1.3;
-	double c = 340.0;
-	double v0 = 1e-3;
-	double z0 = rho * c;
+		if (argc < 4)
+		{
+			std::cerr << "Use: " << argv[0] << " meshname fieldname pattern fstart" << std::endl;
+			return 1;
+		}
 
+		// read parameters
+		std::string surf_mesh_name(argv[1]);
+		std::string field_mesh_name(argv[2]);
+		std::string pattern(argv[3]);
+		double freq = std::atof(argv[4]);
+
+		std::cout << "mesh: " << surf_mesh_name << std::endl;
+		std::cout << "field: " << field_mesh_name << std::endl;
+		std::cout << "pattern: " << pattern << std::endl;
+
+#ifdef GAUSS
+		// read mesh file
+		uMatrix elements;
+		dMatrix nodes;
+		read_off_data(surf_mesh_name, nodes, elements);
+
+		// assemble field matrix
+		size_t nElements = elements.rows();
+		uMatrix fields(nElements, 1 + 4 + 4);
+		for (size_t e = 0; e < nElements; ++e)
+		{
+			fields(e, 0) = NiHu::quad_1_gauss_field::id;
+			for (size_t c = 0; c < 4; ++c)
+				fields(e, c + 1) = elements(e, c + 1);
+			for (size_t c = 0; c < 4; ++c)
+				fields(e, c + 1 + 4) = 4 * e + c;
+		}
+
+<<<<<<< HEAD
 	double dfreq = 5.0; 					// constant defined in the EAA test
 	size_t nFreqs = 2400;
 	std::complex<double> const J(0., 1.);
@@ -169,6 +209,29 @@ int main(int argc, char *argv[])
 		double om = 2. * M_PI * f;
 		double k = om / c;
 
+=======
+
+		// create function space
+		auto trial_space = NiHu::create_function_space(nodes, fields, NiHu::quad_1_gauss_field_tag());
+#else
+		auto mesh = NiHu::read_off_mesh(surf_mesh_name, NiHu::quad_1_tag());
+		auto const &trial_space = NiHu::constant_view(mesh);
+#endif
+
+
+		// generate excitation
+		double rho = 1.3;
+		double c = 340.0;
+		double v0 = 1e-3;
+		double z0 = rho * c;
+
+		std::complex<double> const J(0., 1.);
+
+		// loop over frequencies
+		double om = 2. * M_PI * freq;
+		double k = om / c;
+
+>>>>>>> b63e3875ba3f91b381c8f1a382bd429c9e8224e2
 		cvector_t xct, p_surf;
 		xct.resize(trial_space.get_num_dofs());
 		xct.setConstant(-std::complex<double>(0, 1.0) * k * z0 * v0);
@@ -205,18 +268,39 @@ int main(int argc, char *argv[])
 
 		// integrate operators over fields
 		size_t quadrature_order = 10;
+<<<<<<< HEAD
+=======
 
-		// p2x operators
-		fmm::p2x_integral<decltype(p2m_op_0), trial_field_t> ip2m_op_0(p2m_op_0, quadrature_order);
-		fmm::p2x_integral<decltype(p2l_op_0), trial_field_t> ip2l_op_0(p2l_op_0, quadrature_order);
-		fmm::p2x_integral<decltype(p2m_op_1), trial_field_t> ip2m_op_1(p2m_op_1, quadrature_order);
-		fmm::p2x_integral<decltype(p2l_op_1), trial_field_t> ip2l_op_1(p2l_op_1, quadrature_order);
 
-		auto p2m_0 = fmm::create_p2x_indexed(ip2m_op_0, trial_space.field_begin<trial_field_t>(), trial_space.field_end<trial_field_t>());
-		auto p2l_0 = fmm::create_p2x_indexed(ip2l_op_0, trial_space.field_begin<trial_field_t>(), trial_space.field_end<trial_field_t>());
-		auto p2m_1 = fmm::create_p2x_indexed(ip2m_op_1, trial_space.field_begin<trial_field_t>(), trial_space.field_end<trial_field_t>());
-		auto p2l_1 = fmm::create_p2x_indexed(ip2l_op_1, trial_space.field_begin<trial_field_t>(), trial_space.field_end<trial_field_t>());
+	// evaluate field pressure
+	{
+		typedef NiHu::dirac_field<NiHu::field_view<NiHu::quad_1_elem, NiHu::field_option::constant> > test_field_t;
+		auto field_mesh = NiHu::read_off_mesh(field_mesh_name, NiHu::quad_1_tag());
+		auto const &test_space = NiHu::dirac(NiHu::constant_view(field_mesh));
 
+		double D = 2.8;
+		size_t depth = unsigned(1 + std::log2(k*D));
+#ifdef GAUSS
+		cluster_tree_t tree(
+			fmm::create_field_center_iterator(trial_space.field_begin<trial_field_t>()),
+			fmm::create_field_center_iterator(trial_space.field_end<trial_field_t>()),
+			fmm::create_elem_center_iterator(field_mesh.begin<elem_t>()),
+			fmm::create_elem_center_iterator(field_mesh.end<elem_t>()),
+			fmm::divide_depth(depth));
+#else
+		cluster_tree_t tree(
+			fmm::create_elem_center_iterator(mesh.begin<elem_t>()),
+			fmm::create_elem_center_iterator(mesh.end<elem_t>()),
+			fmm::create_elem_center_iterator(field_mesh.begin<elem_t>()),
+			fmm::create_elem_center_iterator(field_mesh.end<elem_t>()),
+			fmm::divide_depth(depth));
+#endif
+>>>>>>> b63e3875ba3f91b381c8f1a382bd429c9e8224e2
+
+		std::cout << tree << std::endl;
+
+
+#if 0
 		// solve surface system
 		{
 			typedef NiHu::dirac_field<trial_field_t> test_field_t;
@@ -226,12 +310,21 @@ int main(int argc, char *argv[])
 			double D = 2.5;
 			size_t depth = unsigned(std::log2(k*D));
 
+#ifdef GAUSS
 			cluster_tree_t tree(
 				fmm::create_field_center_iterator(trial_space.field_begin<trial_field_t>()),
 				fmm::create_field_center_iterator(trial_space.field_end<trial_field_t>()),
 				fmm::create_field_center_iterator(test_space.field_begin<test_field_t>()),
 				fmm::create_field_center_iterator(test_space.field_end<test_field_t>()),
 				fmm::divide_depth(depth));
+#else
+			cluster_tree_t tree(
+				fmm::create_elem_center_iterator(mesh.begin<elem_t>()),
+				fmm::create_elem_center_iterator(mesh.end<elem_t>()),
+				fmm::create_elem_center_iterator(mesh.begin<elem_t>()),
+				fmm::create_elem_center_iterator(mesh.end<elem_t>()),
+				fmm::divide_depth(depth));
+#endif
 
 			std::cout << tree << std::endl;
 
@@ -283,26 +376,62 @@ int main(int argc, char *argv[])
 				m2m_op, l2l_op, m2l_op,
 				tree, lists, std::true_type());
 
+
+		// integrate operators over fields
+		std::cout << "creating integral operators" << std::endl;
+		size_t quadrature_order = 10;
+
+		// x2p operators
+		fmm::x2p_integral<decltype(m2p_op_0), test_field_t> im2p_op_0(m2p_op_0, quadrature_order);
+		fmm::x2p_integral<decltype(l2p_op_0), test_field_t> il2p_op_0(l2p_op_0, quadrature_order);
+
+		// p2p operators
+		fmm::p2p_integral<decltype(p2p_op_00), test_field_t, trial_field_t> ip2p_op_00(p2p_op_00, false);
+		fmm::p2p_integral<decltype(p2p_op_01), test_field_t, trial_field_t> ip2p_op_01(p2p_op_01, false);
+
+		std::cout << "creating indexed operators" << std::endl;
+		auto m2p_0 = fmm::create_x2p_indexed(im2p_op_0, test_space.field_begin<test_field_t>(), test_space.field_end<test_field_t>());
+		auto l2p_0 = fmm::create_x2p_indexed(il2p_op_0, test_space.field_begin<test_field_t>(), test_space.field_end<test_field_t>());
+
+		auto p2p_0 = fmm::create_p2x_indexed(
+			fmm::create_x2p_indexed(ip2p_op_00,
+				test_space.field_begin<test_field_t>(),
+				test_space.field_end<test_field_t>()),
+			trial_space.field_begin<trial_field_t>(),
+			trial_space.field_end<trial_field_t>()
+		);
+		auto p2p_1 = fmm::create_p2x_indexed(
+			fmm::create_x2p_indexed(ip2p_op_01,
+				test_space.field_begin<test_field_t>(),
+				test_space.field_end<test_field_t>()),
+			trial_space.field_begin<trial_field_t>(),
+			trial_space.field_end<trial_field_t>()
+		);
+
+		std::cout << "startin level data init" << std::endl;
+		fmm.init_level_data(tree, 3.0);
+		for (size_t c = 0; c < tree.get_n_clusters(); ++c)
+			tree[c].set_p_level_data(&fmm.get_level_data(tree[c].get_level()));
+
+
+		// compute rhs with fmbem
+		cvector_t p_field;
+
+		{
+			std::cout << "Starting assembling DLP " << std::endl;
 			auto dlp_matrix = fmm::create_fmm_matrix(
-				p2p_1, p2m_1, p2l_1, m2p_bm, l2p_bm,
+				p2p_1, p2m_1, p2l_1, m2p_0, l2p_0,
 				m2m_op, l2l_op, m2l_op,
-				tree, lists, std::true_type());
+				tree, lists, std::false_type());
+			std::cout << "DLP assembled" << std::endl;
 
-			std::cout << "Matrices ready " << std::endl;
-
-			// compute rhs with fmbem
-			decltype(slp_matrix)::response_t rhs = (slp_matrix * xct + alpha / 2. * xct).eval();
-
-			std::cout << "rhs ready" << std::endl;
-
-			std::cout << "Starting iterative solution" << std::endl;
 
 			// compute solution iteratively
 			fmm::matrix_free<decltype(dlp_matrix)> M(dlp_matrix);
 
 			Eigen::GMRES< fmm::matrix_free<decltype(dlp_matrix)>, Eigen::IdentityPreconditioner> solver(M);
-			solver.setTolerance(1e-8);
-			solver.set_restart(3000);
+			solver.setTolerance(1e-6);
+			solver.set_restart(10000);
 			p_surf = solver.solve(rhs);
 
 			// compute error
@@ -314,6 +443,7 @@ int main(int argc, char *argv[])
 
 			// export ps
 			std::stringstream ss;
+<<<<<<< HEAD
 			ss << pattern << "_" << f << "ps.res";
 			export_response(ss.str().c_str(), p_surf, k, solver.iterations());
 
@@ -323,22 +453,44 @@ int main(int argc, char *argv[])
 			ofs << std::endl;
 			ofs << tree << std::endl;
 			ofs.close();
-		}
+=======
+			ss << pattern << "_" << freq << "ps.res";
+			export_response(ss.str().c_str(), p_surf, k);
 
-		// evaluate field pressure
+>>>>>>> b63e3875ba3f91b381c8f1a382bd429c9e8224e2
+		}
+#endif
+
+		// read surface solution
+		std::stringstream ss;
+		ss << pattern << "_" << freq << "ps.res";
+		read_excitation(ss.str().c_str(), p_surf, k);
+
+		std::cout << "surface solution read. Wave number: " << k << std::endl;
+
 		{
+
 			typedef NiHu::dirac_field<NiHu::field_view<NiHu::quad_1_elem, NiHu::field_option::constant> > test_field_t;
 			auto field_mesh = NiHu::read_off_mesh(field_mesh_name, NiHu::quad_1_tag());
 			auto const &test_space = NiHu::dirac(NiHu::constant_view(field_mesh));
 
 			double D = 2.8;
 			size_t depth = unsigned(1 + std::log2(k*D));
+#ifdef GAUSS
 			cluster_tree_t tree(
 				fmm::create_field_center_iterator(trial_space.field_begin<trial_field_t>()),
 				fmm::create_field_center_iterator(trial_space.field_end<trial_field_t>()),
 				fmm::create_elem_center_iterator(field_mesh.begin<elem_t>()),
 				fmm::create_elem_center_iterator(field_mesh.end<elem_t>()),
 				fmm::divide_depth(depth));
+#else
+			cluster_tree_t tree(
+				fmm::create_elem_center_iterator(mesh.begin<elem_t>()),
+				fmm::create_elem_center_iterator(mesh.end<elem_t>()),
+				fmm::create_elem_center_iterator(field_mesh.begin<elem_t>()),
+				fmm::create_elem_center_iterator(field_mesh.end<elem_t>()),
+				fmm::divide_depth(depth));
+#endif
 
 			std::cout << tree << std::endl;
 
@@ -347,7 +499,6 @@ int main(int argc, char *argv[])
 
 			// integrate operators over fields
 			std::cout << "creating integral operators" << std::endl;
-			size_t quadrature_order = 10;
 
 			// x2p operators
 			fmm::x2p_integral<decltype(m2p_op_0), test_field_t> im2p_op_0(m2p_op_0, quadrature_order);
@@ -380,6 +531,7 @@ int main(int argc, char *argv[])
 			fmm.init_level_data(tree, 3.0);
 			for (size_t c = 0; c < tree.get_n_clusters(); ++c)
 				tree[c].set_p_level_data(&fmm.get_level_data(tree[c].get_level()));
+			std::cout << "level data init finished" << std::endl;
 
 
 			// compute rhs with fmbem
@@ -411,9 +563,28 @@ int main(int argc, char *argv[])
 			}
 
 			std::stringstream ss;
-			ss << pattern << "_" << f << "pf.res";
+			ss << pattern << "_" << freq << "pf.res";
 			export_response(ss.str().c_str(), p_field, k);
+
 		}
+<<<<<<< HEAD
+=======
+	}
+
+
+	catch (std::exception const &e)
+	{
+		std::cerr << e.what() << std::endl;
+	}
+	catch (char const *str)
+	{
+		std::cerr << str << std::endl;
+	}
+	catch (...)
+	{
+		std::cerr << "unhandled exception" << std::endl;
+
+>>>>>>> b63e3875ba3f91b381c8f1a382bd429c9e8224e2
 	}
 
 	return 0;
