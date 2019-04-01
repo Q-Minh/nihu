@@ -1,23 +1,10 @@
-#include "cluster_tree.hpp"
-#include "divide.hpp"
-#include "elem_center_iterator.hpp"
-#include "fmm_matrix.hpp"
-#include "helmholtz_3d_hf_fmm.hpp"
-#include "matrix_free.hpp"
-#include "p2p_integral.hpp"
-#include "p2x_indexed.hpp"
-#include "p2x_integral.hpp"
-#include "x2p_indexed.hpp"
-#include "x2p_integral.hpp"
+#include "helmholtz_3d_exterior_solver.hpp"
 
 #include "core/field.hpp"
 #include "core/function_space.hpp"
 #include "interface/read_off_mesh.hpp"
 #include "library/lib_element.hpp"
 #include "library/quad_1_gauss_field.hpp"
-
-#include <Eigen/IterativeLinearSolvers>
-#include "GMRES.h"
 
 #ifndef NUM_PROCESSORS
 #define NUM_PROCESSORS 1
@@ -76,9 +63,6 @@ void read_off_data(std::string const &fname, dMatrix &nodes, uMatrix &elements)
 // basic type parameter inputs
 typedef double wave_number_t;
 
-// computing the fmm type
-typedef fmm::helmholtz_3d_hf_fmm<wave_number_t> fmm_t;
-
 // computing the fmbem type
 #ifdef GAUSS
 typedef NiHu::quad_1_gauss_field trial_field_t;
@@ -88,9 +72,6 @@ typedef NiHu::field_view<NiHu::quad_1_elem, NiHu::field_option::constant> trial_
 typedef trial_field_t::elem_t elem_t;
 typedef elem_t::x_t location_t;
 
-// computing the cluster tree type
-typedef fmm_t::cluster_t cluster_t;
-typedef fmm::cluster_tree<cluster_t> cluster_tree_t;
 
 typedef Eigen::Matrix<std::complex<double>, Eigen::Dynamic, 1> cvector_t;
 
@@ -163,7 +144,8 @@ int main(int argc, char *argv[])
 	auto trial_space = NiHu::create_function_space(nodes, fields, NiHu::quad_1_gauss_field_tag());
 #else
 	auto mesh = NiHu::read_off_mesh(surf_mesh_name, NiHu::quad_1_tag());
-	auto const trial_space = NiHu::constant_view(mesh);
+	typedef NiHu::function_space_view<decltype(mesh), NiHu::field_option::constant> trial_space_t;
+	trial_space_t const &trial_space = NiHu::constant_view(mesh);
 #endif
 
 	// generate excitation
@@ -178,162 +160,16 @@ int main(int argc, char *argv[])
 	double om = 2. * M_PI * freq;
 	double k = om / c;
 
-	cvector_t xct, p_surf;
+	cvector_t xct;
 	xct.resize(trial_space.get_num_dofs());
-	xct.setConstant(-std::complex<double>(0, 1.0) * k * z0 * v0);
-	p_surf.resize(trial_space.get_num_dofs());
-	p_surf.setConstant(1.0);
+	xct.setConstant(-J * k * z0 * v0);
 
-	std::cout << "wave number: " << k << std::endl;
-	// create kernel, fmm and fmbem objects
-	fmm_t fmm(k);
+	fmm::helmholtz_3d_exterior_solver<trial_space_t> solver(trial_space);
+	solver.set_wave_number(k);
+	solver.set_excitation(xct);
+	cvector_t p_surf = solver.solve();
 
-	// get x2x fmm operators
-	auto m2m_op = fmm.create_m2m();
-	auto l2l_op = fmm.create_l2l();
-	auto m2l_op = fmm.create_m2l();
-
-	// p2x operators and derivatives
-	auto p2m_op_0 = fmm.create_p2m<0>();
-	auto p2l_op_0 = fmm.create_p2l<0>();
-	auto p2m_op_1 = fmm.create_p2m<1>();
-	auto p2l_op_1 = fmm.create_p2l<1>();
-
-	// x2p operators and derivatives
-	auto m2p_op_0 = fmm.create_m2p<0>();
-	auto l2p_op_0 = fmm.create_l2p<0>();
-	auto m2p_op_1 = fmm.create_m2p<1>();
-	auto l2p_op_1 = fmm.create_l2p<1>();
-
-	// p2p operators and derivatives
-	auto p2p_op_00 = fmm.create_p2p<0, 0>();
-	auto p2p_op_01 = fmm.create_p2p<0, 1>();
-	auto p2p_op_10 = fmm.create_p2p<1, 0>();
-	auto p2p_op_11 = fmm.create_p2p<1, 1>();
-
-	// integrate operators over fields
-	size_t quadrature_order = 6;
-
-	// p2x operators
-	fmm::p2x_integral<decltype(p2m_op_0), trial_field_t> ip2m_op_0(p2m_op_0, quadrature_order);
-	fmm::p2x_integral<decltype(p2l_op_0), trial_field_t> ip2l_op_0(p2l_op_0, quadrature_order);
-	fmm::p2x_integral<decltype(p2m_op_1), trial_field_t> ip2m_op_1(p2m_op_1, quadrature_order);
-	fmm::p2x_integral<decltype(p2l_op_1), trial_field_t> ip2l_op_1(p2l_op_1, quadrature_order);
-
-	auto p2m_0 = fmm::create_p2x_indexed(ip2m_op_0, trial_space.field_begin<trial_field_t>(), trial_space.field_end<trial_field_t>());
-	auto p2l_0 = fmm::create_p2x_indexed(ip2l_op_0, trial_space.field_begin<trial_field_t>(), trial_space.field_end<trial_field_t>());
-	auto p2m_1 = fmm::create_p2x_indexed(ip2m_op_1, trial_space.field_begin<trial_field_t>(), trial_space.field_end<trial_field_t>());
-	auto p2l_1 = fmm::create_p2x_indexed(ip2l_op_1, trial_space.field_begin<trial_field_t>(), trial_space.field_end<trial_field_t>());
-
-	// solve surface system
-	{
-		typedef NiHu::dirac_field<trial_field_t> test_field_t;
-
-		auto const &test_space = NiHu::dirac(trial_space);
-
-		double D = 2.5;
-		size_t depth = unsigned(std::log2(k*D));
-
-#ifdef GAUSS
-		cluster_tree_t tree(
-			fmm::create_field_center_iterator(trial_space.field_begin<trial_field_t>()),
-			fmm::create_field_center_iterator(trial_space.field_end<trial_field_t>()),
-			fmm::create_field_center_iterator(test_space.field_begin<test_field_t>()),
-			fmm::create_field_center_iterator(test_space.field_end<test_field_t>()),
-			fmm::divide_depth(depth));
-#else
-		cluster_tree_t tree(
-			fmm::create_elem_center_iterator(mesh.begin<elem_t>()),
-			fmm::create_elem_center_iterator(mesh.end<elem_t>()),
-			fmm::create_elem_center_iterator(mesh.begin<elem_t>()),
-			fmm::create_elem_center_iterator(mesh.end<elem_t>()),
-			fmm::divide_depth(depth));
-#endif
-
-		std::cout << tree << std::endl;
-
-		// create interaction lists
-		fmm::interaction_lists lists(tree);
-
-		// x2p operators
-		fmm::x2p_integral<decltype(m2p_op_0), test_field_t> im2p_op_0(m2p_op_0, quadrature_order);
-		fmm::x2p_integral<decltype(l2p_op_0), test_field_t> il2p_op_0(l2p_op_0, quadrature_order);
-		fmm::x2p_integral<decltype(m2p_op_1), test_field_t> im2p_op_1(m2p_op_1, quadrature_order);
-		fmm::x2p_integral<decltype(l2p_op_1), test_field_t> il2p_op_1(l2p_op_1, quadrature_order);
-
-		// p2p operators
-		fmm::p2p_integral<decltype(p2p_op_00), test_field_t, trial_field_t> ip2p_op_00(p2p_op_00, true);
-		fmm::p2p_integral<decltype(p2p_op_01), test_field_t, trial_field_t> ip2p_op_01(p2p_op_01, true);
-		fmm::p2p_integral<decltype(p2p_op_10), test_field_t, trial_field_t> ip2p_op_10(p2p_op_10, true);
-		fmm::p2p_integral<decltype(p2p_op_11), test_field_t, trial_field_t> ip2p_op_11(p2p_op_11, true);
-
-		// create indexed fmbem operators
-		std::complex<double> alpha(0.0, -1.0 / k);
-
-		auto m2p_bm = fmm::create_x2p_indexed(im2p_op_0 + alpha * im2p_op_1, test_space.field_begin<test_field_t>(), test_space.field_end<test_field_t>());
-		auto l2p_bm = fmm::create_x2p_indexed(il2p_op_0 + alpha * il2p_op_1, test_space.field_begin<test_field_t>(), test_space.field_end<test_field_t>());
-
-		auto p2p_0 = fmm::create_p2x_indexed(
-			fmm::create_x2p_indexed(ip2p_op_00 + alpha * ip2p_op_10,
-				test_space.field_begin<test_field_t>(),
-				test_space.field_end<test_field_t>()),
-			trial_space.field_begin<trial_field_t>(),
-			trial_space.field_end<trial_field_t>()
-		);
-		auto p2p_1 = fmm::create_p2x_indexed(
-			fmm::create_x2p_indexed(ip2p_op_01 + alpha * ip2p_op_11,
-				test_space.field_begin<test_field_t>(),
-				test_space.field_end<test_field_t>()),
-			trial_space.field_begin<trial_field_t>(),
-			trial_space.field_end<trial_field_t>()
-		);
-
-		fmm.init_level_data(tree, 3.0);
-		for (size_t c = 0; c < tree.get_n_clusters(); ++c)
-			tree[c].set_p_level_data(&fmm.get_level_data(tree[c].get_level()));
-
-		std::cout << "Starting assembling matrices " << std::endl;
-
-		// create matrix objects
-		auto slp_matrix = fmm::create_fmm_matrix(
-			p2p_0, p2m_0, p2l_0, m2p_bm, l2p_bm,
-			m2m_op, l2l_op, m2l_op,
-			tree, lists, std::true_type());
-
-		auto dlp_matrix = fmm::create_fmm_matrix(
-			p2p_1, p2m_1, p2l_1, m2p_bm, l2p_bm,
-			m2m_op, l2l_op, m2l_op,
-			tree, lists, std::true_type());
-
-		std::cout << "Matrices ready " << std::endl;
-
-		// compute rhs with fmbem
-		decltype(slp_matrix)::response_t rhs = (slp_matrix * xct + alpha / 2. * xct).eval();
-
-		std::cout << "rhs ready" << std::endl;
-
-		std::cout << "Starting iterative solution" << std::endl;
-
-		// compute solution iteratively
-		fmm::matrix_free<decltype(dlp_matrix)> M(dlp_matrix);
-
-		Eigen::GMRES< fmm::matrix_free<decltype(dlp_matrix)>, Eigen::IdentityPreconditioner> solver(M);
-		solver.setTolerance(1e-8);
-		solver.set_restart(3000);
-		p_surf = solver.solve(rhs);
-
-		// compute error
-		std::cout << "#iterations: " << solver.iterations() << std::endl;
-		std::cout << "#iteration error: " << solver.error() << std::endl;
-		std::cout << "timing results: " << std::endl;
-		dlp_matrix.get_timer().print(std::cout);
-
-
-		// export ps
-		std::stringstream ss;
-		ss << pattern << "_" << freq << "ps.res";
-		export_response(ss.str().c_str(), p_surf, k);
-	}
+#if 0
 
 	// evaluate field pressure
 	{
@@ -433,6 +269,8 @@ int main(int argc, char *argv[])
 		ss << pattern << "_" << freq << "pf.res";
 		export_response(ss.str().c_str(), p_field, k);
 	}
+
+#endif
 
 	return 0;
 }
