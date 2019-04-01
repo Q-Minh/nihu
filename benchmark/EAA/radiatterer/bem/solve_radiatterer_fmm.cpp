@@ -92,185 +92,103 @@ void read_excitation(std::string fname, cvector_t &xct, double &k)
 	ifs.close();
 }
 
-void export_response(std::string fname, cvector_t const &res, double k)
+void export_response(std::string fname, cvector_t const &res, double k, int iter = 1)
 {
 	std::ofstream ofs(fname);
 	ofs << k << '\n';
 	ofs << res.rows() << '\n';
 	for (size_t i = 0; i < res.rows(); ++i)
 		ofs << res(i, 0).real() << '\t' << res(i, 0).imag() << '\n';
+	ofs << iter << '\n';
 	ofs.close();
 }
 
 
 int main(int argc, char *argv[])
 {
-	if (argc < 5)
+	if (argc < 4)
 	{
-		std::cerr << "Use: " << argv[0] << " meshname fieldname frequency pattern" << std::endl;
+		std::cerr << "Use: " << argv[0] << " meshname fieldname pattern fstart" << std::endl;
 		return 1;
 	}
 
-	// read parameters
-	std::string surf_mesh_name(argv[1]);
-	std::string field_mesh_name(argv[2]);
-	double freq = std::atoi(argv[3]);
-	std::string pattern(argv[4]);
+	try
+	{
 
-	std::cout << "mesh: " << surf_mesh_name << std::endl;
-	std::cout << "field: " << field_mesh_name << std::endl;
-	std::cout << "frequency: " << freq << std::endl;
-	std::cout << "pattern: " << pattern << std::endl;
+
+		// read parameters
+		std::string surf_mesh_name(argv[1]);
+		std::string field_mesh_name(argv[2]);
+		std::string pattern(argv[3]);
+		double freq = std::atof(argv[4]);
+
+		std::cout << "mesh: " << surf_mesh_name << std::endl;
+		std::cout << "field: " << field_mesh_name << std::endl;
+		std::cout << "pattern: " << pattern << std::endl;
+		std::cout << "freq: " << freq << std::endl;
 
 #ifdef GAUSS
-	// read mesh file
-	uMatrix elements;
-	dMatrix nodes;
-	read_off_data(surf_mesh_name, nodes, elements);
+		// read mesh file
+		uMatrix elements;
+		dMatrix nodes;
+		read_off_data(surf_mesh_name, nodes, elements);
 
-	// assemble field matrix
-	size_t nElements = elements.rows();
-	uMatrix fields(nElements, 1 + 4 + 4);
-	for (size_t e = 0; e < nElements; ++e)
-	{
-		fields(e, 0) = NiHu::quad_1_gauss_field::id;
-		for (size_t c = 0; c < 4; ++c)
-			fields(e, c + 1) = elements(e, c + 1);
-		for (size_t c = 0; c < 4; ++c)
-			fields(e, c + 1 + 4) = 4 * e + c;
-	}
-
-	// create function space
-	auto trial_space = NiHu::create_function_space(nodes, fields, NiHu::quad_1_gauss_field_tag());
-#else
-	auto mesh = NiHu::read_off_mesh(surf_mesh_name, NiHu::quad_1_tag());
-	typedef NiHu::function_space_view<decltype(mesh), NiHu::field_option::constant> trial_space_t;
-	trial_space_t const &trial_space = NiHu::constant_view(mesh);
-#endif
-
-	// generate excitation
-	double rho = 1.3;
-	double c = 340.0;
-	double v0 = 1e-3;
-	double z0 = rho * c;
-
-	std::complex<double> const J(0., 1.);
-
-	// loop over frequencies
-	double om = 2. * M_PI * freq;
-	double k = om / c;
-
-	cvector_t xct;
-	xct.resize(trial_space.get_num_dofs());
-	xct.setConstant(-J * k * z0 * v0);
-
-	fmm::helmholtz_3d_exterior_solver<trial_space_t> solver(trial_space);
-	solver.set_wave_number(k);
-	solver.set_excitation(xct);
-	cvector_t p_surf = solver.solve();
-
-#if 0
-
-	// evaluate field pressure
-	{
-		typedef NiHu::dirac_field<NiHu::field_view<NiHu::quad_1_elem, NiHu::field_option::constant> > test_field_t;
-		auto field_mesh = NiHu::read_off_mesh(field_mesh_name, NiHu::quad_1_tag());
-		auto const &test_space = NiHu::dirac(NiHu::constant_view(field_mesh));
-
-		double D = 2.8;
-		size_t depth = unsigned(1 + std::log2(k*D));
-#ifdef GAUSS
-		cluster_tree_t tree(
-			fmm::create_field_center_iterator(trial_space.field_begin<trial_field_t>()),
-			fmm::create_field_center_iterator(trial_space.field_end<trial_field_t>()),
-			fmm::create_elem_center_iterator(field_mesh.begin<elem_t>()),
-			fmm::create_elem_center_iterator(field_mesh.end<elem_t>()),
-			fmm::divide_depth(depth));
-#else
-		cluster_tree_t tree(
-			fmm::create_elem_center_iterator(mesh.begin<elem_t>()),
-			fmm::create_elem_center_iterator(mesh.end<elem_t>()),
-			fmm::create_elem_center_iterator(field_mesh.begin<elem_t>()),
-			fmm::create_elem_center_iterator(field_mesh.end<elem_t>()),
-			fmm::divide_depth(depth));
-#endif
-
-		std::cout << tree << std::endl;
-
-		// create interaction lists
-		fmm::interaction_lists lists(tree);
-
-		// integrate operators over fields
-		std::cout << "creating integral operators" << std::endl;
-		size_t quadrature_order = 10;
-
-		// x2p operators
-		fmm::x2p_integral<decltype(m2p_op_0), test_field_t> im2p_op_0(m2p_op_0, quadrature_order);
-		fmm::x2p_integral<decltype(l2p_op_0), test_field_t> il2p_op_0(l2p_op_0, quadrature_order);
-
-		// p2p operators
-		fmm::p2p_integral<decltype(p2p_op_00), test_field_t, trial_field_t> ip2p_op_00(p2p_op_00, false);
-		fmm::p2p_integral<decltype(p2p_op_01), test_field_t, trial_field_t> ip2p_op_01(p2p_op_01, false);
-
-		std::cout << "creating indexed operators" << std::endl;
-		auto m2p_0 = fmm::create_x2p_indexed(im2p_op_0, test_space.field_begin<test_field_t>(), test_space.field_end<test_field_t>());
-		auto l2p_0 = fmm::create_x2p_indexed(il2p_op_0, test_space.field_begin<test_field_t>(), test_space.field_end<test_field_t>());
-
-		auto p2p_0 = fmm::create_p2x_indexed(
-			fmm::create_x2p_indexed(ip2p_op_00,
-				test_space.field_begin<test_field_t>(),
-				test_space.field_end<test_field_t>()),
-			trial_space.field_begin<trial_field_t>(),
-			trial_space.field_end<trial_field_t>()
-		);
-		auto p2p_1 = fmm::create_p2x_indexed(
-			fmm::create_x2p_indexed(ip2p_op_01,
-				test_space.field_begin<test_field_t>(),
-				test_space.field_end<test_field_t>()),
-			trial_space.field_begin<trial_field_t>(),
-			trial_space.field_end<trial_field_t>()
-		);
-
-		std::cout << "startin level data init" << std::endl;
-		fmm.init_level_data(tree, 3.0);
-		for (size_t c = 0; c < tree.get_n_clusters(); ++c)
-			tree[c].set_p_level_data(&fmm.get_level_data(tree[c].get_level()));
-
-
-		// compute rhs with fmbem
-		cvector_t p_field;
-
+		// assemble field matrix
+		size_t nElements = elements.rows();
+		uMatrix fields(nElements, 1 + 4 + 4);
+		for (size_t e = 0; e < nElements; ++e)
 		{
-			std::cout << "Starting assembling DLP " << std::endl;
-			auto dlp_matrix = fmm::create_fmm_matrix(
-				p2p_1, p2m_1, p2l_1, m2p_0, l2p_0,
-				m2m_op, l2l_op, m2l_op,
-				tree, lists, std::false_type());
-			std::cout << "DLP assembled" << std::endl;
-
-			std::cout << "Computing MVP " << std::endl;
-			p_field = dlp_matrix * p_surf;
-			std::cout << "MVP ready" << std::endl;
+			fields(e, 0) = NiHu::quad_1_gauss_field::id;
+			for (size_t c = 0; c < 4; ++c)
+				fields(e, c + 1) = elements(e, c + 1);
+			for (size_t c = 0; c < 4; ++c)
+				fields(e, c + 1 + 4) = 4 * e + c;
 		}
 
-		{
-			std::cout << "Starting assembling SLP " << std::endl;
-			auto slp_matrix = fmm::create_fmm_matrix(
-				p2p_0, p2m_0, p2l_0, m2p_0, l2p_0,
-				m2m_op, l2l_op, m2l_op,
-				tree, lists, std::false_type());
-			std::cout << "SLP assembled" << std::endl;
-			std::cout << "Computing MVP " << std::endl;
-			p_field -= slp_matrix * xct;
-			std::cout << "MVP ready" << std::endl;
-		}
+		// create function space
+		auto trial_space = NiHu::create_function_space(nodes, fields, NiHu::quad_1_gauss_field_tag());
+#else
+		auto mesh = NiHu::read_off_mesh(surf_mesh_name, NiHu::quad_1_tag());
+		typedef NiHu::function_space_view<decltype(mesh), NiHu::field_option::constant> trial_space_t;
+		trial_space_t const &trial_space = NiHu::constant_view(mesh);
+#endif
 
+		std::complex<double> const J(0., 1.);
+
+		// generate excitation
+		double rho = 1.3;
+		double c = 340.0;
+		double v0 = 1e-3;
+		double z0 = rho * c;
+		double om = 2. * M_PI * freq;
+		double k = om / c;
+
+		cvector_t xct;
+		xct.resize(trial_space.get_num_dofs());
+		xct.setConstant(-J * k * z0 * v0);
+
+		fmm::helmholtz_3d_exterior_solver<trial_space_t> solver(trial_space);
+		solver.set_wave_number(k);
+		solver.set_excitation(xct);
+		cvector_t p_surf = solver.solve();
+
+		// export ps
 		std::stringstream ss;
-		ss << pattern << "_" << freq << "pf.res";
-		export_response(ss.str().c_str(), p_field, k);
+		ss << pattern << "_" << freq << "ps.res";
+		export_response(ss.str(), p_surf, k, solver.get_iterations());
 	}
-
-#endif
+	catch (std::exception const &e)
+	{
+		std::cerr << e.what() << std::endl;
+	}
+	catch (char const *str)
+	{
+		std::cerr << str << std::endl;
+	}
+	catch (...)
+	{
+		std::cerr << "unhandled exception" << std::endl;
+	}
 
 	return 0;
 }
