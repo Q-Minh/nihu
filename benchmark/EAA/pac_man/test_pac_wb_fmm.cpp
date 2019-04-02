@@ -76,8 +76,6 @@ int main(int argc, char *argv[])
 
 	try
 	{
-
-
 		// read parameters
 		std::string surf_mesh_name(argv[1]);
 		std::string field_mesh_name(argv[2]);
