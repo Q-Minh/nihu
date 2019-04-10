@@ -41,6 +41,7 @@ public:
 
 	/** \brief the new value type */
 	typedef To value_t;
+	typedef To value_type;
 
 	/** \brief (copy) constructor from base iterator
 	* \param [in] base base iterator
