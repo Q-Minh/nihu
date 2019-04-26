@@ -92,7 +92,7 @@ void read_excitation(std::string fname, cvector_t &xct, double &k)
 	ifs.close();
 }
 
-void export_response(std::string fname, cvector_t const &res, double k, int iter = 1)
+void export_response(std::string fname, cvector_t const &res, double k, size_t iter = 1)
 {
 	std::ofstream ofs(fname);
 	ofs << k << '\n';

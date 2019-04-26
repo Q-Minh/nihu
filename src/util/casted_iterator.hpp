@@ -50,6 +50,16 @@ public:
 		FromIt(base)
 	{
 	}
+	
+	casted_iterator &operator++()
+	{
+		return static_cast<casted_iterator &>(FromIt::operator++());
+	}
+
+	casted_iterator operator++(int)
+	{
+		return FromIt::operator++(int());
+	}
 
 	/** \brief dereference operator converts dereferenced element to casted type
 	* \return the referred casted type class
