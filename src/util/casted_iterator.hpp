@@ -39,6 +39,8 @@ public:
 	/** \brief self returning metafunction */
 	typedef casted_iterator type;
 
+	typedef typename FromIt::difference_type difference_type;
+
 	/** \brief the new value type */
 	typedef To value_t;
 	typedef To value_type;
@@ -61,17 +63,17 @@ public:
 	{
 	}
 	
-	casted_iterator operator+(ptrdiff_t offset) const
+	casted_iterator operator+(difference_type offset) const
 	{
 		return base() + offset;
 	}
 	
-	casted_iterator operator-(ptrdiff_t offset) const
+	casted_iterator operator-(difference_type offset) const
 	{
 		return base() - offset;
 	}
 	
-	ptrdiff_t operator-(casted_iterator const &other) const
+	difference_type operator-(casted_iterator const &other) const
 	{
 		return base() - other.base();
 	}
