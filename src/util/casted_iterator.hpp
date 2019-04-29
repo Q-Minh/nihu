@@ -42,23 +42,48 @@ public:
 	/** \brief the new value type */
 	typedef To value_t;
 	typedef To value_type;
+	
+	FromIt const &base() const
+	{
+		return static_cast<FromIt const &>(*this);
+	}
+
+	FromIt &base()
+	{
+		return static_cast<FromIt &>(*this);
+	}
 
 	/** \brief (copy) constructor from base iterator
 	* \param [in] base base iterator
 	*/
-	casted_iterator(FromIt const &base) :
+	casted_iterator(FromIt const &base = FromIt()) :
 		FromIt(base)
 	{
 	}
 	
+	casted_iterator operator+(ptrdiff_t offset) const
+	{
+		return base() + offset;
+	}
+	
+	casted_iterator operator-(ptrdiff_t offset) const
+	{
+		return base() - offset;
+	}
+	
+	ptrdiff_t operator-(casted_iterator const &other) const
+	{
+		return base() - other.base();
+	}
+	
 	casted_iterator &operator++()
 	{
-		return static_cast<casted_iterator &>(FromIt::operator++());
+		return static_cast<casted_iterator &>(++base());
 	}
 
 	casted_iterator operator++(int)
 	{
-		return FromIt::operator++(int());
+		return base()++;
 	}
 
 	/** \brief dereference operator converts dereferenced element to casted type
@@ -78,7 +103,7 @@ public:
 	{
 		return static_cast<value_t const &>(
 			static_cast<Through const &>(
-				FromIt::operator[](idx)));
+				base()[idx]));
 	}
 
 	/** \brief dereference operator converts dereferenced element to casted type
@@ -86,7 +111,9 @@ public:
 	*/
 	value_t const *operator->(void) const
 	{
-		return &(*(*this));
+		return static_cast<value_t const*>(
+			static_cast<Through const*>(
+				&(*base())));
 	}
 };
 
