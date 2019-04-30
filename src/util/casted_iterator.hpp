@@ -23,6 +23,8 @@
 #ifndef CASTED_ITERATOR_HPP_INCLUDED
 #define CASTED_ITERATOR_HPP_INCLUDED
 
+#include <cstddef> // size_t
+
 namespace NiHu
 {
 
@@ -33,7 +35,7 @@ namespace NiHu
  */
 template <class FromIt, class To, class Through = To>
 class casted_iterator :
-	public FromIt
+	private FromIt
 {
 public:
 	/** \brief self returning metafunction */
@@ -42,8 +44,9 @@ public:
 	typedef typename FromIt::difference_type difference_type;
 
 	/** \brief the new value type */
-	typedef To value_t;
 	typedef To value_type;
+	
+	typedef To value_t;
 	
 	FromIt const &base() const
 	{
@@ -61,6 +64,17 @@ public:
 	casted_iterator(FromIt const &base = FromIt()) :
 		FromIt(base)
 	{
+	}
+	
+	bool operator != (casted_iterator const &other) const
+	{
+		return base() != other.base();
+		
+	}
+	
+	bool operator == (casted_iterator const &other) const
+	{
+		return base() == other.base();
 	}
 	
 	casted_iterator operator+(difference_type offset) const
