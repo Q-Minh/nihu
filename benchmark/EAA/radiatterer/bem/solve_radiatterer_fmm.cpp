@@ -97,7 +97,7 @@ void export_response(std::string fname, cvector_t const &res, double k, size_t i
 	std::ofstream ofs(fname);
 	ofs << k << '\n';
 	ofs << res.rows() << '\n';
-	for (size_t i = 0; i < res.rows(); ++i)
+	for (Eigen::Index i = 0; i < res.rows(); ++i)
 		ofs << res(i, 0).real() << '\t' << res(i, 0).imag() << '\n';
 	ofs << iter << '\n';
 	ofs.close();
@@ -114,8 +114,6 @@ int main(int argc, char *argv[])
 
 	try
 	{
-
-
 		// read parameters
 		std::string surf_mesh_name(argv[1]);
 		std::string field_mesh_name(argv[2]);
