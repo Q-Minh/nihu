@@ -82,9 +82,6 @@ int main(int argc, char *argv[])
 		// read mesh
 		auto surf_mesh = NiHu::read_off_mesh(surf_mesh_name, tag_t());
 
-		// read field
-		auto field_mesh = NiHu::read_off_mesh(field_mesh_name, tag_t());
-
 		// read excitation
 		double k;
 		cvector_t q_surf, p_surf;
@@ -95,7 +92,6 @@ int main(int argc, char *argv[])
 		auto const &trial_space = NiHu::constant_view(surf_mesh);
 		typedef std::decay<decltype(trial_space)>::type trial_space_t;
 
-
 		// solve surface system
 		{
 			fmm::helmholtz_2d_exterior_solver<trial_space_t> solver(trial_space);
@@ -104,6 +100,9 @@ int main(int argc, char *argv[])
 			p_surf = solver.solve();
 			export_response(surf_res_name, p_surf, k);
 		}
+
+		// read field
+		auto field_mesh = NiHu::read_off_mesh(field_mesh_name, tag_t());
 
 		// evaluate field pressure
 		{
