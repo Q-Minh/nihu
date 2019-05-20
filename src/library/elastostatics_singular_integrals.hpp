@@ -22,11 +22,12 @@
 #ifndef ELASTOSTATICS_SINGULAR_INTEGRALS_HPP_INCLUDED
 #define ELASTOSTATICS_SINGULAR_INTEGRALS_HPP_INCLUDED
 
-#include "lib_element.hpp"
 #include "../core/integral_operator.hpp"
+#include "../core/singular_integral_shortcut.hpp"
+
 #include "elastostatics_kernel.hpp"
 #include "guiggiani_1992.hpp"
-#include "../core/singular_integral_shortcut.hpp"
+#include "lib_element.hpp"
 
 
 namespace NiHu
@@ -172,7 +173,7 @@ public:
 	}
 };
 
-}
+} // end of namespace NiHu
 
 
 #endif // ELASTOSTATICS_SINGULAR_INTEGRALS_HPP_INCLUDED

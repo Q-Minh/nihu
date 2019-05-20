@@ -7,7 +7,7 @@ function [S, E] = adjacency(mesh)
 %   mesh
 % Output:
 %   S : nNode x nNode sparse adjacency matrix
-%   E : nNode x nElem sparse connectivity matrix
+%   E : nElem x nNode sparse connectivity matrix
 
 %   Copyright 2008-2012 P. Fiala, P. Rucz
 %   Budapest University of Technology and Economics
