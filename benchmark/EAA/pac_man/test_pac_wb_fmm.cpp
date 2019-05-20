@@ -1,4 +1,4 @@
-#include "helmholtz_2d_exterior_solver.hpp"
+#include "helmholtz_exterior_solver.hpp"
 #include "helmholtz_2d_field_point.hpp"
 
 #include "core/field.hpp"
@@ -50,7 +50,7 @@ void export_response(std::string fname, cvector_t const &res, double k)
 	std::ofstream ofs(fname);
 	ofs << k << '\n';
 	ofs << res.rows() << '\n';
-	for (size_t i = 0; i < res.rows(); ++i)
+	for (Eigen::Index i = 0; i < res.rows(); ++i)
 		ofs << res(i, 0).real() << '\t' << res(i, 0).imag() << '\n';
 	ofs.close();
 }
@@ -82,9 +82,6 @@ int main(int argc, char *argv[])
 		// read mesh
 		auto surf_mesh = NiHu::read_off_mesh(surf_mesh_name, tag_t());
 
-		// read field
-		auto field_mesh = NiHu::read_off_mesh(field_mesh_name, tag_t());
-
 		// read excitation
 		double k;
 		cvector_t q_surf, p_surf;
@@ -95,15 +92,19 @@ int main(int argc, char *argv[])
 		auto const &trial_space = NiHu::constant_view(surf_mesh);
 		typedef std::decay<decltype(trial_space)>::type trial_space_t;
 
-
 		// solve surface system
 		{
-			fmm::helmholtz_2d_exterior_solver<trial_space_t> solver(trial_space);
+			typedef fmm::helmholtz_2d_wb_fmm<double> fmm_t;
+			fmm::helmholtz_exterior_solver<fmm_t, trial_space_t> solver(trial_space);
 			solver.set_excitation(q_surf);
 			solver.set_wave_number(k);
-			p_surf = solver.solve();
+			size_t far_field_quadrature_order = 6;
+			p_surf = solver.solve(fmm::divide_num_nodes(10), far_field_quadrature_order);
 			export_response(surf_res_name, p_surf, k);
 		}
+
+		// read field
+		auto field_mesh = NiHu::read_off_mesh(field_mesh_name, tag_t());
 
 		// evaluate field pressure
 		{

@@ -33,6 +33,8 @@
 #include "../util/dual_range.hpp"
 #include "../util/pool_pattern.hpp"
 
+#include <iterator>
+
 namespace NiHu
 {
 
@@ -242,8 +244,10 @@ public:
 
 /** \brief an iterator class used for the dirac accelerators */
 class dirac_field_type_accelerator_iterator
+	: public std::iterator<std::input_iterator_tag, index_t>
 {
 public:
+
 	/** \brief constructor
 	 * \param [in] idx the index
 	 */
@@ -255,7 +259,7 @@ public:
 	/** \brief increment operator
 	 * \return the incremented iterator reference
 	 */
-	dirac_field_type_accelerator_iterator &operator++(void)
+	dirac_field_type_accelerator_iterator &operator++()
 	{
 		++m_idx.m_idx;
 		return *this;
@@ -282,7 +286,7 @@ public:
 	/** \brief dereference operator
 	 * \return the dereferred index
 	 */
-	index_t const &operator*(void) const
+	index_t const &operator*() const
 	{
 		return m_idx;
 	}
@@ -290,7 +294,7 @@ public:
 	/** \brief pointer dereference operator
 	 * \return the address of the stored index
 	 */
-	index_t const *operator->(void) const
+	index_t const *operator->() const
 	{
 		return &m_idx;
 	}

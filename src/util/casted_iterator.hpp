@@ -23,6 +23,8 @@
 #ifndef CASTED_ITERATOR_HPP_INCLUDED
 #define CASTED_ITERATOR_HPP_INCLUDED
 
+#include <cstddef> // size_t
+
 namespace NiHu
 {
 
@@ -33,22 +35,71 @@ namespace NiHu
  */
 template <class FromIt, class To, class Through = To>
 class casted_iterator :
-	public FromIt
+	private FromIt
 {
 public:
 	/** \brief self returning metafunction */
 	typedef casted_iterator type;
 
+	typedef typename FromIt::difference_type difference_type;
+
 	/** \brief the new value type */
-	typedef To value_t;
 	typedef To value_type;
+	
+	typedef To value_t;
+	
+	FromIt const &base() const
+	{
+		return *static_cast<FromIt const *>(this);
+	}
+
+	FromIt &base()
+	{
+		return static_cast<FromIt &>(*this);
+	}
 
 	/** \brief (copy) constructor from base iterator
 	* \param [in] base base iterator
 	*/
-	casted_iterator(FromIt const &base) :
+	casted_iterator(FromIt const &base = FromIt()) :
 		FromIt(base)
 	{
+	}
+	
+	bool operator != (casted_iterator const &other) const
+	{
+		return base() != other.base();
+		
+	}
+	
+	bool operator == (casted_iterator const &other) const
+	{
+		return base() == other.base();
+	}
+	
+	casted_iterator operator+(difference_type offset) const
+	{
+		return base() + offset;
+	}
+	
+	casted_iterator operator-(difference_type offset) const
+	{
+		return base() - offset;
+	}
+	
+	difference_type operator-(casted_iterator const &other) const
+	{
+		return base() - other.base();
+	}
+	
+	casted_iterator &operator++()
+	{
+		return static_cast<casted_iterator &>(++base());
+	}
+
+	casted_iterator operator++(int)
+	{
+		return base()++;
 	}
 
 	/** \brief dereference operator converts dereferenced element to casted type
@@ -68,7 +119,7 @@ public:
 	{
 		return static_cast<value_t const &>(
 			static_cast<Through const &>(
-				FromIt::operator[](idx)));
+				base()[idx]));
 	}
 
 	/** \brief dereference operator converts dereferenced element to casted type
@@ -76,7 +127,9 @@ public:
 	*/
 	value_t const *operator->(void) const
 	{
-		return &(*(*this));
+		return static_cast<value_t const*>(
+			static_cast<Through const*>(
+				&(*base())));
 	}
 };
 

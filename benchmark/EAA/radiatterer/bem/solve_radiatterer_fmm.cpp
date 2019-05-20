@@ -1,4 +1,6 @@
-#include "helmholtz_3d_exterior_solver.hpp"
+#include "divide.h"
+#include "helmholtz_3d_hf_fmm.hpp"
+#include "helmholtz_exterior_solver.hpp"
 
 #include "core/field.hpp"
 #include "core/function_space.hpp"
@@ -92,12 +94,12 @@ void read_excitation(std::string fname, cvector_t &xct, double &k)
 	ifs.close();
 }
 
-void export_response(std::string fname, cvector_t const &res, double k, int iter = 1)
+void export_response(std::string fname, cvector_t const &res, double k, size_t iter = 1)
 {
 	std::ofstream ofs(fname);
 	ofs << k << '\n';
 	ofs << res.rows() << '\n';
-	for (size_t i = 0; i < res.rows(); ++i)
+	for (Eigen::Index i = 0; i < res.rows(); ++i)
 		ofs << res(i, 0).real() << '\t' << res(i, 0).imag() << '\n';
 	ofs << iter << '\n';
 	ofs.close();
@@ -114,8 +116,6 @@ int main(int argc, char *argv[])
 
 	try
 	{
-
-
 		// read parameters
 		std::string surf_mesh_name(argv[1]);
 		std::string field_mesh_name(argv[2]);
@@ -167,10 +167,13 @@ int main(int argc, char *argv[])
 		xct.resize(trial_space.get_num_dofs());
 		xct.setConstant(-J * k * z0 * v0);
 
-		fmm::helmholtz_3d_exterior_solver<trial_space_t> solver(trial_space);
+		typedef fmm::helmholtz_3d_hf_fmm<double> fmm_t;
+		fmm::helmholtz_exterior_solver<fmm_t, trial_space_t> solver(trial_space);
 		solver.set_wave_number(k);
 		solver.set_excitation(xct);
-		cvector_t p_surf = solver.solve();
+		double diameter = 1. / k;
+		size_t far_field_quadrature_order = 6;
+		cvector_t p_surf = solver.solve(fmm::divide_diameter(diameter), far_field_quadrature_order);
 
 		// export ps
 		std::stringstream ss;
