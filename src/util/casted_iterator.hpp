@@ -50,7 +50,7 @@ public:
 	
 	FromIt const &base() const
 	{
-		return static_cast<FromIt const &>(*this);
+		return *static_cast<FromIt const *>(this);
 	}
 
 	FromIt &base()

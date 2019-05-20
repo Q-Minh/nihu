@@ -82,9 +82,6 @@ int main(int argc, char *argv[])
 		// read mesh
 		auto surf_mesh = NiHu::read_off_mesh(surf_mesh_name, tag_t());
 
-		// read field
-		auto field_mesh = NiHu::read_off_mesh(field_mesh_name, tag_t());
-
 		// read excitation
 		double k;
 		cvector_t q_surf, p_surf;
@@ -105,6 +102,9 @@ int main(int argc, char *argv[])
 			p_surf = solver.solve(fmm::divide_num_nodes(10), far_field_quadrature_order);
 			export_response(surf_res_name, p_surf, k);
 		}
+
+		// read field
+		auto field_mesh = NiHu::read_off_mesh(field_mesh_name, tag_t());
 
 		// evaluate field pressure
 		{
