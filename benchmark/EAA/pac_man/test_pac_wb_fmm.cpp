@@ -1,4 +1,4 @@
-#include "helmholtz_2d_exterior_solver.hpp"
+#include "helmholtz_exterior_solver.hpp"
 #include "helmholtz_2d_field_point.hpp"
 
 #include "core/field.hpp"
@@ -95,13 +95,14 @@ int main(int argc, char *argv[])
 		auto const &trial_space = NiHu::constant_view(surf_mesh);
 		typedef std::decay<decltype(trial_space)>::type trial_space_t;
 
-
 		// solve surface system
 		{
-			fmm::helmholtz_2d_exterior_solver<trial_space_t> solver(trial_space);
+			typedef fmm::helmholtz_2d_wb_fmm<double> fmm_t;
+			fmm::helmholtz_exterior_solver<fmm_t, trial_space_t> solver(trial_space);
 			solver.set_excitation(q_surf);
 			solver.set_wave_number(k);
-			p_surf = solver.solve();
+			size_t far_field_quadrature_order = 6;
+			p_surf = solver.solve(fmm::divide_num_nodes(10), far_field_quadrature_order);
 			export_response(surf_res_name, p_surf, k);
 		}
 
