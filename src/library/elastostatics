@@ -2,6 +2,6 @@
 /// \brief collection of header files for elastostatics
 #ifndef ELASTOSTATICS_INCLUDED
 #define ELASTOSTATICS_INCLUDED
-#include "elastostatics_kernels.h"
-#include "elastostatics_singular_integrals.h"
+#include "elastostatics_kernel.hpp"
+#include "elastostatics_singular_integrals.hpp"
 #endif

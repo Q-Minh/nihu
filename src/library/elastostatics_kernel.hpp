@@ -195,21 +195,31 @@ class elastostatics_3d_U_kernel
 	, public elastostatics_kernel
 {
 public:
+	typedef location_input_3d::x_t x_t;
+
 	elastostatics_3d_U_kernel(double nu, double mu)
 		: elastostatics_kernel(nu, mu)
 	{
 	}
 
 	result_t operator()(
+		x_t const& x,
+		x_t const& y) const
+	{
+		double nu = get_poisson_ratio();
+		double mu = get_shear_modulus();
+		x_t rvec = y - x;
+		double r = rvec.norm();
+		x_t gradr = rvec.normalized();
+		return ((3. - 4. * nu) * result_t::Identity() + (gradr * gradr.transpose())) / (16. * M_PI * (1. - nu) * r * mu);
+	}
+
+
+	result_t operator()(
 		location_input_3d const &x,
 		location_input_3d const &y) const
 	{
-		auto nu = get_poisson_ratio();
-		auto mu = get_shear_modulus();
-		auto rvec = y.get_x() - x.get_x();
-		auto r = rvec.norm();
-		auto gradr = rvec.normalized();
-		return ( (3.-4.*nu) * result_t::Identity() + (gradr * gradr.transpose()) ) / (16.*M_PI*(1.-nu)*r*mu);
+		return (*this)(x.get_x(), y.get_x());
 	}
 };
 
