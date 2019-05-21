@@ -5,8 +5,7 @@
 #include "interface/read_off_mesh.hpp"
 
 #include "library/lib_element.hpp"
-#include "library/elastostatics_kernel.hpp"
-#include "library/elastostatics_singular_integrals.hpp"
+#include "library/elastostatics"
 
 #include "core/function_space.hpp"
 #include "core/integral_operator.hpp"
