@@ -125,9 +125,9 @@ void solve_fmm(std::string const& meshname, std::string const& excname, std::str
 
 		// create operators
 		auto p2p = fmm.create_p2p();
-		auto p2m = fmm.create_p2m();
+		auto p2m = fmm.create_p2m<0>();
 		auto p2l = fmm.create_p2l();
-		auto l2p = fmm.create_l2p();
+		auto l2p = fmm.create_l2p<0>();
 		auto m2p = fmm.create_m2p();
 		auto m2m = fmm.create_m2m();
 		auto m2l = fmm.create_m2l();
