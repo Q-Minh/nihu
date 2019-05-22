@@ -162,6 +162,10 @@ void solve_fmm(std::string const& meshname, std::string const& excname, std::str
 			fmm::divide_num_nodes(10)
 		);
 
+		size_t cheb_order = 5;
+		for (size_t i = 0; i < tree.get_n_clusters(); ++i)
+			tree[i].set_chebyshev_order(cheb_order);
+
 		// cluster indexing
 		auto cixp2m = fmm::create_p2x_cluster_indexed(ixp2m, tree);
 		auto cixp2l = fmm::create_p2x_cluster_indexed(ixp2l, tree);
@@ -175,14 +179,22 @@ void solve_fmm(std::string const& meshname, std::string const& excname, std::str
 		fmm::interaction_lists lists(tree);
 
 		// acceleration
-		auto p2p_pre = fmm::p2p_precompute(ixp2p, tree, lists.get_list(lists.Near));
-		auto m2m_pre = fmm::create_x2x_precompute(cixm2m, lists.get_list(lists.M2M));
-		auto l2l_pre = fmm::create_x2x_precompute(cixl2l, lists.get_list(lists.L2L));
-		auto m2l_pre = fmm::create_x2x_precompute(cixm2l, lists.get_list(lists.M2L));
-		auto p2m_pre = fmm::create_p2x_precompute(cixp2m, tree.get_leaf_indices());
 		auto l2p_pre = fmm::create_x2p_precompute(cixl2p, tree.get_leaf_indices());
+		std::cout << "l2p done" << std::endl;
+		auto p2m_pre = fmm::create_p2x_precompute(cixp2m, tree.get_leaf_indices());
+		std::cout << "p2m done" << std::endl;
+		auto m2m_pre = fmm::create_x2x_precompute(cixm2m, lists.get_list(lists.M2M));
+		std::cout << "m2m done" << std::endl;
+		auto l2l_pre = fmm::create_x2x_precompute(cixl2l, lists.get_list(lists.L2L));
+		std::cout << "l2l done" << std::endl;
+		auto m2l_pre = fmm::create_x2x_precompute(cixm2l, lists.get_list(lists.M2L));
+		std::cout << "m2l done" << std::endl;
 		auto p2l_pre = fmm::create_p2x_precompute(cixp2l, lists.get_list(lists.P2L));
+		std::cout << "p2l done" << std::endl;
 		auto m2p_pre = fmm::create_x2p_precompute(cixm2p, lists.get_list(lists.M2P));
+		std::cout << "m2p done" << std::endl;
+		auto p2p_pre = fmm::p2p_precompute(ixp2p, tree, lists.get_list(lists.Near));
+		std::cout << "p2p done" << std::endl;
 
 		auto Umat = fmm::create_fmm_matrix(p2p_pre, p2m_pre, p2l_pre, m2p_pre, l2p_pre, m2m_pre, l2l_pre, m2l_pre, tree, lists);
 
@@ -216,7 +228,7 @@ int main(int argc, char const* argv[])
 		std::string excname(argv[2]);
 		std::string respname(argv[3]);
 
-		solve(meshname, excname, respname);
+		solve_fmm(meshname, excname, respname);
 	}
 	catch (std::exception & exc)
 	{
