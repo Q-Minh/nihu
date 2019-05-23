@@ -330,7 +330,7 @@ integral_operator<Kernel>
 	return integral_operator<Kernel>(std::forward<Kernel>(kernel));
 }
 
-}
+} // end of namespace NiHu
 
 #endif
 

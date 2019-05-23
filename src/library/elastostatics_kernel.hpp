@@ -40,9 +40,21 @@ namespace NiHu
 class elastostatics_kernel
 {
 public:
-	elastostatics_kernel(double nu, double mu) :	m_nu(nu), m_mu(mu) {}
-	double get_poisson_ratio(void) const { return m_nu; }
-	double get_shear_modulus(void) const { return m_mu; }
+	elastostatics_kernel(double nu, double mu) 
+		:	m_nu(nu)
+		, m_mu(mu) 
+	{
+	}
+
+	double get_poisson_ratio(void) const 
+	{
+		return m_nu;
+	}
+
+	double get_shear_modulus(void) const 
+	{
+		return m_mu; 
+	}
 
 private:
 	double m_nu;
@@ -137,6 +149,8 @@ class elastostatics_2d_T_kernel
 	, public elastostatics_kernel
 {
 public:
+	typedef location_input_2d::x_t x_t;
+
 	elastostatics_2d_T_kernel(double nu, double mu)
 		: elastostatics_kernel(nu, mu)
 	{
@@ -252,24 +266,33 @@ class elastostatics_3d_T_kernel
 	, public elastostatics_kernel
 {
 public:
+	typedef location_input_3d::x_t x_t;
+
 	elastostatics_3d_T_kernel(double nu, double mu)
 		: elastostatics_kernel(nu, mu)
 	{
 	}
 	
 	result_t operator()(
+		x_t const &x,
+		x_t const &y,
+		x_t const &ny) const
+	{
+		auto nu = get_poisson_ratio();
+		auto rvec = y - x;
+		auto r = rvec.norm();
+		auto gradr = rvec.normalized();
+		auto rdny = gradr.dot(ny);
+		return (-rdny * ((1. - 2. * nu) * result_t::Identity() + 3. * (gradr * gradr.transpose()))
+			+ (1. - 2. * nu) * (gradr * ny.transpose() - ny * gradr.transpose())
+			) / (8. * M_PI * (1. - nu) * r * r);
+	}
+
+	result_t operator()(
 		location_input_3d const &x,
 		location_normal_input_3d const &y) const
 	{
-		auto nu = get_poisson_ratio();
-		auto rvec = y.get_x() - x.get_x();
-		auto r = rvec.norm();
-		auto gradr = rvec.normalized();
-		auto const &n = y.get_unit_normal();
-		auto rdny = gradr.dot(n);
-		return (-rdny * ( (1.-2.*nu)*result_t::Identity() + 3.*(gradr*gradr.transpose()) )
-			+ (1.-2.*nu) * (gradr*n.transpose()-n*gradr.transpose())
-			) / (8.*M_PI*(1.-nu)*r*r);
+		return (*this)(x.get_x(), y.get_x(), y.get_unit_normal());
 	}	
 };
 
