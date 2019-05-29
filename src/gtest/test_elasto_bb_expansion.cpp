@@ -32,10 +32,9 @@ private:
 };
 
 
-
 TEST(elasto_bb_expansion, single_level)
 {
-	typedef fmm::black_box_fmm<elastostatics> fmm_t;
+	typedef NiHu::fmm::black_box_fmm<elastostatics> fmm_t;
 	typedef fmm_t::cluster_t cluster_t;
 	typedef cluster_t::bounding_box_t bounding_box_t;
 	typedef bounding_box_t::location_t x_t;

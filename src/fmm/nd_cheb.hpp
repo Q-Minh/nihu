@@ -7,8 +7,10 @@
 #include <boost/math/special_functions/chebyshev.hpp>
 
 #include "bounding_box.hpp"
-#include "chebyshev.hpp"
-#include "misc.hpp"
+
+#include "util/math_functions.hpp"
+#include "util/misc.hpp"
+
 
 #include <Eigen/Dense>
 

@@ -5,7 +5,8 @@
 #define CHEBYSHEV_CLUSTER_HPP_INCLUDED
 
 #include "cluster.hpp"
-#include "misc.hpp"
+#include "util/misc.hpp"
+#include "nd_cheb.hpp"
 
 namespace NiHu
 {
@@ -58,7 +59,7 @@ public:
 	void set_chebyshev_order(size_t order)
 	{
 		m_chebyshev_order = order;
-		m_cheb_nodes = fmm::chebnodes<dimension>(m_chebyshev_order, this->get_bounding_box());
+		m_cheb_nodes = chebnodes<dimension>(m_chebyshev_order, this->get_bounding_box());
 	}
 
 	/// \brief return the number of elements in the multipole coefficients

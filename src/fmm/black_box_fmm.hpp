@@ -6,12 +6,12 @@
 
 #include "chebyshev_cluster.hpp"
 #include "kron_identity.hpp"
-#include "matrix_traits.hpp"
 #include "m2l_indices.hpp"
 #include "nd_cheb.hpp"
 #include "p2p.hpp"
 
 #include "library/location_normal.hpp"
+#include "util/matrix_traits.hpp"
 
 #include <type_traits>
 
