@@ -13,7 +13,7 @@ classdef PolynomialShapeSet < GenericShapeSet
         function obj = PolynomialShapeSet(order, base)
             obj.Order = order;
             obj.Base = base;
-            obj.Id = 10 * obj.FamilyId + obj.Order;
+            obj.Id = (10 * obj.FamilyId + obj.Order)*100 + size(base,1);
         end
     end % of methods
 end % of PolynomialShapeSet class

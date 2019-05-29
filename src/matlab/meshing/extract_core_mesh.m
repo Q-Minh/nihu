@@ -10,6 +10,7 @@ data = {
     ShapeSet.LinearQuad, 32404
     ShapeSet.QuadraticTria, 32306
     ShapeSet.QuadraticQuad, 32408
+    ShapeSet.QuadraticQuadMid, 32409
     };
 
 for i = 1 : size(data,1)
