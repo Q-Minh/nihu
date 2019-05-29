@@ -144,6 +144,7 @@ set_target_properties("nihu_static_lib"
 )
 set(NIHU_LINK_LIBRARIES ${NIHU_LINK_LIBRARIES}; "nihu_static_lib")
 
+if (0)
 # Add the dynamic NiHu library
 add_library("nihu_shared_lib" SHARED ${NIHU_COMMON_LIBRARIES})
 set_target_properties("nihu_shared_lib"
@@ -155,6 +156,7 @@ set_target_properties("nihu_shared_lib"
 	LIBRARY_OUTPUT_DIRECTORY ${NIHU_LIB_OUTPUT_DIR}
 )
 set(NIHU_LINK_LIBRARIES_DYN ${NIHU_LINK_LIBRARIES_DYN}; "nihu_shared_lib") 
+endif (0)
 
 ### Subdirectories
 # Tutorials directory
