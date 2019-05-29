@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "black_box_fmm.hpp"
+#include "fmm/black_box_fmm.hpp"
 #include "library/elastostatics"
 
 class elastostatics
