@@ -1,9 +1,8 @@
-#include "divide.h"
-#include "helmholtz_3d_hf_fmm.hpp"
-#include "helmholtz_exterior_solver.hpp"
-
 #include "core/field.hpp"
 #include "core/function_space.hpp"
+#include "fmm/divide.h"
+#include "fmm/helmholtz_3d_hf_fmm.hpp"
+#include "fmm/helmholtz_exterior_solver.hpp"
 #include "interface/read_off_mesh.hpp"
 #include "library/lib_element.hpp"
 #include "library/quad_1_gauss_field.hpp"
@@ -167,13 +166,13 @@ int main(int argc, char *argv[])
 		xct.resize(trial_space.get_num_dofs());
 		xct.setConstant(-J * k * z0 * v0);
 
-		typedef fmm::helmholtz_3d_hf_fmm<double> fmm_t;
-		fmm::helmholtz_exterior_solver<fmm_t, trial_space_t> solver(trial_space);
+		typedef NiHu::fmm::helmholtz_3d_hf_fmm<double> fmm_t;
+		NiHu::fmm::helmholtz_exterior_solver<fmm_t, trial_space_t> solver(trial_space);
 		solver.set_wave_number(k);
 		solver.set_excitation(xct);
 		double diameter = 1. / k;
 		size_t far_field_quadrature_order = 6;
-		cvector_t p_surf = solver.solve(fmm::divide_diameter(diameter), far_field_quadrature_order);
+		cvector_t p_surf = solver.solve(NiHu::fmm::divide_diameter(diameter), far_field_quadrature_order);
 
 		// export ps
 		std::stringstream ss;

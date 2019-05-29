@@ -1,20 +1,21 @@
-#include "helmholtz_exterior_solver.hpp"
-#include "helmholtz_2d_field_point.hpp"
 
 #include "core/field.hpp"
 #include "core/function_space.hpp"
+#include "fmm/helmholtz_exterior_solver.hpp"
+#include "fmm/helmholtz_2d_field_point.hpp"
+
 #include "interface/read_off_mesh.hpp"
 #include "library/lib_element.hpp"
 
 #include <Eigen/IterativeLinearSolvers>
-#include "GMRES.h"
+#include "fmm/GMRES.h"
 
 // basic type parameter inputs
 typedef NiHu::line_1_tag tag_t;
 typedef double wave_number_t;
 
 // computing the fmm type
-typedef fmm::helmholtz_2d_wb_fmm<wave_number_t> fmm_t;
+typedef NiHu::fmm::helmholtz_2d_wb_fmm<wave_number_t> fmm_t;
 
 // computing the fmbem type
 typedef NiHu::tag2element<tag_t>::type elem_t;
@@ -24,7 +25,7 @@ typedef elem_t::x_t location_t;
 
 // computing the cluster tree type
 typedef fmm_t::cluster_t cluster_t;
-typedef fmm::cluster_tree<cluster_t> cluster_tree_t;
+typedef NiHu::fmm::cluster_tree<cluster_t> cluster_tree_t;
 
 typedef Eigen::Matrix<std::complex<double>, Eigen::Dynamic, 1> cvector_t;
 
@@ -94,12 +95,12 @@ int main(int argc, char *argv[])
 
 		// solve surface system
 		{
-			typedef fmm::helmholtz_2d_wb_fmm<double> fmm_t;
-			fmm::helmholtz_exterior_solver<fmm_t, trial_space_t> solver(trial_space);
+			typedef NiHu::fmm::helmholtz_2d_wb_fmm<double> fmm_t;
+			NiHu::fmm::helmholtz_exterior_solver<fmm_t, trial_space_t> solver(trial_space);
 			solver.set_excitation(q_surf);
 			solver.set_wave_number(k);
 			size_t far_field_quadrature_order = 6;
-			p_surf = solver.solve(fmm::divide_num_nodes(10), far_field_quadrature_order);
+			p_surf = solver.solve(NiHu::fmm::divide_num_nodes(10), far_field_quadrature_order);
 			export_response(surf_res_name, p_surf, k);
 		}
 
@@ -111,7 +112,7 @@ int main(int argc, char *argv[])
 			auto const &test_space = NiHu::dirac(NiHu::constant_view(field_mesh));
 			typedef std::decay<decltype(test_space)>::type test_space_t;
 
-			fmm::helmholtz_2d_field_point<test_space_t, trial_space_t> solver(test_space, trial_space);
+			NiHu::fmm::helmholtz_2d_field_point<test_space_t, trial_space_t> solver(test_space, trial_space);
 			solver.set_qsurf(q_surf);
 			solver.set_psurf(p_surf);
 			solver.set_wave_number(k);
