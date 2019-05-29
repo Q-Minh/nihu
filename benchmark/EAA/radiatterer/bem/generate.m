@@ -1,23 +1,11 @@
 clear;
 
 %%
-<<<<<<< HEAD
-Le = 5e-2;
-[qmesh, points] = create_radiatterer(Le);
-export_off_mesh(qmesh, 'data/radiatterer_05cm_quad.off');
-tmesh = quad2tria(qmesh);
-export_off_mesh(tmesh, 'data/radiatterer_05cm_tria.off');
-=======
-<<<<<<< HEAD
-Le = 1e-2;
-=======
 Le = 2e-2;
->>>>>>> origin/fiala
 [qmesh, points] = create_radiatterer(Le);
 export_off_mesh(qmesh, sprintf('data/radiatterer_%gcm_quad.off', 100*Le));
 tmesh = quad2tria(qmesh);
 export_off_mesh(tmesh, sprintf('data/radiatterer_%gcm_tria.off', 100*Le));
->>>>>>> b63e3875ba3f91b381c8f1a382bd429c9e8224e2
 
 % print field points with quad semantics
 fid = fopen('data/radiatterer_points_tria.off', 'w');

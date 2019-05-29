@@ -51,7 +51,8 @@ end
 
 
 function newid = quadratise_id(id)
-newid = 10 * id + 2;
+%newid = 10 * id + 2;
+newid = 100 + id;
 end
 
 function [nodes, element] = quadratise_line(nodes)

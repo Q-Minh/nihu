@@ -1,7 +1,7 @@
 # cmake file for the NiHu project
 
 # Set the minimum 
-cmake_minimum_required (VERSION 2.8.4)
+cmake_minimum_required (VERSION 3.1.0 FATAL_ERROR)
 
 # Set the module path
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/../cmake)
@@ -21,23 +21,10 @@ get_system_bits(NIHU_SYS_BITS)
 
 message(STATUS "${NIHU_SYS_BITS}-bit system detected")
 
-# COMPILER PROPERTIES
-# Compiler-specific C++11 activation.
-if (${CMAKE_CXX_COMPILER_ID} MATCHES "GNU")
-    execute_process(
-        COMMAND ${CMAKE_CXX_COMPILER} -dumpversion OUTPUT_VARIABLE GCC_VERSION)
-    if (NOT (GCC_VERSION VERSION_GREATER 4.7 OR GCC_VERSION VERSION_EQUAL 4.7))
-        message(FATAL_ERROR "${PROJECT_NAME} requires g++ 4.7 or greater.")
-	else ()
-		message(STATUS "Compiler supports C++11 - OK")
-    endif ()
-elseif (${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
-	message(STATUS "Setting up additional flags for Clang")
-elseif (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-	message(STATUS "Setting up additional flags for MSVC")
-else ()
-    message(FATAL_ERROR "Your C++ compiler (" ${CMAKE_CXX_COMPILER_ID} ") does not support C++11.")
-endif ()
+# Check compiler support for c++11
+set(CMAKE_CXX_EXTENSIONS 0)
+set_property(GLOBAL PROPERTY CXX_STANDARD 11)
+set_property(GLOBAL PROPERTY CXX_STANDARD_REQUIRED ON)
 
 ### Linker configuration
 if(WIN32)
@@ -97,22 +84,32 @@ endif(NOT DEFINED NIHU_INSTALL_DIR)
 
 set(CMAKE_INSTALL_PREFIX ${NIHU_INSTALL_DIR})
 
-# setup compiler flags
-# Note: -Wno-deprecated-declarations is added for sake of Eigen
-# Note: -Wno-misleading-indentation is added for Eigen and gcc-6
+# Setup compiler flags for gcc
 if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
-	set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -pedantic -O3 -Wall -Wno-deprecated-declarations")
+	set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -pedantic -O3 -Wall \
+		-Wno-deprecated-declarations")
+	# Find out gcc version
+	execute_process(
+		COMMAND ${CMAKE_CXX_COMPILER} -dumpversion
+		OUTPUT_VARIABLE GCC_VERSION
+	)
+    # Add -Wno-misleading-indentation for gcc >= 6
+    # Note: this disables Eigen-generated warnings
     if (GCC_VERSION VERSION_GREATER 6.0 OR GCC_VERSION VERSION_EQUAL 6.0)
-        set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wno-misleading-indentation")
-    endif ()
+        set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} \
+			-Wno-misleading-indentation")
+    endif (GCC_VERSION VERSION_GREATER 6.0 OR GCC_VERSION VERSION_EQUAL 6.0)
+    # Add 
+    # Note: this disables Eigen-generated warnings
     if (GCC_VERSION VERSION_GREATER 7.0 OR GCC_VERSION VERSION_EQUAL 7.0)
-        set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wno-int-in-bool-context -Wno-uninitialized -Wno-maybe-uninitialized")
-    endif ()
-	set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -std=gnu++11")
-else ()
-	set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -std=c++11")
-endif ()
+        set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} \
+			-Wno-int-in-bool-context \
+			-Wno-maybe-uninitialized \
+			-Wno-uninitialized")
+    endif (GCC_VERSION VERSION_GREATER 7.0 OR GCC_VERSION VERSION_EQUAL 7.0)
+endif ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
 
+### Includes
 # setup global include directories
 include_directories("${CMAKE_SOURCE_DIR}")
 include_directories("${EIGEN_INCLUDE_DIRS}")
@@ -124,56 +121,43 @@ else(WIN32)
 	set(NIHU_STATIC_LIB_SUFFIX ".a")
 endif(WIN32)
 	
-file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
+### Library targets
+# Create directory for the lib output
+set(NIHU_LIB_OUTPUT_DIR "${CMAKE_BINARY_DIR}/lib")
+file(MAKE_DIRECTORY ${NIHU_LIB_OUTPUT_DIR})
+# Add the library output directory to link 
+link_directories(${NIHU_LIB_OUTPUT_DIR})
 
 # Look for common library source files
 FILE(GLOB NIHU_COMMON_LIBRARIES 
 	"${CMAKE_SOURCE_DIR}/library/lib_*.cpp")
 
-# Iterate through the libraries by foreach
-foreach(lib_source ${NIHU_COMMON_LIBRARIES})
-	# Extract relative path
-	file(RELATIVE_PATH local_lib_source "${CMAKE_SOURCE_DIR}/library" ${lib_source})
-	string(REPLACE ".cpp" "" lib_name ${local_lib_source})
-	set(lib_name_dyn "${lib_name}_dyn")
-	# Add the static version of the library
-	add_library(${lib_name} STATIC ${lib_source})
-	# Set the target properties
-	set_target_properties(${lib_name}
-		PROPERTIES 
-		PREFIX "" 
-		SUFFIX ${NIHU_STATIC_LIB_SUFFIX}
-		ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
-		LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
-	)
-	
-	# Add also a dynamic library with the same name
-	# (Note: this is needed for faster MEX file compile)
-	if (WIN32)
-		set(NIHU_FPIC_FLAG "")
-	else ()
-		set(NIHU_FPIC_FLAG "-fPIC")
-	endif ()
-	add_library(${lib_name_dyn} STATIC ${lib_source})
-	# Set the target properties
-	set_target_properties(${lib_name_dyn}
-		PROPERTIES 
-		PREFIX "" 
-		COMPILE_FLAGS "${NIHU_FPIC_FLAG}"
-		SUFFIX ${NIHU_STATIC_LIB_SUFFIX}
-		ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
-		LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
-	)
-	
-	# Set the link libraries
-	SET(NIHU_LINK_LIBRARIES ${NIHU_LINK_LIBRARIES}; ${lib_name})
-	SET(NIHU_LINK_LIBRARIES_DYN ${NIHU_LINK_LIBRARIES_DYN}; ${lib_name_dyn}) 
-endforeach(lib_source)
+# Add the static NiHu library
+add_library("nihu_static_lib" STATIC ${NIHU_COMMON_LIBRARIES})
+set_target_properties("nihu_static_lib"
+	PROPERTIES
+	OUTPUT_NAME "nihu"
+	PREFIX "" 
+	SUFFIX ${NIHU_STATIC_LIB_SUFFIX}
+	ARCHIVE_OUTPUT_DIRECTORY ${NIHU_LIB_OUTPUT_DIR}
+	LIBRARY_OUTPUT_DIRECTORY ${NIHU_LIB_OUTPUT_DIR}
+)
+set(NIHU_LINK_LIBRARIES ${NIHU_LINK_LIBRARIES}; "nihu_static_lib")
 
-link_directories("${CMAKE_BINARY_DIR}/lib")
-#message(STATUS "NIHU link libraries: ${NIHU_LINK_LIBRARIES}")
+# Add the dynamic NiHu library
+add_library("nihu_shared_lib" SHARED ${NIHU_COMMON_LIBRARIES})
+set_target_properties("nihu_shared_lib"
+	PROPERTIES 
+	COMPILE_FLAGS "${NIHU_FPIC_FLAG}"
+	OUTPUT_NAME "nihu"
+	PREFIX ""
+	ARCHIVE_OUTPUT_DIRECTORY ${NIHU_LIB_OUTPUT_DIR}
+	LIBRARY_OUTPUT_DIRECTORY ${NIHU_LIB_OUTPUT_DIR}
+)
+set(NIHU_LINK_LIBRARIES_DYN ${NIHU_LINK_LIBRARIES_DYN}; "nihu_shared_lib") 
 
 ### Subdirectories
+# Tutorials directory
 if(NOT NIHU_DISABLE_TUTORIALS)
 	add_subdirectory(tutorial)
 endif()
