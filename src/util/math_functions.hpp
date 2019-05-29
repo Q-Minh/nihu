@@ -34,6 +34,10 @@
 namespace NiHu
 {
 
+/// \brief signum function
+/// \tparam T the input type
+/// \param [in] val the function input
+/// \return the signum(val)
 template <typename T> 
 int sgn(T val) 
 {
@@ -361,6 +365,83 @@ namespace bessel
 	template <int nu, class T>
 	typename make_complex<T>::type K(T const &z);
 } // end of namespace bessel
+
+
+/** \brief roots of Chebyshev polynomials
+ * \tparam T the scalar type
+ * \param [in] n the polynomial order
+ * \param [in] i the root index
+ * \return the i-th root of T_n(x)
+ */
+template <class T = double>
+T chebroot(size_t n, size_t i)
+{
+	return std::cos(M_PI / 2. * (2 * (n - i) - 1) / T(n));
+}
+
+/** \brief compute binomial coefficient
+ * \tparam I integer type
+ * \param [in] n
+ * \param [in] k
+ * \return binomial coefficient
+ */
+template <class I>
+I nchoosek(I n, I k)
+{
+	if (k == 0)
+		return 1;
+	if (n == 0)
+		return 0;
+	return nchoosek(n - 1, k - 1) + nchoosek(n - 1, k);
+}
+
+
+/** \brief compute integer power
+ * \tparam I the integer type
+ * \param [in] base the base
+ * \param [in] exp the exponent
+ * \return base^exp
+ */
+template <class I>
+I Ipow(I base, I exp)
+{
+	I res = 1;
+	for (unsigned i = 0; i < exp; ++i)
+		res *= base;
+	return res;
+}
+
+/** \brief metafunction computing integer power
+ * \tparam Base the base
+ * \tparam Exp the exponent
+ */
+template < unsigned Base, unsigned Exp >
+struct IpowC
+{
+	static unsigned const value = IpowC<Base, Exp - 1>::value * Base;
+};
+
+/** \brief terminating case of the recursion IpowC */
+template <unsigned Base>
+struct IpowC < Base, 0 >
+{
+	static unsigned const value = 1U;
+};
+
+/** \brief terminating case of the recursion IpowC */
+template <unsigned Exp>
+struct IpowC < 0, Exp >
+{
+	static unsigned const value = 0U;
+};
+
+/** \brief terminating case of the recursion IpowC */
+template <>
+struct IpowC < 0, 0 >
+{
+	// undefined
+};
+
 
 } // end of namespace NiHu
 
