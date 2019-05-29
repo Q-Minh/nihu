@@ -42,6 +42,14 @@ set(NIHU_THIRDPARTY_DIR "${CMAKE_SOURCE_DIR}/ThirdParty")
 ### EIGEN section
 include(NiHuEigen)
 
+### Boost section
+find_package(Boost 1.67 REQUIRED)
+if (BOOST_FOUND)
+	message(STATUS "Boost was found, include dir: ${Boost_INCLUDE_DIR}")
+else ()
+	message(STATUS "Boost was not found")
+endif ()
+
 ### MATLAB Section
 
 # look for environment variable MATLAB_ROOT
@@ -113,6 +121,7 @@ endif ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
 # setup global include directories
 include_directories("${CMAKE_SOURCE_DIR}")
 include_directories("${EIGEN_INCLUDE_DIRS}")
+include_directories("${Boost_INCLUDE_DIR}")
 
 ### Libraries
 if(WIN32)
