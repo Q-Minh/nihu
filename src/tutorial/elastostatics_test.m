@@ -14,19 +14,20 @@ b = get_boundary(disc);
 Nz = ceil(H/Le);
 side = extrude_mesh(b, [0 0 H/Nz], Nz);
 mesh = join_meshes(disc,...
-    flip_elements(side),...
-    translate_mesh(flip_elements(disc), [0 0 H]));
+    flip_mesh(side),...
+    translate_mesh(flip_mesh(disc), [0 0 H]));
 mesh = merge_coincident_nodes(mesh);
 mesh = drop_unused_nodes(mesh);
 
 %% quadratic elements and blow up
-qmesh = quadratise(mesh);
+qmesh = quadratise(mesh, struct('quad_with_mid', true));
 [nodidx, elidx] = mesh_select(qmesh, sprintf('abs(r-%g) < 1e-2', R), 'ind');
 sidenodes = qmesh.Nodes(nodidx,2:3);
 r = sqrt(dot(sidenodes, sidenodes, 2));
 qmesh.Nodes(nodidx,2:3) = bsxfun(@times, qmesh.Nodes(nodidx,2:3), R./r);
 
 %% Compile mex file
+if(0)
 mex -v CXXFLAGS="$CXXFLAGS -std=c++11 -O3 -fPIC" ...
     ../../src/tutorial/elastostatics.mex.cpp ...
     ../../src/library/lib_element.cpp ...
@@ -35,7 +36,7 @@ mex -v CXXFLAGS="$CXXFLAGS -std=c++11 -O3 -fPIC" ...
     -I../../src ...
     -I/usr/local/include/eigen3 ...
     -o elastostatics
-
+end
 %% Call NiHu to compute system matrices
 [nodes, elements] = extract_core_mesh(qmesh);
 tic;
@@ -63,7 +64,7 @@ ures_node = Trans * ures;
 
 %% plot results
 disp_mesh = mesh;
-disp_mesh.Nodes(:,2:4) = disp_mesh.Nodes(:,2:4)-ures_node/10;
+disp_mesh.Nodes(:,2:4) = disp_mesh.Nodes(:,2:4)-ures_node/10e-8;
 figure;
 formatfig([6 10], [0 0 0 0]);
 % shading interp;
@@ -73,5 +74,5 @@ plot_mesh(disp_mesh, ures_node(:,1));
 view(56, 25);
 light
 lighting phong
-axis off
-print -dpng bar -r600
+axis equal off
+%print -dpng bar -r600

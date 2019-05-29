@@ -1,6 +1,10 @@
 # cmake file for the NiHu project
 
-# Set the minimum 
+###
+### cmake and project section
+###
+
+# Set the minimum required cmake version
 cmake_minimum_required (VERSION 3.1.0 FATAL_ERROR)
 
 # Set the module path
@@ -9,20 +13,16 @@ set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/../cmake)
 # Set the project name
 project (NiHu)
 
-set (NiHu_VERSION_MAJOR 1)
-set (NiHu_VERSION_MINOR 0)
-
-# Set the 3rdparty dir
-set(NIHU_THIRDPARTY_DIR "${CMAKE_SOURCE_DIR}/ThirdParty")
+set (NIHU_VERSION_MAJOR 2)
+set (NIHU_VERSION_MINOR 0)
 
 # Find the number of system bits
 include(Sysbits)
 get_system_bits(NIHU_SYS_BITS)
-
 message(STATUS "${NIHU_SYS_BITS}-bit system detected")
 
 # Check compiler support for c++11
-set(CMAKE_CXX_EXTENSIONS 0)
+set(CMAKE_CXX_EXTENSIONS OFF)
 set_property(GLOBAL PROPERTY CXX_STANDARD 11)
 set_property(GLOBAL PROPERTY CXX_STANDARD_REQUIRED ON)
 
@@ -32,9 +32,14 @@ if(WIN32)
 	SET(CMAKE_SHARED_LINKER_FLAGS "-MD ${CMAKE_SHARED_LINKER_FLAGS} -s")
 endif(WIN32)
 
-### EIGEN section
+###
+### ThirdParty 
+###
 
-# Perform eigen installation
+# Set the 3rdparty dir
+set(NIHU_THIRDPARTY_DIR "${CMAKE_SOURCE_DIR}/ThirdParty")
+
+### EIGEN section
 include(NiHuEigen)
 
 ### MATLAB Section
@@ -77,12 +82,7 @@ else(MATLABMEX_FOUND)
 	set(NIHU_BUILD_MEX 0)
 endif(MATLABMEX_FOUND)
 
-### Setup directories for installation
-if(NOT DEFINED NIHU_INSTALL_DIR)
-	set(NIHU_INSTALL_DIR ${CMAKE_BINARY_DIR})
-endif(NOT DEFINED NIHU_INSTALL_DIR)
 
-set(CMAKE_INSTALL_PREFIX ${NIHU_INSTALL_DIR})
 
 # Setup compiler flags for gcc
 if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
@@ -258,6 +258,12 @@ if(DOXYGEN_FOUND)
 endif(DOXYGEN_FOUND)
 
 ### Installation section
+### Setup directories for installation
+if(NOT DEFINED NIHU_INSTALL_DIR)
+	set(NIHU_INSTALL_DIR ${CMAKE_BINARY_DIR})
+endif(NOT DEFINED NIHU_INSTALL_DIR)
+
+set(CMAKE_INSTALL_PREFIX ${NIHU_INSTALL_DIR})
 
 # Select all hpp files for installation
 set(NIHU_HPP_DIRECTORIES 

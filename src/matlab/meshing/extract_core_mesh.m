@@ -10,6 +10,7 @@ data = {
     ShapeSet.LinearQuad, 32404
     ShapeSet.QuadraticTria, 32306
     ShapeSet.QuadraticQuad, 32408
+    ShapeSet.QuadraticQuadMid, 32409
     };
 
 for i = 1 : size(data,1)
@@ -18,7 +19,6 @@ for i = 1 : size(data,1)
     ind = find(model.Elements(:,2) == lset.Id);
     if ~isempty(ind)
         nNode = size(lset.Nodes,1);
-        %nNode = 9;
         elements(ind,1) = core_id;
         elements(ind,1+(1:nNode)) = elem(ind,4+(1:nNode))-1;
     end

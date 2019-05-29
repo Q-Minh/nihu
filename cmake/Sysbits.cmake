@@ -5,8 +5,8 @@ function(get_system_bits SYS_BITS)
 if(CMAKE_SIZEOF_VOID_P EQUAL 8) 
 	set(${SYS_BITS} "64" PARENT_SCOPE)
 # Otherwise 32 bit
-else(CMAKE_SIZEOF_VOID_P EQUAL 8)
+else()
 	set(${SYS_BITS} "32" PARENT_SCOPE)
-endif(CMAKE_SIZEOF_VOID_P EQUAL 8)
+endif()
 
 endfunction(get_system_bits)
