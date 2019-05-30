@@ -16,6 +16,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#include <boost/math/constants/constants.hpp>
+
 //! [Includes]
 #include "core/weighted_residual.hpp"
 #include "library/laplace_kernel.hpp"
@@ -32,6 +34,8 @@ typedef Eigen::Matrix<unsigned, Eigen::Dynamic, Eigen::Dynamic> uMatrix;
 
 int main(void)
 {
+	using namespace boost::math::double_constants;
+
 	// nodal coordinates in 3D, 3 nodes
 	dMatrix nodes(9,3);
 	nodes <<
@@ -74,7 +78,7 @@ int main(void)
 	std::cout << "sum of elements: " << I.sum() << std::endl;
 
 	// Compare to analytical solution
-	double anal = 32.0 * (std::log(1.0+std::sqrt(2.0))-(std::sqrt(2.0)-1.0)/3.0) / 4.0/M_PI;
+	double anal = 32.0 * (std::log(1.0 + root_two)-(root_two - 1.0)/3.0) / 4.0 / pi;
 	std::cout << "log10 error = " << std::log10(std::abs(I.sum() / anal - 1.0)) << std::endl;
 
 	return 0;

@@ -16,6 +16,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#include <boost/math/constants/constants.hpp>
+
 #include "core/gaussian_quadrature.hpp"
 #include "core/singular_galerkin_quadrature.hpp"
 
@@ -68,7 +70,8 @@ struct func_rect
 
 	double anal()
 	{
-		return M_PI + std::log(64) - 6;
+		using namespace boost::math::double_constants;
+		return pi + std::log(64) - 6;
 	}
 };
 

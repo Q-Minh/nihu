@@ -25,6 +25,8 @@
 #ifndef MATSUMOTO_2010_HPP_INCLUDED
 #define MATSUMOTO_2010_HPP_INCLUDED
 
+#include <boost/math/constants/constants.hpp>
+
 #include "../core/element_match.hpp"
 #include "../core/integral_operator.hpp"
 #include "../core/singular_integral_shortcut.hpp"
@@ -84,6 +86,8 @@ public:
 		field_base<TrialField> const &trial_field,
 		element_match const &)
 	{
+		using namespace boost::math::double_constants;
+	
 		// Define the imaginary unit
 		std::complex<scalar_t> const I(0.0, 1.0);
 		// Get wave number from the kernel
@@ -119,7 +123,7 @@ public:
 				result(0,0) += jac * it->get_w() * (std::exp(-I*k*r) / r);
 			}
 		}
-		result(0,0) /= (-4 * M_PI);
+		result(0,0) /= (-4 * pi);
 		result(0,0) -= I*k / 2.0;
 		return result;
 	}
@@ -162,6 +166,8 @@ public:
 		field_base<TrialField> const &trial_field,
 		element_match const &)
 	{
+		using namespace boost::math::double_constants;
+	
 		// Define the imaginary unit
 		std::complex<scalar_t> const I(0.0, 1.0);
 		// Get wavenumber from the kernel
@@ -199,7 +205,7 @@ public:
 				result(0,0) += jac * it->get_w() * (std::exp(-I*k*r));
 			}
 		}
-		result(0,0) *= I / (4.0 * M_PI * k);
+		result(0,0) *= I / (4.0 * pi * k);
 		result(0,0) -= I/(2*k);
 		return result;
 	}

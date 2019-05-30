@@ -16,6 +16,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#include <boost/math/constants/constants.hpp>
+
 #include "../bem/integral_operator.hpp"
 #include "../bem/weighted_residual.hpp"
 #include "../library/poisson_kernel.hpp"
@@ -32,6 +34,8 @@ typedef Eigen::Matrix<unsigned, Eigen::Dynamic, Eigen::Dynamic> uMatrix;
 
 int main(void)
 {
+	using namespace boost::math::double_constants;
+	
 	// define nodal coordinates of our mesh
 	dMatrix nodes(9,3);
 	nodes <<
@@ -73,7 +77,7 @@ int main(void)
 	// and the number of kernel evaluations
 	std::cout << bound_op.get_kernel().get_num_evaluations() << std::endl;
 	
-	double anal = 32.0 * (std::log(1.0+std::sqrt(2.0))-(std::sqrt(2.0)-1.0)/3.0) / (4.0 * M_PI);
+	double anal = 32.0 * (std::log(1.0+root_two)-(root_two-1.0)/3.0) / (4.0 * pi);
 	std::cout << "numer: " << A.sum() << std::endl;
 	std::cout << "anal: " << anal << std::endl;
 	std::cout << "log10 error = " << log10(std::abs(A.sum() / anal - 1.0)) << std::endl;

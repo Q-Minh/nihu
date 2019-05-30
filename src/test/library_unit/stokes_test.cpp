@@ -1,3 +1,5 @@
+#include <boost/math/constants/constants.hpp>
+
 #include "library/laplace_kernel.hpp"
 #include "library/lib_element.hpp"
 #include "core/inverse_mapping.hpp"
@@ -15,6 +17,8 @@ stokes_hsp_integral(
 	Eigen::Matrix<double, 4, 3> const &gradN0
 )
 {
+	using namespace boost::math::double_constants;
+
 	typedef typename elem_t::x_t x_t;
 	typedef typename elem_t::xi_t xi_t;
 	typedef typename elem_t::lset_t lset_t;
@@ -50,8 +54,8 @@ stokes_hsp_integral(
 
 			x_t rvec = y - x;
 			double r = rvec.norm();
-			double G = 1.0 / (4.0  * M_PI * r);
-			x_t gradG = -1.0 / (4.0  * M_PI * r * r) * rvec.normalized();
+			double G = 1.0 / (4.0  * pi * r);
+			x_t gradG = -1.0 / (4.0  * pi * r * r) * rvec.normalized();
 
 			result += (N0 + (gradN0 * (y - y0))) * w * nx.dot(gradG.cross(dy));
 			result -= G * w * gradN0 * dy.cross(nx);
@@ -76,16 +80,18 @@ stokes_hsp_integral(
 		double dGnx = dlpt_kernel(x, y, nx);
 		double dGny = dlp_kernel(x, y, ny);
 		result += dGnx * w * jac * (gradN0 * ny);
-		Om -= 4.0 * M_PI * w * jac * dGny;
+		Om -= 4.0 * pi * w * jac * dGny;
 	}
 
-	result -= (gradN0 * nx) * Om / (4.0 * M_PI);
+	result -= (gradN0 * nx) * Om / (4.0 * pi);
 
 	return result;
 }
 
 int main()
 {
+	using namespace boost::math::double_constants;
+	
 	typedef NiHu::laplace_3d_HSP_kernel hsp_kernel_t;
 	typedef NiHu::quad_1_elem elem_t;
 	typedef elem_t::x_t x_t;
@@ -136,7 +142,7 @@ int main()
 
 	std::cout << std::endl;
 
-	std::cout << std::setprecision(10) << Istokes.sum() * (4.0 * M_PI) << std::endl;
+	std::cout << std::setprecision(10) << Istokes.sum() * (4.0 * pi) << std::endl;
 
 	return 0;
 }

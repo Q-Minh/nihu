@@ -19,6 +19,8 @@
 #ifndef ELASTOSTATICS_KERNEL_HPP_INCLUDED
 #define ELASTOSTATICS_KERNEL_HPP_INCLUDED
 
+#include <boost/math/constants/constants.hpp>
+
 #include "../core/global_definitions.hpp"
 #include "../core/kernel.hpp"
 #include "../core/gaussian_quadrature.hpp"
@@ -93,11 +95,13 @@ public:
 		NiHu::location_input_3d const &x,
 		NiHu::location_input_3d const &y) const
 	{
+		using namespace boost::math::double_constants;
+		
 		auto nu = get_poisson_ratio();
 		auto rvec = y.get_x() - x.get_x();
 		auto r = rvec.norm();
 		auto gradr = rvec.normalized();
-		return ( (3.-4.*nu) * result_t::Identity() + (gradr * gradr.transpose()) ) / (16.*M_PI*(1.-nu)*r);
+		return ( (3.-4.*nu) * result_t::Identity() + (gradr * gradr.transpose()) ) / (16.*pi*(1.-nu)*r);
 	}
 };
 //![udefine]
@@ -146,6 +150,8 @@ public:
 		NiHu::location_input_3d const &x,
 		NiHu::location_normal_input_3d const &y) const
 	{
+		using namespace boost::math::double_constants;
+	
 		auto nu = get_poisson_ratio();
 		auto rvec = y.get_x() - x.get_x();
 		auto r = rvec.norm();
@@ -154,7 +160,7 @@ public:
 		auto rdny = gradr.dot(n);
 		return (-rdny * ( (1.-2.*nu)*result_t::Identity() + 3.*(gradr*gradr.transpose()) )
 			+ (1.-2.*nu) * (gradr*n.transpose()-n*gradr.transpose())
-			) / (8.*M_PI*(1.-nu)*r*r);
+			) / (8.*pi*(1.-nu)*r*r);
 	}
 };
 //![tkernel]
@@ -171,12 +177,14 @@ public:
 	template <class guiggiani>
 	static void eval(guiggiani &obj)
 	{
-        auto const &r1 = obj.get_rvec_series(_1());
+		using namespace boost::math::double_constants;
+
+		auto const &r1 = obj.get_rvec_series(_1());
         auto const &j0 = obj.get_Jvec_series(_0());
         auto const &N0 = obj.get_shape_series(_0());
         auto nu = obj.get_poisson_ratio();
         Eigen::Matrix<double, 3, 3> res = ((r1*j0.transpose())-(j0*r1.transpose()))
-			* (1.-2.*nu)/(1.-nu)/(8.*M_PI);
+			* (1.-2.*nu)/(1.-nu)/(8.*pi);
 		obj.set_laurent_coeff(_m1(), semi_block_product(res, N0));
 	}
 };

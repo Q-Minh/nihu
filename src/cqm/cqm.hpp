@@ -6,7 +6,7 @@
 #ifndef CQM_HPP_INCLUDED
 #define CQM_HPP_INCLUDED
 
-#include "../util/math_constants.hpp"
+#include <boost/math/constants/constants.hpp>
 
 #include <complex>
 #include <vector>
@@ -73,7 +73,9 @@ public:
 		m_laplace_response(m_N / 2 + 1),
 		m_time_response(m_N)
 	{
-		double dphi = 2.*M_PI / m_N;
+		using namespace boost::math::double_constants;
+		
+		double dphi = two_pi / m_N;
 		double phi = 0.;
 		// conjugated because fftw r2c computes the forward transform with negative sign
 		for (unsigned k = 0; k < m_N / 2 + 1; ++k, phi += dphi)

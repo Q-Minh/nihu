@@ -23,6 +23,8 @@
 #ifndef LENOIR_SALLES_2012_HPP_INCLUDED
 #define LENOIR_SALLES_2012_HPP_INCLUDED
 
+#include <boost/math/constants/constants.hpp>
+
 #include "../core/integral_operator.hpp"
 #include "laplace_kernel.hpp"
 #include "lib_element.hpp"
@@ -93,6 +95,8 @@ public:
 		field_base<TrialField> const &trial_field,
 		element_match const &)
 	{
+		using namespace boost::math::double_constants;
+	
 		unsigned const N = tria_1_elem::num_nodes;
 		auto const &elem = trial_field.get_elem();
 
@@ -109,7 +113,7 @@ public:
 				std::asinh<double>(splus[i]/gamma[i]) - std::asinh<double>(sminus[i]/gamma[i])
 			).real();
 
-		result(0,0) *= 2.0/3.0 * S / (4.0*M_PI);
+		result(0,0) *= 2.0/3.0 * S / (4.0*pi);
 
 		return result;
 	}

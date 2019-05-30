@@ -1,10 +1,13 @@
 #include "util/math_functions.hpp"
 
+#include <boost/math/constants/constants.hpp>
 
 #include <gtest/gtest.h>
 
 void bessel_tester(double data[][4], unsigned size, std::complex<double> (*func)(std::complex<double> const &) )
 {
+	using namespace boost::math::double_constants;
+
 	for (unsigned i = 0; i < size; ++i)
 	{
 		double const eps(1e-6);
@@ -13,7 +16,7 @@ void bessel_tester(double data[][4], unsigned size, std::complex<double> (*func)
 		std::complex<double> NiHu = func(z);
 		double E = std::abs((Mat-NiHu)/Mat);
 		if (E > eps)
-			std::cout << "R: " << std::abs(z) << " phi: " << std::arg(z)/M_PI*180. << " z: " << z << " Mat: " << Mat << " NiHu: " << NiHu << " eps " << E << '\n';
+			std::cout << "R: " << std::abs(z) << " phi: " << std::arg(z)/pi*180. << " z: " << z << " Mat: " << Mat << " NiHu: " << NiHu << " eps " << E << '\n';
 		EXPECT_NEAR(E, 0., eps);
 	}
 }

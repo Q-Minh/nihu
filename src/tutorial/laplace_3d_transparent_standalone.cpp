@@ -1,3 +1,5 @@
+#include <boost/math/constants/constants.hpp>
+
 #include "core/weighted_residual.hpp"
 #include "library/laplace_kernel.hpp"
 #include "library/laplace_nearly_singular_integrals.hpp"
@@ -13,6 +15,8 @@ typedef Eigen::Matrix<unsigned, Eigen::Dynamic, Eigen::Dynamic> uMatrix;
 template <class TestSpace, class TrialSpace>
 static double tester(TestSpace const &test_space, TrialSpace const &trial_space)
 {
+	using namespace boost::math::double_constants;
+
 	// instantiate integral operators
 	auto I_op = NiHu::identity_integral_operator();
 	auto L_op = NiHu::create_integral_operator(NiHu::laplace_3d_SLP_kernel());
@@ -44,8 +48,8 @@ static double tester(TestSpace const &test_space, TrialSpace const &trial_space)
 			auto rvec = y - x0.col(s);
 			double r = rvec.norm();
 			double rdn = rvec.dot(ny) / r;
-			p0(k) += A(s) * 1./r/(4.0 * M_PI);
-			q0(k) += A(s) * -(1./r/r) * rdn /(4.0 * M_PI);
+			p0(k) += A(s) * 1./r/(4.0 * pi);
+			q0(k) += A(s) * -(1./r/r) * rdn /(4.0 * pi);
 		}
 	}
 	

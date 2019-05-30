@@ -23,6 +23,8 @@
 #ifndef LAPLACE_SINGULAR_INTEGRALS_HPP_INCLUDED
 #define LAPLACE_SINGULAR_INTEGRALS_HPP_INCLUDED
 
+#include <boost/math/constants/constants.hpp>
+
 #include "../core/match_types.hpp"
 #include "../core/singular_integral_shortcut.hpp"
 #include "quadrature_store_helper.hpp"
@@ -117,6 +119,8 @@ class laplace_2d_SLP_collocation_general
 public:
 	static result_t eval(elem_t const &elem)
 	{
+		using namespace boost::math::double_constants;
+		
 		result_t result = result_t::Zero();
 		
 		xi_t const &a = domain_t::get_corner(0);
@@ -160,7 +164,7 @@ public:
 				auto F = G * N * jac;
 				// evaluate integrand's singular part
 				double rho = xi(0) - xi0(0);
-				auto F0 = -std::log(std::abs(rho) * jac0) / (2. * M_PI) * (C0 + rho * (C1 + rho * C2));
+				auto F0 = -std::log(std::abs(rho) * jac0) / two_pi * (C0 + rho * (C1 + rho * C2));
 				
 				// integrate difference numerically
 				result.row(i) += (F - F0) * w;
@@ -185,7 +189,7 @@ public:
 				auto F = G * N * jac;
 				// evaluate singular part
 				double rho = xi(0) - xi0(0);
-				auto F0 = -std::log(std::abs(rho) * jac0) / (2. * M_PI) * (C0 + rho * (C1 + rho * C2));
+				auto F0 = -std::log(std::abs(rho) * jac0) / two_pi * (C0 + rho * (C1 + rho * C2));
 				
 				// integrate difference numerically
 				result.row(i) += (F - F0) * w;
@@ -196,7 +200,7 @@ public:
 			double rho2 = std::abs(b(0) - xi0(0));
 			double d1 = rho1 * jac0;
 			double d2 = rho2 * jac0;
-			result.row(i) += 1. / (2. * M_PI) * (
+			result.row(i) += 1. / two_pi * (
 				C0 * (rho2 * (1. - std::log(d2)) + rho1 * (1. - std::log(d1)) )
 				+
 				C1/4. * (rho2*rho2 * (1. - 2.*std::log(d2)) - rho1*rho1 * (1. - 2.*std::log(d1)) )
@@ -276,7 +280,7 @@ public:
 			}
 		}
 		
-		return -jac * result / (2. * M_PI);
+		return -jac * result / two_pi;
 	}
 };
 
@@ -307,6 +311,8 @@ class laplace_2d_SLP_collocation_straight_line_second_order
 public:
 	static result_t eval(elem_t const &elem)
 	{
+		using namespace boost::math::double_constants;
+		
 		// get Jacobian
 		double jac = elem.get_normal().norm();
 		
@@ -337,7 +343,7 @@ public:
 			}
 		}
 		
-		return result / (2. * M_PI);
+		return result / two_pi;
 	}
 };
 
@@ -353,9 +359,11 @@ public:
 	*/
 	static double eval(line_1_elem const &elem)
 	{
+		using namespace boost::math::double_constants;
+		
 		auto const &C = elem.get_coords();
 		double d = (C.col(1) - C.col(0)).norm();	// element length
-		return d*d*(1.5-std::log(d)) / (2.*M_PI);
+		return d*d*(1.5-std::log(d)) / two_pi;
 	}
 };
 
@@ -371,9 +379,11 @@ public:
 	*/
 	static void eval(line_1_elem const &elem, double &i1, double &i2)
 	{
+		using namespace boost::math::double_constants;
+		
 		auto const &C = elem.get_coords();
 		double d = (C.col(1) - C.col(0)).norm();	// element length
-		double c = d*d/(8.*M_PI);
+		double c = d*d/(8.*pi);
 		double lnd = std::log(d);
 		i1 = c * (1.75 - lnd);
 		i2 = c * (1.25 - lnd);
@@ -385,9 +395,11 @@ class laplace_2d_SLP_galerkin_edge_constant_line
 {
     static double qfunc(double a, double phi)
     {
+		using namespace boost::math::double_constants;
+		
     	if (std::abs(phi) < 1e-3)
     		return a / (a + 1.);
-    	double cotphi = std::tan(M_PI/2.-phi);
+    	double cotphi = std::tan(half_pi - phi);
         return std::atan(a/std::sin(phi) + cotphi) - std::atan(cotphi);
     }
 
@@ -395,6 +407,8 @@ public:
     /** \brief evaluate the integral on two elements */
     static double eval(line_1_elem const &elem1, line_1_elem const &elem2)
     {
+		using namespace boost::math::double_constants;
+		
 		// get the element corner coordinates
         auto const &C1 = elem1.get_coords();
         auto const &C2 = elem2.get_coords();
@@ -410,7 +424,7 @@ public:
 			r1*r2*(3.-2.*std::log(r3))
 			+ std::cos(phi) * (r1*r1*std::log(r1/r3)+r2*r2*std::log(r2/r3))
 			- std::sin(phi) * (r1*r1*qfunc(r2/r1, phi) + r2*r2*qfunc(r1/r2, phi))
-		) / (4.*M_PI);
+		) / (4.*pi);
     }
 };
 
@@ -419,9 +433,11 @@ class laplace_2d_DLP_galerkin_edge_constant_line
 {
     static double qfunc(double a, double phi)
     {
+		using namespace boost::math::double_constants;
+		
     	if (std::abs(phi) < 1e-3)
     		return a / (a + 1.);
-    	double cotphi = std::tan(M_PI/2.-phi);
+    	double cotphi = std::tan(half_pi - phi);
         return std::atan(a/std::sin(phi) + cotphi) - std::atan(cotphi);
     }
 
@@ -429,6 +445,8 @@ public:
     /** \brief evaluate the integral on two elements */
     static double eval(line_1_elem const &elem1, line_1_elem const &elem2)
     {
+		using namespace boost::math::double_constants;
+		
 		// get element corners
         auto const &C1 = elem1.get_coords();
         auto const &C2 = elem2.get_coords();
@@ -444,7 +462,7 @@ public:
 			r2*std::cos(phi) * qfunc(r1/r2, phi)
 			- r1 * qfunc(r2/r1, phi)
 			+ r2*std::sin(phi) * std::log(r2/r3)
-		) / (2.*M_PI);
+		) / two_pi;
 		
 		if (elem1.get_nodes()(0) == elem2.get_nodes()(1))
 			res *= -1;
@@ -481,6 +499,8 @@ public:
 	
 	static result_t eval(elem_t const &elem)
 	{
+		using namespace boost::math::double_constants;
+		
 		result_t result = result_t::Zero();
 		
 		xi_t const &a = domain_t::get_corner(0);
@@ -500,7 +520,7 @@ public:
 			x_t Jxvec = elem.get_normal(xi0);
 			x_t nx = Jxvec.normalized();
 			double jac0 = Jxvec.norm();
-			double twopiJ0 = 2.*M_PI * jac0;
+			double twopiJ0 = two_pi * jac0;
 			
 			// traverse quadrature points
 			for (auto it = quadrature_t::quadrature.begin(); it != quadrature_t::quadrature.end(); ++it)
@@ -584,6 +604,8 @@ class laplace_2d_HSP_collocation_line
 public:
 	static result_t eval(elem_t const &elem)
 	{
+		using namespace boost::math::double_constants;
+		
 		double jac = elem.get_normal().norm();
 		
 		result_t result;
@@ -600,7 +622,7 @@ public:
 				dN * std::log( std::abs( (b-xi0(0))/(a-xi0(0)) ) );
 		}
 		
-		return result / (2. *M_PI * jac);
+		return result / (two_pi * jac);
 	}
 };
 
@@ -628,13 +650,15 @@ public:
      */
 	static result_t eval(elem_t const &elem)
 	{
+		using namespace boost::math::double_constants;
+		
 		result_t result;
 		auto const &C = elem.get_coords();
 		for (size_t i = 0; i < rows; ++i)
 		{
 			x_t x0 = elem.get_x(test_shape_set_t::corner_at(i));
 			double d1 = (x0 - C.col(0)).norm(), d2 = (x0 - C.col(1)).norm();
-			result(i,0) = -(1. / d1 + 1. / d2) / (2.*M_PI);
+			result(i,0) = -(1. / d1 + 1. / d2) / two_pi;
 		}
 		return result;
 	}
@@ -654,6 +678,8 @@ public:
 	template <class elem_t>
 	static double eval(elem_t const &elem, typename elem_t::x_t const &x0)
 	{
+		using namespace boost::math::double_constants;
+		
 		enum { N = elem_t::domain_t::num_corners  };
 		double r[N], theta[N], alpha[N], result = 0.;
 		plane_element_helper(elem, x0, r, theta, alpha);
@@ -662,7 +688,7 @@ public:
 			result += r[i] * std::sin(alpha[i]) *
 			std::log(std::tan((alpha[i] + theta[i]) / 2.) / std::tan(alpha[i] / 2.));
 
-		return result / (4.*M_PI);
+		return result / (4.*pi);
 	}
 };
 
@@ -679,6 +705,8 @@ public:
 	template <class elem_t>
 	static double eval(elem_t const &elem, typename elem_t::x_t const &x0)
 	{
+		using namespace boost::math::double_constants;
+		
 		enum { N = elem_t::domain_t::num_corners };
 		double r[N], theta[N], alpha[N], result = 0.;
 		plane_element_helper(elem, x0, r, theta, alpha);
@@ -686,7 +714,7 @@ public:
 		for (unsigned i = 0; i < N; ++i)
 			result += (std::cos(alpha[i] + theta[i]) - std::cos(alpha[i])) / (r[i] * std::sin(alpha[i]));
 
-		return result / (4.*M_PI);
+		return result / (4.*pi);
 	}
 };
 

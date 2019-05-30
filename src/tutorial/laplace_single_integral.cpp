@@ -16,6 +16,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#include <boost/math/constants/constants.hpp>
+
 #include "core/weighted_residual.hpp"
 #include "library/laplace_kernel.hpp"
 #include "library/lib_element.hpp"
@@ -25,6 +27,8 @@ typedef Eigen::Matrix<unsigned, Eigen::Dynamic, Eigen::Dynamic> uMatrix;
 
 int main(void)
 {
+	using namespace boost::math::double_constants;
+	
 //! [Mesh]
 	dMatrix nodes(4,3);
 	nodes << 0., 0., 0., /*|*/ 1., 0., 0., /*|*/ 1., 1., 0., /*|*/ 0., 1., 0.;
@@ -49,7 +53,7 @@ int main(void)
 //! [Results]
 	std::cout << "WR matrix: " << A << std::endl;
 
-	double anal = std::log(1.+std::sqrt(2.)) / M_PI;
+	double anal = std::log(1. + root_two) / pi;
 	std::cout << "log10 error = " << std::log10(std::abs(A.sum() / anal - 1.)) << std::endl;
 //! [Results]
 

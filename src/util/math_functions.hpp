@@ -21,10 +21,11 @@
  * \brief general mathematical functions
  * \ingroup util
  */
+
+#include <boost/math/constants/constants.hpp>
+
 #ifndef MATH_FUNCTIONS_HPP_INCLUDED
 #define MATH_FUNCTIONS_HPP_INCLUDED
-
-#include "math_constants.hpp"
 
 #include <cmath>
 #include <complex>
@@ -64,13 +65,20 @@ namespace bessel
 {
 	/** \brief metafunction converting a floating point type to a complex type */
 	template <class T>
-	struct make_complex { typedef std::complex<T> type; };
+	struct make_complex 
+	{ 
+		typedef std::complex<T> type;
+	};
 
 	template <class T>
-	struct make_complex<std::complex<T> > { typedef std::complex<T> type; };
+	struct make_complex<std::complex<T> > 
+	{
+		typedef std::complex<T> type;
+	};
 
 	/** \brief limit between small and large argument series */
 	double const large_lim(7.);
+
 	/** \brief imaginary unit */
 	std::complex<double> const I(0., 1.);
 
@@ -85,6 +93,8 @@ namespace bessel
 	template <class T>
 	void mag_arg_large(int nu, T const &z, T &u, T &phi)
 	{
+		using boost::math::double_constants::pi;
+
 		double mag[3][7] = {
 			{
 				1.,
@@ -151,7 +161,7 @@ namespace bessel
 			u = q * u + mag[nu][m];
 			phi = q * phi + arg[nu][m];
 		}
-		phi = phi/z + z - (nu/2.+.25)*M_PI;
+		phi = phi/z + z - (nu/2.+.25)*pi;
 	}
 
 	/** 
@@ -187,6 +197,8 @@ namespace bessel
 	template <int nu, class T>
 	T J_large(T const &z)
 	{
+		using boost::math::double_constants::pi;
+
 		static_assert(nu >= 0 && nu <= 2 , "unimplemented Bessel J order");
 
 		T mag, arg;
@@ -194,12 +206,12 @@ namespace bessel
 		{
 			double const C(nu%2==0 ? 1. : -1);
 			mag_arg_large(nu, -z, mag, arg);
-			return std::sqrt(2./(M_PI * -z)) * mag * std::cos(arg) * C;
+			return std::sqrt(2./(pi * -z)) * mag * std::cos(arg) * C;
 		}
 		else
 		{
 			mag_arg_large(nu, z, mag, arg);
-			return std::sqrt(2./(M_PI * z)) * mag * std::cos(arg);
+			return std::sqrt(2./(pi * z)) * mag * std::cos(arg);
 		}
 	}
 
@@ -226,11 +238,14 @@ namespace bessel
 	template <int nu>
 	std::complex<double> Y_small(std::complex<double> const &z)
 	{
+		using boost::math::double_constants::pi;
+		using boost::math::double_constants::euler;
+		
 		// upper limit for 1e-8 error
 		int const N = (int)(4+2.*std::abs(z));
 
 		std::complex<double> q(z/2.0), q2(q*q);
-		std::complex<double> first(2.0*J_small<nu>(z)*(std::log(q)+M_EULER_GAMMA));
+		std::complex<double> first(2.0*J_small<nu>(z)*(std::log(q) + euler));
 		std::complex<double> second;
 		switch (nu)
 		{
@@ -259,7 +274,7 @@ namespace bessel
 			a += 1./(k+1.) + 1./(k+nu+1.);
 		}
 
-		return 1./M_PI * (first + second + third);
+		return 1./pi * (first + second + third);
 	}
 
 	/** 
@@ -271,6 +286,8 @@ namespace bessel
 	template <int nu>
 	std::complex<double> Y_large(std::complex<double> const &z)
 	{
+		using boost::math::double_constants::pi;
+		
 		static_assert(nu >= 0 || nu <= 2, "unimplemented Bessel Y order");
 		
 		std::complex<double> mag, arg;
@@ -281,12 +298,12 @@ namespace bessel
 			std::complex<double> const MAG(std::sqrt(C2*C2+1.));
 			std::complex<double> const ARG(std::atan(1./C2));
 			mag_arg_large(nu, -z, mag, arg);
-			return std::sqrt(2./(M_PI * -z)) * mag * MAG * std::cos(arg-ARG) * C1;
+			return std::sqrt(2./(pi * -z)) * mag * MAG * std::cos(arg-ARG) * C1;
 		}
 		else
 		{
 			mag_arg_large(nu, z, mag, arg);
-			return std::sqrt(2./(M_PI * z)) * mag * std::sin(arg);
+			return std::sqrt(2./(pi * z)) * mag * std::sin(arg);
 		}
 	}
 
@@ -313,6 +330,8 @@ namespace bessel
 	template <int nu, int kind, class T>
 	typename make_complex<T>::type H_large(T const &z)
 	{
+		using boost::math::double_constants::pi;
+
 		static_assert((kind == 1) || (kind == 2), "invalid kind argument of bessel::H");
 		double const C = (kind == 2 ? -1. : 1.);
 
@@ -328,12 +347,12 @@ namespace bessel
 			double MAG(-sgn*std::sqrt(3.));
 			std::complex<double> const ARG(std::atan(-sgn*I*.5));
 
-			return std::sqrt(2./(M_PI * -z)) * mag * (std::cos(arg) + C * MAG * std::cos(arg-ARG)) * C1;
+			return std::sqrt(2./(pi * -z)) * mag * (std::cos(arg) + C * MAG * std::cos(arg-ARG)) * C1;
 		}
 
 		mag_arg_large(nu, z, mag, arg);
 		
-		return std::sqrt(2./M_PI/z) * mag * std::exp(C*I*arg);
+		return std::sqrt(2./pi/z) * mag * std::exp(C*I*arg);
 	}
 
 	/** 
@@ -376,23 +395,8 @@ namespace bessel
 template <class T = double>
 T chebroot(size_t n, size_t i)
 {
-	return std::cos(M_PI / 2. * (2 * (n - i) - 1) / T(n));
-}
-
-/** \brief compute binomial coefficient
- * \tparam I integer type
- * \param [in] n
- * \param [in] k
- * \return binomial coefficient
- */
-template <class I>
-I nchoosek(I n, I k)
-{
-	if (k == 0)
-		return 1;
-	if (n == 0)
-		return 0;
-	return nchoosek(n - 1, k - 1) + nchoosek(n - 1, k);
+	using boost::math::double_constants::pi;
+	return std::cos(pi / 2. * (2 * (n - i) - 1) / T(n));
 }
 
 
@@ -410,6 +414,7 @@ I Ipow(I base, I exp)
 		res *= base;
 	return res;
 }
+
 
 /** \brief metafunction computing integer power
  * \tparam Base the base

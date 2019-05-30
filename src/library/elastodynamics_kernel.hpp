@@ -26,8 +26,9 @@
 #ifndef ELASTODYNAMICS_KERNEL_HPP_INCLUDED
 #define ELASTODYNAMICS_KERNEL_HPP_INCLUDED
 
+#include <boost/math/constants/constants.hpp>
+
 #include "../core/global_definitions.hpp"
-#include "../util/math_constants.hpp"
 #include "../core/kernel.hpp"
 #include "../core/gaussian_quadrature.hpp"
 #include "location_normal.hpp"
@@ -90,6 +91,8 @@ public:
 		location_input_3d const &x,
 		location_input_3d const &y) const
 	{
+		using namespace boost::math::double_constants;
+	
 		// compute distance and its gradient
 		auto rvec = y.get_x() - x.get_x();
 		auto r = rvec.norm();
@@ -119,7 +122,7 @@ public:
 			std::exp(-I*kSr) * (1. - 3.*I/kSr - 3./(kSr*kSr));
 
 		// matrix valued result
-		return ( psi * result_t::Identity() + chi * (gradr * gradr.transpose()) ) / (4.*M_PI*mu*r);
+		return ( psi * result_t::Identity() + chi * (gradr * gradr.transpose()) ) / (4.*pi*mu*r);
 	}
 };
 
@@ -163,6 +166,8 @@ public:
 		location_input_3d const &x,
 		location_normal_input_3d const &y) const
 	{
+		using namespace boost::math::double_constants;
+
 		// compute distance and its gradient
 		auto rvec = y.get_x() - x.get_x();
 		auto r = rvec.norm();
@@ -213,7 +218,7 @@ public:
 			(2.*C + lambdapermu*(A+B+4.*C)) * (gradr * n.transpose())
 			+
 			(A+C) * (n * gradr.transpose())
-		) / (4.*M_PI*r*r);
+		) / (4.*pi*r*r);
 	}
 };
 

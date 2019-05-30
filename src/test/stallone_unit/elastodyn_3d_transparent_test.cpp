@@ -16,6 +16,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#include <boost/math/constants/constants.hpp>
+
 #include "core/weighted_residual.hpp"
 #include "library/elastodynamics_kernel.hpp"
 #include "library/elastodynamics_singular_integrals.hpp"
@@ -29,6 +31,8 @@ typedef Eigen::Matrix<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic> cMat
 
 int main(int argc, char *argv[])
 {
+	using namespace boost::math::double_constants;
+
 	auto mesh = NiHu::read_off_mesh(argv[1], NiHu::tria_1_tag(), NiHu::quad_1_tag());
 	auto const &v = NiHu::constant_view(mesh, NiHu::_3d());
 
@@ -38,7 +42,7 @@ int main(int argc, char *argv[])
 	double nu = .33;
 	double rho = 100;
 	double mu = 1e8;
-	double omega = 2.0*M_PI*50.0;
+	double omega = two_pi*50.0;
 	auto U_op = NiHu::create_integral_operator(NiHu::elastodynamics_3d_U_kernel(nu, rho, mu, omega));
 	auto T_op = NiHu::create_integral_operator(NiHu::elastodynamics_3d_T_kernel(nu, rho, mu, omega));
 

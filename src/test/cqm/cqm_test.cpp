@@ -1,9 +1,13 @@
+#include <boost/math/constants/constants.hpp>
+
 #include "cqm/cqm.hpp"
 
 #include <iostream>
 #include <iterator>
 
 #include <Eigen/Dense>
+
+using namespace boost::math::double_constants;
 
 typedef Eigen::Matrix<double, 2, 1> ExcType;
 typedef Eigen::Matrix<double, 3, 1> RespType;
@@ -28,7 +32,7 @@ struct Kernel
 };
 
 
-const double Kernel::om_d = 100.0 * 2. * M_PI;
+const double Kernel::om_d = 100.0 * two_pi;
 const double Kernel::a = 1.;
 const double Kernel::tau = 1e-2;
 
@@ -43,7 +47,7 @@ int main(void)
 	int k = 0;
 	double f0 = 1e2;
 	for (auto it = excitation.begin(); it != excitation.end(); ++it, ++k)
-		(*it)(0) = sin(2*M_PI*f0*k*dt);
+		(*it)(0) = sin(two_pi * f0 * k * dt);
 
 	CQM<2, ExcType, LaplaceExcType, RespType, LaplaceRespType> cqm(N, dt, delta);
 	cqm.eval(excitation.begin(), excitation.end(), Kernel());

@@ -1,5 +1,5 @@
 /// \file test_space.cpp
-/// GTest tester for class space
+/// GTest tester for class NiHu::space
 
 #include "core/space.hpp"
 #include <gtest/gtest.h>
@@ -22,7 +22,7 @@ static_assert(std::is_same<NiHu::space<int, 1>::scalar_t, int>::value,
 
 // testing if space shorthands are defined correctly
 static_assert(std::is_same<NiHu::space_1d<float>,
-	NiHu::space<float, 1>>::value, "Space_1d shorthand error");
+	NiHu::space<float, 1> >::value, "Space_1d shorthand error");
 static_assert(std::is_same<NiHu::space_2d<float>,
 	NiHu::space<float, 2> >::value, "Space_2d shorthand error");
 static_assert(std::is_same<NiHu::space_3d<float>,

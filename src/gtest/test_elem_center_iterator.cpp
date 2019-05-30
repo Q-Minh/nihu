@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <boost/math/constants/constants.hpp>
 
 #include "core/field.hpp"
 #include "core/function_space.hpp"
@@ -58,6 +59,8 @@ TEST(elem_center_iterator, a)
 
 TEST(field_center_iterator, a)
 {
+	using namespace boost::math::double_constants;
+
 	// create circle mesh
 	size_t N = 10;
 	double R = 1.0;
@@ -65,7 +68,7 @@ TEST(field_center_iterator, a)
 	Eigen::Matrix<double, 2, Eigen::Dynamic> nodes(2, N);
 	for (size_t i = 0; i < N; ++i)
 	{
-		double phi = 2.0 * M_PI / N * i;
+		double phi = two_pi / N * i;
 		nodes(0, i) = R * std::cos(phi);
 		nodes(1, i) = R * std::sin(phi);
 	}

@@ -16,6 +16,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#include <boost/math/constants/constants.hpp>
+
 #include "core/mesh.hpp"
 #include "library/lib_element.hpp"
 
@@ -50,6 +52,8 @@ void test1()
 
 void test2(void)
 {
+	using namespace boost::math::double_constants;
+
 //! [2D Circle]
 	double R = 1.0;				// radius
 	unsigned N = 180;			// number of elements
@@ -57,7 +61,7 @@ void test2(void)
 	dMatrix nodes(N, 2);		// nodal locations
 	for (unsigned i = 0; i < N; ++i)
 	{
-		double phi = i * (2*M_PI/N);
+		double phi = i * (two_pi / N);
 		nodes(i,0) = R * cos(phi);
 		nodes(i,1) = R * sin(phi);
 	}

@@ -40,6 +40,8 @@
 #ifndef NIHU_LAPLACE_NEARLY_SINGULAR_INTEGRALS_HPP_INCLUDED
 #define NIHU_LAPLACE_NEARLY_SINGULAR_INTEGRALS_HPP_INCLUDED
 
+#include <boost/math/constants/constants.hpp>
+
 #include "../core/formalism.hpp"
 #include "../core/nearly_singular_integral.hpp"
 #include "../core/nearly_singular_planar_constant_collocation_shortcut.hpp"
@@ -67,6 +69,8 @@ public:
 	template <class elem_t>
 	static double eval(elem_t const &elem, typename elem_t::x_t const &x0_in)
 	{
+		using namespace boost::math::double_constants;
+		
 		typedef typename elem_t::x_t x_t;
 
 		enum { N = elem_t::domain_t::num_corners };
@@ -98,10 +102,11 @@ public:
 			double th2 = theta_lim[(i + 1) % N];
 
 			// angle check
-			if (std::abs(th2 - th1) > M_PI)
+			if (std::abs(th2 - th1) > pi)
 			{
-				if (th2 > th1) th1 += 2 * M_PI;
-				else th2 += 2 * M_PI;
+				if (th2 > th1)
+					th1 += two_pi;
+				else th2 += two_pi;
 			}
 
 			double jac = (th2 - th1) / 2.;
@@ -125,7 +130,7 @@ public:
 			}
 		}
 
-		return result / (4. * M_PI);
+		return result / (4. * pi);
 	}
 };
 
@@ -140,6 +145,8 @@ public:
 	template <class elem_t>
 	static double eval(elem_t const &elem, typename elem_t::x_t const &x0_in)
 	{
+		using namespace boost::math::double_constants;
+		
 		typedef typename elem_t::x_t x_t;
 
 		enum { N = elem_t::domain_t::num_corners };
@@ -169,10 +176,10 @@ public:
 			double th2 = theta_lim[(i + 1) % N];
 
 			// angle check
-			if (std::abs(th2 - th1) > M_PI)
+			if (std::abs(th2 - th1) > pi)
 			{
-				if (th2 > th1) th1 += 2 * M_PI;
-				else th2 += 2 * M_PI;
+				if (th2 > th1) th1 += two_pi;
+				else th2 += two_pi;
 			}
 
 			double jac = (th2 - th1) / 2.;
@@ -196,7 +203,7 @@ public:
 			}
 		}
 
-		return sgn(z) * result / (4. * M_PI);
+		return sgn(z) * result / (4. * pi);
 	}
 };
 
@@ -214,6 +221,8 @@ public:
 		typename elem_t::x_t const &x0_in,
 		typename elem_t::x_t const &nx_in)
 	{
+		using namespace boost::math::double_constants;
+		
 		typedef typename elem_t::x_t x_t;
 
 		enum { N = elem_t::domain_t::num_corners };
@@ -246,10 +255,10 @@ public:
 			double th2 = theta_lim[(i + 1) % N];
 
 			// angle check
-			if (std::abs(th2 - th1) > M_PI)
+			if (std::abs(th2 - th1) > pi)
 			{
-				if (th2 > th1) th1 += 2 * M_PI;
-				else th2 += 2 * M_PI;
+				if (th2 > th1) th1 += two_pi;
+				else th2 += two_pi;
 			}
 
 			double jac = (th2 - th1) / 2.;
@@ -282,7 +291,7 @@ public:
 			}
 		}
 
-		return result / (4.*M_PI);
+		return result / (4.*pi);
 	}
 };
 
@@ -300,6 +309,8 @@ public:
 		typename elem_t::x_t const &x0_in,
 		typename elem_t::x_t const &nx_in)
 	{
+		using namespace boost::math::double_constants;
+		
 		typedef typename elem_t::x_t x_t;
 
 		enum { N = elem_t::domain_t::num_corners };
@@ -331,10 +342,11 @@ public:
 			double th2 = theta_lim[(i + 1) % N];
 
 			// angle check
-			if (std::abs(th2 - th1) > M_PI)
+			if (std::abs(th2 - th1) > pi)
 			{
-				if (th2 > th1) th1 += 2 * M_PI;
-				else th2 += 2 * M_PI;
+				if (th2 > th1)
+					th1 += two_pi;
+				else th2 += two_pi;
 			}
 
 			double jac = (th2 - th1) / 2.;
@@ -370,7 +382,7 @@ public:
 			}
 		}
 
-		return result / (4.*M_PI);
+		return result / (4.*pi);
 	}
 };
 

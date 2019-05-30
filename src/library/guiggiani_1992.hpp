@@ -23,12 +23,13 @@
 #ifndef GUIGGIANI_1992_HPP_INCLUDED
 #define GUIGGIANI_1992_HPP_INCLUDED
 
+#include <boost/math/constants/constants.hpp>
+
 #include "line_quad_store.hpp"
 #include "location_normal.hpp"
 #include "../core/field.hpp"
 #include "../core/kernel.hpp"
 #include "../core/shapeset.hpp"
-#include "../util/math_constants.hpp"
 #include "../util/block_product.hpp"
 #include "../util/store_pattern.hpp"
 
@@ -254,6 +255,8 @@ public:
 	template <class result_t>
 	void integrate(result_t &&I, xi_t const &xi0, x_t const &normal)
 	{
+		using namespace boost::math::double_constants;
+		
 #if NIHU_MEX_DEBUGGING
 		static bool printed = false;
 		if (!printed)
@@ -283,8 +286,8 @@ public:
 				continue;
 			
 			// we assume that the domain's corners are listed in positive order */
-			if (std::abs(t2 - t1) > M_PI)
-				t2 += 2.0 * M_PI;
+			if (std::abs(t2 - t1) > pi)
+				t2 += two_pi;
 
 			// theta integration
 			for (auto const &q_theta : line_quad_store<tangential_order>::quadrature)
@@ -616,6 +619,8 @@ public:
 	template <class result_t>
 	void integrate(result_t &&I, xi_t const &xi0)
 	{
+		using namespace boost::math::double_constants;
+		
 #if NIHU_MEX_DEBUGGING
 		static bool printed = false;
 		if (!printed)
@@ -640,9 +645,9 @@ public:
 			scalar_t t1 = m_theta_lim[n];
 			scalar_t t2 = m_theta_lim[(n + 1) % N];
 	
-			// we assume that the domain's corners are listed in positive order */
-			if (std::abs(t2 - t1) > M_PI)
-				t2 += 2.0 * M_PI;
+			// we assume that the domain's corners are listed in positive order
+			if (std::abs(t2 - t1) > pi)
+				t2 += two_pi;
 
 			// theta integration
 			for (auto const &q_theta : line_quad_store<tangential_order>::quadrature)
