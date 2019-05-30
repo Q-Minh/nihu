@@ -27,8 +27,8 @@ public:
 	 * Sets vectors to size 1, as they need to be expanded based on first element
 	 */
 	helmholtz_3d_hf_level_data()
-		: m_interp_dns(1)
-		, m_interp_ups(1)
+		: m_interp_ups(1)
+		, m_interp_dns(1)
 	{
 	}
 

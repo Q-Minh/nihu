@@ -11,8 +11,8 @@ namespace fmm
 {
 
 helmholtz_2d_wb_m2m_matrix::helmholtz_2d_wb_m2m_matrix()
-	: m_level_data_from(nullptr)
-	, m_level_data_to(nullptr)
+	: m_level_data_to(nullptr)	
+	, m_level_data_from(nullptr)
 {
 }
 
@@ -50,8 +50,8 @@ helmholtz_2d_wb_m2m_matrix::operator*(cvector_t const &rhs) const
 
 
 helmholtz_2d_wb_l2l_matrix::helmholtz_2d_wb_l2l_matrix()
-	: m_level_data_from(nullptr)
-	, m_level_data_to(nullptr)
+	: m_level_data_to(nullptr)
+	, m_level_data_from(nullptr)
 {
 }
 

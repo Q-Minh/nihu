@@ -43,11 +43,28 @@ set(NIHU_THIRDPARTY_DIR "${CMAKE_SOURCE_DIR}/ThirdParty")
 include(NiHuEigen)
 
 ### Boost section
+# Process the boost path
+if (DEFINED NIHU_BOOST_PATH)
+	set(BOOST_ROOT ${NIHU_BOOST_PATH})
+endif ()
+
+# Find the boost package
 find_package(Boost 1.67 REQUIRED)
 if (BOOST_FOUND)
-	message(STATUS "Boost was found, include dir: ${Boost_INCLUDE_DIR}")
+	message(STATUS "Boost was found, include directory: ${Boost_INCLUDE_DIR}")
 else ()
 	message(STATUS "Boost was not found")
+endif ()
+
+#### FFTW section 
+# Process fftw path
+if (DEFINED NIHU_FFTW_PATH)
+	set(FFTW3_DIRECTORY ${NIHU_FFTW_PATH})
+endif ()
+
+find_package(FFTW REQUIRED)
+if (FFTW3_FOUND)
+	message(STATUS "fftw3 was found, include directory: ${FFTW3_INCLUDE_DIRS}")
 endif ()
 
 ### MATLAB Section
@@ -96,6 +113,7 @@ endif(MATLABMEX_FOUND)
 if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
 	set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -pedantic -O3 -Wall \
 		-Wno-deprecated-declarations")
+	set(NIHU_FPIC_FLAG "-fPIC")
 	# Find out gcc version
 	execute_process(
 		COMMAND ${CMAKE_CXX_COMPILER} -dumpversion
@@ -146,6 +164,7 @@ add_library("nihu_static_lib" STATIC ${NIHU_COMMON_LIBRARIES})
 set_target_properties("nihu_static_lib"
 	PROPERTIES
 	OUTPUT_NAME "nihu"
+	COMPILE_FLAGS "${NIHU_FPIC_FLAG}"
 	PREFIX "" 
 	SUFFIX ${NIHU_STATIC_LIB_SUFFIX}
 	ARCHIVE_OUTPUT_DIRECTORY ${NIHU_LIB_OUTPUT_DIR}
@@ -166,6 +185,23 @@ set_target_properties("nihu_shared_lib"
 )
 set(NIHU_LINK_LIBRARIES_DYN ${NIHU_LINK_LIBRARIES_DYN}; "nihu_shared_lib") 
 endif (0)
+
+# Add the static FMM library 
+# Look for common library source files
+FILE(GLOB NIHU_FMM_LIBRARY_SOURCES
+	"${CMAKE_SOURCE_DIR}/fmm/*.cpp")
+add_library("nihu_fmm_static_lib" STATIC ${NIHU_FMM_LIBRARY_SOURCES})
+set_target_properties("nihu_fmm_static_lib"
+	PROPERTIES
+	OUTPUT_NAME "nihu_fmm"
+	COMPILE_FLAGS "${NIHU_FPIC_FLAG}"
+	PREFIX "" 
+	SUFFIX ${NIHU_STATIC_LIB_SUFFIX}
+	ARCHIVE_OUTPUT_DIRECTORY ${NIHU_LIB_OUTPUT_DIR}
+	LIBRARY_OUTPUT_DIRECTORY ${NIHU_LIB_OUTPUT_DIR}
+)
+set(NIHU_FMM_LINK_LIBRARIES ${NIHU_FMM_LINK_LIBRARIES}; "nihu_fmm_static_lib")
+
 
 ### Subdirectories
 # Tutorials directory

@@ -29,14 +29,14 @@ spectral_interpolate::spectral_interpolate(spectral_interpolate const &rhs)
 }
 
 spectral_interpolate::spectral_interpolate(spectral_interpolate &&rhs)
-	:m_Nfrom (rhs.m_Nfrom)
-	,m_Nto (rhs.m_Nto)
-	,m_idft_plan (rhs.m_idft_plan)
-	,m_dft_plan (rhs.m_dft_plan)
-	,m_in_spec (std::move(rhs.m_in_spec))
-	,m_in (std::move(rhs.m_in))
-	,m_out (std::move(rhs.m_out))
-	,m_out_spec (std::move(rhs.m_out_spec))
+	: m_Nto (rhs.m_Nto)	
+	, m_Nfrom (rhs.m_Nfrom)
+	, m_dft_plan (rhs.m_dft_plan)
+	, m_idft_plan (rhs.m_idft_plan)
+	, m_in_spec (std::move(rhs.m_in_spec))
+	, m_in (std::move(rhs.m_in))
+	, m_out (std::move(rhs.m_out))
+	, m_out_spec (std::move(rhs.m_out_spec))
 {
 	rhs.m_idft_plan = nullptr;
 	rhs.m_dft_plan = nullptr;
