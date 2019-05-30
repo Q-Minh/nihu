@@ -55,6 +55,8 @@ dft const &dft::operator=(dft const &other)
 		(fftw_complex *)in.data(),
 		(fftw_complex *)out.data(),
 		m_flag, FFTW_MEASURE);
+	
+	return *this;
 }
 
 dft::~dft()

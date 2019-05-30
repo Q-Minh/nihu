@@ -59,15 +59,15 @@ laplace_3d_fmm::m2l::operator()(cluster_t to, cluster_t from) const
 
 	std::complex<double> const J(0.0, 1.0);
 
-	for (int j = 0; j <= to.get_expansion_length(); ++j)
+	for (size_t j = 0; j <= to.get_expansion_length(); ++j)
 	{
-		for (int k = -j; k <= +j; ++k)
+		for (int k = -j; k <= int(+j); ++k)
 		{
 			Eigen::Index row = to.linear_index(j, k);
 
-			for (int n = 0; n <= from.get_expansion_length(); ++n)
+			for (size_t n = 0; n <= from.get_expansion_length(); ++n)
 			{
-				for (int m = -n; m <= +n; ++m)
+				for (int m = -n; m <= int(+n); ++m)
 				{
 					Eigen::Index col = from.linear_index(n, m);
 

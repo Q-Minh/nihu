@@ -8,14 +8,15 @@ namespace fmm
 {
 
 helmholtz_2d_wb_level_data::helmholtz_2d_wb_level_data()
-	: m_dft_plan(nullptr)
+	: m_interp_ups(1)
+	, m_interp_dns(1)
+	, m_dft_plan(nullptr)
 	, m_multi_paddeds(1)
 	, m_multi_spectrums(1)
 	, m_idft_plan(nullptr)
 	, m_local_paddeds(1)
 	, m_locals(1)
-	, m_interp_ups(1)
-	, m_interp_dns(1)
+	
 {
 }
 
