@@ -16,6 +16,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#include <boost/math/constants/constants.hpp>
+
 //! [Includes]
 #include "library/lib_element.hpp"
 #include "core/weighted_residual.hpp"
@@ -33,6 +35,8 @@ typedef Eigen::Matrix<unsigned, Eigen::Dynamic, Eigen::Dynamic> uMatrix;
 template <class func_space>
 void tester(func_space const &w)
 {
+	using namespace boost::math::double_constants;
+	
 	// compute number of DOF and allocate result matrix
 	int nDOF = w.get_num_dofs();
 	dMatrix I(nDOF, nDOF);
@@ -47,7 +51,7 @@ void tester(func_space const &w)
 	std::cout << "sum of elements: " << I.sum() << std::endl;
 
 	// Compare to analytical solution
-	double anal = 32.0 * (std::log(1.0+std::sqrt(2.0))-(std::sqrt(2.0)-1.0)/3.0) / 4.0/M_PI;
+	double anal = 32.0 * (std::log(1.0+root_two)-(root_two-1.0)/3.0) / 4.0 / pi;
 	std::cout << "log10 error = " << std::log10(std::abs(I.sum() / anal - 1.0)) << std::endl;
 }
 //! [Test]

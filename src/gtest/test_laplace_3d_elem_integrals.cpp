@@ -1,5 +1,7 @@
 #include <gtest/gtest.h>
 
+#include <boost/math/constants/constants.hpp>
+
 #include "library/laplace_kernel.hpp"
 #include "library/laplace_nearly_singular_integrals.hpp"
 #include "library/laplace_singular_integrals.hpp"
@@ -46,6 +48,8 @@ static double helper(double x, double t0, double a, double b, double const *c)
 
 TEST(LaplaceElemIntegrals, Singular_HSP_Linear_NSet)
 {
+	using namespace boost::math::double_constants;
+
 	typedef NiHu::quad_1_elem elem_t;
 	
 	typedef NiHu::quad_1_gauss_shape_set test_shape_set_t;
@@ -114,7 +118,7 @@ TEST(LaplaceElemIntegrals, Singular_HSP_Linear_NSet)
 			res0(c) += helper(theta[tr], -t0[tr], alpha[tr], b, coeffs[c])
 				- helper(0, -t0[tr], alpha[tr], b, coeffs[c]);
 	}
-	res0 /= (4. * M_PI);
+	res0 /= (4. * pi);
 	
 	// compare numerical and analytical solutions
 	double rel_error = (res0 - res.row(0)).norm() / res0.norm();

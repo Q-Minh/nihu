@@ -1,3 +1,4 @@
+#include <boost/math/constants/constants.hpp>
 
 #include "library/lib_element.hpp"
 #include "core/mesh.hpp"
@@ -10,12 +11,16 @@ typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> dMatrix;
 typedef Eigen::Matrix<double, Eigen::Dynamic, 1> dVector;
 typedef Eigen::Matrix<unsigned, Eigen::Dynamic, Eigen::Dynamic> uMatrix;
 
+/// \todo this mesh creating function should be extracted into a general module
 NiHu::mesh<tmp::vector<NiHu::line_1_elem> >
-CreateCircle(double R, unsigned N, float orient = 1.0) {
+CreateCircle(double R, unsigned N, float orient = 1.0)
+{
+	using namespace boost::math::double_constants;
+	
 	dMatrix nodes(N, 2);		// nodal locations
 	for (unsigned i = 0; i < N; ++i)
 	{
-		double phi = orient * i * (2 * M_PI / N);
+		double phi = orient * i * (2 * pi / N);
 		nodes(i, 0) = R * cos(phi);
 		nodes(i, 1) = R * sin(phi);
 	}

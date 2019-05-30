@@ -22,6 +22,8 @@
 #ifndef ELASTOSTATICS_SINGULAR_INTEGRALS_HPP_INCLUDED
 #define ELASTOSTATICS_SINGULAR_INTEGRALS_HPP_INCLUDED
 
+#include <boost/math/constants/constants.hpp>
+
 #include "../core/integral_operator.hpp"
 #include "../core/singular_integral_shortcut.hpp"
 
@@ -45,6 +47,8 @@ public:
 	 */
 	static result_t eval(line_1_elem const &elem, double nu)
 	{
+		using namespace boost::math::double_constants;
+		
 		auto const &C = elem.get_coords();
 		auto rvec = (C.col(1) - C.col(0)).eval();
 		auto r = rvec.norm(); 	// elem length
@@ -53,7 +57,7 @@ public:
 		return r*r * (
 			-(3. - 4.*nu) * result_t::Identity() * (std::log(r) - 1.5)
 			+ gradr * gradr.transpose()
-		) / (8.*M_PI * (1-nu));
+		) / (8. * pi * (1-nu));
 	}
 };
 

@@ -1,5 +1,5 @@
 /** \file cluster.hpp
- * \brief implementation of class fmm::cluster_base
+ * \brief implementation of class NiHu::fmm::cluster_base
  */
 #ifndef CLUSTER_HPP_INCLUDED
 #define CLUSTER_HPP_INCLUDED

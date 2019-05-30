@@ -16,6 +16,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#include <boost/math/constants/constants.hpp>
+
 #include "core/weighted_residual.hpp"
 #include "interface/read_off_mesh.hpp"
 #include "library/helmholtz_kernel.hpp"
@@ -25,11 +27,14 @@ typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> dMatrix;
 typedef Eigen::Matrix<unsigned, Eigen::Dynamic, Eigen::Dynamic> uMatrix;
 typedef Eigen::Matrix<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic> cMatrix;
 
+/// \todo create circle again
 NiHu::mesh<tmp::vector<NiHu::line_1_elem> > create_circle(double R, int N)
 {
+	using namespace boost::math::double_constants;
+	
 	dMatrix nodes(N, 2);
 	uMatrix elements(N,3);
-	double dphi = 2*M_PI/N;
+	double dphi = two_pi / N;
 	for (int i = 0; i < N; ++i)
 	{
 		double phi = i * dphi;

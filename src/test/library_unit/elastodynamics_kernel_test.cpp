@@ -16,6 +16,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#include <boost/math/constants/constants.hpp>
+
 #include "library/elastodynamics_kernel.hpp"
 #include "library/lib_element.hpp"
 #include "core/double_integral.hpp"
@@ -46,6 +48,8 @@ typename K::result_t singular_integral_test(NiHu::kernel_base<K> const &k, E con
 
 int main(void)
 {
+	using namespace boost::math::double_constants;
+
 	// two elements shifted (regular case)
     NiHu::quad_1_elem::coords_t coords1, coords2;
     coords1 <<
@@ -59,7 +63,7 @@ int main(void)
 	double nu = 0.3;
 	double rho = 100;
 	double mu = 1.e8;
-	double om = 2.*M_PI*10.;
+	double om = two_pi*10.;
 
 	NiHu::elastodynamics_3d_U_kernel U(nu, rho, mu, om);
 	NiHu::elastodynamics_3d_T_kernel T(nu, rho, mu, om);

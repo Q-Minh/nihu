@@ -4,7 +4,9 @@
 #ifndef LAPLACE_3D_FMM_HPP_INCLUDED
 #define LAPLACE_3D_FMM_HPP_INCLUDED
 
+
 #include <Eigen/Dense>
+#include <boost/math/constants/constants.hpp>
 #include <boost/math/special_functions/spherical_harmonic.hpp>
 #include <boost/math/special_functions/factorials.hpp>
 
@@ -106,9 +108,11 @@ public:
 	static std::complex<double> Y(size_t n, int m, double theta, double phi)
 	{
 		using boost::math::spherical_harmonic;
+		using namespace boost::math::double_constants;
+		
 		std::complex<double> res = 
 			spherical_harmonic(n, std::abs(m), theta, phi) 
-			/ std::sqrt((2 * n + 1.0) / (4.0 * M_PI));
+			/ std::sqrt((2 * n + 1.0) / (4.0 * pi));
 		return (m < 0) ? std::conj(res) : res;
 	}
 
@@ -151,6 +155,8 @@ public:
 			trial_input_t const &from,
 			std::integral_constant<unsigned, 0>) const
 		{
+			using namespace boost::math::double_constants;
+			
 			result_t res(to.data_size(), 1);
 
 			x_t x = from.get_x() - to.get_bounding_box().get_center();
@@ -168,15 +174,17 @@ public:
 				}
 			}
 
-			return res / (4. * M_PI);
+			return res / (4. * pi);
 		}
 
 		result_t eval(test_input_t const &to,
 			trial_input_t const &from,
 			std::integral_constant<unsigned, 1>) const
 		{
+			using namespace boost::math::double_constants;
+			
 			result_t res = to.zero_multipole();
-			return res / (4. * M_PI);
+			return res / (4. * pi);
 		}
 	};
 
@@ -209,6 +217,8 @@ public:
 		result_t eval(test_input_t const &to, trial_input_t const & from,
 			std::integral_constant<unsigned, 0>) const
 		{
+			using namespace boost::math::double_constants;
+			
 			result_t res(rows(to), 1);
 
 			x_t x = from.get_x() - to.get_bounding_box().get_center();
@@ -226,7 +236,7 @@ public:
 				}
 			}
 
-			return res / (4.0 * M_PI);
+			return res / (4.0 * pi);
 		}
 
 		result_t eval(test_input_t const &to, trial_input_t const & from,

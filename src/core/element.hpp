@@ -24,7 +24,8 @@
 #ifndef ELEMENT_HPP_INCLUDED
 #define ELEMENT_HPP_INCLUDED
 
-#include "../util/math_constants.hpp"
+#include <boost/math/constants/constants.hpp>
+
 #include "../util/crtp_base.hpp"
 #include "../tmp/bool.hpp"
 #include "shapeset.hpp"
@@ -526,7 +527,8 @@ class normal_impl<Derived, typename std::enable_if<
 public:
 	static x_t eval(dx_t const &m)
 	{
-		return Eigen::Rotation2D<typename Derived::scalar_t>(-M_PI/2.0) * m;
+		using boost::math::double_constants::pi;
+		return Eigen::Rotation2D<typename Derived::scalar_t>(-pi/2.0) * m;
 	}
 };
 

@@ -1,3 +1,5 @@
+#include <boost/math/constants/constants.hpp>
+
 #include <gtest/gtest.h>
 
 #include "library/laplace_kernel.hpp"
@@ -14,6 +16,8 @@ typedef Eigen::Matrix<double, Eigen::Dynamic, 1> dVector;
 
 TEST(LaplaceElemIntegrals, Singular_2d_SLP)
 {
+	using namespace boost::math::double_constants;
+
 	// check that analytical and general formulations yield the same result
 	// for line_1 element with constant shape function
 	typedef NiHu::line_1_elem elem_t;
@@ -70,7 +74,7 @@ TEST(LaplaceElemIntegrals, Singular_2d_SLP)
 			0.0, 0.0, 0.0;
 	elem_2_t elem2(coords2);
 	
-	double q = 1./(2.0*M_PI) * (.3 * (1-std::log(.3)) + .7 * (1.-std::log(.7)));
+	double q = 1./two_pi * (.3 * (1-std::log(.3)) + .7 * (1.-std::log(.7)));
 	
 	auto res6 = NiHu::laplace_2d_SLP_collocation_general<
 		test_field_2_t,

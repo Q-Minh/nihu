@@ -16,6 +16,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#include <boost/math/constants/constants.hpp>
+
 #include "core/weighted_residual.hpp"
 #include "util/mex_matrix.hpp"
 #include "library/elastodynamics_kernel.hpp"
@@ -27,6 +29,8 @@ typedef NiHu::mex::complex_matrix<double> cMatrix;
 
 void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 {
+	using namespace boost::math::double_constants;
+	
 	dMatrix surf_nodes(rhs[0]), surf_elem(rhs[1]);
 	auto surf_mesh = NiHu::create_mesh(surf_nodes, surf_elem, NiHu::quad_1_tag());
 	auto const &surf_sp = NiHu::constant_view(surf_mesh, NiHu::_3d());
@@ -44,8 +48,8 @@ void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 	double mu = *mxGetPr(rhs[6]);
 	double freq = *mxGetPr(rhs[7]);
 
-	auto U_op = NiHu::create_integral_operator(NiHu::elastodynamics_3d_U_kernel(nu, rho, mu, 2.*M_PI*freq));
-	auto T_op = NiHu::create_integral_operator(NiHu::elastodynamics_3d_T_kernel(nu, rho, mu, 2.*M_PI*freq));
+	auto U_op = NiHu::create_integral_operator(NiHu::elastodynamics_3d_U_kernel(nu, rho, mu, two_pi * freq));
+	auto T_op = NiHu::create_integral_operator(NiHu::elastodynamics_3d_T_kernel(nu, rho, mu, two_pi * freq));
 
 	Us << dirac(surf_sp) * U_op[surf_sp];
 	Ts << dirac(surf_sp) * T_op[surf_sp];

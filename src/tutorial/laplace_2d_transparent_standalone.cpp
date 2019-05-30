@@ -1,3 +1,5 @@
+#include <boost/math/constants/constants.hpp>
+
 #include "core/weighted_residual.hpp"
 #include "library/laplace_kernel.hpp"
 #include "library/laplace_nearly_singular_integrals.hpp"
@@ -9,13 +11,16 @@
 typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> dMatrix;
 typedef Eigen::Matrix<unsigned, Eigen::Dynamic, Eigen::Dynamic> uMatrix;
 
+/// \todo create circle again
 static NiHu::mesh<tmp::vector<NiHu::line_1_elem> > create_mesh(double r, int N)
 {
+	using namespace boost::math::double_constants;
+	
 	dMatrix nodes(N,2);
 	uMatrix elements(N, 3);
 	for (int i = 0; i < N; ++i)
 	{
-		double phi = i*2*M_PI/N;
+		double phi = i*two_pi/N;
 		nodes(i,0) = r * cos(phi);
 		nodes(i,1) = r * sin(phi);
 		elements(i,0) = NiHu::line_1_elem::id;
@@ -28,6 +33,8 @@ static NiHu::mesh<tmp::vector<NiHu::line_1_elem> > create_mesh(double r, int N)
 template <class TestSpace, class TrialSpace>
 static void tester(TestSpace const &test_space, TrialSpace const &trial_space)
 {
+	using namespace boost::math::double_constants;
+
 	// instantiate integral operators
 	auto I_op = NiHu::identity_integral_operator();
 	auto G_op = NiHu::create_integral_operator(NiHu::laplace_2d_SLP_kernel());
@@ -60,8 +67,8 @@ static void tester(TestSpace const &test_space, TrialSpace const &trial_space)
 			auto rvec = y - x0.col(s);
 			double r = rvec.norm();
 			double rdn = rvec.dot(ny) / r;
-			p0(k) += A(s) * -std::log(r)/(2.0 * M_PI);
-			q0(k) += A(s) * -(1.0/r) * rdn /(2.0 * M_PI);
+			p0(k) += A(s) * -std::log(r) / two_pi;
+			q0(k) += A(s) * -(1.0/r) * rdn / two_pi;
 		}
 	}
 	

@@ -1,3 +1,5 @@
+#include <boost/math/constants/constants.hpp>
+
 #include "core/weighted_residual.hpp"
 #include "library/helmholtz_kernel.hpp"
 #include "library/helmholtz_nearly_singular_integrals.hpp"
@@ -14,6 +16,8 @@ typedef Eigen::Matrix<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic> cMat
 template <class TestSpace, class TrialSpace>
 static double tester(TestSpace const &test_space, TrialSpace const &trial_space)
 {
+	using namespace boost::math::double_constants;
+
 	double wn = 1.;
 		
 	// instantiate integral operators
@@ -48,8 +52,8 @@ static double tester(TestSpace const &test_space, TrialSpace const &trial_space)
 			double r = rvec.norm();
 			std::complex<double> ikr(0., wn*r);
 			double rdn = rvec.dot(ny) / r;
-			p0(k) += A(s) * std::exp(-ikr)/r/(4. * M_PI);
-			q0(k) += A(s) * -(std::exp(-ikr)/r/r) * rdn /(4. * M_PI) * (1. + ikr);
+			p0(k) += A(s) * std::exp(-ikr)/r/(4. * pi);
+			q0(k) += A(s) * -(std::exp(-ikr)/r/r) * rdn /(4. * pi) * (1. + ikr);
 		}
 	}
 	

@@ -16,12 +16,17 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#include <boost/math/constants/constants.hpp>
+
 #include "library/helmholtz_kernel.hpp"
 #include "library/lib_element.hpp"
 #include <iostream>
 
+
 void comparison()
 {
+	using namespace boost::math::double_constants;
+
 	std::complex<double> const I(0., 1.);
 	
 	double x(1.0), y(1.0), r = std::sqrt(x*x+y*y);
@@ -35,10 +40,11 @@ void comparison()
 	std::complex<double> K1(NiHu::bessel::K<1>(r*s));
 
 	std::complex<double> Ker1 = I*k/r * (x/r*x/r*(krH0-2.*H1) + H1) / 4.;
-	std::complex<double> Ker2 = s/r * (x/r*x/r*(2.*K1+rsK0) - K1) / (2.*M_PI);
+	std::complex<double> Ker2 = s/r * (x/r*x/r*(2.*K1+rsK0) - K1) / two_pi;
 	
 	std::cout << Ker1 << '\t' << Ker2 << std::endl;
 }
+
 
 template <class kernel>
 void tester(NiHu::kernel_base<kernel> const &k)

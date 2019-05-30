@@ -1,6 +1,8 @@
 #ifndef NIHU_NEARLY_SINGULAR_COLLOCATIONAL_HPP_INCLUDED
 #define NIHU_NEARLY_SINGULAR_COLLOCATIONAL_HPP_INCLUDED
 
+#include <boost/math/constants/constants.hpp>
+
 #include "line_quad_store.hpp"
 #include "location_normal.hpp"
 #include "../core/element.hpp"
@@ -83,6 +85,8 @@ public:
 	template <class result_t>
 	void integrate(result_t &&I, test_input_t const &tsi)
 	{
+		using namespace boost::math::double_constants;
+		
 		// the reference point
 		x_t x0 = tsi.get_x();
 
@@ -129,17 +133,12 @@ public:
 			scalar_t t1 = m_theta_lim[n];
 			scalar_t t2 = m_theta_lim[(n + 1) % N];
 
-			/*
-			// we assume that the domain's corners are listed in positive order
-			if (std::abs(t2 - t1) > M_PI)
-				t2 += 2.0 * M_PI;
-			*/
-			
 			// angle check
-			if (std::abs(t2 - t1) > M_PI)
+			if (std::abs(t2 - t1) > pi)
 			{
-				if (t2 > t1) t1 += 2 * M_PI;
-				else t2 += 2*M_PI;
+				if (t2 > t1) 
+					t1 += two_pi;
+				else t2 += two_pi;
 			}
 			
 			/** todo this is for highly distorted elements */

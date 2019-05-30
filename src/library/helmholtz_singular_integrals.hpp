@@ -22,6 +22,8 @@
 #ifndef NIHU_HELMHOLTZ_SINGULAR_INTEGRALS_HPP_INCLUDED
 #define NIHU_HELMHOLTZ_SINGULAR_INTEGRALS_HPP_INCLUDED
 
+#include <boost/math/constants/constants.hpp>
+
 #include "helmholtz_kernel.hpp"
 #include "guiggiani_1992.hpp"
 #include "lib_element.hpp"
@@ -70,6 +72,8 @@ public:
 	template <class WaveNumber>
 	static result_t eval(elem_t const &elem, WaveNumber const &k)
 	{
+		using namespace boost::math::double_constants;
+
 		result_t result = result_t::Zero();
 		
 		helmholtz_2d_SLP_kernel<WaveNumber> kernel(k);
@@ -109,7 +113,7 @@ public:
 				// evaluate integrand
 				auto F = G * N * jac;
 				// evaluate singular part
-				auto F0 = -N0 * jac0 / (2. * M_PI) * std::log(std::abs(xi(0) - xi0(0)) * jac0);
+				auto F0 = -N0 * jac0 / two_pi * std::log(std::abs(xi(0) - xi0(0)) * jac0);
 				
 				// integrate difference numerically
 				result.row(i) += (F - F0) * w;
@@ -134,7 +138,7 @@ public:
 				// evaluate integrand
 				auto F = G * N * jac;
 				// evaluate integrand's singular part
-				auto F0 = -N0 * jac0 / (2. * M_PI) * std::log(std::abs(xi(0) - xi0(0)) * jac0);
+				auto F0 = -N0 * jac0 / two_pi * std::log(std::abs(xi(0) - xi0(0)) * jac0);
 				
 				result.row(i) += (F - F0) * w;
 			}
@@ -142,7 +146,7 @@ public:
 			// add analytic integral of singular part
 			double d1 = std::abs(a(0) - xi0(0)) * jac0;
 			double d2 = std::abs(b(0) - xi0(0)) * jac0;
-			result.row(i) += -N0 / (2. * M_PI) * (
+			result.row(i) += -N0 / two_pi * (
 				d1 * (std::log(d1) - 1.) + d2 * (std::log(d2) - 1.)
 			);
 		}
@@ -171,8 +175,9 @@ public:
 		line_1_elem::x_t const &x0,
 		wavenumber_t const &k)
 	{
-		double const eulergamma = 0.57721566490153286060;
-		std::complex<double> const c(eulergamma, M_PI / 2.);
+		using namespace boost::math::double_constants;
+		
+		std::complex<double> const c(euler, half_pi);
 
 		// compute elem radius
 		auto R = (x0 - elem.get_coords().col(0)).norm();
@@ -190,7 +195,7 @@ public:
 			res += B / (2 * n + 1) * (clnq - Cn - 1. / (2 * n + 1));
 		}
 
-		return -R / M_PI * res;
+		return -R / pi * res;
 	}
 };
 
@@ -204,11 +209,12 @@ public:
 	template <class wavenumber_t>
 	static std::complex<double> eval(double R, wavenumber_t const &k)
 	{
-		double const eulergamma = 0.57721566490153286060;
+		using namespace boost::math::double_constants;
+	
 		wavenumber_t kR = k * R; 
 		wavenumber_t logkR = std::log(kR);
 		
-		std::complex<double> I = 1. - std::complex<double>(0., 2./M_PI) * (logkR - 1.5 + eulergamma);
+		std::complex<double> I = 1. - std::complex<double>(0., 2./pi) * (logkR - 1.5 + euler);
 		
 		wavenumber_t q = -kR * kR;
 		wavenumber_t pow = 1.;
@@ -221,7 +227,7 @@ public:
 			wavenumber_t Gn = logkR/d - (4*n + 3)/2./(d*d);
 			pow *= q/(n*n);
 			Cn += 1./n;
-			I += (Fn-std::complex<double>(0., 2./M_PI)*(Gn+(eulergamma - Cn)*Fn)) * pow;
+			I += (Fn-std::complex<double>(0., 2./pi)*(Gn+(euler - Cn)*Fn)) * pow;
 		}
 		
 		return I * (R*R) * std::complex<double>(0., -1.);
@@ -460,6 +466,8 @@ public:
 	template <class WaveNumber>
 	static result_t eval(elem_t const &elem, WaveNumber  const &k)
 	{
+		using namespace boost::math::double_constants;
+
 		// instantiate and clear result matrix
 		result_t result = result_t::Zero();
 		
@@ -509,7 +517,7 @@ public:
 				auto F0 = (
 					(N0/rho + N1)/rho/jac0
 					- k*k/2. * N0 * jac0 * std::log(std::abs(rho) * jac0)
-				) / (2. * M_PI);
+				) / two_pi;
 				
 				// integrate difference numerically
 				result.row(i) += (F - F0) * w;
@@ -538,7 +546,7 @@ public:
 				auto F0 = (
 					(N0/rho + N1)/rho/jac0
 					- k*k/2. * N0 * jac0 * std::log(std::abs(rho) * jac0)
-				) / (2. * M_PI);
+				) / two_pi;
 				
 				// integrate difference numerically
 				result.row(i) += (F - F0) * w;
@@ -552,7 +560,7 @@ public:
 				std::log(std::abs((b(0)-xi0(0)) / (a(0)-xi0(0)))) * N1) / jac0
 				- k*k/2. *
 				N0 * (d1 * (std::log(d1) - 1.) + d2 * (std::log(d2) - 1.))
-				) / (2. * M_PI);
+				) / two_pi;
 		}
 		return result;
 	}
@@ -592,6 +600,8 @@ public:
 	template <class WaveNumber>
 	static result_t eval(elem_t const &elem, WaveNumber  const &k)
 	{
+		using namespace boost::math::double_constants;
+
 		// instantiate and clear result matrix
 		result_t result = result_t::Zero();
 		
@@ -638,7 +648,7 @@ public:
 				auto F0 = (
 					(N0/rho + N1)/rho/jac
 					- k*k/2. * N0 * jac * std::log(std::abs(rho) * jac)
-				) / (2. * M_PI);
+				) / two_pi;
 				
 				// integrate difference numerically
 				result.row(i) += (F - F0) * w;
@@ -664,7 +674,7 @@ public:
 				auto F0 = (
 					(N0/rho + N1)/rho/jac
 					- k*k/2. * N0 * jac * std::log(std::abs(rho) * jac)
-				) / (2. * M_PI);
+				) / two_pi;
 				
 				// integrate difference numerically
 				result.row(i) += (F - F0) * w;
@@ -678,7 +688,7 @@ public:
 				std::log(std::abs((b(0)-xi0(0)) / (a(0)-xi0(0)))) * N1) / jac
 				- k*k/2. *
 				N0 * (d1 * (std::log(d1) - 1.) + d2 * (std::log(d2) - 1.))
-				) / (2. * M_PI);
+				) / two_pi;
 		}
 		return result;
 	}
@@ -720,6 +730,8 @@ public:
 		typename elem_t::x_t const &x0,
 		wavenumber_t const &k)
 	{
+		using namespace boost::math::double_constants;
+		
 		typedef regular_quad_store<typename elem_t::domain_t, order> quadr_t;
 
 		enum { N = elem_t::domain_t::num_corners };
@@ -744,7 +756,7 @@ public:
 		}
 
 		// assemble result from static and dynamic parts
-		return (I_stat + I_dyn) / (4.0 * M_PI);
+		return (I_stat + I_dyn) / (4.0 * pi);
 	}
 };
 
@@ -781,6 +793,7 @@ public:
 		typename elem_t::x_t const &x0,
 		wavenumber_t const &k)
 	{
+		using namespace boost::math::double_constants;
 		
 		typedef regular_quad_store<typename elem_t::domain_t, order> quadr_t;
 		enum { N = elem_t::domain_t::num_corners };
@@ -820,7 +833,7 @@ public:
 		}
 		
 		// assemble result from static and dynamic parts
-		return (IddG0 + k*k / 2.0 * IG0 + I_acc) / (4.0 * M_PI);
+		return (IddG0 + k*k / 2.0 * IG0 + I_acc) / (4.0 * pi);
 	}
 };
 

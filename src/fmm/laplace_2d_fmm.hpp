@@ -4,6 +4,8 @@
 #ifndef LAPLACE_2D_FMM_HPP_INCLUDED
 #define LAPLACE_2D_FMM_HPP_INCLUDED
 
+#include <boost/math/constants/constants.hpp>
+
 #include "cluster.hpp"
 #include "m2l_indices.hpp"
 #include "p2p.hpp"
@@ -129,6 +131,8 @@ public:
 			trial_input_t const &from,
 			std::integral_constant<unsigned, 0>) const
 		{
+			using namespace boost::math::double_constants;
+			
 			auto const& y = from.get_x();
 			std::complex<double> zy(y(0), y(1));
 			zy -= center2complex(to);
@@ -137,13 +141,15 @@ public:
 			res(0) = 1.0;
 			for (size_t k = 1; k <= to.get_expansion_length(); ++k)
 				res(k) = -std::pow(zy, k) / double(k);
-			return -res / (2.*M_PI);
+			return -res / two_pi;
 		}
 
 		result_t eval(test_input_t const &to,
 			trial_input_t const &from,
 			std::integral_constant<unsigned, 1>) const
 		{
+			using namespace boost::math::double_constants;
+			
 			auto const& y = from.get_x();
 			std::complex<double> zy(y(0), y(1));
 			zy -= center2complex(to);
@@ -153,7 +159,7 @@ public:
 			for (size_t k = 1; k <= to.get_expansion_length(); ++k)
 				res(k) = -std::pow(zy, k-1);
 			res *= zydny;
-			return -res / (2. * M_PI);
+			return -res / two_pi;
 		}
 	};
 
@@ -185,6 +191,8 @@ public:
 		result_t eval(test_input_t const &to, trial_input_t const & from,
 			std::integral_constant<unsigned, 0>) const
 		{
+			using namespace boost::math::double_constants;
+
 			std::complex<double> z = 
 				std::complex<double>(from.get_x()(0), from.get_x()(1)) 
 				- center2complex(to);
@@ -193,12 +201,14 @@ public:
 			res(0) = std::log(-z);
 			for (size_t k = 1; k <= to.get_expansion_length(); ++k)
 				res(k) = -1. / (double(k) * std::pow(z, k));
-			return -res / (2.*M_PI);
+			return -res / two_pi;
 		}
 
 		result_t eval(test_input_t const &to, trial_input_t const & from,
 			std::integral_constant<unsigned, 1>) const
 		{
+			using namespace boost::math::double_constants;
+			
 			std::complex<double> z =
 				std::complex<double>(from.get_x()(0), from.get_x()(1))
 				- center2complex(to);
@@ -210,7 +220,7 @@ public:
 			for (size_t k = 1; k <= to.get_expansion_length(); ++k)
 				res(k) = 1. / std::pow(z, k + 1);
 			res *= zdny;
-			return -res / (2. * M_PI);
+			return -res / two_pi;
 		}
 	};
 	

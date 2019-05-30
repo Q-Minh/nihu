@@ -1,7 +1,8 @@
 /// \file test_domain
-/// Gtest file of class Domain
+/// Gtest file of class NiHu::domain
 
 #include <gtest/gtest.h>
+
 #include "library/lib_domain.hpp"
 
 // testing line_domain

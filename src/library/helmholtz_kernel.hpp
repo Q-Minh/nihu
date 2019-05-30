@@ -25,7 +25,8 @@
 #ifndef HELMHOLTZ_KERNEL_HPP_INCLUDED
 #define HELMHOLTZ_KERNEL_HPP_INCLUDED
 
-#include "../util/math_constants.hpp"
+#include <boost/math/constants/constants.hpp>
+
 #include <cmath>
 
 #include "../core/global_definitions.hpp"
@@ -186,24 +187,27 @@ public:
 private:
 	void eval_impl(std::integral_constant<unsigned, 0>, scalar r, result_t *f) const
 	{
+		using boost::math::double_constants::pi;
 		auto kr = this->get_wave_number() * r;
 		auto ikr = result_t(0,1) * kr;
-		f[0] = std::exp(-ikr) / r / (4. * M_PI);
+		f[0] = std::exp(-ikr) / r / (4. * pi);
 	}
 	
 
 	void eval_impl(std::integral_constant<unsigned, 1>, scalar r, result_t *f) const
 	{
+		using boost::math::double_constants::pi;
 		auto kr = this->get_wave_number() * r;
 		auto ikr = result_t(0,1) * kr;
-		f[0] = std::exp(-ikr) / (r*r) / (4. * M_PI) * (-ikr - 1.);
+		f[0] = std::exp(-ikr) / (r*r) / (4. * pi) * (-ikr - 1.);
 	}
 	
 
 	void eval_impl(std::integral_constant<unsigned, 2>, scalar r, result_t *f) const
 	{
+		using boost::math::double_constants::pi;
 		auto ikr = result_t(0,1) * (this->get_wave_number() * r);
-		auto g = std::exp(-ikr) / (r*r*r) / (4. * M_PI);
+		auto g = std::exp(-ikr) / (r*r*r) / (4. * pi);
 		f[1] = -g * (1. + ikr);
 		f[0] = g * (3. + ikr * (3. + ikr));
 	}
@@ -211,8 +215,9 @@ private:
 
 	void eval_impl(std::integral_constant<unsigned, 3>, scalar r, result_t *f) const
 	{
+		using boost::math::double_constants::pi;
 		auto ikr = result_t(0,1) * (this->get_wave_number() * r);
-		auto g = std::exp(-ikr)/(r*r*r*r) / (4.*M_PI);
+		auto g = std::exp(-ikr)/(r*r*r*r) / (4. * pi);
 		f[1] = g * (3. + ikr * (3. + ikr));
 		f[0] = -g * (15. + ikr * (15 + ikr * (6 + ikr)));
 	}

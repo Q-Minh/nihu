@@ -26,7 +26,8 @@
 #ifndef LAPLACE_KERNEL_HPP_INCLUDED
 #define LAPLACE_KERNEL_HPP_INCLUDED
 
-#include "../util/math_constants.hpp"
+#include <boost/math/constants/constants.hpp>
+
 #include <cmath>
 #include "../core/global_definitions.hpp"
 #include "../core/gaussian_quadrature.hpp"
@@ -95,23 +96,27 @@ class laplace_kernel<space_2d<scalar> >
 private:
 	void eval_impl(std::integral_constant<unsigned, 0>, scalar r, scalar *f) const
 	{
-		*f = -std::log(r) / (2. * M_PI);
+		using namespace boost::math::double_constants;
+		*f = -std::log(r) / (2. * two_pi);
 	}
 	
 	void eval_impl(std::integral_constant<unsigned, 1>, scalar r, scalar *f) const
 	{
-		*f = -1.0 / r / (2. * M_PI);
+		using namespace boost::math::double_constants;
+		*f = -1.0 / r / two_pi;
 	}
 	
 	void eval_impl(std::integral_constant<unsigned, 2>, scalar r, scalar *f) const
 	{
-		f[1] = -1.0 / (r*r) / (2. * M_PI);
+		using namespace boost::math::double_constants;
+		f[1] = -1.0 / (r*r) / two_pi;
 		f[0] = -2.0  * f[1];
 	}
 	
 	void eval_impl(std::integral_constant<unsigned, 3>, scalar r, scalar *f) const
 	{
-		auto g = 1. / (r*r*r) / (2. * M_PI);
+		using namespace boost::math::double_constants;
+		auto g = 1. / (r*r*r) / two_pi;
 		f[1] = 2.0 * g; 
 		f[0] = -8.0 * g;
 	}
@@ -131,24 +136,28 @@ class laplace_kernel<space_3d<scalar> >
 {
 	void eval_impl(std::integral_constant<unsigned, 0>, scalar r, scalar *f) const
 	{
-		*f = 1. / r / (4. * M_PI);
+		using namespace boost::math::double_constants;
+		*f = 1. / r / (4. * pi);
 	}
 	
 	void eval_impl(std::integral_constant<unsigned, 1>, scalar r, scalar *f) const
 	{
-		*f = -1. / (r*r) / (4. * M_PI);
+		using namespace boost::math::double_constants;
+		*f = -1. / (r*r) / (4. * pi);
 	}
 	
 	void eval_impl(std::integral_constant<unsigned, 2>, scalar r, scalar *f) const
 	{
-		auto g = 1./(r*r*r)/(4.*M_PI);
+		using namespace boost::math::double_constants;
+		auto g = 1./(r*r*r)/(4. * pi);
 		f[1] = -1. * g;
 		f[0] = 3. * g;
 	}
 	
 	void eval_impl(std::integral_constant<unsigned, 3>, scalar r, scalar *f) const
 	{
-		auto g = 1. / (r*r*r*r) / (4. * M_PI);
+		using namespace boost::math::double_constants;
+		auto g = 1. / (r*r*r*r) / (4. * pi);
 		f[1] = 3. * g;
 		f[0] = -15. * g;
 	}
@@ -265,6 +274,8 @@ public:
 	template <class guiggiani>
 	static void eval(guiggiani &obj)
 	{
+		using namespace boost::math::double_constants;
+		
 		auto g1vec = obj.get_rvec_series(_1()) * (
 			obj.get_rvec_series(_2()).dot(obj.get_Jvec_series(_0()))
 			+ obj.get_rvec_series(_1()).dot(obj.get_Jvec_series(_1()))
@@ -279,8 +290,8 @@ public:
 
 		auto Sm2 = -3. * obj.get_rvec_series(_1()).dot(obj.get_rvec_series(_2()));
 
-		obj.set_laurent_coeff(_m1(), -(Sm2 * a0 + a1) / (4. * M_PI));
-		obj.set_laurent_coeff(_m2(), -a0 / (4. * M_PI));
+		obj.set_laurent_coeff(_m1(), -(Sm2 * a0 + a1) / (4. * pi));
+		obj.set_laurent_coeff(_m2(), -a0 / (4. * pi));
 	}
 };
 

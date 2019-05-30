@@ -1,3 +1,5 @@
+#include <boost/math/constants/constants.hpp>
+
 #include "core/weighted_residual.hpp"
 #include "library/helmholtz_kernel.hpp"
 #include "library/helmholtz_nearly_singular_integrals.hpp"
@@ -9,13 +11,16 @@ typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> dMatrix;
 typedef Eigen::Matrix<unsigned, Eigen::Dynamic, Eigen::Dynamic> uMatrix;
 typedef Eigen::Matrix<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic> cMatrix;
 
-NiHu::mesh<tmp::vector<NiHu::line_1_elem> > create_mesh(double r, int N)
+/// \todo create_circle again
+NiHu::mesh<tmp::vector<NiHu::line_1_elem> > 
+create_mesh(double r, int N)
 {
+	using namespace boost::math::double_constants;
 	dMatrix nodes(N,2);
 	uMatrix elements(N, 3);
 	for (int i = 0; i < N; ++i)
 	{
-		double phi = i*2*M_PI/N;
+		double phi = i*two_pi/N;
 		nodes(i,0) = r * cos(phi);
 		nodes(i,1) = r * sin(phi);
 		elements(i,0) = NiHu::line_1_elem::id;
