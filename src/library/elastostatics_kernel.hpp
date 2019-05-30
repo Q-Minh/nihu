@@ -72,7 +72,6 @@ struct kernel_traits<elastostatics_2d_U_kernel>
 	typedef location_input_2d test_input_t;
 	typedef location_input_2d trial_input_t;
 	typedef Eigen::Matrix<double, 2, 2> result_t;
-	enum { result_rows = 2, result_cols = 2 };
 	typedef gauss_family_tag quadrature_family_t;
 	static bool const is_symmetric = true;
 	
@@ -127,7 +126,6 @@ struct kernel_traits<elastostatics_2d_T_kernel>
 	typedef location_input_2d test_input_t;
 	typedef location_normal_input_2d trial_input_t;
 	typedef Eigen::Matrix<double, 2, 2> result_t;
-	enum { result_rows = 2, result_cols = 2 };
 	typedef gauss_family_tag quadrature_family_t;
 	static bool const is_symmetric = true;
 	
@@ -191,7 +189,6 @@ struct kernel_traits<elastostatics_3d_U_kernel>
 	typedef location_input_3d test_input_t;
 	typedef location_input_3d trial_input_t;
 	typedef Eigen::Matrix<double, 3, 3> result_t;
-	enum { result_rows = 3, result_cols = 3 };
 	typedef gauss_family_tag quadrature_family_t;
 	static bool const is_symmetric = true;
 	typedef asymptotic::inverse<1> far_field_behaviour_t;
@@ -251,7 +248,6 @@ struct kernel_traits<elastostatics_3d_T_kernel>
 	typedef location_input_3d test_input_t;
 	typedef location_normal_input_3d trial_input_t;
 	typedef Eigen::Matrix<double, 3, 3> result_t;
-	enum { result_rows = 3, result_cols = 3 };
 	typedef gauss_family_tag quadrature_family_t;
 	static bool const is_symmetric = false;
 	typedef asymptotic::inverse<2> far_field_behaviour_t;

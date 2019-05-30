@@ -26,12 +26,6 @@ namespace distance_dependent_kernel_traits_ns
 	struct quadrature_family;
 
 	template <class Derived>
-	struct result_rows;
-	
-	template <class Derived>
-	struct result_cols;
-
-	template <class Derived>
 	struct is_singular;
 
 	template <class DerivedSpace>

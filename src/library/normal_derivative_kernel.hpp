@@ -34,14 +34,6 @@ namespace kernel_traits_ns
 	template <class DK, int Nx, int Ny>
 	struct result<normal_derivative_kernel<DK, Nx, Ny> >
 		: distance_dependent_kernel_traits_ns::result<DK> {};
-	// the number of result rows is inherited
-	template <class DK, int Nx, int Ny>
-	struct result_rows<normal_derivative_kernel<DK, Nx, Ny> >
-		: distance_dependent_kernel_traits_ns::result_rows<DK> {};
-	// the number of result columns is inherited
-	template <class DK, int Nx, int Ny>
-	struct result_cols<normal_derivative_kernel<DK, Nx, Ny> >
-		: distance_dependent_kernel_traits_ns::result_cols<DK> {};
 
 	// the quadrature family is inherited
 	template <class DK, int Nx, int Ny>

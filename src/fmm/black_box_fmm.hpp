@@ -37,7 +37,7 @@ public:
 	static size_t const space_dimension = kernel_00_t::space_t::dimension;
 
 	/// \brief the field's dimension
-	static size_t const field_dimension = kernel_00_t::result_rows;
+	static size_t const field_dimension = num_rows<typename kernel_00_t::result_t>::value;
 
 	/// \brief the kernel result's scalar type
 	typedef typename scalar<typename kernel_00_t::result_t>::type kernel_scalar_t;

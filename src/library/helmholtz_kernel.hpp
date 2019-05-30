@@ -55,14 +55,6 @@ namespace distance_dependent_kernel_traits_ns
 	};
 
 	template <class Space, class WaveNumber>
-	struct result_rows<helmholtz_kernel<Space, WaveNumber> >
-		: std::integral_constant<unsigned, 1> {};
-	
-	template <class Space, class WaveNumber>
-	struct result_cols<helmholtz_kernel<Space, WaveNumber> >
-		: std::integral_constant<unsigned, 1> {};
-
-	template <class Space, class WaveNumber>
 	struct quadrature_family<helmholtz_kernel<Space, WaveNumber> >
 		: gauss_family_tag {};
 
