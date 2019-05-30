@@ -43,11 +43,28 @@ set(NIHU_THIRDPARTY_DIR "${CMAKE_SOURCE_DIR}/ThirdParty")
 include(NiHuEigen)
 
 ### Boost section
+# Process the boost path
+if (DEFINED NIHU_BOOST_PATH)
+	set(BOOST_ROOT ${NIHU_BOOST_PATH})
+endif ()
+
+# Find the boost package
 find_package(Boost 1.67 REQUIRED)
 if (BOOST_FOUND)
-	message(STATUS "Boost was found, include dir: ${Boost_INCLUDE_DIR}")
+	message(STATUS "Boost was found, include directory: ${Boost_INCLUDE_DIR}")
 else ()
 	message(STATUS "Boost was not found")
+endif ()
+
+#### FFTW section 
+# Process fftw path
+if (DEFINED NIHU_FFTW_PATH)
+	set(FFTW3_DIRECTORY ${NIHU_FFTW_PATH})
+endif ()
+
+find_package(FFTW REQUIRED)
+if (FFTW3_FOUND)
+	message(STATUS "fftw3 was found, include directory: ${FFTW3_INCLUDE_DIRS}")
 endif ()
 
 ### MATLAB Section
