@@ -21,10 +21,10 @@ include(Sysbits)
 get_system_bits(NIHU_SYS_BITS)
 message(STATUS "${NIHU_SYS_BITS}-bit system detected")
 
-# Check compiler support for c++11
+# Set c++11 as requirement
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-set_property(GLOBAL PROPERTY CXX_STANDARD 11)
-set_property(GLOBAL PROPERTY CXX_STANDARD_REQUIRED ON)
 
 ### Linker configuration
 if(WIN32)
