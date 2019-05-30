@@ -1,10 +1,10 @@
 #include <gtest/gtest.h>
 
-#include "elem_center_iterator.hpp"
 
 #include "core/field.hpp"
 #include "core/function_space.hpp"
 #include "core/mesh.hpp"
+#include "fmm/elem_center_iterator.hpp"
 #include "library/lib_element.hpp"
 #include "util/casted_iterator.hpp"
 
@@ -46,13 +46,13 @@ TEST(elem_center_iterator, a)
 	}
 
 	iterator_test(elements,
-		fmm::create_elem_center_iterator(elements.begin()),
-		fmm::create_elem_center_iterator(elements.end()));
+		NiHu::fmm::create_elem_center_iterator(elements.begin()),
+		NiHu::fmm::create_elem_center_iterator(elements.end()));
 
 	typedef NiHu::field_view<elem_t, NiHu::field_option::constant> field_t;
 	iterator_test(elements,
-		fmm::create_field_center_iterator(NiHu::casted_iterator<decltype(elements.begin()), field_t>(elements.begin())),
-		fmm::create_field_center_iterator(NiHu::casted_iterator<decltype(elements.end()), field_t>(elements.end())));
+		NiHu::fmm::create_field_center_iterator(NiHu::casted_iterator<decltype(elements.begin()), field_t>(elements.begin())),
+		NiHu::fmm::create_field_center_iterator(NiHu::casted_iterator<decltype(elements.end()), field_t>(elements.end())));
 }
 
 
@@ -100,8 +100,8 @@ TEST(field_center_iterator, a)
 	auto fb = field.field_begin<field_t>();
 	auto fe = field.field_end<field_t>();
 
-	auto fcb = fmm::create_field_center_iterator(fb);
-	auto fce = fmm::create_field_center_iterator(fe);
+	auto fcb = NiHu::fmm::create_field_center_iterator(fb);
+	auto fce = NiHu::fmm::create_field_center_iterator(fe);
 
 	std::cout << fce - fcb << std::endl;
 

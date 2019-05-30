@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "kron_identity.hpp"
+#include "fmm/kron_identity.hpp"
 #include <Eigen/Dense>
 
 TEST(kron_identity, basic)
@@ -13,6 +13,6 @@ TEST(kron_identity, basic)
 	m << 0, 1, 2, 3;
 	Vec v(Dim * 2, 1);
 	v << 1, 2, 3, 4, 5, 6;
-	Vec res = fmm::create_kron_identity<Dim>(m) * (2 * v);
+	Vec res = NiHu::fmm::create_kron_identity<Dim>(m) * (2 * v);
 	std::cout << res << std::endl;
 }
