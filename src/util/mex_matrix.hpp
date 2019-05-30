@@ -68,7 +68,8 @@ protected:
 	 * \param [in] input the Matlab pointer to the matrix
 	 */
 	matrix_base(mxArray const *input)
-		: m_rows(mxGetM(input)), m_cols(mxGetN(input))
+		: m_rows(mxGetM(input))
+		, m_cols(mxGetN(input))
 	{
 	}
 
@@ -135,9 +136,10 @@ class real_matrix :
 	public Eigen::Map<Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> >
 {
 public:
+	typedef Eigen::Map< Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> > base_t;
+
 	/** \brief the scalar type */
 	typedef T scalar_t;
-	typedef Eigen::Map< Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> > base_t;
 
 	/** \brief output matrix (allocating) constructor
 	 * \details used when a matrix created in C++ is passed to Matlab
@@ -161,6 +163,47 @@ public:
 	{
 	}
 };
+
+#define NIHU_MEX_COMPLEX_INTERLEAVED
+
+#ifdef NIHU_MEX_COMPLEX_INTERLEAVED
+
+template <class T>
+class complex_matrix :
+	public Eigen::Map<Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic> >
+{
+public:
+	typedef Eigen::Map< Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic> > base_t;
+
+	/** \brief the scalar type */
+	typedef std::complex<T> scalar_t;
+	typedef T real_scalar_t;
+
+	/** \brief output matrix (allocating) constructor
+	 * \details used when a matrix created in C++ is passed to Matlab
+	 * \param [in] rows number of rows
+	 * \param [in] cols number of columns
+	 * \param [out] output pointer to the result matrix  is copied here
+	 */
+	complex_matrix(size_t rows, size_t cols, mxArray *&output)
+		: base_t(
+			static_cast<scalar_t *>(mxGetData(output = mxCreateNumericMatrix(rows, cols, classID<real_scalar_t>::value, mxCOMPLEX))),
+			rows, cols)
+	{
+	}
+
+	/** \brief input matrix constructor
+	 * \details used a Matlab-allocated matrix is read in C++
+	 * \param [in] input pointer to the native Matlab matrix format
+	 */
+	complex_matrix(mxArray const *input)
+		: base_t(static_cast<scalar_t *>(mxGetData(input)), mxGetM(input), mxGetN(input))
+	{
+	}
+};
+
+
+#elif
 
 
 /** \brief index proxy class of a complex matrix */
@@ -313,6 +356,8 @@ protected:
 	/** \brief array of imaginary data */
 	scalar_t *m_imag;
 };
+
+#endif
 
 
 } // end of namespace mex
