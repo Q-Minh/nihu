@@ -41,7 +41,8 @@ foreach (test_source ${MEX_TEST_SOURCES})
 			# add the test as a shared library
 			add_library(${test_mex_name} SHARED ${local_source})
 			#target_link_libraries(${test_mex_name} ${NIHU_LINK_LIBRARIES_DYN}) 
-			target_link_libraries(${test_mex_name} ${NIHU_LINK_LIBRARIES}) 
+			target_link_libraries(${test_mex_name} ${NIHU_LINK_LIBRARIES} ${MEX_LINK_LIBRARIES}) 
+			target_link_directories(${test_mex_name} PUBLIC ${MEX_LINK_DIRECTORIES})
 			
 			# remove the "lib" prefix
 			set_target_properties(${test_mex_name} PROPERTIES 
