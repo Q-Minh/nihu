@@ -45,7 +45,8 @@ In order to complie NiHu, the following prerequisites are needed:
 - A c++ compiler and linker that supports some features of the C++11 standard. You will find further information on the compiler selection in the [next section](#install_process).
 \note NiHu builds were tested using the gcc compiler versions 4.7, 4.8, and 4.9 and the [clang](http://clang.llvm.org/) compiler.
 - NiHu relies on the template matrix library [Eigen]. If you do not have Eigen installed on your computer, the installation process will download and install the necessary header files for the compilation of NiHu.
-\note current version of NiHu was tested using Eigen 3.2.0.
+\note current version of NiHu was tested using Eigen 3.3.7.
+- NiHu FMM uses mathematical functions from the C++ 
 
 In order to use the Matlab interface and compile [mex] files the following prerequisites are needed:
 
@@ -253,6 +254,12 @@ You can override the default behavior by the parameters listed below.
 - **NIHU_EIGEN_VERSION** When set and `Eigen` is installed as a part of NiHu (see above), you can specify which version to install. The default installation version is `3.2.7`. Please note that the currently supported versions are `3.2.0` and `3.2.7`.
 
 \note If you want to use Eigen as a stand-alone project, you can install it using cmake. Please consult the [Eigen website](http://eigen.tuxfamily.org) for further information.
+
+Boost options {#install_boost_options}
+-------------
+
+- **NIHU_BOOST_PATH** Specifies the full path to the boost installation.
+
 
 Matlab options {#install_matlab_options}
 --------------

@@ -56,7 +56,7 @@ else ()
 	message(STATUS "Boost was not found")
 endif ()
 
-#### FFTW section 
+### FFTW section 
 # Process fftw path
 if (DEFINED NIHU_FFTW_PATH)
 	set(FFTW3_DIRECTORY ${NIHU_FFTW_PATH})
@@ -66,6 +66,9 @@ find_package(FFTW REQUIRED)
 if (FFTW3_FOUND)
 	message(STATUS "fftw3 was found, include directory: ${FFTW3_INCLUDE_DIRS}")
 endif ()
+
+# Add FFTW include directory
+include_directories(${FFTW3_INCLUDE_DIRS})
 
 ### MATLAB Section
 
