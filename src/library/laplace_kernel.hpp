@@ -55,12 +55,6 @@ namespace distance_dependent_kernel_traits_ns
 	struct quadrature_family<laplace_kernel<Space> > : gauss_family_tag {};
 
 	template <class Space>
-	struct result_rows<laplace_kernel<Space> > : std::integral_constant<unsigned, 1> {};
-	
-	template <class Space>
-	struct result_cols<laplace_kernel<Space> > : std::integral_constant<unsigned, 1> {};
-
-	template <class Space>
 	struct is_singular<laplace_kernel<Space> > : std::true_type {};
 
 	template <class Space>

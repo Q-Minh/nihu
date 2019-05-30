@@ -25,6 +25,7 @@
 #ifndef DOUBLE_INTEGRAL_HPP_INCLUDED
 #define DOUBLE_INTEGRAL_HPP_INCLUDED
 
+#include "../util/matrix_traits.hpp"
 #include "../util/product_type.hpp"
 #include "../util/plain_type.hpp"
 #include "../util/brick.hpp"
@@ -408,6 +409,8 @@ public:
 	typedef typename kernel_traits<Kernel>::test_input_t test_input_t;
 	/** \brief trial input type of kernel */
 	typedef typename kernel_traits<Kernel>::trial_input_t trial_input_t;
+	/** \brief result type of kernel */
+	typedef typename kernel_traits<Kernel>::result_t kernel_result_t;
 
 	/** \brief weighted trial input type */
 	typedef typename weighted_input<trial_input_t, trial_elem_t>::type w_trial_input_t;
@@ -423,10 +426,11 @@ public:
 	/** \brief result type of the weighted residual */
 	typedef typename traits_t::result_t result_t;
 
-	/** \todo these constants should be computed from the kernel */
 	enum {
-		kernel_rows = Kernel::result_rows,
-		kernel_cols = Kernel::result_cols
+		/// \brief number of rows of the kernel result
+		kernel_rows = num_rows<kernel_result_t>::value,
+		/// \brief number of columns of the kernel result
+		kernel_cols = num_cols<kernel_result_t>::value
 	};
 
 protected:

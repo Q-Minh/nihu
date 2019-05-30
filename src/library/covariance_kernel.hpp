@@ -53,11 +53,6 @@ namespace kernel_traits_ns
 	struct quadrature_family<covariance_kernel<Space> > : gauss_family_tag {};
 
 	template <class Space>
-	struct result_rows<covariance_kernel<Space> > : std::integral_constant<unsigned, 1> {};
-	template <class Space>
-	struct result_cols<covariance_kernel<Space> > : std::integral_constant<unsigned, 1> {};
-
-	template <class Space>
 	struct is_singular<covariance_kernel<Space> > : std::false_type {};
 
 	template <class Space>

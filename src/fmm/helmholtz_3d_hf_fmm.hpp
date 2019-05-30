@@ -32,11 +32,7 @@ namespace fmm
 
 class up_shift
 {
-	typedef Eigen::Matrix<double, 3, 1> location_t;
-	typedef Eigen::Matrix<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic> cmatrix_t;
-	typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> dmatrix_t;
 	typedef Eigen::Matrix<std::complex<double>, Eigen::Dynamic, 1> cvector_t;
-	typedef Eigen::Matrix<double, Eigen::Dynamic, 1> dvector_t;
 
 public:
 	up_shift()
@@ -50,10 +46,8 @@ public:
 	{
 	}
 
-public:
-	/** \brief multiply the updownshift matrix with a multipole / local
-	* \brief other the right hand side
-	*/
+	/// \brief multiply the updownshift matrix with a multipole / local
+	/// \param rhs the right hand side
 	cvector_t operator*(cvector_t const &rhs) const
 	{
 		return m_shift.array() * m_level_data->interp_up(rhs).array();
@@ -67,11 +61,7 @@ private:
 
 class down_shift
 {
-	typedef Eigen::Matrix<double, 3, 1> location_t;
-	typedef Eigen::Matrix<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic> cmatrix_t;
-	typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> dmatrix_t;
 	typedef Eigen::Matrix<std::complex<double>, Eigen::Dynamic, 1> cvector_t;
-	typedef Eigen::Matrix<double, Eigen::Dynamic, 1> dvector_t;
 
 public:
 	down_shift()
@@ -85,10 +75,8 @@ public:
 	{
 	}
 
-public:
-	/** \brief multiply the updownshift matrix with a multipole / local
-	* \brief other the right hand side
-	*/
+	/// \brief multiply the updownshift matrix with a multipole / local
+	/// \param [in] rhs the right hand side
 	cvector_t operator*(cvector_t const &rhs) const
 	{
 		return m_shift.array() * m_level_data->interp_down(rhs).array();

@@ -63,7 +63,6 @@ struct kernel_traits<elastodynamics_3d_U_kernel>
 	typedef location_input_3d test_input_t;
 	typedef location_input_3d trial_input_t;
 	typedef Eigen::Matrix<std::complex<double>, 3, 3> result_t;
-	enum { result_rows = 3, result_cols = 3 };
 	typedef gauss_family_tag quadrature_family_t;
 	static bool const is_symmetric = true;
 	typedef asymptotic::inverse<1> far_field_behaviour_t;
@@ -137,7 +136,6 @@ struct kernel_traits<elastodynamics_3d_T_kernel>
 	typedef location_input_3d test_input_t;
 	typedef location_normal_input_3d trial_input_t;
 	typedef Eigen::Matrix<std::complex<double>, 3, 3> result_t;
-	enum { result_rows = 3, result_cols = 3 };
 	typedef gauss_family_tag quadrature_family_t;
 	static bool const is_symmetric = false;
 	typedef asymptotic::inverse<2> far_field_behaviour_t;
