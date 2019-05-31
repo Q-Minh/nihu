@@ -1,7 +1,7 @@
 clear;
 
 %%
-Le = 1e-3;
+Le = 5e-3;
 [pac, field, k, q_surf, qs_scat_line, pf_in_line] = create_pac_man(Le);
 
 %% export surface mesh
