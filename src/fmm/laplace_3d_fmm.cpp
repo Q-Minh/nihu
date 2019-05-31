@@ -61,13 +61,13 @@ laplace_3d_fmm::m2l::operator()(cluster_t to, cluster_t from) const
 
 	for (size_t j = 0; j <= to.get_expansion_length(); ++j)
 	{
-		for (int k = -j; k <= int(+j); ++k)
+		for (int k = -int(j); k <= int(j); ++k)
 		{
 			Eigen::Index row = to.linear_index(j, k);
 
 			for (size_t n = 0; n <= from.get_expansion_length(); ++n)
 			{
-				for (int m = -n; m <= int(+n); ++m)
+				for (int m = -int(n); m <= int(n); ++m)
 				{
 					Eigen::Index col = from.linear_index(n, m);
 
@@ -75,9 +75,9 @@ laplace_3d_fmm::m2l::operator()(cluster_t to, cluster_t from) const
 						std::pow(J, std::abs(k - m) - std::abs(k) - std::abs(m)) *
 						Y(j + n, m - k, theta, phi) *
 						std::pow(-1, n) *
-						std::pow(rho, -(j + n + 1)) *
-						std::sqrt(binomial_coefficient<double>(j + k + n - m, j + k)) *
-						std::sqrt(binomial_coefficient<double>(n + m + j - k, n + m));
+						std::pow(rho, -int(j + n + 1)) *
+						std::sqrt(binomial_coefficient<double>(unsigned(j + k + n - m), unsigned(j + k))) *
+						std::sqrt(binomial_coefficient<double>(unsigned(n + m + j - k), unsigned(n + m)));
 				}
 			}
 		}
@@ -100,7 +100,7 @@ laplace_3d_fmm::m2m::operator()(cluster_t to, cluster_t from) const
 	double phi = std::atan2(x(1), x(0));
 	double theta = std::acos(x(2) / r);
 
-	int p = to.get_expansion_length();
+	int p = int(to.get_expansion_length());
 
 	for (int j = 0; j <= p; ++j)
 	{
@@ -145,7 +145,7 @@ laplace_3d_fmm::l2l::operator()(cluster_t to, cluster_t from) const
 	double phi = std::atan2(x(1), x(0));
 	double theta = std::acos(x(2) / r);
 
-	int p = to.get_expansion_length();
+	int p = int(to.get_expansion_length());
 
 	for (int j = 0; j <= p; ++j)
 	{

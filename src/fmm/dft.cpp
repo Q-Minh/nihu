@@ -20,7 +20,7 @@ dft::dft(size_t N, size_t L, int flag)
 	, m_results(m_num_threads, cvector_t::Zero(m_L,1))
 {
 	cvector_t in(m_N, 1), out(m_N, 1);
-	m_dft_plan = fftw_plan_dft_1d(m_N,
+	m_dft_plan = fftw_plan_dft_1d(int(m_N),
 		(fftw_complex *)in.data(),
 		(fftw_complex *)out.data(),
 		m_flag, FFTW_MEASURE);
@@ -34,7 +34,7 @@ dft::dft(dft const &other)
 	, m_results(other.m_results)
 {
 	cvector_t in(m_N, 1), out(m_N, 1);
-	m_dft_plan = fftw_plan_dft_1d(m_N,
+	m_dft_plan = fftw_plan_dft_1d(int(m_N),
 		(fftw_complex *)in.data(),
 		(fftw_complex *)out.data(),
 		m_flag, FFTW_MEASURE);
@@ -51,7 +51,7 @@ dft const &dft::operator=(dft const &other)
 	m_num_threads = other.m_num_threads;
 	m_results = other.m_results;
 	cvector_t in(m_N, 1), out(m_N, 1);
-	m_dft_plan = fftw_plan_dft_1d(m_N,
+	m_dft_plan = fftw_plan_dft_1d(int(m_N),
 		(fftw_complex *)in.data(),
 		(fftw_complex *)out.data(),
 		m_flag, FFTW_MEASURE);

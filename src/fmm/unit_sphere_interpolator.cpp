@@ -18,16 +18,16 @@ interpolator::interpolator(unit_sphere const &Sfrom, unit_sphere const &Sto)
 	cmatrix_t a(m_Lfrom, 2 * m_Lfrom), afft(m_Lfrom, 2 * m_Lfrom);
 	int n[1];
 	n[0] = int(2 * m_Lfrom);
-	this->dft_plan = fftw_plan_many_dft(1, n, m_Lfrom,
-		(fftw_complex *)a.data(), nullptr, m_Lfrom, 1,
+	this->dft_plan = fftw_plan_many_dft(1, n, int(m_Lfrom),
+		(fftw_complex *)a.data(), nullptr, int(m_Lfrom), 1,
 		(fftw_complex *)afft.data(), nullptr, m_Lfrom, 1,
 		FFTW_FORWARD, FFTW_MEASURE);
 
 	cmatrix_t bfft(m_Lto, 2 * m_Lto), b(m_Lto, 2 * m_Lto);
 	n[0] = int(2 * m_Lto);
-	this->idft_plan = fftw_plan_many_dft(1, n, m_Lto,
-		(fftw_complex *)bfft.data(), nullptr, m_Lto, 1,
-		(fftw_complex *)b.data(), nullptr, m_Lto, 1,
+	this->idft_plan = fftw_plan_many_dft(1, n, int(m_Lto),
+		(fftw_complex *)bfft.data(), nullptr, int(m_Lto), 1,
+		(fftw_complex *)b.data(), nullptr, int(m_Lto), 1,
 		FFTW_BACKWARD, FFTW_MEASURE);
 
 	// compute A matrices
@@ -115,15 +115,15 @@ interpolator::operator=(interpolator const &other)
 	cmatrix_t a(m_Lfrom, 2 * m_Lfrom), afft(m_Lfrom, 2 * m_Lfrom);
 	int n[1];
 	n[0] = int(2 * m_Lfrom);
-	this->dft_plan = fftw_plan_many_dft(1, n, m_Lfrom,
-		(fftw_complex *)a.data(), nullptr, m_Lfrom, 1,
-		(fftw_complex *)afft.data(), nullptr, m_Lfrom, 1,
+	this->dft_plan = fftw_plan_many_dft(1, n, int(m_Lfrom),
+		(fftw_complex *)a.data(), nullptr, int(m_Lfrom), 1,
+		(fftw_complex *)afft.data(), nullptr, int(m_Lfrom), 1,
 		FFTW_FORWARD, FFTW_MEASURE);
 	cmatrix_t bfft(m_Lto, 2 * m_Lto), b(m_Lto, 2 * m_Lto);
 	n[0] = int(2 * m_Lto);
-	this->idft_plan = fftw_plan_many_dft(1, n, m_Lto,
-		(fftw_complex *)bfft.data(), nullptr, m_Lto, 1,
-		(fftw_complex *)b.data(), nullptr, m_Lto, 1,
+	this->idft_plan = fftw_plan_many_dft(1, n, int(m_Lto),
+		(fftw_complex *)bfft.data(), nullptr, int(m_Lto), 1,
+		(fftw_complex *)b.data(), nullptr, int(m_Lto), 1,
 		FFTW_BACKWARD, FFTW_MEASURE);
 
 	return *this;

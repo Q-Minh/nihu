@@ -66,7 +66,7 @@ laplace_2d_fmm::m2l::operator()(cluster_t to, cluster_t from) const
 		res(l, 0) = -1. / l / std::pow(z0, l);
 		for (size_t k = 1; k <= from.get_expansion_length(); ++k)
 			res(l, k) = 1. / std::pow(z0, l + k) * std::pow(-1, k)
-			* boost::math::binomial_coefficient<double>(k + l - 1, k - 1);
+			* boost::math::binomial_coefficient<double>(unsigned(k + l - 1), unsigned(k - 1));
 	}
 	return res;
 }
@@ -83,7 +83,7 @@ laplace_2d_fmm::m2m::operator()(cluster_t to, cluster_t from) const
 		res(l, 0) = -std::pow(z0, l) / double(l);
 		for (size_t k = 1; k <= l; ++k)
 			res(l, k) = std::pow(z0, l - k) 
-			* boost::math::binomial_coefficient<double>(l - 1, k - 1);
+			* boost::math::binomial_coefficient<double>(unsigned(l - 1), unsigned(k - 1));
 	}
 	return res;
 }
@@ -96,7 +96,8 @@ laplace_2d_fmm::l2l::operator()(cluster_t to, cluster_t from) const
 	for (size_t l = 0; l <= to.get_expansion_length(); ++l)
 	{
 		for (size_t k = l; k <= from.get_expansion_length(); ++k)
-			res(l, k) = boost::math::binomial_coefficient<double>(k, l) * std::pow(-z0, k - l);
+			res(l, k) = boost::math::binomial_coefficient<double>(unsigned(k), unsigned(l))
+			* std::pow(-z0, k - l);
 	}
 	return res;
 }

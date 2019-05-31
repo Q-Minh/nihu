@@ -36,7 +36,7 @@ public:
 	 * \param [in] M the input size of convolution
 	 * \param [in] diag_coeffs the coefficients of the weight function
 	 */
-	convolution_matrix(int N, int M, vector_t const &diag_coeffs)
+	convolution_matrix(size_t N, size_t M, vector_t const &diag_coeffs)
 		: m_N(N)
 		, m_M(M)
 		, m_diag_coeffs(diag_coeffs)
@@ -49,15 +49,15 @@ public:
 	 */
 	vector_t operator *(vector_t const &rhs) const
 	{
-		if (rhs.rows() != 2 * m_M + 1)
+		if (rhs.rows() != Eigen::Index(2 * m_M + 1))
 			throw std::runtime_error("Invalid input size in convolution matrix");
 
 		vector_t res = vector_t::Zero(2 * m_N + 1, 1);
-		int L = (m_diag_coeffs.rows() - 1) / 2;
+		int L = int((m_diag_coeffs.rows() - 1) / 2);
 		// perform convolution by definition
-		for (int n = -m_N; n <= +m_N; ++n)
+		for (int n = -int(m_N); n <= m_N; ++n)
 		{
-			for (int m = -m_M; m <= +m_M; ++m)
+			for (int m = -int(m_M); m <= +m_M; ++m)
 			{
 				int c = n - m;
 				if (c >= L || c <= -L)
@@ -69,8 +69,8 @@ public:
 	}
 
 private:
-	int m_N;
-	int m_M;
+	size_t m_N;
+	size_t m_M;
 	vector_t m_diag_coeffs;
 };
 

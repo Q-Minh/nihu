@@ -111,7 +111,7 @@ public:
 		using namespace boost::math::double_constants;
 		
 		std::complex<double> res = 
-			spherical_harmonic(n, std::abs(m), theta, phi) 
+			spherical_harmonic(unsigned(n), std::abs(m), theta, phi) 
 			/ std::sqrt((2 * n + 1.0) / (4.0 * pi));
 		return (m < 0) ? std::conj(res) : res;
 	}
