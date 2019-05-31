@@ -90,7 +90,7 @@ template <class RealScalar>
 struct complexity<std::complex<RealScalar> >
 {
 	static mxComplexity const value = mxCOMPLEX;
-}
+};
 
 template <class Scalar>
 void *get_data_ptr(mxArray const *pa);
@@ -101,41 +101,41 @@ Scalar *get_data_pointer(mxArray const *pa)
 	if (mxIsComplex(pa) != (complexity<Scalar>::value == mxCOMPLEX))
 		mexErrMsgIdAndTxt("mex_matrix_interleaved::get_data_pointer",
 			"Mex tries to access complex array as real or vica versa");
-	return static_cast<Scalar *> get_data_ptr<Scalar>(pa);
+	return static_cast<Scalar *>(get_data_ptr<Scalar>(pa));
 }
 
 template <>
-mxDouble *get_data_ptr<double>(mxArray const *pa)
+void *get_data_ptr<double>(mxArray const *pa)
 {
 	return mxGetDoubles(pa);
 }
 
 template <>
-mxSingle *get_data_ptr<float>(mxArray const *pa)
+void *get_data_ptr<float>(mxArray const *pa)
 {
 	return mxGetSingles(pa);
 }
 
 template <>
-mxInt32 *get_data_ptr<int>(mxArray const *pa)
+void *get_data_ptr<int>(mxArray const *pa)
 {
 	return mxGetInt32s(pa);
 }
 
 template <>
-mxUint32 *get_data_ptr<unsigned>(mxArray const *pa)
+void *get_data_ptr<unsigned>(mxArray const *pa)
 {
 	return mxGetUint32s(pa);
 }
 
 template <>
-mxComplexDouble *get_data_ptr<std::complex<double> >(mxArray const *pa)
+void *get_data_ptr<std::complex<double> >(mxArray const *pa)
 {
 	return mxGetComplexDoubles(pa);
 }
 
 template <>
-mxComplexSingle *get_data_ptr<std::complex<float> >(mxArray const *pa)
+void *get_data_ptr<std::complex<float> >(mxArray const *pa)
 {
 	return mxGetComplexSingles(pa);
 }

@@ -35,8 +35,6 @@
 
 #include <complex>
 #include <cstddef>
-#include <mex.h>
-#include <matrix.h>
 #include <type_traits>
 
 namespace NiHu

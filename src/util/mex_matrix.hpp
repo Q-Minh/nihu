@@ -16,24 +16,25 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * \file mex_matrix.hpp
- * \brief A Matlab mex matrix interface
- * \ingroup matlab
- * \details 
- * The interface makes it possible to use Matlab-borne matrices in C++ and to 
- * create Matlab matrices in C++. The interface handles real and complex
- * matrices in a convenient manner, hiding mex implementation details from the
- * C++ programmer.
- */
-
+/// \file mex_matrix.hpp
+/// \brief A Matlab mex matrix interface
+/// \ingroup matlab
+/// \details 
+/// The interface makes it possible to use Matlab-borne matrices in C++ and to 
+/// create Matlab matrices in C++. The interface handles real and complex
+/// matrices in a convenient manner, hiding mex implementation details from the
+/// C++ programmer.
+ 
 #ifndef MEX_MATRIX_HPP_INCLUDED
 #define MEX_MATRIX_HPP_INCLUDED
 
-#ifdef MX_HAS_INTERLEAVED_COMPLEX
+#include <mex.h>
+#include <matrix.h>
+
+#if MX_HAS_INTERLEAVED_COMPLEX
 #include "mex_matrix_interleaved.hpp"
 #else
 #include "mex_matrix_separate.hpp"
 #endif
 
-#endif /* MEX_MATRIX_HPP_INCLUDED */
+#endif /// MEX_MATRIX_HPP_INCLUDED
