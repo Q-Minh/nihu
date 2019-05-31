@@ -31,12 +31,12 @@ void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 	auto mesh = NiHu::create_mesh(nodes, elem, NiHu::line_1_tag());
 	auto const &w = NiHu::constant_view(mesh);
 
-	double sigma = *mxGetPr(rhs[2]);
-	double d = *mxGetPr(rhs[3]);
+	double sigma = NiHu::mex::get_scalar<double>(rhs[2]);
+	double d = NiHu::mex::get_scalar<double>(rhs[3]);
 	auto C = NiHu::create_integral_operator(NiHu::covariance_kernel<NiHu::space_2d<> >(sigma, d));
 	auto I = NiHu::identity_integral_operator();
 	
-	unsigned N = w.get_num_dofs();
+	size_t N = w.get_num_dofs();
 	mexPrintf("Number of DOFs: %d\n", N);
 
 	dMatrix D(N, N, lhs[0]), B(N, N, lhs[1]);

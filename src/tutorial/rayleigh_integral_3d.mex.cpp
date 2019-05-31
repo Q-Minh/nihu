@@ -43,7 +43,7 @@ void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 //! [Function spaces]
 
 //! [Kernel]
-	double wave_number = *mxGetPr(rhs[4]);
+	double wave_number = NiHu::mex::get_scalar<double>(rhs[4]);
 	auto G = NiHu::create_integral_operator(NiHu::helmholtz_3d_SLP_kernel<double>(wave_number));
 //! [Kernel]
 

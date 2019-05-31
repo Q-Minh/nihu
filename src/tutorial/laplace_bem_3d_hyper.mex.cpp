@@ -38,7 +38,7 @@ void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 //! [Function spaces]
 
 //! [Matrices]
-	int n = surf_sp.get_num_dofs();
+	size_t n = surf_sp.get_num_dofs();
 	dMatrix
 		L_surf(n, n, lhs[0]), M_surf(n, n, lhs[1]),
 		Mt_surf(n, n, lhs[2]), N_surf(n, n, lhs[3]);

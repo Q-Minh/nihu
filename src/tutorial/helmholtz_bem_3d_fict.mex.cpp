@@ -45,8 +45,8 @@ void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 //! [Function spaces]
 
 //! [Matrices]
-	int n = surf_sp.get_num_dofs();
-	int m = chief_sp.get_num_dofs();
+	size_t n = surf_sp.get_num_dofs();
+	size_t m = chief_sp.get_num_dofs();
 	cMatrix
 		L_surf(n, n, lhs[0]), M_surf(n, n, lhs[1]),
 		L_chief(m, n, lhs[2]), M_chief(m, n, lhs[3]),

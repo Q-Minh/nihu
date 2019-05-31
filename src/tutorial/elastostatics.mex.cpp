@@ -38,13 +38,13 @@ void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 //! [Function spaces]
 
 //! [Matrices]
-	int n = surf_sp.get_num_dofs();
+	size_t n = surf_sp.get_num_dofs();
 	dMatrix Us(n, n, lhs[0]), Ts(n, n, lhs[1]);
 //! [Matrices]
 
 //! [Integral operators]
-	double nu = *mxGetPr(rhs[2]);
-	double mu = *mxGetPr(rhs[3]);
+	double nu = NiHu::mex::get_scalar<double>(rhs[2]);
+	double mu = NiHu::mex::get_scalar<double>(rhs[3]);
 	auto U = NiHu::create_integral_operator(NiHu::elastostatics_3d_U_kernel(nu, mu));
 	auto T = NiHu::create_integral_operator(NiHu::elastostatics_3d_T_kernel(nu, mu));
 //! [Integral operators]

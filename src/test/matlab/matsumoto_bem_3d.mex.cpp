@@ -33,13 +33,13 @@ void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 	
 	auto const &surf_sp = NiHu::constant_view(surf_mesh);
 
-	int n = surf_sp.get_num_dofs();
+	size_t n = surf_sp.get_num_dofs();
 	cMatrix
 		L_surf(n, n, lhs[0]), M_surf(n, n, lhs[1]),
 		Mt_surf(n, n, lhs[2]), N_surf(n, n, lhs[3]);
 
 	// Retrieve wave number
-	double k = *mxGetPr(rhs[2]);
+	double k = NiHu::mex::get_scalar<double>(rhs[2]);
 	auto I = NiHu::identity_integral_operator();
 	auto L = NiHu::create_integral_operator(NiHu::helmholtz_3d_SLP_kernel<double>(k));
 	auto M = NiHu::create_integral_operator(NiHu::helmholtz_3d_DLP_kernel<double>(k));

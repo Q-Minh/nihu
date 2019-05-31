@@ -29,16 +29,16 @@ void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 	dMatrix surf_nodes(rhs[0]), surf_elem(rhs[1]);
 	auto surf_mesh = NiHu::create_mesh(surf_nodes, surf_elem, NiHu::quad_1_tag(), NiHu::tria_1_tag());
 	auto const &surf_sp = NiHu::constant_view(surf_mesh);
-	int n = surf_sp.get_num_dofs();
+	size_t n = surf_sp.get_num_dofs();
 
 	dMatrix field_nodes(rhs[2]), field_elem(rhs[3]);
 	auto field_mesh = NiHu::create_mesh(field_nodes, field_elem, NiHu::quad_1_tag());
 	auto const &field_sp = NiHu::dirac(NiHu::constant_view(field_mesh));
-	int m = field_sp.get_num_dofs();
+	size_t m = field_sp.get_num_dofs();
 
 	cMatrix Ls(n, n, lhs[0]), Ms(n, n, lhs[1]), Lf(m, n, lhs[2]), Mf(m, n, lhs[3]);
 	
-	double k = *mxGetPr(rhs[4]);
+	double k = NiHu::mex::get_scalar<double>(rhs[4]);
 	auto I = NiHu::identity_integral_operator();
 	auto Lop = NiHu::create_integral_operator(NiHu::helmholtz_3d_SLP_kernel<double>(k));
 	auto Mop = NiHu::create_integral_operator(NiHu::helmholtz_3d_DLP_kernel<double>(k));

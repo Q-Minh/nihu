@@ -16,12 +16,10 @@ void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 	auto field_mesh = NiHu::create_mesh(field_nodes, field_elem, NiHu::tria_1_tag());
 	auto const &field_sp = NiHu::constant_view(field_mesh);
 
-	int n = surf_sp.get_num_dofs();
-	dMatrix
-		L_surf(n, n, lhs[0]), M_surf(n, n, lhs[1]);
-	int m = field_sp.get_num_dofs();
-	dMatrix
-		L_field(m, n, lhs[2]), M_field(m, n, lhs[3]);
+	size_t n = surf_sp.get_num_dofs();
+	dMatrix L_surf(n, n, lhs[0]), M_surf(n, n, lhs[1]);
+	size_t m = field_sp.get_num_dofs();
+	dMatrix L_field(m, n, lhs[2]), M_field(m, n, lhs[3]);
 
 	auto L = NiHu::create_integral_operator(NiHu::laplace_3d_SLP_kernel());
 	auto M = NiHu::create_integral_operator(NiHu::laplace_3d_DLP_kernel());

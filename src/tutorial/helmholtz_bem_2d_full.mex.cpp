@@ -17,8 +17,8 @@ void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 	auto const &surf_sp = NiHu::constant_view(surf_mesh);
 	auto const &field_sp = NiHu::dirac(NiHu::constant_view(field_mesh));
 
-	int n = surf_sp.get_num_dofs();
-	int m = field_sp.get_num_dofs();
+	size_t n = surf_sp.get_num_dofs();
+	size_t m = field_sp.get_num_dofs();
 	cMatrix Ls(n, n, lhs[0]), Ms(n, n, lhs[1]), Mts(n, n, lhs[2]), Ws(n, n, lhs[3]),
 		Lf(m, n, lhs[4]), Mf(m, n, lhs[5]);
 
