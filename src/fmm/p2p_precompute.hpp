@@ -19,7 +19,6 @@ Eigen::SparseMatrix<typename scalar<typename Operator::result_t>::type>
 p2p_precompute(Operator const &op, cluster_tree<ClusterDerived> const &tree, interaction_lists::list_t const &list)
 {
 	typedef Operator operator_t;
-	typedef interaction_lists::list_t list_t;
 	typedef typename operator_t::result_t result_t;
 	typedef typename scalar<result_t>::type scalar_t;
 	static size_t const rows = num_rows<result_t>::value;

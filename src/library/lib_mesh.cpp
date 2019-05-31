@@ -7,7 +7,7 @@ namespace NiHu
 {
 
 NiHu::mesh<tmp::vector<NiHu::line_1_elem> > 
-create_line_1_circle_mesh(double r, int N)
+create_line_1_circle_mesh(double r, size_t N)
 {
 	using namespace boost::math::double_constants;
 	
@@ -16,15 +16,15 @@ create_line_1_circle_mesh(double r, int N)
 	
 	dMatrix nodes(N,2);
 	uMatrix elements(N, 3);
-	for (int i = 0; i < N; ++i)
+	for (size_t i = 0; i < N; ++i)
 	{
 		double phi = i * two_pi / N;
 		nodes(i,0) = r * std::cos(phi);
 		nodes(i,1) = r * std::sin(phi);
 		
 		elements(i,0) = NiHu::line_1_elem::id;
-		elements(i,1) = i % N;
-		elements(i,2) = (i+1) % N;
+		elements(i,1) = unsigned(i % N);
+		elements(i,2) = unsigned((i+1) % N);
 	}
 	
 	return NiHu::create_mesh(nodes, elements, NiHu::line_1_tag());

@@ -46,10 +46,10 @@ public:
 	typedef fmm_t::cluster_t cluster_t;
 	typedef fmm::cluster_tree<cluster_t> cluster_tree_t;
 
-	typedef NiHu::field_view<NiHu::line_1_elem, NiHu::field_option::constant> trial_field_t;
-	typedef fmm::type2tag<trial_field_t> trial_field_tag_t;
-	typedef NiHu::dirac_field<trial_field_t> test_field_t;
-	typedef fmm::type2tag<test_field_t> test_field_tag_t;
+	typedef field_view<line_1_elem, field_option::constant> trial_field_t;
+	typedef type2tag<trial_field_t> trial_field_tag_t;
+	typedef dirac_field<trial_field_t> test_field_t;
+	typedef type2tag<test_field_t> test_field_tag_t;
 
 	helmholtz_2d_field_point(test_space_t const &test_space,
 		trial_space_t const &trial_space)

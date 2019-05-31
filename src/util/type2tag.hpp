@@ -6,14 +6,16 @@
 
 namespace NiHu
 {
-namespace fmm
-{
 
 /** \brief metafunction to assign a tag to a type
  * \tparam Type the input type
  */
 template<class Type>
-struct type2tag {};
+struct type2tag 
+{
+	// self-returning metafunction
+	typedef type2tag type;
+};
 
 /** \brief metafunction to recover the type from a tag
  * \tparam Tag the input tag
@@ -27,7 +29,6 @@ struct tag2type<type2tag<Type> >
 	typedef Type type;
 };
 
-} // end of namespace fmm
 } // namespace NiHu
 
 #endif // FMM_TYPE_TO_TAG_HPP_INCLUDED

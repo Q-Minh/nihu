@@ -7,8 +7,8 @@
 #include "core/double_integral.hpp"
 
 #include "integral_operator.hpp"
-#include "type2tag.hpp"
 #include "util/matrix_traits.hpp"
+#include "util/type2tag.hpp"
 
 namespace NiHu
 {

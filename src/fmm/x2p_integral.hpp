@@ -11,7 +11,7 @@
 #include "integral_operator.hpp"
 #include "jacobian_computer.hpp"
 #include "util/matrix_traits.hpp"
-#include "type2tag.hpp"
+#include "util/type2tag.hpp"
 
 #include <type_traits> // std::enable_if
 

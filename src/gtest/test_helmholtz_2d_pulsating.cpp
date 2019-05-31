@@ -21,7 +21,7 @@ static double tester(TestSpace const &test_space, TrialSpace const &trial_space)
 	auto L_op = NiHu::create_integral_operator(NiHu::helmholtz_2d_SLP_kernel<double>(k));
 	auto M_op = NiHu::create_integral_operator(NiHu::helmholtz_2d_DLP_kernel<double>(k));
 	
-	unsigned N = test_space.get_num_dofs();
+	size_t N = test_space.get_num_dofs();
 	
 	// excitation
 	std::complex<double> q0 = 1.0;

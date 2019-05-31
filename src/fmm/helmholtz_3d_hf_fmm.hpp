@@ -535,14 +535,23 @@ public:
 	}
 
 	template <int Nx, int Ny>
-	fmm::p2p<NiHu::normal_derivative_kernel<
-		NiHu::helmholtz_kernel<NiHu::space_3d<>, WaveNumber>, Nx, Ny
-		> > create_p2p() const
+	struct p2p_type
+	{
+		typedef fmm::p2p<
+			NiHu::normal_derivative_kernel<
+			NiHu::helmholtz_kernel<NiHu::space_3d<>, WaveNumber>, Nx, Ny
+		> 
+		> type;
+	};
+
+	template <int Nx, int Ny>
+	typename p2p_type<Nx, Ny>::type 
+		create_p2p() const
 	{
 		typedef NiHu::normal_derivative_kernel<
 			NiHu::helmholtz_kernel<NiHu::space_3d<>, WaveNumber>, Nx, Ny
 		> kernel_t;
-		return fmm::p2p<kernel_t>(kernel_t(m_wave_number));
+		return typename p2p_type<Nx, Ny>::type(kernel_t(m_wave_number));
 	}
 
 	m2m create_m2m() const
