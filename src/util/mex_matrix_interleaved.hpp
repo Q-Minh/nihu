@@ -204,13 +204,8 @@ Scalar const &get_scalar(mxArray const *pa)
 } // end of namespace mex
 
 
-/** \brief declaring mex::real_matrix as a result matrix type */
-template <class RealScalar>
-struct is_result_matrix_impl<mex::real_matrix<RealScalar> > : std::true_type {};
-
-/** \brief declaring mex::complex_matrix as a result matrix type */
-template <class RealScalar>
-struct is_result_matrix_impl<mex::complex_matrix<RealScalar> > : std::true_type {};
+template <class Scalar>
+struct is_result_matrix_impl<mex::matrix<Scalar> > : std::true_type {};
 
 } // end of namespace NiHu
 

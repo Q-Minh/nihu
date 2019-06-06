@@ -228,7 +228,7 @@ public:
 
 	/// \brief P2M operator of the FMM for the Helmholtz equation in 3D
 	/// \tparam Ny the order of differentiation w.r.t y
-	template <unsigned int Ny>
+	template <int Ny>
 	class p2m
 		: public operator_with_wave_number<wave_number_t>
 	{
@@ -286,7 +286,7 @@ public:
 
 	/// \brief P2L operator of the FMM for the Helmholtz equation in 3D
 	/// \tparam Ny the order of differentiation w.r.t y
-	template <unsigned int Ny>
+	template <int Ny>
 	class p2l
 		: public operator_with_wave_number<wave_number_t>
 	{
@@ -335,7 +335,7 @@ public:
 
 	/// \brief L2P operator of the FMM for the Helmholtz equation in 3D
 	/// \tparam Nx the order of differentiation w.r.t x
-	template <unsigned int Nx>
+	template <int Nx>
 	class l2p
 		: public operator_with_wave_number<wave_number_t>
 	{
@@ -400,7 +400,7 @@ public:
 
 	/// \brief M2P operator of the FMM for the Helmholtz equation in 3D
 	/// \tparam Nx the order of differentiation w.r.t x
-	template <unsigned int Nx>
+	template <int Nx>
 	class m2p
 		: public operator_with_wave_number<wave_number_t>
 	{
@@ -511,25 +511,53 @@ public:
 
 
 	template <int Ny>
-	p2m<Ny> create_p2m() const
+	struct p2m_type
+	{
+		typedef p2m<Ny> type;
+	};
+
+	template <int Ny>
+	struct p2l_type
+	{
+		typedef p2l<Ny> type;
+	};
+
+	template <int Nx>
+	struct m2p_type
+	{
+		typedef m2p<Nx> type;
+	};
+
+	template <int Nx>
+	struct l2p_type
+	{
+		typedef l2p<Nx> type;
+	};
+
+	template <int Ny>
+	typename p2m_type<Ny>::type
+		create_p2m() const
 	{
 		return p2m<Ny>(m_wave_number);
 	}
 
 	template <int Ny>
-	p2l<Ny> create_p2l() const
+	typename p2l_type<Ny>::type
+		create_p2l() const
 	{
 		return p2l<Ny>(m_wave_number);
 	}
 
 	template <int Nx>
-	l2p<Nx> create_l2p() const
+	typename l2p_type<Nx>::type
+		create_l2p() const
 	{
 		return l2p<Nx>(m_wave_number);
 	}
 
 	template <int Nx>
-	m2p<Nx> create_m2p() const
+	typename m2p_type<Nx>::type
+		create_m2p() const
 	{
 		return m2p<Nx>(m_wave_number);
 	}
