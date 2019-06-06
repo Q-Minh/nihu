@@ -55,9 +55,9 @@ public:
 		vector_t res = vector_t::Zero(2 * m_N + 1, 1);
 		int L = int((m_diag_coeffs.rows() - 1) / 2);
 		// perform convolution by definition
-		for (int n = -int(m_N); n <= m_N; ++n)
+		for (int n = -int(m_N); n <= int(m_N); ++n)
 		{
-			for (int m = -int(m_M); m <= +m_M; ++m)
+			for (int m = -int(m_M); m <= int(m_M); ++m)
 			{
 				int c = n - m;
 				if (c >= L || c <= -L)

@@ -73,9 +73,19 @@ public:
 	};
 
 
+	template <int Nx, int Ny>
+	struct p2p_type
+	{
+		typedef p2p_integral<
+			typename fmm_t::template p2p_type<Nx, Ny>::type,
+			test_field_t,
+			trial_field_t
+		> type;
+	};
+	
+
 	template <int Ny>
-	typename p2m_type<Ny>::type
-		create_p2m() const
+	typename p2m_type<Ny>::type create_p2m() const
 	{
 		return create_p2x_integral(m_fmm.template create_p2m<Ny>(),
 			m_far_field_quadrature_order,
@@ -83,8 +93,7 @@ public:
 	}
 
 	template <int Ny>
-	typename p2l_type<Ny>::type
-		create_p2l() const
+	typename p2l_type<Ny>::type create_p2l() const
 	{
 		return create_p2x_integral(m_fmm.template create_p2l<Ny>(),
 			m_far_field_quadrature_order,
@@ -92,8 +101,7 @@ public:
 	}
 
 	template <int Nx>
-	typename m2p_type<Nx>::type
-		create_m2p() const
+	typename m2p_type<Nx>::type create_m2p() const
 	{
 		return create_x2p_integral(m_fmm.template create_m2p<Nx>(),
 			m_far_field_quadrature_order,
@@ -101,21 +109,15 @@ public:
 	}
 
 	template <int Nx>
-	typename l2p_type<Nx>::type
-		create_l2p() const
+	typename l2p_type<Nx>::type create_l2p() const
 	{
 		return create_x2p_integral(m_fmm.template create_l2p<Nx>(),
 			m_far_field_quadrature_order,
 			typename type2tag<test_field_t>::type());
 	}
-
+	
 	template <int Nx, int Ny>
-	p2p_integral<
-		typename fmm_t::template p2p_type<Nx, Ny>::type,
-		test_field_t,
-		trial_field_t
-	>
-		create_p2p() const
+	typename p2p_type<Nx, Ny>::type create_p2p() const
 	{
 		return create_p2p_integral(
 			m_fmm.template create_p2p<Nx, Ny>(),
