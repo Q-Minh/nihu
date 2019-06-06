@@ -166,10 +166,6 @@ namespace element_traits
 	};
 }
 
-/** \brief metafunction assigning an element to an element tag */
-template <class tag>
-struct tag2element;
-
 /** \brief type that stores the element's id */
 typedef Eigen::Matrix<unsigned, 1, 1> elem_id_t;
 

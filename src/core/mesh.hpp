@@ -24,14 +24,16 @@
 #ifndef MESH_HPP_INCLUDED
 #define MESH_HPP_INCLUDED
 
+#include "../util/eigen_utils.hpp"
+#include "../util/type2tag.hpp"
+
 #include "../tmp/integer.hpp"
 #include "../tmp/sequence.hpp"
 #include "../tmp/algorithm.hpp"
 #include "../tmp/control.hpp"
-#include "tmp/vector.hpp"
+#include "../tmp/vector.hpp"
 
 #include "element.hpp"
-#include "../util/eigen_utils.hpp"
 
 namespace NiHu
 {
@@ -281,10 +283,10 @@ protected:
  * \return a mesh consisting of given element types
  */
 template <class nodes_t, class elements_t, class...Args>
-mesh<tmp::vector<typename tag2element<Args>::type...> >
+mesh<tmp::vector<typename tag2type<Args>::type...> >
 	create_mesh(nodes_t const &nodes, elements_t const &elements, Args...)
 {
-	return mesh<tmp::vector<typename tag2element<Args>::type...> >(nodes, elements);
+	return mesh<tmp::vector<typename tag2type<Args>::type...> >(nodes, elements);
 }
 
 
@@ -326,10 +328,10 @@ private:
  * \param [in] mesh the parent mesh
  */
 template <class Mesh, class Tag>
-homogeneous_submesh<Mesh, typename tag2element<Tag>::type>
+homogeneous_submesh<Mesh, typename tag2type<Tag>::type>
 create_homogeneous_submesh(Mesh const &mesh, Tag)
 {
-	return homogeneous_submesh<Mesh, typename tag2element<Tag>::type >(mesh);
+	return homogeneous_submesh<Mesh, typename tag2type<Tag>::type >(mesh);
 }
 
 }

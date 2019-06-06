@@ -24,8 +24,10 @@
 #ifndef READ_OFF_MESH_HPP_INCLUDED
 #define READ_OFF_MESH_HPP_INCLUDED
 
-#include "../library/lib_element.hpp"
 #include "../core/mesh.hpp"
+#include "../library/lib_element.hpp"
+#include "../util/type2tag.hpp"
+
 #include <string>
 #include <fstream>
 #include <stdexcept>
@@ -38,7 +40,7 @@ namespace internal
 	template <class Tag1, class...Tags>
 	struct nvert2elem_id_impl
 	{
-		typedef typename tag2element<Tag1>::type elem_t;
+		typedef typename tag2type<Tag1>::type elem_t;
 		static unsigned eval(unsigned nvert)
 		{
 			if (nvert == elem_t::num_nodes)
@@ -50,7 +52,7 @@ namespace internal
 	template <class Tag1>
 	struct nvert2elem_id_impl<Tag1>
 	{
-		typedef typename tag2element<Tag1>::type elem_t;
+		typedef typename tag2type<Tag1>::type elem_t;
 		static unsigned eval(unsigned nvert)
 		{
 			if (nvert == elem_t::num_nodes)
@@ -81,7 +83,7 @@ unsigned nvert2elem_id(unsigned nvert, Tags...tags)
  * \return the imported mesh
  */
 template <class...Tags>
-mesh<tmp::vector<typename tag2element<Tags>::type...> >
+mesh<tmp::vector<typename tag2type<Tags>::type...> >
 	read_off_mesh(std::string const &fname, Tags...tags)
 {
 	typedef Eigen::Matrix<unsigned, Eigen::Dynamic, Eigen::Dynamic> uMatrix;
