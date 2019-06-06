@@ -5,6 +5,7 @@
 #define FMM_MATRIX_FREE_HPP_INCLUDED
 
 #include "fmm_matrix.hpp"
+#include "../util/real_part_type.hpp"
 
 #include <Eigen/SparseCore>
 
@@ -38,22 +39,6 @@ namespace NiHu
 namespace fmm
 {
 
-/// \brief metafunction returning the real scalar part type
-/// \tparam T the input type
-template <class T>
-struct real_part_type
-{
-	typedef T type;
-};
-
-/// \brief specialisation of real_part_type for a complex scalar
-/// \tparam T the real scalar type
-template <class T>
-struct real_part_type<std::complex<T> >
-{
-	typedef T type;
-};
-
 /// \brief an Eigen::Matrix adaptor for the fmm_matrix class
 /// \tparam FmmMatrix the fmm_matrix type
 template <class FmmMatrix>
@@ -65,7 +50,7 @@ public:
 	typedef typename fmm_matrix_t::scalar_t scalar_t;
 
 	typedef scalar_t Scalar;
-	typedef typename real_part_type<Scalar>::type RealScalar;
+	typedef typename NiHu::real_part_type<Scalar>::type RealScalar;
 	typedef int StorageIndex;
 	enum {
 		ColsAtCompileTime = Eigen::Dynamic,
