@@ -66,6 +66,12 @@ struct classID<int>
 };
 
 template <>
+struct classID<unsigned>
+{
+	static mxClassID const value = mxUINT32_CLASS;
+};
+
+template <>
 struct classID<double>
 {
 	static mxClassID const value = mxDOUBLE_CLASS;
@@ -188,6 +194,12 @@ using real_matrix = matrix<RealScalar>;
 
 template <class RealScalar>
 using complex_matrix = matrix<std::complex<RealScalar> >;
+
+template <class Scalar>
+Scalar const &get_scalar(mxArray const *pa)
+{
+	return *static_cast<Scalar const *>(get_data_ptr<Scalar>(pa));
+}
 
 } // end of namespace mex
 
