@@ -3,6 +3,7 @@
 #include "fmm/helmholtz_exterior_solver.hpp"
 #include "fmm/helmholtz_2d_field_point.hpp"
 #include "fmm/helmholtz_2d_wb_fmm.hpp"
+#include "util/tag2type.hpp"
 
 #include "interface/read_off_mesh.hpp"
 #include "library/lib_element.hpp"
@@ -18,7 +19,7 @@ typedef double wave_number_t;
 typedef NiHu::fmm::helmholtz_2d_wb_fmm<wave_number_t> fmm_t;
 
 // computing the fmbem type
-typedef NiHu::tag2element<tag_t>::type elem_t;
+typedef NiHu::tag2type<tag_t>::type elem_t;
 typedef NiHu::field_view<elem_t, NiHu::field_option::constant> trial_field_t;
 typedef NiHu::dirac_field<trial_field_t> test_field_t;
 typedef elem_t::x_t location_t;
