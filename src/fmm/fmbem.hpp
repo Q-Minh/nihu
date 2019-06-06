@@ -1,3 +1,6 @@
+/// \file fmbem.hpp
+/// \brief convert an fmm object into an fmbem one
+
 #ifndef FMBEM_HPP_INCLUDED
 #define FMBEM_HPP_INCLUDED
 
@@ -11,6 +14,10 @@ namespace NiHu
 namespace fmm
 {
 
+/// \brief class performing integration of the particle-related operators
+/// \tparam Fmm the original fmm object's type
+/// \tparam TestField the test field
+/// \tparam TrialField the trial field
 template <class Fmm, class TestField, class TrialField>
 class fmbem
 {
@@ -25,10 +32,19 @@ public:
 		, m_singular_check_needed(singular_check_needed)
 	{
 	}
+	
+	template <int Ny>
+	struct p2m_type
+	{
+		typedef p2x_integral<
+			typename fmm_t::template p2m:type<Ny>::type,
+			trial_field_t
+		> type;
+	};
 
 
 	template <int Ny>
-	p2x_integral<typename fmm_t::template p2m<Ny>, trial_field_t>
+	p2m_type<Ny>, trial_field_t>
 		create_p2m() const
 	{
 		return create_p2x_integral(m_fmm.template create_p2m<Ny>(),
