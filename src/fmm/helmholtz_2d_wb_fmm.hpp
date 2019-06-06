@@ -540,6 +540,30 @@ public:
 		> > type;
 	};
 
+	template <int Ny>
+	struct p2m_type
+	{
+		typedef p2m<Ny> type;
+	};
+
+	template <int Nx>
+	struct m2p_type
+	{
+		typedef m2p<Nx> type;
+	};
+
+	template <int Ny>
+	struct p2l_type
+	{
+		typedef p2l<Ny> type;
+	};
+
+	template <int Nx>
+	struct l2p_type
+	{
+		typedef l2p<Nx> type;
+	};
+
 	template <int Nx, int Ny>
 	fmm::p2p<NiHu::normal_derivative_kernel<
 		NiHu::helmholtz_kernel<NiHu::space_2d<>, wave_number_t>, Nx, Ny

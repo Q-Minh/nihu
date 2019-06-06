@@ -37,14 +37,44 @@ public:
 	struct p2m_type
 	{
 		typedef p2x_integral<
-			typename fmm_t::template p2m:type<Ny>::type,
+			typename fmm_t::template p2m_type<Ny>::type,
 			trial_field_t
 		> type;
 	};
 
 
+	template <int Nx>
+	struct m2p_type
+	{
+		typedef x2p_integral<
+			typename fmm_t::template m2p_type<Nx>::type,
+			test_field_t
+		> type;
+	};
+
+
 	template <int Ny>
-	p2m_type<Ny>, trial_field_t>
+	struct p2l_type
+	{
+		typedef p2x_integral<
+			typename fmm_t::template p2l_type<Ny>::type,
+			trial_field_t
+		> type;
+	};
+
+
+	template <int Nx>
+	struct l2p_type
+	{
+		typedef x2p_integral<
+			typename fmm_t::template l2p_type<Nx>::type,
+			test_field_t
+		> type;
+	};
+
+
+	template <int Ny>
+	typename p2m_type<Ny>::type
 		create_p2m() const
 	{
 		return create_p2x_integral(m_fmm.template create_p2m<Ny>(),
@@ -53,7 +83,7 @@ public:
 	}
 
 	template <int Ny>
-	p2x_integral<typename fmm_t::template p2l<Ny>, trial_field_t>
+	typename p2l_type<Ny>::type
 		create_p2l() const
 	{
 		return create_p2x_integral(m_fmm.template create_p2l<Ny>(),
@@ -62,7 +92,7 @@ public:
 	}
 
 	template <int Nx>
-	x2p_integral<typename fmm_t::template m2p<Nx>, test_field_t>
+	typename m2p_type<Nx>::type
 		create_m2p() const
 	{
 		return create_x2p_integral(m_fmm.template create_m2p<Nx>(),
@@ -71,7 +101,7 @@ public:
 	}
 
 	template <int Nx>
-	x2p_integral<typename fmm_t::template l2p<Nx>, test_field_t>
+	typename l2p_type<Nx>::type
 		create_l2p() const
 	{
 		return create_x2p_integral(m_fmm.template create_l2p<Nx>(),
