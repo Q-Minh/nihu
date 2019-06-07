@@ -74,7 +74,7 @@ public:
 	typedef Derived type;
 	/// \brief the space type as nested typedef
 	typedef typename domain_traits::space_type<Derived>::type space_t;
-	enum { 
+	enum {
 		/// \brief number of domain corners
 		num_corners = domain_traits::num_corners<Derived>::value,
 		/// \brief number of domain edges
@@ -83,7 +83,7 @@ public:
 		id = domain_traits::id<Derived>::value,
 		/// \brief space dimensions
 		dimension = space_t::dimension
-	}
+	};
 	/// \brief coordinate scalar type
 	typedef typename space_t::scalar_t scalar_t;
 	/// \brief coordinate vector type

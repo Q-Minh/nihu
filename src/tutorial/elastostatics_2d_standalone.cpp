@@ -20,7 +20,7 @@ int main(void)
 	auto const &space = NiHu::constant_view(mesh, NiHu::_2d());
 	auto const &tst_space = space;
 
-	int n = space.get_num_dofs();
+	size_t n = space.get_num_dofs();
 	std::cout << "number of DOFs: " << n << std::endl;
 	dMatrix II(n, n);
 	dMatrix LL(n, n);
