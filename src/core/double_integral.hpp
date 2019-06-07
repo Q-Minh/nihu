@@ -136,7 +136,7 @@ class double_integral;
 
 
 /**
- * \brief specialisation of ::double_integral for the general formalism
+ * \brief specialisation of NiHu::double_integral for the general formalism
  * \tparam Kernel type of the kernel to integrate
  * \tparam TestField type of the test field
  * \tparam TrialField type of the trial field
@@ -388,7 +388,7 @@ public:
 
 
 /**
-* \brief specialisation of ::double_integral for the collocational formalism
+* \brief specialisation of NiHu::double_integral for the collocational formalism
 * \tparam Kernel type of the kernel to integrate
 * \tparam TestField type of the test field
 * \tparam TrialField type of the trial field

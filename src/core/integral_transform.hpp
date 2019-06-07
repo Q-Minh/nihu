@@ -127,10 +127,9 @@ integral_transform_sum<
 }
 
 
-/** \brief Proxy class of an ::integral_operator applied on a ::function_space
-* \tparam Operator the integral operator
-* \tparam TrialSpace the right hand side function space
-*/
+/// \brief Proxy class of a NiHu::integral_operator applied on a NiHu::function_space
+/// \tparam Operator the integral operator
+/// \tparam TrialSpace the right hand side function space
 template <class Operator, class TrialSpace>
 class integral_transform
 	: public integral_transform_base<integral_transform<Operator, TrialSpace> >

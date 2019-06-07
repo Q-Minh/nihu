@@ -68,7 +68,7 @@ namespace asymptotic
 template <class SingularityType>
 struct minimal_reference_dimension;
 
-/** \brief specialisation of ::minimal_reference_dimension to the log<1> singularity */
+/** \brief specialisation of NiHu::minimal_reference_dimension to the log<1> singularity */
 template <>
 struct minimal_reference_dimension<asymptotic::log<1> >
 {
@@ -76,7 +76,7 @@ struct minimal_reference_dimension<asymptotic::log<1> >
 };
 
 
-/** \brief specialisation of ::minimal_reference_dimension to the 1/r^o singularity
+/** \brief specialisation of NiHu::minimal_reference_dimension to the 1/r^o singularity
  * \tparam order the inverse singularity order
  */
 template <unsigned order>
@@ -85,7 +85,7 @@ struct minimal_reference_dimension<asymptotic::inverse<order> >
 	static unsigned const value = order+1;
 };
 
-/** \brief specialisation of ::minimal_reference_dimension to the r^o singularity
+/** \brief specialisation of NiHu::minimal_reference_dimension to the r^o singularity
  * \tparam order the inverse singularity order
  */
 template <int order>

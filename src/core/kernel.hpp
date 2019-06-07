@@ -66,7 +66,7 @@ namespace kernel_traits_ns
 
 /** \brief traits class of a kernel
  * \tparam Derived the CRTP derived kernel
- * \details This traits class inherits all its typedefs and integral constants from namespace ::kernel_traits_ns
+ * \details This traits class inherits all its typedefs and integral constants from namespace NiHu::kernel_traits_ns
  */
 template <class Derived>
 struct kernel_traits
@@ -96,7 +96,7 @@ struct kernel_traits
 
 /** \brief singular traits class of a kernel
  * \tparam Derived the CRTP derived kernel
- * \details This traits class inherits all its typedefs and integral constants from namespace ::kernel_traits_ns
+ * \details This traits class inherits all its typedefs and integral constants from namespace NiHu::kernel_traits_ns
  */
 template <class Derived>
 struct singular_kernel_traits

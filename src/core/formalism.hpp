@@ -46,7 +46,7 @@ namespace formalism
 template <class TestField, class TrialField, class = void>
 struct get_formalism;
 
-/** \brief specialiastion of ::get_formalism for the collocational case */
+/** \brief specialiastion of NiHu::get_formalism for the collocational case */
 template <class TestField, class TrialField>
 struct get_formalism<TestField, TrialField,	typename std::enable_if<
 		field_traits::is_dirac<TestField>::value && !field_traits::is_dirac<TrialField>::value
@@ -54,7 +54,7 @@ struct get_formalism<TestField, TrialField,	typename std::enable_if<
 > : formalism::collocational {};
 
 
-/** \brief specialiastion of ::get_formalism for the general case */
+/** \brief specialiastion of NiHu::get_formalism for the general case */
 template <class TestField, class TrialField>
 struct get_formalism<TestField, TrialField,
 	typename std::enable_if<

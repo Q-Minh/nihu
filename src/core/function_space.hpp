@@ -137,7 +137,7 @@ struct function_space_traits<function_space_view<Mesh, FieldOption, Dimension> >
 
 
 /**
-* \brief implementation class of ::function_space_view
+* \brief implementation class of NiHu::function_space_view
 * \tparam Mesh the underlying Mesh type
 * \tparam FieldOption determines how the field is generated from the mesh
 */
@@ -265,7 +265,7 @@ function_space_view<Mesh, field_option::constant, Dimension> const &
 template <class FuncSpace>
 class dirac_space;
 
-/** \brief traits class of a ::dirac_space */
+/** \brief traits class of a NiHu::dirac_space */
 template <class FuncSpace>
 struct function_space_traits<dirac_space<FuncSpace> >
 {

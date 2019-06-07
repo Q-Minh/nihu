@@ -16,18 +16,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * \file field_type_accelerator.hpp
- * \ingroup quadrature
- * \brief Acceleration of field types by storing shape functions for each quadrature point
- */
+/// \file field_type_accelerator.hpp
+/// \ingroup quadrature
+/// \brief Acceleration of field types by storing shape functions for each quadrature point
 
 #ifndef FIELD_TYPE_ACCELERATOR_HPP_INCLUDED
 #define FIELD_TYPE_ACCELERATOR_HPP_INCLUDED
 
-#include "global_definitions.hpp"
-#include "field_type_acceleration_option.hpp"
 #include "field.hpp"
+#include "field_type_acceleration_option.hpp"
+#include "global_definitions.hpp"
 #include "quadrature.hpp"
 #include "../util/casted_iterator.hpp"
 #include "../util/dual_range.hpp"
@@ -47,7 +45,7 @@ namespace NiHu
 template<class Field, class Family, class Acceleration>
 class field_type_accelerator_elem;
 
-/** \brief specialisation of ::field_type_accelerator_elem for the soft case */
+/// \brief specialisation of NiHu::field_type_accelerator_elem for the soft case
 template <class Field, class Family>
 class field_type_accelerator_elem<Field, Family, acceleration::soft> :
 	public quadrature_elem<
@@ -71,7 +69,7 @@ public:
 };
 
 
-/** \brief specialisation of ::field_type_accelerator_elem for the hard acceleration case */
+/// \brief specialisation of NiHu::field_type_accelerator_elem for the hard acceleration case
 template <class Field, class Family>
 class field_type_accelerator_elem<Field, Family, acceleration::hard> :
 	public quadrature_elem<
@@ -304,11 +302,10 @@ private:
 };
 
 
-/** \brief specialisation of ::field_type_accelerator for the Dirac field type
- * \tparam Field the field type
- * \tparam Family the quadrature family
- * \tparam Acceleration the acceleration option
- */
+/// \brief specialisation of NiHu::field_type_accelerator for the Dirac field type
+/// \tparam Field the field type
+/// \tparam Family the quadrature family
+/// \tparam Acceleration the acceleration option
 template <class Field, class Family, class Acceleration>
 class field_type_accelerator<Field, Family, Acceleration,
 	typename std::enable_if<field_traits::is_dirac<Field>::value>::type
@@ -362,12 +359,10 @@ public:
 };
 
 
-/**
- * \brief specialisation of ::field_type_accelerator for the soft acceleration case
- * \tparam Field the field type
- * \tparam Family the quadrature family
- * \tparam MaxOrder the maximal stored quadrature order
- */
+/// \brief specialisation of NiHu::field_type_accelerator for the soft acceleration case
+/// \tparam Field the field type
+/// \tparam Family the quadrature family
+/// \tparam MaxOrder the maximal stored quadrature order
 template <class Field, class Family, unsigned MaxOrder>
 class field_type_accelerator_pool<Field, Family, acceleration::soft, MaxOrder> :
 	public pool<typename quadrature_type<Family, typename Field::elem_t::domain_t>::type, MaxOrder>

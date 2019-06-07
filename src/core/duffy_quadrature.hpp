@@ -141,7 +141,7 @@ public:
 }; // end of class duffy_quadrature
 
 
-/** \brief Specialisation of ::duffy_traits for ::tria_1_shape_set */
+/** \brief Specialisation of NiHu::duffy_traits for NiHu::tria_1_shape_set */
 template <>
 struct duffy_traits<tria_1_shape_set>
 {
@@ -149,7 +149,7 @@ struct duffy_traits<tria_1_shape_set>
 	static unsigned const duffy_corner_indices[3][2+1];
 };
 
-/** \brief Specialisation of ::duffy_traits for ::quad_1_shape_set */
+/** \brief Specialisation of NiHu::duffy_traits for NiHu::quad_1_shape_set */
 template <>
 struct duffy_traits<quad_1_shape_set>
 {
@@ -159,7 +159,7 @@ struct duffy_traits<quad_1_shape_set>
 	static unsigned const duffy_face_indices[5+1];
 };
 
-/** \brief Specialisation of ::duffy_traits for ::tria_2_shape_set */
+/** \brief Specialisation of NiHu::duffy_traits for NiHu::tria_2_shape_set */
 template <>
 struct duffy_traits<tria_2_shape_set>
 {
@@ -167,7 +167,7 @@ struct duffy_traits<tria_2_shape_set>
 	static unsigned const duffy_corner_indices[6][3+1];
 };
 
-/** \brief Specialisation of ::duffy_traits for ::quad_2_shape_set */
+/** \brief Specialisation of NiHu::duffy_traits for NiHu::quad_2_shape_set */
 template <>
 struct duffy_traits<quad_2_shape_set>
 {

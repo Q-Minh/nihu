@@ -497,7 +497,7 @@ namespace element_traits
 	struct is_surface_element<surface_element<LSet, Scalar> > : std::true_type {};
 }
 
-/** \brief specialisation of ::normal_impl for 3D */
+/** \brief specialisation of NiHu::normal_impl for 3D */
 template <class Derived>
 class normal_impl<Derived, typename std::enable_if<
 	element_traits::space_type<Derived>::type::dimension == 3
@@ -512,7 +512,7 @@ public:
 	}
 };
 
-/** \brief specialisation of ::normal_impl for 2D */
+/** \brief specialisation of NiHu::normal_impl for 2D */
 template <class Derived>
 class normal_impl<Derived, typename std::enable_if<
 	element_traits::space_type<Derived>::type::dimension == 2

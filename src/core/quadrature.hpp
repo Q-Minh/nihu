@@ -16,18 +16,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * \file quadrature.hpp
- * \ingroup quadrature
- * \brief implementation of class ::quadrature_elem, ::quadrature_base
- */
+/// \file quadrature.hpp
+/// \ingroup quadrature
+/// \brief implementation of class NiHu::quadrature_elem, NiHu::quadrature_base
 #ifndef QUADRATURE_HPP_INCLUDED
 #define QUADRATURE_HPP_INCLUDED
 
-#include "../util/eigen_utils.hpp"
-#include "../util/crtp_base.hpp"
 #include "shapeset.hpp"
 #include "../library/lib_shape.hpp"
+#include "../util/eigen_utils.hpp"
+#include "../util/crtp_base.hpp"
 
 namespace NiHu
 {

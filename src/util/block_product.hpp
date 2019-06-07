@@ -18,7 +18,7 @@
 
 /** \file block_product.hpp
  * \ingroup util
- * \brief declaration of template function ::block_product, ::semi_block_product and its related metafunctions
+ * \brief declaration of template function NiHu::block_product, NiHu::semi_block_product and its related metafunctions
  */
 
 #ifndef BLOCK_PRODUCT_HPP_INCLUDED

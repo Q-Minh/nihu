@@ -22,8 +22,8 @@
  * \brief implementation of fields and field views
  * \details Fields are elements extended with a shape set and dof description.
  * Fields can be generated ,,by hand'' or by extending an element with automatic
- * field generation options. This file implements class ::field, class ::field_view
- * and class ::dirac_field. All field-type classes are derived from the CRTP base ::field_base
+ * field generation options. This file implements class NiHu::field, class NiHu::field_view
+ * and class NiHu::dirac_field. All field-type classes are derived from the CRTP base NiHu::field_base
  */
 #ifndef FIELD_HPP_INCLUDED
 #define FIELD_HPP_INCLUDED
@@ -270,7 +270,7 @@ public:
 
 
 /**
- * \brief Specialisation of class ::field_impl for the case of a constant field view
+ * \brief Specialisation of class NiHu::field_impl for the case of a constant field view
  * \tparam ElemType the element type the field is associated with
  */
 template <class ElemType, class Dimension>

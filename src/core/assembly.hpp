@@ -39,7 +39,7 @@ template <class TestSpace, class TrialSpace, class OnSameMesh>
 class assembly
 {
 private:
-	/** \brief implementation of ::eval_on
+	/** \brief implementation of NiHu::eval_on
 	 * \tparam Operator the integral operator type that is applied
 	 * \tparam TestField the test field type over which integration is performed
 	 * \tparam TrialField the trial field type over which integration is performed
@@ -98,7 +98,7 @@ private:
 	};};
 
 
-	/** \brief trivial specialisation of ::eval_on_impl for the trivial case */
+	/** \brief trivial specialisation of NiHu::eval_on_impl for the trivial case */
 	template <class Operator, class TestField, class TrialField>
 	struct eval_on_impl<Operator, TestField, TrialField, true>
 	{ struct type {

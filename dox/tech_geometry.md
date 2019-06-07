@@ -18,19 +18,19 @@ Core definition {#tech_geometry_space_core}
 ---------------
 
 The lowest level of geometrical representations is the definition of coordinate spaces like the three-dimensional real space \f$ \mathbb{R}^{3} \f$.
-Coordinate spaces are defined in class ::space, implemented in the source file space.hpp.
+Coordinate spaces are defined in class NiHu::space, implemented in the source file space.hpp.
 The class has two obvious template parameters, \c scalar, representing the type of a coordinate and \c dimension representing the dimensionality of the coordinate space.
 ~~~~~
 template <class scalar, unsigned dimension>
 class space;
 ~~~~~
 
-Class ::space - like most of NiHu's template classes - implements a self-returning metafunction.
-This means that the class contains a public \c typedef called \c type that returns class ::space itself.
+Class NiHu::space - like most of NiHu's template classes - implements a self-returning metafunction.
+This means that the class contains a public \c typedef called \c type that returns class NiHu::space itself.
 This technique is useful for simplifying NiHu's TMP syntax, as will be demonstrated later.
-As an other typical NiHu concept, class ::space contains its template arguments in the form of a public \c typedef and an \c enum, making the arguments available from the class.
+As an other typical NiHu concept, class NiHu::space contains its template arguments in the form of a public \c typedef and an \c enum, making the arguments available from the class.
 
-Class ::space further defines the location vector type \c location_t of the coordinate space in the form of an Eigen vector type.
+Class NiHu::space further defines the location vector type \c location_t of the coordinate space in the form of an Eigen vector type.
 
 Library reference {#tech_geometry_space_lib}
 -----------------
@@ -62,7 +62,7 @@ Domains {#tech_geometry_domain}
 Core definition {#tech_geometry_domain_core}
 ---------------
 
-Class ::domain, implemented in domain.hpp represents polygon-shaped subdomains of a coordinate space.
+Class NiHu::domain, implemented in domain.hpp represents polygon-shaped subdomains of a coordinate space.
 These domains are used in NiHu as the reference domains \f$ \mathcal{D} \f$ of the coordinate transforms defining element geometries.
 
 The class is a template with two arguments:
@@ -75,17 +75,17 @@ The class is a self-returning metafunction, and defines its template arguments a
 
 The class further stores its corners (locations in the parameter space), as well as the domain's center in static members.
 The class provides static methods to return
-- the begin iterator to the domain's corners array ::domain::get_corners
-- the domain's specific corner ::domain::get_corner
-- the domain's center ::domain::get_center
-- and the domain's volume ::domain::get_volume
+- the begin iterator to the domain's corners array NiHu::domain::get_corners
+- the domain's specific corner NiHu::domain::get_corner
+- the domain's center NiHu::domain::get_center
+- and the domain's volume NiHu::domain::get_volume
 
-Each domain is assigned a numeric identifier by the metafunction ::domain_traits::id. The default value of this id is
+Each domain is assigned a numeric identifier by the metafunction NiHu::domain_traits::id. The default value of this id is
 
 	10 * dimension + NumCorners
 
 thus the id of \c line_domain is 12, and the id of tria_domain is 23.
-Each domain is assigned a textual identifier by metafunction ::domain_traits::name.
+Each domain is assigned a textual identifier by metafunction NiHu::domain_traits::name.
 This textual id is useful for debugging and performance diagnostics.
 
 Library reference {#tech_geometry_domain_lib}
@@ -117,8 +117,8 @@ They are implemented in the header file shapeset.hpp.
 
 Shape function sets are implemented using the CRTP pattern with traits metafunctions.
 All shape set classes are derived from shape_set_base that defines their interface.
-The traits of a derived shape set class are implemented in namespace ::shape_set_traits in the form of separate metafunctions. 
-The base class template ::shape_set_base gets the necessary type information from the traits metafunctions of the derived classes to define the specific interface.
+The traits of a derived shape set class are implemented in namespace NiHu::shape_set_traits in the form of separate metafunctions. 
+The base class template NiHu::shape_set_base gets the necessary type information from the traits metafunctions of the derived classes to define the specific interface.
 
 The interface consists of the following functions:
 - shape_set_base::corner_begin and shape_set_base::corner_end return iterators to the nodal corners \f$ \xi_i \f$ of the shape set.
@@ -126,9 +126,9 @@ The interface consists of the following functions:
 - shape_set_base::eval_shape evaluates and returns the shape functions or their derivatives at a local coordinate.
 
 The function template eval_shape can return the shape functions their gradient vectors or second derivatives as follows:
-- ::shape_set_base::eval_shape<0> returns the shape functions \f$ L_i(\xi) \f$ in the form of an Eigen vector.
-- ::shape_set_base::eval_shape<1> returns the gradient of each function \f$ L_{i,j}(\xi) \f$ in the form of an Eigen matrix, each row containing the gradient of a single shape function.
-- ::shape_set_base::eval_shape<2> returns the second derivatives of each function \f$ L_{i,jk}(\xi) \f$ in the form of an Eigen matrix, each row containing the different second derivatives of a shape function.
+- NiHu::shape_set_base::eval_shape<0> returns the shape functions \f$ L_i(\xi) \f$ in the form of an Eigen vector.
+- NiHu::shape_set_base::eval_shape<1> returns the gradient of each function \f$ L_{i,j}(\xi) \f$ in the form of an Eigen matrix, each row containing the gradient of a single shape function.
+- NiHu::shape_set_base::eval_shape<2> returns the second derivatives of each function \f$ L_{i,jk}(\xi) \f$ in the form of an Eigen matrix, each row containing the different second derivatives of a shape function.
 
 Efficient shape function evaluation
 -----------------------------------
@@ -147,7 +147,7 @@ The value types of the shape function vectors and matrices, as well as the actua
 Further traits
 --------------
 
-Similar to class ::space and ::domain, each shape set is assiged a numeric and a textual identifier by the metafunctions ::shape_set_traits::id and ::shape_set_traits::name. The numeric id has a default value of
+Similar to class NiHu::space and NiHu::domain, each shape set is assiged a numeric and a textual identifier by the metafunctions NiHu::shape_set_traits::id and NiHu::shape_set_traits::name. The numeric id has a default value of
 
 	100 * domain_traits::id + NumNodes
 	
@@ -157,18 +157,18 @@ Library reference {#tech_geometry_shapeset_lib}
 -----------------
 
 NiHu's component library predefines the following shape functions:
-- ::line_0_shape_set constant 1-noded line interpolation (1201)
-- ::line_1_shape_set linear 2-noded line interpolation (1202)
-- ::line_2_shape_set quadratic 3-noded line interpolation (1203)
-- ::tria_0_shape_set constant 1-noded triangle interpolation (2301)
-- ::tria_1_shape_set linear 3-noded triangle interpolation (2303)
-- ::tria_2_shape_set quadratic 6-noded triangle interpolation (2306)
-- ::quad_0_shape_set constant 1-noded quadrangle interpolation (2401)
-- ::quad_1_shape_set (bi)linear 4-noded quadrangle interpolation (2404)
-- ::quad_28_shape_set quadratic 8-noded quadrangle interpolation (2409)
-- ::quad_2_shape_set quadratic 9-noded quadrangle interpolation (2408)
-- ::brick_0_shape_set constant 1-noded hexahedron interpolation (3801)
-- ::brick_1_shape_set (tri)linear 8-noded hexahedron interpolation (3808)
+- NiHu::line_0_shape_set constant 1-noded line interpolation (1201)
+- NiHu::line_1_shape_set linear 2-noded line interpolation (1202)
+- NiHu::line_2_shape_set quadratic 3-noded line interpolation (1203)
+- NiHu::tria_0_shape_set constant 1-noded triangle interpolation (2301)
+- NiHu::tria_1_shape_set linear 3-noded triangle interpolation (2303)
+- NiHu::tria_2_shape_set quadratic 6-noded triangle interpolation (2306)
+- NiHu::quad_0_shape_set constant 1-noded quadrangle interpolation (2401)
+- NiHu::quad_1_shape_set (bi)linear 4-noded quadrangle interpolation (2404)
+- NiHu::quad_28_shape_set quadratic 8-noded quadrangle interpolation (2409)
+- NiHu::quad_2_shape_set quadratic 9-noded quadrangle interpolation (2408)
+- NiHu::brick_0_shape_set constant 1-noded hexahedron interpolation (3801)
+- NiHu::brick_1_shape_set (tri)linear 8-noded hexahedron interpolation (3808)
 
 Example {#tech_geometry_shapeset_example}
 -------

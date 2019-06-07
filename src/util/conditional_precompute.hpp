@@ -65,7 +65,7 @@ public:
 };
 
 
-/** \brief specialisation of ::conditional_precompute for the matrix_function_complexity::constant case */
+/** \brief specialisation of NiHu::conditional_precompute for the matrix_function_complexity::constant case */
 template <class Func, class...Args>
 class conditional_precompute<matrix_function_complexity::constant, Func, Args...>
 {
@@ -88,7 +88,7 @@ public:
 };
 
 
-/** \brief specialisation of ::conditional_precompute for the matrix_function_complexity::zero case */
+/** \brief specialisation of NiHu::conditional_precompute for the matrix_function_complexity::zero case */
 template <class Func, class...Args>
 class conditional_precompute<matrix_function_complexity::zero, Func, Args...>
 {

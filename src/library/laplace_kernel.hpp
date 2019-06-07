@@ -29,10 +29,12 @@
 #include <boost/math/constants/constants.hpp>
 
 #include <cmath>
+#include "distance_dependent_kernel.hpp"
+#include "guiggiani_1992.hpp"
+#include "normal_derivative_kernel.hpp"
 #include "../core/global_definitions.hpp"
 #include "../core/gaussian_quadrature.hpp"
-#include "normal_derivative_kernel.hpp"
-#include "distance_dependent_kernel.hpp"
+
 
 namespace NiHu
 {
@@ -253,12 +255,11 @@ typedef normal_derivative_kernel<laplace_kernel<space_3d<> >, 2, 0> laplace_3d_G
 
 } // end of namespace NiHu
 
-#include "guiggiani_1992.hpp"
 
 namespace NiHu
 {
 
-/** \brief specialisation of class ::polar_laurent_coeffs for the ::laplace_3d_HSP_kernel */
+/** \brief specialisation of class NiHu::polar_laurent_coeffs for the NiHu::laplace_3d_HSP_kernel */
 template <class Scalar>
 class polar_laurent_coeffs<
 	normal_derivative_kernel<laplace_kernel<space_3d<Scalar> >, 1, 1>

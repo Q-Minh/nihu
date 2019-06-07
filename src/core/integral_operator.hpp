@@ -16,10 +16,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-/** \file integral_operator.hpp
-* \brief declaration of class ::integral_operator
-* \ingroup intop
-*/
+/// \file integral_operator.hpp
+/// \brief declaration of class NiHu::integral_operator
+/// \ingroup intop
 
 #ifndef INTEGRAL_OPERATOR_HPP_INCLUDED
 #define INTEGRAL_OPERATOR_HPP_INCLUDED
@@ -73,11 +72,10 @@ public:
 		return derived().derived_eval_on_fields(test_field, trial_field, OnSameMesh());
 	}
 
-	/** \brief apply the integral operator on a function space and create an ::integral_transform
-	 * \tparam FuncSpace the trial function space
-	 * \param [in] funcspace the function space reference
-	 * \return integral_transform proxy object
-	 */
+	/// \brief apply the integral operator on a function space and create a NiHu::integral_transform
+	/// \tparam FuncSpace the trial function space
+	/// \param [in] funcspace the function space reference
+	/// \return integral_transform proxy object
 	template <class FuncSpace>
 	integral_transform<
 		Derived,
@@ -104,7 +102,7 @@ template <class Scalar, class IntOp>
 class scaled_integral_operator;
 
 
-/** \brief traits class of class ::scaled_integral_operator */
+/// \brief traits class of class NiHu::scaled_integral_operator
 template <class Scalar, class IntOp>
 struct integral_operator_traits<scaled_integral_operator<Scalar, IntOp> >
 {

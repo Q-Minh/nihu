@@ -16,11 +16,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-/** 
- * \file space.hpp
- * \ingroup funcspace
- * \brief declaration of class ::space
- */
+/// \file space.hpp
+/// \ingroup funcspace
+/// \brief declaration of class NiHu::space
 
 #ifndef SPACE_HPP_INCLUDED
 #define SPACE_HPP_INCLUDED

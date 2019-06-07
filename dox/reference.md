@@ -18,17 +18,17 @@ Elements {#reference_func_space_elements}
 
  linear        					     | quadratic
 -------------------------------------|---------------
- ::line_1_elem 						 | ::line_2_elem 
- ::tria_1_elem 						 | ::tria_2_elem 
- ::quad_1_elem, ::parallelogram_elem | ::quad_2_elem, ::quad_28_elem 
+NiHu::line_1_elem 						 |NiHu::line_2_elem 
+NiHu::tria_1_elem 						 |NiHu::tria_2_elem 
+NiHu::quad_1_elem,NiHu::parallelogram_elem |NiHu::quad_2_elem,NiHu::quad_28_elem 
 
 Fields and FieldViews {#reference_func_space_fields}
 ---------------------
 
-- ::field_option::constant constant function space view generation option
-- ::field_option::isoparametric isoparametric function space view generation option
-- ::constant_view constant function space view generation factory function
-- ::isoparametric_view isoparametric function space view generation factory function
+-NiHu::field_option::constant constant function space view generation option
+-NiHu::field_option::isoparametric isoparametric function space view generation option
+-NiHu::constant_view constant function space view generation factory function
+-NiHu::isoparametric_view isoparametric function space view generation factory function
 
 Kernel Evaluation {#reference_kernel}
 =================
@@ -36,35 +36,35 @@ Kernel Evaluation {#reference_kernel}
 Laplace equation
 ----------------
 
-- ::laplace_2d_SLP_kernel
-- ::laplace_2d_DLP_kernel
-- ::laplace_2d_DLPt_kernel
-- ::laplace_2d_HSP_kernel
+- NiHu::laplace_2d_SLP_kernel
+- NiHu::laplace_2d_DLP_kernel
+- NiHu::laplace_2d_DLPt_kernel
+- NiHu::laplace_2d_HSP_kernel
 
-- ::laplace_3d_SLP_kernel
-- ::laplace_3d_DLP_kernel
-- ::laplace_3d_DLPt_kernel
-- ::laplace_3d_HSP_kernel
+- NiHu::laplace_3d_SLP_kernel
+- NiHu::laplace_3d_DLP_kernel
+- NiHu::laplace_3d_DLPt_kernel
+- NiHu::laplace_3d_HSP_kernel
 
 Helmholtz equation
 ------------------
 
-- ::helmholtz_2d_SLP_kernel
-- ::helmholtz_2d_DLP_kernel
+- NiHu::helmholtz_2d_SLP_kernel
+- NiHu::helmholtz_2d_DLP_kernel
 
-- ::helmholtz_3d_SLP_kernel
-- ::helmholtz_3d_DLP_kernel
-- ::helmholtz_3d_DLPt_kernel
-- ::helmholtz_3d_HSP_kernel
+- NiHu::helmholtz_3d_SLP_kernel
+- NiHu::helmholtz_3d_DLP_kernel
+- NiHu::helmholtz_3d_DLPt_kernel
+- NiHu::helmholtz_3d_HSP_kernel
 
 Linear isotropic elastostatics
 ------------------------------
 
-- ::elastostatics_2d_U_kernel
-- ::elastostatics_2d_T_kernel
+- NiHu::elastostatics_2d_U_kernel
+- NiHu::elastostatics_2d_T_kernel
 
-- ::elastostatics_3d_U_kernel
-- ::elastostatics_3d_T_kernel
+- NiHu::elastostatics_3d_U_kernel
+- NiHu::elastostatics_3d_T_kernel
 
 Numerical Integration {#reference_integration}
 =====================

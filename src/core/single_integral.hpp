@@ -37,7 +37,7 @@
 namespace NiHu
 {
 
-/** \brief traits class of ::single_integral
+/** \brief traits class of NiHu::single_integral
  * \tparam TestField the test field type
  * \tparam TrialField the trial field type
  */

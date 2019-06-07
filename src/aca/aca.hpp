@@ -1,6 +1,6 @@
 /// \file aca.hpp
 /// \brief implementation of Adaptive Cross Approximation (ACA)
-/// \details this file contains declrations of class ::ACA that is able to perform
+/// \details this file contains declarations of class NiHu::ACA that is able to perform
 /// LRA based matrix vector multiplications and decompositions.
 
 #ifndef ACA_HPP_INCLUDED

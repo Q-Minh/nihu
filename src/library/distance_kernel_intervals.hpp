@@ -50,7 +50,7 @@ namespace NiHu
 template <class asymptotic, unsigned Accuracy = GLOBAL_ACCURACY>
 struct distance_kernel_interval;
 
-/** \brief specialisation of ::distance_kernel_interval for log r and 1% error */
+/** \brief specialisation of NiHu::distance_kernel_interval for log r and 1% error */
 template <>
 struct distance_kernel_interval<asymptotic::log<1>, 2>
 {
@@ -62,7 +62,7 @@ struct distance_kernel_interval<asymptotic::log<1>, 2>
 };
 
 
-/** \brief specialisation of ::distance_kernel_interval for log r and .1% error */
+/** \brief specialisation of NiHu::distance_kernel_interval for log r and .1% error */
 template <>
 struct distance_kernel_interval<asymptotic::log<1>, 3>
 {
@@ -75,7 +75,7 @@ struct distance_kernel_interval<asymptotic::log<1>, 3>
 };
 
 
-/** \brief specialisation of ::distance_kernel_interval for 1/r and 1% error */
+/** \brief specialisation of NiHu::distance_kernel_interval for 1/r and 1% error */
 template <>
 struct distance_kernel_interval<asymptotic::inverse<1>, 2>
 {
@@ -87,7 +87,7 @@ struct distance_kernel_interval<asymptotic::inverse<1>, 2>
 };
 
 
-/** \brief specialisation of ::distance_kernel_interval for 1/r^2 and 1% error */
+/** \brief specialisation of NiHu::distance_kernel_interval for 1/r^2 and 1% error */
 template <>
 struct distance_kernel_interval<asymptotic::inverse<2>, 2>
 {
@@ -100,7 +100,7 @@ struct distance_kernel_interval<asymptotic::inverse<2>, 2>
 };
 
 
-/** \brief specialisation of ::distance_kernel_interval for 1/r^3 and 1% error */
+/** \brief specialisation of NiHu::distance_kernel_interval for 1/r^3 and 1% error */
 template <>
 struct distance_kernel_interval<asymptotic::inverse<3>, 2>
 {
@@ -113,7 +113,7 @@ struct distance_kernel_interval<asymptotic::inverse<3>, 2>
 	> type;
 };
 
-/** \brief specialisation of ::distance_kernel_interval for 1/r and .1% error */
+/** \brief specialisation of NiHu::distance_kernel_interval for 1/r and .1% error */
 template <>
 struct distance_kernel_interval<asymptotic::inverse<1>, 3>
 {
@@ -125,7 +125,7 @@ struct distance_kernel_interval<asymptotic::inverse<1>, 3>
 	> type;
 };
 
-/** \brief specialisation of ::distance_kernel_interval for 1/r^2 and .1% error */
+/** \brief specialisation of NiHu::distance_kernel_interval for 1/r^2 and .1% error */
 template <>
 struct distance_kernel_interval<asymptotic::inverse<2>, 3>
 {
@@ -139,7 +139,7 @@ struct distance_kernel_interval<asymptotic::inverse<2>, 3>
 };
 
 
-/** \brief specialisation of ::distance_kernel_interval for 1/r^3 and .1% error */
+/** \brief specialisation of NiHu::distance_kernel_interval for 1/r^3 and .1% error */
 template <>
 struct distance_kernel_interval<asymptotic::inverse<3>, 3>
 {

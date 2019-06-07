@@ -16,11 +16,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * \file singular_accelerator.hpp
- * \ingroup quadrature
- * \brief implementation of class ::singular_accelerator
- */
+/// \file singular_accelerator.hpp
+/// \ingroup quadrature
+/// \brief implementation of class NiHu::singular_accelerator
 
 #ifndef SINGULAR_ACCELERATOR_HPP_INCLUDED
 #define SINGULAR_ACCELERATOR_HPP_INCLUDED
@@ -130,7 +128,7 @@ class singular_accelerator;
 
 
 /**
-* \brief specialisation of ::singular_accelerator for the general formalism
+* \brief specialisation of NiHu::singular_accelerator for the general formalism
 * \tparam Kernel the kernel that is integrated
 * \tparam TestField the test field over which integration is performed
 * \tparam TrialField the trial field over which integration is performed

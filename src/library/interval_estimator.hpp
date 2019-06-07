@@ -31,7 +31,7 @@ namespace NiHu
 {
 
 /**
- * \brief specialisation of ::complexity_estimator for the interval case
+ * \brief specialisation of NiHu::complexity_estimator for the interval case
  * \tparam Interval the intervals to use for the estimation
  */
 template <class Interval>

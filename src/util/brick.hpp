@@ -52,7 +52,7 @@ namespace internal
 		typename wall::template wrap<empty_wall>::type
 	> {};
 
-	/** \brief specialisation of ::wall_to_bricks for the empty wall */
+	/** \brief specialisation of NiHu::wall_to_bricks for the empty wall */
 	template <>
 	struct wall_to_bricks<empty_wall> : tmp::vector<> {};
 

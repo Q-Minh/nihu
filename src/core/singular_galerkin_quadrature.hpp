@@ -20,7 +20,7 @@
  * \file singular_galerkin_quadrature.hpp
  * \ingroup quadrature
  * \brief implementation of singular Galerkin quadratures
- * \details This file implements class ::singular_galerkin_quadrature that generates
+ * \details This file implements class NiHu::singular_galerkin_quadrature that generates
  * quadratures integrating weakly singular (1/r) kernels in the Galerkin BEM context.
  */
 #ifndef NIHU_SINGULAR_GALERKIN_QUADRATURE_HPP_INCLUDED
@@ -74,7 +74,7 @@ template <class match_type>
 struct line_helper;
 
 /**
- * \brief specialisation of ::line_helper for the 0d match case
+ * \brief specialisation of NiHu::line_helper for the 0d match case
  */
 template <>
 struct line_helper<match::match_0d_type>
@@ -107,7 +107,7 @@ struct line_helper<match::match_0d_type>
 
 
 /**
- * \brief specialisation of ::singular_galerkin_quadrature for the line-line case
+ * \brief specialisation of NiHu::singular_galerkin_quadrature for the line-line case
  * \tparam quadrature_family_t the regular quadrature family
  */
 template <class quadrature_family_t>
@@ -196,7 +196,7 @@ template <class match_type>
 struct tria_helper;
 
 /**
-* \brief specialisation of ::tria_helper for the 2d match case
+* \brief specialisation of NiHu::tria_helper for the 2d match case
 */
 template <>
 struct tria_helper<match::match_2d_type>
@@ -251,7 +251,7 @@ struct tria_helper<match::match_2d_type>
 };
 
 /**
-* \brief specialisation of ::tria_helper for the 1d match case
+* \brief specialisation of NiHu::tria_helper for the 1d match case
 */
 template <>
 struct tria_helper<match::match_1d_type>
@@ -323,7 +323,7 @@ struct tria_helper<match::match_1d_type>
 };
 
 /**
-* \brief specialisation of ::tria_helper for the 0d match case
+* \brief specialisation of NiHu::tria_helper for the 0d match case
 */
 template <>
 struct tria_helper<match::match_0d_type>
@@ -358,7 +358,7 @@ struct tria_helper<match::match_0d_type>
 
 
 /**
-* \brief specialisation of ::singular_galerkin_quadrature for the tria-tria case
+* \brief specialisation of NiHu::singular_galerkin_quadrature for the tria-tria case
 * \tparam quadrature_family_t the regular quadrature family
 * \details The implementation follows the paper of Tattaglia and Barzini
 */
@@ -456,7 +456,7 @@ public:
 template <class match_type>
 struct quad_helper;
 
-/** \brief specialisation of ::quad_helper for the 2d match case */
+/** \brief specialisation of NiHu::quad_helper for the 2d match case */
 template <>
 struct quad_helper<match::match_2d_type> : helper_base<quad_domain, quad_domain>
 {
@@ -477,7 +477,7 @@ struct quad_helper<match::match_2d_type> : helper_base<quad_domain, quad_domain>
 	}
 };
 
-/** \brief specialisation of ::quad_helper for the 1d match case */
+/** \brief specialisation of NiHu::quad_helper for the 1d match case */
 template <>
 struct quad_helper<match::match_1d_type> : helper_base<quad_domain, quad_domain>
 {
@@ -498,7 +498,7 @@ struct quad_helper<match::match_1d_type> : helper_base<quad_domain, quad_domain>
 	}
 };
 
-/** \brief specialisation of ::quad_helper for the 0d match case */
+/** \brief specialisation of NiHu::quad_helper for the 0d match case */
 template <>
 struct quad_helper<match::match_0d_type> : helper_base<quad_domain, quad_domain>
 {
@@ -520,7 +520,7 @@ struct quad_helper<match::match_0d_type> : helper_base<quad_domain, quad_domain>
 };
 
 /**
-* \brief specialisation of ::singular_galerkin_quadrature for the quad-quad case
+* \brief specialisation of NiHu::singular_galerkin_quadrature for the quad-quad case
 * \details The implementation follows our algorithm
 * \tparam quadrature_family_t the regular quadrature family
 */
@@ -620,7 +620,7 @@ public:
 
 
 /**
-* \brief specialisation of ::singular_galerkin_quadrature for the quad-tria case
+* \brief specialisation of NiHu::singular_galerkin_quadrature for the quad-tria case
 * \details The implementation follows Barzini's algorithm, but the quad is divided into trias
 * \tparam quadrature_family_t the regular quadrature family
 */
@@ -659,7 +659,7 @@ public:
 
 private:
 	/**
-	* \brief specialisation of ::generate for the 0d match case
+	* \brief specialisation of NiHu::generate for the 0d match case
 	* \param [out] test_quadrature the test quadrature to be extended
 	* \param [out] trial_quadrature the trial quadrature to be extended
 	* \param [in] singular_quadrature_order polynomial order of the underlying regular quadrature
@@ -696,7 +696,7 @@ private:
 	}
 
 	/**
-	* \brief specialisation of ::generate for the 1d match case
+	* \brief specialisation of NiHu::generate for the 1d match case
 	* \param [out] test_quadrature the test quadrature to be extended
 	* \param [out] trial_quadrature the trial quadrature to be extended
 	* \param [in] singular_quadrature_order polynomial order of the underlying regular quadrature
@@ -754,7 +754,7 @@ private:
 
 
 /**
-* \brief specialisation of ::singular_galerkin_quadrature for the tria-quad case
+* \brief specialisation of NiHu::singular_galerkin_quadrature for the tria-quad case
 * \details The implementation reuses the quad-tria specialisation
 * \tparam quadrature_family_t the regular quadrature family
 */
