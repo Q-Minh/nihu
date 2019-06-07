@@ -1,6 +1,5 @@
-/** \file integral_operator.hpp
- * \brief definition of linear arithmetics of integral operators
- */
+/// \file integral_operator.hpp
+/// \brief definition of linear arithmetics of integral operators
 
 #ifndef FMM_INTEGRAL_OPERATOR_HPP_INCLUDED
 #define FMM_INTEGRAL_OPERATOR_HPP_INCLUDED
@@ -8,26 +7,27 @@
 #include <utility>
 #include <type_traits>
 
+#include "../util/matrix_traits.hpp"
+#include "../util/plain_type.hpp"
+#include "../util/product_type.hpp"
+
 namespace NiHu
 {
 namespace fmm
 {
 
-/** \brief the base class of every integral operator
- * \tparam Derived the CRTP derived class
- */
+/// \brief the base class of every integral operator
+/// \tparam Derived the CRTP derived class
 template <class Derived>
 class integral_operator_expression;
 
-/** \brief the traits structure of an integral operator
- * \tparam Derived the CRTP derived class
- */
+/// \brief the traits structure of an integral operator
+/// \tparam Derived the CRTP derived class
 template <class Derived>
 struct integral_operator_expression_traits;
 
-/** \brief metafunction to determine if C is an integral operator
- * \tparam C the input
- */
+/// \brief metafunction to determine if C is an integral operator
+// \tparam C the input
 template <class C>
 struct is_integral_operator_expression
 	: public std::is_base_of<
@@ -35,31 +35,27 @@ struct is_integral_operator_expression
 	typename std::decay<C>::type> {};
 
 
-/** \brief the sum of two integral operators
- * \tparam LhsDerived the left hand side type
- * \tparam RhsDerived the right hand side type
- */
+/// \brief the sum of two integral operators
+/// \tparam LhsDerived the left hand side type
+/// \tparam RhsDerived the right hand side type
 template <class LhsDerived, class RhsDerived>
 class integral_operator_sum;
 
-/** \brief the difference of two integral operators
- * \tparam LhsDerived the left hand side type
- * \tparam RhsDerived the right hand side type
- */
+/// \brief the difference of two integral operators
+/// \tparam LhsDerived the left hand side type
+/// \tparam RhsDerived the right hand side type
 template <class LhsDerived, class RhsDerived>
 class integral_operator_diff;
 
-/** \brief constant times an integral operator
- * \tparam LhsDerived the left hand side type
- * \tparam Scalar the scalar type
- */
+/// \brief scalar times an integral operator
+/// \tparam LhsDerived the left hand side type
+/// \tparam Scalar the scalar type
 template <class LhsDerived, class Scalar>
 class integral_operator_scaled;
 
-/** \brief source-concatenation of two integral operators
- * \tparam LhsDerived the left hand side type
- * \tparam LhsDerived the right hand side type
- */
+/// \brief source-concatenation of two integral operators
+/// \tparam LhsDerived the left hand side type
+/// \tparam LhsDerived the right hand side type
 template <class LhsDerived, class RhsDerived>
 class integral_operator_src_concatenated;
 
@@ -74,32 +70,48 @@ public:
 	typedef typename traits_t::test_input_t test_input_t;
 	typedef typename traits_t::result_t result_t;
 
+	/// \brief CRTP helper function
 	derived_t const &derived() const
 	{
 		return *(static_cast<derived_t const *>(this));
 	}
 
+	/// \brief CRTP helper function
 	derived_t &derived()
 	{
 		return *(static_cast<derived_t *>(this));
 	}
 
+	/// \brief return rows of the integral operator' result
+	/// \param [in] ti the test input
+	/// \return rows of the result
 	size_t rows(test_input_t const &ti) const
 	{
 		return derived().rows(ti);
 	}
 
+	/// \brief return columns of the integral operator' result
+	/// \param [in] ti the trial input
+	/// \return columns of the result
 	size_t cols(trial_input_t const &ti) const
 	{
 		return derived().cols(ti);
 	}
 
+	/// \brief evaluate the integral operator
+	/// \param [in] tsi the test input
+	/// \param [in] tri the trial input
+	/// \return the result of the operator
 	result_t operator()(test_input_t const &tsi, trial_input_t const &tri) const
 	{
 		return derived()(tsi, tri);
 	}
 };
 
+/// \brief factory function to create the sum of two integral operators
+/// \tparam Lhs the left hand side derived type
+/// \tparam Rhs the right hand side derived type
+/// \return the sum of the operators
 template <class Lhs, class Rhs, typename std::enable_if<
 	is_integral_operator_expression<Lhs>::value &
 	is_integral_operator_expression<Rhs>::value, int>::type = 0>
@@ -110,6 +122,10 @@ integral_operator_sum<Lhs, Rhs> operator+(Lhs &&lhs, Rhs &&rhs)
 }
 
 
+/// \brief factory function to create the difference of two integral operators
+/// \tparam Lhs the left hand side derived type
+/// \tparam Rhs the right hand side derived type
+/// \return the difference of the operators
 template <class Lhs, class Rhs, typename std::enable_if<
 	is_integral_operator_expression<Lhs>::value &
 	is_integral_operator_expression<Rhs>::value, int>::type = 0>
@@ -120,6 +136,10 @@ integral_operator_diff<Lhs, Rhs> operator-(Lhs &&lhs, Rhs &&rhs)
 }
 
 
+/// \brief factory function to create the scaled integral operator
+/// \tparam Lhs the left hand side derived type
+/// \tparam Scalar the scalar type
+/// \return the scaled operator
 template <class Lhs, class Scalar,
 	typename std::enable_if<is_integral_operator_expression<Lhs>::value, int>::type = 0>
 integral_operator_scaled<Lhs, Scalar> operator*(Lhs &&lhs, Scalar &&c)
@@ -128,6 +148,10 @@ integral_operator_scaled<Lhs, Scalar> operator*(Lhs &&lhs, Scalar &&c)
 		std::forward<Lhs>(lhs), std::forward<Scalar>(c));
 }
 
+/// \brief factory function to create the scaled integral operator
+/// \tparam Scalar the scalar type
+/// \tparam Rhs the left hand side derived type
+/// \return the scaled operator
 template <class Scalar, class Rhs,
 	typename std::enable_if<is_integral_operator_expression<Rhs>::value, int>::type = 0>
 integral_operator_scaled<Rhs, Scalar>
@@ -138,9 +162,9 @@ operator *(Scalar &&c, Rhs &&rhs)
 }																					  
 
 
-/// \brief integral operator_expression_traits for the sum of two integral operators
-/// \tparam Lhs the left hand side operator
-/// \tparam Rhs the right hand side operator
+/// \brief traits of the sum of two integral operators
+/// \tparam Lhs the left hand side derived operator
+/// \tparam Rhs the right hand side derived operator
 template <class Lhs, class Rhs>
 struct integral_operator_expression_traits<integral_operator_sum<Lhs, Rhs> >
 {
@@ -151,6 +175,9 @@ struct integral_operator_expression_traits<integral_operator_sum<Lhs, Rhs> >
 };
 
 
+/// \brief traits of the difference of two integral operators
+/// \tparam Lhs the left hand side derived operator
+/// \tparam Rhs the right hand side derived operator
 template <class Lhs, class Rhs>
 struct integral_operator_expression_traits<integral_operator_diff<Lhs, Rhs> >
 {
@@ -235,17 +262,24 @@ private:
 };
 
 
-/// \brief specialisation of integral_operator_expression_traits for the scaled integral operator
+/// \brief traits of the scaled integral operator
 /// \tparam Lhs the original integral operator
 /// \tparam Scalar the scalar type
 template <class Lhs, class Scalar>
 struct integral_operator_expression_traits<integral_operator_scaled<Lhs, Scalar> >
 {
-	typedef typename std::decay<Lhs>::type derived_t;
-	typedef typename integral_operator_expression_traits<derived_t>::test_input_t test_input_t;
-	typedef typename integral_operator_expression_traits<derived_t>::trial_input_t trial_input_t;
-	/// @todo should be replaced by product_type (result_t Scalar)
-	typedef typename integral_operator_expression_traits<derived_t>::result_t result_t;
+	typedef typename std::decay<Lhs>::type lhs_derived_t;
+	typedef typename std::decay<Scalar>::type scalar_t;
+
+	typedef typename integral_operator_expression_traits<lhs_derived_t>::test_input_t test_input_t;
+	typedef typename integral_operator_expression_traits<lhs_derived_t>::trial_input_t trial_input_t;
+
+	typedef typename NiHu::plain_type<
+		typename NiHu::product_type<
+			scalar_t,
+			typename integral_operator_expression_traits<lhs_derived_t>::result_t
+		>::type
+	>::type result_t;
 };
 
 
@@ -351,4 +385,4 @@ src_concatenate(Lhs &&lhs, Rhs &&rhs)
 } // end of namespace fmm
 } // namespace NiHu
 
-#endif // FMM_integral_operator_OPERATOR_HPP_INCLUDED
+#endif // INTEGRAL_OPERATOR_HPP_INCLUDED

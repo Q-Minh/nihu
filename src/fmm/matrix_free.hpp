@@ -79,7 +79,7 @@ public:
 	typename FmmMatrix::response_t
 		operator*(Eigen::MatrixBase<X> const &x) const
 	{
-		return m_mat * x - x / 2.0;
+		return m_mat * x;
 	}
 
 	vector_t get_diagonal() const

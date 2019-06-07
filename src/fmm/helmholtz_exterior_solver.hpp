@@ -147,8 +147,12 @@ public:
 		std::complex<double> alpha(0.0, -1.0 / m_wave_number);
 		auto im2p_bm = im2p_0 + alpha * im2p_1;
 		auto il2p_bm = il2p_0 + alpha * il2p_1;
-		auto ip2p_0_bm = ip2p_00 + alpha * ip2p_10;
-		auto ip2p_1_bm = ip2p_01 + alpha * ip2p_11;
+		auto ip2p_0_bm = ip2p_00 + alpha * ip2p_10
+			+ (alpha / 2.0) * 
+			create_identity_p2p_integral(type2tag<test_field_t>(), type2tag<trial_field_t>());
+		auto ip2p_1_bm = ip2p_01 + alpha * ip2p_11 
+			- 0.5 *
+			create_identity_p2p_integral(type2tag<test_field_t>(), type2tag<trial_field_t>());
 
 		// create indexed fmbem operators
 		std::cout << "Operator indexing" << std::endl;
@@ -276,7 +280,7 @@ public:
 
 		// compute rhs with fmbem
 		std::cout << "Computing rhs ..." << std::endl;
-		response_t rhs = (slp_matrix * m_excitation + alpha / 2. * m_excitation).eval();
+		response_t rhs = slp_matrix * m_excitation;
 		std::cout << "rhs ready" << std::endl;
 
 		// create matrix object
