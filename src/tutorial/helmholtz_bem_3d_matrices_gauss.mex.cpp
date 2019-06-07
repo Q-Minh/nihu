@@ -30,7 +30,7 @@ void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 		for (size_t c = 0; c < 4; ++c)
 			fields(e,c+1) = surf_elem(e,c+1);
 		for (size_t c = 0; c < 4; ++c)
-			fields(e,c+1+4) = 4*e+c;
+			fields(e,c+1+4) = unsigned(4*e+c);
 	}
 	
 	// create function space

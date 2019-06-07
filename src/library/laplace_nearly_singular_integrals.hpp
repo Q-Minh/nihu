@@ -208,6 +208,7 @@ public:
 };
 
 
+/// \brief collocational near.sing. integral of the laplace 3D DLPt kernel over constant plane elements
 class laplace_3d_DLPt_collocation_constant_plane_nearly_singular
 {
 	typedef line_domain quadrature_domain_t;

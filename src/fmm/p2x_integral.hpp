@@ -8,7 +8,7 @@
 #include "core/gaussian_quadrature.hpp"
 #include "core/field.hpp"
 
-#include "integral_operator.hpp"
+#include "integral_operator_expression.hpp"
 #include "jacobian_computer.hpp"
 #include "util/matrix_traits.hpp"
 #include "util/type2tag.hpp"

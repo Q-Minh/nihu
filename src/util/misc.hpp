@@ -1,6 +1,5 @@
-/** \file Misc.hpp
- * \brief miscellaneous functions and metafunctions
- */
+/// \file misc.hpp
+/// \brief miscellaneous functions and metafunctions
 #ifndef MISC_H_INCLUDED
 #define MISC_H_INCLUDED
 

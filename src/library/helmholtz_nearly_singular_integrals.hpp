@@ -494,6 +494,10 @@ public:
 };
 
 
+/// \brief collocational near.sing. integral of the Helmholtz DLPt kernel over constant tria
+/// \tparam TestField the test field type
+/// \tparam TrialField the trial field type
+/// \tparam WaveNumber the wave number type
 template <class TestField, class TrialField, class WaveNumber>
 class nearly_singular_integral<
 	helmholtz_3d_DLPt_kernel<WaveNumber>, TestField, TrialField,

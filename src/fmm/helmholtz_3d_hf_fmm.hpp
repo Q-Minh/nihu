@@ -1,6 +1,5 @@
-/** \file helmholtz_3d_hf_fmm.hpp
- * \brief implemenetation of the 3D High Frequency Helmholtz FMM
- */
+/// \file helmholtz_3d_hf_fmm.hpp
+/// \brief implemenetation of the 3D High Frequency Helmholtz FMM
 #ifndef HELMHOLTZ_3D_HF_FMM_HPP_INCLUDED
 #define HELMHOLTZ_3D_HF_FMM_HPP_INCLUDED
 
@@ -28,7 +27,6 @@ namespace NiHu
 {
 namespace fmm
 {
-
 
 class up_shift
 {
@@ -510,71 +508,82 @@ public:
 	};
 
 
+	/// \brief metafunction returning the P2M operator's type for a given order
+	/// \tparam Ny the order of source differentiation
 	template <int Ny>
 	struct p2m_type
 	{
 		typedef p2m<Ny> type;
 	};
 
+	/// \brief metafunction returning the P2L operator's type for a given order
+	/// \tparam Ny the order of source differentiation
 	template <int Ny>
 	struct p2l_type
 	{
 		typedef p2l<Ny> type;
 	};
 
+	/// \brief metafunction returning the M2P operator's type for a given order
+	/// \tparam Nx the order of receiver differentiation
 	template <int Nx>
 	struct m2p_type
 	{
 		typedef m2p<Nx> type;
 	};
 
+	/// \brief metafunction returning the L2P operator's type for a given order
+	/// \tparam Nx the order of receiver differentiation
 	template <int Nx>
 	struct l2p_type
 	{
 		typedef l2p<Nx> type;
 	};
 
-	template <int Ny>
-	typename p2m_type<Ny>::type
-		create_p2m() const
-	{
-		return p2m<Ny>(m_wave_number);
-	}
-
-	template <int Ny>
-	typename p2l_type<Ny>::type
-		create_p2l() const
-	{
-		return p2l<Ny>(m_wave_number);
-	}
-
-	template <int Nx>
-	typename l2p_type<Nx>::type
-		create_l2p() const
-	{
-		return l2p<Nx>(m_wave_number);
-	}
-
-	template <int Nx>
-	typename m2p_type<Nx>::type
-		create_m2p() const
-	{
-		return m2p<Nx>(m_wave_number);
-	}
-
+	/// \brief metafunction returning the P2P operator's type
+	/// \tparam Nx the order of receiver differentiation
+	/// \tparam Ny the order of source differentiation
 	template <int Nx, int Ny>
 	struct p2p_type
 	{
 		typedef fmm::p2p<
 			NiHu::normal_derivative_kernel<
-			NiHu::helmholtz_kernel<NiHu::space_3d<>, WaveNumber>, Nx, Ny
-		> 
+				NiHu::helmholtz_kernel<NiHu::space_3d<>, WaveNumber>, Nx, Ny
+			> 
 		> type;
 	};
 
+	/// \brief factory function for the P2M operator
+	template <int Ny>
+	typename p2m_type<Ny>::type create_p2m() const
+	{
+		return p2m<Ny>(m_wave_number);
+	}
+
+	/// \brief factory function for the P2L operator
+	template <int Ny>
+	typename p2l_type<Ny>::type create_p2l() const
+	{
+		return p2l<Ny>(m_wave_number);
+	}
+
+	/// \brief factory function for the L2P operator
+	template <int Nx>
+	typename l2p_type<Nx>::type create_l2p() const
+	{
+		return l2p<Nx>(m_wave_number);
+	}
+
+	/// \brief factory function for the M2P operator
+	template <int Nx>
+	typename m2p_type<Nx>::type create_m2p() const
+	{
+		return m2p<Nx>(m_wave_number);
+	}
+
+	/// \brief factory function for the P2P operator
 	template <int Nx, int Ny>
-	typename p2p_type<Nx, Ny>::type 
-		create_p2p() const
+	typename p2p_type<Nx, Ny>::type create_p2p() const
 	{
 		typedef NiHu::normal_derivative_kernel<
 			NiHu::helmholtz_kernel<NiHu::space_3d<>, WaveNumber>, Nx, Ny
@@ -582,16 +591,19 @@ public:
 		return typename p2p_type<Nx, Ny>::type(kernel_t(m_wave_number));
 	}
 
+	/// \brief factory function for the M2M operator
 	m2m create_m2m() const
 	{
 		return m2m(m_wave_number);
 	}
 
+	/// \brief factory function for the L2L operator
 	l2l create_l2l() const
 	{
 		return l2l(m_wave_number);
 	}
 
+	/// \brief factory function for the M2L operator
 	m2l create_m2l() const
 	{
 		return m2l(m_wave_number);

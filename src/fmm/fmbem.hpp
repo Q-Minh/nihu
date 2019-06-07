@@ -33,6 +33,8 @@ public:
 	{
 	}
 	
+	/// \brief metafunction returning the P2M operator's type
+	/// \tparam Ny the order of source differentiation
 	template <int Ny>
 	struct p2m_type
 	{
@@ -43,6 +45,8 @@ public:
 	};
 
 
+	/// \brief metafunction returning the M2P operator's type
+	/// \tparam Nx the order of receiver differentiation
 	template <int Nx>
 	struct m2p_type
 	{
@@ -53,6 +57,8 @@ public:
 	};
 
 
+	/// \brief metafunction returning the P2L operator's type
+	/// \tparam Ny the order of source differentiation
 	template <int Ny>
 	struct p2l_type
 	{
@@ -63,6 +69,8 @@ public:
 	};
 
 
+	/// \brief metafunction returning the L2P operator's type
+	/// \tparam Nx the order of receiver differentiation
 	template <int Nx>
 	struct l2p_type
 	{
@@ -73,6 +81,9 @@ public:
 	};
 
 
+	/// \brief metafunction returning the P2P operator's type
+	/// \tparam Nx the order of receiver differentiation
+	/// \tparam Ny the order of source differentiation
 	template <int Nx, int Ny>
 	struct p2p_type
 	{
@@ -84,6 +95,8 @@ public:
 	};
 	
 
+	/// \brief factory function for the P2M operator
+	/// \tparam Ny the order of source differentiation
 	template <int Ny>
 	typename p2m_type<Ny>::type create_p2m() const
 	{
@@ -92,6 +105,8 @@ public:
 			typename type2tag<trial_field_t>::type());
 	}
 
+	/// \brief factory function for the P2L operator
+	/// \tparam Ny the order of source differentiation
 	template <int Ny>
 	typename p2l_type<Ny>::type create_p2l() const
 	{
@@ -100,6 +115,8 @@ public:
 			typename type2tag<trial_field_t>::type());
 	}
 
+	/// \brief factory function for the M2P operator
+	/// \tparam Nx the order of receiver differentiation
 	template <int Nx>
 	typename m2p_type<Nx>::type create_m2p() const
 	{
@@ -108,6 +125,8 @@ public:
 			typename type2tag<test_field_t>::type());
 	}
 
+	/// \brief factory function for the L2P operator
+	/// \tparam Nx the order of receiver differentiation
 	template <int Nx>
 	typename l2p_type<Nx>::type create_l2p() const
 	{
@@ -116,6 +135,9 @@ public:
 			typename type2tag<test_field_t>::type());
 	}
 	
+	/// \brief factory function for the P2P operator
+	/// \tparam Nx the order of receiver differentiation
+	/// \tparam Ny the order of source differentiation
 	template <int Nx, int Ny>
 	typename p2p_type<Nx, Ny>::type create_p2p() const
 	{

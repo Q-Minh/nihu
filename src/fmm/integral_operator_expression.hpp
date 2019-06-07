@@ -1,8 +1,8 @@
-/// \file integral_operator.hpp
+/// \file integral_operator_expression.hpp
 /// \brief definition of linear arithmetics of integral operators
 
-#ifndef FMM_INTEGRAL_OPERATOR_HPP_INCLUDED
-#define FMM_INTEGRAL_OPERATOR_HPP_INCLUDED
+#ifndef FMM_INTEGRAL_OPERATOR_EXPRESSION_HPP_INCLUDED
+#define FMM_INTEGRAL_OPERATOR_EXPRESSION_HPP_INCLUDED
 
 #include <utility>
 #include <type_traits>
@@ -385,4 +385,4 @@ src_concatenate(Lhs &&lhs, Rhs &&rhs)
 } // end of namespace fmm
 } // namespace NiHu
 
-#endif // INTEGRAL_OPERATOR_HPP_INCLUDED
+#endif // INTEGRAL_OPERATOR_EXPRESSION_HPP_INCLUDED

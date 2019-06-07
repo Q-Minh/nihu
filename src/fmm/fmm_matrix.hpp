@@ -313,7 +313,7 @@ public:
 #ifdef PARALLEL
 #pragma omp parallel for
 #endif
-		for (int i = 0; i < src_idx.size(); ++i)
+		for (int i = 0; i < int(src_idx.size()); ++i)
 		{
 			size_t to = src_idx[i];
 			multipoles[to] += m_p2m(to) * m_rhs_segments[to];
@@ -335,7 +335,7 @@ public:
 #ifdef PARALLEL
 #pragma omp parallel for
 #endif
-		for (int i = 0; i < rec_idx.size(); ++i)
+		for (int i = 0; i < int(rec_idx.size()); ++i)
 		{
 			size_t to = rec_idx[i];
 			m_lhs_segments[to] = m_l2p(to) * locals[to];

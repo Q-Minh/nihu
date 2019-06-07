@@ -16,9 +16,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-/** \file lib_domain.hpp
- * \brief implementation of library domains
- */
+/// \file lib_domain.hpp
+/// \brief implementation of library domains
 
 #ifndef LIB_DOMAIN_HPP_INCLUDED
 #define LIB_DOMAIN_HPP_INCLUDED
@@ -28,24 +27,29 @@
 namespace NiHu
 {
 
-/** \brief a 1D line domain */
+/// \brief a 1D line domain
 class line_domain;
 
 namespace domain_traits
 {
+/// \brief metafunction returning the space type
 template <>
 struct space_type<line_domain> : space_1d<> {};
 
+/// \brief metafunction returning the domain's volume
 template <>
 struct volume<line_domain> { static constexpr double value = 2.0; };
 
+/// \brief metafunction returning the number of corners
 template <>
 struct num_corners<line_domain> { enum { value = 2 }; };
 
+/// \brief metafunction returning the number of edges
 template <>
 struct num_edges<line_domain> { enum { value = 1 }; };
 }
 
+/// \brief a 1D line domain
 class line_domain :
 	public domain_base<line_domain>
 {
@@ -63,24 +67,29 @@ private:
 	static xi_t const m_center;
 };
 
-/** \brief a 2D triangle domain */
+/// \brief a 2D triangle domain
 class tria_domain;
 
 namespace domain_traits
 {
+/// \brief metafunction returning the domain's space type
 template <>
 struct space_type<tria_domain> : space_2d<> {};
 
+/// \brief metafunction returning the domain's volume
 template <>
 struct volume<tria_domain> { static constexpr double value = 0.5; };
 
-template <>
+template <>/// \brief metafunction returning the domain's number of corners
+
 struct num_corners<tria_domain> { enum { value = 3 }; };
 
+/// \brief metafunction returning the domain's number of edges
 template <> 
 struct num_edges<tria_domain> { enum { value = 3 }; };
 }
 
+/// \brief a 2D triangle domain
 class tria_domain :
 	public domain_base<tria_domain>
 {
@@ -98,24 +107,29 @@ private:
 	static xi_t const m_center;
 };
 
-/** \brief a 2D quad domain */
+/// \brief a 2D quad domain
 class quad_domain;
 
 namespace domain_traits
 {
+/// \brief metafunction returning the domain's space type
 template <>
 struct space_type<quad_domain> : space_2d<> {};
 
+/// \brief metafunction returning the domain's volume
 template <> 
 struct volume<quad_domain> { static constexpr double value = 4.0; };
 
+/// \brief metafunction returning the domain's number of corners
 template <> 
 struct num_corners<quad_domain> { enum { value = 4 }; };
 
+/// \brief metafunction returning the domain's number of edges
 template <>
 struct num_edges<quad_domain> { enum { value = 4 }; };
 }
 
+/// \brief a 2D quad domain
 class quad_domain :
 	public domain_base<quad_domain>
 {
@@ -133,24 +147,29 @@ private:
 	static xi_t const m_center;
 };
 
-/** \brief a 3D brick domain */
+/// \brief a 3D brick domain
 class brick_domain;
 
 namespace domain_traits
 {
+/// \brief metafunction returning the space type
 template <>
 struct space_type<brick_domain> : space_3d<> {};
 
+/// \brief metafunction returning the domain's volume
 template <>
 struct volume<brick_domain> { static constexpr double value = 8.0; };
 
+/// \brief metafunction returning the domain's number of corners
 template <>
 struct num_corners<brick_domain> { enum { value = 8 }; };
 
+/// \brief metafunction returning the domain's number of edges
 template <>
 struct num_edges<brick_domain> { enum { value = 12 }; };
 }
 
+/// \brief a 3D brick domain
 class brick_domain :
 	public domain_base<brick_domain>
 {

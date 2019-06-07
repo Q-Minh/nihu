@@ -94,7 +94,7 @@ public:
 
 		// create cluster tree
 		std::cout << "Create cluster tree" << std::endl;
-		size_t leaf_nodes = 10;
+//		size_t leaf_nodes = 10;
 		cluster_tree_t tree(
 			create_field_center_iterator(m_trial_space.template field_begin<trial_field_t>()),
 			create_field_center_iterator(m_trial_space.template field_end<trial_field_t>()),

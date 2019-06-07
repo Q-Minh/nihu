@@ -44,7 +44,7 @@ int main(void)
 
 	auto const &surf_sp = NiHu::constant_view(surf_mesh);
 
-	int n = surf_sp.get_num_dofs();
+	size_t n = surf_sp.get_num_dofs();
 	dMatrix L_surf(n, n), M_surf(n, n), Mt_surf(n, n), N_surf(n, n);
 	L_surf.setZero();
 

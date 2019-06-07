@@ -3,7 +3,7 @@
 #ifndef FMM_P2P_INTEGRAL_HPP_INCLUDED
 #define FMM_P2P_INTEGRAL_HPP_INCLUDED
 
-#include "integral_operator.hpp"
+#include "integral_operator_expression.hpp"
 
 #include "../core/double_integral.hpp"
 #include "../core/single_integral.hpp"

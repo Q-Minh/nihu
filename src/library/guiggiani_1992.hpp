@@ -439,6 +439,11 @@ private:
 
 
 
+/// \brief specialisation of Guiggiani's method for volume elements and collocation 
+/// \tparam TrialField the trial field's type
+/// \tparam Kernel the kernel type
+/// \tparam RadialOrder the order of radial integration
+/// \tparam TangentialOrder the order of tangential integration
 template <class TrialField, class Kernel, unsigned RadialOrder, unsigned TangentialOrder>
 class guiggiani<TrialField, Kernel, RadialOrder, TangentialOrder, typename std::enable_if<
 	!element_traits::is_surface_element<typename TrialField::elem_t>::value
@@ -447,8 +452,8 @@ class guiggiani<TrialField, Kernel, RadialOrder, TangentialOrder, typename std::
 public:
 	/** \brief quadrature orders stored as internal constants */
 	enum {
-		radial_order = RadialOrder,	/**< \brief quadrature order in radial direction */
-		tangential_order = TangentialOrder	/**< \brief quadrature order in tangential direction */
+		radial_order = RadialOrder,	///< \brief quadrature order in radial direction
+		tangential_order = TangentialOrder	///< \brief quadrature order in tangential direction
 	};
 
 	/** \brief the trial field type */
