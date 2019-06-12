@@ -4,6 +4,7 @@
 #define FMM_P2P_INTEGRAL_HPP_INCLUDED
 
 #include "integral_operator_expression.hpp"
+#include "identity_p2p_operator.h"
 
 #include "../core/double_integral.hpp"
 #include "../core/single_integral.hpp"
@@ -15,10 +16,6 @@ namespace NiHu
 {
 namespace fmm
 {
-
-class identity_p2p_operator
-{
-};
 
 template <class Operator, class TestField, class TrialField>
 class p2p_integral;
