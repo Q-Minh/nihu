@@ -87,7 +87,7 @@ public:
 	template <class Cluster>
 	bool operator()(Cluster const &c)
 	{
-		return c.get_bounding_box().get_diameter() < m_diameter;
+		return c.get_bounding_box().get_diameter() > m_diameter;
 	}
 };
 
