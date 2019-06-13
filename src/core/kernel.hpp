@@ -28,7 +28,6 @@
 #include "complexity_estimator.hpp"
 #include "asymptotic_types.hpp"
 #include "../util/crtp_base.hpp"
-#include "../util/brick.hpp"
 #include "../library/interval_estimator.hpp"
 #include "../library/distance_kernel_intervals.hpp"
 

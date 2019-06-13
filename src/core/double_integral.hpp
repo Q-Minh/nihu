@@ -28,7 +28,6 @@
 #include "../util/matrix_traits.hpp"
 #include "../util/product_type.hpp"
 #include "../util/plain_type.hpp"
-#include "../util/brick.hpp"
 #include "../util/block_product.hpp"
 #include "../library/location_normal.hpp"
 #include "../tmp/control.hpp"

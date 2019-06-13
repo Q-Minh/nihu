@@ -25,7 +25,6 @@
 #ifndef LOCATION_NORMAL_HPP_INCLUDED
 #define LOCATION_NORMAL_HPP_INCLUDED
 
-#include "../util/brick.hpp"
 #include "../core/element.hpp"
 
 namespace NiHu

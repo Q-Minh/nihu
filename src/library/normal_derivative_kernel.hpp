@@ -6,7 +6,6 @@
 #ifndef NORMAL_DERIVATIVE_KERNEL_HPP_INCLUDED
 #define NORMAL_DERIVATIVE_KERNEL_HPP_INCLUDED
 
-#include "../util/brick.hpp"
 #include "../core/kernel.hpp"
 #include "location_normal.hpp"
 #include "distance_dependent_kernel.hpp"
