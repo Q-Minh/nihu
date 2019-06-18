@@ -30,7 +30,7 @@ int main(void)
 	MM.setZero();
 
 	auto I = NiHu::identity_integral_operator();
-	float nu = .3, mu = 1.0;
+	float nu = .3f, mu = 1.0f;
 	auto L = NiHu::create_integral_operator(NiHu::elastostatics_2d_U_kernel(nu, mu));
 	auto M = NiHu::create_integral_operator(NiHu::elastostatics_2d_T_kernel(nu, mu));
 

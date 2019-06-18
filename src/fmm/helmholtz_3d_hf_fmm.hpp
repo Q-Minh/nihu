@@ -92,15 +92,21 @@ template <class WaveNumber>
 class helmholtz_3d_hf_fmm
 {
 public:
+	/// \brief template argument as nested type
 	typedef WaveNumber wave_number_t;
-
+	/// \brief complex dynamic vector
 	typedef Eigen::Matrix<std::complex<double>, Eigen::Dynamic, 1> cvector_t;
-
+	/// \brief the fmm's cluster type
 	typedef helmholtz_3d_hf_cluster cluster_t;
+	/// \brief the bounding box type
 	typedef typename cluster_t::bounding_box_t bounding_box_t;
+	/// \brief the physical location type
 	typedef typename bounding_box_t::location_t location_t;
+	/// \brief the cluster tree type
 	typedef cluster_tree<cluster_t> cluster_tree_t;
 
+	/// \brief constructor
+	/// \param [in] k the wave number
 	helmholtz_3d_hf_fmm(wave_number_t const &k)
 		: m_wave_number(k)
 	{
@@ -109,48 +115,62 @@ public:
 private:
 	static size_t compute_expansion_length(double drel, double C)
 	{
-		double const pi = boost::math::constants::pi<double>();
-		double kd = 2. * pi * drel;
+		using namespace boost::math::double_constants;
+		double kd = two_pi * drel;
 		return size_t(std::ceil(kd + C * std::log(kd + pi)));
 	}
 
 public:
+	/// \brief set the method's accuracy parameter
+	/// \param [in] C the accuracy parameter
+	/// \details the accuracy parameter is usually set to 3.0
 	void set_accuracy(double C)
 	{
 		m_C = C;
 	}
 
+	/// \brief initialize the level data of the fmm method
+	/// \param [in] tree the cluster tree
 	void init_level_data(cluster_tree_t const &tree)
 	{
-		double const pi = boost::math::constants::pi<double>();
-		double lambda = 2. * pi / std::real(m_wave_number);
+		using namespace boost::math::double_constants;
+		double lambda = two_pi / std::real(m_wave_number);
 		m_level_data_vector.clear();
 		m_level_data_vector.resize(tree.get_n_levels());
+
+		// set the expansion length for each level
 		for (size_t i = 0; i < tree.get_n_levels(); ++i)
 		{
 			auto &ld = m_level_data_vector[i];
+			// get the diameter from the first cluster on the level
 			size_t idx = tree.level_begin(i);
 			double d = tree[idx].get_bounding_box().get_diameter();
 			ld.set_expansion_length(compute_expansion_length(d / lambda, m_C));
 		}
 
+		// compute interpolation matrices
 		for (size_t i = 0; i < tree.get_n_levels(); ++i)
 		{
 			auto &ld = m_level_data_vector[i];
 			auto const &Sto = ld.get_unit_sphere();
-			std::cout << "--- now --- " << std::endl;
 			if (i != 0)
 				ld.set_interp_dn(interpolator(m_level_data_vector[i - 1].get_unit_sphere(), Sto));
 			if (i != tree.get_n_levels() - 1)
 				ld.set_interp_up(interpolator(m_level_data_vector[i + 1].get_unit_sphere(), Sto));
 		}
-	}
+	} // end of function init_level_data
 
+	/// \brief return level data for a specific level
+	/// \param [in] idx the level index
+	/// \return the level data
 	helmholtz_3d_hf_level_data const &get_level_data(size_t idx) const
 	{
 		return m_level_data_vector[idx];
 	}
 
+	/// \brief return level data reference for a specific level
+	/// \param [in] idx the level index
+	/// \return the level data reference
 	helmholtz_3d_hf_level_data &get_level_data(size_t idx)
 	{
 		return m_level_data_vector[idx];
@@ -554,6 +574,8 @@ public:
 	};
 
 	/// \brief factory function for the P2M operator
+	/// \tparam Ny the order of source differentiation
+	/// \return the p2m operator instance
 	template <int Ny>
 	typename p2m_type<Ny>::type create_p2m() const
 	{
@@ -561,6 +583,8 @@ public:
 	}
 
 	/// \brief factory function for the P2L operator
+	/// \tparam Ny the order of source differentiation
+	/// \return the p2l operator instance
 	template <int Ny>
 	typename p2l_type<Ny>::type create_p2l() const
 	{
@@ -568,6 +592,8 @@ public:
 	}
 
 	/// \brief factory function for the L2P operator
+	/// \tparam Nx the order of receiver differentiation
+	/// \return the l2p operator instance
 	template <int Nx>
 	typename l2p_type<Nx>::type create_l2p() const
 	{
@@ -575,6 +601,8 @@ public:
 	}
 
 	/// \brief factory function for the M2P operator
+	/// \tparam Nx the order of receiver differentiation
+	/// \return the m2p operator instance
 	template <int Nx>
 	typename m2p_type<Nx>::type create_m2p() const
 	{
@@ -582,6 +610,9 @@ public:
 	}
 
 	/// \brief factory function for the P2P operator
+	/// \tparam Ny the order of source differentiation
+	/// \tparam Nx the order of receiver differentiation
+	/// \return the p2p operator instance
 	template <int Nx, int Ny>
 	typename p2p_type<Nx, Ny>::type create_p2p() const
 	{
@@ -592,18 +623,21 @@ public:
 	}
 
 	/// \brief factory function for the M2M operator
+	/// \return the m2m operator instance
 	m2m create_m2m() const
 	{
 		return m2m(m_wave_number);
 	}
 
 	/// \brief factory function for the L2L operator
+	/// \return the l2l operator instance
 	l2l create_l2l() const
 	{
 		return l2l(m_wave_number);
 	}
 
 	/// \brief factory function for the M2L operator
+	/// \return the m2l operator instance
 	m2l create_m2l() const
 	{
 		return m2l(m_wave_number);

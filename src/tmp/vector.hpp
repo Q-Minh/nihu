@@ -170,21 +170,6 @@ namespace tmp
 			struct apply : vector_pop_front<Seq> {};
 		};
 
-
-/*
-		template <class Vect>
-		struct vector_pop_back;
-
-		template <class...Args, class T>
-		struct vector_pop_back<vector<Args..., T> > : vector<Args...> {};
-
-		template <>
-		struct pop_back_impl<vector_tag>
-		{
-			template <class Seq>
-			struct apply : vector_pop_back<Seq> {};
-		};
-*/
 	} // namespace internal
 } // namespace tmp
 

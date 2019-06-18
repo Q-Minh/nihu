@@ -12,7 +12,7 @@ int main(void)
 	
 	auto mesh = NiHu::create_mesh(nodes, elements, NiHu::line_1_tag());
 	auto const &space = NiHu::constant_view(mesh);
-	int n = space.get_num_dofs();
+	size_t n = space.get_num_dofs();
 	std::cout << "Number of DOF: " << n << std::endl;
 	
 	Eigen::Matrix<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic> A(n, n);
