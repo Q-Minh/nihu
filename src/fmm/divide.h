@@ -14,14 +14,14 @@ namespace fmm
 /** \brief class representing a balanced tree division predicate */
 class divide_depth
 {
-	size_t depth;
+	size_t m_depth;
 
 public:
 	/** \brief constructor
 	 * \param [in] depth maximal depth of the tree
 	 */
 	divide_depth(size_t depth)
-		: depth(depth)
+		: m_depth(depth)
 	{
 	}
 
@@ -33,21 +33,21 @@ public:
 	template <class Cluster>
 	bool operator()(Cluster const &c)
 	{
-		return c.get_level() < this->depth;
+		return c.get_level() < m_depth;
 	}
 };
 
 /** \brief class representing a cluster division based on number of nodes */
 class divide_num_nodes
 {
-	size_t max_nodes;
+	size_t m_max_nodes;
 
 public:
 	/** \brief constructor
 	 * \param [in] max_nodes maximal number of nodes in a leaf cluster
 	 */
 	divide_num_nodes(size_t max_nodes)
-		: max_nodes(max_nodes)
+		: m_max_nodes(max_nodes)
 	{
 	}
 
@@ -61,7 +61,7 @@ public:
 	{
 		size_t s = c.get_n_src_nodes();
 		size_t r = c.get_n_rec_nodes();
-		return std::max(s, r) > this->max_nodes;
+		return std::max(s, r) > m_max_nodes;
 	}
 };
 

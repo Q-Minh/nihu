@@ -22,7 +22,8 @@ pattern = sprintf('data/pac_man_%gmm', 1000*Le);
 
 %% solve radiation problem
 export_excitation(q_surf, k, sprintf('%s_rad.xct', pattern));
-command = sprintf('pac_man.exe %s %s %s', surf_off_name, field_off_name, sprintf('%s_rad', pattern));
+exe_name = 'helmholtz_2d_wb_fmm_standalone.exe';
+command = sprintf('%s %s %s %s', exe_name, surf_off_name, field_off_name, sprintf('%s_rad', pattern));
 [status_rad, result_rad] = system(command);
 disp(result_rad);
 ps_rad = import_response(sprintf('%s_rad_surf.res', pattern));
