@@ -772,7 +772,7 @@ public:
 	/** \brief evaluate singular integral
 	 * \tparam result_t the result matrix type
 	 * \param [in, out] result reference to the result
-	 * \param [in] trial_field the test and trial fields
+	 * \param [in] test_field the test field
 	 * \return reference to the result matrix
 	 */
 	template <class result_t>

@@ -227,6 +227,7 @@ public:
  * \tparam Mesh the mesh type
  * \tparam Option the field generation option
  * \param [in] msh mesh reference
+ * \param [in] dim the function space's dimension
  * \return function space view of the mesh
  */
 template <class Mesh, class Option, class Dimension = _1d>
@@ -239,6 +240,7 @@ function_space_view<Mesh, Option, Dimension> const &
 /** \brief factory function to transform a mesh into an isoparametric function space
  * \tparam Mesh the mesh type
  * \param [in] msh mesh reference
+ * \param [in] dim the function space's dimension
  * \return isoparametric function space view of the mesh
  */
 template <class Mesh, class Dimension = _1d>
@@ -251,6 +253,7 @@ function_space_view<Mesh, field_option::isoparametric, Dimension> const &
 /** \brief factory function to transform a mesh into a constant function space
  * \tparam Mesh the mesh type
  * \param [in] msh mesh reference
+ * \param [in] dim the function space's dimension
  * \return constant function space view of the mesh
  */
 template <class Mesh, class Dimension = _1d>

@@ -68,7 +68,7 @@ public:
 	typedef gaussian_quadrature<domain_t> quad_t;
 
 	/** \brief constructor
-	 * \param [in] elem the element
+	 * \param [in] trial_field the element
 	 * \param [in] kernel the kernel
 	 */
 	nearly_singular_collocational_telles(

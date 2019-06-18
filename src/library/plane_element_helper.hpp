@@ -31,6 +31,7 @@ namespace NiHu
 /**
  * \brief compute angles and radii in a plane element
  * \param [in] elem the element
+ * \param [in] x0 the reference position
  * \param [out] r the radii from the collocation point
  * \param [out] theta the angles between the radii
  * \param [out] alpha the angles between the radii and the sides

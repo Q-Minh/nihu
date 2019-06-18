@@ -109,6 +109,7 @@ public:
 
 	/** \brief determine if a box is adjacent
 	 * \param [in] other an other bounding_box
+	 * \param [in] tol the relative tolerance of distance measurement
 	 * \param [in] (optional) tolerance for distance checking
 	 * \return true if the two are adjacent
 	 *

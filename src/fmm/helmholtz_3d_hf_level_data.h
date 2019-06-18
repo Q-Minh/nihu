@@ -1,4 +1,4 @@
-/** \file helmholtz_3d_hf_level_Data.h
+/** \file helmholtz_3d_hf_level_data.h
  * \brief level data of the the helmholtz 3d high frequency fmm
  */
 #ifndef FMM_HELMHOLTZ_3D_HF_LEVEL_DATA_H_INCLUDED

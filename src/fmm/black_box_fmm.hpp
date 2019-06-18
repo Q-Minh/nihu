@@ -366,7 +366,7 @@ public:
 
 
 	/** \brief consructor
-	 * \param [in] kernel the kernel instance
+	 * \param [in] problem the problem instance
 	 */
 	black_box_fmm(problem_t const &problem)
 		: m_problem(problem)

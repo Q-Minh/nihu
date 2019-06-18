@@ -163,7 +163,7 @@ chebanterp(size_t N, bounding_box<Dim> const &bb,
  * \param [in] N Chebyshev order
  * \param [in] bb the bounding box of Chebyshev nodes
  * \param [in] y0 the source nodes of anterpolation
- * \param [in] n0 the source normal vectors
+ * \param [in] ny0 the source normal vectors
  */
 template <class T, size_t Dim>
 Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>

@@ -43,6 +43,7 @@ public:
 	/**
 	 * \brief Evaluate the integral
 	 * \param [in] elem the line element
+	 * \param [in] nu the Poisson's ratio
 	 * \return the integral value
 	 */
 	static result_t eval(line_1_elem const &elem, double nu)
@@ -57,7 +58,7 @@ public:
 		return r*r * (
 			-(3. - 4.*nu) * result_t::Identity() * (std::log(r) - 1.5)
 			+ gradr * gradr.transpose()
-		) / (8. * pi * (1-nu));
+		) / (8. * pi * (1. - nu));
 	}
 };
 
@@ -123,7 +124,8 @@ public:
 	 * \tparam result_t the result matrix type
 	 * \param [in, out] result reference to the result
 	 * \param [in] kernel the kernel instance
-	 * \param [in] trial_field the test and trial fields
+	 * \param [in] test_field the trial field
+	 * \param [in] trial_field the trial field
 	 * \return reference to the result matrix
 	 */
 	template <class result_t>
@@ -157,6 +159,7 @@ public:
 	 * \tparam result_t the result matrix type
 	 * \param [in, out] result reference to the result
 	 * \param [in] trial_field the trial and test field
+	 * \param [in] kernel the kernel object
 	 */
 	template <class result_t>
 	static result_t &eval(

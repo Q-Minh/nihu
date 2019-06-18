@@ -47,6 +47,7 @@ public:
 	/** \brief evaluate singular integral
 	 * \tparam result_t the result matrix type
 	 * \param [in, out] result reference to the result
+	 * \param [in] kernel the kernel obect
 	 * \param [in] trial_field the trial and test field
 	 */
 	template <class result_t>

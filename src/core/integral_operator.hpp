@@ -222,8 +222,8 @@ public:
 	/** \brief evaluate an identity operator on a test and a trial field
 	 * \tparam TestField the test field's type
 	 * \tparam TrialField the trial field's type
-	 * \param [in] test the test field
-	 * \param [in] trial the trial field
+	 * \param [in] test_field the test field
+	 * \param [in] trial_field the trial field
 	 * \return the result matrix of the double integral
 	 */
 	template <class TestField, class TrialField, class OnSameMesh = std::false_type>
@@ -295,8 +295,8 @@ public:
 	/** \brief evaluate an integral operator on a test and a trial field
 	 * \tparam TestField the test field's type
 	 * \tparam TrialField the trial field's type
-	 * \param [in] test the test field
-	 * \param [in] trial the trial field
+	 * \param [in] test_field the test field
+	 * \param [in] trial_field the trial field
 	 * \return the result matrix of the double integral
 	 */
 	template <class TestField, class TrialField, class OnSameMesh>

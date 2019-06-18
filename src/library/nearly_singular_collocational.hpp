@@ -71,7 +71,7 @@ public:
 	>::type total_result_t;
 
 	/** \brief constructor
-	 * \param [in] elem the element
+	 * \param [in] trial_field the trial field
 	 * \param [in] kernel the kernel
 	 */
 	nearly_singular_collocational(
