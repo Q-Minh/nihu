@@ -120,7 +120,7 @@ public:
 		result_t operator()(cluster_t const &to, cluster_t const &from) const
 		{
 			using boost::math::cyl_bessel_j;
-			double const pi = boost::math::constants::pi<double>();
+			using namespace boost::math::double_constants;
 
 			location_t const &X = to.get_bounding_box().get_center();
 			location_t const &Y = from.get_bounding_box().get_center();
@@ -165,7 +165,7 @@ public:
 		result_t operator()(cluster_t const &to, cluster_t const &from) const
 		{
 			using boost::math::cyl_hankel_2;
-			double const pi = boost::math::constants::pi<double>();
+			using namespace boost::math::double_constants;
 
 			int L = to.get_level_data().get_expansion_length();
 			location_t const &X = to.get_bounding_box().get_center();
@@ -304,7 +304,7 @@ public:
 			std::integral_constant<int, 0>) const
 		{
 			using boost::math::cyl_hankel_2;
-			double const pi = boost::math::constants::pi<double>();
+			using namespace boost::math::double_constants;
 
 			int L = to.get_level_data().get_expansion_length();
 			location_t const &X = to.get_bounding_box().get_center();
@@ -326,7 +326,7 @@ public:
 			using boost::math::cyl_bessel_j_prime;
 			using boost::math::cyl_neumann_prime;
 			using boost::math::cyl_hankel_2;
-			double const pi = boost::math::constants::pi<double>();
+			using namespace boost::math::double_constants;
 
 			int L = to.get_level_data().get_expansion_length();
 			location_t const &X = to.get_bounding_box().get_center();
@@ -476,7 +476,7 @@ public:
 			std::integral_constant<int, 0>) const
 		{
 			using boost::math::cyl_hankel_2;
-			double const pi = boost::math::constants::pi<double>();
+			using namespace boost::math::double_constants;
 
 			int L = from.get_level_data().get_expansion_length();
 			location_t const &Y = from.get_bounding_box().get_center();
@@ -498,7 +498,7 @@ public:
 			using boost::math::cyl_bessel_j_prime;
 			using boost::math::cyl_neumann_prime;
 			using boost::math::cyl_hankel_2;
-			double const pi = boost::math::constants::pi<double>();
+			using namespace boost::math::double_constants;
 
 			location_t const &Y = from.get_bounding_box().get_center();
 			location_t const &x = tsi.get_x();
@@ -627,8 +627,10 @@ public:
 
 	void init_level_data(cluster_tree_t const &tree)
 	{
-		double const pi = boost::math::constants::pi<double>();
-		double lambda = 2. * pi / std::real(m_wave_number);
+		/// \todo make sure that leaf level is in low frequency domain
+
+		using namespace boost::math::double_constants;
+		double lambda = two_pi / std::real(m_wave_number);
 		m_level_data_vector.clear();
 		m_level_data_vector.resize(tree.get_n_levels());
 		for (size_t i = 2; i < tree.get_n_levels(); ++i)
