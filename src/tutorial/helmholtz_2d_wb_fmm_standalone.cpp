@@ -32,6 +32,8 @@ typedef Eigen::Matrix<std::complex<double>, Eigen::Dynamic, 1> cvector_t;
 void read_excitation(std::string fname, cvector_t &xct, double &k)
 {
 	std::ifstream ifs(fname);
+	if (!ifs)
+		throw std::runtime_error("Could not open inut file " + fname);
 	ifs >> k;
 	size_t N;
 	ifs >> N;

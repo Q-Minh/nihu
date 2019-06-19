@@ -130,7 +130,11 @@ public:
 
 	result_t operator()(test_input_t const &x, trial_input_t const &y) const
 	{
-		return single_integral_t::eval(x, y);
+		/// \todo element coincidence should be checked other way
+		bool on_same_elem = &x.get_elem() == &y.get_elem();
+		if (on_same_elem)
+			return single_integral_t::eval(x, y);
+		return result_t::Zero();
 	}
 };
 
