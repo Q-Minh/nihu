@@ -19,10 +19,11 @@ export_off_mesh(line_field, field_off_name);
 
 %%
 pattern = sprintf('data/pac_man_%gmm', 1000*Le);
+exe_name = 'helmholtz_2d_wb_fmm_standalone.exe';
+
 
 %% solve radiation problem
 export_excitation(q_surf, k, sprintf('%s_rad.xct', pattern));
-exe_name = 'helmholtz_2d_wb_fmm_standalone.exe';
 command = sprintf('%s %s %s %s', exe_name, surf_off_name, field_off_name, sprintf('%s_rad', pattern));
 [status_rad, result_rad] = system(command);
 disp(result_rad);
@@ -50,7 +51,7 @@ plot_mesh(pac);
 
 %% solve line scattering problem
 export_excitation(qs_scat_line, k, sprintf('%s_line.xct', pattern));
-command = sprintf('pac_man.exe %s %s %s', surf_off_name, field_off_name, sprintf('%s_line', pattern));
+command = sprintf('%s %s %s %s', exe_name, surf_off_name, field_off_name, sprintf('%s_line', pattern));
 [status_line, result_line] = system(command);
 disp(result_line);
 ps_line = import_response(sprintf('%s_line_surf.res', pattern));
