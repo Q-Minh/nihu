@@ -84,19 +84,19 @@ public:
 		m_qsurf = qsurf;
 	}
 
-	response_t const &eval()
+	template <class Divide>
+	response_t const &eval(Divide const &divide, size_t far_field_quadrature_order)
 	{
 		fmm_t fmm(m_wave_number);
 
 		// create cluster tree
 		std::cout << "Create cluster tree" << std::endl;
-		size_t leaf_nodes = 10;
 		cluster_tree_t tree(
 			fmm::create_field_center_iterator(m_trial_space.template field_begin<trial_field_t>()),
 			fmm::create_field_center_iterator(m_trial_space.template field_end<trial_field_t>()),
 			fmm::create_field_center_iterator(m_test_space.template field_begin<test_field_t>()),
 			fmm::create_field_center_iterator(m_test_space.template field_end<test_field_t>()),
-			fmm::divide_num_nodes(leaf_nodes));
+			divide);
 		std::cout << tree << std::endl;
 
 		// initialize tree data
@@ -112,23 +112,20 @@ public:
 		// integrate operators over fields
 		std::cout << "Operator integration" << std::endl;
 
-		size_t order = 6;
-
 		auto ip2p = src_concatenate(
 			fmm::create_p2p_integral(fmm.create_p2p<0, 0>(), test_field_tag_t(), trial_field_tag_t(), false),
 			fmm::create_p2p_integral(fmm.create_p2p<0, 1>(), test_field_tag_t(), trial_field_tag_t(), false));
 
 		auto ip2m = src_concatenate(
-			fmm::create_p2x_integral(fmm.create_p2m<0>(), order, trial_field_tag_t()),
-			fmm::create_p2x_integral(fmm.create_p2m<1>(), order, trial_field_tag_t()));
+			fmm::create_p2x_integral(fmm.create_p2m<0>(), far_field_quadrature_order, trial_field_tag_t()),
+			fmm::create_p2x_integral(fmm.create_p2m<1>(), far_field_quadrature_order, trial_field_tag_t()));
 
 		auto ip2l = src_concatenate(
-			fmm::create_p2x_integral(fmm.create_p2l<0>(), order, trial_field_tag_t()),
-			fmm::create_p2x_integral(fmm.create_p2l<1>(), order, trial_field_tag_t()));
+			fmm::create_p2x_integral(fmm.create_p2l<0>(), far_field_quadrature_order, trial_field_tag_t()),
+			fmm::create_p2x_integral(fmm.create_p2l<1>(), far_field_quadrature_order, trial_field_tag_t()));
 
-		auto im2p = fmm::create_x2p_integral(fmm.create_m2p<0>(), order, test_field_tag_t());
-		auto il2p = fmm::create_x2p_integral(fmm.create_l2p<0>(), order, test_field_tag_t());
-
+		auto im2p = fmm::create_x2p_integral(fmm.create_m2p<0>(), far_field_quadrature_order, test_field_tag_t());
+		auto il2p = fmm::create_x2p_integral(fmm.create_l2p<0>(), far_field_quadrature_order, test_field_tag_t());
 
 		// create indexed fmbem operators
 		std::cout << "Operator indexing" << std::endl;

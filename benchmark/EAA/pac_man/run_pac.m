@@ -1,7 +1,7 @@
 clear;
 
 %%
-Le = 5e-3;
+Le = 20e-3;
 [pac, field, k, q_surf, qs_scat_line, pf_in_line] = create_pac_man(Le);
 
 %% export surface mesh
@@ -19,7 +19,7 @@ export_off_mesh(line_field, field_off_name);
 
 %%
 pattern = sprintf('data/pac_man_%gmm', 1000*Le);
-exe_name = 'helmholtz_2d_wb_fmm_standalone.exe';
+exe_name = 'pac_man.exe';
 
 
 %% solve radiation problem
@@ -32,6 +32,10 @@ pf_rad = import_response(sprintf('%s_rad_field.res', pattern));
 save(sprintf('%s_rad_surf', pattern), 'result_rad', 'ps_rad', 'pf_rad', 'pac', 'field');
 
 %%
+figure;
+plot([real(ps_rad) imag(ps_rad)]);
+title('Radiated pressure on surface');
+
 figure;
 plot_mesh(field, 20*log10(abs(pf_rad)/2e-5));
 shading flat;

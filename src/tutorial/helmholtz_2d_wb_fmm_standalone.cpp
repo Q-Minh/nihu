@@ -95,14 +95,16 @@ int main(int argc, char *argv[])
 		auto const &trial_space = NiHu::constant_view(surf_mesh);
 		typedef std::decay<decltype(trial_space)>::type trial_space_t;
 
+		NiHu::fmm::divide_num_nodes div(10);
+		size_t far_field_quadrature_order = 6;
+
 		// solve surface system
 		{
 			typedef NiHu::fmm::helmholtz_2d_wb_fmm<double> fmm_t;
 			NiHu::fmm::helmholtz_exterior_solver<fmm_t, trial_space_t> solver(trial_space);
 			solver.set_excitation(q_surf);
 			solver.set_wave_number(k);
-			size_t far_field_quadrature_order = 6;
-			p_surf = solver.solve(NiHu::fmm::divide_num_nodes(10), far_field_quadrature_order);
+			p_surf = solver.solve(div, far_field_quadrature_order);
 			export_response(surf_res_name, p_surf, k);
 		}
 
@@ -118,7 +120,7 @@ int main(int argc, char *argv[])
 			solver.set_qsurf(q_surf);
 			solver.set_psurf(p_surf);
 			solver.set_wave_number(k);
-			solver.eval();
+			solver.eval(div, far_field_quadrature_order);
 			export_response(field_res_name, solver.get_response(), k);
 		}
 	}
