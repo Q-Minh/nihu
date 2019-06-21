@@ -18,7 +18,7 @@ typedef double wave_number_t;
 typedef NiHu::fmm::helmholtz_2d_wb_fmm<wave_number_t> fmm_t;
 
 // computing the fmbem type
-typedef NiHu::tag2element<tag_t>::type elem_t;
+typedef NiHu::tag2type<tag_t>::type elem_t;
 typedef NiHu::field_view<elem_t, NiHu::field_option::constant> trial_field_t;
 typedef NiHu::dirac_field<trial_field_t> test_field_t;
 typedef elem_t::x_t location_t;
@@ -93,14 +93,16 @@ int main(int argc, char *argv[])
 		auto const &trial_space = NiHu::constant_view(surf_mesh);
 		typedef std::decay<decltype(trial_space)>::type trial_space_t;
 
+		NiHu::fmm::divide_num_nodes div(10);
+		size_t far_field_quadrature_order = 6;
+
 		// solve surface system
 		{
 			typedef NiHu::fmm::helmholtz_2d_wb_fmm<double> fmm_t;
 			NiHu::fmm::helmholtz_exterior_solver<fmm_t, trial_space_t> solver(trial_space);
 			solver.set_excitation(q_surf);
 			solver.set_wave_number(k);
-			size_t far_field_quadrature_order = 6;
-			p_surf = solver.solve(NiHu::fmm::divide_num_nodes(10), far_field_quadrature_order);
+			p_surf = solver.solve(div, far_field_quadrature_order);
 			export_response(surf_res_name, p_surf, k);
 		}
 
@@ -116,7 +118,7 @@ int main(int argc, char *argv[])
 			solver.set_qsurf(q_surf);
 			solver.set_psurf(p_surf);
 			solver.set_wave_number(k);
-			solver.eval();
+			solver.eval(div, far_field_quadrature_order);
 			export_response(field_res_name, solver.get_response(), k);
 		}
 	}
