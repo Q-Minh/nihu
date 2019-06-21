@@ -179,7 +179,7 @@ public:
 private:
 	void eval_impl(std::integral_constant<unsigned, 0>, scalar r, result_t *f) const
 	{
-		using boost::math::double_constants::pi;
+		using namespace boost::math::double_constants;
 		auto kr = this->get_wave_number() * r;
 		auto ikr = result_t(0,1) * kr;
 		f[0] = std::exp(-ikr) / r / (4. * pi);

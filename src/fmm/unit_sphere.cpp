@@ -1,6 +1,7 @@
 #include "unit_sphere.h"
 
 #include <boost/math/special_functions/spherical_harmonic.hpp>
+#include <boost/math/constants/constants.hpp>
 
 #include "core/gaussian_quadrature.hpp"
 
@@ -13,6 +14,7 @@ namespace fmm
 unit_sphere::unit_sphere(size_t P)
 	: m_P(P)
 {
+	using namespace boost::math::double_constants;
 	auto res = NiHu::gauss_impl<double>(unsigned(m_P));
 	auto const &xi = res.col(0);
 	this->wtheta = res.col(1);
@@ -24,8 +26,6 @@ unit_sphere::unit_sphere(size_t P)
 
 	theta = acos(xi.array());
 	phi.resize(2 * m_P);
-
-	double const pi = boost::math::constants::pi<double>();
 
 	for (size_t i = 0; i < 2 * m_P; ++i)
 	{

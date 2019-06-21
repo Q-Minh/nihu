@@ -93,7 +93,7 @@ namespace bessel
 	template <class T>
 	void mag_arg_large(int nu, T const &z, T &u, T &phi)
 	{
-		using boost::math::double_constants::pi;
+		using namespace boost::math::double_constants;
 
 		double mag[3][7] = {
 			{

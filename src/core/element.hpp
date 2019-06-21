@@ -523,7 +523,7 @@ class normal_impl<Derived, typename std::enable_if<
 public:
 	static x_t eval(dx_t const &m)
 	{
-		using boost::math::double_constants::pi;
+		using namespace boost::math::double_constants;
 		return Eigen::Rotation2D<typename Derived::scalar_t>(-pi/2.0) * m;
 	}
 };

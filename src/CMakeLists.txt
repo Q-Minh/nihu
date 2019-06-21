@@ -156,6 +156,10 @@ if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
     endif (GCC_VERSION VERSION_GREATER 7.0 OR GCC_VERSION VERSION_EQUAL 7.0)
 endif ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
 
+
+# set traversing parameter to fmm_matrix
+set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -DBFS -DPARALLEL")
+
 ### Includes
 # setup global include directories
 include_directories("${CMAKE_SOURCE_DIR}")

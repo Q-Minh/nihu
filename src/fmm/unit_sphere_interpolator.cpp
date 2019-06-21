@@ -20,7 +20,7 @@ interpolator::interpolator(unit_sphere const &Sfrom, unit_sphere const &Sto)
 	n[0] = int(2 * m_Lfrom);
 	this->dft_plan = fftw_plan_many_dft(1, n, int(m_Lfrom),
 		(fftw_complex *)a.data(), nullptr, int(m_Lfrom), 1,
-		(fftw_complex *)afft.data(), nullptr, m_Lfrom, 1,
+		(fftw_complex *)afft.data(), nullptr, int(m_Lfrom), 1,
 		FFTW_FORWARD, FFTW_MEASURE);
 
 	cmatrix_t bfft(m_Lto, 2 * m_Lto), b(m_Lto, 2 * m_Lto);
@@ -55,7 +55,7 @@ interpolator::interpolator(interpolator &&other)
 interpolator::cvector_t const &
 interpolator::interpolate(cvector_t const &other) const
 {
-	double const pi = boost::math::constants::pi<double>();
+	using namespace boost::math::double_constants;
 
 	size_t L = std::min(m_Lfrom, m_Lto);
 

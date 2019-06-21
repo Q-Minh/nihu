@@ -327,6 +327,8 @@ public:
 #elif defined DFS
 		upward_pass_dfs(multipoles);
 		downward_pass_dfs(locals, multipoles);
+#else
+#	error You need to explicitly define BFS or DFS tree traversing algorithm
 #endif
 
 		// compute L2P interactions

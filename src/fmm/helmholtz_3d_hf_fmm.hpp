@@ -503,7 +503,7 @@ public:
 				wave_number_t const &k,
 				size_t L)
 		{
-			double const pi = boost::math::constants::pi<double>();
+			using boost::math::double_constants;
 			double D = Dvec.norm();
 			location_t Uvec = Dvec / D;
 			size_t N = s.cols();

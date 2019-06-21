@@ -93,7 +93,7 @@ private:
 	void eval_impl(std::integral_constant<unsigned, 0>, scalar r, scalar *f) const
 	{
 		using namespace boost::math::double_constants;
-		*f = -std::log(r) / (2. * two_pi);
+		*f = -std::log(r) / two_pi;
 	}
 	
 	void eval_impl(std::integral_constant<unsigned, 1>, scalar r, scalar *f) const
