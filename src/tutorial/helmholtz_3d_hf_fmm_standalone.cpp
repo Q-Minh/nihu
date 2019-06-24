@@ -81,6 +81,8 @@ typedef Eigen::Matrix<std::complex<double>, Eigen::Dynamic, 1> cvector_t;
 void read_excitation(std::string fname, cvector_t &xct, double &k)
 {
 	std::ifstream ifs(fname);
+	if (!ifs)
+		throw std::runtime_error("Could not open file for reading: " + fname);
 	ifs >> k;
 	size_t N;
 	ifs >> N;
@@ -98,6 +100,8 @@ void read_excitation(std::string fname, cvector_t &xct, double &k)
 void export_response(std::string fname, cvector_t const &res, double k, size_t iter = 1)
 {
 	std::ofstream ofs(fname);
+	if (!ofs)
+		throw std::runtime_error("Could not open file for writing: " + fname);
 	ofs << k << '\n';
 	ofs << res.rows() << '\n';
 	for (Eigen::Index i = 0; i < res.rows(); ++i)

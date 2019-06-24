@@ -1,7 +1,7 @@
 clear;
 
 %%
-Le = 20e-3;
+Le = 2e-3;
 [pac, field, k, q_surf, qs_scat_line, pf_in_line] = create_pac_man(Le);
 
 %% export surface mesh
@@ -19,7 +19,7 @@ export_off_mesh(line_field, field_off_name);
 
 %%
 pattern = sprintf('data/pac_man_%gmm', 1000*Le);
-exe_name = 'pac_man.exe';
+exe_name = 'helmholtz_2d_wb_fmm_standalone.exe';
 
 
 %% solve radiation problem
