@@ -26,7 +26,7 @@
  * non-dimensionalized using the linear size estimate of the elements.
  * 
  * The intervals are specified for different accuracy paramaters, the default 
- * accuracy is given by \ref GLOBAL_ACCURACY. Naturally, higher accuracy takes
+ * accuracy is given by \ref NiHu::GLOBAL_ACCURACY. Naturally, higher accuracy takes
  * a higher number of quadrature base points.
  */
 

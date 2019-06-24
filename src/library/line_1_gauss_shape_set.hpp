@@ -1,5 +1,5 @@
 /** \file line_1_gauss_shape_set.hpp 
- * \brief implementation of shape set \ref line_1_gauss_shape_set
+ * \brief implementation of shape set \ref NiHu::line_1_gauss_shape_set
  */
 
 #ifndef LINE_1_GAUSS_SHAPE_SET_HPP_INCLUDED

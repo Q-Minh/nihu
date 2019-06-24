@@ -46,7 +46,7 @@ We instantiate the two matrices by allocating their coefficients, and initialisi
 - The rows of matrix `nodes` contain 3D locations.
 - The rows or matrix `elements` contain an element id followed by as many element nodal indices as needed by the element type. Unused coefficients are left zero.
 
-Apparently, we are building a heterogeneous mesh consisting of linear quadrangles (::quad_1_elem) and triangles (::tria_1_elem).
+Apparently, we are building a heterogeneous mesh consisting of linear quadrangles (NiHu::quad_1_elem) and triangles (NiHu::tria_1_elem).
 The mesh is finally built by calling the NiHu::create_mesh function
 
 \snippet mesh_building.mex.cpp Creation

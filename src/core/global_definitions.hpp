@@ -33,6 +33,7 @@ namespace NiHu
 
 /** \brief acceleration::soft or acceleration::hard */
 typedef acceleration::hard GLOBAL_ACCELERATION;
+
 /**
  * \brief the maximal order of accelerated quadratures and field type accelerators
  * \todo increase Dunavant order to avoid overindexing

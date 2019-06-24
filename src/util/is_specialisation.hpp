@@ -18,7 +18,7 @@
 
 /**
  * \file is_specialisation.hpp 
- * \brief Definition of the metafunction \ref is_specialisation
+ * \brief Definition of the metafunction \ref NiHu::is_specialisation
  * \ingroup util
  */
 
