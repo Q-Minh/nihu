@@ -346,10 +346,10 @@ public:
 			double phi = std::atan2(x(1), x(0));
 			double theta = std::acos(x(2) / r);
 
-			for (int n = 0; n <= from.get_expansion_length(); ++n)
+			for (size_t n = 0; n <= from.get_expansion_length(); ++n)
 			{
-				double rn = std::pow(r, -(n+1));
-				for (int m = -n; m <= n; ++m)
+				double rn = std::pow(r, -int(n+1));
+				for (int m = -int(n); m <= int(n); ++m)
 				{
 					auto idx = from.linear_index(n, m);
 					res(0, idx) = rn * Y(n, m, theta, phi);
