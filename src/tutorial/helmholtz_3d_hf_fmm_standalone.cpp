@@ -9,6 +9,8 @@
 
 #include <boost/math/constants/constants.hpp>
 
+#include <cstdlib>
+
 #ifndef NUM_PROCESSORS
 #define NUM_PROCESSORS 1
 #endif
@@ -127,7 +129,10 @@ int main(int argc, char *argv[])
 		std::string surf_mesh_name(argv[1]);
 		std::string field_mesh_name(argv[2]);
 		std::string pattern(argv[3]);
-		double freq = std::atof(argv[4]);
+		char *freq_str_end;
+		double freq = strtod(argv[4], &freq_str_end);
+		if (freq_str_end == argv[4])
+			throw std::runtime_error("Could not interpret argument as a frequency (double): " + std::string(argv[4]));
 
 		std::cout << "mesh: " << surf_mesh_name << std::endl;
 		std::cout << "field: " << field_mesh_name << std::endl;
