@@ -21,11 +21,11 @@ Integral operators  {#tut_intop_intop}
 ==================
 
 Integral operators are defined by their kernel functions.
-NiHu creates integral operators using the function ::create_integral_operator, called with a kernel function instance.
+NiHu creates integral operators using the function NiHu::create_integral_operator, called with a kernel function instance.
 The lines below, for example
 ~~~~~~~~~~~
 #include "library/laplace_kernel.hpp"
-auto K = create_integral_operator(laplace_3d_DLP_kernel());
+auto K = NiHu::create_integral_operator(NiHu::laplace_3d_DLP_kernel());
 ~~~~~~~~~~~
 instantiate the double layer potential kernel of the Laplace equation in 3D from the library, and transform the kernel to an integral operator.
 
@@ -49,8 +49,8 @@ p({\bf x}) = (\mathcal{K}d)_S({\bf x})
 
 NiHu implements this operation by indexing the integral operator with a function space. The integration domain \f$ S \f$ (the mesh) is included in the function space's definition:
 ~~~~~~~~~~~~~~
-auto const &d = constant_view(my_mesh);
-auto K = create_integral_operator(my_kernel_instance);
+auto const &d = NiHu::constant_view(my_mesh);
+auto K = NiHu::create_integral_operator(my_kernel_instance);
 auto p = K[d];
 ~~~~~~~~~~~~~~
 
@@ -66,7 +66,7 @@ W = \left< t, p \right> _F= \int_{F} t({\bf x}) p({\bf x}) \mathrm{d} F_x
 
 is implemented as a multiplication between a function space and an integral transform:
 ~~~~~~~~~~~
-auto const &t = constant_view(other_mesh);
+auto const &t = NiHu::constant_view(other_mesh);
 auto W = t * K[d]; 		// or	W = t * p;
 ~~~~~~~~~~~
 where the integration domain \f$ F \f$ is contained by the function space `t`;

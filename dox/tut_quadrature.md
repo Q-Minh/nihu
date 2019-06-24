@@ -18,7 +18,7 @@ Defining and traversing a Gaussian quadrature {#tut_quadrature_traversing}
 
 Quadratures are used to perform numerical integration over intrinsic domains.
 The most common regular quadratures in finite and boundary element methods are Gaussian quadratures.
-A Gaussian quadrature can be defined by specialising the template class ::gaussian_quadrature with a specific domain class, and providing a quadrature order to the constructor:
+A Gaussian quadrature can be defined by specialising the template class NiHu::gaussian_quadrature with a specific domain class, and providing a quadrature order to the constructor:
 
 \snippet quadrature.cpp define
 
@@ -26,7 +26,7 @@ In the above example, a line quadrature is created that integrates over the doma
 A 7-th order quadrature can accurately integrate polynomials of order up to 7.
 For the case of Gaussian quadratures, an \f$ n \f$-th order quadrature consists of \f$ (n+1)/2 \f$ quadrature points.
 
-A quadrature is a standard container of ::quadrature_elem instances, where each ::quadrature_elem contains a base point and a weight.
+A quadrature is a standard container of NiHu::quadrature_elem instances, where each NiHu::quadrature_elem contains a base point and a weight.
 As a consequence, a quadrature can be traversed using standard C++ traversing methods. For example, the quadrature locations and weights can be printed as
 
 \snippet quadrature.cpp traverse

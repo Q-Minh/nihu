@@ -11,7 +11,7 @@ Introduction {#gaussian_intro}
 The purpose of this tutorial is to demonstrate how a custom element/field type can be introduced into the NiHu toolbox.
 
 We define a custom 3-dimensional four noded quadrangle surface field.
-The geometrical representation will be a standard 4-noded linear quadrilateral element (::quad_1_elem) having its nodes at the four element corners.
+The geometrical representation will be a standard 4-noded linear quadrilateral element (NiHu::quad_1_elem) having its nodes at the four element corners.
 The field is going to be defined so that its shape function nodes are located at the Gaussian nodes of the element.
 The new field is shown in the figure below.
 

@@ -78,7 +78,7 @@ For example, specialisation with a Helmholtz kernel and triangle elements can be
 ~~~~~~~~{.cpp}
 helmholtz_kernel kernel;
 
-std::vector<tria_1_elem> tria_elements;
+std::vector<NiHu::tria_1_elem> tria_elements;
 
 for (auto it = tria_elements.begin(); it != tria_elements.end(); ++it)
 	weighted_integral<tria_1_elem, helmholtz_kernel>::integrate(*it, kernel);
@@ -89,8 +89,8 @@ What if we need to incorporate quad elements into our program? We need to rewrit
 ~~~~~~~~{.cpp}
 helmholtz_kernel kernel;
 
-std::vector<tria_1_elem> tria_elements;
-std::vector<quad_1_elem> quad_elements;
+std::vector<NiHu::tria_1_elem> tria_elements;
+std::vector<NiHu::quad_1_elem> quad_elements;
 
 for (auto it = tria_elements.begin(); it != tria_elements.end(); ++it)
 	weighted_integral<tria_1_elem, helmholtz_kernel>::integrate(*it, kernel);
@@ -154,7 +154,7 @@ mesh_t mesh;
 ~~~~~~
 
 This is the technique how NiHu stores inhomogeneous meshes.
-For more information check out the class documentation of class ::mesh and its inhomogeneous container member ::mesh::m_elements.
+For more information check out the class documentation of class NiHu::mesh and its inhomogeneous container member NiHu::mesh::m_elements.
 
 ### call_each {#calleach}
 

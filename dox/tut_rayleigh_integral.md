@@ -78,7 +78,7 @@ We need three modules from the NiHu library
 - library/helmholtz_kernel.hpp defines the fundamental solution of the Helmholtz equation
 - util/mex_matrix.hpp includes the Matlab interface functions
 
-We further define two `typedef`s for Matlab matrices ::mex::real_matrix and ::mex::complex_matrix.
+We further define two `typedef`s for Matlab matrices NiHu::mex::real_matrix and NiHu::mex::complex_matrix.
 These matrices are allocated in Matlab's memory, in Matlab format, but are used by NiHu just as if they were C++ Eigen matrices.
 
 \snippet rayleigh_integral_3d.mex.cpp Header
@@ -107,7 +107,7 @@ The radiator surface mesh and the field point mesh is instantiated in C++ as fol
 
 \snippet rayleigh_integral_3d.mex.cpp Meshes
 
-- The Matlab mesh description matrices are simply imported into C++ by the library class ::mex::real_matrix (`dMatrix`).
+- The Matlab mesh description matrices are simply imported into C++ by the library class NiHu::mex::real_matrix (`dMatrix`).
 The class' constructor refers to the Matlab input pointer.
 The resulting `dMatrix` objects are light-weight interfaces (_views_) providing convenient indexing capabilities for the Matlab data.
 
@@ -130,14 +130,14 @@ We instantiate the integral operator \f$ \mathcal{G} \f$ using the Helmholtz ker
 \snippet rayleigh_integral_3d.mex.cpp Kernel
 
 - The real wave number is imported from Matlab with the standard Matlab interface function `mxGetPr` that returns a pointer to the real data.
-- The Helmholtz kernel is instantiated using the class ::helmholtz_3d_SLP_kernel templated to the wave number's type (`double`).
+- The Helmholtz kernel is instantiated using the class NiHu::helmholtz_3d_SLP_kernel templated to the wave number's type (`double`).
 The abbreviation SLP refers to the single layer potential.
 
 We allocate memory for the output complex matrices:
 
 \snippet rayleigh_integral_3d.mex.cpp Matrices
 
-- The three-argument constructor (rows, columns, output pointer) of class ::mex::complex_matrix (`cMatrix`) allocates a Matlab output matrix of given dimensions in Matlab memory.
+- The three-argument constructor (rows, columns, output pointer) of class NiHu::mex::complex_matrix (`cMatrix`) allocates a Matlab output matrix of given dimensions in Matlab memory.
 
 The weighted double integrals are evaluated using the operator notations:
 

@@ -99,13 +99,13 @@ The next step is the definition of the final kernel class that is going to be us
 This is done in three steps.
 	1. The kernel class is declared
 	2. Compile time properties of the kernel class are defined in its traits class
-	3. The kernel class is defined, derived from ::kernel_base using the CRTP pattern.
+	3. The kernel class is defined, derived from NiHu::kernel_base using the CRTP pattern.
 
 Step (1): The kernel class is forward declared as
 
 \snippet custom_kernel.mex.cpp udeclare
 
-Step(2): The kernel traits are defined by specialising the traits class ::kernel_traits as follows
+Step(2): The kernel traits are defined by specialising the traits class NiHu::kernel_traits as follows
 
 \snippet custom_kernel.mex.cpp utraits
 
@@ -118,7 +118,7 @@ NiHu is capable of generating combined kernels optimised for parallel evaluation
 - member `quadrature_family_t` indicates that the kernel is integrated using Gaussian quadratures in the far field.
 - members `is_symmetric` and `is_singular` indicate that the kernel is symmetric and singular.
 
-As the kernel is defined as singular, additional kernel traits need to be defined by specialising template ::singular_kernel_traits
+As the kernel is defined as singular, additional kernel traits need to be defined by specialising template NiHu::singular_kernel_traits
 
 \snippet custom_kernel.mex.cpp usingtraits
 
@@ -130,7 +130,7 @@ Step (3): Finally, the kernel class can be defined:
 
 \snippet custom_kernel.mex.cpp udefine
 
-The kernel is derived from ::kernel_base, and a constructor is provided that constructs the kernel object from a single Poisson's ratio value.
+The kernel is derived from NiHu::kernel_base, and a constructor is provided that constructs the kernel object from a single Poisson's ratio value.
 
 The traction kernel {#tut_custom_kernel_tractionkernel}
 -------------------

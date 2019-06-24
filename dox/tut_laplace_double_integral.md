@@ -84,7 +84,7 @@ As the different function space views are of different types, the tester functio
 
 \snippet laplace_double_integral.cpp Test
 
-The function first allocates the result matrix. The matrix size is determined by the total number of DOF in the funcion space `w`, computed by the member function ::function_space_base::get_num_dofs.
+The function first allocates the result matrix. The matrix size is determined by the total number of DOF in the funcion space `w`, computed by the member function NiHu::function_space_base::get_num_dofs.
 
 After instantiating the integral operator and evaluating the weighted double integral into the matrix, the tester function prints the matrix, its element sum, and compares the sum to the analytical integral.
 

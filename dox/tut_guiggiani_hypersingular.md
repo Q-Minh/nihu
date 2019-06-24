@@ -97,17 +97,17 @@ Furthermore, the new reference domain yields analytical closed form expressions 
 Implementation  {#tut_guiggiani_implementation}
 ==============
 
-Guiggiani's method with Rong's improvement is implemented in class ::guiggiani in file guiggiani_1992.hpp .
+Guiggiani's method with Rong's improvement is implemented in class NiHu::guiggiani in file guiggiani_1992.hpp .
 
-Class ::guiggiani is templated on the trial field (element type and shape function type \f$ N \f$) and the kernel type, as well as on the quadrature orders in radial and tangential directions.
-The general algorithm can be specialised to a specific kernel type by providing the singularity's Laurent expansion in the class template ::polar_laurent_coeffs.
+Class NiHu::guiggiani is templated on the trial field (element type and shape function type \f$ N \f$) and the kernel type, as well as on the quadrature orders in radial and tangential directions.
+The general algorithm can be specialised to a specific kernel type by providing the singularity's Laurent expansion in the class template NiHu::polar_laurent_coeffs.
 
-Note that the template ::polar_laurent_coeffs is not templated on a particular kernel but on the kernel's singularity type.
+Note that the template NiHu::polar_laurent_coeffs is not templated on a particular kernel but on the kernel's singularity type.
 The reason of this differentiation is that different kernels tipically share singularity types.
 For example, the hypersingular Laplace and Helmholtz kernels differ only in their regular parts.
 Their singular behaviour, and therefore their Laurent expansion around the singular point are the same.
 
-The class ::polar_laurent_coeffs should implement a static function template called eval that evaluates the laurent coefficients in terms of
+The class NiHu::polar_laurent_coeffs should implement a static function template called eval that evaluates the laurent coefficients in terms of
 - the 2nd order series expansion of the location vector \f$ {\bf r} \approx {\bf r}_1 \rho + {\bf r}_2 \rho^2 \f$
 - the 1st order series expansion of the element Jacobian vector \f$ {\bf J} \approx {\bf J}_0 + {\bf J}_1 \rho \f$
 - the 1st order series expansion of the shape function \f$ N \approx N_0 + N_1 \rho \f$

@@ -21,7 +21,7 @@ Function space views {#tut_funspace_view}
 Constant and isoparametric views {#tut_funcspace_const_iso_view}
 --------------------------------
 
-Any NiHu mesh can be transformed into a piecewise constant function space using the library function ::constant_view
+Any NiHu mesh can be transformed into a piecewise constant function space using the library function NiHu::constant_view
 ~~~~~~~~~~
 auto const &const_fsp = constant_view(my_mesh);
 ~~~~~~~~~~
@@ -29,7 +29,7 @@ Constant view means that the physical quantity is considered to be constant over
 and its nodal location is at the element center.
 
 Alternatively, meshes can be viewed as piecewise isoparametric function
-spaces, using the function ::isoparametric_view:
+spaces, using the function NiHu::isoparametric_view:
 ~~~~~~~~~~
 auto const &isoparam_fsp = isoparametric_view(my_mesh);
 ~~~~~~~~~~
@@ -48,10 +48,10 @@ The function space refers to the same mesh that behaves like, or _is viewed as_ 
 
 function space view's may be generated using an alternative, more general syntax:
 ~~~~~~~~~~
-auto const &const_fsp    = create_function_space_view(my_mesh, field_option::constant());
-auto const &isoparam_fsp = create_function_space_view(my_mesh, field_option::isoparametric());
+auto const &const_fsp    = create_function_space_view(my_mesh, NiHu::field_option::constant());
+auto const &isoparam_fsp = create_function_space_view(my_mesh, NiHu::field_option::isoparametric());
 ~~~~~~~~~~
-where the field_option::constant and field_option::isoparametric are tag types.
+where the NiHu::field_option::constant and NiHu::field_option::isoparametric are tag types.
 This syntax is more suitable for generic programming, and developers may customise their own field generation options.
 
 
@@ -59,7 +59,7 @@ Dirac view {#tut_funcspace_dirac_view}
 ----------
 
 Any function space and function space view (constant, isoparametic, etc.)
-can be transformed into a Dirac-view using the ::dirac function.
+can be transformed into a Dirac-view using the NiHu::dirac function.
 
 ~~~~~~~~~~
 auto const &dirac_fsp = dirac(original_fsp);
@@ -90,7 +90,7 @@ auto const &f_sp = dirac(constant_view(my_mesh));
 ~~~~~~~~~~
 the second `auto` resolves to
 ~~~~~~~~~~
-dirac_view<function_space_view<mesh<tmp::vector<tria_1_elem, quad_1_elem> >, field_option::constant> >
+dirac_view<function_space_view<mesh<tmp::vector<NiHu::tria_1_elem, NiHu::quad_1_elem> >, NiHu::field_option::constant> >
 ~~~~~~~~~~
 which is cumbersome to read and interpret.
 
@@ -109,6 +109,6 @@ Defining heterogeneous custom function spaces {#tut_funspace_custom}
 =============================================
 
 Heterogeneous function spaces are a collection of different element types with different field interpolation shape functions.
-NiHu provides a way (function ::create_function_space) to manually define heterogeneous function spaces in a similar manner as defining a mesh.
+NiHu provides a way (function NiHu::create_function_space) to manually define heterogeneous function spaces in a similar manner as defining a mesh.
 Although this option is rarely needed, we refer to the tutorial \ref tut_custom_element for further information.
 

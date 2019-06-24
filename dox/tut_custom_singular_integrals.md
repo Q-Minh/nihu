@@ -61,7 +61,7 @@ The C++ code {#tut_custom_singular_integrals_cpp}
 The singular integral shortcut {#tut_custom_singular_integrals_shortcut}
 ------------------------------
 
-Singular integrals can be customised by specialising the class template ::singular_integral_shortcut for the specified singular integral type.
+Singular integrals can be customised by specialising the class template NiHu::singular_integral_shortcut for the specified singular integral type.
 
 The class template is declared as
 ~~~~~~~~~~~~
@@ -69,9 +69,9 @@ template <class Kernel, class TestField, class TrialField, class Singulartiy, cl
 class singular_integral_shortcut;
 ~~~~~~~~~~~~
 Where the parameters are
-- **Kernel** the kernel type (::helmholtz_3d_SLP_kernel template in our case)
+- **Kernel** the kernel type (NiHu::helmholtz_3d_SLP_kernel template in our case)
 - **TestField, TrialField** the test and trial field types (both constant triangles, the test field is a Dirac-view because of the collocational approach)
-- **Singularity** the singularity type (::singularity::face_match_type in our case)
+- **Singularity** the singularity type (NiHu::singularity::face_match_type in our case)
 - **Enable** an additional parameter to make complex type selection easy using the C++11 feature [std::enable_if]
 
 Our specialisation is parametrised as follows
@@ -104,11 +104,11 @@ public:
 ~~~~~~~~~~~~
 The test and trial field types are left as template arguments of the specialisation, but they are used in the arguments of [std::enable_if] to select the appropriate specialisation case.
 The specialisation is enabled if
-- the formalism (deduced from the test and trial fields by the metafunction ::get_formalism) is ::formalism::collocational
-- the geometrical interpolation function (L-set) of the trial field is ::tria_1_shape_set
-- the field interpolation function (N-set) of the trial field is ::tria_0_shape_set
+- the formalism (deduced from the test and trial fields by the metafunction NiHu::get_formalism) is NiHu::formalism::collocational
+- the geometrical interpolation function (L-set) of the trial field is NiHu::tria_1_shape_set
+- the field interpolation function (N-set) of the trial field is NiHu::tria_0_shape_set
 
-\note the test field does not need to be taken into account, as the ::singularity::face_match_type singulartiy implies that the test and trial element types are identical.
+\note the test field does not need to be taken into account, as the NiHu::singularity::face_match_type singulartiy implies that the test and trial element types are identical.
 
 As shown above, the class specialisation defines a static public member function called `eval` that evaluates the singular integral into a result matrix received by reference as function argument.
 
@@ -173,7 +173,7 @@ The following static member quadrature is suitable:
 ~~~~~~~~~~~~~~
 static gaussian_quadrature<tria_domain> const reg_quadrature(7) // 7-th order
 ~~~~~~~~~~~~~~
-Class ::gaussian_quadrature<tria_domain> defines a Gaussian quadarture for a triangle domain.
+Class NiHu::gaussian_quadrature<tria_domain> defines a Gaussian quadarture for a triangle domain.
 The constructor takes the integration order as parameter.
 The generated quadrature is able to integrate 7-th order polynomials on a triangle without error.
 The quadrature is implemented as a container of quadrature points, and provides an iterator that traverses the quadrature points.

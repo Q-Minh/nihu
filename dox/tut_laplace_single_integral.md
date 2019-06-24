@@ -44,7 +44,7 @@ The C++ code {#tut_laplace_single_Cpp_code}
 Mesh generation {#tut_laplace_single_mesh_generation}
 ---------------
 
-The mesh of our surface domain will consist of only one 4-noded quadrilateral (::quad_1_elem) element:
+The mesh of our surface domain will consist of only one 4-noded quadrilateral (NiHu::quad_1_elem) element:
 
 \snippet laplace_single_integral.cpp Mesh
 
