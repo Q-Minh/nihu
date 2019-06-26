@@ -1,4 +1,4 @@
-function [mesh, field, k, q_surf] = create_pac_man_validation(Le)
+function [mesh, field, k, q_surf] = create_pac_man_validation(Le, freq)
 
 phi0 = pi/6;
 R = 1;
@@ -43,7 +43,7 @@ rho = 1.2041;
 c = 343.21;
 V0 = 0.1;
 
-freq = 4000;
+% freq = 4000;
 om = 2* pi * freq;
 k = om / c;
 

@@ -158,8 +158,8 @@ interpolator::dmatrix_t interpolator::Amatrix(int L, int m,
 {
 	using boost::math::legendre_p;
 
-	dmatrix_t Pi = dmatrix_t::Zero(theta.rows(), L + 1);
-	dmatrix_t Pj = dmatrix_t::Zero(xi.rows(), L + 1);
+	dmatrix_t Pi = dmatrix_t::Zero(theta.rows(), Eigen::Index(L + 1));
+	dmatrix_t Pj = dmatrix_t::Zero(xi.rows(), Eigen::Index(L + 1));
 	for (int l = std::abs(m); l <= L; ++l)
 	{
 		for (int i = 0; i < theta.rows(); ++i)
