@@ -5,6 +5,7 @@
 
 #include "line_quad_store.hpp"
 #include "location_normal.hpp"
+#include "weighted_input.hpp"
 #include "../core/element.hpp"
 #include "../core/field.hpp"
 #include "../core/inverse_mapping.hpp"

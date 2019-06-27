@@ -30,6 +30,7 @@
 #include "../util/plain_type.hpp"
 #include "../util/block_product.hpp"
 #include "../library/location_normal.hpp"
+#include "../library/weighted_input.hpp"
 #include "../tmp/control.hpp"
 #include "../util/store_pattern.hpp"
 #include "complexity_estimator.hpp"

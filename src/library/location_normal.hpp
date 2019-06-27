@@ -30,7 +30,7 @@
 namespace NiHu
 {
 
-/** \brief a class representing a simple location brick
+/** \brief a class representing a simple location
  * \tparam Space the coordinate space
  */
 template <class Space>
@@ -54,6 +54,8 @@ public:
 	{
 	}
 
+	/** \brief constructor from location
+	 * \param [in] x the location */
 	explicit location_input(x_t const &x)
 		: m_x(x)
 	{
@@ -70,7 +72,7 @@ private:
 };
 
 
-/** \brief a class representing a normal + Jacobian brick
+/** \brief a class representing a normal + Jacobian input
  * \tparam Space the coordinate space
  */
 template <class Space>
@@ -98,6 +100,10 @@ public:
 	{
 	}
 
+	/** \brief constructor from location and jacobian vector
+	 * \param [in] x the location
+	 * \param [in] jac the jacobian vector
+	 */
 	location_normal_jacobian_input(x_t const &x, x_t const &jac_vector)
 		: location_input<Space>(x)
 		, m_jac_vector(jac_vector)
@@ -106,7 +112,7 @@ public:
 	{
 	}
 
-	/** \brief return the normal */
+	/** \brief return the unit normal vector */
 	x_t const &get_unit_normal(void) const
 	{
 		return m_unit_normal;
@@ -118,6 +124,8 @@ public:
 		return m_jac;
 	}
 	
+	/// \brief return the jacobian
+	/// \return the jacobian
 	x_t const &get_jacobian_vector() const
 	{
 		return m_jac_vector;
@@ -129,7 +137,8 @@ private:
 	x_t m_unit_normal;
 };
 
-/** \brief a class representing a Jacobian brick used for volume elements
+
+/** \brief a class representing a Jacobian input used for volume elements
  * \tparam Space the coordinate space
  */
 template <class Space>
@@ -141,6 +150,8 @@ public:
 	typedef Space space_t;
 	/** \brief the scalar type */
 	typedef typename space_t::scalar_t scalar_t;
+	
+	typedef typename space_t::location_t location_t;
 
 	/** \brief constructor
 		* \tparam elem_t the element type
@@ -153,6 +164,15 @@ public:
 	{
 	}
 
+	/// \brief constructor
+	/// \param [in] x the location
+	/// \param [in] jac the jacobian
+	location_volume_jacobian_input(location_t const &x, scalar_t const &jac) :
+		location_input<Space>(x),
+		m_jac(jac)
+	{
+	}
+
 	/** \brief return the Jacobian */
 	scalar_t const &get_jacobian(void) const
 	{
@@ -163,6 +183,7 @@ private:
 	scalar_t m_jac;
 };
 
+
 typedef location_input<space_1d<> > location_input_1d;
 typedef location_input<space_2d<> > location_input_2d;
 typedef location_input<space_3d<> > location_input_3d;
@@ -170,36 +191,6 @@ typedef location_input<space_3d<> > location_input_3d;
 typedef location_normal_jacobian_input<space_2d<> > location_normal_input_2d;
 typedef location_normal_jacobian_input<space_3d<> > location_normal_input_3d;
 
-template <class Input, class Elem>
-struct weighted_input;
-
-template <class LSet, class Scalar>
-struct weighted_input<location_input<typename surface_element<LSet, Scalar>::space_t>,
-	surface_element<LSet, Scalar> >
-{
-	typedef location_normal_jacobian_input<typename surface_element<LSet, Scalar>::space_t> type;
-};
-
-template <class LSet, class Scalar>
-struct weighted_input<location_input<typename volume_element<LSet, Scalar>::space_t>,
-	volume_element<LSet, Scalar> >
-{
-	typedef location_volume_jacobian_input<typename volume_element<LSet, Scalar>::space_t> type;
-};
-
-template <class LSet, class Scalar>
-struct weighted_input<location_normal_jacobian_input<typename surface_element<LSet, Scalar>::space_t>,
-	surface_element<LSet, Scalar> >
-{
-	typedef location_normal_jacobian_input<typename surface_element<LSet, Scalar>::space_t> type;
-};
-
-template <class LSet, class Scalar>
-struct weighted_input<location_volume_jacobian_input<typename volume_element<LSet, Scalar>::space_t>,
-	volume_element<LSet, Scalar> >
-{
-	typedef location_volume_jacobian_input<typename volume_element<LSet, Scalar>::space_t> type;
-};
 
 } // end of namespace NiHu
 

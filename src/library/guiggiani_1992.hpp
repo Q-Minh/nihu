@@ -27,6 +27,7 @@
 
 #include "line_quad_store.hpp"
 #include "location_normal.hpp"
+#include "weighted_input.hpp"
 #include "../core/field.hpp"
 #include "../core/kernel.hpp"
 #include "../core/shapeset.hpp"
