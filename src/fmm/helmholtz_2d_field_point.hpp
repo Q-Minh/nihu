@@ -22,13 +22,14 @@
 #include "x2x_precompute.hpp"
 
 #include <chrono>
+#include <ctime>
 
 namespace NiHu
 {
 namespace fmm
 {
 
-typedef std::chrono::high_resolution_clock clock_t;
+typedef std::chrono::system_clock my_clock_t;
 
 
 template <class TestSpace, class TrialSpace>
@@ -167,31 +168,31 @@ public:
 
 		// create precomputed fmbem operators
 		std::cout << "Precomputing M2M..." << std::endl;
-		auto start = clock_t::now();
+		auto start = my_clock_t::now();
 		auto m2m_pre = create_x2x_precompute(cix_m2m, lists.get_list(lists.M2M));
 		// precompute<fmm_t::m2m> m2m_pre(m2m, tree, lists.get_list(lists.M2M));
-		auto finish = clock_t::now();
+		auto finish = my_clock_t::now();
 		std::chrono::duration<double> elapsed = finish - start;
 		std::cout << "Ready, Elapsed time: " << elapsed.count() << " s" << std::endl;
 
 		std::cout << "Precomputing L2L..." << std::endl;
-		start = clock_t::now();
+		start = my_clock_t::now();
 		auto l2l_pre = create_x2x_precompute(cix_l2l, lists.get_list(lists.L2L));
 		// precompute<fmm_t::l2l> l2l_pre(l2l, tree, lists.get_list(lists.L2L));
-		elapsed = clock_t::now() - start;
+		elapsed = my_clock_t::now() - start;
 		std::cout << "Ready, Elapsed time: " << elapsed.count() << " s" << std::endl;
 
 		std::cout << "Precomputing M2L..." << std::endl;
-		start = clock_t::now();
+		start = my_clock_t::now();
 		auto m2l_pre = create_x2x_precompute(cix_m2l, lists.get_list(lists.M2L));
 		// precompute<fmm_t::m2l> m2l_pre(m2l, tree, lists.get_list(lists.M2L));
-		elapsed = clock_t::now() - start;
+		elapsed = my_clock_t::now() - start;
 		std::cout << "Ready, Elapsed time: " << elapsed.count() << " s\n" << std::endl;
 
 		std::cout << "Precomputing P2P..." << std::endl;
-		start = clock_t::now();
+		start = my_clock_t::now();
 		auto p2p_near = p2p_precompute(ix_p2p, tree, lists.get_list(lists.P2P));
-		elapsed = clock_t::now() - start;
+		elapsed = my_clock_t::now() - start;
 		std::cout << "Ready, Elapsed time: " << elapsed.count() << " s" << std::endl;
 
 
@@ -210,7 +211,8 @@ public:
 		std::cout << "Combined matrix assembled" << std::endl;
 
 		std::cout << "Computing MVP " << std::endl;
-		start = clock_t::now();
+		auto start2 = std::clock();
+		start = my_clock_t::now();
 		cvector_t xct(m_psurf.rows() + m_qsurf.rows(), 1);
 		for (int i = 0; i < m_psurf.rows(); ++i)
 		{
@@ -218,8 +220,10 @@ public:
 			xct(2 * i + 1, 0) = m_psurf(i, 0);
 		}
 		m_response = combined_matrix * xct;
-		elapsed = clock_t::now() - start;
-		std::cout << "Ready, Elapsed time: " << elapsed.count() << " s" << std::endl;
+		elapsed = my_clock_t::now() - start;
+		auto elapsed2 = std::clock() - start2;
+		std::cout << "Ready, Elapsed wall clock time: " << elapsed.count() << " s" << std::endl;
+		std::cout << "Ready, Elapsed CPU time: " << 1.0 * elapsed2 / CLOCKS_PER_SEC << " s" << std::endl;
 
 		return m_response;
 	}
