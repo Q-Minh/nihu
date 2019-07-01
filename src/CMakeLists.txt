@@ -132,7 +132,7 @@ endif(MATLABMEX_FOUND)
 
 # Setup compiler flags for gcc
 if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
-	set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -pedantic -O3 -Wall \
+	set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -pedantic -O3 -Wall -fopenmp \
 		-Wno-deprecated-declarations")
 	set(NIHU_FPIC_FLAG "-fPIC")
 	# Find out gcc version

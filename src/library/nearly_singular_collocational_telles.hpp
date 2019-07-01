@@ -3,7 +3,7 @@
 
 #include "line_quad_store.hpp"
 #include "location_normal.hpp"
-#include "weighed_input.hpp"
+#include "weighted_input.hpp"
 #include "telles_1987.hpp"
 #include "../core/element.hpp"
 #include "../core/field.hpp"
