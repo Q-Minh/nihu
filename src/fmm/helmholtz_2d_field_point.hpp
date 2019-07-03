@@ -223,7 +223,7 @@ public:
 		elapsed = my_clock_t::now() - start;
 		auto elapsed2 = std::clock() - start2;
 		std::cout << "Ready, Elapsed wall clock time: " << elapsed.count() << " s" << std::endl;
-		std::cout << "Ready, Elapsed CPU time: " << 1.0 * elapsed2 / CLOCKS_PER_SEC << " s" << std::endl;
+		std::cout << "Ready, Elapsed CPU time: " << 1.0 * elapsed2 / 1000 /*CLOCKS_PER_SEC*/ << " s" << std::endl;
 
 		return m_response;
 	}
