@@ -6,6 +6,8 @@
 
 #include "cluster.hpp"
 
+#include <algorithm> // std::max
+
 namespace NiHu
 {
 namespace fmm

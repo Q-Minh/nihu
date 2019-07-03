@@ -21,16 +21,13 @@
 #include "x2x_cluster_indexed.hpp"
 #include "x2x_precompute.hpp"
 
-#include <chrono>
-#include <ctime>
+#include "util/timer.h"
+
 
 namespace NiHu
 {
 namespace fmm
 {
-
-typedef std::chrono::system_clock my_clock_t;
-
 
 template <class TestSpace, class TrialSpace>
 class helmholtz_2d_field_point
@@ -168,32 +165,19 @@ public:
 
 		// create precomputed fmbem operators
 		std::cout << "Precomputing M2M..." << std::endl;
-		auto start = my_clock_t::now();
 		auto m2m_pre = create_x2x_precompute(cix_m2m, lists.get_list(lists.M2M));
 		// precompute<fmm_t::m2m> m2m_pre(m2m, tree, lists.get_list(lists.M2M));
-		auto finish = my_clock_t::now();
-		std::chrono::duration<double> elapsed = finish - start;
-		std::cout << "Ready, Elapsed time: " << elapsed.count() << " s" << std::endl;
 
 		std::cout << "Precomputing L2L..." << std::endl;
-		start = my_clock_t::now();
 		auto l2l_pre = create_x2x_precompute(cix_l2l, lists.get_list(lists.L2L));
 		// precompute<fmm_t::l2l> l2l_pre(l2l, tree, lists.get_list(lists.L2L));
-		elapsed = my_clock_t::now() - start;
-		std::cout << "Ready, Elapsed time: " << elapsed.count() << " s" << std::endl;
 
 		std::cout << "Precomputing M2L..." << std::endl;
-		start = my_clock_t::now();
 		auto m2l_pre = create_x2x_precompute(cix_m2l, lists.get_list(lists.M2L));
 		// precompute<fmm_t::m2l> m2l_pre(m2l, tree, lists.get_list(lists.M2L));
-		elapsed = my_clock_t::now() - start;
-		std::cout << "Ready, Elapsed time: " << elapsed.count() << " s\n" << std::endl;
 
 		std::cout << "Precomputing P2P..." << std::endl;
-		start = my_clock_t::now();
 		auto p2p_near = p2p_precompute(ix_p2p, tree, lists.get_list(lists.P2P));
-		elapsed = my_clock_t::now() - start;
-		std::cout << "Ready, Elapsed time: " << elapsed.count() << " s" << std::endl;
 
 
 		auto max_num_threads = omp_get_max_threads();
@@ -217,7 +201,14 @@ public:
 			xct(2 * i, 0) = -m_qsurf(i, 0);
 			xct(2 * i + 1, 0) = m_psurf(i, 0);
 		}
+
+		auto wc_t0 = NiHu::wc_time::tic();
+		auto cpu_t0 = NiHu::cpu_time::tic();
 		m_response = combined_matrix * xct;
+		std::cout << "MVP wall clock time: " << NiHu::wc_time::toc(wc_t0) << " s" << std::endl;
+		std::cout << "MVP CPU time: " << NiHu::cpu_time::toc(cpu_t0) << " s" << std::endl;
+
+		combined_matrix.get_timer().print(std::cout);
 
 		return m_response;
 	}

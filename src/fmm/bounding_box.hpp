@@ -7,6 +7,7 @@
 
 #include <Eigen/Dense>
 
+#include <algorithm>
 #include <iostream>
 #include <cmath>
 
@@ -61,7 +62,7 @@ public:
 			scalar_t a = nodes.row(d).minCoeff();
 			scalar_t b = nodes.row(d).maxCoeff();
 			m_center(d) = (a + b) / 2.;
-			m_diameter = std::max(m_diameter, b - a);
+			m_diameter = std::max(m_diameter, b-a);
 		}
 	}
 

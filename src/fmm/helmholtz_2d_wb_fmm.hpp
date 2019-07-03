@@ -23,6 +23,7 @@
 #include "library/helmholtz_singular_integrals.hpp"
 
 #include <Eigen/Dense>
+#include <algorithm>
 #include <complex>
 #include <iostream>
 

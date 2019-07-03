@@ -4,7 +4,8 @@
 #ifndef FMM_TIMER_HPP_INCLUDED
 #define FMM_TIMER_HPP_INCLUDED
 
-#include <chrono>
+#include "util/timer.h"
+
 #include <vector>
 #include <array>
 #include <iostream>
@@ -13,29 +14,12 @@ namespace NiHu
 {
 namespace fmm
 {
-class timer
-{
-public:
-	/** \brief the time type */
-	typedef std::chrono::steady_clock clock;
-	/** \brief the floating point second counter type */
-	typedef std::chrono::microseconds dur_t;
-
-	/** \brief start timer */
-	static clock::time_point tic(void)
-	{
-		return clock::now();
-	}
-
-	static dur_t::rep toc(clock::time_point const &t0)
-	{
-		return std::chrono::duration_cast<dur_t>(clock::now() - t0).count();
-	}
-};
 
 /** \brief class to store fmm timing data */
 class fmm_timer
 {
+	typedef NiHu::cpu_time timer_t;
+	
 public:
 	/** \brief index of M2M operation */
 	static int const M2M = 0;
@@ -54,14 +38,9 @@ public:
 	/** \brief index of P2P operation */
 	static int const P2P = 7;
 
-	/** \brief the time type */
-	typedef std::chrono::steady_clock clock;
-	/** \brief the floating point second counter type */
-	typedef std::chrono::microseconds dur_t;
-
 private:
 	std::vector<std::array<long long, 8> > m_times;
-	clock::time_point m_t0;
+	timer_t::time_point_t m_t0;
 
 public:
 	/** \brief constructor
@@ -75,14 +54,14 @@ public:
 	/** \brief reset timer */
 	void reset(void)
 	{
-		for (auto &it : this->m_times)
+		for (auto &it : m_times)
 			it[M2M] = it[L2L] = it[M2L] = it[P2M] = it[P2L] = it[L2P] = it[M2P] = it[P2P] = 0;
 	}
 
 	/** \brief start timer */
-	typename clock::time_point tic(void)
+	typename timer_t::time_point_t tic(void)
 	{
-		return this->m_t0 = clock::now();
+		return m_t0 = timer_t::tic();
 	}
 
 	/** \brief stop timer at a given level and operation type
@@ -91,8 +70,7 @@ public:
 	 */
 	void toc(size_t level, int type)
 	{
-		this->m_times[level][type] +=
-			std::chrono::duration_cast<dur_t>(clock::now() - this->m_t0).count();
+		m_times[level][type] += (long long) (timer_t::toc(m_t0) * 1e6);
 	}
 
 	/** \brief inserter into output stream
@@ -102,7 +80,7 @@ public:
 
 	std::vector<std::array<long long, 8> > const & get_times(void) const
 	{
-		return this->m_times;
+		return m_times;
 	}
 };
 

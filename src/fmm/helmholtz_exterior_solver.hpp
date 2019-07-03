@@ -6,6 +6,7 @@
 
 #include "core/field.hpp"
 #include "core/function_space.hpp"
+#include "util/timer.h"
 #include "util/type2tag.hpp"
 
 #include "cluster_tree.hpp"
@@ -30,8 +31,6 @@ namespace NiHu
 {
 namespace fmm
 {
-
-typedef std::chrono::high_resolution_clock clock_t;
 
 /// \brief a generic cololocational Burton-Miller solver 
 /// \tparam Fmm the fmm type
@@ -206,62 +205,61 @@ public:
 
 		// create precomputed fmbem operators
 		std::cout << "Precomputing M2M..." << std::endl;
-		auto start = clock_t::now();
+		auto start = NiHu::wc_time::tic();
 		auto m2m_pre = create_x2x_precompute(cix_m2m, lists.get_list(lists.M2M));
 		// precompute<fmm_t::m2m> m2m_pre(m2m, tree, lists.get_list(lists.M2M));
-		auto finish = clock_t::now();
-		std::chrono::duration<double> elapsed = finish - start;
-		std::cout << "Ready, Elapsed time: " << elapsed.count() << " s" << std::endl;
+		double elapsed = NiHu::wc_time::toc(start);
+		std::cout << "Ready, Elapsed time: " << elapsed << " s" << std::endl;
 
 		std::cout << "Precomputing L2L..." << std::endl;
-		start = clock_t::now();
+		start = NiHu::wc_time::tic();
 		auto l2l_pre = create_x2x_precompute(cix_l2l, lists.get_list(lists.L2L));
 		// precompute<fmm_t::l2l> l2l_pre(l2l, tree, lists.get_list(lists.L2L));
-		elapsed = clock_t::now() - start;
-		std::cout << "Ready, Elapsed time: " << elapsed.count() << " s" << std::endl;
+		elapsed = NiHu::wc_time::toc(start);
+		std::cout << "Ready, Elapsed time: " << elapsed << " s" << std::endl;
 
 		std::cout << "Precomputing M2L..." << std::endl;
-		start = clock_t::now();
+		start = NiHu::wc_time::tic();
 		auto m2l_pre = create_x2x_precompute(cix_m2l, lists.get_list(lists.M2L));
 		// precompute<fmm_t::m2l> m2l_pre(m2l, tree, lists.get_list(lists.M2L));
-		elapsed = clock_t::now() - start;
-		std::cout << "Ready, Elapsed time: " << elapsed.count() << " s\n" << std::endl;
+		elapsed = NiHu::wc_time::toc(start);
+		std::cout << "Ready, Elapsed time: " << elapsed << " s\n" << std::endl;
 
 		std::cout << "Precomputing P2M_1..." << std::endl;
-		start = clock_t::now();
+		start = NiHu::wc_time::tic();
 		auto p2m_1_pre = create_p2x_precompute(cix_p2m_1, tree.get_leaf_src_indices());
-		elapsed = clock_t::now() - start;
-		std::cout << "Ready, Elapsed time: " << elapsed.count() << " s" << std::endl;
+		elapsed = NiHu::wc_time::toc(start);
+		std::cout << "Ready, Elapsed time: " << elapsed << " s" << std::endl;
 
 		std::cout << "Precomputing P2L_1..." << std::endl;
-		start = clock_t::now();
+		start = NiHu::wc_time::tic();
 		auto p2l_1_pre = create_p2x_precompute(cix_p2l_1, lists.get_list(lists.P2L));
-		elapsed = clock_t::now() - start;
-		std::cout << "Ready, Elapsed time: " << elapsed.count() << " s" << std::endl;
+		elapsed = NiHu::wc_time::toc(start);
+		std::cout << "Ready, Elapsed time: " << elapsed << " s" << std::endl;
 
 		std::cout << "Precomputing L2P_BM..." << std::endl;
-		start = clock_t::now();
+		start = NiHu::wc_time::tic();
 		auto l2p_pre = create_x2p_precompute(cix_l2p_bm, tree.get_leaf_rec_indices());
-		elapsed = clock_t::now() - start;
-		std::cout << "Ready, Elapsed time: " << elapsed.count() << " s" << std::endl;
+		elapsed = NiHu::wc_time::toc(start);
+		std::cout << "Ready, Elapsed time: " << elapsed << " s" << std::endl;
 
 		std::cout << "Precomputing M2P_BM..." << std::endl;
-		start = clock_t::now();
+		start = NiHu::wc_time::tic();
 		auto m2p_pre = create_x2p_precompute(cix_m2p_bm, lists.get_list(lists.M2P));
-		elapsed = clock_t::now() - start;
-		std::cout << "Ready, Elapsed time: " << elapsed.count() << " s" << std::endl;
+		elapsed = NiHu::wc_time::toc(start);
+		std::cout << "Ready, Elapsed time: " << elapsed << " s" << std::endl;
 
 		std::cout << "Precomputing P2P_0..." << std::endl;
-		start = clock_t::now();
+		start = NiHu::wc_time::tic();
 		auto p2p_near_0 = p2p_precompute(ix_p2p_0, tree, lists.get_list(lists.P2P));
-		elapsed = clock_t::now() - start;
-		std::cout << "Ready, Elapsed time: " << elapsed.count() << " s" << std::endl;
+		elapsed = NiHu::wc_time::toc(start);
+		std::cout << "Ready, Elapsed time: " << elapsed << " s" << std::endl;
 
 		std::cout << "Precomputing P2P_1..." << std::endl;
-		start = clock_t::now();
+		start = NiHu::wc_time::tic();
 		auto p2p_near_1 = p2p_precompute(ix_p2p_1, tree, lists.get_list(lists.P2P));
-		elapsed = clock_t::now() - start;
-		std::cout << "Ready, Elapsed time: " << elapsed.count() << " s" << std::endl;
+		elapsed = NiHu::wc_time::toc(start);
+		std::cout << "Ready, Elapsed time: " << elapsed << " s" << std::endl;
 
 		auto max_num_threads = omp_get_max_threads();
 		std::cout << "Expanding to " << max_num_threads << " threads" << std::endl;
@@ -294,11 +292,10 @@ public:
 		Eigen::GMRES<decltype(M), Eigen::IdentityPreconditioner > solver(M);
 		solver.setTolerance(1e-8);
 		solver.set_restart(3000);
-		start = clock_t::now();
+		start = NiHu::wc_time::tic();
 		m_response = solver.solve(rhs);
-		finish = clock_t::now();
-		elapsed = finish - start;
-		std::cout << "Ready: " << elapsed.count() << " s" << std::endl;
+		elapsed = NiHu::wc_time::toc(start);
+		std::cout << "Ready: " << elapsed << " s" << std::endl;
 		m_iters = solver.iterations();
 
 		return m_response;
