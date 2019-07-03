@@ -127,17 +127,6 @@ namespace tmp
 		template <class Fun>
 		struct lambda_plExp; // dummy case
 
-		// NOTE: this is removed
-		/*
-		{
-			typedef struct {
-				template <class A1 = void_, class A2 = void_>
-				// GCC needs this to compile, but this class is never used
-				struct apply { typedef void_ type; };
-			} type;
-		};
-		*/
-
 		// Specialisation for placeholder
 		template <unsigned N>
 		struct lambda_plExp<arg<N> >

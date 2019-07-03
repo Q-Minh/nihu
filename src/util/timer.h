@@ -4,7 +4,9 @@
 #ifndef TIMER_H_INCLUDED
 #define TIMER_H_INCLUDED
 
-#if defined( _WIN32 ) | defined( _WIN64 )
+#include <boost/predef.h>
+
+#if BOOST_OS_WINDOWS
 #ifndef NOMINMAX
 #define NOMINMAX // otherwise std::max and std::min is defined
 #endif
@@ -47,8 +49,7 @@ public:
 class cpu_time
 {
 public:
-#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) \
- || defined(WIN64) || defined(_WIN64) || defined(__WIN64) 	
+#if BOOST_OS_WINDOWS
 	/// \brief the time point type returned by tic
 	typedef double time_point_t;
 
