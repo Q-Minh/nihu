@@ -11,6 +11,8 @@
 #define NOMINMAX // otherwise std::max and std::min is defined
 #endif
 #include <windows.h>
+#else
+#include <ctime>
 #endif
 
 #include <chrono>
@@ -73,7 +75,6 @@ public:
 			(double)userSystemTime.wSecond +
 			(double)userSystemTime.wMilliseconds / 1000.0;
 	}
-#endif
 
 	/// \brief returns the time elapsed since t0
 	/// \param [in] t0 the reference time point
@@ -82,6 +83,22 @@ public:
 	{
 		return tic() - t0;
 	}
+
+#else
+
+	typedef clock_t time_point_t;
+
+	static time_point_t tic()
+	{
+		return std::clock();
+	}
+
+	static double toc(time_point_t const &t0)
+	{
+		return double(tic() - t0) / CLOCKS_PER_SEC;
+	}
+
+#endif
 };
 
 } // end of namespace NiHu
