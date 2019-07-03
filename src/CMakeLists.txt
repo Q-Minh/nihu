@@ -1,5 +1,10 @@
 # cmake file for the NiHu project
 
+# TODO: add -DNIHU_FMM_PARALLEL and -DNIHU_FMM_TRAVERSE options
+# TODO: add -Wno-parentheses
+#		Gives boost warnings 
+
+
 ###
 ### cmake and project section
 ###
@@ -45,6 +50,9 @@ set(NIHU_THIRDPARTY_DIR "${CMAKE_SOURCE_DIR}/ThirdParty")
 ### EIGEN section
 include(NiHuEigen)
 
+### FFTW section 
+include(NihuFFTW)
+
 ### Boost section
 # Process the boost path
 if (DEFINED NIHU_BOOST_PATH)
@@ -59,19 +67,7 @@ else ()
 	message(STATUS "Boost was not found")
 endif ()
 
-### FFTW section 
-# Process fftw path
-if (DEFINED NIHU_FFTW_PATH)
-	set(FFTW3_DIRECTORY ${NIHU_FFTW_PATH})
-endif ()
 
-find_package(FFTW REQUIRED)
-if (FFTW3_FOUND)
-	message(STATUS "fftw3 was found, include directory: ${FFTW3_INCLUDE_DIRS}")
-endif ()
-
-# Add FFTW include directory
-include_directories(${FFTW3_INCLUDE_DIRS})
 
 ### MATLAB Section
 
@@ -152,8 +148,16 @@ if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
         set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} \
 			-Wno-int-in-bool-context \
 			-Wno-maybe-uninitialized \
+			-Wno-parentheses \
+			-Wno-sign-compare \
 			-Wno-uninitialized")
     endif (GCC_VERSION VERSION_GREATER 7.0 OR GCC_VERSION VERSION_EQUAL 7.0)
+	
+	### FFTW 
+	if (WIN32)
+		string(REPLACE ".dll" ".lib" FFTW3_LIBRARIES "${FFTW3_LIBRARIES}")
+		message(STATUS "FFTW3 library names: ${FFTW3_LIBRARIES}")
+	endif()
 endif ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
 
 # Setup compiler flags for MSVC
@@ -202,20 +206,10 @@ set_target_properties("nihu_static_lib"
 	LIBRARY_OUTPUT_DIRECTORY ${NIHU_LIB_OUTPUT_DIR}
 )
 set(NIHU_LINK_LIBRARIES ${NIHU_LINK_LIBRARIES}; "nihu_static_lib")
+if (TARGET "libfftw3-3")
+	add_dependencies("nihu_static_lib" "libfftw3-3")
+endif ()
 
-if (0)
-# Add the dynamic NiHu library
-add_library("nihu_shared_lib" SHARED ${NIHU_COMMON_LIBRARIES})
-set_target_properties("nihu_shared_lib"
-	PROPERTIES 
-	COMPILE_FLAGS "${NIHU_FPIC_FLAG}"
-	OUTPUT_NAME "nihu"
-	PREFIX ""
-	ARCHIVE_OUTPUT_DIRECTORY ${NIHU_LIB_OUTPUT_DIR}
-	LIBRARY_OUTPUT_DIRECTORY ${NIHU_LIB_OUTPUT_DIR}
-)
-set(NIHU_LINK_LIBRARIES_DYN ${NIHU_LINK_LIBRARIES_DYN}; "nihu_shared_lib") 
-endif (0)
 
 # Add the static FMM library 
 # Look for common library source files
@@ -232,7 +226,9 @@ set_target_properties("nihu_fmm_static_lib"
 	LIBRARY_OUTPUT_DIRECTORY ${NIHU_LIB_OUTPUT_DIR}
 )
 set(NIHU_FMM_LINK_LIBRARIES ${NIHU_FMM_LINK_LIBRARIES}; "nihu_fmm_static_lib")
-
+if (TARGET "libfftw3-3")
+	add_dependencies("nihu_fmm_static_lib" "libfftw3-3")
+endif ()
 
 ### Subdirectories
 # Tutorials directory

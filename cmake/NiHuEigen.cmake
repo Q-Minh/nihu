@@ -82,19 +82,36 @@ if(NOT EIGEN_FOUND OR NIHU_EIGEN_INSTALL)
 
 		set(EIGEN_DL_FILE "${CMAKE_SOURCE_DIR}/ThirdParty/eigen-${NIHU_EIGEN_VERSION}.tar.bz2")
 		
-		# Download
-		message(STATUS "Downloading Eigen3 from ${EIGEN_URL}")
-		file(
-			DOWNLOAD "${EIGEN_URL}" "${EIGEN_DL_FILE}"
-			EXPECTED_MD5 "${EIGEN_MD5}"
-			STATUS EIGEN_DL_STATUS
-		)
+		# Check if downloaded file exists
+		if (EXISTS "${EIGEN_DL_FILE}")
+			file(MD5 "${EIGEN_DL_FILE}" EIGEN_EXISTING_MD5)
+			if (EIGEN_EXISTING_MD5 STREQUAL "${EIGEN_MD5}")
+				set(EIGEN_DOWNLOAD 0)
+			else ()
+				message(WARNING "MD5 sum of existing Eigen archive does not match expected")
+				set(EIGEN_DOWNLOAD 1)
+			endif()
+		else()
+			set(EIGEN_DOWNLOAD 1)
+		endif()
 		
-		# Check download status
-		LIST(GET ${EIGEN_DL_STATUS} 1 EIGEN_DL_ERROR)
-		if(EIGEN_DL_ERROR)
-			message(FATAL_ERROR "Eigen download failed, cmake will exit")
-		endif(EIGEN_DL_ERROR)
+		# Download as needed
+		if (EIGEN_DOWNLOAD)
+			message(STATUS "Downloading Eigen3 from ${EIGEN_URL}")
+			file(
+				DOWNLOAD "${EIGEN_URL}" "${EIGEN_DL_FILE}"
+				EXPECTED_MD5 "${EIGEN_MD5}"
+				STATUS EIGEN_DL_STATUS
+			)
+			
+			# Check download status
+			LIST(GET ${EIGEN_DL_STATUS} 1 EIGEN_DL_ERROR)
+			if(EIGEN_DL_ERROR)
+				message(FATAL_ERROR "Eigen download failed, cmake will exit")
+			endif(EIGEN_DL_ERROR)
+		else ()
+			message(STATUS "Using existing Eigen archive ${EIGEN_DL_FILE}")
+		endif (EIGEN_DOWNLOAD) 
 	else ()
 		# Install eigen from a predownloaded tarball file
 		if (EXISTS ${NIHU_EIGEN_TARBALL})

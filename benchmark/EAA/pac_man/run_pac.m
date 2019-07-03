@@ -19,7 +19,7 @@ export_off_mesh(line_field, field_off_name);
 
 %%
 pattern = sprintf('data/pac_man_%gmm', 1000*Le);
-exe_name = 'helmholtz_2d_wb_fmm_standalone.exe';
+exe_name = 'helmholtz_2d_wb_fmm_standalone_msvc.exe';
 
 
 %% solve radiation problem
