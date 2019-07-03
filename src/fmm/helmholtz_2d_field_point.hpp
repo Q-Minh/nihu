@@ -211,8 +211,6 @@ public:
 		std::cout << "Combined matrix assembled" << std::endl;
 
 		std::cout << "Computing MVP " << std::endl;
-		auto start2 = std::clock();
-		start = my_clock_t::now();
 		cvector_t xct(m_psurf.rows() + m_qsurf.rows(), 1);
 		for (int i = 0; i < m_psurf.rows(); ++i)
 		{
@@ -220,10 +218,6 @@ public:
 			xct(2 * i + 1, 0) = m_psurf(i, 0);
 		}
 		m_response = combined_matrix * xct;
-		elapsed = my_clock_t::now() - start;
-		auto elapsed2 = std::clock() - start2;
-		std::cout << "Ready, Elapsed wall clock time: " << elapsed.count() << " s" << std::endl;
-		std::cout << "Ready, Elapsed CPU time: " << 1.0 * elapsed2 / CLOCKS_PER_SEC << " s" << std::endl;
 
 		return m_response;
 	}

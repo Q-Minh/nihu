@@ -6,6 +6,7 @@
 #include "interface/read_off_mesh.hpp"
 #include "library/lib_element.hpp"
 #include "util/type2tag.hpp"
+#include "util/timer.h"
 
 #include <Eigen/IterativeLinearSolvers>
 #include "fmm/GMRES.h"
@@ -116,12 +117,21 @@ int main(int argc, char *argv[])
 			auto const &test_space = NiHu::dirac(NiHu::constant_view(field_mesh));
 			typedef std::decay<decltype(test_space)>::type test_space_t;
 
+			auto cpu_t0 = NiHu::cpu_time::tic();
+			auto wc_t0 = NiHu::wc_time::tic();
+
 			NiHu::fmm::helmholtz_2d_field_point<test_space_t, trial_space_t> solver(test_space, trial_space);
 			solver.set_qsurf(q_surf);
 			solver.set_psurf(p_surf);
 			solver.set_wave_number(k);
 			solver.eval(div, far_field_quadrature_order);
 			export_response(field_res_name, solver.get_response(), k);
+
+			double cpu_t = NiHu::cpu_time::toc(cpu_t0);
+			double wc_t = NiHu::wc_time::toc(wc_t0);
+
+			std::cout << "Elapsed cpu time: " << cpu_t << " s" << std::endl;
+			std::cout << "Elapsed wall clock time: " << wc_t << " s"<< std::endl;
 		}
 	}
 	catch (std::exception const &e)
