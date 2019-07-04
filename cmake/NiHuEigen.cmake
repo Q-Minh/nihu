@@ -73,8 +73,8 @@ if(NOT EIGEN_FOUND OR NIHU_EIGEN_INSTALL)
 	
 	set(EIGEN_INSTALL_DIR "${CMAKE_BINARY_DIR}/include/eigen-${NIHU_EIGEN_VERSION}")
 	
-	# Check if NIHU_EIGEN_TARBALL is set
-	if (NOT DEFINED NIHU_EIGEN_TARBALL)
+	# Check if NIHU_EIGEN_ARCHIVE is set
+	if (NOT DEFINED NIHU_EIGEN_ARCHIVE)
 		# Eigen download path
 		set(EIGEN_URL "http://bitbucket.org/eigen/eigen/get/${NIHU_EIGEN_VERSION}.tar.bz2")
 		# md5 checksum of the downloaded file tar.bz2

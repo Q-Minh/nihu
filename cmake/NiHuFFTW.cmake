@@ -2,9 +2,14 @@
 
 # Options:
 #	NIHU_FFTW_INSTALL
-# 	NIHU_FFTW_PATH 
+#		When set to non-zero 
+# 	NIHU_FFTW_PATH 		
+#		Specify a path where to look for FFTW headers and libraries
 #	NIHU_FFTW_ARCHIVE
-#	NIHU_FFTW_VERSION
+#		Specify an archive for extracting FFTW
+#	NIHU_FFTW_VERSION	
+#		Specify which FFTW version to use, e.g. "3.3.5"
+#		Currently supported versions: 3.3.5
 
 # Download location: ftp://ftp.fftw.org/pub/fftw/fftw-3.3.5-dll64.zip
 
@@ -27,19 +32,19 @@ if (NOT DEFINED NIHU_FFTW_INSTALL)
 endif ()
 
 # If FFTW not found, install
-if (DEFINED NIHU_FFTW_INSTALL OR NOT FFTW3_FOUND)
+if (NOT FFTW3_FOUND OR DEFINED NIHU_FFTW_INSTALL)
 	if (NOT WIN32)
 		message(FATAL_ERROR "FFTW automatic install only supported for windows")
 	endif ()
 	
-	# Supported Eigen versions
+	# Supported FFTW versions
 	if(DEFINED NIHU_FFTW_VERSION)
-		# Check if the defined Eigen version is supported
+		# Check if the defined FFTW version is supported
 		list (FIND NIHU_SUPPORTED_FFTW_VERSIONS ${NIHU_FFTW_VERSION} _index)
 		if (${_index} GREATER -1)
 			message(STATUS "Selected FFTW version ${NIHU_FFTW_VERSION} is supported")
 		else(${_index} GREATER -1)
-			message(FATAL_ERROR "Eigen version ${NIHU_FFTW_VERSION} is unsupported, supported versions: ${NIHU_SUPPORTED_FFTW_VERSIONS}")
+			message(FATAL_ERROR "FFTW version ${NIHU_FFTW_VERSION} is unsupported, supported versions: ${NIHU_SUPPORTED_FFTW_VERSIONS}")
 		endif(${_index} GREATER -1)
 	else(DEFINED NIHU_FFTW_VERSION)
 		# If undefined, set to default
@@ -65,9 +70,9 @@ if (DEFINED NIHU_FFTW_INSTALL OR NOT FFTW3_FOUND)
 		# FFTW download path
 		set(FFTW_URL "ftp://ftp.fftw.org/pub/fftw/fftw-${NIHU_FFTW_VERSION}-dll${NIHU_SYS_BITS}.zip")
 		message(STATUS "FFTW ${NIHU_FFTW_VERSION} headers and libraries will be installed as a part of NiHu")
-		set(FFTW_DL_FILE "${CMAKE_SOURCE_DIR}/ThirdParty/fftw-${NIHU_EIGEN_VERSION}.zip")
+		set(FFTW_DL_FILE "${CMAKE_SOURCE_DIR}/ThirdParty/fftw-${NIHU_FFTW_VERSION}.zip")
 		
-		# Check if downloaded file exists
+		# Check if downloaded file exists and has the correct MD5SUM
 		if (EXISTS "${FFTW_DL_FILE}")
 			file(MD5 "${FFTW_DL_FILE}" FFTW_EXISTING_MD5)
 			if (FFTW_EXISTING_MD5 STREQUAL "${FFTW_MD5}")
