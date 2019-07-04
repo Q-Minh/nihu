@@ -19,7 +19,7 @@ std::ostream &fmm_timer::print(std::ostream &os) const
 	size_t nLevel = m_times.size();
 	for (size_t iLevel = 0; iLevel < nLevel; ++iLevel)
 	{
-		os << "Level #" << iLevel << ": "
+		os << "Level #" << std::setw(2) << iLevel << ": "
 			<< "M2M (" << std::setw(10) << m_times[iLevel][M2M] << "), "
 			<< "M2L (" << std::setw(10) << m_times[iLevel][M2L] << "), "
 			<< "L2L (" << std::setw(10) << m_times[iLevel][L2L] << ")" << std::endl;

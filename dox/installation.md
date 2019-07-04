@@ -163,8 +163,8 @@ Finally, NiHu binaries are installed using the command
 
 With this step, the installation is completed and you can start using NiHu, see the [getting started](#install_get_started) section to see how to get started.
 
-Installation on Windows systems {#install_win}
--------------------------------
+Installation on Windows systems using MinGW {#install_win_mingw}
+-------------------------------------------
 
 ### Installing GCC on windows
 
@@ -212,6 +212,19 @@ Finally, NiHu binaries are installed using the command
 
 With this step, the installation is completed and you can start using NiHu, see the [getting started](#install_get_started) section to see how to get started.
 	
+Installation on Windows systems using Visual Studio {#install_win_msvc}
+---------------------------------------------------
+
+### Configuration
+
+	cd nihu 
+	md build_dir
+	cd build_dir
+	cmake ..\src -G "Visual Studio 15 2017 Win64" -DNIHU_INSTALL_DIR="..\install_dir"
+	
+	
+
+	
 Configuration options {#install_cmake_options}
 =====================
 
@@ -248,12 +261,25 @@ You can override the default behavior by the parameters listed below.
 
 - **NIHU_EIGEN_PATH** Specifies the full path to your existing Eigen installation, i.e. the path containing the directory `Eigen`. When this path is set, NiHu will not search for an existing Eigen installation, but tries to use Eigen header files specified by this path.
 - **NIHU_EIGEN_INSTALL** When set to a non-zero value, the installer will not look for an installed version of Eigen, but Eigen headers are installed as a part of NiHu. This is the default option on Windows operating systems. This option only has an effect when the path `NIHU_EIGEN_PATH` is not specified.
-- **NIHU_EIGEN_TARBALL** Specifies the full path to a downloaded `Eigen` tarball. NiHu will extract this archive instead of downloading the source from the predefined URL. This option only makes sense if the `NIHU_EIGEN_INSTALL` is set to non-zero.
+- **NIHU_EIGEN_ARCHIVE** Specifies the full path to a downloaded `Eigen` archive. NiHu will extract this archive instead of downloading the source from the predefined URL. This option only makes sense if the `NIHU_EIGEN_INSTALL` is set to non-zero.
 \note If you experience a `cmake` or other error when downloading from the official URL, you should try this option.
-- **NIHU_EIGEN_DISABLE_PATCH** When set to a non-zero value the patching of Eigen files are disabled. This option is only relevant when Eigen is installed as a part of NiHu, i.e. on Windows systems or when the `NIHU_EIGEN_INSTALL` parameter is to non-zero. (Note: The Eigen patch contains the removal of unnecessary `typedef`s in order to avoid compiler warnings of `gcc-4.8`.)
-- **NIHU_EIGEN_VERSION** When set and `Eigen` is installed as a part of NiHu (see above), you can specify which version to install. The default installation version is `3.2.7`. Please note that the currently supported versions are `3.2.0` and `3.2.7`.
+- **NIHU_EIGEN_VERSION** When set and `Eigen` is installed as a part of NiHu (see above), you can specify which version to install. The default installation version is `3.3.7`. Please note that the currently supported versions are `3.2.0`, `3.2.7`, and `3.3.7`.
 
 \note If you want to use Eigen as a stand-alone project, you can install it using cmake. Please consult the [Eigen website](http://eigen.tuxfamily.org) for further information.
+
+FFTW options {#install_fftw_options} 
+------------
+
+The following options control the setup of the FFT library FFTW3 during the installation process.
+On Unix systems, NiHu will automatically search for an existing installation of FFTW3 on your computer.
+On Windows operating systems, FFTW3 will be automatically downloaded and used as a part of NiHu.
+Alternatively, the variable `NIHU_FFTW_PATH` can be specified, and in this the build system will look for the appropriate FFTW files in the specified folder.
+You can override the default behavior using the parameters listed below:
+
+- **NIHU_FFTW_PATH** Specifies the full path to an existing FFTW directory. The directory should contain the fftw header file and the libraries.
+- **NIHU_FFTW_INSTALL** When set to a non-zero value, the installer will not look for an installed version of FFTW, but FFTW headers and libraries are installed as a part of NiHu. This is the default option on Windows operating systems, unless the variable `NIHU_FFTW_PATH` is specified.
+- **NIHU_FFTW_ARCHIVE** Specifies the path to a downloaded FFTW3 archive. The build system will extract this archive instead of downloading the source from the predefined URL. This option only makes sense if the variable `NIHU_FFTW_INSTALL` is set to non-zero.
+- **NIHU_FFTW_VERSION** Specifies which FFTW version to download. Currently only version `3.3.5` is supported.
 
 Boost options {#install_boost_options}
 -------------

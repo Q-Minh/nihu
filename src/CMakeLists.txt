@@ -51,7 +51,7 @@ set(NIHU_THIRDPARTY_DIR "${CMAKE_SOURCE_DIR}/ThirdParty")
 include(NiHuEigen)
 
 ### FFTW section 
-include(NihuFFTW)
+include(NiHuFFTW)
 
 ### Boost section
 # Process the boost path
@@ -165,10 +165,17 @@ if (MSVC)
         set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} /openmp")
 endif (MSVC)
 
-
+# set parallel
+if (NOT DEFINED NIHU_FMM_DISABLE_PARALLEL)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DPARALLEL")
+endif () 
 
 # set traversing parameter to fmm_matrix
-set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -DBFS -DPARALLEL")
+if (NOT DEFINED NIHU_FMM_TRAVERSE)
+	set(NIHU_FMM_TRAVERSE "BFS")
+endif () 
+
+set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -D${NIHU_FMM_TRAVERSE}")
 
 ### Includes
 # setup global include directories
