@@ -1,5 +1,5 @@
-#ifndef HELMHOLTZ_2D_FIELD_POINT_HPP_INCLUDED
-#define HELMHOLTZ_2D_FIELD_POINT_HPP_INCLUDED
+#ifndef HELMHOLTZ_FIELD_POINT_HPP_INCLUDED
+#define HELMHOLTZ_FIELD_POINT_HPP_INCLUDED
 
 #include "core/field.hpp"
 #include "core/function_space.hpp"
@@ -8,7 +8,6 @@
 #include "divide.h"
 #include "elem_center_iterator.hpp"
 #include "fmm_matrix.hpp"
-#include "helmholtz_2d_wb_fmm.hpp"
 #include "matrix_free.hpp"
 #include "p2p_integral.hpp"
 #include "p2p_precompute.hpp"
@@ -29,10 +28,11 @@ namespace NiHu
 namespace fmm
 {
 
-template <class TestSpace, class TrialSpace>
-class helmholtz_2d_field_point
+template <class Fmm, class TestSpace, class TrialSpace>
+class helmholtz_field_point
 {
 public:
+	typedef Fmm fmm_t;
 	typedef TestSpace test_space_t;
 	typedef TrialSpace trial_space_t;
 
@@ -40,16 +40,25 @@ public:
 	typedef cvector_t excitation_t;
 	typedef cvector_t response_t;
 
-	typedef fmm::helmholtz_2d_wb_fmm<double> fmm_t;
-	typedef fmm_t::cluster_t cluster_t;
+	typedef typename fmm_t::cluster_t cluster_t;
 	typedef fmm::cluster_tree<cluster_t> cluster_tree_t;
 
-	typedef field_view<line_1_elem, field_option::constant> trial_field_t;
+	typedef typename tmp::deref<
+		typename tmp::begin<
+		typename trial_space_t::field_type_vector_t
+		>::type
+	>::type trial_field_t;
+
+	typedef typename tmp::deref<
+		typename tmp::begin<
+		typename test_space_t::field_type_vector_t
+		>::type
+	>::type test_field_t;
+
 	typedef type2tag<trial_field_t> trial_field_tag_t;
-	typedef dirac_field<trial_field_t> test_field_t;
 	typedef type2tag<test_field_t> test_field_tag_t;
 
-	helmholtz_2d_field_point(test_space_t const &test_space,
+	helmholtz_field_point(test_space_t const &test_space,
 		trial_space_t const &trial_space)
 		: m_test_space(test_space)
 		, m_trial_space(trial_space)
@@ -99,6 +108,7 @@ public:
 
 		// initialize tree data
 		std::cout << "Initialize level data" << std::endl;
+		fmm.set_accuracy(3.0);
 		fmm.init_level_data(tree);
 		for (size_t c = 0; c < tree.get_n_clusters(); ++c)
 			tree[c].set_p_level_data(&fmm.get_level_data(tree[c].get_level()));
@@ -107,23 +117,35 @@ public:
 		std::cout << "Compute interaction lists" << std::endl;
 		fmm::interaction_lists lists(tree);
 
+		// get operators from fmm
+		std::cout << "Generate operators" << std::endl;
+		auto m2m = fmm.create_m2m();
+		auto l2l = fmm.create_l2l();
+		auto m2l = fmm.create_m2l();
+
 		// integrate operators over fields
 		std::cout << "Operator integration" << std::endl;
 
-		auto ip2p = src_concatenate(
-			fmm::create_p2p_integral(fmm.create_p2p<0, 0>(), test_field_tag_t(), trial_field_tag_t(), false),
-			fmm::create_p2p_integral(fmm.create_p2p<0, 1>(), test_field_tag_t(), trial_field_tag_t(), false));
+		auto fmb = create_fmbem(fmm, test_field_tag_t(), trial_field_tag_t(),
+			far_field_quadrature_order, false);
 
-		auto ip2m = src_concatenate(
-			fmm::create_p2x_integral(fmm.create_p2m<0>(), far_field_quadrature_order, trial_field_tag_t()),
-			fmm::create_p2x_integral(fmm.create_p2m<1>(), far_field_quadrature_order, trial_field_tag_t()));
+		auto ip2p_00 = fmb.template create_p2p<0, 0>();
+		auto ip2p_01 = fmb.template create_p2p<0, 1>();
 
-		auto ip2l = src_concatenate(
-			fmm::create_p2x_integral(fmm.create_p2l<0>(), far_field_quadrature_order, trial_field_tag_t()),
-			fmm::create_p2x_integral(fmm.create_p2l<1>(), far_field_quadrature_order, trial_field_tag_t()));
+		auto ip2m_0 = fmb.template create_p2m<0>();
+		auto ip2l_0 = fmb.template create_p2l<0>();
+		auto ip2m_1 = fmb.template create_p2m<1>();
+		auto ip2l_1 = fmb.template create_p2l<1>();
 
-		auto im2p = fmm::create_x2p_integral(fmm.create_m2p<0>(), far_field_quadrature_order, test_field_tag_t());
-		auto il2p = fmm::create_x2p_integral(fmm.create_l2p<0>(), far_field_quadrature_order, test_field_tag_t());
+		auto im2p = fmb.template create_m2p<0>();
+		auto il2p = fmb.template create_l2p<0>();
+
+		// concatenate operators
+		std::cout << "Operator concatenation" << std::endl;
+
+		auto ip2p = src_concatenate(ip2p_00, ip2p_01);
+		auto ip2m = src_concatenate(ip2m_0, ip2m_1);
+		auto ip2l = src_concatenate(ip2l_0, ip2l_1);
 
 		// create indexed fmbem operators
 		std::cout << "Operator indexing" << std::endl;
@@ -165,29 +187,35 @@ public:
 
 		// create precomputed fmbem operators
 		std::cout << "Precomputing M2M..." << std::endl;
+		auto start = NiHu::wc_time::tic();
 		auto m2m_pre = create_x2x_precompute(cix_m2m, lists.get_list(lists.M2M));
-		// precompute<fmm_t::m2m> m2m_pre(m2m, tree, lists.get_list(lists.M2M));
+		std::cout << "Ready, Elapsed time: " << NiHu::wc_time::toc(start) << " s" << std::endl;
 
 		std::cout << "Precomputing L2L..." << std::endl;
+		start = NiHu::wc_time::tic();
 		auto l2l_pre = create_x2x_precompute(cix_l2l, lists.get_list(lists.L2L));
-		// precompute<fmm_t::l2l> l2l_pre(l2l, tree, lists.get_list(lists.L2L));
+		std::cout << "Ready, Elapsed time: " << NiHu::wc_time::toc(start) << " s" << std::endl;
 
 		std::cout << "Precomputing M2L..." << std::endl;
+		start = NiHu::wc_time::tic();
 		auto m2l_pre = create_x2x_precompute(cix_m2l, lists.get_list(lists.M2L));
-		// precompute<fmm_t::m2l> m2l_pre(m2l, tree, lists.get_list(lists.M2L));
+		std::cout << "Ready, Elapsed time: " << NiHu::wc_time::toc(start) << " s" << std::endl;
 
 		std::cout << "Precomputing P2P..." << std::endl;
+		start = NiHu::wc_time::tic();
 		auto p2p_near = p2p_precompute(ix_p2p, tree, lists.get_list(lists.P2P));
+		std::cout << "Ready, Elapsed time: " << NiHu::wc_time::toc(start) << " s" << std::endl;
 
 
+#if PARALLEL
 		auto max_num_threads = omp_get_max_threads();
 		std::cout << "Expanding to " << max_num_threads << " threads" << std::endl;
 		for (size_t i = 0; i < tree.get_n_levels(); ++i)
 			fmm.get_level_data(i).set_num_threads(max_num_threads);
-
+#endif
 
 		// create matrix objects
-		std::cout << "Starting assembling DLP " << std::endl;
+		std::cout << "Starting assembling | SLP | DLP | " << std::endl;
 		auto combined_matrix = fmm::create_fmm_matrix(
 			p2p_near, cix_p2m, cix_p2l, cix_m2p_0, cix_l2p_0,
 			m2m_pre, l2l_pre, m2l_pre,

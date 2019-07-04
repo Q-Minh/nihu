@@ -1,7 +1,7 @@
 #include "core/field.hpp"
 #include "core/function_space.hpp"
 #include "fmm/helmholtz_exterior_solver.hpp"
-#include "fmm/helmholtz_2d_field_point.hpp"
+#include "fmm/helmholtz_field_point.hpp"
 #include "fmm/helmholtz_2d_wb_fmm.hpp"
 #include "interface/read_off_mesh.hpp"
 #include "library/lib_element.hpp"
@@ -120,7 +120,7 @@ int main(int argc, char *argv[])
 			auto cpu_t0 = NiHu::cpu_time::tic();
 			auto wc_t0 = NiHu::wc_time::tic();
 
-			NiHu::fmm::helmholtz_2d_field_point<test_space_t, trial_space_t> solver(test_space, trial_space);
+			NiHu::fmm::helmholtz_field_point<fmm_t, test_space_t, trial_space_t> solver(test_space, trial_space);
 			solver.set_qsurf(q_surf);
 			solver.set_psurf(p_surf);
 			solver.set_wave_number(k);

@@ -87,13 +87,12 @@ public:
 	}
 
 	template <class Divide>
-	response_t const &solve(Divide divide, size_t far_field_quadrature_order)
+	response_t const &solve(Divide const &divide, size_t far_field_quadrature_order)
 	{
 		fmm_t fmm(m_wave_number);
 
 		// create cluster tree
 		std::cout << "Create cluster tree" << std::endl;
-//		size_t leaf_nodes = 10;
 		cluster_tree_t tree(
 			create_field_center_iterator(m_trial_space.template field_begin<trial_field_t>()),
 			create_field_center_iterator(m_trial_space.template field_end<trial_field_t>()),
@@ -113,7 +112,6 @@ public:
 		std::cout << "Compute interaction lists" << std::endl;
 		interaction_lists lists(tree);
 
-
 		// get operators from fmm
 		std::cout << "Generate operators" << std::endl;
 		auto m2m = fmm.create_m2m();
@@ -123,7 +121,8 @@ public:
 		// integrate operators over fields
 		std::cout << "Operator integration" << std::endl;
 
-		auto fmb = create_fmbem(fmm, test_field_tag_t(), trial_field_tag_t(), far_field_quadrature_order, true);
+		auto fmb = create_fmbem(fmm, test_field_tag_t(), trial_field_tag_t(),
+			far_field_quadrature_order, true);
 
 		auto ip2p_00 = fmb.template create_p2p<0, 0>();
 		auto ip2p_01 = fmb.template create_p2p<0, 1>();
@@ -207,64 +206,56 @@ public:
 		std::cout << "Precomputing M2M..." << std::endl;
 		auto start = NiHu::wc_time::tic();
 		auto m2m_pre = create_x2x_precompute(cix_m2m, lists.get_list(lists.M2M));
-		// precompute<fmm_t::m2m> m2m_pre(m2m, tree, lists.get_list(lists.M2M));
-		double elapsed = NiHu::wc_time::toc(start);
-		std::cout << "Ready, Elapsed time: " << elapsed << " s" << std::endl;
+		std::cout << "Ready, Elapsed time: " << NiHu::wc_time::toc(start) << " s" << std::endl;
 
 		std::cout << "Precomputing L2L..." << std::endl;
 		start = NiHu::wc_time::tic();
 		auto l2l_pre = create_x2x_precompute(cix_l2l, lists.get_list(lists.L2L));
 		// precompute<fmm_t::l2l> l2l_pre(l2l, tree, lists.get_list(lists.L2L));
-		elapsed = NiHu::wc_time::toc(start);
-		std::cout << "Ready, Elapsed time: " << elapsed << " s" << std::endl;
+		std::cout << "Ready, Elapsed time: " << NiHu::wc_time::toc(start) << " s" << std::endl;
 
 		std::cout << "Precomputing M2L..." << std::endl;
 		start = NiHu::wc_time::tic();
 		auto m2l_pre = create_x2x_precompute(cix_m2l, lists.get_list(lists.M2L));
 		// precompute<fmm_t::m2l> m2l_pre(m2l, tree, lists.get_list(lists.M2L));
-		elapsed = NiHu::wc_time::toc(start);
-		std::cout << "Ready, Elapsed time: " << elapsed << " s\n" << std::endl;
+		std::cout << "Ready, Elapsed time: " << NiHu::wc_time::toc(start) << " s\n" << std::endl;
 
 		std::cout << "Precomputing P2M_1..." << std::endl;
 		start = NiHu::wc_time::tic();
 		auto p2m_1_pre = create_p2x_precompute(cix_p2m_1, tree.get_leaf_src_indices());
-		elapsed = NiHu::wc_time::toc(start);
-		std::cout << "Ready, Elapsed time: " << elapsed << " s" << std::endl;
+		std::cout << "Ready, Elapsed time: " << NiHu::wc_time::toc(start) << " s" << std::endl;
 
 		std::cout << "Precomputing P2L_1..." << std::endl;
 		start = NiHu::wc_time::tic();
 		auto p2l_1_pre = create_p2x_precompute(cix_p2l_1, lists.get_list(lists.P2L));
-		elapsed = NiHu::wc_time::toc(start);
-		std::cout << "Ready, Elapsed time: " << elapsed << " s" << std::endl;
+		std::cout << "Ready, Elapsed time: " << NiHu::wc_time::toc(start) << " s" << std::endl;
 
 		std::cout << "Precomputing L2P_BM..." << std::endl;
 		start = NiHu::wc_time::tic();
 		auto l2p_pre = create_x2p_precompute(cix_l2p_bm, tree.get_leaf_rec_indices());
-		elapsed = NiHu::wc_time::toc(start);
-		std::cout << "Ready, Elapsed time: " << elapsed << " s" << std::endl;
+		std::cout << "Ready, Elapsed time: " << NiHu::wc_time::toc(start) << " s" << std::endl;
 
 		std::cout << "Precomputing M2P_BM..." << std::endl;
 		start = NiHu::wc_time::tic();
 		auto m2p_pre = create_x2p_precompute(cix_m2p_bm, lists.get_list(lists.M2P));
-		elapsed = NiHu::wc_time::toc(start);
-		std::cout << "Ready, Elapsed time: " << elapsed << " s" << std::endl;
+		std::cout << "Ready, Elapsed time: " << NiHu::wc_time::toc(start) << " s" << std::endl;
 
 		std::cout << "Precomputing P2P_0..." << std::endl;
 		start = NiHu::wc_time::tic();
 		auto p2p_near_0 = p2p_precompute(ix_p2p_0, tree, lists.get_list(lists.P2P));
-		elapsed = NiHu::wc_time::toc(start);
-		std::cout << "Ready, Elapsed time: " << elapsed << " s" << std::endl;
+		std::cout << "Ready, Elapsed time: " << NiHu::wc_time::toc(start) << " s" << std::endl;
 
 		std::cout << "Precomputing P2P_1..." << std::endl;
 		start = NiHu::wc_time::tic();
 		auto p2p_near_1 = p2p_precompute(ix_p2p_1, tree, lists.get_list(lists.P2P));
-		elapsed = NiHu::wc_time::toc(start);
-		std::cout << "Ready, Elapsed time: " << elapsed << " s" << std::endl;
+		std::cout << "Ready, Elapsed time: " << NiHu::wc_time::toc(start) << " s" << std::endl;
 
+#if PARALLEL
 		auto max_num_threads = omp_get_max_threads();
 		std::cout << "Expanding to " << max_num_threads << " threads" << std::endl;
 		for (size_t i = 0; i < tree.get_n_levels(); ++i)
 			fmm.get_level_data(i).set_num_threads(max_num_threads);
+#endif
 
 		// create rhs matrix object
 		std::cout << "Starting assembling matrices ..." << std::endl;
@@ -294,8 +285,7 @@ public:
 		solver.set_restart(3000);
 		start = NiHu::wc_time::tic();
 		m_response = solver.solve(rhs);
-		elapsed = NiHu::wc_time::toc(start);
-		std::cout << "Ready: " << elapsed << " s" << std::endl;
+		std::cout << "Ready: " << NiHu::wc_time::toc(start) << " s" << std::endl;
 		m_iters = solver.iterations();
 
 		return m_response;
