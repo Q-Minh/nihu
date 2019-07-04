@@ -3,6 +3,7 @@
 #include "fmm/divide.h"
 #include "fmm/helmholtz_3d_hf_fmm.hpp"
 #include "fmm/helmholtz_exterior_solver.hpp"
+#include "fmm/helmholtz_field_point.hpp"
 #include "interface/read_off_mesh.hpp"
 #include "library/lib_element.hpp"
 #include "library/quad_1_gauss_field.hpp"
@@ -161,8 +162,8 @@ int main(int argc, char *argv[])
 		auto trial_space = NiHu::create_function_space(nodes, fields, NiHu::quad_1_gauss_field_tag());
 #else
 		auto mesh = NiHu::read_off_mesh(surf_mesh_name, NiHu::quad_1_tag());
-		typedef NiHu::function_space_view<decltype(mesh), NiHu::field_option::constant> trial_space_t;
-		trial_space_t const &trial_space = NiHu::constant_view(mesh);
+		auto const &trial_space = NiHu::constant_view(mesh);
+		typedef std::decay<decltype(trial_space)>::type trial_space_t;
 #endif
 
 		std::complex<double> const J(0., 1.);
@@ -175,14 +176,14 @@ int main(int argc, char *argv[])
 		double om = two_pi * freq;
 		double k = om / c;
 
-		cvector_t xct;
-		xct.resize(trial_space.get_num_dofs());
-		xct.setConstant(-J * k * z0 * v0);
+		cvector_t q_surf;
+		q_surf.resize(trial_space.get_num_dofs());
+		q_surf.setConstant(-J * k * z0 * v0);
 
 		typedef NiHu::fmm::helmholtz_3d_hf_fmm<double> fmm_t;
 		NiHu::fmm::helmholtz_exterior_solver<fmm_t, trial_space_t> solver(trial_space);
 		solver.set_wave_number(k);
-		solver.set_excitation(xct);
+		solver.set_excitation(q_surf);
 		double diameter = 1. / k;
 		size_t far_field_quadrature_order = 6;
 		cvector_t p_surf = solver.solve(NiHu::fmm::divide_diameter(diameter), far_field_quadrature_order);
@@ -191,6 +192,22 @@ int main(int argc, char *argv[])
 		std::stringstream ss;
 		ss << pattern << "_" << freq << "ps.res";
 		export_response(ss.str(), p_surf, k, solver.get_iterations());
+
+		// field point pressure
+		auto field = NiHu::read_off_mesh(field_mesh_name, NiHu::quad_1_tag());
+		auto const &test_space = NiHu::dirac(NiHu::constant_view(field));
+		typedef std::decay<decltype(test_space)>::type test_space_t;
+
+		NiHu::fmm::helmholtz_field_point<fmm_t, test_space_t, trial_space_t> field_bie(test_space, trial_space);
+		field_bie.set_wave_number(k);
+		field_bie.set_psurf(p_surf);
+		field_bie.set_qsurf(q_surf);
+		auto p_field = field_bie.eval(NiHu::fmm::divide_diameter(diameter), far_field_quadrature_order);
+
+		// export pf
+		ss.str(std::string());
+		ss << pattern << "_" << freq << "pf.res";
+		export_response(ss.str(), p_field, k);
 	}
 	catch (std::exception const &e)
 	{

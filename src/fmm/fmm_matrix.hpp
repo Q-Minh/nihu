@@ -1,9 +1,11 @@
 /// \file fmm_matrix.hpp
+/// \file fmm_matrix.hpp
 /// \brief definition of class fmm::fmm_matrix
 
 #ifndef FMM_MATRIX_HPP_INCLUDED
 #define FMM_MATRIX_HPP_INCLUDED
 
+#include <algorithm>
 #include <omp.h>
 
 #include <vector>
@@ -88,6 +90,7 @@ public:
 		, m_timer(tree.get_n_levels())
 		, m_rhs_segments(tree.get_n_clusters())
 		, m_lhs_segments(tree.get_n_clusters())
+		, m_cut_ratio(2.0)
 	{
 		for (auto c : m_tree.get_leaf_src_indices())
 		{
@@ -99,6 +102,16 @@ public:
 			cluster_t const &clus = m_tree[c];
 			m_lhs_segments[c].resize(clus.get_n_rec_nodes() * num_dof_per_rec);
 		}
+	}
+
+	void set_cut_ratio(double cut_ratio)
+	{
+		m_cut_ratio = cut_ratio;
+	}
+
+	double get_cut_ratio() const
+	{
+		return cut_ratio;
 	}
 
 	/// \brief return number of rows of the matrix
@@ -128,12 +141,15 @@ public:
 			for (size_t i = 0; i < clus.get_n_src_nodes(); ++i)
 			{
 				size_t ii = clus.get_src_node_idx()[i];
-				m_rhs_segments[c].segment(i*num_dof_per_src, num_dof_per_src) =
-					rhs.segment(ii*num_dof_per_src, num_dof_per_src);
+				m_rhs_segments[c].segment(i * num_dof_per_src, num_dof_per_src) =
+					rhs.segment(ii * num_dof_per_src, num_dof_per_src);
 			}
 		}
 	}
 
+	/// \brief recursive depth first search single thread upward pass
+	/// \param [in, out] multipoles the vector of multipole contributions
+	/// \param [in] root index of the root cluster
 	void upward_pass_dfs_rec(std::vector<multipole_t> &multipoles, size_t root)
 	{
 		for (auto c : m_tree[root].get_children())
@@ -146,6 +162,10 @@ public:
 		}
 	}
 
+	/// \brief recursive depth first search single thread downward pass
+	/// \param [in, out] locals the vector of local contributions
+	/// \param [in] multipoles the vector of multipole contributions
+	/// \param [in] to index of the destination cluster
 	void downward_pass_dfs_rec(std::vector<local_t> &locals,
 		std::vector<multipole_t> const &multipoles, size_t to)
 	{
@@ -162,22 +182,58 @@ public:
 			downward_pass_dfs_rec(locals, multipoles, c);
 	}
 
+	/// \brief depth first search upward pass
+	/// \param [in, out] multipoles the vector of multipole contributions
 	void upward_pass_dfs(std::vector<multipole_t> &multipoles)
 	{
-		size_t a = m_tree.level_begin(2);
-		size_t b = m_tree.level_end(2);
+		size_t cut_level = get_dfs_cut_level();
+
+		int a = int(m_tree.level_begin(cut_level));
+		int b = int(m_tree.level_end(cut_level));
+
 #ifdef PARALLEL
 #pragma omp parallel for
 #endif
 		for (int to = a; to < b; ++to)
 			upward_pass_dfs_rec(multipoles, to);
+#ifdef PARALLEL
+#pragma omp barrier
+#endif
+
+		// bfs part of upper tree segment
+		upward_pass_bfs(multipoles, cut_level - 1);
+	}
+
+	size_t get_dfs_cut_level() const
+	{
+		size_t cut_level = std::min<size_t>(2, m_tree.get_n_levels() - 1);
+
+#ifdef PARALLEL
+		int max_num_threads = omp_get_max_threads();
+		size_t cut_num_clusters = max_num_threads * m_cut_ratio;
+		while (cut_level < m_tree.get_n_levels() - 1)
+		{
+			size_t num_clusters = m_tree.level_end(cut_level) - m_tree.level_begin(cut_level);
+			if (num_clusters > cut_num_clusters)
+				break;
+			++cut_level;
+		}
+#endif
+
+		return cut_level;
 	}
 
 	void downward_pass_dfs(std::vector<local_t> &locals,
 		std::vector<multipole_t> const &multipoles)
 	{
-		size_t a = m_tree.level_begin(2);
-		size_t b = m_tree.level_end(2);
+		size_t cut_level = get_dfs_cut_level();
+
+		size_t a = m_tree.level_begin(cut_level);
+		size_t b = m_tree.level_end(cut_level);
+
+		size_t max_to_level = cut_level - 1;
+		downward_pass_bfs(locals, multipoles, max_to_level);
+
 #ifdef PARALLEL
 #pragma omp parallel for
 #endif
@@ -187,10 +243,13 @@ public:
 
 	void upward_pass_bfs(std::vector<multipole_t> &multipoles)
 	{
-		size_t nLevels = m_tree.get_n_levels();
+		upward_pass_bfs(multipoles, m_tree.get_n_levels() - 2);
+	}
 
+	void upward_pass_bfs(std::vector<multipole_t> &multipoles, size_t lowest_to_level)
+	{
 		// compute upward pass
-		for (size_t iLevel = nLevels - 2; iLevel >= 2; --iLevel)
+		for (size_t iLevel = lowest_to_level; iLevel >= 2; --iLevel)
 		{
 			m_timer.tic();
 #ifdef PARALLEL
@@ -213,9 +272,15 @@ public:
 	void downward_pass_bfs(std::vector<local_t> &locals,
 		std::vector<multipole_t> const &multipoles)
 	{
-		size_t nLevels = m_tree.get_n_levels();
+		sizte_t max_to_level = m_tree.get_n_levels() - 1;
+		downward_pass_bfs(locals, multipoles, max_to_level)
+	}
 
-		for (unsigned iLevel = 2; iLevel < nLevels; ++iLevel)
+	void downward_pass_bfs(std::vector<local_t> &locals,
+		std::vector<multipole_t> const &multipoles,
+		size_t max_to_level)
+	{
+		for (unsigned iLevel = 2; iLevel <= max_to_level; ++iLevel)
 		{
 			size_t a = m_tree.level_begin(iLevel);
 			size_t b = m_tree.level_end(iLevel);
@@ -265,8 +330,8 @@ public:
 			for (size_t i = 0; i < clus.get_n_rec_nodes(); ++i)
 			{
 				size_t ii = clus.get_rec_node_idx()[i];
-				lhs.segment(ii*num_dof_per_rec, num_dof_per_rec)
-					+= m_lhs_segments[c].segment(i*num_dof_per_rec, num_dof_per_rec);
+				lhs.segment(ii * num_dof_per_rec, num_dof_per_rec)
+					+= m_lhs_segments[c].segment(i * num_dof_per_rec, num_dof_per_rec);
 			}
 		}
 	}
@@ -382,6 +447,8 @@ private:
 	fmm_timer m_timer;
 	std::vector<excitation_t> m_rhs_segments;
 	std::vector<response_t> m_lhs_segments;
+
+	double m_cut_ratio;
 };
 
 
