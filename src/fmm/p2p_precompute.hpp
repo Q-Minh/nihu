@@ -37,17 +37,17 @@ p2p_precompute(Operator const &op, cluster_tree<ClusterDerived> const &tree, int
 	triplets.reserve(s);
 
 	// compute entries and place them in p2p triplets
-	for (unsigned to = 0; to < list.size(); ++to)
+	for (unsigned to = 0; to < list.size(); ++to)	// loop over receiver clusters
 	{
-		for (auto from : list[to])
+		for (auto from : list[to])	// loop over source clusters
 		{
-			for (auto i : tree[to].get_rec_node_idx())
+			for (auto i : tree[to].get_rec_node_idx()) // loop over receiver nodes
 			{
-				for (auto j : tree[from].get_src_node_idx())
+				for (auto j : tree[from].get_src_node_idx())	// loop over source nodes
 				{
 					result_t mat = op(i, j);
-					for (size_t ii = 0; ii < rows; ++ii)
-						for (size_t jj = 0; jj < cols; ++jj)
+					for (size_t ii = 0; ii < rows; ++ii)	// loop over matrix rows
+						for (size_t jj = 0; jj < cols; ++jj)	// loop over matrix cols
 							triplets.push_back(triplet_t(i*rows + ii, j*cols + jj, mat(ii, jj)));
 				}
 			}

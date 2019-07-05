@@ -104,14 +104,43 @@ public:
 		}
 	}
 
+	/// \brief set the cut ratio
+	/// \param cut_ratio the cut ratio to be set
+	/// \details The cut ratio is the number of clusters on
+	/// the cut level divided by the number of threads
 	void set_cut_ratio(double cut_ratio)
 	{
 		m_cut_ratio = cut_ratio;
 	}
 
+	/// \brief return the cut ratio
+	/// \return the cut ratio
+	/// \details the cut ratio is the number of clusters on the cut level
+	/// divided by the number of threads
 	double get_cut_ratio() const
 	{
 		return cut_ratio;
+	}
+
+	/// \brief determine cut level between bfs and dfs traverse sections
+	/// \return the cut level
+	size_t get_dfs_cut_level() const
+	{
+		size_t cut_level = std::min<size_t>(2, m_tree.get_n_levels() - 1);
+
+#ifdef PARALLEL
+		int max_num_threads = omp_get_max_threads();
+		size_t cut_num_clusters = max_num_threads * m_cut_ratio;
+		while (cut_level < m_tree.get_n_levels() - 1)
+		{
+			size_t num_clusters = m_tree.level_end(cut_level) - m_tree.level_begin(cut_level);
+			if (num_clusters > cut_num_clusters)
+				break;
+			++cut_level;
+		}
+#endif
+
+		return cut_level;
 	}
 
 	/// \brief return number of rows of the matrix
@@ -150,6 +179,8 @@ public:
 	/// \brief recursive depth first search single thread upward pass
 	/// \param [in, out] multipoles the vector of multipole contributions
 	/// \param [in] root index of the root cluster
+	/// \details this upward pass computes the multipole contribution in the root cluster
+	/// by recursively evaluating M2M interactions
 	void upward_pass_dfs_rec(std::vector<multipole_t> &multipoles, size_t root)
 	{
 		for (auto c : m_tree[root].get_children())
@@ -166,6 +197,8 @@ public:
 	/// \param [in, out] locals the vector of local contributions
 	/// \param [in] multipoles the vector of multipole contributions
 	/// \param [in] to index of the destination cluster
+	/// \details this function comutes M2L and L2L interactions to the "to" cluster, and
+	/// calls itself or each child of the "to" cluster recursively
 	void downward_pass_dfs_rec(std::vector<local_t> &locals,
 		std::vector<multipole_t> const &multipoles, size_t to)
 	{
@@ -186,8 +219,10 @@ public:
 	/// \param [in, out] multipoles the vector of multipole contributions
 	void upward_pass_dfs(std::vector<multipole_t> &multipoles)
 	{
+		// determine cut level
 		size_t cut_level = get_dfs_cut_level();
 
+		// dfs upward passes below cut level
 		int a = int(m_tree.level_begin(cut_level));
 		int b = int(m_tree.level_end(cut_level));
 
@@ -200,39 +235,23 @@ public:
 #pragma omp barrier
 #endif
 
-		// bfs part of upper tree segment
+		// bfs upward pass above cut level
 		upward_pass_bfs(multipoles, cut_level - 1);
-	}
-
-	size_t get_dfs_cut_level() const
-	{
-		size_t cut_level = std::min<size_t>(2, m_tree.get_n_levels() - 1);
-
-#ifdef PARALLEL
-		int max_num_threads = omp_get_max_threads();
-		size_t cut_num_clusters = max_num_threads * m_cut_ratio;
-		while (cut_level < m_tree.get_n_levels() - 1)
-		{
-			size_t num_clusters = m_tree.level_end(cut_level) - m_tree.level_begin(cut_level);
-			if (num_clusters > cut_num_clusters)
-				break;
-			++cut_level;
-		}
-#endif
-
-		return cut_level;
 	}
 
 	void downward_pass_dfs(std::vector<local_t> &locals,
 		std::vector<multipole_t> const &multipoles)
 	{
+		// determine cut level
 		size_t cut_level = get_dfs_cut_level();
 
-		size_t a = m_tree.level_begin(cut_level);
-		size_t b = m_tree.level_end(cut_level);
-
+		// bfs downward pass above cut level
 		size_t max_to_level = cut_level - 1;
 		downward_pass_bfs(locals, multipoles, max_to_level);
+
+		// dfs downward pass below cut level
+		size_t a = m_tree.level_begin(cut_level);
+		size_t b = m_tree.level_end(cut_level);
 
 #ifdef PARALLEL
 #pragma omp parallel for
@@ -264,7 +283,9 @@ public:
 					multipoles[to] += m_m2m(to, from) * multipoles[from];
 				}
 			}
+#ifdef PARALLEL
 #pragma omp barrier
+#endif
 			m_timer.toc(iLevel, fmm_timer::M2M);
 		}
 	}
@@ -292,7 +313,9 @@ public:
 			for (int to = int(a); to < int(b); ++to)
 				for (size_t from : m_lists.get_list(interaction_lists::M2L)[to])
 					locals[to] += m_m2l(to, from) * multipoles[from];
+#ifdef PARALLEL
 #pragma omp barrier
+#endif
 			m_timer.toc(iLevel, fmm_timer::M2L);
 
 			// no L2L needed at highest level
@@ -310,7 +333,9 @@ public:
 				size_t from = m_tree[to].get_parent();
 				locals[to] += m_l2l(to, from) * locals[from];
 			}
+#ifdef PARALLEL
 #pragma omp barrier
+#endif
 			m_timer.toc(iLevel, fmm_timer::L2L);
 
 		}
@@ -383,7 +408,9 @@ public:
 			size_t to = src_idx[i];
 			multipoles[to] += m_p2m(to) * m_rhs_segments[to];
 		}
+#ifdef PARALLEL
 #pragma omp barrier
+#endif
 		m_timer.toc(0, fmm_timer::P2M);
 
 #if defined BFS
@@ -407,7 +434,9 @@ public:
 			size_t to = rec_idx[i];
 			m_lhs_segments[to] = m_l2p(to) * locals[to];
 		}
+#ifdef PARALLEL
 #pragma omp barrier
+#endif
 		m_timer.toc(0, fmm_timer::L2P);
 
 		// compute M2P interactions
