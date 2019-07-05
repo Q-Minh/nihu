@@ -272,8 +272,8 @@ public:
 	void downward_pass_bfs(std::vector<local_t> &locals,
 		std::vector<multipole_t> const &multipoles)
 	{
-		sizte_t max_to_level = m_tree.get_n_levels() - 1;
-		downward_pass_bfs(locals, multipoles, max_to_level)
+		size_t max_to_level = m_tree.get_n_levels() - 1;
+		downward_pass_bfs(locals, multipoles, max_to_level);
 	}
 
 	void downward_pass_bfs(std::vector<local_t> &locals,
