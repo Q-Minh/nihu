@@ -1,7 +1,7 @@
 Working with elements {#tut_elements}
 =====================================
 
-\page tut_elements
+\page tut_elements Working with elements
 
 [TOC]
 

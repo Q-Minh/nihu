@@ -12,11 +12,16 @@ IF(WIN32)
 	SET(MATLAB_MEXEXT .mexw)
 	# Modifications by Ramon Casero and Tom Doel for Gerardus.
 	# Updated by Peter Rucz, 2013.
+	# Further updated by Peter Rucz, 2019.
 
 	# Search for a version of Matlab available, starting from the most modern one
 	# to older versions.
 	if((NOT DEFINED MATLAB_ROOT) OR ("${MATLAB_ROOT}" STREQUAL ""))
-	FOREACH(MATVER "8.2" "8.1" "8.0" "7.14" "7.13" "7.12" "7.11" "7.10" "7.9" "7.8" "7.7" "7.6" "7.5" "7.4")
+	FOREACH(MATVER 
+		"9.6" "9.5" "9.4" "9.3" "9.2" "9.1" "9.0" 
+		"8.6" "8.5" "8.4" "8.3" "8.2" "8.1" "8.0" 
+		"7.14" "7.13" "7.12" "7.11" "7.10" "7.9" "7.8" "7.7" "7.6" "7.5" "7.4" 
+	)
 		IF((NOT DEFINED MATLAB_ROOT)
 			OR ("${MATLAB_ROOT}" STREQUAL "")
 			OR ("${MATLAB_ROOT}" STREQUAL "/registry"))
@@ -49,7 +54,13 @@ ELSE(WIN32 OR MSYS)
 
 			# Search for a version of Matlab available, starting from the most modern
 			# one to older versions
-			FOREACH(MATVER "R2013b" "R2013a" "R2012b" "R2012a" "R2011b" "R2011a" "R2010b" "R2010a" "R2009b" "R2009a" "R2008b")
+			FOREACH(MATVER 
+				"R2019a" 
+				"R2018b" "R2018a" "R2017b" "R2017a" "R2016b" "R2016a" 
+				"R2015b" "R2015a" "R2014b" "R2014a" "R2013b" "R2013a" 
+				"R2012b" "R2012a" "R2011b" "R2011a" "R2010b" "R2010a" 
+				"R2009b" "R2009a" "R2008b"
+			)
 				IF((NOT DEFINED MATLAB_ROOT) OR ("${MATLAB_ROOT}" STREQUAL ""))
 					IF(EXISTS /Applications/MATLAB_${MATVER}.app)
 						SET(MATLAB_ROOT /Applications/MATLAB_${MATVER}.app)
@@ -98,14 +109,50 @@ ELSE(WIN32 OR MSYS)
 			mex
 			PATHS
 			${MATLAB_ROOT}/bin
+			/opt/MATLAB/R2019a/bin
+			/opt/MATLAB/R2018b/bin
+			/opt/MATLAB/R2018a/bin
+			/opt/MATLAB/R2017b/bin
+			/opt/MATLAB/R2017a/bin
+			/opt/MATLAB/R2016b/bin
+			/opt/MATLAB/R2016a/bin
+			/opt/MATLAB/R2015b/bin
+			/opt/MATLAB/R2015a/bin
+			/opt/MATLAB/R2014b/bin
+			/opt/MATLAB/R2014a/bin
+			/opt/MATLAB/R2013b/bin
 			/opt/MATLAB/R2013a/bin
 			/opt/MATLAB/R2012b/bin
 			/opt/MATLAB/R2012a/bin
 			/opt/matlab/bin
+			/usr/local/MATLAB/R2019a/bin
+			/usr/local/MATLAB/R2018b/bin
+			/usr/local/MATLAB/R2018a/bin
+			/usr/local/MATLAB/R2017b/bin
+			/usr/local/MATLAB/R2017a/bin
+			/usr/local/MATLAB/R2016b/bin
+			/usr/local/MATLAB/R2016a/bin
+			/usr/local/MATLAB/R2015b/bin
+			/usr/local/MATLAB/R2015a/bin
+			/usr/local/MATLAB/R2014b/bin
+			/usr/local/MATLAB/R2014a/bin
+			/usr/local/MATLAB/R2013b/bin
 			/usr/local/MATLAB/R2013a/bin
 			/usr/local/MATLAB/R2012b/bin
 			/usr/local/MATLAB/R2012a/bin
 			/usr/local/matlab/bin
+			$ENV{HOME}/MATLAB/R2019a/bin
+			$ENV{HOME}/MATLAB/R2018b/bin
+			$ENV{HOME}/MATLAB/R2018a/bin
+			$ENV{HOME}/MATLAB/R2017b/bin
+			$ENV{HOME}/MATLAB/R2017a/bin
+			$ENV{HOME}/MATLAB/R2016b/bin
+			$ENV{HOME}/MATLAB/R2016a/bin
+			$ENV{HOME}/MATLAB/R2015b/bin
+			$ENV{HOME}/MATLAB/R2015a/bin
+			$ENV{HOME}/MATLAB/R2014b/bin
+			$ENV{HOME}/MATLAB/R2014a/bin
+			$ENV{HOME}/MATLAB/R2013b/bin
 			$ENV{HOME}/MATLAB/R2013a/bin
 			$ENV{HOME}/MATLAB/R2012b/bin
 			$ENV{HOME}/MATLAB/R2012a/bin

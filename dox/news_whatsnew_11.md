@@ -1,7 +1,7 @@
 What's new in release 1.1 {#news_whatsnew_11}
 =========================
 
-\page news_whatsnew_11
+\page news_whatsnew_11 What's new in release 1.1?
 
 [guiggi]: \ref tut_guiggiani_hypersingular "Hypersingular integrals and Guiggiani's method"
 [vector]: \ref tut_funspace_vector "Vector function spaces"

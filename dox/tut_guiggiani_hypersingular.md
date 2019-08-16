@@ -1,7 +1,7 @@
 Hypersingular integrals and Guiggiani's method {#tut_guiggiani_hypersingular}
 ==============================================
 
-\page tut_guiggiani_hypersingular
+\page tut_guiggiani_hypersingular Hypersingular integrals
 
 [RongMethod]:http://dx.doi.org/10.1016/j.enganabound.2013.10.014
 [GuiggianiMethod]:http://dx.doi.org/doi:10.1115/1.2893766

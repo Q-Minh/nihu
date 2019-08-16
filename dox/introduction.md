@@ -1,7 +1,7 @@
 Introduction {#introduction}
 ============
 
-\page introduction
+\page introduction Introduction
 
 [TOC]
 

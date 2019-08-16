@@ -10,7 +10,7 @@
 ###
 
 # Set the minimum required cmake version
-cmake_minimum_required (VERSION 3.1.0 FATAL_ERROR)
+cmake_minimum_required (VERSION 3.12.0 FATAL_ERROR)
 
 # Set the module path
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/../cmake)

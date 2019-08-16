@@ -1,7 +1,7 @@
 Defining a custom field {#tut_custom_element}
 =======================
 
-\page tut_custom_element
+\page tut_custom_element Defining a custom field
 
 [metafunction]:\ref tech_meta_metafun
 

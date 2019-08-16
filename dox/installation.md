@@ -1,8 +1,9 @@
 Installation {#install}
 ============
 
-\page install
+\page install Installation
 
+[boost]:https://www.boost.org/
 [CMake]:http://cmake.org
 [Doxygen]:http://www.stack.nl/~dimitri/doxygen
 [Eigen]:http://eigen.tuxfamily.org
@@ -12,13 +13,17 @@ Installation {#install}
 [Mex]:http://www.mathworks.com/help/matlab/create-mex-files.html
 [TDM-GCC]:http://tdm-gcc.tdragon.net
 [Ubuntu]:http://www.ubuntu.com
+[VS]:https://visualstudio.microsoft.com/vs/features/cplusplus/
 
 [tutorials]:\ref tutorials
 
 [TOC]
 
+Installation process
+======================
+
 Obtaining the source code {#install_obtain}
-=========================
+-------------------------
 
 The source code of NiHu can be downloaded using the version control software [git].
 You can obtain the latest stable version of the software by typing the command
@@ -38,28 +43,39 @@ Inside the source directory, the folder `src` contains the C++ and Matlab source
 Alternatively, you can download the source code as a packed archive.
 
 Prerequisites {#install_prereq}
-=============
+-------------
 
 In order to complie NiHu, the following prerequisites are needed:
 
 - A c++ compiler and linker that supports some features of the C++11 standard. You will find further information on the compiler selection in the [next section](#install_process).
-\note NiHu builds were tested using the gcc compiler versions 4.7, 4.8, and 4.9 and the [clang](http://clang.llvm.org/) compiler.
-- NiHu relies on the template matrix library [Eigen]. If you do not have Eigen installed on your computer, the installation process will download and install the necessary header files for the compilation of NiHu.
-\note current version of NiHu was tested using Eigen 3.3.7.
-- NiHu FMM uses mathematical functions from the C++ 
+\note NiHu builds were tested using the gcc compiler versions 8.1, 4.9, 4.8, and 4.7, the [clang](http://clang.llvm.org/) compiler, and Microsoft [Visual Studio][VS].
+
+- Boost is required
+- FFTW3 is required
 
 In order to use the Matlab interface and compile [mex] files the following prerequisites are needed:
 
 - [Matlab] must be installed. Matlab versions 7.x and 8.x are supported by NiHu.
 - As a part of your Matlab installation you should also have the mex header files required to build C / C++ programs callable from Matlab.
 
-The installation process {#install_process}
-========================
+Third party software {#install_thirdparty}
+--------------------
+
+NiHu relies on third party open source tools.
+
+- NiHu relies on the template matrix library [Eigen]. If you do not have Eigen installed on your computer, the installation process will download and install the necessary header files for the compilation of NiHu.
+\note current version of NiHu was tested using Eigen 3.3.7.
+- NiHu FMM uses mathematical functions from the C++ 
+
+
+
+The installation steps {#install_process}
+----------------------
 
 It is worth mentioning that since NiHu is a template library, you do not need to compile any sources to use NiHu's C++ core.
 You can simply include the header files found in the directory `nihu/src` in order to compile your own C++ codes using the features implemented in NiHu (see [below](#install_compile_cpp)).
-However, the installation process lets you to compile tutorials, tests and `mex` files for NiHu's Matlab interface.
-Furthermore if you complete the installation, you can make sure that you have all necessary prerequisites that are needed to use NiHu.
+However, the installation process lets you to compile NiHu's libraries, tutorials, tests and `mex` files for NiHu's Matlab interface.
+Furthermore, if you complete the installation, you can make sure that you have all necessary prerequisites that are needed to use NiHu.
 Therefore, it is highly recommended to complete the installation before using the NiHu toolbox.
 
 NiHu is installed using the free cross-platform make tool [cmake] on all supported platforms.
@@ -222,7 +238,9 @@ Installation on Windows systems using Visual Studio {#install_win_msvc}
 	cd build_dir
 	cmake ..\src -G "Visual Studio 15 2017 Win64" -DNIHU_INSTALL_DIR="..\install_dir"
 	
-	
+### Build
+
+	msbuild NiHu.sln /property:Configuration=Release
 
 	
 Configuration options {#install_cmake_options}
