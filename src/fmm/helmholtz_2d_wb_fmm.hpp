@@ -62,9 +62,6 @@ private:
 	}
 
 public:
-
-
-
 	/** \brief the m2m operator */
 	class m2m
 		: public operator_with_wave_number<wave_number_t>
@@ -123,6 +120,7 @@ public:
 		}
 	};
 
+
 	/** \brief the l2l operator */
 	class l2l
 		: public operator_with_wave_number<wave_number_t>
@@ -131,14 +129,22 @@ public:
 		typedef operator_with_wave_number<WaveNumber> base_t;
 
 	public:
+		/// \brief the cluster type
 		typedef helmholtz_2d_wb_fmm::cluster_t cluster_t;
+		/// \brief the evaluated operator's type
 		typedef helmholtz_2d_wb_l2l_matrix result_t;
 
+		/// \brief constructor
+		/// \param [in] wave_number the wave number
 		l2l(wave_number_t const &wave_number)
 			: base_t(wave_number)
 		{
 		}
 
+		/// \brief return a unique index for a source and receiver cluster
+		/// \param [in] to receiver cluster
+		/// \param [in] from source cluster
+		/// \return the unique operator index for this cluster pair
 		static size_t unique_idx(cluster_t const &to, cluster_t const &from)
 		{
 			return bounding_box_t::dist2idx(
@@ -146,6 +152,10 @@ public:
 				from.get_bounding_box().get_center());
 		}
 
+		/// \brief evaluate the operator for a source and receiver cluster
+		/// \param [in] to the receiver cluster
+		/// \param [in] from the source cluster
+		/// \return the evaluated operator
 		result_t operator()(cluster_t const &to, cluster_t const &from) const
 		{
 			using boost::math::cyl_bessel_j;
