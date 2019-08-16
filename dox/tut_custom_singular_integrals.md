@@ -1,7 +1,7 @@
 Customising singular integrals {#tut_custom_singular_integrals}
 ==============================
 
-\page tut_custom_singular_integrals
+\page tut_custom_singular_integrals Customising singular integrals
 
 [std::enable_if]:http://en.cppreference.com/w/cpp/types/enable_if
 

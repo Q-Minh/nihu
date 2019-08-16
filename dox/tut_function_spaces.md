@@ -1,7 +1,7 @@
 Function Spaces {#tut_function_spaces}
 ===============
 
-\page tut_function_spaces
+\page tut_function_spaces Function spaces
 
 [mesh definitions]:\ref tut_mesh_building
 

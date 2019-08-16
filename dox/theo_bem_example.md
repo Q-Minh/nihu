@@ -1,7 +1,7 @@
 An introductory BEM example {#theo_bem_example}
 ===========================
 
-\page theo_bem_example
+\page theo_bem_example An introductory BEM example
 
 [TOC]
 
