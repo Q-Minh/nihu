@@ -132,8 +132,6 @@ template <class...Tags>
 mesh<tmp::vector<typename tag2type<Tags>::type...> >
 	read_off_mesh(std::string const &fname, Tags...tags)
 {
-	typedef Eigen::Matrix<unsigned, Eigen::Dynamic, Eigen::Dynamic> uMatrix;
-
 	// read mesh file for reading
 	std::ifstream is(fname);
 	if (!is)
