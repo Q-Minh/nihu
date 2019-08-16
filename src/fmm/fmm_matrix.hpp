@@ -119,7 +119,7 @@ public:
 	/// divided by the number of threads
 	double get_cut_ratio() const
 	{
-		return cut_ratio;
+		return m_cut_ratio;
 	}
 
 	/// \brief determine cut level between bfs and dfs traverse sections
