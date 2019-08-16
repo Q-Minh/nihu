@@ -1,7 +1,7 @@
 Programming techniques used in NiHu {#techniques}
 ===================================
 
-\page techniques
+\page techniques Programming techniques
 
 [TOC]
 

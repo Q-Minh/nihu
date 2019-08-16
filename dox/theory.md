@@ -1,7 +1,7 @@
 Theory {#theory}
 ======
 
-\page theory
+\page theory Theory
 
 [TOC]
 

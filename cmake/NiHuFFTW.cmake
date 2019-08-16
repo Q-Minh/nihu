@@ -2,7 +2,7 @@
 
 # Options:
 #	NIHU_FFTW_INSTALL
-#		When set to non-zero 
+#		When set to non-zero forces 
 # 	NIHU_FFTW_PATH 		
 #		Specify a path where to look for FFTW headers and libraries
 #	NIHU_FFTW_ARCHIVE
@@ -20,7 +20,7 @@ set(NIHU_SUPPORTED_FFTW_VERSIONS "3.3.5")
 set(NIHU_DEFAULT_FFTW_VERSION "3.3.5")
 
 # Process fftw path
-if (NOT DEFINED NIHU_FFTW_INSTALL)
+if (NOT NIHU_FFTW_INSTALL)
 	if (DEFINED NIHU_FFTW_PATH)
 		set(FFTW3_DIRECTORY ${NIHU_FFTW_PATH})
 	endif ()
@@ -128,6 +128,7 @@ if (NOT FFTW3_FOUND OR DEFINED NIHU_FFTW_INSTALL)
 			COMMAND dlltool -d libfftw3l-3.def -l libfftw3l-3.lib  
 			WORKING_DIRECTORY "${FFTW_SOURCE_DIR}"
 		)
+		set(FFTW3_LIBRARIES "libfftw3-3.lib" "libfftw3f-3.lib" "libfftw3l-3.lib")
 	elseif (MSVC)
 		add_custom_target("libfftw3-3" 
 			COMMAND lib /def:libfftw3-3.def /machine:X${NIHU_SYS_BITS} /out:fftw3-3.lib
@@ -135,11 +136,15 @@ if (NOT FFTW3_FOUND OR DEFINED NIHU_FFTW_INSTALL)
 			COMMAND lib /def:libfftw3l-3.def /machine:X${NIHU_SYS_BITS} /out:fftw3l-3.lib
 			WORKING_DIRECTORY "${FFTW_SOURCE_DIR}"
 		)
+		set(FFTW3_LIBRARIES "fftw3-3.lib" "fftw3f-3.lib" "fftw3l-3.lib")
 	endif ()
 	
-	# Find the package
+	# Imitate finding the package
+	# Note: re-finding package here does not work, as it would look for unbuilt binaries
 	set(FFTW3_DIRECTORY ${FFTW_SOURCE_DIR})
-	find_package(FFTW)
+	set(FFTW3_FOUND TRUE)
+	set(FFTW3_INCLUDE_DIRS ${FFTW_SOURCE_DIR})
+	list(TRANSFORM FFTW3_LIBRARIES PREPEND "${FFTW_SOURCE_DIR}/")
 	
 	if (NOT FFTW3_FOUND)
 		message(FATAL_ERROR "Could not find the new FFTW installation")

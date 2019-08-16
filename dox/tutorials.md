@@ -1,7 +1,7 @@
 Tutorials {#tutorials}
 =========
 
-\page tutorials
+\page tutorials Tutorials
 
 [TOC]
 

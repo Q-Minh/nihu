@@ -1,7 +1,7 @@
 Introducing a new family of PDE into the NiHu framework {#tut_custom_kernel}
 =======================================================
 
-\page tut_custom_kernel
+\page tut_custom_kernel Defining a custom kernel
 
 [metafunction]:\ref tech_meta_metafun
 

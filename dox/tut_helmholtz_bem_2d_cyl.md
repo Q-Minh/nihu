@@ -1,7 +1,7 @@
 Scattering of a plane wave from an infinite cylinder {#tut_helmholtz_bem_2d_cyl}
 ====================================================
 
-\page tut_helmholtz_bem_2d_cyl
+\page tut_helmholtz_bem_2d_cyl Plane wave scattering from an infinite cylinder
 
 [TOC]
 
