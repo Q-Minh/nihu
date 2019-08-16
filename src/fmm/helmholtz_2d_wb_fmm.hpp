@@ -41,14 +41,34 @@ class helmholtz_2d_wb_fmm
 public:
 	/** \brief template parameter as nested type */
 	typedef WaveNumber wave_number_t;
-
+	/// \brief the cluster type of the FMM
 	typedef helmholtz_2d_wb_cluster cluster_t;
+	/// \brief the cluster tree type
 	typedef cluster_tree<cluster_t> cluster_tree_t;
+	/// \brief a complex vector type
 	typedef Eigen::Matrix<std::complex<double>, Eigen::Dynamic, 1> cvector_t;
+	/// \brief the space dimension
 	static size_t const dimension = cluster_t::dimension;
+	/// \brief the cluster's bounding box type
 	typedef typename cluster_t::bounding_box_t bounding_box_t;
+	/// \brief the physical location type
 	typedef typename bounding_box_t::location_t location_t;
 
+private:
+	typedef NiHu::helmholtz_kernel<NiHu::space_2d<>, wave_number_t> distance_dependent_kernel_t;
+
+private:
+	/// \brief convert from 2D Cartesian to polar coordinates
+	/// \param [in] d the location vector
+	/// \param [out] r the distance
+	/// \param [out] theta the angle
+	static void cart2pol(location_t const &d, double &r, double &theta)
+	{
+		r = d.norm();
+		theta = std::atan2(d(1), d(0));
+	}
+
+public:
 	/** \brief the m2m operator */
 	class m2m
 		: public operator_with_wave_number<wave_number_t>
@@ -57,14 +77,22 @@ public:
 		typedef operator_with_wave_number<wave_number_t> base_t;
 
 	public:
+		/// \brief the cluster type
 		typedef helmholtz_2d_wb_fmm::cluster_t cluster_t;
+		/// \brief the evaluated operator type
 		typedef helmholtz_2d_wb_m2m_matrix result_t;
 
+		/// \brief constructor of the operator
+		/// \param [in] wave_number the wave number
 		m2m(wave_number_t const &wave_number)
 			: base_t(wave_number)
 		{
 		}
 
+		/// \brief return a unique index for a source and receiver cluster
+		/// \param [in] to the receiver cluster
+		/// \param [in] from the source cluster
+		/// \return a unique operator index
 		static size_t unique_idx(cluster_t const &to, cluster_t const &from)
 		{
 			return bounding_box_t::dist2idx(
@@ -72,18 +100,23 @@ public:
 				to.get_bounding_box().get_center());
 		}
 
+	public:
+
+		/// \brief evaluate the operator for a source and receiver cluster
+		/// \param [in] to the receiver cluster
+		/// \param [in] from the source cluster
+		/// \return the evaluated operator
 		result_t operator()(cluster_t const &to, cluster_t const &from) const
 		{
 			using boost::math::cyl_bessel_j;
 
 			location_t const &X = to.get_bounding_box().get_center();
 			location_t const &Y = from.get_bounding_box().get_center();
-			location_t d = X - Y;
-			double r = d.norm();
-			double theta = std::atan2(d(1), d(0));
+			double r, theta;
+			cart2pol(X - Y, r, theta);
 			auto z = this->get_wave_number() * r;
-			int Lto = to.get_level_data().get_expansion_length();
-			int Lfrom = from.get_level_data().get_expansion_length();
+			int Lto = int(to.get_level_data().get_expansion_length());
+			int Lfrom = int(from.get_level_data().get_expansion_length());
 			int L = std::max(Lto, Lfrom);
 			cvector_t diag_coeffs(2 * L + 1, 1);
 			for (int nu = -L; nu <= L; ++nu)
@@ -95,6 +128,7 @@ public:
 		}
 	};
 
+
 	/** \brief the l2l operator */
 	class l2l
 		: public operator_with_wave_number<wave_number_t>
@@ -103,14 +137,22 @@ public:
 		typedef operator_with_wave_number<WaveNumber> base_t;
 
 	public:
+		/// \brief the cluster type
 		typedef helmholtz_2d_wb_fmm::cluster_t cluster_t;
+		/// \brief the evaluated operator's type
 		typedef helmholtz_2d_wb_l2l_matrix result_t;
 
+		/// \brief constructor
+		/// \param [in] wave_number the wave number
 		l2l(wave_number_t const &wave_number)
 			: base_t(wave_number)
 		{
 		}
 
+		/// \brief return a unique index for a source and receiver cluster
+		/// \param [in] to receiver cluster
+		/// \param [in] from source cluster
+		/// \return the unique operator index for this cluster pair
 		static size_t unique_idx(cluster_t const &to, cluster_t const &from)
 		{
 			return bounding_box_t::dist2idx(
@@ -118,6 +160,10 @@ public:
 				from.get_bounding_box().get_center());
 		}
 
+		/// \brief evaluate the operator for a source and receiver cluster
+		/// \param [in] to the receiver cluster
+		/// \param [in] from the source cluster
+		/// \return the evaluated operator
 		result_t operator()(cluster_t const &to, cluster_t const &from) const
 		{
 			using boost::math::cyl_bessel_j;
@@ -125,12 +171,11 @@ public:
 
 			location_t const &X = to.get_bounding_box().get_center();
 			location_t const &Y = from.get_bounding_box().get_center();
-			location_t d = X - Y;
-			double r = d.norm();
-			double theta = std::atan2(d(1), d(0));
+			double r, theta;
+			cart2pol(X - Y, r, theta);
 			auto z = this->get_wave_number() * r;
-			int Lto = to.get_level_data().get_expansion_length();
-			int Lfrom = from.get_level_data().get_expansion_length();
+			int Lto = int(to.get_level_data().get_expansion_length());
+			int Lfrom = int(from.get_level_data().get_expansion_length());
 			int L = std::max(Lto, Lfrom);
 			cvector_t diag_coeffs(2 * L + 1, 1);
 			for (int nu = -L; nu <= L; ++nu)
@@ -150,33 +195,44 @@ public:
 		typedef operator_with_wave_number<wave_number_t> base_t;
 
 	public:
+		/// \brief the cluster type
 		typedef helmholtz_2d_wb_fmm::cluster_t cluster_t;
+		/// \the evaluated operator's type
 		typedef helmholtz_2d_wb_m2l_matrix result_t;
 
+		/// \brief constructor
+		/// \param [in] wave_number the wave number
 		m2l(wave_number_t const &wave_number)
 			: base_t(wave_number)
 		{
 		}
 
+		/// \brief assign a unique index to source and receiver clusters
+		/// \param [in] to the receiver cluster
+		/// \param [in] from the source cluster
+		/// \return a unique operator index
 		static size_t unique_idx(cluster_t const &to, cluster_t const &from)
 		{
 			return m2l_indices<dimension>::eval(to.get_bounding_box(), from.get_bounding_box());
 		}
 
+		/// \brief evaluate the operator for a source and receiver cluster
+		/// \param [in] to the receiver cluster
+		/// \param [in] from the source cluster
+		/// \return the evaluated operator
 		result_t operator()(cluster_t const &to, cluster_t const &from) const
 		{
 			using boost::math::cyl_hankel_2;
 			using namespace boost::math::double_constants;
 
-			int L = to.get_level_data().get_expansion_length();
+			size_t L = to.get_level_data().get_expansion_length();
 			location_t const &X = to.get_bounding_box().get_center();
 			location_t const &Y = from.get_bounding_box().get_center();
-			location_t d = X - Y;
-			double r = d.norm();
+			double r, theta;
+			cart2pol(X - Y, r, theta);
 			auto z = this->get_wave_number() * r;
-			double theta = std::atan2(d(1), d(0));
 			cvector_t diag_coeffs(2 * L + 1);
-			for (int nu = -L; nu <= L; ++nu)
+			for (int nu = -int(L); nu <= int(L); ++nu)
 				diag_coeffs(nu + L) = std::exp(std::complex<double>(0., nu*(pi + theta)))
 				* cyl_hankel_2(nu, z);
 			return result_t(to.get_level_data(), diag_coeffs);
@@ -193,26 +249,38 @@ public:
 	{
 	public:
 		typedef operator_with_wave_number<wave_number_t> base_t;
+		/// \brief the test input type
 		typedef helmholtz_2d_wb_fmm::cluster_t test_input_t;
+		/// \brief the trial input type
 		typedef typename NiHu::normal_derivative_kernel<
-			NiHu::helmholtz_kernel<NiHu::space_2d<>, WaveNumber>, 0, Ny
+			distance_dependent_kernel_t, 0, Ny
 		>::trial_input_t trial_input_t;
+		/// \brief the evaluated operator's type
 		typedef cvector_t result_t;
 
+		/// \brief constructor of the operator
+		/// \param [in] wave_number the wave number
 		p2m(wave_number_t const &wave_number)
 			: base_t(wave_number)
 		{
 		}
 
+		/// \brief number of rows of the operator
+		/// \param [in] to the receiver
+		/// \return number of rows
 		size_t rows(test_input_t const &to) const
 		{
 			return to.get_level_data().get_data_size();
 		}
 
+		/// \brief evaluate the operator for a source and receiver
+		/// \param [in] to the receiver
+		/// \param [in] from the source
+		/// \return the evaluated operator
 		result_t operator()(test_input_t const &to, trial_input_t const &y) const
 		{
 			result_t res = eval(to, y, std::integral_constant<int, Ny>());
-			if (to.get_level_data().get_high_freq())
+			if (to.get_level_data().is_high_freq())
 				return to.get_level_data().dft(res);
 			return res;
 		}
@@ -226,9 +294,8 @@ public:
 			int L = to.get_level_data().get_expansion_length();
 			location_t const &Y = to.get_bounding_box().get_center();
 			location_t const &y = tri.get_x();
-			location_t d = Y - y;
-			double r = d.norm();
-			double theta = std::atan2(d(1), d(0));
+			double r, theta;
+			cart2pol(Y - y, r, theta);
 			result_t res(2 * L + 1, 1);
 			auto z = this->get_wave_number() * r;
 			for (int nu = -L; nu <= L; ++nu)
@@ -243,12 +310,12 @@ public:
 			using boost::math::cyl_bessel_j;
 			using boost::math::cyl_bessel_j_prime;
 
-			int L = to.get_level_data().get_expansion_length();
+			int L = int(to.get_level_data().get_expansion_length());
 			location_t const &Y = to.get_bounding_box().get_center();
 			location_t const &y = tri.get_x();
 			location_t d = Y - y;
-			double r = d.norm();
-			double theta = std::atan2(d(1), d(0));
+			double r, theta;
+			cart2pol(d, r, theta);
 			double rdny = -d.dot(tri.get_unit_normal()) / r;
 			location_t Td(d(1), -d(0));
 			double thetadny = Td.dot(tri.get_unit_normal()) / (r * r);
@@ -278,24 +345,33 @@ public:
 	public:
 		typedef helmholtz_2d_wb_fmm::cluster_t test_input_t;
 		typedef typename NiHu::normal_derivative_kernel<
-			NiHu::helmholtz_kernel<NiHu::space_2d<>, WaveNumber>, 0, Ny
+			distance_dependent_kernel_t, 0, Ny
 		>::trial_input_t trial_input_t;
 		typedef cvector_t result_t;
 
+		/// \brief constructor of the operator
+		/// \param [in] wave_number the wave number
 		p2l(wave_number_t const &wave_number)
 			: base_t(wave_number)
 		{
 		}
 
+		/// \brief number of rows of the operator
+		/// \param [in] to the receiver
+		/// \return number of rows
 		size_t rows(test_input_t const &to) const
 		{
 			return to.get_level_data().get_data_size();
 		}
 
+		/// \brief evaluate the operator for a source and receiver
+		/// \param [in] to the receiver
+		/// \param [in] y the source
+		/// \return the evaluated operator
 		result_t operator()(test_input_t const &to, trial_input_t const &y) const
 		{
 			result_t res = eval(to, y, std::integral_constant<int, Ny>());
-			if (to.get_level_data().get_high_freq())
+			if (to.get_level_data().is_high_freq())
 				return to.get_level_data().dft(res);
 			return res;
 		}
@@ -307,12 +383,11 @@ public:
 			using boost::math::cyl_hankel_2;
 			using namespace boost::math::double_constants;
 
-			int L = to.get_level_data().get_expansion_length();
+			int L = int(to.get_level_data().get_expansion_length());
 			location_t const &X = to.get_bounding_box().get_center();
 			location_t const &y = tri.get_x();
-			location_t d = X - y;
-			double r = d.norm();
-			double theta = std::atan2(d(1), d(0));
+			double r, theta;
+			cart2pol(X - y, r, theta);
 			result_t res(2 * L + 1, 1);
 			auto z = this->get_wave_number() * r;
 			for (int nu = -L; nu <= L; ++nu)
@@ -329,12 +404,12 @@ public:
 			using boost::math::cyl_hankel_2;
 			using namespace boost::math::double_constants;
 
-			int L = to.get_level_data().get_expansion_length();
+			int L = int(to.get_level_data().get_expansion_length());
 			location_t const &X = to.get_bounding_box().get_center();
 			location_t const &y = tri.get_x();
 			location_t d = X - y;
-			double r = d.norm();
-			double theta = std::atan2(d(1), d(0));
+			double r, theta;
+			cart2pol(X - y, r, theta);
 			double rdny = -d.dot(tri.get_unit_normal()) / r;
 			location_t Td(d(1), -d(0));
 			double thetadny = Td.dot(tri.get_unit_normal()) / (r * r);
@@ -365,24 +440,33 @@ public:
 	public:
 		typedef helmholtz_2d_wb_fmm::cluster_t trial_input_t;
 		typedef typename NiHu::normal_derivative_kernel<
-			NiHu::helmholtz_kernel<NiHu::space_2d<>, WaveNumber>, Nx, 0
+			distance_dependent_kernel_t, Nx, 0
 		>::test_input_t test_input_t;
 		typedef Eigen::Matrix<std::complex<double>, 1, Eigen::Dynamic> result_t;
 
+		/// \brief constructor of the operator
+		/// \param [in] wave_number the wave number
 		l2p(wave_number_t const &wave_number)
 			: base_t(wave_number)
 		{
 		}
 
+		/// \brief number of columns of the operator
+		/// \param [in] from the source
+		/// \return number of columns
 		size_t cols(trial_input_t const &from) const
 		{
 			return from.get_level_data().get_data_size();
 		}
 
+		/// \brief evaluate the operator for a source and receiver
+		/// \param [in] x the receiver
+		/// \param [in] from the source
+		/// \return the evaluated operator
 		result_t operator()(test_input_t const &x, trial_input_t const &from) const
 		{
 			result_t res = eval(x, from, std::integral_constant<int, Nx>());
-			if (from.get_level_data().get_high_freq())
+			if (from.get_level_data().is_high_freq())
 				return from.get_level_data().dft(res.conjugate().transpose()).conjugate().transpose() / double(cols(from));
 			return res;
 		}
@@ -393,12 +477,11 @@ public:
 		{
 			using boost::math::cyl_bessel_j;
 
-			int L = from.get_level_data().get_expansion_length();
+			int L = int(from.get_level_data().get_expansion_length());
 			location_t const &X = from.get_bounding_box().get_center();
 			location_t x = tsi.get_x();
-			location_t d = x - X;
-			double r = d.norm();
-			double theta = std::atan2(d(1), d(0));
+			double r, theta;
+			cart2pol(x - X, r, theta);
 			auto z = this->get_wave_number() * r;
 			result_t res(1, 2 * L + 1);
 			for (int nu = -L; nu <= L; ++nu)
@@ -416,8 +499,8 @@ public:
 			location_t const &X = from.get_bounding_box().get_center();
 			location_t const &x = tsi.get_x();
 			location_t d = x - X;
-			double r = d.norm();
-			double theta = std::atan2(d(1), d(0));
+			double r, theta;
+			cart2pol(d, r, theta);
 			double rdnx = d.dot(tsi.get_unit_normal()) / r;
 			location_t Td(d(1), -d(0));
 			double thetadnx = -Td.dot(tsi.get_unit_normal()) / (r * r);
@@ -450,24 +533,33 @@ public:
 	public:
 		typedef helmholtz_2d_wb_fmm::cluster_t trial_input_t;
 		typedef typename NiHu::normal_derivative_kernel<
-			NiHu::helmholtz_kernel<NiHu::space_2d<>, WaveNumber>, Nx, 0
+			distance_dependent_kernel_t, Nx, 0
 		>::test_input_t test_input_t;
 		typedef Eigen::Matrix<std::complex<double>, 1, Eigen::Dynamic> result_t;
 
+		/// \brief constructor of the operator
+		/// \param [in] wave_number the wave number
 		m2p(wave_number_t const &wave_number)
 			: base_t(wave_number)
 		{
 		}
 
+		/// \brief number of columns of the operator
+		/// \param [in] from the source
+		/// \return number of columns
 		size_t cols(trial_input_t const &from) const
 		{
 			return from.get_level_data().get_data_size();
 		}
 
+		/// \brief evaluate the operator for a source and receiver
+		/// \param [in] x the receiver
+		/// \param [in] from the source
+		/// \return the evaluated operator
 		result_t operator()(test_input_t const &x, trial_input_t const &from) const
 		{
 			result_t res = eval(x, from, std::integral_constant<int, Nx>());
-			if (from.get_level_data().get_high_freq())
+			if (from.get_level_data().is_high_freq())
 				return from.get_level_data().dft(res.conjugate().transpose()).conjugate().transpose() / double(cols(from));
 			return res;
 		}
@@ -479,12 +571,12 @@ public:
 			using boost::math::cyl_hankel_2;
 			using namespace boost::math::double_constants;
 
-			int L = from.get_level_data().get_expansion_length();
+			int L = int(from.get_level_data().get_expansion_length());
 			location_t const &Y = from.get_bounding_box().get_center();
 			location_t const &x = tsi.get_x();
 			auto d = x - Y;
-			double r = d.norm();
-			double theta = std::atan2(d(1), d(0));
+			double r, theta;
+			cart2pol(d, r, theta);
 			auto z = this->get_wave_number() * r;
 			result_t res(1, 2 * L + 1);
 			for (int nu = -L; nu <= L; ++nu)
@@ -504,13 +596,13 @@ public:
 			location_t const &Y = from.get_bounding_box().get_center();
 			location_t const &x = tsi.get_x();
 			location_t d = x - Y;
-			double r = d.norm();
-			double theta = std::atan2(d(1), d(0));
+			double r, theta;
+			cart2pol(d, r, theta);
 			double rdnx = d.dot(tsi.get_unit_normal()) / r;
 			location_t Td(d(1), -d(0));
 			double thetadnx = -Td.dot(tsi.get_unit_normal()) / (r * r);
 
-			int L = from.get_level_data().get_expansion_length();
+			int L = int(from.get_level_data().get_expansion_length());
 			result_t res(1, 2 * L + 1);
 
 			auto const &k = this->get_wave_number();
@@ -537,7 +629,7 @@ public:
 	struct p2p_type
 	{
 		typedef fmm::p2p<NiHu::normal_derivative_kernel<
-			NiHu::helmholtz_kernel<NiHu::space_2d<>, wave_number_t>, Nx, Ny
+			distance_dependent_kernel_t, Nx, Ny
 		> > type;
 	};
 
@@ -567,13 +659,12 @@ public:
 
 	template <int Nx, int Ny>
 	fmm::p2p<NiHu::normal_derivative_kernel<
-		NiHu::helmholtz_kernel<NiHu::space_2d<>, wave_number_t>, Nx, Ny
+		distance_dependent_kernel_t, Nx, Ny
 	> >
 		create_p2p() const
 	{
 		typedef NiHu::normal_derivative_kernel<
-			NiHu::helmholtz_kernel<NiHu::space_2d<>, wave_number_t>, Nx, Ny
-		> kernel_t;
+			distance_dependent_kernel_t, Nx, Ny> kernel_t;
 		return fmm::p2p<kernel_t>(kernel_t(m_wave_number));
 	}
 
@@ -621,55 +712,75 @@ public:
 		return m_wave_number;
 	}
 
+	/// \brief set the method's prescribed accuracy
 	void set_accuracy(double)
 	{
-
 	}
 
+	/// \brief initialize level data for a specified cluster tree
+	/// \param [in] tree the cluster tree
 	void init_level_data(cluster_tree_t const &tree)
 	{
-		/// \todo make sure that leaf level is in low frequency domain
-
 		using namespace boost::math::double_constants;
+
 		double lambda = two_pi / std::real(m_wave_number);
 		m_level_data_vector.clear();
 		m_level_data_vector.resize(tree.get_n_levels());
+
+		// initialize level data for each level where anything happens
 		for (size_t i = 2; i < tree.get_n_levels(); ++i)
 		{
+			// index of first cluster at the level
 			size_t idx = tree.level_begin(i);
 			double D = tree[idx].get_bounding_box().get_diameter();
 			m_level_data_vector[i].init(D / lambda);
 		}
 
+		// check that the highest level leaf cluster is in the low frequency domain
+		size_t idx;
+		for (idx = 0; idx < tree.get_n_clusters(); ++idx)
+			if (tree[idx].is_leaf() && m_level_data_vector[tree[idx].get_level()].is_high_freq())
+				throw std::runtime_error("Leaf level cluster (" + std::to_string(idx) + ") has been found in the high frequency domain.");
+
+		// initialize upward interpolation for each m2m receiver level
 		for (size_t i = 2; i < tree.get_n_levels() - 1; ++i)
 		{
-			m_level_data_vector[i].set_interp_up(
-				m_level_data_vector[i + 1].get_expansion_length());
+			size_t L_from = m_level_data_vector[i + 1].get_expansion_length();
+			m_level_data_vector[i].set_interp_up(L_from);
 		}
 
+		// initialize downward interpolation for each l2l receiver level
 		for (size_t i = 3; i < tree.get_n_levels(); ++i)
 		{
-			m_level_data_vector[i].set_interp_dn(
-				m_level_data_vector[i - 1].get_expansion_length());
+			size_t L_from = m_level_data_vector[i - 1].get_expansion_length();
+			m_level_data_vector[i].set_interp_dn(L_from);
 		}
 	}
 
+	/// \brief return level data at a specified level
+	/// \param [in] idx the level index
+	/// \return level data
 	helmholtz_2d_wb_level_data const &get_level_data(size_t idx) const
 	{
 		return m_level_data_vector[idx];
 	}
 
+	/// \brief return level data reference at a specified level
+	/// \param [in] idx the level index
+	/// \return level data reference
 	helmholtz_2d_wb_level_data &get_level_data(size_t idx)
 	{
 		return m_level_data_vector[idx];
 	}
 
+	/// \brief print debug information
+	/// \param [in] os the output stream
 	void print_level_data(std::ostream &os = std::cout) const
 	{
 		for (size_t i = 2; i < m_level_data_vector.size(); ++i)
 		{
 			auto const &ld = m_level_data_vector[i];
-			os << "level: " << i << " " << ld.get_expansion_length() << ' ' << ld.get_high_freq() << std::endl;
+			os << "level: " << i << " " << ld.get_expansion_length() << ' ' << ld.is_high_freq() << std::endl;
 		}
 	}
 

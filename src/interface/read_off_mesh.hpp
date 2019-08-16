@@ -79,19 +79,14 @@ unsigned nvert2elem_id(unsigned nvert, Tags...tags)
 /** \brief Read mesh from OFF format
  * \tparam Tags the element tags to import
  * \param [in] fname the file name
- * \param [in] tags the element tag types
+ * \param [in] is the input stream
  * \return the imported mesh
  */
 template <class...Tags>
 mesh<tmp::vector<typename tag2type<Tags>::type...> >
-	read_off_mesh(std::string const &fname, Tags...tags)
+read_off_mesh(std::istream &is, Tags...tags)
 {
 	typedef Eigen::Matrix<unsigned, Eigen::Dynamic, Eigen::Dynamic> uMatrix;
-
-	// read mesh file for reading
-	std::ifstream is(fname);
-	if (!is)
-		throw std::runtime_error("Error reading mesh file");
 
 	// read header from file (first row is 'OFF')
 	std::string header;
@@ -106,7 +101,7 @@ mesh<tmp::vector<typename tag2type<Tags>::type...> >
 	// read nodes
 	Eigen::MatrixXd nodes(nNodes, 3);
 	for (unsigned i = 0; i < nNodes; ++i)
-		if (!(is >> nodes(i,0) >> nodes(i,1) >> nodes(i,2)))
+		if (!(is >> nodes(i, 0) >> nodes(i, 1) >> nodes(i, 2)))
 			throw std::runtime_error("Error reading mesh nodes");
 
 	// read elements
@@ -117,16 +112,32 @@ mesh<tmp::vector<typename tag2type<Tags>::type...> >
 		if (!(is >> nvert))
 			throw std::runtime_error("Error reading mesh elements");
 		for (unsigned c = 0; c < nvert; ++c)
-			if (!(is >> elements(i,c+1)))
+			if (!(is >> elements(i, c + 1)))
 				throw std::runtime_error("Error reading mesh elements");
-		elements(i,0) = nvert2elem_id(nvert, tags...);
+		elements(i, 0) = nvert2elem_id(nvert, tags...);
 	}
-
-	// close file
-	is.close();
 
 	// create and return the mesh
 	return create_mesh(nodes, elements, tags...);
+}
+
+
+/** \brief Read mesh from OFF format
+ * \tparam Tags the element tags to import
+ * \param [in] fname the file name
+ * \param [in] tags the element tag types
+ * \return the imported mesh
+ */
+template <class...Tags>
+mesh<tmp::vector<typename tag2type<Tags>::type...> >
+	read_off_mesh(std::string const &fname, Tags...tags)
+{
+	// read mesh file for reading
+	std::ifstream is(fname);
+	if (!is)
+		throw std::runtime_error("Error reading mesh file");
+
+	return read_off_mesh(is, tags...);
 }
 
 }

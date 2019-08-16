@@ -12,21 +12,6 @@
 #include "fmm/GMRES.h"
 
 // basic type parameter inputs
-typedef NiHu::line_1_tag tag_t;
-typedef double wave_number_t;
-
-// computing the fmm type
-typedef NiHu::fmm::helmholtz_2d_wb_fmm<wave_number_t> fmm_t;
-
-// computing the fmbem type
-typedef NiHu::tag2type<tag_t>::type elem_t;
-typedef NiHu::field_view<elem_t, NiHu::field_option::constant> trial_field_t;
-typedef NiHu::dirac_field<trial_field_t> test_field_t;
-typedef elem_t::x_t location_t;
-
-// computing the cluster tree type
-typedef fmm_t::cluster_t cluster_t;
-typedef NiHu::fmm::cluster_tree<cluster_t> cluster_tree_t;
 
 typedef Eigen::Matrix<std::complex<double>, Eigen::Dynamic, 1> cvector_t;
 
@@ -59,6 +44,7 @@ void export_response(std::string fname, cvector_t const &res, double k)
 	ofs.close();
 }
 
+
 int main(int argc, char *argv[])
 {
 	if (argc < 4)
@@ -84,6 +70,7 @@ int main(int argc, char *argv[])
 		std::cout << "field res name: " << field_res_name << std::endl;
 
 		// read mesh
+		typedef NiHu::line_1_tag tag_t;
 		auto surf_mesh = NiHu::read_off_mesh(surf_mesh_name, tag_t());
 
 		// read excitation
@@ -99,9 +86,11 @@ int main(int argc, char *argv[])
 		NiHu::fmm::divide_num_nodes div(10);
 		size_t far_field_quadrature_order = 6;
 
+		typedef double wave_number_t;
+		typedef NiHu::fmm::helmholtz_2d_wb_fmm<wave_number_t> fmm_t;
+
 		// solve surface system
 		{
-			typedef NiHu::fmm::helmholtz_2d_wb_fmm<double> fmm_t;
 			NiHu::fmm::helmholtz_exterior_solver<fmm_t, trial_space_t> solver(trial_space);
 			solver.set_excitation(q_surf);
 			solver.set_wave_number(k);
@@ -120,12 +109,12 @@ int main(int argc, char *argv[])
 			auto cpu_t0 = NiHu::cpu_time::tic();
 			auto wc_t0 = NiHu::wc_time::tic();
 
-			NiHu::fmm::helmholtz_field_point<fmm_t, test_space_t, trial_space_t> solver(test_space, trial_space);
-			solver.set_qsurf(q_surf);
-			solver.set_psurf(p_surf);
-			solver.set_wave_number(k);
-			solver.eval(div, far_field_quadrature_order);
-			export_response(field_res_name, solver.get_response(), k);
+			NiHu::fmm::helmholtz_field_point<fmm_t, test_space_t, trial_space_t> evaluator(test_space, trial_space);
+			evaluator.set_qsurf(q_surf);
+			evaluator.set_psurf(p_surf);
+			evaluator.set_wave_number(k);
+			evaluator.eval(div, far_field_quadrature_order);
+			export_response(field_res_name, evaluator.get_response(), k);
 
 			double cpu_t = NiHu::cpu_time::toc(cpu_t0);
 			double wc_t = NiHu::wc_time::toc(wc_t0);
