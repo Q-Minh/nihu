@@ -51,7 +51,7 @@ void helmholtz_2d_wb_level_data::init(double drel)
 	set_high_freq(is_high);
 }
 
-void helmholtz_2d_wb_level_data::set_expansion_length(int expansion_length)
+void helmholtz_2d_wb_level_data::set_expansion_length(size_t expansion_length)
 {
 	m_expansion_length = expansion_length;
 
@@ -61,14 +61,14 @@ void helmholtz_2d_wb_level_data::set_expansion_length(int expansion_length)
 	if (m_idft_plan)
 		fftw_destroy_plan(m_idft_plan);
 
-	int S = 2 * (2 * m_expansion_length) + 1;
+	size_t S = 2 * (2 * m_expansion_length) + 1;
 
 	// replan dft
 	for (auto &a : m_multi_paddeds)
 		a.resize(S, 1);
 	for (auto &a : m_multi_spectrums)
 		a.resize(S, 1);
-	m_dft_plan = fftw_plan_dft_1d(S, (fftw_complex *)m_multi_paddeds[0].data(),
+	m_dft_plan = fftw_plan_dft_1d(int(S), (fftw_complex *)m_multi_paddeds[0].data(),
 		(fftw_complex *)m_multi_spectrums[0].data(), FFTW_FORWARD, FFTW_MEASURE);
 
 	// replan idft
@@ -76,7 +76,7 @@ void helmholtz_2d_wb_level_data::set_expansion_length(int expansion_length)
 		a.resize(S, 1);
 	for (auto &a : m_local_paddeds)
 		a.resize(S, 1);
-	m_idft_plan = fftw_plan_dft_1d(S, (fftw_complex *)m_locals[0].data(),
+	m_idft_plan = fftw_plan_dft_1d(int(S), (fftw_complex *)m_locals[0].data(),
 		(fftw_complex *)m_local_paddeds[0].data(), FFTW_BACKWARD, FFTW_MEASURE);
 
 	for (auto &a : m_locals)
@@ -86,15 +86,15 @@ void helmholtz_2d_wb_level_data::set_expansion_length(int expansion_length)
 		a.setZero();
 }
 
-int helmholtz_2d_wb_level_data::get_expansion_length() const
+size_t helmholtz_2d_wb_level_data::get_expansion_length() const
 {
 	return m_expansion_length;
 }
 
-int helmholtz_2d_wb_level_data::get_data_size() const
+size_t helmholtz_2d_wb_level_data::get_data_size() const
 {
-	int M = m_expansion_length;
-	if (m_high_freq)
+	size_t M = m_expansion_length;
+	if (is_high_freq())
 		return 2 * (2 * M) + 1;
 	else
 		return 2 * M + 1;
@@ -105,7 +105,7 @@ void helmholtz_2d_wb_level_data::set_high_freq(bool hf)
 	m_high_freq = hf;
 }
 
-bool helmholtz_2d_wb_level_data::get_high_freq() const
+bool helmholtz_2d_wb_level_data::is_high_freq() const
 {
 	return m_high_freq;
 }
@@ -149,7 +149,7 @@ helmholtz_2d_wb_level_data::idft(cvector_t const &local_spect) const
 	return m_locals[idx];
 }
 
-void helmholtz_2d_wb_level_data::set_interp_up(int Nfrom)
+void helmholtz_2d_wb_level_data::set_interp_up(size_t Nfrom)
 {
 	m_interp_ups[0] = spectral_interpolate(m_expansion_length, Nfrom);
 	for (size_t i = 1; i < m_interp_ups.size(); ++i)
@@ -163,7 +163,7 @@ helmholtz_2d_wb_level_data::interp_up(cvector_t const &multi) const
 	return m_interp_ups[idx].interpolate(multi);
 }
 
-void helmholtz_2d_wb_level_data::set_interp_dn(int Nfrom)
+void helmholtz_2d_wb_level_data::set_interp_dn(size_t Nfrom)
 {
 	m_interp_dns[0] = spectral_interpolate(m_expansion_length, Nfrom);
 	for (size_t i = 1; i < m_interp_dns.size(); ++i)

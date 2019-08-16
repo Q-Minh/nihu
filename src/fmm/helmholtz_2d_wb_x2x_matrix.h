@@ -24,13 +24,13 @@ public:
 	helmholtz_2d_wb_m2m_matrix();
 
 	/** \brief constructor
-	 * \param[in] level_to pointer to the destination level data
-	 * \param[in] level_from pointer to the source level data
+	 * \param[in] level_data_to pointer to the receiver level data
+	 * \param[in] level_data_from pointer to the source level data
 	 * \param[in] diag_coeffs diagonal coefficients of the convolution
 	 */
 	helmholtz_2d_wb_m2m_matrix(
-		helmholtz_2d_wb_level_data const &level_to,
-		helmholtz_2d_wb_level_data const &level_from,
+		helmholtz_2d_wb_level_data const &level_data_to,
+		helmholtz_2d_wb_level_data const &level_data_from,
 		cvector_t diag_coeffs);
 
 	/** \brief multiply the matrix with a multipole coefficient from the right
@@ -58,13 +58,13 @@ public:
 	helmholtz_2d_wb_l2l_matrix();
 
 	/** \brief constructor
-	 * \param[in] level_to pointer to the destination level data
-	 * \param[in] level_from pointer to the source level data
+	 * \param[in] level_data_to pointer to the receiver level data
+	 * \param[in] level_data_from pointer to the source level data
 	 * \param[in] diag_coeffs diagonal coefficients of the convolution
 	 */
 	helmholtz_2d_wb_l2l_matrix(
-		helmholtz_2d_wb_level_data const &level_to,
-		helmholtz_2d_wb_level_data const &level_from,
+		helmholtz_2d_wb_level_data const &level_data_to,
+		helmholtz_2d_wb_level_data const &level_data_from,
 		cvector_t diag_coeffs);
 
 	/** \brief multiply the matrix with a local coefficient from the right
@@ -92,11 +92,11 @@ public:
 	helmholtz_2d_wb_m2l_matrix();
 
 	/** \brief constructor
-	 * \param[in] level pointer to the level data
+	 * \param[in] level_data pointer to the level data
 	 * \param[in] diag_coeffs diagonal coefficients of the convolution
 	 */
 	helmholtz_2d_wb_m2l_matrix(
-		helmholtz_2d_wb_level_data const &level,
+		helmholtz_2d_wb_level_data const &level_data,
 		cvector_t diag_coeffs);
 
 	/** \brief multiply the matrix with a multipole coefficient from the right

@@ -86,18 +86,20 @@ public:
 		m_excitation = xct;
 	}
 
+	/// \brief solve the BIE
+	/// \param [in] divide the cluster division functor
+	/// \param [in] far_field_quadrature_order the far field quadrature order
 	template <class Divide>
 	response_t const &solve(Divide const &divide, size_t far_field_quadrature_order)
 	{
+		// instantiate the fmm object
 		fmm_t fmm(m_wave_number);
 
-		// create cluster tree
+		// build the cluster tree
 		std::cout << "Create cluster tree" << std::endl;
 		cluster_tree_t tree(
 			create_field_center_iterator(m_trial_space.template field_begin<trial_field_t>()),
 			create_field_center_iterator(m_trial_space.template field_end<trial_field_t>()),
-			create_field_center_iterator(m_test_space.template field_begin<test_field_t>()),
-			create_field_center_iterator(m_test_space.template field_end<test_field_t>()),
 			divide);
 		std::cout << tree << std::endl;
 
@@ -211,13 +213,11 @@ public:
 		std::cout << "Precomputing L2L..." << std::endl;
 		start = NiHu::wc_time::tic();
 		auto l2l_pre = create_x2x_precompute(cix_l2l, lists.get_list(lists.L2L));
-		// precompute<fmm_t::l2l> l2l_pre(l2l, tree, lists.get_list(lists.L2L));
 		std::cout << "Ready, Elapsed time: " << NiHu::wc_time::toc(start) << " s" << std::endl;
 
 		std::cout << "Precomputing M2L..." << std::endl;
 		start = NiHu::wc_time::tic();
 		auto m2l_pre = create_x2x_precompute(cix_m2l, lists.get_list(lists.M2L));
-		// precompute<fmm_t::m2l> m2l_pre(m2l, tree, lists.get_list(lists.M2L));
 		std::cout << "Ready, Elapsed time: " << NiHu::wc_time::toc(start) << " s\n" << std::endl;
 
 		std::cout << "Precomputing P2M_1..." << std::endl;
