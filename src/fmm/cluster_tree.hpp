@@ -42,6 +42,13 @@ public:
 	typedef typename cluster_vector_t::const_iterator iterator_t;
 
 public:
+	template <class It, class Divide>
+	cluster_tree(It src_begin, It src_end, Divide divide)
+		: cluster_tree(src_begin, src_end, src_begin, src_end, divide)
+	{
+	}
+
+
 	template <class It1, class It2, class Divide>
 	cluster_tree(It1 src_begin, It1 src_end, It2 rec_begin, It2 rec_end, Divide divide)
 		: n_src(src_end - src_begin)

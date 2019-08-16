@@ -184,9 +184,9 @@ int main(int argc, char *argv[])
 		NiHu::fmm::helmholtz_exterior_solver<fmm_t, trial_space_t> solver(trial_space);
 		solver.set_wave_number(k);
 		solver.set_excitation(q_surf);
-		double diameter = 1. / k;
+		double leaf_diameter = 1. / k;
 		size_t far_field_quadrature_order = 6;
-		cvector_t p_surf = solver.solve(NiHu::fmm::divide_diameter(diameter), far_field_quadrature_order);
+		cvector_t p_surf = solver.solve(NiHu::fmm::divide_diameter(leaf_diameter), far_field_quadrature_order);
 
 		// export ps
 		std::stringstream ss;
@@ -202,7 +202,7 @@ int main(int argc, char *argv[])
 		field_bie.set_wave_number(k);
 		field_bie.set_psurf(p_surf);
 		field_bie.set_qsurf(q_surf);
-		auto p_field = field_bie.eval(NiHu::fmm::divide_diameter(diameter), far_field_quadrature_order);
+		auto p_field = field_bie.eval(NiHu::fmm::divide_diameter(leaf_diameter), far_field_quadrature_order);
 
 		// export pf
 		ss.str(std::string());

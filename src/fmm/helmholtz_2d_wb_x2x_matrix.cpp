@@ -27,7 +27,7 @@ helmholtz_2d_wb_m2m_matrix::helmholtz_2d_wb_m2m_matrix(
 		m_level_data_from->get_expansion_length(), 
 		diag_coeffs)
 {
-	if (m_level_data_from->get_high_freq() && m_level_data_to->get_high_freq())
+	if (m_level_data_from->is_high_freq() && m_level_data_to->is_high_freq())
 		m_transfer = m_level_data_to->dft(diag_coeffs);
 }
 
@@ -35,11 +35,11 @@ helmholtz_2d_wb_m2m_matrix::cvector_t
 helmholtz_2d_wb_m2m_matrix::operator*(cvector_t const &rhs) const
 {
 	// low to low
-	if (!m_level_data_from->get_high_freq() && !m_level_data_to->get_high_freq())
+	if (!m_level_data_from->is_high_freq() && !m_level_data_to->is_high_freq())
 		return m_cm * rhs;
 
 	// low to high
-	if (!m_level_data_from->get_high_freq() && m_level_data_to->get_high_freq())
+	if (!m_level_data_from->is_high_freq() && m_level_data_to->is_high_freq())
 		return m_level_data_to->dft(m_cm * rhs);
 
 	// high to high
@@ -62,18 +62,18 @@ helmholtz_2d_wb_l2l_matrix::helmholtz_2d_wb_l2l_matrix(helmholtz_2d_wb_level_dat
 		m_level_data_from->get_expansion_length(),
 		diag_coeffs)
 {
-	if (m_level_data_from->get_high_freq() && m_level_data_to->get_high_freq())
+	if (m_level_data_from->is_high_freq() && m_level_data_to->is_high_freq())
 		m_transfer = m_level_data_from->dft(diag_coeffs);
 }
 
 helmholtz_2d_wb_l2l_matrix::cvector_t
 helmholtz_2d_wb_l2l_matrix::operator*(cvector_t const &rhs) const
 {
-	if (!m_level_data_from->get_high_freq() && !m_level_data_to->get_high_freq())
+	if (!m_level_data_from->is_high_freq() && !m_level_data_to->is_high_freq())
 		return m_cm * rhs;
 
 	// high to low
-	if (m_level_data_from->get_high_freq() && !m_level_data_to->get_high_freq())
+	if (m_level_data_from->is_high_freq() && !m_level_data_to->is_high_freq())
 		return m_cm * m_level_data_from->idft(rhs);
 
 	// L2L high to high
@@ -92,7 +92,7 @@ helmholtz_2d_wb_m2l_matrix::helmholtz_2d_wb_m2l_matrix(helmholtz_2d_wb_level_dat
 	: m_level_data(&level)
 	, m_cm(m_level_data->get_expansion_length(), m_level_data->get_expansion_length(), diag_coeffs)
 {
-	if (m_level_data->get_high_freq())
+	if (m_level_data->is_high_freq())
 		m_transfer = m_level_data->dft(diag_coeffs);
 }
 
@@ -100,7 +100,7 @@ helmholtz_2d_wb_m2l_matrix::cvector_t
 helmholtz_2d_wb_m2l_matrix::operator*(cvector_t const &rhs) const
 {
 	/// low to low
-	if (!m_level_data->get_high_freq())
+	if (!m_level_data->is_high_freq())
 		return m_cm * rhs;
 
 	/// high to high

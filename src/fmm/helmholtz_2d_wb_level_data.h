@@ -40,29 +40,29 @@ public:
 	/** \brief set the expansion length of the level
 	 * \param [in] expansion_length the expansion length
 	 */
-	void set_expansion_length(int expansion_length);
+	void set_expansion_length(size_t expansion_length);
 	
 	/** \brief return the expansion length */
-	int get_expansion_length() const;
+	size_t get_expansion_length() const;
 	
 	/** \brief return the size of the multipole / local data */
-	int get_data_size() const;
+	size_t get_data_size() const;
 
 	/** \brief set if the level is in high frequency */
 	void set_high_freq(bool hf);
 	
 	/** \brief return true if the level is in hgh frequency */
-	bool get_high_freq() const;
+	bool is_high_freq() const;
 
 	/** \brief compute upward interpolating matrix
 	 \param [in] Nfrom the expansion length in the lower cluster
 	 */
-	void set_interp_up(int Nfrom);
+	void set_interp_up(size_t  Nfrom);
 	
 	/** \brief compute the downward interpolating matrix
 	 \param [in] Nfrom the expansion length in the upper cluster
 	 */
-	void set_interp_dn(int Nfrom);
+	void set_interp_dn(size_t Nfrom);
 
 	/** \brief interpolate multipole contribution up to this level
 	 * \param [in] multi the multipole coefficient in the lower level
@@ -91,7 +91,7 @@ public:
 	void set_num_threads(size_t n);
 
 private:
-	int m_expansion_length;
+	size_t m_expansion_length;
 	bool m_high_freq;
 
 	std::vector<spectral_interpolate> m_interp_ups;	// should be thread private
