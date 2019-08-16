@@ -41,13 +41,29 @@ class helmholtz_2d_wb_fmm
 public:
 	/** \brief template parameter as nested type */
 	typedef WaveNumber wave_number_t;
-
+	/// \brief the cluster type of the FMM
 	typedef helmholtz_2d_wb_cluster cluster_t;
+	/// \brief the cluster tree type
 	typedef cluster_tree<cluster_t> cluster_tree_t;
+	/// \brief a complex vector type
 	typedef Eigen::Matrix<std::complex<double>, Eigen::Dynamic, 1> cvector_t;
+	/// \brief the space dimension
 	static size_t const dimension = cluster_t::dimension;
+	/// \brief the cluster's bounding box type
 	typedef typename cluster_t::bounding_box_t bounding_box_t;
+	/// \brief the physical location type
 	typedef typename bounding_box_t::location_t location_t;
+
+private:
+	static void cart2pol(location_t const &d, double &r, double &theta)
+	{
+		r = d.norm();
+		theta = std::atan2(d(1), d(0));
+	}
+
+public:
+
+
 
 	/** \brief the m2m operator */
 	class m2m
@@ -57,14 +73,21 @@ public:
 		typedef operator_with_wave_number<wave_number_t> base_t;
 
 	public:
+		/// \brief the cluster type
 		typedef helmholtz_2d_wb_fmm::cluster_t cluster_t;
+		/// \brief the evaluated operator type
 		typedef helmholtz_2d_wb_m2m_matrix result_t;
 
+		/// \brief constructor of the operator
 		m2m(wave_number_t const &wave_number)
 			: base_t(wave_number)
 		{
 		}
 
+		/// \brief return a unique index for a source and receiver cluster
+		/// \param [in] to the receiver cluster
+		/// \param [in] from the source cluster
+		/// \return a unique operator index
 		static size_t unique_idx(cluster_t const &to, cluster_t const &from)
 		{
 			return bounding_box_t::dist2idx(
@@ -72,15 +95,20 @@ public:
 				to.get_bounding_box().get_center());
 		}
 
+	public:
+
+		/// \brief evaluate the operator for a source and receiver cluster
+		/// \param [in] to the receiver cluster
+		/// \param [in] from the source cluster
+		/// \return the evaluated operator
 		result_t operator()(cluster_t const &to, cluster_t const &from) const
 		{
 			using boost::math::cyl_bessel_j;
 
 			location_t const &X = to.get_bounding_box().get_center();
 			location_t const &Y = from.get_bounding_box().get_center();
-			location_t d = X - Y;
-			double r = d.norm();
-			double theta = std::atan2(d(1), d(0));
+			double r, theta;
+			cart2pol(X - Y, r, theta);
 			auto z = this->get_wave_number() * r;
 			int Lto = to.get_level_data().get_expansion_length();
 			int Lfrom = from.get_level_data().get_expansion_length();
@@ -125,9 +153,8 @@ public:
 
 			location_t const &X = to.get_bounding_box().get_center();
 			location_t const &Y = from.get_bounding_box().get_center();
-			location_t d = X - Y;
-			double r = d.norm();
-			double theta = std::atan2(d(1), d(0));
+			double r, theta;
+			cart2pol(X - Y, r, theta);
 			auto z = this->get_wave_number() * r;
 			int Lto = to.get_level_data().get_expansion_length();
 			int Lfrom = from.get_level_data().get_expansion_length();
@@ -171,10 +198,9 @@ public:
 			int L = to.get_level_data().get_expansion_length();
 			location_t const &X = to.get_bounding_box().get_center();
 			location_t const &Y = from.get_bounding_box().get_center();
-			location_t d = X - Y;
-			double r = d.norm();
+			double r, theta;
+			cart2pol(X - Y, r, theta);
 			auto z = this->get_wave_number() * r;
-			double theta = std::atan2(d(1), d(0));
 			cvector_t diag_coeffs(2 * L + 1);
 			for (int nu = -L; nu <= L; ++nu)
 				diag_coeffs(nu + L) = std::exp(std::complex<double>(0., nu*(pi + theta)))
@@ -226,9 +252,8 @@ public:
 			int L = to.get_level_data().get_expansion_length();
 			location_t const &Y = to.get_bounding_box().get_center();
 			location_t const &y = tri.get_x();
-			location_t d = Y - y;
-			double r = d.norm();
-			double theta = std::atan2(d(1), d(0));
+			double r, theta;
+			cart2pol(Y - y, r, theta);
 			result_t res(2 * L + 1, 1);
 			auto z = this->get_wave_number() * r;
 			for (int nu = -L; nu <= L; ++nu)
@@ -247,8 +272,8 @@ public:
 			location_t const &Y = to.get_bounding_box().get_center();
 			location_t const &y = tri.get_x();
 			location_t d = Y - y;
-			double r = d.norm();
-			double theta = std::atan2(d(1), d(0));
+			double r, theta;
+			cart2pol(d, r, theta);
 			double rdny = -d.dot(tri.get_unit_normal()) / r;
 			location_t Td(d(1), -d(0));
 			double thetadny = Td.dot(tri.get_unit_normal()) / (r * r);
@@ -310,9 +335,8 @@ public:
 			int L = to.get_level_data().get_expansion_length();
 			location_t const &X = to.get_bounding_box().get_center();
 			location_t const &y = tri.get_x();
-			location_t d = X - y;
-			double r = d.norm();
-			double theta = std::atan2(d(1), d(0));
+			double r, theta;
+			cart2pol(X - y, r, theta);
 			result_t res(2 * L + 1, 1);
 			auto z = this->get_wave_number() * r;
 			for (int nu = -L; nu <= L; ++nu)
@@ -333,8 +357,8 @@ public:
 			location_t const &X = to.get_bounding_box().get_center();
 			location_t const &y = tri.get_x();
 			location_t d = X - y;
-			double r = d.norm();
-			double theta = std::atan2(d(1), d(0));
+			double r, theta;
+			cart2pol(X - y, r, theta);
 			double rdny = -d.dot(tri.get_unit_normal()) / r;
 			location_t Td(d(1), -d(0));
 			double thetadny = Td.dot(tri.get_unit_normal()) / (r * r);
@@ -396,9 +420,8 @@ public:
 			int L = from.get_level_data().get_expansion_length();
 			location_t const &X = from.get_bounding_box().get_center();
 			location_t x = tsi.get_x();
-			location_t d = x - X;
-			double r = d.norm();
-			double theta = std::atan2(d(1), d(0));
+			double r, theta;
+			cart2pol(x - X, r, theta);
 			auto z = this->get_wave_number() * r;
 			result_t res(1, 2 * L + 1);
 			for (int nu = -L; nu <= L; ++nu)
@@ -416,8 +439,8 @@ public:
 			location_t const &X = from.get_bounding_box().get_center();
 			location_t const &x = tsi.get_x();
 			location_t d = x - X;
-			double r = d.norm();
-			double theta = std::atan2(d(1), d(0));
+			double r, theta;
+			cart2pol(d, r, theta);
 			double rdnx = d.dot(tsi.get_unit_normal()) / r;
 			location_t Td(d(1), -d(0));
 			double thetadnx = -Td.dot(tsi.get_unit_normal()) / (r * r);
@@ -483,8 +506,8 @@ public:
 			location_t const &Y = from.get_bounding_box().get_center();
 			location_t const &x = tsi.get_x();
 			auto d = x - Y;
-			double r = d.norm();
-			double theta = std::atan2(d(1), d(0));
+			double r, theta;
+			cart2pol(d, r, theta);
 			auto z = this->get_wave_number() * r;
 			result_t res(1, 2 * L + 1);
 			for (int nu = -L; nu <= L; ++nu)
@@ -504,8 +527,8 @@ public:
 			location_t const &Y = from.get_bounding_box().get_center();
 			location_t const &x = tsi.get_x();
 			location_t d = x - Y;
-			double r = d.norm();
-			double theta = std::atan2(d(1), d(0));
+			double r, theta;
+			cart2pol(d, r, theta);
 			double rdnx = d.dot(tsi.get_unit_normal()) / r;
 			location_t Td(d(1), -d(0));
 			double thetadnx = -Td.dot(tsi.get_unit_normal()) / (r * r);
