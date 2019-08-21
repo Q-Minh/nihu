@@ -3,6 +3,7 @@
 #ifndef FMM_P2P_INTEGRAL_HPP_INCLUDED
 #define FMM_P2P_INTEGRAL_HPP_INCLUDED
 
+#include "fmm_operator.hpp"
 #include "integral_operator_expression.hpp"
 #include "identity_p2p_operator.h"
 
@@ -49,6 +50,7 @@ struct integral_operator_expression_traits<p2p_integral<identity_p2p_operator, T
 template <class Operator, class TestField, class TrialField>
 class p2p_integral
 	: public integral_operator_expression<p2p_integral<Operator, TestField, TrialField> >
+	, public fmm_operator<typename std::decay<Operator>::type::fmm_tag>
 {
 public:
 	typedef integral_operator_expression<p2p_integral<Operator, TestField, TrialField> > base_t;
@@ -101,6 +103,7 @@ private:
 template <class TestField, class TrialField>
 class p2p_integral<identity_p2p_operator, TestField, TrialField>
 	: public integral_operator_expression<p2p_integral<identity_p2p_operator, TestField, TrialField> >
+	, public fmm_operator<typename identity_p2p_operator::fmm_tag>
 {
 public:
 	typedef integral_operator_expression<p2p_integral<identity_p2p_operator, TestField, TrialField> > base_t;

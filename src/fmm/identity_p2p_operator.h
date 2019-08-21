@@ -4,12 +4,15 @@
 #ifndef IDENTITY_P2P_OPERATOR_H_INCLUDED
 #define IDENTITY_P2P_OPERATOR_H_INCLUDED
 
+#include "fmm_operator.hpp"
+
 namespace NiHu
 {
 namespace fmm
 {
 
 class identity_p2p_operator
+	: public fmm_operator<p2p_tag>
 {
 };
 

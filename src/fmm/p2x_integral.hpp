@@ -8,6 +8,8 @@
 #include "core/gaussian_quadrature.hpp"
 #include "core/field.hpp"
 
+#include "fmm_operator.hpp"
+
 #include "integral_operator_expression.hpp"
 #include "jacobian_computer.hpp"
 #include "util/matrix_traits.hpp"
@@ -45,6 +47,7 @@ struct integral_operator_expression_traits<p2x_integral<Operator, TrialField> >
 template <class Operator, class TrialField>
 class p2x_integral
 	: public integral_operator_expression<p2x_integral<Operator, TrialField> >
+	, public fmm_operator<typename std::decay<Operator>::type::fmm_tag>
 {
 public:
 	typedef typename std::decay<Operator>::type operator_t;

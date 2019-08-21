@@ -7,6 +7,8 @@
 #include <utility>
 #include <type_traits>
 
+#include "fmm_operator.hpp"
+
 #include "../util/matrix_traits.hpp"
 #include "../util/plain_type.hpp"
 #include "../util/product_type.hpp"
@@ -191,6 +193,7 @@ struct integral_operator_expression_traits<integral_operator_diff<Lhs, Rhs> >
 template <class Lhs, class Rhs>
 class integral_operator_sum
 	: public integral_operator_expression<integral_operator_sum<Lhs, Rhs> >
+	, public fmm_operator<typename std::decay<Lhs>::type::fmm_tag>
 {
 public:
 	typedef integral_operator_expression<integral_operator_sum<Lhs, Rhs> > base_t;
@@ -228,6 +231,7 @@ private:
 template <class Lhs, class Rhs>
 class integral_operator_diff
 	: public integral_operator_expression<integral_operator_diff<Lhs, Rhs> >
+	, public fmm_operator<typename std::decay<Lhs>::type::fmm_tag>
 {
 public:
 	typedef integral_operator_expression<integral_operator_diff<Lhs, Rhs> > base_t;
@@ -338,6 +342,7 @@ struct integral_operator_expression_traits<integral_operator_src_concatenated<Lh
 template <class Lhs, class Rhs>
 class integral_operator_src_concatenated
 	: public integral_operator_expression<integral_operator_src_concatenated<Lhs, Rhs> >
+	, public fmm_operator<typename std::decay<Lhs>::type::fmm_tag>
 {
 public:
 	typedef integral_operator_expression<integral_operator_src_concatenated<Lhs, Rhs> > base_t;
