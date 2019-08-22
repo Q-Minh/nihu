@@ -11,6 +11,7 @@
 
 #include "cluster.hpp"
 #include "cluster_tree.hpp"
+#include "fmm_operator.hpp"
 #include "helmholtz_2d_wb_cluster.h"
 #include "helmholtz_2d_wb_x2x_matrix.h"
 #include "helmholtz_2d_wb_level_data.h"
@@ -72,6 +73,7 @@ public:
 	/** \brief the m2m operator */
 	class m2m
 		: public operator_with_wave_number<wave_number_t>
+		, public fmm_operator<m2m_tag>
 	{
 	private:
 		typedef operator_with_wave_number<wave_number_t> base_t;
@@ -132,6 +134,7 @@ public:
 	/** \brief the l2l operator */
 	class l2l
 		: public operator_with_wave_number<wave_number_t>
+		, public fmm_operator<l2l_tag>
 	{
 	private:
 		typedef operator_with_wave_number<WaveNumber> base_t;
@@ -190,6 +193,7 @@ public:
 	/** \brief the m2l operator */
 	class m2l
 		: public operator_with_wave_number<wave_number_t>
+		, public fmm_operator<m2l_tag>
 	{
 	private:
 		typedef operator_with_wave_number<wave_number_t> base_t;
@@ -246,6 +250,7 @@ public:
 	template <unsigned int Ny>
 	class p2m
 		: public operator_with_wave_number<wave_number_t>
+		, public fmm_operator<p2m_tag>
 	{
 	public:
 		typedef operator_with_wave_number<wave_number_t> base_t;
@@ -291,7 +296,7 @@ public:
 		{
 			using boost::math::cyl_bessel_j;
 
-			int L = to.get_level_data().get_expansion_length();
+			int L = int(to.get_level_data().get_expansion_length());
 			location_t const &Y = to.get_bounding_box().get_center();
 			location_t const &y = tri.get_x();
 			double r, theta;
@@ -338,6 +343,7 @@ public:
 	template <unsigned int Ny>
 	class p2l
 		: public operator_with_wave_number<wave_number_t>
+		, public fmm_operator<p2l_tag>
 	{
 	private:
 		typedef operator_with_wave_number<wave_number_t> base_t;
@@ -433,6 +439,8 @@ public:
 	template <unsigned int Nx>
 	class l2p
 		: public operator_with_wave_number<wave_number_t>
+		, public fmm_operator<l2p_tag>
+
 	{
 	private:
 		typedef operator_with_wave_number<wave_number_t> base_t;
@@ -526,6 +534,7 @@ public:
 	template <unsigned int Nx>
 	class m2p
 		: public operator_with_wave_number<wave_number_t>
+		, public fmm_operator<m2p_tag>
 	{
 	private:
 		typedef operator_with_wave_number<wave_number_t> base_t;
