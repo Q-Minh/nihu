@@ -3,6 +3,8 @@
 
 #include "util/matrix_traits.hpp"
 
+#include "fmm_operator.hpp"
+
 namespace NiHu
 {
 namespace fmm
@@ -10,6 +12,7 @@ namespace fmm
 
 template <class Kernel>
 class p2p
+	: public fmm_operator<p2p_tag>
 {
 public:
 	typedef Kernel kernel_t;

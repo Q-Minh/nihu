@@ -505,7 +505,7 @@ public:
 			location_t Td(d(1), -d(0));
 			double thetadnx = -Td.dot(tsi.get_unit_normal()) / (r * r);
 
-			int L = from.get_level_data().get_expansion_length();
+			int L = int(from.get_level_data().get_expansion_length());
 			result_t res(1, 2 * L + 1);
 
 			auto const &k = this->get_wave_number();
