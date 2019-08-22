@@ -2,6 +2,7 @@
 #define FMM_X2X_PRECOMPUTE_HPP_INCLUDED
 
 #include "cluster_tree.hpp"
+#include "fmm_operator.hpp"
 #include "lists.hpp"
 
 #include "Eigen/SparseCore"
@@ -15,6 +16,7 @@ namespace fmm
 
 template <class Operator>
 class x2x_precompute
+	: public fmm_operator<typename std::decay<Operator>::type::fmm_tag>
 {
 public:
 	typedef typename std::decay<Operator>::type operator_t;
