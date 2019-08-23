@@ -35,7 +35,7 @@ public:
 	typedef cvector_t response_t;
 
 	typedef typename fmm_t::cluster_t cluster_t;
-	typedef fmm::cluster_tree<cluster_t> cluster_tree_t;
+	typedef cluster_tree<cluster_t> cluster_tree_t;
 
 	typedef typename tmp::deref<
 		typename tmp::begin<
@@ -93,10 +93,10 @@ public:
 		// create cluster tree
 		std::cout << "Create cluster tree" << std::endl;
 		cluster_tree_t tree(
-			fmm::create_field_center_iterator(m_trial_space.template field_begin<trial_field_t>()),
-			fmm::create_field_center_iterator(m_trial_space.template field_end<trial_field_t>()),
-			fmm::create_field_center_iterator(m_test_space.template field_begin<test_field_t>()),
-			fmm::create_field_center_iterator(m_test_space.template field_end<test_field_t>()),
+			create_field_center_iterator(m_trial_space.template field_begin<trial_field_t>()),
+			create_field_center_iterator(m_trial_space.template field_end<trial_field_t>()),
+			create_field_center_iterator(m_test_space.template field_begin<test_field_t>()),
+			create_field_center_iterator(m_test_space.template field_end<test_field_t>()),
 			divide);
 		std::cout << tree << std::endl;
 
@@ -109,7 +109,7 @@ public:
 
 		// create interaction lists
 		std::cout << "Compute interaction lists" << std::endl;
-		fmm::interaction_lists lists(tree);
+		interaction_lists lists(tree);
 
 		// create functors
 
@@ -125,7 +125,10 @@ public:
 
 		auto pre_fctr = create_precompute_functor(tree, lists);
 
+		// operator manipulations
+
 		auto pre_collection = create_fmm_operator_collection(
+			src_concatenate(int_fctr(fmm.template create_p2p<0, 0>()), int_fctr(fmm.template create_p2p<0, 1>())),
 			src_concatenate(int_fctr(fmm.template create_p2m<0>()), int_fctr(fmm.template create_p2m<1>())),
 			src_concatenate(int_fctr(fmm.template create_p2l<0>()), int_fctr(fmm.template create_p2l<1>())),
 			int_fctr(fmm.template create_m2p<0>()),
@@ -134,8 +137,6 @@ public:
 			fmm.create_l2l(),
 			fmm.create_m2l()
 			).transform(idx_fctr).transform(pre_fctr);
-
-		auto p2p = pre_fctr(idx_fctr(src_concatenate(int_fctr(fmm.template create_p2p<0, 0>()), int_fctr(fmm.template create_p2p<0, 1>()))));
 
 #if PARALLEL
 		auto max_num_threads = omp_get_max_threads();
@@ -146,8 +147,8 @@ public:
 
 		// create matrix objects
 		std::cout << "Starting assembling | SLP | DLP | " << std::endl;
-		auto combined_matrix = fmm::create_fmm_matrix(
-			p2p,
+		auto combined_matrix = create_fmm_matrix(
+			pre_collection.get(p2p_tag()),
 			pre_collection.get(p2m_tag()),
 			pre_collection.get(p2l_tag()),
 			pre_collection.get(m2p_tag()),

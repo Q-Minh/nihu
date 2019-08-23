@@ -2,12 +2,14 @@
 #define P2P_PRECOMPUTE_HPP_INCLUDED
 
 #include "cluster_tree.hpp"
+#include "fmm_operator.hpp"
 #include "lists.hpp"
 #include "util/matrix_traits.hpp"
 
 #include <Eigen/SparseCore>
 
 #include <vector>
+#include <type_traits>
 
 namespace NiHu
 {
@@ -15,9 +17,11 @@ namespace fmm
 {
 
 template <class Operator, class ClusterDerived>
-Eigen::SparseMatrix<typename scalar<typename std::decay<Operator>::type::result_t>::type>
-p2p_precompute(Operator const &op, cluster_tree<ClusterDerived> const &tree, interaction_lists::list_t const &list)
+class p2p_precompute
+	: public fmm_operator<p2p_tag>
 {
+public:
+	typedef typename std::decay<Operator>::type operator_t;
 	typedef typename std::decay<Operator>::type operator_t;
 	typedef typename operator_t::result_t result_t;
 	typedef typename scalar<result_t>::type scalar_t;
@@ -25,39 +29,71 @@ p2p_precompute(Operator const &op, cluster_tree<ClusterDerived> const &tree, int
 	static size_t const cols = num_cols<result_t>::value;
 	typedef Eigen::SparseMatrix<scalar_t> sparse_t;
 	typedef Eigen::Triplet<scalar_t, size_t> triplet_t;
+	typedef ClusterDerived cluster_t;
+	typedef cluster_tree<cluster_t> tree_t;
 
-	std::vector<triplet_t> triplets;
-
-	// determine number of entries in p2p sparse matrix
-	size_t s = 0;
-	for (unsigned to = 0; to < list.size(); ++to)
-		for (auto from : list[to])
-			s += tree[to].get_rec_node_idx().size() * rows *
-			tree[from].get_src_node_idx().size() * cols;
-	triplets.reserve(s);
-
-	// compute entries and place them in p2p triplets
-	for (unsigned to = 0; to < list.size(); ++to)	// loop over receiver clusters
+	p2p_precompute(Operator &&op, tree_t const &tree, interaction_lists::list_t const &list)
+		: m_op(std::forward<Operator>(op))
+		, m_tree(tree)
+		, m_list(list)
 	{
-		for (auto from : list[to])	// loop over source clusters
+		compute_sparse_matrix();
+	}
+
+	void compute_sparse_matrix()
+	{
+		std::vector<triplet_t> triplets;
+
+		// determine number of entries in p2p sparse matrix
+		size_t s = 0;
+		for (unsigned to = 0; to < m_list.size(); ++to)
+			for (auto from : m_list[to])
+				s += m_tree[to].get_rec_node_idx().size() * rows *
+				m_tree[from].get_src_node_idx().size() * cols;
+		triplets.reserve(s);
+
+		// compute entries and place them in p2p triplets
+		for (unsigned to = 0; to < m_list.size(); ++to)	// loop over receiver clusters
 		{
-			for (auto i : tree[to].get_rec_node_idx()) // loop over receiver nodes
+			for (auto from : m_list[to])	// loop over source clusters
 			{
-				for (auto j : tree[from].get_src_node_idx())	// loop over source nodes
+				for (auto i : m_tree[to].get_rec_node_idx()) // loop over receiver nodes
 				{
-					result_t mat = op(i, j);
-					for (size_t ii = 0; ii < rows; ++ii)	// loop over matrix rows
-						for (size_t jj = 0; jj < cols; ++jj)	// loop over matrix cols
-							triplets.push_back(triplet_t(i*rows + ii, j*cols + jj, mat(ii, jj)));
+					for (auto j : m_tree[from].get_src_node_idx())	// loop over source nodes
+					{
+						result_t mat = m_op(i, j);
+						for (size_t ii = 0; ii < rows; ++ii)	// loop over matrix rows
+							for (size_t jj = 0; jj < cols; ++jj)	// loop over matrix cols
+								triplets.push_back(triplet_t(i * rows + ii, j * cols + jj, mat(ii, jj)));
+					}
 				}
 			}
 		}
+
+		m_mat.resize(rows * m_tree.get_n_rec_nodes(), cols * m_tree.get_n_src_nodes());
+		m_mat.setFromTriplets(triplets.begin(), triplets.end());
 	}
 
-	sparse_t mat(rows * tree.get_n_rec_nodes(), cols * tree.get_n_src_nodes());
-	mat.setFromTriplets(triplets.begin(), triplets.end());
-	return mat;
+	sparse_t const &get_sparse_matrix() const
+	{
+		return m_mat;
+	}
+
+private:
+	Operator m_op;
+	tree_t const &m_tree;
+	interaction_lists::list_t const &m_list;
+	sparse_t m_mat;
+};
+
+template <class Operator, class ClusterDerived>
+auto create_p2p_precompute(Operator &&op,
+	cluster_tree<ClusterDerived> const &tree,
+	interaction_lists::list_t const &list)
+{
+	return p2p_precompute<Operator, ClusterDerived>(std::forward<Operator>(op), tree, list);
 }
+
 
 } // namespace fmm
 } // namespace NiHu
