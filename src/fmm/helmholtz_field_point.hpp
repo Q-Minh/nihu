@@ -7,18 +7,13 @@
 #include "cluster_tree.hpp"
 #include "divide.h"
 #include "elem_center_iterator.hpp"
+#include "fmbem.hpp"
 #include "fmm_matrix.hpp"
+#include "fmm_precompute.hpp"
+#include "fmm_indexed.hpp"
+#include "fmm_operator_collection.hpp"
+#include "fmm_integrated.hpp"
 #include "matrix_free.hpp"
-#include "p2p_integral.hpp"
-#include "p2p_precompute.hpp"
-#include "p2x_cluster_indexed.hpp"
-#include "p2x_indexed.hpp"
-#include "p2x_integral.hpp"
-#include "x2p_cluster_indexed.hpp"
-#include "x2p_indexed.hpp"
-#include "x2p_integral.hpp"
-#include "x2x_cluster_indexed.hpp"
-#include "x2x_precompute.hpp"
 
 #include "util/timer.h"
 
@@ -117,95 +112,31 @@ public:
 		std::cout << "Compute interaction lists" << std::endl;
 		fmm::interaction_lists lists(tree);
 
-		// get operators from fmm
-		std::cout << "Generate operators" << std::endl;
-		auto m2m = fmm.create_m2m();
-		auto l2l = fmm.create_l2l();
-		auto m2l = fmm.create_m2l();
+		// create functors
 
-		// integrate operators over fields
-		std::cout << "Operator integration" << std::endl;
-
-		auto fmb = create_fmbem(fmm, test_field_tag_t(), trial_field_tag_t(),
+		auto int_fctr = create_integrated_functor(test_field_tag_t(), trial_field_tag_t(),
 			far_field_quadrature_order, false);
 
-		auto ip2p_00 = fmb.template create_p2p<0, 0>();
-		auto ip2p_01 = fmb.template create_p2p<0, 1>();
-
-		auto ip2m_0 = fmb.template create_p2m<0>();
-		auto ip2l_0 = fmb.template create_p2l<0>();
-		auto ip2m_1 = fmb.template create_p2m<1>();
-		auto ip2l_1 = fmb.template create_p2l<1>();
-
-		auto im2p = fmb.template create_m2p<0>();
-		auto il2p = fmb.template create_l2p<0>();
-
-		// concatenate operators
-		std::cout << "Operator concatenation" << std::endl;
-
-		auto ip2p = src_concatenate(ip2p_00, ip2p_01);
-		auto ip2m = src_concatenate(ip2m_0, ip2m_1);
-		auto ip2l = src_concatenate(ip2l_0, ip2l_1);
-
-		// create indexed fmbem operators
-		std::cout << "Operator indexing" << std::endl;
-
-		auto ix_p2m = fmm::create_p2x_indexed(ip2m,
-			m_trial_space.template field_begin<trial_field_t>(),
-			m_trial_space.template field_end<trial_field_t>());
-		auto ix_p2l = fmm::create_p2x_indexed(ip2l,
-			m_trial_space.template field_begin<trial_field_t>(),
-			m_trial_space.template field_end<trial_field_t>());
-
-		auto ix_m2p_0 = fmm::create_x2p_indexed(im2p,
+		auto idx_fctr = create_indexed_functor(
 			m_test_space.template field_begin<test_field_t>(),
-			m_test_space.template field_end<test_field_t>());
-		auto ix_l2p_0 = fmm::create_x2p_indexed(il2p,
-			m_test_space.template field_begin<test_field_t>(),
-			m_test_space.template field_end<test_field_t>());
-
-		auto ix_p2p = fmm::create_p2x_indexed(
-			fmm::create_x2p_indexed(ip2p,
-				m_test_space.template field_begin<test_field_t>(),
-				m_test_space.template field_end<test_field_t>()),
+			m_test_space.template field_end<test_field_t>(),
 			m_trial_space.template field_begin<trial_field_t>(),
-			m_trial_space.template field_end<trial_field_t>()
-		);
+			m_trial_space.template field_end<trial_field_t>(),
+			tree);
 
-		// assign tree to operators for cluster_indexing
-		std::cout << "Cluster indexing" << std::endl;
+		auto pre_fctr = create_precompute_functor(tree, lists);
 
-		auto cix_m2m = create_x2x_cluster_indexed(fmm.create_m2m(), tree);
-		auto cix_m2l = create_x2x_cluster_indexed(fmm.create_m2l(), tree);
-		auto cix_l2l = create_x2x_cluster_indexed(fmm.create_l2l(), tree);
+		auto pre_collection = create_fmm_operator_collection(
+			src_concatenate(int_fctr(fmm.template create_p2m<0>()), int_fctr(fmm.template create_p2m<1>())),
+			src_concatenate(int_fctr(fmm.template create_p2l<0>()), int_fctr(fmm.template create_p2l<1>())),
+			int_fctr(fmm.template create_m2p<0>()),
+			int_fctr(fmm.template create_l2p<0>()),
+			fmm.create_m2m(),
+			fmm.create_l2l(),
+			fmm.create_m2l()
+			).transform(idx_fctr).transform(pre_fctr);
 
-		auto cix_p2m = create_p2x_cluster_indexed(ix_p2m, tree);
-		auto cix_p2l = create_p2x_cluster_indexed(ix_p2l, tree);
-
-		auto cix_m2p_0 = create_x2p_cluster_indexed(ix_m2p_0, tree);
-		auto cix_l2p_0 = create_x2p_cluster_indexed(ix_l2p_0, tree);
-
-		// create precomputed fmbem operators
-		std::cout << "Precomputing M2M..." << std::endl;
-		auto start = NiHu::wc_time::tic();
-		auto m2m_pre = create_x2x_precompute(cix_m2m, lists.get_list(lists.M2M));
-		std::cout << "Ready, Elapsed time: " << NiHu::wc_time::toc(start) << " s" << std::endl;
-
-		std::cout << "Precomputing L2L..." << std::endl;
-		start = NiHu::wc_time::tic();
-		auto l2l_pre = create_x2x_precompute(cix_l2l, lists.get_list(lists.L2L));
-		std::cout << "Ready, Elapsed time: " << NiHu::wc_time::toc(start) << " s" << std::endl;
-
-		std::cout << "Precomputing M2L..." << std::endl;
-		start = NiHu::wc_time::tic();
-		auto m2l_pre = create_x2x_precompute(cix_m2l, lists.get_list(lists.M2L));
-		std::cout << "Ready, Elapsed time: " << NiHu::wc_time::toc(start) << " s" << std::endl;
-
-		std::cout << "Precomputing P2P..." << std::endl;
-		start = NiHu::wc_time::tic();
-		auto p2p_near = p2p_precompute(ix_p2p, tree, lists.get_list(lists.P2P));
-		std::cout << "Ready, Elapsed time: " << NiHu::wc_time::toc(start) << " s" << std::endl;
-
+		auto p2p = pre_fctr(idx_fctr(src_concatenate(int_fctr(fmm.template create_p2p<0, 0>()), int_fctr(fmm.template create_p2p<0, 1>()))));
 
 #if PARALLEL
 		auto max_num_threads = omp_get_max_threads();
@@ -217,8 +148,14 @@ public:
 		// create matrix objects
 		std::cout << "Starting assembling | SLP | DLP | " << std::endl;
 		auto combined_matrix = fmm::create_fmm_matrix(
-			p2p_near, cix_p2m, cix_p2l, cix_m2p_0, cix_l2p_0,
-			m2m_pre, l2l_pre, m2l_pre,
+			p2p,
+			pre_collection.get(p2m_tag()),
+			pre_collection.get(p2l_tag()),
+			pre_collection.get(m2p_tag()),
+			pre_collection.get(l2p_tag()),
+			pre_collection.get(m2m_tag()),
+			pre_collection.get(l2l_tag()),
+			pre_collection.get(m2l_tag()),
 			tree, lists);
 		std::cout << "Combined matrix assembled" << std::endl;
 

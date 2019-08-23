@@ -13,6 +13,8 @@
 #include "../util/matrix_traits.hpp"
 #include "../util/type2tag.hpp"
 
+#include <type_traits>
+
 namespace NiHu
 {
 namespace fmm
@@ -28,7 +30,7 @@ struct integral_operator_expression_traits<p2p_integral<Operator, TestField, Tri
 	typedef TrialField trial_input_t;
 
 	typedef typename NiHu::double_integral<
-		typename Operator::kernel_t,
+		typename std::decay<Operator>::type::kernel_t,
 		TestField,
 		TrialField
 	>::result_t result_t;
@@ -59,14 +61,14 @@ public:
 	typedef typename base_t::trial_input_t trial_input_t;
 	typedef typename base_t::result_t result_t;
 
-	typedef Operator operator_t;
+	typedef typename std::decay<Operator>::type operator_t;
 	typedef TestField test_field_t;
 	typedef TrialField trial_field_t;
 
 	typedef typename operator_t::kernel_t kernel_t;
 	typedef NiHu::double_integral<kernel_t, test_field_t, trial_field_t> double_integral_t;
 
-	p2p_integral(operator_t const &op, bool sing_check)
+	p2p_integral(Operator &&op, bool sing_check)
 		: m_kernel(op.get_kernel())
 		, m_singular_check(sing_check)
 	{
@@ -144,17 +146,15 @@ public:
 
 
 template <class Operator, class TestTag, class TrialTag>
-p2p_integral<Operator, typename tag2type<TestTag>::type, typename tag2type<TrialTag>::type>
-create_p2p_integral(Operator const &op, TestTag, TrialTag, bool sing_check)
+auto create_p2p_integral(Operator &&op, TestTag, TrialTag, bool sing_check)
 {
 	typedef typename tag2type<TestTag>::type test_field_t;
 	typedef typename tag2type<TrialTag>::type trial_field_t;
-	return p2p_integral<Operator, test_field_t, trial_field_t>(op, sing_check);
+	return p2p_integral<Operator, test_field_t, trial_field_t>(std::forward<Operator>(op), sing_check);
 }
 
 template <class TestTag, class TrialTag>
-p2p_integral<identity_p2p_operator, typename tag2type<TestTag>::type, typename tag2type<TrialTag>::type>
-create_identity_p2p_integral(TestTag, TrialTag)
+auto create_identity_p2p_integral(TestTag, TrialTag)
 {
 	typedef typename tag2type<TestTag>::type test_field_t;
 	typedef typename tag2type<TrialTag>::type trial_field_t;

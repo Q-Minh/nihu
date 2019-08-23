@@ -47,7 +47,7 @@ public:
 		return create_x2x_cluster_indexed(std::forward<Op>(op), tree);
 	}
 };
-	
+
 
 template <class Op>
 class indexed<Op, m2p_tag> {
@@ -104,14 +104,28 @@ public:
 			create_p2x_indexed(
 				std::forward<Op>(op),
 				trial_begin, trial_end
-				), tree);
+			), tree);
+	}
+};
+
+
+template <class Op>
+class indexed<Op, p2p_tag> {
+public:
+	template <class TestIt, class TrialIt, class Tree>
+	static auto eval(Op &&op, TestIt test_begin, TestIt test_end, TrialIt trial_begin, TrialIt trial_end, Tree const &tree)
+	{
+		return create_p2x_indexed(
+			create_x2p_indexed(std::forward<Op>(op), test_begin, test_end),
+			trial_begin, trial_end);
 	}
 };
 
 
 
+
 template <class Op, class TestIt, class TrialIt, class Tree>
-auto create_indexed(Op &&op,TestIt test_begin, TestIt test_end, TrialIt trial_begin, TrialIt trial_end,  Tree const &tree)
+auto create_indexed(Op &&op, TestIt test_begin, TestIt test_end, TrialIt trial_begin, TrialIt trial_end, Tree const &tree)
 {
 	return indexed<Op>::eval(std::forward<Op>(op), test_begin, test_end, trial_begin, trial_end, tree);
 }
@@ -120,7 +134,7 @@ auto create_indexed(Op &&op,TestIt test_begin, TestIt test_end, TrialIt trial_be
 template <class TestIt, class TrialIt, class Tree>
 struct indexed_functor
 {
-	indexed_functor(TestIt test_begin, TestIt test_end, 
+	indexed_functor(TestIt test_begin, TestIt test_end,
 		TrialIt trial_begin, TrialIt trial_end,
 		Tree const &tree)
 		: m_test_begin(test_begin)

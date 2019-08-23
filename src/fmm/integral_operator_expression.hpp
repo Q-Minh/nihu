@@ -290,6 +290,7 @@ struct integral_operator_expression_traits<integral_operator_scaled<Lhs, Scalar>
 template <class Lhs, class Scalar>
 class integral_operator_scaled
 	: public integral_operator_expression<integral_operator_scaled<Lhs, Scalar> >
+	, public fmm_operator<typename std::decay<Lhs>::type::fmm_tag>
 {
 public:
 	typedef integral_operator_expression<integral_operator_scaled<Lhs, Scalar> > base_t;
@@ -380,8 +381,7 @@ private:
 };
 
 template <class Lhs, class Rhs>
-integral_operator_src_concatenated<Lhs, Rhs>
-src_concatenate(Lhs &&lhs, Rhs &&rhs)
+auto src_concatenate(Lhs &&lhs, Rhs &&rhs)
 {
 	return integral_operator_src_concatenated<Lhs, Rhs>(std::forward<Lhs>(lhs), std::forward<Rhs>(rhs));
 }
