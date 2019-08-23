@@ -131,16 +131,10 @@ public:
 		
 		auto I = create_identity_p2p_integral(type2tag<test_field_t>(), type2tag<trial_field_t>());
 
-		auto ip2p_rhs_bm =
-			int_fctr(fmm.template create_p2p<0, 0>())
-			+ alpha * int_fctr(fmm.template create_p2p<1, 0>())
-			+ (alpha / 2.0) * I;
-
-		auto ip2p_lhs_bm = int_fctr(fmm.template create_p2p<0, 1>())
-			+ alpha * int_fctr(fmm.template create_p2p<1, 1>())
-			- 0.5 * I;
-
 		auto lhs_collection = create_fmm_operator_collection(
+			int_fctr(fmm.template create_p2p<0, 1>())
+				+ alpha * int_fctr(fmm.template create_p2p<1, 1>())
+				- 0.5 * I,
 			int_fctr(fmm.template create_p2m<1>()),
 			int_fctr(fmm.template create_p2l<1>()),
 			int_fctr(fmm.template create_m2p<0>())
@@ -153,6 +147,9 @@ public:
 		);
 
 		auto rhs_collection = create_fmm_operator_collection(
+			int_fctr(fmm.template create_p2p<0, 0>())
+				+ alpha * int_fctr(fmm.template create_p2p<1, 0>())
+				+ (alpha / 2.0) * I,
 			int_fctr(fmm.template create_p2m<0>()),
 			int_fctr(fmm.template create_p2l<0>())
 		);
@@ -175,7 +172,7 @@ public:
 		// create rhs matrix object
 		std::cout << "Starting assembling matrices ..." << std::endl;
 		auto slp_matrix = create_fmm_matrix(
-			pre_fctr(idx_fctr(ip2p_rhs_bm)),
+			pre_fctr(rhs_cix_collection.get(p2p_tag())),
 			rhs_cix_collection.get(p2m_tag()),
 			rhs_cix_collection.get(p2l_tag()),
 			lhs_pre_collection.get(m2p_tag()),
@@ -192,7 +189,7 @@ public:
 
 		// create matrix object
 		auto dlp_matrix = create_fmm_matrix(
-			pre_fctr(idx_fctr(ip2p_lhs_bm)),
+			lhs_pre_collection.get(p2p_tag()),
 			lhs_pre_collection.get(p2m_tag()),
 			lhs_pre_collection.get(p2l_tag()),
 			lhs_pre_collection.get(m2p_tag()),

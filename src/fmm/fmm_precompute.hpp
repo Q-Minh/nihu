@@ -122,7 +122,7 @@ public:
 	template <class Tree>
 	static auto eval(Op &&op, Tree const &tree, interaction_lists const &lists)
 	{
-		return p2p_precompute(std::forward<Op>(op), tree, lists.get_list(lists.P2P));
+		return create_p2p_precompute(std::forward<Op>(op), tree, lists.get_list(lists.P2P));
 	}
 };
 
