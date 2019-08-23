@@ -27,7 +27,7 @@ get_system_bits(NIHU_SYS_BITS)
 message(STATUS "${NIHU_SYS_BITS}-bit system detected")
 
 # Set c++11 as requirement
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 

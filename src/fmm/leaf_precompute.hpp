@@ -4,6 +4,7 @@
 #include <Eigen/SparseCore>
 
 #include "cluster_tree.hpp"
+#include "fmm_operator.hpp"
 #include "lists.hpp"
 
 #include <vector>
@@ -16,6 +17,7 @@ namespace fmm
 
 template <class Operator>
 class p2x_precompute
+	: public fmm_operator<typename std::decay<Operator>::type::fmm_tag>
 {
 public:
 	typedef typename std::decay<Operator>::type operator_t;
@@ -91,6 +93,7 @@ create_p2x_precompute(Operator const &op, std::vector<size_t> const &list)
 
 template <class Operator>
 class x2p_precompute
+	: public fmm_operator<typename std::decay<Operator>::type::fmm_tag>
 {
 public:
 	typedef typename std::decay<Operator>::type operator_t;
