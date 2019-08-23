@@ -1,8 +1,10 @@
 #ifndef FMM_PRECOMPUTE_HPP_INCLUDED
 #define FMM_PRECOMPUTE_HPP_INCLUDED
 
+#include "cluster_tree.hpp"
 #include "leaf_precompute.hpp"
 #include "x2x_precompute.hpp"
+#include "p2p_precompute.hpp"
 #include "lists.hpp"
 
 #include <type_traits>
@@ -113,9 +115,20 @@ public:
 };
 
 
+template <class Op>
+class precompute<Op, p2p_tag>
+{
+public:
+	template <class Tree>
+	static auto eval(Op &&op, Tree const &tree, interaction_lists const &lists)
+	{
+		return p2p_precompute(std::forward<Op>(op), tree, lists.get_list(lists.P2P));
+	}
+};
+
+
 template <class Op, class Tree>
-typename precompute<Op>::return_type
-create_precompute(Op &&op, Tree const &tree, interaction_lists const &lists)
+auto create_precompute(Op &&op, Tree const &tree, interaction_lists const &lists)
 {
 	return precompute<Op>::eval(std::forward<Op>(op), tree, lists);
 }
