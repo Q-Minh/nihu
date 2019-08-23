@@ -1,7 +1,7 @@
 Single integral of the Laplace kernel {#tut_laplace_single_integral}
 =====================================
 
-\page tut_laplace_single_integral
+\page tut_laplace_single_integral Single integral of the laplace kernel
 
 [TOC]
 
