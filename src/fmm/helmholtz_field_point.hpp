@@ -88,10 +88,8 @@ public:
 	template <class Divide>
 	response_t const &eval(Divide const &divide, size_t far_field_quadrature_order)
 	{
-		fmm_t fmm(m_wave_number);
-
 		// create cluster tree
-		std::cout << "Create cluster tree" << std::endl;
+		std::cout << "Building cluster tree ..." << std::endl;
 		cluster_tree_t tree(
 			create_field_center_iterator(m_trial_space.template field_begin<trial_field_t>()),
 			create_field_center_iterator(m_trial_space.template field_end<trial_field_t>()),
@@ -101,18 +99,18 @@ public:
 		std::cout << tree << std::endl;
 
 		// initialize tree data
-		std::cout << "Initialize level data" << std::endl;
+		std::cout << "Initializing fmm object and level data ..." << std::endl;
+		fmm_t fmm(m_wave_number);
 		fmm.set_accuracy(3.0);
 		fmm.init_level_data(tree);
 		for (size_t c = 0; c < tree.get_n_clusters(); ++c)
 			tree[c].set_p_level_data(&fmm.get_level_data(tree[c].get_level()));
 
 		// create interaction lists
-		std::cout << "Compute interaction lists" << std::endl;
+		std::cout << "Computing interaction lists ..." << std::endl;
 		interaction_lists lists(tree);
 
 		// create functors
-
 		auto int_fctr = create_integrated_functor(test_field_tag_t(), trial_field_tag_t(),
 			far_field_quadrature_order, false);
 
@@ -126,7 +124,7 @@ public:
 		auto pre_fctr = create_precompute_functor(tree, lists);
 
 		// operator manipulations
-
+		std::cout << "Precomputing fmm operators ..." << std::endl;
 		auto pre_collection = create_fmm_operator_collection(
 			src_concatenate(int_fctr(fmm.template create_p2p<0, 0>()), int_fctr(fmm.template create_p2p<0, 1>())),
 			src_concatenate(int_fctr(fmm.template create_p2m<0>()), int_fctr(fmm.template create_p2m<1>())),
@@ -147,16 +145,7 @@ public:
 
 		// create matrix objects
 		std::cout << "Starting assembling | SLP | DLP | " << std::endl;
-		auto combined_matrix = create_fmm_matrix(
-			pre_collection.get(p2p_tag()),
-			pre_collection.get(p2m_tag()),
-			pre_collection.get(p2l_tag()),
-			pre_collection.get(m2p_tag()),
-			pre_collection.get(l2p_tag()),
-			pre_collection.get(m2m_tag()),
-			pre_collection.get(l2l_tag()),
-			pre_collection.get(m2l_tag()),
-			tree, lists);
+		auto combined_matrix = create_fmm_matrix(pre_collection, tree, lists);
 		std::cout << "Combined matrix assembled" << std::endl;
 
 		std::cout << "Computing MVP " << std::endl;
