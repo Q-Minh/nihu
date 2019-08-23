@@ -7,7 +7,6 @@
 #include "cluster_tree.hpp"
 #include "divide.h"
 #include "elem_center_iterator.hpp"
-#include "fmbem.hpp"
 #include "fmm_matrix.hpp"
 #include "fmm_precompute.hpp"
 #include "fmm_indexed.hpp"
