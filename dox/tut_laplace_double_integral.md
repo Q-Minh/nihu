@@ -1,7 +1,7 @@
 Double integral of the Laplace kernel {#tut_laplace_double_integral}
 =====================================
 
-\page tut_laplace_double_integral
+\page tut_laplace_double_integral Double integral of the Laplace kernel
 
 [Eigen]:http://eigen.tuxfamily.org/index.php?title=Main_Page
 
@@ -10,7 +10,7 @@ Double integral of the Laplace kernel {#tut_laplace_double_integral}
 Introduction {#tut_laplace_double_intro}
 ============
 
-This tutorial explains how to use NiHu to compute a singular double integral of the form
+This tutorial explains how to use `NiHu` to compute a singular double integral of the form
 
 \f$
 \displaystyle

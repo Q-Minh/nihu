@@ -1,7 +1,7 @@
 Fictitious eigenfrequencies with a collocational Helmholtz BEM {#tut_helmholtz_bem_3d_fict}
 ==============================================================
 
-\page tut_helmholtz_bem_3d_fict
+\page tut_helmholtz_bem_3d_fict Mitigation of fictitious eigenfrequencies
 
 [BEM example]:\ref theo_bem_example
 [operator notation]:\ref bem_example_op

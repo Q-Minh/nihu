@@ -1,7 +1,7 @@
 Integral operators and weighted residuals {#tut_integral_operators}
 =========================================
 
-\page tut_integral_operators
+\page tut_integral_operators Integral operators and weighted residuals
 
 [TOC]
 

@@ -1,7 +1,7 @@
 Rayleigh integral {#tut_rayleigh_integral}
 =================
 
-\page tut_rayleigh_integral
+\page tut_rayleigh_integral Rayleigh integral
 
 [TOC]
 

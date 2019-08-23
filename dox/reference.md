@@ -1,7 +1,7 @@
 NiHu Component Library Reference {#reference}
 ================================
 
-\page reference
+\page reference NiHu component library reference
 
 [TOC]
 
