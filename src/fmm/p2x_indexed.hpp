@@ -3,6 +3,7 @@
 #ifndef P2X_INDEXED_HPP_INCLUDED
 #define P2X_INDEXED_HPP_INCLUDED
 
+#include "fmm_operator.hpp"
 #include <type_traits>
 
 namespace NiHu
@@ -15,6 +16,8 @@ namespace fmm
 /// \tparam It the indexing iterator type
 template <class Operator, class It>
 class p2x_indexed
+	: public fmm_operator<typename std::decay<Operator>::type::fmm_tag>
+
 {
 public:
 	typedef typename std::decay<Operator>::type operator_t;

@@ -50,7 +50,8 @@ public:
 	typedef typename cluster_t::multipole_t multipole_t;
 	typedef typename cluster_t::local_t local_t;
 
-	typedef typename scalar<p2p_t>::type scalar_t;
+	typedef typename p2p_t::sparse_t sparse_t;
+	typedef typename scalar<sparse_t>::type scalar_t;
 	typedef Eigen::Matrix<scalar_t, Eigen::Dynamic, 1> excitation_t;
 	typedef Eigen::Matrix<scalar_t, Eigen::Dynamic, 1> response_t;
 
@@ -147,14 +148,14 @@ public:
 	/// \return number of rows
 	size_t rows() const
 	{
-		return m_p2p.rows();
+		return m_p2p.get_sparse_matrix().rows();
 	}
 
 	/// \brief return number of columns of the matrix
 	/// \return number of columns
 	size_t cols() const
 	{
-		return m_p2p.cols();
+		return m_p2p.get_sparse_matrix().cols();
 	}
 
 	/// \brief cluster-continuous reordering of the excitation data
@@ -369,7 +370,7 @@ public:
 	{
 		// compute P2P interactions
 		m_timer.tic();
-		response_t lhs = m_p2p * rhs;
+		response_t lhs = m_p2p.get_sparse_matrix() * rhs;
 		m_timer.toc(0, fmm_timer::P2P);
 
 		// instantiate locals and multipoles
@@ -459,7 +460,7 @@ public:
 
 	Eigen::Matrix<scalar_t, Eigen::Dynamic, 1> get_diagonal() const
 	{
-		return m_p2p.diagonal();
+		return m_p2p.get_sparse_matrix().diagonal();
 	}
 
 private:

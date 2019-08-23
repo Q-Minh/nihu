@@ -7,6 +7,7 @@
 
 #include "core/gaussian_quadrature.hpp"
 #include "core/field.hpp"
+#include "fmm_operator.hpp"
 
 #include "integral_operator_expression.hpp"
 #include "jacobian_computer.hpp"
@@ -45,6 +46,7 @@ struct integral_operator_expression_traits<x2p_integral<Operator, TestField> >
 template <class Operator, class TestField>
 class x2p_integral
 	: public integral_operator_expression<x2p_integral<Operator, TestField> >
+	, public fmm_operator<typename std::decay<Operator>::type::fmm_tag>
 {
 public:
 	typedef integral_operator_expression<x2p_integral<Operator, TestField> > base_t;
@@ -118,6 +120,7 @@ private:
 template <class Operator, class TestField>
 class x2p_integral<Operator, NiHu::dirac_field<TestField> >
 	: public integral_operator_expression<x2p_integral<Operator, NiHu::dirac_field<TestField> > >
+	, public fmm_operator<typename std::decay<Operator>::type::fmm_tag>
 {
 public:
 	typedef typename std::decay<Operator>::type operator_t;

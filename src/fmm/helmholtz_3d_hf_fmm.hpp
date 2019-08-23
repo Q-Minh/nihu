@@ -5,6 +5,7 @@
 
 #include "cluster.hpp"
 #include "cluster_tree.hpp"
+#include "fmm_operator.hpp"
 #include "helmholtz_3d_hf_cluster.h"
 #include "helmholtz_3d_hf_level_data.h"
 #include "m2l_indices.hpp"
@@ -105,10 +106,13 @@ public:
 	/// \brief the cluster tree type
 	typedef cluster_tree<cluster_t> cluster_tree_t;
 
+	typedef NiHu::helmholtz_kernel<NiHu::space_3d<>, wave_number_t> distance_dependent_kernel_t;
+
 	/// \brief constructor
 	/// \param [in] k the wave number
 	helmholtz_3d_hf_fmm(wave_number_t const &k)
 		: m_wave_number(k)
+		, m_C(3.0)
 	{
 	}
 
@@ -179,6 +183,7 @@ public:
 	/// \brief M2M operator of the FMM for the Helmholtz equation in 3D
 	class m2m
 		: public operator_with_wave_number<wave_number_t>
+		, public fmm_operator<m2m_tag>
 	{
 	public:
 		typedef operator_with_wave_number<wave_number_t> base_t;
@@ -213,6 +218,7 @@ public:
 	/// \brief L2L operator of the FMM for the Helmholtz equation in 3D
 	class l2l
 		: public operator_with_wave_number<wave_number_t>
+		, public fmm_operator<l2l_tag>
 	{
 	public:
 		typedef operator_with_wave_number<WaveNumber> base_t;
@@ -249,6 +255,7 @@ public:
 	template <int Ny>
 	class p2m
 		: public operator_with_wave_number<wave_number_t>
+		, public fmm_operator<p2m_tag>
 	{
 	public:
 		typedef operator_with_wave_number<wave_number_t> base_t;
@@ -256,7 +263,7 @@ public:
 
 		typedef cluster_t test_input_t;
 		typedef typename NiHu::normal_derivative_kernel<
-			NiHu::helmholtz_kernel<NiHu::space_3d<>, WaveNumber>, 0, Ny
+			distance_dependent_kernel_t, 0, Ny
 		>::trial_input_t trial_input_t;
 		typedef cvector_t result_t;
 
@@ -307,6 +314,7 @@ public:
 	template <int Ny>
 	class p2l
 		: public operator_with_wave_number<wave_number_t>
+		, public fmm_operator<p2l_tag>
 	{
 	public:
 		typedef operator_with_wave_number<wave_number_t> base_t;
@@ -315,7 +323,7 @@ public:
 
 		typedef cluster_t test_input_t;
 		typedef typename NiHu::normal_derivative_kernel<
-			NiHu::helmholtz_kernel<NiHu::space_3d<>, WaveNumber>, 0, Ny
+			distance_dependent_kernel_t, 0, Ny
 		>::trial_input_t trial_input_t;
 		typedef cvector_t result_t;
 
@@ -356,6 +364,7 @@ public:
 	template <int Nx>
 	class l2p
 		: public operator_with_wave_number<wave_number_t>
+		, public fmm_operator<l2p_tag>
 	{
 	public:
 		typedef operator_with_wave_number<wave_number_t> base_t;
@@ -364,7 +373,7 @@ public:
 
 		typedef cluster_t trial_input_t;
 		typedef typename NiHu::normal_derivative_kernel<
-			NiHu::helmholtz_kernel<NiHu::space_3d<>, WaveNumber>, Nx, 0
+			distance_dependent_kernel_t, Nx, 0
 		>::test_input_t test_input_t;
 		typedef Eigen::Matrix<std::complex<double>, 1, Eigen::Dynamic> result_t;
 
@@ -421,6 +430,7 @@ public:
 	template <int Nx>
 	class m2p
 		: public operator_with_wave_number<wave_number_t>
+		, public fmm_operator<m2p_tag>
 	{
 	public:
 		typedef operator_with_wave_number<wave_number_t> base_t;
@@ -429,7 +439,7 @@ public:
 
 		typedef cluster_t trial_input_t;
 		typedef typename NiHu::normal_derivative_kernel<
-			NiHu::helmholtz_kernel<NiHu::space_3d<>, WaveNumber>, Nx, 0
+			distance_dependent_kernel_t, Nx, 0
 		>::test_input_t test_input_t;
 		typedef Eigen::Matrix<std::complex<double>, 1, Eigen::Dynamic> result_t;
 
@@ -467,6 +477,7 @@ public:
 	/// \brief M2L operator of the FMM for the Helmholtz equation in 3D
 	class m2l
 		: public operator_with_wave_number<wave_number_t>
+		, public fmm_operator<m2l_tag>
 	{
 	public:
 		typedef operator_with_wave_number<wave_number_t> base_t;
@@ -569,7 +580,7 @@ public:
 	{
 		typedef fmm::p2p<
 			NiHu::normal_derivative_kernel<
-				NiHu::helmholtz_kernel<NiHu::space_3d<>, WaveNumber>, Nx, Ny
+			distance_dependent_kernel_t, Nx, Ny
 			> 
 		> type;
 	};
@@ -618,7 +629,7 @@ public:
 	typename p2p_type<Nx, Ny>::type create_p2p() const
 	{
 		typedef NiHu::normal_derivative_kernel<
-			NiHu::helmholtz_kernel<NiHu::space_3d<>, WaveNumber>, Nx, Ny
+			distance_dependent_kernel_t, Nx, Ny
 		> kernel_t;
 		return typename p2p_type<Nx, Ny>::type(kernel_t(m_wave_number));
 	}

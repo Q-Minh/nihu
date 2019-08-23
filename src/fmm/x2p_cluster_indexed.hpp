@@ -2,6 +2,7 @@
 #define FMM_X2P_CLUSTER_INDEXED_HPP_INCLUDED
 
 #include "cluster_tree.hpp"
+#include "fmm_operator.hpp"
 #include "util/matrix_traits.hpp"
 
 #include <type_traits>
@@ -13,6 +14,7 @@ namespace fmm
 
 template <class Operator>
 class x2p_cluster_indexed
+	: public fmm_operator<typename std::decay<Operator>::type::fmm_tag>
 {
 public:
 	typedef typename std::decay<Operator>::type operator_t;
