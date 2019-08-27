@@ -16,30 +16,30 @@ Three steps to build the first NiHu C++ executable
 
 Two complete examples using the C++ core only
 
-1. \subpage tut_laplace_double_integral : A Galerkin-type singular integral
-2. \subpage tut_laplace_single_integral : A Collocational-type singular integral
+1. \subpage tut_laplace_double_integral : A Galerkin type singular integral
+2. \subpage tut_laplace_single_integral : A collocational type singular integral
 
 Acoustic application examples
 -----------------------------
 
 These examples build C++ executables that are called from the Matlab frontend
 
-1. \subpage tut_rayleigh_integral : Acoustic radiation from a plane surface
-2. \subpage tut_helmholtz_galerkin_bem
-3. \subpage tut_helmholtz_bem_3d_fict
-4. \subpage tut_helmholtz_bem_2d_cyl
+1. \subpage tut_rayleigh_integral : Acoustical radiation from a plane surface
+2. \subpage tut_helmholtz_galerkin_bem : Solving a transparent radiation problem
+3. \subpage tut_helmholtz_bem_3d_fict : The CHIEF and Burton-Miller methods
+4. \subpage tut_helmholtz_bem_2d_cyl : An acoustical benchmark case in 2D
 5. \subpage tut_helmholtz_ibem_3d
 
 Low level NiHu
 --------------
 
-1. \subpage tut_elements : how to work with finite elements
-2. \subpage tut_quadrature : how to work with quadratures
+1. \subpage tut_elements : How to work with finite elements
+2. \subpage tut_quadrature : How to work with quadratures
 
-Advanced topics
----------------
+Fast Multipole NiHu
+-------------------
 
-1. \subpage tut_couple_radiation
+1. \subpage tut_tree_building : How to build and work with cluster trees
 
 Customising your own NiHu
 -------------------------
@@ -51,6 +51,6 @@ Customising your own NiHu
 Other
 -----
 
-1. \subpage tut_guiggiani_hypersingular : Hypersingular integrals with Guiggiani's method
+1. \subpage tut_guiggiani_hypersingular : Hypersingular integrals using Guiggiani's method
 
 

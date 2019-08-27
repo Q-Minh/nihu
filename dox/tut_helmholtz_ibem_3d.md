@@ -1,7 +1,7 @@
 An indirect collocational Helmholtz BEM example  {#tut_helmholtz_ibem_3d}
 ===============================================
 
-\page tut_helmholtz_ibem_3d
+\page tut_helmholtz_ibem_3d An indirect collocational Helmholtz BEM example
 
 [TOC]
 

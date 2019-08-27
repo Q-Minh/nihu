@@ -1,7 +1,7 @@
 A Galerkin BEM for the Helmholtz equation {#tut_helmholtz_galerkin_bem}
 =========================================
 
-\page tut_helmholtz_galerkin_bem
+\page tut_helmholtz_galerkin_bem A Galerkin BEM for the Helmholtz equation
 
 [BEM example]:\ref theo_bem_example
 [operator notation]:\ref bem_example_op

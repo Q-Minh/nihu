@@ -1,7 +1,7 @@
 Working with quadratures {#tut_quadrature}
 ==========================================
 
-\page tut_quadrature
+\page tut_quadrature Working with quadratures
 
 [TOC]
 

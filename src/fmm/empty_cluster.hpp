@@ -1,15 +1,17 @@
 #ifndef EMPTY_CLUSTER_HPP_INCLUDED
 #define EMPTY_CLUSTER_HPP_INCLUDED
 
-#include "fmm/cluster.hpp"
-
-template <size_t Dim>
-class empty_cluster;
+#include "cluster.hpp"
 
 namespace NiHu
 {
 namespace fmm
 {
+
+template <size_t Dim>
+class empty_cluster;
+
+
 template <size_t Dim>
 struct cluster_traits<empty_cluster<Dim> >
 {
@@ -17,16 +19,14 @@ struct cluster_traits<empty_cluster<Dim> >
 	typedef void multipole_t;
 	typedef void local_t;
 };
-}
-}
 
 
 template <size_t Dim>
 class empty_cluster
-	: public NiHu::fmm::cluster_base<empty_cluster<Dim> >
+	: public cluster_base<empty_cluster<Dim> >
 {
 public:
-	typedef NiHu::fmm::cluster_base<empty_cluster<Dim> > base_t;
+	typedef cluster_base<empty_cluster<Dim> > base_t;
 	typedef typename base_t::multipole_t multipole_t;
 	typedef typename base_t::local_t local_t;
 
@@ -40,5 +40,9 @@ public:
 		return;
 	}
 };
+
+} // end of namespace fmm
+} // end of namespace NiHu
+
 
 #endif

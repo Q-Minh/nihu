@@ -517,6 +517,35 @@ template <class P2P, class P2M, class P2L, class M2P, class L2P,
 		lists);
 }
 
+
+
+/// \brief factory function to create an fmm_matrix object
+/// \param [in] collection the fmm collection
+/// \param [in] tree the cluster tree
+/// \param [in] lists the interaction lists
+/// \todo do we need to account for rvalue references of Collection?
+template <class Collection, class Cluster>
+	auto create_fmm_matrix(
+		Collection const &collection,
+		cluster_tree<Cluster> const &tree,
+		interaction_lists const &lists
+	)
+{
+	return create_fmm_matrix(
+		collection.get(p2p_tag()),
+		collection.get(p2m_tag()),
+		collection.get(p2l_tag()),
+		collection.get(m2p_tag()),
+		collection.get(l2p_tag()),
+		collection.get(m2m_tag()),
+		collection.get(l2l_tag()),
+		collection.get(m2l_tag()),
+		tree,
+		lists);
+}
+
+
+
 } // end of namespace fmm
 } // namespace NiHu
 

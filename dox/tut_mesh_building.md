@@ -1,7 +1,7 @@
 Mesh building {#tut_mesh_building}
 =============
 
-\page tut_mesh_building
+\page tut_mesh_building Mesh building
 
 [Eigen]:http://eigen.tuxfamily.org/index.php?title=Main_Page
 [mexFunction]:http://www.mathworks.com/help/matlab/apiref/mexfunction.html
@@ -79,8 +79,8 @@ This feature, together with the NiHu::mex::real_matrix class, makes easy Matlab 
 
 \note For more information on the Matlab MEX interface and on the arguments of the [mexFunction], refer to the Matlab [MEX] site.
 
-Reading a mesh from an `OFF` file {#tut_mesh_offfile}
-=================================
+Reading a mesh from an OFF file {#tut_mesh_offfile}
+===============================
 
 `NiHu` can import meshes stored in [OFF].
 This can easily be done using the NiHu::read_off_mesh function.

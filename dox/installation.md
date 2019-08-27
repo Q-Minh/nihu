@@ -4,14 +4,18 @@ Installation {#install}
 \page install Installation
 
 [boost]:https://www.boost.org/
+[boost-bin]:https://sourceforge.net/projects/boost/files/boost-binaries/
 [CMake]:http://cmake.org
+[cmake-download]:https://cmake.org/download/
 [Doxygen]:http://www.stack.nl/~dimitri/doxygen
 [Eigen]:http://eigen.tuxfamily.org
+[FFTW]:http://www.fftw.org
 [gcc]:http://gcc.gnu.org
 [git]:http://git-scm.com
+[gtest]:https://github.com/google/googletest
 [Matlab]:http://www.mathworks.com/products/matlab
 [Mex]:http://www.mathworks.com/help/matlab/create-mex-files.html
-[TDM-GCC]:http://tdm-gcc.tdragon.net
+[Mingw64]:https://sourceforge.net/projects/mingw-w64/files/latest/download
 [Ubuntu]:http://www.ubuntu.com
 [VS]:https://visualstudio.microsoft.com/vs/features/cplusplus/
 
@@ -19,19 +23,16 @@ Installation {#install}
 
 [TOC]
 
-Installation process
-======================
-
 Obtaining the source code {#install_obtain}
--------------------------
+=========================
 
-The source code of NiHu can be downloaded using the version control software [git].
+The source code of %NiHu can be downloaded using the version control software [git].
 You can obtain the latest stable version of the software by typing the command
 
-	git clone -b release_1.1 git://last.hit.bme.hu/toolbox/nihu.git
+	git clone -b release_2.0 git://last.hit.bme.hu/toolbox/nihu.git
 
 into the command line.
-There is a nightly build available for NiHu, which contains regular updates, however testing of the most recent features may not be complete.
+There is a nightly build available for %NiHu, which contains regular updates, however testing of the most recent features may not be complete.
 You can download the nightly version similarly by the command
 
 	git clone -b nightly git://last.hit.bme.hu/toolbox/nihu.git
@@ -42,43 +43,84 @@ Inside the source directory, the folder `src` contains the C++ and Matlab source
 
 Alternatively, you can download the source code as a packed archive.
 
-Prerequisites {#install_prereq}
--------------
+Prerequisites and third party software {#install_prereq}
+======================================
 
-In order to complie NiHu, the following prerequisites are needed:
+Build system
+------------
 
-- A c++ compiler and linker that supports some features of the C++11 standard. You will find further information on the compiler selection in the [next section](#install_process).
-\note NiHu builds were tested using the gcc compiler versions 8.1, 4.9, 4.8, and 4.7, the [clang](http://clang.llvm.org/) compiler, and Microsoft [Visual Studio][VS].
+To use %NiHu's automated, platform independent build system is based on the cross-platform tool [CMake][CMake].
 
-- Boost is required
-- FFTW3 is required
+On Linux, you can install `CMake` using tha pacakage manager, e.g.
+	
+	sudo apt install cmake
 
-In order to use the Matlab interface and compile [mex] files the following prerequisites are needed:
+On Windows, you can download the [CMake installers][cmake-download].
+\note The minimum required `CMake` version is `3.14`.
 
-- [Matlab] must be installed. Matlab versions 7.x and 8.x are supported by NiHu.
+Tools required for compiling the source code
+--------------------------------------------
+
+To complie %NiHu, the following prerequisites are needed:
+
+- A c++ compiler and linker that supports the C++14 standard. You will find further information on the compiler selection in the [next section](#install_process).
+\note `NiHu` builds were tested using the [Gnu compiler collection][gcc], the [clang](http://clang.llvm.org/) compiler, and Microsoft [Visual Studio][VS].
+
+- %NiHu relies on the template matrix library [Eigen][Eigen]. If you do not have Eigen installed on your computer, the installation process will download and install the necessary header files for the compilation of NiHu.
+\note The current version of %NiHu was tested using `Eigen 3.3.7`.
+
+- The evaluation of some advanced mathematical functions is based on the portable C++ library collection [Boost][boost].
+
+	On Linux, you can install `Boost` using the package manager, e.g.
+		
+		sudo apt install libbboost-all-dev
+		
+	On Windows, you can install `Boost` binaries using the [Boost binary downloads][boost-bin], or you can build and install `Boost` manually.
+	\note The minimum required `Boost` version is `1.67.0`.
+
+- Fast Fourier transforms are evaluated using the C subroutine library [FFTW3][FFTW].
+
+	On Linux, it is recommended that you install the FFTW3 package using the package manager, e.g.
+		
+		sudo apt install fftw3
+		
+	On Windows systems, if you do not have FFTW3 installed, the installation process will download FFTW automatically and create the necessary libraries for linking `NiHu` executables.
+	\note The current version of %NiHu was tested using `FFTW 3.3.5`.
+
+Optional components
+-------------------
+	
+- %NiHu's test codes rely on [Googletest][gtest]. The source files of `gtest` are automatically downloaded during the installation procedure.
+
+	\note The current version of %NiHu uses `gtest 1.7.0`.
+
+- %NiHu's documentation is generated using [Doxygen][doxygen].
+
+	On Linux, you can install doxygen using the package manager, e.g.
+		
+		sudo apt install doxygen
+		
+
+- Formulas in the documentation are produced using MathJax.
+
+
+Matlab interface
+----------------
+		
+To use %NiHu's `Matlab` interface and compile [mex][mex] files the following prerequisites are also needed:
+
+- [Matlab] must be installed. Matlab versions 7.x, 8.x, and 9.x are supported.
 - As a part of your Matlab installation you should also have the mex header files required to build C / C++ programs callable from Matlab.
 
-Third party software {#install_thirdparty}
---------------------
 
-NiHu relies on third party open source tools.
+Installation steps {#install_process}
+==================
 
-- NiHu relies on the template matrix library [Eigen]. If you do not have Eigen installed on your computer, the installation process will download and install the necessary header files for the compilation of NiHu.
-\note current version of NiHu was tested using Eigen 3.3.7.
-- NiHu FMM uses mathematical functions from the C++ 
-
-
-
-The installation steps {#install_process}
-----------------------
-
-It is worth mentioning that since NiHu is a template library, you do not need to compile any sources to use NiHu's C++ core.
-You can simply include the header files found in the directory `nihu/src` in order to compile your own C++ codes using the features implemented in NiHu (see [below](#install_compile_cpp)).
-However, the installation process lets you to compile NiHu's libraries, tutorials, tests and `mex` files for NiHu's Matlab interface.
-Furthermore, if you complete the installation, you can make sure that you have all necessary prerequisites that are needed to use NiHu.
+It is worth mentioning that since %NiHu is a template library, you do not need to compile any sources to use %NiHu's C++ core.
+You can simply include the header files found in the directory `nihu/src` in order to compile your own C++ codes using the features implemented in %NiHu (see [below](#install_compile_cpp)).
+However, the installation process lets you to compile %NiHu's libraries, tutorials, tests and `mex` files for %NiHu's `Matlab` interface.
+Furthermore, if you complete the installation, you can make sure that you have all necessary prerequisites that are needed to use %NiHu.
 Therefore, it is highly recommended to complete the installation before using the NiHu toolbox.
-
-NiHu is installed using the free cross-platform make tool [cmake] on all supported platforms.
 
 The installation is done in three steps as usual.
 
@@ -92,59 +134,35 @@ The installation is done in three steps as usual.
 3. **Install**
 	In the install step the generated binaries and includable header files are copied to the installation destination, called _installation directory_ in the follwing. By default this is the same as the build directory. When the installation process is complete, the build and source files are no longer necessary, they can be deleted if you do not want to use them.
 
-In the following examples the build and installation directories will be located at `nihu/build_dir` and `nihu/install_dir`, respectively. The steps of the installation of the prerequisites and the compilation of the source code are discussed for [Unix](#install_unix) and [Windows](#install_win) operating systems in the sequel.
+In the following examples the build and installation directories will be located at `nihu/build_dir` and `nihu/install_dir`, respectively.
+The steps of the installation of the prerequisites and the compilation of the source code are discussed for [Unix](#install_unix), [Windows with MinGW](#install_win_mingw), and [Windows with Visual Studio](#install_win_msvc) configurations in the sequel.
+Alternatively, [Qt creator](#install_qt_creator) can also be used for importing the %NiHu project.
+
+For an advanced configuration, you can specify various options for the `cmake` command from the command line.
+See [installation options](#install_cmake_options) for further details.
+Note that depending on your operating system and software configuration providing some command line options may be mandatory for a successful install.
+
 
 Installation on Unix systems {#install_unix}
 ----------------------------
 
-This section presents how to install the prerequisites and compile NiHu from source code on Unix systems.
-The example commands are given for and have been tested on [Ubuntu] 12.04.
+This section presents how to install the prerequisites and compile %NiHu from source code on Unix systems.
 
 ### Installing GCC
 
-Since NiHu requires a compiler that supports some features of the C++11 standard, you must ensure that you have such compiler on your system.
-It is advised that you use the GNU Compiler Collection [gcc], which supports the required features from version 4.7.
+Since %NiHu requires a compiler that supports some features of the C++14 standard, you must ensure that you have such compiler on your system.
+It is advised that you use the [GNU Compiler Collection][gcc], which supports the required features from version 6.1.
 
-You can install `gcc-4.7` if you have administrative rights on your computer in the following steps.
+You can install the required build tools using the package manager, e.g.
 
-1.  Add the test toolchain repository for `apt`
-	
-		sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+	sudo apt install build-essentials
 
-2.  Update the list of available packages
-	
-		sudo apt-get update
-	
-3. 	Install `gcc-4.7` and `g++-4.7`
+Make sure that the installed compiler version is at least 6.1
 
-		sudo apt-get install gcc-4.7 g++-4.7
-
-4. 	Add the newly installed compiler as an alternative to the old one.
-	The example presents 
-
-		sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.6 60 --slave /usr/bin/g++ g++ /usr/bin/g++-4.6 
-		sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.7 40 --slave /usr/bin/g++ g++ /usr/bin/g++-4.7 
-	
-5.	Configure the system to use the newly installed compiler
-
-		sudo update-alternatives --config gcc
-
-	And select the appropriate choice.
-
-6.	Make sure that the correct version is selected by
-
-		gcc -v
+	gcc --version
+	g++ --version
 
 Alternatively, or if you do not have administrative rights, you can install [gcc] from source.
-You can also use gcc version 4.8 for building NiHu from source.
-
-### Installing cmake
-
-If you have administrative rights, you can easily install the newest version of [cmake] by the command
-
-	sudo apt-get install cmake
-
-Naturally, you can also install [cmake] from source, if you want to.
 
 ### Configuration
 
@@ -158,9 +176,6 @@ The configuration is performed using the following commands.
 	cd build_dir
 	cmake ../src -DNIHU_INSTALL_DIR="../install_dir"
 
-For an advanced configuration, you can specify various options for the `cmake` command from the command line.
-See [installation options](#install_cmake_options) for further details.
-
 ### Compiling the sources
 
 All sources are compiled by calling the `make` command in the build directory.
@@ -173,7 +188,7 @@ If you have [doxygen] installed, you can also compile the documentation by the c
 
 ### Installation steps
 
-Finally, NiHu binaries are installed using the command
+Finally, the binaries are installed using the command
 
 	make install
 
@@ -184,12 +199,8 @@ Installation on Windows systems using MinGW {#install_win_mingw}
 
 ### Installing GCC on windows
 
-It is recommended that you compile NiHu on a Windows operating system also by using gcc.
-A Windows version of `gcc-4.7` is available through the [TDM-GCC] project, you can download and install the binaries at their [download](http://tdm-gcc.tdragon.net/download) site.
-
-### Installing cmake on windows
-
-[cmake] is also available for windows, the executable can be downloaded [here](http://www.cmake.org/files/v2.8/cmake-2.8.11.2-win32-x86.exe).
+You can compile %NiHu on a Windows operating system also by using gcc.
+You can download a Windows version of `gcc-8` environment [here][Mingw64].
 
 ### Configuration
 
@@ -201,12 +212,14 @@ The installation directory is defined by the option `-DNIHU_INSTALL_DIR="/path/t
 \note When specifying paths it is recommended to use the `/` (slash) character as a separator between subdirectories also on Windows systems. Usage of the `\` (backslash) can lead to misinterpretation of absolute and relative paths in cmake.
 
 The configuration is performed by the following commands.
-It is recommended that you use the `MinGW Command line` application included in TDM-GCC for executing the following commands.
+It is recommended that you use the `MinGW Command line` application for executing the following commands.
 
 	cd nihu
 	md build_dir
 	cd build_dir
 	cmake ../src -G "MinGW Makefiles" -DNIHU_INSTALL_DIR="../install_dir"
+	
+\note To be able to execute `cmake` from the command prompt, make sure that the `cmake` executable is included in your `PATH` environment variable.
 
 ### Compiling the sources
 
@@ -222,25 +235,49 @@ If you have [doxygen] installed, the documentation can be compiled by the comman
 
 ### Installation
 
-Finally, NiHu binaries are installed using the command
+Finally, the binaries are installed using the command
 
 	mingw32-make.exe install
 
 With this step, the installation is completed and you can start using NiHu, see the [getting started](#install_get_started) section to see how to get started.
-	
+
+
 Installation on Windows systems using Visual Studio {#install_win_msvc}
 ---------------------------------------------------
 
+Later versions of [Visual Studio][VS] can also be used to compile %NiHu sources.
+The following paragraphs demonstrate the process.
+
+\note The current version of NiHu was tested using Visual Studio 2017 and 2019.
+
 ### Configuration
+
+The configuration step is performed calling the command `cmake` inside the build directory.
+The below example demonstrates how to set up the generator option of `cmake` for using Visual Studio.
 
 	cd nihu 
 	md build_dir
 	cd build_dir
 	cmake ..\src -G "Visual Studio 15 2017 Win64" -DNIHU_INSTALL_DIR="..\install_dir"
 	
+When the configuration is completed, various Visual Studio project and solution files are generated inside the build directory.
+These projects can readily be opened 
+	
 ### Build
 
+To build %NiHu executables using Visual Studio, execute the following command in the command line.
+
 	msbuild NiHu.sln /property:Configuration=Release
+
+It is recommended to use the Developer Command Prompt for Visual Studio for executing the `msbuild` command.
+
+
+Building the sources using Qt Creator {#install_qt_creator}
+-------------------------------------
+
+The %NiHu project can also be imported into Qt Creator by choosing `File` -> `Open project` and browsing the file `CMakeLists.txt` from the directory `nihu/src`.
+
+Then, the project is built using the build tools configured inside Qt Creator.
 
 	
 Configuration options {#install_cmake_options}
@@ -261,7 +298,7 @@ Please note that it is not recommended to change the configuration settings that
 Compiler options {#install_compiler_options}
 ----------------
 
-- **CMAKE_CXX_COMPILER** Specifies the compiler for C++ files for executing `make` commands. By default, the system default compiler is used. The value of this parameter should be the absolute full path to the executable file of the compiler. (For example, usage of the compiler g++-4.8 on Unix systems is achieved by the setting: `-DCMAKE_CXX_COMPILER="/usr/bin/g++-4.8"`)
+- **CMAKE_CXX_COMPILER** Specifies the compiler for C++ files for executing `make` commands. By default, the system default compiler is used. The value of this parameter should be the absolute full path to the executable file of the compiler. (For example, usage of the compiler g++-7 on Unix systems is achieved by the setting: `-DCMAKE_CXX_COMPILER="/usr/bin/g++-7"`)
 
 Installation options {#install_install_options}
 --------------------
@@ -272,12 +309,12 @@ Eigen options {#install_eigen_options}
 -------------
 
 The following options control the setup of the matrix library Eigen during the installation process.
-On Unix systems, NiHu will automatically search for an existing installation of Eigen on your computer.
-If NiHu finds the installed Eigen headers, these header files are used for compiling NiHu sources.
-On Windows operating systems, NiHu will not search for an existing Eigen installation, but Eigen headers are installed as a part of NiHu.
+On Unix systems, the build system will automatically search for an existing installation of Eigen on your computer.
+If the installed Eigen headers are found, these header files will be used for compiling %NiHu sources.
+On Windows operating systems, %NiHu will not search for an existing Eigen installation, but Eigen headers are installed as a part of %NiHu.
 You can override the default behavior by the parameters listed below.
 
-- **NIHU_EIGEN_PATH** Specifies the full path to your existing Eigen installation, i.e. the path containing the directory `Eigen`. When this path is set, NiHu will not search for an existing Eigen installation, but tries to use Eigen header files specified by this path.
+- **NIHU_EIGEN_PATH** Specifies the full path to your existing Eigen installation, i.e., the path containing the directory `Eigen`. When this path is set, %NiHu will not search for an existing Eigen installation, but tries to use Eigen header files specified by this path.
 - **NIHU_EIGEN_INSTALL** When set to a non-zero value, the installer will not look for an installed version of Eigen, but Eigen headers are installed as a part of NiHu. This is the default option on Windows operating systems. This option only has an effect when the path `NIHU_EIGEN_PATH` is not specified.
 - **NIHU_EIGEN_ARCHIVE** Specifies the full path to a downloaded `Eigen` archive. NiHu will extract this archive instead of downloading the source from the predefined URL. This option only makes sense if the `NIHU_EIGEN_INSTALL` is set to non-zero.
 \note If you experience a `cmake` or other error when downloading from the official URL, you should try this option.
@@ -288,13 +325,13 @@ You can override the default behavior by the parameters listed below.
 FFTW options {#install_fftw_options} 
 ------------
 
-The following options control the setup of the FFT library FFTW3 during the installation process.
-On Unix systems, NiHu will automatically search for an existing installation of FFTW3 on your computer.
-On Windows operating systems, FFTW3 will be automatically downloaded and used as a part of NiHu.
-Alternatively, the variable `NIHU_FFTW_PATH` can be specified, and in this the build system will look for the appropriate FFTW files in the specified folder.
+The following options control the setup of the FFT library FFTW3.
+On Unix systems, %NiHu will automatically search for an existing installation of FFTW3 on your computer.
+On Windows operating systems, FFTW3 will be automatically downloaded and used as a part of %NiHu, furthermore, the FFTW static library files necessary for building %NiHu executables will have their own build target and will be built during the build process.
+Alternatively, the variable `NIHU_FFTW_PATH` can be specified, and in this case the build system will look for the appropriate FFTW files in the specified folder.
 You can override the default behavior using the parameters listed below:
 
-- **NIHU_FFTW_PATH** Specifies the full path to an existing FFTW directory. The directory should contain the fftw header file and the libraries.
+- **NIHU_FFTW_PATH** Specifies the full path to an existing FFTW directory. The directory should contain the fftw header file `fftw3.h` and the libraries.
 - **NIHU_FFTW_INSTALL** When set to a non-zero value, the installer will not look for an installed version of FFTW, but FFTW headers and libraries are installed as a part of NiHu. This is the default option on Windows operating systems, unless the variable `NIHU_FFTW_PATH` is specified.
 - **NIHU_FFTW_ARCHIVE** Specifies the path to a downloaded FFTW3 archive. The build system will extract this archive instead of downloading the source from the predefined URL. This option only makes sense if the variable `NIHU_FFTW_INSTALL` is set to non-zero.
 - **NIHU_FFTW_VERSION** Specifies which FFTW version to download. Currently only version `3.3.5` is supported.
@@ -302,18 +339,22 @@ You can override the default behavior using the parameters listed below:
 Boost options {#install_boost_options}
 -------------
 
-- **NIHU_BOOST_PATH** Specifies the full path to the boost installation.
+During the configuration step the build system will automatically look for Boost headers and libraries.
+If your Boost installation is not found automatically, try to specify the option `NIHU_BOOST_PATH` as explained below.
+The default behavior of finding the Boost libraries can be overridden using the following parameters:
+
+- **NIHU_BOOST_PATH** Specifies the full path to the boost installation, should be the path where the directory named `boost` is found.
 
 
 Matlab options {#install_matlab_options}
 --------------
 
-In order to use the Matlab interface of NiHu and to compile `mex` source files the setup process must find an existing Matlab installation on your computer.
-NiHu will search for the root directory of your Matlab installation and also for the `mex` C++ header files.
+In order to use the Matlab interface of %NiHu and to compile `mex` source files the setup process must find an existing Matlab installation on your computer.
+%NiHu will search for the root directory of your Matlab installation and also for the `mex` C++ header files.
 You can customise the Matlab related settings of the installation process by the parameters listed below.
 
 - **NIHU_MATLAB_PATH** Specifies where the installation will look for Matlab and its include directories. When not specified, the install process will look for Matlab in common directories, but it is possible that your Matlab installation will not be found by this search. In this case you should specify the Matlab path manually.
-- **NIHU_MATLAB_FORCE_MEX_COMPILER** When set to non-zero, the compilation of mex files is done using the mex compiler of Matlab. Since the mex compiler invokes the system compiler, you must ensure that your system compiler supports the necessary features of the C++11 standard.
+- **NIHU_MATLAB_FORCE_MEX_COMPILER** When set to non-zero, the compilation of mex files is done using the mex compiler of Matlab. Since the mex compiler invokes the system compiler, you must ensure that your system compiler supports the necessary features of the C++14 standard.
 
 Testing options {#install_testing_options}
 ---------------
@@ -323,7 +364,7 @@ NiHu comes with various test sources, such as
 - numerical tests for validating the computations on academic examples
 - Matlab tests for testing mex interface
 
-By default, the tests are excluded from the build process, however, you can turn on testing and control the build and installation parameters of all tests by the following settings.
+By default, the tests are excluded from the build process, however, you can turn on testing and control the build and installation parameters of all tests using the following settings.
 
 - **NIHU_ENABLE_TESTING** When set to a non-zero value building of all tests are enabled.
 - **NIHU_ENABLE_TEST_INSTALL** When set to non-zero the test executables are included in the installation. This option is only relevant if `NIHU_ENABLE_TESTING` is set to non-zero.
@@ -388,35 +429,36 @@ int main(void)
 
 If your source file is named `example.cpp` you can compile it and create the executable `example` using the `g++` compiler with specifying the include directories by the `-I` switch using the command
 
-	g++ example.cpp -std=c++11 -I/path/to/nihu_install_dir/include -o example
+	g++ example.cpp -std=c++14 -I/path/to/nihu_install_dir/include -o example
 	
 By using the above pattern you only have to add one directory to the include path definitions of the compiler, as demonstrated above.
-\note You should always use the `-std=c++11` option when compiling C++ sources using NiHu.
+\note You should always use the `-std=c++14` option when compiling C++ sources using %NiHu.
 	
 Using the Matlab interface {#install_matlab_interface}
 --------------------------
 
-In order to use the functions of the Matlab interface, you should add the Matlab interface path of your NiHu installation to the search path of Matlab. This can be done by executing the `install` command inside the `matlab` folder of your NiHu installation.
+In order to use the functions of the Matlab interface, you should add the Matlab interface path of your %NiHu installation to the search path of Matlab. This can be done by executing the `install` command inside the `matlab` folder of your NiHu installation.
 
 	>> cd '/path/to/nihu_install/matlab'
 	>> install
 
-This will add the necessary directories to Matlab's search path and enables you to call NiHu's Matlab and mex functions from any of your Matlab scripts. After the `install` script is successfully executed you will see a window displaying the demo applications for the Matlab interface of NiHu. You can open these demos anytime by the command
+This will add the necessary directories to Matlab's search path and enables you to call %NiHu's Matlab and mex functions from any of your Matlab scripts. After the `install` script is successfully executed you will see a window displaying the demo applications for the Matlab interface of NiHu. You can open these demos anytime by the command
 
 	>> demo toolbox nihu
 
-\note There is an issue that can occur when executing mex files on a Unix systems. Matlab can give you an error that says `libstdc++.so.6: version GLIBCXX_...` is not found when executing a mex file generated by the NiHu installation process. This is because Matlab currently supports `gcc` up to version 4.4., see [supported compilers](http://www.mathworks.com/support/compilers/R2013a/index.html?sec=glnxa64). You can fix this issue by redirecting the soft link `libstdc++.so.6` in the directory `MATLAB_ROOT/sys/os/glnxa64/` to the current version of the stdc++ library. This can be achieved by executing the following commands
+\note There is an issue that can occur when executing mex files on a Unix systems. Matlab can give you an error that says `libstdc++.so.6: version GLIBCXX_...` is not found when executing a mex file generated by the %NiHu installation process. This is because Matlab not necessarily support newer versions of `gcc`, see [supported compilers](https://www.mathworks.com/support/requirements/supported-compilers.html?sec=glnxa64). You can fix this issue by redirecting the soft link `libstdc++.so.6` in the directory `MATLAB_ROOT/sys/os/glnxa64/` to the current version of the stdc++ library. This can be achieved by executing the following commands
 
 		cd /path/to/MATLAB/sys/os/glnxa64
 		sudo mv libstdc++.so.6 libstdc++.so.6.old
 		sudo ln -s /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.17 libstdc++.so.6
+
 Replacing the soft link should fix the problem and `mex` files should work from this point after restarting Matlab.
 You can find a longer discussion of this problem on [stackoverflow](http://stackoverflow.com/questions/17000903/mex-compiling-on-64-bit-linux-usr-bin-ld-cannot-find-lstdc).
 
 Further steps {#install_further_steps}
 -------------
 
-Following this documentation you should be able to compile and install NiHu from source.
-You should also be able to compile your own C++ files using the header files of NiHu or create and run own Matlab files using NiHu's Matlab interface.
+Following this documentation you should be able to compile and install %NiHu from source.
+You should also be able to compile your own C++ files using the header files of %NiHu or create and run own Matlab files using %NiHu's Matlab interface.
 
 In order to find introductory examples of applying NiHu for basic engineering problems, please see the [tutorials] that will guide you through further steps.

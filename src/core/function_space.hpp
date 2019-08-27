@@ -55,7 +55,7 @@ public:
 
 	/** \brief return reference to the underlying mesh
 	* \return reference to the mesh part */
-	mesh_t const &get_mesh(void) const
+	mesh_t const &get_mesh() const
 	{
 		return derived().get_mesh();
 	}
@@ -66,7 +66,7 @@ public:
 	*/
 	template <class FieldType>
 	typename traits_t::template iterator<FieldType>::type
-		field_begin(void) const
+		field_begin() const
 	{
 		return derived().template field_begin<FieldType>();
 	}
@@ -77,7 +77,7 @@ public:
 	*/
 	template <class FieldType>
 	typename traits_t::template iterator<FieldType>::type
-		field_end(void) const
+		field_end() const
 	{
 		return derived().template field_end<FieldType>();
 	}
@@ -86,7 +86,7 @@ public:
 	* \brief return number of degrees of freedom
 	* \return number of degrees of freedom
 	*/
-	size_t get_num_dofs(void) const
+	size_t get_num_dofs() const
 	{
 		return derived().get_num_dofs();
 	}
@@ -164,7 +164,7 @@ private:
 
 public:
 	/** \brief return mesh reference */
-	Mesh const &get_mesh(void) const
+	Mesh const &get_mesh() const
 	{
 		return static_cast<Mesh const &> (*this);
 	}
@@ -175,7 +175,7 @@ public:
 	*/
 	template <class FieldType>
 	typename traits_t::template iterator<FieldType>::type
-		field_begin(void) const
+		field_begin() const
 	{
 		return Mesh::template begin<typename FieldType::elem_t>();
 	}
@@ -186,7 +186,7 @@ public:
 	*/
 	template <class FieldType>
 	typename traits_t::template iterator<FieldType>::type
-		field_end(void) const
+		field_end() const
 	{
 		return Mesh::template end<typename FieldType::elem_t>();
 	}
@@ -195,7 +195,7 @@ public:
 	* \brief return number of degrees of freedom
 	* \return number of degrees of freedom
 	*/
-	size_t get_num_dofs(void) const
+	size_t get_num_dofs() const
 	{
 		return get_num_dofs_impl(FieldOption());
 	}
@@ -325,7 +325,7 @@ public:
 	/** \brief return begin iterator of a subvector of dirac fields */
 	template <class dirac_field_t>
 	typename traits_t::template iterator<dirac_field_t>::type
-		field_begin(void) const
+		field_begin() const
 	{
 		return impl_t::template field_begin<typename dirac_field_t::field_t>();
 	}
@@ -333,7 +333,7 @@ public:
 	/** \brief return end iterator of a subvector of dirac fields */
 	template <class dirac_field_t>
 	typename traits_t::template iterator<dirac_field_t>::type
-		field_end(void) const
+		field_end() const
 	{
 		return impl_t::template field_end<typename dirac_field_t::field_t>();
 	}
@@ -497,7 +497,7 @@ public:
 	/** \brief return underlying mesh reference
 	 * \return the mesh
 	 */
-	mesh_t const &get_mesh(void) const
+	mesh_t const &get_mesh() const
 	{
 		return static_cast<mesh_t const &>(*this);
 	}
@@ -505,7 +505,7 @@ public:
 	/** \brief return begin iterator of a subspace */
 	template <class FieldType>
 	typename traits_t::template iterator<FieldType>::type
-		field_begin(void) const
+		field_begin() const
 	{
 		return m_fields.eigen_std_vector<FieldType>::type::begin();
 	}
@@ -513,7 +513,7 @@ public:
 	/** \brief return end iterator of a subspace */
 	template <class FieldType>
 	typename traits_t::template iterator<FieldType>::type
-		field_end(void) const
+		field_end() const
 	{
 		return m_fields.eigen_std_vector<FieldType>::type::end();
 	}
@@ -541,13 +541,13 @@ public:
 	 * \brief return number of fields
 	 * \return number of fields in the function space
 	 */
-	unsigned get_num_fields(void) const
+	unsigned get_num_fields() const
 	{
 		return this->get_num_elements();
 	}
 
 	/** \brief return number of dofs */
-	unsigned get_num_dofs(void) const
+	unsigned get_num_dofs() const
 	{
 		return m_num_dofs;
 	}

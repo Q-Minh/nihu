@@ -22,7 +22,6 @@ class p2p_precompute
 {
 public:
 	typedef typename std::decay<Operator>::type operator_t;
-	typedef typename std::decay<Operator>::type operator_t;
 	typedef typename operator_t::result_t result_t;
 	typedef typename scalar<result_t>::type scalar_t;
 	static size_t const rows = num_rows<result_t>::value;
