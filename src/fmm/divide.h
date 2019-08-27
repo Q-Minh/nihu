@@ -1,10 +1,14 @@
-/** \file divide.h
- * \brief cluster division strategies
+/** 
+ * @file divide.h
+ * @brief cluster division strategies
+ * @ingroup fmm
  */
+
 #ifndef DIVIDE_H_INCLUDED
 #define DIVIDE_H_INCLUDED
 
 #include "cluster.hpp"
+#include "util/crtp_base.hpp"
 
 #include <algorithm> // std::max
 
@@ -13,8 +17,21 @@ namespace NiHu
 namespace fmm
 {
 
+template <class Derived>
+class divide_base
+{
+public:
+	NIHU_CRTP_HELPERS
+	
+	template <class Cluster>
+	bool operator()(Cluster const &c) const
+	{
+		return derived().operator()(c);
+	}
+};
+	
 /** \brief class representing a balanced tree division predicate */
-class divide_depth
+class divide_depth : public divide_base<divide_depth>
 {
 	size_t m_depth;
 
@@ -33,14 +50,14 @@ public:
 	 * \return true if the cluster needs to be divided
 	 */
 	template <class Cluster>
-	bool operator()(Cluster const &c)
+	bool operator()(Cluster const &c) const
 	{
 		return c.get_level() < m_depth;
 	}
 };
 
 /** \brief class representing a cluster division based on number of nodes */
-class divide_num_nodes
+class divide_num_nodes : public divide_base<divide_num_nodes>
 {
 	size_t m_max_nodes;
 
@@ -59,7 +76,7 @@ public:
 	 * \return true if the cluster needs to be divided
 	 */
 	template <class Cluster>
-	bool operator()(Cluster const &c)
+	bool operator()(Cluster const &c) const
 	{
 		size_t s = c.get_n_src_nodes();
 		size_t r = c.get_n_rec_nodes();
@@ -68,7 +85,7 @@ public:
 };
 
 /** \brief class representing a balanced tree division predicate by leaf diameter */
-class divide_diameter
+class divide_diameter : public divide_base<divide_diameter>
 {
 	double m_diameter;
 
@@ -87,7 +104,7 @@ public:
 	 * \return true if the cluster needs to be divided
 	 */
 	template <class Cluster>
-	bool operator()(Cluster const &c)
+	bool operator()(Cluster const &c) const
 	{
 		return c.get_bounding_box().get_diameter() > m_diameter;
 	}
