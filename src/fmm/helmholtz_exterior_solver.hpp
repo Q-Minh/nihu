@@ -84,15 +84,15 @@ public:
 	/// \brief solve the BIE
 	/// \param [in] divide the cluster division functor
 	/// \param [in] far_field_quadrature_order the far field quadrature order
-	template <class Divide>
-	response_t const &solve(Divide const &divide, size_t far_field_quadrature_order)
+	template <class DivideDerived>
+	response_t const &solve(divide_base<DivideDerived> const &divide, size_t far_field_quadrature_order)
 	{
 		// build the cluster tree
 		std::cout << "Building cluster tree ..." << std::endl;
 		cluster_tree_t tree(
 			create_field_center_iterator(m_trial_space.template field_begin<trial_field_t>()),
 			create_field_center_iterator(m_trial_space.template field_end<trial_field_t>()),
-			divide);
+			divide.derived());
 
 		// instantiate the fmm object
 		std::cout << "Instantiating fmm object ..." << std::endl;
