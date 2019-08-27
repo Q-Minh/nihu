@@ -3,11 +3,11 @@
 
 #include <gtest/gtest.h>
 
-#include "empty_cluster.hpp"
+#include "fmm/empty_cluster.hpp"
 
 TEST(cluster, empty)
 {
-	empty_cluster<1> c[3];
+	NiHu::fmm::empty_cluster<1> c[3];
 	c[0].set_level(0);
 	c[1].set_level(1);
 	c[2].set_level(1);
