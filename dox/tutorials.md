@@ -36,6 +36,11 @@ Low level NiHu
 1. \subpage tut_elements : How to work with finite elements
 2. \subpage tut_quadrature : How to work with quadratures
 
+Fast Multipole NiHu
+-------------------
+
+1. \subpage tut_tree_building : How to build and work with cluster trees
+
 Customising your own NiHu
 -------------------------
 

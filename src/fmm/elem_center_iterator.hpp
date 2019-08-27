@@ -115,7 +115,7 @@ public:
 /// \param [in] it the iterator instance
 /// \return the elem center iterator instance
 template <class It>
-elem_center_iterator<It> create_elem_center_iterator(It it)
+auto create_elem_center_iterator(It it)
 {
 	return elem_center_iterator<It>(it);
 }
@@ -226,7 +226,7 @@ public:
 /// \param [in] it the iterator instance
 /// \return a field center iterator
 template <class It>
-field_center_iterator<It> create_field_center_iterator(It it)
+auto create_field_center_iterator(It it)
 {
 	return field_center_iterator<It>(it);
 }
