@@ -31,7 +31,13 @@ public:
 
 	result_t operator()(size_t idx, trial_input_t const &ti) const
 	{
-		return m_op(m_begin[idx], ti);
+		return m_op(typename operator_t::test_input_t(m_begin[idx]), ti);
+	}
+
+	template <class TRI>
+	result_t operator()(size_t idx, TRI const &ti) const
+	{
+		return m_op(typename operator_t::test_input_t(m_begin[idx]), trial_input_t(ti));
 	}
 
 	size_t num_rec() const

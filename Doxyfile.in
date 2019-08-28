@@ -675,6 +675,7 @@ INPUT                  = "${CMAKE_SOURCE_DIR}/../dox/mainpage.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/tut_guiggiani_hypersingular.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/tut_elements.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/tut_quadrature.md" \
+                         "${CMAKE_SOURCE_DIR}/../dox/tut_fmm_helmholtz2d.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/tut_tree_building.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/tut_custom_element.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/tut_custom_singular_integrals.md" \
