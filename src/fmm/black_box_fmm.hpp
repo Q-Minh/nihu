@@ -18,24 +18,52 @@
 
 #include <type_traits>
 
+#include "library/normal_derivative_kernel.hpp"
+
 namespace NiHu
 {
 namespace fmm
 {
 
+template <class Kernel>
+struct kernel_derivative_traits
+{
+	typedef Kernel kernel_00_t;
+	typedef Kernel kernel_ny_t;
+	typedef Kernel kernel_nx_t;
+	static int const nx = 0;
+	static int const ny = 0;
+};
+
+template <class DistanceDependentKernel, int Nx, int Ny>
+struct kernel_derivative_traits<normal_derivative_kernel<DistanceDependentKernel, Nx, Ny> >
+{
+	typedef normal_derivative_kernel<DistanceDependentKernel, 0, 0> kernel_00_t;
+	typedef normal_derivative_kernel<DistanceDependentKernel, 0, Ny> kernel_ny_t;
+	typedef normal_derivative_kernel<DistanceDependentKernel, Nx, 0> kernel_nx_t;
+	static int const nx = Nx;
+	static int const ny = Ny;
+};
+
+
 /** 
  * @brief Black box FMM for a smooth kernel
  * @tparam Kernel the kernel class
  */
-template <class Problem>
+template <class Kernel>
 class black_box_fmm
 {
 public:
 	/** \brief template parameter as nested type */
-	typedef Problem problem_t;
+	typedef Kernel kernel_t;
 
-	/// \brief the base kernel type
-	typedef typename problem_t::template kernel<0, 0>::type kernel_00_t;
+	typedef kernel_derivative_traits<kernel_t> derivative_traits_t;
+
+	typedef typename derivative_traits_t::kernel_00_t kernel_00_t;
+	typedef typename derivative_traits_t::kernel_nx_t kernel_nx_t;
+	typedef typename derivative_traits_t::kernel_ny_t kernel_ny_t;
+	static int const Nx = derivative_traits_t::nx;
+	static int const Ny = derivative_traits_t::ny;
 
 	/** \brief the space's dimension */
 	static size_t const space_dimension = kernel_00_t::space_t::dimension;
@@ -54,7 +82,7 @@ public:
 	class m2m
 	{
 	public:
-		typedef typename black_box_fmm<problem_t>::cluster_t cluster_t;
+		typedef typename black_box_fmm<kernel_t>::cluster_t cluster_t;
 
 		typedef fmm::kron_identity<
 			Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>,
@@ -82,7 +110,7 @@ public:
 	class l2l
 	{
 	public:
-		typedef typename black_box_fmm<problem_t>::cluster_t cluster_t;
+		typedef typename black_box_fmm<kernel_t>::cluster_t cluster_t;
 
 		typedef fmm::kron_identity <
 			Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>,
@@ -110,14 +138,12 @@ public:
 	class m2l
 	{
 	public:
-		typedef typename problem_t::template kernel<0, 0>::type kernel_t;
-
-		typedef typename black_box_fmm<problem_t>::cluster_t cluster_t;
+		typedef typename black_box_fmm<kernel_t>::cluster_t cluster_t;
 
 		typedef Eigen::Matrix<kernel_scalar_t, Eigen::Dynamic, Eigen::Dynamic> result_t;
 
 		m2l(kernel_t const &kernel)
-			: m_kernel(kernel)
+			: m_kernel_00(kernel)
 		{
 		}
 
@@ -133,7 +159,7 @@ public:
 			result_t res(M * field_dimension, N * field_dimension);
 			for (size_t i = 0; i < N; ++i)
 				for (size_t j = 0; j < M; ++j)
-					res.block(i * field_dimension, j * field_dimension, field_dimension, field_dimension) = m_kernel(
+					res.block(i * field_dimension, j * field_dimension, field_dimension, field_dimension) = m_kernel_00(
 						typename kernel_t::space_t::location_t(to.get_chebyshev_nodes().col(i)),
 						typename kernel_t::space_t::location_t(from.get_chebyshev_nodes().col(j)))
 					* Eigen::Matrix<kernel_scalar_t, field_dimension, field_dimension>::Identity();
@@ -141,12 +167,11 @@ public:
 		}
 
 	private:
-		kernel_t m_kernel;
+		kernel_00_t m_kernel_00;
 	};
 
 
 	/** \brief the p2m operator of the black box fmm */
-	template <unsigned int Ny>
 	class p2m
 	{
 	public:
@@ -207,7 +232,6 @@ public:
 
 
 	/** \brief the l2p operator of the black box fmm */
-	template <unsigned int Nx>
 	class l2p
 	{
 	public:
@@ -272,13 +296,11 @@ public:
 
 
 	/** \brief the p2l operator of the black box fmm */
-	template <unsigned int Ny>
 	class p2l
 	{
 	public:
 		typedef cluster_t test_input_t;
-		typedef typename problem_t::template kernel<0, Ny>::type kernel_t;
-		typedef typename kernel_t::trial_input_t trial_input_t;
+		typedef typename kernel_ny_t::trial_input_t trial_input_t;
 		typedef Eigen::Matrix<kernel_scalar_t, Eigen::Dynamic, field_dimension> result_t;
 
 		p2l(kernel_t const &kernel)
@@ -308,7 +330,7 @@ public:
 			result_t res(rows(to), cols(from));
 			for (size_t i = 0; i < n; ++i)
 				res.block(i * field_dimension, 0, field_dimension, field_dimension) =
-				m_kernel(to.get_chebyshev_nodes().col(i), from.get_x()) *
+				m_kernel_ny(to.get_chebyshev_nodes().col(i), from.get_x()) *
 				Eigen::Matrix<kernel_scalar_t, field_dimension, field_dimension>::Identity();
 			return res;
 		}
@@ -319,21 +341,19 @@ public:
 			result_t res(rows(to), cols(from));
 			for (size_t i = 0; i < n; ++i)
 				res.block(i * field_dimension, 0, field_dimension, field_dimension) =
-				m_kernel(to.get_chebyshev_nodes().col(i), from.get_x(), from.get_unit_normal()) *
+				m_kernel_ny(to.get_chebyshev_nodes().col(i), from.get_x(), from.get_unit_normal()) *
 				Eigen::Matrix<kernel_scalar_t, field_dimension, field_dimension>::Identity();
 			return res;
 		}
 
-		kernel_t m_kernel;
+		kernel_ny_t m_kernel_ny;
 	};
 
 
 	/** \brief the m2p operator of the black box fmm */
-	template <unsigned Nx>
 	class m2p
 	{
 	public:
-		typedef typename problem_t::template kernel<Nx, 0>::type kernel_t;
 		typedef cluster_t trial_input_t;
 		typedef typename kernel_t::test_input_t test_input_t;
 		typedef Eigen::Matrix<kernel_scalar_t, field_dimension, Eigen::Dynamic> result_t;
@@ -359,21 +379,23 @@ public:
 			result_t res(rows(to), cols(from));
 			for (size_t i = 0; i < n; ++i)
 				res.block(0, i * field_dimension, field_dimension, field_dimension) =
-				m_kernel(to.get_x(), from.get_chebyshev_nodes().col(i)) *
+				m_kernel_nx(to.get_x(), from.get_chebyshev_nodes().col(i)) *
 				Eigen::Matrix<kernel_scalar_t, field_dimension, field_dimension>::Identity();
 			return res;
 		}
 
+		/// \todo the derivative is unimplemented here
+
 	private:
-		kernel_t m_kernel;
+		kernel_nx_t m_kernel_nx;
 	};
 
 
 	/** \brief consructor
 	 * \param [in] problem the problem instance
 	 */
-	black_box_fmm(problem_t const &problem)
-		: m_problem(problem)
+	black_box_fmm(kernel_t const &kernel)
+		: m_kernel(kernel)
 	{
 	}
 
@@ -381,47 +403,41 @@ public:
 	/** \brief return the p2p operator instance
 	 * \return the p2p operator instance
 	 */
-	template <unsigned int Nx, unsigned int Ny>
-	p2p<typename problem_t::template kernel<Nx, Ny>::type> create_p2p() const
+	auto create_p2p() const
 	{
-		typedef typename problem_t::template kernel<Nx, Ny>::type kernel_t;
-		return p2p<kernel_t>(m_problem.template get_kernel<Nx, Ny>());
+		return p2p<kernel_t>(m_kernel);
 	}
 
 	/** \brief return the p2m operator instance
 	 * \return the p2m operator instance
 	 */
-	template <unsigned int Ny = 0>
-	p2m<Ny> create_p2m() const
+	auto create_p2m() const
 	{
-		return p2m<Ny>();
+		return p2m();
 	}
 
 	/** \brief return the p2l operator instance
 	 * \return the p2l operator instance
 	 */
-	template <unsigned int Ny = 0>
-	p2l<Ny> create_p2l() const
+	p2l create_p2l() const
 	{
-		return p2l<Ny>(m_problem.template get_kernel<0, Ny>());
+		return p2l(m_kernel);
 	}
 
 	/** \brief return the m2p operator instance
 	 * \return the m2p operator instance
 	 */
-	template <unsigned int Nx = 0>
-	m2p<Nx> create_m2p() const
+	auto create_m2p() const
 	{
-		return m2p<Nx>(m_problem.template get_kernel<Nx, 0>());
+		return m2p(m_kernel);
 	}
 
 	/** \brief return the l2p operator instance
 	 * \return the l2p operator instance
 	 */
-	template <unsigned int Nx = 0>
-	l2p<Nx> create_l2p() const
+	auto create_l2p() const
 	{
-		return l2p<Nx>();
+		return l2p();
 	}
 
 	/** \brief return the m2m operator instance
@@ -445,11 +461,11 @@ public:
 	 */
 	m2l create_m2l() const
 	{
-		return m2l(m_problem.template get_kernel<0, 0>());
+		return m2l(m_kernel);
 	}
 
 private:
-	problem_t m_problem;
+	kernel_t m_kernel;
 };
 
 } // end of namespace fmm

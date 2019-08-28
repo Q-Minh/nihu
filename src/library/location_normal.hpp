@@ -56,7 +56,7 @@ public:
 
 	/** \brief constructor from location
 	 * \param [in] x the location */
-	explicit location_input(x_t const &x)
+	location_input(x_t const &x)
 		: m_x(x)
 	{
 	}

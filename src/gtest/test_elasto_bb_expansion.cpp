@@ -31,7 +31,7 @@ private:
 	double m_mu;
 };
 
-
+#if 0
 TEST(elasto_bb_expansion, single_level)
 {
 	typedef NiHu::fmm::black_box_fmm<elastostatics> fmm_t;
@@ -159,3 +159,4 @@ TEST(elasto_bb_expansion, single_level)
 	EXPECT_LE(eps_p2m2m2l2l2p, eps_req);
 #endif
 }
+#endif

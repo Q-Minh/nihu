@@ -29,8 +29,8 @@ Source and receiver nodes  {#tut_fmmh2d_nodes}
 
 \snippet fmm_helmholtz2d.cpp source and receiver nodes
 
-Source and receiver nodes  {#tut_fmmh2d_tree}
--------------------------
+Cluster tree  {#tut_fmmh2d_tree}
+------------
 
 \snippet fmm_helmholtz2d.cpp tree and lists
 

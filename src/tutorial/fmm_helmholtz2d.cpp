@@ -58,6 +58,9 @@ int main()
 		fmm.create_m2l()
 	);
 
+	auto p2p = fmm.create_p2p<0, 0>();
+	std::cout << p2p(*rec_begin, *src_begin) << std::endl;
+
 	auto idx_fctr = NiHu::fmm::create_indexed_functor(
 		src_begin, src_begin + N_src,
 		rec_begin, rec_begin + N_rec,
