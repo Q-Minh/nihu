@@ -159,11 +159,11 @@ public:
 	{
 	}
 	
-	result_t operator()(x_t const &x, x_t const &y, x_t const &n) const
+	result_t operator()(x_t const &x, x_t const &y, x_t const &ny) const
 	{
 		x_t rvec = y - x;
 		scalar_t r = rvec.norm();
-		scalar_t rdny = rvec.dot(n) / r;
+		scalar_t rdny = rvec.dot(ny) / r;
 		result_t f;
 		DistanceKernel::template eval<1>(r, &f);
 		return f * rdny;
@@ -196,11 +196,11 @@ public:
 	{
 	}
 	
-	result_t operator()(x_t const &x, x_t const &y, x_t const &n) const
+	result_t operator()(x_t const &x, x_t const &y, x_t const &nx) const
 	{
 		x_t rvec = y - x;
 		scalar_t r = rvec.norm();
-		scalar_t rdnx = -rvec.dot(n) / r;
+		scalar_t rdnx = -rvec.dot(nx) / r;
 		result_t f;
 		DistanceKernel::template eval<1>(r, &f);
 		return f * rdnx;

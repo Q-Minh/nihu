@@ -36,13 +36,7 @@ public:
 
 	result_t operator()(test_input_t const &ti, size_t idx) const
 	{
-		return m_op(ti, typename operator_t::trial_input_t(m_begin[idx]));
-	}
-
-	template <class TSI>
-	result_t operator()(TSI const &ti, size_t idx) const
-	{
-		return m_op(test_input_t(ti), typename operator_t::trial_input_t(m_begin[idx]));
+		return m_op(ti, m_begin[idx]);
 	}
 
 	size_t num_src() const

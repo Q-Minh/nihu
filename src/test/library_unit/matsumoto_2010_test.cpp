@@ -52,7 +52,7 @@ int main()
 	auto const &w = NiHu::constant_view(msh);
 
 	// compute number of DOF and allocate result matrix
-	int nDOF = w.get_num_dofs();
+	size_t nDOF = w.get_num_dofs();
 	cMatrix H_mat(nDOF, nDOF);
 	H_mat.setZero();
 
