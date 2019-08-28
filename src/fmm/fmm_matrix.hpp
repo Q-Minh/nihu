@@ -9,8 +9,7 @@
 
 #include "cluster_tree.hpp"
 #include "fmm_operator_collection.hpp"
-#include "fmm_timer.hpp"
-#include "fmm_operator_collection.hpp"
+#include "fmm_timer.h"
 #include "lists.hpp"
 #include "util/matrix_traits.hpp"
 

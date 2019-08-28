@@ -1,5 +1,8 @@
-/// \file matrix_free.hpp
-/// \brief an Eigen::Matrix adaptor for the fmm::fmm_matrix class 
+/**
+ * @file matrix_free.hpp
+ * @brief An Eigen::Matrix adaptor for the @ref NiHu::fmm::fmm_matrix class
+ * @ingroup fmm_comp
+ */
 
 #ifndef FMM_MATRIX_FREE_HPP_INCLUDED
 #define FMM_MATRIX_FREE_HPP_INCLUDED
@@ -17,12 +20,13 @@ namespace NiHu
 {
 namespace fmm
 {
-/// \brief an Eigen::Matrix adaptor for the fmm_matrix class
-/// \tparam FmmMatrix the fmm_matrix type
+
+// Forward declaration
 template <class FmmMatrix>
 class matrix_free;
-}
-}
+
+} // end of namespace fmm
+} // end of namespace NiHu
 
 namespace Eigen {
 namespace internal {
@@ -39,8 +43,13 @@ namespace NiHu
 namespace fmm
 {
 
-/// \brief an Eigen::Matrix adaptor for the fmm_matrix class
-/// \tparam FmmMatrix the fmm_matrix type
+/** 
+ * @brief An Eigen::Matrix adaptor for the fmm_matrix class
+ * @tparam FmmMatrix fmm_matrix type
+ * @details
+ * The adaptor enables the usage of the fmm_matrix class in Eigen's iterative
+ * solvers.
+ */
 template <class FmmMatrix>
 class matrix_free
 	: public Eigen::EigenBase<matrix_free<FmmMatrix> >
@@ -100,5 +109,6 @@ create_matrix_free(FmmMatrix &fmm_mtx)
 }
 
 } // end of namespace fmm
-} // namespace NiHu
-#endif // FMM_MATRIX_FREE_HPP_INCLUDED
+} // end of namespace NiHu
+
+#endif /* FMM_MATRIX_FREE_HPP_INCLUDED */

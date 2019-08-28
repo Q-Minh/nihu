@@ -3,6 +3,7 @@
  * @brief Implementation of the black box FMM using Chebyshev interpolation
  * @ingroup bbfmm
  */
+
 #ifndef BLACK_BOX_FMM_HPP_INCLUDED
 #define BLACK_BOX_FMM_HPP_INCLUDED
 

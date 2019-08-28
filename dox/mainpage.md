@@ -83,6 +83,9 @@ NiHu is distributed under the [GNU General Public License](http://www.gnu.org/li
 \defgroup fmm_helmholtz Fast multipole methods for the Helmholtz equation
 \ingroup fmm
 
+\defgroup fmm_util FMM utilities
+\ingroup fmm
+
 \defgroup interface Interface with other software
 
 \defgroup matlab Matlab interface

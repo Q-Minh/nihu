@@ -1,16 +1,22 @@
+/**
+ * @file p2p_precompute.hpp 
+ * @brief Pre-computation of P2P operators for acceleration 
+ * @ingroup fmm_ops
+ */
+
 #ifndef P2P_PRECOMPUTE_HPP_INCLUDED
 #define P2P_PRECOMPUTE_HPP_INCLUDED
 
 #include "cluster_tree.hpp"
 #include "fmm_operator.hpp"
 #include "lists.hpp"
-#include "util/matrix_traits.hpp"
 #include "util/eigen_utils.hpp"
+#include "util/matrix_traits.hpp"
 
 #include <Eigen/SparseCore>
 
-#include <vector>
 #include <type_traits>
+#include <vector>
 
 namespace NiHu
 {
@@ -18,7 +24,7 @@ namespace fmm
 {
 
 template <class Operator, class ClusterDerived, bool isResultEigen = is_eigen<
-	std::decay<Operator>::type::result_t>::value>
+	typename std::decay<Operator>::type::result_t>::value>
 class p2p_precompute
 	: public fmm_operator<p2p_tag>
 {
@@ -159,7 +165,7 @@ auto create_p2p_precompute(Operator &&op,
 }
 
 
-} // namespace fmm
-} // namespace NiHu
+} // end of namespace fmm
+} // end of namespace NiHu
 
-#endif // P2P_PRECOMPUTE_HPP_INCLUDED
+#endif /* P2P_PRECOMPUTE_HPP_INCLUDED */
