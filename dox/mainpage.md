@@ -66,6 +66,23 @@ NiHu is distributed under the [GNU General Public License](http://www.gnu.org/li
 \defgroup tmp Template metaprogramming libraries
 \ingroup core
 
+\defgroup fmm Fast multipole methods (FMM)
+
+\defgroup fmm_clus Clusterization and tree building
+\ingroup fmm
+
+\defgroup fmm_ops Operators
+\ingroup fmm
+
+\defgroup fmm_comp Fast matrix-vector products and iterative solvers
+\ingroup fmm
+
+\defgroup bbfmm Black box FMM 
+\ingroup fmm
+
+\defgroup fmm_helmholtz Fast multipole methods for the Helmholtz equation
+\ingroup fmm
+
 \defgroup interface Interface with other software
 
 \defgroup matlab Matlab interface

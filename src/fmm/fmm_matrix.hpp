@@ -1,35 +1,42 @@
-/// \file fmm_matrix.hpp
-/// \file fmm_matrix.hpp
-/// \brief definition of class fmm::fmm_matrix
+/**
+ * @file fmm_matrix.hpp
+ * @brief Class @ref NiHu::fmm::fmm_matrix
+ * @ingroup fmm_comp
+ */
 
 #ifndef FMM_MATRIX_HPP_INCLUDED
 #define FMM_MATRIX_HPP_INCLUDED
 
-#include <algorithm>
-#include <omp.h>
-
-#include <vector>
-
 #include "cluster_tree.hpp"
+#include "fmm_operator_collection.hpp"
 #include "fmm_timer.hpp"
 #include "fmm_operator_collection.hpp"
 #include "lists.hpp"
 #include "util/matrix_traits.hpp"
+
+#include <omp.h>
+
+#include <algorithm>
+#include <vector>
+
 
 namespace NiHu
 {
 namespace fmm
 {
 
-/// \brief matrix representation of the FMM method
-/// \tparam P2P the P2P operator's type (sparse matrix)
-/// \tparam P2M the P2M operator's type
-/// \tparam P2L the P2L operator's type
-/// \tparam M2P the M2P operator's type
-/// \tparam L2P the L2P operator's type
-/// \tparam M2M the M2M operator's type
-/// \tparam M2L the M2L operator's type
-/// \tparam L2L the L2L operator's type
+/** 
+ * @brief Matrix representation of the FMM method
+ * @tparam P2P P2P operator type 
+ * @tparam P2M the P2M operator's type
+ * @tparam P2L the P2L operator's type
+ * @tparam M2P the M2P operator's type
+ * @tparam L2P the L2P operator's type
+ * @tparam M2M the M2M operator's type
+ * @tparam M2L the M2L operator's type
+ * @tparam L2L the L2L operator's type
+ * @
+ */
 template <
 	class P2P,
 	class P2M, class P2L, class M2P, class L2P,
@@ -520,14 +527,17 @@ template <class P2P, class P2M, class P2L, class M2P, class L2P,
 
 
 
-/// \brief factory function to create an fmm_matrix object
-/// \param [in] collection the fmm collection
-/// \param [in] tree the cluster tree
-/// \param [in] lists the interaction lists
-/// \todo do we need to account for rvalue references of Collection?
-template <class Collection, class Cluster>
+/**
+ * @brief Factory function to create @ref fmm_matrix from an operator collection
+ * @tparam Cluster Cluster type
+ * @tparam ...CollOps Operator types stored in collection
+ * @param[in] collection FMM operator collection
+ * @param[in] tree Cluster tree
+ * @param [in] lists Interaction lists
+ */
+template <class Cluster, class ...CollOps>
 	auto create_fmm_matrix(
-		Collection const &collection,
+		fmm_operator_collection<CollOps...> const &collection,
 		cluster_tree<Cluster> const &tree,
 		interaction_lists const &lists
 	)
@@ -545,9 +555,7 @@ template <class Collection, class Cluster>
 		lists);
 }
 
-
-
 } // end of namespace fmm
-} // namespace NiHu
+} // end of namespace NiHu
 
-#endif
+#endif /* FMM_MATRIX_HPP_INCLUDED */

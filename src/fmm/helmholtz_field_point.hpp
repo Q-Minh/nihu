@@ -1,3 +1,9 @@
+/**
+ * @file helmholtz_field_point.hpp 
+ * @brief Generic implementation of Helmholtz field point computations
+ * @ingroup fmm_helmholtz 
+ */
+
 #ifndef HELMHOLTZ_FIELD_POINT_HPP_INCLUDED
 #define HELMHOLTZ_FIELD_POINT_HPP_INCLUDED
 
@@ -85,8 +91,9 @@ public:
 		m_qsurf = qsurf;
 	}
 
-	template <class Divide>
-	response_t const &eval(Divide const &divide, size_t far_field_quadrature_order)
+	template <class DivideDerived>
+	response_t const &eval(divide_base<DivideDerived> const &divide, 
+		size_t far_field_quadrature_order)
 	{
 		// create cluster tree
 		std::cout << "Building cluster tree ..." << std::endl;
@@ -95,7 +102,7 @@ public:
 			create_field_center_iterator(m_trial_space.template field_end<trial_field_t>()),
 			create_field_center_iterator(m_test_space.template field_begin<test_field_t>()),
 			create_field_center_iterator(m_test_space.template field_end<test_field_t>()),
-			divide);
+			divide.derived());
 		std::cout << tree << std::endl;
 
 		// initialize tree data
@@ -178,6 +185,6 @@ private:
 };
 
 } // end of namespace fmm
-} // namespace NiHu
+} // end of namespace NiHu
 
-#endif // HELMHOLTZ_2D_FIELD_POINT_HPP_INCLUDED
+#endif /* HELMHOLTZ_FIELD_POINT_HPP_INCLUDED */

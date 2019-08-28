@@ -1,5 +1,8 @@
-/// \file elem_center_iterator.hpp
-/// \brief definition of class fmm::elem_center_iterator and fmm::field_center_iterator
+/**
+ * @file elem_center_iterator.hpp
+ * @brief Classes for iterating through elements and fields
+ * @ingroup fmm_clus
+ */
 
 #ifndef ELEM_CENTER_ITERATOR_HPP_INCLUDED
 #define ELEM_CENTER_ITERATOR_HPP_INCLUDED
@@ -233,7 +236,7 @@ auto create_field_center_iterator(It it)
 
 
 } // end of namespace fmm
-} // namespace NiHu
+} // end of namespace NiHu
 
 
-#endif // ELEM_CENTER_ITERATOR_HPP_INCLUDED
+#endif /* ELEM_CENTER_ITERATOR_HPP_INCLUDED */

@@ -1,5 +1,8 @@
-/// \file helmholtz_exterior_solver.hpp
-/// \brief A generic Burton-Miller FMM solver for the Helmholtz equation
+/**
+ * @file helmholtz_exterior_solver.hpp
+ * @brief A generic Burton-Miller FMBEM solver for the Helmholtz equation
+ * @ingroup fmm_helmholtz
+ */
 
 #ifndef HELMHOLTZ_EXTERIOR_SOLVER_HPP_INCLUDED
 #define HELMHOLTZ_EXTERIOR_SOLVER_HPP_INCLUDED
@@ -84,15 +87,15 @@ public:
 	/// \brief solve the BIE
 	/// \param [in] divide the cluster division functor
 	/// \param [in] far_field_quadrature_order the far field quadrature order
-	template <class Divide>
-	response_t const &solve(Divide const &divide, size_t far_field_quadrature_order)
+	template <class DivideDerived>
+	response_t const &solve(divide_base<DivideDerived> const &divide, size_t far_field_quadrature_order)
 	{
 		// build the cluster tree
 		std::cout << "Building cluster tree ..." << std::endl;
 		cluster_tree_t tree(
 			create_field_center_iterator(m_trial_space.template field_begin<trial_field_t>()),
 			create_field_center_iterator(m_trial_space.template field_end<trial_field_t>()),
-			divide);
+			divide.derived());
 
 		// instantiate the fmm object
 		std::cout << "Instantiating fmm object ..." << std::endl;
@@ -185,14 +188,7 @@ public:
 		// create matrix object
 		std::cout << "Assembling lhs matrix ..." << std::endl;
 		auto dlp_matrix = create_fmm_matrix(
-			lhs_pre_collection.get(p2p_tag()),
-			lhs_pre_collection.get(p2m_tag()),
-			lhs_pre_collection.get(p2l_tag()),
-			lhs_pre_collection.get(m2p_tag()),
-			lhs_pre_collection.get(l2p_tag()),
-			lhs_pre_collection.get(m2m_tag()),
-			lhs_pre_collection.get(l2l_tag()),
-			lhs_pre_collection.get(m2l_tag()),
+			lhs_pre_collection,
 			tree, lists);
 
 		// compute solution
@@ -224,6 +220,6 @@ private:
 };
 
 } // end of namespace fmm
-} // namespace NiHu
+} // end of namespace NiHu
 
-#endif // HELMHOLTZ_EXTERIOR_SOLVER_HPP_INCLUDED
+#endif /* HELMHOLTZ_EXTERIOR_SOLVER_HPP_INCLUDED */

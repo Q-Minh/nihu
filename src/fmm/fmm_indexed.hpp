@@ -1,3 +1,9 @@
+/**
+ * @file fmm_indexed.hpp 
+ * @brief Interface for indexing FMM operators 
+ * @ingroup fmm_ops
+ */
+
 #ifndef FMM_INDEXED_HPP_INCLUDED
 #define FMM_INDEXED_HPP_INCLUDED
 
