@@ -1,6 +1,9 @@
-/** \file cluster_tree.hpp
- * \brief implementation of class fmm::cluster_tree
+/** 
+ * @file cluster_tree.hpp
+ * @brief Implementation of class @ref NiHu::fmm::cluster_tree
+ * @ingroup fmm_clus
  */
+
 #ifndef FMM_CLUSTER_TREE_HPP_INCLUDED
 #define FMM_CLUSTER_TREE_HPP_INCLUDED
 
@@ -21,8 +24,9 @@ namespace NiHu
 namespace fmm
 {
 
-/** \brief class representing a cluster tree
- * \tparam Dim the space dimension
+/** 
+ * @brief Class representing a cluster tree
+ * @tparam Dim Space dimension
  */
 template <class ClusterDerived>
 class cluster_tree
@@ -35,7 +39,7 @@ public:
 	typedef typename cluster_t::location_t location_t;
 	typedef typename cluster_t::idx_list_t idx_list_t;
 
-	/**\brief type of the cluster vector */
+	/** @brief Type of the cluster vector */
 	typedef std::vector<
 		cluster_t, Eigen::aligned_allocator<cluster_t>
 	> cluster_vector_t;
@@ -43,13 +47,29 @@ public:
 	typedef typename cluster_vector_t::const_iterator iterator_t;
 
 public:
+	/**
+	 * @brief Create a cluster tree 
+	 * @tparam It Iterator type
+	 * @tparam DivideDerived Cluster division method 
+	 * @param[in] src_begin Begin iterator to sources / receivers
+	 * @param[in] src_end End iterator to sources / receivers
+	 */
 	template <class It, class DivideDerived>
 	cluster_tree(It src_begin, It src_end, divide_base<DivideDerived> const& divide)
 		: cluster_tree(src_begin, src_end, src_begin, src_end, divide)
 	{
 	}
 
-
+	/**
+	 * @brief Create a cluster tree 
+	 * @tparam It1 Source iterator type
+	 * @tparam It2 Receiver iterator type
+	 * @tparam DivideDerived Cluster division method 
+	 * @param[in] src_begin Begin iterator to sources
+	 * @param[in] src_end End iterator to sources 
+	 * @param[in] rec_begin Begin iterator to receivers 
+	 * @param[in] rec_end End iterator to receivers
+	 */
 	template <class It1, class It2, class DivideDerived>
 	cluster_tree(It1 src_begin, It1 src_end, It2 rec_begin, It2 rec_end, divide_base<DivideDerived> const& divide)
 		: n_src(src_end - src_begin)
@@ -311,7 +331,7 @@ std::ostream &operator<<(std::ostream &os, cluster_tree<C> const &ct)
 	return os;
 }
 
-} // namespace fmm
-} // namespace NiHu
+} // end of namespace fmm
+} // end of namespace NiHu
 
-#endif // FMM_CLUSTER_TREE_HPP_INCLUDED
+#endif /* FMM_CLUSTER_TREE_HPP_INCLUDED */

@@ -1,3 +1,9 @@
+/**
+ * @file helmholtz_field_point.hpp 
+ * @brief Generic implementation of Helmholtz field point computations
+ * @ingroup fmm_helmholtz 
+ */
+
 #ifndef HELMHOLTZ_FIELD_POINT_HPP_INCLUDED
 #define HELMHOLTZ_FIELD_POINT_HPP_INCLUDED
 
@@ -179,6 +185,6 @@ private:
 };
 
 } // end of namespace fmm
-} // namespace NiHu
+} // end of namespace NiHu
 
-#endif // HELMHOLTZ_2D_FIELD_POINT_HPP_INCLUDED
+#endif /* HELMHOLTZ_FIELD_POINT_HPP_INCLUDED */

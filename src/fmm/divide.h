@@ -1,7 +1,7 @@
 /** 
  * @file divide.h
- * @brief cluster division strategies
- * @ingroup fmm
+ * @brief Cluster division strategies
+ * @ingroup fmm_clus
  */
 
 #ifndef DIVIDE_H_INCLUDED
@@ -17,6 +17,13 @@ namespace NiHu
 namespace fmm
 {
 
+/**
+ * @brief Base CRTP class for cluster division
+ * @details
+ * Cluster division classes are predicates derived from this base class using 
+ * static polymorphism. Each derived class should implement the template
+ * operator() method.
+ */
 template <class Derived>
 class divide_base
 {
@@ -30,24 +37,31 @@ public:
 	}
 };
 	
-/** \brief class representing a balanced tree division predicate */
+/** @brief class representing a balanced tree division predicate */
 class divide_depth : public divide_base<divide_depth>
 {
+	/** 
+	 * @brief Maximal division depth
+	 * @details 
+	 * The resulting number of levels is depth + 1
+	 */
 	size_t m_depth;
 
 public:
-	/** \brief constructor
-	 * \param [in] depth maximal depth of the tree
+	/** 
+	 * @brief Constructor
+	 * @param [in] depth Maximal depth of the tree
 	 */
 	divide_depth(size_t depth)
 		: m_depth(depth)
 	{
 	}
 
-	/** \brief determine if a cluster needs to be divided or not
-	 * \tparam Cluster the cluster type
-	 * \param [in] c the cluster to divide
-	 * \return true if the cluster needs to be divided
+	/** 
+	 * @brief Determine if a cluster needs to be divided
+	 * @tparam Cluster Cluster type
+	 * @param [in] c the cluster to divide
+	 * @return @c true if the cluster needs to be divided
 	 */
 	template <class Cluster>
 	bool operator()(Cluster const &c) const
@@ -111,6 +125,6 @@ public:
 };
 
 } // end of namespace fmm
-} // namespace NiHu
+} // end of namespace NiHu
 
-#endif // DIVIDE_H_INCLUDED
+#endif /* DIVIDE_H_INCLUDED */

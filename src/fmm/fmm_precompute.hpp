@@ -1,11 +1,17 @@
+/**
+ * @file fmm_precompute.hpp
+ * @brief Operator pre-computation interface 
+ * @ingroup fmm_ops
+ */ 
+
 #ifndef FMM_PRECOMPUTE_HPP_INCLUDED
 #define FMM_PRECOMPUTE_HPP_INCLUDED
 
 #include "cluster_tree.hpp"
 #include "leaf_precompute.hpp"
-#include "x2x_precompute.hpp"
-#include "p2p_precompute.hpp"
 #include "lists.hpp"
+#include "p2p_precompute.hpp"
+#include "x2x_precompute.hpp"
 
 #include <type_traits>
 
@@ -147,4 +153,4 @@ auto create_precompute_functor(cluster_tree<ClusterDerived> const &tree, interac
 }
 }
 
-#endif
+#endif /* FMM_PRECOMPUTE_HPP_INCLUDED */

@@ -1,5 +1,8 @@
-/// \file helmholtz_exterior_solver.hpp
-/// \brief A generic Burton-Miller FMM solver for the Helmholtz equation
+/**
+ * @file helmholtz_exterior_solver.hpp
+ * @brief A generic Burton-Miller FMBEM solver for the Helmholtz equation
+ * @ingroup fmm_helmholtz
+ */
 
 #ifndef HELMHOLTZ_EXTERIOR_SOLVER_HPP_INCLUDED
 #define HELMHOLTZ_EXTERIOR_SOLVER_HPP_INCLUDED
@@ -185,14 +188,7 @@ public:
 		// create matrix object
 		std::cout << "Assembling lhs matrix ..." << std::endl;
 		auto dlp_matrix = create_fmm_matrix(
-			lhs_pre_collection.get(p2p_tag()),
-			lhs_pre_collection.get(p2m_tag()),
-			lhs_pre_collection.get(p2l_tag()),
-			lhs_pre_collection.get(m2p_tag()),
-			lhs_pre_collection.get(l2p_tag()),
-			lhs_pre_collection.get(m2m_tag()),
-			lhs_pre_collection.get(l2l_tag()),
-			lhs_pre_collection.get(m2l_tag()),
+			lhs_pre_collection,
 			tree, lists);
 
 		// compute solution
@@ -224,6 +220,6 @@ private:
 };
 
 } // end of namespace fmm
-} // namespace NiHu
+} // end of namespace NiHu
 
-#endif // HELMHOLTZ_EXTERIOR_SOLVER_HPP_INCLUDED
+#endif /* HELMHOLTZ_EXTERIOR_SOLVER_HPP_INCLUDED */

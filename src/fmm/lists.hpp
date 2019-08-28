@@ -1,5 +1,7 @@
-/** \file lists.hpp
- * \brief declaration of class fmm::interaction_lists 
+/** 
+ * @file lists.hpp
+ * @brief Definition of class @ref NiHu::fmm::interaction_lists 
+ * @ingroup fmm_clus
  */
 
 #ifndef LISTS_HPP_INCLUDED
@@ -179,6 +181,6 @@ public:
 };
 
 } // end of namespace fmm
-} // namespace NiHu
+} // end of namespace NiHu
 
-#endif // LISTS_HPP_INCLUDED
+#endif /* LISTS_HPP_INCLUDED */

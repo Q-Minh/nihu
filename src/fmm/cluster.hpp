@@ -1,10 +1,13 @@
-/** \file cluster.hpp
- * \brief implementation of class NiHu::fmm::cluster_base
+/** 
+ * @file cluster.hpp
+ * @brief implementation of class NiHu::fmm::cluster_base
+ * @ingroup fmm_clus
  */
 #ifndef CLUSTER_HPP_INCLUDED
 #define CLUSTER_HPP_INCLUDED
 
 #include "bounding_box.hpp"
+#include "util/crtp_base.hpp"
 
 #include <algorithm>	// std::find, std::copy
 #include <iostream>		// std::ostream
@@ -16,9 +19,10 @@ namespace NiHu
 {
 namespace fmm
 {
-/** \brief CRTP traits structure of a cluster
- * \tparam Derived the CRTP derived class
- *
+/** 
+ * @brief CRTP traits structure of a cluster
+ * @tparam Derived CRTP derived class
+ * @details
  * The traits structure needs to define
  * local_t,
  * multipole_t,
@@ -27,62 +31,56 @@ namespace fmm
 template <class Derived>
 struct cluster_traits;
 
-/** \brief CRTP base class of clusters
- * \tparam Derived CRTP derived class
+/** 
+ * @brief CRTP base class of clusters
+ * @tparam Derived CRTP derived class
  */
 template <class Derived>
 class cluster_base
 {
 public:
-	/** \brief the traits structure */
+	/** @brief Traits structure */
 	typedef cluster_traits<Derived> traits_t;
 
-	/** \brief the space dimension */
+	/** @brief Space dimension */
 	static size_t const dimension = traits_t::dimension;
-	/** \brief the multipole type */
+	/** @brief Multipole type */
 	typedef typename traits_t::multipole_t multipole_t;
-	/** \brief the local type */
+	/** @brief Local type */
 	typedef typename traits_t::local_t local_t;
 
-	/** \brief the bounding box type */
+	/** @brief Bounding box type */
 	typedef bounding_box<dimension, double> bounding_box_t;
-	/** \brief the location type */
+	/** @brief Location type */
 	typedef typename bounding_box_t::location_t location_t;
-	/** \brief index list type for storing children and contained nodes */
+	/** @brief Index list type for storing children and contained nodes */
 	typedef std::vector<size_t> idx_list_t;
 
 public:
-	/** \brief crtp helper function */
-	Derived const &derived() const
-	{
-		return *(static_cast<Derived const *>(this));
-	}
-
-	/** \brief crtp helper function */
-	Derived &derived()
-	{
-		return *(static_cast<Derived *>(this));
-	}
-
-	/** \brief set cluster's level
-	* \param [in] level
-	*/
+	NIHU_CRTP_HELPERS
+	
+	/** 
+	 * @brief Set cluster's level
+	 * @param [in] level
+	 */
 	void set_level(size_t level)
 	{
 		m_level = level;
 	}
 
-	/** \brief get cluster's level
-	* \return level
-	*/
+	/** 
+	 * @brief Get cluster's level
+	 * @return level
+	 */
 	size_t get_level() const
 	{
 		return m_level;
 	}
 
-	/** \brief set the parent cluster's index
-	* \param [in] parent the parent cluster's index
-	*/
+	/** 
+	 * @brief Set the parent cluster's index
+	 * @param [in] parent the parent cluster's index
+	 */
 	void set_parent(size_t parent)
 	{
 		m_parent = parent;
@@ -292,4 +290,4 @@ std::ostream &operator<<(std::ostream &os, cluster_base<Derived> const &c)
 } // namespace fmm
 } // namespace NiHu
 
-#endif // CLUSTER_HPP_INCLUDED
+#endif /* CLUSTER_HPP_INCLUDED */

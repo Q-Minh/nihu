@@ -1,5 +1,7 @@
-/** \file black_box_fmm.hpp
- * \brief implementation of the black box fmm with Chebyshev interpolation
+/** 
+ * @file black_box_fmm.hpp
+ * @brief Implementation of the black box FMM using Chebyshev interpolation
+ * @ingroup bbfmm
  */
 #ifndef BLACK_BOX_FMM_HPP_INCLUDED
 #define BLACK_BOX_FMM_HPP_INCLUDED
@@ -20,8 +22,9 @@ namespace NiHu
 namespace fmm
 {
 
-/** \brief black box fmm for a smooth kernel
- * \tparam Kernel the kernel class
+/** 
+ * @brief Black box FMM for a smooth kernel
+ * @tparam Kernel the kernel class
  */
 template <class Problem>
 class black_box_fmm
