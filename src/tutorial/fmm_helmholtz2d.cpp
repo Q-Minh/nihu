@@ -46,6 +46,7 @@ int main()
 		tree[c].set_p_level_data(&fmm.get_level_data(tree[c].get_level()));
 	//! [fmm initialization]
 
+	//! [operator manipulations]
 	auto ops = NiHu::fmm::create_fmm_operator_collection(
 		fmm.create_p2p<0, 0>(),
 		fmm.create_p2m<0>(),
@@ -65,16 +66,16 @@ int main()
 	auto pre_fctr = NiHu::fmm::create_precompute_functor(tree, lists);
 
 	auto pre_collection = ops.transform(idx_fctr).transform(pre_fctr);
+	//! [operator manipulations]
 
-	std::cout << "Matrix" << std::endl;
-	auto mat = NiHu::fmm::create_fmm_matrix(
-		pre_collection, tree, lists
-	);
+	//! [matrix]
+	auto mat = NiHu::fmm::create_fmm_matrix(pre_collection, tree, lists);
 
 	Eigen::Matrix<std::complex<double>, Eigen::Dynamic, 1> xct(N_src, 1);
 	xct.setConstant(1.0);
 
 	auto resp = mat * xct;
+	//! [matrix]
 
 	delete[] src_begin;
 	delete[] rec_begin;
