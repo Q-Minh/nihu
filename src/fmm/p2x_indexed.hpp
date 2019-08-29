@@ -51,8 +51,7 @@ private:
 };
 
 template <class Operator, class It>
-p2x_indexed<Operator, It>
-create_p2x_indexed(Operator &&op, It begin, It end)
+auto create_p2x_indexed(Operator &&op, It begin, It end)
 {
 	return p2x_indexed<Operator, It>(std::forward<Operator>(op), begin, end);
 }

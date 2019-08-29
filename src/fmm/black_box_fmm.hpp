@@ -303,7 +303,7 @@ public:
 		typedef Eigen::Matrix<kernel_scalar_t, Eigen::Dynamic, field_dimension> result_t;
 
 		p2l(kernel_t const &kernel)
-			: m_kernel(kernel)
+			: m_kernel_ny(kernel)
 		{
 		}
 
@@ -358,7 +358,7 @@ public:
 		typedef Eigen::Matrix<kernel_scalar_t, field_dimension, Eigen::Dynamic> result_t;
 
 		m2p(kernel_t const &kernel)
-			: m_kernel(kernel)
+			: m_kernel_nx(kernel)
 		{
 		}
 
