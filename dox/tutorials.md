@@ -8,7 +8,7 @@ Tutorials {#tutorials}
 Basic usage
 -----------
 
-Three steps to build the first NiHu C++ executable
+Three steps to build the first %NiHu C++ executable
 
 1. \subpage tut_mesh_building
 2. \subpage tut_function_spaces

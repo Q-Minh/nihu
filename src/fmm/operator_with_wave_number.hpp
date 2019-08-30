@@ -1,5 +1,9 @@
-/// \file operator_with_wave_number.hpp
-/// \brief implementation of class fmm::operator_with_wave_number
+/** 
+ * \file operator_with_wave_number.hpp
+ * \brief implementation of class \ref NiHu::fmm::operator_with_wave_number
+ * \ingroup fmm_ops
+ */
+
 #ifndef OPERATOR_WITH_WAVE_NUMBER_HPP_INCLUDED
 #define OPERATOR_WITH_WAVE_NUMBER_HPP_INCLUDED
 
@@ -28,7 +32,8 @@ public:
 private:
 	wave_number_t const m_wave_number;
 };
-} // namespace fmm
-} // namespace NiHu
+	
+} // end of namespace fmm
+} // end namespace NiHu
 
-#endif // OPERATOR_WITH_WAVE_NUMBER_HPP_INCLUDED
+#endif /* OPERATOR_WITH_WAVE_NUMBER_HPP_INCLUDED */

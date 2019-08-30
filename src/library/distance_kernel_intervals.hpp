@@ -154,6 +154,6 @@ struct distance_kernel_interval<asymptotic::inverse<3>, 3>
 	> type;
 };
 
-}
+} // end of namespace NiHu
 
 #endif /* DISTANCE_KERNEL_INTERVALS_HPP_INCLUDED */

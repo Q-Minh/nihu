@@ -1,5 +1,7 @@
-/** \file helmholtz_2d_wb_x2x_matrix.h
+/** 
+ * \file helmholtz_2d_wb_x2x_matrix.h
  * \brief declaration of m2m l2l and m2l operations for the 2d wide band helmholtz fmm
+ * \ingroup hmm_helmholtz_2d_wb
  */
 
 #ifndef FMM_HELMHOLTZ_2D_WB_X2X_MATRIX_H_INCLUDED

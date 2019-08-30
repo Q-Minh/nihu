@@ -1,3 +1,9 @@
+/**
+ * \file operator_precompute.hpp 
+ * \brief Operator precomputation 
+ * \ingroup fmm_ops
+ */
+
 #ifndef OPERATOR_PRECOMPUTE_HPP_INCLUDED
 #define OPERATOR_PRECOMPUTE_HPP_INCLUDED
 
@@ -79,4 +85,4 @@ private:
 } // namespace fmm
 } // namespace NiHu
 
-#endif // OPERATOR_PRECOMPUTE_HPP_INCLUDED
+#endif /* OPERATOR_PRECOMPUTE_HPP_INCLUDED */

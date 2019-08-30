@@ -1,7 +1,7 @@
 /**
  * @file telles_1987.hpp 
  * @brief Implementation of Telles' quadrature transform method
- * @ingroup library
+ * @ingroup lib_singular
  */
 
 #ifndef NIHU_TELLES_1987_HPP_INCLUDED
@@ -11,7 +11,8 @@
 
 #include <cmath>
 
-namespace NiHu {
+namespace NiHu 
+{
 
 /**
  * @brief Telles third order polynomial transform 
@@ -26,12 +27,13 @@ namespace NiHu {
  * singularities or calculate nearly singular integrals more accurately.
  * The method is implemented as given in Ref. [1].
  * 
- * References:
- *	[1] J.C.F. Telles: A self-adaptive co-ordinate transformation for
+ * \par
+ * <b>References:</b><br>
+ *	[1] J.C.F. Telles: <i>A self-adaptive co-ordinate transformation for
  *	    efficient numerical evaluation of general boundary element
- *	    integrals. International Journal for numerical methods in
- *	    engineering. Vol. 24, pp. 959-973 (1987)
- *	    DOI: 10.1002/nme.1620240509
+ *	    integrals.</i> International Journal for numerical methods in
+ *	    engineering. Vol. <b>24</b>, pp. 959-973 (1987)
+ *	    DOI: <a href="http://dx.doi.org/10.1002/nme.1620240509">10.1002/nme.1620240509</a>
  */
 template <class QuadDerived>
 QuadDerived telles_transform(
@@ -96,6 +98,6 @@ QuadDerived telles_transform(
 	return result;
 }
 
-}
+} // end of namespace NiHu
 
 #endif /* NIHU_TELLES_1987_HPP_INCLUDED */

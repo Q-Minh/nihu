@@ -16,16 +16,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-/** \file matsumoto_2010.hpp
- * \brief Explicite hypersingular integrals for collocational Helmholtz BEM with constant triangles
- * \details This file contains the implementation of the collocational integrals for the
+/** 
+ * \file matsumoto_2010.hpp
+ * \brief Explicit hypersingular integrals for collocational Helmholtz BEM with constant triangles
+ * \ingroup lib_singular
+ * \details 
+ * This file contains the implementation of the collocational integrals for the
  * Burton-Miller formulation over constant triangular elements
- * \ingroup library
  */
 #ifndef MATSUMOTO_2010_HPP_INCLUDED
 #define MATSUMOTO_2010_HPP_INCLUDED
-
-#include <boost/math/constants/constants.hpp>
 
 #include "../core/element_match.hpp"
 #include "../core/integral_operator.hpp"
@@ -34,6 +34,7 @@
 #include "helmholtz_kernel.hpp"
 #include "lib_element.hpp"
 
+#include <boost/math/constants/constants.hpp>
 
 namespace NiHu
 {
@@ -217,7 +218,7 @@ private:
 	typedef typename kernel_base<helmholtz_3d_SLP_kernel<WaveNumber> >::scalar_t scalar_t;
 };
 
-}
+} // end of namespace NiHu
 
-#endif // MATSUMOTO_2010_HPP_INCLUDED
+#endif /* MATSUMOTO_2010_HPP_INCLUDED */
 

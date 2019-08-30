@@ -1,22 +1,26 @@
-/** \file normal_derivative_kernel.hpp
- * \brief declaration of class normal_derivative_kernel
- * \author Peter Fiala
+/** 
+ * \file normal_derivative_kernel.hpp
+ * \brief Class \ref NiHu::normal_derivative_kernel
+ * \author Peter Fiala 
+ * \ingroup lib_kernel
  */
 
 #ifndef NORMAL_DERIVATIVE_KERNEL_HPP_INCLUDED
 #define NORMAL_DERIVATIVE_KERNEL_HPP_INCLUDED
 
-#include "../core/kernel.hpp"
-#include "location_normal.hpp"
 #include "distance_dependent_kernel.hpp"
+#include "location_normal.hpp"
+
+#include "core/kernel.hpp"
 
 namespace NiHu
 {
 	
-/** \brief normal derivative of a distance dependent kernel
- * \tparam DistanceKernel the distance dependent kernel
- * \tparam Nx the order of normal derivative w.r.t. n(x)
- * \tparam Ny the order of normal derivative w.r.t. n(y)
+/** 
+ * \brief Normal derivative of a distance dependent kernel
+ * \tparam DistanceKernel Distance dependent kernel type
+ * \tparam Nx Order of normal derivative w.r.t. n(x)
+ * \tparam Ny Order of normal derivative w.r.t. n(y)
  */
 template <class DistanceKernel, int Nx, int Ny>
 class normal_derivative_kernel;
@@ -103,7 +107,8 @@ namespace kernel_traits_ns
 }
 
 
-/** \brief zero order normal derivative of a distance dependent kernel
+/** 
+ * \brief Zero order normal derivative of a distance dependent kernel
  * \tparam DistanceKernel the distance dependent kernel
  */
 template <class DistanceKernel>
@@ -288,6 +293,6 @@ public:
 	}
 };
 
-}
+} // end of namespace NiHu
 
-#endif
+#endif /* NORMAL_DERIVATIVE_KERNEL_HPP_INCLUDED */

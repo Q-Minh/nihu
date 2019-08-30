@@ -1,3 +1,9 @@
+/**
+ * @file p2p_precompute.hpp 
+ * @brief Pre-computation of P2P operators for acceleration 
+ * @ingroup fmm_ops
+ */
+
 #ifndef P2P_PRECOMPUTE_HPP_INCLUDED
 #define P2P_PRECOMPUTE_HPP_INCLUDED
 
@@ -9,8 +15,8 @@
 
 #include <Eigen/SparseCore>
 
-#include <vector>
 #include <type_traits>
+#include <vector>
 
 namespace NiHu
 {
@@ -159,7 +165,7 @@ auto create_p2p_precompute(Operator &&op,
 }
 
 
-} // namespace fmm
-} // namespace NiHu
+} // end of namespace fmm
+} // end of namespace NiHu
 
-#endif // P2P_PRECOMPUTE_HPP_INCLUDED
+#endif /* P2P_PRECOMPUTE_HPP_INCLUDED */

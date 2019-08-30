@@ -1,10 +1,15 @@
+/**
+ * \file helmholtz_3d_hf_cluster.cpp
+ * \brief CLuster implementation for Helmholtz 3D high frequency FMM 
+ * \ingroup fmm_helmholtz_3d_hf
+ */
+
 #include "helmholtz_3d_hf_cluster.h"
 
 namespace NiHu
 {
 namespace fmm
 {
-
 
 helmholtz_3d_hf_cluster::multipole_t 
 helmholtz_3d_hf_cluster::zero_multipole() const
@@ -30,4 +35,4 @@ helmholtz_3d_hf_cluster::get_level_data() const
 }
 
 } // end of namespace
-} // namespace NiHu
+} // end of namespace NiHu

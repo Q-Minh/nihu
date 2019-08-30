@@ -1,14 +1,16 @@
-/** \file fmm_timer.hpp
- * \brief declaration of class fmm_timer
+/** 
+ * @file fmm_timer.h
+ * @brief Interface of the class @ref NiHu::fmm::fmm_timer
+ * @ingroup fmm_util
  */
 #ifndef FMM_TIMER_HPP_INCLUDED
 #define FMM_TIMER_HPP_INCLUDED
 
 #include "util/timer.h"
 
-#include <vector>
 #include <array>
 #include <iostream>
+#include <vector>
 
 namespace NiHu
 {

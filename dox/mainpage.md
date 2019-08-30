@@ -71,7 +71,7 @@ NiHu is distributed under the [GNU General Public License](http://www.gnu.org/li
 \defgroup fmm_clus Clusterization and tree building
 \ingroup fmm
 
-\defgroup fmm_ops Operators
+\defgroup fmm_ops Operators and operator manipulation
 \ingroup fmm
 
 \defgroup fmm_comp Fast matrix-vector products and iterative solvers
@@ -83,6 +83,15 @@ NiHu is distributed under the [GNU General Public License](http://www.gnu.org/li
 \defgroup fmm_helmholtz Fast multipole methods for the Helmholtz equation
 \ingroup fmm
 
+\defgroup fmm_helmholtz 2d_wb Wideband 2D Helmholtz FMM 
+\ingroup fmm_helmholtz
+
+\defgroup fmm_helmholtz_3d_hf High frequency 3D Helmholtz FMM
+\ingroup fmm_helmholtz
+
+\defgroup fmm_util FMM utilities
+\ingroup fmm
+
 \defgroup interface Interface with other software
 
 \defgroup matlab Matlab interface
@@ -90,4 +99,22 @@ NiHu is distributed under the [GNU General Public License](http://www.gnu.org/li
 
 \defgroup library Libraries for specific fields of application
 
+\defgroup lib_kernel Kernels and related properties
+\ingroup library
 
+\defgroup lib_sef Shape functions, elements, and field types 
+\ingroup library
+
+\defgroup lib_singular Specialised singular and nearly singular integration methods
+\ingroup library
+
+\defgroup lib_laplace BEM for the Laplace equation
+\ingroup library 
+
+\defgroup lib_helmholtz BEM for the Helmholtz equation
+\ingroup library
+
+\defgroup lib_elasto BEM for elastostatics and elastodynamics
+\ingroup library
+
+\defgroup util Utilities and miscellaneous

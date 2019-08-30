@@ -15,7 +15,7 @@ typedef cluster_t::location_t location_t;
 int main()
 {
 	//! [source and receiver nodes]
-	size_t N_src = 5000;
+	size_t N_src = 5000;	// number of source nodes
 	location_t *src_begin = new location_t[N_src];
 	for (size_t i = 0; i < N_src; ++i)
 		src_begin[i].setRandom();

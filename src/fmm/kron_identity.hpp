@@ -1,9 +1,16 @@
-/// \file kron_identity.hpp
-/// \brief kronecker product of a matrix by an Identity matrix
+/** 
+ * \file kron_identity.hpp
+ * \brief kronecker product of a matrix by an Identity matrix
+ * \ingroup fmm_util
+ */
+
+#ifndef KRON_IDENTITY_HPP_INCLUDED
+#define KRON_IDENTITY_HPP_INCLUDED
+
+#include <Eigen/Dense>
 
 #include <type_traits>
 #include <utility>
-#include <Eigen/Dense>
 
 namespace NiHu
 {
@@ -58,4 +65,6 @@ kron_identity<Lhs, Dim> create_kron_identity(Lhs&& lhs)
 }
 
 } // end of namespace fmm
-} // namespace NiHu
+} // end of namespace NiHu
+
+#endif /* KRON_IDENTITY_HPP_INCLUDED */

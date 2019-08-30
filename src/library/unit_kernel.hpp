@@ -18,15 +18,14 @@
 
 /**
  * \file unit_kernel.hpp
- * \ingroup library
- * \brief implementation of the unit kernel \f$K(x,y) = 1\f$
+ * \brief Implementation of the unit kernel \f$K(x,y) = 1\f$
+ * \ingroup lib_kernel
  */
 
 #ifndef UNIT_KERNEL_HPP_INCLUDED
 #define UNIT_KERNEL_HPP_INCLUDED
 
 #include "../core/kernel.hpp"
-#include "../util/brick.hpp"
 #include "../core/gaussian_quadrature.hpp"
 
 namespace NiHu

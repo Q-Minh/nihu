@@ -1,5 +1,8 @@
-/// \file helmholtz_3d_hf_cluster.h
-/// \brief declaration of clas fmm::helmholtz_3d_hf_cluster
+/** 
+ * \file helmholtz_3d_hf_cluster.h
+ * \brief declaration of clas fmm::helmholtz_3d_hf_cluster
+ * \ingroup fmm_helmholtz_3d_hf
+ */
 
 #ifndef FMM_HELMHOLTZ_3D_HF_CLUSTER_H_INCLUDED
 #define FMM_HELMHOLTZ_3D_HF_CLUSTER_H_INCLUDED
@@ -60,4 +63,4 @@ private:
 } // end of namespace fmm
 } // namespace NiHu
 
-#endif //FMM_HELMHOLTZ_3D_HF_CLUSTER_H_INCLUDED
+#endif /* FMM_HELMHOLTZ_3D_HF_CLUSTER_H_INCLUDED */
