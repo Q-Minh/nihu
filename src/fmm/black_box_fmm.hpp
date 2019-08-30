@@ -8,6 +8,7 @@
 #define BLACK_BOX_FMM_HPP_INCLUDED
 
 #include "chebyshev_cluster.hpp"
+#include "fmm_operator.hpp"
 #include "kron_identity.hpp"
 #include "m2l_indices.hpp"
 #include "nd_cheb.hpp"
@@ -83,6 +84,7 @@ public:
 
 	/** \brief the m2m operator of the black box fmm */
 	class m2m
+		: public fmm_operator<m2m_tag>
 	{
 	public:
 		typedef typename black_box_fmm<kernel_t>::cluster_t cluster_t;
@@ -111,6 +113,7 @@ public:
 
 	/** \brief the l2l operator of the black box fmm */
 	class l2l
+		: public fmm_operator<l2l_tag>
 	{
 	public:
 		typedef typename black_box_fmm<kernel_t>::cluster_t cluster_t;
@@ -139,6 +142,7 @@ public:
 
 	/** \brief the m2l operator of the black box fmm */
 	class m2l
+		: public fmm_operator<m2l_tag>
 	{
 	public:
 		typedef typename black_box_fmm<kernel_t>::cluster_t cluster_t;
@@ -176,6 +180,7 @@ public:
 
 	/** \brief the p2m operator of the black box fmm */
 	class p2m
+		: public fmm_operator<p2m_tag>
 	{
 	public:
 		typedef cluster_t test_input_t;
@@ -236,6 +241,7 @@ public:
 
 	/** \brief the l2p operator of the black box fmm */
 	class l2p
+		: public fmm_operator<l2p_tag>
 	{
 	public:
 		typedef typename std::conditional<
@@ -300,6 +306,7 @@ public:
 
 	/** \brief the p2l operator of the black box fmm */
 	class p2l
+		: public fmm_operator<p2l_tag>
 	{
 	public:
 		typedef cluster_t test_input_t;
@@ -355,6 +362,7 @@ public:
 
 	/** \brief the m2p operator of the black box fmm */
 	class m2p
+		: public fmm_operator<m2p_tag>
 	{
 	public:
 		typedef cluster_t trial_input_t;
