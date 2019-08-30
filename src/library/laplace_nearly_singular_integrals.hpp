@@ -19,12 +19,13 @@
 /**
  * \file laplace_nearly_singular_integrals.hpp
  * \brief Nearly singular integrals for the Laplace kernels
- * \ingroup library
+ * \ingroup lib_laplace
+ * 
  * \details
  * This file contains the specialised implementations of some nearly singular
  * integrals for the Laplace kernel and its normal derivatives. These include
  * SLP, DLP, DLPt, and HSP kernels.
- *
+ * 
  * For planar elements, the method of integration generally relies on a planar
  * transformation that transforms the element to plane parallel with the x-y
  * plane. Then, a semi-analytical integration is performed in polar coordinates.

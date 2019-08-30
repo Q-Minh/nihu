@@ -44,16 +44,18 @@ int main()
 
 
 	//! [construct tree source receiver]
-	location_t *src_begin = new location_t[1000];
-	for (size_t i = 0; i < 1000; ++i)
+	size_t N_src = 1000;
+	location_t *src_begin = new location_t[N_src];
+	for (size_t i = 0; i < N_src; ++i)
 		src_begin[i].setRandom();
 
-	location_t *rec_begin = new location_t[200];
-	for (size_t i = 0; i < 200; ++i)
+	size_t N_rec = 200;
+	location_t *rec_begin = new location_t[N_rec];
+	for (size_t i = 0; i < N_rec; ++i)
 		rec_begin[i].setRandom();
 
-	cluster_tree_t src_rec_tree(src_begin, src_begin + 1000,
-		rec_begin, rec_begin + 200,
+	cluster_tree_t src_rec_tree(src_begin, src_begin + N_src,
+		rec_begin, rec_begin + N_rec,
 		NiHu::fmm::divide_num_nodes(10));
 	//! [construct tree source receiver]
 

@@ -18,9 +18,10 @@
 
 /**
  * \file covariance_kernel.hpp
- * \ingroup library
- * \brief implementation of kernels used to represent covariance function of stochastic processes
- * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
+ * \brief Implementation of kernels representing covariance functions of stochastic processes
+ * \author Peter Fiala fiala@hit.bme.hu 
+ * \author Peter Rucz rucz@hit.bme.hu
+ * \ingroup lib_kernel
  */
 
 #ifndef COVARIANCE_KERNEL_HPP_INCLUDED

@@ -1,6 +1,6 @@
 /** 
  * @file black_box_fmm.hpp
- * @brief Implementation of the black box FMM using Chebyshev interpolation
+ * @brief Implementation of the Black Box FMM using Chebyshev interpolation
  * @ingroup bbfmm
  */
 
@@ -14,11 +14,11 @@
 #include "p2p.hpp"
 
 #include "library/location_normal.hpp"
+#include "library/normal_derivative_kernel.hpp"
 #include "util/matrix_traits.hpp"
 
 #include <type_traits>
 
-#include "library/normal_derivative_kernel.hpp"
 
 namespace NiHu
 {
@@ -28,8 +28,11 @@ namespace fmm
 template <class Kernel>
 struct kernel_derivative_traits
 {
+	/** @brief Kernel type without normal derivation */
 	typedef Kernel kernel_00_t;
+	/** @brief Kernel with normal derivative in @i y */
 	typedef Kernel kernel_ny_t;
+	/** @brief Kernel with normal derivative in @i x */
 	typedef Kernel kernel_nx_t;
 	static int const nx = 0;
 	static int const ny = 0;
@@ -48,7 +51,7 @@ struct kernel_derivative_traits<normal_derivative_kernel<DistanceDependentKernel
 
 /** 
  * @brief Black box FMM for a smooth kernel
- * @tparam Kernel the kernel class
+ * @tparam Kernel Kernel class
  */
 template <class Kernel>
 class black_box_fmm
@@ -469,5 +472,6 @@ private:
 };
 
 } // end of namespace fmm
-}
-#endif // BLACK_BOX_FMM_HPP_INCLUDED
+} // end of namespace NiHu
+
+#endif /* BLACK_BOX_FMM_HPP_INCLUDED */

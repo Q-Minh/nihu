@@ -1,14 +1,17 @@
-/** \file type2tag.hpp 
- * \brief assign a tag to a type
+/** 
+ * \file type2tag.hpp 
+ * \brief Assign a tag to a type
+ * \ingroup util
  */
-#ifndef FMM_TYPE_TO_TAG_HPP_INCLUDED
-#define FMM_TYPE_TO_TAG_HPP_INCLUDED
+#ifndef TYPE2TAG_HPP_INCLUDED
+#define TYPE2TAG_HPP_INCLUDED
 
 namespace NiHu
 {
 
-/** \brief metafunction to assign a tag to a type
- * \tparam Type the input type
+/** 
+ * \brief Netafunction assigning a tag to a type
+ * \tparam Type Input type
  */
 template<class Type>
 struct type2tag 
@@ -17,8 +20,9 @@ struct type2tag
 	typedef type2tag type;
 };
 
-/** \brief metafunction to recover the type from a tag
- * \tparam Tag the input tag
+/** 
+ * \brief Metafunction recovering the type from a tag
+ * \tparam Tag Input tag
  */
 template <class Tag>
 struct tag2type;
@@ -29,6 +33,6 @@ struct tag2type<type2tag<Type> >
 	typedef Type type;
 };
 
-} // namespace NiHu
+} // end of namespace NiHu
 
-#endif // FMM_TYPE_TO_TAG_HPP_INCLUDED
+#endif /* TYPE2TAG_HPP_INCLUDED */

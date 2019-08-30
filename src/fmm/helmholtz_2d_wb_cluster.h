@@ -1,5 +1,7 @@
-/** \file helmholtz_2d_wb_cluster.h
+/** 
+ * \file helmholtz_2d_wb_cluster.h
  * \brief declaration of class helmholtz_2d_wb_cluster
+ * \ingroup fmm_helmholtz_2d_wb
  */
 
 #ifndef HELMHOLTZ_2D_WB_CLUSTER_H_INCLUDED
@@ -63,6 +65,6 @@ private:
 };
 
 } // end of namespace fmm
-} // namespace NiHu
+} // end of namespace NiHu
 
-#endif //  HELMHOLTZ_2D_WB_CLUSTER_H_INCLUDED
+#endif /*  HELMHOLTZ_2D_WB_CLUSTER_H_INCLUDED */

@@ -16,8 +16,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-/** \file crtp_base.hpp
-* \brief define CRTP helper functions and metafunctions
+/** 
+ * \file crtp_base.hpp
+* \brief Define CRTP helper functions and metafunctions
 * \ingroup util
 */
 
@@ -35,8 +36,10 @@
 		return static_cast<Derived &>(*this); \
 	}
 
-/** \brief metafunction returning its first argument and ignoring all subsequent
- * \details used for CRTP decltype
+/** 
+ * \brief Metafunction returning its first argument and ignoring all subsequent
+ * \details 
+ * Used for CRTP decltype
  */
 template <class T, class...Ignore>
 struct ignore

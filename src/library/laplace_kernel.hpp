@@ -18,23 +18,24 @@
 
 /**
  * \file laplace_kernel.hpp
- * \ingroup library
+ * \ingroup lib_laplace
  * \brief implementation of kernels of the Laplace equation \f$ \nabla^2 p = 0 \f$
- * \author Peter Fiala fiala@hit.bme.hu Peter Rucz rucz@hit.bme.hu
+ * \author Peter Fiala fiala@hit.bme.hu 
+ * \author Peter Rucz rucz@hit.bme.hu
  */
 
 #ifndef LAPLACE_KERNEL_HPP_INCLUDED
 #define LAPLACE_KERNEL_HPP_INCLUDED
 
-#include <boost/math/constants/constants.hpp>
-
-#include <cmath>
 #include "distance_dependent_kernel.hpp"
 #include "guiggiani_1992.hpp"
 #include "normal_derivative_kernel.hpp"
 #include "../core/global_definitions.hpp"
 #include "../core/gaussian_quadrature.hpp"
 
+#include <boost/math/constants/constants.hpp>
+
+#include <cmath>
 
 namespace NiHu
 {
@@ -292,5 +293,5 @@ public:
 
 } // end of namespace NiHu
 
-#endif // LAPLACE_KERNEL_HPP_INCLUDED
+#endif /* LAPLACE_KERNEL_HPP_INCLUDED */
 

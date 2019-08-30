@@ -1,17 +1,20 @@
-/// \file integral_operator_expression.hpp
-/// \brief definition of linear arithmetics of integral operators
+/** 
+ * \file integral_operator_expression.hpp
+ * \brief Arithmetics of integral operators
+ * \ingroup fmm_ops
+ */
 
-#ifndef FMM_INTEGRAL_OPERATOR_EXPRESSION_HPP_INCLUDED
-#define FMM_INTEGRAL_OPERATOR_EXPRESSION_HPP_INCLUDED
-
-#include <utility>
-#include <type_traits>
+#ifndef INTEGRAL_OPERATOR_EXPRESSION_HPP_INCLUDED
+#define INTEGRAL_OPERATOR_EXPRESSION_HPP_INCLUDED
 
 #include "fmm_operator.hpp"
 
 #include "../util/matrix_traits.hpp"
 #include "../util/plain_type.hpp"
 #include "../util/product_type.hpp"
+
+#include <type_traits>
+#include <utility>
 
 namespace NiHu
 {
@@ -390,4 +393,4 @@ auto src_concatenate(Lhs &&lhs, Rhs &&rhs)
 } // end of namespace fmm
 } // namespace NiHu
 
-#endif // INTEGRAL_OPERATOR_EXPRESSION_HPP_INCLUDED
+#endif /* INTEGRAL_OPERATOR_EXPRESSION_HPP_INCLUDED */

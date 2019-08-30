@@ -1,6 +1,9 @@
-/** \file distance_dependent_kernel.hpp
- * \brief implementation of class distance_dependent_kernel
- * \author Peter Fiala
+/** 
+ * \file distance_dependent_kernel.hpp
+ * \brief Class \ref NiHu::distance_dependent_kernel
+ * \author Peter Fiala fiala@hit.bme.hu
+ * \author Peter Rucz rucz@hit.bme.hu
+ * \ingroup lib_kernel
  */
 
 #ifndef DISTANCE_DEPENDENT_KERNEL_HPP_INCLUDED
@@ -50,4 +53,4 @@ public:
 
 } // end of namespace NiHu
 
-#endif // DISTANCE_DEPENDENT_KERNEL_HPP_INCLUDED
+#endif /* DISTANCE_DEPENDENT_KERNEL_HPP_INCLUDED */

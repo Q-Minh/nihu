@@ -1,6 +1,9 @@
-/** \file helmholtz_2d_wb_x2x_matrix.cpp
- * \brief implementation of the m2m l2l and m2l operators for the helmholtz 2d wide band fmm
+/** 
+ * \file helmholtz_2d_wb_x2x_matrix.cpp
+ * \brief M2M, L2L, and M2L operators for the Helmholtz 2D wide band FMM
+ * \ingroup fmm_helmholtz_2d_wb
  */
+
 #include "helmholtz_2d_wb_x2x_matrix.h"
 
 #include <iostream>
@@ -108,4 +111,4 @@ helmholtz_2d_wb_m2l_matrix::operator*(cvector_t const &rhs) const
 }
 
 } // end of namespace fmm
-} // namespace NiHu
+} // end of namespace NiHu

@@ -1,3 +1,9 @@
+/**
+ * \file helmholtz_2d_wb_level_data.cpp 
+ * \brief Level data for 2D wideband Helmholtz FMM
+ * \ingroup fmm_helmholtz_2d_wb
+ */
+
 #include "helmholtz_2d_wb_level_data.h"
 #include <iostream>
 #include <omp.h>

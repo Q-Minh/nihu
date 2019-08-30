@@ -1,7 +1,10 @@
+/**
+ * \file helmholtz_3d_hf_level_data.cpp
+ * \brief Implementation of level data for 3D Helmholtz high frequency FMM 
+ * \ingroup fmm_helmholtz_3d_hf
+ */
+
 #include "helmholtz_3d_hf_level_data.h"
-
-#include <omp.h>
-
 
 namespace NiHu
 {

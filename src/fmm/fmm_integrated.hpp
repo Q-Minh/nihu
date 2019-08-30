@@ -1,3 +1,9 @@
+/**
+ * \file fmm_integrated.hpp
+ * \brief Integrated operators 
+ * \ingroup fmm_ops
+ */
+
 #ifndef FMM_INTEGRATED_HPP_INCLUDED
 #define FMM_INTEGRATED_HPP_INCLUDED
 
