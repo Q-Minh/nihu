@@ -11,7 +11,7 @@
 #include "core/function_space.hpp"
 
 #include "cluster_tree.hpp"
-#include "divide.h"
+#include "divide.hpp"
 #include "elem_center_iterator.hpp"
 #include "fmm_matrix.hpp"
 #include "fmm_precompute.hpp"

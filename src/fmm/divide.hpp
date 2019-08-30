@@ -1,11 +1,11 @@
 /** 
- * @file divide.h
+ * @file divide.hpp
  * @brief Cluster division strategies
  * @ingroup fmm_clus
  */
 
-#ifndef DIVIDE_H_INCLUDED
-#define DIVIDE_H_INCLUDED
+#ifndef DIVIDE_HPP_INCLUDED
+#define DIVIDE_HPP_INCLUDED
 
 #include "cluster.hpp"
 #include "util/crtp_base.hpp"

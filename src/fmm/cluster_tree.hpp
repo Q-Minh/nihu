@@ -8,7 +8,7 @@
 #define FMM_CLUSTER_TREE_HPP_INCLUDED
 
 #include "cluster.hpp"
-#include "divide.h"
+#include "divide.hpp"
 #include "util/misc.hpp"
 
 #include "Eigen/Dense"

@@ -4,8 +4,8 @@
 #include "cluster_tree.hpp"
 #include "fmm_operator.hpp"
 #include "lists.hpp"
-#include "util/matrix_traits.hpp"
 #include "util/eigen_utils.hpp"
+#include "util/matrix_traits.hpp"
 
 #include <Eigen/SparseCore>
 
@@ -18,7 +18,7 @@ namespace fmm
 {
 
 template <class Operator, class ClusterDerived, bool isResultEigen = is_eigen<
-	std::decay<Operator>::type::result_t>::value>
+	typename std::decay<Operator>::type::result_t>::value>
 class p2p_precompute
 	: public fmm_operator<p2p_tag>
 {
