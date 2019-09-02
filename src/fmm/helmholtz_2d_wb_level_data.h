@@ -1,15 +1,19 @@
-/** \file helmholtz_2d_wb_level_data.h
+/** 
+ * \file helmholtz_2d_wb_level_data.h
  * \brief declaration of class helmholtz_2d_wb_level_data
+ * \ingroup fmm_helmholtz_2d_wb
  */
+
 #ifndef FMM_HELMHOLTZ_2D_WB_LEVEL_DATA_HPP_INCLUDED
 #define FMM_HELMHOLTZ_2D_WB_LEVEL_DATA_HPP_INCLUDED
 
+#include "spectral_interpolate.h"
+
 #include <fftw3.h>
 #include <Eigen/Dense>
+
 #include <complex>
 #include <vector>
-
-#include "spectral_interpolate.h"
 
 namespace NiHu
 {
@@ -107,6 +111,6 @@ private:
 };
 
 } // end of namespace fmm
-} // namespace NiHu
+} // end of namespace NiHu
 
-#endif
+#endif /* FMM_HELMHOLTZ_2D_WB_LEVEL_DATA_HPP_INCLUDED */

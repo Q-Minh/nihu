@@ -16,6 +16,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * \file lib_element.cpp 
+ * \ingroup lib_sef
+ */
+
 #include "lib_element.hpp"
 
 namespace NiHu

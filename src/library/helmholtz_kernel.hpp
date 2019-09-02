@@ -18,8 +18,8 @@
 
 /**
  * \file helmholtz_kernel.hpp
- * \ingroup library
- * \brief implementation of kernels of the Helmholtz equation \f$ \nabla^2 p + k^2 p = 0 \f$
+ * \brief Kernels of the Helmholtz equation \f$ \nabla^2 p + k^2 p = 0 \f$
+ * \ingroup lib_helmholtz
  */
 
 #ifndef HELMHOLTZ_KERNEL_HPP_INCLUDED

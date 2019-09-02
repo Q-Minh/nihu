@@ -1,5 +1,8 @@
-/// \file chebyshev_cluster.hpp
-/// \brief implementation of class fmm::chebyshev_cluster
+/** 
+ * @file chebyshev_cluster.hpp
+ * @brief Implementation of class @ref chebyshev_cluster
+ * @ingroup bbfmm
+ */
 
 #ifndef CHEBYSHEV_CLUSTER_HPP_INCLUDED
 #define CHEBYSHEV_CLUSTER_HPP_INCLUDED
@@ -13,17 +16,21 @@ namespace NiHu
 namespace fmm
 {
 
-/** \brief the cluster class of the black box fmm
- * \tparam Dim the dimension of the system (location)
- * \tparam Scalar the kernel value's scalar type
+/** 
+ * @brief Cluster class of the black box fmm
+ * @tparam Dim Dimension of the system (location)
+ * @tparam Scalar Kernel value's scalar type
+ * @tparam FieldDim Dimension of the field variable 
  */
 template <size_t Dim, class Scalar, size_t FieldDim>
 class chebyshev_cluster;
 
-/// \brief traits class of the chebyshev_cluster
-/// \tparam Dim the space dimension
-/// \tparam Scalar the scalar type
-/// \tparam FieldDim the field's dimension
+/** 
+ * @brief Traits class of the @ref chebyshev_cluster
+ * @tparam Dim Space dimension
+ * @tparam Scalar Scalar type
+ * @tparam FieldDim Field's dimension
+ */
 template <size_t Dim, class Scalar, size_t FieldDim>
 struct cluster_traits<chebyshev_cluster<Dim, Scalar, FieldDim> >
 {
@@ -103,6 +110,6 @@ private:
 };
 
 } // end of namespace fmm
-} // namespace NiHu
+} // end of namespace NiHu
 
-#endif
+#endif /* CHEBYSHEV_CLUSTER_HPP_INCLUDED */

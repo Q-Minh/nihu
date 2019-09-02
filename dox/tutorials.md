@@ -8,7 +8,7 @@ Tutorials {#tutorials}
 Basic usage
 -----------
 
-Three steps to build the first NiHu C++ executable
+Three steps to build the first %NiHu C++ executable
 
 1. \subpage tut_mesh_building
 2. \subpage tut_function_spaces
@@ -39,7 +39,8 @@ Low level NiHu
 Fast Multipole NiHu
 -------------------
 
-1. \subpage tut_tree_building : How to build and work with cluster trees
+1. \subpage tut_fmm_helmholtz2d : Evaluating the 2D Helmholtz kernel using the Fast Multipole Method
+2. \subpage tut_tree_building : How to build and work with cluster trees
 
 Customising your own NiHu
 -------------------------

@@ -16,25 +16,32 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-/** \file lenoir_salles_2012.hpp
- * \brief Explicite singular Galerkin integrals of Laplace kernels over plane triangles
- * \ingroup library
+/** 
+ * \file lenoir_salles_2012.hpp
+ * \brief Explicit singular Galerkin integrals of Laplace kernels over plane triangles
+ * \ingroup lib_laplace
+ * 
+ * \details
+ * <b>References:</b><br>
+ *  [1] EVALUATION OF 3-D SINGULAR AND NEARLY SINGULARINTEGRALS IN GALERKIN BEM FOR THIN LAYERS
  */
 #ifndef LENOIR_SALLES_2012_HPP_INCLUDED
 #define LENOIR_SALLES_2012_HPP_INCLUDED
 
-#include <boost/math/constants/constants.hpp>
-
-#include "../core/integral_operator.hpp"
 #include "laplace_kernel.hpp"
 #include "lib_element.hpp"
+
+#include "../core/integral_operator.hpp"
+
+#include <boost/math/constants/constants.hpp>
 
 #include <cmath>
 
 namespace NiHu
 {
 
-/** \brief Galerkin singular integral of the Laplace SLP kernel over a constant triangle
+/** 
+ * \brief Galerkin singular integral of the Laplace SLP kernel over a constant triangle
  * \tparam TestField the test field type
  * \tparam TrialField the trial field type
  */
@@ -50,7 +57,8 @@ class singular_integral_shortcut<
 >
 {
 public:
-	/** \brief helper function to compute geometrical parameters of a triangle
+	/** 
+	 * \brief helper function to compute geometrical parameters of a triangle
 	 * \tparam scalar_t the scalar type of the parameters
 	 * \param [in] elem the triangle element
 	 * \param [out] gamma distance of a corner from the opposite side vector
@@ -81,7 +89,8 @@ public:
 		}
 	}
 
-	/** \brief evaluate singular integral
+	/** 
+	 * \brief evaluate singular integral
 	 * \tparam result_t the result matrix type
 	 * \param result the result matrix reference
 	 * \param trial_field the trial field instance
@@ -119,6 +128,6 @@ public:
 	}
 };
 
-}
+} // end of namespace NiHu
 
-#endif // LENOIR_SALLES_2012_HPP_INCLUDED
+#endif /* LENOIR_SALLES_2012_HPP_INCLUDED */

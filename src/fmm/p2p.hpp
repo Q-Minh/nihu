@@ -40,6 +40,12 @@ public:
 		return m_kernel(x, y);
 	}
 
+	template <class TSI, class TRI>
+	result_t operator()(TSI const &tsi, TRI const &tri) const
+	{
+		return m_kernel(test_input_t(tsi), trial_input_t(tri));
+	}
+
 	kernel_t const &get_kernel() const
 	{
 		return m_kernel;

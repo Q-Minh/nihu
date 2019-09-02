@@ -1,5 +1,7 @@
-/** \file bounding_box.hpp
- * \brief implementation of class fmm::bounding_box
+/** 
+ * @file bounding_box.hpp
+ * @brief Implementation of class @ref NiHu::fmm::bounding_box
+ * @ingroup fmm_clus
  */
 
 #ifndef BOUNDING_BOX_HPP_INCLUDED

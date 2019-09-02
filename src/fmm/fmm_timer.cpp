@@ -1,4 +1,10 @@
-#include "fmm_timer.hpp"
+/**
+ * @file fmm_timer.cpp
+ * @brief Implementation of the class @ref NiHu::fmm::fmm_timer
+ * @ingroup fmm_util
+ */
+
+#include "fmm_timer.h"
 
 #include <iomanip>
 #include <sstream>
@@ -37,5 +43,5 @@ std::ostream &fmm_timer::print(std::ostream &os) const
 	return os;
 }
 
-} // namespace fmm
-} // namespace NiHu
+} // end of namespace fmm
+} // end namespace NiHu

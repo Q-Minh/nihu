@@ -16,14 +16,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-/** \file laplace_singular_integrals.hpp
+/** 
+ * \file laplace_singular_integrals.hpp
  * \brief Analytical expressions for the singular integrals of Laplace kernels
- * \details analytical expression for the Laplace kernels over plane elements
+ * \ingroup lib_laplace
+ * 
+ * \details 
+ * Analytical expression for the Laplace kernels over plane elements.
  */
 #ifndef LAPLACE_SINGULAR_INTEGRALS_HPP_INCLUDED
 #define LAPLACE_SINGULAR_INTEGRALS_HPP_INCLUDED
-
-#include <boost/math/constants/constants.hpp>
 
 #include "../core/match_types.hpp"
 #include "../core/singular_integral_shortcut.hpp"
@@ -34,6 +36,8 @@
 #include "plane_element_helper.hpp"
 #include "guiggiani_1992.hpp"
 #include "lib_element.hpp"
+
+#include <boost/math/constants/constants.hpp>
 
 #include <iostream>
 
@@ -1193,5 +1197,5 @@ public:
 
 } // namespace NiHu
 
-#endif // LAPLACE_SINGULAR_INTEGRALS_HPP_INCLUDED
+#endif /* LAPLACE_SINGULAR_INTEGRALS_HPP_INCLUDED */
 

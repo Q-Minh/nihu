@@ -28,8 +28,8 @@ void test(test_space_t const &test_space, trial_space_t const &trial_space)
 {
 	auto I = NiHu::identity_integral_operator();
 
-	unsigned m = test_space.get_num_dofs();
-	unsigned n = trial_space.get_num_dofs();
+	size_t m = test_space.get_num_dofs();
+	size_t n = trial_space.get_num_dofs();
 
 	dMatrix result(m, n);
 	result.setZero();

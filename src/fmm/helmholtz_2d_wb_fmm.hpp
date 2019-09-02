@@ -1,6 +1,9 @@
-/** \file helmholtz_2d_wb_fmm.hpp
- * \brief implemenetation of the 2D Wide Band Helmholtz FMM
+/** 
+ * \file helmholtz_2d_wb_fmm.hpp
+ * \brief 2D Wide Band Helmholtz FMM
+ * \ingroup fmm_helmholtz_2d_wb
  */
+
 #ifndef HELMHOLTZ_2D_WB_FMM_HPP_INCLUDED
 #define HELMHOLTZ_2D_WB_FMM_HPP_INCLUDED
 

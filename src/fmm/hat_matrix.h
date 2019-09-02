@@ -1,5 +1,8 @@
-/// \file hat_matrix.h
-/// \brief implementation of class fmm::hat_matrix
+/** 
+ * \file hat_matrix.h
+ * \brief implementation of class fmm::hat_matrix
+ * \ingroup fmm_util
+ */
 
 #ifndef HAT_MATRIX_H_INCLUDED
 #define HAT_MATRIX_H_INCLUDED
@@ -51,7 +54,7 @@ private:
 	size_t m_N;
 };
 
-}
-} // namespace NiHu
+} // end of namespace fmm
+} // end of namespace NiHu
 
-#endif // HAT_MATRIX_H_INCLUDED
+#endif /* HAT_MATRIX_H_INCLUDED */

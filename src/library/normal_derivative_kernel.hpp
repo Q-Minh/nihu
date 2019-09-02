@@ -1,22 +1,26 @@
-/** \file normal_derivative_kernel.hpp
- * \brief declaration of class normal_derivative_kernel
- * \author Peter Fiala
+/** 
+ * \file normal_derivative_kernel.hpp
+ * \brief Class \ref NiHu::normal_derivative_kernel
+ * \author Peter Fiala 
+ * \ingroup lib_kernel
  */
 
 #ifndef NORMAL_DERIVATIVE_KERNEL_HPP_INCLUDED
 #define NORMAL_DERIVATIVE_KERNEL_HPP_INCLUDED
 
-#include "../core/kernel.hpp"
-#include "location_normal.hpp"
 #include "distance_dependent_kernel.hpp"
+#include "location_normal.hpp"
+
+#include "core/kernel.hpp"
 
 namespace NiHu
 {
 	
-/** \brief normal derivative of a distance dependent kernel
- * \tparam DistanceKernel the distance dependent kernel
- * \tparam Nx the order of normal derivative w.r.t. n(x)
- * \tparam Ny the order of normal derivative w.r.t. n(y)
+/** 
+ * \brief Normal derivative of a distance dependent kernel
+ * \tparam DistanceKernel Distance dependent kernel type
+ * \tparam Nx Order of normal derivative w.r.t. n(x)
+ * \tparam Ny Order of normal derivative w.r.t. n(y)
  */
 template <class DistanceKernel, int Nx, int Ny>
 class normal_derivative_kernel;
@@ -103,7 +107,8 @@ namespace kernel_traits_ns
 }
 
 
-/** \brief zero order normal derivative of a distance dependent kernel
+/** 
+ * \brief Zero order normal derivative of a distance dependent kernel
  * \tparam DistanceKernel the distance dependent kernel
  */
 template <class DistanceKernel>
@@ -159,11 +164,11 @@ public:
 	{
 	}
 	
-	result_t operator()(x_t const &x, x_t const &y, x_t const &n) const
+	result_t operator()(x_t const &x, x_t const &y, x_t const &ny) const
 	{
 		x_t rvec = y - x;
 		scalar_t r = rvec.norm();
-		scalar_t rdny = rvec.dot(n) / r;
+		scalar_t rdny = rvec.dot(ny) / r;
 		result_t f;
 		DistanceKernel::template eval<1>(r, &f);
 		return f * rdny;
@@ -196,11 +201,11 @@ public:
 	{
 	}
 	
-	result_t operator()(x_t const &x, x_t const &y, x_t const &n) const
+	result_t operator()(x_t const &x, x_t const &y, x_t const &nx) const
 	{
 		x_t rvec = y - x;
 		scalar_t r = rvec.norm();
-		scalar_t rdnx = -rvec.dot(n) / r;
+		scalar_t rdnx = -rvec.dot(nx) / r;
 		result_t f;
 		DistanceKernel::template eval<1>(r, &f);
 		return f * rdnx;
@@ -288,6 +293,6 @@ public:
 	}
 };
 
-}
+} // end of namespace NiHu
 
-#endif
+#endif /* NORMAL_DERIVATIVE_KERNEL_HPP_INCLUDED */

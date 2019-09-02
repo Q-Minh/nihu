@@ -1,13 +1,16 @@
-/** \file helmholtz_3d_hf_level_data.h
+/** 
+ * \file helmholtz_3d_hf_level_data.h
  * \brief level data of the the helmholtz 3d high frequency fmm
+ * \ingroup fmm_helmholtz_3d_hf
  */
+
 #ifndef FMM_HELMHOLTZ_3D_HF_LEVEL_DATA_H_INCLUDED
 #define FMM_HELMHOLTZ_3D_HF_LEVEL_DATA_H_INCLUDED
 
-#include <Eigen/Dense>
-
 #include "unit_sphere.h"
 #include "unit_sphere_interpolator.h"
+
+#include <Eigen/Dense>
 
 #include <vector>
 
@@ -81,7 +84,7 @@ private:
 	std::vector<interpolator> m_interp_dns;
 };
 
-} // namespace fmm
-} // namespace NiHu
+} // end of namespace fmm
+} // end of namespace NiHu
 
-#endif // FMM_HELMHOLTZ_3D_HF_LEVEL_DATA_H_INCLUDED
+#endif /* FMM_HELMHOLTZ_3D_HF_LEVEL_DATA_H_INCLUDED */

@@ -1,3 +1,9 @@
+/**
+ * \file helmholtz_2d_wb_cluster.cpp
+ * \brief Cluster for the 2D Wideband Helmholtz FMM
+ * \ingroup fmm_helmholtz_2d_wb
+ */
+
 #include "helmholtz_2d_wb_cluster.h"
 
 namespace NiHu
@@ -29,6 +35,4 @@ helmholtz_2d_wb_cluster::zero_local() const
 }
 
 } // end of namespace fmm
-} // namespace NiHu
-
-
+} // end of namespace NiHu

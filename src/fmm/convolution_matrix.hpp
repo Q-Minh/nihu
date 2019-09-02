@@ -1,13 +1,15 @@
 /**
- * \file convolution_matrix.hpp
- * \brief implemenetation of class template convolution_matrix
+ * @file convolution_matrix.hpp
+ * @brief Implemenetation of class template @ref NiHu::fmm::convolution_matrix
+ * @ingroup fmm_ops
  */
 
 #ifndef CONVOLUTION_MATRIX_HPP_INCLUDED
 #define CONVOLUTION_MATRIX_HPP_INCLUDED
 
-#include <complex>
 #include <Eigen/Dense>
+
+#include <complex>
 
 namespace NiHu
 {
@@ -75,6 +77,6 @@ private:
 };
 
 } // end of namespace fmm
-} // namespace NiHu
+} // end of namespace NiHu
 
-#endif // CONVOLUTION_MATRIX_HPP_INCLUDED
+#endif /* CONVOLUTION_MATRIX_HPP_INCLUDED */

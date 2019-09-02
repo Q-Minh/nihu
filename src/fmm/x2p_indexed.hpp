@@ -46,8 +46,7 @@ private:
 };
 
 template <class Operator, class It>
-x2p_indexed<Operator, It>
-create_x2p_indexed(Operator &&op, It begin, It end)
+auto create_x2p_indexed(Operator &&op, It begin, It end)
 {
 	return x2p_indexed<Operator, It>(std::forward<Operator>(op), begin, end);
 }

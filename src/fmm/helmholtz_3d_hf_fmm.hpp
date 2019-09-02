@@ -1,5 +1,9 @@
-/// \file helmholtz_3d_hf_fmm.hpp
-/// \brief implemenetation of the 3D High Frequency Helmholtz FMM
+/** 
+ * \file helmholtz_3d_hf_fmm.hpp
+ * \ingroup fmm_helmholtz_3d_hf
+ * \brief 3D high frequency Helmholtz FMM
+ */
+
 #ifndef HELMHOLTZ_3D_HF_FMM_HPP_INCLUDED
 #define HELMHOLTZ_3D_HF_FMM_HPP_INCLUDED
 

@@ -16,8 +16,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-/** \file guiggiani_1992.hpp
+/** 
+ * \file guiggiani_1992.hpp
  * \brief Guiggiani's method for CPV and HPF collocational integrals
+ * \ingroup lib_singular
+ * 
+ * \details
+ * 
  */
 
 #ifndef GUIGGIANI_1992_HPP_INCLUDED

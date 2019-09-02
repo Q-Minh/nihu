@@ -1,5 +1,8 @@
-/// \file identity_p2p_operator.h
-/// \definition of class NiHu::fmm::identity_p2p_operator
+/** 
+ * \file identity_p2p_operator.h
+ * \brief Definition of class \ref NiHu::fmm::identity_p2p_operator
+ * \ingroup fmm_ops
+ */
 
 #ifndef IDENTITY_P2P_OPERATOR_H_INCLUDED
 #define IDENTITY_P2P_OPERATOR_H_INCLUDED
@@ -16,7 +19,7 @@ class identity_p2p_operator
 {
 };
 
-}
-}
+} // end of namespace fmm
+} // end of namespace NiHu
 
-#endif
+#endif /* IDENTITY_P2P_OPERATOR_H_INCLUDED */
