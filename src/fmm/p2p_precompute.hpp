@@ -23,52 +23,51 @@ namespace NiHu
 namespace fmm
 {
 
+namespace internal
+{
+
 template <class Operator, class ClusterDerived, bool isResultEigen = is_eigen<
 	typename std::decay<Operator>::type::result_t>::value>
-class p2p_precompute
-	: public fmm_operator<p2p_tag>
+class sparse_computer;
+
+
+template <class Operator, class ClusterDerived>
+class sparse_computer<Operator, ClusterDerived, true>
 {
-public:
 	typedef typename std::decay<Operator>::type operator_t;
 	typedef typename operator_t::result_t result_t;
 	typedef typename scalar<result_t>::type scalar_t;
 	static size_t const rows = num_rows<result_t>::value;
 	static size_t const cols = num_cols<result_t>::value;
-	typedef Eigen::SparseMatrix<scalar_t> sparse_t;
 	typedef Eigen::Triplet<scalar_t, size_t> triplet_t;
+	typedef Eigen::SparseMatrix<scalar_t> sparse_t;
 	typedef ClusterDerived cluster_t;
 	typedef cluster_tree<cluster_t> tree_t;
 
-	p2p_precompute(Operator &&op, tree_t const &tree, interaction_lists::list_t const &list)
-		: m_op(std::forward<Operator>(op))
-		, m_tree(tree)
-		, m_list(list)
-	{
-		compute_sparse_matrix();
-	}
+public:
 
-	void compute_sparse_matrix()
+	static sparse_t eval(Operator &&op, tree_t const &tree, interaction_lists::list_t const &list)
 	{
 		std::vector<triplet_t> triplets;
 
 		// determine number of entries in p2p sparse matrix
 		size_t s = 0;
-		for (unsigned to = 0; to < m_list.size(); ++to)
-			for (auto from : m_list[to])
-				s += m_tree[to].get_rec_node_idx().size() * rows *
-				m_tree[from].get_src_node_idx().size() * cols;
+		for (unsigned to = 0; to < list.size(); ++to)
+			for (auto from : list[to])
+				s += tree[to].get_rec_node_idx().size() * rows *
+				tree[from].get_src_node_idx().size() * cols;
 		triplets.reserve(s);
 
 		// compute entries and place them in p2p triplets
-		for (unsigned to = 0; to < m_list.size(); ++to)	// loop over receiver clusters
+		for (unsigned to = 0; to < list.size(); ++to)	// loop over receiver clusters
 		{
-			for (auto from : m_list[to])	// loop over source clusters
+			for (auto from : list[to])	// loop over source clusters
 			{
-				for (auto i : m_tree[to].get_rec_node_idx()) // loop over receiver nodes
+				for (auto i : tree[to].get_rec_node_idx()) // loop over receiver nodes
 				{
-					for (auto j : m_tree[from].get_src_node_idx())	// loop over source nodes
+					for (auto j : tree[from].get_src_node_idx())	// loop over source nodes
 					{
-						result_t mat = m_op(i, j);
+						result_t mat = op(i, j);
 						for (size_t ii = 0; ii < rows; ++ii)	// loop over matrix rows
 							for (size_t jj = 0; jj < cols; ++jj)	// loop over matrix cols
 								triplets.push_back(triplet_t(i * rows + ii, j * cols + jj, mat(ii, jj)));
@@ -77,69 +76,69 @@ public:
 			}
 		}
 
-		m_mat.resize(rows * m_tree.get_n_rec_nodes(), cols * m_tree.get_n_src_nodes());
-		m_mat.setFromTriplets(triplets.begin(), triplets.end());
+		sparse_t mat(rows * tree.get_n_rec_nodes(), cols * tree.get_n_src_nodes());
+		mat.setFromTriplets(triplets.begin(), triplets.end());
+		return mat;
 	}
-
-	sparse_t const &get_sparse_matrix() const
-	{
-		return m_mat;
-	}
-
-private:
-	Operator m_op;
-	tree_t const &m_tree;
-	interaction_lists::list_t const &m_list;
-	sparse_t m_mat;
 };
 
-
 template <class Operator, class ClusterDerived>
-	class p2p_precompute<Operator, ClusterDerived, false>
-	: public fmm_operator<p2p_tag>
+class sparse_computer<Operator, ClusterDerived, false>
 {
-public:
 	typedef typename std::decay<Operator>::type operator_t;
 	typedef typename operator_t::result_t result_t;
 	typedef typename scalar<result_t>::type scalar_t;
 	static size_t const rows = num_rows<result_t>::value;
 	static size_t const cols = num_cols<result_t>::value;
-	typedef Eigen::SparseMatrix<scalar_t> sparse_t;
 	typedef Eigen::Triplet<scalar_t, size_t> triplet_t;
+	typedef Eigen::SparseMatrix<scalar_t> sparse_t;
 	typedef ClusterDerived cluster_t;
 	typedef cluster_tree<cluster_t> tree_t;
 
-	p2p_precompute(Operator &&op, tree_t const &tree, interaction_lists::list_t const &list)
-		: m_op(std::forward<Operator>(op))
-		, m_tree(tree)
-		, m_list(list)
-	{
-		compute_sparse_matrix();
-	}
+public:
 
-	void compute_sparse_matrix()
+	static sparse_t eval(Operator &&op, tree_t const &tree, interaction_lists::list_t const &list)
 	{
 		std::vector<triplet_t> triplets;
 
 		// determine number of entries in p2p sparse matrix
 		size_t s = 0;
-		for (unsigned to = 0; to < m_list.size(); ++to)
-			for (auto from : m_list[to])
-				s += m_tree[to].get_rec_node_idx().size() * rows *
-				m_tree[from].get_src_node_idx().size() * cols;
+		for (unsigned to = 0; to < list.size(); ++to)
+			for (auto from : list[to])
+				s += tree[to].get_rec_node_idx().size() * rows *
+				tree[from].get_src_node_idx().size() * cols;
 		triplets.reserve(s);
 
 		// compute entries and place them in p2p triplets
-		for (unsigned to = 0; to < m_list.size(); ++to)	// loop over receiver clusters
+		for (unsigned to = 0; to < list.size(); ++to)	// loop over receiver clusters
 		{
-			for (auto from : m_list[to])	// loop over source clusters
-				for (auto i : m_tree[to].get_rec_node_idx()) // loop over receiver nodes
-					for (auto j : m_tree[from].get_src_node_idx())	// loop over source nodes
-						triplets.push_back(triplet_t(i, j, m_op(i, j)));
+			for (auto from : list[to])	// loop over source clusters
+				for (auto i : tree[to].get_rec_node_idx()) // loop over receiver nodes
+					for (auto j : tree[from].get_src_node_idx())	// loop over source nodes
+						triplets.push_back(triplet_t(i, j, op(i, j)));
 		}
 
-		m_mat.resize(m_tree.get_n_rec_nodes(), m_tree.get_n_src_nodes());
-		m_mat.setFromTriplets(triplets.begin(), triplets.end());
+		sparse_t mat(tree.get_n_rec_nodes(), tree.get_n_src_nodes());
+		mat.setFromTriplets(triplets.begin(), triplets.end());
+		return mat;
+	}
+};
+
+
+} // end of namespace internal
+
+template <class Scalar>
+class p2p_precompute
+	: public fmm_operator<p2p_tag>
+{
+public:
+	typedef Scalar scalar_t;
+	typedef Eigen::SparseMatrix<scalar_t> sparse_t;
+
+	template <class Operator, class ClusterDerived>
+	p2p_precompute(Operator &&op, cluster_tree<ClusterDerived> const &tree, interaction_lists::list_t const &list)
+		: m_mat(internal::sparse_computer<Operator, ClusterDerived>::eval(std::forward<Operator>(op), tree, list))
+	{
 	}
 
 	sparse_t const &get_sparse_matrix() const
@@ -148,12 +147,8 @@ public:
 	}
 
 private:
-	Operator m_op;
-	tree_t const &m_tree;
-	interaction_lists::list_t const &m_list;
 	sparse_t m_mat;
 };
-
 
 
 template <class Operator, class ClusterDerived>
@@ -161,7 +156,11 @@ auto create_p2p_precompute(Operator &&op,
 	cluster_tree<ClusterDerived> const &tree,
 	interaction_lists::list_t const &list)
 {
-	return p2p_precompute<Operator, ClusterDerived>(std::forward<Operator>(op), tree, list);
+	return p2p_precompute<
+		typename scalar<
+		typename std::decay<Operator>::type::result_t
+		>::type
+	>(std::forward<Operator>(op), tree, list);
 }
 
 
