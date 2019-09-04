@@ -100,8 +100,8 @@ auto create_p2x_precompute(
 {
 	typedef typename std::decay<Operator>::type operator_t;
 	return p2x_precompute<
-		operator_t::result_t,
-		operator_t::fmm_tag
+		typename operator_t::result_t,
+		typename operator_t::fmm_tag
 	>(op, tree, list);
 }
 
@@ -111,8 +111,8 @@ auto create_p2x_precompute(Operator const &op,
 {
 	typedef typename std::decay<Operator>::type operator_t;
 	return p2x_precompute<
-		operator_t::result_t,
-		operator_t::fmm_tag
+		typename operator_t::result_t,
+		typename operator_t::fmm_tag
 	>(op, tree);
 }
 
