@@ -151,6 +151,7 @@ public:
 	
 	~fmm_matlab()
 	{
+		mexPrintf("destructor called\n");
 		delete p_fmm_matrix;
 		delete p_fmm;
 		delete p_lists;
@@ -242,7 +243,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, mxArray const *prhs[])
 		if (p == nullptr)
 		{
 			mexErrMsgIdAndTxt("NiHu:covariance_2d_bbfmm_matlab:invalid_state",
-				"Command \"matrix\" called in invalid state");
+				"Command \"mvp\" called in invalid state");
 		}
 		else
 		{
