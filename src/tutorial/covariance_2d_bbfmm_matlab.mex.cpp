@@ -3,7 +3,7 @@
 
 #include "core/field.hpp"
 #include "core/function_space.hpp"
-#include "fmm/divide.h"
+#include "fmm/divide.hpp"
 #include "fmm/fmm_integrated.hpp"
 #include "fmm/helmholtz_3d_hf_fmm.hpp"
 #include "fmm/helmholtz_exterior_solver.hpp"
