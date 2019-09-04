@@ -26,6 +26,26 @@ typedef NiHu::fmm::cluster_tree<cluster_t> cluster_tree_t;
 typedef NiHu::mesh<tmp::vector<elem_t> > mesh_t;
 typedef NiHu::function_space_view<mesh_t, NiHu::field_option::constant> space_t;
 
+typedef NiHu::fmm::p2p_precompute<double, 1, 1> p2p_pre_t;
+typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> dmatrix_t;
+typedef NiHu::fmm::p2x_precompute<dmatrix_t, NiHu::fmm::p2m_tag> p2m_pre_t;
+typedef NiHu::fmm::p2x_precompute<dmatrix_t, NiHu::fmm::p2l_tag> p2l_pre_t;
+typedef NiHu::fmm::x2p_precompute<dmatrix_t, NiHu::fmm::m2p_tag> m2p_pre_t;
+typedef NiHu::fmm::x2p_precompute<dmatrix_t, NiHu::fmm::l2p_tag> l2p_pre_t;
+typedef NiHu::fmm::x2x_precompute<fmm_t::m2m::result_t, cluster_t, NiHu::fmm::m2m_tag> m2m_pre_t;
+typedef NiHu::fmm::x2x_precompute<fmm_t::l2l::result_t, cluster_t, NiHu::fmm::l2l_tag> l2l_pre_t;
+typedef NiHu::fmm::x2x_precompute<fmm_t::m2l::result_t, cluster_t, NiHu::fmm::m2l_tag> m2l_pre_t;
+
+typedef NiHu::fmm::fmm_matrix<
+	p2p_pre_t,
+	p2m_pre_t,
+	p2l_pre_t,
+	m2p_pre_t,
+	l2p_pre_t,
+	m2m_pre_t,
+	l2l_pre_t,
+	m2l_pre_t> mat_t;
+
 class C
 {
 
@@ -39,28 +59,31 @@ public:
 			NiHu::fmm::create_elem_center_iterator(m_mesh.end<elem_t>()),
 			NiHu::fmm::divide_num_nodes(10))
 		, m_lists(m_tree)
-		, m_int_fctr(NiHu::fmm::create_integrated_functor(
-			field_tag_t(), field_tag_t(), 5, true))
-		, m_idx_fctr(NiHu::fmm::create_indexed_functor(
-			m_space.field_begin<field_t>(),
-			m_space.field_end<field_t>(),
-			m_space.field_begin<field_t>(),
-			m_space.field_end<field_t>(),
-			m_tree))
-		, m_pre_fctr(NiHu::fmm::create_precompute_functor(m_tree, m_lists))
 	{
 		for (size_t i = 0; i < m_tree.get_n_clusters(); ++i)
 			m_tree[i].set_chebyshev_order(5);
 
+		auto int_fctr = NiHu::fmm::create_integrated_functor(
+			field_tag_t(), field_tag_t(), 5, true);
+
+		auto idx_fctr = NiHu::fmm::create_indexed_functor(
+			m_space.field_begin<field_t>(),
+			m_space.field_end<field_t>(),
+			m_space.field_begin<field_t>(),
+			m_space.field_end<field_t>(),
+			m_tree);
+
+		auto pre_fctr = NiHu::fmm::create_precompute_functor(m_tree, m_lists);
+
 		m_mat = new mat_t(NiHu::fmm::create_fmm_matrix(
-			m_pre_fctr(m_idx_fctr(m_int_fctr(m_bbfmm.create_p2p()))),
-			m_pre_fctr(m_idx_fctr(m_int_fctr(m_bbfmm.create_p2m()))),
-			m_pre_fctr(m_idx_fctr(m_int_fctr(m_bbfmm.create_p2l()))),
-			m_pre_fctr(m_idx_fctr(m_int_fctr(m_bbfmm.create_m2p()))),
-			m_pre_fctr(m_idx_fctr(m_int_fctr(m_bbfmm.create_l2p()))),
-			m_pre_fctr(m_idx_fctr(m_bbfmm.create_m2m())),
-			m_pre_fctr(m_idx_fctr(m_bbfmm.create_l2l())),
-			m_pre_fctr(m_idx_fctr(m_bbfmm.create_m2l())),
+			pre_fctr(idx_fctr(int_fctr(m_bbfmm.create_p2p()))),
+			pre_fctr(idx_fctr(int_fctr(m_bbfmm.create_p2m()))),
+			pre_fctr(idx_fctr(int_fctr(m_bbfmm.create_p2l()))),
+			pre_fctr(idx_fctr(int_fctr(m_bbfmm.create_m2p()))),
+			pre_fctr(idx_fctr(int_fctr(m_bbfmm.create_l2p()))),
+			pre_fctr(idx_fctr(m_bbfmm.create_m2m())),
+			pre_fctr(idx_fctr(m_bbfmm.create_l2l())),
+			pre_fctr(idx_fctr(m_bbfmm.create_m2l())),
 			m_tree,
 			m_lists));
 
@@ -81,28 +104,6 @@ private:
 	space_t const &m_space;
 	cluster_tree_t m_tree;
 	NiHu::fmm::interaction_lists const m_lists;
-	decltype(NiHu::fmm::create_integrated_functor(
-		field_tag_t(), field_tag_t(), 5, true)) const m_int_fctr;
-	decltype(NiHu::fmm::create_indexed_functor(
-		m_space.field_begin<field_t>(),
-		m_space.field_end<field_t>(),
-		m_space.field_begin<field_t>(),
-		m_space.field_end<field_t>(),
-		m_tree)) const m_idx_fctr;
-	decltype(NiHu::fmm::create_precompute_functor(m_tree, m_lists)) const m_pre_fctr;
-
-	typedef decltype(NiHu::fmm::create_fmm_matrix(
-		m_pre_fctr(m_idx_fctr(m_int_fctr(m_bbfmm.create_p2p()))),
-		m_pre_fctr(m_idx_fctr(m_int_fctr(m_bbfmm.create_p2m()))),
-		m_pre_fctr(m_idx_fctr(m_int_fctr(m_bbfmm.create_p2l()))),
-		m_pre_fctr(m_idx_fctr(m_int_fctr(m_bbfmm.create_m2p()))),
-		m_pre_fctr(m_idx_fctr(m_int_fctr(m_bbfmm.create_l2p()))),
-		m_pre_fctr(m_idx_fctr(m_bbfmm.create_m2m())),
-		m_pre_fctr(m_idx_fctr(m_bbfmm.create_l2l())),
-		m_pre_fctr(m_idx_fctr(m_bbfmm.create_m2l())),
-		m_tree,
-		m_lists)) mat_t;
-
 	mat_t *m_mat;
 };
 

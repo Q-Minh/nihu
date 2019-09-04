@@ -127,13 +127,16 @@ public:
 
 } // end of namespace internal
 
-template <class Scalar>
+template <class Scalar, size_t NumDofPerSrc, size_t NumDofPerRec>
 class p2p_precompute
 	: public fmm_operator<p2p_tag>
 {
 public:
 	typedef Scalar scalar_t;
 	typedef Eigen::SparseMatrix<scalar_t> sparse_t;
+
+	static size_t const num_dof_per_src = NumDofPerSrc;
+	static size_t const num_dof_per_rec = NumDofPerRec;
 
 	template <class Operator, class ClusterDerived>
 	p2p_precompute(Operator &&op, cluster_tree<ClusterDerived> const &tree, interaction_lists::list_t const &list)
@@ -156,10 +159,11 @@ auto create_p2p_precompute(Operator &&op,
 	cluster_tree<ClusterDerived> const &tree,
 	interaction_lists::list_t const &list)
 {
+	typedef typename std::decay<Operator>::type operator_t;
 	return p2p_precompute<
-		typename scalar<
-		typename std::decay<Operator>::type::result_t
-		>::type
+		typename scalar<typename operator_t::result_t>::type,
+		operator_t::num_dof_per_src,
+		operator_t::num_dof_per_rec
 	>(std::forward<Operator>(op), tree, list);
 }
 

@@ -15,21 +15,55 @@ namespace NiHu
 namespace fmm
 {
 
-template <class Operator>
-class p2x_precompute
-	: public fmm_operator<typename std::decay<Operator>::type::fmm_tag>
+template <class Result, class FmmTag>
+class p2x_precompute;
+
+
+template <class Result>
+class p2x_precompute<Result, p2m_tag>
+	: public fmm_operator<p2m_tag>
 {
 public:
-	typedef typename std::decay<Operator>::type operator_t;
-	typedef typename operator_t::tree_t tree_t;
+	typedef Result result_t;
+
+	template <class Operator, class ClusterDerived>
+	p2x_precompute(Operator const &op,
+		cluster_tree<ClusterDerived> const &tree)
+		: m_single_idx(tree.get_n_clusters())
+	{
+		auto const &src_indices = tree.get_leaf_src_indices();
+		for (size_t i = 0; i < src_indices.size(); ++i)
+		{
+			size_t to = src_indices[i];
+			m_container.push_back(op(to));
+			m_single_idx[to] = i;
+		}
+	}
+
+	result_t const &operator()(size_t to) const
+	{
+		return m_container[m_single_idx[to]];
+	}
+
+private:
+	std::vector<result_t> m_container;
+	std::vector<size_t> m_single_idx;
+};
+
+
+template <class Result>
+class p2x_precompute<Result, p2l_tag>
+	: public fmm_operator<p2l_tag>
+{
+public:
+	typedef Result result_t;
 	typedef interaction_lists::list_t list_t;
-	typedef typename operator_t::result_t result_t;
 
-	static size_t const num_dof_per_src = operator_t::num_dof_per_src;
-
-	p2x_precompute(operator_t const&op, list_t const &list)
-		: m_tree(op.get_tree())
-		, m_double_idx(m_tree.get_n_clusters(), m_tree.get_n_clusters())
+	template <class Operator, class ClusterDerived>
+	p2x_precompute(Operator const &op,
+		cluster_tree<ClusterDerived> const &tree,
+		list_t const &list)
+		: m_double_idx(tree.get_n_clusters(), tree.get_n_clusters())
 	{
 		typedef Eigen::Triplet<size_t, size_t> triplet_t;
 		std::vector<triplet_t> triplets;
@@ -46,10 +80,60 @@ public:
 		m_double_idx.setFromTriplets(triplets.begin(), triplets.end());
 	}
 
-	p2x_precompute(operator_t const &op, std::vector<size_t> const &list)
-		: m_tree(op.get_tree())
-		, m_single_idx(m_tree.get_n_clusters())
+	result_t const &operator()(size_t to, size_t from) const
 	{
+		return m_container[m_double_idx.coeff(to, from)];
+	}
+
+private:
+	std::vector<result_t> m_container;
+	Eigen::SparseMatrix<size_t> m_double_idx;
+};
+
+
+
+template <class Operator>
+auto create_p2x_precompute(
+	Operator const &op,
+	cluster_tree<typename std::decay<Operator>::type::cluster_t> const &tree,
+	interaction_lists::list_t const &list)
+{
+	typedef typename std::decay<Operator>::type operator_t;
+	return p2x_precompute<
+		operator_t::result_t,
+		operator_t::fmm_tag
+	>(op, tree, list);
+}
+
+template <class Operator>
+auto create_p2x_precompute(Operator const &op,
+	cluster_tree<typename std::decay<Operator>::type::cluster_t> const &tree)
+{
+	typedef typename std::decay<Operator>::type operator_t;
+	return p2x_precompute<
+		operator_t::result_t,
+		operator_t::fmm_tag
+	>(op, tree);
+}
+
+
+template <class Result, class FmmTag>
+class x2p_precompute;
+
+
+template <class Result>
+class x2p_precompute<Result, l2p_tag>
+	: public fmm_operator<l2p_tag>
+{
+public:
+	typedef Result result_t;
+
+	template <class Operator>
+	x2p_precompute(Operator const &op,
+		cluster_tree<typename std::decay<Operator>::type::cluster_t> const &tree)
+		: m_single_idx(tree.get_n_clusters())
+	{
+		auto const &list = tree.get_leaf_rec_indices();
 		for (size_t i = 0; i < list.size(); ++i)
 		{
 			size_t to = list[i];
@@ -63,49 +147,27 @@ public:
 		return m_container[m_single_idx[to]];
 	}
 
-	result_t const &operator()(size_t to, size_t from) const
-	{
-		return m_container[m_double_idx.coeff(to, from)];
-	}
-
 private:
-	tree_t const &m_tree;
 	std::vector<result_t> m_container;
-	Eigen::SparseMatrix<size_t> m_double_idx;
 	std::vector<size_t> m_single_idx;
 };
 
-template <class Operator>
-p2x_precompute<Operator>
-create_p2x_precompute(Operator const &op, interaction_lists::list_t const &list)
-{
-	return p2x_precompute<Operator>(op, list);
-}
-
-template <class Operator>
-p2x_precompute<Operator>
-create_p2x_precompute(Operator const &op, std::vector<size_t> const &list)
-{
-	return p2x_precompute<Operator>(op, list);
-}
 
 
 
-template <class Operator>
-class x2p_precompute
-	: public fmm_operator<typename std::decay<Operator>::type::fmm_tag>
+template <class Result>
+class x2p_precompute<Result, m2p_tag>
+	: public fmm_operator<m2p_tag>
 {
 public:
-	typedef typename std::decay<Operator>::type operator_t;
-	typedef typename operator_t::tree_t tree_t;
 	typedef interaction_lists::list_t list_t;
-	typedef typename operator_t::result_t result_t;
+	typedef Result result_t;
 
-	static size_t const num_dof_per_rec = operator_t::num_dof_per_rec;
-
-	x2p_precompute(operator_t const&op, list_t const &list)
-		: m_tree(op.get_tree())
-		, m_double_idx(m_tree.get_n_clusters(), m_tree.get_n_clusters())
+	template <class Operator>
+	x2p_precompute(Operator const &op,
+		cluster_tree<typename std::decay<Operator>::type::cluster_t> const &tree,
+		list_t const &list)
+		: m_double_idx(tree.get_n_clusters(), tree.get_n_clusters())
 	{
 		typedef Eigen::Triplet<size_t, size_t> triplet_t;
 		std::vector<triplet_t> triplets;
@@ -122,47 +184,43 @@ public:
 		m_double_idx.setFromTriplets(triplets.begin(), triplets.end());
 	}
 
-	x2p_precompute(operator_t const &op, std::vector<size_t> const &list)
-		: m_tree(op.get_tree())
-		, m_single_idx(m_tree.get_n_clusters())
-	{
-		for (size_t i = 0; i < list.size(); ++i)
-		{
-			size_t to = list[i];
-			m_container.push_back(op(to));
-			m_single_idx[to] = i;
-		}
-	}
-
-	result_t const &operator()(size_t to) const
-	{
-		return m_container[m_single_idx[to]];
-	}
-
 	result_t const &operator()(size_t to, size_t from) const
 	{
 		return m_container[m_double_idx.coeff(to, from)];
 	}
 
 private:
-	tree_t const &m_tree;
 	std::vector<result_t> m_container;
 	Eigen::SparseMatrix<size_t> m_double_idx;
-	std::vector<size_t> m_single_idx;
 };
 
+
+
 template <class Operator>
-x2p_precompute<Operator>
-create_x2p_precompute(Operator const &op, interaction_lists::list_t const &list)
+auto create_x2p_precompute(
+	Operator const &op,
+	cluster_tree<typename std::decay<Operator>::type::cluster_t> const &tree,
+	interaction_lists::list_t const &list)
 {
-	return x2p_precompute<Operator>(op, list);
+	typedef typename std::decay<Operator>::type operator_t;
+
+	return x2p_precompute<
+		typename operator_t::result_t,
+		m2p_tag
+	>(op, tree, list);
 }
 
 template <class Operator>
-x2p_precompute<Operator>
-create_x2p_precompute(Operator const &op, std::vector<size_t> const &list)
+auto
+create_x2p_precompute(
+	Operator const &op, 
+	cluster_tree<typename std::decay<Operator>::type::cluster_t> const &tree)
 {
-	return x2p_precompute<Operator>(op, list);
+	typedef typename std::decay<Operator>::type operator_t;
+	return x2p_precompute<
+		typename operator_t::result_t,
+		l2p_tag
+	>(op, tree);
 }
 
 

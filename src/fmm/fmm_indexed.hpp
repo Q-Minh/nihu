@@ -12,6 +12,7 @@
 #include "p2x_indexed.hpp"
 #include "x2p_cluster_indexed.hpp"
 #include "x2p_indexed.hpp"
+#include "p2p_indexed.hpp"
 #include "x2x_cluster_indexed.hpp"
 
 
@@ -120,10 +121,11 @@ template <class Op>
 class indexed<Op, p2p_tag> {
 public:
 	template <class TestIt, class TrialIt, class ClusterDerived>
-	static auto eval(Op &&op, TestIt test_begin, TestIt test_end, TrialIt trial_begin, TrialIt trial_end, cluster_tree<ClusterDerived> const &tree)
+	static auto eval(Op &&op, TestIt test_begin, TestIt test_end, TrialIt trial_begin, TrialIt trial_end, cluster_tree<ClusterDerived> const &)
 	{
-		return create_p2x_indexed(
-			create_x2p_indexed(std::forward<Op>(op), test_begin, test_end),
+		return create_p2p_indexed(
+			std::forward<Op>(op),
+			test_begin, test_end,
 			trial_begin, trial_end);
 	}
 };

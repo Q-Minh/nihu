@@ -63,7 +63,7 @@ template <class Operator, class TestIt, class TrialIt>
 auto create_p2p_indexed(Operator &&op, TestIt test_begin, TestIt test_end,
 	TrialIt trial_begin, TrialIt trial_end)
 {
-	return x2p_indexed<Operator, TestIt, TrialIt>(
+	return p2p_indexed<Operator, TestIt, TrialIt>(
 		std::forward<Operator>(op),
 		test_begin, test_end,
 		trial_begin, trial_end);

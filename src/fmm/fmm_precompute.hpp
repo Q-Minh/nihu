@@ -66,7 +66,7 @@ public:
 	template <class ClusterDerived>
 	static auto eval(Op &&op, cluster_tree<ClusterDerived> const &tree, interaction_lists const &lists)
 	{
-		return create_p2x_precompute(std::forward<Op>(op), tree.get_leaf_src_indices());
+		return create_p2x_precompute(std::forward<Op>(op), tree);
 	}
 };
 
@@ -78,7 +78,7 @@ public:
 	template <class ClusterDerived>
 	static auto eval(Op &&op, cluster_tree<ClusterDerived> const &tree, interaction_lists const &lists)
 	{
-		return create_p2x_precompute(std::forward<Op>(op), lists.get_list(lists.P2L));
+		return create_p2x_precompute(std::forward<Op>(op), tree, lists.get_list(lists.P2L));
 	}
 };
 
@@ -90,7 +90,7 @@ public:
 	template <class ClusterDerived>
 	static auto eval(Op &&op, cluster_tree<ClusterDerived> const &tree, interaction_lists const &lists)
 	{
-		return create_x2p_precompute(std::forward<Op>(op), lists.get_list(lists.M2P));
+		return create_x2p_precompute(std::forward<Op>(op), tree, lists.get_list(lists.M2P));
 	}
 };
 
@@ -102,7 +102,7 @@ public:
 	template <class ClusterDerived>
 	static auto eval(Op &&op, cluster_tree<ClusterDerived> const &tree, interaction_lists const &lists)
 	{
-		return create_x2p_precompute(std::forward<Op>(op), tree.get_leaf_rec_indices());
+		return create_x2p_precompute(std::forward<Op>(op), tree);
 	}
 };
 

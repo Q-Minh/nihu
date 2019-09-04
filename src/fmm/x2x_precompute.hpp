@@ -14,24 +14,25 @@ namespace NiHu
 namespace fmm
 {
 
-template <class Operator>
+template <class Result, class ClusterDerived, class FmmTag>
 class x2x_precompute
-	: public fmm_operator<typename std::decay<Operator>::type::fmm_tag>
+	: public fmm_operator<FmmTag>
 {
 public:
-	typedef typename std::decay<Operator>::type operator_t;
-	typedef typename operator_t::cluster_t cluster_t;
+	typedef ClusterDerived cluster_t;
 	typedef cluster_tree<cluster_t> cluster_tree_t;
 	typedef interaction_lists::list_t list_t;
-	typedef typename operator_t::result_t result_t;
+	typedef Result result_t;
 
 	typedef std::vector<std::vector<result_t> > container_t;
 
+	template <class Operator>
 	x2x_precompute(Operator const &op, list_t const &list)
 		: m_tree(op.get_tree())
 		, m_indices(m_tree.get_n_clusters(), m_tree.get_n_clusters())
 		, m_container(m_tree.get_n_levels())
 	{
+		typedef typename std::decay<Operator>::type operator_t;
 		typedef Eigen::Triplet<size_t> triplet_t;
 		std::vector<triplet_t> triplets;
 
@@ -77,10 +78,15 @@ private:
 
 
 template <class Operator>
-x2x_precompute<Operator>
+auto
 create_x2x_precompute(Operator const &op, typename interaction_lists::list_t const &list)
 {
-	return x2x_precompute<Operator>(op, list);
+	typedef typename std::decay<Operator>::type operator_t;
+	return x2x_precompute<
+		typename operator_t::result_t,
+		typename operator_t::cluster_t,
+		typename operator_t::fmm_tag
+	>(op, list);
 }
 
 } // namespace fmm
