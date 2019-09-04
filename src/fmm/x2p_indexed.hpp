@@ -12,7 +12,6 @@ namespace fmm
 template <class Operator, class It>
 class x2p_indexed
 	: public fmm_operator<typename std::decay<Operator>::type::fmm_tag>
-
 {
 public:
 	typedef typename std::decay<Operator>::type operator_t;
