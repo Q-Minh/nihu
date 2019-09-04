@@ -65,9 +65,9 @@ public:
 	typedef cluster_tree<cluster_t> cluster_tree_t;
 
 	/// \brief number of DOF for a source node in the mesh 
-	static size_t const num_dof_per_src = p2m_t::num_dof_per_src;
+	static size_t const num_dof_per_src = p2p_t::num_dof_per_src;
 	/// \brief number of DOF for a receiver node in the mesh 
-	static size_t const num_dof_per_rec = l2p_t::num_dof_per_rec;
+	static size_t const num_dof_per_rec = p2p_t::num_dof_per_rec;
 
 	/// \brief constructor from operator instances
 	/// \param [in] p2p the P2P operator
@@ -179,7 +179,7 @@ public:
 			{
 				size_t ii = clus.get_src_node_idx()[i];
 				m_rhs_segments[c].segment(i * num_dof_per_src, num_dof_per_src) =
-					rhs.segment(ii * num_dof_per_src, num_dof_per_src);
+					rhs.block(ii * num_dof_per_src, 0, num_dof_per_src, 1);
 			}
 		}
 	}
