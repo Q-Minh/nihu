@@ -179,7 +179,7 @@ public:
 			{
 				size_t ii = clus.get_src_node_idx()[i];
 				m_rhs_segments[c].segment(i * num_dof_per_src, num_dof_per_src) =
-					rhs.segment(ii * num_dof_per_src, num_dof_per_src);
+					rhs.block(ii * num_dof_per_src, 0, num_dof_per_src, 1);
 			}
 		}
 	}
