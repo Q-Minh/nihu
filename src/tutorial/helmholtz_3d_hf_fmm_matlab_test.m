@@ -16,11 +16,17 @@ helmholtz_3d_hf_fmm_matlab('init');
 helmholtz_3d_hf_fmm_matlab('mesh', r_nodes, r_elems);
 %%
 n_levels = 6;
-helmholtz_3d_hf_fmm_matlab('tree', n_levels);
+helmholtz_3d_hf_fmm_matlab('tree', 'divide_levels', n_levels);
 %%
 helmholtz_3d_hf_fmm_matlab('matrix');
+
+%%
+n_elems = size(radiator.Elements, 1);
+q = ones(n_elems, 1);
+p = helmholtz_3d_hf_fmm_matlab('mvp_slp', q);
+
 %%
 helmholtz_3d_hf_fmm_matlab('cleanup');
 
 %%
-clear mex;
+%clear mex;
