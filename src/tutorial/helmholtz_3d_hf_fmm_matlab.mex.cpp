@@ -190,10 +190,23 @@ public:
 	}
 	
 	template <class LhsDerived, class RhsDerived>
+	void mvp_dlp(Eigen::MatrixBase<LhsDerived> &res, Eigen::MatrixBase<RhsDerived> const &src)
+	{
+		res = (*p_dlp_matrix) * src;
+	}
+	
+	template <class LhsDerived, class RhsDerived>
 	void mvp_slp(Eigen::MatrixBase<LhsDerived> &&res, Eigen::MatrixBase<RhsDerived> const &src)
 	{
 		res = (*p_slp_matrix) * src;
 	}
+	
+	template <class LhsDerived, class RhsDerived>
+	void mvp_slp(Eigen::MatrixBase<LhsDerived> &res, Eigen::MatrixBase<RhsDerived> const &src)
+	{
+		res = (*p_slp_matrix) * src;
+	}
+	
 	
 	void print_tree()
 	{
@@ -283,7 +296,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, mxArray const *prhs[])
 				double k = mxGetScalar(prhs[2 * i + 2]);
 				p->set_wave_number(k);
 			}
-			if (!strcmp(what_to_set, "accuracy"))
+			else if (!strcmp(what_to_set, "accuracy"))
 			{
 				double accuracy = mxGetScalar(prhs[2 * i + 2]);
 				p->set_accuracy(accuracy);
@@ -318,6 +331,10 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, mxArray const *prhs[])
 		}
 		else
 		{
+			if ( mxIsChar(prhs[1]) != 1) {
+				mexErrMsgIdAndTxt("NiHu:helmholtz_3d_hf_fmm_surf:invalid_input",
+				"Division method name must be a string for the command \"%s\".", input_option);
+			}
 			char const *divide_option = mxArrayToString(prhs[1]);
 			if (!strcmp(divide_option, "divide_depth"))
 			{
@@ -363,7 +380,20 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, mxArray const *prhs[])
 		{
 			cmex_matrix_t xct(prhs[1]);
 			cmex_matrix_t res(xct.rows(), 1, plhs[0]);
-			p->mvp_dlp(res.col(0), xct.col(0));
+			#if MX_HAS_INTERLEAVED_COMPLEX
+				p->mvp_dlp(res.col(0), xct.col(0));
+			#else
+				// Copying is needed in case of old Matlab complex storage
+				cmatrix_t x(xct.rows(), xct.cols());
+				cmatrix_t r(res.rows(), res.cols());
+				for (int i = 0; i < xct.rows(); ++i)
+					x(i, 0) = xct(i, 0);
+				
+				p->mvp_dlp(r.col(0), x.col(0));
+				
+				for (int i = 0; i < r.rows(); ++i)
+					res(i, 0) = r(i, 0);
+			#endif
 		}
 	}
 	
@@ -378,7 +408,21 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, mxArray const *prhs[])
 		{
 			cmex_matrix_t xct(prhs[1]);
 			cmex_matrix_t res(xct.rows(), 1, plhs[0]);
-			p->mvp_slp(res.col(0), xct.col(0));
+			#if MX_HAS_INTERLEAVED_COMPLEX
+				p->mvp_slp(res.col(0), xct.col(0));
+			#else
+				// Copying is needed in case of old Matlab complex storage
+				cmatrix_t x(xct.rows(), xct.cols());
+				cmatrix_t r(res.rows(), res.cols());
+				for (int i = 0; i < xct.rows(); ++i)
+					x(i, 0) = xct(i, 0);
+				
+				p->mvp_slp(r.col(0), x.col(0));
+				
+				for (int i = 0; i < r.rows(); ++i)
+					res(i, 0) = r(i, 0);
+				
+			#endif
 		}
 	}
 	

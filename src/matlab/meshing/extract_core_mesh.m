@@ -1,17 +1,33 @@
-function [nodes, elements] = extract_core_mesh(model)
+function [nodes, elements] = extract_core_mesh(model, type)
 %EXTRACT_CORE_MESH Extract C++ core bem mesh from a NiHu mesh structure
+
+if nargin < 2
+    type = 'surface';
+end
 
 elem = drop_IDs(model);
 elements = zeros(size(model.Elements,1),9+1);
 
-data = {
-    ShapeSet.LinearLine, 21202
-    ShapeSet.LinearTria, 32303
-    ShapeSet.LinearQuad, 32404
-    ShapeSet.QuadraticTria, 32306
-    ShapeSet.QuadraticQuad, 32408
-    ShapeSet.QuadraticQuadMid, 32409
-    };
+switch type
+    case 'surface'
+        data = {
+            ShapeSet.LinearLine, 21202
+            ShapeSet.LinearTria, 32303
+            ShapeSet.LinearQuad, 32404
+            ShapeSet.QuadraticTria, 32306
+            ShapeSet.QuadraticQuad, 32408
+            ShapeSet.QuadraticQuadMid, 32409
+        };
+    case 'volume'
+        data = {
+            ShapeSet.LinearLine, 11202
+            ShapeSet.LinearTria, 22303
+            ShapeSet.LinearQuad, 22404
+            ShapeSet.QuadraticTria, 22306
+            ShapeSet.QuadraticQuad, 22408
+            ShapeSet.QuadraticQuadMid, 22409
+        };
+end
 
 for i = 1 : size(data,1)
     lset = data{i,1};
