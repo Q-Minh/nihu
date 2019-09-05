@@ -169,8 +169,8 @@ public:
 	/// \details after reordering, the data associated with a specific cluster can be
 	/// reached as a continuous block (segment) of the internally stored excitation vector
 	/// \param [in] rhs the right hand side vector
-	template <class Derived>
-	void reorder_excitation(Eigen::MatrixBase<Derived> const &rhs)
+	template <class RhsDerived>
+	void reorder_excitation(Eigen::MatrixBase<RhsDerived> const &rhs)
 	{
 		for (auto c : m_tree.get_leaf_src_indices())
 		{
@@ -179,7 +179,7 @@ public:
 			{
 				size_t ii = clus.get_src_node_idx()[i];
 				m_rhs_segments[c].segment(i * num_dof_per_src, num_dof_per_src) =
-					rhs.block(ii * num_dof_per_src, 0, num_dof_per_src, 1);
+					rhs.segment(ii * num_dof_per_src, num_dof_per_src);
 			}
 		}
 	}
