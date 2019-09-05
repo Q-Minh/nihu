@@ -1,12 +1,15 @@
 #include "core/field.hpp"
 #include "core/function_space.hpp"
 #include "fmm/divide.h"
+#include "fmm/elem_center_iterator.hpp"
 #include "fmm/fmm_integrated.hpp"
+#include "fmm/fmm_indexed.hpp"
+#include "fmm/fmm_matrix.hpp"
+#include "fmm/fmm_operator_collection.hpp"
+#include "fmm/fmm_precompute.hpp"
 #include "fmm/helmholtz_3d_hf_fmm.hpp"
-#include "fmm/helmholtz_exterior_solver.hpp"
-#include "fmm/helmholtz_field_point.hpp"
+
 #include "library/lib_element.hpp"
-#include "library/quad_1_gauss_field.hpp"
 #include "util/mex_matrix.hpp"
 
 #include <boost/math/constants/constants.hpp>
@@ -18,10 +21,10 @@
 
 typedef NiHu::quad_1_elem elem_t;
 typedef NiHu::type2tag<elem_t>::type elem_tag_t;
-typedef NiHu::field_view<elem_t, NiHu::field_option::constant> field_t;
-typedef NiHu::type2tag<field_t>::type field_tag_t;
+typedef NiHu::field_view<elem_t, NiHu::field_option::constant> trial_field_t;
+typedef NiHu::type2tag<trial_field_t>::type trial_field_tag_t;
 
-typedef NiHu::dirac_field<field_t> test_field_t;
+typedef NiHu::dirac_field<trial_field_t> test_field_t;
 typedef NiHu::type2tag<test_field_t>::type test_field_tag_t;
 
 typedef NiHu::fmm::helmholtz_3d_hf_fmm<double> fmm_t;
@@ -31,11 +34,29 @@ typedef NiHu::mesh<tmp::vector<elem_t> > mesh_t;
 typedef fmm_t::cluster_t cluster_t;
 typedef NiHu::fmm::cluster_tree<cluster_t> cluster_tree_t;
 
-typedef NiHu::fmm::p2p_precompute<std::complex<double> > p2p_t;
+typedef NiHu::fmm::p2p_precompute<std::complex<double>, 1, 1> p2p_t;
+
+typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> dmatrix_t;
+typedef Eigen::Matrix<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic> cmatrix_t;
+
+typedef NiHu::fmm::p2x_precompute<cmatrix_t, NiHu::fmm::p2m_tag> p2m_t;
+typedef NiHu::fmm::p2x_precompute<cmatrix_t, NiHu::fmm::p2l_tag> p2l_t;
+typedef NiHu::fmm::x2p_precompute<cmatrix_t, NiHu::fmm::m2p_tag> m2p_t;
+typedef NiHu::fmm::x2p_precompute<cmatrix_t, NiHu::fmm::l2p_tag> l2p_t;
+typedef NiHu::fmm::x2x_precompute<fmm_t::m2m::result_t, cluster_t, NiHu::fmm::m2m_tag> m2m_t;
+typedef NiHu::fmm::x2x_precompute<fmm_t::l2l::result_t, cluster_t, NiHu::fmm::l2l_tag> l2l_t;
+typedef NiHu::fmm::x2x_precompute<fmm_t::m2l::result_t, cluster_t, NiHu::fmm::m2l_tag> m2l_t;
+
+typedef NiHu::fmm::fmm_matrix<
+	p2p_t, p2m_t, p2l_t,
+	m2p_t, l2p_t, 
+	m2m_t, l2l_t, m2l_t> fmm_matrix_t;
+
+
 
 // Mex matrix types
-typedef NiHu::mex::real_matrix<double> dMatrix;
-typedef NiHu::mex::complex_matrix<double> cMatrix;
+typedef NiHu::mex::real_matrix<double> dmex_matrix_t;
+typedef NiHu::mex::complex_matrix<double> cmex_matrix_t;
 
 
 class fmm_matlab
@@ -47,18 +68,19 @@ public:
 		, p_tree(nullptr)
 		, p_lists(nullptr)
 		, p_fmm(nullptr)
+		, p_rhs_matrix(nullptr)
+		, p_lhs_matrix(nullptr)
 	{
 		
 	}
 	
-	void create_mesh(dMatrix const& surf_nodes, dMatrix const& surf_elems, 
-		dMatrix const& field_nodes, dMatrix const& field_elems)
+	void create_mesh(dmex_matrix_t const& surf_nodes, dmex_matrix_t const& surf_elems)
 	{
 		p_surf_mesh = new mesh_t(NiHu::create_mesh(surf_nodes, surf_elems, NiHu::quad_1_tag()));
-		p_field_mesh = new mesh_t(NiHu::create_mesh(field_nodes, field_elems, NiHu::quad_1_tag()));
+		//p_field_mesh = new mesh_t(NiHu::create_mesh(field_nodes, field_elems, NiHu::quad_1_tag()));
 		
 		mexPrintf("Number of surface elements: %u\n", p_surf_mesh->get_num_elements());
-		mexPrintf("Number of field   elements: %u\n", p_field_mesh->get_num_elements());
+		//mexPrintf("Number of field   elements: %u\n", p_field_mesh->get_num_elements());
 	}
 	
 	void create_tree(unsigned depth)
@@ -95,17 +117,17 @@ public:
 		size_t far_field_quadrature_order = 5;
 
 		// create functors
-		auto int_fctr = NiHu::fmm::create_integrated_functor(test_field_tag_t(), field_tag_t(),
-			far_field_quadrature_order, true);
+		auto int_fctr = NiHu::fmm::create_integrated_functor(
+			test_field_tag_t(), trial_field_tag_t(), far_field_quadrature_order, true);
 
 		auto const &trial_space = NiHu::constant_view(*p_surf_mesh);
 		auto const &test_space  = NiHu::dirac(trial_space);
 
-		auto idx_fctr = create_indexed_functor(
+		auto idx_fctr = NiHu::fmm::create_indexed_functor(
 			test_space.template field_begin<test_field_t>(),
 			test_space.template field_end<test_field_t>(),
-			trial_space.template field_begin<field_t>(),
-			trial_space.template field_end<field_t>(),
+			trial_space.template field_begin<trial_field_t>(),
+			trial_space.template field_end<trial_field_t>(),
 			*p_tree);
 
 		auto pre_fctr = NiHu::fmm::create_precompute_functor(*p_tree, *p_lists);
@@ -113,31 +135,31 @@ public:
 		// Burton-Miller coupling constant
 		std::complex<double> alpha(0.0, -1.0 / k);
 
-#if 0
-
 		// integration
-		auto I = create_identity_p2p_integral(type2tag<test_field_t>(), type2tag<trial_field_t>());
-		auto lhs_collection = create_fmm_operator_collection(
-			int_fctr(fmm.template create_p2p<0, 1>())
-				+ alpha * int_fctr(fmm.template create_p2p<1, 1>())
+		auto I = NiHu::fmm::create_identity_p2p_integral(test_field_tag_t(), trial_field_tag_t());
+		// Create the operator collection for the LHS matrix
+		auto lhs_collection = NiHu::fmm::create_fmm_operator_collection(
+			int_fctr(p_fmm->template create_p2p<0, 1>())
+				+ alpha * int_fctr(p_fmm->template create_p2p<1, 1>())
 				- 0.5 * I,
-			int_fctr(fmm.template create_p2m<1>()),
-			int_fctr(fmm.template create_p2l<1>()),
-			int_fctr(fmm.template create_m2p<0>())
-				+ alpha * int_fctr(fmm.template create_m2p<1>()),
-			int_fctr(fmm.template create_l2p<0>())
-				+ alpha * int_fctr(fmm.template create_l2p<1>()),
-			fmm.create_m2m(),
-			fmm.create_m2l(),
-			fmm.create_l2l()
+			int_fctr(p_fmm->template create_p2m<1>()),
+			int_fctr(p_fmm->template create_p2l<1>()),
+			int_fctr(p_fmm->template create_m2p<0>())
+				+ alpha * int_fctr(p_fmm->template create_m2p<1>()),
+			int_fctr(p_fmm->template create_l2p<0>())
+				+ alpha * int_fctr(p_fmm->template create_l2p<1>()),
+			p_fmm->create_m2m(),
+			p_fmm->create_m2l(),
+			p_fmm->create_l2l()
 		);
 
-		auto rhs_collection = create_fmm_operator_collection(
-			int_fctr(fmm.template create_p2p<0, 0>())
-				+ alpha * int_fctr(fmm.template create_p2p<1, 0>())
+		// Create the collection of additional operators for the RHS matrix
+		auto rhs_collection = NiHu::fmm::create_fmm_operator_collection(
+			int_fctr(p_fmm->template create_p2p<0, 0>())
+				+ alpha * int_fctr(p_fmm->template create_p2p<1, 0>())
 				+ (alpha / 2.0) * I,
-			int_fctr(fmm.template create_p2m<0>()),
-			int_fctr(fmm.template create_p2l<0>())
+			int_fctr(p_fmm->template create_p2m<0>()),
+			int_fctr(p_fmm->template create_p2l<0>())
 		);
 
 		// indexing
@@ -146,32 +168,35 @@ public:
 
 		// precomputation
 		std::cout << "Precomputing fmm operators ..." << std::endl;
+		
 		auto lhs_pre_collection = lhs_cix_collection.transform(pre_fctr);
+		auto rhs_pre_collection = rhs_cix_collection.transform(pre_fctr);
 
 		// create rhs matrix object
 		std::cout << "Assembling rhs matrix ..." << std::endl;
-		auto slp_matrix = create_fmm_matrix(
-			pre_fctr(rhs_cix_collection.get(p2p_tag())),
-			rhs_cix_collection.get(p2m_tag()),
-			rhs_cix_collection.get(p2l_tag()),
-			lhs_pre_collection.get(m2p_tag()),
-			lhs_pre_collection.get(l2p_tag()),
-			lhs_pre_collection.get(m2m_tag()),
-			lhs_pre_collection.get(l2l_tag()),
-			lhs_pre_collection.get(m2l_tag()),
-			tree, lists);
+		p_rhs_matrix = new fmm_matrix_t(NiHu::fmm::create_fmm_matrix(
+			rhs_pre_collection.get(NiHu::fmm::p2p_tag()),
+			rhs_pre_collection.get(NiHu::fmm::p2m_tag()),
+			rhs_pre_collection.get(NiHu::fmm::p2l_tag()),
+			lhs_pre_collection.get(NiHu::fmm::m2p_tag()),
+			lhs_pre_collection.get(NiHu::fmm::l2p_tag()),
+			lhs_pre_collection.get(NiHu::fmm::m2m_tag()),
+			lhs_pre_collection.get(NiHu::fmm::l2l_tag()),
+			lhs_pre_collection.get(NiHu::fmm::m2l_tag()),
+			*p_tree, *p_lists));
 
 		// compute rhs with fmbem
+		/*
 		std::cout << "Computing rhs ..." << std::endl;
 		response_t rhs = slp_matrix * m_excitation;
-
+		*/
 		// create matrix object
 		std::cout << "Assembling lhs matrix ..." << std::endl;
-		auto dlp_matrix = create_fmm_matrix(
+		p_lhs_matrix = new fmm_matrix_t(create_fmm_matrix(
 			lhs_pre_collection,
-			tree, lists);
+			*p_tree, *p_lists));
 		
-#endif
+
 		
 	}
 	
@@ -183,6 +208,8 @@ public:
 		delete p_tree;
 		delete p_lists;
 		delete p_fmm;
+		delete p_rhs_matrix;
+		delete p_lhs_matrix;
 		
 	}
 private:
@@ -191,6 +218,8 @@ private:
 	cluster_tree_t *p_tree;
 	NiHu::fmm::interaction_lists *p_lists;
 	fmm_t *p_fmm;
+	fmm_matrix_t *p_rhs_matrix;
+	fmm_matrix_t *p_lhs_matrix;
 };
 
 fmm_matlab *p = nullptr;
@@ -231,7 +260,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, mxArray const *prhs[])
 		}
 		else
 		{
-			p->create_mesh(dMatrix(prhs[1]), dMatrix(prhs[2]), dMatrix(prhs[3]), dMatrix(prhs[4]));
+			p->create_mesh(dmex_matrix_t(prhs[1]), dmex_matrix_t(prhs[2]));
 		}
 	}
 	

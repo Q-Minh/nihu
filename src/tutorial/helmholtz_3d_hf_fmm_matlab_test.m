@@ -13,10 +13,12 @@ helmholtz_3d_hf_fmm_matlab('init');
 [f_nodes, f_elems] = extract_core_mesh(field);
 
 %%
-helmholtz_3d_hf_fmm_matlab('mesh', r_nodes, r_elems, f_nodes, f_elems);
+helmholtz_3d_hf_fmm_matlab('mesh', r_nodes, r_elems);
 %%
 n_levels = 6;
 helmholtz_3d_hf_fmm_matlab('tree', n_levels);
+%%
+helmholtz_3d_hf_fmm_matlab('matrix');
 %%
 helmholtz_3d_hf_fmm_matlab('cleanup');
 
