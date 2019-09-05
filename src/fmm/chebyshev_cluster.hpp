@@ -44,11 +44,11 @@ struct cluster_traits<chebyshev_cluster<Dim, Scalar, FieldDim> >
 
 template <size_t Dim, class Scalar, size_t FieldDim = 1>
 class chebyshev_cluster
-	: public fmm::cluster_base<chebyshev_cluster<Dim, Scalar> >
+	: public fmm::cluster_base<chebyshev_cluster<Dim, Scalar, FieldDim> >
 {
 public:
 	/// \brief the CRTP base class
-	typedef fmm::cluster_base<chebyshev_cluster<Dim, Scalar> > base_t;
+	typedef fmm::cluster_base<chebyshev_cluster<Dim, Scalar, FieldDim> > base_t;
 	/// \brief the space's dimension
 	static size_t const dimension = base_t::dimension;
 	/// \brief the field dimension

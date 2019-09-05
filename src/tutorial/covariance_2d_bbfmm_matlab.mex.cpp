@@ -3,13 +3,15 @@
 
 #include "core/field.hpp"
 #include "core/function_space.hpp"
+#include "fmm/chebyshev_cluster.hpp"
+#include "fmm/cluster_tree.hpp"
 #include "fmm/divide.hpp"
+#include "fmm/elem_center_iterator.hpp"
+#include "fmm/fmm_indexed.hpp"
 #include "fmm/fmm_integrated.hpp"
-#include "fmm/helmholtz_3d_hf_fmm.hpp"
-#include "fmm/helmholtz_exterior_solver.hpp"
-#include "fmm/helmholtz_field_point.hpp"
+#include "fmm/fmm_matrix.hpp"
+#include "fmm/fmm_precompute.hpp"
 #include "library/lib_element.hpp"
-#include "library/quad_1_gauss_field.hpp"
 #include "util/mex_matrix.hpp"
 
 #include <boost/math/constants/constants.hpp>
@@ -139,7 +141,7 @@ public:
 	}
 
 	template <class LhsDerived, class RhsDerived>
-	void mvp(Eigen::MatrixBase<LhsDerived> &res, Eigen::MatrixBase<RhsDerived> const &src)
+	void mvp(Eigen::MatrixBase<LhsDerived> &&res, Eigen::MatrixBase<RhsDerived> const &src)
 	{
 		res = (*p_fmm_matrix) * src;
 	}

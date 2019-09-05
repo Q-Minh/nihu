@@ -1,6 +1,6 @@
 #include "core/field.hpp"
 #include "core/function_space.hpp"
-#include "fmm/divide.h"
+#include "fmm/divide.hpp"
 #include "fmm/elem_center_iterator.hpp"
 #include "fmm/fmm_integrated.hpp"
 #include "fmm/fmm_indexed.hpp"
@@ -68,8 +68,8 @@ public:
 		, p_tree(nullptr)
 		, p_lists(nullptr)
 		, p_fmm(nullptr)
-		, p_rhs_matrix(nullptr)
-		, p_lhs_matrix(nullptr)
+		, p_slp_matrix(nullptr)
+		, p_dlp_matrix(nullptr)
 	{
 		
 	}
@@ -77,35 +77,26 @@ public:
 	void create_mesh(dmex_matrix_t const& surf_nodes, dmex_matrix_t const& surf_elems)
 	{
 		p_surf_mesh = new mesh_t(NiHu::create_mesh(surf_nodes, surf_elems, NiHu::quad_1_tag()));
-		//p_field_mesh = new mesh_t(NiHu::create_mesh(field_nodes, field_elems, NiHu::quad_1_tag()));
-		
-		mexPrintf("Number of surface elements: %u\n", p_surf_mesh->get_num_elements());
-		//mexPrintf("Number of field   elements: %u\n", p_field_mesh->get_num_elements());
 	}
 	
-	void create_tree(unsigned depth)
+	template <class DivideDerived>
+	void create_tree(NiHu::fmm::divide_base<DivideDerived> const &divide)
 	{
 		p_tree = new cluster_tree_t(
 			NiHu::fmm::create_elem_center_iterator(p_surf_mesh->begin<elem_t>()),
 			NiHu::fmm::create_elem_center_iterator(p_surf_mesh->end<elem_t>()),
-			NiHu::fmm::divide_depth(depth)
+			divide
 		);
 		
 		// create interaction lists
 		p_lists = new NiHu::fmm::interaction_lists(*p_tree);
-		
-		// debug output
-		std::stringstream ss;
-		ss << *p_tree;
-		
-		mexPrintf("Tree:\n%s\n", ss.str().c_str());
 	}
 	
 	void create_matrices()
 	{
-		double k = 3;
-		p_fmm = new fmm_t(k);
-		p_fmm->set_accuracy(3.0);
+		// create the FMM instance
+		p_fmm = new fmm_t(m_wave_number);
+		p_fmm->set_accuracy(m_accuracy);
 
 		// initialize tree data
 		std::cout << "Initializing tree data ..." << std::endl;
@@ -133,12 +124,12 @@ public:
 		auto pre_fctr = NiHu::fmm::create_precompute_functor(*p_tree, *p_lists);
 
 		// Burton-Miller coupling constant
-		std::complex<double> alpha(0.0, -1.0 / k);
+		std::complex<double> alpha(0.0, -1.0 / m_wave_number);
 
 		// integration
 		auto I = NiHu::fmm::create_identity_p2p_integral(test_field_tag_t(), trial_field_tag_t());
 		// Create the operator collection for the LHS matrix
-		auto lhs_collection = NiHu::fmm::create_fmm_operator_collection(
+		auto dlp_collection = NiHu::fmm::create_fmm_operator_collection(
 			int_fctr(p_fmm->template create_p2p<0, 1>())
 				+ alpha * int_fctr(p_fmm->template create_p2p<1, 1>())
 				- 0.5 * I,
@@ -154,7 +145,7 @@ public:
 		);
 
 		// Create the collection of additional operators for the RHS matrix
-		auto rhs_collection = NiHu::fmm::create_fmm_operator_collection(
+		auto slp_collection = NiHu::fmm::create_fmm_operator_collection(
 			int_fctr(p_fmm->template create_p2p<0, 0>())
 				+ alpha * int_fctr(p_fmm->template create_p2p<1, 0>())
 				+ (alpha / 2.0) * I,
@@ -163,41 +154,67 @@ public:
 		);
 
 		// indexing
-		auto lhs_cix_collection = lhs_collection.transform(idx_fctr);
-		auto rhs_cix_collection = rhs_collection.transform(idx_fctr);
+		auto dlp_cix_collection = dlp_collection.transform(idx_fctr);
+		auto slp_cix_collection = slp_collection.transform(idx_fctr);
 
 		// precomputation
 		std::cout << "Precomputing fmm operators ..." << std::endl;
 		
-		auto lhs_pre_collection = lhs_cix_collection.transform(pre_fctr);
-		auto rhs_pre_collection = rhs_cix_collection.transform(pre_fctr);
+		auto dlp_pre_collection = dlp_cix_collection.transform(pre_fctr);
+		auto slp_pre_collection = slp_cix_collection.transform(pre_fctr);
 
-		// create rhs matrix object
-		std::cout << "Assembling rhs matrix ..." << std::endl;
-		p_rhs_matrix = new fmm_matrix_t(NiHu::fmm::create_fmm_matrix(
-			rhs_pre_collection.get(NiHu::fmm::p2p_tag()),
-			rhs_pre_collection.get(NiHu::fmm::p2m_tag()),
-			rhs_pre_collection.get(NiHu::fmm::p2l_tag()),
-			lhs_pre_collection.get(NiHu::fmm::m2p_tag()),
-			lhs_pre_collection.get(NiHu::fmm::l2p_tag()),
-			lhs_pre_collection.get(NiHu::fmm::m2m_tag()),
-			lhs_pre_collection.get(NiHu::fmm::l2l_tag()),
-			lhs_pre_collection.get(NiHu::fmm::m2l_tag()),
+		// create slp matrix object
+		std::cout << "Assembling slp matrix ..." << std::endl;
+		p_slp_matrix = new fmm_matrix_t(NiHu::fmm::create_fmm_matrix(
+			slp_pre_collection.get(NiHu::fmm::p2p_tag()),
+			slp_pre_collection.get(NiHu::fmm::p2m_tag()),
+			slp_pre_collection.get(NiHu::fmm::p2l_tag()),
+			dlp_pre_collection.get(NiHu::fmm::m2p_tag()),
+			dlp_pre_collection.get(NiHu::fmm::l2p_tag()),
+			dlp_pre_collection.get(NiHu::fmm::m2m_tag()),
+			dlp_pre_collection.get(NiHu::fmm::l2l_tag()),
+			dlp_pre_collection.get(NiHu::fmm::m2l_tag()),
 			*p_tree, *p_lists));
 
-		// compute rhs with fmbem
-		/*
-		std::cout << "Computing rhs ..." << std::endl;
-		response_t rhs = slp_matrix * m_excitation;
-		*/
 		// create matrix object
-		std::cout << "Assembling lhs matrix ..." << std::endl;
-		p_lhs_matrix = new fmm_matrix_t(create_fmm_matrix(
-			lhs_pre_collection,
+		std::cout << "Assembling dlp matrix ..." << std::endl;
+		p_dlp_matrix = new fmm_matrix_t(create_fmm_matrix(
+			dlp_pre_collection,
 			*p_tree, *p_lists));
+	}
+	
+	template <class LhsDerived, class RhsDerived>
+	void mvp_dlp(Eigen::MatrixBase<LhsDerived> &&res, Eigen::MatrixBase<RhsDerived> const &src)
+	{
+		res = (*p_dlp_matrix) * src;
+	}
+	
+	template <class LhsDerived, class RhsDerived>
+	void mvp_slp(Eigen::MatrixBase<LhsDerived> &&res, Eigen::MatrixBase<RhsDerived> const &src)
+	{
+		res = (*p_slp_matrix) * src;
+	}
+	
+	void print_tree()
+	{
+		if (!p_tree)
+			return;
 		
-
+		// debug output
+		std::stringstream ss;
+		ss << *p_tree;
 		
+		mexPrintf("Tree:\n%s\n", ss.str().c_str());
+	}
+	
+	void set_accuracy(double accuracy)
+	{
+		m_accuracy = accuracy;
+	}
+	
+	void set_wave_number(double wave_number)
+	{
+		m_wave_number = wave_number;
 	}
 	
 	
@@ -208,8 +225,8 @@ public:
 		delete p_tree;
 		delete p_lists;
 		delete p_fmm;
-		delete p_rhs_matrix;
-		delete p_lhs_matrix;
+		delete p_slp_matrix;
+		delete p_dlp_matrix;
 		
 	}
 private:
@@ -218,41 +235,69 @@ private:
 	cluster_tree_t *p_tree;
 	NiHu::fmm::interaction_lists *p_lists;
 	fmm_t *p_fmm;
-	fmm_matrix_t *p_rhs_matrix;
-	fmm_matrix_t *p_lhs_matrix;
+	fmm_matrix_t *p_slp_matrix;
+	fmm_matrix_t *p_dlp_matrix;
+	
+	double m_wave_number;
+	double m_accuracy;
+	
 };
 
 fmm_matlab *p = nullptr;
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, mxArray const *prhs[])
 {
-	bool valid_input_option = false;
-	char *input_option;
+	char const *input_option;
 	
 	 /* input must be a string */
-    if ( mxIsChar(prhs[0]) != 1)
-      mexErrMsgIdAndTxt( "MATLAB:revord:inputNotString",
-              "Input must be a string.");
-	
+    if ( mxIsChar(prhs[0]) != 1) {
+		mexErrMsgIdAndTxt("NiHu:helmholtz_3d_hf_fmm_surf:invalid_input",
+              "First input parameter must be a string.");
+	}
 	input_option = mxArrayToString(prhs[0]);
 	
-	if (!strcmp(input_option, "init"))
+	if (!strcmp(input_option, "init")) 
 	{
-		valid_input_option = true;
-		if (p != nullptr)
-		{
+		if (p != nullptr) {
 			mexErrMsgIdAndTxt("NiHu:helmholtz_3d_hf_fmm_matlab:invalid_state",
 				"Command \"init\" called in invalid state");
-		}
-		else
-		{
+		} else {
 			p = new fmm_matlab;
 		}
 	}
 	
-	if (!strcmp(input_option, "mesh"))
+	else if (!strcmp(input_option, "set"))
 	{
-		valid_input_option = true;
+		int n_pairs = (nrhs - 1) / 2;
+		// Go through parameter pairs
+		for (int i = 0; i < n_pairs; ++i)
+		{
+			if ( mxIsChar(prhs[2*i + 1]) != 1) {
+				mexErrMsgIdAndTxt("NiHu:helmholtz_3d_hf_fmm_surf:invalid_input",
+				"Parameter name must be a string for the command \"set\".");
+			}
+			
+			char const *what_to_set = mxArrayToString(prhs[2 * i + 1]);
+			if (!strcmp(what_to_set, "wave_number"))
+			{
+				double k = mxGetScalar(prhs[2 * i + 2]);
+				p->set_wave_number(k);
+			}
+			if (!strcmp(what_to_set, "accuracy"))
+			{
+				double accuracy = mxGetScalar(prhs[2 * i + 2]);
+				p->set_accuracy(accuracy);
+			}
+			else
+			{
+				mexErrMsgIdAndTxt("NiHu:helmholtz_3d_hf_fmm_surf:invalid_parameter",
+					"Unknown parameter name to set: \"%s\"", what_to_set);
+			}
+		}
+	}
+	
+	else if (!strcmp(input_option, "mesh"))
+	{
 		if (p == nullptr)
 		{
 			mexErrMsgIdAndTxt("NiHu:helmholtz_3d_hf_fmm_matlab:invalid_state",
@@ -264,9 +309,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, mxArray const *prhs[])
 		}
 	}
 	
-	if (!strcmp(input_option, "tree"))
+	else if (!strcmp(input_option, "tree"))
 	{
-		valid_input_option = true;
 		if (p == nullptr)
 		{
 			mexErrMsgIdAndTxt("NiHu:helmholtz_3d_hf_fmm_matlab:invalid_state",
@@ -274,13 +318,29 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, mxArray const *prhs[])
 		}
 		else
 		{
-			p->create_tree(unsigned(mxGetScalar(prhs[1])));
+			char const *divide_option = mxArrayToString(prhs[1]);
+			if (!strcmp(divide_option, "divide_depth"))
+			{
+				p->create_tree(NiHu::fmm::divide_depth(size_t(mxGetScalar(prhs[2]))));
+			}
+			else if (!strcmp(divide_option, "divide_num_nodes"))
+			{
+				p->create_tree(NiHu::fmm::divide_num_nodes(size_t(mxGetScalar(prhs[2]))));
+			}
+			else if (!strcmp(divide_option, "divide_diameter"))
+			{
+				p->create_tree(NiHu::fmm::divide_diameter(mxGetScalar(prhs[2])));
+			}
+			else
+			{
+				mexErrMsgIdAndTxt("NiHu:covariance_2d_bbfmm_matlab:invalid_divide_option",
+					"Unknown divide option: \"%s\"", divide_option);
+			}
 		}
 	}
 	
-	if (!strcmp(input_option, "matrix"))
+	else if (!strcmp(input_option, "matrix"))
 	{
-		valid_input_option = true;
 		if (p == nullptr)
 		{
 			mexErrMsgIdAndTxt("NiHu:helmholtz_3d_hf_fmm_matlab:invalid_state",
@@ -292,14 +352,45 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, mxArray const *prhs[])
 		}
 	}
 	
-	// Cleanup option 
-	if (!strcmp(input_option, "cleanup"))
+	else if (!strcmp(input_option, "mvp_dlp"))
 	{
-		valid_input_option = true;
 		if (p == nullptr)
 		{
 			mexErrMsgIdAndTxt("NiHu:helmholtz_3d_hf_fmm_matlab:invalid_state",
-				"Command \"cleanup\" called in invalid state");
+				"Command \"%s\" called in invalid state", input_option);
+		}
+		else
+		{
+			cmex_matrix_t xct(prhs[1]);
+			cmex_matrix_t res(xct.rows(), 1, plhs[0]);
+			p->mvp_dlp(res.col(0), xct.col(0));
+		}
+	}
+	
+	else if (!strcmp(input_option, "mvp_slp"))
+	{
+		if (p == nullptr)
+		{
+			mexErrMsgIdAndTxt("NiHu:helmholtz_3d_hf_fmm_matlab:invalid_state",
+				"Command \"%s\" called in invalid state", input_option);
+		}
+		else
+		{
+			cmex_matrix_t xct(prhs[1]);
+			cmex_matrix_t res(xct.rows(), 1, plhs[0]);
+			p->mvp_slp(res.col(0), xct.col(0));
+		}
+	}
+	
+	
+	
+	// Cleanup option 
+	else if (!strcmp(input_option, "cleanup"))
+	{
+		if (p == nullptr)
+		{
+			mexErrMsgIdAndTxt("NiHu:helmholtz_3d_hf_fmm_matlab:invalid_state",
+				"Command \"%s\" called in invalid state", input_option);
 		}
 		else
 		{
@@ -309,7 +400,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, mxArray const *prhs[])
 	}
 	
 	// The option was not valid
-	if (!valid_input_option) 
+	else 
 	{
 		mexErrMsgIdAndTxt("NiHu:helmholtz_3d_hf_fmm_matlab:invalid_option",
 			"Unknown input option: \"%s\"", input_option);
