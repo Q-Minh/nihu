@@ -1,9 +1,9 @@
 #include "library/covariance_kernel.hpp"
-#include "fmm/black_box_fmm.hpp"
 
 #include "core/field.hpp"
 #include "core/function_space.hpp"
 #include "fmm/chebyshev_cluster.hpp"
+#include "fmm/black_box_fmm.hpp"
 #include "fmm/cluster_tree.hpp"
 #include "fmm/divide.hpp"
 #include "fmm/elem_center_iterator.hpp"

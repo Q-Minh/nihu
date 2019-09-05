@@ -8,6 +8,7 @@
 #define BLACK_BOX_FMM_HPP_INCLUDED
 
 #include "chebyshev_cluster.hpp"
+#include "cluster_tree.hpp"
 #include "fmm_operator.hpp"
 #include "kron_identity.hpp"
 #include "m2l_indices.hpp"
@@ -19,6 +20,7 @@
 #include "library/normal_derivative_kernel.hpp"
 #include "util/matrix_traits.hpp"
 
+#include <cstddef>
 #include <type_traits>
 
 
@@ -90,7 +92,7 @@ public:
 	public:
 		typedef typename black_box_fmm<kernel_t>::cluster_t cluster_t;
 
-		typedef fmm::kron_identity<
+		typedef kron_identity<
 			Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>,
 			field_dimension
 		> result_t;
@@ -104,7 +106,7 @@ public:
 
 		result_t operator()(cluster_t const &to, cluster_t const &from) const
 		{
-			return result_t(fmm::chebanterp<double, space_dimension>(
+			return result_t(chebanterp<double, space_dimension>(
 				to.get_chebyshev_order(),
 				to.get_bounding_box(),
 				from.get_chebyshev_nodes()));
@@ -119,7 +121,7 @@ public:
 	public:
 		typedef typename black_box_fmm<kernel_t>::cluster_t cluster_t;
 
-		typedef fmm::kron_identity <
+		typedef kron_identity <
 			Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>,
 			field_dimension
 		> result_t;
@@ -133,7 +135,7 @@ public:
 
 		result_t operator()(cluster_t const &to, cluster_t const &from) const
 		{
-			return result_t(fmm::chebanterp<double, space_dimension>(
+			return result_t(chebanterp<double, space_dimension>(
 				from.get_chebyshev_order(),
 				from.get_bounding_box(),
 				to.get_chebyshev_nodes()).transpose());
@@ -212,7 +214,7 @@ public:
 	private:
 		result_t eval(test_input_t const &to, trial_input_t const &from, std::integral_constant<int, 0>) const
 		{
-			Eigen::Matrix<double, Eigen::Dynamic, 1> res0 = fmm::chebanterp<double, space_dimension>(
+			Eigen::Matrix<double, Eigen::Dynamic, 1> res0 = chebanterp<double, space_dimension>(
 				to.get_chebyshev_order(),
 				to.get_bounding_box(), from.get_x());
 			result_t res(rows(to), cols(from));
@@ -225,7 +227,7 @@ public:
 
 		result_t eval(test_input_t const &to, trial_input_t const &from, std::integral_constant<int, 1>) const
 		{
-			Eigen::Matrix<double, Eigen::Dynamic, 1> res0 = fmm::chebanterp_dny<double, space_dimension>(
+			Eigen::Matrix<double, Eigen::Dynamic, 1> res0 = chebanterp_dny<double, space_dimension>(
 				to.get_chebyshev_order(),
 				to.get_bounding_box(),
 				from.get_x(),
@@ -273,7 +275,7 @@ public:
 	private:
 		result_t eval(test_input_t const &to, trial_input_t const &from, std::integral_constant<int, 0>) const
 		{
-			Eigen::Matrix<double, 1, Eigen::Dynamic> res0 = fmm::chebanterp<double, space_dimension>(
+			Eigen::Matrix<double, 1, Eigen::Dynamic> res0 = chebanterp<double, space_dimension>(
 				from.get_chebyshev_order(),
 				from.get_bounding_box(),
 				to.get_x()).transpose();
@@ -288,7 +290,7 @@ public:
 
 		result_t eval(test_input_t const &to, trial_input_t const &from, std::integral_constant<int, 1>) const
 		{
-			Eigen::Matrix<double, 1, Eigen::Dynamic> res0 = fmm::chebanterp_dny<double, space_dimension>(
+			Eigen::Matrix<double, 1, Eigen::Dynamic> res0 = chebanterp_dny<double, space_dimension>(
 				from.get_chebyshev_order(),
 				from.get_bounding_box(),
 				to.get_x(),

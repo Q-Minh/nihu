@@ -10,6 +10,7 @@
 #include <Eigen/Dense>
 
 #include <algorithm>
+#include <cstddef>
 #include <iostream>
 #include <cmath>
 

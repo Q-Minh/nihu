@@ -11,6 +11,8 @@
 #include "util/misc.hpp"
 #include "nd_cheb.hpp"
 
+#include <cstddef>
+
 namespace NiHu
 {
 namespace fmm
