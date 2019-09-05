@@ -106,7 +106,6 @@ struct integrated_functor
 
 	size_t m_quadrature_order;
 	bool m_sing_check;
-
 };
 
 template <class TestTag, class TrialTag>

@@ -13,6 +13,7 @@
 #include "m2l_indices.hpp"
 #include "nd_cheb.hpp"
 #include "p2p.hpp"
+#include "fmm_operator.hpp"
 
 #include "library/location_normal.hpp"
 #include "library/normal_derivative_kernel.hpp"

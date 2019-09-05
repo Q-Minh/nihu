@@ -1,7 +1,7 @@
 #include "fmm/cluster_tree.hpp"
 #include "fmm/elem_center_iterator.hpp"
 #include "fmm/empty_cluster.hpp"
-#include "fmm/divide.h"
+#include "fmm/divide.hpp"
 #include "interface/read_off_mesh.hpp"
 #include "library/lib_element.hpp"
 

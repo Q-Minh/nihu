@@ -3,7 +3,7 @@
 
 #include "core/field.hpp"
 #include "core/function_space.hpp"
-#include "fmm/divide.h"
+#include "fmm/divide.hpp"
 #include "fmm/fmm_integrated.hpp"
 #include "fmm/helmholtz_3d_hf_fmm.hpp"
 #include "fmm/helmholtz_exterior_solver.hpp"
@@ -78,12 +78,13 @@ public:
 		mexPrintf("Number of surface elements: %u\n", p_surf_mesh->get_num_elements());
 	}
 	
-	void create_tree(unsigned depth)
+	template <class DivideDerived>
+	void create_tree(NiHu::fmm::divide_base<DivideDerived> const &divide)
 	{
 		p_tree = new cluster_tree_t(
 			NiHu::fmm::create_elem_center_iterator(p_surf_mesh->begin<elem_t>()),
 			NiHu::fmm::create_elem_center_iterator(p_surf_mesh->end<elem_t>()),
-			NiHu::fmm::divide_depth(depth)
+			divide
 		);
 		
 		// create interaction lists
@@ -98,17 +99,13 @@ public:
 	
 	void create_matrix()
 	{
-		double sigma = 1.0;
-		double length = .1;
-		size_t cheb_order = 5;
 
-		kernel_t kernel(sigma, length);
+		kernel_t kernel(m_sigma, m_cov_length);
 		p_fmm = new fmm_t(kernel);
 
 		// initialize tree data
-		std::cout << "Initializing tree data ..." << std::endl;
 		for (size_t c = 0; c < p_tree->get_n_clusters(); ++c)
-			(*p_tree)[c].set_chebyshev_order(cheb_order);
+			(*p_tree)[c].set_chebyshev_order(m_cheb_order);
 
 		size_t far_field_quadrature_order = 5;
 
@@ -141,11 +138,10 @@ public:
 			*p_lists));
 	}
 
-	void mvp(dMatrix &res, dMatrix const &src)
+	template <class LhsDerived, class RhsDerived>
+	void mvp(Eigen::MatrixBase<LhsDerived> &res, Eigen::MatrixBase<RhsDerived> const &src)
 	{
-		auto _res = (*p_fmm_matrix) * src;
-		for (size_t i = 0; i < res.rows(); ++i)
-			res(i, 0) = _res(i, 0);
+		res = (*p_fmm_matrix) * src;
 	}
 	
 	
@@ -159,19 +155,37 @@ public:
 		delete p_surf_mesh;
 	}
 
+	void set_sigma(double sigma)
+	{
+		m_sigma = sigma;
+	}
+
+	void set_cov_length(double length)
+	{
+		m_cov_length = length;
+	}
+
+	void set_cheb_order(size_t order)
+	{
+		m_cheb_order = order;
+	}
+
 private:
 	mesh_t *p_surf_mesh;
 	cluster_tree_t *p_tree;
 	NiHu::fmm::interaction_lists *p_lists;
 	fmm_t *p_fmm;
 	fmm_matrix_t *p_fmm_matrix;
+
+	double m_sigma;
+	double m_cov_length;
+	size_t m_cheb_order;
 };
 
 fmm_matlab *p = nullptr;
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, mxArray const *prhs[])
 {
-	bool valid_input_option = false;
 	char *input_option;
 	
 	 /* input must be a string */
@@ -183,25 +197,52 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, mxArray const *prhs[])
 	
 	if (!strcmp(input_option, "init"))
 	{
-		valid_input_option = true;
 		if (p != nullptr)
 		{
 			mexErrMsgIdAndTxt("NiHu:covariance_2d_bbfmm_matlab:invalid_state",
-				"Command \"init\" called in invalid state");
+				"Command \"%s\" called in invalid state", input_option);
 		}
 		else
 		{
 			p = new fmm_matlab;
 		}
 	}
-	
-	if (!strcmp(input_option, "mesh"))
+
+	else if (!strcmp(input_option, "set"))
 	{
-		valid_input_option = true;
+		int n_pairs = (nrhs - 1) / 2;
+		for (int i = 0; i < n_pairs; ++i)
+		{
+			char const *what_to_set = mxArrayToString(prhs[2 * i + 1]);
+			if (!strcmp(what_to_set, "sigma"))
+			{
+				double sigma = mxGetScalar(prhs[2 * i + 2]);
+				p->set_sigma(sigma);
+			}
+			else if (!strcmp(what_to_set, "cov_length"))
+			{
+				double cov_length = mxGetScalar(prhs[2 * i + 2]);
+				p->set_cov_length(cov_length);
+			}
+			else if (!strcmp(what_to_set, "cheb_order"))
+			{
+				double cheb_order = mxGetScalar(prhs[2 * i + 2]);
+				p->set_cheb_order(size_t(cheb_order));
+			}
+			else
+			{
+				mexErrMsgIdAndTxt("NiHu:covariance_2d_bbfmm_matlab:invalid_parameter",
+					"Unknown input parameter: \"%s\"", what_to_set);
+			}
+		}
+	}
+	
+	else if (!strcmp(input_option, "mesh"))
+	{
 		if (p == nullptr)
 		{
 			mexErrMsgIdAndTxt("NiHu:covariance_2d_bbfmm_matlab:invalid_state",
-				"Command \"mesh\" called in invalid state");
+				"Command \"%s\" called in invalid state", input_option);
 		}
 		else
 		{
@@ -209,27 +250,42 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, mxArray const *prhs[])
 		}
 	}
 	
-	if (!strcmp(input_option, "tree"))
+	else if (!strcmp(input_option, "tree"))
 	{
-		valid_input_option = true;
 		if (p == nullptr)
 		{
 			mexErrMsgIdAndTxt("NiHu:covariance_2d_bbfmm_matlab:invalid_state",
-				"Command \"tree\" called in invalid state");
+				"Command \"%s\" called in invalid state", input_option);
 		}
 		else
 		{
-			p->create_tree(unsigned(mxGetScalar(prhs[1])));
+			char const *divide_option = mxArrayToString(prhs[1]);
+			if (!strcmp(divide_option, "divide_depth"))
+			{
+				p->create_tree(NiHu::fmm::divide_depth(size_t(mxGetScalar(prhs[2]))));
+			}
+			else if (!strcmp(divide_option, "divide_num_nodes"))
+			{
+				p->create_tree(NiHu::fmm::divide_num_nodes(size_t(mxGetScalar(prhs[2]))));
+			}
+			else if (!strcmp(divide_option, "divide_diameter"))
+			{
+				p->create_tree(NiHu::fmm::divide_diameter(mxGetScalar(prhs[2])));
+			}
+			else
+			{
+				mexErrMsgIdAndTxt("NiHu:covariance_2d_bbfmm_matlab:invalid_divide_option",
+					"Unknown divide option: \"%s\"", divide_option);
+			}
 		}
 	}
 	
-	if (!strcmp(input_option, "matrix"))
+	else if (!strcmp(input_option, "matrix"))
 	{
-		valid_input_option = true;
 		if (p == nullptr)
 		{
 			mexErrMsgIdAndTxt("NiHu:covariance_2d_bbfmm_matlab:invalid_state",
-				"Command \"matrix\" called in invalid state");
+				"Command \"%s\" called in invalid state", input_option);
 		}
 		else
 		{
@@ -237,30 +293,28 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, mxArray const *prhs[])
 		}
 	}
 
-	if (!strcmp(input_option, "mvp"))
+	else if (!strcmp(input_option, "mvp"))
 	{
-		valid_input_option = true;
 		if (p == nullptr)
 		{
 			mexErrMsgIdAndTxt("NiHu:covariance_2d_bbfmm_matlab:invalid_state",
-				"Command \"mvp\" called in invalid state");
+				"Command \"%s\" called in invalid state", input_option);
 		}
 		else
 		{
 			dMatrix xct(prhs[1]);
 			dMatrix res(xct.rows(), 1, plhs[0]);
-			p->mvp(res, xct);
+			p->mvp(res.col(0), xct.col(0));
 		}
 	}
 	
 	// Cleanup option 
-	if (!strcmp(input_option, "cleanup"))
+	else if (!strcmp(input_option, "cleanup"))
 	{
-		valid_input_option = true;
 		if (p == nullptr)
 		{
 			mexErrMsgIdAndTxt("NiHu:covariance_2d_bbfmm_matlab:invalid_state",
-				"Command \"cleanup\" called in invalid state");
+				"Command \"%s\" called in invalid state", input_option);
 		}
 		else
 		{
@@ -270,10 +324,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, mxArray const *prhs[])
 	}
 	
 	// The option was not valid
-	if (!valid_input_option) 
+	else 
 	{
 		mexErrMsgIdAndTxt("NiHu:covariance_2d_bbfmm_matlab:invalid_option",
 			"Unknown input option: \"%s\"", input_option);
-	}	
-
+	}
 }
