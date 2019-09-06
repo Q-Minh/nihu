@@ -27,7 +27,8 @@ typedef NiHu::type2tag<trial_field_t>::type trial_field_tag_t;
 typedef NiHu::dirac_field<trial_field_t> test_field_t;
 typedef NiHu::type2tag<test_field_t>::type test_field_tag_t;
 
-typedef NiHu::fmm::helmholtz_3d_hf_fmm<double> fmm_t;
+typedef double wavenumber_t;
+typedef NiHu::fmm::helmholtz_3d_hf_fmm<wavenumber_t> fmm_t;
 
 typedef NiHu::mesh<tmp::vector<elem_t> > mesh_t;
 
@@ -103,6 +104,13 @@ public:
 		p_fmm->init_level_data(*p_tree);
 		for (size_t c = 0; c < p_tree->get_n_clusters(); ++c)
 			(*p_tree)[c].set_p_level_data(&p_fmm->get_level_data((*p_tree)[c].get_level()));
+		
+#if PARALLEL
+		auto max_num_threads = omp_get_max_threads();
+		std::cout << "Expanding to " << max_num_threads << " threads" << std::endl;
+		for (size_t i = 0; i < p_tree->get_n_levels(); ++i)
+			p_fmm->get_level_data(i).set_num_threads(max_num_threads);
+#endif
 
 		
 		size_t far_field_quadrature_order = 5;
@@ -353,6 +361,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, mxArray const *prhs[])
 				mexErrMsgIdAndTxt("NiHu:covariance_2d_bbfmm_matlab:invalid_divide_option",
 					"Unknown divide option: \"%s\"", divide_option);
 			}
+			
+			p->print_tree();
 		}
 	}
 	
