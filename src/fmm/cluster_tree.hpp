@@ -325,6 +325,10 @@ private:
 	std::vector<size_t> levels;
 };
 
+template <class ClusterDerived>
+size_t const cluster_tree<ClusterDerived>::dimension;
+
+
 template <class C>
 std::ostream &operator<<(std::ostream &os, cluster_tree<C> const &ct)
 {
