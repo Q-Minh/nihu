@@ -15,6 +15,7 @@
 #include "Eigen/StdVector"
 
 #include <algorithm> 	// std::min_element
+#include <cstddef>
 #include <iostream>
 #include <numeric> 		// std::iota
 #include <stdexcept>	// std::logic_error
@@ -334,6 +335,9 @@ std::ostream &operator<<(std::ostream &os, cluster_tree<C> const &ct)
 	ct.print_debug(os);
 	return os;
 }
+
+template <class ClusterDerived>
+size_t const cluster_tree<ClusterDerived>::dimension;
 
 } // end of namespace fmm
 } // end of namespace NiHu

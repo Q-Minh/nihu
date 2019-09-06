@@ -10,6 +10,7 @@
 #include "util/crtp_base.hpp"
 
 #include <algorithm>	// std::find, std::copy
+#include <cstddef>
 #include <iostream>		// std::ostream
 #include <iterator>		// std::ostream_iterator
 #include <vector>		// idx_list

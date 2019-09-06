@@ -86,7 +86,8 @@ To complie %NiHu, the following prerequisites are needed:
 		
 	On Windows systems, if you do not have FFTW3 installed, the installation process will download FFTW automatically and create the necessary libraries for linking `NiHu` executables.
 	\note The current version of %NiHu was tested using `FFTW 3.3.5`.
-
+	\note On windows systems, it is recommended to add the FFTW3 directory to your `PATH` environment variable for easier usage of the libraries.
+	
 Optional components
 -------------------
 	
@@ -454,6 +455,10 @@ This will add the necessary directories to Matlab's search path and enables you 
 
 Replacing the soft link should fix the problem and `mex` files should work from this point after restarting Matlab.
 You can find a longer discussion of this problem on [stackoverflow](http://stackoverflow.com/questions/17000903/mex-compiling-on-64-bit-linux-usr-bin-ld-cannot-find-lstdc).
+
+\note On Windows, with MinGW build, older Matlab versions may report the error "Invalid MEX-file <i>file name</i>: The specified procedure could not be found."
+If this happens, copy all the .dll files of your MinGW installation (located at MinGW/mingw64/bin) to MATLAB/bin/win64 directory.
+Note that it is useful to create a backup of libstdc++-6.dll first.
 
 Further steps {#install_further_steps}
 -------------
