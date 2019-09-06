@@ -164,12 +164,24 @@ public:
 		// indexing
 		auto dlp_cix_collection = dlp_collection.transform(idx_fctr);
 		auto slp_cix_collection = slp_collection.transform(idx_fctr);
+		
 
 		// precomputation
 		std::cout << "Precomputing fmm operators ..." << std::endl;
 		
 		auto dlp_pre_collection = dlp_cix_collection.transform(pre_fctr);
 		auto slp_pre_collection = slp_cix_collection.transform(pre_fctr);
+		
+		// get assembly times
+		m_m2l_assembly_time = dlp_pre_collection.get(NiHu::fmm::m2l_tag()).get_assembly_time();
+		m_m2m_assembly_time = dlp_pre_collection.get(NiHu::fmm::m2m_tag()).get_assembly_time();
+		m_l2l_assembly_time = dlp_pre_collection.get(NiHu::fmm::l2l_tag()).get_assembly_time();
+		m_p2m_assembly_time = dlp_pre_collection.get(NiHu::fmm::p2m_tag()).get_assembly_time();
+		m_p2l_assembly_time = dlp_pre_collection.get(NiHu::fmm::p2l_tag()).get_assembly_time();
+		m_m2p_assembly_time = dlp_pre_collection.get(NiHu::fmm::m2p_tag()).get_assembly_time();
+		m_l2p_assembly_time = dlp_pre_collection.get(NiHu::fmm::l2p_tag()).get_assembly_time();
+		m_p2p_assembly_time = dlp_pre_collection.get(NiHu::fmm::p2p_tag()).get_assembly_time();
+		
 
 		// create slp matrix object
 		std::cout << "Assembling slp matrix ..." << std::endl;
@@ -238,7 +250,6 @@ public:
 		m_wave_number = wave_number;
 	}
 	
-	
 	~fmm_matlab()
 	{
 		delete p_surf_mesh;
@@ -248,8 +259,48 @@ public:
 		delete p_fmm;
 		delete p_slp_matrix;
 		delete p_dlp_matrix;
-		
 	}
+	
+	size_t get_m2l_assembly_time() const
+	{
+		return m_m2l_assembly_time;
+	}
+	
+	size_t get_m2m_assembly_time() const
+	{
+		return m_m2m_assembly_time;
+	}
+	
+	size_t get_l2l_assembly_time() const
+	{
+		return m_l2l_assembly_time;
+	}
+	
+	size_t get_p2m_assembly_time() const
+	{
+		return m_p2m_assembly_time;
+	}
+	
+	size_t get_p2l_assembly_time() const
+	{
+		return m_p2l_assembly_time;
+	}
+	
+	size_t get_m2p_assembly_time() const
+	{
+		return m_m2p_assembly_time;
+	}
+	
+	size_t get_l2p_assembly_time() const
+	{
+		return m_l2p_assembly_time;
+	}
+	
+	size_t get_p2p_assembly_time() const
+	{
+		return m_p2p_assembly_time;
+	}
+	
 private:
 	mesh_t *p_surf_mesh;
 	mesh_t *p_field_mesh;
@@ -262,6 +313,14 @@ private:
 	double m_wave_number;
 	double m_accuracy;
 	
+	size_t m_m2l_assembly_time;
+	size_t m_m2m_assembly_time;
+	size_t m_l2l_assembly_time;
+	size_t m_p2m_assembly_time;
+	size_t m_p2l_assembly_time;
+	size_t m_m2p_assembly_time;
+	size_t m_l2p_assembly_time;
+	size_t m_p2p_assembly_time;
 };
 
 fmm_matlab *p = nullptr;
@@ -376,6 +435,15 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, mxArray const *prhs[])
 		else
 		{
 			p->create_matrices();
+			mexPrintf("Assembly times:\n");
+			mexPrintf("\tM2L: %llu\n", p->get_m2l_assembly_time());
+			mexPrintf("\tM2M: %llu\n", p->get_m2m_assembly_time());
+			mexPrintf("\tL2L: %llu\n", p->get_l2l_assembly_time());
+			mexPrintf("\tP2M: %llu\n", p->get_p2m_assembly_time());
+			mexPrintf("\tP2L: %llu\n", p->get_p2l_assembly_time());
+			mexPrintf("\tM2P: %llu\n", p->get_m2p_assembly_time());
+			mexPrintf("\tL2P: %llu\n", p->get_l2p_assembly_time());
+			mexPrintf("\tP2P: %llu\n", p->get_p2p_assembly_time());
 		}
 	}
 	

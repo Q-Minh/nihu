@@ -15,6 +15,8 @@
 
 #include <Eigen/SparseCore>
 
+#include <chrono>
+#include <omp.h>
 #include <type_traits>
 #include <vector>
 
@@ -46,18 +48,47 @@ class sparse_computer<Operator, ClusterDerived, true>
 
 public:
 
-	static sparse_t eval(Operator &&op, tree_t const &tree, interaction_lists::list_t const &list)
+	static sparse_t eval(Operator &&op, tree_t const &tree, interaction_lists::list_t const &list, size_t &assembly_time)
 	{
+		auto tstart = std::chrono::steady_clock::now();
+	
 		std::vector<triplet_t> triplets;
+		
+		std::vector<std::pair<size_t, size_t> > indices;
 
 		// determine number of entries in p2p sparse matrix
 		size_t s = 0;
 		for (unsigned to = 0; to < list.size(); ++to)
 			for (auto from : list[to])
-				s += tree[to].get_rec_node_idx().size() * rows *
-				tree[from].get_src_node_idx().size() * cols;
-		triplets.reserve(s);
+				s += tree[to].get_rec_node_idx().size() * 
+				tree[from].get_src_node_idx().size();
+		indices.reserve(s);
+		
+		for (unsigned to = 0; to < list.size(); ++to)
+			for (auto from : list[to])
+				for (auto i : tree[to].get_rec_node_idx()) // loop over receiver nodes
+					for (auto j : tree[from].get_src_node_idx())	// loop over source nodes
+						indices.push_back(std::make_pair(i, j));
+						
+		triplets.resize(s * rows * cols);
+		
+#ifdef PARALLEL
+#pragma omp parallel for
+#endif
+		for (int isrcrec = 0; isrcrec < s; ++isrcrec)
+		{
+			size_t i = indices[isrcrec].first;
+			size_t j = indices[isrcrec].second;
+			result_t mat = op(i, j);
+			for (size_t ii = 0; ii < rows; ++ii)	// loop over matrix rows
+				for (size_t jj = 0; jj < cols; ++jj)	// loop over matrix cols
+					triplets[isrcrec*rows*cols + ii*cols + jj] = triplet_t(i * rows + ii, j * cols + jj, mat(ii, jj));
+		}
+#ifdef PARALLEL
+#pragma omp barrier
+#endif
 
+#if 0
 		// compute entries and place them in p2p triplets
 		for (unsigned to = 0; to < list.size(); ++to)	// loop over receiver clusters
 		{
@@ -75,9 +106,14 @@ public:
 				}
 			}
 		}
+#endif
 
 		sparse_t mat(rows * tree.get_n_rec_nodes(), cols * tree.get_n_src_nodes());
 		mat.setFromTriplets(triplets.begin(), triplets.end());
+		
+		auto tend = std::chrono::steady_clock::now();
+		assembly_time = std::chrono::duration_cast<std::chrono::microseconds>(tend - tstart).count();
+		
 		return mat;
 	}
 };
@@ -97,8 +133,10 @@ class sparse_computer<Operator, ClusterDerived, false>
 
 public:
 
-	static sparse_t eval(Operator &&op, tree_t const &tree, interaction_lists::list_t const &list)
+	static sparse_t eval(Operator &&op, tree_t const &tree, interaction_lists::list_t const &list, size_t &assembly_time)
 	{
+		auto tstart = std::chrono::steady_clock::now();
+
 		std::vector<triplet_t> triplets;
 
 		// determine number of entries in p2p sparse matrix
@@ -120,6 +158,10 @@ public:
 
 		sparse_t mat(tree.get_n_rec_nodes(), tree.get_n_src_nodes());
 		mat.setFromTriplets(triplets.begin(), triplets.end());
+		
+		auto tend = std::chrono::steady_clock::now();
+		assembly_time = std::chrono::duration_cast<std::chrono::microseconds>(tend - tstart).count();
+		
 		return mat;
 	}
 };
@@ -140,7 +182,7 @@ public:
 
 	template <class Operator, class ClusterDerived>
 	p2p_precompute(Operator &&op, cluster_tree<ClusterDerived> const &tree, interaction_lists::list_t const &list)
-		: m_mat(internal::sparse_computer<Operator, ClusterDerived>::eval(std::forward<Operator>(op), tree, list))
+		: m_mat(internal::sparse_computer<Operator, ClusterDerived>::eval(std::forward<Operator>(op), tree, list, m_assembly_time))
 	{
 	}
 
@@ -148,9 +190,15 @@ public:
 	{
 		return m_mat;
 	}
+	
+	size_t get_assembly_time() const
+	{
+		return m_assembly_time;
+	}
 
 private:
 	sparse_t m_mat;
+	size_t m_assembly_time;
 };
 
 

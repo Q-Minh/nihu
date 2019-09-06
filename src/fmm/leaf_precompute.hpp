@@ -8,7 +8,9 @@
 #include "lists.hpp"
 
 #include <vector>
+#include <chrono>
 #include <type_traits>
+#include <omp.h>
 
 namespace NiHu
 {
@@ -29,25 +31,41 @@ public:
 	template <class Operator, class ClusterDerived>
 	p2x_precompute(Operator const &op,
 		cluster_tree<ClusterDerived> const &tree)
-		: m_single_idx(tree.get_n_clusters())
+		: m_container(tree.get_leaf_src_indices().size())
+		, m_single_idx(tree.get_n_clusters())
 	{
+		auto tstart = std::chrono::steady_clock::now();
 		auto const &src_indices = tree.get_leaf_src_indices();
-		for (size_t i = 0; i < src_indices.size(); ++i)
+#ifdef PARALLEL
+#pragma omp parallel for
+#endif
+		for (int i = 0; i < src_indices.size(); ++i)
 		{
 			size_t to = src_indices[i];
-			m_container.push_back(op(to));
+			m_container[i] = op(to);
 			m_single_idx[to] = i;
 		}
+#ifdef PARALLEL
+#pragma omp barrier
+#endif
+		auto tend = std::chrono::steady_clock::now();
+		m_assembly_time = std::chrono::duration_cast<std::chrono::microseconds>(tend - tstart).count();
+	}
+
+	size_t get_assembly_time() const
+	{
+		return m_assembly_time;
 	}
 
 	result_t const &operator()(size_t to) const
 	{
 		return m_container[m_single_idx[to]];
 	}
-
+	
 private:
 	std::vector<result_t> m_container;
 	std::vector<size_t> m_single_idx;
+	size_t m_assembly_time;
 };
 
 
@@ -66,6 +84,7 @@ public:
 		: m_double_idx(tree.get_n_clusters(), tree.get_n_clusters())
 	{
 		typedef Eigen::Triplet<size_t, size_t> triplet_t;
+		auto tstart = std::chrono::steady_clock::now();
 		std::vector<triplet_t> triplets;
 		size_t idx = 0;
 		for (size_t to = 0; to < list.size(); ++to)
@@ -78,6 +97,13 @@ public:
 			}
 		}
 		m_double_idx.setFromTriplets(triplets.begin(), triplets.end());
+		auto tend = std::chrono::steady_clock::now();
+		m_assembly_time = std::chrono::duration_cast<std::chrono::microseconds>(tend - tstart).count();
+	}
+
+	size_t get_assembly_time() const
+	{
+		return m_assembly_time;
 	}
 
 	result_t const &operator()(size_t to, size_t from) const
@@ -88,6 +114,7 @@ public:
 private:
 	std::vector<result_t> m_container;
 	Eigen::SparseMatrix<size_t> m_double_idx;
+	size_t m_assembly_time;
 };
 
 
@@ -131,25 +158,42 @@ public:
 	template <class Operator>
 	x2p_precompute(Operator const &op,
 		cluster_tree<typename std::decay<Operator>::type::cluster_t> const &tree)
-		: m_single_idx(tree.get_n_clusters())
+		: m_container(tree.get_leaf_rec_indices().size())
+		, m_single_idx(tree.get_n_clusters())
 	{
+		auto tstart = std::chrono::steady_clock::now();
 		auto const &list = tree.get_leaf_rec_indices();
-		for (size_t i = 0; i < list.size(); ++i)
+#ifdef PARALLEL
+#pragma omp parallel for
+#endif
+		
+		for (int i = 0; i < list.size(); ++i)
 		{
 			size_t to = list[i];
-			m_container.push_back(op(to));
+			m_container[i] = op(to);
 			m_single_idx[to] = i;
 		}
+#ifdef PARALLEL
+#pragma omp barrier
+#endif
+		auto tend = std::chrono::steady_clock::now();
+		m_assembly_time = std::chrono::duration_cast<std::chrono::microseconds>(tend - tstart).count();
 	}
 
 	result_t const &operator()(size_t to) const
 	{
 		return m_container[m_single_idx[to]];
 	}
+	
+	size_t get_assembly_time() const
+	{
+		return m_assembly_time;
+	}
 
 private:
 	std::vector<result_t> m_container;
 	std::vector<size_t> m_single_idx;
+	size_t m_assembly_time;
 };
 
 
@@ -170,6 +214,7 @@ public:
 		: m_double_idx(tree.get_n_clusters(), tree.get_n_clusters())
 	{
 		typedef Eigen::Triplet<size_t, size_t> triplet_t;
+		auto tstart = std::chrono::steady_clock::now();
 		std::vector<triplet_t> triplets;
 		size_t idx = 0;
 		for (size_t to = 0; to < list.size(); ++to)
@@ -182,6 +227,8 @@ public:
 			}
 		}
 		m_double_idx.setFromTriplets(triplets.begin(), triplets.end());
+		auto tend = std::chrono::steady_clock::now();
+		m_assembly_time = std::chrono::duration_cast<std::chrono::microseconds>(tend - tstart).count();
 	}
 
 	result_t const &operator()(size_t to, size_t from) const
@@ -189,9 +236,15 @@ public:
 		return m_container[m_double_idx.coeff(to, from)];
 	}
 
+	size_t get_assembly_time() const
+	{
+		return m_assembly_time;
+	}
+
 private:
 	std::vector<result_t> m_container;
 	Eigen::SparseMatrix<size_t> m_double_idx;
+	size_t m_assembly_time;
 };
 
 

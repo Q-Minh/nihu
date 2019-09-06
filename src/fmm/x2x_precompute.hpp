@@ -7,6 +7,7 @@
 
 #include "Eigen/SparseCore"
 
+#include <chrono>
 #include <vector>
 
 namespace NiHu
@@ -38,6 +39,8 @@ public:
 
 		std::vector<std::vector<bool> > ready(m_tree.get_n_levels());
 
+		auto tstart = std::chrono::steady_clock::now();
+		
 		for (size_t to = 0; to < list.size(); ++to)
 		{
 			for (auto from : list[to])
@@ -59,8 +62,10 @@ public:
 				triplets.push_back(triplet_t(int(to), int(from), idx));
 			}
 		}
-
-		this->m_indices.setFromTriplets(triplets.begin(), triplets.end());
+		
+		m_indices.setFromTriplets(triplets.begin(), triplets.end());
+		auto tend = std::chrono::steady_clock::now();
+		m_assembly_time = std::chrono::duration_cast<std::chrono::microseconds>(tend - tstart).count();
 	}
 
 	result_t const &operator()(size_t to, size_t from) const
@@ -69,11 +74,17 @@ public:
 		size_t idx = m_indices.coeff(to, from);
 		return m_container[level][idx];
 	}
+	
+	size_t get_assembly_time() const
+	{
+		return m_assembly_time;
+	}
 
 private:
 	cluster_tree_t const &m_tree;
 	Eigen::SparseMatrix<size_t> m_indices;
 	container_t m_container;
+	size_t m_assembly_time;
 };
 
 
