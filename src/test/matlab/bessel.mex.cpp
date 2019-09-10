@@ -26,7 +26,8 @@ typedef NiHu::mex::complex_matrix<double> cMatrix;
 void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 {
 	if (nlhs != 10 || nrhs != 1)
-		throw std::invalid_argument("bad number of input or output arguments");
+		mexErrMsgIdAndTxt("bessel:arguments",
+			"bad number of input (%d) or output (%d) arguments", nlhs, nrhs);
 
 	cMatrix z(rhs[0]);
 	cMatrix J0(z.rows(), z.cols(), lhs[0]), J1(z.rows(), z.cols(), lhs[1]);

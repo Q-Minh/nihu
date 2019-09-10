@@ -74,7 +74,7 @@ public:
 	 * \brief return number of points
 	 * \return number of points
 	 */
-	size_t get_num_points(void) const
+	size_t get_num_points() const
 	{
 		return points.size();
 	}
@@ -196,7 +196,7 @@ public:
 	 * \brief return begin iterator of the elements
 	 */
 	template <class ElemType>
-	typename elem_iterator_t<ElemType>::type begin(void) const
+	typename elem_iterator_t<ElemType>::type begin() const
 	{
 		return m_elements.eigen_std_vector<ElemType>::type::begin();
 	}
@@ -205,7 +205,7 @@ public:
 	 * \brief return end iterator of the elements
 	 */
 	template <class ElemType>
-	typename elem_iterator_t<ElemType>::type end(void) const
+	typename elem_iterator_t<ElemType>::type end() const
 	{
 		return m_elements.eigen_std_vector<ElemType>::type::end();
 	}
@@ -214,7 +214,7 @@ public:
 	 * \brief return element with a given index
 	 */
 	template <class ElemType>
-	ElemType const &get_elem(int i) const 
+	ElemType const &get_elem(size_t i) const 
 	{
 		return m_elements.eigen_std_vector<ElemType>::type::operator[](i);
 	}
@@ -263,7 +263,7 @@ public:
 	 * \brief return number of elements
 	 * \return number of elements in the mesh
 	 */
-	unsigned get_num_elements(void) const
+	unsigned get_num_elements() const
 	{
 		return m_num_elements;
 	}
@@ -302,13 +302,13 @@ public:
 	}
 
 	/** \brief return begin iterator of the elements */
-	typename mesh_t::template elem_iterator_t<elem_t>::type begin(void) const
+	typename mesh_t::template elem_iterator_t<elem_t>::type begin() const
 	{
 		return m_parent.template begin<elem_t>();
 	}
 
 	/** \brief return end iterator of the elements */
-	typename mesh_t::template elem_iterator_t<elem_t>::type end(void) const
+	typename mesh_t::template elem_iterator_t<elem_t>::type end() const
 	{
 		return m_parent.template end<elem_t>();
 	}

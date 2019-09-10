@@ -10,7 +10,7 @@ spectral_interpolate::~spectral_interpolate()
 	destroy();
 }
 
-spectral_interpolate::spectral_interpolate(int Nto, int Nfrom)
+spectral_interpolate::spectral_interpolate(size_t Nto, size_t Nfrom)
 	: m_Nto(Nto)
 	, m_Nfrom(Nfrom)
 	, m_dft_plan(nullptr)
@@ -95,7 +95,7 @@ spectral_interpolate::interpolate(cvector_t const &from) const
 
 
 	// padding or truncating (m_out has been cleared by init() )
-	int L = std::min(m_Nfrom, m_Nto);
+	size_t L = std::min(m_Nfrom, m_Nto);
 	m_out.head(L + 1) = m_in.head(L + 1);
 	m_out.tail(L) = m_in.tail(L);
 
@@ -113,11 +113,11 @@ void spectral_interpolate::init()
 	m_out.resize(2 * (2 * m_Nto) + 1, 1);
 	m_out_spec.resize(2 * (2 * m_Nto) + 1, 1);
 
-	m_idft_plan = fftw_plan_dft_1d(2 * (2 * m_Nfrom) + 1,
+	m_idft_plan = fftw_plan_dft_1d(2 * (2 * int(m_Nfrom)) + 1,
 		(fftw_complex *)m_in_spec.data(),
 		(fftw_complex *)m_in.data(), FFTW_BACKWARD, FFTW_MEASURE);
 
-	m_dft_plan = fftw_plan_dft_1d(2 * (2 * m_Nto) + 1,
+	m_dft_plan = fftw_plan_dft_1d(2 * (2 * int(m_Nto)) + 1,
 		(fftw_complex *)m_out.data(),
 		(fftw_complex *)m_out_spec.data(), FFTW_FORWARD, FFTW_MEASURE);
 

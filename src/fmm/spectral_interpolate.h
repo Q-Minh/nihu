@@ -24,7 +24,7 @@ public:
 	~spectral_interpolate();
 	
 	/** \brief constructor */
-	spectral_interpolate(int Nto = 0, int Nfrom = 0);
+	spectral_interpolate(size_t Nto = 0, size_t Nfrom = 0);
 	
 	/** \brief copy constructor */
 	spectral_interpolate(spectral_interpolate const &rhs);
@@ -49,8 +49,8 @@ private:
 	void destroy();
 
 private:
-	int m_Nto;
-	int m_Nfrom;
+	size_t m_Nto;
+	size_t m_Nfrom;
 	fftw_plan m_dft_plan;
 	fftw_plan m_idft_plan;
 	mutable cvector_t m_in_spec;
