@@ -163,6 +163,7 @@ endif ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
 # Setup compiler flags for MSVC
 if (MSVC)
         set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} /openmp")
+        set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} /D_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING")
 endif (MSVC)
 
 # set parallel
