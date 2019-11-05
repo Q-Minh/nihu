@@ -2,7 +2,7 @@
 #include "core/function_space.hpp"
 #include "fmm/divide.hpp"
 #include "fmm/helmholtz_3d_hf_fmm.hpp"
-#include "fmm/helmholtz_exterior_solver.hpp"
+#include "fmm/helmholtz_burton_miller_solver.hpp"
 #include "fmm/helmholtz_field_point.hpp"
 #include "interface/read_off_mesh.hpp"
 #include "library/lib_element.hpp"
@@ -81,7 +81,7 @@ typedef elem_t::x_t location_t;
 
 typedef Eigen::Matrix<std::complex<double>, Eigen::Dynamic, 1> cvector_t;
 
-void read_excitation(std::string fname, cvector_t &xct, double &k)
+void read_excitation(std::string fname, cvector_t &xct, wave_number_t &k)
 {
 	std::ifstream ifs(fname);
 	if (!ifs)
@@ -100,7 +100,7 @@ void read_excitation(std::string fname, cvector_t &xct, double &k)
 	ifs.close();
 }
 
-void export_response(std::string fname, cvector_t const &res, double k, size_t iter = 1)
+void export_response(std::string fname, cvector_t const &res, wave_number_t const &k, size_t iter = 1)
 {
 	std::ofstream ofs(fname);
 	if (!ofs)
@@ -120,7 +120,7 @@ int main(int argc, char *argv[])
 
 	if (argc < 4)
 	{
-		std::cerr << "Use: " << argv[0] << " meshname fieldname pattern fstart" << std::endl;
+		std::cerr << "Use: " << argv[0] << " meshname fieldname pattern freq" << std::endl;
 		return 1;
 	}
 
@@ -174,17 +174,17 @@ int main(int argc, char *argv[])
 		double v0 = 1e-3;
 		double z0 = rho * c;
 		double om = two_pi * freq;
-		double k = om / c;
+		wave_number_t k = om / c;
 
 		cvector_t q_surf;
 		q_surf.resize(trial_space.get_num_dofs());
 		q_surf.setConstant(-J * k * z0 * v0);
 
-		typedef NiHu::fmm::helmholtz_3d_hf_fmm<double> fmm_t;
-		NiHu::fmm::helmholtz_exterior_solver<fmm_t, trial_space_t> solver(trial_space);
+		typedef NiHu::fmm::helmholtz_3d_hf_fmm<wave_number_t> fmm_t;
+		NiHu::fmm::helmholtz_burton_miller_solver<fmm_t, trial_space_t> solver(trial_space);
 		solver.set_wave_number(k);
 		solver.set_excitation(q_surf);
-		double leaf_diameter = 1. / k;
+		double leaf_diameter = 1. / std::real(k);
 		size_t far_field_quadrature_order = 6;
 		cvector_t p_surf = solver.solve(NiHu::fmm::divide_diameter(leaf_diameter), far_field_quadrature_order);
 

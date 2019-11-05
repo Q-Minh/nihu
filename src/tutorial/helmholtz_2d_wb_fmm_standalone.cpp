@@ -1,6 +1,6 @@
 #include "core/field.hpp"
 #include "core/function_space.hpp"
-#include "fmm/helmholtz_exterior_solver.hpp"
+#include "fmm/helmholtz_burton_miller_solver.hpp"
 #include "fmm/helmholtz_field_point.hpp"
 #include "fmm/helmholtz_2d_wb_fmm.hpp"
 #include "interface/read_off_mesh.hpp"
@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
 
 		// solve surface system
 		{
-			NiHu::fmm::helmholtz_exterior_solver<fmm_t, trial_space_t> solver(trial_space);
+			NiHu::fmm::helmholtz_burton_miller_solver<fmm_t, trial_space_t> solver(trial_space);
 			solver.set_excitation(q_surf);
 			solver.set_wave_number(k);
 			p_surf = solver.solve(div, far_field_quadrature_order);

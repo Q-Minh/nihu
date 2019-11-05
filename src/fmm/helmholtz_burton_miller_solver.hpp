@@ -1,11 +1,11 @@
 /**
- * @file helmholtz_exterior_solver.hpp
+ * @file helmholtz_burton_miller_solver.hpp
  * @brief A generic Burton-Miller FMBEM solver for the Helmholtz equation
  * @ingroup fmm_helmholtz
  */
 
-#ifndef HELMHOLTZ_EXTERIOR_SOLVER_HPP_INCLUDED
-#define HELMHOLTZ_EXTERIOR_SOLVER_HPP_INCLUDED
+#ifndef HELMHOLTZ_BURTON_MILLER_SOLVER_HPP_INCLUDED
+#define HELMHOLTZ_BURTON_MILLER_SOLVER_HPP_INCLUDED
 
 #include "core/field.hpp"
 #include "core/function_space.hpp"
@@ -34,7 +34,7 @@ namespace fmm
 /// \tparam Fmm the fmm type
 /// \tparam TrialSpace the type of the trial function space
 template <class Fmm, class TrialSpace>
-class helmholtz_exterior_solver
+class helmholtz_burton_miller_solver
 {
 public:
 	typedef Fmm fmm_t;
@@ -57,7 +57,7 @@ public:
 	typedef dirac_field<trial_field_t> test_field_t;
 	typedef type2tag<test_field_t> test_field_tag_t;
 
-	helmholtz_exterior_solver(trial_space_t const &trial_space)
+	helmholtz_burton_miller_solver(trial_space_t const &trial_space)
 		: m_trial_space(trial_space)
 		, m_test_space(dirac(m_trial_space))
 		, m_wave_number(0.0)
@@ -222,4 +222,4 @@ private:
 } // end of namespace fmm
 } // end of namespace NiHu
 
-#endif /* HELMHOLTZ_EXTERIOR_SOLVER_HPP_INCLUDED */
+#endif /* HELMHOLTZ_BURTON_MILLER_SOLVER_HPP_INCLUDED */
