@@ -1,12 +1,13 @@
 clear;
 
-%%
-Le = 2e-2;
+%% Export radiatterer meshes
+Le = 1e-2;
 [qmesh, points] = create_radiatterer(Le);
-export_off_mesh(qmesh, sprintf('data/radiatterer_%gcm_quad.off', 100*Le));
+export_off_mesh(qmesh, sprintf('data/radiatterer_%03dmm_quad.off', 1000*Le));
 tmesh = quad2tria(qmesh);
-export_off_mesh(tmesh, sprintf('data/radiatterer_%gcm_tria.off', 100*Le));
+export_off_mesh(tmesh, sprintf('data/radiatterer_%03dmm_tria.off', 1000*Le));
 
+%% Export field point meshes
 % print field points with quad semantics
 fid = fopen('data/radiatterer_points_tria.off', 'w');
 fprintf(fid, 'OFF\n');
@@ -17,6 +18,7 @@ for e = 1 : size(points,1)
 end
 fclose(fid);
 
+%% export field plane
 % print field points with tria semantics
 fid = fopen('data/radiatterer_points_quad.off', 'w');
 fprintf(fid, 'OFF\n');
@@ -65,4 +67,4 @@ for ib = 1 : length(bricks)
         x(:,3) > bricks{ib,3}(1) & x(:,3) < bricks{ib,3}(2));
 end
 
-export_off_mesh(field, sprintf('data/radi_plane_%gcm_quad.off', Le*100));
+export_off_mesh(field, sprintf('data/radi_plane_%03dmm_quad.off', Le*1000));

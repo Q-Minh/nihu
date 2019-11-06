@@ -219,6 +219,12 @@ private:
 	size_t m_iters;
 };
 
+template <class FmmTag, class TrialSpace>
+auto create_helmholtz_burton_miller_solver(FmmTag, TrialSpace const& trial_space)
+{
+	return helmholtz_burton_miller_solver<typename tag2type<FmmTag>::type, TrialSpace>(trial_space);
+}
+
 } // end of namespace fmm
 } // end of namespace NiHu
 

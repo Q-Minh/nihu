@@ -1,6 +1,6 @@
 /**
- * \file covariance_2d_bbfmm_matlab.mex.cpp 
- * \brief Black box FMM of covariance kernel in 2D with Matlab interface 
+ * \file covariance_2d_bbfmm_matlab.mex.cpp
+ * \brief Black box FMM of covariance kernel in 2D with Matlab interface
  * \ingroup tut_fmm
  */
 
@@ -70,7 +70,7 @@ typedef NiHu::mex::real_matrix<double> dMatrix;
 class fmm_matlab
 {
 public:
-	fmm_matlab() 
+	fmm_matlab()
 		: p_surf_mesh(nullptr)
 		, p_tree(nullptr)
 		, p_lists(nullptr)
@@ -78,12 +78,12 @@ public:
 		, p_fmm_matrix(nullptr)
 	{
 	}
-	
-	void create_mesh(dMatrix const& surf_nodes, dMatrix const& surf_elems)
+
+	void create_mesh(dMatrix const &surf_nodes, dMatrix const &surf_elems)
 	{
 		p_surf_mesh = new mesh_t(NiHu::create_mesh(surf_nodes, surf_elems, NiHu::quad_1_volume_tag()));
 	}
-	
+
 	template <class DivideDerived>
 	void create_tree(NiHu::fmm::divide_base<DivideDerived> const &divide)
 	{
@@ -92,11 +92,11 @@ public:
 			NiHu::fmm::create_elem_center_iterator(p_surf_mesh->end<elem_t>()),
 			divide
 		);
-		
+
 		// create interaction lists
 		p_lists = new NiHu::fmm::interaction_lists(*p_tree);
 	}
-	
+
 	void create_matrix()
 	{
 
@@ -114,7 +114,7 @@ public:
 			far_field_quadrature_order, true);
 
 		auto const &trial_space = NiHu::constant_view(*p_surf_mesh);
-		auto const &test_space  = trial_space;
+		auto const &test_space = trial_space;
 
 		auto idx_fctr = create_indexed_functor(
 			test_space.template field_begin<test_field_t>(),
@@ -143,16 +143,16 @@ public:
 	{
 		res = (*p_fmm_matrix) * src;
 	}
-	
-	void print_tree() const 
+
+	void print_tree() const
 	{
 		// debug output
 		std::stringstream ss;
 		ss << *p_tree;
-		
+
 		mexPrintf("Tree:\n%s\n", ss.str().c_str());
 	}
-	
+
 	~fmm_matlab()
 	{
 		delete p_fmm_matrix;
@@ -194,14 +194,14 @@ fmm_matlab *p = nullptr;
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, mxArray const *prhs[])
 {
 	char *input_option;
-	
-	 /* input must be a string */
-    if ( mxIsChar(prhs[0]) != 1)
-      mexErrMsgIdAndTxt( "MATLAB:revord:inputNotString",
-              "Input must be a string.");
-	
+
+	/* input must be a string */
+	if (mxIsChar(prhs[0]) != 1)
+		mexErrMsgIdAndTxt("MATLAB:revord:inputNotString",
+			"Input must be a string.");
+
 	input_option = mxArrayToString(prhs[0]);
-	
+
 	if (!strcmp(input_option, "init"))
 	{
 		if (p != nullptr)
@@ -220,13 +220,13 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, mxArray const *prhs[])
 		int n_pairs = (nrhs - 1) / 2;
 		for (int i = 0; i < n_pairs; ++i)
 		{
-			if (mxIsChar(prhs[2*i + 1]) != 1) 
+			if (mxIsChar(prhs[2 * i + 1]) != 1)
 			{
 				mexErrMsgIdAndTxt("NiHu:covariance_2d_bbfmm_matlab:invalid_input",
-				"Parameter name must be a string for the command \"%s\".", input_option);
+					"Parameter name must be a string for the command \"%s\".", input_option);
 			}
 			char const *what_to_set = mxArrayToString(prhs[2 * i + 1]);
-			
+
 			if (!strcmp(what_to_set, "sigma"))
 			{
 				double sigma = mxGetScalar(prhs[2 * i + 2]);
@@ -249,7 +249,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, mxArray const *prhs[])
 			}
 		}
 	}
-	
+
 	else if (!strcmp(input_option, "mesh"))
 	{
 		if (p == nullptr)
@@ -262,7 +262,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, mxArray const *prhs[])
 			p->create_mesh(dMatrix(prhs[1]), dMatrix(prhs[2]));
 		}
 	}
-	
+
 	// "tree" command - Build the tree
 	else if (!strcmp(input_option, "tree"))
 	{
@@ -273,10 +273,10 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, mxArray const *prhs[])
 		}
 		else
 		{
-			if (mxIsChar(prhs[1]) != 1) 
+			if (mxIsChar(prhs[1]) != 1)
 			{
 				mexErrMsgIdAndTxt("NiHu:covariance_2d_bbfmm_matlab:invalid_input",
-				"Tree division method must be a string for the command \"%s\".", input_option);
+					"Tree division method must be a string for the command \"%s\".", input_option);
 			}
 			char const *divide_option = mxArrayToString(prhs[1]);
 			if (!strcmp(divide_option, "divide_depth"))
@@ -298,7 +298,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, mxArray const *prhs[])
 			}
 		}
 	}
-	
+
 	// "matrix" option - assemble FMM matrix
 	else if (!strcmp(input_option, "matrix"))
 	{
@@ -327,7 +327,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, mxArray const *prhs[])
 			p->mvp(res.col(0), xct.col(0));
 		}
 	}
-	
+
 	// "cleanup" - destroy the main object
 	else if (!strcmp(input_option, "cleanup"))
 	{
@@ -342,9 +342,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, mxArray const *prhs[])
 			p = nullptr;
 		}
 	}
-	
+
 	// The option was not valid
-	else 
+	else
 	{
 		mexErrMsgIdAndTxt("NiHu:covariance_2d_bbfmm_matlab:invalid_option",
 			"Unknown input option: \"%s\"", input_option);

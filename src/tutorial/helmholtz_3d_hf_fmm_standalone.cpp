@@ -9,12 +9,9 @@
 #include "library/quad_1_gauss_field.hpp"
 
 #include <boost/math/constants/constants.hpp>
+#include <boost/program_options.hpp>
 
 #include <cstdlib>
-
-#ifndef NUM_PROCESSORS
-#define NUM_PROCESSORS 1
-#endif
 
 //#define GAUSS
 
@@ -118,26 +115,37 @@ int main(int argc, char *argv[])
 {
 	using namespace boost::math::double_constants;
 
-	if (argc < 4)
-	{
-		std::cerr << "Use: " << argv[0] << " meshname fieldname pattern freq" << std::endl;
-		return 1;
-	}
+	using namespace boost::program_options;
 
 	try
 	{
+
+
+		options_description desc{ "Options" };
+		desc.add_options()
+			("help,h", "Help screen")
+			("surface_mesh", value<std::string>(), "Surface mesh file name")
+			("field_mesh", value<std::string>(), "Field point mesh file name")
+			("surface_result", value<std::string>(), "Surface result file name")
+			("field_result", value<std::string>(), "Field point result file name")
+			("frequency", value<double>(), "Frequency [Hz]");
+
+		variables_map vm;
+		store(parse_command_line(argc, argv, desc), vm);
+		notify(vm);
+
+		if (vm.count("help"))
+			std::cout << desc << '\n';
+
 		// read parameters
-		std::string surf_mesh_name(argv[1]);
-		std::string field_mesh_name(argv[2]);
-		std::string pattern(argv[3]);
-		char *freq_str_end;
-		double freq = strtod(argv[4], &freq_str_end);
-		if (freq_str_end == argv[4])
-			throw std::runtime_error("Could not interpret argument as a frequency (double): " + std::string(argv[4]));
+		std::string surf_mesh_name = vm["surface_mesh"].as<std::string>();
+		std::string field_mesh_name = vm["field_mesh"].as<std::string>();
+		std::string surface_result_name = vm["surface_result"].as<std::string>();
+		std::string field_point_result_name = vm["field_result"].as<std::string>();
+		double freq = vm["frequency"].as<double>();
 
 		std::cout << "mesh: " << surf_mesh_name << std::endl;
 		std::cout << "field: " << field_mesh_name << std::endl;
-		std::cout << "pattern: " << pattern << std::endl;
 		std::cout << "freq: " << freq << std::endl;
 
 #ifdef GAUSS
@@ -181,7 +189,7 @@ int main(int argc, char *argv[])
 		q_surf.setConstant(-J * k * z0 * v0);
 
 		typedef NiHu::fmm::helmholtz_3d_hf_fmm<wave_number_t> fmm_t;
-		NiHu::fmm::helmholtz_burton_miller_solver<fmm_t, trial_space_t> solver(trial_space);
+		auto solver = NiHu::fmm::create_helmholtz_burton_miller_solver(NiHu::type2tag<fmm_t>(), trial_space);
 		solver.set_wave_number(k);
 		solver.set_excitation(q_surf);
 		double leaf_diameter = 1. / std::real(k);
@@ -189,9 +197,7 @@ int main(int argc, char *argv[])
 		cvector_t p_surf = solver.solve(NiHu::fmm::divide_diameter(leaf_diameter), far_field_quadrature_order);
 
 		// export ps
-		std::stringstream ss;
-		ss << pattern << "_" << freq << "ps.res";
-		export_response(ss.str(), p_surf, k, solver.get_iterations());
+		export_response(surface_result_name, p_surf, k, solver.get_iterations());
 
 		// field point pressure
 		auto field = NiHu::read_off_mesh(field_mesh_name, NiHu::quad_1_tag());
@@ -205,9 +211,7 @@ int main(int argc, char *argv[])
 		auto p_field = field_bie.eval(NiHu::fmm::divide_diameter(leaf_diameter), far_field_quadrature_order);
 
 		// export pf
-		ss.str(std::string());
-		ss << pattern << "_" << freq << "pf.res";
-		export_response(ss.str(), p_field, k);
+		export_response(field_point_result_name, p_field, k);
 	}
 	catch (std::exception const &e)
 	{
