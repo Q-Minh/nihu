@@ -21,6 +21,7 @@
 #include "matrix_free.hpp"
 
 #include "util/timer.h"
+#include "util/type2tag.hpp"
 
 
 namespace NiHu
@@ -183,6 +184,13 @@ private:
 	excitation_t m_qsurf;
 	response_t m_response;
 };
+
+template <class FmmTag, class TestSpace, class TrialSpace>
+auto create_helmholtz_field_point(FmmTag, TestSpace const &test_space, TrialSpace const &trial_space)
+{
+	return helmholtz_field_point<typename NiHu::tag2type<FmmTag>::type, TestSpace, TrialSpace>(
+		test_space, trial_space);
+}
 
 } // end of namespace fmm
 } // end of namespace NiHu

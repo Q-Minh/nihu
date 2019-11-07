@@ -124,11 +124,16 @@ int main(int argc, char *argv[])
 		options_description desc{ "Options" };
 		desc.add_options()
 			("help,h", "Help screen")
+			("solve", "Solve surface system")
+			("postprocess", "Compute field point pressure")
 			("surface_mesh", value<std::string>(), "Surface mesh file name")
 			("field_mesh", value<std::string>(), "Field point mesh file name")
 			("surface_result", value<std::string>(), "Surface result file name")
 			("field_result", value<std::string>(), "Field point result file name")
-			("frequency", value<double>(), "Frequency [Hz]");
+			("frequency", value<double>(), "Frequency [Hz]")
+			("speed_of_sound", value<double>()->default_value(340), "Speed of sound [m/s]")
+			("surface_velocity", value<double>()->default_value(1.0e-3), "Constant surface velocity excitation [m/s]")
+			("density", value<double>()->default_value(1.3), "Density of air [kg/m3]");
 
 		variables_map vm;
 		store(parse_command_line(argc, argv, desc), vm);
@@ -139,14 +144,11 @@ int main(int argc, char *argv[])
 
 		// read parameters
 		std::string surf_mesh_name = vm["surface_mesh"].as<std::string>();
-		std::string field_mesh_name = vm["field_mesh"].as<std::string>();
 		std::string surface_result_name = vm["surface_result"].as<std::string>();
-		std::string field_point_result_name = vm["field_result"].as<std::string>();
 		double freq = vm["frequency"].as<double>();
-
-		std::cout << "mesh: " << surf_mesh_name << std::endl;
-		std::cout << "field: " << field_mesh_name << std::endl;
-		std::cout << "freq: " << freq << std::endl;
+		double rho = vm["density"].as<double>();
+		double c = vm["speed_of_sound"].as<double>();
+		double v0 = vm["surface_velocity"].as<double>();
 
 #ifdef GAUSS
 		// read mesh file
@@ -177,9 +179,6 @@ int main(int argc, char *argv[])
 		std::complex<double> const J(0., 1.);
 
 		// generate excitation
-		double rho = 1.3;
-		double c = 340.0;
-		double v0 = 1e-3;
 		double z0 = rho * c;
 		double om = two_pi * freq;
 		wave_number_t k = om / c;
@@ -189,29 +188,54 @@ int main(int argc, char *argv[])
 		q_surf.setConstant(-J * k * z0 * v0);
 
 		typedef NiHu::fmm::helmholtz_3d_hf_fmm<wave_number_t> fmm_t;
-		auto solver = NiHu::fmm::create_helmholtz_burton_miller_solver(NiHu::type2tag<fmm_t>(), trial_space);
-		solver.set_wave_number(k);
-		solver.set_excitation(q_surf);
+
 		double leaf_diameter = 1. / std::real(k);
 		size_t far_field_quadrature_order = 6;
-		cvector_t p_surf = solver.solve(NiHu::fmm::divide_diameter(leaf_diameter), far_field_quadrature_order);
 
-		// export ps
-		export_response(surface_result_name, p_surf, k, solver.get_iterations());
+		if (vm.count("solve") > 0)
+		{
+			std::cout << "mesh: " << surf_mesh_name << std::endl;
+			std::cout << "result: " << surface_result_name << std::endl;
+			std::cout << "freq: " << freq << std::endl;
 
-		// field point pressure
-		auto field = NiHu::read_off_mesh(field_mesh_name, NiHu::quad_1_tag());
-		auto const &test_space = NiHu::dirac(NiHu::constant_view(field));
-		typedef std::decay<decltype(test_space)>::type test_space_t;
+			auto solver = NiHu::fmm::create_helmholtz_burton_miller_solver(NiHu::type2tag<fmm_t>(), trial_space);
+			solver.set_wave_number(k);
+			solver.set_excitation(q_surf);
+			cvector_t p_surf = solver.solve(NiHu::fmm::divide_diameter(leaf_diameter), far_field_quadrature_order);
 
-		NiHu::fmm::helmholtz_field_point<fmm_t, test_space_t, trial_space_t> field_bie(test_space, trial_space);
-		field_bie.set_wave_number(k);
-		field_bie.set_psurf(p_surf);
-		field_bie.set_qsurf(q_surf);
-		auto p_field = field_bie.eval(NiHu::fmm::divide_diameter(leaf_diameter), far_field_quadrature_order);
+			// export ps
+			export_response(surface_result_name, p_surf, k, solver.get_iterations());
+		}
+		if (vm.count("postprocess") > 0)
+		{
+			// read parameters
+			std::string field_mesh_name = vm["field_mesh"].as<std::string>();
+			std::string field_point_result_name = vm["field_result"].as<std::string>();
 
-		// export pf
-		export_response(field_point_result_name, p_field, k);
+			std::cout << "mesh: " << surf_mesh_name << std::endl;
+			std::cout << "field: " << field_mesh_name << std::endl;
+			std::cout << "freq: " << freq << std::endl;
+
+			// import ps
+			cvector_t p_surf;
+			wave_number_t new_k;
+			read_excitation(surface_result_name, p_surf, new_k);
+
+			// field point pressure
+			auto field = NiHu::read_off_mesh(field_mesh_name, NiHu::quad_1_tag());
+			auto const &test_space = NiHu::dirac(NiHu::constant_view(field));
+			typedef std::decay<decltype(test_space)>::type test_space_t;
+
+			auto field_bie = NiHu::fmm::create_helmholtz_field_point(
+				NiHu::type2tag<fmm_t>::type(), test_space, trial_space);
+			field_bie.set_wave_number(k);
+			field_bie.set_psurf(p_surf);
+			field_bie.set_qsurf(q_surf);
+			auto p_field = field_bie.eval(NiHu::fmm::divide_diameter(leaf_diameter), far_field_quadrature_order);
+
+			// export pf
+			export_response(field_point_result_name, p_field, k);
+		}
 	}
 	catch (std::exception const &e)
 	{

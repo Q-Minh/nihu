@@ -175,7 +175,7 @@ interpolator::dmatrix_t interpolator::Amatrix(int L, int m,
 
 double interpolator::C(int l, int m)
 {
-	double const pi = boost::math::constants::pi<double>();
+	double constexpr pi = boost::math::constants::pi<double>();
 
 	double r = (2.0 * l + 1) / (4.0 * pi);
 	if (m > 0)
