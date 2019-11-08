@@ -14,7 +14,10 @@ foreach (cpp_source ${CPP_SOURCES})
 	# Add the executable / or mex file
 	if("${target_mex_name}" STREQUAL "${target_name}")
 		add_executable(${target_name} ${local_source})
-		target_link_libraries(${target_name} ${NIHU_LINK_LIBRARIES} ${NIHU_FMM_LINK_LIBRARIES} ${FFTW3_LIBRARIES}) 
+		target_link_libraries(${target_name} ${NIHU_LINK_LIBRARIES} ${NIHU_FMM_LINK_LIBRARIES} ${FFTW3_LIBRARIES})
+		if (WIN32 AND MINGW)
+			target_link_libraries(${target_name}  "${NIHU_BOOST_LIBS_MINGW}")
+		endif()
 
 		# Add installation
 		install(TARGETS ${target_name} DESTINATION ${current_dir})

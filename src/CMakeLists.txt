@@ -6,6 +6,7 @@
 # TODO: mex has been moved from bin -> bin/win64 starting from Matlab R2018b
 # NOTE: There is a problem of Win10 + Matlab R2018a / symbolic math toolbox
 
+# TODO: Document: -DNIHU_VC_TOOLSET, -DNIHU_BOOST_LIB_PATH
 
 ###
 ### cmake and project section
@@ -57,14 +58,23 @@ include(NiHuFFTW)
 
 ### Boost section
 # Process the boost path
+message(STATUS "Looking for Boost ...")
 if (DEFINED NIHU_BOOST_PATH)
+    message(STATUS "\tSpecified Boost path: " ${NIHU_BOOST_PATH})
 	set(BOOST_ROOT ${NIHU_BOOST_PATH})
 endif ()
+
+set(Boost_USE_STATIC_LIBS        ON)  # only find static libs
+set(Boost_USE_DEBUG_LIBS        OFF)  # ignore debug libs and
+set(Boost_USE_RELEASE_LIBS       ON)  # only find release libs
+set(Boost_USE_MULTITHREADED      ON)
+set(Boost_USE_STATIC_RUNTIME    OFF)
 
 # Find the boost package
 find_package(Boost 1.67 REQUIRED)
 if (BOOST_FOUND)
-	message(STATUS "Boost was found, include directory: ${Boost_INCLUDE_DIR}")
+	message(STATUS "\tBoost was found, version: ${Boost_VERSION_STRING}")
+	message(STATUS "\tBoost include directory: ${Boost_INCLUDE_DIRS}")
 else ()
 	message(STATUS "Boost was not found")
 endif ()
@@ -164,8 +174,10 @@ endif ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
 
 # Setup compiler flags for MSVC
 if (MSVC)
-        set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} /openmp")
-        set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} /D_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING")
+	MESSAGE(STATUS "Adding /bigobj compiler flag")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
+    set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} /openmp")
+    set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} /D_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING")
 endif (MSVC)
 
 # set parallel
@@ -184,13 +196,18 @@ set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -D${NIHU_FMM_TRAVERSE}")
 # setup global include directories
 include_directories("${CMAKE_SOURCE_DIR}")
 include_directories("${EIGEN_INCLUDE_DIRS}")
-if (${Boost_INCLUDE_DIR})
-    include_directories("${Boost_INCLUDE_DIR}")
+if (DEFINED Boost_INCLUDE_DIRS)
+    include_directories("${Boost_INCLUDE_DIRS}")
 endif ()
 
 ### Libraries
 if(WIN32)
 	set(NIHU_STATIC_LIB_SUFFIX ".lib")
+	if (MINGW)
+		message(STATUS "Adding Boost libraries for MinGW build")
+		SET(NIHU_BOOST_LIBS_MINGW "libboost_program_options-vc${NIHU_VC_TOOLSET}-mt-x64-${Boost_VERSION_MAJOR}_${Boost_VERSION_MINOR}.lib")
+		message(STATUS "Boost libs MinGW: " ${NIHU_BOOST_LIBS_MINGW})
+	endif()
 else(WIN32)
 	set(NIHU_STATIC_LIB_SUFFIX ".a")
 endif(WIN32)
@@ -201,6 +218,9 @@ set(NIHU_LIB_OUTPUT_DIR "${CMAKE_BINARY_DIR}/lib")
 file(MAKE_DIRECTORY ${NIHU_LIB_OUTPUT_DIR})
 # Add the library output directory to link 
 link_directories(${NIHU_LIB_OUTPUT_DIR} ${Boost_LIBRARY_DIR_RELEASE})
+if (DEFINED NIHU_BOOST_LIB_PATH)
+	link_directories(${NIHU_BOOST_LIB_PATH})
+endif()
 
 # Look for common library source files
 FILE(GLOB NIHU_COMMON_LIBRARIES 
