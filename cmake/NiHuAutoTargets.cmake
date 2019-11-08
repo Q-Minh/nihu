@@ -16,7 +16,7 @@ foreach (cpp_source ${CPP_SOURCES})
 		add_executable(${target_name} ${local_source})
 		target_link_libraries(${target_name} ${NIHU_LINK_LIBRARIES} ${NIHU_FMM_LINK_LIBRARIES} ${FFTW3_LIBRARIES})
 		if (WIN32 AND MINGW)
-			target_link_libraries(${target_name}  "${NIHU_BOOST_LIBS_MINGW}")
+			target_link_libraries(${target_name}  "boost_program_options-${NIHU_BOOST_LIBNAME_POSTFIX}")
 		endif()
 
 		# Add installation

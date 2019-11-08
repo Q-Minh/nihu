@@ -154,3 +154,9 @@ endif ()
 # At this point FFTW should be successfully updated
 # Add FFTW include directory
 include_directories(${FFTW3_INCLUDE_DIRS})
+
+# Correct library names for MinGW
+if (MINGW)
+	string(REPLACE ".dll" ".lib" FFTW3_LIBRARIES "${FFTW3_LIBRARIES}")
+	message(STATUS "FFTW3 library names: ${FFTW3_LIBRARIES}")
+endif()

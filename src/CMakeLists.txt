@@ -34,14 +34,8 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-### Linker configuration
-if(WIN32)
-	if (MSVC)
-	else ()
-		SET(CMAKE_EXE_LINKER_FLAGS "-MD ${CMAKE_EXE_LINKER_FLAGS} -s")
-		SET(CMAKE_SHARED_LINKER_FLAGS "-MD ${CMAKE_SHARED_LINKER_FLAGS} -s")
-	endif()
-endif(WIN32)
+include(NiHuCompilerSettings)
+include(NiHuLinkerSettings)
 
 ###
 ### ThirdParty 
@@ -50,135 +44,17 @@ endif(WIN32)
 # Set the 3rdparty dir
 set(NIHU_THIRDPARTY_DIR "${CMAKE_SOURCE_DIR}/ThirdParty")
 
+### Boost section
+include(NiHuBoost)
+
 ### EIGEN section
 include(NiHuEigen)
 
 ### FFTW section 
 include(NiHuFFTW)
 
-### Boost section
-# Process the boost path
-message(STATUS "Looking for Boost ...")
-if (DEFINED NIHU_BOOST_PATH)
-    message(STATUS "\tSpecified Boost path: " ${NIHU_BOOST_PATH})
-	set(BOOST_ROOT ${NIHU_BOOST_PATH})
-endif ()
-
-set(Boost_USE_STATIC_LIBS        ON)  # only find static libs
-set(Boost_USE_DEBUG_LIBS        OFF)  # ignore debug libs and
-set(Boost_USE_RELEASE_LIBS       ON)  # only find release libs
-set(Boost_USE_MULTITHREADED      ON)
-set(Boost_USE_STATIC_RUNTIME    OFF)
-
-# Find the boost package
-find_package(Boost 1.67 REQUIRED)
-if (BOOST_FOUND)
-	message(STATUS "\tBoost was found, version: ${Boost_VERSION_STRING}")
-	message(STATUS "\tBoost include directory: ${Boost_INCLUDE_DIRS}")
-else ()
-	message(STATUS "Boost was not found")
-endif ()
-
-
-
 ### MATLAB Section
-
-# look for environment variable MATLAB_ROOT
-if (DEFINED ENV{MATLAB_ROOT})
-	set(MATLAB_ROOT "$ENV{MATLAB_ROOT}")
-elseif(DEFINED NIHU_MATLAB_PATH)
-	set(MATLAB_ROOT "${NIHU_MATLAB_PATH}")
-endif(DEFINED ENV{MATLAB_ROOT})
-
-# look for matlabmex pacakge
-find_package (MatlabMex)
-
-# check if matlab mex is found
-if(MATLABMEX_FOUND)
- 	message(STATUS "Matlab MEX found, enabling build of mex files")
- 	set(NIHU_BUILD_MEX 1)
-	# force usage of matlab's mex comipler
-	if(NIHU_MATLAB_FORCE_MEX_COMPILER)
-		message(STATUS "Forcing Matlab's MEX compiler (${MATLAB_MEX}) for mex files")
-	else(NIHU_MATLAB_FORCE_MEX_COMPILER)
-		message(STATUS "Will use the ${CMAKE_CXX_COMPILER_ID} compiler (${CMAKE_CXX_COMPILER}) for mex files")
-	endif(NIHU_MATLAB_FORCE_MEX_COMPILER)
-	# set the flags
-	if(WIN32)
-		SET(MEX_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMATLAB_MEX_FILE")
-		#SET(MEX_SHARED_LINKER_FLAGS "-shared ${CMAKE_SHARED_LINKER_FLAGS} -m${NIHU_SYS_BITS} -L\"${MATLAB_ROOT}/bin/win${NIHU_SYS_BITS}\" -L\"${MATLAB_ROOT}/extern/lib/win${NIHU_SYS_BITS}/microsoft\" -L\"${CMAKE_BINARY_DIR}/lib\"  -lmex -lmx -lmat")
-		set(MEX_LINK_DIRECTORIES 
-			"${MATLAB_ROOT}/bin/win${NIHU_SYS_BITS}"
-			"${MATLAB_ROOT}/extern/lib/win${NIHU_SYS_BITS}/microsoft"
-			"${CMAKE_BINARY_DIR}/lib"
-		)
-		if (MSVC)
-			# Correct for lib prefix in case of MSVC
-			set(MEX_SHARED_LINKER_FLAGS "/export:mexFunction")
-			set(MEX_LINK_LIBRARIES "libmex" "libmx" "libmat")
-		else ()
-			set(MEX_SHARED_LINKER_FLAGS "-shared ${CMAKE_SHARED_LINKER_FLAGS} -m${NIHU_SYS_BITS}")
-			set(MEX_LINK_LIBRARIES "mex" "mx" "mat")
-		endif ()
-	else(WIN32)
-		set(MEX_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMATLAB_MEX_FILE")
-		set(MEX_SHARED_LINKER_FLAGS "-L\"${CMAKE_BINARY_DIR}/lib\"")
-		set(MEX_LINK_DIRECTORIES "${CMAKE_BINARY_DIR}/lib")
-		set(MEX_LINK_LIBRARIES "")
-	endif(WIN32)
-	# Set the extension for mex files
-	set(MEX_SHARED_LIBRARY_SUFFIX "${MATLAB_MEXEXT}")
-	# Add the include directory
-	include_directories("${MATLAB_ROOT}/extern/include")
-# if matlab mex is not found
-else(MATLABMEX_FOUND)
-	message(STATUS "Matlab MEX not found, disabling build of mex files")
-	set(NIHU_BUILD_MEX 0)
-endif(MATLABMEX_FOUND)
-
-
-
-# Setup compiler flags for gcc
-if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
-	set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -pedantic -O3 -Wall -fopenmp \
-		-Wno-deprecated-declarations")
-	set(NIHU_FPIC_FLAG "-fPIC")
-	# Find out gcc version
-	execute_process(
-		COMMAND ${CMAKE_CXX_COMPILER} -dumpversion
-		OUTPUT_VARIABLE GCC_VERSION
-	)
-    # Add -Wno-misleading-indentation for gcc >= 6
-    # Note: this disables Eigen-generated warnings
-    if (GCC_VERSION VERSION_GREATER 6.0 OR GCC_VERSION VERSION_EQUAL 6.0)
-        set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} \
-			-Wno-misleading-indentation")
-    endif (GCC_VERSION VERSION_GREATER 6.0 OR GCC_VERSION VERSION_EQUAL 6.0)
-    # Add 
-    # Note: this disables Eigen-generated warnings
-    if (GCC_VERSION VERSION_GREATER 7.0 OR GCC_VERSION VERSION_EQUAL 7.0)
-        set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} \
-			-Wno-int-in-bool-context \
-			-Wno-maybe-uninitialized \
-			-Wno-parentheses \
-			-Wno-sign-compare \
-			-Wno-uninitialized")
-    endif (GCC_VERSION VERSION_GREATER 7.0 OR GCC_VERSION VERSION_EQUAL 7.0)
-	
-	### FFTW 
-	if (WIN32)
-		string(REPLACE ".dll" ".lib" FFTW3_LIBRARIES "${FFTW3_LIBRARIES}")
-		message(STATUS "FFTW3 library names: ${FFTW3_LIBRARIES}")
-	endif()
-endif ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
-
-# Setup compiler flags for MSVC
-if (MSVC)
-	MESSAGE(STATUS "Adding /bigobj compiler flag")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
-    set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} /openmp")
-    set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} /D_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING")
-endif (MSVC)
+include(NiHuMatlab)
 
 # set parallel
 if (NOT DEFINED NIHU_FMM_DISABLE_PARALLEL)
@@ -203,11 +79,6 @@ endif ()
 ### Libraries
 if(WIN32)
 	set(NIHU_STATIC_LIB_SUFFIX ".lib")
-	if (MINGW)
-		message(STATUS "Adding Boost libraries for MinGW build")
-		SET(NIHU_BOOST_LIBS_MINGW "libboost_program_options-vc${NIHU_VC_TOOLSET}-mt-x64-${Boost_VERSION_MAJOR}_${Boost_VERSION_MINOR}.lib")
-		message(STATUS "Boost libs MinGW: " ${NIHU_BOOST_LIBS_MINGW})
-	endif()
 else(WIN32)
 	set(NIHU_STATIC_LIB_SUFFIX ".a")
 endif(WIN32)

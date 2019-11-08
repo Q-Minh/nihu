@@ -1,0 +1,8 @@
+### Linker configuration
+if(WIN32)
+	if (MSVC)
+	else ()
+		SET(CMAKE_EXE_LINKER_FLAGS "-MD ${CMAKE_EXE_LINKER_FLAGS} -s")
+		SET(CMAKE_SHARED_LINKER_FLAGS "-MD ${CMAKE_SHARED_LINKER_FLAGS} -s")
+	endif()
+endif(WIN32)
