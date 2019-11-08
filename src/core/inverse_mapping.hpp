@@ -33,7 +33,7 @@ class inverse_mapping<surface_element<LSet, Scalar> >
 	static unsigned const xi_dim = elem_t::domain_t::dimension;
 	static unsigned const N = xi_dim + 1;
 	typedef Eigen::Matrix<Scalar, N, 1> result_t;
-	
+
 public:
 	/** \brief constructor
 	 * \param [in] elem the element
@@ -52,7 +52,7 @@ public:
 	{
 		// initial guess
 		m_res.setZero();
-		
+
 		// Newton Raphson iterations
 		for (m_iter = 0; m_iter < max_iter; ++m_iter)
 		{
@@ -100,11 +100,11 @@ public:
 				df.col(2) = n;
 			}
 			else
-				throw std::logic_error("Inverse mapping is unimplemented fr this element type");
+				throw std::logic_error("Inverse mapping is unimplemented for this element type");
 
 			m_res = m_res - df.colPivHouseholderQr().solve(f);
 		}
-		
+
 		return false;
 	}
 
@@ -134,5 +134,5 @@ private:
 };
 
 } // end of namespace NiHu
- 
+
 #endif // INVERSE_MAPPING_HPP_INCLUDED

@@ -200,7 +200,7 @@ endif(WIN32)
 set(NIHU_LIB_OUTPUT_DIR "${CMAKE_BINARY_DIR}/lib")
 file(MAKE_DIRECTORY ${NIHU_LIB_OUTPUT_DIR})
 # Add the library output directory to link 
-link_directories(${NIHU_LIB_OUTPUT_DIR})
+link_directories(${NIHU_LIB_OUTPUT_DIR} ${Boost_LIBRARY_DIR_RELEASE})
 
 # Look for common library source files
 FILE(GLOB NIHU_COMMON_LIBRARIES 

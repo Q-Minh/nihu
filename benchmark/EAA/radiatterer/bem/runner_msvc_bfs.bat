@@ -1,0 +1,1 @@
+helmholtz_3d_hf_fmm_standalone_msvc_bfs.exe data/radiatterer_1cm_quad.off data/points_quad.off data/const_quad_01cm/const_quad_01_cm 5000

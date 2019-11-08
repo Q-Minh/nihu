@@ -1,0 +1,1 @@
+helmholtz_3d_hf_fmm_standalone_mingw.exe data/radiatterer_05cm_quad.off data/points_quad.off data/const_quad_05cm/const_quad_05_cm 500

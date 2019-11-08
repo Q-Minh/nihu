@@ -1,4 +1,4 @@
-/** 
+/**
  * \file helmholtz_3d_hf_fmm.hpp
  * \ingroup fmm_helmholtz_3d_hf
  * \brief 3D high frequency Helmholtz FMM
@@ -161,9 +161,9 @@ public:
 		{
 			auto &ld = m_level_data_vector[i];
 			auto const &Sto = ld.get_unit_sphere();
-			if (i != 0)
+			if (i >= 3)
 				ld.set_interp_dn(interpolator(m_level_data_vector[i - 1].get_unit_sphere(), Sto));
-			if (i != tree.get_n_levels() - 1)
+			if (i < tree.get_n_levels() - 1 && i >= 2)
 				ld.set_interp_up(interpolator(m_level_data_vector[i + 1].get_unit_sphere(), Sto));
 		}
 	} // end of function init_level_data
@@ -296,7 +296,7 @@ public:
 			auto const &k = this->get_wave_number();
 			std::complex<double> const J(0.0, 1.0);
 			location_t d = Y - y;
-			return Eigen::exp(-J * k*(s.transpose() * d).array());
+			return Eigen::exp(-J * k * (s.transpose() * d).array());
 		}
 
 		result_t eval(test_input_t const &to, trial_input_t const &tri,
@@ -308,8 +308,8 @@ public:
 			auto const &k = this->get_wave_number();
 			std::complex<double> const J(0.0, 1.0);
 			location_t d = Y - y;
-			return Eigen::exp(-J * k*(s.transpose() * d).array())
-				* ((J*k) * (s.transpose() * tri.get_unit_normal()).array());
+			return Eigen::exp(-J * k * (s.transpose() * d).array())
+				* ((J * k) * (s.transpose() * tri.get_unit_normal()).array());
 		}
 	};
 
@@ -408,7 +408,7 @@ public:
 			auto const &k = this->get_wave_number();
 			std::complex<double> const J(0.0, 1.0);
 			location_t d = x - X;
-			return Eigen::exp(-J * k*(s.transpose() * d).array()) * w.array();
+			return Eigen::exp(-J * k * (s.transpose() * d).array()) * w.array();
 		}
 
 		result_t eval(test_input_t const &tsi, trial_input_t const &from,
@@ -422,7 +422,7 @@ public:
 			auto const &k = this->get_wave_number();
 			std::complex<double> const J(0.0, 1.0);
 			location_t d = x - X;
-			return Eigen::exp(-J * k*(s.transpose() * d).array())
+			return Eigen::exp(-J * k * (s.transpose() * d).array())
 				* (-J * k) * (s.transpose() * tsi.get_unit_normal()).array()
 				* w.array();
 		}
@@ -514,9 +514,9 @@ public:
 
 	private:
 		static cvector_t m2l_matrix_impl(location_t const &Dvec,
-				Eigen::Matrix<double, 3, Eigen::Dynamic> const &s,
-				wave_number_t const &k,
-				size_t L)
+			Eigen::Matrix<double, 3, Eigen::Dynamic> const &s,
+			wave_number_t const &k,
+			size_t L)
 		{
 			using namespace boost::math::double_constants;
 
@@ -537,7 +537,7 @@ public:
 				for (int i = 0; i < s.cols(); ++i)
 					M2L(i) += c * boost::math::legendre_p(int(l), x(0, i));
 			}
-			M2L *= -J * k / (4.0*pi) / (4.0*pi);
+			M2L *= -J * k / (4.0 * pi) / (4.0 * pi);
 
 			return M2L;
 		}
@@ -585,7 +585,7 @@ public:
 		typedef fmm::p2p<
 			NiHu::normal_derivative_kernel<
 			distance_dependent_kernel_t, Nx, Ny
-			> 
+			>
 		> type;
 	};
 
