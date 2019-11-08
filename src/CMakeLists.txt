@@ -3,6 +3,8 @@
 # TODO: add -DNIHU_FMM_PARALLEL and -DNIHU_FMM_TRAVERSE options
 # TODO: add -Wno-parentheses
 #		Gives boost warnings 
+# TODO: mex has been moved from bin -> bin/win64 starting from Matlab R2018b
+# NOTE: There is a problem of Win10 + Matlab R2018a / symbolic math toolbox
 
 
 ###
@@ -182,7 +184,9 @@ set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -D${NIHU_FMM_TRAVERSE}")
 # setup global include directories
 include_directories("${CMAKE_SOURCE_DIR}")
 include_directories("${EIGEN_INCLUDE_DIRS}")
-include_directories("${Boost_INCLUDE_DIR}")
+if (${Boost_INCLUDE_DIR})
+    include_directories("${Boost_INCLUDE_DIR}")
+endif ()
 
 ### Libraries
 if(WIN32)
