@@ -13,7 +13,9 @@
 #include "lists.hpp"
 #include "util/matrix_traits.hpp"
 
+#ifdef NIHU_FMM_PARALLEL
 #include <omp.h>
+#endif
 
 #include <algorithm>
 #include <vector>
@@ -136,7 +138,7 @@ public:
 	{
 		size_t cut_level = std::min<size_t>(2, m_tree.get_n_levels() - 1);
 
-#ifdef PARALLEL
+#ifdef NIHU_FMM_PARALLEL
 		int max_num_threads = omp_get_max_threads();
 		size_t cut_num_clusters = max_num_threads * m_cut_ratio;
 		while (cut_level < m_tree.get_n_levels() - 1)
@@ -234,12 +236,12 @@ public:
 		int a = int(m_tree.level_begin(cut_level));
 		int b = int(m_tree.level_end(cut_level));
 
-#ifdef PARALLEL
+#ifdef NIHU_FMM_PARALLEL
 #pragma omp parallel for
 #endif
 		for (int to = a; to < b; ++to)
 			upward_pass_dfs_rec(multipoles, to);
-#ifdef PARALLEL
+#ifdef NIHU_FMM_PARALLEL
 #pragma omp barrier
 #endif
 
@@ -261,7 +263,7 @@ public:
 		size_t a = m_tree.level_begin(cut_level);
 		size_t b = m_tree.level_end(cut_level);
 
-#ifdef PARALLEL
+#ifdef NIHU_FMM_PARALLEL
 #pragma omp parallel for
 #endif
 		for (int to = int(a); to < int(b); ++to)
@@ -279,7 +281,7 @@ public:
 		for (size_t iLevel = lowest_to_level; iLevel >= 2; --iLevel)
 		{
 			m_timer.tic();
-#ifdef PARALLEL
+#ifdef NIHU_FMM_PARALLEL
 #pragma omp parallel for
 #endif
 			for (int to = int(m_tree.level_begin(iLevel)); to < int(m_tree.level_end(iLevel)); ++to)
@@ -291,7 +293,7 @@ public:
 					multipoles[to] += m_m2m(to, from) * multipoles[from];
 				}
 			}
-#ifdef PARALLEL
+#ifdef NIHU_FMM_PARALLEL
 #pragma omp barrier
 #endif
 			m_timer.toc(iLevel, fmm_timer::M2M);
@@ -315,13 +317,13 @@ public:
 			size_t b = m_tree.level_end(iLevel);
 
 			m_timer.tic();
-#ifdef PARALLEL
+#ifdef NIHU_FMM_PARALLEL
 #pragma omp parallel for
 #endif
 			for (int to = int(a); to < int(b); ++to)
 				for (size_t from : m_lists.get_list(interaction_lists::M2L)[to])
 					locals[to] += m_m2l(to, from) * multipoles[from];
-#ifdef PARALLEL
+#ifdef NIHU_FMM_PARALLEL
 #pragma omp barrier
 #endif
 			m_timer.toc(iLevel, fmm_timer::M2L);
@@ -331,7 +333,7 @@ public:
 				continue;
 
 			m_timer.tic();
-#ifdef PARALLEL
+#ifdef NIHU_FMM_PARALLEL
 #pragma omp parallel for
 #endif
 			for (int to = int(a); to < int(b); ++to)
@@ -341,7 +343,7 @@ public:
 				size_t from = m_tree[to].get_parent();
 				locals[to] += m_l2l(to, from) * locals[from];
 			}
-#ifdef PARALLEL
+#ifdef NIHU_FMM_PARALLEL
 #pragma omp barrier
 #endif
 			m_timer.toc(iLevel, fmm_timer::L2L);
@@ -408,7 +410,7 @@ public:
 		// compute P2M interactions
 		m_timer.tic();
 		auto const &src_idx = m_tree.get_leaf_src_indices();
-#ifdef PARALLEL
+#ifdef NIHU_FMM_PARALLEL
 #pragma omp parallel for
 #endif
 		for (int i = 0; i < int(src_idx.size()); ++i)
@@ -416,25 +418,25 @@ public:
 			size_t to = src_idx[i];
 			multipoles[to] += m_p2m(to) * m_rhs_segments[to];
 		}
-#ifdef PARALLEL
+#ifdef NIHU_FMM_PARALLEL
 #pragma omp barrier
 #endif
 		m_timer.toc(0, fmm_timer::P2M);
 
-#if defined BFS
+#if defined NIHU_FMM_TRAVERSE_BFS
 		upward_pass_bfs(multipoles);
 		downward_pass_bfs(locals, multipoles);
-#elif defined DFS
+#elif defined NIHU_FMM_TRAVERSE_DFS
 		upward_pass_dfs(multipoles);
 		downward_pass_dfs(locals, multipoles);
 #else
-#	error You need to explicitly define BFS or DFS tree traversing algorithm
+#	error You need to explicitly define NIHU_FMM_TRAVERSE_BFS or NIHU_FMM_TRAVERSE_DFS tree traversing algorithm
 #endif
 
 		// compute L2P interactions
 		m_timer.tic();
 		auto const &rec_idx = m_tree.get_leaf_rec_indices();
-#ifdef PARALLEL
+#ifdef NIHU_FMM_PARALLEL
 #pragma omp parallel for
 #endif
 		for (int i = 0; i < int(rec_idx.size()); ++i)
@@ -442,7 +444,7 @@ public:
 			size_t to = rec_idx[i];
 			m_lhs_segments[to] = m_l2p(to) * locals[to];
 		}
-#ifdef PARALLEL
+#ifdef NIHU_FMM_PARALLEL
 #pragma omp barrier
 #endif
 		m_timer.toc(0, fmm_timer::L2P);

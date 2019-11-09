@@ -7,11 +7,6 @@
 #ifndef HELMHOLTZ_BURTON_MILLER_SOLVER_HPP_INCLUDED
 #define HELMHOLTZ_BURTON_MILLER_SOLVER_HPP_INCLUDED
 
-#include "core/field.hpp"
-#include "core/function_space.hpp"
-#include "util/timer.h"
-#include "util/type2tag.hpp"
-
 #include "cluster_tree.hpp"
 #include "elem_center_iterator.hpp"
 #include "fmm_indexed.hpp"
@@ -22,8 +17,17 @@
 #include "matrix_free.hpp"
 #include "preconditioner.hpp"
 
+#include "core/field.hpp"
+#include "core/function_space.hpp"
+#include "util/timer.h"
+#include "util/type2tag.hpp"
+
 #include <Eigen/IterativeLinearSolvers>
 #include "GMRES.h"
+
+#ifdef NIHU_FMM_PARALLEL
+#include <omp.h>
+#endif
 
 namespace NiHu
 {
@@ -108,7 +112,7 @@ public:
 		fmm.init_level_data(tree);
 		for (size_t c = 0; c < tree.get_n_clusters(); ++c)
 			tree[c].set_p_level_data(&fmm.get_level_data(tree[c].get_level()));
-#if PARALLEL
+#if NIHU_FMM_PARALLEL
 		auto max_num_threads = omp_get_max_threads();
 		std::cout << "Expanding to " << max_num_threads << " threads" << std::endl;
 		for (size_t i = 0; i < tree.get_n_levels(); ++i)

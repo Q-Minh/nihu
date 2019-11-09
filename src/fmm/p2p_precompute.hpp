@@ -15,6 +15,10 @@
 
 #include <Eigen/SparseCore>
 
+#ifdef NIHU_FMM_PARALLEL
+#include <omp.h>
+#endif
+
 #include <chrono>
 #include <omp.h>
 #include <type_traits>
@@ -74,7 +78,7 @@ public:
 						
 		triplets.resize(s * rows * cols);
 		
-#ifdef PARALLEL
+#ifdef NIHU_FMM_PARALLEL
 #pragma omp parallel for
 #endif
 		for (int isrcrec = 0; isrcrec < s; ++isrcrec)
@@ -86,7 +90,7 @@ public:
 				for (size_t jj = 0; jj < cols; ++jj)	// loop over matrix cols
 					triplets[isrcrec*rows*cols + ii*cols + jj] = triplet_t(i * rows + ii, j * cols + jj, mat(ii, jj));
 		}
-#ifdef PARALLEL
+#ifdef NIHU_FMM_PARALLEL
 #pragma omp barrier
 #endif
 
@@ -138,7 +142,7 @@ public:
 						
 		triplets.resize(s);
 		
-#ifdef PARALLEL
+#ifdef NIHU_FMM_PARALLEL
 #pragma omp parallel for
 #endif
 		for (int isrcrec = 0; isrcrec < s; ++isrcrec)
@@ -147,7 +151,7 @@ public:
 			size_t j = indices[isrcrec].second;
 			triplets[isrcrec] = triplet_t(i, j, op(i, j));
 		}
-#ifdef PARALLEL
+#ifdef NIHU_FMM_PARALLEL
 #pragma omp barrier
 #endif
 

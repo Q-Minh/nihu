@@ -1,16 +1,20 @@
 #ifndef LEAF_PRECOMPUTE_HPP_INCLUDED
 #define LEAF_PRECOMPUTE_HPP_INCLUDED
 
-#include <Eigen/SparseCore>
-
 #include "cluster_tree.hpp"
 #include "fmm_operator.hpp"
 #include "lists.hpp"
 
+#ifdef NIHU_FMM_PARALLEL
+#include <omp.h>
+#endif
+
+#include <Eigen/SparseCore>
+
 #include <vector>
 #include <chrono>
 #include <type_traits>
-#include <omp.h>
+
 
 namespace NiHu
 {
@@ -36,7 +40,7 @@ public:
 	{
 		auto tstart = std::chrono::steady_clock::now();
 		auto const &src_indices = tree.get_leaf_src_indices();
-#ifdef PARALLEL
+#ifdef NIHU_FMM_PARALLEL
 #pragma omp parallel for
 #endif
 		for (int i = 0; i < src_indices.size(); ++i)
@@ -45,7 +49,7 @@ public:
 			m_container[i] = op(to);
 			m_single_idx[to] = i;
 		}
-#ifdef PARALLEL
+#ifdef NIHU_FMM_PARALLEL
 #pragma omp barrier
 #endif
 		auto tend = std::chrono::steady_clock::now();
@@ -163,7 +167,7 @@ public:
 	{
 		auto tstart = std::chrono::steady_clock::now();
 		auto const &list = tree.get_leaf_rec_indices();
-#ifdef PARALLEL
+#ifdef NIHU_FMM_PARALLEL
 #pragma omp parallel for
 #endif
 		
@@ -173,7 +177,7 @@ public:
 			m_container[i] = op(to);
 			m_single_idx[to] = i;
 		}
-#ifdef PARALLEL
+#ifdef NIHU_FMM_PARALLEL
 #pragma omp barrier
 #endif
 		auto tend = std::chrono::steady_clock::now();

@@ -34,12 +34,22 @@ namespace NiHu
  *	    integrals.</i> International Journal for numerical methods in
  *	    engineering. Vol. <b>24</b>, pp. 959-973 (1987)
  *	    DOI: <a href="http://dx.doi.org/10.1002/nme.1620240509">10.1002/nme.1620240509</a>
+ *
+ * @todo
+ *	MSVC refuses typename in parameter instantiation
+ *	GCC  needs typename in parameter instantiation
+ *  -> conflict resolved by #ifdef _MSC_VER
  */
 template <class QuadDerived>
 QuadDerived telles_transform(
 	quadrature_base<QuadDerived> const &q, 
 	typename quadrature_traits<QuadDerived>::domain_t::xi_t const &eta_bar,
-	typename quadrature_traits<QuadDerived>::domain_t::scalar_t const &d = typename quadrature_traits<QuadDerived>::domain_t::scalar_t())
+#ifdef _MSC_VER
+	typename quadrature_traits<QuadDerived>::domain_t::scalar_t const &d = quadrature_traits<QuadDerived>::domain_t::scalar_t()
+#else
+	typename quadrature_traits<QuadDerived>::domain_t::scalar_t const &d = typename quadrature_traits<QuadDerived>::domain_t::scalar_t()
+#endif
+	)
 {
 	typedef quadrature_traits<QuadDerived> traits_t;
 	typedef typename traits_t::domain_t domain_t;

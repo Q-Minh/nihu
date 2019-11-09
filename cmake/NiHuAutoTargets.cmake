@@ -18,7 +18,6 @@ foreach (cpp_source ${CPP_SOURCES})
 		if (WIN32 AND MINGW)
 			target_link_libraries(${target_name}  "boost_program_options-${NIHU_BOOST_LIBNAME_POSTFIX}")
 		endif()
-
 		# Add installation
 		install(TARGETS ${target_name} DESTINATION ${current_dir})
 	elseif(NIHU_BUILD_MEX)
@@ -37,7 +36,7 @@ foreach (cpp_source ${CPP_SOURCES})
 				LINK_FLAGS "${MEX_SHARED_LINKER_FLAGS}"
 			)
 		# Use the mex compiler
-		else(NOT NIHU_MATLAB_FORCE_MEX_COMPILER)
+		else()
 			ADD_CUSTOM_TARGET (${target_mex_name} ALL)
 			ADD_CUSTOM_COMMAND(
 				TARGET    ${target_mex_name}
@@ -52,7 +51,7 @@ foreach (cpp_source ${CPP_SOURCES})
 					-o "${test_name}"
 				COMMENT "Executing MEX for ${local_source}"
 			)
-		endif(NOT NIHU_MATLAB_FORCE_MEX_COMPILER)
+		endif()
 
 		# Add installation
 		install(TARGETS ${target_mex_name} DESTINATION ${current_dir})
@@ -71,7 +70,6 @@ foreach (cpp_source ${CPP_SOURCES})
 			)
 			# Copy the target .m file to the installation directory
 			install(FILES ${target_mfile} DESTINATION ${current_dir})
-		endif(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${target_mfile}")
+		endif()
 	endif()
-	
-endforeach(cpp_source)
+endforeach()

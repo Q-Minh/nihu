@@ -301,6 +301,15 @@ Compiler options {#install_compiler_options}
 
 - **CMAKE_CXX_COMPILER** Specifies the compiler for C++ files for executing `make` commands. By default, the system default compiler is used. The value of this parameter should be the absolute full path to the executable file of the compiler. (For example, usage of the compiler g++-7 on Unix systems is achieved by the setting: `-DCMAKE_CXX_COMPILER="/usr/bin/g++-7"`)
 
+FMM module options {#install_fmm_options}
+------------------
+
+The following options control the behavior of the Fast Multipole Method (FMM) module.
+
+- **NIHU_DISABLE_FMM** Disables the FMM module, the FMM library and the FMM targets won't be built.
+- **NIHU_FMM_DISABLE_PARALLEL** Set to non-zero to disable parallelization in fast multipole codes. This option is useful for writing manual parallel executions, such as freqeuncy parallelization, which may be more effective than parallelization for a single load case.
+- **NIHU_FMM_TRAVERSE** This option controls the cluster tree traversal method and can be set either to `"BFS"` (Breadth-first search) or to `"DFS"` (Depth-first search).
+
 Installation options {#install_install_options}
 --------------------
 
@@ -345,7 +354,7 @@ If your Boost installation is not found automatically, try to specify the option
 The default behavior of finding the Boost libraries can be overridden using the following parameters:
 
 - **NIHU_BOOST_PATH** Specifies the full path to the boost installation, should be the path where the directory named `boost` is found.
-
+- **NIHU_BOOST_LIB_PATH** Specifies the full path to the boost compiled libraries (necessary on windows)
 
 Matlab options {#install_matlab_options}
 --------------

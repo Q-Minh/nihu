@@ -7,9 +7,6 @@
 #ifndef HELMHOLTZ_FIELD_POINT_HPP_INCLUDED
 #define HELMHOLTZ_FIELD_POINT_HPP_INCLUDED
 
-#include "core/field.hpp"
-#include "core/function_space.hpp"
-
 #include "cluster_tree.hpp"
 #include "divide.hpp"
 #include "elem_center_iterator.hpp"
@@ -20,9 +17,15 @@
 #include "fmm_integrated.hpp"
 #include "matrix_free.hpp"
 
+#include "core/field.hpp"
+#include "core/function_space.hpp"
+
 #include "util/timer.h"
 #include "util/type2tag.hpp"
 
+#ifdef NIHU_FMM_PARALLEL
+#include <omp.h>
+#endif
 
 namespace NiHu
 {
@@ -144,7 +147,7 @@ public:
 			fmm.create_m2l()
 			).transform(idx_fctr).transform(pre_fctr);
 
-#if PARALLEL
+#if NIHU_FMM_PARALLEL
 		auto max_num_threads = omp_get_max_threads();
 		std::cout << "Expanding to " << max_num_threads << " threads" << std::endl;
 		for (size_t i = 0; i < tree.get_n_levels(); ++i)
