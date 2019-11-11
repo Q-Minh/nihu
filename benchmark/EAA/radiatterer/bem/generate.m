@@ -1,7 +1,7 @@
 clear;
 
 %% Export radiatterer meshes
-Le = 1e-2;
+Le = 5e-2;
 [qmesh, points] = create_radiatterer(Le);
 export_off_mesh(qmesh, sprintf('data/radiatterer_%03dmm_quad.off', 1000*Le));
 tmesh = quad2tria(qmesh);
