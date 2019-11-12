@@ -15,6 +15,7 @@ The Taylor series expansion of the distance vector ${\bf r} = {\bf y} - {\bf x}_
 \begin{equation}
 	{\bf r} = \rho {\bf r}_1 + \frac{\rho^2}{2} {\bf r}_2 + O(\rho^3)
 	\label{eq:taylor_expansion_rvec}
+	,
 \end{equation}
 %
 where ${\bf r}_1 = \left.{\bf r}'_{\rho}\right|_{\rho = 0}$ and ${\bf r}_2 = \left.{\bf r}''_{\rho}\right|_{\rho = 0}$. The vector ${\bf r}_1$ is tangetial to the element in the collocation point.
@@ -24,18 +25,21 @@ The Taylor series expansion of the scalar squared distance $r^2$ is expressed as
 \begin{equation}
 	r^2 = {\bf r} {\bf r} = \rho^2 r_1^2 (1 + \rho A + O(\rho^2))
 	\label{eq:taylor_expansion_r2}
+	,
 \end{equation}
 %
 where
 %
 \begin{equation}
-	A = \frac{{\bf r}_1 {\bf r}_2}{r_1^2},
+	A = \frac{{\bf r}_1 {\bf r}_2}{r_1^2}
+	.
 \end{equation}
 %
-and the Taylor series expression of the scalar distance $r$ becomes
+The Taylor series expression of the scalar distance $r$ becomes
 %
 \begin{equation}
-	r = |\rho| r_1 \left(1 + \frac{\rho A}{2} + O(\rho^2)\right).
+	r = |\rho| r_1 \left(1 + \frac{\rho A}{2} + O(\rho^2)\right)
+	.
 	\label{eq:taylor_expansion_r}
 \end{equation}
 %
@@ -43,25 +47,43 @@ Furthermore, the series expansion of the inverse squared distance can be written
 %
 \begin{equation}
 	\frac{1}{r^2(\rho)} = \frac{1 - A \rho + O(\rho^2)}{\rho^2 r_1^2}
+	,
 	\label{eq:taylor_expansion_rmin2}
+\end{equation}
+%
+and the Taylor series expansion of the inverse distance is
+%
+\begin{equation}
+	\frac{1}{r(\rho)} = \frac{1 - \frac{A}{2} \rho + O(\rho^2)}{|\rho| r_1}
+	,
+	\label{eq:taylor_expansion_rmin1}
 \end{equation}
 
 Besides the Taylor series expansion of the distance, the expansion of the Jacobian is also of interest:
 %
 \begin{align}
 	{\bf d}(\rho) &= \frac{\td {\bf r}(\rho)}{\td \rho} = {\bf r_1} + \rho {\bf r}_2 + O(\rho^2)\\
-	{\bf J}(\rho) &= {\bf T} {\bf d}(\rho) = {\bf J}_0 + \rho {\bf J}_1 + O(\rho^2)
+	{\bf J}(\rho) &= {\bf T} {\bf d}(\rho) = {\bf J}_0 + \rho {\bf J}_1 + O(\rho^2), \quad {\bf J}_0 = {\bf T} {\bf r}_1, {\bf J}_1 = {\bf T} {\bf r}_2
+	.
 	\label{eq:taylor_expansion_Jvec}
 \end{align}
 %
-In the above expressions, ${\bf T}$ denotes the matrix rotating by $-\pi/2$ in the positive direction.
+In the above expressions, ${\bf T}$ denotes the rotation matrix rotating by $-\pi/2$ in the positive direction.
 
-The series expansion of the scalar Jacobian is given as
+The series expansion of the squared Jacobian is written as
 %
 \begin{equation}
-	J = \sqrt{{\bf J} {\bf J}}
-	= J_0 + \rho J_1 + O(\rho^2)
+	J^2 = J_0^2\left(1 + 2 A \rho + O(\rho^2)\right)
+	,
+	\label{eq:taylor_expansion_J2}
+\end{equation}
+%
+and the series expansion of the scalar Jacobian is given as
+%
+\begin{equation}
+	J = J_0 + \rho J_1 + O(\rho^2)
 	= r_1\left(1 + \rho A  + O(\rho^2)\right)
+	.
 	\label{eq:taylor_expansion_J}
 \end{equation}
 
@@ -69,6 +91,7 @@ Finally, the Taylor series expansion of the shape function over the element is e
 %
 \begin{equation}
 	N(\rho) = N_0 + N_1 \rho + N_2 \rho^2
+	.
 	\label{eq:taylor_expansion_N}
 \end{equation}
 
@@ -84,12 +107,14 @@ The integral is written in the physical domain as
 %
 \begin{equation}
 	I = \int_S G(r) N({\bf y}) \td S
+	,
 \end{equation}
 %
-or, transformed into the reference domain with the origin being the collocation point
+or, transformed into the reference domain with the origin being the collocation point,
 %
 \begin{equation}
 	I = \int_a^b G(r(\rho)) N(\rho) J(\rho) \td \rho
+	.
 \end{equation}
 
 Using \eqref{eq:taylor_expansion_r}, the Taylor expansion of the Green's function $G(r)$ around the singular point in the reference domain is written as
@@ -98,20 +123,22 @@ Using \eqref{eq:taylor_expansion_r}, the Taylor expansion of the Green's functio
 	G(r) = -\frac{1}{2\pi} \left(
 		\log (|\rho| r_1) + \rho \frac{A}{2} + O(\rho^2)
 		\right)
+	.
 \end{equation}
 
 The Taylor series expansion of the product $N(\rho) J(\rho)$ is
 %
 \begin{equation}
 	N(\rho) J(\rho) = C_0 + C_1 \rho + C_2 \rho^2
+	,
 \end{equation}
 %
 where
 %
 \begin{align}
-	C_0 &= N_0 J_0 \\
-	C_1 &= N_0 J_1 + N_1 J_0 \\
-	C_2 &= N_2 J_0 + N_1 J_1
+	C_0 &= N_0 J_0, \\
+	C_1 &= N_0 J_1 + N_1 J_0, \\
+	C_2 &= N_2 J_0 + N_1 J_1.
 \end{align}
 %
 Substituting the Taylor series expansions into the total integral in the reference domain results in a singular line integral
@@ -122,12 +149,14 @@ Substituting the Taylor series expansions into the total integral in the referen
 		\log (|\rho| r_1) + \rho \frac{A}{2} + O(\rho^2)
 	\right)
 	\left( C_0 + C_1 \rho + C_2 \rho^2 \right) \td\rho
+	.
 \end{equation}
 
 The singular part of the integrand is
 %
 \begin{equation}
 	F_0 = -\frac{1}{2\pi} \log \left(|\rho| r_1\right) \left( C_0 + C_1 \rho + C_2 \rho^2 \right)
+	,
 \end{equation}
 %
 and its integral over the element can be computed analytically, using the expression
@@ -142,17 +171,19 @@ The remaining regular part of the integral is computed numerically, using standa
 
 \subsubsection{DLP kernel over a general curved element}
 
-The kernel is expressed as
+The DLP kernel is expressed as
 %
 \begin{equation}
 	G'_{n_y} = \frac{-1}{2\pi r} r'_{n_y}
-	= \frac{-1}{2\pi r^2} \left( {\bf r} {\bf n}_y \right)
+	= \frac{-{\bf r} {\bf n}_y}{2\pi r^2} 
+	.
 \end{equation}
 %
 As the kernel is integrated over the element, a more convenient expression is
 %
 \begin{equation}
-	G'_{n_y} J = \frac{-1}{2\pi r^2} \left( {\bf r} {\bf J} \right)
+	G'_{n_y} J = \frac{-{\bf r} {\bf J}}{2\pi r^2} 
+	.
 \end{equation}
 
 Substituting the Taylor series expressions for $1/r^2$ \eqref{eq:taylor_expansion_rmin2}, ${\bf r}$ \eqref{eq:taylor_expansion_rvec} and ${\bf J}$ \eqref{eq:taylor_expansion_Jvec}, the integrand is expressed as
@@ -161,19 +192,21 @@ Substituting the Taylor series expressions for $1/r^2$ \eqref{eq:taylor_expansio
 	G'_{n_y} J = \frac{-1}{2\pi} \left(\frac{1-A\rho + O(\rho^2)}{\rho^2 r_1^2}\right) 
 	\left( {\bf r}_1 \rho + {\bf r}_2 \frac{\rho^2}{2} + O(\rho^3) \right) 
 	\left( {\bf J}_0 + \rho {\bf J}_1 + O(\rho^2) \right)
+	.
 \end{equation}
 %
-Taking into account that ${\bf r}_1$ is perpecdicular to ${\bf J}_0$, it is observed that the integrand is regular, and can be evaluated using standard Gaussian quadrature, if it is ensured that the reference location is not sampled.
+Taking into account that ${\bf r}_1$ is perpendicular to ${\bf J}_0$, it is observed that the integrand is regular, and can be evaluated using standard Gaussian quadrature, if it is ensured that the reference location is not sampled.
 This is easily done by dividing the element into two at the reference point, and integrating numerically with Gaussian quadratures over the two subelements.
 
 
 \subsubsection{HSP kernel over a general curved element}
 
-The kernel is expressed as
+The HSP kernel is expressed as
 %
 \begin{equation}
 	G''_{n_x n_y} = \frac{1}{2\pi r^2} \left( 2 r'_{n_x} r'_{n_y} + {\bf n}_x {\bf n}_y \right)
 	= \frac{1}{2\pi r^2} \left( {\bf n}_x {\bf n}_y - 2 \frac{{\bf r} {\bf n}_x}{r} \frac{{\bf r}{\bf n}_y}{r} \right)
+	.
 \end{equation}
 %
 
@@ -182,6 +215,7 @@ The Green's function $G''$, multiplied with the Jacobian $J$ in the local frame 
 \begin{equation}
 	G''(\rho) J(\rho)
 	= \frac{1}{2\pi r^2(\rho)} \left( {\bf n}_x {\bf J}(\rho) - 2 \frac{{\bf r}(\rho) {\bf n}_x}{r(\rho)} \frac{{\bf r}(\rho) {\bf J}(\rho)}{r(\rho)}\right)
+	.
 \end{equation}
 %
 The second term in the bracketed part is $O(\rho^2)$, as ${\bf r}_1$ ${\bf n}_x = 0$ and ${\bf r}_1 {\bf J}_0 = 0$.
@@ -189,18 +223,34 @@ Applying the Taylor series expression \eqref{eq:taylor_expansion_rmin2} of $1/r^
 %
 \begin{equation}
 	G''(\rho) J(\rho) \approx \frac{1 - A \rho}{2\pi \rho^2 r_1^2} {\bf n}_x \left({\bf J}_0 + \rho {\bf J}_1\right) 
+	.
 \end{equation}
 %
 Exploiting that ${\bf n}_x \left({\bf J}_0 + \rho {\bf J}_1\right) = J_0 (1 + \rho A)$, and $r_1^2 = J_0^2$, the final first order Taylor series expansion of the kernel is
 %
 \begin{equation}
 	G''(\rho) J(\rho) \approx \frac{1}{2\pi \rho^2 J_0}
+	,
 \end{equation}
 %
 and the singular part of the integrand is
 %
 \begin{equation}
 	G''(\rho) N(\rho) J(\rho) \approx \frac{1}{2\pi J_0} \left( \frac{N_0}{\rho^2} +  \frac{N_1}{\rho} \right)
+	.
 \end{equation}
 %
 This integral is evaluated analytically using Hadamard Finite Part integration, and the remaining part is evaluated numerically, using Gaussian quadratures.
+
+The Hadamard Finite Part integration is performed as follows:
+%
+\begin{align}
+	\int_{-\rho_1}^{\rho_2} \left( \frac{N_0}{\rho^2} +  \frac{N_1}{\rho} \right) \td \rho
+	&= \int_{-\rho_1}^{-\epsilon} \left( \frac{N_0}{\rho^2} +  \frac{N_1}{\rho} \right) \td \rho
+	+ \int_{\epsilon}^{\rho_2} \left( \frac{N_0}{\rho^2} +  \frac{N_1}{\rho} \right) \td \rho \\
+	&= \left[ -\frac{N_0}{\rho} +  N_1\log(|\rho|) \right]_{-\rho_1}^{-\epsilon} +
+	\left[ -\frac{N_0}{\rho} +  N_1\log(|\rho|) \right]_{\epsilon}^{\rho_2} \\
+	&=  \cancel{\frac{2 N_0}{\epsilon} }
+	- \left( \frac{N_0}{\rho_1} + \frac{N_0}{\rho_2} \right)
+	+  N_1\log \frac{\rho_2}{\rho_1} 
+\end{align}
