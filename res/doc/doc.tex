@@ -16,7 +16,7 @@
 \newcommand{\td}{\mathrm{d}}
 \newcommand{\te}{\mathrm{e}}
 \newcommand{\ti}{\mathrm{i}}
-\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\code}[1]{\texttt{\detokenize{#1}}}
 \DeclareMathOperator{\sgn}{sgn}
 
 \newcommand{\NiHu}{\texttt{NiHu}}
@@ -35,9 +35,9 @@
 
 \input{kernels}
 
-\input{nearly_singular}
-
 \input{singular}
+
+\input{nearly_singular}
 
 \printindex
 

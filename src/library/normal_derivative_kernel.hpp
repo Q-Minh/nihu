@@ -245,7 +245,7 @@ public:
 		scalar_t r = rvec.norm();
 		scalar_t rdny = rvec.dot(ny) / r;
 		scalar_t rdnx = -rvec.dot(nx) / r;
-		result_t f[2];
+		result_t f[2]; /* f[0] = G'' - G'/r, f[1] = G'/r */
 		DistanceKernel::template eval<2>(r, f);
 		return f[0] * rdnx * rdny - f[1] * nx.dot(ny);
 	}
@@ -282,9 +282,9 @@ public:
 		x_t rvec = y - x;
 		scalar_t r = rvec.norm();
 		scalar_t rdnx = -rvec.dot(nx) / r;
-		result_t f[2];
+		result_t f[2]; /* f[0] = G'' - G'/r, f[1] = G'/r */
 		DistanceKernel::template eval<2>(r, f);
-		return f[0] * rdnx * rdnx + f[1] /* * nx.dot(nx) */;
+		return f[0] * rdnx * rdnx + f[1];
 	}
 
 	result_t operator()(test_input_t const &x, trial_input_t const &y) const

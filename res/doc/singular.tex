@@ -1,0 +1,197 @@
+\chapter{Singular integrals}
+
+\section{2D Laplace kernel}
+
+\subsection{Collocation}
+
+\subsubsection{SLP kernel}
+
+\begin{itemize}
+\item This method is implemented in function \code{laplace_2d_SLP_collocation_general}.
+\item For the special case of line elements, the simplified version is implemented in function \code{laplace_2d_SLP_collocation_straight_line_second_order}.
+\end{itemize}
+
+The integral is written in the physical domain as
+%
+\begin{equation}
+	I = \int_S G(r) N({\bf y}) \td S
+\end{equation}
+%
+or, transformed into the reference domain with the origin being the collocation point
+%
+\begin{equation}
+	I = \int_a^b G(r(\rho)) N(\rho) J(\rho) \td \rho
+\end{equation}
+%
+where $\rho$ denotes the signed distance from the singular point in the reference domain, and $J$ denotes the Jacobian of the coordinate transform.
+
+The Taylor expansion of the distance vector ${\bf r}$ with repsect to the reference distance $\rho$ is written as
+%
+\begin{equation}
+	{\bf r} = \rho {\bf r}_1 + \frac{\rho^2}{2} {\bf r}_2 + O(\rho^3)
+\end{equation}
+%
+As a consequence, the Taylor series expansion of the scalar squared distance $r^2$ is expressed as:
+%
+\begin{equation}
+	r^2 = \rho^2 r_1^2 (1 + \rho A + O(\rho^2))
+\end{equation}
+%
+where
+%
+\begin{equation}
+	A = \frac{{\bf r}_1 {\bf r}_2}{r_1^2}.
+\end{equation}
+%
+and the Taylor series expression of the scalar distance $r$ becomes
+%
+\begin{equation}
+	r = |\rho| r_1 \left(1 + \frac{\rho A}{2} + O(\rho^2)\right)
+\end{equation}
+
+Using the above expansions, the Taylor expansion of the Green's function $G(r)$ around the singular point in the reference domain is written as
+%
+\begin{equation}
+	G(r) = -\frac{1}{2\pi} \left(
+		\log (|\rho| r_1) + \rho \frac{A}{2} + O(\rho^2)
+		\right)
+\end{equation}
+
+
+The Taylor series expansion of the shape function and the Jacobian over the element are expressed as
+%
+\begin{align}
+	N(\rho) &= N_0 + N_1 \rho + N_2 \rho^2 \\
+	J(\rho) &= J_0 + J_1 \rho
+\end{align}
+%
+and the Taylor expansion of their product $N(\rho) J(\rho)$ is
+%
+\begin{equation}
+	N(\rho) J(\rho) = C_0 + C_1 \rho + C_2 \rho^2
+\end{equation}
+%
+where
+%
+\begin{align}
+	C_0 &= N_0 J_0 \\
+	C_1 &= N_0 J_1 + N_1 J_0 \\
+	C_2 &= N_2 J_0 + N_1 J_1
+\end{align}
+%
+Substituting the Taylor series expansions into the total integral in the reference domain results in a singular line integral
+%
+\begin{equation}
+	I = -\frac{1}{2\pi} \int_{a}^{b}
+	 \left(
+		\log (|\rho| r_1) + \rho \frac{A}{2} + O(\rho^2)
+	\right)
+	\left( C_0 + C_1 \rho + C_2 \rho^2 \right) \td\rho
+\end{equation}
+
+The singular part of the integrand is
+%
+\begin{equation}
+	F_0 = -\frac{1}{2\pi} \log \left(|\rho| r_1\right) \left( C_0 + C_1 \rho + C_2 \rho^2 \right)
+\end{equation}
+%
+and its integral over the element can be computed analytically, using the expression
+%
+\begin{equation}
+	\int \log(r_1 |\rho|) \rho^n \td \rho = \frac{\rho^{n+1}}{n+1} \left( \log\left(r_1 |\rho|\right) - \frac{1}{n+1} \right)
+\end{equation}
+The remaining regular part of the integral is computed numerically, using standard Gaussian quadrature.
+
+
+\subsubsection{DLP kernel over a general curved element}
+
+The kernel is expressed as
+%
+\begin{equation}
+	G'_{n_y} = \frac{-1}{2\pi r} r'_{n_y}
+	= \frac{-1}{2\pi r^2} \left( {\bf r} {\bf n}_y \right)
+\end{equation}
+%
+As the kernel is integrated over the element, a more convenient expression is
+%
+\begin{equation}
+	G'_{n_y} J = \frac{-1}{2\pi r^2} \left( {\bf r} {\bf J} \right)
+\end{equation}
+
+Substituting the Taylor series expressions for $1/r^2$, ${\bf r}$ and ${\bf J}$, the integrand is expressed as
+%
+\begin{equation}
+	G'_{n_y} J = \frac{-1}{2\pi} \left(\frac{1-A\rho + O(\rho^2)}{\rho^2 r_1^2}\right) 
+	\left( {\bf r}_1 \rho + {\bf r}_2 \frac{\rho^2}{2} + O(\rho^3) \right) 
+	\left( {\bf J}_0 + \rho {\bf J}_1 + O(\rho^2) \right)
+\end{equation}
+%
+Taking into account that ${\bf r}_1$ is perpecdicular to ${\bf J}_0$, it is observed that the integrand is regular, and can be evaluated using standard Gaussian quadrature, if it is insured that the reference location is not sampled.
+This is easily done by dividing the element into two at the reference point, and integrating numerically with Gaussian quadratures over the two subelements.
+
+
+
+\subsubsection{HSP kernel over a general curved element}
+
+The kernel is expressed as
+%
+\begin{equation}
+	G''_{n_x n_y} = \frac{1}{2\pi r^2} \left( 2 r'_{n_x} r'_{n_y} + {\bf n}_x {\bf n}_y \right)
+	= \frac{1}{2\pi r^2} \left( {\bf n}_x {\bf n}_y - 2 \frac{{\bf r} {\bf n}_x}{r} \frac{{\bf r}{\bf n}_y}{r} \right)
+\end{equation}
+%
+When the kernel is integrated over the element, a more convenient expression is to compute the kernel's value multiplied by the Jacobian
+%
+\begin{equation}
+	G''_{n_x n_y} J = 
+	\frac{1}{2\pi r^2} \left( {\bf n}_x {\bf J} - 2 \frac{{\bf r} {\bf n}_x}{r} \frac{{\bf r}{\bf J}}{r} \right)
+\end{equation}
+
+The general collocational integral for curved elements and a general shape function is written as
+%
+\begin{align}
+	I = \int_S G''_{n_x n_y}(r) N({\bf y}) \td y
+	= \int_a^b G''_{n_x n_y}(r(\rho)) N(\rho) J(\rho) \td \rho
+\end{align}
+%
+where $\rho$ denotes the signed distance from the singular point in the reference domain.
+
+In order evaluate the singular part of the integral analytically, the following Taylor series expansions are introduced:
+\begin{align}
+	{\bf r}(\rho) &= \rho {\bf r_1} + \frac{\rho^2}{2} {\bf r}_2 + O(\rho^3) \\
+	{\bf d}(\rho) &= \frac{\td {\bf r}(\rho)}{\td \rho} = {\bf r_1} + \rho {\bf r}_2 + O(\rho^2)\\
+	{\bf J}(\rho) &= {\bf T} {\bf d}(\rho) = {\bf J}_0 + \rho {\bf J}_1 + O(\rho^2) \\
+	r^2 &= \rho^2 r_1^2 \left( 1 + A \rho + O(\rho^2) \right)
+	,\quad A = \frac{{\bf r}_1 {\bf r}_2}{r_1^2} \\
+	\frac{1}{r^2(\rho)} &\approx \frac{1 - A \rho + O(\rho^2)}{\rho^2 r_1^2}
+\end{align}
+%
+In the above expressions, ${\bf T}$ denotes the matrix rotating by $-\pi/2$ in the positive direction.
+
+The Green's function $G''$, multiplied with the Jacobian $J$ in the local frame of reference is approximated as (replacing $n_y$ by $J$)
+%
+\begin{equation}
+	G''(\rho) J(\rho)
+	= \frac{1}{2\pi r^2(\rho)} \left( {\bf n}_x {\bf J}(\rho) - 2 \frac{{\bf r}(\rho) {\bf n}_x}{r(\rho)} \frac{{\bf r}(\rho) {\bf J}(\rho)}{r(\rho)}\right)
+\end{equation}
+%
+The second term in the bracketed part is $O(\rho^2)$, as ${\bf r}_1$ ${\bf n}_x = 0$ and ${\bf r}_1 {\bf J}_0 = 0$.
+The first order Taylor series approximation of the first term is
+%
+\begin{equation}
+	G''(\rho) J(\rho) \approx \frac{1 - A \rho}{2\pi \rho^2 r_1^2} {\bf n}_x \left({\bf J}_0 + \rho {\bf J}_1\right) 
+\end{equation}
+%
+Exploiting that ${\bf n}_x \left({\bf J}_0 + \rho {\bf J}_1\right) = J_0 (1 + \rho A)$, and $r_1^2 = J_0^2$, the final first order Taylor series expansion of the kernel is
+%
+\begin{equation}
+	G''(\rho) J(\rho) \approx \frac{1}{2\pi \rho^2 J_0}
+\end{equation}
+%
+and the singular part of the integrand is
+%
+\begin{equation}
+	G''(\rho) N(\rho) J(\rho) \approx \frac{1}{2\pi J_0} \left( \frac{N_0}{\rho^2} +  \frac{N_1}{\rho} \right)
+\end{equation}
+%
+This integral is evaluated analytically using Hadamard Finite Part integration, and the remaining part is evaluated numerically, using Gaussian quadratures.
