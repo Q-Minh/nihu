@@ -4,6 +4,75 @@
 
 \subsection{Collocation}
 
+\subsubsection{Integration over curved elements}
+
+In order to define the collocational integrals over curved elements in a general way, we introduce some series expansions of the geometrical properties of curved elements.
+
+In the followings, the variable $\rho$ will denote the signed distance from the collocation point in the 1D reference domain.
+
+The Taylor series expansion of the distance vector ${\bf r} = {\bf y} - {\bf x}_0$ with repsect to the reference distance $\rho$ is written as
+%
+\begin{equation}
+	{\bf r} = \rho {\bf r}_1 + \frac{\rho^2}{2} {\bf r}_2 + O(\rho^3)
+	\label{eq:taylor_expansion_rvec}
+\end{equation}
+%
+where ${\bf r}_1 = \left.{\bf r}'_{\rho}\right|_{\rho = 0}$ and ${\bf r}_2 = \left.{\bf r}''_{\rho}\right|_{\rho = 0}$. The vector ${\bf r}_1$ is tangetial to the element in the collocation point.
+
+The Taylor series expansion of the scalar squared distance $r^2$ is expressed as:
+%
+\begin{equation}
+	r^2 = {\bf r} {\bf r} = \rho^2 r_1^2 (1 + \rho A + O(\rho^2))
+	\label{eq:taylor_expansion_r2}
+\end{equation}
+%
+where
+%
+\begin{equation}
+	A = \frac{{\bf r}_1 {\bf r}_2}{r_1^2},
+\end{equation}
+%
+and the Taylor series expression of the scalar distance $r$ becomes
+%
+\begin{equation}
+	r = |\rho| r_1 \left(1 + \frac{\rho A}{2} + O(\rho^2)\right).
+	\label{eq:taylor_expansion_r}
+\end{equation}
+%
+Furthermore, the series expansion of the inverse squared distance can be written as
+%
+\begin{equation}
+	\frac{1}{r^2(\rho)} = \frac{1 - A \rho + O(\rho^2)}{\rho^2 r_1^2}
+	\label{eq:taylor_expansion_rmin2}
+\end{equation}
+
+Besides the Taylor series expansion of the distance, the expansion of the Jacobian is also of interest:
+%
+\begin{align}
+	{\bf d}(\rho) &= \frac{\td {\bf r}(\rho)}{\td \rho} = {\bf r_1} + \rho {\bf r}_2 + O(\rho^2)\\
+	{\bf J}(\rho) &= {\bf T} {\bf d}(\rho) = {\bf J}_0 + \rho {\bf J}_1 + O(\rho^2)
+	\label{eq:taylor_expansion_Jvec}
+\end{align}
+%
+In the above expressions, ${\bf T}$ denotes the matrix rotating by $-\pi/2$ in the positive direction.
+
+The series expansion of the scalar Jacobian is given as
+%
+\begin{equation}
+	J = \sqrt{{\bf J} {\bf J}}
+	= J_0 + \rho J_1 + O(\rho^2)
+	= r_1\left(1 + \rho A  + O(\rho^2)\right)
+	\label{eq:taylor_expansion_J}
+\end{equation}
+
+Finally, the Taylor series expansion of the shape function over the element is expressed as
+%
+\begin{equation}
+	N(\rho) = N_0 + N_1 \rho + N_2 \rho^2
+	\label{eq:taylor_expansion_N}
+\end{equation}
+
+
 \subsubsection{SLP kernel}
 
 \begin{itemize}
@@ -22,34 +91,8 @@ or, transformed into the reference domain with the origin being the collocation 
 \begin{equation}
 	I = \int_a^b G(r(\rho)) N(\rho) J(\rho) \td \rho
 \end{equation}
-%
-where $\rho$ denotes the signed distance from the singular point in the reference domain, and $J$ denotes the Jacobian of the coordinate transform.
 
-The Taylor expansion of the distance vector ${\bf r}$ with repsect to the reference distance $\rho$ is written as
-%
-\begin{equation}
-	{\bf r} = \rho {\bf r}_1 + \frac{\rho^2}{2} {\bf r}_2 + O(\rho^3)
-\end{equation}
-%
-As a consequence, the Taylor series expansion of the scalar squared distance $r^2$ is expressed as:
-%
-\begin{equation}
-	r^2 = \rho^2 r_1^2 (1 + \rho A + O(\rho^2))
-\end{equation}
-%
-where
-%
-\begin{equation}
-	A = \frac{{\bf r}_1 {\bf r}_2}{r_1^2}.
-\end{equation}
-%
-and the Taylor series expression of the scalar distance $r$ becomes
-%
-\begin{equation}
-	r = |\rho| r_1 \left(1 + \frac{\rho A}{2} + O(\rho^2)\right)
-\end{equation}
-
-Using the above expansions, the Taylor expansion of the Green's function $G(r)$ around the singular point in the reference domain is written as
+Using \eqref{eq:taylor_expansion_r}, the Taylor expansion of the Green's function $G(r)$ around the singular point in the reference domain is written as
 %
 \begin{equation}
 	G(r) = -\frac{1}{2\pi} \left(
@@ -57,15 +100,7 @@ Using the above expansions, the Taylor expansion of the Green's function $G(r)$ 
 		\right)
 \end{equation}
 
-
-The Taylor series expansion of the shape function and the Jacobian over the element are expressed as
-%
-\begin{align}
-	N(\rho) &= N_0 + N_1 \rho + N_2 \rho^2 \\
-	J(\rho) &= J_0 + J_1 \rho
-\end{align}
-%
-and the Taylor expansion of their product $N(\rho) J(\rho)$ is
+The Taylor series expansion of the product $N(\rho) J(\rho)$ is
 %
 \begin{equation}
 	N(\rho) J(\rho) = C_0 + C_1 \rho + C_2 \rho^2
@@ -99,7 +134,9 @@ and its integral over the element can be computed analytically, using the expres
 %
 \begin{equation}
 	\int \log(r_1 |\rho|) \rho^n \td \rho = \frac{\rho^{n+1}}{n+1} \left( \log\left(r_1 |\rho|\right) - \frac{1}{n+1} \right)
+	.
 \end{equation}
+%
 The remaining regular part of the integral is computed numerically, using standard Gaussian quadrature.
 
 
@@ -118,7 +155,7 @@ As the kernel is integrated over the element, a more convenient expression is
 	G'_{n_y} J = \frac{-1}{2\pi r^2} \left( {\bf r} {\bf J} \right)
 \end{equation}
 
-Substituting the Taylor series expressions for $1/r^2$, ${\bf r}$ and ${\bf J}$, the integrand is expressed as
+Substituting the Taylor series expressions for $1/r^2$ \eqref{eq:taylor_expansion_rmin2}, ${\bf r}$ \eqref{eq:taylor_expansion_rvec} and ${\bf J}$ \eqref{eq:taylor_expansion_Jvec}, the integrand is expressed as
 %
 \begin{equation}
 	G'_{n_y} J = \frac{-1}{2\pi} \left(\frac{1-A\rho + O(\rho^2)}{\rho^2 r_1^2}\right) 
@@ -126,9 +163,8 @@ Substituting the Taylor series expressions for $1/r^2$, ${\bf r}$ and ${\bf J}$,
 	\left( {\bf J}_0 + \rho {\bf J}_1 + O(\rho^2) \right)
 \end{equation}
 %
-Taking into account that ${\bf r}_1$ is perpecdicular to ${\bf J}_0$, it is observed that the integrand is regular, and can be evaluated using standard Gaussian quadrature, if it is insured that the reference location is not sampled.
+Taking into account that ${\bf r}_1$ is perpecdicular to ${\bf J}_0$, it is observed that the integrand is regular, and can be evaluated using standard Gaussian quadrature, if it is ensured that the reference location is not sampled.
 This is easily done by dividing the element into two at the reference point, and integrating numerically with Gaussian quadratures over the two subelements.
-
 
 
 \subsubsection{HSP kernel over a general curved element}
@@ -140,35 +176,8 @@ The kernel is expressed as
 	= \frac{1}{2\pi r^2} \left( {\bf n}_x {\bf n}_y - 2 \frac{{\bf r} {\bf n}_x}{r} \frac{{\bf r}{\bf n}_y}{r} \right)
 \end{equation}
 %
-When the kernel is integrated over the element, a more convenient expression is to compute the kernel's value multiplied by the Jacobian
-%
-\begin{equation}
-	G''_{n_x n_y} J = 
-	\frac{1}{2\pi r^2} \left( {\bf n}_x {\bf J} - 2 \frac{{\bf r} {\bf n}_x}{r} \frac{{\bf r}{\bf J}}{r} \right)
-\end{equation}
 
-The general collocational integral for curved elements and a general shape function is written as
-%
-\begin{align}
-	I = \int_S G''_{n_x n_y}(r) N({\bf y}) \td y
-	= \int_a^b G''_{n_x n_y}(r(\rho)) N(\rho) J(\rho) \td \rho
-\end{align}
-%
-where $\rho$ denotes the signed distance from the singular point in the reference domain.
-
-In order evaluate the singular part of the integral analytically, the following Taylor series expansions are introduced:
-\begin{align}
-	{\bf r}(\rho) &= \rho {\bf r_1} + \frac{\rho^2}{2} {\bf r}_2 + O(\rho^3) \\
-	{\bf d}(\rho) &= \frac{\td {\bf r}(\rho)}{\td \rho} = {\bf r_1} + \rho {\bf r}_2 + O(\rho^2)\\
-	{\bf J}(\rho) &= {\bf T} {\bf d}(\rho) = {\bf J}_0 + \rho {\bf J}_1 + O(\rho^2) \\
-	r^2 &= \rho^2 r_1^2 \left( 1 + A \rho + O(\rho^2) \right)
-	,\quad A = \frac{{\bf r}_1 {\bf r}_2}{r_1^2} \\
-	\frac{1}{r^2(\rho)} &\approx \frac{1 - A \rho + O(\rho^2)}{\rho^2 r_1^2}
-\end{align}
-%
-In the above expressions, ${\bf T}$ denotes the matrix rotating by $-\pi/2$ in the positive direction.
-
-The Green's function $G''$, multiplied with the Jacobian $J$ in the local frame of reference is approximated as (replacing $n_y$ by $J$)
+The Green's function $G''$, multiplied with the Jacobian $J$ in the local frame of reference is approximated as (replacing ${\bf n}_y$ by ${\bf J}$)
 %
 \begin{equation}
 	G''(\rho) J(\rho)
@@ -176,7 +185,7 @@ The Green's function $G''$, multiplied with the Jacobian $J$ in the local frame 
 \end{equation}
 %
 The second term in the bracketed part is $O(\rho^2)$, as ${\bf r}_1$ ${\bf n}_x = 0$ and ${\bf r}_1 {\bf J}_0 = 0$.
-The first order Taylor series approximation of the first term is
+Applying the Taylor series expression \eqref{eq:taylor_expansion_rmin2} of $1/r^2$, the first order Taylor series approximation of the first term is
 %
 \begin{equation}
 	G''(\rho) J(\rho) \approx \frac{1 - A \rho}{2\pi \rho^2 r_1^2} {\bf n}_x \left({\bf J}_0 + \rho {\bf J}_1\right) 
