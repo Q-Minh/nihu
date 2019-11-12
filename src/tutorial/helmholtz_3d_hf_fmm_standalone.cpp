@@ -114,16 +114,13 @@ void export_response(std::string fname, cvector_t const &res, wave_number_t cons
 int main(int argc, char *argv[])
 {
 	using namespace boost::math::double_constants;
-
 	using namespace boost::program_options;
 
 	try
 	{
-
-
-		options_description desc{ "Options" };
+		options_description desc("Options");
 		desc.add_options()
-			("help,h", "Help screen")
+			("help", "Help screen")
 			("solve", "Solve surface system")
 			("postprocess", "Compute field point pressure")
 			("surface_mesh", value<std::string>(), "Surface mesh file name")
