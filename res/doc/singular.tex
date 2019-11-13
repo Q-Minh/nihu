@@ -6,7 +6,7 @@
 
 \subsubsection{Integration over curved elements}
 
-In order to define the collocational integrals over curved elements in a general way, we introduce some series expansions of the geometrical properties of curved elements.
+In order to define the collocational singular integrals over curved elements in a general way, we introduce series expansions of the geometrical properties of curved elements around the collocational point ${\bf x}_0$.
 
 In the followings, the variable $\rho$ will denote the signed distance from the collocation point in the 1D reference domain.
 
@@ -18,9 +18,9 @@ The Taylor series expansion of the distance vector ${\bf r} = {\bf y} - {\bf x}_
 	,
 \end{equation}
 %
-where ${\bf r}_1 = \left.{\bf r}'_{\rho}\right|_{\rho = 0}$ and ${\bf r}_2 = \left.{\bf r}''_{\rho}\right|_{\rho = 0}$. The vector ${\bf r}_1$ is tangetial to the element in the collocation point.
-
-The Taylor series expansion of the scalar squared distance $r^2$ is expressed as:
+where ${\bf r}_1 = \left.{\bf r}'_{\rho}\right|_{\rho = 0}$ and ${\bf r}_2 = \left.{\bf r}''_{\rho}\right|_{\rho = 0}$. 
+Vector ${\bf r}_1$ is tangetial to the element in the collocation point, and is perpendicular to the element normal.
+Using \eqref{eq:taylor_expansion_rvec}, The Taylor series expansion of the scalar squared distance $r^2$ is expressed as:
 %
 \begin{equation}
 	r^2 = {\bf r} {\bf r} = \rho^2 r_1^2 (1 + \rho A + O(\rho^2))
@@ -35,7 +35,7 @@ where
 	.
 \end{equation}
 %
-The Taylor series expression of the scalar distance $r$ becomes
+By taking the square root of \eqref{eq:taylor_expansion_r2}, The Taylor series expression of the scalar distance $r$ becomes
 %
 \begin{equation}
 	r = |\rho| r_1 \left(1 + \frac{\rho A}{2} + O(\rho^2)\right)
@@ -68,9 +68,8 @@ Besides the Taylor series expansion of the distance, the expansion of the Jacobi
 	\label{eq:taylor_expansion_Jvec}
 \end{align}
 %
-In the above expressions, ${\bf T}$ denotes the rotation matrix rotating by $-\pi/2$ in the positive direction.
-
-The series expansion of the squared Jacobian is written as
+In the above expressions, ${\bf T}$ denotes the 2D rotation matrix rotating by $-\pi/2$ in the positive direction.
+From \eqref{eq:taylor_expansion_Jvec}, the series expansion of the squared Jacobian is written as
 %
 \begin{equation}
 	J^2 = J_0^2\left(1 + 2 A \rho + O(\rho^2)\right)
@@ -78,7 +77,7 @@ The series expansion of the squared Jacobian is written as
 	\label{eq:taylor_expansion_J2}
 \end{equation}
 %
-and the series expansion of the scalar Jacobian is given as
+and the series expansion of the scalar Jacobian simplifies to
 %
 \begin{equation}
 	J = J_0 + \rho J_1 + O(\rho^2)
@@ -94,19 +93,20 @@ Finally, the Taylor series expansion of the shape function over the element is e
 	.
 	\label{eq:taylor_expansion_N}
 \end{equation}
+%
+In \NiHu{}, shape functions are at most second order polynomials, so \eqref{eq:taylor_expansion_N} is exact.
 
 
 \subsubsection{SLP kernel}
 
-\begin{itemize}
-\item This method is implemented in function \code{laplace_2d_SLP_collocation_general}.
-\item For the special case of line elements, the simplified version is implemented in function \code{laplace_2d_SLP_collocation_straight_line_second_order}.
-\end{itemize}
+This section describes the collocational integral of the 2D Laplace SLP kernel over a curved element and with general shape functions.
+This general method is implemented in function \code{laplace_2d_SLP_collocation_general}.
+For the special case of line elements, the simplified version is implemented in function \code{laplace_2d_SLP_collocation_straight_line_second_order}.
 
 The integral is written in the physical domain as
 %
 \begin{equation}
-	I = \int_S G(r) N({\bf y}) \td S
+	I = \int_S G(r) N({\bf y}) \td S, \qquad G(r) = \frac{-\log(r)}{2\pi}
 	,
 \end{equation}
 %
@@ -123,8 +123,10 @@ Using \eqref{eq:taylor_expansion_r}, the Taylor expansion of the Green's functio
 	G(r) = -\frac{1}{2\pi} \left(
 		\log (|\rho| r_1) + \rho \frac{A}{2} + O(\rho^2)
 		\right)
-	.
+	,
 \end{equation}
+%
+where use has been made of the Taylor expansion $\log(1+x) \approx x$ around $x=0$.
 
 The Taylor series expansion of the product $N(\rho) J(\rho)$ is
 %
@@ -163,6 +165,7 @@ and its integral over the element can be computed analytically, using the expres
 %
 \begin{equation}
 	\int \log(r_1 |\rho|) \rho^n \td \rho = \frac{\rho^{n+1}}{n+1} \left( \log\left(r_1 |\rho|\right) - \frac{1}{n+1} \right)
+	, \qquad n \ge 0
 	.
 \end{equation}
 %
