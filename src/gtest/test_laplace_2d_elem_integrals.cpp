@@ -14,7 +14,7 @@
 
 typedef Eigen::Matrix<double, Eigen::Dynamic, 1> dVector;
 
-TEST(LaplaceElemIntegrals, Singular_2d_SLP)
+TEST(laplace_2d_elem_integrals, singular_2d_SLP)
 {
 	using namespace boost::math::double_constants;
 
@@ -81,12 +81,11 @@ TEST(LaplaceElemIntegrals, Singular_2d_SLP)
 		NiHu::field<elem_2_t, NiHu::line_0_shape_set>,
 		10
 	>::eval(elem2);
-	std::cout << q << std::endl << res6.row(0) << std::endl << std::endl;
 	
 	EXPECT_LE(std::abs(q-res6(0,0)) / std::abs(res6(0,0)), 1e-10);
 }
 
-TEST(LaplaceElemIntegrals, Singular_2d_HSP)
+TEST(laplace_2d_elem_integrals, singular_2d_HSP)
 {
 	double I1, I2;
 	

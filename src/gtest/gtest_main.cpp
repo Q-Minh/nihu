@@ -6,6 +6,9 @@ int main(int argc, char *argv[])
 	
 	testing::InitGoogleTest(&argc, argv);
 	
+	testing::GTEST_FLAG(filter) = "laplace_2d_elem_integrals.*";
+	status |= RUN_ALL_TESTS();
+
 	testing::GTEST_FLAG(filter) = "bounding_box.*";
 	status |= RUN_ALL_TESTS();
 
@@ -33,7 +36,6 @@ int main(int argc, char *argv[])
 	status |= RUN_ALL_TESTS();
 
 #endif
-
 
 	return status;
 }
