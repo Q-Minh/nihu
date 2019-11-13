@@ -85,6 +85,7 @@ TEST(laplace_2d_elem_integrals, singular_2d_SLP)
 	EXPECT_LE(std::abs(q-res6(0,0)) / std::abs(res6(0,0)), 1e-10);
 }
 
+
 TEST(laplace_2d_elem_integrals, singular_2d_HSP)
 {
 	double I1, I2;
