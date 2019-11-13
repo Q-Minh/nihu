@@ -91,18 +91,21 @@ class laplace_kernel<space_2d<scalar> >
 	: public distance_dependent_kernel<laplace_kernel<space_2d<scalar> > >
 {
 private:
+	/* f[0] = G(r) */
 	void eval_impl(std::integral_constant<unsigned, 0>, scalar r, scalar *f) const
 	{
 		using namespace boost::math::double_constants;
 		*f = -std::log(r) / two_pi;
 	}
 	
+	/* f[0] = G'(r) */
 	void eval_impl(std::integral_constant<unsigned, 1>, scalar r, scalar *f) const
 	{
 		using namespace boost::math::double_constants;
 		*f = -1.0 / r / two_pi;
 	}
 	
+	/* f[0] = G'' - G'/r, f[1] = G'/r */
 	void eval_impl(std::integral_constant<unsigned, 2>, scalar r, scalar *f) const
 	{
 		using namespace boost::math::double_constants;

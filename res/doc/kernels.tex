@@ -2,10 +2,17 @@
 
 \section{Derivatives of kernels depending on the source-receiver distance}
 
-In lots of useful cases (homogeneous and isotropic media) the kernel is distance-dependent: $K({\bf x}, {\bf y}) = G(|{\bf y} - {\bf x}|)$.
+In lots of useful cases (homogeneous and isotropic media) the kernel is distance-dependent:
+%
+\begin{equation}
+K({\bf x}, {\bf y}) = G(r) = G(|{\bf r}|) = G(|{\bf y} - {\bf x}|).
+\end{equation}
+%
 In these cases the kernel's normal derivatives can be expressed in a unified way.
 
-Derivatives of the distance vector are given by the following formulas
+\subsection{Derivatives of the distance}
+
+Derivatives of the distance $r$ are given by the following formulas
 %
 \begin{align}
 	r &= |{\bf r}| \\
@@ -15,6 +22,8 @@ Derivatives of the distance vector are given by the following formulas
 		\delta_{ij} r'_k + \delta_{jk} r'_i + \delta_{ki} r'_j - 3 r'_i r'_j r'_k
 	\right)
 \end{align}
+
+\subsection{Derivatives of the kernel}
 
 Derivatives of the kernel depending on the distance are formulated as
 %
@@ -31,54 +40,70 @@ Derivatives of the kernel depending on the distance are formulated as
 	\label{eq:derivatives_wrt_ij}
 \end{align}
 
+\subsection{Normal derivatives of the kernel}
 
-The normal derivative w.r.t $n_y$ is computed as $G'_i n_{yi}$, while the normal derivative w.r.t. $n_x$ is computed as $-G'_i n_{xi}$:
+The normal derivative w.r.t $n_y$ is computed as $G'_i n_{yi}$, while the normal derivative w.r.t. $n_x$ is computed as $-G'_i n_{xi}$.
+As a consequence, the normal derivatives of distance dependent kernels can be expressed in a unified manner as
 %
 \begin{align}
 	\frac{\partial G}{\partial n_y} 
 	&= n_{yi} G'_i
+	= \underbrace{G'_r}_{F_1} r'_{n_y}
+	\label{eq:normal_derivative_0}
 	\\
 	\frac{\partial^2 G}{\partial n_x \partial n_y}
 	&= -n_{xi} n_{yj} G''_{ij}
+	=  \underbrace{\left(G''_r - \frac{G'_r}{r} \right)}_{F_2^0} r'_{n_x} r'_{n_y} -  \underbrace{\frac{G'_r}{r}}_{F_2^1} \left(n_{xi} n_{yi}\right)
 	\\
 	\frac{\partial^2 G}{\partial n_x^2}
 	&= n_{xi} n_{xj} G''_{ij}
+	= \left(G''_r - \frac{G'_r}{r} \right) r'_{n_x} r'_{n_x} +  \frac{G'_r}{r}
 	\\
 	\frac{\partial^3 G}{\partial n_x^2 \partial n_y}
 	&= n_{xi} n_{xj} n_{yk} G'''_{ijk}
+	\label{eq:normal_derivative_nx2ny}
 \end{align}
+
+\NiHu{} handles distance dependent kernels by defining their functions $F_i^j(r)$:
+%
+\begin{align}
+	F_1(r) &= G'(r) \\
+	F_2^0(r) &= G''_r - \frac{G'_r}{r} \\
+	F_2^1 &= \frac{G'_r}{r}
+\end{align}
+%
+These $F_i^j$ functions need to be defined for each newly introduced distance dependent kernel (\code{distance_dependent_kernel}), and the expressions \eqref{eq:normal_derivative_0}-\eqref{eq:normal_derivative_nx2ny} are automatically computed in the class \code{normal_derivative_kernel}
+
+
+\section{Laplace kernel in two dimensions}
+
+The Kernel expression is
+%
+\begin{equation}
+	G(r) = \frac{-\log(r)}{2\pi}
+\end{equation}
+
+The kernel's $F_i^j$ functions are computed as
+%
+\begin{align}
+	F_1(r) &= \frac{-1}{2\pi r} \\
+	F_2^0(r) &= \frac{2}{2\pi r^2}, \qquad F_2^1(r) = \frac{-1}{2\pi r^2}
+\end{align}
+
 
 \section{Laplace kernel in three dimensions}
 
 The kernel expression is
 %
 \begin{equation}
-	G({\bf x}, {\bf y}) = \frac{1}{4\pi r}
+	G(r) = \frac{1}{4\pi r}
 \end{equation}
 %
-The normal derivative w.r.t the normal at ${\bf y}$ is
+
+The kernel's $F_i^j$ functions are computed as
 %
-\begin{equation}
-	G'_{n_y} = \frac{-1}{4\pi r^2} \frac{{\bf r} \cdot {\bf n}_y}{r}
-\end{equation}
-%
-The normal derivative w.r.t the normal at ${\bf x}$ is
-%
-\begin{equation}
-	G'_{n_x} = \frac{-1}{4\pi r^2} \frac{-{\bf r} \cdot {\bf n}_x}{r}
-\end{equation}
-%
-The second normal derivative is
-%
-\begin{multline}
-	G''_{n_x n_y} = -n_{xi} n_{yj} G''_{ij}
-	=-n_{xi} n_{yj} \left( \left(G''_r - \frac{G'_r}{r} \right) r'_i r'_j +  \frac{G'_r}{r} \delta_{ij} \right) \\
-	=\frac{1}{4\pi} \cdot -n_{xi} n_{yj} \left( \frac{3}{r^3} r'_i r'_j - \frac{1}{r^3} \delta_{ij} \right)
-	\\
-	=\frac{1}{4\pi} \left(
-		\frac{-n_{xi} r_i}{r} \frac{n_{yj} r_j}{r} \frac{3}{r^3}
-		+
-		\frac{n_{xk} n_{yk}}{r^3}
-	\right)
-\end{multline}
+\begin{align}
+	F_1(r) &= \frac{-1}{4\pi r^2} \\
+	F_2^0(r) &= \frac{3}{4\pi r^3}, \qquad F_2^1(r) = \frac{-1}{4\pi r^3}
+\end{align}
 
