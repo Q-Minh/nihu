@@ -497,7 +497,7 @@ public:
 					result_t F = G * Jxi * Jeta * (Nxi * Neta.transpose());
 
 					// evaluate integrand's singular part
-					double G0 = -std::log(2. * v * J0);
+					double G0 = -std::log(2. * v * J0) / two_pi;
 					result_t F0 = G0 * J0 * J0 * (Nxi0 * Neta0.transpose());
 
 					// integrate difference numerically
