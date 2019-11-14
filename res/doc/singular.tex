@@ -257,3 +257,177 @@ The Hadamard Finite Part integration is performed as follows:
 	- \left( \frac{N_0}{\rho_1} + \frac{N_0}{\rho_2} \right)
 	+  N_1\log \frac{\rho_2}{\rho_1} 
 \end{align}
+
+
+\subsection{Galerkin}
+
+\subsubsection{Integration over curved elements}
+
+\paragraph{Face-match integration over a single curved element}
+
+The distance vector is defined as ${\bf r} = {\bf y} - {\bf x}$, where ${\bf x}$ and ${\bf y}$ are locations in the same element.
+In intrinsic coordinates, ${\bf x} = {\bf x}(\xi)$, and ${\bf y} = {\bf y}(\eta)$, and the intrinsic variables $\xi$, $\eta$ have values from the interval $[-1, +1]$.
+For the case of the face match Galerkin integration, the singularity occurs when $\xi = \eta$. 
+For this reason, new variables ($u$, $v$) are introduced, where $v$ is related to the singularity:
+%
+\begin{align}
+	\xi &= u + (\pm 1 - u) v \\
+	\eta &= u + (\mp 1 - u) v,
+\end{align}
+%
+were $u \in [-1, +1]$ and $v \in [0, 1]$.
+The relations divide the unit square into two triangles. 
+The upper signs corresponds to the first, and the lower signs correspond to the second triangle.
+Apparently, the singularity is approached when $v \to 0$, independently from $u$.
+Therefore, the Taylor series expansion of the distance with repsect to $v$ is of interest.
+%
+\begin{equation}
+	{\bf r}(v) = v \left.{\bf r}'_v\right|_{v=0} + v^2 \frac{\left.{\bf r}''_v\right|_{v=0}}{2} + O(v^3)
+\end{equation}
+
+\begin{equation}
+	\left.{\bf r}'_v\right|_{v=0} = \left[{\bf y}'_{\eta} \eta'_v - {\bf x}'_{\xi} \xi'_v\right]_{v=0}
+\end{equation}
+%
+From relations \eqref{eq:galerkin_uvtransform} it can be seen that for the $v=0$ case, $\xi = \eta = u$.
+Therefore, the derivative expression simplifies to
+%
+\begin{equation}
+	\left.{\bf r}'_v\right|_{v=0} = \mp 2 {\bf y}'(u) 
+\end{equation}
+%
+The second derivative is expressed similarly as
+%
+\begin{equation}
+	\left.{\bf r}''_v\right|_{v=0}
+	=
+	\left[
+		{\bf y}''_\eta {\eta'_v}^2 - {\bf x}''_{\xi} {\xi'_v}^2
+	\right]_{v=0}
+	= \pm 4u {\bf y}''(u)
+\end{equation}
+%
+Subtituting into the Taylor series expansion, the following expression is obtained:
+%
+\begin{equation}
+	{\bf r}(v) = \mp 2 {\bf y}'(u) v 
+	\pm 2u {\bf y}''(u) v^2 
+	+ O(v^3)
+\end{equation}
+%
+As a consequence, the squared distance is approximated as
+%
+\begin{equation}
+	r^2(u,v) = 
+	4v^2 |{\bf y}'(u)|^2
+	\left(
+	1
+	-
+	2 u v A(u)
+	+ O(v^2)
+	\right)
+\end{equation}
+%
+where $A(u)$ is defined as
+%
+\begin{equation}
+	A(u) = \frac{{\bf y}'(u) {\bf y}''(u)}{|{\bf y}'(u)|^2}
+\end{equation}
+%
+Finally, the distance is approximated as
+%
+\begin{equation}
+	r = 2v|{\bf y}'(u)| \left(1 - u v A(u) + O(v^2) \right)
+	\label{eq:galerkin_face_taylor_r}
+\end{equation}
+
+\subsection{SLP kernel}
+
+The integral to be computed is written in intrinsic coordinates as
+%
+\begin{equation}
+	I = \int_{-1}^{+1}
+	\int_{-1}^{+1}
+	G(r(\xi,\eta)) 
+	N_{\xi}(\xi) N_{\eta}(\eta) 
+	J(\xi) J(\eta)
+	\td \eta
+	\td \xi
+\end{equation}
+%
+and in the $uv$ plane as
+%
+\begin{equation}
+	I^{(i)} = \int_{-1}^{+1}
+	\int_{0}^{+1}
+	\underbrace{G(r(u,v)) N_{\xi}(\xi^{(i)}(u,v)) N_{\eta}(\eta^{(i)}(u,v)) 
+	J(\xi^{(i)}(u,v)) J(\eta^{(i)}(u,v)) 2(1-v)}_{F^{(i)}(u,v)}
+	\td v
+	\td u
+\end{equation}
+%
+where $\td\xi \td\eta = 2(1-v) \td u \td v$.
+Substituting the Taylor series expansion of the distance \eqref{eq:galerkin_face_taylor_r} into $G(r)$, 
+%
+\begin{align}
+	G(r(u,v)) 
+	&= \frac{-1}{2\pi} \log\left(2v|{\bf y}'(u)| \left(1 - u v A(u) + O(v^2) \right)\right) \\
+	&= \frac{-1}{2\pi} \left[ 
+	\log(2v|{\bf y}'(u)| )
+	+
+	\log \left(1 - u v A(u) + O(v^2) \right)
+	\right] \\
+	&= \frac{-\log(2v|{\bf y}'(u)| )
+	+
+	u v A(u)
+	}{2\pi} 
+	 + O(v^2)
+\end{align}
+%
+Inserting \eqref{} into \eqref{}, it is seen that the singular part of $F^{(i)}(u,v)$ is
+%
+\begin{equation}
+	F_0(u,v) = \frac{-\log(2v J(u) )}{2\pi} 
+	N_{\xi}(u) N_{\eta}(u) 
+	J^2(u) 2(1-v)
+\end{equation}
+%
+Now the inner integral w.r.t. $v$ is computed by nuerically evaluating the regular part, and analytically integrating the singular part
+%
+\begin{equation}
+	\int_{-1}^{+1} \int_{0}^{+1} F^{(i)}(u,v) \td v \td u
+	= 
+	\int_{-1}^{+1} \int_{0}^{+1} \left( F^{(i)}(u,v) - F_0(u,v) \right) \td v \td u
+	+
+	\int_{-1}^{+1} \int_{0}^{+1} F_0(u,v) \td v \td u
+\end{equation}
+%
+where the inner integral of the last singular term simplifies to
+%
+\begin{equation}
+	\int_{0}^{+1} F_0(u,v) \td v = \frac{1}{2\pi} \left(\frac{3}{2} - \log(2 J(u)) \right) N_{\xi}(u) N_{\eta}(u) 
+	J^2(u)
+\end{equation}
+
+\subsection{DLP kernel}
+
+The integral to be computed is written in intrinsic coordinates as
+%
+\begin{align}
+	I 
+	&= \int_{-1}^{+1}
+	\int_{-1}^{+1}
+	G'_{n_y}(r(\xi,\eta)) 
+	N_{\xi}(\xi) N_{\eta}(\eta)
+	J(\xi) J(\eta)
+	\td \eta
+	\td \xi \\
+	&= \int_{-1}^{+1}
+	\int_{-1}^{+1}
+	\frac{-{\bf r}(\xi,\eta) {\bf J}(\eta)}{2\pi r^2(\xi,\eta)}
+	N_{\xi}(\xi) N_{\eta}(\eta)
+	J(\xi)
+	\td \eta
+	\td \xi
+\end{align}
+

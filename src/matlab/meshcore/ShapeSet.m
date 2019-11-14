@@ -14,6 +14,7 @@ classdef ShapeSet < handle
     end % of immutable properties
     
     methods (Access = private)
+        
         function res = compute_shape_functions(obj)
             fprintf(1, 'Constructing shape functions for id %d\n', obj.Id);
             
