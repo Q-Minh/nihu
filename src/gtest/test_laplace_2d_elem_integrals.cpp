@@ -14,7 +14,7 @@
 
 typedef Eigen::Matrix<double, Eigen::Dynamic, 1> dVector;
 
-TEST(laplace_2d_elem_integrals, singular_2d_SLP)
+TEST(laplace_2d_elem_integrals, singular_2d_SLP_collocation)
 {
 	using namespace boost::math::double_constants;
 
@@ -86,7 +86,7 @@ TEST(laplace_2d_elem_integrals, singular_2d_SLP)
 }
 
 
-TEST(laplace_2d_elem_integrals, singular_2d_HSP)
+TEST(laplace_2d_elem_integrals, singular_2d_HSP_collocation)
 {
 	double I1, I2;
 	
@@ -136,3 +136,32 @@ TEST(laplace_2d_elem_integrals, singular_2d_HSP)
 	
 	EXPECT_LE(std::abs(I1-I2)/std::abs(I1), 1e-10);
 }
+
+
+TEST(laplace_2d_elem_integrals, singular_2d_SLP_galerkin)
+{
+	using namespace boost::math::double_constants;
+
+	// check that analytical and general formulations yield the same result
+	// for line_1 element with constant shape function
+	typedef NiHu::line_1_elem elem_t;
+	typedef NiHu::field<elem_t, NiHu::line_0_shape_set> test_field_t;
+	typedef NiHu::field<elem_t, NiHu::line_0_shape_set> trial_field_t;
+
+	elem_t::coords_t coords;
+	coords <<
+		0.0, 1.0,
+		0.0, 0.0;
+	elem_t elem(coords);
+
+	auto res1 = NiHu::laplace_2d_SLP_galerkin_face_general<
+		test_field_t, trial_field_t, 8
+	>::eval(elem);
+
+	double d = NiHu::laplace_2d_SLP_galerkin_face_constant_line::eval(elem);
+
+	std::cout << res1 << std::endl;
+	std::cout << d << std::endl;
+}
+
+

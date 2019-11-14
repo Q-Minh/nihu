@@ -16,12 +16,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-/** 
+/**
  * \file laplace_singular_integrals.hpp
  * \brief Analytical expressions for the singular integrals of Laplace kernels
  * \ingroup lib_laplace
- * 
- * \details 
+ *
+ * \details
  * Analytical expression for the Laplace kernels over plane elements.
  */
 #ifndef LAPLACE_SINGULAR_INTEGRALS_HPP_INCLUDED
@@ -53,63 +53,63 @@ class laplace_2d_SLP_collocation_general
 {
 	typedef TestField test_field_t;
 	typedef TrialField trial_field_t;
-	
+
 	typedef typename test_field_t::nset_t test_shape_t;
 	typedef typename trial_field_t::nset_t trial_shape_t;
-	
+
 	static size_t const nTest = test_shape_t::num_nodes;
 	static size_t const nTrial = trial_shape_t::num_nodes;
-	
+
 	typedef Eigen::Matrix<double, nTest, nTrial> result_t;
-	
+
 	typedef typename trial_field_t::elem_t elem_t;
 	typedef typename elem_t::domain_t domain_t;
-	
+
 	typedef typename domain_t::xi_t xi_t;
 	typedef typename elem_t::x_t x_t;
-	
+
 	typedef regular_quad_store<domain_t, order> quadrature_t;
-	
+
 public:
 	static result_t eval(elem_t const &elem)
 	{
 		using namespace boost::math::double_constants;
-		
+
 		result_t result = result_t::Zero();
-		
+
 		xi_t const &a = domain_t::get_corner(0);
 		xi_t const &b = domain_t::get_corner(1);
-		
+
 		// traverse collocation points
 		for (size_t i = 0; i < nTest; ++i)
 		{
 			xi_t const &xi0 = test_shape_t::corner_at(i);
-			
+
 			// trial shape function at the singular point
 			auto N0 = trial_shape_t::template eval_shape<0>(xi0);
 			auto N1 = trial_shape_t::template eval_shape<1>(xi0);
-			auto N2 = trial_shape_t::template eval_shape<2>(xi0)/2.;
-			
+			auto N2 = trial_shape_t::template eval_shape<2>(xi0) / 2.;
+
 			// singular point and jacobians
 			x_t x = elem.get_x(xi0);
 			double jac0 = elem.get_dx(xi0).norm();
 			double jac1 = elem.get_dx(xi0).dot(elem.get_ddx(xi0)) / jac0;
-			
+
 			auto C0 = N0 * jac0;
-			auto C1 = (N1*jac0 + N0*jac1);
-			auto C2 = (N2*jac0 + N1*jac1);
-			
+			auto C1 = (N1 * jac0 + N0 * jac1);
+			auto C2 = (N2 * jac0 + N1 * jac1);
+
 			// traverse quadrature points
 			for (auto it = quadrature_t::quadrature.begin(); it != quadrature_t::quadrature.end(); ++it)
 			{
 				// transform quadrature to [xi0 b];
-				xi_t xi = it->get_xi() * ((b(0)-xi0(0))/2.) + (xi0+b)/2.;
-				double w = it->get_w() * ((b(0)-xi0(0))/2.);
-				
+				xi_t xi = it->get_xi() * ((b(0) - xi0(0)) / 2.) + (xi0 + b) / 2.;
+				double w = it->get_w() * ((b(0) - xi0(0)) / 2.);
+
 				// get trial location, jacobian and normal
 				x_t y = elem.get_x(xi);
 				double jac = elem.get_dx(xi).norm();
-				
+
 				// evaluate Green's function
 				double G = laplace_2d_SLP_kernel()(x, y);
 				// multiply Shape function
@@ -119,22 +119,22 @@ public:
 				// evaluate integrand's singular part
 				double rho = xi(0) - xi0(0);
 				auto F0 = -std::log(std::abs(rho) * jac0) / two_pi * (C0 + rho * (C1 + rho * C2));
-				
+
 				// integrate difference numerically
 				result.row(i) += (F - F0) * w;
 			}
-			
+
 			// traverse quadrature points
 			for (auto it = quadrature_t::quadrature.begin(); it != quadrature_t::quadrature.end(); ++it)
 			{
 				// transform quadrature to  [a xi0]
-				xi_t xi = it->get_xi() * ((xi0(0)-a(0))/2.) + (xi0+a)/2.;
-				double w = it->get_w() * ((xi0(0)-a(0))/2.);
-				
+				xi_t xi = it->get_xi() * ((xi0(0) - a(0)) / 2.) + (xi0 + a) / 2.;
+				double w = it->get_w() * ((xi0(0) - a(0)) / 2.);
+
 				// get trial location, jacobian and normal
 				x_t y = elem.get_x(xi);
 				double jac = elem.get_dx(xi).norm();
-				
+
 				// evaluate Green's function
 				double G = laplace_2d_SLP_kernel()(x, y);
 				// Shape function
@@ -144,31 +144,31 @@ public:
 				// evaluate singular part
 				double rho = xi(0) - xi0(0);
 				auto F0 = -std::log(std::abs(rho) * jac0) / two_pi * (C0 + rho * (C1 + rho * C2));
-				
+
 				// integrate difference numerically
 				result.row(i) += (F - F0) * w;
 			}
-			
+
 			// add analytic integral of singular part
 			double rho1 = std::abs(a(0) - xi0(0));
 			double rho2 = std::abs(b(0) - xi0(0));
 			double d1 = rho1 * jac0;
 			double d2 = rho2 * jac0;
 			result.row(i) += 1. / two_pi * (
-				C0 * ( rho2 * (1. - std::log(d2)) + rho1 * (1. - std::log(d1)) )
+				C0 * (rho2 * (1. - std::log(d2)) + rho1 * (1. - std::log(d1)))
 				+
-				C1/4. * ( rho2*rho2 * (1. - 2.*std::log(d2)) - rho1*rho1 * (1. - 2.*std::log(d1)) )
+				C1 / 4. * (rho2 * rho2 * (1. - 2. * std::log(d2)) - rho1 * rho1 * (1. - 2. * std::log(d1)))
 				+
-				C2/9. * ( rho2*rho2*rho2 * (1. - 3.*std::log(d2)) + rho1*rho1*rho1 * (1. - 3.*std::log(d1)) )
-			);
+				C2 / 9. * (rho2 * rho2 * rho2 * (1. - 3. * std::log(d2)) + rho1 * rho1 * rho1 * (1. - 3. * std::log(d1)))
+				);
 		} // loop over collocation points
-		
+
 		return result;
 	}
 };
 
 
-/** 
+/**
  \brief Collocational integral of the 2D SLP kernel over a straight line with second order shape sets
  This is the simplification of function laplace_2d_SLP_collocation_general, skipping the Gaussian quadrature
  */
@@ -177,30 +177,30 @@ class laplace_2d_SLP_collocation_straight_line_second_order
 {
 	typedef TestField test_field_t;
 	typedef TrialField trial_field_t;
-	
+
 	typedef typename test_field_t::nset_t test_shape_set_t;
 	typedef typename trial_field_t::nset_t trial_shape_set_t;
-	
+
 	typedef line_1_elem elem_t;
-	
+
 	typedef typename test_shape_set_t::xi_t xi_t;
-	
+
 	static size_t const rows = test_shape_set_t::num_nodes;
 	static size_t const cols = trial_shape_set_t::num_nodes;
 	static size_t const order = trial_shape_set_t::polynomial_order;
-	
+
 	typedef Eigen::Matrix<double, rows, cols> result_t;
-		
+
 public:
 	static result_t eval(elem_t const &elem)
 	{
 		using namespace boost::math::double_constants;
-		
+
 		// get Jacobian
 		double jac = elem.get_normal().norm();
-		
+
 		result_t result;
-		
+
 		// traverse collocational points
 		for (size_t i = 0; i < rows; ++i)
 		{
@@ -209,23 +209,23 @@ public:
 			double rho2 = (1. - xi0(0));
 			double d1 = jac * rho1;
 			double d2 = jac * rho2;
-			
+
 			auto N0 = trial_shape_set_t::template eval_shape<0>(xi0);
-			result.row(i) = N0 * (d2 * (1.-std::log(d2)) + d1 * (1.-std::log(d1)));
-			
+			result.row(i) = N0 * (d2 * (1. - std::log(d2)) + d1 * (1. - std::log(d1)));
+
 			if (trial_shape_set_t::polynomial_order >= 1)
 			{
-				auto N1 = trial_shape_set_t::template eval_shape<1>(xi0)/jac;
-				result.row(i) += N1 * (d2*d2/4. * (1.-2.*std::log(d2)) - d1*d1/4. * (1.-2.*std::log(d1)));
+				auto N1 = trial_shape_set_t::template eval_shape<1>(xi0) / jac;
+				result.row(i) += N1 * (d2 * d2 / 4. * (1. - 2. * std::log(d2)) - d1 * d1 / 4. * (1. - 2. * std::log(d1)));
 			}
-			
+
 			if (trial_shape_set_t::polynomial_order >= 2)
 			{
-				auto N2 = trial_shape_set_t::template eval_shape<2>(xi0)/jac/jac/2.;
-				result.row(i) += N2 * (d2*d2*d2/9. * (1.-3.*std::log(d2)) + d1*d1*d1/9. * (1.-3.*std::log(d1)));
+				auto N2 = trial_shape_set_t::template eval_shape<2>(xi0) / jac / jac / 2.;
+				result.row(i) += N2 * (d2 * d2 * d2 / 9. * (1. - 3. * std::log(d2)) + d1 * d1 * d1 / 9. * (1. - 3. * std::log(d1)));
 			}
 		}
-		
+
 		return result / two_pi;
 	}
 };
@@ -425,6 +425,93 @@ public:
 
 
 
+template <class TestField, class TrialField, size_t order>
+class laplace_2d_SLP_galerkin_face_general
+{
+	typedef TestField test_field_t;
+	typedef TrialField trial_field_t;
+
+	typedef typename test_field_t::nset_t test_shape_t;
+	typedef typename trial_field_t::nset_t trial_shape_t;
+
+	static size_t const nTest = test_shape_t::num_nodes;
+	static size_t const nTrial = trial_shape_t::num_nodes;
+
+	typedef Eigen::Matrix<double, nTest, nTrial> result_t;
+
+	typedef typename trial_field_t::elem_t elem_t;
+	typedef typename elem_t::domain_t domain_t;
+
+	typedef typename domain_t::xi_t xi_t;
+	typedef typename elem_t::x_t x_t;
+
+	typedef regular_quad_store<domain_t, order> quadrature_t;
+
+public:
+	static result_t eval(elem_t const &elem)
+	{
+		using namespace boost::math::double_constants;
+
+		result_t I = result_t::Zero();
+
+		// loop over u
+		for (auto it = quadrature_t::quadrature.begin(); it != quadrature_t::quadrature.end(); ++it)
+		{
+			xi_t u = it->get_xi();
+			double wu = it->get_w();
+
+			auto Nxi0 = test_shape_t::template eval_shape<0>(u);
+			auto Neta0 = trial_shape_t::template eval_shape<0>(u);
+			double J0 = elem.get_dx(u).norm();
+
+			// loop over v
+			for (auto jt = quadrature_t::quadrature.begin(); jt != quadrature_t::quadrature.end(); ++jt)
+			{
+				double v = (jt->get_xi()(0) + 1.) / 2.;
+				double wv = jt->get_w() / 2.;
+
+				xi_t xi, eta;
+
+				for (int d = 0; d < 2; ++d)
+				{
+					if (d == 0)
+					{
+						xi(0) = u(0) + (+1. - u(0)) * v;
+						eta(0) = u(0) + (-1. - u(0)) * v;
+					}
+					else
+					{
+						xi(0) = u(0) + (-1. - u(0)) * v;
+						eta(0) = u(0) + (+1. - u(0)) * v;
+					}
+
+					x_t x = elem.get_x(xi);
+					x_t y = elem.get_x(eta);
+					double G = laplace_2d_SLP_kernel()(x, y);
+					double Jxi = elem.get_dx(xi).norm();
+					double Jeta = elem.get_dx(xi).norm();
+					auto Nxi = test_shape_t::template eval_shape<0>(xi);
+					auto Neta = trial_shape_t::template eval_shape<0>(eta);
+
+					// evaluate integrand
+					result_t F = G * Jxi * Jeta * (Nxi * Neta.transpose());
+
+					// evaluate integrand's singular part
+					double G0 = -std::log(2. * v * J0);
+					result_t F0 = G0 * J0 * J0 * (Nxi0 * Neta0.transpose());
+
+					// integrate difference numerically
+					I += (F - F0) * (2. * (1 - v)) * wu * wv;
+				}
+			} // loop over v
+
+			// compensate with analytical inner integral of the regular part
+			I += 2. * (1.5 - std::log(2. * J0)) / two_pi * J0 * J0 * (Nxi0 * Neta0.transpose()) * wu;
+		} // loop over i
+
+		return I;
+	}
+};
 
 
 /** \brief Galerkin face match singular integral of the 2D Laplace SLP kernel over a constant line element */
@@ -439,10 +526,10 @@ public:
 	static double eval(line_1_elem const &elem)
 	{
 		using namespace boost::math::double_constants;
-		
+
 		auto const &C = elem.get_coords();
 		double d = (C.col(1) - C.col(0)).norm();	// element length
-		return d*d*(1.5-std::log(d)) / two_pi;
+		return d * d * (1.5 - std::log(d)) / two_pi;
 	}
 };
 
@@ -459,10 +546,10 @@ public:
 	static void eval(line_1_elem const &elem, double &i1, double &i2)
 	{
 		using namespace boost::math::double_constants;
-		
+
 		auto const &C = elem.get_coords();
 		double d = (C.col(1) - C.col(0)).norm();	// element length
-		double c = d*d/(8.*pi);
+		double c = d * d / (8. * pi);
 		double lnd = std::log(d);
 		i1 = c * (1.75 - lnd);
 		i2 = c * (1.25 - lnd);
@@ -472,101 +559,102 @@ public:
 /** \brief Galerkin integral of the 2D SLP kernel over a constant line with edge match */
 class laplace_2d_SLP_galerkin_edge_constant_line
 {
-    static double qfunc(double a, double phi)
-    {
+	static double qfunc(double a, double phi)
+	{
 		using namespace boost::math::double_constants;
-		
-    	if (std::abs(phi) < 1e-3)
-    		return a / (a + 1.);
-    	double cotphi = std::tan(half_pi - phi);
-        return std::atan(a/std::sin(phi) + cotphi) - std::atan(cotphi);
-    }
+
+		if (std::abs(phi) < 1e-3)
+			return a / (a + 1.);
+		double cotphi = std::tan(half_pi - phi);
+		return std::atan(a / std::sin(phi) + cotphi) - std::atan(cotphi);
+	}
 
 public:
-    /** \brief evaluate the integral on two elements */
-    static double eval(line_1_elem const &elem1, line_1_elem const &elem2)
-    {
+	/** \brief evaluate the integral on two elements */
+	static double eval(line_1_elem const &elem1, line_1_elem const &elem2)
+	{
 		using namespace boost::math::double_constants;
-		
+
 		// get the element corner coordinates
-        auto const &C1 = elem1.get_coords();
-        auto const &C2 = elem2.get_coords();
-        // and side vectors
-        auto r1vec = (C1.col(1) - C1.col(0)), r2vec = (C2.col(1) - C2.col(0));
-        // and side lengths
-        double r1 = r1vec.norm(), r2 = r2vec.norm();
-        // and signed angle between them
-        double phi = std::asin(r1vec(0)*r2vec(1)-r2vec(0)*r1vec(1))/(r1*r2);
+		auto const &C1 = elem1.get_coords();
+		auto const &C2 = elem2.get_coords();
+		// and side vectors
+		auto r1vec = (C1.col(1) - C1.col(0)), r2vec = (C2.col(1) - C2.col(0));
+		// and side lengths
+		double r1 = r1vec.norm(), r2 = r2vec.norm();
+		// and signed angle between them
+		double phi = std::asin(r1vec(0) * r2vec(1) - r2vec(0) * r1vec(1)) / (r1 * r2);
 		// third side length
-		double r3 = std::sqrt(r1*r1 + 2*r1*r2*std::cos(phi) + r2*r2);
+		double r3 = std::sqrt(r1 * r1 + 2 * r1 * r2 * std::cos(phi) + r2 * r2);
 		return (
-			r1*r2*(3.-2.*std::log(r3))
-			+ std::cos(phi) * (r1*r1*std::log(r1/r3)+r2*r2*std::log(r2/r3))
-			- std::sin(phi) * (r1*r1*qfunc(r2/r1, phi) + r2*r2*qfunc(r1/r2, phi))
-		) / (4.*pi);
-    }
+			r1 * r2 * (3. - 2. * std::log(r3))
+			+ std::cos(phi) * (r1 * r1 * std::log(r1 / r3) + r2 * r2 * std::log(r2 / r3))
+			- std::sin(phi) * (r1 * r1 * qfunc(r2 / r1, phi) + r2 * r2 * qfunc(r1 / r2, phi))
+			) / (4. * pi);
+	}
 };
 
 /** \brief Galerkin integral of the 2D DLP kernel over a constant line with edge match */
 class laplace_2d_DLP_galerkin_edge_constant_line
 {
-    static double qfunc(double a, double phi)
-    {
+	static double qfunc(double a, double phi)
+	{
 		using namespace boost::math::double_constants;
-		
-    	if (std::abs(phi) < 1e-3)
-    		return a / (a + 1.);
-    	double cotphi = std::tan(half_pi - phi);
-        return std::atan(a/std::sin(phi) + cotphi) - std::atan(cotphi);
-    }
+
+		if (std::abs(phi) < 1e-3)
+			return a / (a + 1.);
+		double cotphi = std::tan(half_pi - phi);
+		return std::atan(a / std::sin(phi) + cotphi) - std::atan(cotphi);
+	}
 
 public:
-    /** \brief evaluate the integral on two elements */
-    static double eval(line_1_elem const &elem1, line_1_elem const &elem2)
-    {
+	/** \brief evaluate the integral on two elements */
+	static double eval(line_1_elem const &elem1, line_1_elem const &elem2)
+	{
 		using namespace boost::math::double_constants;
-		
+
 		// get element corners
-        auto const &C1 = elem1.get_coords();
-        auto const &C2 = elem2.get_coords();
-        // get side vectors
-        auto r1vec = (C1.col(1) - C1.col(0)), r2vec = (C2.col(1) - C2.col(0));
-        // get side lengths
-        double r1 = r1vec.norm(), r2 = r2vec.norm();
-        // get angle between elements
-        double phi = std::asin(r1vec(0)*r2vec(1)-r2vec(0)*r1vec(1))/(r1*r2);
+		auto const &C1 = elem1.get_coords();
+		auto const &C2 = elem2.get_coords();
+		// get side vectors
+		auto r1vec = (C1.col(1) - C1.col(0)), r2vec = (C2.col(1) - C2.col(0));
+		// get side lengths
+		double r1 = r1vec.norm(), r2 = r2vec.norm();
+		// get angle between elements
+		double phi = std::asin(r1vec(0) * r2vec(1) - r2vec(0) * r1vec(1)) / (r1 * r2);
 		// general expression
-		double r3 = std::sqrt(r1*r1 + 2*r1*r2*std::cos(phi) + r2*r2);
+		double r3 = std::sqrt(r1 * r1 + 2 * r1 * r2 * std::cos(phi) + r2 * r2);
 		double res = (
-			r2*std::cos(phi) * qfunc(r1/r2, phi)
-			- r1 * qfunc(r2/r1, phi)
-			+ r2*std::sin(phi) * std::log(r2/r3)
-		) / two_pi;
-		
+			r2 * std::cos(phi) * qfunc(r1 / r2, phi)
+			- r1 * qfunc(r2 / r1, phi)
+			+ r2 * std::sin(phi) * std::log(r2 / r3)
+			) / two_pi;
+
 		if (elem1.get_nodes()(0) == elem2.get_nodes()(1))
 			res *= -1;
-		
+
 		return res;
-    }
+	}
 };
+
 
 
 /** \brief Collocational singular integral of the 3D Laplace SLP kernel over a constant plane element */
 class laplace_3d_SLP_collocation_constant_plane
 {
 public:
-    /**
-     * \brief Evaluate the integral
-     * \param [in] elem the line element
-     * \param [in] x0 the singular point
-     * \return the integral value
-     */
+	/**
+	 * \brief Evaluate the integral
+	 * \param [in] elem the line element
+	 * \param [in] x0 the singular point
+	 * \return the integral value
+	 */
 	template <class elem_t>
 	static double eval(elem_t const &elem, typename elem_t::x_t const &x0)
 	{
 		using namespace boost::math::double_constants;
-		
-		enum { N = elem_t::domain_t::num_corners  };
+
+		enum { N = elem_t::domain_t::num_corners };
 		double r[N], theta[N], alpha[N], result = 0.;
 		plane_element_helper(elem, x0, r, theta, alpha);
 
@@ -574,7 +662,7 @@ public:
 			result += r[i] * std::sin(alpha[i]) *
 			std::log(std::tan((alpha[i] + theta[i]) / 2.) / std::tan(alpha[i] / 2.));
 
-		return result / (4.*pi);
+		return result / (4. * pi);
 	}
 };
 
@@ -582,17 +670,17 @@ public:
 class laplace_3d_HSP_collocation_constant_plane
 {
 public:
-    /**
-     * \brief Evaluate the integral
-     * \param [in] elem the line element
-     * \param [in] x0 the singular point
-     * \return the integral value
-     */
+	/**
+	 * \brief Evaluate the integral
+	 * \param [in] elem the line element
+	 * \param [in] x0 the singular point
+	 * \return the integral value
+	 */
 	template <class elem_t>
 	static double eval(elem_t const &elem, typename elem_t::x_t const &x0)
 	{
 		using namespace boost::math::double_constants;
-		
+
 		enum { N = elem_t::domain_t::num_corners };
 		double r[N], theta[N], alpha[N], result = 0.;
 		plane_element_helper(elem, x0, r, theta, alpha);
@@ -600,7 +688,7 @@ public:
 		for (unsigned i = 0; i < N; ++i)
 			result += (std::cos(alpha[i] + theta[i]) - std::cos(alpha[i])) / (r[i] * std::sin(alpha[i]));
 
-		return result / (4.*pi);
+		return result / (4. * pi);
 	}
 };
 
@@ -613,8 +701,8 @@ template <class TestField, class TrialField>
 class singular_integral_shortcut<
 	laplace_2d_SLP_kernel, TestField, TrialField, match::match_1d_type,
 	typename std::enable_if<
-		std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
-		std::is_same<typename TrialField::elem_t::lset_t, line_1_shape_set>::value
+	std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
+	std::is_same<typename TrialField::elem_t::lset_t, line_1_shape_set>::value
 	>::type
 >
 {
@@ -649,8 +737,8 @@ template <class TestField, class TrialField>
 class singular_integral_shortcut<
 	laplace_2d_SLP_kernel, TestField, TrialField, match::match_1d_type,
 	typename std::enable_if<
-		std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
-		!std::is_same<typename TrialField::elem_t::lset_t, line_1_shape_set>::value
+	std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
+	!std::is_same<typename TrialField::elem_t::lset_t, line_1_shape_set>::value
 	>::type
 >
 {
@@ -781,7 +869,7 @@ public:
 		field_base<TrialField> const &trial_field,
 		element_match const &match)
 	{
-		result(0,0) = laplace_2d_SLP_galerkin_edge_constant_line::eval(
+		result(0, 0) = laplace_2d_SLP_galerkin_edge_constant_line::eval(
 			test_field.get_elem(), trial_field.get_elem());
 		return result;
 	}
@@ -821,7 +909,7 @@ public:
 		field_base<TrialField> const &trial_field,
 		element_match const &match)
 	{
-		result(0,0) = laplace_2d_DLP_galerkin_edge_constant_line::eval(
+		result(0, 0) = laplace_2d_DLP_galerkin_edge_constant_line::eval(
 			test_field.get_elem(), trial_field.get_elem());
 		return result;
 	}
@@ -836,9 +924,9 @@ template <class TestField, class TrialField>
 class singular_integral_shortcut<
 	laplace_2d_HSP_kernel, TestField, TrialField, match::match_1d_type,
 	typename std::enable_if<
-		std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
-		std::is_same<typename TrialField::elem_t::lset_t, line_1_shape_set>::value &&
-		std::is_same<typename TrialField::nset_t, line_0_shape_set>::value
+	std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
+	std::is_same<typename TrialField::elem_t::lset_t, line_1_shape_set>::value &&
+	std::is_same<typename TrialField::nset_t, line_0_shape_set>::value
 	>::type
 >
 {
@@ -872,9 +960,9 @@ template <class TestField, class TrialField>
 class singular_integral_shortcut<
 	laplace_2d_HSP_kernel, TestField, TrialField, match::match_1d_type,
 	typename std::enable_if<
-		std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
-		std::is_same<typename TrialField::elem_t::lset_t, line_1_shape_set>::value &&
-		TrialField::nset_t::polynomial_degree == 1
+	std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
+	std::is_same<typename TrialField::elem_t::lset_t, line_1_shape_set>::value &&
+	TrialField::nset_t::polynomial_degree == 1
 	>::type
 >
 {
@@ -936,9 +1024,9 @@ template <class TestField, class TrialField>
 class singular_integral_shortcut<
 	laplace_3d_SLP_kernel, TestField, TrialField, match::match_2d_type,
 	typename std::enable_if<
-		std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
-		std::is_same<typename TrialField::elem_t::lset_t, tria_1_shape_set>::value &&
-		std::is_same<typename TrialField::nset_t, tria_0_shape_set>::value
+	std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
+	std::is_same<typename TrialField::elem_t::lset_t, tria_1_shape_set>::value &&
+	std::is_same<typename TrialField::nset_t, tria_0_shape_set>::value
 	>::type
 >
 {
@@ -972,9 +1060,9 @@ template <class TestField, class TrialField>
 class singular_integral_shortcut<
 	laplace_3d_HSP_kernel, TestField, TrialField, match::match_2d_type,
 	typename std::enable_if<
-		std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
-		std::is_same<typename TrialField::elem_t::lset_t, tria_1_shape_set>::value &&
-		std::is_same<typename TrialField::nset_t, tria_0_shape_set>::value
+	std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
+	std::is_same<typename TrialField::elem_t::lset_t, tria_1_shape_set>::value &&
+	std::is_same<typename TrialField::nset_t, tria_0_shape_set>::value
 	>::type
 >
 {
@@ -1008,9 +1096,9 @@ template <class TestField, class TrialField>
 class singular_integral_shortcut<
 	laplace_3d_Gxx_kernel, TestField, TrialField, match::match_2d_type,
 	typename std::enable_if<
-		std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
-		std::is_same<typename TrialField::elem_t::lset_t, tria_1_shape_set>::value &&
-		std::is_same<typename TrialField::nset_t, tria_0_shape_set>::value
+	std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
+	std::is_same<typename TrialField::elem_t::lset_t, tria_1_shape_set>::value &&
+	std::is_same<typename TrialField::nset_t, tria_0_shape_set>::value
 	>::type
 >
 {
@@ -1044,8 +1132,8 @@ template <class TestField, class TrialField>
 class singular_integral_shortcut<
 	laplace_3d_HSP_kernel, TestField, TrialField, match::match_2d_type,
 	typename std::enable_if<
-		std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
-		!(std::is_same<typename TrialField::elem_t::lset_t, tria_1_shape_set>::value &&
+	std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
+	!(std::is_same<typename TrialField::elem_t::lset_t, tria_1_shape_set>::value &&
 		std::is_same<typename TrialField::nset_t, tria_0_shape_set>::value)
 	>::type
 >
