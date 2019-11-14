@@ -425,6 +425,66 @@ public:
 
 
 
+/** \brief Collocational singular integral of the 3D Laplace SLP kernel over a constant plane element */
+class laplace_3d_SLP_collocation_constant_plane
+{
+public:
+	/**
+	 * \brief Evaluate the integral
+	 * \param [in] elem the line element
+	 * \param [in] x0 the singular point
+	 * \return the integral value
+	 */
+	template <class elem_t>
+	static double eval(elem_t const &elem, typename elem_t::x_t const &x0)
+	{
+		using namespace boost::math::double_constants;
+
+		enum { N = elem_t::domain_t::num_corners };
+		double r[N], theta[N], alpha[N], result = 0.;
+		plane_element_helper(elem, x0, r, theta, alpha);
+
+		for (unsigned i = 0; i < N; ++i)
+			result += r[i] * std::sin(alpha[i]) *
+			std::log(std::tan((alpha[i] + theta[i]) / 2.) / std::tan(alpha[i] / 2.));
+
+		return result / (4. * pi);
+	}
+};
+
+/** \brief Collocational singular integral of the 3D Laplace HSP kernel over a constant planar element */
+class laplace_3d_HSP_collocation_constant_plane
+{
+public:
+	/**
+	 * \brief Evaluate the integral
+	 * \param [in] elem the line element
+	 * \param [in] x0 the singular point
+	 * \return the integral value
+	 */
+	template <class elem_t>
+	static double eval(elem_t const &elem, typename elem_t::x_t const &x0)
+	{
+		using namespace boost::math::double_constants;
+
+		enum { N = elem_t::domain_t::num_corners };
+		double r[N], theta[N], alpha[N], result = 0.;
+		plane_element_helper(elem, x0, r, theta, alpha);
+
+		for (unsigned i = 0; i < N; ++i)
+			result += (std::cos(alpha[i] + theta[i]) - std::cos(alpha[i])) / (r[i] * std::sin(alpha[i]));
+
+		return result / (4. * pi);
+	}
+};
+
+
+
+/** \brief face match double singular integral of the 2D Laplace SLP kernel
+ * \tparam TestField the test field type
+ * \tparam TrialField the trial field type
+ * \tparam order the quadrature order
+ */
 template <class TestField, class TrialField, size_t order>
 class laplace_2d_SLP_galerkin_face_general
 {
@@ -514,7 +574,7 @@ public:
 };
 
 
-/** \brief Galerkin face match singular integral of the 2D Laplace SLP kernel over a constant line element */
+/** \brief face match double singular integral of the 2D Laplace SLP kernel over a constant line element */
 class laplace_2d_SLP_galerkin_face_constant_line
 {
 public:
@@ -533,16 +593,16 @@ public:
 	}
 };
 
-/** \brief Galerkin face match singular integral of the 2D Laplace SLP kernel over a linear line element */
+/** \brief face match double singular integral of the 2D Laplace SLP kernel over a linear line element */
 class laplace_2d_SLP_galerkin_face_linear_line
 {
 public:
 	/**
-	* \brief Evaluate the integral
-	* \param [in] elem the line element
-	* \param [out] i1 the diagonal elem of the result
-	* \param [out] i2 the off-diagonal elem of the result
-	*/
+	 * \brief Evaluate the integral
+	 * \param [in] elem the line element
+	 * \param [out] i1 the diagonal elem of the result
+	 * \param [out] i2 the off-diagonal elem of the result
+	 */
 	static void eval(line_1_elem const &elem, double &i1, double &i2)
 	{
 		using namespace boost::math::double_constants;
@@ -556,7 +616,7 @@ public:
 	}
 };
 
-/** \brief Galerkin integral of the 2D SLP kernel over a constant line with edge match */
+/** \brief edge match double singular integral of the 2D SLP kernel over constant lines */
 class laplace_2d_SLP_galerkin_edge_constant_line
 {
 	static double qfunc(double a, double phi)
@@ -594,7 +654,7 @@ public:
 	}
 };
 
-/** \brief Galerkin integral of the 2D DLP kernel over a constant line with edge match */
+/** \brief edge match double singular integral of the 2D DLP kernel over a constant lines */
 class laplace_2d_DLP_galerkin_edge_constant_line
 {
 	static double qfunc(double a, double phi)
@@ -638,59 +698,6 @@ public:
 };
 
 
-
-/** \brief Collocational singular integral of the 3D Laplace SLP kernel over a constant plane element */
-class laplace_3d_SLP_collocation_constant_plane
-{
-public:
-	/**
-	 * \brief Evaluate the integral
-	 * \param [in] elem the line element
-	 * \param [in] x0 the singular point
-	 * \return the integral value
-	 */
-	template <class elem_t>
-	static double eval(elem_t const &elem, typename elem_t::x_t const &x0)
-	{
-		using namespace boost::math::double_constants;
-
-		enum { N = elem_t::domain_t::num_corners };
-		double r[N], theta[N], alpha[N], result = 0.;
-		plane_element_helper(elem, x0, r, theta, alpha);
-
-		for (unsigned i = 0; i < N; ++i)
-			result += r[i] * std::sin(alpha[i]) *
-			std::log(std::tan((alpha[i] + theta[i]) / 2.) / std::tan(alpha[i] / 2.));
-
-		return result / (4. * pi);
-	}
-};
-
-/** \brief Collocational singular integral of the 3D Laplace HSP kernel over a constant planar element */
-class laplace_3d_HSP_collocation_constant_plane
-{
-public:
-	/**
-	 * \brief Evaluate the integral
-	 * \param [in] elem the line element
-	 * \param [in] x0 the singular point
-	 * \return the integral value
-	 */
-	template <class elem_t>
-	static double eval(elem_t const &elem, typename elem_t::x_t const &x0)
-	{
-		using namespace boost::math::double_constants;
-
-		enum { N = elem_t::domain_t::num_corners };
-		double r[N], theta[N], alpha[N], result = 0.;
-		plane_element_helper(elem, x0, r, theta, alpha);
-
-		for (unsigned i = 0; i < N; ++i)
-			result += (std::cos(alpha[i] + theta[i]) - std::cos(alpha[i])) / (r[i] * std::sin(alpha[i]));
-
-		return result / (4. * pi);
-	}
-};
 
 
 /** \brief collocational singular integral of the 2D SLP kernel over a straight line

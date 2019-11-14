@@ -145,8 +145,8 @@ TEST(laplace_2d_elem_integrals, singular_2d_SLP_galerkin)
 	// check that analytical and general formulations yield the same result
 	// for line_1 element with constant shape function
 	typedef NiHu::line_1_elem elem_t;
-	typedef NiHu::field<elem_t, NiHu::line_0_shape_set> test_field_t;
-	typedef NiHu::field<elem_t, NiHu::line_0_shape_set> trial_field_t;
+	typedef NiHu::field<elem_t, NiHu::line_1_shape_set> test_field_t;
+	typedef NiHu::field<elem_t, NiHu::line_1_shape_set> trial_field_t;
 
 	elem_t::coords_t coords;
 	coords <<
@@ -158,10 +158,11 @@ TEST(laplace_2d_elem_integrals, singular_2d_SLP_galerkin)
 		test_field_t, trial_field_t, 8
 	>::eval(elem);
 
-	double d = NiHu::laplace_2d_SLP_galerkin_face_constant_line::eval(elem);
+	double d1, d2;
+	NiHu::laplace_2d_SLP_galerkin_face_linear_line::eval(elem, d1, d2);
 
 	std::cout << res1 << std::endl;
-	std::cout << d << std::endl;
+	std::cout << d1 << ' ' << d2 << std::endl;
 }
 
 
