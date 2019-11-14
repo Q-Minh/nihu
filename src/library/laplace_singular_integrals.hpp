@@ -489,7 +489,7 @@ public:
 					x_t y = elem.get_x(eta);
 					double G = laplace_2d_SLP_kernel()(x, y);
 					double Jxi = elem.get_dx(xi).norm();
-					double Jeta = elem.get_dx(xi).norm();
+					double Jeta = elem.get_dx(eta).norm();
 					auto Nxi = test_shape_t::template eval_shape<0>(xi);
 					auto Neta = trial_shape_t::template eval_shape<0>(eta);
 
@@ -507,7 +507,7 @@ public:
 
 			// compensate with analytical inner integral of the regular part
 			I += 2. * (1.5 - std::log(2. * J0)) / two_pi * J0 * J0 * (Nxi0 * Neta0.transpose()) * wu;
-		} // loop over i
+		} // loop over u
 
 		return I;
 	}
