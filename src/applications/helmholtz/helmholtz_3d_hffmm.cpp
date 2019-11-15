@@ -11,57 +11,7 @@
 #include <boost/math/constants/constants.hpp>
 #include <boost/program_options.hpp>
 
-#include <cstdlib>
-
 //#define GAUSS
-
-typedef Eigen::Matrix<unsigned, Eigen::Dynamic, Eigen::Dynamic> uMatrix;
-typedef Eigen::Matrix<std::complex<double>, Eigen::Dynamic, 1> cVector;
-typedef Eigen::Matrix<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic> cMatrix;
-typedef Eigen::Matrix<double, Eigen::Dynamic, 1> dVector;
-typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> dMatrix;
-
-#ifdef GAUSS
-void read_off_data(std::string const &fname, dMatrix &nodes, uMatrix &elements)
-{
-	// open mesh file for reading
-	std::ifstream is(fname);
-	if (!is)
-		throw std::runtime_error("Error reading mesh file");
-
-	// read header from file (first row is 'OFF')
-	std::string header;
-	if (!(is >> header) || header != "OFF")
-		throw std::runtime_error("Possibly invalid off file");
-
-	// read number of nodes and number of elements, nEdges is dropped
-	unsigned nNodes, nElements, nEdges;
-	if (!(is >> nNodes >> nElements >> nEdges))
-		throw std::runtime_error("Error reading number of mesh entries");
-
-	// read nodes
-	nodes.resize(nNodes, 3);
-	for (unsigned i = 0; i < nNodes; ++i)
-		if (!(is >> nodes(i, 0) >> nodes(i, 1) >> nodes(i, 2)))
-			throw std::runtime_error("Error reading mesh nodes");
-
-	// read elements
-	elements.resize(nElements, 5);
-	for (unsigned i = 0; i < nElements; ++i)
-	{
-		unsigned nvert;
-		if (!(is >> nvert))
-			throw std::runtime_error("Error reading mesh elements");
-		for (unsigned c = 0; c < nvert; ++c)
-			if (!(is >> elements(i, c + 1)))
-				throw std::runtime_error("Error reading mesh elements");
-		elements(i, 0) = NiHu::quad_1_elem::id;
-	}
-
-	is.close();
-}
-#endif
-
 
 // basic type parameter inputs
 typedef double wave_number_t;
@@ -151,7 +101,7 @@ int main(int argc, char *argv[])
 		// read mesh file
 		uMatrix elements;
 		dMatrix nodes;
-		read_off_data(surf_mesh_name, nodes, elements);
+		read_off_data(surf_mesh_name, nodes, elements, NiHu::quad_1_tag());
 
 		// assemble field matrix
 		size_t nElements = elements.rows();

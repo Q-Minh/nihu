@@ -400,8 +400,7 @@ template <class TestField, class TrialField>
 class nearly_singular_integral<
 	laplace_3d_SLP_kernel, TestField, TrialField,
 	typename std::enable_if<
-	is_collocational<TestField, TrialField>::value
-	&&
+	is_collocational<TestField, TrialField>::value &&
 	is_constant_tria<TrialField>::value
 	>::type
 >

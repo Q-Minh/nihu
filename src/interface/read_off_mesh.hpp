@@ -75,19 +75,12 @@ unsigned nvert2elem_id(unsigned nvert, Tags...tags)
 	return internal::nvert2elem_id_impl<Tags...>::eval(nvert);
 }
 
+typedef Eigen::Matrix<unsigned, Eigen::Dynamic, Eigen::Dynamic> uMatrix;
+typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> dMatrix;
 
-/** \brief Read mesh from OFF format
- * \tparam Tags the element tags to import
- * \param [in] fname the file name
- * \param [in] is the input stream
- * \return the imported mesh
- */
 template <class...Tags>
-mesh<tmp::vector<typename tag2type<Tags>::type...> >
-read_off_mesh(std::istream &is, Tags...tags)
+void read_off_data(std::istream &is, dMatrix &nodes, uMatrix &elements, Tags...tags)
 {
-	typedef Eigen::Matrix<unsigned, Eigen::Dynamic, Eigen::Dynamic> uMatrix;
-
 	// read header from file (first row is 'OFF')
 	std::string header;
 	if (!(is >> header) || header != "OFF")
@@ -99,13 +92,11 @@ read_off_mesh(std::istream &is, Tags...tags)
 		throw std::runtime_error("Error reading number of mesh entries");
 
 	// read nodes
-	Eigen::MatrixXd nodes(nNodes, 3);
 	for (unsigned i = 0; i < nNodes; ++i)
 		if (!(is >> nodes(i, 0) >> nodes(i, 1) >> nodes(i, 2)))
 			throw std::runtime_error("Error reading mesh nodes");
 
 	// read elements
-	uMatrix elements(nElements, 5);
 	for (unsigned i = 0; i < nElements; ++i)
 	{
 		unsigned nvert;
@@ -116,6 +107,31 @@ read_off_mesh(std::istream &is, Tags...tags)
 				throw std::runtime_error("Error reading mesh elements");
 		elements(i, 0) = nvert2elem_id(nvert, tags...);
 	}
+}
+
+template <class...Tags>
+void read_off_data(std::string const &fname, dMatrix &nodes, uMatrix &elements, Tags...tags)
+{
+	std::ifstream ifs(fname);
+	read_off_data(ifs, nodes, elements, tags...);
+	ifs.close();
+}
+
+
+/** \brief Read mesh from OFF format
+ * \tparam Tags the element tags to import
+ * \param [in] fname the file name
+ * \param [in] is the input stream
+ * \return the imported mesh
+ */
+template <class...Tags>
+mesh<tmp::vector<typename tag2type<Tags>::type...> >
+read_off_mesh(std::istream &is, Tags...tags)
+{
+	uMatrix elements;
+	dMatrix nodes;
+
+	read_off_data(is, nodes, elements, tags...);
 
 	// create and return the mesh
 	return create_mesh(nodes, elements, tags...);
@@ -140,7 +156,7 @@ mesh<tmp::vector<typename tag2type<Tags>::type...> >
 	return read_off_mesh(is, tags...);
 }
 
-}
+} // namespace NiHu
 
 #endif // READ_OFF_MESH_HPP_INCLUDED
 

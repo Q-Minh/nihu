@@ -87,6 +87,10 @@ if(NOT DEFINED NIHU_DISABLE_TUTORIALS)
 	add_subdirectory(tutorial)
 endif()
 
+if(NOT DEFINED NIHU_DISABLE_APPLICATIONS)
+	add_subdirectory(applications/helmholtz)
+endif()
+
 ### Test section
 if(NIHU_ENABLE_TESTING)
 	include(NiHuTesting)

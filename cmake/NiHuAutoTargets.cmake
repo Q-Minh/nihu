@@ -60,10 +60,16 @@ foreach (cpp_source ${CPP_SOURCES})
 		install(TARGETS ${target_mex_name} DESTINATION ${current_dir})
 	
 		# Check if a corresponding .m file is present
-		set(target_mfile "${target_mex_name}_test.m")
+		if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${target_mex_name}_app.m")
+			set(target_mfile "${target_mex_name}_app.m")
+		elseif(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${target_mex_name}_test.m")
+			set(target_mfile "${target_mex_name}_test.m")
+		else()
+			unset(target_mfile)
+		endif()
 
 		# if there is a tester file
-		if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${target_mfile}")
+		if(target_mfile)
 			# Copy the target m file to the build directory
 			ADD_CUSTOM_COMMAND(
 				TARGET ${target_mex_name}
