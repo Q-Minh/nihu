@@ -131,7 +131,7 @@ class field_center_iterator
 	: public std::iterator<std::forward_iterator_tag, typename It::value_type::elem_t::x_t>
 	, private It
 {
-	typedef typename It::value_t field_t;
+	typedef typename It::value_type field_t;
 	typedef typename field_t::elem_t elem_t;
 	typedef typename elem_t::x_t x_t;
 

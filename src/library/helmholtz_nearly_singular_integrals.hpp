@@ -35,11 +35,6 @@
 #include "../core/nearly_singular_planar_constant_collocation_shortcut.hpp"
 
 
-// #define DEBUG_TELLES_PRINT
-#ifdef DEBUG_TELLES_PRINT
-#include <iostream>
-#endif
-
 namespace NiHu
 {
 
@@ -399,8 +394,6 @@ public:
 		field_base<TrialField> const &trial_field
 		)
 	{
-		static bool is_printed = false;
-		
 		typedef nearly_singular_collocational_telles<TrialField, kernel_t, 30> nsc_t;
 		nsc_t nsc(trial_field, kernel);
 		
@@ -502,8 +495,6 @@ public:
 		field_base<TrialField> const &trial_field
 		)
 	{
-		static bool is_printed = false;
-		
 		typedef nearly_singular_collocational_telles<TrialField, kernel_t, 30> nsc_t;
 		nsc_t nsc(trial_field, kernel);
 		
@@ -603,8 +594,6 @@ public:
 		field_base<TrialField> const &trial_field
 		)
 	{
-		static bool is_printed = false;
-		
 		typedef nearly_singular_collocational_telles<TrialField, kernel_t, 30> nsc_t;
 		nsc_t nsc(trial_field, kernel);
 		
