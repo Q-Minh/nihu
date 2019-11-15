@@ -91,6 +91,9 @@ void read_off_data(std::istream &is, dMatrix &nodes, uMatrix &elements, Tags...t
 	if (!(is >> nNodes >> nElements >> nEdges))
 		throw std::runtime_error("Error reading number of mesh entries");
 
+	nodes.resize(nNodes, 3);
+	elements.resize(nElements, 5);
+
 	// read nodes
 	for (unsigned i = 0; i < nNodes; ++i)
 		if (!(is >> nodes(i, 0) >> nodes(i, 1) >> nodes(i, 2)))
@@ -132,6 +135,7 @@ read_off_mesh(std::istream &is, Tags...tags)
 	dMatrix nodes;
 
 	read_off_data(is, nodes, elements, tags...);
+
 
 	// create and return the mesh
 	return create_mesh(nodes, elements, tags...);

@@ -65,7 +65,19 @@ public:
 		: m_trial_space(trial_space)
 		, m_test_space(dirac(m_trial_space))
 		, m_wave_number(0.0)
+		, m_restart(3000)
+		, m_tolerance(1e-8)
 	{
+	}
+
+	void set_restart(size_t restart)
+	{
+		m_restart = restart;
+	}
+
+	void set_tolerance(double tolerance)
+	{
+		m_tolerance = tolerance;
 	}
 
 	void set_wave_number(double k)
@@ -200,8 +212,8 @@ public:
 		auto M = create_matrix_free(dlp_matrix);
 
 		Eigen::GMRES<decltype(M), Eigen::IdentityPreconditioner > solver(M);
-		solver.setTolerance(1e-8);
-		solver.set_restart(3000);
+		solver.setTolerance(m_tolerance);
+		solver.set_restart(m_restart);
 		m_response = solver.solve(rhs);
 		m_iters = solver.iterations();
 
@@ -221,6 +233,8 @@ private:
 	excitation_t m_excitation;
 	response_t m_response;
 	size_t m_iters;
+	size_t m_restart;
+	double m_tolerance;
 };
 
 template <class FmmTag, class TrialSpace>
