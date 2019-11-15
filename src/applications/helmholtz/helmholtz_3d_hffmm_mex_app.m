@@ -7,26 +7,26 @@ radiator = create_sphere_boundary(1, 30);
 %field = revolve_mesh(create_line([1.125, 0, 0; 3.625, 0, 0], 40), pi/100, 50, [0 0 1]);
 
 %%
-helmholtz_3d_hf_fmm_matlab('init');
+helmholtz_3d_hffmm_mex('init');
 
 [r_nodes, r_elems] = extract_core_mesh(radiator, 'surface');
 %[f_nodes, f_elems] = extract_core_mesh(field);
 %%
 accuracy = 3.0;
 k = .8 * min(mesh_kmax(radiator));
-helmholtz_3d_hf_fmm_matlab('set', ...
+helmholtz_3d_hffmm_mex('set', ...
     'accuracy', 3.0, 'wave_number', k);
 
 %%
-helmholtz_3d_hf_fmm_matlab('mesh', r_nodes, r_elems);
+helmholtz_3d_hffmm_mex('mesh', r_nodes, r_elems);
 
 
 %%
 leaf_diameter = 1 / k;
-helmholtz_3d_hf_fmm_matlab('tree', 'divide_diameter', leaf_diameter);
+helmholtz_3d_hffmm_mex('tree', 'divide_diameter', leaf_diameter);
 %%
 fprintf('Assembling FMM matrices ... '); tic;
-helmholtz_3d_hf_fmm_matlab('matrix');
+helmholtz_3d_hffmm_mex('matrix');
 fprintf('Ready in %.3f seconds\n', toc);
 
 %% Prepare excitation and right hand side vector
@@ -35,11 +35,11 @@ x_src = [.2 .3 .6];
 
 [p_ana, q] = incident('point', x_src, centers, normals, k);
 
-rhs = helmholtz_3d_hf_fmm_matlab('mvp_slp', q);
+rhs = helmholtz_3d_hffmm_mex('mvp_slp', q);
 
 %% Prepare solver 
 fprintf('Solving FMBEM system ... '); tic;
-Afun = @(x)helmholtz_3d_hf_fmm_matlab('mvp_dlp', ensure_complex(x));
+Afun = @(x)helmholtz_3d_hffmm_mex('mvp_dlp', ensure_complex(x));
 [p_bem, flag, relres, iter, resvec] = gmres(Afun, rhs, [], 1e-8, 1000);
 fprintf('Ready in %.3f seconds.\n', toc);
 
@@ -57,7 +57,7 @@ err = norm(p_ana-p_bem)/norm(p_ana);
 fprintf('Relative error on surface: %.2f %%\n', err*100);
 
 %%
-helmholtz_3d_hf_fmm_matlab('cleanup');
+helmholtz_3d_hffmm_mex('cleanup');
 
 %%
 %clear mex;
