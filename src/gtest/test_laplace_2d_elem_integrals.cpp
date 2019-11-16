@@ -31,12 +31,12 @@ TEST(laplace_2d_elem_integrals, singular_2d_SLP_collocation)
 			0.0, 0.0;
 	elem_t elem(coords);
 	
-	auto res1 = NiHu::laplace_2d_SLP_collocation_straight_line_second_order<
+	auto res1 = NiHu::laplace_2d_SLP_collocation_straight<
 		gauss_field_t,
 		NiHu::field<elem_t, NiHu::line_0_shape_set>
 	>::eval(elem);
 	
-	auto res2 = NiHu::laplace_2d_SLP_collocation_general<
+	auto res2 = NiHu::laplace_2d_SLP_collocation_curved<
 		gauss_field_t,
 		NiHu::field<elem_t, NiHu::line_0_shape_set>,
 		1
@@ -47,12 +47,12 @@ TEST(laplace_2d_elem_integrals, singular_2d_SLP_collocation)
 	
 	// check that analytical and general formulations yield the same result
 	// for line_1 element with max. second order shape functions
-	auto res3 = NiHu::laplace_2d_SLP_collocation_straight_line_second_order<
+	auto res3 = NiHu::laplace_2d_SLP_collocation_straight<
 		gauss_field_t,
 		NiHu::field<elem_t, NiHu::line_2_shape_set>
 	>::eval(elem);
 	
-	auto res4 = NiHu::laplace_2d_SLP_collocation_general<
+	auto res4 = NiHu::laplace_2d_SLP_collocation_curved<
 		gauss_field_t,
 		NiHu::field<elem_t, NiHu::line_2_shape_set>,
 		1
@@ -76,7 +76,7 @@ TEST(laplace_2d_elem_integrals, singular_2d_SLP_collocation)
 	
 	double q = 1./two_pi * (.3 * (1-std::log(.3)) + .7 * (1.-std::log(.7)));
 	
-	auto res6 = NiHu::laplace_2d_SLP_collocation_general<
+	auto res6 = NiHu::laplace_2d_SLP_collocation_curved<
 		test_field_2_t,
 		NiHu::field<elem_2_t, NiHu::line_0_shape_set>,
 		10
@@ -155,7 +155,7 @@ TEST(laplace_2d_elem_integrals, singular_2d_SLP_galerkin)
 	elem_t elem(coords);
 
 	auto res1 = NiHu::laplace_2d_SLP_galerkin_face_general<
-		test_field_t, trial_field_t, 8
+		test_field_t, trial_field_t, 10
 	>::eval(elem);
 
 	double d1, d2;

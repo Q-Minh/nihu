@@ -1,4 +1,5 @@
 // This file is a part of NiHu, a C++ BEM template library.
+// This file is a part of NiHu, a C++ BEM template library.
 //
 // Copyright (C) 2012-2014  Peter Fiala <fiala@hit.bme.hu>
 // Copyright (C) 2012-2014  Peter Rucz <rucz@hit.bme.hu>
@@ -29,6 +30,7 @@
 
 #include "../core/match_types.hpp"
 #include "../core/singular_integral_shortcut.hpp"
+#include "../util/math_functions.hpp"
 #include "field_type_helpers.hpp"
 #include "guiggiani_1992.hpp"
 #include "lib_element.hpp"
@@ -50,7 +52,7 @@ namespace NiHu
  * The regular part is integrated using Gaussian quadratures
  */
 template <class TestField, class TrialField, size_t order>
-class laplace_2d_SLP_collocation_general
+class laplace_2d_SLP_collocation_curved
 {
 	typedef TestField test_field_t;
 	typedef TrialField trial_field_t;
@@ -100,68 +102,48 @@ public:
 			auto C1 = (N1 * jac0 + N0 * jac1);
 			auto C2 = (N2 * jac0 + N1 * jac1);
 
-			// traverse quadrature points
-			for (auto it = quadrature_t::quadrature.begin(); it != quadrature_t::quadrature.end(); ++it)
+			for (int dom = 0; dom < 2; ++dom)
 			{
-				// transform quadrature to [xi0 b];
-				xi_t xi = it->get_xi() * ((b(0) - xi0(0)) / 2.) + (xi0 + b) / 2.;
-				double w = it->get_w() * ((b(0) - xi0(0)) / 2.);
+				double low = xi0(0), high = domain_t::get_corner(dom)(0);
+				xi_t center;
+				center << (low + high) / 2.;
 
-				// get trial location, jacobian and normal
-				x_t y = elem.get_x(xi);
-				double jac = elem.get_dx(xi).norm();
+				// traverse quadrature points
+				for (auto it = quadrature_t::quadrature.begin(); it != quadrature_t::quadrature.end(); ++it)
+				{
+					// transform quadrature to [xi0 b];
+					xi_t xi = it->get_xi() * ((high - low) / 2.) + center;
+					double w = it->get_w() * (std::abs(high - low) / 2.);
 
-				// evaluate Green's function
-				double G = laplace_2d_SLP_kernel()(x, y);
-				// multiply Shape function
-				auto N = trial_shape_t::template eval_shape<0>(xi);
-				// evaluate integrand
-				auto F = G * N * jac;
-				// evaluate integrand's singular part
-				double rho = xi(0) - xi0(0);
-				auto F0 = -std::log(std::abs(rho) * jac0) / two_pi * (C0 + rho * (C1 + rho * C2));
+					// get trial location, jacobian and normal
+					x_t y = elem.get_x(xi);
+					double jac = elem.get_dx(xi).norm();
 
-				// integrate difference numerically
-				result.row(i) += (F - F0) * w;
-			}
+					// evaluate Green's function
+					double G = laplace_2d_SLP_kernel()(x, y);
+					// multiply Shape function
+					auto N = trial_shape_t::template eval_shape<0>(xi);
+					// evaluate integrand
+					auto F = G * N * jac;
+					// evaluate integrand's singular part
+					double rho = xi(0) - xi0(0);
+					auto F0 = -std::log(std::abs(rho) * jac0) / two_pi * (C0 + rho * (C1 + rho * C2));
 
-			// traverse quadrature points
-			for (auto it = quadrature_t::quadrature.begin(); it != quadrature_t::quadrature.end(); ++it)
-			{
-				// transform quadrature to  [a xi0]
-				xi_t xi = it->get_xi() * ((xi0(0) - a(0)) / 2.) + (xi0 + a) / 2.;
-				double w = it->get_w() * ((xi0(0) - a(0)) / 2.);
+					// integrate difference numerically
+					result.row(i) += (F - F0) * w;
+				}
 
-				// get trial location, jacobian and normal
-				x_t y = elem.get_x(xi);
-				double jac = elem.get_dx(xi).norm();
+				// add analytic integral of singular part
+				double Rho = high - low;
+				double logd = std::log(std::abs(Rho * jac0));
+				result.row(i) += NiHu::sgn(Rho) / two_pi * (
+					Rho * (C0 * (1. - logd)	
+						+ Rho * (C1 / 4. * (1. - 2. * logd) 
+							+ Rho * C2 / 9. * (1. - 3. * logd)))
+					);
 
-				// evaluate Green's function
-				double G = laplace_2d_SLP_kernel()(x, y);
-				// Shape function
-				auto N = trial_shape_t::template eval_shape<0>(xi);
-				// evaluate integrand
-				auto F = G * N * jac;
-				// evaluate singular part
-				double rho = xi(0) - xi0(0);
-				auto F0 = -std::log(std::abs(rho) * jac0) / two_pi * (C0 + rho * (C1 + rho * C2));
+			} // loop over subdomains
 
-				// integrate difference numerically
-				result.row(i) += (F - F0) * w;
-			}
-
-			// add analytic integral of singular part
-			double rho1 = std::abs(a(0) - xi0(0));
-			double rho2 = std::abs(b(0) - xi0(0));
-			double d1 = rho1 * jac0;
-			double d2 = rho2 * jac0;
-			result.row(i) += 1. / two_pi * (
-				C0 * (rho2 * (1. - std::log(d2)) + rho1 * (1. - std::log(d1)))
-				+
-				C1 / 4. * (rho2 * rho2 * (1. - 2. * std::log(d2)) - rho1 * rho1 * (1. - 2. * std::log(d1)))
-				+
-				C2 / 9. * (rho2 * rho2 * rho2 * (1. - 3. * std::log(d2)) + rho1 * rho1 * rho1 * (1. - 3. * std::log(d1)))
-				);
 		} // loop over collocation points
 
 		return result;
@@ -170,11 +152,11 @@ public:
 
 
 /**
- \brief Collocational integral of the 2D SLP kernel over a straight line with second order shape sets
- This is the simplification of function laplace_2d_SLP_collocation_general, skipping the Gaussian quadrature
+ \brief Collocational integral of the 2D SLP kernel over a straight line
+ This is the simplification of function laplace_2d_SLP_collocation_curved, skipping the Gaussian quadrature
  */
 template <class TestField, class TrialField>
-class laplace_2d_SLP_collocation_straight_line_second_order
+class laplace_2d_SLP_collocation_straight
 {
 	typedef TestField test_field_t;
 	typedef TrialField trial_field_t;
@@ -731,7 +713,7 @@ public:
 		field_base<TrialField> const &trial_field,
 		element_match const &)
 	{
-		result = laplace_2d_SLP_collocation_straight_line_second_order<
+		result = laplace_2d_SLP_collocation_straight<
 			TestField, TrialField
 		>::eval(trial_field.get_elem());
 		return result;
@@ -767,7 +749,7 @@ public:
 		field_base<TrialField> const &,
 		element_match const &)
 	{
-		result = laplace_2d_SLP_collocation_general<TestField, TrialField, 10>::eval(
+		result = laplace_2d_SLP_collocation_curved<TestField, TrialField, 10>::eval(
 			test_field.get_elem());
 		return result;
 	}
@@ -818,7 +800,6 @@ class singular_integral_shortcut<
 	laplace_2d_SLP_kernel, TestField, TrialField, match::match_1d_type,
 	typename std::enable_if<
 	std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::general>::value &&
-	std::is_same<typename TrialField::elem_t::lset_t, line_1_shape_set>::value &&
 	is_linear_line<TrialField>::value &&
 	is_linear_line<TestField>::value
 	>::type
@@ -839,8 +820,9 @@ public:
 		field_base<TrialField> const &trial_field,
 		element_match const &)
 	{
-		laplace_2d_SLP_galerkin_face_linear_line::eval(result(0, 0), result(0, 1), result(1, 1));
+		laplace_2d_SLP_galerkin_face_linear_line::eval(trial_field.get_elem(), result(0, 0), result(0, 1));
 		result(1, 0) = result(0, 1);
+		result(1, 1) = result(0, 0);
 		return result;
 	}
 };
