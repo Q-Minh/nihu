@@ -118,3 +118,8 @@ NiHu is distributed under the [GNU General Public License](http://www.gnu.org/li
 \ingroup library
 
 \defgroup util Utilities and miscellaneous
+
+\defgroup app Applications
+
+\defgroup app_helmholtz Helmholtz equation applications
+\ingroup app
