@@ -86,6 +86,49 @@ TEST(laplace_2d_elem_integrals, singular_2d_SLP_collocation)
 }
 
 
+TEST(laplace_2d_elem_integrals, singular_2d_DLP_collocation)
+{
+	using namespace boost::math::double_constants;
+
+	// check that analytical and general formulations yield the same result
+	// for line_1 element with constant shape function
+	typedef NiHu::line_1_elem elem_t;
+	typedef NiHu::dirac_field<
+		NiHu::field<elem_t, NiHu::line_0_shape_set>
+	> test_field_t;
+
+	elem_t::coords_t coords;
+	coords <<
+		0.0, 1.0,
+		0.0, 0.0;
+	elem_t elem(coords);
+
+	auto res1 = NiHu::laplace_2d_DLP_collocation_curved<
+		test_field_t,
+		NiHu::field<elem_t, NiHu::line_0_shape_set>,
+		10
+	>::eval(elem);
+
+	// check that analytical and general formulations yield the same result
+	// for distorted quadratic but straight line element with constant shape function
+	typedef NiHu::line_2_elem elem_2_t;
+
+	elem_2_t::coords_t coords2;
+	coords2 <<
+		0.0, 0.3, 1.0,
+		0.0, 0.0, 0.0;
+	elem_2_t elem2(coords2);
+
+	auto res2 = NiHu::laplace_2d_DLP_collocation_curved<
+		test_field_t,
+		NiHu::field<elem_2_t, NiHu::line_0_shape_set>,
+		10
+	>::eval(elem2);
+
+ //	EXPECT_LE((res1 - res2).norm() / res2.norm(), 1e-10);
+}
+
+
 TEST(laplace_2d_elem_integrals, singular_2d_HSP_collocation)
 {
 	double I1, I2;

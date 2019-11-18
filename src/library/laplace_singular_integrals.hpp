@@ -41,7 +41,10 @@
 
 #include <boost/math/constants/constants.hpp>
 
+#define NIHU_PRINT_DEBUG
+#ifdef NIHU_PRINT_DEBUG
 #include <iostream>
+#endif
 
 namespace NiHu
 {
@@ -76,6 +79,13 @@ class laplace_2d_SLP_collocation_curved
 public:
 	static result_t eval(elem_t const &elem)
 	{
+#ifdef NIHU_PRINT_DEBUG
+		static bool first = true;
+		if (first) {
+			std::cout << "Using laplace_2d_SLP_collocation_curved" << std::endl;
+			first = false;
+		}
+#endif
 		using namespace boost::math::double_constants;
 
 		result_t result = result_t::Zero();
@@ -177,6 +187,13 @@ class laplace_2d_SLP_collocation_straight
 public:
 	static result_t eval(elem_t const &elem)
 	{
+#ifdef NIHU_PRINT_DEBUG
+		static bool first = true;
+		if (first) {
+			std::cout << "Using laplace_2d_SLP_collocation_straight" << std::endl;
+			first = false;
+		}
+#endif
 		using namespace boost::math::double_constants;
 
 		// get Jacobian
@@ -210,6 +227,83 @@ public:
 		}
 
 		return result / two_pi;
+	}
+};
+
+
+/** \brief Collocational integral of the 2D DLP kernel over a curved line with general shape set
+ * The kernel is regular, but the quadrature must not sample the collocational points.
+ */
+template <class TestField, class TrialField, size_t order>
+class laplace_2d_DLP_collocation_curved
+{
+	typedef TestField test_field_t;
+	typedef TrialField trial_field_t;
+
+	typedef typename test_field_t::nset_t test_shape_t;
+	typedef typename trial_field_t::nset_t trial_shape_t;
+
+	static size_t const nTest = test_shape_t::num_nodes;
+	static size_t const nTrial = trial_shape_t::num_nodes;
+
+	typedef Eigen::Matrix<double, nTest, nTrial> result_t;
+
+	typedef typename trial_field_t::elem_t elem_t;
+	typedef typename elem_t::domain_t domain_t;
+
+	typedef typename domain_t::xi_t xi_t;
+	typedef typename elem_t::x_t x_t;
+
+	typedef regular_quad_store<domain_t, order> quadrature_t;
+
+public:
+	static result_t eval(elem_t const &elem)
+	{
+#ifdef NIHU_PRINT_DEBUG
+		static bool first = true;
+		if (first) {
+			std::cout << "Using laplace_2d_DLP_collocation_curved" << std::endl;
+			first = false;
+		}
+#endif
+		result_t result = result_t::Zero();
+
+		// traverse collocation points
+		for (size_t i = 0; i < nTest; ++i)
+		{
+			xi_t const &xi0 = test_shape_t::corner_at(i);
+
+			// singular point and jacobians
+			x_t x = elem.get_x(xi0);
+
+			for (int dom = 0; dom < 2; ++dom)
+			{
+				double low = xi0(0), high = domain_t::get_corner(dom)(0);
+				xi_t center;
+				center << (low + high) / 2.;
+
+				// traverse quadrature points
+				for (auto it = quadrature_t::quadrature.begin(); it != quadrature_t::quadrature.end(); ++it)
+				{
+					// transform quadrature to [low high];
+					xi_t xi = it->get_xi() * ((high - low) / 2.) + center;
+					double w = it->get_w() * (std::abs(high - low) / 2.);
+
+					// get trial location, jacobian and normal
+					x_t y = elem.get_x(xi);
+					x_t Jy = elem.get_normal(xi);
+
+					// evaluate Green's function
+					double G = laplace_2d_DLP_kernel()(x, y, Jy);
+					// evaluate shape function
+					auto Ny = trial_shape_t::template eval_shape<0>(xi);
+					// integrate kernel
+					result.row(i) += G * Ny.transpose() * w;
+				}
+			} // loop over subdomains
+		} // loop over collocation points
+
+		return result;
 	}
 };
 
@@ -863,6 +957,42 @@ public:
 		return result;
 	}
 };
+
+
+/** \brief collocational singular integral of the 2D DLP kernel over a curved line
+ * \tparam TestField the test field type
+ * \tparam TrialField the trial field type
+ */
+template <class TestField, class TrialField>
+class singular_integral_shortcut<
+	laplace_2d_DLP_kernel, TestField, TrialField, match::match_1d_type,
+	typename std::enable_if<
+	std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
+	!std::is_same<typename TrialField::elem_t::lset_t, line_1_shape_set>::value
+	>::type
+>
+{
+public:
+	/** \brief evaluate singular integral
+	 * \tparam result_t the result matrix type
+	 * \param [in, out] result reference to the result
+	 * \param [in] test_field the test field
+	 * \return reference to the result matrix
+	 */
+	template <class result_t>
+	static result_t &eval(
+		result_t &result,
+		kernel_base<laplace_2d_DLP_kernel> const &,
+		field_base<TestField> const &test_field,
+		field_base<TrialField> const &,
+		element_match const &)
+	{
+		result = laplace_2d_DLP_collocation_curved<TestField, TrialField, 10>::eval(
+			test_field.get_elem());
+		return result;
+	}
+};
+
 
 
 /** \brief Galerkin edge-match singular integral of the 2D DLP kernel over two constant lines

@@ -172,7 +172,7 @@ and its integral over the element can be computed analytically, using the expres
 The remaining regular part of the integral is computed numerically, using standard Gaussian quadrature.
 
 
-\subsubsection{DLP kernel over a general curved element}
+\subsubsection{DLP kernel}
 
 The DLP kernel is expressed as
 %
@@ -202,7 +202,7 @@ Taking into account that ${\bf r}_1$ is perpendicular to ${\bf J}_0$, it is obse
 This is easily done by dividing the element into two at the reference point, and integrating numerically with Gaussian quadratures over the two subelements.
 
 
-\subsubsection{HSP kernel over a general curved element}
+\subsubsection{HSP kernel}
 
 The HSP kernel is expressed as
 %
@@ -341,7 +341,7 @@ Finally, the distance is approximated as
 	\label{eq:galerkin_face_taylor_r}
 \end{equation}
 
-\subsection{SLP kernel}
+\subsubsection{SLP kernel}
 
 The integral to be computed is written in intrinsic coordinates as
 %
@@ -392,7 +392,7 @@ Inserting \eqref{} into \eqref{}, it is seen that the singular part of $F^{(i)}(
 	J^2(u) 2(1-v)
 \end{equation}
 %
-Now the inner integral w.r.t. $v$ is computed by nuerically evaluating the regular part, and analytically integrating the singular part
+Now the inner integral w.r.t. $v$ is computed by numerically evaluating the regular part, and analytically integrating the singular part
 %
 \begin{equation}
 	\int_{-1}^{+1} \int_{0}^{+1} F^{(i)}(u,v) \td v \td u
@@ -409,7 +409,7 @@ where the inner integral of the last singular term simplifies to
 	J^2(u)
 \end{equation}
 
-\subsection{DLP kernel}
+\subsubsection{DLP kernel}
 
 The integral to be computed is written in intrinsic coordinates as
 %

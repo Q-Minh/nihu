@@ -101,8 +101,6 @@ int main(int argc, char *argv[])
 		size_t restart = vm["restart"].as<size_t>();
 		double tolerance = vm["tolerance"].as<double>();
 
-		std::cout << "Csucsu" << std::endl;
-
 
 #ifdef GAUSS
 		// read mesh file
