@@ -5,6 +5,8 @@
  * @ingroup app_laplace
  */
 
+#define NIHU_DEBUGGING 1
+
 #include "core/weighted_residual.hpp"
 #include "interface/read_off_mesh.hpp"
 #include "library/laplace_kernel.hpp"
@@ -42,6 +44,6 @@ int main(int argc, char *argv[])
 	Lf  << field_sp * L[surf_sp];
 	Mf  << field_sp * M[surf_sp];
 
-	return 0;
+	return 0; 
 }
 

@@ -79,11 +79,11 @@ class laplace_2d_SLP_collocation_curved
 public:
 	static result_t eval(elem_t const &elem)
 	{
-#ifdef NIHU_PRINT_DEBUG
-		static bool first = true;
-		if (first) {
+#ifdef NIHU_DEBUGGING
+		static bool printed = false;
+		if (!printed) {
 			std::cout << "Using laplace_2d_SLP_collocation_curved" << std::endl;
-			first = false;
+			printed = true;
 		}
 #endif
 		using namespace boost::math::double_constants;
@@ -187,11 +187,11 @@ class laplace_2d_SLP_collocation_straight
 public:
 	static result_t eval(elem_t const &elem)
 	{
-#ifdef NIHU_PRINT_DEBUG
-		static bool first = true;
-		if (first) {
+#ifdef NIHU_DEBUGGING
+		static bool printed = false;
+		if (!printed) {
 			std::cout << "Using laplace_2d_SLP_collocation_straight" << std::endl;
-			first = false;
+			printed = true;
 		}
 #endif
 		using namespace boost::math::double_constants;
@@ -259,11 +259,11 @@ class laplace_2d_DLP_collocation_curved
 public:
 	static result_t eval(elem_t const &elem)
 	{
-#ifdef NIHU_PRINT_DEBUG
-		static bool first = true;
-		if (first) {
+#ifdef NIHU_DEBUGGING
+		static bool printed = false;
+		if (!printed) {
 			std::cout << "Using laplace_2d_DLP_collocation_curved" << std::endl;
-			first = false;
+			printed = true;
 		}
 #endif
 		result_t result = result_t::Zero();
@@ -335,6 +335,13 @@ public:
 
 	static result_t eval(elem_t const &elem)
 	{
+#ifdef NIHU_DEBUGGING
+		static bool printed = false;
+		if (!printed) {
+			std::cout << "Using laplace_2d_HSP_collocation_general" << std::endl;
+			printed = true;
+		}
+#endif
 		using namespace boost::math::double_constants;
 
 		result_t result = result_t::Zero();
@@ -440,6 +447,14 @@ class laplace_2d_HSP_collocation_line
 public:
 	static result_t eval(elem_t const &elem)
 	{
+#ifdef NIHU_DEBUGGING
+		static bool printed = false;
+		if (!printed) {
+			std::cout << "Using laplace_2d_HSP_collocation_line" << std::endl;
+			printed = true;
+		}
+#endif
+
 		using namespace boost::math::double_constants;
 
 		double jac = elem.get_normal().norm();
@@ -486,6 +501,13 @@ public:
 	 */
 	static result_t eval(elem_t const &elem)
 	{
+#ifdef NIHU_DEBUGGING
+		static bool printed = false;
+		if (!printed) {
+			std::cout << "Using laplace_2d_HSP_collocation_constant_line" << std::endl;
+			printed = true;
+		}
+#endif
 		using namespace boost::math::double_constants;
 
 		result_t result;
@@ -515,6 +537,13 @@ public:
 	template <class elem_t>
 	static double eval(elem_t const &elem, typename elem_t::x_t const &x0)
 	{
+#ifdef NIHU_DEBUGGING
+		static bool printed = false;
+		if (!printed) {
+			std::cout << "Using laplace_3d_SLP_collocation_constant_plane" << std::endl;
+			printed = true;
+		}
+#endif
 		using namespace boost::math::double_constants;
 
 		enum { N = elem_t::domain_t::num_corners };
@@ -542,6 +571,13 @@ public:
 	template <class elem_t>
 	static double eval(elem_t const &elem, typename elem_t::x_t const &x0)
 	{
+#ifdef NIHU_DEBUGGING
+		static bool printed = false;
+		if (!printed) {
+			std::cout << "Using laplace_3d_HSP_collocation_constant_plane" << std::endl;
+			printed = true;
+		}
+#endif
 		using namespace boost::math::double_constants;
 
 		enum { N = elem_t::domain_t::num_corners };
@@ -589,6 +625,13 @@ class laplace_2d_SLP_galerkin_face_general
 public:
 	static result_t eval(elem_t const &elem)
 	{
+#ifdef NIHU_DEBUGGING
+		static bool printed = false;
+		if (!printed) {
+			std::cout << "Using laplace_2d_SLP_galerkin_face_general" << std::endl;
+			printed = true;
+		}
+#endif
 		using namespace boost::math::double_constants;
 
 		kernel_t kernel;
@@ -664,6 +707,13 @@ public:
 	*/
 	static double eval(line_1_elem const &elem)
 	{
+#ifdef NIHU_DEBUGGING
+		static bool printed = false;
+		if (!printed) {
+			std::cout << "Using laplace_2d_SLP_galerkin_face_constant_line" << std::endl;
+			printed = true;
+		}
+#endif
 		using namespace boost::math::double_constants;
 
 		auto const &C = elem.get_coords();
@@ -684,6 +734,13 @@ public:
 	 */
 	static void eval(line_1_elem const &elem, double &i1, double &i2)
 	{
+#ifdef NIHU_DEBUGGING
+		static bool printed = false;
+		if (!printed) {
+			std::cout << "Using laplace_2d_SLP_galerkin_face_linear_line" << std::endl;
+			printed = true;
+		}
+#endif
 		using namespace boost::math::double_constants;
 
 		auto const &C = elem.get_coords();
@@ -712,6 +769,13 @@ public:
 	/** \brief evaluate the integral on two elements */
 	static double eval(line_1_elem const &elem1, line_1_elem const &elem2)
 	{
+#ifdef NIHU_DEBUGGING
+		static bool printed = false;
+		if (!printed) {
+			std::cout << "Using laplace_2d_SLP_galerkin_edge_constant_line" << std::endl;
+			printed = true;
+		}
+#endif
 		using namespace boost::math::double_constants;
 
 		// get the element corner coordinates
@@ -750,6 +814,13 @@ public:
 	/** \brief evaluate the integral on two elements */
 	static double eval(line_1_elem const &elem1, line_1_elem const &elem2)
 	{
+#ifdef NIHU_DEBUGGING
+		static bool printed = false;
+		if (!printed) {
+			std::cout << "Using laplace_2d_DLP_galerkin_edge_constant_line" << std::endl;
+			printed = true;
+		}
+#endif
 		using namespace boost::math::double_constants;
 
 		// get element corners

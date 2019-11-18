@@ -25,8 +25,6 @@
 #ifndef DOUBLE_INTEGRAL_HPP_INCLUDED
 #define DOUBLE_INTEGRAL_HPP_INCLUDED
 
-#define NIHU_DEBUGGING 1
-
 #include "../util/matrix_traits.hpp"
 #include "../util/product_type.hpp"
 #include "../util/plain_type.hpp"
@@ -95,14 +93,6 @@ struct singular_shortcut_switch
 						"Singular shortcut switch called for mtch dim: " <<
 						mtch.get_match_dimension() <<
 						", sing val: " << Singularity::value << std::endl;
-					printed = true;
-		}
-#endif
-#if NIHU_MEX_DEBUGGING
-				static bool printed = false;
-				if (!printed)
-				{
-					mexPrintf("Singular shortcut switch called for mtch dim: %d, sing val: %d\n", mtch.get_match_dimension(), Singularity::value);
 					printed = true;
 				}
 #endif
@@ -614,15 +604,6 @@ protected:
 		field_base<TrialField> const &trial_field)
 	{
 
-#if NIHU_MEX_DEBUGGING
-		static bool printed = false;
-		if (!printed)
-		{
-			mexPrintf("double_integral<Collocation>::eval_with_sing_check called.\n");
-			printed = true;
-		}
-#endif
-
 		auto mtch(element_match_eval(test_field, trial_field));
 		if (mtch.get_match_dimension() == -1)
 			return eval(WITHOUT_SINGULARITY_CHECK(), result, kernel, test_field, trial_field);
@@ -630,7 +611,9 @@ protected:
 		typedef typename match_type_vector<TestField, TrialField>::type possible_match_types;
 
 #if NIHU_DEBUGGING
-		std::cout << "Now checking singular shortcuts" << std::endl;
+		static bool printed = false;
+		if (!printed)
+			std::cout << "Now checking singular shortcuts" << std::endl;
 #endif
 
 		if (!tmp::call_until<
@@ -644,11 +627,14 @@ protected:
 		>(result, kernel, test_field, trial_field, mtch))
 		{
 			std::cerr << "UNHANDLED COLLOCATIONAL SINGULARITY TYPE: " << mtch.get_match_dimension() << std::endl;
-#if NIHU_MEX_DEBUGGING
-			mexPrintf("UNHANDLED COLLOCATIONAL SINGULARITY TYPE %d", mtch.get_match_dimension());
-#endif
 
 		}
+
+#if NIHU_DEBUGGING
+		if (!printed)
+			printed = true;
+#endif
+
 		return result;
 	}
 
