@@ -14,6 +14,7 @@ switch type
             ShapeSet.LinearLine, 21202
             ShapeSet.LinearTria, 32303
             ShapeSet.LinearQuad, 32404
+            ShapeSet.QuadraticLine, 21203
             ShapeSet.QuadraticTria, 32306
             ShapeSet.QuadraticQuad, 32408
             ShapeSet.QuadraticQuadMid, 32409
@@ -23,6 +24,7 @@ switch type
             ShapeSet.LinearLine, 11202
             ShapeSet.LinearTria, 22303
             ShapeSet.LinearQuad, 22404
+            ShapeSet.QuadraticLine, 11203
             ShapeSet.QuadraticTria, 22306
             ShapeSet.QuadraticQuad, 22408
             ShapeSet.QuadraticQuadMid, 22409

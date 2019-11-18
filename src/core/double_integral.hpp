@@ -25,6 +25,8 @@
 #ifndef DOUBLE_INTEGRAL_HPP_INCLUDED
 #define DOUBLE_INTEGRAL_HPP_INCLUDED
 
+#define NIHU_DEBUGGING 1
+
 #include "../util/matrix_traits.hpp"
 #include "../util/product_type.hpp"
 #include "../util/plain_type.hpp"
@@ -80,23 +82,30 @@ struct singular_shortcut_switch
 			field_base<TrialField> const &trial_field,
 			element_match const &mtch)
 		{
-#if NIHU_DEBUGGING
-			std::cout << "Match dimension: " << mtch.get_match_dimension() << std::endl;
-			std::cout << "Singularity value: " << Singularity::value << std::endl;
-#endif
 
-#if NIHU_MEX_DEBUGGING
-			static bool printed = false;
-			if (!printed)
-			{
-				mexPrintf("Singular shortcut switch called for mtch dim: %d, sing val: %d\n", mtch.get_match_dimension(), Singularity::value);
-				printed = true;
-			}
-#endif
 
 			// if the parameter singularity is valid, evaluate shortcut
 			if (mtch.get_match_dimension() == Singularity::value)
 			{
+#if NIHU_DEBUGGING
+				static bool printed = false;
+				if (!printed)
+				{
+					std::cout <<
+						"Singular shortcut switch called for mtch dim: " <<
+						mtch.get_match_dimension() <<
+						", sing val: " << Singularity::value << std::endl;
+					printed = true;
+		}
+#endif
+#if NIHU_MEX_DEBUGGING
+				static bool printed = false;
+				if (!printed)
+				{
+					mexPrintf("Singular shortcut switch called for mtch dim: %d, sing val: %d\n", mtch.get_match_dimension(), Singularity::value);
+					printed = true;
+				}
+#endif
 				singular_integral_shortcut<Kernel, TestField, TrialField, Singularity>::eval(
 					result, kernel, test_field, trial_field, mtch);
 				return true;
@@ -726,7 +735,11 @@ private:
 		element_match const &)
 	{
 #if NIHU_DEBUGGING
-		std::cout << "General version of singular_integral_shortcut called" << std::endl;
+		static bool printed = false;
+		if (!printed) {
+			std::cout << "General version of singular_integral_shortcut called" << std::endl;
+			printed = true;
+		}
 #endif
 #if NIHU_MEX_DEBUGGING
 		static bool printed = false;

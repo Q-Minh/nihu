@@ -9,10 +9,15 @@ Le = 2e-2;
 %% Build mesh
 field = create_slab([Lx, Ly], ceil([Lx Ly] / Le));
 bou = drop_mesh_IDs(drop_unused_nodes(flip_mesh(get_boundary(field))));
+bou = quadratise(bou);
+
+export_off_mesh(field, 'field.off');
+export_off_mesh(bou, 'mesh.off');
 
 [xs, ns] = centnorm(bou);
 xs = xs(:,1:2);
 ns = ns(:,1:2);
+
 xf = centnorm(field);
 xf = xf(:,1:2);
 
