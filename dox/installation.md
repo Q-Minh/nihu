@@ -56,7 +56,7 @@ On Linux, you can install `CMake` using tha pacakage manager, e.g.
 	sudo apt install cmake
 
 On Windows, you can download the [CMake installers][cmake-download].
-\note The minimum required `CMake` version is `3.14`.
+\note The minimum required `CMake` version is `3.15`.
 
 Tools required for compiling the source code
 --------------------------------------------
