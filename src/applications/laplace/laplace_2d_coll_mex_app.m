@@ -1,52 +1,72 @@
-%// sphere radiator with radius R = 1, divided into 8 elements along the radius.
-radiator = create_sphere_boundary(1, 8);
+clear;
+close all;
 
-%// the radiator is divided into two parts to get tria and quad elements
-rad_left  = drop_unused_nodes(mesh_section(radiator, [-inf, -inf, -inf; 1e-3, inf, inf]));
-rad_right = drop_unused_nodes(mesh_section(radiator, [-1e-3, -inf, -inf; inf, inf, inf]));
-radiator = merge_coincident_nodes(join_meshes(rad_left, quad2tria(rad_right)));
+%% parameters
+Lx = 1;
+Ly = .6;
+Le = 2e-2;
 
-%// field point mesh, a line revolved around the z axis
-field = revolve_mesh(create_line([1.125, 0, 0; 3.625, 0, 0], 40), pi/100, 50, [0 0 1]);
+%% Build mesh
+field = create_slab([Lx, Ly], ceil([Lx Ly] / Le));
+bou = drop_mesh_IDs(drop_unused_nodes(flip_mesh(get_boundary(field))));
 
-%// extract the mesh description matrices
-[r_nodes, r_elem] = extract_core_mesh(radiator);
+[xs, ns] = centnorm(bou);
+xs = xs(:,1:2);
+ns = ns(:,1:2);
+xf = centnorm(field);
+xf = xf(:,1:2);
+
+%% Create BC
+syms x y;
+a = 1;
+b = 1;
+c = 1;
+d = 1;
+f = a * x +...
+    b * y +...
+    c * x * y +...
+    d * (x^2 - y^2);
+gradf = [diff(f, x) diff(f,y)];
+
+us0 = double(subs(f, {x, y}, {xs(:,1), xs(:,2)}));
+uf0 = double(subs(f, {x, y}, {xf(:,1), xf(:,2)}));
+qs0 = dot(double(subs(gradf, {x, y}, {xs(:,1), xs(:,2)})), ns, 2);
+
+%% Generate BEM matrices
+[s_nodes, s_elem] = extract_core_mesh(bou);
 [f_nodes, f_elem] = extract_core_mesh(field);
+f_elem(:,1) = 22404; % convert to volume quads
 
 %// call C++ code at wave number k = 4
-k = 4;
-[Ls, Ms, Lf, Mf] = helmholtz_bem_3d(r_nodes, r_elem, f_nodes, f_elem, k);
+[Ls, Ms, Lf, Mf] = laplace_2d_coll_mex(s_nodes, s_elem, f_nodes, f_elem);
 
-%// define the incident velocity field and analytical solutions
-x0 = [-.2 0 .3];
-[r_cent, r_norm] = centnorm(radiator);
-[ps_ana, qs_ana] = incident('point', x0, r_cent, r_norm, k);
+%% Solve Dirichet Problem
+qs = Ls \ (Ms * us0);
+ufD = Mf * us0 - Lf * qs;
+esD = norm(qs - qs0) / norm(qs0);
+efD = norm(ufD - uf0) / norm(uf0);
 
-%// analytical solution on the field
-f_cent = centnorm(field);
-pf_ana = incident('point', x0, f_cent, [], k);
+%% Solve Neumann Problem
+us = Ms \ (Ls * qs0);
+us = us - mean(us) + mean(us0);
+ufN = Mf * us - Lf * qs0;
+esN = norm(us - us0) / norm(us0);
+efN = norm(ufN - uf0) / norm(uf0);
 
-%// acoustic pressure on the surface and in the field points
-ps_num = Ms \ (Ls * qs_ana);
-pf_num = Mf*ps_num - Lf*qs_ana;
-
-% // calculate errors
-ps_err = abs(ps_num-ps_ana)./abs(ps_ana);
-pf_err = abs(pf_num-pf_ana)./abs(pf_ana);
-
-% // plot results
+%%
 figure;
-subplot(1,2,1);
-plot_mesh(radiator, real(ps_num));
-plot_mesh(field, real(pf_num)); view(2);  shading flat;
-c1 = colorbar('SouthOutside');
-xlabel(c1, 'Real part of numerical solution');
-subplot(1,2,2);
-plot_mesh(radiator, log10(ps_err));
-plot_mesh(field, log10(pf_err)); view(2); shading flat;
-c2 = colorbar('SouthOutside');
-xlabel(c2, 'Log 10 error of solution');
-
-%// display error information
-fprintf('Surface log10 error: %f \n', log10(mean(ps_err)));
-fprintf('Field   log10 error: %f \n', log10(mean(pf_err)));
+subplot(2,2,1);
+plot_mesh(field, uf0);
+colorbar;
+title('Analytical');
+axis equal tight;
+subplot(2,2,2);
+plot_mesh(field, ufD);
+colorbar;
+title(sprintf('Dirichlet, surf err: %.2x, field err: %.2x', esD, efD));
+axis equal tight;
+subplot(2,2,4);
+plot_mesh(field, ufN);
+title(sprintf('Neumann, surf err: %.2x, field err: %.2x', esN, efN));
+colorbar;
+axis equal tight;
