@@ -16,6 +16,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * @file helmholtz_3d_coll_mex.mex.cpp
+ * @brief Conventional 3D BEM for the Helmholtz equation using collocational formalism
+ * @details
+ * @ingroup app_helmholtz
+ */
+
 #include "core/weighted_residual.hpp"
 #include "util/mex_matrix.hpp"
 #include "library/helmholtz_kernel.hpp"
