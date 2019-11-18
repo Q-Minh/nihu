@@ -3,7 +3,7 @@ SET FREQ=600
 SET FREQSTR=%FREQ%Hz
 SET LE=050mm
 SET TYPE=gauss
-SET OUTDIR=data\const_quad_%LE%
+SET OUTDIR=data\%TYPE%_%LE%
 SET EXE=helmholtz_3d_hffmm_%TYPE%.exe
 ECHO ON
 

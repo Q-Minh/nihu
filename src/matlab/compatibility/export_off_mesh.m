@@ -9,6 +9,8 @@ elements(elements(:,1) == 32404, 1) = 4;
 elements(elements(:,1) == 32303, 1) = 3;
 elements(elements(:,1) == 21202, 1) = 2;
 
+elements(elements(:,1) == 21203, 1) = 3;
+
 fid = fopen(fname, 'wt');
 if fid == -1
     error('NiHu:file_open', 'Cannot open file %s', fname);

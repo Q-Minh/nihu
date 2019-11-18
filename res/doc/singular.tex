@@ -431,3 +431,105 @@ The integral to be computed is written in intrinsic coordinates as
 	\td \xi
 \end{align}
 
+\subsection{HSP kernel}
+
+The integral to be computed is written in intrinsic coordinates as
+%
+\begin{align}
+	I 
+	&= \int_{-1}^{+1}
+	\int_{-1}^{+1}
+	\frac{1}{2\pi r^2} \left(
+	{\bf J}(\xi) {\bf J}(\eta) - 2 \frac{{\bf r} {\bf J}(\xi)}{r} \frac{{\bf r}{\bf J}(\eta)}{r} 
+	\right)	N_{\xi}(\xi)
+	N_{\eta}(\eta)
+	\td \eta
+	\td \xi
+\end{align}
+%
+referring back to section \label{sec:}, the second term in the bracketed expression is $O(r^2)$, and can be integrated using regular quadratures that do not sample the singular location $r=0$.
+The first term is approximated with its Taylor series
+%
+\begin{equation}
+	{\bf J}(\xi) {\bf J}(\eta) 
+	= {\bf T} {\bf x}'_{\xi} \cdot {\bf T} {\bf y}'_{\eta}
+	= {\bf x}'_{\xi} \cdot {\bf y}'_{\eta}
+\end{equation}
+%
+\begin{equation}
+	{\bf x}'_{\xi}(\xi(u,v)) 
+	= {\bf x}'_{\xi}(\xi(u,0)) + \left.{\bf x}''_{\xi} \xi'_v \right|_{v=0} v + O(v^2) 
+	= {\bf x}'_{\xi}(u) + {\bf x}''_{\xi}(u) \left(\pm 1 - u\right) v + O(v^2) 
+\end{equation}
+%
+and
+%
+\begin{equation}
+	{\bf y}'_{\eta}(\eta(u,v)) 
+	= {\bf y}'_{\eta}(u) + {\bf y}''_{\eta}(u) \left(\mp 1 - u\right) v + O(v^2) 
+\end{equation}
+%
+Taking the scalar product
+%
+\begin{align}
+	{\bf J}(\xi) {\bf J}(\eta) 
+	&= \left(
+	{\bf x}'_{\xi}(u) + {\bf x}''_{\xi}(u) \left(\pm 1 - u\right) v + O(v^2) 
+	\right)
+	\left(
+	{\bf y}'_{\eta}(u) + {\bf y}''_{\eta}(u) \left(\mp 1 - u\right) v + O(v^2) 	
+	\right) \\
+	&= J_0^2(u) \left(1 -2uvA(u) + O(v^2) \right)
+\end{align}
+%
+Finally, the singular part in the kernel is approximated as
+%
+\begin{equation}
+	\frac{{\bf J}(\xi) {\bf J}(\eta)}{2\pi r^2}
+	= \frac{1 + O(v^2)}{2\pi 4v^2}
+\end{equation}
+%
+and its singular part is simply $1/2\pi 4 v^2$.
+
+Substituting the singular part into the original integral yields
+%
+\begin{align}
+	I^{(i)}
+	&= \int_{-1}^{+1}
+	\int_{\alpha}^{+1}
+	\frac{	N_{\xi}(\xi^{(i)}(u,v))
+	N_{\eta}(\eta^{(i)}(u,v))
+	(1-v)
+	}{4\pi v^2}
+	\td v
+	\td u \\
+	&= \int_{-1}^{+1}
+	\int_{\alpha}^{+1}
+	\frac{F_0(u) + F_1^{(i)}(u) v + O(v^2)}{v^2}
+	\td v
+	\td u
+\end{align}
+%
+where
+%
+\begin{align}
+	F_0(u) &= \frac{N_{\xi}(u) N_{\eta}(u)}{4\pi} \\
+	F_1^{(i)}(u) &= \frac{N'_{\xi}(u) (\pm 1-u) N_{\eta}(u) + N_{\xi}(u) N'_{\eta}(u) (\mp 1-u) - N_{\xi}(u) N_{\eta}(u)}{4\pi}
+\end{align}
+
+
+\begin{align}
+	F_0^{(1)} + F_0^{(2)} &= \frac{N_{\xi}(u) N_{\eta}(u)}{2\pi} \\
+	F_1^{(1)} + F_1^{(2)} &= \frac{\td}{\td u} \left( u \frac{N_{\xi}(u) N_{\eta}(u)}{2\pi}\right)
+\end{align}
+
+%
+\begin{align}
+	I_0 &= \int_{-1}^{+1} F_0(u) \int_{\alpha(u)}^{1} \frac{\td v}{v^2} \td u \\
+	&= \int_{-1}^{+1} F_0(u) \left[  \frac{1}{\alpha(u)} - 1  \right] \td u
+\end{align}
+%
+\begin{align}
+	I^{(i)}_1 &= \int_{-1}^{+1} F^{(i)}_1(u) \int_{\alpha(u)}^{1} \frac{\td v}{v} \td u \\
+	&= \int_{-1}^{+1} F^{(i)}_1(u) \left[ -\log|\alpha(u)| \right] \td u
+\end{align}
