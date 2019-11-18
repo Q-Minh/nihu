@@ -35,11 +35,6 @@
 #include "../core/nearly_singular_planar_constant_collocation_shortcut.hpp"
 
 
-#define DEBUG_TELLES_PRINT
-#ifdef DEBUG_TELLES_PRINT
-#include <iostream>
-#endif
-
 namespace NiHu
 {
 
@@ -229,8 +224,7 @@ template <class TestField, class TrialField, class WaveNumber>
 class nearly_singular_integral<
 	helmholtz_3d_SLP_kernel<WaveNumber>, TestField, TrialField,
 	typename std::enable_if<
-		is_collocational<TestField, TrialField>::value 
-		&&
+		is_collocational<TestField, TrialField>::value &&
 		is_constant_tria<TrialField>::value
 	>::type
 >
@@ -272,9 +266,8 @@ template <class TestField, class TrialField, class WaveNumber>
 class nearly_singular_integral<
 	helmholtz_3d_SLP_kernel<WaveNumber>, TestField, TrialField,
 	typename std::enable_if<
-		is_collocational<TestField, TrialField>::value 
-		&&
-		!(is_constant_tria<TrialField>::value)
+		is_collocational<TestField, TrialField>::value &&
+		!is_constant_tria<TrialField>::value
 	>::type
 >
 {
@@ -325,8 +318,7 @@ template <class TestField, class TrialField, class WaveNumber>
 class nearly_singular_integral<
 	helmholtz_3d_DLP_kernel<WaveNumber>, TestField, TrialField,
 	typename std::enable_if<
-		is_collocational<TestField, TrialField>::value 
-		&&
+		is_collocational<TestField, TrialField>::value &&
 		is_constant_tria<TrialField>::value
 	>::type
 >
@@ -368,9 +360,8 @@ template <class TestField, class TrialField, class WaveNumber>
 class nearly_singular_integral<
 	helmholtz_3d_DLP_kernel<WaveNumber>, TestField, TrialField,
 	typename std::enable_if<
-		is_collocational<TestField, TrialField>::value 
-		&&
-		!(is_constant_tria<TrialField>::value)
+		is_collocational<TestField, TrialField>::value &&
+		!is_constant_tria<TrialField>::value
 	>::type
 >
 {
@@ -395,7 +386,6 @@ public:
 		return d/R < limit;
 	}
 
-#if 0
 	template <class result_t>
 	static result_t &eval(
 		result_t &result,
@@ -404,36 +394,6 @@ public:
 		field_base<TrialField> const &trial_field
 		)
 	{
-		typedef nearly_singular_collocational<TrialField, kernel_t, 15, 15> nsc_t;
-		nsc_t nsc(trial_field, kernel);
-		
-		for (unsigned i = 0; i < num_test_nodes; ++i)
-		{
-			test_input_t tsti(test_field.get_elem(), test_nset_t::corner_at(i));
-			nsc.integrate(result.row(i), tsti);
-		}
-		
-		return result;
-	}
-#endif
-
-	template <class result_t>
-	static result_t &eval(
-		result_t &result,
-		kernel_base<kernel_t> const &kernel,
-		field_base<TestField> const &test_field,
-		field_base<TrialField> const &trial_field
-		)
-	{
-		static bool is_printed = false;
-		
-		#ifdef DEBUG_TELLES_PRINT
-		if (!is_printed) {
-			is_printed = true;
-			std::cout << "Using telles for Helmholtz DLP nearly singular!" << std::endl;
-		}
-		#endif
-		
 		typedef nearly_singular_collocational_telles<TrialField, kernel_t, 30> nsc_t;
 		nsc_t nsc(trial_field, kernel);
 		
@@ -454,8 +414,7 @@ template <class TestField, class TrialField, class WaveNumber>
 class nearly_singular_integral<
 	helmholtz_3d_DLPt_kernel<WaveNumber>, TestField, TrialField,
 	typename std::enable_if<
-		is_collocational<TestField, TrialField>::value 
-		&&
+		is_collocational<TestField, TrialField>::value &&
 		is_constant_tria<TrialField>::value
 	>::type
 >
@@ -502,9 +461,8 @@ template <class TestField, class TrialField, class WaveNumber>
 class nearly_singular_integral<
 	helmholtz_3d_DLPt_kernel<WaveNumber>, TestField, TrialField,
 	typename std::enable_if<
-		is_collocational<TestField, TrialField>::value 
-		&&
-		!(is_constant_tria<TrialField>::value)
+		is_collocational<TestField, TrialField>::value &&
+		!is_constant_tria<TrialField>::value
 	>::type
 >
 {
@@ -529,7 +487,6 @@ public:
 		return d/R < limit;
 	}
 
-#if 0
 	template <class result_t>
 	static result_t &eval(
 		result_t &result,
@@ -538,35 +495,6 @@ public:
 		field_base<TrialField> const &trial_field
 		)
 	{
-		typedef nearly_singular_collocational<TrialField, kernel_t, 15, 15> nsc_t;
-		nsc_t nsc(trial_field, kernel);
-		
-		for (unsigned i = 0; i < num_test_nodes; ++i)
-		{
-			test_input_t tsti(test_field.get_elem(), test_nset_t::corner_at(i));
-			nsc.integrate(result.row(i), tsti);
-		}
-		
-		return result;
-	}
-#endif
-	template <class result_t>
-	static result_t &eval(
-		result_t &result,
-		kernel_base<kernel_t> const &kernel,
-		field_base<TestField> const &test_field,
-		field_base<TrialField> const &trial_field
-		)
-	{
-		static bool is_printed = false;
-		
-		#ifdef DEBUG_TELLES_PRINT
-		if (!is_printed) {
-			is_printed = true;
-			std::cout << "Using telles for Helmholtz DLPt nearly singular!" << std::endl;
-		}
-		#endif
-		
 		typedef nearly_singular_collocational_telles<TrialField, kernel_t, 30> nsc_t;
 		nsc_t nsc(trial_field, kernel);
 		
@@ -589,8 +517,7 @@ template <class TestField, class TrialField, class WaveNumber>
 class nearly_singular_integral<
 	helmholtz_3d_HSP_kernel<WaveNumber>, TestField, TrialField,
 	typename std::enable_if<
-		is_collocational<TestField, TrialField>::value 
-		&&
+		is_collocational<TestField, TrialField>::value &&
 		is_constant_tria<TrialField>::value
 	>::type
 >
@@ -633,9 +560,8 @@ template <class TestField, class TrialField, class WaveNumber>
 class nearly_singular_integral<
 	helmholtz_3d_HSP_kernel<WaveNumber>, TestField, TrialField,
 	typename std::enable_if<
-		is_collocational<TestField, TrialField>::value 
-		&&
-		!(is_constant_tria<TrialField>::value)
+		is_collocational<TestField, TrialField>::value &&
+		!is_constant_tria<TrialField>::value
 	>::type
 >
 {
@@ -668,15 +594,6 @@ public:
 		field_base<TrialField> const &trial_field
 		)
 	{
-		static bool is_printed = false;
-		
-		#ifdef DEBUG_TELLES_PRINT
-		if (!is_printed) {
-			is_printed = true;
-			std::cout << "Using telles for Helmholtz HSP nearly singular!" << std::endl;
-		}
-		#endif
-		
 		typedef nearly_singular_collocational_telles<TrialField, kernel_t, 30> nsc_t;
 		nsc_t nsc(trial_field, kernel);
 		
@@ -778,11 +695,6 @@ public:
 			kernel.derived().get_wave_number());
 	}
 };
-
-
-
-
-
 
 } // end of namespace NiHu
 

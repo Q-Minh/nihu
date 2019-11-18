@@ -319,6 +319,9 @@ public:
 	// explicitly define mesh_t because it would be ambiguous otherwise
 	typedef typename traits_t::mesh_t mesh_t;
 
+	// explicitly define field_type_vector_t because it would be ambiguous otherwise
+	typedef typename traits_t::field_type_vector_t field_type_vector_t;
+
 	using impl_t::get_mesh;
 	using impl_t::get_num_dofs;
 
@@ -574,6 +577,9 @@ public:
 
 	/** \brief mesh type redefined to avoid ambigous lookup */
 	typedef typename impl_t::mesh_t mesh_t;
+
+	/** \brief field type vector type redefined to avoid ambigous lookup */
+	typedef typename impl_t::field_type_vector_t field_type_vector_t;
 
 	using impl_t::field_begin;
 	using impl_t::field_end;

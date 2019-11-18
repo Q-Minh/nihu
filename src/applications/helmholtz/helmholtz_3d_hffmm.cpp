@@ -11,57 +11,7 @@
 #include <boost/math/constants/constants.hpp>
 #include <boost/program_options.hpp>
 
-#include <cstdlib>
-
-//#define GAUSS
-
-typedef Eigen::Matrix<unsigned, Eigen::Dynamic, Eigen::Dynamic> uMatrix;
-typedef Eigen::Matrix<std::complex<double>, Eigen::Dynamic, 1> cVector;
-typedef Eigen::Matrix<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic> cMatrix;
-typedef Eigen::Matrix<double, Eigen::Dynamic, 1> dVector;
-typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> dMatrix;
-
-#ifdef GAUSS
-void read_off_data(std::string const &fname, dMatrix &nodes, uMatrix &elements)
-{
-	// open mesh file for reading
-	std::ifstream is(fname);
-	if (!is)
-		throw std::runtime_error("Error reading mesh file");
-
-	// read header from file (first row is 'OFF')
-	std::string header;
-	if (!(is >> header) || header != "OFF")
-		throw std::runtime_error("Possibly invalid off file");
-
-	// read number of nodes and number of elements, nEdges is dropped
-	unsigned nNodes, nElements, nEdges;
-	if (!(is >> nNodes >> nElements >> nEdges))
-		throw std::runtime_error("Error reading number of mesh entries");
-
-	// read nodes
-	nodes.resize(nNodes, 3);
-	for (unsigned i = 0; i < nNodes; ++i)
-		if (!(is >> nodes(i, 0) >> nodes(i, 1) >> nodes(i, 2)))
-			throw std::runtime_error("Error reading mesh nodes");
-
-	// read elements
-	elements.resize(nElements, 5);
-	for (unsigned i = 0; i < nElements; ++i)
-	{
-		unsigned nvert;
-		if (!(is >> nvert))
-			throw std::runtime_error("Error reading mesh elements");
-		for (unsigned c = 0; c < nvert; ++c)
-			if (!(is >> elements(i, c + 1)))
-				throw std::runtime_error("Error reading mesh elements");
-		elements(i, 0) = NiHu::quad_1_elem::id;
-	}
-
-	is.close();
-}
-#endif
-
+// #define GAUSS
 
 // basic type parameter inputs
 typedef double wave_number_t;
@@ -130,7 +80,9 @@ int main(int argc, char *argv[])
 			("frequency", value<double>(), "Frequency [Hz]")
 			("speed_of_sound", value<double>()->default_value(340), "Speed of sound [m/s]")
 			("surface_velocity", value<double>()->default_value(1.0e-3), "Constant surface velocity excitation [m/s]")
-			("density", value<double>()->default_value(1.3), "Density of air [kg/m3]");
+			("density", value<double>()->default_value(1.3), "Density of air [kg/m3]")
+			("tolerance", value<double>()->default_value(1e-8), "Tolerance of GMRES [-]")
+			("restart", value<size_t>()->default_value(3000), "Restart parameter of GMRES [-]");
 
 		variables_map vm;
 		store(parse_command_line(argc, argv, desc), vm);
@@ -146,16 +98,21 @@ int main(int argc, char *argv[])
 		double rho = vm["density"].as<double>();
 		double c = vm["speed_of_sound"].as<double>();
 		double v0 = vm["surface_velocity"].as<double>();
+		size_t restart = vm["restart"].as<size_t>();
+		double tolerance = vm["tolerance"].as<double>();
+
+		std::cout << "Csucsu" << std::endl;
+
 
 #ifdef GAUSS
 		// read mesh file
-		uMatrix elements;
-		dMatrix nodes;
-		read_off_data(surf_mesh_name, nodes, elements);
+		NiHu::uMatrix elements;
+		NiHu::dMatrix nodes;
+		read_off_data(surf_mesh_name, nodes, elements, NiHu::quad_1_tag());
 
 		// assemble field matrix
 		size_t nElements = elements.rows();
-		uMatrix fields(nElements, 1 + 4 + 4);
+		NiHu::uMatrix fields(nElements, 1 + 4 + 4);
 		for (size_t e = 0; e < nElements; ++e)
 		{
 			fields(e, 0) = NiHu::quad_1_gauss_field::id;
@@ -167,6 +124,7 @@ int main(int argc, char *argv[])
 
 		// create function space
 		auto trial_space = NiHu::create_function_space(nodes, fields, NiHu::quad_1_gauss_field_tag());
+
 #else
 		auto mesh = NiHu::read_off_mesh(surf_mesh_name, NiHu::quad_1_tag());
 		auto const &trial_space = NiHu::constant_view(mesh);
@@ -198,6 +156,8 @@ int main(int argc, char *argv[])
 			auto solver = NiHu::fmm::create_helmholtz_burton_miller_solver(NiHu::type2tag<fmm_t>(), trial_space);
 			solver.set_wave_number(k);
 			solver.set_excitation(q_surf);
+			solver.set_tolerance(tolerance);
+			solver.set_restart(restart);
 			cvector_t p_surf = solver.solve(NiHu::fmm::divide_diameter(leaf_diameter), far_field_quadrature_order);
 
 			// export ps

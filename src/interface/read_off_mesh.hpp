@@ -75,6 +75,51 @@ unsigned nvert2elem_id(unsigned nvert, Tags...tags)
 	return internal::nvert2elem_id_impl<Tags...>::eval(nvert);
 }
 
+typedef Eigen::Matrix<unsigned, Eigen::Dynamic, Eigen::Dynamic> uMatrix;
+typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> dMatrix;
+
+template <class...Tags>
+void read_off_data(std::istream &is, dMatrix &nodes, uMatrix &elements, Tags...tags)
+{
+	// read header from file (first row is 'OFF')
+	std::string header;
+	if (!(is >> header) || header != "OFF")
+		throw std::runtime_error("Possibly invalid off file");
+
+	// read number of nodes and number of elements
+	unsigned nNodes, nElements, nEdges;
+	if (!(is >> nNodes >> nElements >> nEdges))
+		throw std::runtime_error("Error reading number of mesh entries");
+
+	nodes.resize(nNodes, 3);
+	elements.resize(nElements, 5);
+
+	// read nodes
+	for (unsigned i = 0; i < nNodes; ++i)
+		if (!(is >> nodes(i, 0) >> nodes(i, 1) >> nodes(i, 2)))
+			throw std::runtime_error("Error reading mesh nodes");
+
+	// read elements
+	for (unsigned i = 0; i < nElements; ++i)
+	{
+		unsigned nvert;
+		if (!(is >> nvert))
+			throw std::runtime_error("Error reading mesh elements");
+		for (unsigned c = 0; c < nvert; ++c)
+			if (!(is >> elements(i, c + 1)))
+				throw std::runtime_error("Error reading mesh elements");
+		elements(i, 0) = nvert2elem_id(nvert, tags...);
+	}
+}
+
+template <class...Tags>
+void read_off_data(std::string const &fname, dMatrix &nodes, uMatrix &elements, Tags...tags)
+{
+	std::ifstream ifs(fname);
+	read_off_data(ifs, nodes, elements, tags...);
+	ifs.close();
+}
+
 
 /** \brief Read mesh from OFF format
  * \tparam Tags the element tags to import
@@ -86,36 +131,11 @@ template <class...Tags>
 mesh<tmp::vector<typename tag2type<Tags>::type...> >
 read_off_mesh(std::istream &is, Tags...tags)
 {
-	typedef Eigen::Matrix<unsigned, Eigen::Dynamic, Eigen::Dynamic> uMatrix;
+	uMatrix elements;
+	dMatrix nodes;
 
-	// read header from file (first row is 'OFF')
-	std::string header;
-	if (!(is >> header) || header != "OFF")
-		throw std::runtime_error("Possibly invalid off file");
+	read_off_data(is, nodes, elements, tags...);
 
-	// read number of nodes and number of elements
-	unsigned nNodes, nElements, nEdges;
-	if (!(is >> nNodes >> nElements >> nEdges))
-		throw std::runtime_error("Error reading number of mesh entries");
-
-	// read nodes
-	Eigen::MatrixXd nodes(nNodes, 3);
-	for (unsigned i = 0; i < nNodes; ++i)
-		if (!(is >> nodes(i, 0) >> nodes(i, 1) >> nodes(i, 2)))
-			throw std::runtime_error("Error reading mesh nodes");
-
-	// read elements
-	uMatrix elements(nElements, 5);
-	for (unsigned i = 0; i < nElements; ++i)
-	{
-		unsigned nvert;
-		if (!(is >> nvert))
-			throw std::runtime_error("Error reading mesh elements");
-		for (unsigned c = 0; c < nvert; ++c)
-			if (!(is >> elements(i, c + 1)))
-				throw std::runtime_error("Error reading mesh elements");
-		elements(i, 0) = nvert2elem_id(nvert, tags...);
-	}
 
 	// create and return the mesh
 	return create_mesh(nodes, elements, tags...);
@@ -140,7 +160,7 @@ mesh<tmp::vector<typename tag2type<Tags>::type...> >
 	return read_off_mesh(is, tags...);
 }
 
-}
+} // namespace NiHu
 
 #endif // READ_OFF_MESH_HPP_INCLUDED
 
