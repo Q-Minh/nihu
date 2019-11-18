@@ -27,7 +27,7 @@ cent = nan(size(Elements,1),3);
 normal = nan(size(Elements,1),3);
 
 for lset = [ShapeSet.LinearLine ShapeSet.LinearTria ShapeSet.LinearQuad, ...
-        ShapeSet.QuadraticTria] % these element types are processed
+        ShapeSet.QuadraticLine, ShapeSet.QuadraticTria] % these element types are processed
     sel = Elements(:,2) == lset.Id;
     if any(sel)
         n = size(lset.Nodes,1);

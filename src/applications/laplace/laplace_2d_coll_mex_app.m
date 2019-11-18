@@ -8,11 +8,10 @@ Le = 2e-2;
 
 %% Build mesh
 field = create_slab([Lx, Ly], ceil([Lx Ly] / Le));
+% field = create_circle(1, 40);
 bou = drop_mesh_IDs(drop_unused_nodes(flip_mesh(get_boundary(field))));
-bou = quadratise(bou);
-
-export_off_mesh(field, 'field.off');
-export_off_mesh(bou, 'mesh.off');
+bou = drop_mesh_IDs(quadratise(bou));
+% bou.Nodes(:,2:3) = bsxfun(@times, bou.Nodes(:,2:3), 1./sqrt(dot(bou.Nodes(:,2:3), bou.Nodes(:,2:3), 2)));
 
 [xs, ns] = centnorm(bou);
 xs = xs(:,1:2);
