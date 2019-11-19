@@ -207,5 +207,3 @@ TEST(laplace_2d_elem_integrals, singular_2d_SLP_galerkin)
 	std::cout << res1 << std::endl;
 	std::cout << d1 << ' ' << d2 << std::endl;
 }
-
-

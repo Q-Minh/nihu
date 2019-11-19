@@ -90,6 +90,27 @@ The kernel's $F_i^j$ functions are computed as
 	F_2^0(r) &= \frac{2}{2\pi r^2}, \qquad F_2^1(r) = \frac{-1}{2\pi r^2}
 \end{align}
 
+As a consequence, the kernel's normal derivatives are expressed as
+%
+\begin{align}
+	\frac{\partial G}{\partial n_y} 
+	&= -\frac{1}{2\pi r} r'_{n_y}
+	\\
+	\frac{\partial^2 G}{\partial n_x \partial n_y}
+	&= \frac{1}{2\pi r^2}\left( n_{xi} n_{yi} + 2 r'_{n_x} r'_{n_y}\right)
+	\\
+	\frac{\partial^2 G}{\partial n_x^2}
+	&= \frac{1}{2\pi r^2}\left( -1 + 2 \left(r'_{n_x}\right)^2 \right)
+	\\
+	\frac{\partial^3 G}{\partial n_x^2 \partial n_y}
+	&= \frac{1}{\pi r^3} 
+	 \left(
+	r'_{n_y}
+	- 2 r'_{n_x} \left(n_{xk} n_{yk}\right)
+	-4 \left(r'_{n_x}\right)^2 r'_{n_y}
+	\right)
+\end{align}
+
 
 \section{Laplace kernel in three dimensions}
 
