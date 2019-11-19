@@ -34,7 +34,7 @@ endif()
 # Check if GTest has been found
 if(NOT GTEST_FOUND OR NIHU_GTEST_INSTALL)
 	# Configure GTest directories
-	set(GTEST_SOURCE_DIR "${CMAKE_SOURCE_DIR}/ThirdParty/gtest-${NIHU_GTEST_VERSION}")
+	set(GTEST_SOURCE_DIR "${NIHU_THIRDPARTY_DIR}/gtest-${NIHU_GTEST_VERSION}")
 	
 	# Check if NIHU_GTEST_ARCHIVE is set
 	if(NOT DEFINED NIHU_GTEST_ARCHIVE)
@@ -47,7 +47,7 @@ if(NOT GTEST_FOUND OR NIHU_GTEST_INSTALL)
 
 		message(STATUS "\tGTest ${NIHU_GTEST_VERSION} headers will be installed")
 
-		set(GTEST_DL_FILE "${CMAKE_SOURCE_DIR}/ThirdParty/gtest-${NIHU_GTEST_VERSION}.tar.gz")
+		set(GTEST_DL_FILE "${NIHU_THIRDPARTY_DIR}/gtest-${NIHU_GTEST_VERSION}.tar.gz")
 		
 		# Download
 		message(STATUS "\tDownloading GTest ${NIHU_GTEST_VERSION} from ${GTEST_URL}")

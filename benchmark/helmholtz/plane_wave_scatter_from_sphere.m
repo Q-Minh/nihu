@@ -107,19 +107,21 @@ err_ser = norm(ps_inc - ps_inc_ana_ser) / norm(ps_inc);
 err_surf = norm(ps_scat_ana - ps_scat_num) / norm(ps_scat_ana);
 err_field = norm(pf_scat_ana - pf_num) / norm(pf_scat_ana);
 
-fprintf('Estimated series truncation error: %g\n', err_ser);
-fprintf('Surface error: %g\n', err_surf);
-fprintf('Field   error: %g\n', err_field);
+fprintf('Series truncation error:  %g\n', err_ser);
+fprintf('Surface relative error:   %g\n', err_surf);
+fprintf('Field relative error:     %g\n', err_field);
 
 %% Plot the results on surface
-figure;
+fig = figure;
+plot_mesh(field, abs(pf_num + pf_inc)); shading flat;
+hold on;
 plot_mesh(scatterer, abs(ps_scat_num + ps_inc)); view(2); axis equal;
-hold on;
-plot_mesh(field, abs(pf_num + pf_inc));
 view([0 0]);
-
-figure;
-plot_mesh(scatterer, abs(ps_scat_ana + ps_inc)); view(2); axis equal;
-hold on;
-plot_mesh(field, abs(pf_scat_ana + pf_inc));
-view([0 0]);
+set(gca, 'XLim', [-1 1], 'ZLim', [-1 1]);
+cb = colorbar;
+caxis([0 2]);
+xlabel(gca, 'x [m]');
+zlabel(gca, 'z [m]');
+ylabel(cb, 'Sound pressure field |p| [Pa]', 'FontSize', 10);
+title(sprintf('Total field at kr_0 = %.2f', k*r0));
+print(fig, '-dpng', '-r100', 'bench_plane_wave_sphere.png');

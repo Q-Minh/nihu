@@ -55,7 +55,7 @@ if(NOT FFTW3_FOUND OR DEFINED NIHU_FFTW_INSTALL)
 	endif()
 
 	# Configure FFTW directories
-	set(FFTW_SOURCE_DIR "${CMAKE_SOURCE_DIR}/ThirdParty/fftw-${NIHU_FFTW_VERSION}")
+	set(FFTW_SOURCE_DIR "${NIHU_THIRDPARTY_DIR}/fftw-${NIHU_FFTW_VERSION}")
 	set(FFTW_INSTALL_DIR "${CMAKE_BINARY_DIR}/lib/fftw-${NIHU_FFTW_VERSION}")
 	
 	# md5 checksum of the downloaded 
@@ -73,7 +73,7 @@ if(NOT FFTW3_FOUND OR DEFINED NIHU_FFTW_INSTALL)
 		# FFTW download path
 		set(FFTW_URL "ftp://ftp.fftw.org/pub/fftw/fftw-${NIHU_FFTW_VERSION}-dll${NIHU_SYS_BITS}.zip")
 		message(STATUS "\tFFTW ${NIHU_FFTW_VERSION} headers and libraries will be installed")
-		set(FFTW_DL_FILE "${CMAKE_SOURCE_DIR}/ThirdParty/fftw-${NIHU_FFTW_VERSION}.zip")
+		set(FFTW_DL_FILE "${NIHU_THIRDPARTY_DIR}/fftw-${NIHU_FFTW_VERSION}.zip")
 		
 		# Check if downloaded file exists and has the correct MD5SUM
 		if(EXISTS "${FFTW_DL_FILE}")
