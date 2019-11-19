@@ -1074,47 +1074,6 @@ public:
 };
 
 
-/** \brief collocational singular integral of the 2D HSP kernel over a constant line
- * \tparam TestField the test field type
- * \tparam TrialField the trial field type
- */
-template <class TestField, class TrialField>
-class singular_integral_shortcut<
-	laplace_2d_HSP_kernel, TestField, TrialField, match::match_1d_type,
-	typename std::enable_if<
-	std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
-	is_constant_line<TrialField>::value
-	>::type
->
-{
-public:
-	/** \brief evaluate singular integral
-	 * \tparam result_t the result matrix type
-	 * \param [in, out] result reference to the result
-	 * \param [in] trial_field the test and trial fields
-	 * \return reference to the result matrix
-	 */
-	template <class result_t>
-	static result_t &eval(
-		result_t &result,
-		kernel_base<laplace_2d_HSP_kernel> const &,
-		field_base<TestField> const &,
-		field_base<TrialField> const &trial_field,
-		element_match const &)
-	{
-#ifdef NIHU_DEBUGGING
-		static bool printed = false;
-		if (!printed) {
-			std::cout << "Using laplace_2d_HSP_collocation_line" << std::endl;
-			printed = true;
-		}
-#endif
-		result = laplace_2d_HSP_collocation_line<TestField, TrialField>::eval(
-			trial_field.get_elem());
-		return result;
-	}
-};
-
 
 /** \brief collocational singular integral of the 2D HSP kernel over a straight line
  * \tparam TestField the test field type
