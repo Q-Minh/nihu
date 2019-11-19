@@ -17,8 +17,8 @@ typedef NiHu::mex::real_matrix<double> dMatrix;
 void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 {
 	dMatrix surf_nodes(rhs[0]), surf_elem(rhs[1]), field_nodes(rhs[2]), field_elem(rhs[3]);
-	auto surf_mesh = NiHu::create_mesh(surf_nodes, surf_elem, NiHu::line_2_tag());
-	auto field_mesh = NiHu::create_mesh(field_nodes, field_elem, NiHu::quad_1_volume_tag());
+	auto surf_mesh = NiHu::create_mesh(surf_nodes, surf_elem, NiHu::line_1_tag(), NiHu::line_2_tag());
+	auto field_mesh = NiHu::create_mesh(field_nodes, field_elem, NiHu::tria_1_volume_tag(), NiHu::quad_1_volume_tag());
 
 	auto const &surf_sp = NiHu::constant_view(surf_mesh);
 	auto const &field_sp = NiHu::dirac(NiHu::constant_view(field_mesh));
