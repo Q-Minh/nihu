@@ -1,5 +1,8 @@
 \chapter{Singular integrals}
 
+This chapter describes the specialized singular integrals implemented in \NiHu{}.
+The described integrals are included into the system via the shortcut class \code{singular_integral_shortcut}.
+
 \section{2D Laplace kernel}
 
 \subsection{Collocation}
@@ -8,7 +11,7 @@
 
 In order to define the collocational singular integrals over curved elements in a general way, we introduce series expansions of the geometrical properties of curved elements around the collocational point ${\bf x}_0$.
 
-In the followings, the variable $\rho = \eta - \xi_0$ will denote the signed distance from the collocation point in the 1D reference domain.
+In the followings, the variable $\rho = \eta - \xi_0$ will denote the signed distance from the collocation point in the 1D reference domain $[-1, +1]$.
 
 The Taylor series expansion of the distance vector ${\bf r} = {\bf y} - {\bf x}_0$ with repsect to the reference distance $\rho$ is written as
 %
@@ -101,9 +104,7 @@ In \NiHu{}, shape functions are at most second order polynomials, so \eqref{eq:t
 
 \paragraph{The general case}
 
-This section describes the collocational integral of the 2D Laplace SLP kernel over a curved element and with general shape functions.
-This general method is implemented in function \code{laplace_2d_SLP_collocation_curved}.
-For the special case of line elements, the simplified version is implemented in function \code{laplace_2d_SLP_collocation_straight}.
+The case described here is implemented in function \code{laplace_2d_SLP_collocation_curved}.
 
 The integral is written in the physical domain as
 %
@@ -175,6 +176,9 @@ The remaining regular part of the integral is computed numerically, using standa
 
 
 \paragraph{Straight line elements}
+
+For the special case of straight line elements, the simplified version is implemented in function \code{laplace_2d_SLP_collocation_straight}.
+
 
 \begin{align}
 \int_{S} G({\bf y}, {\bf x}) \td y
