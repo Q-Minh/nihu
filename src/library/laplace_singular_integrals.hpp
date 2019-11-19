@@ -79,13 +79,6 @@ class laplace_2d_SLP_collocation_curved
 public:
 	static result_t eval(elem_t const &elem)
 	{
-#ifdef NIHU_DEBUGGING
-		static bool printed = false;
-		if (!printed) {
-			std::cout << "Using laplace_2d_SLP_collocation_curved" << std::endl;
-			printed = true;
-		}
-#endif
 		using namespace boost::math::double_constants;
 
 		result_t result = result_t::Zero();
@@ -180,20 +173,12 @@ class laplace_2d_SLP_collocation_straight
 
 	static size_t const rows = test_shape_set_t::num_nodes;
 	static size_t const cols = trial_shape_set_t::num_nodes;
-	static size_t const order = trial_shape_set_t::polynomial_order;
 
 	typedef Eigen::Matrix<double, rows, cols> result_t;
 
 public:
 	static result_t eval(elem_t const &elem)
 	{
-#ifdef NIHU_DEBUGGING
-		static bool printed = false;
-		if (!printed) {
-			std::cout << "Using laplace_2d_SLP_collocation_straight" << std::endl;
-			printed = true;
-		}
-#endif
 		using namespace boost::math::double_constants;
 
 		// get Jacobian
@@ -259,13 +244,6 @@ class laplace_2d_DLP_collocation_curved
 public:
 	static result_t eval(elem_t const &elem)
 	{
-#ifdef NIHU_DEBUGGING
-		static bool printed = false;
-		if (!printed) {
-			std::cout << "Using laplace_2d_DLP_collocation_curved" << std::endl;
-			printed = true;
-		}
-#endif
 		result_t result = result_t::Zero();
 
 		// traverse collocation points
@@ -310,7 +288,7 @@ public:
 
 /** \brief Collocational integral of the 2D HSP kernel over a general curved line with general shape sets */
 template <class TestField, class TrialField, size_t order>
-class laplace_2d_HSP_collocation_general
+class laplace_2d_HSP_collocation_curved
 {
 	typedef TestField test_field_t;
 	typedef TrialField trial_field_t;
@@ -335,13 +313,6 @@ public:
 
 	static result_t eval(elem_t const &elem)
 	{
-#ifdef NIHU_DEBUGGING
-		static bool printed = false;
-		if (!printed) {
-			std::cout << "Using laplace_2d_HSP_collocation_general" << std::endl;
-			printed = true;
-		}
-#endif
 		using namespace boost::math::double_constants;
 
 		result_t result = result_t::Zero();
@@ -425,9 +396,9 @@ public:
 	}
 };
 
-/** \brief Collocational integral of the 2D HSP kernel over a straight line with max. linear Nset */
+/** \brief Collocational integral of the 2D HSP kernel over a straight line with max. second order Nset */
 template <class TestField, class TrialField>
-class laplace_2d_HSP_collocation_line
+class laplace_2d_HSP_collocation_straight
 {
 	typedef TestField test_field_t;
 	typedef TrialField trial_field_t;
@@ -447,14 +418,6 @@ class laplace_2d_HSP_collocation_line
 public:
 	static result_t eval(elem_t const &elem)
 	{
-#ifdef NIHU_DEBUGGING
-		static bool printed = false;
-		if (!printed) {
-			std::cout << "Using laplace_2d_HSP_collocation_line" << std::endl;
-			printed = true;
-		}
-#endif
-
 		using namespace boost::math::double_constants;
 
 		double jac = elem.get_normal().norm();
@@ -462,66 +425,30 @@ public:
 		result_t result;
 		result.setZero();
 
-		double a = -1., b = +1.;
+		// integration limits in intrinsic coordinates
+		double const a = -1.;
+		double const b = +1.;
 
 		for (size_t i = 0; i < rows; ++i)
 		{
 			xi_t xi0 = test_shape_set_t::corner_at(i);
 			auto N = trial_shape_set_t::template eval_shape<0>(xi0);
-			auto dN = trial_shape_set_t::template eval_shape<1>(xi0);
-			result.row(i) = N * (-1. / (b - xi0(0)) - -1. / (a - xi0(0))) +
-				dN * std::log(std::abs((b - xi0(0)) / (a - xi0(0))));
+			result.row(i) = N * (-1. / (b - xi0(0)) - -1. / (a - xi0(0)));
+
+			if (trial_shape_set_t::polynomial_order >= 1) {
+				auto dN = trial_shape_set_t::template eval_shape<1>(xi0);
+				result.row(i) += dN * std::log(std::abs((b - xi0(0)) / (a - xi0(0))));
+			}
+
+			if (trial_shape_set_t::polynomial_order >= 2) {
+				auto ddN = trial_shape_set_t::template eval_shape<2>(xi0);
+				result.row(i) += ddN / 2. * (b - a);
+			}
 		}
 
 		return result / (two_pi * jac);
 	}
 };
-
-
-/** \brief Collocational singular integral of the 2D Laplace HSP kernel over a straight line with constant shape set */
-template <class TestField>
-class laplace_2d_HSP_collocation_constant_line
-{
-	typedef TestField test_field_t;
-	typedef typename test_field_t::nset_t test_shape_set_t;
-	static size_t const rows = test_shape_set_t::num_nodes;
-	typedef Eigen::Matrix<double, rows, 1> result_t;
-
-	typedef line_1_elem elem_t;
-	typedef typename elem_t::x_t x_t;
-
-	typedef typename test_shape_set_t::xi_t xi_t;
-
-public:
-	/**
-	 * \brief Evaluate the integral
-	 * \param [in] elem the line element
-	 * \param [in] x0 the singular point
-	 * \return the integral value
-	 */
-	static result_t eval(elem_t const &elem)
-	{
-#ifdef NIHU_DEBUGGING
-		static bool printed = false;
-		if (!printed) {
-			std::cout << "Using laplace_2d_HSP_collocation_constant_line" << std::endl;
-			printed = true;
-		}
-#endif
-		using namespace boost::math::double_constants;
-
-		result_t result;
-		auto const &C = elem.get_coords();
-		for (size_t i = 0; i < rows; ++i)
-		{
-			x_t x0 = elem.get_x(test_shape_set_t::corner_at(i));
-			double d1 = (x0 - C.col(0)).norm(), d2 = (x0 - C.col(1)).norm();
-			result(i, 0) = -(1. / d1 + 1. / d2) / two_pi;
-		}
-		return result;
-	}
-};
-
 
 
 /** \brief Collocational singular integral of the 3D Laplace SLP kernel over a constant plane element */
@@ -537,13 +464,6 @@ public:
 	template <class elem_t>
 	static double eval(elem_t const &elem, typename elem_t::x_t const &x0)
 	{
-#ifdef NIHU_DEBUGGING
-		static bool printed = false;
-		if (!printed) {
-			std::cout << "Using laplace_3d_SLP_collocation_constant_plane" << std::endl;
-			printed = true;
-		}
-#endif
 		using namespace boost::math::double_constants;
 
 		enum { N = elem_t::domain_t::num_corners };
@@ -571,13 +491,6 @@ public:
 	template <class elem_t>
 	static double eval(elem_t const &elem, typename elem_t::x_t const &x0)
 	{
-#ifdef NIHU_DEBUGGING
-		static bool printed = false;
-		if (!printed) {
-			std::cout << "Using laplace_3d_HSP_collocation_constant_plane" << std::endl;
-			printed = true;
-		}
-#endif
 		using namespace boost::math::double_constants;
 
 		enum { N = elem_t::domain_t::num_corners };
@@ -625,13 +538,6 @@ class laplace_2d_SLP_galerkin_face_general
 public:
 	static result_t eval(elem_t const &elem)
 	{
-#ifdef NIHU_DEBUGGING
-		static bool printed = false;
-		if (!printed) {
-			std::cout << "Using laplace_2d_SLP_galerkin_face_general" << std::endl;
-			printed = true;
-		}
-#endif
 		using namespace boost::math::double_constants;
 
 		kernel_t kernel;
@@ -707,13 +613,6 @@ public:
 	*/
 	static double eval(line_1_elem const &elem)
 	{
-#ifdef NIHU_DEBUGGING
-		static bool printed = false;
-		if (!printed) {
-			std::cout << "Using laplace_2d_SLP_galerkin_face_constant_line" << std::endl;
-			printed = true;
-		}
-#endif
 		using namespace boost::math::double_constants;
 
 		auto const &C = elem.get_coords();
@@ -734,13 +633,6 @@ public:
 	 */
 	static void eval(line_1_elem const &elem, double &i1, double &i2)
 	{
-#ifdef NIHU_DEBUGGING
-		static bool printed = false;
-		if (!printed) {
-			std::cout << "Using laplace_2d_SLP_galerkin_face_linear_line" << std::endl;
-			printed = true;
-		}
-#endif
 		using namespace boost::math::double_constants;
 
 		auto const &C = elem.get_coords();
@@ -769,13 +661,6 @@ public:
 	/** \brief evaluate the integral on two elements */
 	static double eval(line_1_elem const &elem1, line_1_elem const &elem2)
 	{
-#ifdef NIHU_DEBUGGING
-		static bool printed = false;
-		if (!printed) {
-			std::cout << "Using laplace_2d_SLP_galerkin_edge_constant_line" << std::endl;
-			printed = true;
-		}
-#endif
 		using namespace boost::math::double_constants;
 
 		// get the element corner coordinates
@@ -814,13 +699,6 @@ public:
 	/** \brief evaluate the integral on two elements */
 	static double eval(line_1_elem const &elem1, line_1_elem const &elem2)
 	{
-#ifdef NIHU_DEBUGGING
-		static bool printed = false;
-		if (!printed) {
-			std::cout << "Using laplace_2d_DLP_galerkin_edge_constant_line" << std::endl;
-			printed = true;
-		}
-#endif
 		using namespace boost::math::double_constants;
 
 		// get element corners
@@ -850,7 +728,7 @@ public:
 
 
 
-/** \brief collocational singular integral of the 2D SLP kernel over a straight line
+/** \brief collocational singular integral of the 2D SLP kernel over a straight line with max 2nd order trial shape function
  * \tparam TestField the test field type
  * \tparam TrialField the trial field type
  */
@@ -878,6 +756,13 @@ public:
 		field_base<TrialField> const &trial_field,
 		element_match const &)
 	{
+#ifdef NIHU_DEBUGGING
+		static bool printed = false;
+		if (!printed) {
+			std::cout << "Using laplace_2d_SLP_collocation_straight" << std::endl;
+			printed = true;
+		}
+#endif
 		result = laplace_2d_SLP_collocation_straight<
 			TestField, TrialField
 		>::eval(trial_field.get_elem());
@@ -914,7 +799,56 @@ public:
 		field_base<TrialField> const &,
 		element_match const &)
 	{
+#ifdef NIHU_DEBUGGING
+		static bool printed = false;
+		if (!printed) {
+			std::cout << "Using laplace_2d_SLP_collocation_curved" << std::endl;
+			printed = true;
+		}
+#endif
 		result = laplace_2d_SLP_collocation_curved<TestField, TrialField, 10>::eval(
+			test_field.get_elem());
+		return result;
+	}
+};
+
+
+/** \brief collocational singular integral of the 2D HSP kernel over a curved line
+ * \tparam TestField the test field type
+ * \tparam TrialField the trial field type
+ */
+template <class TestField, class TrialField>
+class singular_integral_shortcut<
+	laplace_2d_HSP_kernel, TestField, TrialField, match::match_1d_type,
+	typename std::enable_if<
+	std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
+	!std::is_same<typename TrialField::elem_t::lset_t, line_1_shape_set>::value
+	>::type
+>
+{
+public:
+	/** \brief evaluate singular integral
+	 * \tparam result_t the result matrix type
+	 * \param [in, out] result reference to the result
+	 * \param [in] test_field the test field
+	 * \return reference to the result matrix
+	 */
+	template <class result_t>
+	static result_t &eval(
+		result_t &result,
+		kernel_base<laplace_2d_HSP_kernel> const &,
+		field_base<TestField> const &test_field,
+		field_base<TrialField> const &,
+		element_match const &)
+	{
+#ifdef NIHU_DEBUGGING
+		static bool printed = false;
+		if (!printed) {
+			std::cout << "Using laplace_2d_HSP_collocation_curved" << std::endl;
+			printed = true;
+		}
+#endif
+		result = laplace_2d_HSP_collocation_curved<TestField, TrialField, 10>::eval(
 			test_field.get_elem());
 		return result;
 	}
@@ -950,6 +884,14 @@ public:
 		field_base<TrialField> const &trial_field,
 		element_match const &)
 	{
+#ifdef NIHU_DEBUGGING
+		static bool printed = false;
+		if (!printed) {
+			std::cout << "Using laplace_2d_SLP_galerkin_face_constant_line" << std::endl;
+			printed = true;
+		}
+#endif
+
 		result(0, 0) = laplace_2d_SLP_galerkin_face_constant_line::eval(trial_field.get_elem());
 		return result;
 	}
@@ -985,6 +927,13 @@ public:
 		field_base<TrialField> const &trial_field,
 		element_match const &)
 	{
+#ifdef NIHU_DEBUGGING
+		static bool printed = false;
+		if (!printed) {
+			std::cout << "Using laplace_2d_SLP_galerkin_face_linear_line" << std::endl;
+			printed = true;
+		}
+#endif
 		laplace_2d_SLP_galerkin_face_linear_line::eval(trial_field.get_elem(), result(0, 0), result(0, 1));
 		result(1, 0) = result(0, 1);
 		result(1, 1) = result(0, 0);
@@ -1023,6 +972,13 @@ public:
 		field_base<TrialField> const &trial_field,
 		element_match const &match)
 	{
+#ifdef NIHU_DEBUGGING
+		static bool printed = false;
+		if (!printed) {
+			std::cout << "Using laplace_2d_SLP_galerkin_edge_constant_line" << std::endl;
+			printed = true;
+		}
+#endif
 		result(0, 0) = laplace_2d_SLP_galerkin_edge_constant_line::eval(
 			test_field.get_elem(), trial_field.get_elem());
 		return result;
@@ -1058,6 +1014,13 @@ public:
 		field_base<TrialField> const &,
 		element_match const &)
 	{
+#ifdef NIHU_DEBUGGING
+		static bool printed = false;
+		if (!printed) {
+			std::cout << "Using laplace_2d_DLP_collocation_curved" << std::endl;
+			printed = true;
+		}
+#endif
 		result = laplace_2d_DLP_collocation_curved<TestField, TrialField, 10>::eval(
 			test_field.get_elem());
 		return result;
@@ -1097,6 +1060,13 @@ public:
 		field_base<TrialField> const &trial_field,
 		element_match const &match)
 	{
+#ifdef NIHU_DEBUGGING
+		static bool printed = false;
+		if (!printed) {
+			std::cout << "Using laplace_2d_DLP_galerkin_edge_constant_line" << std::endl;
+			printed = true;
+		}
+#endif
 		result(0, 0) = laplace_2d_DLP_galerkin_edge_constant_line::eval(
 			test_field.get_elem(), trial_field.get_elem());
 		return result;
@@ -1132,14 +1102,21 @@ public:
 		field_base<TrialField> const &trial_field,
 		element_match const &)
 	{
-		result = laplace_2d_HSP_collocation_constant_line<TestField>::eval(
+#ifdef NIHU_DEBUGGING
+		static bool printed = false;
+		if (!printed) {
+			std::cout << "Using laplace_2d_HSP_collocation_line" << std::endl;
+			printed = true;
+		}
+#endif
+		result = laplace_2d_HSP_collocation_line<TestField, TrialField>::eval(
 			trial_field.get_elem());
 		return result;
 	}
 };
 
 
-/** \brief collocational singular integral of the 2D HSP kernel over a linear line
+/** \brief collocational singular integral of the 2D HSP kernel over a straight line
  * \tparam TestField the test field type
  * \tparam TrialField the trial field type
  */
@@ -1148,8 +1125,7 @@ class singular_integral_shortcut<
 	laplace_2d_HSP_kernel, TestField, TrialField, match::match_1d_type,
 	typename std::enable_if<
 	std::is_same<typename get_formalism<TestField, TrialField>::type, formalism::collocational>::value &&
-	std::is_same<typename TrialField::elem_t::lset_t, line_1_shape_set>::value &&
-	TrialField::nset_t::polynomial_degree == 1
+	std::is_same<typename TrialField::elem_t::lset_t, line_1_shape_set>::value
 	>::type
 >
 {
@@ -1168,7 +1144,14 @@ public:
 		field_base<TrialField> const &trial_field,
 		element_match const &)
 	{
-		result = laplace_2d_HSP_collocation_line<TestField, TrialField>::eval(
+#ifdef NIHU_DEBUGGING
+		static bool printed = false;
+		if (!printed) {
+			std::cout << "Using laplace_2d_HSP_collocation_straight" << std::endl;
+			printed = true;
+		}
+#endif
+		result = laplace_2d_HSP_collocation_straight<TestField, TrialField>::eval(
 			trial_field.get_elem());
 		return result;
 	}
@@ -1229,6 +1212,13 @@ public:
 		field_base<TrialField> const &trial_field,
 		element_match const &)
 	{
+#ifdef NIHU_DEBUGGING
+		static bool printed = false;
+		if (!printed) {
+			std::cout << "Using laplace_3d_SLP_collocation_constant_plane" << std::endl;
+			printed = true;
+		}
+#endif
 		result(0, 0) = laplace_3d_SLP_collocation_constant_plane::eval(
 			trial_field.get_elem(),
 			trial_field.get_elem().get_center());
@@ -1264,6 +1254,13 @@ public:
 		field_base<TrialField> const &trial_field,
 		element_match const &)
 	{
+#ifdef NIHU_DEBUGGING
+		static bool printed = false;
+		if (!printed) {
+			std::cout << "Using laplace_3d_HSP_collocation_constant_plane" << std::endl;
+			printed = true;
+		}
+#endif
 		result(0, 0) = laplace_3d_HSP_collocation_constant_plane::eval(
 			trial_field.get_elem(),
 			trial_field.get_elem().get_center());
@@ -1299,6 +1296,13 @@ public:
 		field_base<TrialField> const &trial_field,
 		element_match const &)
 	{
+#ifdef NIHU_DEBUGGING
+		static bool printed = false;
+		if (!printed) {
+			std::cout << "Using laplace_3d_HSP_collocation_constant_plane" << std::endl;
+			printed = true;
+		}
+#endif
 		result(0, 0) = -1. * laplace_3d_HSP_collocation_constant_plane::eval(
 			trial_field.get_elem(),
 			trial_field.get_elem().get_center());
@@ -1335,6 +1339,13 @@ public:
 		field_base<TrialField> const &trial_field,
 		element_match const &)
 	{
+#ifdef NIHU_DEBUGGING
+		static bool printed = false;
+		if (!printed) {
+			std::cout << "Using guiggiani for laplace_3d_HSP_kernel" << std::endl;
+			printed = true;
+		}
+#endif
 		typedef guiggiani<TrialField, laplace_3d_HSP_kernel, 5, 9> guiggiani_t;
 		auto const &elem = trial_field.get_elem();
 		guiggiani_t gui(elem, kernel.derived());

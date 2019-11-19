@@ -150,7 +150,7 @@ TEST(laplace_2d_elem_integrals, singular_2d_HSP_collocation)
 			0.0, 0.0;
 		elem_t elem(coords);
 		
-		auto res = NiHu::laplace_2d_HSP_collocation_line<
+		auto res = NiHu::laplace_2d_HSP_collocation_straight<
 			test_field_t, trial_field_t
 			>::eval(elem);
 		I1 = res.row(0).sum();
@@ -171,7 +171,7 @@ TEST(laplace_2d_elem_integrals, singular_2d_HSP_collocation)
 			0.0, 0.0, 0.0;
 		elem_t elem(coords);
 		
-		auto res = NiHu::laplace_2d_HSP_collocation_general<
+		auto res = NiHu::laplace_2d_HSP_collocation_curved<
 			test_field_t, trial_field_t, 20
 			>::eval(elem);
 		I2 = res.row(0).sum();

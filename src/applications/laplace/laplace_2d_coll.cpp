@@ -38,9 +38,9 @@ int main(int argc, char *argv[])
 	auto L = NiHu::create_integral_operator(NiHu::laplace_2d_SLP_kernel());
 	auto M = NiHu::create_integral_operator(NiHu::laplace_2d_DLP_kernel());
 
+	Ls << NiHu::dirac(surf_sp) * L[surf_sp];
 	Ms << NiHu::dirac(surf_sp) * M[surf_sp]
 		+ NiHu::dirac(surf_sp) * (-.5 * I)[surf_sp];
-	Ls << NiHu::dirac(surf_sp) * L[surf_sp];
 	Lf  << field_sp * L[surf_sp];
 	Mf  << field_sp * M[surf_sp];
 
