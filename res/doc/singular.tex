@@ -99,6 +99,8 @@ In \NiHu{}, shape functions are at most second order polynomials, so \eqref{eq:t
 
 \subsubsection{SLP kernel}
 
+\paragraph{The general case}
+
 This section describes the collocational integral of the 2D Laplace SLP kernel over a curved element and with general shape functions.
 This general method is implemented in function \code{laplace_2d_SLP_collocation_curved}.
 For the special case of line elements, the simplified version is implemented in function \code{laplace_2d_SLP_collocation_straight}.
@@ -172,7 +174,23 @@ and its integral over the element can be computed analytically, using the expres
 The remaining regular part of the integral is computed numerically, using standard Gaussian quadrature.
 
 
+\paragraph{Straight line elements}
+
+\begin{align}
+\int_{S} G({\bf y}, {\bf x}) \td y
+& = \frac{-1}{2\pi}\lim_{\epsilon \to 0}
+\left( \int_{-d_1}^{-\epsilon} \ln |y| \td y + \int_{\epsilon}^{d_2}  \ln |y| \td y \right) \nonumber \\
+& = \frac{-1}{2\pi}\lim_{\epsilon \to 0}
+\left( \int_{\epsilon}^{d_1} \ln y \td y + \int_{\epsilon}^{d_2}  \ln y \td y \right) \nonumber \\
+&=
+\frac{d_1(1-\ln d_1) + d_2(1-\ln d_2)}{2\pi}
+\end{align}
+
+
+
 \subsubsection{DLP kernel}
+
+\paragraph{The general case}
 
 The DLP kernel is expressed as
 %
@@ -202,7 +220,19 @@ Taking into account that ${\bf r}_1$ is perpendicular to ${\bf J}_0$, it is obse
 This is easily done by dividing the element into two at the reference point, and integrating numerically with Gaussian quadratures over the two subelements.
 
 
+\paragraph{Straight line elements}
+
+\begin{equation}
+\int_{S} G'_{n_y}({\bf y}, {\bf x}) \td y = 0
+\end{equation}
+%
+as the element normal is perpendicular to the distance ${\bf y}-{\bf x}$.
+
+
+
 \subsubsection{HSP kernel}
+
+\paragraph{The general case}
 
 The HSP kernel is expressed as
 %
@@ -257,6 +287,41 @@ The Hadamard Finite Part integration is performed as follows:
 	- \left( \frac{N_0}{\rho_1} + \frac{N_0}{\rho_2} \right)
 	+  N_1\log \frac{\rho_2}{\rho_1} 
 \end{align}
+
+
+\paragraph{Straight line elements}
+
+Finite part integral with general shape function $N(y)$
+%
+\begin{align}
+	I = \int_S G''_{n_x n_y}({\bf y}, {\bf x}) N({\bf y}) \td y
+	&= \frac{1}{2\pi} \int_S \frac{1}{(y-x)^2} N(y) \td y \\
+	&= \frac{1}{2\pi} \int_\Sigma \frac{1}{J^2 (\eta-\xi)^2} N(\eta) J \td \eta \\
+	&= \frac{1}{2\pi J} \left(
+		\int_a^{\xi-\epsilon} \frac{1}{(\eta-\xi)^2} N(\eta) \td \eta
+		+ \int_{\xi+\epsilon}^{b} \frac{1}{(\eta-\xi)^2} N(\eta) \td \eta
+	\right)
+\end{align}
+
+The shape function is written with its Taylor series around the singular point
+%
+\begin{equation}
+	N(\eta) = N(\xi) + N'(\xi) (\eta-\xi) + \sum_{k=2}^{\infty} \frac{N^{(k)}(\xi)}{k!}(\eta-\xi)^k
+\end{equation}
+
+Substitution yields
+
+\begin{equation}
+	I = \frac{N(\xi)}{2\pi J} \left(
+		\cancel{\frac{1}{2\epsilon}} + \left[ \frac{-1}{\eta-\xi} \right]_{a}^{b} 
+	\right)
+	+
+	\frac{N'(\xi)}{2\pi J} \log \frac{|b-\xi|}{|a-\xi|}
+	+ \sum_{k=2}^{\infty} \frac{N^{(k)}(\xi)}{2\pi J k! (k-1)}
+		\left[ (\eta-\xi)^{k-1} \right]_{a}^{b} 
+\end{equation}
+
+
 
 
 \subsection{Galerkin}

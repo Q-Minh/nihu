@@ -20,38 +20,6 @@
 
 \tableofcontents
 
-\section{Derivatives of kernels depending on the source-receiver distance}
-
-In lots of useful cases (homogeneous and isotropic media) the kernel is distance-dependent: $K({\bf x}, {\bf y}) = G(|{\bf y} - {\bf x}|)$.
-In these cases the kernel's normal derivatives can be expressed in a unified way.
-
-Derivatives of the distance vector are given by the following formulas
-%
-\begin{align}
-	r &= |{\bf r}| \\
-	r'_i &= \frac{r_i}{r} \\
-	r''_{ij} &= \frac{1}{r} \left( \delta_{ij} - r'_i r'_j \right) \\
-	r'''_{ijk} &= -\frac{1}{r^2} \left(
-		\delta_{ij} r'_k + \delta_{jk} r'_i + \delta_{ki} r'_j - 3 r'_i r'_j r'_k
-	\right)
-\end{align}
-
-Derivatives of the kernel depending on the distance are formulated as
-%
-\begin{align}
-	G'_i &= G'_r r'_i \\
-	G''_{ij} &= \left(G''_r - \frac{G'_r}{r} \right) r'_i r'_j +  \frac{G'_r}{r} \delta_{ij} \\
-	G'''_{ijk} &=
-	\left(G'''_r -\frac{3}{r} \left(G''_r  - \frac{G'_r}{r} \right) \right) r'_i r'_j r'_k
-	+  \frac{1}{r} \left( G''_r  - \frac{G'_r}{r} \right)\left(
-	   r'_j \delta_{ki}
-	+  r'_i \delta_{jk}
-	+  r'_k \delta_{ij}
-	\right)
-	\label{eq:derivatives_wrt_ij}
-\end{align}
-
-
 \section{Analytical integrals of the 2D Laplace kernel}
 
 This section describes the analytical formulas used to integrate the kernel of the Laplace equation in two dimensions.
@@ -81,37 +49,7 @@ The kernel and its derivatives are given as
 	\label{eq:laplace_third_derivative}
 \end{align}
 
-The normal derivative w.r.t $n_y$ is computed as $G'_i n_{yi}$, while the normal derivative w.r.t. $n_x$ is computed as $-G'_i n_{xi}$:
-%
-\begin{align}
-	\frac{\partial G}{\partial n_y} 
-	&= n_{yi} G'_i
-	&&
-	%= -\frac{1}{2\pi r} \frac{n_{yi} r_i}{r}
-	= -\frac{1}{2\pi r} r'_{n_y}
-	\\
-	\frac{\partial^2 G}{\partial n_x \partial n_y}
-	&= -n_{xi} n_{yj} G''_{ij}
-	&&
-	%= \frac{1}{2\pi r^2}\left( n_{xi} n_{yi} - 2\frac{r_j n_{yj}}{r} \frac{r_i n_{xi}}{r}\right)
-	= \frac{1}{2\pi r^2}\left( n_{xi} n_{yi} + 2 r'_{n_x} r'_{n_y}\right)
-	\\
-	\frac{\partial^2 G}{\partial n_x^2}
-	&= n_{xi} n_{xj} G''_{ij}
-	&&
-	%= \frac{1}{2\pi r^2}\left( -1 + 2 \left(\frac{r_j n_{xj}}{r}\right)^2 \right)
-	= \frac{1}{2\pi r^2}\left( -1 + 2 \left(r'_{n_x}\right)^2 \right)
-	\\
-	\frac{\partial^3 G}{\partial n_x^2 \partial n_y}
-	&= n_{xi} n_{xj} n_{yk} G'''_{ijk}
-	&&
-	= \frac{1}{\pi r^3} 
-	 \left(
-	r'_{n_y}
-	- 2 r'_{n_x} \left(n_{xk} n_{yk}\right)
-	-4 \left(r'_{n_x}\right)^2 r'_{n_y}
-	\right)
-\end{align}
+
 
 \subsection{Collocation}
 
@@ -239,104 +177,6 @@ and its integral over the element is computed as
 	= \frac{-N_0 J_0}{2\pi} \left(|b|(\log(|b| J_0) - 1) + |a|(\log(|a| J_0) - 1) \right)
 \end{equation}
 
-\paragraph{Constant line SLP}
-
-\begin{align}
-\int_{S} G({\bf y}, {\bf x}) \td y
-& = \frac{-1}{2\pi}\lim_{\epsilon \to 0}
-\left( \int_{-d_1}^{-\epsilon} \ln |y| \td y + \int_{\epsilon}^{d_2}  \ln |y| \td y \right) \nonumber \\
-& = \frac{-1}{2\pi}\lim_{\epsilon \to 0}
-\left( \int_{\epsilon}^{d_1} \ln y \td y + \int_{\epsilon}^{d_2}  \ln y \td y \right) \nonumber \\
-&=
-\frac{d_1(1-\ln d_1) + d_2(1-\ln d_2)}{2\pi}
-\end{align}
-
-\paragraph{Constant line DLP}
-
-\begin{equation}
-\int_{S} G'_{n_y}({\bf y}, {\bf x}) \td y = 0
-\end{equation}
-%
-as the element normal is perpendicular to the distance ${\bf y}-{\bf x}$.
-
-\paragraph{Constant line HSP}
-
-Finite part integral with general shape function $N(y)$
-%
-\begin{align}
-	I = \int_S G''_{n_x n_y}({\bf y}, {\bf x}) N({\bf y}) \td y
-	&= \frac{1}{2\pi} \int_S \frac{1}{(y-x)^2} N(y) \td y \\
-	&= \frac{1}{2\pi} \int_\Sigma \frac{1}{J^2 (\eta-\xi)^2} N(\eta) J \td \eta \\
-	&= \frac{1}{2\pi J} \left(
-		\int_a^{\xi-\epsilon} \frac{1}{(\eta-\xi)^2} N(\eta) \td \eta
-		+ \int_{\xi+\epsilon}^{b} \frac{1}{(\eta-\xi)^2} N(\eta) \td \eta
-	\right)
-\end{align}
-
-The shape function is written with its Taylor series around the singular point
-%
-\begin{equation}
-	N(\eta) = N(\xi) + N'(\xi) (\eta-\xi) + \sum_{k=2}^{\infty} \frac{N^{(k)}(\xi)}{k!}(\eta-\xi)^k
-\end{equation}
-
-Substitution yields
-
-\begin{equation}
-	I = \frac{N(\xi)}{2\pi J} \left(
-		\cancel{\frac{1}{2\epsilon}} + \left[ \frac{-1}{\eta-\xi} \right]_{a}^{b} 
-	\right)
-	+
-	\frac{N'(\xi)}{2\pi J} \log \frac{|b-\xi|}{|a-\xi|}
-	+ \sum_{k=2}^{\infty} \frac{N^{(k)}(\xi)}{2\pi J k! (k-1)}
-		\left[ (\eta-\xi)^{k-1} \right]_{a}^{b} 
-\end{equation}
-
-\paragraph{General element HSP}
-
-General approach for curved elements
-%
-\begin{align}
-	I = \int_S G''_{n_x n_y}({\bf y}, {\bf x}) N({\bf y}) \td y
-	= \int_a^b G''_{n_x n_y}(\rho) N(\rho) J(\rho) \td \rho
-\end{align}
-%
-where $\rho = \eta - \xi$ denotes the signed distance from the singular point in the reference domain.
-
-In order evaluate the singular part of the integral analytically, the following Taylor series expansions are introduced:
-\begin{align}
-	{\bf r}(\rho) &= {\bf y} - {\bf x} = \rho {\bf r_1} + \frac{\rho^2}{2} {\bf r}_2 + O(\rho^3) \\
-	{\bf d}(\rho) &= \frac{\td {\bf r}(\rho)}{\td \rho} = {\bf r_1} + \rho {\bf r}_2 + O(\rho^2)\\
-	{\bf J}(\rho) &= {\bf T} {\bf d}(\rho) = {\bf J}_0 + \rho {\bf J}_1 + O(\rho^2) \\
-	r^2 &= \rho^2 r_1^2 \left( 1 + A \rho + O(\rho^2) \right)
-	,\quad A = \frac{{\bf r}_1 {\bf r}_2}{r_1^2} \\
-	\frac{1}{r^2(\rho)} &\approx \frac{1 - A \rho + O(\rho^2)}{\rho^2 r_1^2}
-\end{align}
-
-The Green's function $G''$, multiplied with the Jacobian $J$ in the local frame of reference is approximated as (replacing $n_y$ by $J$)
-%
-\begin{equation}
-	G''(\rho) J(\rho)
-	= \frac{1}{2\pi r^2(\rho)} \left( {\bf n}_x {\bf J}(\rho) - 2 \frac{{\bf r}(\rho) {\bf n}_x}{r(\rho)} \frac{{\bf r}(\rho) {\bf J}(\rho)}{r(\rho)}\right)
-\end{equation}
-%
-The second term in the bracketed part is $O(\rho^2)$.
-The first order Taylor series approximation of the first term is
-%
-\begin{equation}
-	G''(\rho) J(\rho) \approx \frac{1 - A \rho}{2\pi \rho^2 r_1^2} {\bf n}_x \left({\bf J}_0 + \rho {\bf J}_1\right) 
-\end{equation}
-%
-Exploiting that ${\bf n}_x \left({\bf J}_0 + \rho {\bf J}_1\right) = J_0 (1 + \rho A)$, and $r_1^2 = J_0^2$, the final first order Taylor series expansion of the kernel is
-%
-\begin{equation}
-	G''(\rho) J(\rho) \approx \frac{1}{2\pi \rho^2 J_0}
-\end{equation}
-%
-and the singular part of the integrand is
-%
-\begin{equation}
-	G''(\rho) N(\rho) J(\rho) \approx \frac{1}{2\pi J_0} \left( \frac{N_0}{\rho^2} +  \frac{N_1}{\rho} \right)
-\end{equation}
 
 
 \subsection{Galerkin}
