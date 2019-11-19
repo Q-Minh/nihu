@@ -59,7 +59,7 @@ if(NOT EIGEN_FOUND OR NIHU_EIGEN_INSTALL)
     endif()
 
     # Configure Eigen directories
-    set(EIGEN_SOURCE_DIR "${CMAKE_SOURCE_DIR}/ThirdParty/eigen-${NIHU_EIGEN_VERSION}")
+    set(EIGEN_SOURCE_DIR "${NIHU_THIRDPARTY_DIR}/eigen-${NIHU_EIGEN_VERSION}")
     if(NIHU_EIGEN_VERSION STREQUAL "3.2.7")
         set(EIGEN_TEMP_DIR "eigen-eigen-b30b87236a1b")
         set(EIGEN_MD5 "cc1bacbad97558b97da6b77c9644f184") #3.2.7
@@ -80,7 +80,7 @@ if(NOT EIGEN_FOUND OR NIHU_EIGEN_INSTALL)
         # md5 checksum of the downloaded file tar.bz2
         message(STATUS "\tEigen ${NIHU_EIGEN_VERSION} headers will be installed")
 
-        set(EIGEN_DL_FILE "${CMAKE_SOURCE_DIR}/ThirdParty/eigen-${NIHU_EIGEN_VERSION}.tar.bz2")
+        set(EIGEN_DL_FILE "${NIHU_THIRDPARTY_DIR}/eigen-${NIHU_EIGEN_VERSION}.tar.bz2")
         
         # Check if downloaded file exists
         if(EXISTS "${EIGEN_DL_FILE}")

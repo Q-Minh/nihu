@@ -33,7 +33,7 @@ include(NiHuLinkerSettings)
 ###
 
 # Set the 3rdparty dir
-set(NIHU_THIRDPARTY_DIR "${CMAKE_SOURCE_DIR}/ThirdParty")
+set(NIHU_THIRDPARTY_DIR "${CMAKE_BINARY_DIR}/ThirdParty")
 
 ### Boost section
 include(NiHuBoost)

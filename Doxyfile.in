@@ -690,6 +690,7 @@ INPUT                  = "${CMAKE_SOURCE_DIR}/../dox/mainpage.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/tech_geometry.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/tech_what_happens.md" \
 						 "${CMAKE_SOURCE_DIR}/../dox/benchmark.md" \
+						 "${CMAKE_SOURCE_DIR}/../dox/bench_plane_wave_sphere.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/publications.md" \
                          "${CMAKE_SOURCE_DIR}/aca/" \
 						 "${CMAKE_SOURCE_DIR}/applications/" \
