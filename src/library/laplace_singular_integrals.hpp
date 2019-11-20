@@ -194,20 +194,22 @@ public:
 			double rho2 = (1. - xi0(0));
 			double d1 = jac * rho1;
 			double d2 = jac * rho2;
+			double logd1 = std::log(d1);
+			double logd2 = std::log(d2);
 
 			auto N0 = trial_shape_set_t::template eval_shape<0>(xi0);
-			result.row(i) = N0 * (d2 * (1. - std::log(d2)) + d1 * (1. - std::log(d1)));
+			result.row(i) = N0 * (d2 * (1. - logd2) + d1 * (1. - logd1));
 
 			if (trial_shape_set_t::polynomial_order >= 1)
 			{
 				auto N1 = trial_shape_set_t::template eval_shape<1>(xi0) / jac;
-				result.row(i) += N1 * (d2 * d2 / 4. * (1. - 2. * std::log(d2)) - d1 * d1 / 4. * (1. - 2. * std::log(d1)));
+				result.row(i) += N1 * (d2 * d2 * (1./2. - logd2) - d1 * d1 * (1./2. - logd1)) / 2.;
 			}
 
 			if (trial_shape_set_t::polynomial_order >= 2)
 			{
 				auto N2 = trial_shape_set_t::template eval_shape<2>(xi0) / jac / jac / 2.;
-				result.row(i) += N2 * (d2 * d2 * d2 / 9. * (1. - 3. * std::log(d2)) + d1 * d1 * d1 / 9. * (1. - 3. * std::log(d1)));
+				result.row(i) += N2 * (d2 * d2 * d2  * (1./3. - logd2) + d1 * d1 * d1 * (1./3. - logd1)) / 3.;
 			}
 		}
 
