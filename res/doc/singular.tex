@@ -177,7 +177,44 @@ The remaining regular part of the integral is computed numerically, using standa
 
 \paragraph{Straight line elements}
 
-For the special case of straight line elements, the simplified version is implemented in function \code{laplace_2d_SLP_collocation_straight}.
+For the special case of straight line elements, the integral can be simplified to
+%
+\begin{equation}
+	I = \frac{-1}{2\pi} \int_{-d_1}^{d_2} G(|r|) N(r) \td r
+\end{equation}
+%
+where $r = y-x$ is the signed distance from the collocation point.
+The integral is written as
+%
+\begin{align}
+	I 
+	&= \frac{-1}{2\pi} \left(
+		\int_{-d_1}^{-\epsilon} \log(-r) \left(N_0 + N_1 r + N_2 r^2 \right) \td r
+		+
+		\int_{\epsilon}^{d_2} \log(r) \left(N_0 + N_1 r + N_2 r^2 \right) \td r
+	\right) \\
+	&= \frac{-1}{2\pi} \left(
+		\int_{\epsilon}^{d_1} \log(r) \left(N_0 - N_1 r + N_2 r^2 \right) \td r
+		+
+		\int_{\epsilon}^{d_2} \log(r) \left(N_0 + N_1 r + N_2 r^2 \right) \td r
+	\right) \\
+	&= 
+	\frac{-1}{2\pi} \left(
+		N_0 \left(F_0(d_2) + F_0(d_1)\right) +
+		N_1 \left(F_1(d_2) - F_1(d_1)\right) +
+		N_2 \left(F_2(d_2) + F_2(d_2)\right)
+	\right)
+\end{align}
+%
+where
+%
+\begin{equation}
+	F_n(x) = \int \log(x) x^n \td x
+	= \frac{x^{n+1}}{n+1} \left(\log x - \frac{1}{n+1}\right)
+\end{equation}
+
+
+simplified version is implemented in function \code{laplace_2d_SLP_collocation_straight}.
 
 
 \begin{align}
