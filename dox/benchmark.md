@@ -8,6 +8,8 @@ Benchmark problems {#benchmark}
 Laplace problems {#bench_laplace}
 ----------------
 
+1. \subpage bench_circular_membrane
+
 Helmholtz problems {#bench_helmholtz}
 ------------------
 
