@@ -4,6 +4,11 @@
  * @ingroup fmm_helmholtz 
  */
 
+/**
+ * @todo Generalize the part where the conatanated vector is filled,
+ * remove the ifdef GAUSS switch.
+ */
+
 #ifndef HELMHOLTZ_FIELD_POINT_HPP_INCLUDED
 #define HELMHOLTZ_FIELD_POINT_HPP_INCLUDED
 
@@ -161,11 +166,21 @@ public:
 
 		std::cout << "Computing MVP " << std::endl;
 		cvector_t xct(m_psurf.rows() + m_qsurf.rows(), 1);
+#ifdef GAUSS
+        for (int i = 0; i < m_psurf.rows()/4; ++i)
+		{
+            for (int j = 0; j < 4; ++j) 
+                xct(8 * i + j, 0) = -m_qsurf(4*i+j, 0);
+            for (int j = 0; j < 4; ++j) 
+                xct(8 * i + 4+ j, 0) = m_psurf(4*i+j, 0);
+		}
+#else
 		for (int i = 0; i < m_psurf.rows(); ++i)
 		{
 			xct(2 * i, 0) = -m_qsurf(i, 0);
 			xct(2 * i + 1, 0) = m_psurf(i, 0);
 		}
+#endif
 
 		auto wc_t0 = NiHu::wc_time::tic();
 		auto cpu_t0 = NiHu::cpu_time::tic();
