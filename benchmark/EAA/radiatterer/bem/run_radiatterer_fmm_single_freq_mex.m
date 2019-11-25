@@ -1,6 +1,6 @@
 clear;
 
-type = 'gauss';
+type = 'const';
 
 le = 5e-2;
 radiator = create_radiatterer(le);
