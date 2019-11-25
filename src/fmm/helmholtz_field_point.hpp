@@ -53,6 +53,8 @@ public:
 		>::type
 	>::type trial_field_t;
 
+	enum { num_trial_dofs = trial_field_t::num_dofs };
+
 	typedef typename tmp::deref<
 		typename tmp::begin<
 		typename test_space_t::field_type_vector_t
@@ -161,10 +163,12 @@ public:
 
 		std::cout << "Computing MVP " << std::endl;
 		cvector_t xct(m_psurf.rows() + m_qsurf.rows(), 1);
-		for (int i = 0; i < m_psurf.rows(); ++i)
+        for (int i = 0; i < m_psurf.rows()/num_trial_dofs; ++i)
 		{
-			xct(2 * i, 0) = -m_qsurf(i, 0);
-			xct(2 * i + 1, 0) = m_psurf(i, 0);
+			xct.segment(2 * i * num_trial_dofs, num_trial_dofs) =
+				-m_qsurf.segment(i * num_trial_dofs, num_trial_dofs);
+			xct.segment((2 * i + 1) * num_trial_dofs, num_trial_dofs) =
+				m_psurf.segment(i * num_trial_dofs, num_trial_dofs);
 		}
 
 		auto wc_t0 = NiHu::wc_time::tic();
