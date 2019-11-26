@@ -2,11 +2,6 @@
  * @file helmholtz_3d_hffmm.cpp
  */
 
-/**
- * @todo GAUSS needs to be on top, generalize in helmholtz_field_point.hpp
- * */
-
-#define GAUSS
 #include "core/field.hpp"
 #include "core/function_space.hpp"
 #include "fmm/divide.hpp"
@@ -20,10 +15,10 @@
 #include <boost/math/constants/constants.hpp>
 #include <boost/program_options.hpp>
 
-
-
 // basic type parameter inputs
 typedef double wave_number_t;
+
+// #define GAUSS
 
 // computing the fmbem type
 #ifdef GAUSS

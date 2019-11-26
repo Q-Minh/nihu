@@ -4,11 +4,6 @@
  * @ingroup fmm_helmholtz 
  */
 
-/**
- * @todo Generalize the part where the conatanated vector is filled,
- * remove the ifdef GAUSS switch.
- */
-
 #ifndef HELMHOLTZ_FIELD_POINT_HPP_INCLUDED
 #define HELMHOLTZ_FIELD_POINT_HPP_INCLUDED
 
@@ -57,6 +52,8 @@ public:
 		typename trial_space_t::field_type_vector_t
 		>::type
 	>::type trial_field_t;
+
+	enum { num_trial_dofs = trial_field_t::num_dofs };
 
 	typedef typename tmp::deref<
 		typename tmp::begin<
@@ -166,21 +163,13 @@ public:
 
 		std::cout << "Computing MVP " << std::endl;
 		cvector_t xct(m_psurf.rows() + m_qsurf.rows(), 1);
-#ifdef GAUSS
-        for (int i = 0; i < m_psurf.rows()/4; ++i)
+        for (int i = 0; i < m_psurf.rows()/num_trial_dofs; ++i)
 		{
-            for (int j = 0; j < 4; ++j) 
-                xct(8 * i + j, 0) = -m_qsurf(4*i+j, 0);
-            for (int j = 0; j < 4; ++j) 
-                xct(8 * i + 4+ j, 0) = m_psurf(4*i+j, 0);
+			xct.segment(2 * i * num_trial_dofs, num_trial_dofs) =
+				-m_qsurf.segment(i * num_trial_dofs, num_trial_dofs);
+			xct.segment((2 * i + 1) * num_trial_dofs, num_trial_dofs) =
+				m_psurf.segment(i * num_trial_dofs, num_trial_dofs);
 		}
-#else
-		for (int i = 0; i < m_psurf.rows(); ++i)
-		{
-			xct(2 * i, 0) = -m_qsurf(i, 0);
-			xct(2 * i + 1, 0) = m_psurf(i, 0);
-		}
-#endif
 
 		auto wc_t0 = NiHu::wc_time::tic();
 		auto cpu_t0 = NiHu::cpu_time::tic();
