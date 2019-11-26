@@ -5,7 +5,7 @@ clear;
 % freq = 2000;
 
 Le = 5e-2;
-type = 'const';
+type = 'gauss';
 freq = 600;
 
 fname = sprintf('data/%s_%03dmm/%s_%03dmm_%gHz_pf.res', ...
