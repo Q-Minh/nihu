@@ -40,10 +40,18 @@ typedef Eigen::Matrix<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic> cmat
 typedef NiHu::mex::real_matrix<double> dmex_matrix_t;
 typedef NiHu::mex::complex_matrix<double> cmex_matrix_t;
 
+/**
+ * @brief Helper class for storing FMM assembly times 
+ */
 class fmm_assembly_times
 {
 	using timer = NiHu::fmm::fmm_timer;
 public:
+	/** 
+	 * @brief Fill the assembly time from an operator collection
+	 * @tparam Collection The operator collection class
+	 * @param[in] coll Collection instance
+	 */
 	template <class Collection>
 	void fill_times(Collection const & coll)
 	{
@@ -59,6 +67,10 @@ public:
 		m_times[timer::P2P] = coll.get(NiHu::fmm::op_tags::idx2tag<timer::P2P>::type()).get_assembly_time();
 	}
 	
+	/**
+	 * @brief Returns the assembly time for the given operation index
+	 * @return Assembly time in microsecond units
+	 */
 	size_t const get_time(size_t idx) const
 	{
 		return m_times[idx];
@@ -119,23 +131,41 @@ public:
 		, p_fmm(nullptr)
 		, p_slp_matrix(nullptr)
 		, p_dlp_matrix(nullptr)
+		, m_accuracy(3.0)
+		, m_far_field_order(5)
 	{
 		
 	}
 	
 	/**
 	 * @brief Create the surface mesh 
+	 * @param[in] surf_nodes Surface node locations (N x 3 matrix)
+	 * @param[in] surf_elems Surface element connectivity (E x 9 matrix)
 	 */
 	void create_surface_mesh(dmex_matrix_t const& surf_nodes, dmex_matrix_t const& surf_elems)
 	{
 		p_surf_mesh = new mesh_t(NiHu::create_mesh(surf_nodes, surf_elems, NiHu::quad_1_tag()));
 	}
 	
+	/**
+	 * @brief Create the field mesh
+	 * @param[in] field_nodes Field node locations (N x 3 matrix)
+	 * @param[in] field_elems Field element connectivity (E x 9 matrix)
+	 */
 	void create_field_mesh(dmex_matrix_t const& field_nodes, dmex_matrix_t const& field_elems)
     {
         p_field_mesh = new mesh_t(NiHu::create_mesh(field_nodes, field_elems, NiHu::quad_1_tag()));
     }
 	
+	/**
+	 * @brief Create tree and interaction lists
+	 * @tparam DivideDerived Cluster tree division method 
+	 * @param divide Instance of the division method
+	 * @details
+	 * In surface mode (when no field mesh is present) the sources and receivers
+	 * are the same in the cluster tree. In field mode, the sources are on the 
+	 * surface mesh, while the receivers are on the field mesh.
+	 */
 	template <class DivideDerived>
 	void create_tree(NiHu::fmm::divide_base<DivideDerived> const &divide)
 	{
@@ -161,6 +191,9 @@ public:
 		p_lists = new NiHu::fmm::interaction_lists(*p_tree);
 	}
 	
+	/**
+	 * @brief Create FMM matrices with precomputation
+	 */
 	void create_matrices()
     {
         if (p_field_mesh == nullptr)
@@ -483,7 +516,7 @@ void usage(int nrhs, mxArray const *prhs[])
 			mexPrintf("Initializes the data structures needed for the FMBEM computation.\n\n");
 			mexPrintf("This command does not take additional arguments. Successive\n"
 				      "calls to the command 'init' are refused.\n\n");
-			mexPrintf("See also the command 'cleanup'.\n");
+			mexPrintf("See also the command 'cleanup'.\n\n");
 		}
 		
 		// Help for 'cleanup'
@@ -494,12 +527,103 @@ void usage(int nrhs, mxArray const *prhs[])
 			          "The 'cleanup' command can only be called after the 'init'\n"
 					  "command was successfully performed.\n"
 			          "Successive calls to the command 'cleanup' are refused.\n\n");
-			mexPrintf("See also the command 'init'.\n");
+			mexPrintf("See also the command 'init'.\n\n");
 		}
-		
+
+		// Help for 'set'
 		else if (!strcmp(help_cmd, "set")) {
 			mexPrintf(NIHU_THIS_MEX_NAME "('set', 'param1', value1, 'param2', value2, ...)\n\n");
-			mexPrintf("Sets the values to the given parameters.\n");
+			mexPrintf("Sets the values to the given parameters.\n\n");
+			mexPrintf("The parameters 'param1', 'param2', ... are the names of the parameters\n"
+			          "to be set. Each name is followed by the corresponding value.\n"
+					  "The following parameters can be set:\n\n");
+			mexPrintf("  'accuracy'         Scalar parameter C\n"
+					  "        Controls the accuracy of the series expansion of the Green's function.\n"
+					  "        The resulting expansion length L is found from the wave number k, the\n"
+					  "        cluster diameter d and the accuracy parameter C as:\n"
+					  "        L = ceil(kd + C * log(kd + pi))\n"
+					  "        Default value: C = 3.\n\n");
+			mexPrintf("  'far_field_order'  Positive integer far field quadrature order\n"
+					  "        Controls the number of points of the Gaussian quadrature used in far\n"
+					  "        field integration. Default value: far_field_order = 5.\n\n");
+			mexPrintf("  'wave_number'  Scalar wave number k\n"
+					  "        The wave number parmeter k for the Helmholtz problem.\n\n");
+		}
+		
+		// Help for 'mesh'
+		else if (!strcmp(help_cmd, "mesh")) {
+			mexPrintf(NIHU_THIS_MEX_NAME "('mesh', s_nodes, s_elems)\n\n");
+			mexPrintf("Sets up the surface mesh for the FMBEM computation.\n");
+			mexPrintf("The matrices s_nodes and s_elems contain the nodal locations and\n"
+			          "the element connectivity of the surface mesh. This function supports\n"
+					  "quadrilateral elements only.\n");
+			mexPrintf("In surface mode the SLP and DLP matrices are evaluted using the\n"
+			          "Burton-Miller formulation for avoiding fictitious eigenfrequencies.\n"
+					  "(Nearly-)Singular integrals are treated using special techniques.\n"
+					  "The SLP and DLP matrices form the following relation between the\n"
+					  "surface pressure ps and its normal derivative qs:\n"
+					  "DLP * ps = SLP * qs\n\n");
+			mexPrintf(NIHU_THIS_MEX_NAME "('mesh', s_nodes, s_elems, f_nodes, f_elems)\n\n");
+			mexPrintf("Sets up the surface and field meshes for the FMBEM computation.\n");
+			mexPrintf("The matrices s_nodes, s_elems, f_nodes, f_elems contain the nodal\n" 
+					  "locations and the element connectivity of the surface and field meshes,\n"
+					  "respectively. This function supports quadrilateral elements only.\n");
+			mexPrintf("In field mode, no singular treatment is performed, and the\n"
+					  "simple collocational form is used. The field point pressure pf\n"
+					  "is found then by the matrix-vector products:\n"
+					  "pf = DLP * ps - SLP * qs\n\n");
+			mexPrintf("The 'mesh' command must be called after the 'init' command was\n"
+			          "successfully completed.\n\n");
+			mexPrintf("See also the commands 'matrix, 'mvp_dlp', and 'mvp_slp'.\n");
+			mexPrintf("See also the Matlab function extract_core_mesh\n\n");
+		}
+		
+		// Help for 'tree'
+		else if (!strcmp(help_cmd, "tree")) {
+			mexPrintf(NIHU_THIS_MEX_NAME "('tree', option, param)\n\n");
+			mexPrintf("Creates the cluster tree and assembles the interaction lists.\n");
+			mexPrintf("The option parameter controls the tree building strategy, with"
+			          "the following possible configurations:\n\n");
+			mexPrintf("  'divide_depth'      Parameter: positive integer L.\n"
+					  "        Divides the cluster tree such that the leaf level is level L.\n\n");
+			mexPrintf("  'divide_diameter'   Parameter: positive real D.\n"
+			          "        Divides each cluster as long as its diameter is greater than D.\n\n");
+			mexPrintf("  'divide_num_nodes'  Parameter: position integer N.\n"
+					  "        Divides each cluster as long as it has more nodes than N.\n\n");
+			mexPrintf("See also the command 'print_tree'\n\n");
+		}
+		
+		// Help for 'matrix'
+		else if (!strcmp(help_cmd, "matrix")) {
+			mexPrintf(NIHU_THIS_MEX_NAME "('matrix')\n\n");
+			mexPrintf("Assembles the FMBEM matrices for fast matrix-vector products.\n"
+			          "The SLP and DLP matrices can then be used for solving the the\n"
+					  "BEM system in mesh mode, or computing the field point pressure\n"
+					  "in field mode.\n\n");
+			mexPrintf("See also the commands 'mesh', 'mvp_dlp', and 'mvp_slp'.\n\n");
+		}
+		
+		else if(!strcmp(help_cmd, "mvp_slp") || !strcmp(help_cmd, "mvp_dlp")) {
+			mexPrintf("r = " NIHU_THIS_MEX_NAME "('mvp_dlp', ps)\n");
+			mexPrintf("r = " NIHU_THIS_MEX_NAME "('mvp_slp', qs)\n\n");
+			mexPrintf("Evaluate fast matrix-vector product using the SLP or DLP matrix.\n");
+			mexPrintf("The input vector ps or qs must have the same number of elements\n"
+			          "as the number of elements in the surface mesh. In surface mode,\n"
+					  "the result vector r will have the same number of elements as the\n"
+					  "surface mesh, while in field mode the vector r will have the same\n"
+					  "number of elements as the field mesh.\n\n");
+		}
+		
+		// Diagnostic commands and help
+		else if(!strcmp(help_cmd, "help") || !strcmp(help_cmd, "print_tree") || !strcmp(help_cmd, "print_times")) {
+			mexPrintf(NIHU_THIS_MEX_NAME "('help', '%s')\n\n", help_cmd);
+			mexPrintf("There is no further documentation for this command.\n\n");
+		}
+		
+		// Unsupported option
+		else {
+			mexErrMsgIdAndTxt("NiHu:" NIHU_THIS_MEX_NAME ":unknown_option",
+				"The option '%s' is not recognized for the command \"help\".", help_cmd);
 		}
 	}
 }
@@ -565,8 +689,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, mxArray const *prhs[])
 	else if (!strcmp(input_option, "mesh"))
 	{
 		if (p == nullptr) {
-			mexErrMsgIdAndTxt("NiHu:helmholtz_3d_hf_fmm_mex:invalid_state",
-				"Command \"mesh\" called in invalid state");
+			mexErrMsgIdAndTxt("NiHu: " NIHU_THIS_MEX_NAME ":invalid_state",
+				"Command \"%s\" called in invalid state", input_option);
 		} else {
             if (nrhs == 3) {
                 p->create_surface_mesh(dmex_matrix_t(prhs[1]), dmex_matrix_t(prhs[2]));
@@ -582,7 +706,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, mxArray const *prhs[])
 	
 	else if (!strcmp(input_option, "tree"))
 	{
-		if (p == nullptr) {
+		if (p == nullptr || p->get_surface_mesh() == nullptr) {
 			mexErrMsgIdAndTxt("NiHu:helmholtz_3d_hf_fmm_mex:invalid_state",
 				"Command \"tree\" called in invalid state");
 		} else {
@@ -591,26 +715,20 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, mxArray const *prhs[])
 				"Division method name must be a string for the command \"%s\".", input_option);
 			}
 			char const *divide_option = mxArrayToString(prhs[1]);
-			if (!strcmp(divide_option, "divide_depth"))
-			{
+			if (!strcmp(divide_option, "divide_depth")) {
 				p->create_tree(NiHu::fmm::divide_depth(size_t(mxGetScalar(prhs[2]))));
-			}
-			else if (!strcmp(divide_option, "divide_num_nodes"))
-			{
+			} else if (!strcmp(divide_option, "divide_num_nodes")) {
 				p->create_tree(NiHu::fmm::divide_num_nodes(size_t(mxGetScalar(prhs[2]))));
-			}
-			else if (!strcmp(divide_option, "divide_diameter"))
-			{
+			} else if (!strcmp(divide_option, "divide_diameter")) {
 				p->create_tree(NiHu::fmm::divide_diameter(mxGetScalar(prhs[2])));
-			}
-			else
-			{
-				mexErrMsgIdAndTxt("NiHu:covariance_2d_bbfmm_matlab:invalid_divide_option",
+			} else {
+				mexErrMsgIdAndTxt("NiHu:" NIHU_THIS_MEX_NAME ":invalid_divide_option",
 					"Unknown divide option: \"%s\"", divide_option);
 			}
 		}
 	}
 	
+	// Matrix assembly
 	else if (!strcmp(input_option, "matrix"))
 	{
 		if (p == nullptr)
@@ -695,6 +813,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, mxArray const *prhs[])
 	}
 	
 	// Diagnostics
+	// Print matrix assembly times
 	else if (!strcmp(input_option, "print_times")) {
 		if (p == nullptr) {
 			mexErrMsgIdAndTxt("NiHu:" NIHU_THIS_MEX_NAME ":invalid_state",
@@ -713,6 +832,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, mxArray const *prhs[])
 		}
 	}
 	
+	// Print tree structure
 	else if (!strcmp(input_option, "print_tree")) {
 		if (p == nullptr) {
 			mexErrMsgIdAndTxt("NiHu:" NIHU_THIS_MEX_NAME ":invalid_state",
