@@ -21,10 +21,12 @@ mex_fun('set', ...
 %% Assign the mesh and create the cluster tree
 mex_fun('mesh', r_nodes, r_elems);
 mex_fun('tree', 'divide_diameter', 1/k);
+mex_fun('print_tree');
 %% Assemble the FMM matrices for the surface
 fprintf('Assembling FMM matrices ...\n'); tic;
 mex_fun('matrix');
 fprintf('Ready in %.3f seconds\n', toc);
+mex_fun('print_times');
 
 %% Prepare excitation and right hand side vector
 x_src = [.2 .3 .6];

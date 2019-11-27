@@ -290,7 +290,7 @@ int main(int argc, char **argv)
 			auto const &field_sp = NiHu::dirac(NiHu::constant_view(field));
 
 			// compute pf
-			cVector p_field = postproc(field_sp, trial_space, k, q_surf, p_surf);
+			cVector p_field = postproc(field_sp, trial_space, k, p_surf, q_surf);
 
 			// export pf
 			export_response(field_point_result_name, p_field, k);

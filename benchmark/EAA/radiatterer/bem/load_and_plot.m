@@ -1,7 +1,7 @@
 clear;
 close all;
 
-freqvec = .5 : .5 : 300;
+freqvec = .5 : .5 : 100;
 
 p_fmm = nan(length(freqvec), 6);
 p_conv = nan(length(freqvec), 6);

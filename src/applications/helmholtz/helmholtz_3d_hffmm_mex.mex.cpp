@@ -5,8 +5,8 @@
  * 
  * @details
  * High frequency fast multipole method for the Helmholtz equation, 
- * collocational formalism, Burton-Miller approach for mitigating
- * fictitious eigenfrequencies.
+ * collocational formalism, Burton-Miller approach for mitigating fictitious 
+ * eigenfrequencies. 
  */
 
 #include "core/field.hpp"
@@ -18,8 +18,8 @@
 #include "fmm/fmm_matrix.hpp"
 #include "fmm/fmm_operator_collection.hpp"
 #include "fmm/fmm_precompute.hpp"
+#include "fmm/fmm_timer.h"
 #include "fmm/helmholtz_3d_hf_fmm.hpp"
-
 #include "library/lib_element.hpp"
 #include "util/mex_matrix.hpp"
 
@@ -32,10 +32,41 @@
 
 #define NIHU_THIS_MEX_NAME "helmholtz_3d_hffmm_mex"
 
+// Eigen matrix types
+typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> dmatrix_t;
+typedef Eigen::Matrix<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic> cmatrix_t;
+
 // Mex matrix types
 typedef NiHu::mex::real_matrix<double> dmex_matrix_t;
 typedef NiHu::mex::complex_matrix<double> cmex_matrix_t;
 
+class fmm_assembly_times
+{
+	using timer = NiHu::fmm::fmm_timer;
+public:
+	template <class Collection>
+	void fill_times(Collection const & coll)
+	{
+		m_times[timer::M2M] = coll.get(NiHu::fmm::op_tags::idx2tag<timer::M2M>::type()).get_assembly_time();
+		m_times[timer::L2L] = coll.get(NiHu::fmm::op_tags::idx2tag<timer::L2L>::type()).get_assembly_time();
+		m_times[timer::M2L] = coll.get(NiHu::fmm::op_tags::idx2tag<timer::M2L>::type()).get_assembly_time();
+		
+		m_times[timer::P2M] = coll.get(NiHu::fmm::op_tags::idx2tag<timer::P2M>::type()).get_assembly_time();
+		m_times[timer::P2L] = coll.get(NiHu::fmm::op_tags::idx2tag<timer::P2L>::type()).get_assembly_time();
+		m_times[timer::L2P] = coll.get(NiHu::fmm::op_tags::idx2tag<timer::L2P>::type()).get_assembly_time();
+		m_times[timer::M2P] = coll.get(NiHu::fmm::op_tags::idx2tag<timer::M2P>::type()).get_assembly_time();
+		
+		m_times[timer::P2P] = coll.get(NiHu::fmm::op_tags::idx2tag<timer::P2P>::type()).get_assembly_time();
+	}
+	
+	size_t const get_time(size_t idx) const
+	{
+		return m_times[idx];
+	}
+	
+private:
+	size_t m_times[timer::NUM_TIME_INDICES];
+};
 
 /**
  * @brief Class for FMM-related data and methods 
@@ -59,9 +90,6 @@ class fmm_matlab
     typedef NiHu::fmm::cluster_tree<cluster_t> cluster_tree_t;
 
     typedef NiHu::fmm::p2p_precompute<std::complex<double>, 1, 1> p2p_t;
-
-    typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> dmatrix_t;
-    typedef Eigen::Matrix<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic> cmatrix_t;
 
     // Typedefs for the precomputed operators
     typedef NiHu::fmm::p2x_precompute<cmatrix_t, NiHu::fmm::p2m_tag> p2m_t;
@@ -95,6 +123,9 @@ public:
 		
 	}
 	
+	/**
+	 * @brief Create the surface mesh 
+	 */
 	void create_surface_mesh(dmex_matrix_t const& surf_nodes, dmex_matrix_t const& surf_elems)
 	{
 		p_surf_mesh = new mesh_t(NiHu::create_mesh(surf_nodes, surf_elems, NiHu::quad_1_tag()));
@@ -145,14 +176,12 @@ public:
 		p_fmm->set_accuracy(m_accuracy);
 
 		// initialize tree data
-		std::cout << "Initializing tree data ..." << std::endl;
 		p_fmm->init_level_data(*p_tree);
 		for (size_t c = 0; c < p_tree->get_n_clusters(); ++c)
 			(*p_tree)[c].set_p_level_data(&p_fmm->get_level_data((*p_tree)[c].get_level()));
 		
 		#ifdef NIHU_FMM_PARALLEL
 			auto max_num_threads = omp_get_max_threads();
-			std::cout << "Expanding to " << max_num_threads << " threads" << std::endl;
 			for (size_t i = 0; i < p_tree->get_n_levels(); ++i)
 				p_fmm->get_level_data(i).set_num_threads(max_num_threads);
 		#endif
@@ -209,23 +238,13 @@ public:
 		
 
 		// precomputation
-		std::cout << "Precomputing fmm operators ..." << std::endl;
-		
 		auto dlp_pre_collection = dlp_cix_collection.transform(pre_fctr);
 		auto slp_pre_collection = slp_cix_collection.transform(pre_fctr);
 		
 		// get assembly times
-		m_m2l_assembly_time = dlp_pre_collection.get(NiHu::fmm::m2l_tag()).get_assembly_time();
-		m_m2m_assembly_time = dlp_pre_collection.get(NiHu::fmm::m2m_tag()).get_assembly_time();
-		m_l2l_assembly_time = dlp_pre_collection.get(NiHu::fmm::l2l_tag()).get_assembly_time();
-		m_p2m_assembly_time = dlp_pre_collection.get(NiHu::fmm::p2m_tag()).get_assembly_time();
-		m_p2l_assembly_time = dlp_pre_collection.get(NiHu::fmm::p2l_tag()).get_assembly_time();
-		m_m2p_assembly_time = dlp_pre_collection.get(NiHu::fmm::m2p_tag()).get_assembly_time();
-		m_l2p_assembly_time = dlp_pre_collection.get(NiHu::fmm::l2p_tag()).get_assembly_time();
-		m_p2p_assembly_time = dlp_pre_collection.get(NiHu::fmm::p2p_tag()).get_assembly_time();
+		m_assembly_times.fill_times(dlp_pre_collection);
 
 		// create slp matrix object
-		std::cout << "Assembling slp matrix ..." << std::endl;
 		p_slp_matrix = new fmm_matrix_t(NiHu::fmm::create_fmm_matrix(
 			slp_pre_collection.get(NiHu::fmm::p2p_tag()),
 			slp_pre_collection.get(NiHu::fmm::p2m_tag()),
@@ -238,7 +257,6 @@ public:
 			*p_tree, *p_lists));
 
 		// create matrix object
-		std::cout << "Assembling dlp matrix ..." << std::endl;
 		p_dlp_matrix = new fmm_matrix_t(create_fmm_matrix(
 			dlp_pre_collection,
 			*p_tree, *p_lists));
@@ -251,14 +269,12 @@ public:
 		p_fmm->set_accuracy(m_accuracy);
 
 		// initialize tree data
-		std::cout << "Initializing tree data ..." << std::endl;
 		p_fmm->init_level_data(*p_tree);
 		for (size_t c = 0; c < p_tree->get_n_clusters(); ++c)
 			(*p_tree)[c].set_p_level_data(&p_fmm->get_level_data((*p_tree)[c].get_level()));
 		
 		#ifdef NIHU_FMM_PARALLEL
 			auto max_num_threads = omp_get_max_threads();
-			std::cout << "Expanding to " << max_num_threads << " threads" << std::endl;
 			for (size_t i = 0; i < p_tree->get_n_levels(); ++i)
 				p_fmm->get_level_data(i).set_num_threads(max_num_threads);
 		#endif
@@ -301,26 +317,15 @@ public:
 		// indexing
 		auto dlp_cix_collection = dlp_collection.transform(idx_fctr);
 		auto slp_cix_collection = slp_collection.transform(idx_fctr);
-		
 
 		// precomputation
-		std::cout << "Precomputing fmm operators ..." << std::endl;
-		
 		auto dlp_pre_collection = dlp_cix_collection.transform(pre_fctr);
 		auto slp_pre_collection = slp_cix_collection.transform(pre_fctr);
 		
 		// get assembly times
-		m_m2l_assembly_time = dlp_pre_collection.get(NiHu::fmm::m2l_tag()).get_assembly_time();
-		m_m2m_assembly_time = dlp_pre_collection.get(NiHu::fmm::m2m_tag()).get_assembly_time();
-		m_l2l_assembly_time = dlp_pre_collection.get(NiHu::fmm::l2l_tag()).get_assembly_time();
-		m_p2m_assembly_time = dlp_pre_collection.get(NiHu::fmm::p2m_tag()).get_assembly_time();
-		m_p2l_assembly_time = dlp_pre_collection.get(NiHu::fmm::p2l_tag()).get_assembly_time();
-		m_m2p_assembly_time = dlp_pre_collection.get(NiHu::fmm::m2p_tag()).get_assembly_time();
-		m_l2p_assembly_time = dlp_pre_collection.get(NiHu::fmm::l2p_tag()).get_assembly_time();
-		m_p2p_assembly_time = dlp_pre_collection.get(NiHu::fmm::p2p_tag()).get_assembly_time();
-
+		m_assembly_times.fill_times(dlp_pre_collection);
+		
 		// create slp matrix object
-		std::cout << "Assembling slp matrix ..." << std::endl;
 		p_slp_matrix = new fmm_matrix_t(NiHu::fmm::create_fmm_matrix(
 			slp_pre_collection.get(NiHu::fmm::p2p_tag()),
 			slp_pre_collection.get(NiHu::fmm::p2m_tag()),
@@ -333,7 +338,6 @@ public:
 			*p_tree, *p_lists));
 
 		// create matrix object
-		std::cout << "Assembling dlp matrix ..." << std::endl;
 		p_dlp_matrix = new fmm_matrix_t(create_fmm_matrix(
 			dlp_pre_collection,
 			*p_tree, *p_lists));
@@ -354,14 +358,12 @@ public:
 	template <class LhsDerived, class RhsDerived>
 	void mvp_slp(Eigen::MatrixBase<LhsDerived> &&res, Eigen::MatrixBase<RhsDerived> const &src)
 	{
-		std::cout << "Calculating SLP product, SLP matrix type: " << p_slp_matrix->rows() << " x " << p_slp_matrix->cols() << std::endl;
 		res = (*p_slp_matrix) * src;
 	}
 	
 	template <class LhsDerived, class RhsDerived>
 	void mvp_slp(Eigen::MatrixBase<LhsDerived> &res, Eigen::MatrixBase<RhsDerived> const &src)
 	{
-		std::cout << "Calculating SLP product, SLP matrix type: " << p_slp_matrix->rows() << " x " << p_slp_matrix->cols() << std::endl;
 		res = (*p_slp_matrix) * src;
 	}
 	
@@ -404,46 +406,6 @@ public:
 		delete p_dlp_matrix;
 	}
 	
-	size_t get_m2l_assembly_time() const
-	{
-		return m_m2l_assembly_time;
-	}
-	
-	size_t get_m2m_assembly_time() const
-	{
-		return m_m2m_assembly_time;
-	}
-	
-	size_t get_l2l_assembly_time() const
-	{
-		return m_l2l_assembly_time;
-	}
-	
-	size_t get_p2m_assembly_time() const
-	{
-		return m_p2m_assembly_time;
-	}
-	
-	size_t get_p2l_assembly_time() const
-	{
-		return m_p2l_assembly_time;
-	}
-	
-	size_t get_m2p_assembly_time() const
-	{
-		return m_m2p_assembly_time;
-	}
-	
-	size_t get_l2p_assembly_time() const
-	{
-		return m_l2p_assembly_time;
-	}
-	
-	size_t get_p2p_assembly_time() const
-	{
-		return m_p2p_assembly_time;
-	}
-	
 	size_t get_rows() const
 	{
 		return p_slp_matrix->rows();
@@ -452,6 +414,21 @@ public:
 	size_t get_cols() const
 	{
 		return p_slp_matrix->cols();
+	}
+	
+	mesh_t const * get_surface_mesh() const
+	{
+		return p_surf_mesh;
+	}
+	
+	mesh_t const * get_field_mesh() const
+	{
+		return p_field_mesh;
+	}
+	
+	fmm_assembly_times const &get_assembly_times() const
+	{
+		return m_assembly_times;
 	}
 	
 private:
@@ -467,14 +444,7 @@ private:
 	double m_accuracy;
     size_t m_far_field_order;
 	
-	size_t m_m2l_assembly_time;
-	size_t m_m2m_assembly_time;
-	size_t m_l2l_assembly_time;
-	size_t m_p2m_assembly_time;
-	size_t m_p2l_assembly_time;
-	size_t m_m2p_assembly_time;
-	size_t m_l2p_assembly_time;
-	size_t m_p2p_assembly_time;
+	fmm_assembly_times m_assembly_times;
 };
 
 fmm_matlab *p = nullptr;
@@ -486,12 +456,51 @@ void usage(int nrhs, mxArray const *prhs[])
 		mexPrintf(NIHU_THIS_MEX_NAME" -- general usage:\n\n");
 		mexPrintf("Use this MEX function as " NIHU_THIS_MEX_NAME "(command), \n"
 			"where the command string can be the following.\n\n");
-		mexPrintf("  'help'     Display help information\n");
-		mexPrintf("  'init'     Initialize the FMM object for further operations.\n");
-		mexPrintf("  'matrix'   Assemble and FMM matrices with precomputing.\n");
-		mexPrintf("  'mesh'     Initialize surface and/or field meshes.\n");
-		mexPrintf("  'set'      Set values for parameters.\n");
-		mexPrintf("  'tree'     Build the cluster tree.\n");
+		mexPrintf("  'help'         Display help information.\n");
+		mexPrintf("  'cleanup'      Clean up allocated structures.\n");
+		mexPrintf("  'init'         Initialize the FMM object for further operations.\n");
+		mexPrintf("  'matrix'       Assemble and FMM matrices with precomputing.\n");
+		mexPrintf("  'mesh'         Initialize surface and/or field meshes.\n");
+		mexPrintf("  'mvp_dlp'      Compute matrix vector product using the DLP matrix.\n");
+		mexPrintf("  'mvp_slp'      Compute matrix vector product using the SLP matrix.\n");
+		mexPrintf("  'set'          Set values for parameters.\n");
+		mexPrintf("  'print_times'  Print matrix assembly times.\n");
+		mexPrintf("  'print_tree'   Print tree information.\n");
+		mexPrintf("  'tree'         Build the cluster tree.\n");
+		mexPrintf("\n");
+		mexPrintf("For further help on specific commands use:\n");
+		mexPrintf("  " NIHU_THIS_MEX_NAME "('help', command)\n");
+	} else {
+		if (mxIsChar(prhs[1]) != 1) {
+			mexErrMsgIdAndTxt("NiHu:" NIHU_THIS_MEX_NAME ":invalid_input",
+				"Parameter name must be a string for the command \"help\".");
+		}
+		char const *help_cmd = mxArrayToString(prhs[1]);
+		
+		// Help for 'init'
+		if (!strcmp(help_cmd, "init")) {
+			mexPrintf(NIHU_THIS_MEX_NAME "('init')\n\n");
+			mexPrintf("Initializes the data structures needed for the FMBEM computation.\n\n");
+			mexPrintf("This command does not take additional arguments. Successive\n"
+				      "calls to the command 'init' are refused.\n\n");
+			mexPrintf("See also the command 'cleanup'.\n");
+		}
+		
+		// Help for 'cleanup'
+		else if (!strcmp(help_cmd, "cleanup")) {
+			mexPrintf(NIHU_THIS_MEX_NAME "('cleanup')\n\n");
+			mexPrintf("Cleans up the allocated structures of the FMBEM computation.\n\n");
+			mexPrintf("This command does not take additional arguments.\n"
+			          "The 'cleanup' command can only be called after the 'init'\n"
+					  "command was successfully performed.\n"
+			          "Successive calls to the command 'cleanup' are refused.\n\n");
+			mexPrintf("See also the command 'init'.\n");
+		}
+		
+		else if (!strcmp(help_cmd, "set")) {
+			mexPrintf(NIHU_THIS_MEX_NAME "('set', 'param1', value1, 'param2', value2, ...)\n\n");
+			mexPrintf("Sets the values to the given parameters.\n");
+		}
 	}
 }
 
@@ -514,17 +523,21 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, mxArray const *prhs[])
 	else if (!strcmp(input_option, "init")) {
 		if (p != nullptr) {
 			mexErrMsgIdAndTxt("NiHu:" NIHU_THIS_MEX_NAME ":invalid_state",
-				"Command \"init\" called in invalid state");
+				"Command \"%s\" called in invalid state", input_option);
 		} else {
 			p = new fmm_matlab;
 		}
 	}
 	
-	else if (!strcmp(input_option, "set"))
-	{
-		int n_pairs = (nrhs - 1) / 2;
+	// Set option
+	else if (!strcmp(input_option, "set")) {
+		if (p == nullptr) {
+			mexErrMsgIdAndTxt("NiHu:" NIHU_THIS_MEX_NAME ":invalid_state",
+				"Command \"%s\" called in invalid state", input_option);
+		}
+		
 		// Go through parameter pairs
-		for (int i = 0; i < n_pairs; ++i)
+		for (int i = 0; i < (nrhs - 1) / 2; ++i)
 		{
 			if ( mxIsChar(prhs[2*i + 1]) != 1) {
 				mexErrMsgIdAndTxt("NiHu:helmholtz_3d_hf_fmm_surf:invalid_input",
@@ -548,6 +561,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, mxArray const *prhs[])
 		}
 	}
 	
+	// Mesh option
 	else if (!strcmp(input_option, "mesh"))
 	{
 		if (p == nullptr) {
@@ -568,13 +582,10 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, mxArray const *prhs[])
 	
 	else if (!strcmp(input_option, "tree"))
 	{
-		if (p == nullptr)
-		{
+		if (p == nullptr) {
 			mexErrMsgIdAndTxt("NiHu:helmholtz_3d_hf_fmm_mex:invalid_state",
 				"Command \"tree\" called in invalid state");
-		}
-		else
-		{
+		} else {
 			if ( mxIsChar(prhs[1]) != 1) {
 				mexErrMsgIdAndTxt("NiHu:helmholtz_3d_hf_fmm_surf:invalid_input",
 				"Division method name must be a string for the command \"%s\".", input_option);
@@ -597,8 +608,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, mxArray const *prhs[])
 				mexErrMsgIdAndTxt("NiHu:covariance_2d_bbfmm_matlab:invalid_divide_option",
 					"Unknown divide option: \"%s\"", divide_option);
 			}
-			
-			p->print_tree();
 		}
 	}
 	
@@ -612,15 +621,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, mxArray const *prhs[])
 		else
 		{
 			p->create_matrices();
-			mexPrintf("Assembly times:\n");
-			mexPrintf("\tM2L: %llu\n", p->get_m2l_assembly_time());
-			mexPrintf("\tM2M: %llu\n", p->get_m2m_assembly_time());
-			mexPrintf("\tL2L: %llu\n", p->get_l2l_assembly_time());
-			mexPrintf("\tP2M: %llu\n", p->get_p2m_assembly_time());
-			mexPrintf("\tP2L: %llu\n", p->get_p2l_assembly_time());
-			mexPrintf("\tM2P: %llu\n", p->get_m2p_assembly_time());
-			mexPrintf("\tL2P: %llu\n", p->get_l2p_assembly_time());
-			mexPrintf("\tP2P: %llu\n", p->get_p2p_assembly_time());
+			
 		}
 	}
 	
@@ -681,26 +682,49 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, mxArray const *prhs[])
 		}
 	}
 	
-	
-	
 	// Cleanup option 
 	else if (!strcmp(input_option, "cleanup"))
 	{
-		if (p == nullptr)
-		{
+		if (p == nullptr) {
 			mexErrMsgIdAndTxt("NiHu:helmholtz_3d_hf_fmm_mex:invalid_state",
 				"Command \"%s\" called in invalid state", input_option);
-		}
-		else
-		{
+		} else {
 			delete p;
 			p = nullptr;
 		}
 	}
 	
+	// Diagnostics
+	else if (!strcmp(input_option, "print_times")) {
+		if (p == nullptr) {
+			mexErrMsgIdAndTxt("NiHu:" NIHU_THIS_MEX_NAME ":invalid_state",
+				"Command \"%s\" called in invalid state", input_option);
+		} else {
+			fmm_assembly_times const& times = p->get_assembly_times();
+			mexPrintf("Assembly times (in microseconds):\n");
+			mexPrintf("\tM2M: %10llu\n", times.get_time(NiHu::fmm::fmm_timer::M2M));
+			mexPrintf("\tM2L: %10llu\n", times.get_time(NiHu::fmm::fmm_timer::M2L));
+			mexPrintf("\tL2L: %10llu\n", times.get_time(NiHu::fmm::fmm_timer::L2L));
+			mexPrintf("\tP2M: %10llu\n", times.get_time(NiHu::fmm::fmm_timer::P2M));
+			mexPrintf("\tP2L: %10llu\n", times.get_time(NiHu::fmm::fmm_timer::P2L));
+			mexPrintf("\tM2P: %10llu\n", times.get_time(NiHu::fmm::fmm_timer::M2P));
+			mexPrintf("\tL2P: %10llu\n", times.get_time(NiHu::fmm::fmm_timer::L2P));
+			mexPrintf("\tP2P: %10llu\n", times.get_time(NiHu::fmm::fmm_timer::P2P));
+		}
+	}
+	
+	else if (!strcmp(input_option, "print_tree")) {
+		if (p == nullptr) {
+			mexErrMsgIdAndTxt("NiHu:" NIHU_THIS_MEX_NAME ":invalid_state",
+				"Command \"%s\" called in invalid state", input_option);
+		} else {
+			p->print_tree();
+		}
+		
+	}
+	
 	// The option was not valid
-	else 
-	{
+	else {
 		mexErrMsgIdAndTxt("NiHu:helmholtz_3d_hf_fmm_mex:invalid_option",
 			"Unknown input option: \"%s\"", input_option);
 	}	
