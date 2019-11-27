@@ -8,10 +8,8 @@
 #include "core/weighted_residual.hpp"
 #include "interface/read_off_mesh.hpp"
 #include "library/lib_element.hpp"
-#include "library/helmholtz_kernel.hpp"
-#include "library/helmholtz_singular_integrals.hpp"
-#include "library/lib_element.hpp"
 #include "library/quad_1_gauss_field.hpp"
+#include "library/helmholtz.hpp"
 
 #include<Eigen/IterativeLinearSolvers>
 #include "fmm/GMRES.h"
@@ -19,7 +17,7 @@
 #include <boost/math/constants/constants.hpp>
 #include <boost/program_options.hpp>
 
- #define GAUSS
+#define GAUSS
 #define BM
 #define ITERATIVE
 
