@@ -14,9 +14,10 @@ This application implements a fast multipole solver for the Helmholtz equation i
 - Homogeneous meshes with quadrilateral elements
 - High frequency multilevel fast multipole method
 - Burton-Miller technique for mitigating fictitious eigenfrequencies
-- MEX interface for interacting with Matlab
-- Compatible with Matlab's built-in iterative solvers
-
+- Applicable for Neumann and Dirichlet problems
+- MEX interface for interacting with Matlab - Compatible with Matlab's built-in iterative 
+solvers
+ 
 The application is used for assembling the single and double layer potential matrices (SLP and DLP matrices) and then evaluate fast matrix-vector products with these matrices.
 The same matrix-vector products can be called from Matlab's built-in iterative solvers, such as BiCGSTAB or GMRES.
 
@@ -43,5 +44,9 @@ The example in the following section also demonstrates this case.
 Example {#app_helmholtz_3d_hffmm_mex_app}
 =======
 
+This example demonstrates the usage of the application through a transparent problem.
+The field of a point source is computed by prescribing the normal derivative field of the source on a surface mesh as a Neumann boundary condition.
+The solution is performed in two steps: first the field on the surface is attained by solving the BEM system of equations using the fast multipole method, and then, the field in the field points is evaluated by means of fast matrix-vector products.
+The numerical solution of the transparent problem is finally compared to the analytical solution.
 
- 
+
