@@ -1,7 +1,7 @@
 /**
  * \file covariance_2d_bbfmm_mex.mex.cpp
  * \brief Black box FMM of covariance kernel in 2D with Matlab interface
- * \ingroup tut_fmm
+ * \ingroup app_stochastic
  */
 
 #include "library/covariance_kernel.hpp"
@@ -16,6 +16,7 @@
 #include "fmm/fmm_indexed.hpp"
 #include "fmm/fmm_integrated.hpp"
 #include "fmm/fmm_matrix.hpp"
+#include "fmm/fmm_operator_collection.hpp"
 #include "fmm/fmm_precompute.hpp"
 #include "library/lib_element.hpp"
 #include "util/mex_matrix.hpp"
@@ -27,48 +28,90 @@
 #include <cstdlib>
 #include <sstream>
 
-typedef NiHu::quad_1_volume_elem elem_t;
-typedef NiHu::type2tag<elem_t>::type elem_tag_t;
-typedef NiHu::field_view<elem_t, NiHu::field_option::constant> trial_field_t;
-typedef NiHu::type2tag<trial_field_t>::type trial_field_tag_t;
-
-typedef trial_field_t test_field_t;
-typedef NiHu::type2tag<test_field_t>::type test_field_tag_t;
-
-typedef NiHu::covariance_kernel<NiHu::space_2d<> > kernel_t;
-typedef NiHu::fmm::black_box_fmm<kernel_t> fmm_t;
-
-typedef NiHu::mesh<tmp::vector<elem_t> > mesh_t;
-
-typedef fmm_t::cluster_t cluster_t;
-typedef NiHu::fmm::cluster_tree<cluster_t> cluster_tree_t;
-
-typedef NiHu::fmm::p2p_precompute<double, 1, 1> p2p_pre_t;
-typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> dmatrix_t;
-typedef NiHu::fmm::p2x_precompute<dmatrix_t, NiHu::fmm::p2m_tag> p2m_pre_t;
-typedef NiHu::fmm::p2x_precompute<dmatrix_t, NiHu::fmm::p2l_tag> p2l_pre_t;
-typedef NiHu::fmm::x2p_precompute<dmatrix_t, NiHu::fmm::m2p_tag> m2p_pre_t;
-typedef NiHu::fmm::x2p_precompute<dmatrix_t, NiHu::fmm::l2p_tag> l2p_pre_t;
-typedef NiHu::fmm::x2x_precompute<fmm_t::m2m::result_t, cluster_t, NiHu::fmm::m2m_tag> m2m_pre_t;
-typedef NiHu::fmm::x2x_precompute<fmm_t::l2l::result_t, cluster_t, NiHu::fmm::l2l_tag> l2l_pre_t;
-typedef NiHu::fmm::x2x_precompute<fmm_t::m2l::result_t, cluster_t, NiHu::fmm::m2l_tag> m2l_pre_t;
-
-typedef NiHu::fmm::fmm_matrix<
-	p2p_pre_t,
-	p2m_pre_t,
-	p2l_pre_t,
-	m2p_pre_t,
-	l2p_pre_t,
-	m2m_pre_t,
-	l2l_pre_t,
-	m2l_pre_t> fmm_matrix_t;
+// Name of the mex function
+#define NIHU_THIS_MEX_NAME "covariance_2d_bbfmm_mex"
 
 // Mex matrix types
 typedef NiHu::mex::real_matrix<double> dMatrix;
 
+/**
+ * @brief Helper class for storing FMM assembly times 
+ */
+class fmm_assembly_times
+{
+	using timer = NiHu::fmm::fmm_timer;
+public:
+	/** 
+	 * @brief Fill the assembly time from an operator collection
+	 * @tparam Collection The operator collection class
+	 * @param[in] coll Collection instance
+	 */
+	template <class Collection>
+	void fill_times(Collection const & coll)
+	{
+		m_times[timer::M2M] = coll.get(NiHu::fmm::op_tags::idx2tag<timer::M2M>::type()).get_assembly_time();
+		m_times[timer::L2L] = coll.get(NiHu::fmm::op_tags::idx2tag<timer::L2L>::type()).get_assembly_time();
+		m_times[timer::M2L] = coll.get(NiHu::fmm::op_tags::idx2tag<timer::M2L>::type()).get_assembly_time();
+		
+		m_times[timer::P2M] = coll.get(NiHu::fmm::op_tags::idx2tag<timer::P2M>::type()).get_assembly_time();
+		m_times[timer::P2L] = coll.get(NiHu::fmm::op_tags::idx2tag<timer::P2L>::type()).get_assembly_time();
+		m_times[timer::L2P] = coll.get(NiHu::fmm::op_tags::idx2tag<timer::L2P>::type()).get_assembly_time();
+		m_times[timer::M2P] = coll.get(NiHu::fmm::op_tags::idx2tag<timer::M2P>::type()).get_assembly_time();
+		
+		m_times[timer::P2P] = coll.get(NiHu::fmm::op_tags::idx2tag<timer::P2P>::type()).get_assembly_time();
+	}
+	
+	/**
+	 * @brief Returns the assembly time for the given operation index
+	 * @return Assembly time in microsecond units
+	 */
+	size_t const get_time(size_t idx) const
+	{
+		return m_times[idx];
+	}
+	
+private:
+	size_t m_times[timer::NUM_TIME_INDICES];
+};
 
 class fmm_matlab
 {
+	typedef NiHu::quad_1_volume_elem elem_t;
+	typedef NiHu::type2tag<elem_t>::type elem_tag_t;
+	typedef NiHu::field_view<elem_t, NiHu::field_option::constant> trial_field_t;
+	typedef NiHu::type2tag<trial_field_t>::type trial_field_tag_t;
+
+	typedef trial_field_t test_field_t;
+	typedef NiHu::type2tag<test_field_t>::type test_field_tag_t;
+
+	typedef NiHu::covariance_kernel<NiHu::space_2d<> > kernel_t;
+	typedef NiHu::fmm::black_box_fmm<kernel_t> fmm_t;
+
+	typedef NiHu::mesh<tmp::vector<elem_t> > mesh_t;
+
+	typedef fmm_t::cluster_t cluster_t;
+	typedef NiHu::fmm::cluster_tree<cluster_t> cluster_tree_t;
+
+	typedef NiHu::fmm::p2p_precompute<double, 1, 1> p2p_pre_t;
+	typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> dmatrix_t;
+	typedef NiHu::fmm::p2x_precompute<dmatrix_t, NiHu::fmm::p2m_tag> p2m_pre_t;
+	typedef NiHu::fmm::p2x_precompute<dmatrix_t, NiHu::fmm::p2l_tag> p2l_pre_t;
+	typedef NiHu::fmm::x2p_precompute<dmatrix_t, NiHu::fmm::m2p_tag> m2p_pre_t;
+	typedef NiHu::fmm::x2p_precompute<dmatrix_t, NiHu::fmm::l2p_tag> l2p_pre_t;
+	typedef NiHu::fmm::x2x_precompute<fmm_t::m2m::result_t, cluster_t, NiHu::fmm::m2m_tag> m2m_pre_t;
+	typedef NiHu::fmm::x2x_precompute<fmm_t::l2l::result_t, cluster_t, NiHu::fmm::l2l_tag> l2l_pre_t;
+	typedef NiHu::fmm::x2x_precompute<fmm_t::m2l::result_t, cluster_t, NiHu::fmm::m2l_tag> m2l_pre_t;
+
+	typedef NiHu::fmm::fmm_matrix<
+		p2p_pre_t,
+		p2m_pre_t,
+		p2l_pre_t,
+		m2p_pre_t,
+		l2p_pre_t,
+		m2m_pre_t,
+		l2l_pre_t,
+		m2l_pre_t> fmm_matrix_t;
+	
 public:
 	fmm_matlab()
 		: p_surf_mesh(nullptr)
@@ -126,7 +169,7 @@ public:
 
 		auto pre_fctr = NiHu::fmm::create_precompute_functor(*p_tree, *p_lists);
 
-		p_fmm_matrix = new fmm_matrix_t(NiHu::fmm::create_fmm_matrix(
+		auto pre_coll = NiHu::fmm::create_fmm_operator_collection(
 			pre_fctr(idx_fctr(int_fctr(p_fmm->create_p2p()))),
 			pre_fctr(idx_fctr(int_fctr(p_fmm->create_p2m()))),
 			pre_fctr(idx_fctr(int_fctr(p_fmm->create_p2l()))),
@@ -134,10 +177,15 @@ public:
 			pre_fctr(idx_fctr(int_fctr(p_fmm->create_l2p()))),
 			pre_fctr(idx_fctr(p_fmm->create_m2m())),
 			pre_fctr(idx_fctr(p_fmm->create_l2l())),
-			pre_fctr(idx_fctr(p_fmm->create_m2l())),
-			*p_tree,
-			*p_lists));
+			pre_fctr(idx_fctr(p_fmm->create_m2l()))
+		);
+		
+		p_fmm_matrix = new fmm_matrix_t(NiHu::fmm::create_fmm_matrix(
+			pre_coll, *p_tree, *p_lists)
+		);
 
+		m_assembly_times.fill_times(pre_coll);
+		
 		p_I_pre = new p2p_pre_t(
 			pre_fctr(
 				idx_fctr(
@@ -175,6 +223,21 @@ public:
 		delete p_surf_mesh;
 	}
 
+	mesh_t const *get_surface_mesh() const
+	{
+		return p_surf_mesh;
+	}
+	
+	cluster_tree_t const *get_cluster_tree() const
+	{
+		return p_tree;
+	}
+	
+	fmm_matrix_t const *get_fmm_matrix() const
+	{
+		return p_fmm_matrix;
+	}
+	
 	void set_sigma(double sigma)
 	{
 		m_sigma = sigma;
@@ -194,6 +257,11 @@ public:
 	{
 		return p_I_pre->get_sparse_matrix();
 	}
+	
+	fmm_assembly_times const& get_assembly_times() const
+	{
+		return m_assembly_times;
+	}
 
 private:
 	mesh_t *p_surf_mesh;
@@ -202,7 +270,8 @@ private:
 	fmm_t *p_fmm;
 	fmm_matrix_t *p_fmm_matrix;
 	p2p_pre_t *p_I_pre;
-
+	fmm_assembly_times m_assembly_times;
+	
 	double m_sigma;
 	double m_cov_length;
 	size_t m_cheb_order;
@@ -210,140 +279,128 @@ private:
 
 fmm_matlab *p = nullptr;
 
+void usage(int nrhs, mxArray const *prhs[])
+{
+	
+	
+}
+
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, mxArray const *prhs[])
 {
 	char *input_option;
 
-	/* input must be a string */
+	// Check if command is a string
 	if (mxIsChar(prhs[0]) != 1)
-		mexErrMsgIdAndTxt("MATLAB:revord:inputNotString",
-			"Input must be a string.");
+		mexErrMsgIdAndTxt("NiHu:" NIHU_THIS_MEX_NAME ":invalid_input",
+			"First input parameter must be a string, use " NIHU_THIS_MEX_NAME "('help') to see usage");
 
 	input_option = mxArrayToString(prhs[0]);
 
-	if (!strcmp(input_option, "init"))
-	{
-		if (p != nullptr)
-		{
-			mexErrMsgIdAndTxt("NiHu:covariance_2d_bbfmm_matlab:invalid_state",
+	// Command 'help'
+	if (!strcmp(input_option, "help")) {
+		usage(nrhs, prhs);
+	}
+	
+	// Command 'init'
+	if (!strcmp(input_option, "init")) {
+		if (p != nullptr) {
+			mexErrMsgIdAndTxt("NiHu:" NIHU_THIS_MEX_NAME ":invalid_state",
 				"Command \"%s\" called in invalid state", input_option);
-		}
-		else
-		{
+		} else {
 			p = new fmm_matlab;
 		}
 	}
 
+	// Command 'set'
 	else if (!strcmp(input_option, "set"))
 	{
+		if (p == nullptr) {
+			mexErrMsgIdAndTxt("NiHu:" NIHU_THIS_MEX_NAME ":invalid_state",
+				"Command \"%s\" called in invalid state", input_option);
+		}
+		
 		int n_pairs = (nrhs - 1) / 2;
 		for (int i = 0; i < n_pairs; ++i)
 		{
-			if (mxIsChar(prhs[2 * i + 1]) != 1)
-			{
-				mexErrMsgIdAndTxt("NiHu:covariance_2d_bbfmm_matlab:invalid_input",
+			if (mxIsChar(prhs[2 * i + 1]) != 1) {
+				mexErrMsgIdAndTxt("NiHu:" NIHU_THIS_MEX_NAME ":invalid_input",
 					"Parameter name must be a string for the command \"%s\".", input_option);
 			}
 			char const *what_to_set = mxArrayToString(prhs[2 * i + 1]);
 
-			if (!strcmp(what_to_set, "sigma"))
-			{
+			if (!strcmp(what_to_set, "sigma")) {
 				double sigma = mxGetScalar(prhs[2 * i + 2]);
 				p->set_sigma(sigma);
-			}
-			else if (!strcmp(what_to_set, "cov_length"))
-			{
+			} else if (!strcmp(what_to_set, "cov_length")) {
 				double cov_length = mxGetScalar(prhs[2 * i + 2]);
 				p->set_cov_length(cov_length);
-			}
-			else if (!strcmp(what_to_set, "cheb_order"))
-			{
+			} else if (!strcmp(what_to_set, "cheb_order")) {
 				double cheb_order = mxGetScalar(prhs[2 * i + 2]);
 				p->set_cheb_order(size_t(cheb_order));
-			}
-			else
-			{
-				mexErrMsgIdAndTxt("NiHu:covariance_2d_bbfmm_matlab:invalid_parameter",
+			} else {
+				mexErrMsgIdAndTxt("NiHu:" NIHU_THIS_MEX_NAME ":invalid_parameter",
 					"Unknown input parameter: \"%s\"", what_to_set);
 			}
 		}
 	}
 
+	// Command 'mesh'
 	else if (!strcmp(input_option, "mesh"))
 	{
-		if (p == nullptr)
-		{
-			mexErrMsgIdAndTxt("NiHu:covariance_2d_bbfmm_matlab:invalid_state",
+		if (p == nullptr) {
+			mexErrMsgIdAndTxt("NiHu:" NIHU_THIS_MEX_NAME ":invalid_state",
 				"Command \"%s\" called in invalid state", input_option);
-		}
-		else
-		{
+		} else {
 			p->create_mesh(dMatrix(prhs[1]), dMatrix(prhs[2]));
 		}
 	}
 
-	// "tree" command - Build the tree
+	// 'tree' command
 	else if (!strcmp(input_option, "tree"))
 	{
-		if (p == nullptr)
-		{
-			mexErrMsgIdAndTxt("NiHu:covariance_2d_bbfmm_matlab:invalid_state",
+		if (p == nullptr || p->get_surface_mesh() == nullptr) {
+			mexErrMsgIdAndTxt("NiHu:" NIHU_THIS_MEX_NAME ":invalid_state",
 				"Command \"%s\" called in invalid state", input_option);
-		}
-		else
-		{
-			if (mxIsChar(prhs[1]) != 1)
-			{
-				mexErrMsgIdAndTxt("NiHu:covariance_2d_bbfmm_matlab:invalid_input",
+		} else {
+			if (mxIsChar(prhs[1]) != 1) {
+				mexErrMsgIdAndTxt("NiHu:" NIHU_THIS_MEX_NAME ":invalid_input",
 					"Tree division method must be a string for the command \"%s\".", input_option);
 			}
 			char const *divide_option = mxArrayToString(prhs[1]);
-			if (!strcmp(divide_option, "divide_depth"))
-			{
+			if (!strcmp(divide_option, "divide_depth")) {
 				p->create_tree(NiHu::fmm::divide_depth(size_t(mxGetScalar(prhs[2]))));
-			}
-			else if (!strcmp(divide_option, "divide_num_nodes"))
-			{
+			} else if (!strcmp(divide_option, "divide_num_nodes")) {
 				p->create_tree(NiHu::fmm::divide_num_nodes(size_t(mxGetScalar(prhs[2]))));
-			}
-			else if (!strcmp(divide_option, "divide_diameter"))
-			{
+			} else if (!strcmp(divide_option, "divide_diameter")) {
 				p->create_tree(NiHu::fmm::divide_diameter(mxGetScalar(prhs[2])));
-			}
-			else
-			{
-				mexErrMsgIdAndTxt("NiHu:covariance_2d_bbfmm_matlab:invalid_divide_option",
+			} else {
+				mexErrMsgIdAndTxt("NiHu: " NIHU_THIS_MEX_NAME ":invalid_divide_option",
 					"Unknown divide option: \"%s\"", divide_option);
 			}
 		}
 	}
 
-	// "matrix" option - assemble FMM matrix
+	// 'matrix' command
 	else if (!strcmp(input_option, "matrix"))
 	{
-		if (p == nullptr)
-		{
-			mexErrMsgIdAndTxt("NiHu:covariance_2d_bbfmm_matlab:invalid_state",
+		if (p == nullptr || p->get_cluster_tree() == nullptr) {
+			mexErrMsgIdAndTxt("NiHu:" NIHU_THIS_MEX_NAME ":invalid_state",
 				"Command \"%s\" called in invalid state", input_option);
-		}
-		else
-		{
+		} else {
 			p->create_matrix();
 		}
 	}
 
+	// 'get_sparse_identity' command
 	else if (!strcmp(input_option, "get_sparse_identity"))
 	{
-		if (p == nullptr)
-		{
-			mexErrMsgIdAndTxt("NiHu:covariance_2d_bbfmm_matlab:invalid_state",
+		if (p == nullptr || p->get_fmm_matrix() == nullptr) {
+			mexErrMsgIdAndTxt("NiHu:" NIHU_THIS_MEX_NAME ":invalid_state",
 				"Command \"%s\" called in invalid state", input_option);
-		}
-		else
-		{
+		} else {
+			// Retrieve the sparse matrix from the object
 			Eigen::SparseMatrix<double> const &mat = p->get_sparse_identity();
 			plhs[0] = mxCreateSparse(mat.rows(), mat.cols(), mwSize(mat.nonZeros()), mxREAL);
-
 			mwIndex *ridx = mxGetIr(plhs[0]);
 			mwIndex *cidx = mxGetJc(plhs[0]);
 			int c = 0;
@@ -361,40 +418,65 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, mxArray const *prhs[])
 		}
 	}
 
+	// 'mvp' command 
 	else if (!strcmp(input_option, "mvp"))
 	{
-		if (p == nullptr)
-		{
-			mexErrMsgIdAndTxt("NiHu:covariance_2d_bbfmm_matlab:invalid_state",
+		if (p == nullptr || p->get_fmm_matrix() == nullptr) {
+			mexErrMsgIdAndTxt("NiHu:" NIHU_THIS_MEX_NAME ":invalid_state",
 				"Command \"%s\" called in invalid state", input_option);
-		}
-		else
-		{
+		} else {
 			dMatrix xct(prhs[1]);
 			dMatrix res(xct.rows(), 1, plhs[0]);
 			p->mvp(res.col(0), xct.col(0));
 		}
 	}
 
-	// "cleanup" - destroy the main object
+	// 'cleanup' command - destroy the main object
 	else if (!strcmp(input_option, "cleanup"))
 	{
-		if (p == nullptr)
-		{
-			mexErrMsgIdAndTxt("NiHu:covariance_2d_bbfmm_matlab:invalid_state",
+		if (p == nullptr) {
+			mexErrMsgIdAndTxt("NiHu:" NIHU_THIS_MEX_NAME ":invalid_state",
 				"Command \"%s\" called in invalid state", input_option);
-		}
-		else
-		{
+		} else {
 			delete p;
 			p = nullptr;
 		}
 	}
+	
+	// Diagnostics
+	// Print matrix assembly times
+	else if (!strcmp(input_option, "print_times")) {
+		if (p == nullptr) {
+			mexErrMsgIdAndTxt("NiHu:" NIHU_THIS_MEX_NAME ":invalid_state",
+				"Command \"%s\" called in invalid state", input_option);
+		} else {
+			fmm_assembly_times const& times = p->get_assembly_times();
+			mexPrintf("Assembly times (in microseconds):\n");
+			mexPrintf("\tM2M: %10llu\n", times.get_time(NiHu::fmm::fmm_timer::M2M));
+			mexPrintf("\tM2L: %10llu\n", times.get_time(NiHu::fmm::fmm_timer::M2L));
+			mexPrintf("\tL2L: %10llu\n", times.get_time(NiHu::fmm::fmm_timer::L2L));
+			mexPrintf("\tP2M: %10llu\n", times.get_time(NiHu::fmm::fmm_timer::P2M));
+			mexPrintf("\tP2L: %10llu\n", times.get_time(NiHu::fmm::fmm_timer::P2L));
+			mexPrintf("\tM2P: %10llu\n", times.get_time(NiHu::fmm::fmm_timer::M2P));
+			mexPrintf("\tL2P: %10llu\n", times.get_time(NiHu::fmm::fmm_timer::L2P));
+			mexPrintf("\tP2P: %10llu\n", times.get_time(NiHu::fmm::fmm_timer::P2P));
+		}
+	}
+	
+	// Print tree structure
+	else if (!strcmp(input_option, "print_tree")) {
+		if (p == nullptr) {
+			mexErrMsgIdAndTxt("NiHu:" NIHU_THIS_MEX_NAME ":invalid_state",
+				"Command \"%s\" called in invalid state", input_option);
+		} else {
+			p->print_tree();
+		}
+		
+	}
 
 	// The option was not valid
-	else
-	{
-		mexErrMsgIdAndTxt("NiHu:covariance_2d_bbfmm_matlab:invalid_option",
+	else {
+		mexErrMsgIdAndTxt("NiHu:" NIHU_THIS_MEX_NAME ":invalid_option",
 			"Unknown input option: \"%s\"", input_option);
 	}
 }
