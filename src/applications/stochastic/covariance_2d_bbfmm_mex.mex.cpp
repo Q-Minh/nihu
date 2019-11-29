@@ -342,19 +342,22 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, mxArray const *prhs[])
 	else
 	{
 		Eigen::SparseMatrix<double> const &mat = p->get_sparse_identity();
-		plhs[0] = mxCreateSparse(mat.rows(), mat.cols(), mat.nonZeros(), mxREAL);
+		plhs[0] = mxCreateSparse(mat.rows(), mat.cols(), mwSize(mat.nonZeros()), mxREAL);
+		
 		mwIndex *ridx = mxGetIr(plhs[0]);
 		mwIndex *cidx = mxGetJc(plhs[0]);
 		int c = 0;
+		int k = 0;
 		double *v = mxGetPr(plhs[0]);
-		for (int k = 0; k < mat.outerSize(); ++k) {
+		for (k = 0; k < mat.outerSize(); ++k) {
+			cidx[k] = c;
 			for (Eigen::SparseMatrix<double>::InnerIterator it(mat, k); it; ++it) {
 				v[c] = it.value();
 				ridx[c] = it.row();
-				cidx[c] = it.col();
 				++c;
 			}
 		}
+		cidx[k] = c;
 	}
  }
 

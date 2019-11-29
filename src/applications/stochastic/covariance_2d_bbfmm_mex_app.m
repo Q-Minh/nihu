@@ -1,7 +1,7 @@
 clear;
 
 %// create a slab
-surface = create_slab([1, 1], [300, 300]);
+surface = create_slab([1, 1], [150, 150]);
 surface = drop_mesh_IDs(drop_unused_nodes( ...
     mesh_section(surface, [.5 .3 -inf; inf inf inf], 'none')));
 
@@ -23,17 +23,12 @@ fprintf('Ready in %.3f seconds\n', toc);
 fprintf('Assembling FMM matrix ... '); tic;
 mex_fun('matrix');
 fprintf('Ready in %.3f seconds\n', toc);
-
+W = mex_fun('get_sparse_identity');
 %% Compute eigenvalues using Matlab's eigs
-
-%// Create diagonal matrix of element sizes
-[~, ~, w] = geo2gauss(surface, 1);
-W = spdiags(w, 0, size(w,1), size(w,1));
-
-n_modes = 100;
+n_modes = 50;
 fprintf('Computing %d eigenvalues ... ', n_modes); tic;
 Afun = @(x)mex_fun('mvp', x);
-[phi, lam] = eigs(Afun, size(w,1), W, n_modes, 'lm');
+[phi, lam] = eigs(Afun, size(W,1), W, n_modes, 'lm');
 fprintf('Ready in %.3f seconds.\n', toc);
 
 %// Sort the eigenvalues

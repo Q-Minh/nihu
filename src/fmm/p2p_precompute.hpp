@@ -96,6 +96,7 @@ public:
 
 		sparse_t mat(rows * tree.get_n_rec_nodes(), cols * tree.get_n_src_nodes());
 		mat.setFromTriplets(triplets.begin(), triplets.end());
+		mat = mat.pruned();
 		
 		auto tend = std::chrono::steady_clock::now();
 		assembly_time = std::chrono::duration_cast<std::chrono::microseconds>(tend - tstart).count();

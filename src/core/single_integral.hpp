@@ -73,8 +73,10 @@ public:
 	/** \brief the result matrix type */
 	typedef typename traits_t::result_t result_t;
 
+	/** \brief Elem type */
+	typedef typename test_field_t::elem_t elem_t;
 	/** \brief L-set of the elem */
-	typedef typename test_field_t::elem_t::lset_t lset_t;
+	typedef typename elem_t::lset_t lset_t;
 
 	/** \brief the quadrature family */
 	typedef gauss_family_tag quadrature_family_t;

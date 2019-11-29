@@ -1,25 +1,25 @@
+% helmholtz_3d_hffmm_mex_app.m
+% Example application for 3D Helmholtz high frequency FMM with MEX
 clear;
 
+% Name of the MEX function to call
 mex_fun = @helmholtz_3d_hffmm_mex;
-
-%// sphere radiator with radius R = 1, divided into 30 elements along the radius.
-radiator = create_sphere_boundary(1, 30);
-
-%// field point mesh, a line revolved around the z axis
-field = revolve_mesh(create_line([1.125, 0, 0; 5.625, 0, 0], 180), pi/200, 100, [0 0 1]);
-
+% Sphere surface with radius R = 1, divided into 30 elements along the radius.
+surface = create_sphere_boundary(1, 30);
+% Field point mesh: fan shaped, a line revolved around the z axis
+field = revolve_mesh( ...
+    create_line([1.125, 0, 0; 5.625, 0, 0], 180), pi/200, 100, [0 0 1]);
+% Wave number, allow minimum 10 elems / wavelength
+k = min(mesh_kmax(surface, 10));
 %% Initialize the FMM and set parameters
 mex_fun('init');
-[r_nodes, r_elems] = extract_core_mesh(radiator, 'surface');
-
-k = .8 * min(mesh_kmax(radiator));
 mex_fun('set', ...
-    'accuracy', 3.0, ...
-    'far_field_order', 5, ...
-    'wave_number', k);
-
+    'accuracy', 3.0, ...            % Expansion length parameter
+    'far_field_order', 5, ...       % Far field quadrature order
+    'wave_number', k);              % Wave number
 %% Assign the mesh and create the cluster tree
-mex_fun('mesh', r_nodes, r_elems);
+[s_nodes, s_elems] = extract_core_mesh(surface, 'surface');
+mex_fun('mesh', s_nodes, s_elems);
 mex_fun('tree', 'divide_diameter', 1/k);
 mex_fun('print_tree');
 %% Assemble the FMM matrices for the surface
@@ -30,7 +30,7 @@ mex_fun('print_times');
 
 %% Prepare excitation and right hand side vector
 x_src = [.2 .3 .6];
-[centers, normals] = centnorm(radiator);
+[centers, normals] = centnorm(surface);
 [ps_ana, qs] = incident('point', x_src, centers, normals, k);
 rhs = mex_fun('mvp_slp', qs);
 
@@ -41,15 +41,6 @@ Afun = @(x)mex_fun('mvp_dlp', ensure_complex(x));
 fprintf('Ready in %.3f seconds.\n', toc);
 
 %% Evaluate and plot surface results
-figure;
-subplot(1,2,1);
-plot_mesh(radiator, real(ps_bem))
-colorbar('Location', 'SouthOutside');
-axis equal;
-subplot(1,2,2);
-plot_mesh(radiator, real(ps_ana))
-axis equal;
-colorbar('Location', 'SouthOutside');
 err = norm(ps_ana-ps_bem)/norm(ps_ana);
 fprintf('Relative error on surface: %.2f %%\n', err*100);
 
@@ -72,7 +63,7 @@ mex_fun('set', ...
     'wave_number', k);
 
 %% Assign the mesh and create the cluster tree
-mex_fun('mesh', r_nodes, r_elems, f_nodes, f_elems);
+mex_fun('mesh', s_nodes, s_elems, f_nodes, f_elems);
 mex_fun('tree', 'divide_diameter', 1/k);
 %% Assemble the FMM matrices for the surface
 fprintf('Assembling FMM matrices ...\n'); tic;
@@ -90,13 +81,13 @@ pf_bem = mex_fun('mvp_dlp', ensure_complex(ps_bem)) ...
 %%
 figure;
 subplot(1,2,1);
-plot_mesh(radiator, real(ps_bem));
+plot_mesh(surface, real(ps_bem));
 hold on
 plot_mesh(field, real(pf_bem));
 colorbar('Location', 'SouthOutside');
 axis equal;
 subplot(1,2,2);
-plot_mesh(radiator, real(ps_ana));
+plot_mesh(surface, real(ps_ana));
 hold on
 plot_mesh(field, real(pf_ana));
 axis equal;
