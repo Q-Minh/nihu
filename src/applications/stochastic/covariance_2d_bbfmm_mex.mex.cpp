@@ -147,7 +147,7 @@ public:
 					)
 				)
 			)
-			);
+		);
 	}
 
 	template <class LhsDerived, class RhsDerived>
@@ -334,32 +334,32 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, mxArray const *prhs[])
 
 	else if (!strcmp(input_option, "get_sparse_identity"))
 	{
-	if (p == nullptr)
-	{
-		mexErrMsgIdAndTxt("NiHu:covariance_2d_bbfmm_matlab:invalid_state",
-			"Command \"%s\" called in invalid state", input_option);
-	}
-	else
-	{
-		Eigen::SparseMatrix<double> const &mat = p->get_sparse_identity();
-		plhs[0] = mxCreateSparse(mat.rows(), mat.cols(), mwSize(mat.nonZeros()), mxREAL);
-		
-		mwIndex *ridx = mxGetIr(plhs[0]);
-		mwIndex *cidx = mxGetJc(plhs[0]);
-		int c = 0;
-		int k = 0;
-		double *v = mxGetPr(plhs[0]);
-		for (k = 0; k < mat.outerSize(); ++k) {
-			cidx[k] = c;
-			for (Eigen::SparseMatrix<double>::InnerIterator it(mat, k); it; ++it) {
-				v[c] = it.value();
-				ridx[c] = it.row();
-				++c;
-			}
+		if (p == nullptr)
+		{
+			mexErrMsgIdAndTxt("NiHu:covariance_2d_bbfmm_matlab:invalid_state",
+				"Command \"%s\" called in invalid state", input_option);
 		}
-		cidx[k] = c;
+		else
+		{
+			Eigen::SparseMatrix<double> const &mat = p->get_sparse_identity();
+			plhs[0] = mxCreateSparse(mat.rows(), mat.cols(), mwSize(mat.nonZeros()), mxREAL);
+
+			mwIndex *ridx = mxGetIr(plhs[0]);
+			mwIndex *cidx = mxGetJc(plhs[0]);
+			int c = 0;
+			int k = 0;
+			double *v = mxGetPr(plhs[0]);
+			for (k = 0; k < mat.outerSize(); ++k) {
+				cidx[k] = c;
+				for (Eigen::SparseMatrix<double>::InnerIterator it(mat, k); it; ++it) {
+					v[c] = it.value();
+					ridx[c] = it.row();
+					++c;
+				}
+			}
+			cidx[k] = c;
+		}
 	}
- }
 
 	else if (!strcmp(input_option, "mvp"))
 	{
