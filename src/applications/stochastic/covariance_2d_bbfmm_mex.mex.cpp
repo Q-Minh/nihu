@@ -1,5 +1,5 @@
 /**
- * \file covariance_2d_bbfmm_matlab.mex.cpp
+ * \file covariance_2d_bbfmm_mex.mex.cpp
  * \brief Black box FMM of covariance kernel in 2D with Matlab interface
  * \ingroup app_stochastic
  */
@@ -401,7 +401,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, mxArray const *prhs[])
 			// Retrieve the sparse matrix from the object
 			Eigen::SparseMatrix<double> const &mat = p->get_sparse_identity();
 			plhs[0] = mxCreateSparse(mat.rows(), mat.cols(), mwSize(mat.nonZeros()), mxREAL);
-			
 			mwIndex *ridx = mxGetIr(plhs[0]);
 			mwIndex *cidx = mxGetJc(plhs[0]);
 			int c = 0;
