@@ -20,6 +20,11 @@
 #include <algorithm>
 #include <vector>
 
+//#define NIHU_DEBUGGING
+
+#ifdef NIHU_DEBUGGING
+#include <iostream>
+#endif
 
 namespace NiHu
 {
@@ -377,11 +382,26 @@ public:
 	template <class ExcType>
 	response_t operator *(ExcType const &rhs)
 	{
+#ifdef NIHU_DEBUGGING
+		std::cout << "starting operator * " << std::endl;
+#endif
+		
 		// compute P2P interactions
 		m_timer.tic();
+#ifdef NIHU_DEBUGGING
+		std::cout << "Computing P2P " << std::endl;
+#endif
+
 		response_t lhs = m_p2p.get_sparse_matrix() * rhs;
+#ifdef NIHU_DEBUGGING
+		std::cout << "Finished P2P " << std::endl;
+#endif
+
 		m_timer.toc(0, fmm_timer::P2P);
 
+#ifdef NIHU_DEBUGGING
+		std::cout << "Instantiating local & multipole " << std::endl;
+#endif
 		// instantiate locals and multipoles
 		size_t n_clusters = m_tree.get_n_clusters();
 		std::vector<multipole_t> multipoles(n_clusters);
@@ -395,9 +415,24 @@ public:
 			if (m_tree[c].is_receiver())
 				locals[c] = m_tree[c].zero_local();
 		}
+#ifdef NIHU_DEBUGGING
+		std::cout << "Instantiating local & multipole ready " << std::endl;
+#endif
+
+#ifdef NIHU_DEBUGGING
+		std::cout << "Reordering excitation " << std::endl;
+#endif
 
 		// read reordered excitation into cluster data
 		reorder_excitation(rhs);
+#ifdef NIHU_DEBUGGING
+		std::cout << "Reorder ready " << std::endl;
+#endif
+
+		
+#ifdef NIHU_DEBUGGING
+		std::cout << "Computing P2L " << std::endl;
+#endif
 
 		// compute P2L interactions
 		m_timer.tic();
@@ -407,8 +442,18 @@ public:
 				locals[to] += m_p2l(to, from) * m_rhs_segments[from];
 		m_timer.toc(0, fmm_timer::P2L);
 
+#ifdef NIHU_DEBUGGING
+		std::cout << "Computing P2L ready " << std::endl;
+#endif
+
+#ifdef NIHU_DEBUGGING
+		std::cout << "Computing P2M " << std::endl;
+#endif
+
 		// compute P2M interactions
 		m_timer.tic();
+
+		
 		auto const &src_idx = m_tree.get_leaf_src_indices();
 #ifdef NIHU_FMM_PARALLEL
 #pragma omp parallel for
@@ -422,10 +467,31 @@ public:
 #pragma omp barrier
 #endif
 		m_timer.toc(0, fmm_timer::P2M);
+#ifdef NIHU_DEBUGGING
+		std::cout << "Computing P2M ready " << std::endl;
+#endif
+
 
 #if defined NIHU_FMM_TRAVERSE_BFS
+		
+#ifdef NIHU_DEBUGGING
+		std::cout << "Starting upward pass BFS " << std::endl;
+#endif
+
 		upward_pass_bfs(multipoles);
+#ifdef NIHU_DEBUGGING
+		std::cout << "Upward pass BFS ready" << std::endl;
+#endif
+
+#ifdef NIHU_DEBUGGING
+		std::cout << "Starting downward pass BFS " << std::endl;
+#endif
+		
 		downward_pass_bfs(locals, multipoles);
+#ifdef NIHU_DEBUGGING
+		std::cout << "Downward pass BFS ready" << std::endl;
+#endif
+
 #elif defined NIHU_FMM_TRAVERSE_DFS
 		upward_pass_dfs(multipoles);
 		downward_pass_dfs(locals, multipoles);
@@ -434,6 +500,11 @@ public:
 #endif
 
 		// compute L2P interactions
+#ifdef NIHU_DEBUGGING
+		std::cout << "Computing L2P " << std::endl;
+#endif
+		
+		
 		m_timer.tic();
 		auto const &rec_idx = m_tree.get_leaf_rec_indices();
 #ifdef NIHU_FMM_PARALLEL
@@ -448,16 +519,33 @@ public:
 #pragma omp barrier
 #endif
 		m_timer.toc(0, fmm_timer::L2P);
+#ifdef NIHU_DEBUGGING
+		std::cout << "Computing L2P ready" << std::endl;
+#endif
 
 		// compute M2P interactions
+#ifdef NIHU_DEBUGGING
+		std::cout << "Computing M2P " << std::endl;
+#endif
+
 		m_timer.tic();
 		for (auto to : m_tree.get_leaf_rec_indices())
 			for (auto from : m_lists.get_list(interaction_lists::M2P)[to])
 				m_lhs_segments[to] += m_m2p(to, from) * multipoles[from];
 		m_timer.toc(0, fmm_timer::M2P);
+#ifdef NIHU_DEBUGGING
+		std::cout << "Computing M2P ready" << std::endl;
+#endif
 
 		// distribute reordered response
+#ifdef NIHU_DEBUGGING
+		std::cout << "Reordering response" << std::endl;
+#endif
+
 		reorder_response(lhs);
+#ifdef NIHU_DEBUGGING
+		std::cout << "Reordering response ready " << std::endl;
+#endif
 
 		return lhs;
 	}

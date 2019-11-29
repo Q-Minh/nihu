@@ -661,6 +661,10 @@ INPUT                  = "${CMAKE_SOURCE_DIR}/../dox/mainpage.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/theory.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/theo_bem_example.md" \
 						 "${CMAKE_SOURCE_DIR}/../dox/applications.md" \
+						 "${CMAKE_SOURCE_DIR}/../dox/app_helmholtz_3d_coll.md" \
+						 "${CMAKE_SOURCE_DIR}/../dox/app_helmholtz_3d_coll_mex.md" \
+						 "${CMAKE_SOURCE_DIR}/../dox/app_helmholtz_3d_hffmm.md" \
+						 "${CMAKE_SOURCE_DIR}/../dox/app_helmholtz_3d_hffmm_mex.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/tutorials.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/tut_mesh_building.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/tut_function_spaces.md" \

@@ -1,7 +1,7 @@
 clear;
 
 %%
-directory = 'data';
+directory = 'data_conv';
 meshname = 'radiatterer_10cm_quad.off';
 pattern = 'gauss_quad_bm_10cm';
 
