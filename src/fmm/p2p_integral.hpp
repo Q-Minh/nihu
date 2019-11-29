@@ -6,6 +6,7 @@
 #include "fmm_operator.hpp"
 #include "integral_operator_expression.hpp"
 #include "identity_p2p_operator.h"
+#include "local_operator.hpp"
 
 #include "../core/double_integral.hpp"
 #include "../core/single_integral.hpp"
@@ -22,6 +23,10 @@ namespace fmm
 
 template <class Operator, class TestField, class TrialField>
 class p2p_integral;
+
+template <class Operator, class TestField, class TrialField>
+struct is_local_operator<p2p_integral<Operator, TestField, TrialField > >
+	: public is_local_operator<typename std::decay<Operator>::type> {};
 
 template <class Operator, class TestField, class TrialField>
 struct integral_operator_expression_traits<p2p_integral<Operator, TestField, TrialField> >

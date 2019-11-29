@@ -1,5 +1,5 @@
 /**
- * \file covariance_2d_bbfmm_matlab.mex.cpp
+ * \file covariance_2d_bbfmm_mex.mex.cpp
  * \brief Black box FMM of covariance kernel in 2D with Matlab interface
  * \ingroup tut_fmm
  */

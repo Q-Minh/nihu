@@ -8,6 +8,7 @@
 #define IDENTITY_P2P_OPERATOR_H_INCLUDED
 
 #include "fmm_operator.hpp"
+#include "local_operator.hpp"
 
 namespace NiHu
 {
@@ -18,6 +19,10 @@ class identity_p2p_operator
 	: public fmm_operator<p2p_tag>
 {
 };
+
+template <>
+struct is_local_operator<identity_p2p_operator>
+	: public std::true_type {};
 
 } // end of namespace fmm
 } // end of namespace NiHu

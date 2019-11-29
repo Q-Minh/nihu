@@ -10,6 +10,7 @@
 #include "cluster_tree.hpp"
 #include "fmm_operator.hpp"
 #include "lists.hpp"
+#include "local_operator.hpp"
 #include "util/eigen_utils.hpp"
 #include "util/matrix_traits.hpp"
 
@@ -33,6 +34,73 @@ namespace fmm
 namespace internal
 {
 
+template <class Operator, class ClusterDerived, bool isLocal>
+class sparse_index_computer;
+
+template <class Operator, class ClusterDerived>
+class sparse_index_computer<Operator, ClusterDerived, false>
+{
+	typedef typename std::decay<Operator>::type operator_t;
+	typedef std::vector<std::pair<size_t, size_t> > indices_t;
+	typedef ClusterDerived cluster_t;
+	typedef cluster_tree<cluster_t> tree_t;
+
+public:
+
+	static indices_t eval(tree_t const &tree,
+		interaction_lists::list_t const &p2p_list)
+	{
+		std::vector<std::pair<size_t, size_t> > indices;
+
+		// determine number of src receiver pairs
+		size_t s = 0;
+		for (unsigned to = 0; to < p2p_list.size(); ++to)
+			for (auto from : p2p_list[to])
+				s += tree[to].get_rec_node_idx().size() *
+				tree[from].get_src_node_idx().size();
+
+		indices.reserve(s);
+
+		for (unsigned to = 0; to < p2p_list.size(); ++to)
+			for (auto from : p2p_list[to])
+				for (auto i : tree[to].get_rec_node_idx()) // loop over receiver nodes
+					for (auto j : tree[from].get_src_node_idx())	// loop over source nodes
+						indices.push_back(std::make_pair(i, j));
+
+		return indices;
+	}
+};
+
+template <class Operator, class ClusterDerived>
+class sparse_index_computer<Operator, ClusterDerived, true>
+{
+	typedef typename std::decay<Operator>::type operator_t;
+	typedef std::vector<std::pair<size_t, size_t> > indices_t;
+	typedef ClusterDerived cluster_t;
+	typedef cluster_tree<cluster_t> tree_t;
+
+public:
+	static indices_t eval(tree_t const &tree,
+		interaction_lists::list_t const &p2p_list)
+	{
+		std::vector<std::pair<size_t, size_t> > indices;
+
+		// determine number of src receiver pairs
+		size_t s = 0;
+		for (unsigned to = 0; to < p2p_list.size(); ++to)
+			s += tree[to].get_rec_node_idx().size();
+
+		indices.reserve(s);
+
+		for (unsigned to = 0; to < p2p_list.size(); ++to)
+			for (auto i : tree[to].get_rec_node_idx())
+				indices.push_back(std::make_pair(i, i));
+
+		return indices;
+	}
+};
+
+
 template <class Operator, class ClusterDerived, bool isResultEigen = is_eigen<
 	typename std::decay<Operator>::type::result_t>::value>
 class sparse_computer;
@@ -51,6 +119,9 @@ class sparse_computer<Operator, ClusterDerived, true>
 	typedef ClusterDerived cluster_t;
 	typedef cluster_tree<cluster_t> tree_t;
 
+	static bool const is_local = is_local_operator<operator_t>::value;
+	typedef sparse_index_computer<Operator, ClusterDerived, is_local> index_computer_t;
+
 public:
 
 	static sparse_t eval(Operator &&op, tree_t const &tree, interaction_lists::list_t const &list, size_t &assembly_time)
@@ -59,23 +130,8 @@ public:
 	
 		std::vector<triplet_t> triplets;
 		
-		std::vector<std::pair<size_t, size_t> > indices;
-
-		// determine number of src receiver pairs
-		size_t s = 0;
-		for (unsigned to = 0; to < list.size(); ++to)
-			for (auto from : list[to])
-				s += tree[to].get_rec_node_idx().size() * 
-				tree[from].get_src_node_idx().size();
-				
-		indices.reserve(s);
-		
-		for (unsigned to = 0; to < list.size(); ++to)
-			for (auto from : list[to])
-				for (auto i : tree[to].get_rec_node_idx()) // loop over receiver nodes
-					for (auto j : tree[from].get_src_node_idx())	// loop over source nodes
-						indices.push_back(std::make_pair(i, j));
-						
+		auto indices = index_computer_t::eval(tree, list);
+		size_t s = indices.size();
 		triplets.resize(s * rows * cols);
 		
 #ifdef NIHU_FMM_PARALLEL
@@ -96,7 +152,6 @@ public:
 
 		sparse_t mat(rows * tree.get_n_rec_nodes(), cols * tree.get_n_src_nodes());
 		mat.setFromTriplets(triplets.begin(), triplets.end());
-		mat = mat.pruned();
 		
 		auto tend = std::chrono::steady_clock::now();
 		assembly_time = std::chrono::duration_cast<std::chrono::microseconds>(tend - tstart).count();
@@ -116,31 +171,24 @@ class sparse_computer<Operator, ClusterDerived, false>
 	typedef ClusterDerived cluster_t;
 	typedef cluster_tree<cluster_t> tree_t;
 
+	static bool const is_local = is_local_operator<operator_t>::value;
+	typedef sparse_index_computer<Operator, ClusterDerived, is_local> index_computer_t;
+
 public:
 
-	static sparse_t eval(Operator &&op, tree_t const &tree, interaction_lists::list_t const &list, size_t &assembly_time)
+	static sparse_t eval(
+		Operator &&op, 
+		tree_t const &tree, 
+		interaction_lists::list_t const &list, 
+		size_t &assembly_time)
 	{
 		auto tstart = std::chrono::steady_clock::now();
 	
 		std::vector<triplet_t> triplets;
 		
-		std::vector<std::pair<size_t, size_t> > indices;
-
-		// determine number of src receiver pairs
-		size_t s = 0;
-		for (unsigned to = 0; to < list.size(); ++to)
-			for (auto from : list[to])
-				s += tree[to].get_rec_node_idx().size() * 
-				tree[from].get_src_node_idx().size();
-				
-		indices.reserve(s);
-		
-		for (unsigned to = 0; to < list.size(); ++to)
-			for (auto from : list[to])
-				for (auto i : tree[to].get_rec_node_idx()) // loop over receiver nodes
-					for (auto j : tree[from].get_src_node_idx())	// loop over source nodes
-						indices.push_back(std::make_pair(i, j));
-						
+		// i-j indices of final sparse matrix
+		auto indices = index_computer_t::eval(tree, list);
+		size_t s = indices.size();
 		triplets.resize(s);
 		
 #ifdef NIHU_FMM_PARALLEL
