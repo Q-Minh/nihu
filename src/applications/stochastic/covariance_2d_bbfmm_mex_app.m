@@ -19,10 +19,12 @@ tree_depth = 7;
 fprintf('Creating cluster tree ... '); tic;
 mex_fun('tree', 'divide_depth', tree_depth);
 fprintf('Ready in %.3f seconds\n', toc);
+mex_fun('print_tree');
 %% Assemble the FMM matrix with operator precomputation
 fprintf('Assembling FMM matrix ... '); tic;
 mex_fun('matrix');
 fprintf('Ready in %.3f seconds\n', toc);
+mex_fun('print_times');
 W = mex_fun('get_sparse_identity');
 %% Compute eigenvalues using Matlab's eigs
 n_modes = 50;
