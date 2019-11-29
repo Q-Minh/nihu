@@ -33,6 +33,7 @@
 #include "gaussian_quadrature.hpp"
 #include "field_type_accelerator.hpp"
 #include "formalism.hpp"
+#include "jacobian_computer.hpp"
 
 namespace NiHu
 {
@@ -72,8 +73,10 @@ public:
 	/** \brief the result matrix type */
 	typedef typename traits_t::result_t result_t;
 
+	/** \brief Elem type */
+	typedef typename test_field_t::elem_t elem_t;
 	/** \brief L-set of the elem */
-	typedef typename test_field_t::elem_t::lset_t lset_t;
+	typedef typename elem_t::lset_t lset_t;
 
 	/** \brief the quadrature family */
 	typedef gauss_family_tag quadrature_family_t;
@@ -120,11 +123,7 @@ public:
 
 		for (auto it = acc.begin(); it != acc.end(); ++it)
 		{
-			/** \todo this works for volume single integrals */
-			// auto jac = field.get_elem().get_dx(it.get_first()->get_xi()).determinant();
-
-			/** \todo this works for the surface single integrals */
-			auto jac = field.get_elem().get_normal(it.get_first()->get_xi()).norm();
+			auto jac = NiHu::jacobian_computer<elem_t>::eval(field.get_elem(), it.get_first()->get_xi());
 			
 			result += block_product(it.get_first()->get_N(),
 				(mat * it.get_first()->get_w()*jac).eval(),

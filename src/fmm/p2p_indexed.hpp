@@ -2,6 +2,7 @@
 #define P2P_INDEXED_HPP_INCLUDED
 
 #include "fmm_operator.hpp"
+#include "local_operator.hpp"
 #include "util/matrix_traits.hpp"
 #include <type_traits>
 
@@ -58,6 +59,11 @@ private:
 	trial_iterator_t m_trial_begin;
 	trial_iterator_t m_trial_end;
 };
+
+template <class Operator, class TestIt, class TrialIt>
+struct is_local_operator<p2p_indexed<Operator, TestIt, TrialIt> >
+	: public is_local_operator<typename std::decay<Operator>::type> {};
+
 
 template <class Operator, class TestIt, class TrialIt>
 auto create_p2p_indexed(Operator &&op, TestIt test_begin, TestIt test_end,

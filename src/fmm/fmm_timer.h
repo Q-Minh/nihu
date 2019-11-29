@@ -6,6 +6,7 @@
 #ifndef FMM_TIMER_HPP_INCLUDED
 #define FMM_TIMER_HPP_INCLUDED
 
+#include "fmm_operator.hpp"
 #include "util/timer.h"
 
 #include <array>
@@ -23,25 +24,29 @@ class fmm_timer
 	typedef NiHu::cpu_time timer_t;
 	
 public:
-	/** \brief index of M2M operation */
-	static int const M2M = 0;
-	/** \brief index of L2L operation */
-	static int const L2L = 1;
-	/** \brief index of M2L operation */
-	static int const M2L = 2;
-	/** \brief index of P2M operation */
-	static int const P2M = 3;
-	/** \brief index of P2L operation */
-	static int const P2L = 4;
-	/** \brief index of L2P operation */
-	static int const L2P = 5;
-	/** \brief index of M2P operation */
-	static int const M2P = 6;
-	/** \brief index of P2P operation */
-	static int const P2P = 7;
+	enum {
+		/** \brief index of M2M operation */
+		M2M = op_tags::tag2idx(op_tags::m2m()),
+		/** \brief index of L2L operation */
+		L2L = op_tags::tag2idx(op_tags::l2l()),
+		/** \brief index of M2L operation */
+		M2L = op_tags::tag2idx(op_tags::m2l()),
+		/** \brief index of P2M operation */
+		P2M = op_tags::tag2idx(op_tags::p2m()),
+		/** \brief index of P2L operation */
+		P2L = op_tags::tag2idx(op_tags::p2l()),
+		/** \brief index of L2P operation */
+		L2P = op_tags::tag2idx(op_tags::l2p()),
+		/** \brief index of M2P operation */
+		M2P = op_tags::tag2idx(op_tags::m2p()),
+		/** \brief index of P2P operation */
+		P2P = op_tags::tag2idx(op_tags::p2p()),
+		/** \brief number of time indices */
+		NUM_TIME_INDICES = op_tags::num_tags(),
+	} time_index_t;
 
 private:
-	std::vector<std::array<long long, 8> > m_times;
+	std::vector<std::array<long long, NUM_TIME_INDICES> > m_times;
 	timer_t::time_point_t m_t0;
 
 public:
@@ -80,7 +85,7 @@ public:
 	 */
 	std::ostream &print(std::ostream &os = std::cout) const;
 
-	std::vector<std::array<long long, 8> > const & get_times(void) const
+	std::vector<std::array<long long, NUM_TIME_INDICES> > const & get_times(void) const
 	{
 		return m_times;
 	}

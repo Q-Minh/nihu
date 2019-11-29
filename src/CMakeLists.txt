@@ -90,6 +90,7 @@ endif()
 if(NOT DEFINED NIHU_DISABLE_APPLICATIONS)
 	add_subdirectory(applications/helmholtz)
 	add_subdirectory(applications/laplace)
+	add_subdirectory(applications/stochastic)
 endif()
 
 ### Test section
