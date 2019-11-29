@@ -30,7 +30,7 @@
 typedef NiHu::quad_1_volume_elem elem_t;
 typedef NiHu::type2tag<elem_t>::type elem_tag_t;
 typedef NiHu::field_view<elem_t, NiHu::field_option::constant> trial_field_t;
-typedef NiHu::type2tag<trial_field_t>::type field_tag_t;
+typedef NiHu::type2tag<trial_field_t>::type trial_field_tag_t;
 
 typedef trial_field_t test_field_t;
 typedef NiHu::type2tag<test_field_t>::type test_field_tag_t;
@@ -76,6 +76,7 @@ public:
 		, p_lists(nullptr)
 		, p_fmm(nullptr)
 		, p_fmm_matrix(nullptr)
+		, p_I_pre(nullptr)
 	{
 	}
 
@@ -110,7 +111,7 @@ public:
 		size_t far_field_quadrature_order = 5;
 
 		// create functors
-		auto int_fctr = NiHu::fmm::create_integrated_functor(test_field_tag_t(), field_tag_t(),
+		auto int_fctr = NiHu::fmm::create_integrated_functor(test_field_tag_t(), trial_field_tag_t(),
 			far_field_quadrature_order, true);
 
 		auto const &trial_space = NiHu::constant_view(*p_surf_mesh);
@@ -136,6 +137,17 @@ public:
 			pre_fctr(idx_fctr(p_fmm->create_m2l())),
 			*p_tree,
 			*p_lists));
+
+		p_I_pre = new p2p_pre_t(
+			pre_fctr(
+				idx_fctr(
+					NiHu::fmm::create_identity_p2p_integral(
+						test_field_tag_t(),
+						trial_field_tag_t()
+					)
+				)
+			)
+			);
 	}
 
 	template <class LhsDerived, class RhsDerived>
@@ -155,6 +167,7 @@ public:
 
 	~fmm_matlab()
 	{
+		delete p_I_pre;
 		delete p_fmm_matrix;
 		delete p_fmm;
 		delete p_lists;
@@ -177,12 +190,18 @@ public:
 		m_cheb_order = order;
 	}
 
+	Eigen::SparseMatrix<double> const &get_sparse_identity() const
+	{
+		return p_I_pre->get_sparse_matrix();
+	}
+
 private:
 	mesh_t *p_surf_mesh;
 	cluster_tree_t *p_tree;
 	NiHu::fmm::interaction_lists *p_lists;
 	fmm_t *p_fmm;
 	fmm_matrix_t *p_fmm_matrix;
+	p2p_pre_t *p_I_pre;
 
 	double m_sigma;
 	double m_cov_length;
@@ -312,6 +331,32 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, mxArray const *prhs[])
 			p->create_matrix();
 		}
 	}
+
+	else if (!strcmp(input_option, "get_sparse_identity"))
+	{
+	if (p == nullptr)
+	{
+		mexErrMsgIdAndTxt("NiHu:covariance_2d_bbfmm_matlab:invalid_state",
+			"Command \"%s\" called in invalid state", input_option);
+	}
+	else
+	{
+		Eigen::SparseMatrix<double> const &mat = p->get_sparse_identity();
+		plhs[0] = mxCreateSparse(mat.rows(), mat.cols(), mat.nonZeros(), mxREAL);
+		mwIndex *ridx = mxGetIr(plhs[0]);
+		mwIndex *cidx = mxGetJc(plhs[0]);
+		int c = 0;
+		double *v = mxGetPr(plhs[0]);
+		for (int k = 0; k < mat.outerSize(); ++k) {
+			for (Eigen::SparseMatrix<double>::InnerIterator it(mat, k); it; ++it) {
+				v[c] = it.value();
+				ridx[c] = it.row();
+				cidx[c] = it.col();
+				++c;
+			}
+		}
+	}
+ }
 
 	else if (!strcmp(input_option, "mvp"))
 	{

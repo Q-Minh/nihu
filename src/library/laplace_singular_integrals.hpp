@@ -1,5 +1,4 @@
 // This file is a part of NiHu, a C++ BEM template library.
-// This file is a part of NiHu, a C++ BEM template library.
 //
 // Copyright (C) 2012-2014  Peter Fiala <fiala@hit.bme.hu>
 // Copyright (C) 2012-2014  Peter Rucz <rucz@hit.bme.hu>

@@ -8,7 +8,7 @@ clear;
 
 r0 = 0.4;
 n0 = 6;
-use_quadratic_elems = ~true;
+use_quadratic_elems = true;
 
 %% Create the membrane and boundary meshes
 membrane = create_circle(r0, n0);

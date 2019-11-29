@@ -1,9 +1,7 @@
-#ifndef JACOBIAN_COMPUTER_HPP_INCLUDED
-#define JACOBIAN_COMPUTER_HPP_INCLUDED
+#ifndef NIHU_JACOBIAN_COMPUTER_HPP_INCLUDED
+#define NIHU_JACOBIAN_COMPUTER_HPP_INCLUDED
 
 namespace NiHu
-{
-namespace fmm
 {
 
 template <class elem, class enable = void>
@@ -20,7 +18,7 @@ class jacobian_computer<
 public:
 	static double eval(elem_t const &elem, typename elem_t::xi_t const &xi)
 	{
-		return elem.get_normal().norm();
+		return elem.get_normal(xi).norm();
 	}
 };
 
@@ -39,7 +37,6 @@ public:
 	}
 };
 
-}
 }// namespace NiHu
 
 #endif // JACOBIAN_COMPUTER_INCLUDED
