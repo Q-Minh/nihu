@@ -8,6 +8,7 @@
 #define INTEGRAL_OPERATOR_EXPRESSION_HPP_INCLUDED
 
 #include "fmm_operator.hpp"
+#include "local_operator.hpp"
 
 #include "../util/matrix_traits.hpp"
 #include "../util/plain_type.hpp"
@@ -46,11 +47,23 @@ struct is_integral_operator_expression
 template <class LhsDerived, class RhsDerived>
 class integral_operator_sum;
 
+template <class LhsDerived, class RhsDerived>
+struct is_local_operator<integral_operator_sum<LhsDerived, RhsDerived> >
+	: public std::integral_constant<bool,
+	is_local_operator<typename std::decay<LhsDerived>::type>::value &&
+	is_local_operator<typename std::decay<RhsDerived>::type>::value> {};
+
 /// \brief the difference of two integral operators
 /// \tparam LhsDerived the left hand side type
 /// \tparam RhsDerived the right hand side type
 template <class LhsDerived, class RhsDerived>
 class integral_operator_diff;
+
+template <class LhsDerived, class RhsDerived>
+struct is_local_operator<integral_operator_diff<LhsDerived, RhsDerived> >
+	: public std::integral_constant<bool,
+	is_local_operator<typename std::decay<LhsDerived>::type>::value &&
+	is_local_operator<typename std::decay<RhsDerived>::type>::value> {};
 
 /// \brief scalar times an integral operator
 /// \tparam LhsDerived the left hand side type
@@ -58,11 +71,21 @@ class integral_operator_diff;
 template <class LhsDerived, class Scalar>
 class integral_operator_scaled;
 
+template <class LhsDerived, class Scalar>
+struct is_local_operator<integral_operator_scaled<LhsDerived, Scalar> >
+	: public is_local_operator<typename std::decay<LhsDerived>::type> {};
+
 /// \brief source-concatenation of two integral operators
 /// \tparam LhsDerived the left hand side type
 /// \tparam LhsDerived the right hand side type
 template <class LhsDerived, class RhsDerived>
 class integral_operator_src_concatenated;
+
+template <class LhsDerived, class RhsDerived>
+struct is_local_operator<integral_operator_src_concatenated<LhsDerived, RhsDerived> >
+	: public std::integral_constant<bool,
+	is_local_operator<typename std::decay<LhsDerived>::type>::value &&
+	is_local_operator<typename std::decay<RhsDerived>::type>::value> {};
 
 template <class Derived>
 class integral_operator_expression
