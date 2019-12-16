@@ -69,6 +69,8 @@ public:
 		: m_test_space(test_space)
 		, m_trial_space(trial_space)
 		, m_wave_number(0.0)
+		, m_accuracy(3.0)
+		, m_far_field_order(6)
 	{
 	}
 
@@ -81,6 +83,17 @@ public:
 	{
 		return m_wave_number;
 	}
+
+	void set_accuracy(double accuracy)
+	{
+		m_accuracy = accuracy;
+	}
+
+	void set_far_field_order(size_t far_field_order)
+	{
+		m_far_field_order = far_field_order;
+	}
+
 
 	response_t const &get_response() const
 	{
@@ -98,8 +111,7 @@ public:
 	}
 
 	template <class DivideDerived>
-	response_t const &eval(divide_base<DivideDerived> const &divide, 
-		size_t far_field_quadrature_order)
+	response_t const &eval(divide_base<DivideDerived> const &divide)
 	{
 		// create cluster tree
 		std::cout << "Building cluster tree ..." << std::endl;
@@ -114,7 +126,7 @@ public:
 		// initialize tree data
 		std::cout << "Initializing fmm object and level data ..." << std::endl;
 		fmm_t fmm(m_wave_number);
-		fmm.set_accuracy(3.0);
+		fmm.set_accuracy(m_accuracy);
 		fmm.init_level_data(tree);
 		for (size_t c = 0; c < tree.get_n_clusters(); ++c)
 			tree[c].set_p_level_data(&fmm.get_level_data(tree[c].get_level()));
@@ -125,7 +137,7 @@ public:
 
 		// create functors
 		auto int_fctr = create_integrated_functor(test_field_tag_t(), trial_field_tag_t(),
-			far_field_quadrature_order, false);
+			m_far_field_order, false);
 
 		auto idx_fctr = create_indexed_functor(
 			m_test_space.template field_begin<test_field_t>(),
@@ -190,6 +202,8 @@ private:
 	excitation_t m_psurf;
 	excitation_t m_qsurf;
 	response_t m_response;
+	double m_accuracy;
+	size_t m_far_field_order;
 };
 
 template <class FmmTag, class TestSpace, class TrialSpace>

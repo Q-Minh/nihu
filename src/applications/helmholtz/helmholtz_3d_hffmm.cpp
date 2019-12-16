@@ -18,7 +18,7 @@
 // basic type parameter inputs
 typedef double wave_number_t;
 
-// #define GAUSS
+#define GAUSS
 
 // computing the fmbem type
 #ifdef GAUSS
@@ -86,7 +86,9 @@ int main(int argc, char *argv[])
 			("surface_velocity", value<double>()->default_value(1.0e-3), "Constant surface velocity excitation [m/s]")
 			("density", value<double>()->default_value(1.3), "Density of air [kg/m3]")
 			("tolerance", value<double>()->default_value(1e-8), "Tolerance of GMRES [-]")
-			("restart", value<size_t>()->default_value(3000), "Restart parameter of GMRES [-]");
+			("restart", value<size_t>()->default_value(3000), "Restart parameter of GMRES [-]")
+			("accuracy", value<double>()->default_value(3.0), "Accuracy of FMM expansion [-]")
+			("far_field_order", value<size_t>()->default_value(6), "Order of far field quadrature [-]");
 
 		variables_map vm;
 		store(parse_command_line(argc, argv, desc), vm);
@@ -104,7 +106,8 @@ int main(int argc, char *argv[])
 		double v0 = vm["surface_velocity"].as<double>();
 		size_t restart = vm["restart"].as<size_t>();
 		double tolerance = vm["tolerance"].as<double>();
-
+		size_t far_field_quadrature_order = vm["far_field_order"].as<size_t>();
+		double accuracy = vm["accuracy"].as<double>();
 
 #ifdef GAUSS
 		// read mesh file
@@ -147,7 +150,6 @@ int main(int argc, char *argv[])
 		typedef NiHu::fmm::helmholtz_3d_hf_fmm<wave_number_t> fmm_t;
 
 		double leaf_diameter = 1. / std::real(k);
-		size_t far_field_quadrature_order = 6;
 
 		if (vm.count("solve") > 0)
 		{
@@ -160,7 +162,9 @@ int main(int argc, char *argv[])
 			solver.set_excitation(q_surf);
 			solver.set_tolerance(tolerance);
 			solver.set_restart(restart);
-			cvector_t p_surf = solver.solve(NiHu::fmm::divide_diameter(leaf_diameter), far_field_quadrature_order);
+			solver.set_accuracy(accuracy);
+			solver.set_far_field_order(far_field_quadrature_order);
+			cvector_t p_surf = solver.solve(NiHu::fmm::divide_diameter(leaf_diameter));
 
 			// export ps
 			export_response(surface_result_name, p_surf, k, solver.get_iterations());
@@ -185,12 +189,14 @@ int main(int argc, char *argv[])
 			auto const &test_space = NiHu::dirac(NiHu::constant_view(field));
 			typedef std::decay<decltype(test_space)>::type test_space_t;
 
-			auto field_bie = NiHu::fmm::create_helmholtz_field_point(
+			auto field_bir = NiHu::fmm::create_helmholtz_field_point(
 				NiHu::type2tag<fmm_t>::type(), test_space, trial_space);
-			field_bie.set_wave_number(k);
-			field_bie.set_psurf(p_surf);
-			field_bie.set_qsurf(q_surf);
-			auto p_field = field_bie.eval(NiHu::fmm::divide_diameter(leaf_diameter), far_field_quadrature_order);
+			field_bir.set_wave_number(k);
+			field_bir.set_accuracy(accuracy);
+			field_bir.set_far_field_order(far_field_quadrature_order);
+			field_bir.set_psurf(p_surf);
+			field_bir.set_qsurf(q_surf);
+			auto p_field = field_bir.eval(NiHu::fmm::divide_diameter(leaf_diameter));
 
 			// export pf
 			export_response(field_point_result_name, p_field, k);

@@ -67,6 +67,8 @@ public:
 		, m_wave_number(0.0)
 		, m_restart(3000)
 		, m_tolerance(1e-8)
+		, m_accuracy(3.0)
+		, m_far_field_order(6)
 	{
 	}
 
@@ -100,11 +102,21 @@ public:
 		m_excitation = xct;
 	}
 
+	void set_accuracy(double accuracy)
+	{
+		m_accuracy = accuracy;
+	}
+
+	void set_far_field_order(size_t order)
+	{
+		m_far_field_order = order;
+	}
+
 	/// \brief solve the BIE
 	/// \param [in] divide the cluster division functor
 	/// \param [in] far_field_quadrature_order the far field quadrature order
 	template <class DivideDerived>
-	response_t const &solve(divide_base<DivideDerived> const &divide, size_t far_field_quadrature_order)
+	response_t const &solve(divide_base<DivideDerived> const &divide)
 	{
 		// build the cluster tree
 		std::cout << "Building cluster tree ..." << std::endl;
@@ -117,7 +129,7 @@ public:
 		std::cout << "Instantiating fmm object ..." << std::endl;
 		fmm_t fmm(m_wave_number);
 		/// \todo this should be independent of the solver
-		fmm.set_accuracy(3.0);
+		fmm.set_accuracy(m_accuracy);
 
 		// initialize tree data
 		std::cout << "Initializing tree data ..." << std::endl;
@@ -137,7 +149,7 @@ public:
 
 		// create functors
 		auto int_fctr = create_integrated_functor(test_field_tag_t(), trial_field_tag_t(),
-			far_field_quadrature_order, true);
+			m_far_field_order, true);
 
 		auto idx_fctr = create_indexed_functor(
 			m_test_space.template field_begin<test_field_t>(),
@@ -235,6 +247,8 @@ private:
 	size_t m_iters;
 	size_t m_restart;
 	double m_tolerance;
+	double m_accuracy;
+	size_t m_far_field_order;
 };
 
 template <class FmmTag, class TrialSpace>
