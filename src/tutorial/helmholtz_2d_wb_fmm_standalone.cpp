@@ -94,7 +94,8 @@ int main(int argc, char *argv[])
 			NiHu::fmm::helmholtz_burton_miller_solver<fmm_t, trial_space_t> solver(trial_space);
 			solver.set_excitation(q_surf);
 			solver.set_wave_number(k);
-			p_surf = solver.solve(div, far_field_quadrature_order);
+			solver.set_far_field_order(far_field_quadrature_order);
+			p_surf = solver.solve(div);
 			export_response(surf_res_name, p_surf, k);
 		}
 
@@ -113,7 +114,8 @@ int main(int argc, char *argv[])
 			evaluator.set_qsurf(q_surf);
 			evaluator.set_psurf(p_surf);
 			evaluator.set_wave_number(k);
-			evaluator.eval(div, far_field_quadrature_order);
+			evaluator.set_far_field_order(far_field_quadrature_order);
+			evaluator.eval(div);
 			export_response(field_res_name, evaluator.get_response(), k);
 
 			double cpu_t = NiHu::cpu_time::toc(cpu_t0);
