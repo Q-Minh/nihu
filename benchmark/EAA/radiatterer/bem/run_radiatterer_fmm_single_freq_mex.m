@@ -1,10 +1,10 @@
 clear;
 
-type = 'const';
+type = 'gauss';
 
 le = 5e-2;
 radiator = create_radiatterer(le);
-f = 600;
+f = 346.5;
 c = 340;
 rho = 1.3;
 om = 2*pi*f;
@@ -32,7 +32,7 @@ mex_fun('mesh', r_nodes, r_elems);
 
 %% Setup tree
 leaf_diameter = 1 / k;
-mex_fun('tree', 'divide_diameter', leaf_diameter);
+mex_fun('tree', 'divide_num_nodes', 10);
 %% Assemble matrices
 fprintf('Assembling FMM matrices ... '); tic;
 mex_fun('matrix');
@@ -62,6 +62,9 @@ caxis([-40 0] + 110);
 hl = light;
 lighting phong;
 hl.Position = [2 2 1];
+%%
+figure;
+plot_mesh(radiator, abs(p_bem_plot));
 
 %%
 mex_fun('cleanup');
