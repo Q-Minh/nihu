@@ -116,7 +116,7 @@ public:
 	/// \param [in] k the wave number
 	helmholtz_3d_hf_fmm(wave_number_t const &k)
 		: m_wave_number(k)
-		, m_C(3.0)
+		, m_accuracy(3.0)
 	{
 	}
 
@@ -132,9 +132,9 @@ public:
 	/// \brief set the method's accuracy parameter
 	/// \param [in] C the accuracy parameter
 	/// \details the accuracy parameter is usually set to 3.0
-	void set_accuracy(double C)
+	void set_accuracy(double accuracy)
 	{
-		m_C = C;
+		m_accuracy = accuracy;
 	}
 
 	/// \brief initialize the level data of the fmm method
@@ -153,7 +153,7 @@ public:
 			// get the diameter from the first cluster on the level
 			size_t idx = tree.level_begin(i);
 			double d = tree[idx].get_bounding_box().get_diameter();
-			ld.set_expansion_length(compute_expansion_length(d / lambda, m_C));
+			ld.set_expansion_length(compute_expansion_length(d / lambda, m_accuracy));
 		}
 
 		// compute interpolation matrices
@@ -662,7 +662,7 @@ public:
 private:
 	wave_number_t m_wave_number;
 	std::vector<helmholtz_3d_hf_level_data> m_level_data_vector;
-	double m_C;
+	double m_accuracy; // C
 };
 
 

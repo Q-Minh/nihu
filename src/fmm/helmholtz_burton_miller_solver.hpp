@@ -65,10 +65,11 @@ public:
 		: m_trial_space(trial_space)
 		, m_test_space(dirac(m_trial_space))
 		, m_wave_number(0.0)
-		, m_restart(3000)
-		, m_tolerance(1e-8)
 		, m_accuracy(3.0)
 		, m_far_field_order(6)
+		, m_iters(0)
+		, m_restart(3000)
+		, m_tolerance(1e-8)
 	{
 	}
 
@@ -242,13 +243,13 @@ private:
 	test_space_t const &m_test_space;
 
 	double m_wave_number;
+	double m_accuracy;
+	size_t m_far_field_order;
 	excitation_t m_excitation;
 	response_t m_response;
 	size_t m_iters;
 	size_t m_restart;
 	double m_tolerance;
-	double m_accuracy;
-	size_t m_far_field_order;
 };
 
 template <class FmmTag, class TrialSpace>
