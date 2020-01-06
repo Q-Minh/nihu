@@ -21,18 +21,24 @@
 #include "util/mex_matrix.hpp"
 #include "library/lib_element.hpp"
 
+typedef NiHu::field_dimension::_2d problem_dim_t;
+static const unsigned int dim = problem_dim_t::value;
 typedef NiHu::mex::real_matrix<double> dMatrix;
 
-// [D, B] = mex(nodes, elements, sigma, d);
+typedef Eigen::Matrix<double, dim, dim> vMatrix;
+
+// [D, B] = mex(nodes, elements, var, d);
 void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 {
 	dMatrix nodes(rhs[0]), elem(rhs[1]);
 	auto mesh = NiHu::create_mesh(nodes, elem, NiHu::tria_1_tag());
-	auto const &w = NiHu::isoparametric_view(mesh);
+	auto const &w = NiHu::isoparametric_view(mesh, problem_dim_t());
 
-	double sigma = NiHu::mex::get_scalar<double>(rhs[2]);
+	
+	//double var = NiHu::mex::get_scalar<double>(rhs[2]);
+	vMatrix var = NiHu::mex::matrix<double>(rhs[2]);
 	double d = NiHu::mex::get_scalar<double>(rhs[3]);
-	auto C = NiHu::create_integral_operator(NiHu::covariance_kernel<NiHu::space_3d<> >(sigma, d));
+	auto C = NiHu::create_integral_operator(NiHu::covariance_kernel<NiHu::space_3d<>, problem_dim_t >(var, d));
 	auto I = NiHu::identity_integral_operator();
 	
 	size_t N = w.get_num_dofs();

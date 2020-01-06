@@ -30,6 +30,7 @@
 
 #include "../util/crtp_base.hpp"
 #include "element.hpp"
+#include "field_dimension.hpp"
 
 namespace NiHu
 {
@@ -42,13 +43,6 @@ struct isoparametric {};
 /** \brief tag to describe a constant field */
 struct constant {};
 }
-
-/** \brief type indicating a 1D valued function space */
-typedef std::integral_constant<unsigned, 1> _1d;
-/** \brief type indicating a 2D valued function space */
-typedef std::integral_constant<unsigned, 2> _2d;
-/** \brief type indicating a 3D valued function space */
-typedef std::integral_constant<unsigned, 3> _3d;
 
 /** \brief assign a field to a tag
  * \tparam field_tag the tag
@@ -208,7 +202,7 @@ public:
 
 
 // forward declaration
-template <class ElemType, class FieldOption, class Dimension = _1d>
+template <class ElemType, class FieldOption, class Dimension = field_dimension::_1d>
 class field_view;
 
 namespace field_traits
@@ -404,7 +398,7 @@ protected:
  * \tparam ElemType the underlying element type
  * \tparam NSet the shape function set
  */
-template <class ElemType, class NSet, class Dimension = _1d>
+template <class ElemType, class NSet, class Dimension = field_dimension::_1d>
 class field :
 	public field_base<field<ElemType, NSet, Dimension> >,
 	public field_impl<field<ElemType, NSet, Dimension> >
@@ -436,7 +430,7 @@ public:
 };
 
 /** \brief field view factory */
-template <class Elem, class Option, class Dimension = _1d>
+template <class Elem, class Option, class Dimension = field_dimension::_1d>
 field_view<Elem, Option, Dimension> const &
 create_field_view(element_base<Elem> const & e, Option, Dimension dim = Dimension())
 {
@@ -445,7 +439,7 @@ create_field_view(element_base<Elem> const & e, Option, Dimension dim = Dimensio
 
 
 /** \brief constant field view factory */
-template <class Elem, class Dimension = _1d>
+template <class Elem, class Dimension = field_dimension::_1d>
 field_view<Elem, field_option::constant, Dimension> const &
 constant_view(element_base<Elem> const & e, Dimension dim = Dimension())
 {
@@ -453,7 +447,7 @@ constant_view(element_base<Elem> const & e, Dimension dim = Dimension())
 }
 
 /** \brief isoparametric field view factory */
-template <class Elem, class Dimension = _1d>
+template <class Elem, class Dimension = field_dimension::_1d>
 field_view<Elem, field_option::isoparametric, Dimension> const &
 isoparametric_view(element_base<Elem> const & e, Dimension dim = Dimension())
 {

@@ -27,6 +27,7 @@
 #include "../util/crtp_base.hpp"
 #include "../util/casted_iterator.hpp"
 #include "field.hpp"
+#include "field_dimension.hpp"
 #include "mesh.hpp"
 
 namespace NiHu
@@ -207,7 +208,7 @@ public:
 * \tparam Mesh the underlying Mesh type
 * \tparam FieldOption determines how the field is generated from the mesh
 */
-template<class Mesh, class FieldOption, class Dimension = _1d>
+template<class Mesh, class FieldOption, class Dimension = field_dimension::_1d>
 class function_space_view :
 	public function_space_base<function_space_view<Mesh, FieldOption, Dimension> >,
 	public function_space_impl<function_space_view<Mesh, FieldOption, Dimension> >
@@ -230,7 +231,7 @@ public:
  * \param [in] dim the function space's dimension
  * \return function space view of the mesh
  */
-template <class Mesh, class Option, class Dimension = _1d>
+template <class Mesh, class Option, class Dimension = field_dimension::_1d>
 function_space_view<Mesh, Option, Dimension> const &
 	create_function_space_view(Mesh const &msh, Option, Dimension dim = Dimension())
 {
@@ -243,7 +244,7 @@ function_space_view<Mesh, Option, Dimension> const &
  * \param [in] dim the function space's dimension
  * \return isoparametric function space view of the mesh
  */
-template <class Mesh, class Dimension = _1d>
+template <class Mesh, class Dimension = field_dimension::_1d>
 function_space_view<Mesh, field_option::isoparametric, Dimension> const &
 	isoparametric_view(Mesh const &msh, Dimension dim = Dimension())
 {
@@ -256,7 +257,7 @@ function_space_view<Mesh, field_option::isoparametric, Dimension> const &
  * \param [in] dim the function space's dimension
  * \return constant function space view of the mesh
  */
-template <class Mesh, class Dimension = _1d>
+template <class Mesh, class Dimension = field_dimension::_1d>
 function_space_view<Mesh, field_option::constant, Dimension> const &
 	constant_view(Mesh const &msh, Dimension dim = Dimension())
 {
