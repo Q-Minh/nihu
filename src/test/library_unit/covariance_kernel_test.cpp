@@ -31,8 +31,10 @@ typename K::result_t tester(K const &k, E1 const &e1, E2 const &e2)
     return k(x1, x2);
 }
 
-template <class K, class E>
-Eigen::Matrix<typename K::result_t, 1, 1> singular_integral_test(NiHu::kernel_base<K> const &k, E const &e)
+template <class K, class E, class Dimension = typename K::dimension_t >
+typename NiHu::double_integral<K, NiHu::dirac_field<NiHu::field_view<E, NiHu::field_option::constant, Dimension> >, NiHu::field_view<E, NiHu::field_option::constant, Dimension> >::result_t
+/*Eigen::Matrix<typename K::result_t, 1, 1>*/
+singular_integral_test(NiHu::kernel_base<K> const &k, E const &e)
 {
 	// cast the element into a constant field view
 	typedef NiHu::field_view<E, NiHu::field_option::constant> F;
@@ -51,21 +53,29 @@ int main(void)
     coords2 << 2., 3.;
     NiHu::line_1_volume_elem elem1(coords1), elem2(coords2);
 
-	double sigma = 2;
+	double variance = 2;
 	double d = 2;
 
-	NiHu::covariance_kernel<NiHu::line_1_volume_elem::space_t> C(sigma, d);
+	NiHu::covariance_kernel<NiHu::line_1_volume_elem::space_t, NiHu::field_dimension::_1d> C(variance, d);
 
 	std::cout << "Evaluating C kernel in the center of two different elements..." << std::endl;
     std::cout << tester(C, elem1, elem2) << std::endl;
 	std::cout << "Analytic: " << std::endl;
-	std::cout << sigma * sigma * std::exp(-2.5/2.) << std::endl;
+	std::cout << variance * std::exp(-2.5/2.) << std::endl;
 
 	std::cout << "Evaluating collocation singular integral over a constant line element..." << std::endl;
 	std::cout << "C singular:\n" << singular_integral_test(C, elem1) << std::endl;
 	std::cout << "Analytic: " << std::endl;
-	std::cout << 2. * d * sigma * sigma * (1. - std::exp(-1./2.)) << std::endl;
+	std::cout << 2. * d * variance * (1. - std::exp(-1./2.)) << std::endl;
 
+	// Test multidimensional
+	Eigen::Matrix<double, 2, 2> matrix;
+	matrix << 2.0, 1.0, 1.0, 4.0;
+	NiHu::covariance_kernel<NiHu::line_1_volume_elem::space_t, NiHu::field_dimension::_2d> C2(matrix, d);
+	std::cout << tester(C2, elem1, elem2) << std::endl;
+	
+	std::cout << singular_integral_test(C2, elem1) << std::endl;
+	
     return 0;
 }
 

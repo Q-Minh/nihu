@@ -27,6 +27,7 @@
 #ifndef COVARIANCE_KERNEL_HPP_INCLUDED
 #define COVARIANCE_KERNEL_HPP_INCLUDED
 
+#include "../core/field_dimension.hpp"
 #include "../core/global_definitions.hpp"
 #include "../core/kernel.hpp"
 #include "../core/gaussian_quadrature.hpp"
@@ -35,70 +36,81 @@
 namespace NiHu
 {
 
-template <class Space>
+template <class Space, class Dimension>
 class covariance_kernel;
 
 /// GENERAL TRAITS
 namespace kernel_traits_ns
 {
-	template <class Space>
-	struct space<covariance_kernel<Space> > : Space {};
+	template <class Space, class Dimension>
+	struct space<covariance_kernel<Space, Dimension> > : Space {};
 
+	template<class Space, class Dimension>
+	struct result<covariance_kernel<Space, Dimension> >
+	{
+		typedef Eigen::Matrix<typename Space::scalar_t, Dimension::value, Dimension::value> type;
+	};
+	
+	// Specialisation
 	template<class Space>
-	struct result<covariance_kernel<Space> >
+	struct result<covariance_kernel<Space, field_dimension::_1d> >
 	{
 		typedef typename Space::scalar_t type;
 	};
 
-	template <class Space>
-	struct quadrature_family<covariance_kernel<Space> > : gauss_family_tag {};
+	template <class Space, class Dimension>
+	struct quadrature_family<covariance_kernel<Space, Dimension> > : gauss_family_tag {};
 
-	template <class Space>
-	struct is_singular<covariance_kernel<Space> > : std::false_type {};
+	template <class Space, class Dimension>
+	struct is_singular<covariance_kernel<Space, Dimension> > : std::false_type {};
 
-	template <class Space>
-	struct test_input<covariance_kernel<Space> >
+	template <class Space, class Dimension>
+	struct test_input<covariance_kernel<Space, Dimension> >
 	{
 		typedef location_input<Space> type;
 	};
 
-	template <class Space>
-	struct trial_input<covariance_kernel<Space> >
+	template <class Space, class Dimension>
+	struct trial_input<covariance_kernel<Space, Dimension> >
 	{
 		typedef location_input<Space> type;
 	};
 
-	template <class Space>
-	struct is_symmetric<covariance_kernel<Space> > : std::true_type {};
+	template <class Space, class Dimension>
+	struct is_symmetric<covariance_kernel<Space, Dimension> > : std::true_type {};
 
 	/** \todo this is incorrect but works :) */
-	template <class Space>
-	struct far_field_behaviour<covariance_kernel<Space> > : asymptotic::inverse<1> {};
+	template <class Space, class Dimension>
+	struct far_field_behaviour<covariance_kernel<Space, Dimension> > : asymptotic::inverse<1> {};
 }
 
 
-template <class Space>
+template <class Space, class Dimension>
 class covariance_kernel :
-	public kernel_base<covariance_kernel<Space> >
+	public kernel_base<covariance_kernel<Space, Dimension> >
 {
 public:
-	typedef kernel_base<covariance_kernel<Space> > base_t;
+	typedef kernel_base<covariance_kernel<Space, Dimension> > base_t;
 	typedef typename base_t::test_input_t test_input_t;
 	typedef typename base_t::trial_input_t trial_input_t;
+	typedef typename base_t::space_t space_t;
+	typedef typename space_t::scalar_t distance_t;
 	typedef typename base_t::result_t result_t;
 	typedef typename base_t::x_t location_t;
+	typedef Dimension dimension_t;
+	size_t static const field_dimension = dimension_t::value;
 	
-	covariance_kernel(double sigma, double length) :
-		m_sigma(sigma), m_length(length)
+	covariance_kernel(result_t const &variance, double length) :
+		m_variance(variance), m_length(length)
 	{
 	}
 	
-	static result_t distance(location_t const &x, location_t const &y)
+	static distance_t distance(location_t const &x, location_t const &y)
 	{
 		return (x-y).norm();
 	}
 	
-	static result_t distance_sph(location_t const &x, location_t const &y)
+	static distance_t distance_sph(location_t const &x, location_t const &y)
 	{
 		result_t v = x.normalized().dot(y.normalized());
 		v = std::min(v, 1.0);
@@ -119,14 +131,9 @@ public:
 		return (*this)(x.get_x(), y.get_x());
 	}
 	
-	double get_stddev(void) const
+	result_t const &get_variance(void) const
 	{
-		return m_sigma;
-	}
-	
-	double get_variance(void) const
-	{
-		return m_sigma * m_sigma;
+		return m_variance;
 	}
 	
 	double get_correlation_length(void) const
@@ -135,8 +142,8 @@ public:
 	}
 
 private:
-	double m_sigma;		/**< \brief Standard deviation */
-	double m_length;	/**< \brief Correlation length */
+	result_t m_variance;	/**< \brief Variance matrix */
+	double m_length;		/**< \brief Correlation length */
 };
 
 } // end of namespace NiHu

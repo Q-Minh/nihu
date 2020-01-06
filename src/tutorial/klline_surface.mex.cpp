@@ -23,7 +23,9 @@
 
 typedef NiHu::mex::real_matrix<double> dMatrix;
 
-// [D, B] = mex(nodes, elements, sigma, d);
+/** @todo write usage for mex */
+
+// [D, B] = mex(nodes, elements, var, d);
 void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 {
 	mexPrintf("%d \n", NiHu::line_1_elem::id);
@@ -31,9 +33,9 @@ void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 	auto mesh = NiHu::create_mesh(nodes, elem, NiHu::line_1_tag());
 	auto const &w = NiHu::constant_view(mesh);
 
-	double sigma = NiHu::mex::get_scalar<double>(rhs[2]);
+	double var = NiHu::mex::get_scalar<double>(rhs[2]);
 	double d = NiHu::mex::get_scalar<double>(rhs[3]);
-	auto C = NiHu::create_integral_operator(NiHu::covariance_kernel<NiHu::space_2d<> >(sigma, d));
+	auto C = NiHu::create_integral_operator(NiHu::covariance_kernel<NiHu::space_2d<>, NiHu::field_dimension::_1d>(var, d));
 	auto I = NiHu::identity_integral_operator();
 	
 	size_t N = w.get_num_dofs();
