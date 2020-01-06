@@ -38,7 +38,7 @@ void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 	//double var = NiHu::mex::get_scalar<double>(rhs[2]);
 	vMatrix var = NiHu::mex::matrix<double>(rhs[2]);
 	double d = NiHu::mex::get_scalar<double>(rhs[3]);
-	auto C = NiHu::create_integral_operator(NiHu::covariance_kernel<NiHu::space_3d<>, problem_dim_t >(var, d));
+	auto C = NiHu::create_integral_operator(NiHu::exponential_covariance_kernel<NiHu::space_3d<>, problem_dim_t >(var, d));
 	auto I = NiHu::identity_integral_operator();
 	
 	size_t N = w.get_num_dofs();

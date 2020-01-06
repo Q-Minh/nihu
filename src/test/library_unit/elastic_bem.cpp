@@ -46,8 +46,8 @@ int main(void)
 	
 	auto K = NiHu::create_integral_operator(NiHu::elastostatics_3d_U_kernel(.33, 1e8));
 	
-	auto const &w = NiHu::isoparametric_view(field, NiHu::_3d());
-	auto const &v = NiHu::constant_view(mesh, NiHu::_3d());
+	auto const &w = NiHu::isoparametric_view(field, NiHu::field_dimension::_3d());
+	auto const &v = NiHu::constant_view(mesh, NiHu::field_dimension::_3d());
 	
 	dMatrix res(w.get_num_dofs(), v.get_num_dofs());
 

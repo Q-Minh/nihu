@@ -84,7 +84,7 @@ class fmm_matlab
 	typedef trial_field_t test_field_t;
 	typedef NiHu::type2tag<test_field_t>::type test_field_tag_t;
 
-	typedef NiHu::covariance_kernel<NiHu::space_2d<> > kernel_t;
+	typedef NiHu::exponential_covariance_kernel<NiHu::space_2d<>, NiHu::field_dimension::_1d> kernel_t;
 	typedef NiHu::fmm::black_box_fmm<kernel_t> fmm_t;
 
 	typedef NiHu::mesh<tmp::vector<elem_t> > mesh_t;

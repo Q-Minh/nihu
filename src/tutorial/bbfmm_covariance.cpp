@@ -13,7 +13,7 @@
 #include "library/lib_element.hpp"
 #include "core/function_space.hpp"
 
-typedef NiHu::covariance_kernel<NiHu::space_2d<>, NiHu::field_dimension::_1d> kernel_t;
+typedef NiHu::exponential_covariance_kernel<NiHu::space_2d<>, NiHu::field_dimension::_1d> kernel_t;
 typedef NiHu::fmm::black_box_fmm<kernel_t> fmm_t;
 typedef fmm_t::cluster_t cluster_t;
 typedef NiHu::fmm::cluster_tree<cluster_t> cluster_tree_t;

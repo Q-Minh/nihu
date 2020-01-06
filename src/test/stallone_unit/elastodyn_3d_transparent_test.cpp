@@ -34,10 +34,10 @@ int main(int argc, char *argv[])
 	using namespace boost::math::double_constants;
 
 	auto mesh = NiHu::read_off_mesh(argv[1], NiHu::tria_1_tag(), NiHu::quad_1_tag());
-	auto const &v = NiHu::constant_view(mesh, NiHu::_3d());
+	auto const &v = NiHu::constant_view(mesh, NiHu::field_dimension::_3d());
 
 	auto field = NiHu::read_off_mesh(argv[2], NiHu::quad_1_tag());
-	auto const &w = NiHu::constant_view(field, NiHu::_3d());
+	auto const &w = NiHu::constant_view(field, NiHu::field_dimension::_3d());
 
 	double nu = .33;
 	double rho = 100;

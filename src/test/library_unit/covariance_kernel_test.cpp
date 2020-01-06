@@ -56,7 +56,7 @@ int main(void)
 	double variance = 2;
 	double d = 2;
 
-	NiHu::covariance_kernel<NiHu::line_1_volume_elem::space_t, NiHu::field_dimension::_1d> C(variance, d);
+	NiHu::exponential_covariance_kernel<NiHu::line_1_volume_elem::space_t, NiHu::field_dimension::_1d> C(variance, d);
 
 	std::cout << "Evaluating C kernel in the center of two different elements..." << std::endl;
     std::cout << tester(C, elem1, elem2) << std::endl;
@@ -71,7 +71,7 @@ int main(void)
 	// Test multidimensional
 	Eigen::Matrix<double, 2, 2> matrix;
 	matrix << 2.0, 1.0, 1.0, 4.0;
-	NiHu::covariance_kernel<NiHu::line_1_volume_elem::space_t, NiHu::field_dimension::_2d> C2(matrix, d);
+	NiHu::exponential_covariance_kernel<NiHu::line_1_volume_elem::space_t, NiHu::field_dimension::_2d> C2(matrix, d);
 	std::cout << tester(C2, elem1, elem2) << std::endl;
 	
 	std::cout << singular_integral_test(C2, elem1) << std::endl;

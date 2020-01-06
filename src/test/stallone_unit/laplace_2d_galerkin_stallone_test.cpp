@@ -41,7 +41,7 @@ int main(void)
 		NiHu::line_1_elem::id, 3, 0;
 
 	auto mesh = NiHu::create_mesh(nodes, elements, NiHu::line_1_tag());
-	auto const &fspace = NiHu::constant_view(mesh, NiHu::_1d());
+	auto const &fspace = NiHu::constant_view(mesh, NiHu::field_dimension::_1d());
 	auto nDof = fspace.get_num_dofs();
 
 	dMatrix L(nDof, nDof), M(nDof, nDof);

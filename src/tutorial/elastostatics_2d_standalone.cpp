@@ -17,7 +17,7 @@ int main(void)
 	float R = 1.0;
 	size_t N = 500;
 	auto mesh = NiHu::create_line_1_circle_mesh(R, N);
-	auto const &space = NiHu::constant_view(mesh, NiHu::_2d());
+	auto const &space = NiHu::constant_view(mesh, NiHu::field_dimension::_2d());
 	auto const &tst_space = space;
 
 	size_t n = space.get_num_dofs();

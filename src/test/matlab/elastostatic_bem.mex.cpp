@@ -28,12 +28,12 @@ void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 {
 	dMatrix surf_nodes(rhs[0]), surf_elem(rhs[1]);
 	auto surf_mesh = NiHu::create_mesh(surf_nodes, surf_elem, NiHu::quad_1_tag());
-	auto const &surf_sp = NiHu::constant_view(surf_mesh, NiHu::_3d());
+	auto const &surf_sp = NiHu::constant_view(surf_mesh, NiHu::field_dimension::_3d());
 	size_t n = surf_sp.get_num_dofs();
 
 	dMatrix field_nodes(rhs[2]), field_elem(rhs[3]);
 	auto field_mesh = NiHu::create_mesh(field_nodes, field_elem, NiHu::quad_1_tag());
-	auto const &field_sp = NiHu::dirac(NiHu::constant_view(field_mesh, NiHu::_3d()));
+	auto const &field_sp = NiHu::dirac(NiHu::constant_view(field_mesh, NiHu::field_dimension::_3d()));
 	size_t m = field_sp.get_num_dofs();
 
 	dMatrix Us(n, n, lhs[0]), Ts(n, n, lhs[1]), Uf(m, n, lhs[2]), Tf(m, n, lhs[3]);

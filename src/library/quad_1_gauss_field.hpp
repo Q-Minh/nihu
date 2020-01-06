@@ -13,7 +13,7 @@ namespace NiHu
 typedef field<
 	quad_1_elem,			// over a linear quad elem
 	quad_1_gauss_shape_set,	// using the new shape set
-	_1d 					// scalar field
+	field_dimension::_1d 	// scalar field
 > quad_1_gauss_field;
 
 namespace field_traits

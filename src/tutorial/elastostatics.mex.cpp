@@ -34,7 +34,7 @@ void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 //![Mesh]
 
 //! [Function spaces]
-	auto const &surf_sp = NiHu::constant_view(surf_mesh, NiHu::_3d());
+	auto const &surf_sp = NiHu::constant_view(surf_mesh, NiHu::field_dimension::_3d());
 //! [Function spaces]
 
 //! [Matrices]

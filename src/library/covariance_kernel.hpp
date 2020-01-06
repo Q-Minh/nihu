@@ -37,60 +37,60 @@ namespace NiHu
 {
 
 template <class Space, class Dimension>
-class covariance_kernel;
+class exponential_covariance_kernel;
 
 /// GENERAL TRAITS
 namespace kernel_traits_ns
 {
 	template <class Space, class Dimension>
-	struct space<covariance_kernel<Space, Dimension> > : Space {};
+	struct space<exponential_covariance_kernel<Space, Dimension> > : Space {};
 
 	template<class Space, class Dimension>
-	struct result<covariance_kernel<Space, Dimension> >
+	struct result<exponential_covariance_kernel<Space, Dimension> >
 	{
 		typedef Eigen::Matrix<typename Space::scalar_t, Dimension::value, Dimension::value> type;
 	};
 	
 	// Specialisation
 	template<class Space>
-	struct result<covariance_kernel<Space, field_dimension::_1d> >
+	struct result<exponential_covariance_kernel<Space, field_dimension::_1d> >
 	{
 		typedef typename Space::scalar_t type;
 	};
 
 	template <class Space, class Dimension>
-	struct quadrature_family<covariance_kernel<Space, Dimension> > : gauss_family_tag {};
+	struct quadrature_family<exponential_covariance_kernel<Space, Dimension> > : gauss_family_tag {};
 
 	template <class Space, class Dimension>
-	struct is_singular<covariance_kernel<Space, Dimension> > : std::false_type {};
+	struct is_singular<exponential_covariance_kernel<Space, Dimension> > : std::false_type {};
 
 	template <class Space, class Dimension>
-	struct test_input<covariance_kernel<Space, Dimension> >
+	struct test_input<exponential_covariance_kernel<Space, Dimension> >
 	{
 		typedef location_input<Space> type;
 	};
 
 	template <class Space, class Dimension>
-	struct trial_input<covariance_kernel<Space, Dimension> >
+	struct trial_input<exponential_covariance_kernel<Space, Dimension> >
 	{
 		typedef location_input<Space> type;
 	};
 
 	template <class Space, class Dimension>
-	struct is_symmetric<covariance_kernel<Space, Dimension> > : std::true_type {};
+	struct is_symmetric<exponential_covariance_kernel<Space, Dimension> > : std::true_type {};
 
 	/** \todo this is incorrect but works :) */
 	template <class Space, class Dimension>
-	struct far_field_behaviour<covariance_kernel<Space, Dimension> > : asymptotic::inverse<1> {};
+	struct far_field_behaviour<exponential_covariance_kernel<Space, Dimension> > : asymptotic::inverse<1> {};
 }
 
 
 template <class Space, class Dimension>
-class covariance_kernel :
-	public kernel_base<covariance_kernel<Space, Dimension> >
+class exponential_covariance_kernel :
+	public kernel_base<exponential_covariance_kernel<Space, Dimension> >
 {
 public:
-	typedef kernel_base<covariance_kernel<Space, Dimension> > base_t;
+	typedef kernel_base<exponential_covariance_kernel<Space, Dimension> > base_t;
 	typedef typename base_t::test_input_t test_input_t;
 	typedef typename base_t::trial_input_t trial_input_t;
 	typedef typename base_t::space_t space_t;
@@ -100,7 +100,7 @@ public:
 	typedef Dimension dimension_t;
 	size_t static const field_dimension = dimension_t::value;
 	
-	covariance_kernel(result_t const &variance, double length) :
+	exponential_covariance_kernel(result_t const &variance, double length) :
 		m_variance(variance), m_length(length)
 	{
 	}
@@ -145,6 +145,110 @@ private:
 	result_t m_variance;	/**< \brief Variance matrix */
 	double m_length;		/**< \brief Correlation length */
 };
+
+
+
+template <class Space, class Dimension>
+class gaussian_covariance_kernel;
+
+/// GENERAL TRAITS
+namespace kernel_traits_ns
+{
+template <class Space, class Dimension>
+struct space<gaussian_covariance_kernel<Space, Dimension> > : Space {};
+
+template<class Space, class Dimension>
+struct result<gaussian_covariance_kernel<Space, Dimension> >
+{
+	typedef Eigen::Matrix<typename Space::scalar_t, Dimension::value, Dimension::value> type;
+};
+
+// Specialisation
+template<class Space>
+struct result<gaussian_covariance_kernel<Space, field_dimension::_1d> >
+{
+	typedef typename Space::scalar_t type;
+};
+
+template <class Space, class Dimension>
+struct quadrature_family<gaussian_covariance_kernel<Space, Dimension> > : gauss_family_tag {};
+
+template <class Space, class Dimension>
+struct is_singular<gaussian_covariance_kernel<Space, Dimension> > : std::false_type {};
+
+template <class Space, class Dimension>
+struct test_input<gaussian_covariance_kernel<Space, Dimension> >
+{
+	typedef location_input<Space> type;
+};
+
+template <class Space, class Dimension>
+struct trial_input<gaussian_covariance_kernel<Space, Dimension> >
+{
+	typedef location_input<Space> type;
+};
+
+template <class Space, class Dimension>
+struct is_symmetric<gaussian_covariance_kernel<Space, Dimension> > : std::true_type {};
+
+/** \todo this is incorrect but works :) */
+template <class Space, class Dimension>
+struct far_field_behaviour<gaussian_covariance_kernel<Space, Dimension> > : asymptotic::inverse<1> {};
+}
+
+
+template <class Space, class Dimension>
+class gaussian_covariance_kernel :
+	public kernel_base<gaussian_covariance_kernel<Space, Dimension> >
+{
+public:
+	typedef kernel_base<gaussian_covariance_kernel<Space, Dimension> > base_t;
+	typedef typename base_t::test_input_t test_input_t;
+	typedef typename base_t::trial_input_t trial_input_t;
+	typedef typename base_t::space_t space_t;
+	typedef typename space_t::scalar_t distance_t;
+	typedef typename base_t::result_t result_t;
+	typedef typename base_t::x_t location_t;
+	typedef Dimension dimension_t;
+	size_t static const field_dimension = dimension_t::value;
+	size_t static const space_dimension = Space::dimension;
+	typedef Eigen::Matrix<double, space_dimension, space_dimension> sigma_t;
+
+	gaussian_covariance_kernel(result_t const &variance, sigma_t const &sigma) :
+		m_variance(variance), m_sigma(sigma), m_inv_sigma(m_sigma.inverse())
+	{
+	}
+
+	result_t operator()(location_t const &x, location_t const &y) const
+	{
+		location_t d = x - y;
+		double Q = d.transpose() * m_inv_sigma * d;
+		return get_variance() * std::exp(-Q);
+	}
+
+	result_t operator()(
+		test_input_t const &x,
+		trial_input_t const &y) const
+	{
+		return (*this)(x.get_x(), y.get_x());
+	}
+
+	result_t const &get_variance(void) const
+	{
+		return m_variance;
+	}
+
+	sigma_t const &get_sigma(void) const
+	{
+		return m_sigma;
+	}
+
+private:
+	result_t m_variance;	/**< \brief Variance matrix */
+	sigma_t m_sigma;		/**< \brief Variance matrix of the correlation */
+	sigma_t m_inv_sigma;	/**< \brief inverse of the variance matrix */
+};
+
 
 } // end of namespace NiHu
 

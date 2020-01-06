@@ -25,8 +25,8 @@
 typedef NiHu::tria_1_elem test_elem_t;
 typedef NiHu::tria_1_elem trial_elem_t;
 
-typedef NiHu::field_view<test_elem_t, NiHu::field_option::isoparametric, NiHu::_1d> test_field_t;
-typedef NiHu::field_view<trial_elem_t, NiHu::field_option::isoparametric, NiHu::_1d> trial_field_t;
+typedef NiHu::field_view<test_elem_t, NiHu::field_option::isoparametric, NiHu::field_dimension::_1d> test_field_t;
+typedef NiHu::field_view<trial_elem_t, NiHu::field_option::isoparametric, NiHu::field_dimension::_1d> trial_field_t;
 
 typedef NiHu::match_type_vector<test_field_t, trial_field_t>::type match_vector_t;
 
