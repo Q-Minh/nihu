@@ -88,6 +88,7 @@ int main(int argc, char *argv[])
 			("tolerance", value<double>()->default_value(1e-8), "Tolerance of GMRES [-]")
 			("restart", value<size_t>()->default_value(3000), "Restart parameter of GMRES [-]")
 			("accuracy", value<double>()->default_value(3.0), "Accuracy of FMM expansion [-]")
+			("cluster_size_constraint", value<double>(), "Constraint on minimal cluster size [m]")
 			("far_field_order", value<size_t>()->default_value(6), "Order of far field quadrature [-]");
 
 		variables_map vm;
@@ -96,6 +97,13 @@ int main(int argc, char *argv[])
 
 		if (vm.count("help"))
 			std::cout << desc << '\n';
+		
+		if (!vm.count("cluster_size_constraint")) {
+			std::cout << "Cluster size constraint must be specified!" << std::endl;
+			std::cout << "\tUse --cluster_size_constraint <size> to specify the constraint." << std::endl;
+			return 0;
+		}
+			
 
 		// read parameters
 		std::string surf_mesh_name = vm["surface_mesh"].as<std::string>();
@@ -108,6 +116,7 @@ int main(int argc, char *argv[])
 		double tolerance = vm["tolerance"].as<double>();
 		size_t far_field_quadrature_order = vm["far_field_order"].as<size_t>();
 		double accuracy = vm["accuracy"].as<double>();
+		double min_clus_size_constraint = vm["cluster_size_constraint"].as<double>();
 
 #ifdef GAUSS
 		// read mesh file
@@ -149,7 +158,7 @@ int main(int argc, char *argv[])
 
 		typedef NiHu::fmm::helmholtz_3d_hf_fmm<wave_number_t> fmm_t;
 
-		double leaf_diameter = 1. / std::real(k);
+		double leaf_diameter = std::max(1. / std::real(k), min_clus_size_constraint);
 
 		if (vm.count("solve") > 0)
 		{
@@ -164,7 +173,7 @@ int main(int argc, char *argv[])
 			solver.set_restart(restart);
 			solver.set_accuracy(accuracy);
 			solver.set_far_field_order(far_field_quadrature_order);
-			cvector_t p_surf = solver.solve(NiHu::fmm::divide_diameter(leaf_diameter));
+			cvector_t p_surf = solver.solve(NiHu::fmm::divide_diameter(leaf_diameter) /* NiHu::fmm::divide_depth(4)*/);
 
 			// export ps
 			export_response(surface_result_name, p_surf, k, solver.get_iterations());

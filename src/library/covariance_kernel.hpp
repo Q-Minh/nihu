@@ -121,7 +121,7 @@ public:
 	
 	double get_stddev(void) const
 	{
-		return m_sigma;
+		return m_sigma;	
 	}
 	
 	double get_variance(void) const

@@ -126,6 +126,9 @@ public:
 			create_field_center_iterator(m_trial_space.template field_end<trial_field_t>()),
 			divide.derived());
 
+		
+		std::cout << "Tree:\n" << tree << std::endl;
+		
 		// instantiate the fmm object
 		std::cout << "Instantiating fmm object ..." << std::endl;
 		fmm_t fmm(m_wave_number);

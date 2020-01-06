@@ -17,6 +17,7 @@ for d = 1 : 5
 end
 
 for d = 1 : 5
-    fprintf(1, 'inner_cycle_fmm %d %d %d %03d\n', ...
-        flim(d,1)*2, 1, flim(d,2)*2, floor(100/d))
+    Le = .1 / d;
+    fprintf(1, 'inner_cycle_fmm %d %d %d %03d %g\n', ...
+        flim(d,1)*2, 1, flim(d,2)*2, floor(100/d), 2*Le)
 end
