@@ -10,13 +10,16 @@
 #include "fmm_operator.hpp"
 
 #include "integral_operator_expression.hpp"
+#include "kron_identity.hpp"
 #include "core/jacobian_computer.hpp"
 #include "util/matrix_traits.hpp"
 #include "util/type2tag.hpp"
 
 #include <type_traits> // std::enable_if
 
+#if 0
 #include "mex.h"
+#endif
 
 namespace NiHu
 {
@@ -96,7 +99,9 @@ public:
 	 */
 	result_t operator()(test_input_t const &to, trial_input_t const &from) const
 	{
+#if 0
 		static bool printed = false;
+#endif
 
 		result_t mat = result_t::Zero(result_rows, cols(from));
 		elem_t const &elem = to.get_elem();
