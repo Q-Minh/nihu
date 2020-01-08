@@ -16,6 +16,8 @@
 
 #include <type_traits> // std::enable_if
 
+#include "mex.h"
+
 namespace NiHu
 {
 namespace fmm
@@ -65,8 +67,10 @@ public:
 	typedef typename domain_t::xi_t xi_t;
 	typedef NiHu::gaussian_quadrature<domain_t> quadrature_t;
 
+	static size_t const op_num_rows = num_rows<typename operator_t::result_t>::value;
+
 	static size_t const result_rows =
-		num_rows<typename operator_t::result_t>::value * nset_t::num_nodes;
+		op_num_rows * nset_t::num_nodes;
 
 	x2p_integral(Operator &&op, size_t order)
 		: m_op(std::forward<Operator>(op))
@@ -92,6 +96,8 @@ public:
 	 */
 	result_t operator()(test_input_t const &to, trial_input_t const &from) const
 	{
+		static bool printed = false;
+
 		result_t mat = result_t::Zero(result_rows, cols(from));
 		elem_t const &elem = to.get_elem();
 		// traverse quadrature elements
@@ -101,8 +107,25 @@ public:
 			double w = q.get_w();
 			typename operator_t::test_input_t tsi(elem, xi);
 			double jac = jacobian_computer<elem_t>::eval(elem, xi);
-			mat += nset_t::template eval_shape<0>(xi) * (w * jac)
-				* m_op(tsi, from);
+			auto N = (nset_t::template eval_shape<0>(xi) * (w * jac)).eval();
+
+			mat += create_kron_identity<op_num_rows>(N) * m_op(tsi, from);
+#if 0
+			if (!printed) {
+				printed = true;
+				mexPrintf("Size of kmat in m2p integral: %d x %d\n", mat.rows(), mat.cols());
+			}
+#endif
+#if 0
+			auto op = m_op(tsi, from);
+			for (Eigen::Index i = 0; i < N.rows(); ++i)
+				mat.block(i * op_num_rows, 0, op_num_rows, cols(from)) += N(i, 0) * op;
+
+			if (!printed) {
+				printed = true;
+				mexPrintf("Size of op in m2p integral: %d x %d\n", op.rows(), op.cols());
+			}
+#endif
 		}
 		return mat;
 	}

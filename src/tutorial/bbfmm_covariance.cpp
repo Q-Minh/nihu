@@ -48,7 +48,7 @@ class C
 {
 public:
 	C(int argc, char const *argv[])
-		: m_kernel(1., .1)
+		: m_kernel(kernel_t::field_variance_t(1.0), .1)
 		, m_bbfmm(m_kernel)
 		, m_mesh(NiHu::read_off_mesh(argv[1], elem_tag_t()))
 		, m_space(NiHu::constant_view(m_mesh))

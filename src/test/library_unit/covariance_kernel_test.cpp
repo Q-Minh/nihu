@@ -53,11 +53,11 @@ int main(void)
     coords2 << 2., 3.;
     NiHu::line_1_volume_elem elem1(coords1), elem2(coords2);
 
-	double variance = 2;
+	// Test unidimensional exponential
+	typedef NiHu::exponential_covariance_kernel<NiHu::line_1_volume_elem::space_t, NiHu::field_dimension::_1d> exp_kernel_1d_t;
+	exp_kernel_1d_t::field_variance_t variance(2.0);
 	double d = 2;
-
-	NiHu::exponential_covariance_kernel<NiHu::line_1_volume_elem::space_t, NiHu::field_dimension::_1d> C(variance, d);
-
+	exp_kernel_1d_t C(variance, d);
 	std::cout << "Evaluating C kernel in the center of two different elements..." << std::endl;
     std::cout << tester(C, elem1, elem2) << std::endl;
 	std::cout << "Analytic: " << std::endl;
@@ -68,13 +68,27 @@ int main(void)
 	std::cout << "Analytic: " << std::endl;
 	std::cout << 2. * d * variance * (1. - std::exp(-1./2.)) << std::endl;
 
-	// Test multidimensional
+	// Test multidimensional exponential
 	Eigen::Matrix<double, 2, 2> matrix;
 	matrix << 2.0, 1.0, 1.0, 4.0;
 	NiHu::exponential_covariance_kernel<NiHu::line_1_volume_elem::space_t, NiHu::field_dimension::_2d> C2(matrix, d);
 	std::cout << tester(C2, elem1, elem2) << std::endl;
-	
 	std::cout << singular_integral_test(C2, elem1) << std::endl;
+
+	// Test multidimensional Gaussian
+	NiHu::quad_1_volume_elem::coords_t qcoords;
+	qcoords << 0.0, 1.0, 1.0, 0.0,
+		0.0, 0.0, 1.0, 1.0;
+	NiHu::quad_1_volume_elem qelem(qcoords);
+	size_t const fdim = 3;
+	size_t const sdim = 2;
+	Eigen::Matrix<double, fdim, fdim> FieldVar;
+	FieldVar.setIdentity();
+	Eigen::Matrix<double, sdim, sdim> SpaceVar;
+	SpaceVar.setIdentity();
+	NiHu::gaussian_covariance_kernel<NiHu::space<double, sdim>, NiHu::field_dimension::_3d> GK(FieldVar, SpaceVar);
+
+	tester(GK, qelem, qelem);
 	
     return 0;
 }

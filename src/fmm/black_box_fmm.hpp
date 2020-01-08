@@ -389,6 +389,7 @@ public:
 
 		result_t operator()(test_input_t const &to, trial_input_t const &from) const
 		{
+			/** \todo the Kronecker identity is computed physilly */
 			size_t n = from.get_chebyshev_nodes().cols();
 			result_t res(rows(to), cols(from));
 			for (size_t i = 0; i < n; ++i)

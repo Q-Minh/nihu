@@ -1,4 +1,4 @@
-/** 
+/**
  * \file kron_identity.hpp
  * \brief kronecker product of a matrix by an Identity matrix
  * \ingroup fmm_util
@@ -12,6 +12,8 @@
 #include <type_traits>
 #include <utility>
 
+#include "mex.h"
+
 namespace NiHu
 {
 namespace fmm
@@ -24,33 +26,30 @@ public:
 	typedef typename std::decay<Lhs>::type lhs_t;
 	static unsigned const dimension = Dim;
 	typedef typename lhs_t::Scalar scalar_t;
-	typedef Eigen::Matrix<
-		scalar_t,
-		Eigen::Dynamic,
-		dimension,
-		Dim == 1 ? Eigen::ColMajor : Eigen::RowMajor // column vector can not be RowMajor
-	> rhs_matrix_t;
+	static Eigen::Index const lhs_rows_compile_time = lhs_t::RowsAtCompileTime;
+	static Eigen::Index const result_rows_compile_time =
+		lhs_rows_compile_time == Eigen::Dynamic ? Eigen::Dynamic : dimension * lhs_rows_compile_time;
 
 	kron_identity()
 	{
 	}
 
-	explicit kron_identity(Lhs&& lhs)
+	explicit kron_identity(Lhs &&lhs)
 		: m_lhs(std::forward<Lhs>(lhs))
 	{
 	}
 
-	Eigen::Matrix<scalar_t, Eigen::Dynamic, 1>
-		operator*(Eigen::Matrix<scalar_t, Eigen::Dynamic, 1> const& rhs) const
+	template <class RhsDerived>
+	Eigen::Matrix<scalar_t, result_rows_compile_time, RhsDerived::ColsAtCompileTime>
+		operator*(Eigen::MatrixBase<RhsDerived> const &rhs) const
 	{
-		/// \todo reimplement this functionality using Eigen::Reshape when Eigen 3.3.9 becomes stable
-
-		// allocate vector result
-		Eigen::Matrix<scalar_t, Eigen::Dynamic, 1> res(m_lhs.rows() * dimension, 1);
-		// compute result
-		Eigen::Map<rhs_matrix_t>(res.data(), m_lhs.rows(), dimension) =
-			m_lhs *
-			Eigen::Map<const rhs_matrix_t>(rhs.data(), m_lhs.cols(), dimension);
+		// allocate  result
+		Eigen::Matrix<scalar_t, result_rows_compile_time, RhsDerived::ColsAtCompileTime> res(m_lhs.rows() * dimension, rhs.cols());
+		res.setZero();
+		for (Eigen::Index i = 0; i < m_lhs.rows(); ++i)
+			for (Eigen::Index j = 0; j < m_lhs.cols(); ++j)
+				res.block(i * dimension, 0, dimension, rhs.cols()) +=
+				m_lhs(i, j) * rhs.block(j * dimension, 0, dimension, rhs.cols());
 		return res;
 	}
 
@@ -59,7 +58,7 @@ private:
 };
 
 template <size_t Dim, class Lhs>
-kron_identity<Lhs, Dim> create_kron_identity(Lhs&& lhs)
+kron_identity<Lhs, Dim> create_kron_identity(Lhs &&lhs)
 {
 	return kron_identity<Lhs, Dim>(std::forward<Lhs>(lhs));
 }

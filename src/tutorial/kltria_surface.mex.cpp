@@ -21,24 +21,30 @@
 #include "util/mex_matrix.hpp"
 #include "library/lib_element.hpp"
 
-typedef NiHu::field_dimension::_2d problem_dim_t;
-static const unsigned int dim = problem_dim_t::value;
+typedef NiHu::field_dimension::_2d field_dim_t;
+static const unsigned int field_dim = field_dim_t::value;
+typedef NiHu::space_3d<> space_t;
+static const unsigned int space_dim = space_t::dimension;
+
 typedef NiHu::mex::real_matrix<double> dMatrix;
 
-typedef Eigen::Matrix<double, dim, dim> vMatrix;
+typedef Eigen::Matrix<double, field_dim, field_dim> field_var_t;
+typedef Eigen::Matrix<double, space_dim, space_dim> space_var_t;
 
-// [D, B] = mex(nodes, elements, var, d);
+typedef NiHu::gaussian_covariance_kernel<space_t, field_dim_t> kernel_t;
+
+// [D, B] = mex(nodes, elements, field_var, space_var);
 void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 {
 	dMatrix nodes(rhs[0]), elem(rhs[1]);
 	auto mesh = NiHu::create_mesh(nodes, elem, NiHu::tria_1_tag());
-	auto const &w = NiHu::isoparametric_view(mesh, problem_dim_t());
+	auto const &w = NiHu::isoparametric_view(mesh, field_dim_t());
 
 	
-	//double var = NiHu::mex::get_scalar<double>(rhs[2]);
-	vMatrix var = NiHu::mex::matrix<double>(rhs[2]);
-	double d = NiHu::mex::get_scalar<double>(rhs[3]);
-	auto C = NiHu::create_integral_operator(NiHu::exponential_covariance_kernel<NiHu::space_3d<>, problem_dim_t >(var, d));
+	field_var_t field_var = NiHu::mex::matrix<double>(rhs[2]);
+	space_var_t space_var = NiHu::mex::matrix<double>(rhs[3]);
+	kernel_t kernel(field_var, space_var);
+	auto C = NiHu::create_integral_operator(kernel);
 	auto I = NiHu::identity_integral_operator();
 	
 	size_t N = w.get_num_dofs();

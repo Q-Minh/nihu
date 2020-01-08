@@ -13,6 +13,7 @@
 #include "fmm/cluster_tree.hpp"
 #include "fmm/divide.hpp"
 #include "fmm/elem_center_iterator.hpp"
+#include "fmm/fmm_assembly_times.hpp"
 #include "fmm/fmm_indexed.hpp"
 #include "fmm/fmm_integrated.hpp"
 #include "fmm/fmm_matrix.hpp"
@@ -34,57 +35,28 @@
 // Mex matrix types
 typedef NiHu::mex::real_matrix<double> dMatrix;
 
-/**
- * @brief Helper class for storing FMM assembly times 
- */
-class fmm_assembly_times
-{
-	using timer = NiHu::fmm::fmm_timer;
-public:
-	/** 
-	 * @brief Fill the assembly time from an operator collection
-	 * @tparam Collection The operator collection class
-	 * @param[in] coll Collection instance
-	 */
-	template <class Collection>
-	void fill_times(Collection const & coll)
-	{
-		m_times[timer::M2M] = coll.get(NiHu::fmm::op_tags::idx2tag<timer::M2M>::type()).get_assembly_time();
-		m_times[timer::L2L] = coll.get(NiHu::fmm::op_tags::idx2tag<timer::L2L>::type()).get_assembly_time();
-		m_times[timer::M2L] = coll.get(NiHu::fmm::op_tags::idx2tag<timer::M2L>::type()).get_assembly_time();
-		
-		m_times[timer::P2M] = coll.get(NiHu::fmm::op_tags::idx2tag<timer::P2M>::type()).get_assembly_time();
-		m_times[timer::P2L] = coll.get(NiHu::fmm::op_tags::idx2tag<timer::P2L>::type()).get_assembly_time();
-		m_times[timer::L2P] = coll.get(NiHu::fmm::op_tags::idx2tag<timer::L2P>::type()).get_assembly_time();
-		m_times[timer::M2P] = coll.get(NiHu::fmm::op_tags::idx2tag<timer::M2P>::type()).get_assembly_time();
-		
-		m_times[timer::P2P] = coll.get(NiHu::fmm::op_tags::idx2tag<timer::P2P>::type()).get_assembly_time();
-	}
-	
-	/**
-	 * @brief Returns the assembly time for the given operation index
-	 * @return Assembly time in microsecond units
-	 */
-	size_t const get_time(size_t idx) const
-	{
-		return m_times[idx];
-	}
-	
-private:
-	size_t m_times[timer::NUM_TIME_INDICES];
-};
+
 
 class fmm_matlab
 {
+public:
 	typedef NiHu::quad_1_volume_elem elem_t;
 	typedef NiHu::type2tag<elem_t>::type elem_tag_t;
-	typedef NiHu::field_view<elem_t, NiHu::field_option::constant> trial_field_t;
+	typedef NiHu::field_dimension::_2d field_dim_t;
+	typedef NiHu::field_view<elem_t, NiHu::field_option::constant, field_dim_t> trial_field_t;
 	typedef NiHu::type2tag<trial_field_t>::type trial_field_tag_t;
 
 	typedef trial_field_t test_field_t;
 	typedef NiHu::type2tag<test_field_t>::type test_field_tag_t;
 
-	typedef NiHu::exponential_covariance_kernel<NiHu::space_2d<>, NiHu::field_dimension::_1d> kernel_t;
+	typedef NiHu::space_2d<> space_t;
+
+
+	typedef NiHu::gaussian_covariance_kernel<space_t, field_dim_t> kernel_t;
+
+	typedef kernel_t::space_variance_t space_variance_t;
+	typedef kernel_t::field_variance_t field_variance_t;
+
 	typedef NiHu::fmm::black_box_fmm<kernel_t> fmm_t;
 
 	typedef NiHu::mesh<tmp::vector<elem_t> > mesh_t;
@@ -92,7 +64,7 @@ class fmm_matlab
 	typedef fmm_t::cluster_t cluster_t;
 	typedef NiHu::fmm::cluster_tree<cluster_t> cluster_tree_t;
 
-	typedef NiHu::fmm::p2p_precompute<double, 1, 1> p2p_pre_t;
+	typedef NiHu::fmm::p2p_precompute<double, field_dim_t::value, field_dim_t::value> p2p_pre_t;
 	typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> dmatrix_t;
 	typedef NiHu::fmm::p2x_precompute<dmatrix_t, NiHu::fmm::p2m_tag> p2m_pre_t;
 	typedef NiHu::fmm::p2x_precompute<dmatrix_t, NiHu::fmm::p2l_tag> p2l_pre_t;
@@ -102,6 +74,9 @@ class fmm_matlab
 	typedef NiHu::fmm::x2x_precompute<fmm_t::l2l::result_t, cluster_t, NiHu::fmm::l2l_tag> l2l_pre_t;
 	typedef NiHu::fmm::x2x_precompute<fmm_t::m2l::result_t, cluster_t, NiHu::fmm::m2l_tag> m2l_pre_t;
 
+	//NOTE: For not-on-the-fly
+	//typedef NiHu::fmm::x2x_cluster_indexed<fmm_t::m2l> m2l_cidx_t;
+
 	typedef NiHu::fmm::fmm_matrix<
 		p2p_pre_t,
 		p2m_pre_t,
@@ -110,9 +85,9 @@ class fmm_matlab
 		l2p_pre_t,
 		m2m_pre_t,
 		l2l_pre_t,
-		m2l_pre_t> fmm_matrix_t;
+		m2l_pre_t
+	> fmm_matrix_t;
 	
-public:
 	fmm_matlab()
 		: p_surf_mesh(nullptr)
 		, p_tree(nullptr)
@@ -144,7 +119,7 @@ public:
 	void create_matrix()
 	{
 
-		kernel_t kernel(m_sigma, m_cov_length);
+		kernel_t kernel(m_field_variance, m_space_variance);
 		p_fmm = new fmm_t(kernel);
 
 		// initialize tree data
@@ -178,6 +153,8 @@ public:
 			pre_fctr(idx_fctr(p_fmm->create_m2m())),
 			pre_fctr(idx_fctr(p_fmm->create_l2l())),
 			pre_fctr(idx_fctr(p_fmm->create_m2l()))
+			//FOR not-on-the-fly
+			//idx_fctr(p_fmm->create_m2l())
 		);
 		
 		p_fmm_matrix = new fmm_matrix_t(NiHu::fmm::create_fmm_matrix(
@@ -238,14 +215,14 @@ public:
 		return p_fmm_matrix;
 	}
 	
-	void set_sigma(double sigma)
+	void set_field_variance(field_variance_t const &fvar)
 	{
-		m_sigma = sigma;
+		m_field_variance = fvar;
 	}
 
-	void set_cov_length(double length)
+	void set_space_variance(space_variance_t const& svar)
 	{
-		m_cov_length = length;
+		m_space_variance = svar;
 	}
 
 	void set_cheb_order(size_t order)
@@ -272,8 +249,8 @@ private:
 	p2p_pre_t *p_I_pre;
 	fmm_assembly_times m_assembly_times;
 	
-	double m_sigma;
-	double m_cov_length;
+	field_variance_t m_field_variance;
+	space_variance_t m_space_variance;
 	size_t m_cheb_order;
 };
 
@@ -328,12 +305,12 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, mxArray const *prhs[])
 			}
 			char const *what_to_set = mxArrayToString(prhs[2 * i + 1]);
 
-			if (!strcmp(what_to_set, "sigma")) {
-				double sigma = mxGetScalar(prhs[2 * i + 2]);
-				p->set_sigma(sigma);
-			} else if (!strcmp(what_to_set, "cov_length")) {
-				double cov_length = mxGetScalar(prhs[2 * i + 2]);
-				p->set_cov_length(cov_length);
+			if (!strcmp(what_to_set, "fvar")) {
+				fmm_matlab::field_variance_t fvar = NiHu::mex::matrix<double>(prhs[2 * i + 2]);
+				p->set_field_variance(fvar);
+			} else if (!strcmp(what_to_set, "svar")) {
+				fmm_matlab::space_variance_t svar = NiHu::mex::matrix<double>(prhs[2 * i + 2]);
+				p->set_space_variance(svar);
 			} else if (!strcmp(what_to_set, "cheb_order")) {
 				double cheb_order = mxGetScalar(prhs[2 * i + 2]);
 				p->set_cheb_order(size_t(cheb_order));
