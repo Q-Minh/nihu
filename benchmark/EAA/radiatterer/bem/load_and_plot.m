@@ -9,6 +9,7 @@ cases = { ...
     'conv', 'gauss', 100e-3;
     'fmm',  'gauss', 100e-3;
     'fmm',  'gauss',  50e-3;
+    'fmm',  'gauss',  33e-3;
 };
 
 n_cases = size(cases, 1);
