@@ -1,80 +1,77 @@
+% run_pac.m
+% Run the Pac-Man at a selected frequency and excitation case
+% Requires that mesh is generated 
 clear;
 
-%%
-Le = 2e-3;
-[pac, field, k, q_surf, qs_scat_line, pf_in_line] = create_pac_man(Le);
+Le = 3e-3;
+freq = 4000;
+field = 'field';
+type = 'rad';
 
-%% export surface mesh
-surf_off_name = sprintf('data/pac_man_surf_%gmm.off', Le*1000);
-export_off_mesh(pac, surf_off_name);
+runner_name = 'runner_msvc.bat';
 
-%% export field point mesh
-line_field = field;
-line_field.Elements(:,2) = ShapeSet.LinearLine.Id;
-line_field.Elements(:,5:6) = field.Elements(:,[5 7]);
-line_field.Elements(:,7:end) = [];
+% Prefix for output files
+pattern = sprintf('pac_man_%03dmm_%s_%05dHz', Le*1000, type, freq);
+surf_mesh_name = fullfile('mesh', sprintf('pac_man_surf_%03dmm.off', Le*1000));
+surf_mesh = import_off_mesh(surf_mesh_name);
+field_mesh_name = fullfile('mesh', sprintf('pac_man_%s_%03dmm.off', field, Le*1000));
 
-field_off_name = sprintf('data/pac_man_field_%gmm.off', Le*1000);
-export_off_mesh(line_field, field_off_name);
+%% create excitation
+c = 343.21;         % Reference speed of sound for Pac-Man [m/s]
 
-%%
-pattern = sprintf('data/pac_man_%gmm', 1000*Le);
-exe_name = 'helmholtz_2d_wb_fmm_standalone_msvc.exe';
+k = 2*pi*freq/c;       % Wave number [rad/m]
 
+q_surf = create_pac_man_exc(surf_mesh, [], k, type);
 
-%% solve radiation problem
-export_excitation(q_surf, k, sprintf('%s_rad.xct', pattern));
-command = sprintf('%s %s %s %s', exe_name, surf_off_name, field_off_name, sprintf('%s_rad', pattern));
-[status_rad, result_rad] = system(command);
-disp(result_rad);
-ps_rad = import_response(sprintf('%s_rad_surf.res', pattern));
-pf_rad = import_response(sprintf('%s_rad_field.res', pattern));
-save(sprintf('%s_rad_surf', pattern), 'result_rad', 'ps_rad', 'pf_rad', 'pac', 'field');
+surf_exc_name = fullfile('data', sprintf('%s.xct', pattern));
+export_excitation(q_surf, k, surf_exc_name);
 
-%%
-figure;
-plot([real(ps_rad) imag(ps_rad)]);
-title('Radiated pressure on surface');
+surf_result_name = fullfile('data', sprintf('%s_ps.res', pattern));
+field_result_name = fullfile('data', sprintf('%s_%s_pf.res', pattern, field));
 
-figure;
-plot_mesh(field, 20*log10(abs(pf_rad)/2e-5));
-shading flat;
-axis equal tight off;
-cb = colorbar;
-ylabel(cb, 'Sound pressure level [dB]');
-caxis([120 150]);
+%% call the runner that solves the problem
+stdout_file_name = fullfile('data', sprintf('%s_%s_stdout.txt', pattern, field));
+command = sprintf('%s %s %s %s %s %s > %s', ...
+    runner_name, surf_mesh_name, surf_exc_name, surf_result_name, field_mesh_name, field_result_name, stdout_file_name);
+fprintf('Calling 2D WB FMM executable ...\n'); tic;
+[status, result] = system(command);
+fprintf('Completed in %.2f seconds.\n', toc);
+if status == 0 && isempty(result)
+    fprintf('Command succeeded.\n');
+else
+    fprintf('Error occured during execution, result: %s\n', result);
+end
 
-figure;
-plot_mesh(field, real(pf_rad));
-shading flat;
-axis equal tight off;
-cb = colorbar;
-ylabel(cb, 'Sound pressure [Pa]');
-hold on;
-plot_mesh(pac);
+%% import the results to convert to Matlab
+ps = import_response(surf_result_name);
+pf = import_response(field_result_name);
 
-%% solve line scattering problem
-export_excitation(qs_scat_line, k, sprintf('%s_line.xct', pattern));
-command = sprintf('%s %s %s %s', exe_name, surf_off_name, field_off_name, sprintf('%s_line', pattern));
-[status_line, result_line] = system(command);
-disp(result_line);
-ps_line = import_response(sprintf('%s_line_surf.res', pattern));
-pf_line = import_response(sprintf('%s_line_field.res', pattern));
-save(sprintf('%s_line', pattern), 'result_line', 'ps_line', 'pf_line', 'pac', 'field');
+%% Process timing info from standard output
+fid = fopen(stdout_file_name, 'rt');
+txt = textscan(fid, '%s', 'delimiter', '\n');
+txt = txt{1};
+fclose(fid);
 
-%%
-figure;
-plot_mesh(field, 20*log10(abs(pf_in_line+pf_line)/2e-5));
-shading flat;
-axis equal tight off;
-cb = colorbar;
-ylabel(cb, 'Sound pressure level [dB]');
+% Find number of threads
+rows = find(strncmp('Expanding to ', txt, length('Expanding to ')));
+n_threads = sscanf(txt{rows(end)}, 'Expanding to %d threads');
 
-figure;
-plot_mesh(field, real(pf_in_line+pf_line));
-shading flat;
-axis equal tight off;
-cb = colorbar;
-ylabel(cb, 'Sound pressure [Pa]');
-hold on;
-plot_mesh(pac);
+rows = strncmp('Level #', txt, length('Level #'));
+from = find(diff(rows) == 1, 1, 'last');
+to = find(diff(rows) == -1, 1, 'last');
+txt = txt(from+1 : to+1, :);
+
+data = zeros(length(txt)-1, 4);
+for k = 1 : length(txt) - 1
+    data(k,:) = sscanf(txt{k}, 'Level #%d: M2M (%d), M2L (%d), L2L (%d)');
+end
+
+levels = data(3:end,1);
+times = data(3:end,2:end);
+% Note: should number of threads be taken into account?
+% Convert from microseconds to seconds
+times = times / 1e6;
+
+%% Save the result
+save(fullfile('data', sprintf('%s_%s_result', pattern, field)), ...
+    'ps', 'pf', 'levels', 'times', 'n_threads');
