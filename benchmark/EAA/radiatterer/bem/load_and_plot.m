@@ -18,7 +18,7 @@ f = cell(n_cases, 1);       % Frequencies in Hz
 pf = cell(n_cases, 1);      % Field point pressures
 
 
-% Load conventional data
+% Load field point data
 for i_case = 1 : n_cases
     method = cases{i_case, 1};
     form   = cases{i_case, 2};      % Formalism (const / gauss)
@@ -57,19 +57,113 @@ for i_case = 1 : n_cases
         n_files, method, form, round(le*1e3));
 end
 
+%% Surface quantities
+fs = cell(n_cases, 1);
+P = cell(n_cases, 1);
+iters = cell(n_cases, 1);
+
+% Load the number of iterations
+for i_case = 1 : n_cases
+    method = cases{i_case, 1};
+    form   = cases{i_case, 2};      % Formalism (const / gauss)
+    le     = cases{i_case, 3};
+    fname_pat = sprintf('data_%s/%s_%03dmm/%s_%03dmm_*Hz_ps.res', ...
+       method, form, round(le*1000), form, round(le*1000));
+    files = dir(fname_pat);    
+    n_files = numel(files);
+    
+    P{i_case} = nan(n_files, 1);
+    iters{i_case} = nan(n_files, 1);
+    
+    for i_file = 1 : n_files
+        progbar(1, n_files, i_file);
+        
+        fname = sprintf('data_%s/%s_%03dmm/%s', ...
+            method, form, round(le*1000), files(i_file).name);
+        fid = fopen(fname, 'rt');
+        data = fscanf(fid, '%g', 2);
+        % Store freq 
+        fs{i_case}(i_file) = data(1) * c / (2*pi);
+        data = fscanf(fid, '%g', [2 data(2)]);
+        ps = complex(data(1,:), data(2,:)).';
+        data = fscanf(fid, '%g', 1);
+        fclose(fid);
+        iters{i_case}(i_file) = data(1);
+        % Calculate radiated sound power
+        P{i_case}(i_file) = sum(real(ps), 1)*le^2 / 4;
+        
+    end
+    
+     % Sort the results
+    [fs{i_case}, idx] = sort(fs{i_case}, 'ascend');
+    P{i_case} = P{i_case}(idx);
+    iters{i_case} = iters{i_case}(idx);
+    
+    fprintf('Loaded %d surface results of case: %s %s le = %d mm\n', ...
+        n_files, method, form, round(le*1e3));
+end
 %%
 close all;
-for i = 1 : n_field
-    figure;
+fig = figure;
+hold on;
+formatfig(fig, [9 4.5], [1.25 1 1 1]);
+for i_case = 1 : n_cases
+    plot(fs{i_case}, iters{i_case});
+end
+ylabel('#iterations');
+xlabel('Frequency [Hz]');
+set(gca, 'FontSize', 8);
+setfig(fig, 'LineWidth', .75);
+hl = legend({'Conv. BEM, l = 10 cm', 'FMBEM, l = 10 cm', 'FMBEM, l = 5 cm'});
+pl = get(hl, 'Position');
+pa = get(gca, 'Position');
+set(hl, 'Position', [pa(1), pa(2)+pa(4)-pl(4), pl(3), pl(4)]);
+grid;
+ylim([0 2000]);
+printpdf(fig, 'radiatterer_iters.pdf');
+%%
+close all;
+fig = figure;
+formatfig(fig, [9 7.5], [1.25 1 1 1]);
+iField = [6 5];
+for i = 1 : 2
+subplot(2,1,i);
     hold on;
     leg = cell(n_cases, 1);
     for i_case = 1 : n_cases
-        plot(f{i_case}, 20*log10(abs(pf{i_case}(:,i))/2e-5));
+        plot(f{i_case}, 20*log10(abs(pf{i_case}(:,iField(i)))/2e-5));
         leg{i_case} = sprintf('%s %s le = %3d', ...
             cases{i_case, 1}, cases{i_case, 2}, round(cases{i_case, 3}*1e3));
     end
-    legend(leg);
+    ylim([60 160]);
+    if i == 1
+        hl = legend({'Conv. BEM, l = 10 cm', 'FMBEM, l = 10 cm', 'FMBEM, l = 5 cm'});
+    end
+    if (i == 1)
+        set(gca, 'xTickLabel', []);
+    end
+    if (i == 2)
+        xlabel('Frequency [Hz]');
+    end
+    grid;
+    
+    p = get(gca, 'position');
+    p(4) = p(4) * 1.15;
+    set(gca, 'position', p);
+    
+    setfig(fig, 'LineWidth', .75);
+    set(gca, 'FontSize', 8);
+    
+    ylabel('SPL [dB]');
+    
+    if i == 1
+        pl = get(hl, 'Position');
+        pa = get(gca, 'Position');
+        set(hl, 'Position', [pa(1)+pa(3)-pl(3), pa(2)+pa(4)-pl(4), pl(3), pl(4)]);
+    end
 end
+
+printpdf(fig, 'radiatterer_field_result.pdf');
 
 %% Load surface results
 P_conv = nan(length(freqvec), 1);

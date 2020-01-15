@@ -1,4 +1,6 @@
-function [mesh, field, k, q_surf, qs_scat_line, pf_in_line] = create_pac_man(Le)
+function [mesh, field, dirfield, dirreffield] = create_pac_man(Le)
+% References:
+%   [1] https://eaa-bench.mec.tuwien.ac.at/fileadmin/t/eaa/PACMAN_benchmark_case.pdf
 
 phi0 = pi/6;
 R = 1;
@@ -38,31 +40,22 @@ field.Elements = field.Elements(keep,:);
 field = drop_unused_nodes(field);
 field = drop_mesh_IDs(field);
 
-%% create surface excitation
-rho = 1.2041;
-c = 343.21;
+%% create field point mesh for directivity
+R0 = 2;
+N_phi = 360*100;
+dirfield = create_circle_boundary(R0, N_phi);
+%dirfield = rotate_mesh(dirfield, pi/N_phi, [0 0 -1]);
+xf = centnorm(dirfield);
+dirfield = scale_mesh(dirfield, mean(R0./sqrt(dot(xf,xf,2))));
+dirfield.Nodes(:,4) = 0;
 
-lambda = 8*Le;
-k_max = 2*pi/lambda;
+%% Create field point mesh for reference directivity
+r = 2;
+Nphi = 72;
+dirreffield = create_circle_boundary(r, Nphi);
+%dirreffield = rotate_mesh(dirreffield, pi/N_phi, [0 0 -1]);
+xf = centnorm(dirreffield);
+dirreffield = scale_mesh(dirreffield, mean(r./sqrt(dot(xf,xf,2))));
+dirreffield.Nodes(:,4) = 0;
 
-k = .7 * k_max;
-om = k * c;
-freq = floor(om/2/pi);
-
-v_surf = zeros(N,1);
-[~, sel] = mesh_select(mesh, 'abs(r-1) < 1e-4', 'ind');
-v_surf(sel) = 1;
-
-q_surf = -1i*om*rho*v_surf;
-
-%% create line excitation
-r0 = [4 * cos(pi/4), 4 * sin(pi/4) 0];
-
-[x0, n0] = centnorm(mesh);
-[~, qs_in_line] = incident('line', r0, x0, n0, k);
-qs_scat_line = -qs_in_line;
-
-x0 = centnorm(field);
-pf_in_line = incident('line', r0, x0, [], k);
-
-end
+end % of function create_pac_man
