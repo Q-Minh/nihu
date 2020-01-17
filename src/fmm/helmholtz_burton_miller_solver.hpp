@@ -140,6 +140,7 @@ public:
 		fmm.init_level_data(tree);
 		for (size_t c = 0; c < tree.get_n_clusters(); ++c)
 			tree[c].set_p_level_data(&fmm.get_level_data(tree[c].get_level()));
+
 #if NIHU_FMM_PARALLEL
 		auto max_num_threads = omp_get_max_threads();
 		std::cout << "Expanding to " << max_num_threads << " threads" << std::endl;

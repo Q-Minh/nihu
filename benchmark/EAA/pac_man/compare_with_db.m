@@ -39,7 +39,7 @@ switch type
         k = 2*pi*freq/c;
         [~, pf_inc] = create_pac_man_exc(surf_mesh, field_mesh, k, type);
         pf_inc = pf_inc * (4j);
-        pf = pf + pf_inc;
+%         pf = pf + pf_inc;
 end
 
 %% Load database
@@ -73,4 +73,8 @@ legend({'NiHu solution', 'Reference solution'}, 'Location', 'SouthWest');
 
 %% Plot polar
 figure;
-polarplot(phi_field(idx), abs(pf(idx)));
+polarplot(phi_field(idx), abs(pf(idx))/max(abs(pf(idx))));
+% hold on 
+% polarplot(phi_db, abs(p_db), '.');
+set(gca, 'thetatick', 0 : 45 : 360);
+set(gca, 'rtick', 0:.2:1);

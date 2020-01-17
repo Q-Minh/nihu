@@ -3,10 +3,10 @@
 % Requires that mesh is generated 
 clear;
 
-Le = 3e-3;
+Le = 2e-3;
 freq = 4000;
-field = 'field';
-type = 'rad';
+field = 'dir_field';
+type = 'line';
 
 if isunix
     runner_name = 'sh runner_linux.sh';

@@ -3,7 +3,8 @@ clear;
 %% Parameters
 Le = 3e-3;
 freq = 4000;
-type = 'rad';
+c = 343.21;
+type = 'line';
 field = 'field';
 
 % Prefix for output files
@@ -31,9 +32,22 @@ fprintf('Ready in %.2f seconds.\n', toc);
 %% Result import
 load(result_name);
 
+%% Compute incident
+switch type
+    case 'rad'
+        % Incident field is zero
+        % Nothing to do
+    case 'line'
+        % Compute incident field
+        k = 2*pi*freq/c;
+        [~, pf_inc] = create_pac_man_exc(surf_mesh, field_mesh, k, type);
+        pf_inc = pf_inc * (4j);
+        pf_scat = pf + pf_inc;
+end
+
 %% plot scattered field
 fig = figure;
-formatfig(fig, [12 8], [0 .5 .5 .5]);
+formatfig(fig, [9 7], [0 .5 .5 .5]);
 hold on;
 plot_mesh(surf_mesh);
 plot_mesh(field_mesh, 20*log10(abs(pf/2e-5)));
@@ -42,24 +56,26 @@ shading flat;
 cb = colorbar;
 ylabel(cb, 'SPL [dB]');
 cx = caxis;
-caxis(max(cx) + [-40 0]);
+%caxis(max(cx) + [-40 0]);
+caxis([35 75]);
 axis off;
-print('-dpng', '-r600', sprintf('%s_rad_abs', pattern));
-close(fig);
+set(gca, 'FontSize', 8);
+%print('-dpng', '-r600', sprintf('%s_abs.png', pattern));
+%close(fig);
 
 
 %% timing
 
-fig = figure;
-formatfig(fig);
-bar(levels, times);
-set(gca, 'yScale', 'log');
-legend({'M2M', 'M2L', 'L2L'}, 'Location', 'NorthWest');
-title(sprintf('Sum: %.2g s', sum(sum(times))));
-xlabel('level');
-ylabel('t [s]');
-
-printpdf(sprintf('%s_rad_times', pattern));
+% fig = figure;
+% formatfig(fig);
+% bar(levels, times);
+% set(gca, 'yScale', 'log');
+% legend({'M2M', 'M2L', 'L2L'}, 'Location', 'NorthWest');
+% title(sprintf('Sum: %.2g s', sum(sum(times))));
+% xlabel('level');
+% ylabel('t [s]');
+% 
+% printpdf(sprintf('%s_rad_times', pattern));
 
 
 
