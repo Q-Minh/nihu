@@ -18,7 +18,7 @@
 // basic type parameter inputs
 typedef double wave_number_t;
 
-#define GAUSS
+// #define GAUSS
 
 // computing the fmbem type
 #ifdef GAUSS

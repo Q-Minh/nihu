@@ -69,7 +69,7 @@ public:
 		}
 
 #ifdef NIHU_FMM_PARALLEL
-#pragma omp parallel for
+#pragma omp parallel for schedule(dynamic)
 #endif
 		for (int i = 0; i < to_compute.size(); ++i)
 		{
