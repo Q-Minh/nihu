@@ -3,8 +3,8 @@
 % Requires that mesh is generated 
 clear;
 
-Le = 2e-3;
-freq = 4000;
+Le = 3e-3;
+freq = 16;
 field = 'dir_field';
 type = 'line';
 

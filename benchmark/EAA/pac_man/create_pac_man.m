@@ -58,7 +58,5 @@ xfref = centnorm(dirreffield);
 dirreffield = scale_mesh(dirreffield, mean(r./sqrt(dot(xfref,xfref,2))));
 dirreffield.Nodes(:,4) = 0;
 
-dirfield = scale_mesh(dirfield, mean(sqrt(dot(xfref,xfref,2)))./R0);
-
 
 end % of function create_pac_man

@@ -39,7 +39,7 @@ switch type
         k = 2*pi*freq/c;
         [~, pf_inc] = create_pac_man_exc(surf_mesh, field_mesh, k, type);
         pf_inc = pf_inc * (4j);
-%         pf = pf + pf_inc;
+        %pf = pf + pf_inc;
 end
 
 %% Load database
