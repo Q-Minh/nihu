@@ -10,7 +10,7 @@ end
 
 k = fscanf(fid, '%g\n', 1);
 s = fscanf(fid, '%u\n', 1);
-data = fscanf(fid, '%g %g\n', [2, inf]);
+data = fscanf(fid, '%g %g\n', [2, s]);
 p = complex(data(1,:), data(2,:)).';
 fclose(fid);
 end

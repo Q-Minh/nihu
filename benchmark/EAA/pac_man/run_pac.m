@@ -3,10 +3,10 @@
 % Requires that mesh is generated 
 clear;
 
-Le = 3e-3;
+Le = 2e-3;
 freq = 4000;
-field = 'field';
-type = 'rad';
+field = 'dir_field';
+type = 'line';
 
 runner_name = 'runner_msvc.bat';
 

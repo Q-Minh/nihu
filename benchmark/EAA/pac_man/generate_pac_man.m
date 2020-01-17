@@ -12,7 +12,7 @@ surf_off_name = sprintf('mesh/pac_man_surf_%03dmm.off', Le*1000);
 export_off_mesh(pac, surf_off_name);
 
 %% export field point mesh
-if (1)
+if (0)
     export_off_mesh(field, sprintf('mesh/pac_man_field_%03dmm_quad.off', Le*1000));
     
     line_field = field;

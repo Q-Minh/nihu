@@ -54,8 +54,11 @@ r = 2;
 Nphi = 72;
 dirreffield = create_circle_boundary(r, Nphi);
 %dirreffield = rotate_mesh(dirreffield, pi/N_phi, [0 0 -1]);
-xf = centnorm(dirreffield);
-dirreffield = scale_mesh(dirreffield, mean(r./sqrt(dot(xf,xf,2))));
+xfref = centnorm(dirreffield);
+dirreffield = scale_mesh(dirreffield, mean(r./sqrt(dot(xfref,xfref,2))));
 dirreffield.Nodes(:,4) = 0;
+
+dirfield = scale_mesh(dirfield, mean(sqrt(dot(xfref,xfref,2)))./R0);
+
 
 end % of function create_pac_man

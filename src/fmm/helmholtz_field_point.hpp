@@ -131,6 +131,13 @@ public:
 		for (size_t c = 0; c < tree.get_n_clusters(); ++c)
 			tree[c].set_p_level_data(&fmm.get_level_data(tree[c].get_level()));
 
+#if NIHU_FMM_PARALLEL
+		auto max_num_threads = omp_get_max_threads();
+		std::cout << "Expanding to " << max_num_threads << " threads" << std::endl;
+		for (size_t i = 0; i < tree.get_n_levels(); ++i)
+			fmm.get_level_data(i).set_num_threads(max_num_threads);
+#endif
+
 		// create interaction lists
 		std::cout << "Computing interaction lists ..." << std::endl;
 		interaction_lists lists(tree);
@@ -160,13 +167,6 @@ public:
 			fmm.create_l2l(),
 			fmm.create_m2l()
 			).transform(idx_fctr).transform(pre_fctr);
-
-#if NIHU_FMM_PARALLEL
-		auto max_num_threads = omp_get_max_threads();
-		std::cout << "Expanding to " << max_num_threads << " threads" << std::endl;
-		for (size_t i = 0; i < tree.get_n_levels(); ++i)
-			fmm.get_level_data(i).set_num_threads(max_num_threads);
-#endif
 
 		// create matrix objects
 		std::cout << "Starting assembling | SLP | DLP | " << std::endl;

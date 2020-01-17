@@ -170,7 +170,6 @@ public:
 #ifdef NIHU_FMM_PARALLEL
 #pragma omp parallel for
 #endif
-		
 		for (int i = 0; i < list.size(); ++i)
 		{
 			size_t to = list[i];

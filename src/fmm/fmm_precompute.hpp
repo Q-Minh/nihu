@@ -150,7 +150,7 @@ auto create_precompute_functor(cluster_tree<ClusterDerived> const &tree, interac
 	return precompute_functor<ClusterDerived>(tree, lists);
 }
 
-}
-}
+} // end of namespace fmm
+} // end of namespace NiHu
 
 #endif /* FMM_PRECOMPUTE_HPP_INCLUDED */

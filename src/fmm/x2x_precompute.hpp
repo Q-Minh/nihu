@@ -5,6 +5,10 @@
 #include "fmm_operator.hpp"
 #include "lists.hpp"
 
+#ifdef NIHU_FMM_PARALLEL
+#include <omp.h>
+#endif
+
 #include "Eigen/SparseCore"
 
 #include <chrono>
@@ -35,7 +39,7 @@ public:
 	{
 		typedef typename std::decay<Operator>::type operator_t;
 		typedef Eigen::Triplet<size_t> triplet_t;
-		std::vector<triplet_t> triplets;
+		std::vector<triplet_t> triplets, to_compute;
 
 		std::vector<std::vector<bool> > ready(m_tree.get_n_levels());
 
@@ -56,13 +60,29 @@ public:
 				}
 				if (!ready[level][idx])
 				{
-					m_container[level][idx] = op(to, from);
+					to_compute.push_back(triplet_t(int(to), int(from), idx));
+//					m_container[level][idx] = op(to, from);
 					ready[level][idx] = true;
 				}
 				triplets.push_back(triplet_t(int(to), int(from), idx));
 			}
 		}
-		
+
+#ifdef NIHU_FMM_PARALLEL
+#pragma omp parallel for
+#endif
+		for (int i = 0; i < to_compute.size(); ++i)
+		{
+			size_t to = to_compute[i].row();
+			size_t from = to_compute[i].col();
+			size_t idx = to_compute[i].value();
+			size_t level = m_tree[to].get_level();
+			m_container[level][idx] = op(to, from);
+		}
+#ifdef NIHU_FMM_PARALLEL
+#pragma omp barrier
+#endif
+
 		m_indices.setFromTriplets(triplets.begin(), triplets.end());
 		auto tend = std::chrono::steady_clock::now();
 		m_assembly_time = std::chrono::duration_cast<std::chrono::microseconds>(tend - tstart).count();
