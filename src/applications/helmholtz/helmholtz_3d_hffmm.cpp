@@ -1,5 +1,7 @@
 /**
  * @file helmholtz_3d_hffmm.cpp
+ * @brief High frequency fast multipole BEM for the Helmholtz equation in 3D
+ * @ingroup app_helmholtz
  */
 
 #include "core/field.hpp"
@@ -18,7 +20,7 @@
 // basic type parameter inputs
 typedef double wave_number_t;
 
-#define GAUSS
+//#define GAUSS
 
 // computing the fmbem type
 #ifdef GAUSS
@@ -196,7 +198,6 @@ int main(int argc, char *argv[])
 			// field point pressure
 			auto field = NiHu::read_off_mesh(field_mesh_name, NiHu::quad_1_tag());
 			auto const &test_space = NiHu::dirac(NiHu::constant_view(field));
-			typedef std::decay<decltype(test_space)>::type test_space_t;
 
 			auto field_bir = NiHu::fmm::create_helmholtz_field_point(
 				NiHu::type2tag<fmm_t>::type(), test_space, trial_space);

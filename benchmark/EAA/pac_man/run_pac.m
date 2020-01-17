@@ -8,7 +8,13 @@ freq = 4000;
 field = 'field';
 type = 'rad';
 
-runner_name = 'runner_msvc.bat';
+if isunix
+    runner_name = 'sh runner_linux.sh';
+    n_threads = 32;
+else
+    runner_name = 'runner_msvc.bat';
+end
+
 
 % Prefix for output files
 pattern = sprintf('pac_man_%03dmm_%s_%05dHz', Le*1000, type, freq);
@@ -31,8 +37,15 @@ field_result_name = fullfile('data', sprintf('%s_%s_pf.res', pattern, field));
 
 %% call the runner that solves the problem
 stdout_file_name = fullfile('data', sprintf('%s_%s_stdout.txt', pattern, field));
-command = sprintf('%s %s %s %s %s %s > %s', ...
-    runner_name, surf_mesh_name, surf_exc_name, surf_result_name, field_mesh_name, field_result_name, stdout_file_name);
+if (isunix)
+command = sprintf('%s %s %s %s %s %s %d > %s', runner_name, ...
+    surf_mesh_name, surf_exc_name, surf_result_name, ...
+    field_mesh_name, field_result_name, n_threads, stdout_file_name);
+else
+    command = sprintf('%s %s %s %s %s %s > %s', runner_name, ...
+        surf_mesh_name, surf_exc_name, surf_result_name, ...
+        field_mesh_name, field_result_name, stdout_file_name);
+end
 fprintf('Calling 2D WB FMM executable ...\n'); tic;
 [status, result] = system(command);
 fprintf('Completed in %.2f seconds.\n', toc);
@@ -54,8 +67,46 @@ fclose(fid);
 
 % Find number of threads
 rows = find(strncmp('Expanding to ', txt, length('Expanding to ')));
-n_threads = sscanf(txt{rows(end)}, 'Expanding to %d threads');
+if (~isempty(rows))
+    n_threads = sscanf(txt{rows(end)}, 'Expanding to %d threads');
+else
+    n_threads = 1;
+end
 
+% Find MVP wallclock and CPU times
+mvp_wc_str = 'MVP wall clock time:';
+idx = find(strncmp(mvp_wc_str, txt, length(mvp_wc_str)), 1, 'first');
+if (~isempty(idx))
+    mvp_wc_t = sscanf(txt{idx}, [mvp_wc_str ' %f']);
+else
+    mvp_wc_t = nan;
+end
+
+mvp_cpu_str = 'MVP CPU time:';
+idx = find(strncmp(mvp_cpu_str, txt, length(mvp_cpu_str)), 1, 'first');
+if (~isempty(idx))
+    mvp_cpu_t = sscanf(txt{idx}, [mvp_cpu_str ' %f']);
+else
+    mvp_cpu_t = nan;
+end
+
+n_src_str = '#Source Nodes:';
+idx = find(strncmpi(n_src_str, txt, length(n_src_str)), 1, 'last');
+if (~isempty(idx))
+    n_src = sscanf(txt{idx}, [n_src_str ' %d']);
+else
+    n_src = nan;
+end
+
+n_rec_str = '#Receiver Nodes:';
+idx = find(strncmpi(n_src_str, txt, length(n_src_str)), 1, 'last');
+if (~isempty(idx))
+    n_rec = sscanf(txt{idx}, [n_src_str ' %d']);
+else
+    n_rec = nan;
+end
+
+% Find timing info for levels
 rows = strncmp('Level #', txt, length('Level #'));
 from = find(diff(rows) == 1, 1, 'last');
 to = find(diff(rows) == -1, 1, 'last');
@@ -74,4 +125,8 @@ times = times / 1e6;
 
 %% Save the result
 save(fullfile('data', sprintf('%s_%s_result', pattern, field)), ...
-    'ps', 'pf', 'levels', 'times', 'n_threads');
+    'ps', 'pf', 'levels', 'times', 'n_threads', 'mvp_cpu_t', 'mvp_wc_t');
+
+%% Save timing data separately
+td_name = fullfile('timing_data', sprintf('%s_%02d_timing', pattern, n_threads));
+save(td_name, 'levels', 'times', 'n_threads', 'mvp_cpu_t', 'mvp_wc_t', 'n_src', 'n_rec');

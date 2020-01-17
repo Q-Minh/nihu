@@ -26,6 +26,8 @@ surf_mesh = import_off_mesh(surf_mesh_name);
 field_mesh = import_off_mesh(field_mesh_name);
 fprintf('Ready in %.2f seconds.\n', toc);
 
+
+
 %% Result import
 load(result_name);
 

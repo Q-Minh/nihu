@@ -62,8 +62,8 @@ int main(int argc, char *argv[])
 			("postprocess", "Compute field point pressure")
 			("surface_mesh", value<std::string>(), "Surface mesh file name")
 			("surface_excitation", value<std::string>(), "Surface normal derivative exc.file name")
-			("field_mesh", value<std::string>(), "Field point mesh file name")
 			("surface_result", value<std::string>(), "Surface result file name")
+			("field_mesh", value<std::string>(), "Field point mesh file name")
 			("field_result", value<std::string>(), "Field point result file name")
 			("tolerance", value<double>()->default_value(1e-8), "Tolerance of GMRES [-]")
 			("restart", value<size_t>()->default_value(3000), "Restart parameter of GMRES [-]")
@@ -135,9 +135,6 @@ int main(int argc, char *argv[])
 
 			auto const &test_space = NiHu::dirac(NiHu::constant_view(field_mesh));
 			typedef std::decay<decltype(test_space)>::type test_space_t;
-
-			auto cpu_t0 = NiHu::cpu_time::tic();
-			auto wc_t0 = NiHu::wc_time::tic();
 
 			NiHu::fmm::helmholtz_field_point<fmm_t, test_space_t, trial_space_t> field_bir(test_space, trial_space);
 			field_bir.set_qsurf(q_surf);

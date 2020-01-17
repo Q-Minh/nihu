@@ -1,11 +1,14 @@
 clear;
 
 %% Export radiatterer meshes
-Le = 10e-2/3;
+Le = 10e-2/32;
 [qmesh, points] = create_radiatterer(Le);
-export_off_mesh(qmesh, sprintf('data/radiatterer_%03dmm_quad.off', floor(1000*Le)));
-tmesh = quad2tria(qmesh);
-export_off_mesh(tmesh, sprintf('data/radiatterer_%03dmm_tria.off', floor(1000*Le)));
+fprintf('Exporting surface OFF mesh (%d elements, %d nodes)\n', ...
+    size(qmesh.Nodes,1), size(qmesh.Elements, 1)); tic;
+export_off_mesh(qmesh, sprintf('mesh/radiatterer_%03dmm_quad.off', floor(1000*Le)));
+fprintf('Ready in %.2f seconds\n', toc);
+%tmesh = quad2tria(qmesh);
+%export_off_mesh(tmesh, sprintf('data/radiatterer_%03dmm_tria.off', floor(1000*Le)));
 
 %% Export field point meshes
 % print field points with quad semantics
@@ -28,10 +31,9 @@ for e = 1 : size(points,1)
     fprintf(fid, '%u %u %u %u %u\n', [4 e-1 e-1 e-1 e-1]);
 end
 fclose(fid);
-
-field = translate_mesh(create_slab([4 4], [4 4]/Le), [-.75, -1 .5]);
+%% Create field
+field = translate_mesh(create_slab([4 4], [4 4]/(Le)), [-.75, -1 .5]);
 hold on;
-plot_mesh(field);
 x = centnorm(field);
 
 bricks = {
@@ -67,4 +69,11 @@ for ib = 1 : length(bricks)
         x(:,3) > bricks{ib,3}(1) & x(:,3) < bricks{ib,3}(2));
 end
 
-export_off_mesh(field, sprintf('data/radi_plane_%03dmm_quad.off', Le*1000));
+field.Elements = field.Elements(outside, :);
+field = drop_mesh_IDs(drop_unused_nodes(field));
+%%
+fprintf('Exporting field mesh (%d nodes, %d elems)\n', ...
+    size(field.Nodes,1), size(field.Elements, 1));
+tic;
+export_off_mesh(field, sprintf('mesh/radi_plane_%03dmm_quad.off', floor(Le*1000)));
+fprintf('Ready in %.2f seconds\n', toc);

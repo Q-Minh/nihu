@@ -1,9 +1,9 @@
 clear;
 
-Le = 2e-3;
-freq = 4000;
+Le = 3e-3;
+freq = 1000;
 c = 343.21;
-type = 'rad';
+type = 'line';
 field = 'dir_field';
 
 % Prefix for output files

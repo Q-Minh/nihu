@@ -123,3 +123,9 @@ NiHu is distributed under the [GNU General Public License](http://www.gnu.org/li
 
 \defgroup app_helmholtz Helmholtz equation applications
 \ingroup app
+
+\defgroup app_laplace Laplace equation applications
+\ingroup app
+
+\defgroup app_stochastic Stochastic processes applications
+\ingroup app

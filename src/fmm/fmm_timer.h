@@ -71,7 +71,8 @@ public:
 		return m_t0 = timer_t::tic();
 	}
 
-	/** \brief stop timer at a given level and operation type
+	/** 
+	 * \brief stop timer at a given level and operation type
 	 * \param [in] level the level in the tree
 	 * \param [in] type the operation type that was timed
 	 */
@@ -80,8 +81,9 @@ public:
 		m_times[level][type] += (long long) (timer_t::toc(m_t0) * 1e6);
 	}
 
-	/** \brief inserter into output stream
-	 * \param [in, out] os the output stream
+	/** 
+	 * \brief inserter into output stream
+	 * \param [in,out] os the output stream
 	 */
 	std::ostream &print(std::ostream &os = std::cout) const;
 

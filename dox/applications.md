@@ -22,3 +22,8 @@ BEM for Helmholtz problems {#applications_helmholtz}
 2. \subpage app_helmholtz_3d_coll_mex
 3. \subpage app_helmholtz_3d_hffmm
 4. \subpage app_helmholtz_3d_hffmm_mex
+5. \subpage app_helmholtz_2d_wbfmm
+
+Stochastic eigendecomposition {#applications_stochastic}
+=============================
+
