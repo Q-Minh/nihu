@@ -155,6 +155,8 @@ public:
 		
 		auto tend = std::chrono::steady_clock::now();
 		assembly_time = std::chrono::duration_cast<std::chrono::microseconds>(tend - tstart).count();
+
+		std::cout << "P2P precompute ready" << std::endl;
 		
 		return mat;
 	}
@@ -209,6 +211,8 @@ public:
 		
 		auto tend = std::chrono::steady_clock::now();
 		assembly_time = std::chrono::duration_cast<std::chrono::microseconds>(tend - tstart).count();
+
+		std::cout << "P2P precompute ready" << std::endl;
 		
 		return mat;
 	}
