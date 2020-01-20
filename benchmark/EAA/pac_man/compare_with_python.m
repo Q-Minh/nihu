@@ -1,7 +1,7 @@
 clear;
 
-Le = 3e-3;
-freq = 2000;
+Le = 2e-3;
+freq = 4000;
 c = 343.21;
 type = 'line';
 field = 'dir_field';
@@ -74,8 +74,18 @@ legend({'NiHu solution', 'Reference solution'}, 'Location', 'SouthWest');
 
 %% Plot polar
 figure;
-polarplot(phi_field(idx), abs(pf(idx))/max(abs(pf(idx))));
+formatfig([5 5], [.5 .5 .5 .5]);
+polarplot(phi_field(idx), abs(pf(idx))/max(abs(pf(idx))),...
+    'LineWidth', .75);
 hold on 
-polarplot(phi_ref, abs(p_ref)/max(abs(p_ref)), '.');
+if freq > 1000
+    step = 3;
+end
+polarplot(phi_ref(1:step:end), abs(p_ref(1:step:end))/max(abs(p_ref)), '.', ...
+    'MarkerSize', 4);
 set(gca, 'thetatick', 0 : 45 : 360);
 set(gca, 'rtick', 0:.2:1);
+set(gca, 'rticklabel', []);
+text(-pi/3, 1.2, sprintf('%d Hz', freq), 'FontSize', 8);
+set(gca, 'FontSize', 8);
+printpdf(sprintf('pac_compare_%04d_Hz', freq));

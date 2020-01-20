@@ -4,7 +4,7 @@
 clear;
 
 %% Create a Pac-Man mesh and field point meshes
-Le = 3e-3;
+Le = 2e-2;
 [pac, field, dir_field, dir_ref_field] = create_pac_man(Le);
 
 %% export surface mesh
