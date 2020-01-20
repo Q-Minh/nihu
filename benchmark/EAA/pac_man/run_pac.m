@@ -4,7 +4,7 @@
 clear;
 
 Le = 3e-3;
-freq = 16;
+freq = 2000;
 field = 'dir_field';
 type = 'line';
 
