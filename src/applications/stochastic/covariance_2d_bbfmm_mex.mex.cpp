@@ -40,7 +40,7 @@ typedef NiHu::mex::real_matrix<double> dMatrix;
 class fmm_matlab
 {
 public:
-	typedef NiHu::quad_1_volume_elem elem_t;
+	typedef NiHu::tria_1_volume_elem elem_t;
 	typedef NiHu::type2tag<elem_t>::type elem_tag_t;
 	typedef NiHu::field_dimension::_2d field_dim_t;
 	typedef NiHu::field_view<elem_t, NiHu::field_option::constant, field_dim_t> trial_field_t;
@@ -50,7 +50,6 @@ public:
 	typedef NiHu::type2tag<test_field_t>::type test_field_tag_t;
 
 	typedef NiHu::space_2d<> space_t;
-
 
 	typedef NiHu::gaussian_covariance_kernel<space_t, field_dim_t> kernel_t;
 
@@ -100,7 +99,7 @@ public:
 
 	void create_mesh(dMatrix const &surf_nodes, dMatrix const &surf_elems)
 	{
-		p_surf_mesh = new mesh_t(NiHu::create_mesh(surf_nodes, surf_elems, NiHu::quad_1_volume_tag()));
+		p_surf_mesh = new mesh_t(NiHu::create_mesh(surf_nodes, surf_elems, elem_tag_t()));
 	}
 
 	template <class DivideDerived>
@@ -306,9 +305,17 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, mxArray const *prhs[])
 			char const *what_to_set = mxArrayToString(prhs[2 * i + 1]);
 
 			if (!strcmp(what_to_set, "fvar")) {
+				if (mxGetM(prhs[2 * i + 2]) != fmm_matlab::field_variance_t::RowsAtCompileTime ||
+					mxGetN(prhs[2 * i + 2]) != fmm_matlab::field_variance_t::ColsAtCompileTime)
+					mexErrMsgIdAndTxt("NiHu:" NIHU_THIS_MEX_NAME ":invalid_input",
+						"Argument size (field_variance) mismatch");
 				fmm_matlab::field_variance_t fvar = NiHu::mex::matrix<double>(prhs[2 * i + 2]);
 				p->set_field_variance(fvar);
 			} else if (!strcmp(what_to_set, "svar")) {
+				if (mxGetM(prhs[2 * i + 2]) != fmm_matlab::space_variance_t::RowsAtCompileTime ||
+					mxGetN(prhs[2 * i + 2]) != fmm_matlab::space_variance_t::ColsAtCompileTime)
+					mexErrMsgIdAndTxt("NiHu:" NIHU_THIS_MEX_NAME ":invalid_input",
+						"Argument size (space_variance) mismatch");
 				fmm_matlab::space_variance_t svar = NiHu::mex::matrix<double>(prhs[2 * i + 2]);
 				p->set_space_variance(svar);
 			} else if (!strcmp(what_to_set, "cheb_order")) {

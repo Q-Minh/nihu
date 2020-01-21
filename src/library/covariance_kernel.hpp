@@ -159,12 +159,14 @@ struct result<gaussian_covariance_kernel<Space, Dimension> >
 	typedef Eigen::Matrix<typename Space::scalar_t, Dimension::value, Dimension::value> type;
 };
 
+#if 0
 // Specialisation
 template<class Space>
 struct result<gaussian_covariance_kernel<Space, field_dimension::_1d> >
 {
 	typedef typename Space::scalar_t type;
 };
+#endif
 
 template <class Space, class Dimension>
 struct quadrature_family<gaussian_covariance_kernel<Space, Dimension> > : gauss_family_tag {};

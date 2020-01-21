@@ -88,13 +88,15 @@ public:
 		// determine number of src receiver pairs
 		size_t s = 0;
 		for (unsigned to = 0; to < p2p_list.size(); ++to)
-			s += tree[to].get_rec_node_idx().size();
+			if (std::find(p2p_list[to].begin(), p2p_list[to].end(), to) != p2p_list[to].end())
+				s += tree[to].get_rec_node_idx().size();
 
 		indices.reserve(s);
 
 		for (unsigned to = 0; to < p2p_list.size(); ++to)
-			for (auto i : tree[to].get_rec_node_idx())
-				indices.push_back(std::make_pair(i, i));
+			if (std::find(p2p_list[to].begin(), p2p_list[to].end(), to) != p2p_list[to].end())
+				for (auto i : tree[to].get_rec_node_idx())
+					indices.push_back(std::make_pair(i, i));
 
 		return indices;
 	}
@@ -143,21 +145,18 @@ public:
 			size_t j = indices[isrcrec].second;
 			result_t mat = op(i, j);
 			for (size_t ii = 0; ii < rows; ++ii)	// loop over matrix rows
-				for (size_t jj = 0; jj < cols; ++jj)	// loop over matrix cols
-					triplets[isrcrec*rows*cols + ii*cols + jj] = triplet_t(i * rows + ii, j * cols + jj, mat(ii, jj));
+				for (size_t jj = 0; jj < cols; ++jj) // loop over matrix cols 
+					triplets[isrcrec * rows * cols + ii * cols + jj] = triplet_t(i * rows + ii, j * cols + jj, mat(ii, jj));
 		}
 #ifdef NIHU_FMM_PARALLEL
 #pragma omp barrier
 #endif
-
 		sparse_t mat(rows * tree.get_n_rec_nodes(), cols * tree.get_n_src_nodes());
 		mat.setFromTriplets(triplets.begin(), triplets.end());
-		
+
 		auto tend = std::chrono::steady_clock::now();
 		assembly_time = std::chrono::duration_cast<std::chrono::microseconds>(tend - tstart).count();
 
-		std::cout << "P2P precompute ready" << std::endl;
-		
 		return mat;
 	}
 };
@@ -211,8 +210,6 @@ public:
 		
 		auto tend = std::chrono::steady_clock::now();
 		assembly_time = std::chrono::duration_cast<std::chrono::microseconds>(tend - tstart).count();
-
-		std::cout << "P2P precompute ready" << std::endl;
 		
 		return mat;
 	}
