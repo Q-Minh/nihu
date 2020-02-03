@@ -32,7 +32,7 @@ PROJECT_NAME           = "NiHu"
 # This could be handy for archiving the generated documentation or
 # if some version control system is used.
 
-PROJECT_NUMBER         = "1.1"
+PROJECT_NUMBER         = "2.0"
 
 # Using the PROJECT_BRIEF tag one can provide an optional one line description
 # for a project that appears at the top of each page and should give viewer
@@ -655,6 +655,7 @@ WARN_LOGFILE           =
 
 
 INPUT                  = "${CMAKE_SOURCE_DIR}/../dox/mainpage.md" \
+                         "${CMAKE_SOURCE_DIR}/../dox/news_whatsnew_20.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/news_whatsnew_11.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/introduction.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/installation.md" \
@@ -665,6 +666,7 @@ INPUT                  = "${CMAKE_SOURCE_DIR}/../dox/mainpage.md" \
 						 "${CMAKE_SOURCE_DIR}/../dox/app_helmholtz_3d_coll_mex.md" \
 						 "${CMAKE_SOURCE_DIR}/../dox/app_helmholtz_3d_hffmm.md" \
 						 "${CMAKE_SOURCE_DIR}/../dox/app_helmholtz_3d_hffmm_mex.md" \
+						 "${CMAKE_SOURCE_DIR}/../dox/app_helmholtz_2d_wbfmm.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/tutorials.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/tut_mesh_building.md" \
                          "${CMAKE_SOURCE_DIR}/../dox/tut_function_spaces.md" \

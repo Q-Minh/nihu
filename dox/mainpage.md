@@ -1,12 +1,23 @@
-NiHu 1.1 {#mainpage}
+NiHu 2.0 {#mainpage}
 ========
 
 [whatsnew11]: \ref news_whatsnew_11 "What's new in release 1.1"
+[whatsnew20]: \ref news_whatsnew_20 "What's new in release 2.0"
 
 [TOC]
 
 News {#main_news}
 ====
+
+- **NiHu 2.0 is released** on 2020.02.03.
+	- **Support for fast multipole methods (FMM)**
+		- Generic implementation with exploiting the NiHu core
+		- Parallelization using the OpenMP standard
+		- Build standalone or Matlab-based applications
+	- **Algorithms for nearly singular integration**	
+	- **Collected applications for conventional and fast multipole BEM**
+	- **Benchmark cases for linear acoustics**
+	- For a detailed description of new features visit the \subpage news_whatsnew_20 page
 
 - **NiHu 1.1 is released** on 2014.03.28.
 	- **Support for vector PDE**
