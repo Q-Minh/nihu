@@ -35,7 +35,7 @@ void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 	auto mesh = NiHu::create_mesh(nodes, elem, NiHu::line_1_tag());
 	auto const &w = NiHu::constant_view(mesh);
 
-	kernel_t::field_variance_t var = NiHu::mex::matrix<double>(rhs[2]);
+	kernel_t::field_variance_t var = dMatrix(rhs[2]);
 	double d = NiHu::mex::get_scalar<double>(rhs[3]);
 	auto C = NiHu::create_integral_operator(kernel_t(var, d));
 	auto I = NiHu::identity_integral_operator();

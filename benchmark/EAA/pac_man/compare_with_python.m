@@ -1,7 +1,7 @@
 clear;
 
 Le = 2e-3;
-freq = 4000;
+freq = 250;
 c = 343.21;
 type = 'line';
 field = 'dir_field';
@@ -78,11 +78,9 @@ formatfig([5 5], [.5 .5 .5 .5]);
 polarplot(phi_field(idx), abs(pf(idx))/max(abs(pf(idx))),...
     'LineWidth', .75);
 hold on 
-if freq > 1000
-    step = 3;
-end
-polarplot(phi_ref(1:step:end), abs(p_ref(1:step:end))/max(abs(p_ref)), '.', ...
-    'MarkerSize', 4);
+step = 15;
+polarplot(phi_ref(1:step:end), abs(p_ref(1:step:end))/max(abs(p_ref)), 'o', ...
+    'MarkerSize', 2, 'Color', 'black');
 set(gca, 'thetatick', 0 : 45 : 360);
 set(gca, 'rtick', 0:.2:1);
 set(gca, 'rticklabel', []);

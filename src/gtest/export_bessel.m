@@ -32,7 +32,7 @@ for i = 1 : size(functions,1)
 
 	fid = fopen(fullfile('data', sprintf('bessel%s.dat', name)), 'wt');
 	fprintf(fid, 'double bessel%s[][4] = {\n', name);
-	fprintf(fid, '\t{%.10g, %.10g, %.10g, %.10g},\n', [real(Z(idx)), imag(Z(idx)), real(D(idx)), imag(D(idx))].');
+	fprintf(fid, '\t{%.10e, %.10e, %.10e, %.10e},\n', [real(Z(idx)), imag(Z(idx)), real(D(idx)), imag(D(idx))].');
 	fprintf(fid, '};\n');
 	fclose(fid);
 end
