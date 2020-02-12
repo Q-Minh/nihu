@@ -25,8 +25,6 @@ if("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
     )
     # Store the GCC_MAJOR and GCC_MINOR versions for later use
     string(REGEX MATCHALL "[0-9]+" GCC_VERSION_COMPONENTS ${GCC_VERSION})
-    list(GET GCC_VERSION_COMPONENTS 0 GCC_MAJOR)
-    list(GET GCC_VERSION_COMPONENTS 1 GCC_MINOR)
     # Add -Wno-misleading-indentation for gcc >= 6
     # Note: this disables Eigen-generated warnings
     if(GCC_VERSION VERSION_GREATER 6.0 OR GCC_VERSION VERSION_EQUAL 6.0)

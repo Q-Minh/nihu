@@ -16,18 +16,19 @@ if (DEFINED NIHU_BOOST_PATH)
 endif()
 
 # Set variables for 
-set(Boost_USE_STATIC_LIBS        ON)  # only find static libs
+set(Boost_USE_STATIC_LIBS       OFF)  # find dynamic libs
 set(Boost_USE_DEBUG_LIBS        OFF)  # ignore debug libs and
 set(Boost_USE_RELEASE_LIBS       ON)  # only find release libs
 set(Boost_USE_MULTITHREADED      ON)  # use multi-threaded
 set(Boost_USE_STATIC_RUNTIME    OFF)
 
 # Find the boost package
+# Boost >= 1.67 is required for advanced math functions, such as Chebyshev
 if(WIN32)
 	# On windows boost components are not found by FindBoost.cmake
 	find_package(Boost 1.67 REQUIRED)
 elseif(UNIX)
-	find_package(Boost 1.67 REQUIRED COMPONENTS math program_options)
+	find_package(Boost 1.67 REQUIRED COMPONENTS program_options)
 endif()
 
 if(BOOST_FOUND)
@@ -35,6 +36,9 @@ if(BOOST_FOUND)
 	message(STATUS "\tBoost include directory: ${Boost_INCLUDE_DIRS}")
 	if(NOT WIN32)
 		message(STATUS "\tBoost components: ${Boost_LIBRARIES}")
+		if(DEFINED Boost_PROGRAM_OPTIONS_LIBRARY)
+			message(STATUS "\t Boost program options lib: ${Boost_PROGRAM_OPTIONS_LIBRARY}")
+		endif()
 	endif()
 else()
 	message(STATUS "Boost was not found")
