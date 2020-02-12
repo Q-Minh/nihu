@@ -309,14 +309,14 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, mxArray const *prhs[])
 					mxGetN(prhs[2 * i + 2]) != fmm_matlab::field_variance_t::ColsAtCompileTime)
 					mexErrMsgIdAndTxt("NiHu:" NIHU_THIS_MEX_NAME ":invalid_input",
 						"Argument size (field_variance) mismatch");
-				fmm_matlab::field_variance_t fvar = NiHu::mex::matrix<double>(prhs[2 * i + 2]);
+				fmm_matlab::field_variance_t fvar = dMatrix(prhs[2 * i + 2]);
 				p->set_field_variance(fvar);
 			} else if (!strcmp(what_to_set, "svar")) {
 				if (mxGetM(prhs[2 * i + 2]) != fmm_matlab::space_variance_t::RowsAtCompileTime ||
 					mxGetN(prhs[2 * i + 2]) != fmm_matlab::space_variance_t::ColsAtCompileTime)
 					mexErrMsgIdAndTxt("NiHu:" NIHU_THIS_MEX_NAME ":invalid_input",
 						"Argument size (space_variance) mismatch");
-				fmm_matlab::space_variance_t svar = NiHu::mex::matrix<double>(prhs[2 * i + 2]);
+				fmm_matlab::space_variance_t svar = dMatrix(prhs[2 * i + 2]);
 				p->set_space_variance(svar);
 			} else if (!strcmp(what_to_set, "cheb_order")) {
 				double cheb_order = mxGetScalar(prhs[2 * i + 2]);

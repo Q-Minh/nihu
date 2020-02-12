@@ -41,8 +41,8 @@ void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])
 	auto const &w = NiHu::isoparametric_view(mesh, field_dim_t());
 
 	
-	field_var_t field_var = NiHu::mex::matrix<double>(rhs[2]);
-	space_var_t space_var = NiHu::mex::matrix<double>(rhs[3]);
+	field_var_t field_var = dMatrix(rhs[2]);
+	space_var_t space_var = dMatrix(rhs[3]);
 	kernel_t kernel(field_var, space_var);
 	auto C = NiHu::create_integral_operator(kernel);
 	auto I = NiHu::identity_integral_operator();
