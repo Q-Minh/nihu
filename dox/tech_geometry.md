@@ -1,7 +1,7 @@
 An introduction to NiHu's mesh representation {#tech_geometry}
 =============================================
 
-\page tech_geometry
+\page tech_geometry An introduction to NiHu's mesh representation
 
 [TOC]
 

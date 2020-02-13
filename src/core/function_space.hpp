@@ -24,8 +24,9 @@
 #ifndef FUNCTION_SPACE_HPP_INCLUDED
 #define FUNCTION_SPACE_HPP_INCLUDED
 
-#include "../util/crtp_base.hpp"
 #include "../util/casted_iterator.hpp"
+#include "../util/crtp_base.hpp"
+#include "../util/type2tag.hpp"
 #include "field.hpp"
 #include "field_dimension.hpp"
 #include "mesh.hpp"
@@ -610,10 +611,10 @@ public:
  * \param [in] fields the field tag instances
  */
 template <class nodes_t, class elements_t, class...fields_t>
-function_space<tmp::vector<typename tag2field<fields_t>::type...> >
+function_space<tmp::vector<typename tag2type<fields_t>::type...> >
 	create_function_space(nodes_t const &nodes, elements_t const &elements, fields_t const &...fields)
 {
-	return function_space<tmp::vector<typename tag2field<fields_t>::type...> >(nodes, elements);
+	return function_space<tmp::vector<typename tag2type<fields_t>::type...> >(nodes, elements);
 }
 
 /** \brief metafunction determining if argument is function space expression

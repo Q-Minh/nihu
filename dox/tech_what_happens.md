@@ -1,7 +1,7 @@
 What happens when NiHu evaluates a weighted residual? {#tech_what_happens}
 =====================================================
 
-\page tech_what_happens
+\page tech_what_happens What happens when NiHu evaluates a weighted residual?
 
 [TOC]
 

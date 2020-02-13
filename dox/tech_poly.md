@@ -1,7 +1,7 @@
 Polymorphism in NiHu {#tech_poly}
 ====================
 
-\page tech_poly
+\page tech_poly Polymorphism in NiHu
 
 [TOC]
 

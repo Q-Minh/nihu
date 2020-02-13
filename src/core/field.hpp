@@ -44,13 +44,6 @@ struct isoparametric {};
 struct constant {};
 }
 
-/** \brief assign a field to a tag
- * \tparam field_tag the tag
- */
-template <class field_tag>
-struct tag2field;
-
-
 namespace field_traits
 {
 /** \brief assigns the element type to the field */
