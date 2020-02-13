@@ -8,8 +8,12 @@ Introduction {#introduction}
 What is NiHu? {#introduction_whatis}
 =============
 
-NiHu is an open source C++-Matlab toolbox used for solving boundary value problems of partial differential equations by means of the boundary element method (BEM).
-Specifically, the toolbox provides a general framework to numerically evaluate weighted residual integrals of the form
+NiHu is an open source C++ and Matlab toolbox used for solving boundary value problems of partial differential equations by means of the boundary element method (BEM).
+
+The core module
+---------------
+ 
+The core modul of the toolbox provides a general framework to numerically evaluate weighted residual integrals of the form
 
 \f$
 \displaystyle
@@ -25,6 +29,31 @@ where
 \f$ t_i \f$ and \f$ d_j \f$ denote base functions of discretised function spaces, and
 \f$ \mathcal{K} \f$ denotes an integral operator defined by its kernel function \f$ K \f$.
 Such integrals frequently arise when the numerical solution of boundary value problems is formalised using the finite or boundary element methods (see for example \ref theo_bem_example).
+
+The fast multipole extension
+----------------------------
+
+The fast multipole extension of the toolbox provides a programming environment to evaluate weighted residual matrix-vector products of the type
+
+\f$
+\displaystyle
+f_{i}
+=
+\sum_{j}
+\left<t_i, \left(\mathcal{K}d_j\right)_S\right>_F
+\sigma_j
+=
+\sum_{j}
+\int_F t_i({\bf x})
+\int_S K({\bf x}, {\bf y}) d_j({\bf y}) \mathrm{d} S_{{\bf y}}
+\mathrm{d} F_{{\bf x}}
+\sigma_j
+\f$
+
+where 
+\f$ \sigma_j \f$ denotes an element of the discretized excitation.
+Matrix vector products of the above type are accelerated using the fast multipole method applied to the specific kernel function \f$ K({\bf x}, {\bf y}) \f$.
+
 
 Unified programming interface {#introduction_unified}
 =============================
@@ -55,9 +84,9 @@ Customisable library {#introduction_library}
 Specific aspects of BEM implementations are developed in C++ libraries designed to be easily customisable by researchers and developers.
 Developers may customise
 - Element types
-- Kernels
+- Kernels and their fast multipole expansions
 - Quadratures
-- Singular integration techniques specific to kernels, formalisms and element types
+- Singular and nearly singular integration techniques specific to kernels, formalisms and element types
 - and more...
 
 in order to adapt NiHu to their specific problems.
