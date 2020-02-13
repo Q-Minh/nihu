@@ -1,7 +1,7 @@
 Metaprogramming concepts in NiHu {#tech_meta}
 ================================
 
-\page tech_meta
+\page tech_meta Metaprogramming concepts in NiHu
 
 [TOC]
 
@@ -20,14 +20,14 @@ Metafunctions {#tech_meta_metafun}
 
 Metafunctions are program elements (classes in C++) that can return computed types. Whereas a function can receive its arguments as values and computes a return value, a metafunction can receive its arguments as template parameters and computes a return type. One great difference is that while functions compute their return value in runtime, metafunctions must be evaluated in compile time. Metafunctions are implemented in NiHu usings simple structures with nested type definitions, called `type`.
 
-\snippet metaprogramming.hpp MetaFunction
+\snippet snippets/metaprogramming.hpp MetaFunction
 
 Argument selector {#tech_meta_argselector}
 -----------------
 
 The argument selector is a special templated metafunction that can return its nth template parameter. This might seem a trivial and unuseful task, however, you should remind yourself that once a template is instantiated there is no way to obtain the actual value of the template parameter from outside the given template. The implementation of the argument selector looks like:
 
-\snippet metaprogramming.hpp ArgumentSelector
+\snippet snippets/metaprogramming.hpp ArgumentSelector
 
 In the above code the key role of recursion is clearly followable. The general case of the `select_argument` template class is defined by means of a simple recursion rule, whereas the recursion tail is a partial specialisation of the general case.
 
@@ -36,18 +36,18 @@ Metafunction classes {#tech_meta_metafunclass}
 
 Metafunction classes (a.k.a. metafunctors) are classes with a templated inner class that is a metafunction. Just as function classes (a.k.a. functors) have the evaluation operator function that can return a value, metafunction classes have a nested metafunction, that can return a type, as described [above](#tech_meta_metafun). In NiHu, the nested metafunction is always called `apply`.
 
-\snippet metaprogramming.hpp MetaFunctionClass
+\snippet snippets/metaprogramming.hpp MetaFunctionClass
 
 Placeholders {#tech_meta_placeholder}
 ------------
 
 Placeholders are special [metafunction classes](#tech_meta_metafunclass) that contain an [argument selector](#tech_meta_argselector) as the nested class. Placeholders do not have any other specialities what would make them differ from other metafunctors, yet, implemenetation of template metaprogramming control sequences and algorithms involve the extensive usage of placeholders, which makes them worth explaining separately.
 
-\snippet metaprogramming.hpp PlaceHolder
+\snippet snippets/metaprogramming.hpp PlaceHolder
 
 For the sake of convenience placeholders are referred to through simplified type definitions.
 
-\snippet metaprogramming.hpp PlaceHolderTypedef
+\snippet snippets/metaprogramming.hpp PlaceHolderTypedef
 
 Placeholder expressions {#tech_meta_placeholderexpression}
 -----------------------
@@ -58,7 +58,7 @@ Placeholder expression is a term referring either to
 
 Deciding whether an expression is a placeholder expression or not, is determined recursively. The snippet below demonstrates how the decision is implemented using variadic templates. (Note: the metafunction called `containsPlaceholderExpression`, which is not demonstrated here, can tell if an argument list contains a placeholder expression.)
 
-\snippet metaprogramming.hpp PlaceHolderDecide
+\snippet snippets/metaprogramming.hpp PlaceHolderDecide
 
 Noticing that the variadic template denoted as `MF<Args...>` refers to a metafunction with the argument `Args`, it is straightforward that the above code implements the decision based on the criteria listed above.
 
@@ -73,7 +73,7 @@ The implementation details of lambda expressions are not discussed herein, howev
 
 The reason for using lambda and placeholder expressions is to achieve lazy evaluation of types. By exploiting the power of lambda expressions code like the example below can be written:
 
-\snippet metaprogramming.hpp LambdaExample
+\snippet snippets/metaprogramming.hpp LambdaExample
 
 Looking at the last line of the code, it can be immediately seen that the types listed in the vector type `vec` are automatically substituted as template parameters of the `MyMF` metafunction. (Note: the placeholder `_1` in the penultimate line implies that the first template parameter of the resulting lambda expression will be substituted as the template parameter of class `MyMF` later.)  Compilation of `MyMF` is performed only when the types in `vec` are already known and the `call_each` function is compiled.
 
@@ -88,18 +88,18 @@ The wrapping mechanism works as follows:
 
 The implementation of this functionality is simple using [type definition forwarding](#tech_meta_typedeffwd).
 
-\snippet metaprogramming.hpp LambdaMetaFun
+\snippet snippets/metaprogramming.hpp LambdaMetaFun
 
 Taking the example from the [previous section](#tech_meta_lambdaexpression) evaluating the lazy type for one specific template parameter can be done like the following:
 
-\snippet metaprogramming.hpp LambdaMetaFunExample
+\snippet snippets/metaprogramming.hpp LambdaMetaFunExample
 
 The apply metafunction {#tech_meta_applymetafun}
 ----------------------
 
 Is a special metafunction, which invokes the result of a lambda metafunction. In other words, the `apply` metafunction is a shorthand notation for the evaluation of the metafunctor wrapped into a lambda metafunction.
 
-\snippet metaprogramming.hpp ApplyMetaFunction
+\snippet snippets/metaprogramming.hpp ApplyMetaFunction
 
 Common techniques {#tech_meta_commontechniques}
 =================
@@ -109,4 +109,4 @@ Type definition forwarding {#tech_meta_typedeffwd}
 
 Type definition forwarding can easily be achieved using inheritance. This is usually applied as a shortcut in order to avoid repetition of typedef lines. One can also make use of the fact that different template specialisations can be derived from different base classes.
 
-\snippet metaprogramming.hpp TypedefForwarding
+\snippet snippets/metaprogramming.hpp TypedefForwarding

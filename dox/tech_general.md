@@ -1,7 +1,7 @@
 General Techniques {#tech_general}
 ==================
 
-\page tech_general
+\page tech_general General Techniques
 
 [TOC]
 

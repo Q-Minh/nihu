@@ -2,7 +2,8 @@
 #define LINE_1_GAUSS_FIELD_HPP_INCLUDED
 
 #include "line_1_gauss_shape_set.hpp"
-#include "core/field.hpp"
+#include "../core/field.hpp"
+#include "../util/type2tag.hpp"
 #include "lib_element.hpp"
 
 // define traits of the new field type
@@ -23,12 +24,8 @@ namespace field_traits
 } // end of namespace field_traits
 
 // define a tag to the new type
-struct line_1_gauss_field_tag {};
+typedef type2tag<line_1_gauss_field> line_1_gauss_field_tag;
 
-template <>
-struct tag2field<line_1_gauss_field_tag> :
-	line_1_gauss_field {};
-	
 } // end of namespace NiHu
 
 #endif // LINE_1_GAUSS_FIELD_HPP_INCLUDED

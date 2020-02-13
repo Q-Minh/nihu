@@ -46,11 +46,11 @@ and their derivatives with respect to both variables are
 
 The new shape function set will be termed `quad_1_gauss_shape_set`, and is introduced with a forward declaration:
 
-\snippet custom_gaussian_element.cpp Forward declaration
+\snippet snippets/tut_quad_1_gauss_field.hpp Forward declaration
 
 Before defining the shape functions, we first define some basic properties of the shape function set by specialising the traits class template NiHu::shape_set_traits to the new shape set as follows:
 
-\snippet custom_gaussian_element.cpp Shape traits
+\snippet snippets/tut_quad_1_gauss_field.hpp Shape traits
 
 - We have defined the shape set's domain as the NiHu::quad_domain.
 - The number of shape set nodes is 4.
@@ -69,15 +69,15 @@ The new derived class must define three static member functions.
 - `eval_dshape` evaluates the gradient of the shape functions.
 - `corner_begin` returns a pointer to the first corner of the shape set.
 
-\snippet custom_gaussian_element.cpp Shape class
+\snippet snippets/tut_quad_1_gauss_field.hpp Shape class
 
 The functions returning the shape function set and its derivatives are defined as
 
-\snippet custom_gaussian_element.cpp Shape lsets
+\snippet snippets/tut_quad_1_gauss_field.hpp Shape lsets
 
 The shape function's nodal locations are stored in the static array `m_corners`. The `corner_begin` function returns the address of the array.
 
-\snippet custom_gaussian_element.cpp Shape corners
+\snippet snippets/tut_quad_1_gauss_field.hpp Shape corners
 
 That's all, we have defined the shape function set.
 From now on, it can be used for geometrical interpolation or field interpolation purposes.
@@ -90,31 +90,18 @@ The field {#tut_custom_element_field}
 The new field is going to be based on the standard NiHu::quad_1_elem element, extended with our new shape function set.
 The field will be termed `quad_1_gauss_field`, and is defined using a simple type definition:
 
-\snippet custom_gaussian_element.cpp Field typedef
+\snippet snippets/tut_quad_1_gauss_field.hpp Field typedef
 
 Each field type is automatically assigned an integer identifier.
 However, we can override the field id definition by specialising the template structure ([metafunction]) NiHu::field_id to our new field type
 
-\snippet custom_gaussian_element.cpp Field id
+\snippet snippets/tut_quad_1_gauss_field.hpp Field id
 
 The defined field id will be used in the function space definition matrix to distinguish between different kind of fields.
 
-\snippet custom_gaussian_element.cpp Field tag
+Finally, a field tag is assigned to the field type using the metafunction NiHu::type2tag
+
+\snippet snippets/tut_quad_1_gauss_field.hpp Field tag
 
 Our new field type is ready to use in collocational, Galerkin or general BEM methods.
 
-Example {#tut_custom_element_example}
-=======
-
-We present a simple example, the same as in tutorial \ref tut_laplace_double_integral, that evaluates a double singular integral of the Laplacian kernel on a square domain.
-The square domain will be meshed with our new fields.
-
-\snippet custom_gaussian_element.cpp main
-
-The results read as
-~~~~~~~~
-matrix sum:   1.89281
-analytical:   1.8928
-log10 error: -5.86068
-~~~~~~~~
-proving the correctness and applicability of our brand new elements.
