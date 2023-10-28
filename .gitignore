@@ -41,3 +41,5 @@ bem/mex_source/*.m
 
 # Doxygen generated documentation
 doc/*
+
+build
