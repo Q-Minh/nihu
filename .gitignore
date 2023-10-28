@@ -1,0 +1,43 @@
+# BEM .m files created from mex
+bem/mex_source/*.m
+
+# Matlab stored data
+*.mat
+
+# Matlab autosave files
+*.asv
+
+# executables
+*.o
+*.exe
+
+# Matlab mex binaries
+*.mexw*
+*.mexa*
+
+# Matlab result files
+*.mtx
+
+# Ubuntu linux tmp files
+*~
+*.*~
+.fuse*
+
+# LaTeX documentation tmp and output files
+*.aux
+*.dvi
+*.gz
+*.lof
+*.log
+*.lot
+*.out
+*.pdf
+*.toc
+*.vrb
+
+# Other binary formats
+*.wav
+*.mp3
+
+# Doxygen generated documentation
+doc/*

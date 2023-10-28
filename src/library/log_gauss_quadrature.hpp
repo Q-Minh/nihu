@@ -1,0 +1,141 @@
+// This file is a part of NiHu, a C++ BEM template library.
+//
+// Copyright (C) 2012-2014  Peter Fiala <fiala@hit.bme.hu>
+// Copyright (C) 2012-2014  Peter Rucz <rucz@hit.bme.hu>
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * \file log_gauss_quadrature.hpp
+ * \ingroup quadrature
+ * \brief implementation of Gauss-Laguerre quadratures
+ */
+
+#ifndef LOG_GAUSS_QUADRATURE_HPP_INCLUDED
+#define LOG_GAUSS_QUADRATURE_HPP_INCLUDED
+
+#include "../util/eigen_utils.hpp"
+#include <stdexcept>
+
+namespace NiHu
+{
+
+/**
+ * \brief return 1D N-point log Gaussian quadrature
+ * \tparam scalar_t the scalar type
+ * \param [in] N number of quadrature points
+ * \return matrix containing the log Gauss locations and weights
+ */
+template <class scalar_t>
+Eigen::Matrix<scalar_t, Eigen::Dynamic, 2> log_gauss_impl(unsigned N)
+{
+	Eigen::Matrix<scalar_t, Eigen::Dynamic, 2> V(N, 2);
+
+	switch (N)
+	{
+	case 1:
+		V <<
+			2.5000000000000000e-01, 7.2134752044448169e-01;
+		break;
+	case 2:
+		V <<
+			1.1200880616697619e-01, 3.2822337417624581e-01,
+			6.0227690811873813e-01, 5.5510771112955115e-01;
+		break;
+	case 3:
+		V <<
+			6.3890793087325398e-02, 1.8665319683730960e-01,
+			3.6899706371561874e-01, 3.9317269424680878e-01,
+			7.6688030393894147e-01, 3.5646818483945464e-01;
+		break;
+	case 4:
+		V <<
+			4.1448480199383221e-02, 1.2046102428219344e-01,
+			2.4527491432060225e-01, 2.7528250686565570e-01,
+			5.5616545356027580e-01, 3.2459272403493383e-01,
+			8.4898239453298519e-01, 2.3959349339185523e-01;
+		break;
+	case 5:
+		V <<
+			2.9134472151972055e-02, 8.4249865669852472e-02,
+			1.7397721332089763e-01, 2.0000573941089120e-01,
+			4.1170252028490206e-01, 2.6422578482903292e-01,
+			6.7731417458282039e-01, 2.5391522024950192e-01,
+			8.9477136103100829e-01, 1.7008771384186927e-01;
+		break;
+	case 6:
+		V <<
+			2.1634005844116948e-02, 6.2283645902036514e-02,
+			1.2958339115495079e-01, 1.5086715669812314e-01,
+			3.1402044991476552e-01, 2.1179144119844892e-01,
+			5.3865721735180216e-01, 2.2953660111262231e-01,
+			7.5691533737740280e-01, 1.9911616321288508e-01,
+			9.2266885137212029e-01, 1.2634619448273865e-01;
+		break;
+	case 7:
+		V <<
+			1.6719355408258516e-02, 4.7949245714135176e-02,
+			1.0018567791567512e-01, 1.1748559808151521e-01,
+			2.4629424620793061e-01, 1.7105126053645428e-01,
+			4.3346349325703309e-01, 1.9830878745322914e-01,
+			6.3235098804776613e-01, 1.9406754277584293e-01,
+			8.1111862674010560e-01, 1.5856573802129473e-01,
+			9.4084816674334770e-01, 9.7301064881229485e-02;
+		break;
+	case 8:
+		V <<
+			1.3320244160892464e-02, 3.8072880888136207e-02,
+			7.9750429013894938e-02, 9.3926216825306691e-02,
+			1.9787102932618805e-01, 1.4001383125907749e-01,
+			3.5415399435190942e-01, 1.6931609716534757e-01,
+			5.2945857523491724e-01, 1.7758133033774465e-01,
+			7.0181452993909998e-01, 1.6344106339932138e-01,
+			8.4937932044110664e-01, 1.2850934080731091e-01,
+			9.5332645005635974e-01, 7.7124901546374261e-02;
+		break;
+	case 9:
+		V <<
+			1.0869336084175478e-02, 3.0976190807805060e-02,
+			6.4983666338007937e-02, 7.6737899483614327e-02,
+			1.6222939802388295e-01, 1.1624899412352906e-01,
+			2.9374990397167466e-01, 1.4461420066546096e-01,
+			4.4663188190546804e-01, 1.5855579288650359e-01,
+			6.0548166277612858e-01, 1.5641629174578878e-01,
+			7.5411013715716357e-01, 1.3827134994810181e-01,
+			8.7726582883583826e-01, 1.0590150175502325e-01,
+			9.6225055941028181e-01, 6.2578369626918720e-02;
+		break;
+	case 10:
+		V <<
+			9.0426309621996510e-03, 2.5703387431973763e-02,
+			5.3971266222500633e-02, 6.3838358627401628e-02,
+			1.3531182463925079e-01, 9.7821957826948192e-02,
+			2.4705241628715982e-01, 1.2414730328545283e-01,
+			3.8021253960933232e-01, 1.4032283709103022e-01,
+			5.2379231797184322e-01, 1.4481606510288939e-01,
+			6.6577520551642455e-01, 1.3713689588001229e-01,
+			7.9419041601196627e-01, 1.1786473935398946e-01,
+			8.9816109121900356e-01, 8.8590925692725961e-02,
+			9.6884798871863353e-01, 5.1762535731404213e-02;
+		break;
+	default:
+		throw std::out_of_range("unsupported log Gauss degree");
+	}
+
+	return V;
+}
+
+}
+
+#endif // LOG_GAUSS_QUADRATURE_HPP_INCLUDED

@@ -1,0 +1,335 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{amsmath}
+\usepackage{a4wide}
+\usepackage{palatino}
+
+\newcommand{\ti}{\mathrm{i}}
+\newcommand{\te}{\mathrm{e}}
+
+\author{P. Fiala}
+\title{Deriving the far field and local expansions for the kernel of the
+Helmholtz equation in two dimensions}
+
+\begin{document}
+
+\maketitle
+
+Response $\phi$ in point $x$ due to a source $\sigma$ in point $y$:
+%
+\begin{equation}
+	\phi(x)
+	=
+	H_{0}(k r_{yx})
+	\sigma_y
+	\label{eq:origin}
+\end{equation}
+
+Graf's addition theorem: If $r_{lo} < r_{jo}$, then
+%
+\begin{equation}
+	C_{\nu}(k r_{jo})
+	\te^{\ti \nu \theta_{jo}}
+	=
+	\sum_{\mu} C_{\nu + \mu}(k r_{jl})
+	\te^{\ti (\nu + \mu) \theta_{jl}}
+	J_{\mu}(k r_{lo})
+	\te^{\ti \mu(\pi-\theta_{lo})}
+	\label{eq:graf_theorem}
+\end{equation}
+
+\subsection{The far field expansion}
+
+Introducing the multipole expansion center $Y$ near to the source $y$.
+Application of \eqref{eq:graf_theorem} with $C_{\nu} = H_0$, $j = x$, $o = y$ and $l = Y$
+
+\begin{equation}
+	H_{0}(k r_{xy})
+	=
+	\sum_{\mu} H_{\nu + \mu}(k r_{xY})
+	\te^{\ti \mu \theta_{xY}}
+	J_{\mu}(k r_{ly})
+	\te^{\ti \mu(\pi-\theta_{Yy})}
+\end{equation}
+
+Substituting:
+\begin{equation}
+	\phi(x)
+	=
+	\sum_{\mu}
+	H_{\mu}(k r_{xY})
+	\te^{\ti \mu \theta_{xY}}
+	\underbrace{
+	J_{\mu}(k r_{Yy})
+	\te^{\ti \mu(\pi-\theta_{Yy})}
+	\sigma_y
+	}_{a_{\mu}(Y)}
+	\label{eq:far_field}
+\end{equation}
+
+\subsection{Translating the far field expansion}
+
+The addition theorem is further applied to the Hankel function $H_{\mu}$ in
+ the far field expansion \eqref{eq:far_field}.
+Application with $C_{\nu} = H_{\mu}$, $j = x$, $l = \Psi$, $o = Y$ yields
+%
+\begin{equation}
+	H_{\mu}(k r_{xY})
+	\te^{\ti \mu \theta_{xY}}
+	=
+	\sum_{\rho}
+	H_{\mu + \rho}(k r_{x\Psi})
+	\te^{\ti (\mu + \rho) \theta_{x\Psi}}
+	J_{\rho}(k r_{\Psi Y})
+	\te^{\ti \rho(\pi-\theta_{\Psi Y})}
+\end{equation}
+%
+Substituting into \eqref{eq:far_field}
+%
+\begin{equation}
+	\phi(x)
+	=
+	\sum_{\mu}
+	\sum_{\rho}
+	H_{\mu + \rho}(k r_{x\Psi})
+	\te^{\ti (\mu + \rho) \theta_{x\Psi}}
+	J_{\rho}(k r_{\Psi Y})
+	\te^{\ti \rho(\pi-\theta_{\Psi Y})}
+	a_{\mu}(Y)
+\end{equation}
+%  
+Changing summation variables $\mu + \rho = \beta$, $\rho = \beta - \mu$
+%
+\begin{equation}
+	\phi(x)
+	=
+	\sum_{\beta}
+	H_{\beta}(k r_{x\Psi})
+	\te^{\ti \beta \theta_{x\Psi}}
+	b_{\beta}(\Psi)
+	\label{eq:far_field_trans}
+\end{equation}
+%
+\begin{align}
+	b_{\beta}(\Psi)
+	&=
+	\sum_{\mu}
+	J_{\beta - \mu}(k r_{\Psi Y})
+	\te^{\ti (\beta - \mu)(\pi-\theta_{\Psi Y})}
+	a_{\mu}(Y) \\
+	&=
+	J_{\beta}(k r_{\Psi Y})
+	\te^{\ti \beta (\pi-\theta_{\Psi Y})}
+	\ast
+	a_{\beta} \label{eq:M2M_conv}
+\end{align}
+%
+Comparing equations \eqref{eq:far_field} and \eqref{eq:far_field_trans} reveals
+ that the far field expansion can be translated to an other centre of expansion 
+ by the convolution \eqref{eq:M2M_conv}
+
+\subsection{The local expansion}
+
+Introducing the multipole expansion center $X$ near to the receiver $x$.
+Application of \eqref{eq:graf_theorem} with $C_{\nu} = H_0$, $j = y$, $o = x$
+ and $l = X$
+%
+\begin{equation}
+	H_{0}(k r_{yx})
+	=
+	\sum_{\mu} H_{\mu}(k r_{yX})
+	\te^{\ti \mu \theta_{yX}}
+	J_{\mu}(k r_{Xx})
+	\te^{\ti \mu(\pi-\theta_{Xx})}
+\end{equation}
+
+Substituting into \eqref{eq:origin} yields
+
+\begin{equation}
+	\phi(x)
+	=
+	\sum_{\mu}
+	J_{\mu}(k r_{Xx})
+	\te^{\ti \mu(\pi-\theta_{Xx})}
+	H_{\mu}(k r_{yX})
+	\te^{\ti \mu \theta_{yX}}
+	\sigma_y
+\end{equation}
+
+\subsection{Translating the local expansion}
+
+Transferring the local expansion by introducing the new expansion center $\Xi$: 
+$C_{\nu} = H_{\mu}$, $j = y$, $l = \Xi$, $o = X$ yields
+
+\begin{equation}
+	H_{\mu}(k r_{yX})
+	\te^{\ti \mu \theta_{yX}}
+	=
+	\sum_{\rho} H_{\mu + \rho}(k r_{y\Xi })
+	\te^{\ti (\mu + \rho) \theta_{y\Xi }}
+	J_{\rho}(k r_{\Xi X})
+	\te^{\ti \rho(\pi-\theta_{\Xi X})}
+\end{equation}
+
+Substituting
+
+\begin{equation}
+	\phi(x)
+	=
+	\sum_{\mu}
+	J_{\mu}(k r_{Xx})
+	\te^{\ti \mu(\pi-\theta_{Xx})}
+%	
+	\sum_{\rho} H_{\mu + \rho}(k r_{y\Xi })
+	\te^{\ti (\mu + \rho) \theta_{y\Xi }}
+	J_{\rho}(k r_{\Xi X})
+	\te^{\ti \rho(\pi-\theta_{\Xi X})}
+%	
+	\sigma_y
+\end{equation}
+
+Introducing new summation variables $\mu + \rho = \beta$
+
+\begin{equation}
+	\phi(x)
+	=
+	\sum_{\mu}
+	J_{\mu}(k r_{Xx})
+	\te^{\ti \mu(\pi-\theta_{Xx})}
+%	
+	\sum_{\beta}
+	J_{\beta-\mu}(k r_{\Xi X})
+	\te^{\ti (\beta-\mu)(\pi-\theta_{\Xi X})}
+%
+	H_{\beta}(k r_{y\Xi })
+	\te^{\ti (\beta) \theta_{y\Xi }}
+%	
+	\sigma_y
+\end{equation}
+
+Changing the order of summations
+
+
+\begin{equation}
+	\phi(x)
+	=
+	\sum_{\beta}
+%	
+	\underbrace{
+	\sum_{\mu}
+	J_{\mu}(k r_{Xx})
+	\te^{\ti \mu(\pi-\theta_{Xx})}
+%	
+	J_{\beta-\mu}(k r_{\Xi X})
+	\te^{\ti (\beta-\mu)(\pi-\theta_{\Xi X})}
+	}_{L2P_{\beta}}
+%
+	H_{\beta}(k r_{y\Xi })
+	\te^{\ti (\beta) \theta_{y\Xi }}
+%	
+	\sigma_y
+\end{equation}
+
+
+
+
+
+\subsection{Transferring the far field expansion into a local expansion}
+
+Application of Graf's theorem in \eqref{eq:far_field} for $H_{\mu}$:
+$C_{\nu} = H_{\mu}, j = Y, o = x, l = X$
+
+\begin{equation}
+	C_{\mu}(k r_{Yx})
+	\te^{\ti \mu \theta_{Yx}}
+	=
+	\sum_{\beta} C_{\mu + \beta}(k r_{YX})
+	\te^{\ti (\mu + \beta) \theta_{YX}}
+	J_{\beta}(k r_{Xx})
+	\te^{\ti \beta(\pi-\theta_{Xx})}
+\end{equation}
+
+
+Substituting:
+%
+\begin{equation}
+	\phi(x)
+	=
+	\sum_{\mu}
+%	
+	\sum_{\beta}
+	H_{\mu + \beta}(k r_{YX})
+	\te^{\ti (\mu + \beta) \theta_{YX}}
+	J_{\beta}(k r_{Xx})
+	\te^{\ti \beta(\pi-\theta_{Xx})}
+	\te^{-\ti \mu \theta_{Yx}}
+%	
+	\te^{\ti \mu \theta_{xY}}
+	a_{\mu}(Y)
+	\label{eq:far_field}
+\end{equation}
+
+rearranging
+%
+\begin{equation}
+	\phi(x)
+	=
+	\sum_{\beta}
+	J_{\beta}(k r_{Xx})
+	\te^{\ti \beta(\pi-\theta_{Xx})}
+%	
+	\sum_{\mu}
+	H_{\mu + \beta}(k r_{YX})
+	\te^{\ti (\mu + \beta) \theta_{YX}}
+	\te^{\ti \mu \pi}
+	a_{\mu}(Y)
+	\label{eq:far_field}
+\end{equation}
+
+\section{Summary}
+
+\begin{itemize}
+	\item P2M:
+	\begin{equation}
+		J_{\mu}(kr) \exp(-\ti\mu\theta_{Y-y})
+	\end{equation}
+	\item M2P:
+	\begin{equation}
+		\sum_{\mu} H^{(2)}_{\mu}(kr) \exp(\ti\mu(\pi+\theta_{x-Y}))
+	\end{equation}
+	\item M2M:
+	\begin{equation}
+		\sum_{\rho} J_{\mu-\rho}(kr) \exp(-\ti(\mu-\rho)(\theta_{\Psi-Y}))
+	\end{equation}
+	\item M2L:
+	\begin{equation}
+		\sum_{\rho} H^{(2)}_{\mu + \rho}(kr) \exp(\ti(\mu + \rho)  (\pi + \theta_{X-Y}))
+	\end{equation}
+	\item L2L:
+	\begin{equation}
+		\sum_{\rho} J_{\mu - \rho}(kr) \exp(\ti(\mu - \rho)(\pi+\theta_{X-\Xi}))
+	\end{equation}
+	\item P2L:
+	\begin{equation}
+		\sum_{\mu} H^{(2)}_{\mu}(kr) \exp(\ti\mu(\pi+\theta_{X-y}))
+	\end{equation}
+	\item L2P:
+	\begin{equation}
+		\sum_{\mu} J_{\mu}(kr) \exp(-\ti\mu\theta_{x-X})
+	\end{equation}
+\end{itemize}
+
+Derivatives with respect to the normal
+\begin{itemize}
+	\item 
+	\begin{equation}
+		\frac{\partial}{\partial n}_y P2M
+		=
+		\frac{\partial J_{\mu}(kr)}{\partial n_y}  \exp(-\ti\mu\theta_{Y-y})
+		+
+		J_{\mu}(kr) \frac{\partial \exp(-\ti\mu\theta_{Y-y})}{\partial n_y}
+	\end{equation}
+\end{itemize}
+
+
+\end{document}

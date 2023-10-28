@@ -1,0 +1,4 @@
+# Define NIHU source directory
+NIHU_DIR:=/d/ruster/toolbox/boonen/src
+# Define Eigen directory
+EIGEN_DIR:=/usr/local/include/eigen3

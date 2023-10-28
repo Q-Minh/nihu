@@ -1,0 +1,68 @@
+\documentclass{article}
+
+\usepackage{amsmath}
+\newcommand{\te}{\mathrm{e}}
+
+\begin{document}
+
+Kernel:
+%
+\begin{equation}
+	K(x,y) = \log(|{\bf x} - {\bf y}|)
+\end{equation}
+%
+complex continuation
+%
+\begin{equation}
+	K(x,y) = \Re\left( \log(z_x - z_y) \right)
+\end{equation}
+%
+
+\subsection{Multipole expansion}
+
+Source at ${\bf y}$ so that $|{\bf y}| < r$, receiver at ${\bf x}$ so that $|{\bf x}| > r$.
+Taylor series expansion of $\log (z_x - z_y)$ around the origin with respect to $z_y$ leads to
+%
+\begin{equation}
+	\log (z_x - z_y) = \log(z_x) - \sum_{k = 1}^{\infty} \frac{1}{k} \left(\frac{z_y}{z_x}\right)^k
+\end{equation}
+
+\begin{equation}
+	P2M_k(0,z_y) = 
+	\begin{cases}
+		1 & k = 0 \\
+		\frac{-z_y^k}{k} & 1 \le k \le L
+	\end{cases}
+\end{equation}
+
+\begin{equation}
+	M2P_k(z_x, 0) = 
+	\begin{cases}
+		\log(z_x) & k = 0 \\
+		\frac{1}{z_x^k} & 1 \le k \le L 
+	\end{cases}
+\end{equation}
+
+\subsection{Local expansion}
+
+Source at ${\bf y}$ so that $|{\bf y}| > r$, receiver at ${\bf x}$ so that $|{\bf x}| < r$.
+Taylor series expansion of $\log (z_x - z_y)$ around the origin with respect to $z_x$ leads to
+%
+\begin{equation}
+	\log (z_x - z_y) = \log(-z_y) - \sum_{k = 1}^{\infty} \frac{1}{k} \left(\frac{z_x}{z_y}\right)^k
+\end{equation}
+
+\begin{equation}
+	L2P_k(z_x, 0) = z_x^k
+\end{equation}
+%
+\begin{equation}
+	P2L_k(0, z_y) = \begin{cases}
+		\log(-z_y) & k = 0 \\
+		\frac{-1}{k z_y^k} &k \ge 1
+	\end{cases}
+\end{equation}
+
+
+
+\end{document}

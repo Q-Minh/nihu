@@ -1,0 +1,122 @@
+\documentclass{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,bm}
+\usepackage[margin=2cm]{geometry}
+
+\newcommand{\td}{\mathrm{d}}
+
+
+\title{Evaluation of nearly singular integrals}
+
+\begin{document}
+
+\begin{equation}
+	\int_{S} G({\bf y} - {\bf x}) N({\bf y}) \td S({\bf y})
+\end{equation}
+
+Transforming into local system of coordinates
+
+\begin{equation}
+	\int_{\Sigma} G({\bf y(\bm{\xi})} - {\bf x}) N(\bm{\xi}) J(\bm{\xi}) \td \Sigma(\bm{\xi})
+\end{equation}
+%
+where
+%
+\begin{equation}
+	J({\bm{\xi}}) = |\bf{J}(\bm{\xi})|
+\end{equation}
+%
+\begin{equation}
+	{\bf J}(\bm{\xi}) = \frac{\partial {\bf y}}{\partial \xi} \times \frac{\partial {\bf y}}{\partial \eta}
+\end{equation}
+%
+\begin{equation}
+	\int_{\Sigma} G({\bf y(\bm{\xi})} - {\bf x}_0 + {\bf x}_0 - {\bf x}) N(\bm{\xi}) J(\bm{\xi}) \td \Sigma(\bm{\xi})
+\end{equation}
+%
+where ${\bf x}_0 = {\bf y}(\bm{\xi}_0)$,
+and ${\bf x} - {\bf x}_0 = \zeta {\bf J}_0$, 
+where ${\bf J}_0 = {\bf J}({\bm{\xi}_0})$
+%
+\begin{equation}
+	\int_{\Sigma}
+	G({\bf y(\bm{\xi})} - {\bf y}(\bm{\xi}_0) - \zeta {\bf J}({\bm{\xi}_0})) N(\bm{\xi}) J(\bm{\xi}) \td \Sigma(\bm{\xi})
+\end{equation}
+%
+Reparametrization in local coordinate system:
+%
+\begin{align}
+	\xi - \xi_0 = \rho \cos \theta \\
+	\eta - \eta_0 = \rho \sin \theta \\
+	\td\xi \td \eta = \rho \td \rho \td \theta
+\end{align}
+%
+\begin{equation}
+	\int_{0}^{2\pi}
+	\int_{0}^{\rho(\theta)}
+	G({\bf y}(\rho, \theta) - {\bf y}(0, 0) - \zeta {\bf J}_0)
+	N(\rho, \theta)
+	J(\rho, \theta)
+	\rho
+	\td \rho
+	\td \theta
+\end{equation}
+
+Taylor series of the location
+%
+\begin{equation}
+{\bf y}(\rho, \theta) - {\bf y}(0, 0) = {\bf A}_1(\theta) \rho + {\bf A}_2(\theta) \rho^2 + \dots + {\bf A}_k(\theta) \rho^k
+\end{equation}
+%
+The integral is regularized as follows:
+%
+\begin{multline}
+	\int_{0}^{2\pi}
+	\int_{0}^{\rho(\theta)}
+		G({\bf A}_1(\theta) \rho - \zeta {\bf J}_0)
+		N(0, 0)
+		J(0, 0)
+	\rho
+	\td \rho
+	\td \theta \\
+	+
+	\int_{0}^{2\pi}
+	\int_{0}^{\rho(\theta)}
+	\left[
+		G({\bf y}(\rho, \theta) - {\bf y}(0, 0) - \zeta {\bf J}_0)
+		N(\rho, \theta)
+		J(\rho, \theta)
+		-
+		G({\bf A}_1(\theta) \rho - \zeta {\bf J}_0)
+		N(0, 0)
+		J(0, 0)
+	\right]
+	\rho
+	\td \rho
+	\td \theta
+\end{multline}
+
+
+\begin{multline}
+	r = \sqrt{{\bf r}^2}
+	=
+	\sqrt{
+		\left(
+			\sum_{k=1}^{\infty} {\bf A}_k(\theta) \rho^k - \zeta {\bf J}_0
+		\right)^2
+	}
+	\\
+	=
+	\sqrt{
+		\zeta^2 J_0^2 + \sum_{k=1}\sum_{l=1} {\bf A}_k(\theta) {\bf A}_l(\theta) \rho^{k+l}
+		-2\zeta\sum_{k=2}^{\infty} {\bf A}_k(\theta) {\bf J}_0 \rho^k
+	}
+	\\
+	=
+	\sqrt{
+		\zeta^2 J_0^2 + \rho^2 \left(A_1^2(\theta) - 2\zeta {\bf A}_2(\theta) {\bf J}_0\right) + O(\rho^3)
+	}
+\end{multline}
+\end{document}
+  

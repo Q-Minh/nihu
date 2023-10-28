@@ -1,0 +1,130 @@
+\chapter{Kernel functions}
+
+\section{Derivatives of kernels depending on the source-receiver distance}
+
+In lots of useful cases (homogeneous and isotropic media) the kernel is distance-dependent:
+%
+\begin{equation}
+K({\bf x}, {\bf y}) = G(r) = G(|{\bf r}|) = G(|{\bf y} - {\bf x}|).
+\end{equation}
+%
+In these cases the kernel's normal derivatives can be expressed in a unified way.
+
+\subsection{Derivatives of the distance}
+
+Derivatives of the distance $r$ are given by the following formulas
+%
+\begin{align}
+	r &= |{\bf r}| \\
+	r'_i &= \frac{r_i}{r} \\
+	r''_{ij} &= \frac{1}{r} \left( \delta_{ij} - r'_i r'_j \right) \\
+	r'''_{ijk} &= -\frac{1}{r^2} \left(
+		\delta_{ij} r'_k + \delta_{jk} r'_i + \delta_{ki} r'_j - 3 r'_i r'_j r'_k
+	\right)
+\end{align}
+
+\subsection{Derivatives of the kernel}
+
+Derivatives of the kernel depending on the distance are formulated as
+%
+\begin{align}
+	G'_i &= G'_r r'_i \\
+	G''_{ij} &= \left(G''_r - \frac{G'_r}{r} \right) r'_i r'_j +  \frac{G'_r}{r} \delta_{ij} \\
+	G'''_{ijk} &=
+	\left(G'''_r -\frac{3}{r} \left(G''_r  - \frac{G'_r}{r} \right) \right) r'_i r'_j r'_k
+	+  \frac{1}{r} \left( G''_r  - \frac{G'_r}{r} \right)\left(
+	   r'_j \delta_{ki}
+	+  r'_i \delta_{jk}
+	+  r'_k \delta_{ij}
+	\right)
+	\label{eq:derivatives_wrt_ij}
+\end{align}
+
+\subsection{Normal derivatives of the kernel}
+
+The normal derivative w.r.t $n_y$ is computed as $G'_i n_{yi}$, while the normal derivative w.r.t. $n_x$ is computed as $-G'_i n_{xi}$.
+As a consequence, the normal derivatives of distance dependent kernels can be expressed in a unified manner as
+%
+\begin{align}
+	\frac{\partial G}{\partial n_y} 
+	&= n_{yi} G'_i
+	= \underbrace{G'_r}_{F_1} r'_{n_y}
+	\label{eq:normal_derivative_0}
+	\\
+	\frac{\partial^2 G}{\partial n_x \partial n_y}
+	&= -n_{xi} n_{yj} G''_{ij}
+	=  \underbrace{\left(G''_r - \frac{G'_r}{r} \right)}_{F_2^0} r'_{n_x} r'_{n_y} -  \underbrace{\frac{G'_r}{r}}_{F_2^1} \left(n_{xi} n_{yi}\right)
+	\\
+	\frac{\partial^2 G}{\partial n_x^2}
+	&= n_{xi} n_{xj} G''_{ij}
+	= \left(G''_r - \frac{G'_r}{r} \right) r'_{n_x} r'_{n_x} +  \frac{G'_r}{r}
+	\\
+	\frac{\partial^3 G}{\partial n_x^2 \partial n_y}
+	&= n_{xi} n_{xj} n_{yk} G'''_{ijk}
+	\label{eq:normal_derivative_nx2ny}
+\end{align}
+
+\NiHu{} handles distance dependent kernels by defining their functions $F_i^j(r)$:
+%
+\begin{align}
+	F_1(r) &= G'(r) \\
+	F_2^0(r) &= G''_r - \frac{G'_r}{r} \\
+	F_2^1 &= \frac{G'_r}{r}
+\end{align}
+%
+These $F_i^j$ functions need to be defined for each newly introduced distance dependent kernel (\code{distance_dependent_kernel}), and the expressions \eqref{eq:normal_derivative_0}-\eqref{eq:normal_derivative_nx2ny} are automatically computed in the class \code{normal_derivative_kernel}
+
+
+\section{Laplace kernel in two dimensions}
+
+The Kernel expression is
+%
+\begin{equation}
+	G(r) = \frac{-\log(r)}{2\pi}
+\end{equation}
+
+The kernel's $F_i^j$ functions are computed as
+%
+\begin{align}
+	F_1(r) &= \frac{-1}{2\pi r} \\
+	F_2^0(r) &= \frac{2}{2\pi r^2}, \qquad F_2^1(r) = \frac{-1}{2\pi r^2}
+\end{align}
+
+As a consequence, the kernel's normal derivatives are expressed as
+%
+\begin{align}
+	\frac{\partial G}{\partial n_y} 
+	&= -\frac{1}{2\pi r} r'_{n_y}
+	\\
+	\frac{\partial^2 G}{\partial n_x \partial n_y}
+	&= \frac{1}{2\pi r^2}\left( n_{xi} n_{yi} + 2 r'_{n_x} r'_{n_y}\right)
+	\\
+	\frac{\partial^2 G}{\partial n_x^2}
+	&= \frac{1}{2\pi r^2}\left( -1 + 2 \left(r'_{n_x}\right)^2 \right)
+	\\
+	\frac{\partial^3 G}{\partial n_x^2 \partial n_y}
+	&= \frac{1}{\pi r^3} 
+	 \left(
+	r'_{n_y}
+	- 2 r'_{n_x} \left(n_{xk} n_{yk}\right)
+	-4 \left(r'_{n_x}\right)^2 r'_{n_y}
+	\right)
+\end{align}
+
+
+\section{Laplace kernel in three dimensions}
+
+The kernel expression is
+%
+\begin{equation}
+	G(r) = \frac{1}{4\pi r}
+\end{equation}
+%
+
+The kernel's $F_i^j$ functions are computed as
+%
+\begin{align}
+	F_1(r) &= \frac{-1}{4\pi r^2} \\
+	F_2^0(r) &= \frac{3}{4\pi r^3}, \qquad F_2^1(r) = \frac{-1}{4\pi r^3}
+\end{align}
+

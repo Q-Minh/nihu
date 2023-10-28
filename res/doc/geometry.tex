@@ -1,0 +1,80 @@
+\chapter{Geometry}
+\label{sec:geometry}
+
+This chapter describes how the geometry and the mesh is defined in \NiHu{}.
+
+\section{Spaces}
+\label{sec:space}
+\index{space}
+
+Coordinate spaces, like $\mathbb{R}^3$, are defined in the header file \texttt{space.hpp}\index{space.hpp}, in class template \code{space}\index{space class}.
+Coordinate spaces are defined by a scalar type and the number of dimensions.
+These are the template parameters of the \code{space}\index{space class} class:
+
+\begin{lstlisting}
+template <class scalar, unsigned dim>
+class space;
+\end{lstlisting}
+
+Class template \code{space}\index{space class} provides the following interface for spaces:
+
+\begin{description}
+	\item [\code{dimension}] is the dimension of the space
+	\item [\code{scalar_t}] is the scalar type of the space
+	\item [\code{location_t}] is an \code{Eigen} matrix type, defining the type of a location in the space.
+\end{description}
+
+\subsection{1D Space}
+
+\code{space_1d<scalar = double>} is a shorthand for \code{space<scalar, 1>}.
+\index{space\_1d}
+
+\subsection{2D Space}
+
+\code{space_2d<scalar = double>} is a shorthand for \code{space<scalar, 2>}.
+\index{space\_2d}
+
+\subsection{3D Space}
+
+\code{space_3d<scalar = double>} is a shorthand for \code{space<scalar, 3>}.
+\index{space\_3d}
+
+
+\section{Domains}
+\label{sec:domain}
+\index{domain}
+
+Domains are subspaces of $\mathbf{R}^d$.
+Domains are used e.g. as domains of shape functions.
+Domains are used to define quadratures.
+
+Domains are defined in file \code{domain.hpp}\index{domain.hpp}, and in the NiHu library files \code{lib_domain.hpp}\index{lib\_domain.hpp} and \code{lib_domain.cpp}\index{lib\_domain.cpp}.
+The domain classes are derived from class \code{domain_base}\index{domain\_base}.
+
+Each domain class provides the following interface:
+
+\begin{description}
+	\item[\code{space_t}] the space type of the domain
+	\item[\code{num_corners}] the number of corneres
+	\item[\code{num_edges}] the number of edges
+	\item[\code{id}] each domain is assigned a unique identifier.
+	The defaul value of this identifier is \code{id = 10 * domain_t::dimension + num_corners}
+	\item[\code{name}] a textual identifier
+	
+	\item[\code{get_center()}] returns the domain's center
+	\item[\code{get_corner(idx)}] returns the domain's corner
+	\item[\code{get_edge(idx)}] returns the domain's edge as a two-element array
+	\item[\code{get_volume()}] returns the domain's volume
+\end{description}
+
+
+
+\subsection{Line Domain}
+
+\subsection{Triangle Domain}
+
+\subsection{Quadrangle Domain}
+
+\section{Shape sets}
+
+\section{Elements}
