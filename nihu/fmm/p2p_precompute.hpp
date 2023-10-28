@@ -11,8 +11,8 @@
 #include "fmm_operator.hpp"
 #include "lists.hpp"
 #include "local_operator.hpp"
-#include "util/eigen_utils.hpp"
-#include "util/matrix_traits.hpp"
+#include "nihu/util/eigen_utils.hpp"
+#include "nihu/util/matrix_traits.hpp"
 
 #include <Eigen/SparseCore>
 

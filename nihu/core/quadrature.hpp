@@ -27,6 +27,8 @@
 #include "../util/eigen_utils.hpp"
 #include "../util/crtp_base.hpp"
 
+#include <Eigen/Core>
+
 namespace NiHu
 {
 

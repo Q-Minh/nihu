@@ -11,7 +11,7 @@
 #include "distance_dependent_kernel.hpp"
 #include "location_normal.hpp"
 
-#include "core/kernel.hpp"
+#include "nihu/core/kernel.hpp"
 
 namespace NiHu
 {

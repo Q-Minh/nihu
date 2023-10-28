@@ -1,4 +1,4 @@
-#include "library/helmholtz_kernel.hpp"
+#include "nihu/library/helmholtz_kernel.hpp"
 #include <gtest/gtest.h>
 
 typedef Eigen::Matrix<double, 3, 1> x_t;

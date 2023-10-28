@@ -1,6 +1,6 @@
 #include <iostream>
-#include "core/element.hpp"
-#include "library/lib_shape.hpp"
+#include "nihu/core/element.hpp"
+#include "nihu/library/lib_shape.hpp"
 
 void volume(void)
 {

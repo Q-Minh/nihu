@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "util/block_product.hpp"
+#include "nihu/util/block_product.hpp"
 
 #include <type_traits>
 

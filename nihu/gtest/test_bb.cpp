@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "fmm/bounding_box.hpp"
+#include "nihu/fmm/bounding_box.hpp"
 
 template <size_t Dim>
 void bb_tester()

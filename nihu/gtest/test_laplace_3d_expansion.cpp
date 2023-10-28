@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "fmm/laplace_3d_fmm.hpp"
+#include "nihu/fmm/laplace_3d_fmm.hpp"
 
 TEST(laplace_3d_expansion, single_level)
 {

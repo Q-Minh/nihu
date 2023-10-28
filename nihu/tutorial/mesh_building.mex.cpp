@@ -18,8 +18,8 @@
 
 #include <boost/math/constants/constants.hpp>
 
-#include "core/mesh.hpp"
-#include "library/lib_element.hpp"
+#include "nihu/core/mesh.hpp"
+#include "nihu/library/lib_element.hpp"
 
 //! [Typedefs]
 typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> dMatrix;
@@ -81,7 +81,7 @@ void test2(void)
 
 
 //! [Matlab example]
-#include "util/mex_matrix.hpp"
+#include "nihu/util/mex_matrix.hpp"
 
 // the MATLAB entry point
 void mexFunction(int nlhs, mxArray *lhs[], int nrhs, mxArray const *rhs[])

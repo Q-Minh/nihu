@@ -18,10 +18,10 @@
 
 #include <iostream>
 
-#include "library/matsumoto_2010.hpp"
-//#include "library/helmholtz_singular_integrals.hpp"
-#include "core/weighted_residual.hpp"
-#include "library/helmholtz_kernel.hpp"
+#include "nihu/library/matsumoto_2010.hpp"
+//#include "nihu/library/helmholtz_singular_integrals.hpp"
+#include "nihu/core/weighted_residual.hpp"
+#include "nihu/library/helmholtz_kernel.hpp"
 
 
 // dynamically resizeable double matrix

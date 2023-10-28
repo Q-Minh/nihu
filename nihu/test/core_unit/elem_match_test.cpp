@@ -16,11 +16,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "core/mesh.hpp"
-#include "core/element.hpp"
-#include "core/element_match.hpp"
-#include "core/function_space.hpp"
-#include "library/lib_element.hpp"
+#include "nihu/core/mesh.hpp"
+#include "nihu/core/element.hpp"
+#include "nihu/core/element_match.hpp"
+#include "nihu/core/function_space.hpp"
+#include "nihu/library/lib_element.hpp"
 
 #include <iostream>
 

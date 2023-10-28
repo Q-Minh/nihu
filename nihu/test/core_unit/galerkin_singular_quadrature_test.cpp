@@ -18,8 +18,8 @@
 
 #include <boost/math/constants/constants.hpp>
 
-#include "core/gaussian_quadrature.hpp"
-#include "core/singular_galerkin_quadrature.hpp"
+#include "nihu/core/gaussian_quadrature.hpp"
+#include "nihu/core/singular_galerkin_quadrature.hpp"
 
 struct gunc_straight
 {

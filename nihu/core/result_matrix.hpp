@@ -28,6 +28,8 @@
 #include "../util/crtp_base.hpp"
 #include "../util/eigen_utils.hpp"
 
+#include <Eigen/Core>
+
 namespace NiHu
 {
 

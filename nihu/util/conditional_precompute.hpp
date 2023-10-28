@@ -23,7 +23,7 @@
 #ifndef CONDITIONAL_PRECOMPUTE_HPP_INCLUDED
 #define CONDITIONAL_PRECOMPUTE_HPP_INCLUDED
 
-#include "core/global_definitions.hpp"
+#include "nihu/core/global_definitions.hpp"
 #include <type_traits>
 
 namespace NiHu

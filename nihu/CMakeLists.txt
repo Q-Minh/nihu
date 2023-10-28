@@ -103,7 +103,6 @@ PROPERTIES
 target_compile_definitions(nihu PUBLIC cxx_std_17)
 target_compile_options(nihu PRIVATE /bigobj)
 target_include_directories(nihu PUBLIC "${CMAKE_SOURCE_DIR}")
-target_include_directories(nihu PRIVATE "${CMAKE_SOURCE_DIR}/nihu")
 target_link_libraries(nihu 
 PUBLIC 
 	Eigen3::Eigen 

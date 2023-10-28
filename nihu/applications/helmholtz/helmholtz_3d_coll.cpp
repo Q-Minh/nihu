@@ -4,15 +4,15 @@
 
 #include <omp.h>
 
-#include "core/field.hpp"
-#include "core/weighted_residual.hpp"
+#include "nihu/core/field.hpp"
+#include "nihu/core/weighted_residual.hpp"
 #include "interface/read_off_mesh.hpp"
-#include "library/lib_element.hpp"
-#include "library/quad_1_gauss_field.hpp"
-#include "library/helmholtz.hpp"
+#include "nihu/library/lib_element.hpp"
+#include "nihu/library/quad_1_gauss_field.hpp"
+#include "nihu/library/helmholtz.hpp"
 
 #include<Eigen/IterativeLinearSolvers>
-#include "fmm/GMRES.h"
+#include "nihu/fmm/GMRES.h"
 
 #include <boost/math/constants/constants.hpp>
 #include <boost/program_options.hpp>

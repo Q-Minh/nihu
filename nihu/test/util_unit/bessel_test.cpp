@@ -17,7 +17,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <iostream>
-#include "util/math_functions.hpp"
+#include "nihu/util/math_functions.hpp"
 
 int main(void)
 {

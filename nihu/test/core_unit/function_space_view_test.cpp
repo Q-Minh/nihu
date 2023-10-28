@@ -16,9 +16,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "tmp/vector.hpp"
-#include "core/function_space.hpp"
-#include "library/lib_element.hpp"
+#include "nihu/tmp/vector.hpp"
+#include "nihu/core/function_space.hpp"
+#include "nihu/library/lib_element.hpp"
 
 typedef tmp::vector<NiHu::tria_1_elem, NiHu::quad_1_elem> elem_type_vector_t;
 typedef NiHu::mesh<elem_type_vector_t> mesh_t;

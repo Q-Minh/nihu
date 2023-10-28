@@ -18,9 +18,9 @@
 
 #include <boost/math/constants/constants.hpp>
 
-#include "library/elastodynamics_kernel.hpp"
-#include "library/lib_element.hpp"
-#include "core/double_integral.hpp"
+#include "nihu/library/elastodynamics_kernel.hpp"
+#include "nihu/library/lib_element.hpp"
+#include "nihu/core/double_integral.hpp"
 
 template <class K, class E1, class E2>
 typename K::result_t tester(K const &k, E1 const &e1, E2 const &e2)

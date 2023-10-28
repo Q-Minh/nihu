@@ -8,7 +8,7 @@
 #define DIVIDE_HPP_INCLUDED
 
 #include "cluster.hpp"
-#include "util/crtp_base.hpp"
+#include "nihu/util/crtp_base.hpp"
 
 #include <algorithm> // std::max
 

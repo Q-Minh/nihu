@@ -16,8 +16,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "util/mex_matrix.hpp"
-#include "util/math_functions.hpp"
+#include "nihu/util/mex_matrix.hpp"
+#include "nihu/util/math_functions.hpp"
 #include <iostream>
 #include <stdexcept>
 

@@ -16,10 +16,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "core/weighted_residual.hpp"
-#include "library/elastostatics_kernel.hpp"
-#include "library/elastostatics_singular_integrals.hpp"
-#include "library/lib_element.hpp"
+#include "nihu/core/weighted_residual.hpp"
+#include "nihu/library/elastostatics_kernel.hpp"
+#include "nihu/library/elastostatics_singular_integrals.hpp"
+#include "nihu/library/lib_element.hpp"
 #include "interface/read_off_mesh.hpp"
 
 #include <fstream>

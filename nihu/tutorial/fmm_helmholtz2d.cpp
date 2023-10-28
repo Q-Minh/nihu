@@ -1,8 +1,8 @@
-#include "fmm/helmholtz_2d_wb_fmm.hpp"
-#include "fmm/lists.hpp"
-#include "fmm/fmm_indexed.hpp"
-#include "fmm/fmm_precompute.hpp"
-#include "fmm/fmm_matrix.hpp"
+#include "nihu/fmm/helmholtz_2d_wb_fmm.hpp"
+#include "nihu/fmm/lists.hpp"
+#include "nihu/fmm/fmm_indexed.hpp"
+#include "nihu/fmm/fmm_precompute.hpp"
+#include "nihu/fmm/fmm_matrix.hpp"
 
 //! [typedefs]
 typedef double wave_number_t;

@@ -17,9 +17,9 @@
 #include "p2p.hpp"
 #include "unit_sphere.h"
 
-#include "library/helmholtz_kernel.hpp"
-#include "library/helmholtz_singular_integrals.hpp"
-#include "library/helmholtz_nearly_singular_integrals.hpp"
+#include "nihu/library/helmholtz_kernel.hpp"
+#include "nihu/library/helmholtz_singular_integrals.hpp"
+#include "nihu/library/helmholtz_nearly_singular_integrals.hpp"
 
 #include <boost/math/constants/constants.hpp>
 #include <boost/math/special_functions/hankel.hpp>

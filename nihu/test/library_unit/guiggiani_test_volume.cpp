@@ -18,10 +18,10 @@
 
 #include <iostream>
 
-#include "library/guiggiani_1992.hpp"
-#include "library/lib_element.hpp"
-#include "library/location_normal.hpp"
-#include "library/laplace_kernel.hpp"
+#include "nihu/library/guiggiani_1992.hpp"
+#include "nihu/library/lib_element.hpp"
+#include "nihu/library/location_normal.hpp"
+#include "nihu/library/laplace_kernel.hpp"
 
 typedef NiHu::quad_1_volume_elem Elem;
 typedef NiHu::field_view<Elem, NiHu::field_option::constant> Field;

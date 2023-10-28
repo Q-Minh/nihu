@@ -18,10 +18,10 @@
 
 #include <boost/math/constants/constants.hpp>
 
-#include "core/weighted_residual.hpp"
-#include "library/elastodynamics_kernel.hpp"
-#include "library/elastodynamics_singular_integrals.hpp"
-#include "library/lib_element.hpp"
+#include "nihu/core/weighted_residual.hpp"
+#include "nihu/library/elastodynamics_kernel.hpp"
+#include "nihu/library/elastodynamics_singular_integrals.hpp"
+#include "nihu/library/lib_element.hpp"
 #include "interface/read_off_mesh.hpp"
 
 #include <fstream>

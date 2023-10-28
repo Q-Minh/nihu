@@ -16,9 +16,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "util/eigen_utils.hpp"
-#include "core/weighted_residual.hpp"
-#include "library/lib_element.hpp"
+#include "nihu/util/eigen_utils.hpp"
+#include "nihu/core/weighted_residual.hpp"
+#include "nihu/library/lib_element.hpp"
 
 typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> dMatrix;
 typedef Eigen::Matrix<unsigned, Eigen::Dynamic, Eigen::Dynamic> uMatrix;

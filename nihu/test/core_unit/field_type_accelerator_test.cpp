@@ -16,12 +16,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "core/field_type_accelerator.hpp"
-#include "core/gaussian_quadrature.hpp"
-#include "util/store_pattern.hpp"
-#include "tmp/control.hpp"
-#include "tmp/vector.hpp"
-#include "library/lib_element.hpp"
+#include "nihu/core/field_type_accelerator.hpp"
+#include "nihu/core/gaussian_quadrature.hpp"
+#include "nihu/util/store_pattern.hpp"
+#include "nihu/tmp/control.hpp"
+#include "nihu/tmp/vector.hpp"
+#include "nihu/library/lib_element.hpp"
 
 template <class Family, class Field>
 struct tester

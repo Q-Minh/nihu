@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "library/lib_shape.hpp"
+#include "nihu/library/lib_shape.hpp"
 
 typedef Eigen::Matrix<double, 1, 1> Vector1d;
 typedef Eigen::Matrix<double, 2, 1> Vector2d;

@@ -26,7 +26,7 @@
 
 #include "asymptotic_types.hpp"
 #include "domain.hpp"
-#include "library/lib_domain.hpp"
+#include "nihu/library/lib_domain.hpp"
 
 namespace NiHu
 {

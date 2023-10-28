@@ -3,7 +3,7 @@
 
 #include "fmm_operator.hpp"
 #include "local_operator.hpp"
-#include "util/matrix_traits.hpp"
+#include "nihu/util/matrix_traits.hpp"
 #include <type_traits>
 
 namespace NiHu

@@ -18,12 +18,12 @@
 
 #include <iostream>
 
-#include "library/guiggiani_1992.hpp"
-#include "library/laplace_nearly_singular_integrals.hpp"
-#include "library/laplace_singular_integrals.hpp"
-#include "library/helmholtz_nearly_singular_integrals.hpp"
-#include "library/helmholtz_singular_integrals.hpp"
-#include "library/lib_element.hpp"
+#include "nihu/library/guiggiani_1992.hpp"
+#include "nihu/library/laplace_nearly_singular_integrals.hpp"
+#include "nihu/library/laplace_singular_integrals.hpp"
+#include "nihu/library/helmholtz_nearly_singular_integrals.hpp"
+#include "nihu/library/helmholtz_singular_integrals.hpp"
+#include "nihu/library/lib_element.hpp"
 
 template <class kernel_t>
 struct planar_analytic;

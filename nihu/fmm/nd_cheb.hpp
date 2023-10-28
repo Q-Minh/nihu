@@ -6,8 +6,8 @@
 
 #include "bounding_box.hpp"
 
-#include "util/math_functions.hpp"
-#include "util/misc.hpp"
+#include "nihu/util/math_functions.hpp"
+#include "nihu/util/misc.hpp"
 
 #include <Eigen/Core>
 #include <boost/math/special_functions/chebyshev.hpp>

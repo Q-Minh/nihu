@@ -1,5 +1,5 @@
-#include "core/inverse_mapping.hpp"
-#include "library/lib_element.hpp"
+#include "nihu/core/inverse_mapping.hpp"
+#include "nihu/library/lib_element.hpp"
 
 #include <iostream>
 

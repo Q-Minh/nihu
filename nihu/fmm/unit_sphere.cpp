@@ -3,7 +3,7 @@
 #include <boost/math/special_functions/spherical_harmonic.hpp>
 #include <boost/math/constants/constants.hpp>
 
-#include "core/gaussian_quadrature.hpp"
+#include "nihu/core/gaussian_quadrature.hpp"
 
 
 namespace NiHu

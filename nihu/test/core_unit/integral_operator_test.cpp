@@ -1,5 +1,5 @@
-#include "core/integral_operator.hpp"
-#include "library/laplace_kernel.hpp"
+#include "nihu/core/integral_operator.hpp"
+#include "nihu/library/laplace_kernel.hpp"
 #include <type_traits>
 #include <iostream>
 

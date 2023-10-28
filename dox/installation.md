@@ -426,8 +426,8 @@ In order to create and compile your own C++ sources relying on the toolbox, you 
 It is convienient to include the NiHu headers in the following manner.
 
 ~~~~~~~~{.cpp}
-#include "core/weighted_residual.hpp"
-#include "tmp/algorithm.hpp"
+#include "nihu/core/weighted_residual.hpp"
+#include "nihu/tmp/algorithm.hpp"
 ...
 
 int main(void)

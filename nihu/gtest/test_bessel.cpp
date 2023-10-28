@@ -1,4 +1,4 @@
-#include "util/math_functions.hpp"
+#include "nihu/util/math_functions.hpp"
 
 #include <boost/math/constants/constants.hpp>
 

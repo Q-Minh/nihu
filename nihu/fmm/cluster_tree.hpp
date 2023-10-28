@@ -9,7 +9,7 @@
 
 #include "cluster.hpp"
 #include "divide.hpp"
-#include "util/misc.hpp"
+#include "nihu/util/misc.hpp"
 
 #include "Eigen/Dense"
 #include "Eigen/StdVector"

@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
-#include "fmm/black_box_fmm.hpp"
-#include "library/elastostatics"
+#include "nihu/fmm/black_box_fmm.hpp"
+#include "nihu/library/elastostatics"
 
 class elastostatics
 {

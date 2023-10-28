@@ -7,7 +7,7 @@
 #define FMM_TIMER_HPP_INCLUDED
 
 #include "fmm_operator.hpp"
-#include "util/timer.h"
+#include "nihu/util/timer.h"
 
 #include <array>
 #include <iostream>

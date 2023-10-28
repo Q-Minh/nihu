@@ -16,9 +16,9 @@
 #include "p2p.hpp"
 #include "fmm_operator.hpp"
 
-#include "library/location_normal.hpp"
-#include "library/normal_derivative_kernel.hpp"
-#include "util/matrix_traits.hpp"
+#include "nihu/library/location_normal.hpp"
+#include "nihu/library/normal_derivative_kernel.hpp"
+#include "nihu/util/matrix_traits.hpp"
 
 #include <cstddef>
 #include <type_traits>

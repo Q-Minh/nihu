@@ -16,11 +16,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "tmp/lambda.hpp"
-#include "tmp/integer.hpp"
-#include "tmp/vector.hpp"
-#include "tmp/control.hpp"
-#include "tmp/print.hpp"
+#include "nihu/tmp/lambda.hpp"
+#include "nihu/tmp/integer.hpp"
+#include "nihu/tmp/vector.hpp"
+#include "nihu/tmp/control.hpp"
+#include "nihu/tmp/print.hpp"
 
 #include <iostream>
 #include <typeinfo>

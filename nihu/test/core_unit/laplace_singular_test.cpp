@@ -18,7 +18,7 @@
 
 #include <core/weighted_residual.hpp>
 #include <library/laplace_kernel.hpp>
-#include "library/lib_element.hpp"
+#include "nihu/library/lib_element.hpp"
 #include <library/laplace_nearly_singular_integrals.hpp>
 #include <library/laplace_singular_integrals.hpp>
 

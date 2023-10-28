@@ -1,8 +1,8 @@
 #include <boost/math/constants/constants.hpp>
 
-#include "library/laplace_kernel.hpp"
-#include "library/lib_element.hpp"
-#include "core/inverse_mapping.hpp"
+#include "nihu/library/laplace_kernel.hpp"
+#include "nihu/library/lib_element.hpp"
+#include "nihu/core/inverse_mapping.hpp"
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>

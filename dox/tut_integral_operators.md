@@ -24,7 +24,7 @@ Integral operators are defined by their kernel functions.
 NiHu creates integral operators using the function NiHu::create_integral_operator, called with a kernel function instance.
 The lines below, for example
 ~~~~~~~~~~~
-#include "library/laplace_kernel.hpp"
+#include "nihu/library/laplace_kernel.hpp"
 auto K = NiHu::create_integral_operator(NiHu::laplace_3d_DLP_kernel());
 ~~~~~~~~~~~
 instantiate the double layer potential kernel of the Laplace equation in 3D from the library, and transform the kernel to an integral operator.

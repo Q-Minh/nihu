@@ -18,10 +18,10 @@
 
 #include <boost/math/constants/constants.hpp>
 
-#include "core/weighted_residual.hpp"
+#include "nihu/core/weighted_residual.hpp"
 #include "interface/read_off_mesh.hpp"
-#include "library/helmholtz_kernel.hpp"
-#include "library/helmholtz_singular_integrals.hpp"
+#include "nihu/library/helmholtz_kernel.hpp"
+#include "nihu/library/helmholtz_singular_integrals.hpp"
 
 typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> dMatrix;
 typedef Eigen::Matrix<unsigned, Eigen::Dynamic, Eigen::Dynamic> uMatrix;

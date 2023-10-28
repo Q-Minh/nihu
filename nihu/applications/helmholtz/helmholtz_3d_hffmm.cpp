@@ -4,15 +4,15 @@
  * @ingroup app_helmholtz
  */
 
-#include "core/field.hpp"
-#include "core/function_space.hpp"
-#include "fmm/divide.hpp"
-#include "fmm/helmholtz_3d_hf_fmm.hpp"
-#include "fmm/helmholtz_burton_miller_solver.hpp"
-#include "fmm/helmholtz_field_point.hpp"
+#include "nihu/core/field.hpp"
+#include "nihu/core/function_space.hpp"
+#include "nihu/fmm/divide.hpp"
+#include "nihu/fmm/helmholtz_3d_hf_fmm.hpp"
+#include "nihu/fmm/helmholtz_burton_miller_solver.hpp"
+#include "nihu/fmm/helmholtz_field_point.hpp"
 #include "interface/read_off_mesh.hpp"
-#include "library/lib_element.hpp"
-#include "library/quad_1_gauss_field.hpp"
+#include "nihu/library/lib_element.hpp"
+#include "nihu/library/quad_1_gauss_field.hpp"
 
 #include <boost/math/constants/constants.hpp>
 #include <boost/program_options.hpp>

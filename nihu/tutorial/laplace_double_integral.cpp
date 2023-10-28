@@ -19,9 +19,9 @@
 #include <boost/math/constants/constants.hpp>
 
 //! [Includes]
-#include "library/lib_element.hpp"
-#include "core/weighted_residual.hpp"
-#include "library/laplace_kernel.hpp"
+#include "nihu/library/lib_element.hpp"
+#include "nihu/core/weighted_residual.hpp"
+#include "nihu/library/laplace_kernel.hpp"
 //! [Includes]
 
 //! [Typedefs]

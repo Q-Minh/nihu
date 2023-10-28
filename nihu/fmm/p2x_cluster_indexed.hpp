@@ -3,7 +3,7 @@
 
 #include "cluster_tree.hpp"
 #include "fmm_operator.hpp"
-#include "util/matrix_traits.hpp"
+#include "nihu/util/matrix_traits.hpp"
 
 
 #include <type_traits>

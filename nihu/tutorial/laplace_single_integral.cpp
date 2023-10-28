@@ -18,9 +18,9 @@
 
 #include <boost/math/constants/constants.hpp>
 
-#include "core/weighted_residual.hpp"
-#include "library/laplace_kernel.hpp"
-#include "library/lib_element.hpp"
+#include "nihu/core/weighted_residual.hpp"
+#include "nihu/library/laplace_kernel.hpp"
+#include "nihu/library/lib_element.hpp"
 
 typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> dMatrix;
 typedef Eigen::Matrix<unsigned, Eigen::Dynamic, Eigen::Dynamic> uMatrix;

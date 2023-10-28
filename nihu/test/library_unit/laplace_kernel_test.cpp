@@ -16,8 +16,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "library/laplace_kernel.hpp"
-#include "library/lib_element.hpp"
+#include "nihu/library/laplace_kernel.hpp"
+#include "nihu/library/lib_element.hpp"
 #include <iostream>
 #include <chrono>
 

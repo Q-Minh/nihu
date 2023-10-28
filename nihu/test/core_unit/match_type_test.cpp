@@ -16,10 +16,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "library/lib_element.hpp"
-#include "core/match_types.hpp"
-#include "core/field.hpp"
-#include "tmp/control.hpp"
+#include "nihu/library/lib_element.hpp"
+#include "nihu/core/match_types.hpp"
+#include "nihu/core/field.hpp"
+#include "nihu/tmp/control.hpp"
 #include <iostream>
 
 typedef NiHu::tria_1_elem test_elem_t;

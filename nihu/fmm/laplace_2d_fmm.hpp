@@ -10,9 +10,9 @@
 #include "m2l_indices.hpp"
 #include "p2p.hpp"
 
-#include "library/laplace_kernel.hpp"
-#include "library/laplace_nearly_singular_integrals.hpp"
-#include "library/laplace_singular_integrals.hpp"
+#include "nihu/library/laplace_kernel.hpp"
+#include "nihu/library/laplace_nearly_singular_integrals.hpp"
+#include "nihu/library/laplace_singular_integrals.hpp"
 
 #include <boost/math/special_functions/binomial.hpp>
 

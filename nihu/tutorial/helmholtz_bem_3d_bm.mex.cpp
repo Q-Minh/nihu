@@ -1,10 +1,10 @@
 #include <mex.h>
 
-#include "core/weighted_residual.hpp"
-#include "util/mex_matrix.hpp"
-#include "library/helmholtz_kernel.hpp"
-#include "library/helmholtz_nearly_singular_integrals.hpp"
-#include "library/helmholtz_singular_integrals.hpp"
+#include "nihu/core/weighted_residual.hpp"
+#include "nihu/util/mex_matrix.hpp"
+#include "nihu/library/helmholtz_kernel.hpp"
+#include "nihu/library/helmholtz_nearly_singular_integrals.hpp"
+#include "nihu/library/helmholtz_singular_integrals.hpp"
 
 typedef NiHu::mex::real_matrix<double> dMatrix;
 typedef NiHu::mex::complex_matrix<double> cMatrix;

@@ -10,8 +10,8 @@
  *   Issue 3, pp. 118-128 (1985) DOI: 10.1016/0264-682X(85)90014-0
  */
 
-#include "core/gaussian_quadrature.hpp"
-#include "library/telles_1987.hpp"
+#include "nihu/core/gaussian_quadrature.hpp"
+#include "nihu/library/telles_1987.hpp"
 
 #include <cmath>
 #include <iomanip>

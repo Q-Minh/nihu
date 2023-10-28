@@ -8,7 +8,7 @@
 #define CHEBYSHEV_CLUSTER_HPP_INCLUDED
 
 #include "cluster.hpp"
-#include "util/misc.hpp"
+#include "nihu/util/misc.hpp"
 #include "nd_cheb.hpp"
 
 #include <cstddef>

@@ -17,12 +17,12 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "field_test.h"
-#include "core/element.hpp"
-#include "tmp/sequence.hpp"
-#include "tmp/control.hpp"
-#include "tmp/vector.hpp"
+#include "nihu/core/element.hpp"
+#include "nihu/tmp/sequence.hpp"
+#include "nihu/tmp/control.hpp"
+#include "nihu/tmp/vector.hpp"
 
-#include "library/lib_element.hpp"
+#include "nihu/library/lib_element.hpp"
 
 #include <iostream>
 

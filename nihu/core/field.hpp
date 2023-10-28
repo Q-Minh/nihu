@@ -32,6 +32,8 @@
 #include "element.hpp"
 #include "field_dimension.hpp"
 
+#include <Eigen/Core>
+
 namespace NiHu
 {
 

@@ -18,8 +18,8 @@
 
 #include <boost/math/constants/constants.hpp>
 
-#include "library/helmholtz_kernel.hpp"
-#include "library/lib_element.hpp"
+#include "nihu/library/helmholtz_kernel.hpp"
+#include "nihu/library/lib_element.hpp"
 #include <iostream>
 
 

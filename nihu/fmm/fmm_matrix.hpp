@@ -11,7 +11,7 @@
 #include "fmm_operator_collection.hpp"
 #include "fmm_timer.h"
 #include "lists.hpp"
-#include "util/matrix_traits.hpp"
+#include "nihu/util/matrix_traits.hpp"
 
 #ifdef NIHU_FMM_PARALLEL
 #include <omp.h>

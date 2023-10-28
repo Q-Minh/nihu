@@ -16,10 +16,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "core/gaussian_quadrature.hpp"
-#include "core/duffy_quadrature.hpp"
-#include "tmp/control.hpp"
-#include "tmp/vector.hpp"
+#include "nihu/core/gaussian_quadrature.hpp"
+#include "nihu/core/duffy_quadrature.hpp"
+#include "nihu/tmp/control.hpp"
+#include "nihu/tmp/vector.hpp"
 
 template <class Family, class Domain>
 struct tester

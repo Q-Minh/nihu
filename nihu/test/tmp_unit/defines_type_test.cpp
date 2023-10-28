@@ -16,7 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "tmp/defines_type.hpp"
+#include "nihu/tmp/defines_type.hpp"
 #include <iostream>
 
 // metafunction declarations with macro

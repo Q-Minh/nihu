@@ -28,6 +28,7 @@
 #include "quadrature.hpp"
 #include "../library/lib_shape.hpp"
 
+#include <Eigen/Core>
 namespace NiHu
 {
 

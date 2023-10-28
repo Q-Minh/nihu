@@ -37,6 +37,7 @@
 #include "../util/dual_range.hpp"
 #include "formalism.hpp"
 
+#include <Eigen/Core>
 #include <stdexcept>
 
 namespace NiHu

@@ -17,11 +17,11 @@
 #include "fmm_integrated.hpp"
 #include "matrix_free.hpp"
 
-#include "core/field.hpp"
-#include "core/function_space.hpp"
+#include "nihu/core/field.hpp"
+#include "nihu/core/function_space.hpp"
 
-#include "util/timer.h"
-#include "util/type2tag.hpp"
+#include "nihu/util/timer.h"
+#include "nihu/util/type2tag.hpp"
 
 #ifdef NIHU_FMM_PARALLEL
 #include <omp.h>

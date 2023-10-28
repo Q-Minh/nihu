@@ -3,7 +3,7 @@
 
 #include <gtest/gtest.h>
 
-#include "fmm/empty_cluster.hpp"
+#include "nihu/fmm/empty_cluster.hpp"
 
 TEST(cluster, empty)
 {

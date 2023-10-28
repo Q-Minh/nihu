@@ -1,5 +1,5 @@
 #include <Eigen/Core>
-#include "util/conditional_precompute.hpp"
+#include "nihu/util/conditional_precompute.hpp"
 #include <gtest/gtest.h>
 
 typedef Eigen::Matrix<double, 20, 3> mtx_type;

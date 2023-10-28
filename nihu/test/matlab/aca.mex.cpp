@@ -1,6 +1,6 @@
-#include "util/mex_matrix.hpp"
+#include "nihu/util/mex_matrix.hpp"
 
-#include "aca/aca.hpp"
+#include "nihu/aca/aca.hpp"
 
 
 /** \brief function computing the Newton kernel matrix

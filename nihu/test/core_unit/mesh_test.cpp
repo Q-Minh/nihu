@@ -16,8 +16,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "core/mesh.hpp"
-#include "library/lib_element.hpp"
+#include "nihu/core/mesh.hpp"
+#include "nihu/library/lib_element.hpp"
 
 #include <iostream>
 

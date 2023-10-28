@@ -19,10 +19,10 @@
 #include <boost/math/constants/constants.hpp>
 
 //! [Includes]
-#include "core/weighted_residual.hpp"
-#include "library/laplace_kernel.hpp"
-#include "library/lenoir_salles_2012.hpp"
-#include "library/lib_element.hpp"
+#include "nihu/core/weighted_residual.hpp"
+#include "nihu/library/laplace_kernel.hpp"
+#include "nihu/library/lenoir_salles_2012.hpp"
+#include "nihu/library/lib_element.hpp"
 //! [Includes]
 
 //! [Typedefs]

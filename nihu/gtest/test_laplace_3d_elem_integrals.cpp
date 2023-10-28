@@ -2,14 +2,14 @@
 
 #include <boost/math/constants/constants.hpp>
 
-#include "library/laplace_kernel.hpp"
-#include "library/laplace_nearly_singular_integrals.hpp"
-#include "library/laplace_singular_integrals.hpp"
+#include "nihu/library/laplace_kernel.hpp"
+#include "nihu/library/laplace_nearly_singular_integrals.hpp"
+#include "nihu/library/laplace_singular_integrals.hpp"
 
-#include "library/lib_element.hpp"
-#include "core/field.hpp"
-#include "core/double_integral.hpp"
-#include "library/quad_1_gauss_shape_set.hpp"
+#include "nihu/library/lib_element.hpp"
+#include "nihu/core/field.hpp"
+#include "nihu/core/double_integral.hpp"
+#include "nihu/library/quad_1_gauss_shape_set.hpp"
 
 
 typedef Eigen::Matrix<double, Eigen::Dynamic, 1> dVector;

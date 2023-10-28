@@ -16,8 +16,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "tmp/stack.hpp"
-#include "tmp/algorithm.hpp"
+#include "nihu/tmp/stack.hpp"
+#include "nihu/tmp/algorithm.hpp"
 
 #include <iostream>
 

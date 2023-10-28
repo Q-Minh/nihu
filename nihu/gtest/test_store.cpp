@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "util/store_pattern.hpp"
+#include "nihu/util/store_pattern.hpp"
 
 // Dummy tester class that counts the number of instantiations
 class Dummy {

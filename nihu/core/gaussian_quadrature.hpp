@@ -25,6 +25,9 @@
 #ifndef GAUSSIAN_QUADRATURE_HPP_INCLUDED
 #define GAUSSIAN_QUADRATURE_HPP_INCLUDED
 
+#include <Eigen/Core>
+#include <Eigen/Eigenvalues>
+
 #include "quadrature.hpp"
 #include "../library/lib_domain.hpp"
 

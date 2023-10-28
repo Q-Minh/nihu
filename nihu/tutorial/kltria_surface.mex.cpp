@@ -16,10 +16,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "core/weighted_residual.hpp"
-#include "library/covariance_kernel.hpp"
-#include "util/mex_matrix.hpp"
-#include "library/lib_element.hpp"
+#include "nihu/core/weighted_residual.hpp"
+#include "nihu/library/covariance_kernel.hpp"
+#include "nihu/util/mex_matrix.hpp"
+#include "nihu/library/lib_element.hpp"
 
 typedef NiHu::field_dimension::_2d field_dim_t;
 static const unsigned int field_dim = field_dim_t::value;

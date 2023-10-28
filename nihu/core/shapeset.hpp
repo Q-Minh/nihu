@@ -31,6 +31,7 @@
 
 #include "domain.hpp"
 
+#include <Eigen/Core>
 #include <iostream>
 #include <stdexcept>
 #include <type_traits>

@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "fmm/kron_identity.hpp"
+#include "nihu/fmm/kron_identity.hpp"
 #include <Eigen/Core>
 
 TEST(kron_identity, basic)

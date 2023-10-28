@@ -1,17 +1,17 @@
 
-#include "library/lib_element.hpp"
-#include "library/helmholtz_kernel.hpp"
-#include "library/helmholtz_nearly_singular_integrals.hpp"
-#include "library/helmholtz_singular_integrals.hpp"
+#include "nihu/library/lib_element.hpp"
+#include "nihu/library/helmholtz_kernel.hpp"
+#include "nihu/library/helmholtz_nearly_singular_integrals.hpp"
+#include "nihu/library/helmholtz_singular_integrals.hpp"
 
-#include "library/laplace_kernel.hpp"
-#include "library/laplace_nearly_singular_integrals.hpp"
-#include "library/laplace_singular_integrals.hpp"
+#include "nihu/library/laplace_kernel.hpp"
+#include "nihu/library/laplace_nearly_singular_integrals.hpp"
+#include "nihu/library/laplace_singular_integrals.hpp"
 
-#include "library/lib_shape.hpp"
-#include "library/nearly_singular_collocational.hpp"
+#include "nihu/library/lib_shape.hpp"
+#include "nihu/library/nearly_singular_collocational.hpp"
 
-#include "core/double_integral.hpp"
+#include "nihu/core/double_integral.hpp"
 
 typedef NiHu::helmholtz_3d_HSP_kernel<double> kernel_t;
 double wave_number = 1;

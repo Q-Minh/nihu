@@ -7,7 +7,7 @@
 #define CLUSTER_HPP_INCLUDED
 
 #include "bounding_box.hpp"
-#include "util/crtp_base.hpp"
+#include "nihu/util/crtp_base.hpp"
 
 #include <algorithm>	// std::find, std::copy
 #include <cstddef>

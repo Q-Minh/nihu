@@ -1,7 +1,7 @@
 #ifndef P2P_HPP_INCLUDED
 #define P2P_HPP_INCLUDED
 
-#include "util/matrix_traits.hpp"
+#include "nihu/util/matrix_traits.hpp"
 
 #include "fmm_operator.hpp"
 

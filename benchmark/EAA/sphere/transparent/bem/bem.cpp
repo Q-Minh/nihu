@@ -4,15 +4,15 @@
 
 #include <omp.h>
 
-#include "library/quad_1_gauss_field.hpp"
+#include "nihu/library/quad_1_gauss_field.hpp"
 
-#include "core/weighted_residual.hpp"
+#include "nihu/core/weighted_residual.hpp"
 #include "interface/read_off_mesh.hpp"
-#include "library/lib_element.hpp"
-#include "library/helmholtz_kernel.hpp"
-//#include "library/helmholtz_singular_integrals.hpp"
+#include "nihu/library/lib_element.hpp"
+#include "nihu/library/helmholtz_kernel.hpp"
+//#include "nihu/library/helmholtz_singular_integrals.hpp"
 //#include "helmholtz_kernel.hpp"
-#include "library/matsumoto_2010.hpp"
+#include "nihu/library/matsumoto_2010.hpp"
 
 #include<Eigen/IterativeLinearSolvers>
 

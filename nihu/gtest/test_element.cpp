@@ -2,7 +2,7 @@
 /// Gtest file of class Element
 
 #include <gtest/gtest.h>
-#include "library/lib_element.hpp"
+#include "nihu/library/lib_element.hpp"
 
 template <class ElemType>
 struct Stored;

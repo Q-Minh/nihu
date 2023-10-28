@@ -16,17 +16,17 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "core/integral_operator.hpp"
-#include "tmp/vector.hpp"
-#include "core/mesh.hpp"
-#include "core/function_space.hpp"
-#include "core/assembly.hpp"
-#include "core/weighted_residual.hpp"
+#include "nihu/core/integral_operator.hpp"
+#include "nihu/tmp/vector.hpp"
+#include "nihu/core/mesh.hpp"
+#include "nihu/core/function_space.hpp"
+#include "nihu/core/assembly.hpp"
+#include "nihu/core/weighted_residual.hpp"
 
-#include "library/unit_kernel.hpp"
-#include "library/laplace_kernel.hpp"
-#include "library/helmholtz_kernel.hpp"
-#include "library/lib_element.hpp"
+#include "nihu/library/unit_kernel.hpp"
+#include "nihu/library/laplace_kernel.hpp"
+#include "nihu/library/helmholtz_kernel.hpp"
+#include "nihu/library/lib_element.hpp"
 
 typedef tmp::vector<tria_1_elem, quad_1_elem> elem_type_vector_t;
 typedef mesh<elem_type_vector_t> mesh_t;

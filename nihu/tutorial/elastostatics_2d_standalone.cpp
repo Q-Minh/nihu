@@ -1,12 +1,12 @@
 #include <boost/math/constants/constants.hpp>
 
-#include "core/mesh.hpp"
-#include "library/elastostatics_kernel.hpp"
-#include "library/elastostatics_singular_integrals.hpp"
-#include "library/lib_element.hpp"
-#include "library/lib_mesh.hpp"
+#include "nihu/core/mesh.hpp"
+#include "nihu/library/elastostatics_kernel.hpp"
+#include "nihu/library/elastostatics_singular_integrals.hpp"
+#include "nihu/library/lib_element.hpp"
+#include "nihu/library/lib_mesh.hpp"
 
-#include "core/weighted_residual.hpp"
+#include "nihu/core/weighted_residual.hpp"
 
 typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> dMatrix;
 typedef Eigen::Matrix<double, Eigen::Dynamic, 1> dVector;

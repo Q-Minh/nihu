@@ -3,7 +3,7 @@
 
 #include <gtest/gtest.h>
 
-#include "library/lib_domain.hpp"
+#include "nihu/library/lib_domain.hpp"
 
 // testing line_domain
 static_assert(std::is_same<NiHu::line_domain::space_t,

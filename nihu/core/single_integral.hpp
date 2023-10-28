@@ -35,6 +35,8 @@
 #include "formalism.hpp"
 #include "jacobian_computer.hpp"
 
+#include <Eigen/Core>
+
 namespace NiHu
 {
 

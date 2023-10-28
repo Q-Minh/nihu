@@ -1,8 +1,8 @@
-#include "util/mex_matrix.hpp"
-#include "core/mesh.hpp"
-#include "library/lib_element.hpp"
-#include "library/laplace_kernel.hpp"
-#include "core/weighted_residual.hpp"
+#include "nihu/util/mex_matrix.hpp"
+#include "nihu/core/mesh.hpp"
+#include "nihu/library/lib_element.hpp"
+#include "nihu/library/laplace_kernel.hpp"
+#include "nihu/core/weighted_residual.hpp"
 
 typedef NiHu::mex::real_matrix<double> dMatrix;
 

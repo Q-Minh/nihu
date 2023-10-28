@@ -4,23 +4,23 @@
  * \ingroup app_stochastic
  */
 
-#include "library/covariance_kernel.hpp"
+#include "nihu/library/covariance_kernel.hpp"
 
-#include "core/field.hpp"
-#include "core/function_space.hpp"
-#include "fmm/chebyshev_cluster.hpp"
-#include "fmm/black_box_fmm.hpp"
-#include "fmm/cluster_tree.hpp"
-#include "fmm/divide.hpp"
-#include "fmm/elem_center_iterator.hpp"
-#include "fmm/fmm_assembly_times.hpp"
-#include "fmm/fmm_indexed.hpp"
-#include "fmm/fmm_integrated.hpp"
-#include "fmm/fmm_matrix.hpp"
-#include "fmm/fmm_operator_collection.hpp"
-#include "fmm/fmm_precompute.hpp"
-#include "library/lib_element.hpp"
-#include "util/mex_matrix.hpp"
+#include "nihu/core/field.hpp"
+#include "nihu/core/function_space.hpp"
+#include "nihu/fmm/chebyshev_cluster.hpp"
+#include "nihu/fmm/black_box_fmm.hpp"
+#include "nihu/fmm/cluster_tree.hpp"
+#include "nihu/fmm/divide.hpp"
+#include "nihu/fmm/elem_center_iterator.hpp"
+#include "nihu/fmm/fmm_assembly_times.hpp"
+#include "nihu/fmm/fmm_indexed.hpp"
+#include "nihu/fmm/fmm_integrated.hpp"
+#include "nihu/fmm/fmm_matrix.hpp"
+#include "nihu/fmm/fmm_operator_collection.hpp"
+#include "nihu/fmm/fmm_precompute.hpp"
+#include "nihu/library/lib_element.hpp"
+#include "nihu/util/mex_matrix.hpp"
 
 #include <boost/math/constants/constants.hpp>
 

@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "fmm/helmholtz_2d_wb_fmm.hpp"
+#include "nihu/fmm/helmholtz_2d_wb_fmm.hpp"
 
 TEST(helmholtz_2d_wb_expansion, single_level)
 {

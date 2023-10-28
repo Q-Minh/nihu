@@ -7,12 +7,12 @@
 
 #define NIHU_DEBUGGING 1
 
-#include "core/weighted_residual.hpp"
+#include "nihu/core/weighted_residual.hpp"
 #include "interface/read_off_mesh.hpp"
-#include "library/laplace_kernel.hpp"
-#include "library/laplace_singular_integrals.hpp"
-#include "library/laplace_nearly_singular_integrals.hpp"
-#include "library/lib_element.hpp"
+#include "nihu/library/laplace_kernel.hpp"
+#include "nihu/library/laplace_singular_integrals.hpp"
+#include "nihu/library/laplace_nearly_singular_integrals.hpp"
+#include "nihu/library/lib_element.hpp"
 
 typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> dMatrix;
 

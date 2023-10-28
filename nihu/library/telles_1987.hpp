@@ -7,7 +7,7 @@
 #ifndef NIHU_TELLES_1987_HPP_INCLUDED
 #define NIHU_TELLES_1987_HPP_INCLUDED
 
-#include "core/quadrature.hpp"
+#include "nihu/core/quadrature.hpp"
 
 #include <cmath>
 

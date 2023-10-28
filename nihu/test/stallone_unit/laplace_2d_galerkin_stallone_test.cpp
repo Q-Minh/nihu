@@ -16,10 +16,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "core/weighted_residual.hpp"
-#include "library/laplace_kernel.hpp"
-#include "library/laplace_nearly_singular_integrals.hpp"
-#include "library/laplace_singular_integrals.hpp"
+#include "nihu/core/weighted_residual.hpp"
+#include "nihu/library/laplace_kernel.hpp"
+#include "nihu/library/laplace_nearly_singular_integrals.hpp"
+#include "nihu/library/laplace_singular_integrals.hpp"
 
 typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> dMatrix;
 typedef Eigen::Matrix<unsigned, Eigen::Dynamic, Eigen::Dynamic> uMatrix;

@@ -17,10 +17,10 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <iostream>
-#include "core/weighted_residual.hpp"
-#include "library/lib_element.hpp"
-#include "library/elastostatics_kernel.hpp"
-#include "library/elastostatics_singular_integrals.hpp"
+#include "nihu/core/weighted_residual.hpp"
+#include "nihu/library/lib_element.hpp"
+#include "nihu/library/elastostatics_kernel.hpp"
+#include "nihu/library/elastostatics_singular_integrals.hpp"
 
 typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> dMatrix;
 typedef Eigen::Matrix<unsigned, Eigen::Dynamic, Eigen::Dynamic> uMatrix;

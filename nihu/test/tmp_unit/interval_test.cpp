@@ -16,8 +16,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "tmp/interval.hpp"
-#include "tmp/control.hpp"
+#include "nihu/tmp/interval.hpp"
+#include "nihu/tmp/control.hpp"
 #include <iostream>
 
 typedef tmp::vector<

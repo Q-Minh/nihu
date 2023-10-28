@@ -1,6 +1,6 @@
-#include "core/element.hpp"
-#include "library/lib_shape.hpp"
-#include "core/gaussian_quadrature.hpp"
+#include "nihu/core/element.hpp"
+#include "nihu/library/lib_shape.hpp"
+#include "nihu/core/gaussian_quadrature.hpp"
 
 #include <iostream>
 

@@ -1,7 +1,7 @@
 /// \file test_space.cpp
 /// GTest tester for class NiHu::space
 
-#include "core/space.hpp"
+#include "nihu/core/space.hpp"
 #include <gtest/gtest.h>
 
 // testing if space dimensions are defined correctly

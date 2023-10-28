@@ -1,9 +1,9 @@
-#include "fmm/cluster_tree.hpp"
-#include "fmm/elem_center_iterator.hpp"
-#include "fmm/empty_cluster.hpp"
-#include "fmm/divide.hpp"
+#include "nihu/fmm/cluster_tree.hpp"
+#include "nihu/fmm/elem_center_iterator.hpp"
+#include "nihu/fmm/empty_cluster.hpp"
+#include "nihu/fmm/divide.hpp"
 #include "interface/read_off_mesh.hpp"
-#include "library/lib_element.hpp"
+#include "nihu/library/lib_element.hpp"
 
 #include <iostream>
 

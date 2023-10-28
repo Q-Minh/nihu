@@ -9,19 +9,19 @@
  * eigenfrequencies. 
  */
 
-#include "core/field.hpp"
-#include "core/function_space.hpp"
-#include "fmm/divide.hpp"
-#include "fmm/elem_center_iterator.hpp"
-#include "fmm/fmm_integrated.hpp"
-#include "fmm/fmm_indexed.hpp"
-#include "fmm/fmm_matrix.hpp"
-#include "fmm/fmm_operator_collection.hpp"
-#include "fmm/fmm_precompute.hpp"
-#include "fmm/fmm_timer.h"
-#include "fmm/helmholtz_3d_hf_fmm.hpp"
-#include "library/lib_element.hpp"
-#include "util/mex_matrix.hpp"
+#include "nihu/core/field.hpp"
+#include "nihu/core/function_space.hpp"
+#include "nihu/fmm/divide.hpp"
+#include "nihu/fmm/elem_center_iterator.hpp"
+#include "nihu/fmm/fmm_integrated.hpp"
+#include "nihu/fmm/fmm_indexed.hpp"
+#include "nihu/fmm/fmm_matrix.hpp"
+#include "nihu/fmm/fmm_operator_collection.hpp"
+#include "nihu/fmm/fmm_precompute.hpp"
+#include "nihu/fmm/fmm_timer.h"
+#include "nihu/fmm/helmholtz_3d_hf_fmm.hpp"
+#include "nihu/library/lib_element.hpp"
+#include "nihu/util/mex_matrix.hpp"
 
 #include <boost/math/constants/constants.hpp>
 

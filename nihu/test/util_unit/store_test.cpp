@@ -18,7 +18,7 @@
 
 #include <iostream>
 #include <typeinfo>
-#include "util/store_pattern.hpp"
+#include "nihu/util/store_pattern.hpp"
 
 //! [cache]
 template <class T>

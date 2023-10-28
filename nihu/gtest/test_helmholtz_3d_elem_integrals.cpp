@@ -1,13 +1,13 @@
 #include <gtest/gtest.h>
 
-#include "library/helmholtz_kernel.hpp"
-#include "library/helmholtz_nearly_singular_integrals.hpp"
-#include "library/helmholtz_singular_integrals.hpp"
+#include "nihu/library/helmholtz_kernel.hpp"
+#include "nihu/library/helmholtz_nearly_singular_integrals.hpp"
+#include "nihu/library/helmholtz_singular_integrals.hpp"
 
-#include "library/lib_element.hpp"
-#include "core/field.hpp"
-#include "core/double_integral.hpp"
-#include "library/quad_1_gauss_field.hpp"
+#include "nihu/library/lib_element.hpp"
+#include "nihu/core/field.hpp"
+#include "nihu/core/double_integral.hpp"
+#include "nihu/library/quad_1_gauss_field.hpp"
 
 
 typedef Eigen::Matrix<std::complex<double>, Eigen::Dynamic, 1> cVector;

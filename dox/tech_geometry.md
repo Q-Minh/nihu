@@ -175,8 +175,8 @@ Example {#tech_geometry_shapeset_example}
 
 Usage of interpolation functions is demonstrated with the following example:
 ~~~~~
-#include "core/shapeset.hpp"
-#include "library/quad_2_shape_set.hpp"
+#include "nihu/core/shapeset.hpp"
+#include "nihu/library/quad_2_shape_set.hpp"
 
 int main(void)
 {

@@ -32,7 +32,7 @@
 #include "../core/global_definitions.hpp"
 #include "../core/gaussian_quadrature.hpp"
 #include "../util/math_functions.hpp"
-#include "library/normal_derivative_kernel.hpp"
+#include "nihu/library/normal_derivative_kernel.hpp"
 #include "distance_dependent_kernel.hpp"
 
 #include "laplace_kernel.hpp"

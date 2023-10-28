@@ -16,10 +16,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "core/weighted_residual.hpp"
-#include "util/mex_matrix.hpp"
-#include "library/helmholtz_kernel.hpp"
-#include "library/lib_element.hpp"
+#include "nihu/core/weighted_residual.hpp"
+#include "nihu/util/mex_matrix.hpp"
+#include "nihu/library/helmholtz_kernel.hpp"
+#include "nihu/library/lib_element.hpp"
 
 typedef NiHu::mex::real_matrix<double> dMatrix;
 typedef NiHu::mex::complex_matrix<double> cMatrix;

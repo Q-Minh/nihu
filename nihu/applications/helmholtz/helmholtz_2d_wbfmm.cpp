@@ -1,15 +1,15 @@
-#include "core/field.hpp"
-#include "core/function_space.hpp"
-#include "fmm/helmholtz_burton_miller_solver.hpp"
-#include "fmm/helmholtz_field_point.hpp"
-#include "fmm/helmholtz_2d_wb_fmm.hpp"
+#include "nihu/core/field.hpp"
+#include "nihu/core/function_space.hpp"
+#include "nihu/fmm/helmholtz_burton_miller_solver.hpp"
+#include "nihu/fmm/helmholtz_field_point.hpp"
+#include "nihu/fmm/helmholtz_2d_wb_fmm.hpp"
 #include "interface/read_off_mesh.hpp"
-#include "library/lib_element.hpp"
-#include "util/type2tag.hpp"
-#include "util/timer.h"
+#include "nihu/library/lib_element.hpp"
+#include "nihu/util/type2tag.hpp"
+#include "nihu/util/timer.h"
 
 #include <Eigen/IterativeLinearSolvers>
-#include "fmm/GMRES.h"
+#include "nihu/fmm/GMRES.h"
 
 #include <boost/program_options.hpp>
 

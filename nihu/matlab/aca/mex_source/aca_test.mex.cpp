@@ -1,8 +1,8 @@
 #include <complex>
 #include <Eigen/Core>
 #include <mex.h>
-#include "util/mex_matrix.hpp"
-#include "aca/aca.hpp"
+#include "nihu/util/mex_matrix.hpp"
+#include "nihu/aca/aca.hpp"
 
 class HelmholtzMatrix
 {

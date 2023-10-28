@@ -1,6 +1,6 @@
 #include <boost/math/constants/constants.hpp>
 
-#include "cqm/cqm.hpp"
+#include "nihu/cqm/cqm.hpp"
 
 #include <iostream>
 #include <iterator>

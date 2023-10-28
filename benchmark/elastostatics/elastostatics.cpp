@@ -8,12 +8,12 @@
 #include <Eigen/IterativeLinearSolvers>
 
 
-#include "library/lib_element.hpp"
-#include "library/elastostatics"
+#include "nihu/library/lib_element.hpp"
+#include "nihu/library/elastostatics"
 
-#include "core/function_space.hpp"
-#include "core/integral_operator.hpp"
-#include "core/weighted_residual.hpp"
+#include "nihu/core/function_space.hpp"
+#include "nihu/core/integral_operator.hpp"
+#include "nihu/core/weighted_residual.hpp"
 
 #include "black_box_fmm.hpp"
 #include "cluster_tree.hpp"

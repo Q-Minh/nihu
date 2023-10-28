@@ -5,15 +5,15 @@
 #ifndef X2P_INTEGRAL_HPP_INCLUDED
 #define X2P_INTEGRAL_HPP_INCLUDED
 
-#include "core/gaussian_quadrature.hpp"
-#include "core/field.hpp"
+#include "nihu/core/gaussian_quadrature.hpp"
+#include "nihu/core/field.hpp"
 #include "fmm_operator.hpp"
 
 #include "integral_operator_expression.hpp"
 #include "kron_identity.hpp"
-#include "core/jacobian_computer.hpp"
-#include "util/matrix_traits.hpp"
-#include "util/type2tag.hpp"
+#include "nihu/core/jacobian_computer.hpp"
+#include "nihu/util/matrix_traits.hpp"
+#include "nihu/util/type2tag.hpp"
 
 #include <type_traits> // std::enable_if
 

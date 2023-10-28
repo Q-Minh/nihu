@@ -1,12 +1,12 @@
 #include <gtest/gtest.h>
 
-#include "core/field.hpp"
-#include "core/function_space.hpp"
-#include "core/mesh.hpp"
-#include "fmm/elem_center_iterator.hpp"
-#include "library/lib_element.hpp"
-#include "library/lib_mesh.hpp"
-#include "util/casted_iterator.hpp"
+#include "nihu/core/field.hpp"
+#include "nihu/core/function_space.hpp"
+#include "nihu/core/mesh.hpp"
+#include "nihu/fmm/elem_center_iterator.hpp"
+#include "nihu/library/lib_element.hpp"
+#include "nihu/library/lib_mesh.hpp"
+#include "nihu/util/casted_iterator.hpp"
 
 template <class Container, class It>
 void iterator_test(Container const& elements, It begin, It end)

@@ -16,10 +16,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "core/blind_singular_quadrature.hpp"
-#include "core/singular_accelerator.hpp"
-#include "library/laplace_kernel.hpp"
-#include "library/lib_element.hpp"
+#include "nihu/core/blind_singular_quadrature.hpp"
+#include "nihu/core/singular_accelerator.hpp"
+#include "nihu/library/laplace_kernel.hpp"
+#include "nihu/library/lib_element.hpp"
 
 #include <iostream>
 
