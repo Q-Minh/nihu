@@ -30,7 +30,11 @@ endif()
 ### Library targets
 ###
 
-add_library(nihu STATIC)
+if (NIHU_BUILD_SHARED_LIBRARY)
+	add_library(nihu SHARED)
+else()
+	add_library(nihu STATIC)
+endif()
 add_library(nihu::nihu ALIAS nihu)
 
 set(_nihu_source_file_patterns "")

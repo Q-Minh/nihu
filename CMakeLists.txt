@@ -14,6 +14,7 @@ project(NiHu)
 set(NIHU_VERSION_MAJOR 2)
 set(NIHU_VERSION_MINOR 1)
 
+option(NIHU_BUILD_SHARED_LIBRARY "Build NiHu as shared library" OFF)
 option(NIHU_ENABLE_MATLAB "Enable MATLAB" OFF)
 option(NIHU_ENABLE_TESTING "Include unit tests" OFF)
 option(NIHU_ENABLE_FMM "Enable fast multipole method" ON)
