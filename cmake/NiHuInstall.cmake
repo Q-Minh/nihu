@@ -15,10 +15,12 @@ list(APPEND _nihu_install_folders
 	"aca" 
 	"core" 
 	"cqm" 
-	"fmm" 
 	"library" 
 	"tmp" 
 	"util")
+if (NIHU_ENABLE_FMM)
+	list(APPEND _nihu_install_folders "fmm")
+endif()
 
 foreach(_nihu_install_folder ${_nihu_install_folders})
 	install(
@@ -27,24 +29,8 @@ foreach(_nihu_install_folder ${_nihu_install_folders})
 		FILES_MATCHING 
 			PATTERN "*.h"
 			PATTERN "*.hpp"
-	)	
+	)
 endforeach()
-
-# install(
-# 	DIRECTORY ${CMAKE_SOURCE_DIR}/nihu
-# 	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-# 	PATTERN "applications" EXCLUDE
-# 	PATTERN "demo" EXCLUDE
-# 	PATTERN "gtest" EXCLUDE
-# 	PATTERN "interface" EXCLUDE
-# 	PATTERN "matlab" EXCLUDE
-# 	PATTERN "matlab_util" EXCLUDE
-# 	PATTERN "test" EXCLUDE
-# 	PATTERN "tutorial" EXCLUDE
-# 	FILES_MATCHING 
-# 		PATTERN "*.h"
-# 		PATTERN "*.hpp"
-# )
 
 install(
 	EXPORT nihuTargets

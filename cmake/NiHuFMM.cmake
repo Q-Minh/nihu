@@ -8,7 +8,7 @@ message(STATUS "Configuring FMM module ...")
 
 set(NIHU_FMM_COMPILE_DEFINITIONS "")
 # set parallel
-if(${NIHU_FMM_DISABLE_PARALLEL})
+if(NIHU_FMM_DISABLE_PARALLEL)
 	list(APPEND NIHU_FMM_COMPILE_DEFINITIONS "-DNIHU_FMM_PARALLEL")
 endif() 
 

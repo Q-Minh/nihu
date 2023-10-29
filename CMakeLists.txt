@@ -1,9 +1,18 @@
-cmake_minimum_required (VERSION 3.19 FATAL_ERROR)
+get_directory_property(NIHU_PARENT_DIR PARENT_DIRECTORY)
+if (NOT NIHU_PARENT_DIR)
+    set(NIHU_TOPLEVEL_PROJECT ON)
+else()
+    set(NIHU_TOPLEVEL_PROJECT OFF)
+endif()
+
+if (NIHU_TOPLEVEL_PROJECT)
+    cmake_minimum_required (VERSION 3.19 FATAL_ERROR)
+endif()
 
 project(NiHu)
 
 set(NIHU_VERSION_MAJOR 2)
-set(NIHU_VERSION_MINOR 0)
+set(NIHU_VERSION_MINOR 1)
 
 option(NIHU_ENABLE_MATLAB "Enable MATLAB" OFF)
 option(NIHU_ENABLE_TESTING "Include unit tests" OFF)

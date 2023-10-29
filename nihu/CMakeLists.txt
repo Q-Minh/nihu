@@ -7,12 +7,12 @@
 # NOTE: There is a problem of Win10 + Matlab R2018a / symbolic math toolbox
 
 ### MATLAB section
-if (${NIHU_ENABLE_MATLAB})
+if (NIHU_ENABLE_MATLAB)
 	include(${CMAKE_SOURCE_DIR}/cmake/NiHuMatlab.cmake)
 endif()
 
 ### GTest section
-if(${NIHU_ENABLE_TESTING})
+if (NIHU_ENABLE_TESTING)
 	# Check for gtest module
 	include(${CMAKE_SOURCE_DIR}/cmake/NiHuGTest.cmake)
 endif()
@@ -22,9 +22,9 @@ endif()
 ###
 
 ### FMM module configuration
-# if(${NIHU_DISABLE_FMM})
+if (NIHU_ENABLE_FMM)
 	include(${CMAKE_SOURCE_DIR}/cmake/NiHuFMM.cmake)
-# endif()
+endif()
 
 ###
 ### Library targets
@@ -55,7 +55,7 @@ list(APPEND _nihu_header_file_patterns
 	"util/*.hpp"
 	)
 
-if (${NIHU_ENABLE_FMM})
+if (NIHU_ENABLE_FMM)
 	list(APPEND _nihu_source_file_patterns "fmm/*.cpp")
 	list(APPEND _nihu_header_file_patterns "fmm/*.h" "fmm/*.hpp")
 endif()
@@ -113,23 +113,23 @@ PUBLIC
 	OpenMP::OpenMP_CXX)
 
 # Tutorials directory
-if(${NIHU_ENABLE_TUTORIALS})
+if (NIHU_ENABLE_TUTORIALS)
 	add_subdirectory(tutorial)
 endif()
 
 # Applications/examples
-if(${NIHU_ENABLE_APPLICATIONS})
+if (NIHU_ENABLE_APPLICATIONS)
 	add_subdirectory(applications/helmholtz)
 	add_subdirectory(applications/laplace)
 	add_subdirectory(applications/stochastic)
 endif()
 
 ### Test section
-if(${NIHU_ENABLE_TESTING})
+if (NIHU_ENABLE_TESTING)
 	include(${CMAKE_SOURCE_DIR}/cmake/NiHuTesting.cmake)
 endif()
 
 ### Documentation section
-if(${NIHU_ENABLE_DOC})
+if (NIHU_ENABLE_DOC)
 	include(${CMAKE_SOURCE_DIR}/cmake/NiHuDoc.cmake)
 endif()
