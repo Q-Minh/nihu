@@ -8,13 +8,13 @@
 
 ### MATLAB section
 if (NIHU_ENABLE_MATLAB)
-	include(${CMAKE_SOURCE_DIR}/cmake/NiHuMatlab.cmake)
+	include(${CMAKE_CURRENT_LIST_DIR}/../cmake/NiHuMatlab.cmake)
 endif()
 
 ### GTest section
 if (NIHU_ENABLE_TESTING)
 	# Check for gtest module
-	include(${CMAKE_SOURCE_DIR}/cmake/NiHuGTest.cmake)
+	include(${CMAKE_CURRENT_LIST_DIR}/../cmake/NiHuGTest.cmake)
 endif()
 	
 ###
@@ -23,7 +23,7 @@ endif()
 
 ### FMM module configuration
 if (NIHU_ENABLE_FMM)
-	include(${CMAKE_SOURCE_DIR}/cmake/NiHuFMM.cmake)
+	include(${CMAKE_CURRENT_LIST_DIR}/../cmake/NiHuFMM.cmake)
 endif()
 
 ###
@@ -126,10 +126,10 @@ endif()
 
 ### Test section
 if (NIHU_ENABLE_TESTING)
-	include(${CMAKE_SOURCE_DIR}/cmake/NiHuTesting.cmake)
+	include(${CMAKE_CURRENT_LIST_DIR}/../cmake/NiHuTesting.cmake)
 endif()
 
 ### Documentation section
 if (NIHU_ENABLE_DOC)
-	include(${CMAKE_SOURCE_DIR}/cmake/NiHuDoc.cmake)
+	include(${CMAKE_CURRENT_LIST_DIR}/../cmake/NiHuDoc.cmake)
 endif()

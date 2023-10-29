@@ -24,7 +24,7 @@ endif()
 
 foreach(_nihu_install_folder ${_nihu_install_folders})
 	install(
-		DIRECTORY ${CMAKE_SOURCE_DIR}/nihu/${_nihu_install_folder}
+		DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/../nihu/${_nihu_install_folder}
 		DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/nihu
 		FILES_MATCHING 
 			PATTERN "*.h"
@@ -47,7 +47,7 @@ write_basic_package_version_file(
     )
 
 configure_package_config_file(
-	${CMAKE_SOURCE_DIR}/cmake/nihuConfig.cmake.in
+	${CMAKE_CURRENT_LIST_DIR}/nihuConfig.cmake.in
     ${CMAKE_CURRENT_BINARY_DIR}/nihuConfig.cmake
 INSTALL_DESTINATION 
 	${CMAKE_INSTALL_LIBDIR}/cmake/nihu

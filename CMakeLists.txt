@@ -42,4 +42,4 @@ endif()
 
 add_subdirectory(nihu)
 
-include(${CMAKE_SOURCE_DIR}/cmake/NiHuInstall.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/cmake/NiHuInstall.cmake)
