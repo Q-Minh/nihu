@@ -1,43 +1,76 @@
-# message(STATUS "Configuring installation steps ...")
+include(GNUInstallDirs)
 
-# ### Setup directories for installation
-# if(NOT DEFINED NIHU_INSTALL_DIR)
-# 	set(NIHU_INSTALL_DIR ${CMAKE_BINARY_DIR})
-# endif(NOT DEFINED NIHU_INSTALL_DIR)
+install(
+	TARGETS nihu
+	EXPORT nihuTargets 
+	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+	RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+	PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+	INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+	)
 
-# set(CMAKE_INSTALL_PREFIX ${NIHU_INSTALL_DIR})
+set(_nihu_install_folders)
+list(APPEND _nihu_install_folders 
+	"aca" 
+	"core" 
+	"cqm" 
+	"fmm" 
+	"library" 
+	"tmp" 
+	"util")
 
-# # Select all hpp files for installation
-# set(NIHU_HPP_DIRECTORIES 
-# 	"core" ; "interface" ; "library" ; "tmp" ; "util" ; "aca")
-# if (NOT DEFINED NIHU_DISABLE_FMM)
-# 	set(NIHU_HPP_DIRECTORIES "${NIHU_HPP_DIRECTORIES}" ; "fmm")
-# endif()
+foreach(_nihu_install_folder ${_nihu_install_folders})
+	install(
+		DIRECTORY ${CMAKE_SOURCE_DIR}/nihu/${_nihu_install_folder}
+		DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/nihu
+		FILES_MATCHING 
+			PATTERN "*.h"
+			PATTERN "*.hpp"
+	)	
+endforeach()
 
-# foreach(HPP_DIRECTORY ${NIHU_HPP_DIRECTORIES})
-# 	install(DIRECTORY ${HPP_DIRECTORY} DESTINATION include FILES_MATCHING PATTERN "*.hpp")
-# endforeach(HPP_DIRECTORY)
+# install(
+# 	DIRECTORY ${CMAKE_SOURCE_DIR}/nihu
+# 	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+# 	PATTERN "applications" EXCLUDE
+# 	PATTERN "demo" EXCLUDE
+# 	PATTERN "gtest" EXCLUDE
+# 	PATTERN "interface" EXCLUDE
+# 	PATTERN "matlab" EXCLUDE
+# 	PATTERN "matlab_util" EXCLUDE
+# 	PATTERN "test" EXCLUDE
+# 	PATTERN "tutorial" EXCLUDE
+# 	FILES_MATCHING 
+# 		PATTERN "*.h"
+# 		PATTERN "*.hpp"
+# )
 
-# # Matlab installation section
-# set(NIHU_MATLAB_DIRECTORIES
-# 	"analytic" ; "compatibility" ; "meshing")
+install(
+	EXPORT nihuTargets
+	FILE nihuTargets.cmake
+	NAMESPACE nihu::
+	DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/nihu
+	)
+	
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+    ${CMAKE_CURRENT_BINARY_DIR}/nihuConfigVersion.cmake
+    VERSION "${NIHU_VERSION_MAJOR}.${NIHU_VERSION_MINOR}"
+    COMPATIBILITY AnyNewerVersion
+    )
 
-# foreach(MATLAB_DIRECTORY ${NIHU_MATLAB_DIRECTORIES})
-# 	install(DIRECTORY "matlab/${MATLAB_DIRECTORY}" DESTINATION matlab FILES_MATCHING PATTERN "*.m")
-# endforeach(MATLAB_DIRECTORY)
+configure_package_config_file(
+	${CMAKE_SOURCE_DIR}/cmake/nihuConfig.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/nihuConfig.cmake
+INSTALL_DESTINATION 
+	${CMAKE_INSTALL_LIBDIR}/cmake/nihu
+)
 
-# # Installation rule for matlab demos
-# install(DIRECTORY "matlab/nihudemos" DESTINATION matlab)
-
-# # Create installation rule for matlab install script
-# install(FILES "matlab/install.m" DESTINATION matlab)
-
-# # documentation installation
-# if(NOT DEFINED NIHU_DISABLE_DOC)
-# 	if(NOT (${NIHU_INSTALL_PATH} MATCHES ${CMAKE_BINARY_DIR}))
-# 		message(STATUS "\tDocumentation will be installed into ${CMAKE_INSTALL_PREFIX}/doc")
-# 		install(DIRECTORY ${NIHU_HTML_DOC_DIR} DESTINATION doc)
-# 	endif()
-# endif()
-
-# message(STATUS "\tInstallation steps configured successfully")
+install(
+FILES 
+	"${CMAKE_CURRENT_BINARY_DIR}/nihuConfig.cmake"
+	"${CMAKE_CURRENT_BINARY_DIR}/nihuConfigVersion.cmake"
+DESTINATION 
+	${CMAKE_INSTALL_LIBDIR}/cmake/nihu
+	)

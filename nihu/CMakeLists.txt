@@ -78,9 +78,6 @@ file(
 target_sources(nihu 
 PRIVATE
 	${_nihu_sources}
-)
-target_sources(nihu 
-PUBLIC 
 	${_nihu_headers}
 )
 
@@ -102,7 +99,12 @@ PROPERTIES
 
 target_compile_definitions(nihu PUBLIC cxx_std_17)
 target_compile_options(nihu PRIVATE /bigobj)
-target_include_directories(nihu PUBLIC "${CMAKE_SOURCE_DIR}")
+include(GNUInstallDirs)
+target_include_directories(nihu 
+PUBLIC 
+	$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>
+)
 target_link_libraries(nihu 
 PUBLIC 
 	Eigen3::Eigen 
@@ -131,6 +133,3 @@ endif()
 if(${NIHU_ENABLE_DOC})
 	include(${CMAKE_SOURCE_DIR}/cmake/NiHuDoc.cmake)
 endif()
-
-### Installation section
-# include(${CMAKE_SOURCE_DIR}/cmake/NiHuInstall.cmake)

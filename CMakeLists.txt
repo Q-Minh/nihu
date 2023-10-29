@@ -16,7 +16,7 @@ option(NIHU_ENABLE_DOC "Enable NiHu documentation" OFF)
 include(cmake/NiHuSystem.cmake)
 
 if (NOT TARGET Boost::boost)
-    find_package(Boost 1.67...1.83 REQUIRED)
+    find_package(Boost REQUIRED)
 endif()
 
 if (NOT TARGET Eigen3::Eigen)
@@ -32,3 +32,5 @@ if (NOT TARGET OpenMP::OpenMP_CXX)
 endif()
 
 add_subdirectory(nihu)
+
+include(${CMAKE_SOURCE_DIR}/cmake/NiHuInstall.cmake)
